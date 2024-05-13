@@ -23,6 +23,7 @@
     "subscription_failed": { "type": "string", "default": "Payment failed on {{date, date}}" },
     "subscription_inactive": { "type": "string", "default": "Inactive" },
     "subscription_will_be_cancelled": { "type": "string", "default": "Ends on {{date, date}}" },
+    "subscription_will_be_active": { "type": "string", "default": "Starts on {{date, date}}" },
     "transaction_summary": { "type": "string", "default": "{{most_expensive_item.name}}" },
     "twice_a_month": { "type": "string", "default": "Twice a month" },
     "update": { "type": "string", "default": "Update" },
@@ -33,11 +34,12 @@
     "spinner": {
       "additionalProperties": false,
       "properties": {
+        "refresh": { "type": "string", "default": "Refresh" },
         "loading_busy": { "type": "string", "default": "Loading" },
         "loading_empty": { "type": "string", "default": "No data" },
-        "loading_error": { "type": "string", "default": "Failed to load" }
+        "loading_error": { "type": "string", "default": "Unknown error" }
       },
-      "required": ["loading_busy", "loading_empty", "loading_error"]
+      "required": ["refresh", "loading_busy", "loading_empty", "loading_error"]
     }
   },
   "required": [
@@ -53,6 +55,7 @@
     "subscription_failed",
     "subscription_inactive",
     "subscription_will_be_cancelled",
+    "subscription_will_be_active",
     "transaction_summary",
     "twice_a_month",
     "update",

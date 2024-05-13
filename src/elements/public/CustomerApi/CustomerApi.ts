@@ -11,6 +11,7 @@ import { InferrableMixin } from '../../../mixins/inferrable';
  *
  * @fires CustomerApi#signout - Instance of `CustomerApi.SignOutEvent`. Dispatched on an element when session expires or code 401 is returned.
  * @fires CustomerApi#signin - Instance of `CustomerApi.SignInEvent`. Dispatched on an element once authenticated.
+ * @fires CustomerApi#signup - Instance of `CustomerApi.SignUpEvent`. Dispatched on an element once a customer is created (since v1.24.0).
  *
  * @element foxy-customer-api
  * @since 1.4.0
@@ -19,6 +20,8 @@ export class CustomerApi extends ConfigurableMixin(InferrableMixin(LitElement)) 
   static readonly SignOutEvent = class extends CustomEvent<void> {};
 
   static readonly SignInEvent = class extends CustomEvent<void> {};
+
+  static readonly SignUpEvent = class extends CustomEvent<void> {};
 
   static get properties(): PropertyDeclarations {
     return {
@@ -171,12 +174,11 @@ export class CustomerApi extends ConfigurableMixin(InferrableMixin(LitElement)) 
     return new Response(JSON.stringify(body), { status });
   }
 
-  private async __handleVirtualAuthSessionGet(request: Request) {
+  private async __handleVirtualAuthSessionAny(request: Request) {
     return new Response(
       JSON.stringify({
         _links: { self: { href: request.url } },
-        type: 'password',
-        credential: { email: '', password: '' },
+        message: 'POST to this endpoint to sign in',
       })
     );
   }
@@ -197,8 +199,68 @@ export class CustomerApi extends ConfigurableMixin(InferrableMixin(LitElement)) 
     }
   }
 
-  private async __handleVirtualAuthRecoverGet(request: Request) {
-    return new Response(JSON.stringify({ _links: { self: { href: request.url } }, email: '' }));
+  private async __handleVirtualAuthRecoverAny(request: Request) {
+    return new Response(
+      JSON.stringify({
+        _links: { self: { href: request.url } },
+        message: 'POST to this endpoint to request a password reset',
+      })
+    );
+  }
+
+  private async __handleVirtualAuthSignUpPost(request: Request) {
+    const data = (await request.clone().json()) as {
+      verification: { type: 'hcaptcha'; token: string };
+      first_name?: string;
+      last_name?: string;
+      password?: string;
+      email: string;
+    };
+
+    try {
+      await this.api.signUp(data);
+    } catch (err) {
+      if (!(err instanceof API.AuthError)) throw err;
+
+      let message: string;
+      let status: number;
+
+      if (err.code === 'UNAUTHORIZED') {
+        message = 'Customer registration is disabled for this store.';
+        status = 401;
+      } else if (err.code === 'UNAVAILABLE') {
+        message = 'This email address is already in use by an existing customer of this store.';
+        status = 403;
+      } else if (err.code === 'INVALID_FORM') {
+        message = 'Client verification failed.';
+        status = 400;
+      } else {
+        throw err;
+      }
+
+      const body = JSON.stringify({ total: 1, _embedded: { 'fx:errors': [{ message }] } });
+      return new Response(body, { status });
+    }
+
+    if (data.password) await this.api.signIn(data as Required<typeof data>);
+    this.requestUpdate();
+    this.dispatchEvent(new CustomerApi.SignUpEvent('signup'));
+
+    return new Response(
+      JSON.stringify({
+        _links: { self: { href: request.url } },
+        message: 'Account created',
+      })
+    );
+  }
+
+  private async __handleVirtualAuthSignUpAny(request: Request) {
+    return new Response(
+      JSON.stringify({
+        _links: { self: { href: request.url } },
+        message: 'POST to this endpoint to create an account',
+      })
+    );
   }
 
   private async __handleRequest(request: Request) {
@@ -206,15 +268,20 @@ export class CustomerApi extends ConfigurableMixin(InferrableMixin(LitElement)) 
     const method = request.method;
 
     try {
-      if (url === 'foxy://customer-api/session') {
+      if (url.startsWith('foxy://customer-api/session')) {
         if (method === 'DELETE') return this.__handleVirtualAuthSessionDelete();
         if (method === 'POST') return this.__handleVirtualAuthSessionPost(request);
-        if (method === 'GET') return this.__handleVirtualAuthSessionGet(request);
+        return this.__handleVirtualAuthSessionAny(request);
       }
 
-      if (url === 'foxy://customer-api/recover') {
+      if (url.startsWith('foxy://customer-api/recover')) {
         if (method === 'POST') return this.__handleVirtualAuthRecoverPost(request);
-        if (method === 'GET') return this.__handleVirtualAuthRecoverGet(request);
+        return this.__handleVirtualAuthRecoverAny(request);
+      }
+
+      if (url.startsWith('foxy://customer-api/signup')) {
+        if (method === 'POST') return this.__handleVirtualAuthSignUpPost(request);
+        return this.__handleVirtualAuthSignUpAny(request);
       }
 
       const response = await this.api.fetch(request);

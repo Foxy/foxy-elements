@@ -4,6 +4,7 @@ import { translateWeekday } from '../../../utils/translate-weekday';
 import { MonthdayPicker } from '../MonthdayPicker/MonthdayPicker';
 import { WeekdayPickerChangeEvent } from './WeekdayPickerChangeEvent';
 
+/** @deprecated – use internal controls instead */
 export class WeekdayPicker extends MonthdayPicker {
   protected static readonly _allDays = new Array(7).fill(0).map((_, i) => i);
 

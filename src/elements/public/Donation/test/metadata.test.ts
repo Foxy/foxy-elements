@@ -12,7 +12,7 @@ const samples = {
 };
 
 async function expectImage(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const form = getRefs<Refs>(element).form!;
   const field = form.elements.namedItem('image') as HTMLInputElement;
@@ -22,7 +22,7 @@ async function expectImage(element: Donation) {
 }
 
 async function expectNoImage(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const form = getRefs<Refs>(element).form!;
   const field = form.elements.namedItem('image');
@@ -32,7 +32,7 @@ async function expectNoImage(element: Donation) {
 }
 
 async function expectCode(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const form = getRefs<Refs>(element).form!;
   const field = form.elements.namedItem('code') as HTMLInputElement;
@@ -42,7 +42,7 @@ async function expectCode(element: Donation) {
 }
 
 async function expectNoCode(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const form = getRefs<Refs>(element).form!;
   const field = form.elements.namedItem('code');
@@ -52,7 +52,7 @@ async function expectNoCode(element: Donation) {
 }
 
 async function expectUrl(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const form = getRefs<Refs>(element).form!;
   const field = form.elements.namedItem('url') as HTMLInputElement;
@@ -62,7 +62,7 @@ async function expectUrl(element: Donation) {
 }
 
 async function expectNoUrl(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const form = getRefs<Refs>(element).form!;
   const field = form.elements.namedItem('url');

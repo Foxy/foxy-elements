@@ -345,7 +345,7 @@ describe('DiscountBuilder', () => {
 
     priceControl.checked = true;
     priceControl.dispatchEvent(new Event('change'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.property(
       'value',
@@ -354,7 +354,7 @@ describe('DiscountBuilder', () => {
 
     percentageControl.checked = true;
     percentageControl.dispatchEvent(new Event('change'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.property(
       'value',
@@ -363,7 +363,7 @@ describe('DiscountBuilder', () => {
 
     quantityControl.checked = true;
     quantityControl.dispatchEvent(new Event('change'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.property(
       'value',
@@ -372,7 +372,7 @@ describe('DiscountBuilder', () => {
 
     amountControl.checked = true;
     amountControl.dispatchEvent(new Event('change'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.property(
       'value',
@@ -401,15 +401,15 @@ describe('DiscountBuilder', () => {
 
     fromInput.value = '7';
     fromInput.dispatchEvent(new Event('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     reduceInput.checked = true;
     reduceInput.dispatchEvent(new Event('change'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     adjustmentInput.value = '9';
     adjustmentInput.dispatchEvent(new Event('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.property(
       'value',
@@ -434,15 +434,15 @@ describe('DiscountBuilder', () => {
 
     fromInput.value = '1';
     fromInput.dispatchEvent(new Event('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     reduceInput.checked = true;
     reduceInput.dispatchEvent(new Event('change'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     adjustmentInput.value = '2';
     adjustmentInput.dispatchEvent(new Event('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.property(
       'value',
@@ -462,7 +462,7 @@ describe('DiscountBuilder', () => {
     expect(tiers).to.have.length(3); // 2 tiers + 1 placeholder
 
     tiers[0].querySelector<HTMLElement>('button[aria-label="delete"]')?.click();
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.property(
       'value',

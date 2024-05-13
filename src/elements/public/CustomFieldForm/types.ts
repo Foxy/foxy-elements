@@ -1,10 +1,9 @@
-import { CustomFieldForm } from './CustomFieldForm';
-import { Rels } from '@foxy.io/sdk/backend';
-import { Renderer } from '../../../mixins/configurable';
-import { Resource } from '@foxy.io/sdk/core';
+import type { CustomFieldForm } from './CustomFieldForm';
+import type { Renderer } from '../../../mixins/configurable';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 export type Data = Resource<Rels.CustomField>;
-export type TextFieldParams = { field: keyof Data };
 export type Templates = {
   'name:before'?: Renderer<CustomFieldForm>;
   'name:after'?: Renderer<CustomFieldForm>;

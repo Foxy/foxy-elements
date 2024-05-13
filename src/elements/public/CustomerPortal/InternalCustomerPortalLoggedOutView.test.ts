@@ -11,6 +11,12 @@ import { getByKey } from '../../../testgen/getByKey';
 import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { CustomerForm } from '../CustomerForm';
+import { getTestData } from '../../../testgen/getTestData';
+import { Resource } from '@foxy.io/sdk/core';
+import { Rels } from '@foxy.io/sdk/customer';
+import { createRouter } from '../../../server';
+import { FetchEvent } from '../NucleonElement/FetchEvent';
 
 describe('InternalCustomerPortalLoggedOutView', () => {
   it('renders sign-in page by default', () => {
@@ -419,6 +425,489 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
         button.click();
         expect(element).to.have.property('page', 'access-recovery');
+      });
+    });
+  });
+
+  describe('sign-up', () => {
+    it('renders "sign-up:before" slot when visible', async () => {
+      const layout = html`<foxy-internal-customer-portal-logged-out-view
+        page="sign-up"
+      ></foxy-internal-customer-portal-logged-out-view>`;
+      const element = await fixture<InternalCustomerPortalLoggedOutView>(layout);
+      const slot = await getByName<HTMLSlotElement>(element, 'sign-up:before');
+
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "sign-up:before" slot with template "sign-up:before" if available', async () => {
+      const name = 'sign-up:before';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+        <foxy-internal-customer-portal-logged-out-view page="sign-up">
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-internal-customer-portal-logged-out-view>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "sign-up:after" slot when visible', async () => {
+      const layout = html`<foxy-internal-customer-portal-logged-out-view
+        page="sign-up"
+      ></foxy-internal-customer-portal-logged-out-view>`;
+      const element = await fixture<InternalCustomerPortalLoggedOutView>(layout);
+      const slot = await getByName<HTMLSlotElement>(element, 'sign-up:after');
+
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "sign-up:after" slot with template "sign-up:after" if available', async () => {
+      const name = 'sign-up:after';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+        <foxy-internal-customer-portal-logged-out-view page="sign-up">
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-internal-customer-portal-logged-out-view>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('is hidden by default', async () => {
+      const layout = html`<foxy-internal-customer-portal-logged-out-view></foxy-internal-customer-portal-logged-out-view>`;
+      const element = await fixture<InternalCustomerPortalLoggedOutView>(layout);
+      expect(await getByTestId(element, 'sign-up')).to.not.exist;
+    });
+
+    it('is hidden when element is hidden', async () => {
+      const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+        <foxy-internal-customer-portal-logged-out-view page="sign-up" hidden>
+        </foxy-internal-customer-portal-logged-out-view>
+      `);
+
+      expect(await getByTestId(element, 'sign-up')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols includes sign-up', async () => {
+      const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+        <foxy-internal-customer-portal-logged-out-view hiddencontrols="sign-up" page="sign-up">
+        </foxy-internal-customer-portal-logged-out-view>
+      `);
+
+      expect(await getByTestId(element, 'sign-up')).to.not.exist;
+    });
+
+    describe('header', () => {
+      it('renders "sign-up:header:before" slot when visible', async () => {
+        const layout = html`<foxy-internal-customer-portal-logged-out-view
+          page="sign-up"
+        ></foxy-internal-customer-portal-logged-out-view>`;
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(layout);
+        const slot = await getByName<HTMLSlotElement>(element, 'sign-up:header:before');
+
+        expect(slot).to.have.property('localName', 'slot');
+      });
+
+      it('replaces "sign-up:header:before" slot with template "sign-up:header:before" if available', async () => {
+        const name = 'sign-up:header:before';
+        const value = `<p>Value of the "${name}" template.</p>`;
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view page="sign-up">
+            <template slot=${name}>${unsafeHTML(value)}</template>
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        const slot = await getByName<HTMLSlotElement>(element, name);
+        const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+        expect(slot).to.not.exist;
+        expect(sandbox).to.contain.html(value);
+      });
+
+      it('renders "sign-up:header:after" slot when visible', async () => {
+        const layout = html`<foxy-internal-customer-portal-logged-out-view
+          page="sign-up"
+        ></foxy-internal-customer-portal-logged-out-view>`;
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(layout);
+        const slot = await getByName<HTMLSlotElement>(element, 'sign-up:header:after');
+
+        expect(slot).to.have.property('localName', 'slot');
+      });
+
+      it('replaces "sign-up:header:after" slot with template "sign-up:header:after" if available', async () => {
+        const name = 'sign-up:header:after';
+        const value = `<p>Value of the "${name}" template.</p>`;
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view page="sign-up">
+            <template slot=${name}>${unsafeHTML(value)}</template>
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        const slot = await getByName<HTMLSlotElement>(element, name);
+        const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+        expect(slot).to.not.exist;
+        expect(sandbox).to.contain.html(value);
+      });
+
+      it('is hidden by default', async () => {
+        const layout = html`<foxy-internal-customer-portal-logged-out-view></foxy-internal-customer-portal-logged-out-view>`;
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(layout);
+        expect(await getByTestId(element, 'sign-up:header')).to.not.exist;
+      });
+
+      it('is hidden when element is hidden', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view page="sign-up" hidden>
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        expect(await getByTestId(element, 'sign-up:header')).to.not.exist;
+      });
+
+      it('is hidden when hiddencontrols includes sign-up:header', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view
+            hiddencontrols="sign-up:header"
+            page="sign-up"
+          >
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        expect(await getByTestId(element, 'sign-up:header')).to.not.exist;
+      });
+
+      it('renders foxy-i18n title with key "sign_up"', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view
+            page="sign-up"
+            lang="es"
+            ns="customer-portal"
+          >
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        const header = await getByTestId(element, 'sign-up:header');
+        const title = await getByKey(header!, 'sign_up');
+
+        expect(title).to.exist;
+        expect(title).to.have.attribute('lang', 'es');
+        expect(title).to.have.attribute('ns', 'customer-portal sign-up-form');
+      });
+
+      it('renders foxy-i18n hint with key "sign_up_hint"', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view
+            page="sign-up"
+            lang="es"
+            ns="customer-portal"
+          >
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        const header = await getByTestId(element, 'sign-up:header');
+        const title = await getByKey(header!, 'sign_up_hint');
+
+        expect(title).to.exist;
+        expect(title).to.have.attribute('lang', 'es');
+        expect(title).to.have.attribute('ns', 'customer-portal sign-up-form');
+      });
+    });
+
+    describe('form', () => {
+      it('renders "sign-up:form:before" slot when visible', async () => {
+        const layout = html`<foxy-internal-customer-portal-logged-out-view
+          page="sign-up"
+        ></foxy-internal-customer-portal-logged-out-view>`;
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(layout);
+        const slot = await getByName<HTMLSlotElement>(element, 'sign-up:form:before');
+
+        expect(slot).to.have.property('localName', 'slot');
+      });
+
+      it('replaces "sign-up:form:before" slot with template "sign-up:form:before" if available', async () => {
+        const name = 'sign-up:form:before';
+        const value = `<p>Value of the "${name}" template.</p>`;
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view page="sign-up">
+            <template slot=${name}>${unsafeHTML(value)}</template>
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        const slot = await getByName<HTMLSlotElement>(element, name);
+        const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+        expect(slot).to.not.exist;
+        expect(sandbox).to.contain.html(value);
+      });
+
+      it('renders "sign-up:form:after" slot when visible', async () => {
+        const layout = html`<foxy-internal-customer-portal-logged-out-view
+          page="sign-up"
+        ></foxy-internal-customer-portal-logged-out-view>`;
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(layout);
+        const slot = await getByName<HTMLSlotElement>(element, 'sign-up:form:after');
+
+        expect(slot).to.have.property('localName', 'slot');
+      });
+
+      it('replaces "sign-up:form:after" slot with template "sign-up:form:after" if available', async () => {
+        const name = 'sign-up:form:after';
+        const value = `<p>Value of the "${name}" template.</p>`;
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view page="sign-up">
+            <template slot=${name}>${unsafeHTML(value)}</template>
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        const slot = await getByName<HTMLSlotElement>(element, name);
+        const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+        expect(slot).to.not.exist;
+        expect(sandbox).to.contain.html(value);
+      });
+
+      it('is hidden by default', async () => {
+        const layout = html`<foxy-internal-customer-portal-logged-out-view></foxy-internal-customer-portal-logged-out-view>`;
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(layout);
+        expect(await getByTestId(element, 'sign-up:form')).to.not.exist;
+      });
+
+      it('is hidden when element is hidden', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view page="sign-up" hidden>
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        expect(await getByTestId(element, 'sign-up:form')).to.not.exist;
+      });
+
+      it('is hidden when hiddencontrols includes sign-up:form', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view
+            hiddencontrols="sign-up:form"
+            page="sign-up"
+          >
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        expect(await getByTestId(element, 'sign-up:form')).to.not.exist;
+      });
+
+      it('renders foxy-customer-form', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view
+            readonlycontrols="foo sign-up:form:not=bar ppp"
+            disabledcontrols="hjk a:b sign-up:form:abc:def"
+            hiddencontrols="baz sign-up:form:qux"
+            group="test"
+            page="sign-up"
+            lang="es"
+            ns="qwerty"
+          >
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        const form = (await getByTestId(element, 'sign-up:form')) as CustomerForm;
+
+        expect(form).to.exist;
+        expect(form).to.have.property('localName', 'foxy-customer-form');
+        expect(form).to.have.attribute('readonlycontrols', 'not=bar');
+        expect(form).to.have.attribute('disabledcontrols', 'abc:def');
+        expect(form).to.have.attribute(
+          'hiddencontrols',
+          'tax-id is-anonymous password-old forgot-password timestamps delete qux'
+        );
+        expect(form).to.have.attribute('parent', 'foxy://customer-api/signup');
+        expect(form).to.have.attribute('group', 'test');
+        expect(form).to.have.attribute('lang', 'es');
+        expect(form).to.have.attribute('ns', 'qwerty sign-up-form');
+        expect(form).to.have.deep.property('templates', {});
+        expect(form).to.have.deep.property('settings', null);
+
+        element.data = {
+          ...(await getTestData('./hapi/customer_portal_settings/0')),
+          sign_up: {
+            enabled: true,
+            verification: { type: 'hcaptcha', site_key: 'bar' },
+          },
+        } as Resource<Rels.CustomerPortalSettings>;
+
+        await element.requestUpdate();
+
+        expect(form).to.have.deep.property('settings', element.data);
+
+        element.templates = {
+          'sign-up:form:email:before': html => html`foo`,
+          'foo:bar': html => html`bar`,
+        };
+
+        await element.requestUpdate();
+
+        expect(form).to.have.deep.property('templates', {
+          'email:before': element.templates['sign-up:form:email:before'],
+        });
+      });
+    });
+
+    describe('go-back', () => {
+      it('renders "sign-up:go-back:before" slot by default', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view page="sign-up">
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        const slot = await getByName<HTMLSlotElement>(element, 'sign-up:go-back:before');
+        expect(slot).to.have.property('localName', 'slot');
+      });
+
+      it('replaces "sign-up:go-back:before" slot with template "sign-up:go-back:before" if available', async () => {
+        const name = 'sign-up:go-back:before';
+        const value = `<p>Value of the "${name}" template.</p>`;
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view page="sign-up">
+            <template slot=${name}>${unsafeHTML(value)}</template>
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        const slot = await getByName<HTMLSlotElement>(element, name);
+        const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+        expect(slot).to.not.exist;
+        expect(sandbox).to.contain.html(value);
+      });
+
+      it('renders "sign-up:go-back:after" slot by default', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view page="sign-up">
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        const slot = await getByName<HTMLSlotElement>(element, 'sign-up:go-back:after');
+        expect(slot).to.have.property('localName', 'slot');
+      });
+
+      it('replaces "sign-up:go-back:after" slot with template "sign-up:go-back:after" if available', async () => {
+        const name = 'sign-up:go-back:after';
+        const value = `<p>Value of the "${name}" template.</p>`;
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view page="sign-up">
+            <template slot=${name}>${unsafeHTML(value)}</template>
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        const slot = await getByName<HTMLSlotElement>(element, name);
+        const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+        expect(slot).to.not.exist;
+        expect(sandbox).to.contain.html(value);
+      });
+
+      it('is visible by default', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view page="sign-up">
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        expect(await getByTestId(element, 'sign-up:go-back')).to.exist;
+      });
+
+      it('is hidden when element is hidden', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view page="sign-up" hidden>
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        expect(await getByTestId(element, 'sign-up:go-back')).to.not.exist;
+      });
+
+      it('is hidden when hiddencontrols includes sign-up:go-back', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view
+            hiddencontrols="sign-up:go-back"
+            page="sign-up"
+          >
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        expect(await getByTestId(element, 'sign-up:go-back')).to.not.exist;
+      });
+
+      it('is disabled when element is disabled', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view page="sign-up" disabled>
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        expect(await getByTestId(element, 'sign-up:go-back')).to.have.attribute('disabled');
+      });
+
+      it('is disabled when disabledcontrols includes "sign-up:go-back"', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view
+            disabledcontrols="sign-up:go-back"
+            page="sign-up"
+          >
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        expect(await getByTestId(element, 'sign-up:go-back')).to.have.attribute('disabled');
+      });
+
+      it('is disabled when sign-up:form is busy', async () => {
+        const router = createRouter();
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view
+            page="sign-up"
+            @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+          >
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        const button = await getByTestId(element, 'sign-up:go-back');
+        expect(button).to.not.have.attribute('disabled');
+
+        const form = (await getByTestId(element, 'sign-up:form')) as CustomerForm;
+        form.href = 'https://demo.api/virtual/stall';
+        await form.requestUpdate();
+        expect(button).to.have.attribute('disabled');
+      });
+
+      it('renders foxy-i18n caption with key "go_back"', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view
+            page="sign-up"
+            lang="es"
+            ns="customer-portal"
+          >
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        const signin = await getByTestId(element, 'sign-up:go-back');
+        const title = await getByKey(signin!, 'go_back');
+
+        expect(title).to.exist;
+        expect(title).to.have.attribute('lang', 'es');
+        expect(title).to.have.attribute('ns', 'customer-portal sign-up-form');
+      });
+
+      it('opens access sign-in page on click', async () => {
+        const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
+          <foxy-internal-customer-portal-logged-out-view page="sign-up">
+          </foxy-internal-customer-portal-logged-out-view>
+        `);
+
+        ((await getByTestId(element, 'sign-up:go-back')) as ButtonElement).click();
+        expect(element).to.have.property('page', 'sign-in');
       });
     });
   });

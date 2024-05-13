@@ -2,53 +2,96 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
-    "cancel": { "type": "string", "default": "Cancel" },
-    "confirm": { "type": "string", "default": "Confirm" },
-    "balance": { "type": "string", "default": "Balance" },
-    "current_balance": { "type": "string", "default": "Current balance" },
-    "generate": { "type": "string", "default": "Generate" },
-    "generate_codes_done": {
-      "type": "string",
-      "default": "All done! We've added new codes for you."
+    "status": {
+      "additionalProperties": false,
+      "properties": { "success": { "type": "string", "default": "Codes generated successfully." } },
+      "required": ["success"]
     },
-    "leave_empty_for_random_codes": {
-      "type": "string",
-      "default": "Leave empty to generate completely random codes."
+    "error": {
+      "additionalProperties": false,
+      "properties": {
+        "invalid_form": {
+          "type": "string",
+          "default": "These parameters won't generate any codes. Please make sure that the length of the code is greater than the length of the prefix, does not exceed 50 characters in total and that the code itself does not contain spaces."
+        }
+      },
+      "required": ["invalid_form"]
     },
-    "length": { "type": "string", "default": "Length" },
-    "number_of_codes": { "type": "string", "default": "Number of codes" },
-    "prefix": { "type": "string", "default": "Prefix" },
-    "template": { "type": "string", "default": "Template" },
-    "v8n_negative": { "type": "string", "default": "Negative values are not allowed" },
-    "v8n_required": { "type": "string", "default": "Required" },
-    "v8n_prefix_has_spaces": {
-      "type": "string",
-      "default": "Spaces are not allowed in code prefix"
+    "length": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Code length" },
+        "placeholder": { "type": "string", "default": "6" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "number-of-codes": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Number of codes" },
+        "placeholder": { "type": "string", "default": "10" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "prefix": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Prefix" },
+        "placeholder": { "type": "string", "default": "Optional" },
+        "helper_text": {
+          "type": "string",
+          "default": "The length value is inclusive of this prefix."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "current-balance": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Initial balance" },
+        "placeholder": { "type": "string", "default": "0" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "example": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Examples" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": {
+          "type": "string",
+          "default": "This is what the generated codes will look like."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "create": {
+      "additionalProperties": false,
+      "properties": { "create": { "type": "string", "default": "Generate" } },
+      "required": ["create"]
     },
     "spinner": {
       "additionalProperties": false,
       "properties": {
+        "refresh": { "type": "string", "default": "Refresh" },
         "loading_busy": { "type": "string", "default": "Loading" },
-        "loading_error": { "type": "string", "default": "Failed to load" }
+        "loading_error": { "type": "string", "default": "Unknown error" }
       },
-      "required": ["loading_busy", "loading_error"]
+      "required": ["refresh", "loading_busy", "loading_error"]
     }
   },
   "required": [
-    "cancel",
-    "confirm",
-    "balance",
-    "current_balance",
-    "generate",
-    "generate_codes_done",
-    "leave_empty_for_random_codes",
+    "status",
+    "error",
     "length",
-    "number_of_codes",
+    "number-of-codes",
     "prefix",
-    "template",
-    "v8n_negative",
-    "v8n_required",
-    "v8n_prefix_has_spaces",
+    "current-balance",
+    "example",
+    "create",
     "spinner"
   ]
 }

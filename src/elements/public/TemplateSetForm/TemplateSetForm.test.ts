@@ -196,7 +196,7 @@ describe('TemplateSetForm', () => {
 
     data.payment_method_set_uri = 'https://demo.api/hapi/payment_method_sets/0';
     element.data = data;
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const root = element.renderRoot;
     const control = root.querySelector<InternalAsyncComboBoxControl>(

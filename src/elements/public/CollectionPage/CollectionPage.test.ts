@@ -30,6 +30,8 @@ describe('CollectionPage', () => {
         async template({ refs, element }) {
           const lastItem = refs.items[refs.items.length - 1];
 
+          expect(lastItem).to.have.property('simplifyNsLoading', element.simplifyNsLoading);
+
           expect(lastItem).to.have.attribute('href', '');
           expect(lastItem).to.have.attribute('lang', element.lang);
           expect(lastItem).to.have.attribute('group', element.group);
@@ -39,6 +41,8 @@ describe('CollectionPage', () => {
 
       async fail({ refs, element }) {
         const lastItem = refs.items[refs.items.length - 1];
+
+        expect(lastItem).to.have.property('simplifyNsLoading', element.simplifyNsLoading);
 
         expect(lastItem).to.have.attribute('href', 'foxy://collection-page/fail');
         expect(lastItem).to.have.attribute('lang', element.lang);
@@ -50,6 +54,8 @@ describe('CollectionPage', () => {
 
       async busy({ refs, element }) {
         const lastItem = refs.items[refs.items.length - 1];
+
+        expect(lastItem).to.have.property('simplifyNsLoading', element.simplifyNsLoading);
 
         expect(lastItem).to.have.attribute('href', 'foxy://collection-page/stall');
         expect(lastItem).to.have.attribute('lang', element.lang);
@@ -67,6 +73,8 @@ async function testItemProperty(refs: Refs, element: CollectionPage<Data>) {
   let itemElements = refs.items;
 
   items.forEach((item, index) => {
+    expect(itemElements[index]).to.have.property('simplifyNsLoading', element.simplifyNsLoading);
+
     expect(itemElements[index]).to.have.attribute('href', item._links.self.href);
     expect(itemElements[index]).to.have.attribute('lang', element.lang);
     expect(itemElements[index]).to.have.attribute('group', element.group);
@@ -85,15 +93,17 @@ async function testItemProperty(refs: Refs, element: CollectionPage<Data>) {
     </foxy-foo>
   `;
 
-  await element.updateComplete;
+  await element.requestUpdate();
 
   itemElements = Array.from(
     element.renderRoot.querySelectorAll('[data-testclass="items"]')
   ) as HTMLElement[];
 
   items.forEach((item, index) => {
+    expect(itemElements[index]).to.have.property('simplifyNsLoading', element.simplifyNsLoading);
     expect(itemElements[index]).to.have.property('localName', 'foxy-foo');
     expect(itemElements[index]).to.have.property('data', item);
+
     expect(itemElements[index]).to.have.attribute('href', item._links.self.href);
     expect(itemElements[index]).to.have.attribute('lang', element.lang);
     expect(itemElements[index]).to.have.attribute('group', element.group);
@@ -101,14 +111,16 @@ async function testItemProperty(refs: Refs, element: CollectionPage<Data>) {
   });
 
   element.item = 'foxy-bar';
-  await element.updateComplete;
+  await element.requestUpdate();
 
   itemElements = Array.from(
     element.renderRoot.querySelectorAll('[data-testclass="items"]')
   ) as HTMLElement[];
 
   items.forEach((item, index) => {
+    expect(itemElements[index]).to.have.property('simplifyNsLoading', element.simplifyNsLoading);
     expect(itemElements[index]).to.have.property('localName', 'foxy-bar');
+
     expect(itemElements[index]).to.have.attribute('href', item._links.self.href);
     expect(itemElements[index]).to.have.attribute('lang', element.lang);
     expect(itemElements[index]).to.have.attribute('group', element.group);

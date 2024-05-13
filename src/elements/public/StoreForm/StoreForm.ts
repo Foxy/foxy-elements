@@ -184,7 +184,7 @@ export class StoreForm extends Base<Data> {
 
       ({ store_domain: v }) => !!v || 'store-domain:v8n_required',
 
-      ({ store_domain: v }) => (v && v.length <= 50) || 'store-domain:v8n_too_long',
+      ({ store_domain: v }) => (v && v.length <= 100) || 'store-domain:v8n_too_long',
 
       ({ store_url: v }) => !!v || 'store-url:v8n_required',
 
@@ -210,7 +210,7 @@ export class StoreForm extends Base<Data> {
 
       ({ country: v }) => !!v || 'country:v8n_required',
 
-      ({ logo_url: v }) => !v || v.length <= 100 || 'logo-url:v8n_too_long',
+      ({ logo_url: v }) => !v || v.length <= 200 || 'logo-url:v8n_too_long',
 
       ({ webhook_url: v, use_webhook }) => !use_webhook || !!v || 'webhook-url:v8n_required',
 
@@ -498,14 +498,6 @@ export class StoreForm extends Base<Data> {
     }
 
     return html`
-      ${customerPasswordHashTypesLoader.render(this.customerPasswordHashTypes)}
-      ${shippingAddressTypesLoader.render(this.shippingAddressTypes)}
-      ${checkoutTypesLoader.render(this.checkoutTypes)}
-      ${storeVersionLoader.render(this.form.store_version_uri)}
-      ${localeCodesLoader.render(this.localeCodes)} ${timezonesLoader.render(this.timezones)}
-      ${countriesLoader.render(this.countries)} ${languagesLoader.render(this.languages)}
-      ${regionsLoader.render(regionsUrl)}
-
       <div class="grid gap-m grid-cols-1 sm-grid-cols-2">
         <foxy-internal-text-control infer="store-name"></foxy-internal-text-control>
 
@@ -743,6 +735,13 @@ export class StoreForm extends Base<Data> {
       </div>
 
       ${super.renderBody()}
+      ${customerPasswordHashTypesLoader.render(this.customerPasswordHashTypes)}
+      ${shippingAddressTypesLoader.render(this.shippingAddressTypes)}
+      ${checkoutTypesLoader.render(this.checkoutTypes)}
+      ${storeVersionLoader.render(this.form.store_version_uri)}
+      ${localeCodesLoader.render(this.localeCodes)} ${timezonesLoader.render(this.timezones)}
+      ${countriesLoader.render(this.countries)} ${languagesLoader.render(this.languages)}
+      ${regionsLoader.render(regionsUrl)}
     `;
   }
 

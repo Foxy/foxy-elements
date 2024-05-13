@@ -1,1032 +1,577 @@
-import type { FetchEvent } from '../NucleonElement/FetchEvent';
-
 import './index';
 
-import { expect, fixture, waitUntil } from '@open-wc/testing';
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { VanillaHCaptchaWebComponent } from 'vanilla-hcaptcha';
+import { expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
 import { CustomerForm } from './CustomerForm';
-import { Data } from './types';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog';
-import { InternalSandbox } from '../../internal/InternalSandbox';
-import { NucleonElement } from '../NucleonElement';
-import { TextFieldElement } from '@vaadin/vaadin-text-field';
-import { getByName } from '../../../testgen/getByName';
-import { getByTestId } from '../../../testgen/getByTestId';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { getTestData } from '../../../testgen/getTestData';
-import { html } from 'lit-element';
+import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
+import { InternalRadioGroupControl } from '../../internal/InternalRadioGroupControl/InternalRadioGroupControl';
+import { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
+import { InternalCustomerFormLegalNoticeControl } from './internal/InternalCustomerFormLegalNoticeControl/InternalCustomerFormLegalNoticeControl';
+import { createRouter } from '../../../server/hapi';
+import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { stub } from 'sinon';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html';
-import { createRouter } from '../../../server/index';
+import { Data } from './types';
+
+const portalSettings = {
+  _links: { self: { href: '' } },
+  allowed_origins: [],
+  subscriptions: {
+    allow_frequency_modification: [],
+    allow_next_date_modification: false,
+  },
+  session_lifespan_in_minutes: 40320,
+  tos_checkbox_settings: {
+    usage: 'optional' as const,
+    url: 'https://foxy.io/terms-of-service/',
+    initial_state: 'unchecked' as const,
+    is_hidden: false,
+  },
+  sign_up: {
+    verification: { type: 'hcaptcha' as const, site_key: '123' },
+    enabled: true,
+  },
+  sso: true,
+  date_created: '',
+  date_modified: '',
+};
 
 describe('CustomerForm', () => {
-  it('extends NucleonElement', () => {
-    expect(new CustomerForm()).to.be.instanceOf(NucleonElement);
+  it('imports and defines h-captcha element', () => {
+    expect(customElements.get('h-captcha')).to.exist;
   });
 
-  it('registers as foxy-customer-form', () => {
+  it('imports and defines foxy-internal-radio-group-control element', () => {
+    expect(customElements.get('foxy-internal-radio-group-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-password-control element', () => {
+    expect(customElements.get('foxy-internal-password-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-text-control element', () => {
+    expect(customElements.get('foxy-internal-text-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-customer-form-legal-notice-control element', () => {
+    expect(customElements.get('foxy-internal-customer-form-legal-notice-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-form element', () => {
+    expect(customElements.get('foxy-internal-form')).to.exist;
+  });
+
+  it('imports and defines itself as foxy-customer-form', () => {
     expect(customElements.get('foxy-customer-form')).to.equal(CustomerForm);
   });
 
-  describe('first-name', () => {
-    it('has i18n label key "first_name"', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'first-name');
-      expect(control).to.have.property('label', 'first_name');
+  it('extends InternalForm', () => {
+    expect(new CustomerForm()).to.be.instanceOf(InternalForm);
+  });
+
+  it('has a default i18n namespace of customer-form', () => {
+    expect(CustomerForm).to.have.property('defaultNS', 'customer-form');
+    expect(new CustomerForm()).to.have.property('ns', 'customer-form');
+  });
+
+  it('has a reactive property passwordless (false by default)', () => {
+    expect(CustomerForm).to.have.deep.nested.property('properties.passwordless', { type: Boolean });
+    expect(new CustomerForm()).to.have.property('passwordless', false);
+  });
+
+  it('has a reactive property settings (null by default)', () => {
+    expect(CustomerForm).to.have.deep.nested.property('properties.settings', { type: Object });
+    expect(new CustomerForm()).to.have.property('settings', null);
+  });
+
+  it('requires password when creating non-guest customers, unless passwordless', async () => {
+    const form = new CustomerForm();
+    expect(form.errors).to.not.include('password:v8n_required');
+
+    form.edit({ is_anonymous: true });
+    expect(form.errors).to.not.include('password:v8n_required');
+
+    form.edit({ is_anonymous: false });
+    expect(form.errors).to.include('password:v8n_required');
+
+    form.passwordless = true;
+    form.edit({ password: '' });
+    expect(form.errors).to.not.include('password:v8n_required');
+
+    form.edit({ password: '123' });
+    expect(form.errors).to.not.include('password:v8n_required');
+
+    form.passwordless = false;
+    form.edit({ password: '' });
+    expect(form.errors).to.include('password:v8n_required');
+
+    form.data = await getTestData('./hapi/customers/0');
+    expect(form.errors).to.not.include('password:v8n_required');
+  });
+
+  it('requires old password when updating password as customer', async () => {
+    const form = new CustomerForm();
+    expect(form.errors).to.not.include('password-old:v8n_required');
+
+    form.data = await getTestData('./hapi/customers/0');
+    expect(form.errors).to.not.include('password-old:v8n_required');
+
+    form.edit({ password: '123' });
+    expect(form.errors).to.not.include('password-old:v8n_required');
+
+    form.settings = portalSettings;
+    form.edit({ password: '123' });
+    expect(form.errors).to.include('password-old:v8n_required');
+
+    form.edit({ password_old: '456' });
+    expect(form.errors).to.not.include('password-old:v8n_required');
+  });
+
+  it('prevents first name from exceeding 50 characters', () => {
+    const form = new CustomerForm();
+    expect(form.errors).to.not.include('first-name:v8n_too_long');
+
+    form.edit({ first_name: 'a'.repeat(50) });
+    expect(form.errors).to.not.include('first-name:v8n_too_long');
+
+    form.edit({ first_name: 'a'.repeat(51) });
+    expect(form.errors).to.include('first-name:v8n_too_long');
+  });
+
+  it('prevents last name from exceeding 50 characters', () => {
+    const form = new CustomerForm();
+    expect(form.errors).to.not.include('last-name:v8n_too_long');
+
+    form.edit({ last_name: 'a'.repeat(50) });
+    expect(form.errors).to.not.include('last-name:v8n_too_long');
+
+    form.edit({ last_name: 'a'.repeat(51) });
+    expect(form.errors).to.include('last-name:v8n_too_long');
+  });
+
+  it('requires strong password', () => {
+    const form = new CustomerForm();
+    expect(form.errors).to.not.include('password:v8n_too_weak');
+
+    form.edit({ password: 'a'.repeat(8) });
+    expect(form.errors).to.include('password:v8n_too_weak');
+
+    form.edit({ password: 'jKdfhkYGJH822__21!!*ssdn-s++' });
+    expect(form.errors).to.not.include('password:v8n_too_weak');
+  });
+
+  it('prevents password from exceeding 50 characters', () => {
+    const form = new CustomerForm();
+    expect(form.errors).to.not.include('password:v8n_too_long');
+
+    form.edit({ password: 'a'.repeat(50) });
+    expect(form.errors).to.not.include('password:v8n_too_long');
+
+    form.edit({ password: 'a'.repeat(51) });
+    expect(form.errors).to.include('password:v8n_too_long');
+  });
+
+  it('prevents tax id from exceeding 50 characters', () => {
+    const form = new CustomerForm();
+    expect(form.errors).to.not.include('tax-id:v8n_too_long');
+
+    form.edit({ tax_id: 'a'.repeat(50) });
+    expect(form.errors).to.not.include('tax-id:v8n_too_long');
+
+    form.edit({ tax_id: 'a'.repeat(51) });
+    expect(form.errors).to.include('tax-id:v8n_too_long');
+  });
+
+  it('requires email', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    expect(form.errors).to.include('email:v8n_required');
+
+    form.edit({ email: 'test@test.com' });
+    expect(form.errors).to.not.include('email:v8n_required');
+  });
+
+  it('prevents email from exceeding 100 characters', () => {
+    const form = new CustomerForm();
+    expect(form.errors).to.not.include('email:v8n_too_long');
+
+    form.edit({ email: 'a'.repeat(100) });
+    expect(form.errors).to.not.include('email:v8n_too_long');
+
+    form.edit({ email: 'a'.repeat(101) });
+    expect(form.errors).to.include('email:v8n_too_long');
+  });
+
+  it('requires email to be valid', () => {
+    const form = new CustomerForm();
+    expect(form.errors).to.not.include('email:v8n_invalid_email');
+
+    form.edit({ email: 'aaaa' });
+    expect(form.errors).to.include('email:v8n_invalid_email');
+
+    form.edit({ email: 'test@test.com' });
+    expect(form.errors).to.not.include('email:v8n_invalid_email');
+  });
+
+  it('renders a text field for first name', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    const control = form.renderRoot.querySelector('[infer="first-name"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+  });
+
+  it('renders a text field for last name', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    const control = form.renderRoot.querySelector('[infer="last-name"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+  });
+
+  it('renders a text field for tax id', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    const control = form.renderRoot.querySelector('[infer="tax-id"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+  });
+
+  it('renders a text field for email', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    const control = form.renderRoot.querySelector('[infer="email"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('helper-text', 'email.helper_text');
+
+    const data = await getTestData<Data>('./hapi/customers/0');
+    data.last_login_date = new Date().toISOString();
+    form.data = data;
+    await form.requestUpdate();
+
+    expect(control).to.have.attribute('helper-text', 'email.helper_text_last_login_date');
+  });
+
+  it('renders a radio group control for anonymity selection', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    const root = form.renderRoot;
+    const control = root.querySelector<InternalRadioGroupControl>('[infer="is-anonymous"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalRadioGroupControl);
+    expect(control?.getValue()).to.equal('true');
+    expect(control).to.have.deep.property('options', [
+      { value: 'true', label: 'option_true' },
+      { value: 'false', label: 'option_false' },
+    ]);
+
+    form.edit({ is_anonymous: false });
+    expect(control?.getValue()).to.equal('false');
+
+    form.edit({ is_anonymous: true });
+    expect(control?.getValue()).to.equal('true');
+
+    form.edit({ password: '123', password_old: '456', forgot_password: '789' });
+    control?.setValue('false');
+    expect(form).to.have.nested.property('form.is_anonymous', false);
+    expect(form).to.have.nested.property('form.password', '123');
+    expect(form).to.have.nested.property('form.password_old', '456');
+    expect(form).to.have.nested.property('form.forgot_password', '789');
+
+    control?.setValue('true');
+    expect(form).to.have.nested.property('form.is_anonymous', true);
+    expect(form).to.have.nested.property('form.password', '');
+    expect(form).to.have.nested.property('form.password_old', '');
+    expect(form).to.have.nested.property('form.forgot_password', '');
+  });
+
+  it('renders a password field for password', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    const control = form.renderRoot.querySelector('[infer="password"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalPasswordControl);
+    expect(control).to.have.attribute('show-generator');
+    expect(control).to.have.attribute('placeholder', 'password.placeholder');
+    expect(control).to.have.attribute('helper-text', 'password.helper_text');
+
+    form.data = await getTestData<Data>('./hapi/customers/0');
+    await form.requestUpdate();
+    expect(control).to.have.attribute('placeholder', 'password.placeholder_new');
+    expect(control).to.have.attribute('helper-text', 'password.helper_text_new');
+  });
+
+  it('renders a password field for old password', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    const control = form.renderRoot.querySelector('[infer="password-old"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalPasswordControl);
+  });
+
+  it('renders a password field for one-time password', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    const control = form.renderRoot.querySelector('[infer="forgot-password"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalPasswordControl);
+    expect(control).to.have.attribute('show-generator');
+    expect(control).to.have.attribute('helper-text', 'forgot-password.helper_text');
+
+    const data = await getTestData<Data>('./hapi/customers/0');
+    data.forgot_password = '123';
+    data.forgot_password_timestamp = new Date().toISOString();
+    form.data = data;
+    await form.requestUpdate();
+    expect(control).to.have.attribute('helper-text', 'forgot-password.helper_text_expires_in');
+
+    data.forgot_password_timestamp = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+    form.data = data;
+    await form.requestUpdate();
+    expect(control).to.have.attribute('helper-text', 'forgot-password.helper_text_expired_on');
+  });
+
+  it('renders a custom control for legal notice', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    const control = form.renderRoot.querySelector('[infer="legal-notice"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalCustomerFormLegalNoticeControl);
+  });
+
+  it('renders a hCaptcha element when enabled in signup settings', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    let control = form.renderRoot.querySelector('h-captcha');
+    expect(control).to.not.exist;
+
+    form.settings = portalSettings;
+    form.lang = 'tr';
+    await form.requestUpdate();
+    control = form.renderRoot.querySelector('h-captcha');
+    expect(control).to.exist;
+
+    expect(control).to.have.attribute('site-key', '123');
+    expect(control).to.have.attribute('size', 'invisible');
+    expect(control).to.have.attribute('hl', 'tr');
+  });
+
+  it('request captcha token when form is submitted in customer mode', async () => {
+    const VerifiedEvent = class extends CustomEvent<unknown> {
+      token = '456';
+
+      eKey = '789';
+    };
+
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    form.settings = portalSettings;
+    form.edit({ password: 'jfkdfdhKJHGjh834))33!', email: 'foo@bar.com' });
+    await form.requestUpdate();
+
+    const captcha = form.renderRoot.querySelector('h-captcha') as VanillaHCaptchaWebComponent;
+    stub(captcha, 'reset').resolves();
+    stub(captcha, 'execute').callsFake(() => {
+      captcha.dispatchEvent(new VerifiedEvent('verified'));
     });
 
-    it('has value of form.first_name', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      element.edit({ first_name: 'Justice' });
+    const whenFetchIsFired = oneEvent(form, 'fetch');
+    form.submit();
+    const evt = (await whenFetchIsFired) as unknown as FetchEvent;
+    evt.preventDefault();
 
-      const control = await getByTestId<TextFieldElement>(element, 'first-name');
-      expect(control).to.have.property('value', 'Justice');
-    });
-
-    it('writes to form.first_name on input', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'first-name');
-
-      control!.value = 'Justice';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.first_name', 'Justice');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/customers/0');
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'first-name');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ first_name: 'Justice' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "first-name:before" slot by default', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'first-name:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "first-name:before" slot with template "first-name:before" if available', async () => {
-      const name = 'first-name:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-customer-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "first-name:after" slot by default', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'first-name:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "first-name:after" slot with template "first-name:after" if available', async () => {
-      const name = 'first-name:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-customer-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-customer-form></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'first-name')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-customer-form readonly></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes first-name', async () => {
-      const layout = html`<foxy-customer-form readonlycontrols="first-name"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-customer-form></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'first-name')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-customer-form disabled></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes first-name', async () => {
-      const layout = html`<foxy-customer-form disabledcontrols="first-name"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-customer-form></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-customer-form hidden></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes first-name', async () => {
-      const layout = html`<foxy-customer-form hiddencontrols="first-name"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.not.exist;
+    expect(await evt.request.json()).to.deep.equal({
+      verification: { type: 'hcaptcha', token: '456' },
+      password: 'jfkdfdhKJHGjh834))33!',
+      email: 'foo@bar.com',
     });
   });
 
-  describe('last-name', () => {
-    it('has i18n label key "last_name"', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'last-name');
-      expect(control).to.have.property('label', 'last_name');
+  it('submits the form if verification token is required and provided', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    const whenFetchIsFired = oneEvent(form, 'fetch');
+
+    form.settings = portalSettings;
+    form.edit({
+      verification: { type: 'hcaptcha', token: '456' },
+      password: 'jfkdfdhKJHGjh834))33!',
+      email: 'foo@bar.com',
     });
 
-    it('has value of form.last_name', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      element.edit({ last_name: 'Witt' });
+    const VerifiedEvent = class extends CustomEvent<unknown> {
+      token = '456';
 
-      const control = await getByTestId<TextFieldElement>(element, 'last-name');
-      expect(control).to.have.property('value', 'Witt');
-    });
+      eKey = '789';
+    };
 
-    it('writes to form.last_name on input', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'last-name');
+    await form.requestUpdate();
+    const captcha = form.renderRoot.querySelector('h-captcha') as VanillaHCaptchaWebComponent;
+    captcha.dispatchEvent(new VerifiedEvent('verified'));
 
-      control!.value = 'Witt';
-      control!.dispatchEvent(new CustomEvent('input'));
+    const evt = (await whenFetchIsFired) as unknown as FetchEvent;
+    evt.preventDefault();
 
-      expect(element).to.have.nested.property('form.last_name', 'Witt');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/customers/0');
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'last-name');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ last_name: 'Witt' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "last-name:before" slot by default', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'last-name:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "last-name:before" slot with template "last-name:before" if available', async () => {
-      const name = 'last-name:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-customer-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "last-name:after" slot by default', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'last-name:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "last-name:after" slot with template "last-name:after" if available', async () => {
-      const name = 'last-name:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-customer-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-customer-form></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'last-name')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-customer-form readonly></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes last-name', async () => {
-      const layout = html`<foxy-customer-form readonlycontrols="last-name"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-customer-form></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'last-name')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-customer-form disabled></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes last-name', async () => {
-      const layout = html`<foxy-customer-form disabledcontrols="last-name"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-customer-form></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-customer-form hidden></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes last-name', async () => {
-      const layout = html`<foxy-customer-form hiddencontrols="last-name"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.not.exist;
+    expect(await evt.request.json()).to.deep.equal({
+      verification: { type: 'hcaptcha', token: '456' },
+      password: 'jfkdfdhKJHGjh834))33!',
+      email: 'foo@bar.com',
     });
   });
 
-  describe('email', () => {
-    it('has i18n label key "email"', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'email');
-      expect(control).to.have.property('label', 'email');
-    });
+  it('hides customer type switch when editing existing customer', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    expect(form.hiddenSelector.matches('is-anonymous', true)).to.be.false;
 
-    it('has value of form.email', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      element.edit({ email: 'justice.witt@example.com' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'email');
-      expect(control).to.have.property('value', 'justice.witt@example.com');
-    });
-
-    it('writes to form.email on input', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'email');
-
-      control!.value = 'justice.witt@example.com';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.email', 'justice.witt@example.com');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/customers/0');
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'email');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ email: 'justice.witt@example.com' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "email:before" slot by default', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'email:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "email:before" slot with template "email:before" if available', async () => {
-      const name = 'email:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-customer-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "email:after" slot by default', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'email:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "email:after" slot with template "email:after" if available', async () => {
-      const name = 'email:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-customer-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-customer-form></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'email')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-customer-form readonly></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'email')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes email', async () => {
-      const layout = html`<foxy-customer-form readonlycontrols="email"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'email')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-customer-form></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'email')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'email')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'email')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-customer-form disabled></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'email')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes email', async () => {
-      const layout = html`<foxy-customer-form disabledcontrols="email"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'email')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-customer-form></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'email')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-customer-form hidden></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'email')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes email', async () => {
-      const layout = html`<foxy-customer-form hiddencontrols="email"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'email')).to.not.exist;
-    });
+    form.data = await getTestData<Data>('./hapi/customers/0');
+    await form.requestUpdate();
+    expect(form.hiddenSelector.matches('is-anonymous', true)).to.be.true;
   });
 
-  describe('tax-id', () => {
-    it('has i18n label key "tax_id"', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'tax-id');
-      expect(control).to.have.property('label', 'tax_id');
-    });
+  it('hides one-time password field in customer mode or for guest customers in admin mode', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    expect(form.hiddenSelector.matches('forgot-password', true)).to.be.true;
 
-    it('has value of form.tax_id', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      element.edit({ tax_id: '1234567890' });
+    form.edit({ is_anonymous: false });
+    expect(form.hiddenSelector.matches('forgot-password', true)).to.be.false;
 
-      const control = await getByTestId<TextFieldElement>(element, 'tax-id');
-      expect(control).to.have.property('value', '1234567890');
-    });
-
-    it('writes to form.tax_id on input', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'tax-id');
-
-      control!.value = '1234567890';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.tax_id', '1234567890');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/customers/0');
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'tax-id');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ tax_id: '1234567890' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "tax-id:before" slot by default', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'tax-id:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "tax-id:before" slot with template "tax-id:before" if available', async () => {
-      const name = 'tax-id:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-customer-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "tax-id:after" slot by default', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'tax-id:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "tax-id:after" slot with template "tax-id:after" if available', async () => {
-      const name = 'tax-id:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-customer-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-customer-form></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'tax-id')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-customer-form readonly></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'tax-id')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes tax-id', async () => {
-      const layout = html`<foxy-customer-form readonlycontrols="tax-id"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'tax-id')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-customer-form></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'tax-id')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'tax-id')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'tax-id')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-customer-form disabled></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'tax-id')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes tax-id', async () => {
-      const layout = html`<foxy-customer-form disabledcontrols="tax-id"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'tax-id')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-customer-form></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'tax-id')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-customer-form hidden></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'tax-id')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes tax-id', async () => {
-      const layout = html`<foxy-customer-form hiddencontrols="tax-id"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'tax-id')).to.not.exist;
-    });
+    form.undo();
+    form.settings = portalSettings;
+    expect(form.hiddenSelector.matches('forgot-password', true)).to.be.true;
   });
 
-  describe('timestamps', () => {
-    it('once form data is loaded, renders a property table with created and modified dates', async () => {
-      const data = await getTestData<Data>('./hapi/customers/0');
-      const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      const control = await getByTestId(element, 'timestamps');
-      const items = [
-        { name: 'date_modified', value: 'date' },
-        { name: 'date_created', value: 'date' },
-      ];
+  it('hides customer type switch in customer mode', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    expect(form.hiddenSelector.matches('is-anonymous', true)).to.be.false;
 
-      expect(control).to.have.deep.property('items', items);
-    });
-
-    it('once form data is loaded, renders "timestamps:before" slot', async () => {
-      const data = await getTestData<Data>('./hapi/customers/0');
-      const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'timestamps:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('once form data is loaded, replaces "timestamps:before" slot with template "timestamps:before" if available', async () => {
-      const data = await getTestData<Data>('./hapi/customers/0');
-      const name = 'timestamps:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form .data=${data}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-customer-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('once form data is loaded, renders "timestamps:after" slot', async () => {
-      const data = await getTestData<Data>('./hapi/customers/0');
-      const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'timestamps:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('once form data is loaded, replaces "timestamps:after" slot with template "timestamps:after" if available', async () => {
-      const data = await getTestData<Data>('./hapi/customers/0');
-      const name = 'timestamps:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form .data=${data}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-customer-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
+    form.settings = portalSettings;
+    expect(form.hiddenSelector.matches('is-anonymous', true)).to.be.true;
   });
 
-  describe('create', () => {
-    it('if data is empty, renders create button', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      expect(await getByTestId(element, 'create')).to.exist;
-    });
+  it('hides old password field in customer mode if password is empty', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    expect(form.hiddenSelector.matches('password-old', true)).to.be.true;
 
-    it('renders with i18n key "create" for caption', async () => {
-      const layout = html`<foxy-customer-form lang="es"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      const control = await getByTestId(element, 'create');
-      const caption = control?.firstElementChild;
+    form.edit({ password: '123' });
+    expect(form.hiddenSelector.matches('password-old', true)).to.be.true;
 
-      expect(caption).to.have.property('localName', 'foxy-i18n');
-      expect(caption).to.have.attribute('lang', 'es');
-      expect(caption).to.have.attribute('key', 'create');
-      expect(caption).to.have.attribute('ns', 'customer-form');
-    });
+    form.settings = portalSettings;
+    form.undo();
+    expect(form.hiddenSelector.matches('password-old', true)).to.be.true;
 
-    it('renders disabled if form is disabled', async () => {
-      const layout = html`<foxy-customer-form disabled></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if form is invalid', async () => {
-      const layout = html`<foxy-customer-form></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if form is sending changes', async () => {
-      const layout = html`<foxy-customer-form></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-
-      element.edit({ email: 'justice.witt@example.com' });
-      element.submit();
-
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if disabledcontrols includes "create"', async () => {
-      const layout = html`<foxy-customer-form disabledcontrols="create"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('submits valid form on click', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const control = await getByTestId<ButtonElement>(element, 'create');
-      const submit = stub(element, 'submit');
-
-      element.edit({ email: 'justice.witt@example.com' });
-      control!.dispatchEvent(new CustomEvent('click'));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it("doesn't render if form is hidden", async () => {
-      const layout = html`<foxy-customer-form hidden></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'create')).to.not.exist;
-    });
-
-    it('doesn\'t render if hiddencontrols includes "create"', async () => {
-      const layout = html`<foxy-customer-form hiddencontrols="create"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      expect(await getByTestId(element, 'create')).to.not.exist;
-    });
-
-    it('renders with "create:before" slot by default', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'create:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "create:before" slot with template "create:before" if available and rendered', async () => {
-      const name = 'create:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-customer-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders with "create:after" slot by default', async () => {
-      const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'create:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "create:after" slot with template "create:after" if available and rendered', async () => {
-      const name = 'create:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-customer-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
+    form.edit({ password: '123' });
+    expect(form.hiddenSelector.matches('password-old', true)).to.be.false;
   });
 
-  describe('delete', () => {
-    it('renders delete button once resource is loaded', async () => {
-      const href = 'https://demo.api/hapi/customers/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-customer-form .data=${data} disabled></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
+  it('hides legal notice in admin mode, when loaded or if tos checkbox usage is none in customer mode', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    expect(form.hiddenSelector.matches('legal-notice', true)).to.be.true;
 
-      expect(await getByTestId(element, 'delete')).to.exist;
-    });
+    const settings = JSON.parse(JSON.stringify(portalSettings));
+    settings.tos_checkbox_settings.usage = 'none';
+    form.settings = settings;
+    expect(form.hiddenSelector.matches('legal-notice', true)).to.be.true;
 
-    it('renders with i18n key "delete" for caption', async () => {
-      const layout = html`<foxy-customer-form href="foxy://null" lang="es"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      const control = await getByTestId(element, 'delete');
-      const caption = control?.firstElementChild;
+    settings.tos_checkbox_settings.usage = 'optional';
+    form.settings = { ...settings };
+    expect(form.hiddenSelector.matches('legal-notice', true)).to.be.false;
 
-      expect(caption).to.have.property('localName', 'foxy-i18n');
-      expect(caption).to.have.attribute('lang', 'es');
-      expect(caption).to.have.attribute('key', 'delete');
-      expect(caption).to.have.attribute('ns', 'customer-form');
-    });
+    settings.tos_checkbox_settings.usage = 'required';
+    form.settings = { ...settings };
+    expect(form.hiddenSelector.matches('legal-notice', true)).to.be.false;
 
-    it('renders disabled if form is disabled', async () => {
-      const href = 'https://demo.api/hapi/customers/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-customer-form .data=${data} disabled></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
+    form.data = await getTestData<Data>('./hapi/customers/0');
+    expect(form.hiddenSelector.matches('legal-notice', true)).to.be.true;
+  });
 
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
+  it('hides password field for guest customers in admin mode', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    expect(form.hiddenSelector.matches('password', true)).to.be.true;
 
-    it('renders disabled if form is sending changes', async () => {
-      const href = 'https://demo.api/hapi/customers/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
+    form.edit({ is_anonymous: false });
+    expect(form.hiddenSelector.matches('password', true)).to.be.false;
+  });
 
-      element.edit({ email: 'justice.witt@example.com' });
-      element.submit();
-
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if disabledcontrols includes "delete"', async () => {
-      const element = await fixture<CustomerForm>(html`
+  it('sets "password_change_success" status when password is changed, clears it on GET', async () => {
+    const router = createRouter();
+    const form = await fixture<CustomerForm>(
+      html`
         <foxy-customer-form
-          .data=${await getTestData<Data>('./hapi/customers/0')}
-          disabledcontrols="delete"
-        >
-        </foxy-customer-form>
-      `);
-
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
-
-    it('shows deletion confirmation dialog on click', async () => {
-      const href = 'https://demo.api/hapi/customers/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      const control = await getByTestId<ButtonElement>(element, 'delete');
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const showMethod = stub(confirm!, 'show');
-
-      control!.dispatchEvent(new CustomEvent('click'));
-
-      expect(showMethod).to.have.been.called;
-    });
-
-    it('deletes resource if deletion is confirmed', async () => {
-      const href = 'https://demo.api/hapi/customers/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const deleteMethod = stub(element, 'delete');
-
-      confirm!.dispatchEvent(new InternalConfirmDialog.HideEvent(false));
-
-      expect(deleteMethod).to.have.been.called;
-    });
-
-    it('keeps resource if deletion is cancelled', async () => {
-      const href = 'https://demo.api/hapi/customers/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const deleteMethod = stub(element, 'delete');
-
-      confirm!.dispatchEvent(new InternalConfirmDialog.HideEvent(true));
-
-      expect(deleteMethod).not.to.have.been.called;
-    });
-
-    it("doesn't render if form is hidden", async () => {
-      const href = 'https://demo.api/hapi/customers/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-customer-form .data=${data} hidden></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-
-      expect(await getByTestId(element, 'delete')).to.not.exist;
-    });
-
-    it('doesn\'t render if hiddencontrols includes "delete"', async () => {
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form
-          .data=${await getTestData<Data>('./hapi/customers/0')}
-          hiddencontrols="delete"
-        >
-        </foxy-customer-form>
-      `);
-
-      expect(await getByTestId(element, 'delete')).to.not.exist;
-    });
-
-    it('renders with "delete:before" slot by default', async () => {
-      const href = 'https://demo.api/hapi/customers/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'delete:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "delete:before" slot with template "delete:before" if available and rendered', async () => {
-      const href = 'https://demo.api/hapi/customers/0';
-      const name = 'delete:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form .data=${await getTestData<Data>(href)}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-customer-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders with "delete:after" slot by default', async () => {
-      const href = 'https://demo.api/hapi/customers/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'delete:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "delete:after" slot with template "delete:after" if available and rendered', async () => {
-      const href = 'https://demo.api/hapi/customers/0';
-      const name = 'delete:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CustomerForm>(html`
-        <foxy-customer-form .data=${await getTestData<Data>(href)}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-customer-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-  });
-
-  describe('spinner', () => {
-    it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const router = createRouter();
-      const layout = html`
-        <foxy-customer-form
-          href="https://demo.api/virtual/stall"
-          lang="es"
+          href="https://demo.api/hapi/customers/0"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
         </foxy-customer-form>
-      `;
+      `
+    );
 
-      const element = await fixture<CustomerForm>(layout);
-      const spinnerWrapper = await getByTestId(element, 'spinner');
-      const spinner = spinnerWrapper!.firstElementChild;
+    await waitUntil(() => !!form.data);
+    form.edit({ password: 'HLLLajdhfksh8779__!!a' });
+    form.submit();
+    await waitUntil(() => form.status !== null);
 
-      expect(spinnerWrapper).not.to.have.class('opacity-0');
-      expect(spinner).to.have.attribute('state', 'busy');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'customer-form spinner');
+    expect(form).to.have.deep.property('status', {
+      options: { email: form.data?.email },
+      key: 'password_change_success',
     });
 
-    it('renders foxy-spinner in "error" state if loading data fails', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-customer-form href=${href} lang="es"></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      const spinnerWrapper = await getByTestId(element, 'spinner');
-      const spinner = spinnerWrapper!.firstElementChild;
+    form.href = 'https://demo.api/hapi/customers/1';
+    await waitUntil(() => !!form.data);
+    expect(form).to.have.deep.property('status', null);
+  });
 
-      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
+  it('renders "email_already_used" general error when email is already used', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
 
-      expect(spinnerWrapper).not.to.have.class('opacity-0');
-      expect(spinner).to.have.attribute('state', 'error');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'customer-form spinner');
+    form.data = await getTestData<Data>('./hapi/customers/0');
+    form.addEventListener('fetch', (evt: Event) => {
+      const event = evt as FetchEvent;
+      const body = JSON.stringify({
+        _embedded: { 'fx:errors': [{ message: 'This email address is already in use' }] },
+      });
+
+      event.respondWith(Promise.resolve(new Response(body, { status: 400 })));
     });
 
-    it('hides spinner once loaded', async () => {
-      const data = await getTestData('./hapi/customers/0');
-      const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
-      const element = await fixture<CustomerForm>(layout);
-      const spinnerWrapper = await getByTestId(element, 'spinner');
+    form.edit({ email: 'test@test.com' });
+    form.submit();
 
-      expect(spinnerWrapper).to.have.class('opacity-0');
+    await waitUntil(() => !!form.in('idle'));
+    expect(form.errors).to.include('error:email_already_used');
+  });
+
+  it('renders "registration_disabled" general error when customer signups are disabled', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+
+    form.addEventListener('fetch', (evt: Event) => {
+      const event = evt as FetchEvent;
+      const body = JSON.stringify({
+        _embedded: { 'fx:errors': [{ message: 'Customer registration is disabled' }] },
+      });
+
+      event.respondWith(Promise.resolve(new Response(body, { status: 400 })));
     });
+
+    form.edit({ email: 'test@test.com' });
+    form.submit();
+
+    await waitUntil(() => !!form.in('idle'));
+    expect(form.errors).to.include('error:registration_disabled');
+  });
+
+  it('renders "verification_failed" general error when captcha is expired', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+
+    form.addEventListener('fetch', (evt: Event) => {
+      const event = evt as FetchEvent;
+      const body = JSON.stringify({
+        _embedded: { 'fx:errors': [{ message: 'Client verification failed' }] },
+      });
+
+      event.respondWith(Promise.resolve(new Response(body, { status: 400 })));
+    });
+
+    form.edit({ email: 'test@test.com' });
+    form.submit();
+
+    await waitUntil(() => !!form.in('idle'));
+    expect(form.errors).to.include('error:verification_failed');
   });
 });

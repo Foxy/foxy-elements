@@ -9,6 +9,8 @@ import { UpdateEvent, UpdateResult } from './UpdateEvent';
 import memoize from 'lodash-es/memoize';
 import { serveFromCache } from './serveFromCache';
 import { InferrableMixin } from '../../../mixins/inferrable';
+import { internalServer } from './internalServer';
+import { uniqueId } from 'lodash-es';
 
 /**
  * Base class for custom elements working with remote HAL+JSON resources.
@@ -51,6 +53,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   static get properties(): PropertyDeclarations {
     return {
       __state: { type: String, reflect: true, attribute: 'state' },
+      virtualHost: { attribute: 'virtual-host' },
       related: { type: Array },
       parent: { type: String },
       group: { type: String, noAccessor: true },
@@ -64,7 +67,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * either an error code string if form data fails the check or `true` otherwise.
    * Error codes are collected in `element.errors`. Empty by default.
    */
-  static get v8n(): NucleonV8N<any> {
+  static get v8n(): NucleonV8N<any, any> {
     return [];
   }
 
@@ -85,6 +88,17 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * resource on creation or deletion, it will be reloaded from source.
    */
   related: string[] = [];
+
+  /**
+   * Unique identifier for the virtual host used by the element to serve internal requests.
+   *
+   * Currently only one endpoint is supported: `foxy://<virtualHost>/form/<path>`.
+   * This endpoint supports POST, GET, PATCH and DELETE methods and functions like a hAPI server.
+   *
+   * For example, `GET foxy://nucleon-123/form/subscriptions/allowNextDateModification/0` on a NucleonElement
+   * with `fx:customer_portal_settings` will return the first item of the `subscriptions.allowNextDateModification` array.
+   */
+  virtualHost: string | null = uniqueId('nucleon-');
 
   private __hrefToLoad: string | null = null;
 
@@ -112,7 +126,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
             const form = { ...context.data, ...context.edits };
 
             return rules
-              .map(validate => validate(form))
+              .map(validate => validate(form, this))
               .filter(v8nResult => typeof v8nResult === 'string')
               .filter((err, errIndex, errs) => errs.indexOf(err) === errIndex) as string[];
           },
@@ -484,7 +498,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
       }
     } catch (err) {
       if (err instanceof Rumour.UpdateError) {
-        this.__service.send({ type: 'REFRESH' });
+        setTimeout(() => this.refresh());
       } else {
         throw err;
       }
@@ -496,6 +510,11 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
 
     this.__fetchEventQueue.forEach(event => {
       const request = event.request;
+
+      if (this.virtualHost && request.url.startsWith(`foxy://${this.virtualHost}/form/`)) {
+        return event.respondWith(internalServer(request, this));
+      }
+
       const cacheResponse = serveFromCache(request.url, this.data);
       const whenResponseReady = cacheResponse.ok ? cacheResponse : api.fetch(request);
 
@@ -525,13 +544,22 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   private __handleFetchEvent(event: Event) {
     if (!(event instanceof FetchEvent)) return;
     if (event.defaultPrevented) return;
-    if (event.request.method !== 'GET') return;
-    if (event.request.url.startsWith('foxy://')) return;
     if (event.composedPath()[0] === this) return;
 
-    event.preventDefault();
-    this.__fetchEventQueue.push(event);
+    const { url, method } = event.request;
 
-    if (!this.__service.state.matches('busy')) this.__processFetchEventQueue();
+    if (url.startsWith('foxy://')) {
+      if (this.virtualHost && url.startsWith(`foxy://${this.virtualHost}/form/`)) {
+        if (method !== 'GET') return event.respondWith(internalServer(event.request, this));
+      } else {
+        return;
+      }
+    }
+
+    if (method === 'GET') {
+      event.preventDefault();
+      this.__fetchEventQueue.push(event);
+      if (!this.__service.state.matches('busy')) this.__processFetchEventQueue();
+    }
   }
 }

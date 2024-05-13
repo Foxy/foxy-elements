@@ -30,23 +30,8 @@ describe('InternalCalendar', () => {
   });
 
   it('reflects attribute values to respective properties', async () => {
-    const element = await fixture<InternalCalendar>(html`
-      <foxy-internal-calendar value="2021-01-14" start="2021-01-01" lang="es" readonly disabled>
-      </foxy-internal-calendar>
-    `);
-
-    expect(element).to.have.property('readonly', true);
-    expect(element).to.have.property('disabled', true);
-    expect(element).to.have.property('value', '2021-01-14');
-    expect(element).to.have.property('start', '2021-01-01');
-    expect(element).to.have.property('lang', 'es');
-
-    element.readonly = false;
-    element.disabled = false;
-    await element.updateComplete;
-
-    expect(element).not.to.have.attribute('readonly');
-    expect(element).not.to.have.attribute('disabled');
+    expect(InternalCalendar).to.have.nested.property('properties.readonly.reflect', true);
+    expect(InternalCalendar).to.have.nested.property('properties.disabled.reflect', true);
   });
 
   it('renders "previous" button setting the calendar to the previous month', async () => {

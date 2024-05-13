@@ -66,81 +66,86 @@ export class Pagination extends Base {
     const returnedItemsValue = Number(get(data, 'returned_items'));
     const returnedItems = Number.isNaN(returnedItemsValue) ? 0 : returnedItemsValue;
 
-    const totalItemsValue = Number(get(data, 'total_items'));
-    const totalItems = Number.isNaN(totalItemsValue) ? 0 : totalItemsValue;
+    const totalValue = Number(get(data, 'total_items'));
+    const total = Number.isNaN(totalValue) ? 0 : totalValue;
 
     const offsetValue = Number(get(data, 'offset'));
     const offset = Number.isNaN(offsetValue) ? 0 : offsetValue;
 
     const canGoBack = !disabled && offset > 0;
-    const canGoForth = !disabled && offset + returnedItems < totalItems;
+    const canGoForth = !disabled && offset + returnedItems < total;
 
     const labelClass = 'sr-only sm-not-sr-only';
+    const from = offset + 1;
+    const to = offset + returnedItems;
 
     return html`
       <slot @slotchange=${this.__connectPageElement}></slot>
 
-      <div class="grid gap-s items-center -mx-xs" style="grid-template-columns: 1fr auto 1fr">
-        <div class="flex items-center space-x-s">
-          <vaadin-button
-            data-testid="first"
-            theme="contrast tertiary-inline"
-            ?disabled=${!canGoBack}
-            @click=${() => this.__goTo('first')}
-          >
-            <iron-icon class="icon-inline text-s" icon="icons:first-page"></iron-icon>
-            <foxy-i18n class=${labelClass} lang=${lang} key="first" ns=${ns}></foxy-i18n>
-          </vaadin-button>
+      ${offset > 0 || offset + returnedItems < total
+        ? html`
+            <div
+              class="mt-s grid gap-s items-center -mx-xs"
+              style="grid-template-columns: 1fr auto 1fr"
+            >
+              <div class="flex items-center space-x-s">
+                <vaadin-button
+                  data-testid="first"
+                  theme="contrast tertiary-inline"
+                  ?disabled=${!canGoBack}
+                  @click=${() => this.__goTo('first')}
+                >
+                  <iron-icon class="icon-inline text-s" icon="icons:first-page"></iron-icon>
+                  <foxy-i18n class=${labelClass} lang=${lang} key="first" ns=${ns}></foxy-i18n>
+                </vaadin-button>
 
-          <vaadin-button
-            data-testid="prev"
-            theme="contrast tertiary-inline"
-            ?disabled=${!canGoBack}
-            @click=${() => this.__goTo('prev')}
-          >
-            <iron-icon class="icon-inline text-s" icon="icons:chevron-left"></iron-icon>
-            <foxy-i18n class=${labelClass} lang=${lang} key="previous" ns=${ns}></foxy-i18n>
-          </vaadin-button>
-        </div>
+                <vaadin-button
+                  data-testid="prev"
+                  theme="contrast tertiary-inline"
+                  ?disabled=${!canGoBack}
+                  @click=${() => this.__goTo('prev')}
+                >
+                  <iron-icon class="icon-inline text-s" icon="icons:chevron-left"></iron-icon>
+                  <foxy-i18n class=${labelClass} lang=${lang} key="previous" ns=${ns}></foxy-i18n>
+                </vaadin-button>
+              </div>
 
-        <foxy-i18n
-          options=${JSON.stringify({
-            total: totalItems,
-            from: offset ? offset + 1 : 0,
-            to: offset + returnedItems,
-          })}
-          class=${classMap({
-            'flex-1 text-xs text-tertiary text-center leading-xs truncate': true,
-            'opacity-0': !data,
-          })}
-          lang=${lang}
-          key="pagination"
-          ns=${ns}
-        >
-        </foxy-i18n>
+              <foxy-i18n
+                options=${JSON.stringify({ total, from, to })}
+                class=${classMap({
+                  'flex-1 text-xs text-tertiary text-center leading-xs truncate': true,
+                  'opacity-0': !data,
+                })}
+                lang=${lang}
+                key="pagination"
+                ns=${ns}
+              >
+              </foxy-i18n>
 
-        <div class="flex items-center justify-end space-x-s">
-          <vaadin-button
-            data-testid="next"
-            theme="contrast tertiary-inline"
-            ?disabled=${!canGoForth}
-            @click=${() => this.__goTo('next')}
-          >
-            <foxy-i18n class=${labelClass} lang=${lang} key="next" ns=${ns}></foxy-i18n>
-            <iron-icon class="icon-inline text-s" icon="icons:chevron-right"></iron-icon>
-          </vaadin-button>
+              <div class="flex items-center justify-end space-x-s">
+                <vaadin-button
+                  data-testid="next"
+                  theme="contrast tertiary-inline"
+                  ?disabled=${!canGoForth}
+                  @click=${() => this.__goTo('next')}
+                >
+                  <foxy-i18n class=${labelClass} lang=${lang} key="next" ns=${ns}></foxy-i18n>
+                  <iron-icon class="icon-inline text-s" icon="icons:chevron-right"></iron-icon>
+                </vaadin-button>
 
-          <vaadin-button
-            data-testid="last"
-            theme="contrast tertiary-inline"
-            ?disabled=${!canGoForth}
-            @click=${() => this.__goTo('last')}
-          >
-            <foxy-i18n class=${labelClass} lang=${lang} key="last" ns=${ns}></foxy-i18n>
-            <iron-icon class="icon-inline text-s" icon="icons:last-page"></iron-icon>
-          </vaadin-button>
-        </div>
-      </div>
+                <vaadin-button
+                  data-testid="last"
+                  theme="contrast tertiary-inline"
+                  ?disabled=${!canGoForth}
+                  @click=${() => this.__goTo('last')}
+                >
+                  <foxy-i18n class=${labelClass} lang=${lang} key="last" ns=${ns}></foxy-i18n>
+                  <iron-icon class="icon-inline text-s" icon="icons:last-page"></iron-icon>
+                </vaadin-button>
+              </div>
+            </div>
+          `
+        : ''}
     `;
   }
 

@@ -69,7 +69,15 @@ describe('StoreShippingMethodForm', () => {
       const control = element.firstElementChild as Control;
       const root = control.renderRoot;
 
-      await waitUntil(() => !!root.querySelector('foxy-pagination'), '', { timeout: 5000 });
+      await waitUntil(
+        async () => {
+          await control.requestUpdate();
+          return !!root.querySelector('foxy-pagination');
+        },
+        '',
+        { timeout: 5000 }
+      );
+
       const label = await getByKey(control, 'label');
 
       expect(label).to.exist;
@@ -92,7 +100,15 @@ describe('StoreShippingMethodForm', () => {
       const control = element.firstElementChild as Control;
       const root = control.renderRoot;
 
-      await waitUntil(() => !!root.querySelector('foxy-pagination'), '', { timeout: 5000 });
+      await waitUntil(
+        async () => {
+          await control.requestUpdate();
+          return !!root.querySelector('foxy-pagination');
+        },
+        '',
+        { timeout: 5000 }
+      );
+
       const pagination = (await getByTag(control, 'foxy-pagination')) as Pagination;
 
       expect(pagination).to.exist;
@@ -119,7 +135,15 @@ describe('StoreShippingMethodForm', () => {
       const control = element.firstElementChild as Control;
       const root = control.renderRoot;
 
-      await waitUntil(() => !!root.querySelector('foxy-pagination'), '', { timeout: 5000 });
+      await waitUntil(
+        async () => {
+          await control.requestUpdate();
+          return !!root.querySelector('foxy-pagination');
+        },
+        '',
+        { timeout: 5000 }
+      );
+
       const pagination = (await getByTag(control, 'foxy-pagination')) as Pagination;
       const page = pagination.lastElementChild as CollectionPage<any>;
 
@@ -138,14 +162,14 @@ describe('StoreShippingMethodForm', () => {
       );
 
       element.edit({ use_for_international: true });
-      await element.updateComplete;
-      await control.updateComplete;
+      await element.requestUpdate();
+      await control.requestUpdate();
 
       expect(page).to.have.attribute('international-allowed');
 
       element.edit({ use_for_international: false });
-      await element.updateComplete;
-      await control.updateComplete;
+      await element.requestUpdate();
+      await control.requestUpdate();
 
       expect(page).to.not.have.attribute('international-allowed');
     });

@@ -30,6 +30,7 @@ import {
 } from './private/SessionDuration/SessionDuration';
 
 import { SessionSecret, SessionSecretChangeEvent } from './private/SessionSecret/SessionSecret';
+import { SignUp } from './private/SignUp/SignUp';
 
 class TestCustomerPortalSettings extends CustomerPortalSettings {
   get whenReady() {
@@ -64,6 +65,7 @@ interface Refs {
   loading: LoadingScreen;
   secret: SessionSecret;
   switch: Switch;
+  signup: SignUp;
   error: ErrorScreen;
   ndmod: NextDateModification;
   reset: ButtonElement;
@@ -89,19 +91,20 @@ function clearListeners(target: EventTarget) {
 
 function testError(type: ErrorType) {
   return async (element: CustomerPortalSettings) => {
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(getRefs<Refs>(element).error).to.have.property('type', type);
   };
 }
 
 function testContent(value: FxCustomerPortalSettings) {
   return async (element: CustomerPortalSettings) => {
-    await element.updateComplete;
+    await element.requestUpdate();
     const refs = getRefs<Refs>(element);
 
     expect(refs.fmod.value).to.deep.equal(value.subscriptions.allowFrequencyModification);
     expect(refs.ndmod.value).to.deep.equal(value.subscriptions.allowNextDateModification);
     expect(refs.secret.value).to.equal(value.jwtSharedSecret);
+    expect(refs.signup.value).to.equal(value.signUp);
     expect(refs.origins.value).to.deep.equal(value.allowedOrigins);
     expect(refs.session.value).to.equal(value.sessionLifespanInMinutes);
   };
@@ -109,18 +112,19 @@ function testContent(value: FxCustomerPortalSettings) {
 
 async function testLoading(element: CustomerPortalSettings) {
   await waitForRef(() => getRefs<Refs>(element).loading);
-  await element.updateComplete;
+  await element.requestUpdate();
   expect(getRefs<Refs>(element).loading).to.be.visible;
 }
 
 function testDisabled(disabled: boolean) {
   return async (element: CustomerPortalSettings) => {
-    await element.updateComplete;
+    await element.requestUpdate();
     const refs = getRefs<Refs>(element);
 
     expect(refs.fmod).to.have.property('disabled', disabled);
     expect(refs.ndmod).to.have.property('disabled', disabled);
     expect(refs.secret).to.have.property('disabled', disabled);
+    expect(refs.signup).to.have.property('disabled', disabled);
     expect(refs.origins).to.have.property('disabled', disabled);
     expect(refs.session).to.have.property('disabled', disabled);
   };
@@ -366,20 +370,20 @@ const model = createModel<CustomerPortalSettings>(machine).withEvents({
 
       refs.fmod.value = samples.invalid.subscriptions.allowFrequencyModification;
       refs.fmod.dispatchEvent(new FrequencyModificationChangeEvent(refs.fmod.value));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const newSecret = { value: refs.secret.value, invalid: true };
       refs.secret.value = samples.invalid.jwtSharedSecret;
       refs.secret.dispatchEvent(new SessionSecretChangeEvent(newSecret));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       refs.ndmod.value = samples.invalid.subscriptions.allowNextDateModification;
       refs.ndmod.dispatchEvent(new NextDateModificationChangeEvent(refs.ndmod.value));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       refs.origins.value = samples.invalid.allowedOrigins;
       refs.origins.dispatchEvent(new OriginsListChangeEvent(refs.origins.value));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const newSession = { value: refs.session.value, invalid: true };
       refs.session.value = samples.invalid.sessionLifespanInMinutes;
@@ -392,20 +396,20 @@ const model = createModel<CustomerPortalSettings>(machine).withEvents({
 
       refs.fmod.value = samples.complete.subscriptions.allowFrequencyModification;
       refs.fmod.dispatchEvent(new FrequencyModificationChangeEvent(refs.fmod.value));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const newSecret = { value: refs.secret.value, invalid: false };
       refs.secret.value = samples.complete.jwtSharedSecret;
       refs.secret.dispatchEvent(new SessionSecretChangeEvent(newSecret));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       refs.ndmod.value = samples.complete.subscriptions.allowNextDateModification;
       refs.ndmod.dispatchEvent(new NextDateModificationChangeEvent(refs.ndmod.value));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       refs.origins.value = samples.complete.allowedOrigins;
       refs.origins.dispatchEvent(new OriginsListChangeEvent(refs.origins.value));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const newSession = { value: refs.session.value, invalid: false };
       refs.session.value = samples.complete.sessionLifespanInMinutes;
@@ -414,7 +418,7 @@ const model = createModel<CustomerPortalSettings>(machine).withEvents({
   },
   DISABLE: {
     exec: async element => {
-      await element.updateComplete;
+      await element.requestUpdate();
       const checkbox = getRefs<Refs>(element).switch;
       checkbox.checked = false;
       checkbox.dispatchEvent(new SwitchChangeEvent(false));
@@ -422,7 +426,7 @@ const model = createModel<CustomerPortalSettings>(machine).withEvents({
   },
   ENABLE: {
     exec: async element => {
-      await element.updateComplete;
+      await element.requestUpdate();
       const checkbox = getRefs<Refs>(element).switch;
       expect(checkbox).to.have.property('disabled', false);
       checkbox.checked = true;
@@ -435,6 +439,12 @@ const model = createModel<CustomerPortalSettings>(machine).withEvents({
 });
 
 describe('CustomerPortalSettings', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   model.getShortestPathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {

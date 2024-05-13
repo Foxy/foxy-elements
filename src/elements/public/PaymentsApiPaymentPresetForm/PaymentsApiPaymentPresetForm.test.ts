@@ -174,11 +174,11 @@ describe('PaymentsApiPaymentPresetForm', () => {
     expect(control).to.have.deep.property('options', [{ label: 'option_live', value: 'live' }]);
 
     element.edit({ is_live: false });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['test']);
 
     element.edit({ is_live: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['live']);
   });
 
@@ -213,11 +213,11 @@ describe('PaymentsApiPaymentPresetForm', () => {
     expect(control).to.have.deep.property('options', [{ label: 'option_true', value: 'true' }]);
 
     element.edit({ is_purchase_order_enabled: false });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal([]);
 
     element.edit({ is_purchase_order_enabled: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['true']);
   });
 
@@ -262,7 +262,7 @@ describe('PaymentsApiPaymentPresetForm', () => {
     dialog.href = 'https://example.com/href';
 
     const form = await fixture(
-      (control.form as FormRenderer)({ html, dialog, handleFetch, handleUpdate })
+      (control.form as FormRenderer)({ html, spread, dialog, handleFetch, handleUpdate })
     );
 
     expect(form).to.be.instanceOf(PaymentsApiPaymentMethodForm);
@@ -281,6 +281,7 @@ describe('PaymentsApiPaymentPresetForm', () => {
 
     const item = await fixture(
       (control.item as ItemRenderer)({
+        simplifyNsLoading: false,
         readonlyControls: new BooleanSelector(''),
         disabledControls: new BooleanSelector(''),
         hiddenControls: new BooleanSelector(''),
@@ -351,7 +352,7 @@ describe('PaymentsApiPaymentPresetForm', () => {
     dialog.href = 'https://example.com/href';
 
     const form = await fixture(
-      (control.form as FormRenderer)({ html, dialog, handleFetch, handleUpdate })
+      (control.form as FormRenderer)({ html, spread, dialog, handleFetch, handleUpdate })
     );
 
     expect(form).to.be.instanceOf(PaymentsApiFraudProtectionForm);
@@ -370,6 +371,7 @@ describe('PaymentsApiPaymentPresetForm', () => {
 
     const item = await fixture(
       (control.item as ItemRenderer)({
+        simplifyNsLoading: false,
         readonlyControls: new BooleanSelector(''),
         disabledControls: new BooleanSelector(''),
         hiddenControls: new BooleanSelector(''),

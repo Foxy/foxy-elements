@@ -5,7 +5,7 @@ export async function getByKey(element: Element, key: string): Promise<I18n | nu
   let root: Element | DocumentFragment = element;
 
   if (element instanceof LitElement) {
-    await element.updateComplete;
+    await element.requestUpdate();
     root = element.renderRoot;
   }
 

@@ -1,30 +1,28 @@
-import { Data, Templates } from './types';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { TemplateResult, html } from 'lit-html';
+import type { Data, Templates, TransactionPageHrefGetter } from './types';
+import type { PropertyDeclarations } from 'lit-element';
+import type { TemplateResult } from 'lit-html';
+import type { NucleonV8N } from '../NucleonElement/types';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
-import { ConfigurableMixin } from '../../../mixins/configurable';
-import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { NucleonV8N } from '../NucleonElement/types';
-import { PropertyTable } from '../../private/index';
-import { TextFieldElement } from '@vaadin/vaadin-text-field';
-import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
+import { BooleanSelector } from '@foxy.io/sdk/core';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { html } from 'lit-html';
 
 const NS = 'coupon-code-form';
-const Base = ConfigurableMixin(
-  ThemeableMixin(ScopedElementsMixin(TranslatableMixin(NucleonElement, NS)))
-);
+const Base = TranslatableMixin(InternalForm, NS);
 
 /**
  * Form element for creating or editing coupon codes (`fx:coupon_code`).
  *
  * @slot code:before
  * @slot code:after
+ *
+ * @slot number-of-uses-to-date:before – **new in v1.27.0**
+ * @slot number-of-uses-to-date:after – **new in v1.27.0**
+ *
+ * @slot transactions:before – **new in v1.27.0**
+ * @slot transactions:after – **new in v1.27.0**
  *
  * @slot timestamps:before
  * @slot timestamps:after
@@ -39,198 +37,60 @@ const Base = ConfigurableMixin(
  * @since 1.15.0
  */
 export class CouponCodeForm extends Base<Data> {
-  static get scopedElements(): ScopedElementsMap {
+  static get properties(): PropertyDeclarations {
     return {
-      'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'vaadin-button': customElements.get('vaadin-button'),
-
-      'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
-      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
-      'foxy-spinner': customElements.get('foxy-spinner'),
-      'foxy-i18n': customElements.get('foxy-i18n'),
-
-      'x-property-table': PropertyTable,
+      ...super.properties,
+      getTransactionPageHref: { attribute: false },
     };
   }
 
   static get v8n(): NucleonV8N<Data> {
     return [
-      ({ code: v }) => !!v || 'code_required',
-      ({ code: v }) => !v || v.length <= 50 || 'code_too_long',
-      ({ code: v }) => !v?.includes(' ') || 'code_has_spaces',
+      ({ code: v }) => !!v || 'code:v8n_required',
+      ({ code: v }) => !v || v.length <= 50 || 'code:v8n_too_long',
+      ({ code: v }) => !v?.includes(' ') || 'code:v8n_has_spaces',
     ];
   }
 
+  getTransactionPageHref: TransactionPageHrefGetter | null = null;
+
   templates: Templates = {};
 
-  render(): TemplateResult {
-    return html`
-      <div class="relative space-y-m">
-        ${this.__isCodeHidden ? null : this.__renderCode()}
-        ${this.__isTimestampsHidden ? null : this.__renderTimestamps()}
-        ${this.__isCreateHidden ? null : this.__renderCreate()}
-        ${this.__isDeleteHidden ? null : this.__renderDelete()}
-
-        <div
-          data-testid="spinner"
-          class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex': true,
-            'opacity-0 pointer-events-none': this.in('idle'),
-          })}
-        >
-          <foxy-spinner
-            layout="vertical"
-            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-            state=${this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty'}
-            lang=${this.lang}
-            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
-          >
-          </foxy-spinner>
-        </div>
-      </div>
-    `;
+  get readonlySelector(): BooleanSelector {
+    return new BooleanSelector(`number-of-uses-to-date ${super.readonlySelector}`.trim());
   }
 
-  private get __isCodeHidden(): boolean {
-    return this.hiddenSelector.matches('code', true);
+  get hiddenSelector(): BooleanSelector {
+    const alwaysMatch: string[] = [super.hiddenSelector.toString()];
+    if (!this.href) alwaysMatch.unshift('transactions', 'number-of-uses-to-date');
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
-  private get __isTimestampsHidden(): boolean {
-    if (this.hiddenSelector.matches('timestamps', true)) return true;
-    return !this.data;
-  }
+  renderBody(): TemplateResult {
+    let transactions: string | undefined;
 
-  private get __isCreateHidden(): boolean {
-    if (this.hiddenSelector.matches('create', true)) return true;
-    return !!this.data;
-  }
-
-  private get __isDeleteHidden(): boolean {
-    if (this.hiddenSelector.matches('delete', true)) return true;
-    return !this.data;
-  }
-
-  private __getErrorMessage(prefix: string) {
-    const error = this.errors.find(err => err.startsWith(prefix));
-    return error ? this.t(error.replace(prefix, 'v8n')).toString() : '';
-  }
-
-  private __getValidator(prefix: string) {
-    return () => !this.errors.some(err => err.startsWith(prefix));
-  }
-
-  private __renderCode(): TemplateResult {
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('code:before')}
-
-        <vaadin-text-field
-          data-testid="code"
-          class="w-full"
-          label=${this.t('code')}
-          value=${ifDefined(this.form.code)}
-          .checkValidity=${this.__getValidator('code')}
-          .errorMessage=${this.__getErrorMessage('code')}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('code', true)}
-          ?readonly=${this.readonlySelector.matches('code', true)}
-          required
-          @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
-          @input=${(evt: CustomEvent) => {
-            const newCode = (evt.currentTarget as TextFieldElement).value;
-            this.edit({ code: newCode });
-          }}
-        >
-        </vaadin-text-field>
-
-        ${this.renderTemplateOrSlot('code:after')}
-      </div>
-    `;
-  }
-
-  private __renderTimestamps(): TemplateResult {
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('timestamps:before')}
-
-        <x-property-table
-          data-testid="timestamps"
-          .items=${(['date_modified', 'date_created'] as const).map(field => ({
-            name: this.t(field),
-            value: this.data?.[field]
-              ? this.t('date', { value: new Date(this.data[field] as string) })
-              : '',
-          }))}
-        >
-        </x-property-table>
-
-        ${this.renderTemplateOrSlot('timestamps:after')}
-      </div>
-    `;
-  }
-
-  private __renderCreate(): TemplateResult {
-    const isCleanTemplateInvalid = this.in({ idle: { template: { clean: 'invalid' } } });
-    const isDirtyTemplateInvalid = this.in({ idle: { template: { dirty: 'invalid' } } });
-    const isCleanSnapshotInvalid = this.in({ idle: { snapshot: { clean: 'invalid' } } });
-    const isDirtySnapshotInvalid = this.in({ idle: { snapshot: { dirty: 'invalid' } } });
-    const isTemplateInvalid = isCleanTemplateInvalid || isDirtyTemplateInvalid;
-    const isSnaphotInvalid = isCleanSnapshotInvalid || isDirtySnapshotInvalid;
-    const isInvalid = isTemplateInvalid || isSnaphotInvalid;
-    const isIdle = this.in('idle');
+    try {
+      const url = new URL(this.data?._links['fx:coupon_code_transactions'].href ?? '');
+      url.searchParams.set('zoom', 'items');
+      transactions = url.toString();
+    } catch {
+      transactions = undefined;
+    }
 
     return html`
-      <div>
-        ${this.renderTemplateOrSlot('create:before')}
+      <foxy-internal-text-control infer="code"></foxy-internal-text-control>
+      <foxy-internal-integer-control infer="number-of-uses-to-date"></foxy-internal-integer-control>
+      <foxy-internal-async-list-control
+        first=${ifDefined(transactions)}
+        infer="transactions"
+        limit="5"
+        item="foxy-transaction-card"
+        .getPageHref=${this.getTransactionPageHref}
+        hide-delete-button
+      >
+      </foxy-internal-async-list-control>
 
-        <vaadin-button
-          data-testid="create"
-          class="w-full"
-          theme="primary success"
-          ?disabled=${!isIdle || isInvalid || this.disabledSelector.matches('create', true)}
-          @click=${() => this.submit()}
-        >
-          <foxy-i18n ns=${this.ns} key="create" lang=${this.lang}></foxy-i18n>
-        </vaadin-button>
-
-        ${this.renderTemplateOrSlot('create:after')}
-      </div>
-    `;
-  }
-
-  private __renderDelete(): TemplateResult {
-    return html`
-      <div>
-        <foxy-internal-confirm-dialog
-          data-testid="confirm"
-          message="delete_prompt"
-          confirm="delete"
-          cancel="cancel"
-          header="delete"
-          theme="primary error"
-          lang=${this.lang}
-          ns=${this.ns}
-          id="confirm"
-          @hide=${(evt: DialogHideEvent) => !evt.detail.cancelled && this.delete()}
-        >
-        </foxy-internal-confirm-dialog>
-
-        ${this.renderTemplateOrSlot('delete:before')}
-
-        <vaadin-button
-          data-testid="delete"
-          theme="error"
-          class="w-full"
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('delete', true)}
-          @click=${(evt: CustomEvent) => {
-            const confirm = this.renderRoot.querySelector('#confirm') as InternalConfirmDialog;
-            confirm.show(evt.currentTarget as ButtonElement);
-          }}
-        >
-          <foxy-i18n ns=${this.ns} key="delete" lang=${this.lang}></foxy-i18n>
-        </vaadin-button>
-
-        ${this.renderTemplateOrSlot('delete:after')}
-      </div>
+      ${super.renderBody()}
     `;
   }
 }

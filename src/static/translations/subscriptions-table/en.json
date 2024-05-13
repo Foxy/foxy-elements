@@ -11,6 +11,7 @@
   "subscription_failed": "Payment failed on {{date, date}}",
   "subscription_inactive": "Inactive",
   "subscription_will_be_cancelled": "Ends on {{date, date}}",
+  "subscription_will_be_active": "Starts on {{date, date}}",
   "transaction_summary": "{{most_expensive_item.name}}",
   "twice_a_month": "Twice a month",
   "update": "Update",
@@ -19,8 +20,9 @@
   "yearly": "Yearly",
   "yearly_plural": "Every {{count}} years",
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
     "loading_empty": "No data",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

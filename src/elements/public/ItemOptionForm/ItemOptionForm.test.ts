@@ -31,21 +31,25 @@ describe('ItemOptionForm', () => {
   });
 
   it('produces an v8n error if item option name is missing', () => {
-    expect(ItemOptionForm.v8n.map(fn => fn({}))).to.include('name:v8n_required');
+    const form = new ItemOptionForm();
+    expect(ItemOptionForm.v8n.map(fn => fn({}, form))).to.include('name:v8n_required');
   });
 
   it('produces an v8n error if item option name is too long', () => {
     const name = 'A'.repeat(101);
-    expect(ItemOptionForm.v8n.map(fn => fn({ name }))).to.include('name:v8n_too_long');
+    const form = new ItemOptionForm();
+    expect(ItemOptionForm.v8n.map(fn => fn({ name }, form))).to.include('name:v8n_too_long');
   });
 
   it('produces an v8n error if item option value is missing', () => {
-    expect(ItemOptionForm.v8n.map(fn => fn({}))).to.include('value:v8n_required');
+    const form = new ItemOptionForm();
+    expect(ItemOptionForm.v8n.map(fn => fn({}, form))).to.include('value:v8n_required');
   });
 
   it('produces an v8n error if item option value is too long', () => {
     const value = 'A'.repeat(1025);
-    expect(ItemOptionForm.v8n.map(fn => fn({ value }))).to.include('value:v8n_too_long');
+    const form = new ItemOptionForm();
+    expect(ItemOptionForm.v8n.map(fn => fn({ value }, form))).to.include('value:v8n_too_long');
   });
 
   it('renders item option name as text control', async () => {

@@ -74,9 +74,15 @@ describe('CartForm', () => {
       `;
 
       const control = form.firstElementChild as Control;
-      await waitUntil(() => !!control.renderRoot.querySelector('[key="state_fail"]'), '', {
-        timeout: 5000,
-      });
+
+      await waitUntil(
+        async () => {
+          await control.requestUpdate();
+          return !!control.renderRoot.querySelector('[key="state_fail"]');
+        },
+        '',
+        { timeout: 5000 }
+      );
 
       const label = await getByKey(control, 'state_fail');
       expect(label).to.exist;
@@ -110,9 +116,15 @@ describe('CartForm', () => {
       `;
 
       const control = form.firstElementChild as Control;
-      await waitUntil(() => !!control.renderRoot.querySelector('a'), '', {
-        timeout: 5000,
-      });
+
+      await waitUntil(
+        async () => {
+          await control.requestUpdate();
+          return !!control.renderRoot.querySelector('a');
+        },
+        '',
+        { timeout: 5000 }
+      );
 
       const link = (await getByTag(control, 'a')) as HTMLElement;
       const linkLabel = await getByKey(link, 'state_idle');

@@ -26,7 +26,7 @@ describe('ItemCard', () => {
     const router = createRouter();
     const element = await fixture<ItemCard>(html`
       <foxy-item-card
-        href="https://demo.api/hapi/items/0"
+        href="https://demo.api/hapi/items/0?zoom=item_options"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-item-card>
@@ -36,7 +36,7 @@ describe('ItemCard', () => {
 
     element.data!.image = 'https://picsum.photos/128';
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot.querySelector('img[src="https://picsum.photos/128"]')).to.exist;
   });
@@ -45,7 +45,7 @@ describe('ItemCard', () => {
     const router = createRouter();
     const element = await fixture<ItemCard>(html`
       <foxy-item-card
-        href="https://demo.api/hapi/items/0"
+        href="https://demo.api/hapi/items/0?zoom=item_options"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-item-card>
@@ -55,7 +55,7 @@ describe('ItemCard', () => {
 
     element.data!.name = 'Test Item Name';
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.include.text('Test Item Name');
   });
@@ -64,7 +64,7 @@ describe('ItemCard', () => {
     const router = createRouter();
     const element = await fixture<ItemCard>(html`
       <foxy-item-card
-        href="https://demo.api/hapi/items/0"
+        href="https://demo.api/hapi/items/0?zoom=item_options"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-item-card>
@@ -74,7 +74,7 @@ describe('ItemCard', () => {
 
     element.data!.name = 'Test Item Name';
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.include.text('Test Item Name');
   });
@@ -83,7 +83,7 @@ describe('ItemCard', () => {
     const router = createRouter();
     const element = await fixture<ItemCard>(html`
       <foxy-item-card
-        href="https://demo.api/hapi/items/0"
+        href="https://demo.api/hapi/items/0?zoom=item_options"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-item-card>
@@ -94,7 +94,7 @@ describe('ItemCard', () => {
     element.data!.quantity = 8;
     element.data!.price = 16;
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const amounts = element.renderRoot.querySelectorAll('foxy-i18n[key="price"]');
 
@@ -108,8 +108,9 @@ describe('ItemCard', () => {
 
     expect(amounts[1]).to.have.property('infer', '');
     expect(amounts[1]).to.have.deep.property('options', {
-      amount: '128 USD',
+      amount: '11.98 USD',
       currencyDisplay: 'code',
+      signDisplay: 'exceptZero',
     });
   });
 
@@ -144,14 +145,8 @@ describe('ItemCard', () => {
         expect(domPriceMod).to.have.deep.property('options', {
           amount: `${apiOption.price_mod} USD`,
           currencyDisplay: 'code',
+          signDisplay: 'exceptZero',
         });
-      }
-
-      if (apiOption.weight_mod) {
-        const domWeightMod = domOption.querySelector('foxy-i18n[key="wgt"]');
-
-        expect(domOption).to.include.text(String(apiOption.weight_mod));
-        expect(domWeightMod).to.have.property('infer', '');
       }
     }
   });

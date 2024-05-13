@@ -19,7 +19,7 @@ describe('InternalSandbox', () => {
     const element = await fixture<InternalSandbox>(layout);
 
     element.render = () => html`Test`;
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.shadowRoot).to.include.text('Test');
   });

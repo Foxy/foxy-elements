@@ -11,7 +11,8 @@ const samples = {
   value: [4, 16, 31],
 };
 
-function testItems(element: MonthdayPicker) {
+async function testItems(element: MonthdayPicker) {
+  await element.requestUpdate();
   const items = Array.from(new Array(31), (_, i) => i + 1);
   const labels = element.shadowRoot!.querySelectorAll('label');
 
@@ -26,19 +27,22 @@ function testItems(element: MonthdayPicker) {
   });
 }
 
-function testEnabled(element: MonthdayPicker) {
+async function testEnabled(element: MonthdayPicker) {
+  await element.requestUpdate();
   expect(element.disabled).to.be.false;
   const inputs = element.shadowRoot!.querySelectorAll('input');
   Array.from(inputs).every(input => expect(input.disabled).to.be.false);
 }
 
-function testDisabled(element: MonthdayPicker) {
+async function testDisabled(element: MonthdayPicker) {
+  await element.requestUpdate();
   expect(element.disabled).to.be.true;
   const inputs = element.shadowRoot!.querySelectorAll('input');
   Array.from(inputs).every(input => expect(input.disabled).to.be.true);
 }
 
 async function testToggling(element: MonthdayPicker) {
+  await element.requestUpdate();
   const input = element.shadowRoot!.querySelector('input');
 
   if (element.disabled) {

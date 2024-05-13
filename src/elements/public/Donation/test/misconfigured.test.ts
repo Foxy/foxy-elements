@@ -13,49 +13,49 @@ const samples = {
 };
 
 async function expectErrorScreen(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const { error } = getRefs<Refs>(element);
   expect(error, 'error screen must be rendered').not.to.be.undefined;
   expect(error, 'error screen must be visible').to.be.visible;
 }
 
 async function expectCurrency(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   expect(element.currency, 'currency must equal sample').to.equal(samples.currency);
 }
 
 async function expectNoCurrency(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   expect(element.currency, 'currency must equal null').to.be.null;
 }
 
 async function expectAmount(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   expect(element.amount, 'amount must equal sample').to.equal(samples.amount);
 }
 
 async function expectNoAmount(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   expect(element.amount, 'amount must equal null').to.be.null;
 }
 
 async function expectStore(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   expect(element.store, 'store must equal sample').to.equal(samples.store);
 }
 
 async function expectNoStore(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   expect(element.store, 'store must equal null').to.be.null;
 }
 
 async function expectName(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   expect(element.name, 'name must equal sample').to.equal(samples.name);
 }
 
 async function expectNoName(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   expect(element.name, 'name must equal null').to.be.null;
 }
 

@@ -34,7 +34,7 @@
       "undo_confirm": "Discard"
     },
     "pagination": {
-      "create_button_text": "Add payment method",
+      "create_button_text": "Add payment method +",
       "card": {
         "delete_button_text": "Remove"
       }
@@ -58,7 +58,7 @@
       "undo_confirm": "Discard"
     },
     "pagination": {
-      "create_button_text": "Add fraud protection",
+      "create_button_text": "Add fraud protection +",
       "card": {
         "delete_button_text": "Remove"
       }
@@ -66,12 +66,13 @@
   },
   "timestamps": {
     "date_created": "Created on",
-    "date_modified": "Last updated",
+    "date_modified": "Last updated on",
     "date": "{{value, date}}"
   },
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   },
   "delete": {
     "delete": "Delete",

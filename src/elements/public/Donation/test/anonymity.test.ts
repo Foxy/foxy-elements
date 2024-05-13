@@ -7,34 +7,34 @@ import { Refs } from './types';
 import { CheckboxChangeEvent } from '../../../private/events';
 
 async function expectNoErrorScreen(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const { error } = getRefs<Refs>(element);
   expect(error, 'error screen must not be rendered').to.be.undefined;
 }
 
 async function expectNoAnonymityCheckbox(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const { anonymity } = getRefs<Refs>(element);
   expect(anonymity, 'anonymity checkbox must not be rendered').to.be.undefined;
   expect(element.anonymity, 'anonymity must be disabled').to.be.false;
 }
 
 async function expectAnonymityCheckbox(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const { anonymity } = getRefs<Refs>(element);
   expect(anonymity, 'anonymity checkbox must be rendered').to.be.visible;
   expect(element.anonymity, 'anonymity must be enabled').to.be.true;
 }
 
 async function expectPublicDonation(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const field = getRefs<Refs>(element).form?.elements.namedItem('Anonymous') as HTMLInputElement;
   expect(field).not.to.exist;
   expect(element.anonymous, 'anonymous must be set to false').to.be.false;
 }
 
 async function expectAnonymousDonation(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const field = getRefs<Refs>(element).form?.elements.namedItem('Anonymous') as HTMLInputElement;
   expect(field.value, 'form data must have anonymous=true').to.equal('true');
   expect(element.anonymous, 'anonymous must be set to true').to.be.true;

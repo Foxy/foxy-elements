@@ -2,71 +2,158 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
-    "backend_developer": { "type": "string", "default": "Backend developer" },
-    "backend_developer_explainer": {
-      "type": "string",
-      "default": "Manages server-side code in PHP, Python, Ruby, etc."
+    "first-name": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "First name" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "Please enter your first name" },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Unfortunately we can't store first names longer than 50 characters"
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
     },
-    "cancel": { "type": "string", "default": "Cancel" },
-    "create": { "type": "string", "default": "Create" },
-    "delete": { "type": "string", "default": "Delete" },
-    "delete_prompt": {
-      "type": "string",
-      "default": "This resource will be permanently removed. Are you sure?"
+    "last-name": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Last name" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": {
+          "type": "string",
+          "default": "Please enter your last name. If you don't have a last name, put any character in this field."
+        },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Unfortunately we can't store last names longer than 50 characters"
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
     },
-    "designer": { "type": "string", "default": "Designer" },
-    "designer_explainer": {
-      "type": "string",
-      "default": "Manages appearance, art and user interface."
+    "email": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Email" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "This email is your login to Foxy Admin. We'll also send important notifications to this address."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter your email address" },
+        "v8n_invalid_email": { "type": "string", "default": "Please enter a valid email address" },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Unfortunately we can't store email addresses longer than 100 characters"
+        }
+      },
+      "required": [
+        "label",
+        "placeholder",
+        "helper_text",
+        "v8n_required",
+        "v8n_invalid_email",
+        "v8n_too_long"
+      ]
     },
-    "email": { "type": "string", "default": "Email" },
-    "first_name": { "type": "string", "default": "First name" },
-    "frontend_developer": { "type": "string", "default": "Frontend developer" },
-    "frontend_developer_explainer": {
-      "type": "string",
-      "default": "Manages client-side code in JS, CSS, HTML, etc."
+    "phone": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Phone" },
+        "placeholder": { "type": "string", "default": "Optional" },
+        "helper_text": {
+          "type": "string",
+          "default": "We'll only use this number to contact you about your account."
+        },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "This phone number appears to be too long. Please make sure you entered it correctly."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
     },
-    "hidden": { "type": "string", "default": "Hidden" },
-    "last_name": { "type": "string", "default": "Last name" },
-    "merchant": { "type": "string", "default": "Merchant" },
-    "merchant_explainer": {
-      "type": "string",
-      "default": "Manages items, finances and this store in general."
+    "affiliate-id": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Affiliate ID" },
+        "placeholder": { "type": "string", "default": "Optional" },
+        "helper_text": {
+          "type": "string",
+          "default": "This value can only be set during user creation. Contact us if you need this value changed later."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text"]
     },
-    "phone": { "type": "string", "default": "Phone" },
-    "v8n_invalid_email": { "type": "string", "default": "Invalid email" },
-    "v8n_required": { "type": "string", "default": "Required" },
-    "v8n_too_long": { "type": "string", "default": "Too long" },
+    "role": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Role" },
+        "helper_text": {
+          "type": "string",
+          "default": "If you contact us for help, your role will help us understand how to best assist you."
+        },
+        "option_merchant": { "type": "string", "default": "Merchant" },
+        "option_backend_developer": { "type": "string", "default": "Backend Developer" },
+        "option_frontend_developer": { "type": "string", "default": "Frontend Developer" },
+        "option_designer": { "type": "string", "default": "Designer" }
+      },
+      "required": [
+        "label",
+        "helper_text",
+        "option_merchant",
+        "option_backend_developer",
+        "option_frontend_developer",
+        "option_designer"
+      ]
+    },
+    "timestamps": {
+      "additionalProperties": false,
+      "properties": {
+        "date_created": { "type": "string", "default": "Created on" },
+        "date_modified": { "type": "string", "default": "Last updated on" },
+        "date": { "type": "string", "default": "{{value, date}}" }
+      },
+      "required": ["date_created", "date_modified", "date"]
+    },
+    "delete": {
+      "additionalProperties": false,
+      "properties": {
+        "delete": { "type": "string", "default": "Delete" },
+        "cancel": { "type": "string", "default": "Cancel" },
+        "delete_prompt": {
+          "type": "string",
+          "default": "Are you sure you'd like to remove this account? You won't be able to bring it back."
+        }
+      },
+      "required": ["delete", "cancel", "delete_prompt"]
+    },
+    "create": {
+      "additionalProperties": false,
+      "properties": { "create": { "type": "string", "default": "Create" } },
+      "required": ["create"]
+    },
     "spinner": {
       "additionalProperties": false,
       "properties": {
+        "refresh": { "type": "string", "default": "Refresh" },
         "loading_busy": { "type": "string", "default": "Loading" },
-        "loading_error": { "type": "string", "default": "Failed to load" }
+        "loading_error": { "type": "string", "default": "Unknown error" }
       },
-      "required": ["loading_busy", "loading_error"]
+      "required": ["refresh", "loading_busy", "loading_error"]
     }
   },
   "required": [
-    "backend_developer",
-    "backend_developer_explainer",
-    "cancel",
-    "create",
-    "delete",
-    "delete_prompt",
-    "designer",
-    "designer_explainer",
+    "first-name",
+    "last-name",
     "email",
-    "first_name",
-    "frontend_developer",
-    "frontend_developer_explainer",
-    "hidden",
-    "last_name",
-    "merchant",
-    "merchant_explainer",
     "phone",
-    "v8n_invalid_email",
-    "v8n_required",
-    "v8n_too_long",
+    "affiliate-id",
+    "role",
+    "timestamps",
+    "delete",
+    "create",
     "spinner"
   ]
 }

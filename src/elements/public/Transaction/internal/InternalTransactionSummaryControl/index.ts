@@ -1,4 +1,5 @@
 import '../../../../internal/InternalControl/index';
+import '../../../NucleonElement/index';
 import '../../../I18n/index';
 
 import { InternalTransactionSummaryControl as Control } from './InternalTransactionSummaryControl';

@@ -1,9 +1,11 @@
-import '@vaadin/vaadin-text-field';
-import '@vaadin/vaadin-button';
-import '../../internal/InternalConfirmDialog/index';
-import '../../internal/InternalSandbox/index';
-import '../Spinner/index';
-import '../I18n/index';
+import 'vanilla-hcaptcha';
+
+import '../../internal/InternalRadioGroupControl/index';
+import '../../internal/InternalPasswordControl/index';
+import '../../internal/InternalTextControl/index';
+import '../../internal/InternalForm/index';
+
+import './internal/InternalCustomerFormLegalNoticeControl/index';
 
 import { CustomerForm } from './CustomerForm';
 

@@ -11,13 +11,13 @@ const samples = {
 };
 
 async function expectNoErrorScreen(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const { error } = getRefs<Refs>(element);
   expect(error, 'error screen must not be rendered').to.be.undefined;
 }
 
 async function expectNoComment(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const { comment, form } = getRefs<Refs>(element);
   const field = form?.elements.namedItem('Comment');
@@ -28,7 +28,7 @@ async function expectNoComment(element: Donation) {
 }
 
 async function expectEmptyComment(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const { comment, form } = getRefs<Refs>(element);
   const field = form?.elements.namedItem('Comment') as HTMLTextAreaElement;
@@ -39,7 +39,7 @@ async function expectEmptyComment(element: Donation) {
 }
 
 async function expectEnteredComment(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const { comment, form } = getRefs<Refs>(element);
   const field = form?.elements.namedItem('Comment') as HTMLTextAreaElement;
@@ -51,7 +51,7 @@ async function expectEnteredComment(element: Donation) {
 }
 
 async function expectPrefilledComment(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const { comment, form } = getRefs<Refs>(element);
   const field = form?.elements.namedItem('Comment') as HTMLTextAreaElement;

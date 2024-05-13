@@ -192,7 +192,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         ?disabled=${ctx.data === null}
         @click=${(evt: Event) => {
           const url = new URL(ctx.href);
-          url.searchParams.set('zoom', 'last_transaction,transaction_template:items');
+          url.searchParams.set('zoom', 'transaction_template:items');
           this.__subscriptionDialog.href = url.toString();
           this.__subscriptionDialog.show(evt.currentTarget as HTMLButtonElement);
         }}
@@ -298,7 +298,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
   private get __activeSubscriptionsLink() {
     try {
       const url = new URL(this.customer!._links['fx:subscriptions'].href);
-      url.searchParams.set('zoom', 'last_transaction,transaction_template:items');
+      url.searchParams.set('zoom', 'transaction_template:items');
       return url.toString();
     } catch {
       return '';

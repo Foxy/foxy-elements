@@ -214,13 +214,13 @@ describe('StoreForm', () => {
     expect(form.errors).to.not.include('store-domain:v8n_required');
   });
 
-  it('produces the store-domain:v8n_too_long error if store domain is longer than 50 characters', () => {
+  it('produces the store-domain:v8n_too_long error if store domain is longer than 100 characters', () => {
     const form = new Form();
 
-    form.edit({ store_domain: 'a'.repeat(51) });
+    form.edit({ store_domain: 'a'.repeat(101) });
     expect(form.errors).to.include('store-domain:v8n_too_long');
 
-    form.edit({ store_domain: 'a'.repeat(50) });
+    form.edit({ store_domain: 'a'.repeat(100) });
     expect(form.errors).to.not.include('store-domain:v8n_too_long');
   });
 
@@ -344,13 +344,13 @@ describe('StoreForm', () => {
     expect(form.errors).to.not.include('country:v8n_required');
   });
 
-  it('produces the logo-url:v8n_too_long error if logo url is longer than 100 characters', () => {
+  it('produces the logo-url:v8n_too_long error if logo url is longer than 200 characters', () => {
     const form = new Form();
 
-    form.edit({ logo_url: 'A'.repeat(101) });
+    form.edit({ logo_url: 'A'.repeat(201) });
     expect(form.errors).to.include('logo-url:v8n_too_long');
 
-    form.edit({ logo_url: 'A'.repeat(100) });
+    form.edit({ logo_url: 'A'.repeat(200) });
     expect(form.errors).to.not.include('logo-url:v8n_too_long');
   });
 
@@ -549,13 +549,13 @@ describe('StoreForm', () => {
     expect(control).to.be.instanceOf(InternalTextControl);
 
     element.edit({ use_remote_domain: false, store_domain: 'test' });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(control).to.have.attribute('helper-text', 'store-domain.helper_text');
     expect(control).to.have.attribute('suffix', '.foxycart.com');
 
     element.edit({ use_remote_domain: true, store_domain: 'test.com' });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(control).to.have.attribute('helper-text', 'store-domain.custom_domain_note');
     expect(control).to.have.attribute('suffix', '');
@@ -680,7 +680,7 @@ describe('StoreForm', () => {
 
     element.data!.store_version_uri = '';
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalAsyncComboBoxControl);
@@ -690,13 +690,13 @@ describe('StoreForm', () => {
     expect(control).to.have.property('selectedItem', null);
 
     element.storeVersions = 'https://demo.api/hapi/store_versions';
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(control).to.have.attribute('first', 'https://demo.api/hapi/store_versions');
 
     element.edit({ store_version_uri: 'https://demo.api/hapi/store_versions/0' });
     const storeVersion = await getTestData('./hapi/store_versions/0', router);
-    await element.updateComplete;
+    await element.requestUpdate();
     await waitUntil(() => !!control.selectedItem, '', { timeout: 5000 });
 
     expect(control).to.have.deep.property('selectedItem', storeVersion);
@@ -719,11 +719,11 @@ describe('StoreForm', () => {
     expect(control).to.be.instanceOf(InternalTextControl);
 
     element.edit({ store_email: 'a@test.com,b@test.com' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control).to.have.attribute('placeholder', 'a@test.com');
 
     element.edit({ store_email: '' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control).to.have.attribute('placeholder', 'from-email.placeholder');
   });
 
@@ -748,11 +748,11 @@ describe('StoreForm', () => {
     ]);
 
     element.edit({ bcc_on_receipt_email: false });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal([]);
 
     element.edit({ bcc_on_receipt_email: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['checked']);
   });
 
@@ -777,11 +777,11 @@ describe('StoreForm', () => {
     ]);
 
     element.edit({ use_email_dns: false });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal([]);
 
     element.edit({ use_email_dns: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['checked']);
   });
 
@@ -800,7 +800,7 @@ describe('StoreForm', () => {
 
     element.data = { ...element.data!, use_email_dns: false };
     element.edit({ use_email_dns: true });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const control = element.renderRoot.querySelector(
       '[infer="use-email-dns"]'
@@ -837,7 +837,7 @@ describe('StoreForm', () => {
 
     element.data = { ...element.data!, use_email_dns: false };
     element.edit({ use_email_dns: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(await getByKey(element, 'use_email_dns_helper_text')).to.not.exist;
   });
 
@@ -862,7 +862,7 @@ describe('StoreForm', () => {
     ]);
 
     element.edit({ smtp_config: '' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal([]);
 
     element.edit({
@@ -875,7 +875,7 @@ describe('StoreForm', () => {
       }),
     });
 
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['checked']);
   });
 
@@ -891,7 +891,7 @@ describe('StoreForm', () => {
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     element.data = { ...element.data!, smtp_config: '' };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     ['host', 'port', 'username', 'password', 'security'].forEach(prop => {
       const control = element.renderRoot.querySelector(`[infer="smtp-config-${prop}"]`);
@@ -908,7 +908,7 @@ describe('StoreForm', () => {
       }),
     });
 
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const $ = (selector: string) => element.renderRoot.querySelector(selector);
     const hostControl = $('[infer="smtp-config-host"]') as InternalTextControl;
@@ -1126,11 +1126,11 @@ describe('StoreForm', () => {
     ]);
 
     element.edit({ features_multiship: false });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal([]);
 
     element.edit({ features_multiship: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['checked']);
   });
 
@@ -1155,11 +1155,11 @@ describe('StoreForm', () => {
     ]);
 
     element.edit({ require_signed_shipping_rates: false });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal([]);
 
     element.edit({ require_signed_shipping_rates: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['checked']);
   });
 
@@ -1178,7 +1178,7 @@ describe('StoreForm', () => {
 
     element.data = { ...element.data!, require_signed_shipping_rates: false };
     element.edit({ require_signed_shipping_rates: true });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const control = element.renderRoot.querySelector(
       '[infer="require-signed-shipping-rates"]'
@@ -1298,56 +1298,56 @@ describe('StoreForm', () => {
     element.edit({ hide_currency_symbol: false });
     element.edit({ use_international_currency_symbol: false });
     element.edit({ hide_decimal_characters: false });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(inputs[2]).to.have.attribute('checked');
 
     element.edit({ hide_currency_symbol: true });
     element.edit({ use_international_currency_symbol: false });
     element.edit({ hide_decimal_characters: false });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(inputs[0]).to.have.attribute('checked');
 
     element.edit({ hide_currency_symbol: false });
     element.edit({ use_international_currency_symbol: true });
     element.edit({ hide_decimal_characters: false });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(inputs[1]).to.have.attribute('checked');
 
     element.edit({ hide_currency_symbol: false });
     element.edit({ hide_decimal_characters: false });
     element.edit({ use_international_currency_symbol: true });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(inputs[1]).to.have.attribute('checked');
 
     element.edit({ hide_currency_symbol: true });
     element.edit({ hide_decimal_characters: false });
     element.edit({ use_international_currency_symbol: true });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(inputs[0]).to.have.attribute('checked');
 
     element.edit({ hide_currency_symbol: false });
     element.edit({ hide_decimal_characters: true });
     element.edit({ use_international_currency_symbol: true });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(inputs[4]).to.have.attribute('checked');
 
     element.edit({ hide_currency_symbol: true });
     element.edit({ hide_decimal_characters: true });
     element.edit({ use_international_currency_symbol: true });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(inputs[3]).to.have.attribute('checked');
 
     element.edit({ hide_currency_symbol: true });
     element.edit({ hide_decimal_characters: true });
     element.edit({ use_international_currency_symbol: false });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(inputs[3]).to.have.attribute('checked');
   });
@@ -1467,7 +1467,7 @@ describe('StoreForm', () => {
     ]);
 
     element.edit({ custom_display_id_config: '' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal([]);
 
     element.edit({
@@ -1490,7 +1490,7 @@ describe('StoreForm', () => {
       }),
     });
 
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['checked']);
 
     control.setValue([]);
@@ -1512,7 +1512,7 @@ describe('StoreForm', () => {
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     element.edit({ custom_display_id_config: '' });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     ['start', 'length', 'prefix', 'suffix'].forEach(field => {
       const selector = `[infer="custom-display-id-config-${field}"]`;
@@ -1540,7 +1540,7 @@ describe('StoreForm', () => {
       }),
     });
 
-    await element.updateComplete;
+    await element.requestUpdate();
 
     for (const field of ['start', 'length', 'prefix', 'suffix']) {
       const control = element.renderRoot.querySelector(
@@ -1552,7 +1552,7 @@ describe('StoreForm', () => {
       if (field === 'start' || field === 'length') {
         config[field] = 123;
         element.edit({ custom_display_id_config: JSON.stringify(config) });
-        await element.updateComplete;
+        await element.requestUpdate();
 
         expect(control).to.be.instanceOf(InternalIntegerControl);
         expect(control.getValue()).to.equal(123);
@@ -1563,7 +1563,7 @@ describe('StoreForm', () => {
       } else {
         config[field] = 'foobar';
         element.edit({ custom_display_id_config: JSON.stringify(config) });
-        await element.updateComplete;
+        await element.requestUpdate();
 
         expect(control).to.be.instanceOf(InternalTextControl);
         expect(control.getValue()).to.equal('foobar');
@@ -1674,7 +1674,7 @@ describe('StoreForm', () => {
       }),
     });
 
-    await element.updateComplete;
+    await element.requestUpdate();
     control = element.renderRoot.querySelector(
       '[infer="custom-display-id-config-transaction-journal-entries-enabled"]'
     ) as InternalCheckboxGroupControl;
@@ -1705,7 +1705,7 @@ describe('StoreForm', () => {
       }),
     });
 
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['checked']);
 
     control.setValue([]);
@@ -1733,7 +1733,7 @@ describe('StoreForm', () => {
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     element.edit({ custom_display_id_config: '' });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const paths = [
       'transaction_separator',
@@ -1770,7 +1770,7 @@ describe('StoreForm', () => {
       }),
     });
 
-    await element.updateComplete;
+    await element.requestUpdate();
 
     for (const path of paths) {
       const field = path.replace(/\.|_/g, '-');
@@ -1782,7 +1782,7 @@ describe('StoreForm', () => {
 
       set(config, path, 'foobar');
       element.edit({ custom_display_id_config: JSON.stringify(topConfig) });
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(control).to.be.instanceOf(InternalTextControl);
       expect(control.getValue()).to.equal('foobar');
@@ -1887,7 +1887,7 @@ describe('StoreForm', () => {
       }),
     });
 
-    await element.updateComplete;
+    await element.requestUpdate();
     const controls = element.renderRoot.querySelectorAll('[infer^="custom-display-id-config-"]');
     expect(controls).to.be.empty;
   });
@@ -1979,11 +1979,11 @@ describe('StoreForm', () => {
     ]);
 
     element.edit({ products_require_expires_property: false });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal([]);
 
     element.edit({ products_require_expires_property: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['checked']);
   });
 
@@ -2002,7 +2002,7 @@ describe('StoreForm', () => {
 
     element.data = { ...element.data!, products_require_expires_property: false };
     element.edit({ products_require_expires_property: true });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const control = element.renderRoot.querySelector(
       '[infer="products-require-expires-property"]'
@@ -2036,11 +2036,11 @@ describe('StoreForm', () => {
     ]);
 
     element.edit({ use_cart_validation: false });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal([]);
 
     element.edit({ use_cart_validation: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['checked']);
   });
 
@@ -2059,7 +2059,7 @@ describe('StoreForm', () => {
 
     element.data = { ...element.data!, use_cart_validation: false };
     element.edit({ use_cart_validation: true });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const control = element.renderRoot.querySelector(
       '[infer="use-cart-validation"]'
@@ -2175,12 +2175,12 @@ describe('StoreForm', () => {
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     element.edit({ customer_password_hash_config: 'foo' });
 
-    await element.updateComplete;
+    await element.requestUpdate();
     let control = element.renderRoot.querySelector('[infer="customer-password-hash-config"]');
     expect(control).to.be.instanceOf(InternalTextControl);
 
     element.edit({ customer_password_hash_config: 8 });
-    await element.updateComplete;
+    await element.requestUpdate();
     control = element.renderRoot.querySelector('[infer="customer-password-hash-config"]');
 
     expect(control).to.be.instanceOf(InternalNumberControl);
@@ -2281,7 +2281,7 @@ describe('StoreForm', () => {
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     element.edit({ webhook_key: 'ABCTEST' });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     for (const key of ['cart_signing', 'xml_datafeed', 'api_legacy', 'sso']) {
       const infer = `webhook-key-${key.replace('_', '-')}`;
@@ -2318,7 +2318,7 @@ describe('StoreForm', () => {
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     element.edit({ webhook_key: JSON.stringify(exampleKey) });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     for (const key of ['cart_signing', 'xml_datafeed', 'api_legacy', 'sso']) {
       const infer = `webhook-key-${key.replace('_', '-')}`;
@@ -2348,7 +2348,7 @@ describe('StoreForm', () => {
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     element.data = { ...element.data!, is_maintenance_mode: true };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const wrapper = (await getByTestId(element, 'is-maintenance-mode'))!;
     let label = (await getByKey(wrapper, 'maintenance_mode_on_explainer'))!;
@@ -2412,7 +2412,7 @@ describe('StoreForm', () => {
     expect(button).to.not.have.attribute('disabled');
 
     element.setAttribute('disabledcontrols', 'is-maintenance-mode');
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(button).to.have.attribute('disabled');
   });

@@ -5,10 +5,10 @@
   "address1": "Address Line 1",
   "address2": "Address Line 2",
   "allow": "Allow",
-  "allowlist": "Allow all except",
+  "allowlist": "Allow specific locations",
   "billing": "Billing",
   "block": "Block",
-  "blocklist": "Ban all except",
+  "blocklist": "Block specific locations",
   "cart_controls": "Quantity",
   "cart_type": "Cart display",
   "cart_type_custom": "Custom",
@@ -108,7 +108,8 @@
   "troubleshooting_debug": "Log debug messages in the browser console",
   "troubleshooting_debug_explainer": "Enable this option to trigger console.log() calls for our JS, which can assist with troubleshooting your store.",
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

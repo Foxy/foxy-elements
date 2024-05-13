@@ -1,16 +1,17 @@
 {
   "access-recovery-form": {
-    "back": "Back",
+    "back": "Go back",
     "email": "Email",
     "recover_access": "Get temporary password",
-    "recover_access_hint": "Enter your email and we'll send you a temporary password",
+    "recover_access_hint": "Enter your email to get a temporary password",
     "recover_access_success": "Done! Please check your email for further instructions.",
     "unknown_error": "We can't issue a one-time code for this account at the moment. If you've already requested the code, please wait a few minutes before trying again.",
     "v8n_invalid_email": "Invalid email",
     "v8n_required": "Required",
     "spinner": {
+      "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     }
   },
   "customer": {
@@ -26,6 +27,29 @@
     "undo_header": "Unsaved changes",
     "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
     "update": "Update",
+    "transactions-table": {
+      "date": "{{value, date}}",
+      "price": "{{amount, price}}",
+      "receipt": "Receipt",
+      "transaction_approved": "Approved",
+      "transaction_authorized": "Authorized",
+      "transaction_captured": "Captured",
+      "transaction_completed": "Completed",
+      "transaction_declined": "Declined",
+      "transaction_pending": "Pending",
+      "transaction_refunded": "Refunded",
+      "transaction_rejected": "Rejected",
+      "transaction_summary": "{{most_expensive_item.name}}",
+      "transaction_summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
+      "transaction_verified": "Verified",
+      "transaction_voided": "Voided",
+      "spinner": {
+        "refresh": "Refresh",
+        "loading_busy": "Loading",
+        "loading_empty": "No data",
+        "loading_error": "Unknown error"
+      }
+    },
     "address-card": {
       "default_billing_address": "Default billing address",
       "default_shipping_address": "Default shipping address",
@@ -35,31 +59,95 @@
         "loading_busy": "Loading",
         "loading_empty": "No addresses",
         "loading_end": "No more data",
-        "loading_error": "Failed to load"
+        "loading_error": "Unknown error"
       }
     },
     "address-form": {
-      "address_name": "Address name",
-      "address1": "Address Line 1",
-      "address2": "Address Line 2",
-      "cancel": "Cancel",
-      "city": "City",
-      "company": "Company",
-      "confirm": "Confirm",
-      "country": "Country",
-      "create": "Create",
-      "date": "{{value, date}}",
-      "date_created": "Created on",
-      "date_modified": "Last updated",
-      "delete": "Delete",
-      "delete_prompt": "This resource will be permanently removed. Are you sure?",
-      "first_name": "First name",
-      "last_name": "Last name",
-      "phone": "Phone",
-      "postal_code": "Postal code",
-      "region": "Region",
-      "v8n_required": "Required",
-      "v8n_too_long": "Too long",
+      "address-name": {
+        "label": "Address name",
+        "placeholder": "Required",
+        "helper_text": "",
+        "v8n_required": "Please enter address name",
+        "v8n_too_long": "Please shorten address name to 100 characters or less"
+      },
+      "first-name": {
+        "label": "First name",
+        "placeholder": "Optional",
+        "helper_text": "",
+        "v8n_too_long": "Unfortunately we can't store first names longer than 50 characters"
+      },
+      "last-name": {
+        "label": "Last name",
+        "placeholder": "Optional",
+        "helper_text": "",
+        "v8n_too_long": "Unfortunately we can't store last names longer than 50 characters"
+      },
+      "company": {
+        "label": "Company",
+        "placeholder": "Optional",
+        "helper_text": "",
+        "v8n_too_long": "Unfortunately we can't store company names longer than 50 characters"
+      },
+      "phone": {
+        "label": "Phone",
+        "placeholder": "Optional",
+        "helper_text": "",
+        "v8n_too_long": "This phone number appears to be too long"
+      },
+      "address-one": {
+        "label": "Address Line 1",
+        "placeholder": "Required",
+        "helper_text": "Street address, P.O. box, company name, c/o",
+        "v8n_required": "Please enter address line 1",
+        "v8n_too_long": "Please shorten address line 1 to 100 characters or less"
+      },
+      "address-two": {
+        "label": "Address Line 2",
+        "placeholder": "Optional",
+        "helper_text": "Apartment, suite, unit, building, floor, etc.",
+        "v8n_too_long": "Please shorten address line 2 to 100 characters or less"
+      },
+      "city": {
+        "label": "City",
+        "placeholder": "Optional",
+        "helper_text": "",
+        "v8n_too_long": "Unfortunately we can't store city names longer than 50 characters"
+      },
+      "postal-code": {
+        "label": "Postal code",
+        "placeholder": "Optional",
+        "helper_text": "",
+        "v8n_too_long": "This postal code appears to be too long"
+      },
+      "country": {
+        "label": "Country",
+        "placeholder": "Optional",
+        "helper_text": ""
+      },
+      "region": {
+        "label": "Region",
+        "placeholder": "Optional",
+        "helper_text": "",
+        "v8n_too_long": "Unfortunately we can't store region names longer than 50 characters"
+      },
+      "timestamps": {
+        "date": "{{value, date}}",
+        "date_created": "Created on",
+        "date_modified": "Last updated on"
+      },
+      "delete": {
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "delete_prompt": "Are you sure you'd like to remove this address? You won't be able to bring it back."
+      },
+      "create": {
+        "create": "Create"
+      },
+      "spinner": {
+        "refresh": "Refresh",
+        "loading_busy": "Loading",
+        "loading_error": "Unknown error"
+      },
       "country_af": "Afghanistan",
       "country_ax": "Åland Islands",
       "country_al": "Albania",
@@ -636,47 +724,70 @@
       "country_eh": "Western Sahara",
       "country_ye": "Yemen",
       "country_zm": "Zambia",
-      "country_zw": "Zimbabwe",
-      "spinner": {
-        "loading_busy": "Loading",
-        "loading_error": "Failed to load"
-      }
+      "country_zw": "Zimbabwe"
     },
     "customer-form": {
       "cancel": "Cancel",
-      "change_password": "Change password",
-      "change_password_step_1": "Let's start with your current password. A temporary password also works if you have one.",
-      "change_password_step_2": "Now enter a new password and hit Continue to apply changes to your account.",
-      "change_password_step_3": "All done! You can now use your new password when logging in.",
       "close": "Close",
-      "date": "{{value, date}}",
-      "date_created": "Created on",
-      "date_modified": "Last updated",
-      "email": "Email",
-      "first_name": "First name",
-      "invalid_credential_error": "Incorrect password. Please make sure you've entered your current or temporary password and try again.",
-      "last_name": "Last name",
-      "new_password": "New password",
-      "password": "Password",
-      "sign_in": "Continue",
-      "tax_id": "Tax ID",
-      "undo_cancel": "Review",
-      "undo_confirm": "Discard",
-      "undo_header": "Unsaved changes",
-      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-      "v8n_invalid_email": "Invalid email",
-      "v8n_required": "Required",
-      "v8n_too_long": "Too long",
-      "sign-in-form": {
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_error": "Failed to load"
-        }
+      "message": {
+        "password_change_success": "You have successfully set a new password for your account.",
+        "close": "Close"
+      },
+      "error": {
+        "old_password_incorrect": "The old password you entered is incorrect. Please try again.",
+        "email_already_used": "This email is already in use. Please use a different email."
+      },
+      "first-name": {
+        "label": "First name",
+        "placeholder": "Not set",
+        "helper_text": "Your given name, optional.",
+        "v8n_too_long": "We can't store first names longer than 50 characters."
+      },
+      "last-name": {
+        "label": "Last name",
+        "placeholder": "Not set",
+        "helper_text": "Your surname, optional.",
+        "v8n_too_long": "We can't store last names longer than 50 characters."
+      },
+      "tax-id": {
+        "label": "Tax ID",
+        "placeholder": "Not set",
+        "helper_text": "Your tax identification number, optional.",
+        "v8n_too_long": "We can't store tax IDs longer than 50 characters."
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Required",
+        "helper_text": "We'll use this email as the login to the Checkout and Customer Portal.",
+        "helper_text_last_login_date": "Your login to the Checkout and Customer Portal. Last used on {{ date, date }} at {{ date, time }}.",
+        "v8n_too_long": "We can't store emails longer than 100 characters.",
+        "v8n_invalid_email": "This email is invalid.",
+        "v8n_required": "Please fill out this field."
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Required",
+        "placeholder_new": "Keep current password",
+        "helper_text_new": "To change your password, enter a new password here. If you leave this field blank, your password will remain the same.",
+        "v8n_too_long": "Please use a password that is no longer than 50 characters.",
+        "v8n_too_weak": "Please use a stronger password. To make this password stronger, make it at least 8 characters long and include a few upper and lower case letters, numbers, and special characters.",
+        "v8n_required": "Please fill out this field."
+      },
+      "password-old": {
+        "label": "Old password",
+        "placeholder": "",
+        "helper_text": "Enter your old password to confirm password change.",
+        "v8n_required": "Please fill out this field."
+      },
+      "timestamps": {
+        "date_created": "Created on",
+        "date_modified": "Last updated on",
+        "date": "{{value, date}}"
       },
       "spinner": {
+        "refresh": "Refresh",
         "loading_busy": "Loading",
-        "loading_empty": "No data",
-        "loading_error": "Failed to load"
+        "loading_error": "Unknown error"
       }
     },
     "payment-method-card": {
@@ -763,12 +874,13 @@
       "spinner": {
         "loading_busy": "Loading",
         "loading_empty": "No payment methods",
-        "loading_error": "Failed to load"
+        "loading_error": "Unknown error"
       }
     },
     "spinner": {
+      "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     },
     "subscription-card": {
       "daily": "/ day",
@@ -783,7 +895,10 @@
       "subscription_failed": "Payment failed on {{date, date}}",
       "subscription_inactive": "Inactive",
       "subscription_will_be_cancelled": "Ends on {{date, date}}",
+      "subscription_will_be_active": "Starts on {{date, date}}",
       "transaction_summary": "{{most_expensive_item.name}}",
+      "fees_hint": "inc. shipping, taxes, etc.",
+      "fees_explainer": "Taxes, shipping, and discounts may change the amount charged.",
       "twice_a_month": "twice a month",
       "weekly": "/ week",
       "weekly_plural": "/ {{count}} weeks",
@@ -793,7 +908,7 @@
         "loading_busy": "Loading",
         "loading_empty": "No subscriptions",
         "loading_end": "No more data",
-        "loading_error": "Failed to load"
+        "loading_error": "Unknown error"
       }
     },
     "subscription-form": {
@@ -820,11 +935,12 @@
       "next_transaction_date": "Next transaction date",
       "price_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
       "price_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
-      "subscription_active": "Next payment on {{date, date}}",
-      "subscription_cancelled": "Ended on {{date, date}}",
-      "subscription_failed": "Payment failed on {{date, date}}",
-      "subscription_inactive": "Inactive",
-      "subscription_will_be_cancelled": "Ends on {{date, date}}",
+      "subscription_active": "Including shipping, taxes, etc. Next payment on {{date, date}}.",
+      "subscription_cancelled": "Including shipping, taxes, etc. Ended on {{date, date}}.",
+      "subscription_failed": "Including shipping, taxes, etc. Payment failed on {{date, date}}.",
+      "subscription_inactive": "Including shipping, taxes, etc. Inactive.",
+      "subscription_will_be_cancelled": "Including shipping, taxes, etc. Ends on {{date, date}}.",
+      "subscription_will_be_active": "Including shipping, taxes, etc. Starts on {{date, date}}.",
       "transaction_plural": "Transactions",
       "twice_a_month": "Twice a month",
       "update_billing": "Update billing",
@@ -845,12 +961,25 @@
           "pagination": "{{from}}-{{to}} out of {{total}}",
           "previous": "Previous",
           "card": {
+            "daily": "Daily",
+            "daily_plural": "Every {{count}} days",
+            "frequency": "$t(customer.subscription-form.pagination.card.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
+            "monthly": "Monthly",
+            "monthly_plural": "Every {{count}} months",
+            "subinfo_recurring": "$t(customer.subscription-form.pagination.card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" }) from {{startDate, date}}",
+            "subinfo_twice_a_month": "$t(customer.subscription-form.pagination.card.twice_a_month, { \"ns\": \"customer-portal\" }) from {{startDate, date}}",
+            "twice_a_month": "Twice a month",
+            "no_code": "No SKU",
+            "weekly": "Weekly",
+            "weekly_plural": "Every {{count}} weeks",
+            "yearly": "Yearly",
+            "yearly_plural": "Every {{count}} years",
             "price": "{{amount, price}}",
-            "wgt": "WGT",
             "spinner": {
+              "refresh": "Refresh",
               "loading_busy": "Loading",
               "loading_empty": "No items",
-              "loading_error": "Failed to load"
+              "loading_error": "Unknown error"
             }
           }
         }
@@ -869,53 +998,39 @@
             "description": "Description",
             "price": "{{amount, price}}",
             "time": "{{value, date}}",
-            "transaction_approved": "Approved",
-            "transaction_authorized": "Authorized",
-            "transaction_captured": "Captured",
-            "transaction_completed": "Completed",
-            "transaction_declined": "Declined",
-            "transaction_pending": "Pending",
-            "transaction_plural": "Transactions",
-            "transaction_refunded": "Refunded",
-            "transaction_rejected": "Rejected",
-            "transaction_summary": "{{most_expensive_item.name}}",
-            "transaction_summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
-            "transaction_verified": "Verified",
-            "transaction_voided": "Voided",
+            "status_capturing": "Capturing",
+            "status_captured": "Captured",
+            "status_approved": "Approved",
+            "status_authorized": "Authorized",
+            "status_pending": "Pending",
+            "status_completed": "Completed",
+            "status_problem": "Problem",
+            "status_pending_fraud_review": "Pending_fraud_review",
+            "status_rejected": "Rejected",
+            "status_declined": "Declined",
+            "status_refunding": "Refunding",
+            "status_refunded": "Refunded",
+            "status_voided": "Voided",
+            "status_verified": "Verified",
+            "summary": "{{most_expensive_item.name}}",
+            "summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
+            "summary_payment_method_change": "Payment method change",
+            "summary_subscription_modification": "Subscription modification",
+            "summary_subscription_cancellation": "Subscription cancellation",
+            "source_MIT": "This transaction was initiated by the merchant",
+            "source_CIT": "This transaction was initiated by the customer",
             "spinner": {
               "loading_busy": "Loading",
               "loading_empty": "No transactions",
-              "loading_error": "Failed to load"
+              "loading_error": "Unknown error"
             }
           }
         }
       },
       "spinner": {
+        "refresh": "Refresh",
         "loading_busy": "Loading",
-        "loading_error": "Failed to load"
-      }
-    },
-    "transactions-table": {
-      "date": "{{value, date}}",
-      "price": "{{amount, price}}",
-      "receipt": "Receipt",
-      "transaction_approved": "Approved",
-      "transaction_authorized": "Authorized",
-      "transaction_captured": "Captured",
-      "transaction_completed": "Completed",
-      "transaction_declined": "Declined",
-      "transaction_pending": "Pending",
-      "transaction_refunded": "Refunded",
-      "transaction_rejected": "Rejected",
-      "transaction_summary": "{{most_expensive_item.name}}",
-      "transaction_summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
-      "transaction_verified": "Verified",
-      "transaction_voided": "Voided",
-      "spinner": {
-        "loading_busy": "Loading",
-        "loading_empty": "No transactions",
-        "loading_end": "No more data",
-        "loading_error": "Failed to load"
+        "loading_error": "Unknown error"
       }
     }
   },
@@ -926,12 +1041,64 @@
     "recover_access": "Get temporary password",
     "sign_in": "Sign in",
     "sign_in_hint": "Please enter your email and password",
+    "sign_up": "Create account",
     "unknown_error": "An unknown error has occured. Please try again later.",
     "v8n_invalid_email": "Invalid email",
     "v8n_required": "Required",
     "spinner": {
+      "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
+    }
+  },
+  "sign-up-form": {
+    "sign_up": "Sign up",
+    "sign_up_hint": "Create an account to access the portal",
+    "go_back": "Go back",
+    "error": {
+      "registration_disabled": "Customer registration is disabled for this store. If you're seeing this message as a customer, please contact the store owner.",
+      "verification_failed": "Client verification failed. If you are seeing this message as a customer, please contact the store owner.",
+      "email_already_used": "This email is already in use. Please use a different email or sign in instead."
+    },
+    "first-name": {
+      "label": "First name",
+      "placeholder": "Not set",
+      "helper_text": "Your given name, optional.",
+      "v8n_too_long": "We can't store first names longer than 50 characters."
+    },
+    "last-name": {
+      "label": "Last name",
+      "placeholder": "Not set",
+      "helper_text": "Your surname, optional.",
+      "v8n_too_long": "We can't store last names longer than 50 characters."
+    },
+    "email": {
+      "label": "Email",
+      "placeholder": "Required",
+      "helper_text": "We'll use this email as the login to the Checkout and Customer Portal.",
+      "v8n_too_long": "We can't store emails longer than 100 characters.",
+      "v8n_invalid_email": "This email is invalid.",
+      "v8n_required": "Please fill out this field."
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "Required",
+      "helper_text": "To generate a secure random password for this account, use the ✨ button.",
+      "v8n_too_long": "Please use a password that is no longer than 50 characters.",
+      "v8n_too_weak": "Please use a stronger password. To make this password stronger, make it at least 8 characters long and include a few upper and lower case letters, numbers, and special characters.",
+      "v8n_required": "Please fill out this field."
+    },
+    "legal-notice": {
+      "text": "By creating an account, you agree to our Terms of Service.",
+      "link": "Click here to open them in a new tab."
+    },
+    "create": {
+      "create": "Create account"
+    },
+    "spinner": {
+      "refresh": "Refresh",
+      "loading_busy": "Loading",
+      "loading_error": "Unknown error"
     }
   }
 }

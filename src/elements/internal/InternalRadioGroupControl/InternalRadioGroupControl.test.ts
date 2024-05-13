@@ -102,7 +102,7 @@ describe('InternalRadioGroupControl', () => {
     ];
 
     control.options = testOptions;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     const boxes = group.querySelectorAll('vaadin-radio-button');
 
@@ -126,7 +126,7 @@ describe('InternalRadioGroupControl', () => {
     expect(group).to.have.property('errorMessage', '');
 
     control.testErrorMessage = 'test error message';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(group).to.have.property('errorMessage', 'test error message');
   });
@@ -139,7 +139,7 @@ describe('InternalRadioGroupControl', () => {
     expect(group).to.have.property('helperText', 'helper_text');
 
     control.helperText = 'test helper text';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(group).to.have.property('helperText', 'test helper text');
   });
@@ -152,7 +152,7 @@ describe('InternalRadioGroupControl', () => {
     expect(group).to.have.property('label', 'label');
 
     control.label = 'test label';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(group).to.have.property('label', 'test label');
   });
@@ -165,7 +165,7 @@ describe('InternalRadioGroupControl', () => {
     expect(group).to.have.property('theme', undefined);
 
     control.theme = 'vertical';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(group).to.have.property('theme', 'vertical');
   });
@@ -176,11 +176,11 @@ describe('InternalRadioGroupControl', () => {
     const group = control.renderRoot.querySelector('vaadin-radio-group')!;
 
     control.disabled = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(group).to.have.property('disabled', true);
 
     control.disabled = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(group).to.have.property('disabled', false);
   });
 
@@ -190,11 +190,11 @@ describe('InternalRadioGroupControl', () => {
     const group = control.renderRoot.querySelector('vaadin-radio-group')!;
 
     control.readonly = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(group).to.have.property('readonly', true);
 
     control.readonly = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(group).to.have.property('readonly', false);
   });
 
@@ -214,7 +214,7 @@ describe('InternalRadioGroupControl', () => {
     expect(group).to.have.deep.property('value', null);
 
     control.testValue = 'test_value';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(group).to.have.deep.property('value', 'test_value');
   });

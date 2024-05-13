@@ -1,0 +1,4 @@
+{
+  "demo_key": "Hello",
+  "demo_date": "This is a date: {{ value, date }}"
+}

@@ -9,11 +9,13 @@ function getInput(element: Checkbox) {
   return element.shadowRoot!.querySelector('[data-testid=input]') as HTMLInputElement;
 }
 
-function testChecked(element: Checkbox, value: boolean) {
+async function testChecked(element: Checkbox, value: boolean) {
+  await element.requestUpdate();
   expect(getInput(element).checked).to.equal(value);
 }
 
-function testDisabled(element: Checkbox, value: boolean) {
+async function testDisabled(element: Checkbox, value: boolean) {
+  await element.requestUpdate();
   expect(getInput(element).disabled).to.equal(value);
 }
 

@@ -131,7 +131,7 @@ describe('StoreShippingMethodForm', () => {
       });
 
       element.shippingMethodUri = 'https://demo.api/hapi/shipping_methods/0';
-      await element.updateComplete;
+      await element.requestUpdate();
 
       element.data!._embedded['fx:shipping_services'].forEach((_, index) => {
         expect(items[index]).to.have.attribute(
@@ -162,7 +162,7 @@ describe('StoreShippingMethodForm', () => {
       });
 
       element.internationalAllowed = true;
-      await element.updateComplete;
+      await element.requestUpdate();
 
       element.data!._embedded['fx:shipping_services'].forEach((_, index) => {
         expect(items[index]).to.have.attribute('international-allowed');

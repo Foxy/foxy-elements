@@ -80,6 +80,20 @@ export interface FxCustomerPortalSettings {
               };
         }[];
   };
+  /** Self-registration settings. Self-registration is disabled if this field is undefined. */
+  signUp?: {
+    /** If this field is true, then self-registration is enabled. */
+    enabled: boolean;
+    /** Client verification settings. */
+    verification: {
+      /** Verification type. Currently only hCaptcha is supported. */
+      type: 'hcaptcha';
+      /** hCaptcha site key. If empty, Foxy will use its own hCaptcha site key. */
+      siteKey: string;
+      /** hCaptcha secret key. If empty, Foxy will use its own hCaptcha secret key. */
+      secretKey: string;
+    };
+  };
 }
 
 export interface FxBookmark {

@@ -1,250 +1,558 @@
 {
-  "allow": "Allow",
-  "allunits_price_amount_discount_summary": "{{adjustment}}¤ each after {{from}}",
-  "allunits_price_percentage_discount_summary": "{{adjustment, percent}} after {{from}}",
-  "allunits_quantity_amount_discount_summary": "{{adjustment}}¤ each on orders of {{from}}+",
-  "allunits_quantity_percentage_discount_summary": "{{adjustment, percent}} on orders of {{from}}+",
-  "apply_taxes_before_coupon": "Apply taxes before this coupon",
-  "apply_taxes_before_coupon_explainer": "Calculate taxes before applying this coupon.",
-  "block": "Block",
-  "cancel": "Cancel",
-  "category_restrictions": "Category restrictions",
-  "category_restrictions_helper_text": "Select which item categories this coupon can be applied to. If you’d like this coupon to be available to all items regardless of the category, keep your selection empty. All changes are saved automatically.",
-  "clear_filters": "Clear filters",
-  "close": "Close",
-  "code": "Code",
-  "code_plural": "Codes",
-  "combinable": "Combine with other coupons",
-  "combinable_explainer": "Let customers apply this coupon when there are other coupons in the cart.",
-  "combine_with_category_discounts": "Combine with category discounts",
-  "combine_with_category_discounts_explainer": "Let customers apply this coupon when category discounts are applied to the cart.",
-  "combine_with_line_discounts": "Combine with line item discounts",
-  "combine_with_line_discounts_explainer": "Let customers apply this coupon when line item discounts are applied to the cart.",
-  "confirm": "Confirm",
-  "coupon_name_helper_text": "Coupon name is visible to the customers.",
-  "create": "Create",
-  "custom_discount": "Custom discount",
-  "date": "{{value, date}}",
-  "date_created": "Created on",
-  "date_modified": "Last updated",
-  "delete": "Delete",
-  "delete_prompt": "This resource will be permanently removed. Are you sure?",
-  "description": "Description",
-  "discount_summary": "{{params, discount}}",
-  "end_date": "End date",
-  "filter": "Filter",
-  "generate": "Generate",
-  "import": "Import",
-  "incremental_price_amount_discount_summary": "{{adjustment}}¤ each on orders of {{from}}+",
-  "incremental_price_percentage_discount_summary": "{{adjustment, percent}} on orders of {{from}}+",
-  "incremental_quantity_amount_discount_summary": "{{adjustment}}¤ each on items {{from}}+",
-  "incremental_quantity_percentage_discount_summary": "{{adjustment, percent}} on items {{from}}+",
-  "multiple_codes_allowed": "Allow multiple codes per customer",
-  "multiple_codes_allowed_explainer": "Let customers apply this coupon multiple times to the same order.",
-  "name": "Name",
-  "option_plural": "Options",
+  "header": {
+    "title_existing": "ID {{ id }}",
+    "title_new": "New coupon",
+    "subtitle": "Used {{ number_of_uses_to_date }} times (see individual codes for more info)"
+  },
+  "import": {
+    "button_text": "Import codes",
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header": "Import codes",
+      "save": "Import",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "coupon-codes-form": {
+        "status": {
+          "success": "All done! We've imported your codes into the system."
+        },
+        "coupon-codes": {
+          "label": "Codes",
+          "placeholder": "Enter or paste codes here...",
+          "helper_text": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats.",
+          "v8n_required": "Please add at least one code"
+        },
+        "create": {
+          "create": "Import"
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error"
+        }
+      }
+    }
+  },
+  "generate": {
+    "button_text": "Generate codes",
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header": "Generate codes",
+      "save": "Generate",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "generate-codes-form": {
+        "status": {
+          "success": "Codes generated successfully."
+        },
+        "error": {
+          "invalid_form": "These parameters won't generate any codes. Please make sure that the length of the code is greater than the length of the prefix, does not exceed 50 characters in total and that the code itself does not contain spaces."
+        },
+        "length": {
+          "label": "Code length",
+          "placeholder": "6",
+          "helper_text": ""
+        },
+        "number-of-codes": {
+          "label": "Number of codes",
+          "placeholder": "10",
+          "helper_text": ""
+        },
+        "prefix": {
+          "label": "Prefix",
+          "placeholder": "Optional",
+          "helper_text": "The length value is inclusive of this prefix."
+        },
+        "current-balance": {
+          "label": "Initial balance",
+          "placeholder": "0",
+          "helper_text": ""
+        },
+        "example": {
+          "label": "Examples",
+          "placeholder": "",
+          "helper_text": "This is what the generated codes will look like."
+        },
+        "create": {
+          "create": "Generate"
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error"
+        }
+      }
+    }
+  },
   "ordinal_few": "rd",
   "ordinal_many": "th",
   "ordinal_one": "st",
   "ordinal_other": "th",
   "ordinal_two": "nd",
   "ordinal_zero": "th",
-  "price": "{{amount, price}}",
-  "product_restrictions": "Product restrictions",
-  "product_restrictions_explainer": "If you want to limit which products can use this coupon, you can enter full product codes or partial product codes using * as a wild card at the beginning or end of the value. So abc123, fun_*, *-small would match abc123, fun_ and fun_times, and example-small. It wouldn't match abc12, abc1234, fun, or good-smalls.",
-  "repeat_price_amount_discount_summary": "for each {{from}}, {{adjustment}}¤ on the next item",
-  "repeat_price_percentage_discount_summary": "for each {{from}}, {{adjustment, percent}} on the next item",
-  "repeat_quantity_amount_discount_summary": "{{adjustment}}¤ on each {{from, ordinal}} item",
-  "repeat_quantity_percentage_discount_summary": "{{adjustment, percent}} on each {{from, ordinal}} item",
-  "rule_plural": "Rules",
-  "save": "Save",
-  "select": "Select...",
-  "set_time_constraints": "Set time constraints",
-  "set_time_constraints_explainer": "Limit when your customers can apply this coupon.",
-  "single_price_amount_discount_summary": "{{adjustment}}¤ after {{from}}",
-  "single_price_percentage_discount_summary": "{{adjustment, percent}} after {{from}}",
-  "single_quantity_amount_discount_summary": "{{adjustment}}¤ after {{from}} items",
-  "single_quantity_percentage_discount_summary": "{{adjustment, percent}} after {{from}} items",
-  "start_date": "Start date",
-  "tier": "Tier",
-  "tier_allunits": "price of each item",
-  "tier_by": "by",
-  "tier_if": "if",
-  "tier_incremental": "price of additional items",
-  "tier_repeat": "price of next item",
-  "tier_single": "order total",
-  "tier_then": "then",
-  "type_here": "Type here...",
-  "undo_cancel": "Review",
-  "undo_confirm": "Discard",
-  "undo_header": "Unsaved changes",
-  "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-  "unlimited": "Unlimited",
-  "url_parameter": "URL parameter",
-  "used_codes": "Codes used",
-  "uses_per_coupon": "Uses per coupon",
-  "uses_per_coupon_code": "Uses per code",
-  "uses_per_coupon_code_summary": "Each coupon code can be used only one time.",
-  "uses_per_coupon_code_summary_0": "Each coupon code can be used unlimited times.",
-  "uses_per_coupon_code_summary_plural": "Each coupon code can be used only {{count}} times.",
-  "uses_per_coupon_summary": "Only the first customer can use this coupon.",
-  "uses_per_coupon_summary_0": "All customers can use this coupon.",
-  "uses_per_coupon_summary_plural": "Only the first {{count}} customers can use this coupon.",
-  "uses_per_customer": "Uses per customer",
-  "uses_per_customer_summary": "Customers can use this coupon for one order only.",
-  "uses_per_customer_summary_0": "Customers can use this coupon for as many orders as they like.",
-  "uses_per_customer_summary_plural": "Customers can use this coupon for {{count}} orders only.",
-  "v8n_required": "Required",
-  "v8n_too_long": "Too long",
+  "name": {
+    "label": "Name",
+    "placeholder": "Required",
+    "helper_text": "Coupon name is visible to the customers.",
+    "v8n_required": "Please enter a name for this coupon.",
+    "v8n_too_long": "Please shorten the name to 50 characters or less."
+  },
+  "rules": {
+    "label": "Rules",
+    "helper_text": "Add rules to define how this coupon will affect order total. You can get started by selecting one of the examples from the dropdown on top right.",
+    "v8n_required": "Please add at least one discount rule in this section.",
+    "v8n_too_long": "Unfortunately we are unable to store that many discount rules at the moment. Please reduce the number of rules in this section until this message disappears.",
+    "discount-builder": {
+      "tier": "Tier",
+      "tier_by": "by",
+      "tier_if": "if",
+      "tier_allunits": "price of each item",
+      "tier_incremental": "price of additional items",
+      "tier_repeat": "price of next item",
+      "tier_single": "order total",
+      "tier_then": "then",
+      "quantity": "quantity",
+      "total": "total",
+      "reduce": "reduce",
+      "increase": "increase"
+    },
+    "allunits_price_amount_discount_summary": "{{adjustment}}¤ each after {{from}}",
+    "allunits_price_percentage_discount_summary": "{{adjustment, percent}} after {{from}}",
+    "allunits_quantity_amount_discount_summary": "{{adjustment}}¤ each on orders of {{from}}+",
+    "allunits_quantity_percentage_discount_summary": "{{adjustment, percent}} on orders of {{from}}+",
+    "incremental_price_amount_discount_summary": "{{adjustment}}¤ each on orders of {{from}}+",
+    "incremental_price_percentage_discount_summary": "{{adjustment, percent}} on orders of {{from}}+",
+    "incremental_quantity_amount_discount_summary": "{{adjustment}}¤ each on items {{from}}+",
+    "incremental_quantity_percentage_discount_summary": "{{adjustment, percent}} on items {{from}}+",
+    "repeat_price_amount_discount_summary": "for each {{from}}, {{adjustment}}¤ on the next item",
+    "repeat_price_percentage_discount_summary": "for each {{from}}, {{adjustment, percent}} on the next item",
+    "repeat_quantity_amount_discount_summary": "{{adjustment}}¤ on each {{from, ordinal}} item",
+    "single_price_amount_discount_summary": "{{adjustment}}¤ after {{from}}",
+    "single_price_percentage_discount_summary": "{{adjustment, percent}} after {{from}}",
+    "single_quantity_amount_discount_summary": "{{adjustment}}¤ after {{from}} items",
+    "single_quantity_percentage_discount_summary": "{{adjustment, percent}} after {{from}} items",
+    "repeat_quantity_percentage_discount_summary": "{{adjustment, percent}} on each {{from, ordinal}} item",
+    "discount_summary": "Applied discount: {{params, discount}}.",
+    "custom_discount": "Custom discount",
+    "description": "Description",
+    "url_parameter": "URL parameter"
+  },
+  "coupon-codes": {
+    "label": "Codes",
+    "delete_header": "Remove code?",
+    "delete_message": "Please confirm that you'd like to remove this code from the item.",
+    "delete_confirm": "Remove",
+    "delete_cancel": "Cancel",
+    "search": "Search",
+    "clear": "Clear",
+    "dialog": {
+      "header_create": "Create code",
+      "header_update": "Update code",
+      "close": "Close",
+      "save": "Save",
+      "cancel": "Cancel",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "coupon-code-form": {
+        "code": {
+          "label": "Code",
+          "placeholder": "Required",
+          "helper_text": "The string value of this coupon code which your customer will add to their cart to use this coupon.",
+          "v8n_required": "Please enter a coupon code",
+          "v8n_too_long": "Coupon code must be 50 characters or less",
+          "v8n_has_spaces": "Please remove spaces from the coupon code"
+        },
+        "number-of-uses-to-date": {
+          "label": "Number of uses",
+          "helper_text": "For informational purposes, this shows you how many times this coupon code has already been used."
+        },
+        "transactions": {
+          "label": "Transactions",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "code": "Code",
+              "customer": "Customer",
+              "description": "Description",
+              "price": "{{amount, price}}",
+              "time": "{{value, date}}",
+              "status_capturing": "Capturing",
+              "status_captured": "Captured",
+              "status_approved": "Approved",
+              "status_authorized": "Authorized",
+              "status_pending": "Pending",
+              "status_completed": "Completed",
+              "status_problem": "Problem",
+              "status_pending_fraud_review": "Pending_fraud_review",
+              "status_rejected": "Rejected",
+              "status_declined": "Declined",
+              "status_refunding": "Refunding",
+              "status_refunded": "Refunded",
+              "status_voided": "Voided",
+              "status_verified": "Verified",
+              "summary": "{{most_expensive_item.name}}",
+              "summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
+              "summary_payment_method_change": "Payment method change",
+              "summary_subscription_modification": "Subscription modification",
+              "summary_subscription_cancellation": "Subscription cancellation",
+              "source_MIT": "This transaction was initiated by the merchant",
+              "source_CIT": "This transaction was initiated by the customer",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No transactions",
+                "loading_error": "Unknown error"
+              }
+            }
+          }
+        },
+        "timestamps": {
+          "date_created": "Created on",
+          "date_modified": "Last updated on",
+          "date": "{{value, date}}"
+        },
+        "delete": {
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "delete_prompt": "Are you sure you'd like to remove this coupon code? You won't be able to bring it back."
+        },
+        "create": {
+          "create": "Create"
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error"
+        }
+      }
+    },
+    "pagination": {
+      "create_button_text": "Add code +",
+      "search_button_text": "Search codes",
+      "card": {
+        "delete_button_text": "Delete",
+        "copy_button_text": "Copy code",
+        "line_1": "{{ code }}",
+        "line_2": "Added on {{ date_created, date }} at {{ date_created, time }}",
+        "uses_count": "Used {{ count }} time",
+        "uses_count_plural": "Used {{ count }} times",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No codes",
+          "loading_error": "Unknown error"
+        }
+      },
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous"
+    },
+    "query-builder": {
+      "add_or_clause": "Add OR clause",
+      "add_value": "Add value",
+      "code": "Code",
+      "date": "{{value, date}}",
+      "date_created": "Created on",
+      "date_modified": "Last updated on",
+      "delete": "Delete",
+      "field": "Field",
+      "hidden": "Hidden",
+      "is_defined_false": "Not defined",
+      "is_defined_true": "Defined",
+      "name": "Name",
+      "operator_equal": "Equal",
+      "operator_greaterthan": "Greater than",
+      "operator_greaterthanorequal": "Greater than or equal",
+      "operator_in": "One of",
+      "operator_isdefined": "Is defined",
+      "operator_lessthan": "Less than",
+      "operator_lessthanorequal": "Less than or equal",
+      "operator_not": "Not equal",
+      "or": "Or",
+      "query_builder_group": "Group of filters",
+      "query_builder_rule": "Filter",
+      "range_from": "From",
+      "range_to": "To",
+      "type": "Type",
+      "type_any": "Field of unknown type",
+      "type_attribute": "Key-value resource",
+      "type_date": "Date field",
+      "type_here": "Type here...",
+      "type_number": "Numeric field",
+      "type_string": "Text field",
+      "used_codes": "Codes used",
+      "value": "Value"
+    }
+  },
+  "attributes": {
+    "label": "Attributes",
+    "delete_header": "Remove attribute?",
+    "delete_message": "Please confirm that you'd like to remove this attribute from the item.",
+    "delete_confirm": "Remove",
+    "delete_cancel": "Cancel",
+    "dialog": {
+      "header_create": "Create attribute",
+      "header_update": "Update attribute",
+      "close": "Close",
+      "save": "Save",
+      "cancel": "Cancel",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "attribute-form": {
+        "name": {
+          "label": "Name",
+          "placeholder": "Required",
+          "helper_text": "Name of this attribute. It does not have to be unique.",
+          "v8n_required": "Please name this attribute.",
+          "v8n_too_long": "Please choose a name that is 500 characters long or less."
+        },
+        "value": {
+          "label": "Value",
+          "placeholder": "Required",
+          "helper_text": "Value of this attribute. Attribute values are automatically HTML-escaped.",
+          "v8n_required": "Please provide a value for this attribute.",
+          "v8n_too_long": "Unfortunately we can't store values that are more than 1000 characters long."
+        },
+        "visibility": {
+          "label": "Visibility",
+          "option_public": "Everyone",
+          "option_restricted": "Store admins",
+          "option_private": "Only me",
+          "helper_text": "Controls who can see this attribute. Public attributes can be shown to anyone, including customers. Private attributes are more suitable for configuration or technical details which are irrelevant to the public. Restricted attributes can only be viewed with the OAuth client that created them."
+        },
+        "timestamps": {
+          "date": "{{value, date}}",
+          "date_created": "Created on",
+          "date_modified": "Last updated on"
+        },
+        "delete": {
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "delete_prompt": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
+        },
+        "create": {
+          "create": "Create"
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error"
+        }
+      }
+    },
+    "pagination": {
+      "create_button_text": "Add attribute +",
+      "card": {
+        "delete_button_text": "Delete",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No attributes",
+          "loading_error": "Unknown error"
+        }
+      },
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous"
+    }
+  },
+  "number-of-uses-allowed": {
+    "label": "Uses per coupon",
+    "placeholder": "Unlimited",
+    "helper_text": "The maximum number of times this coupon can be used. Leave blank for unlimited uses.",
+    "v8n_too_small": "Please enter a value greater or equal to 0."
+  },
+  "number-of-uses-allowed-per-customer": {
+    "label": "Uses per customer",
+    "placeholder": "Unlimited",
+    "helper_text": "The maximum number of times a single customer can use this coupon. Leave blank for unlimited uses.",
+    "v8n_too_small": "Please enter a value greater or equal to 0."
+  },
+  "number-of-uses-allowed-per-code": {
+    "label": "Uses per code",
+    "placeholder": "Unlimited",
+    "helper_text": "The maximum number of times a single code can be used. Leave blank for unlimited uses.",
+    "v8n_too_small": "Please enter a value greater or equal to 0."
+  },
+  "product-code-restrictions": {
+    "label": "Product code restrictions",
+    "placeholder": "Enter a product code and hit Enter",
+    "helper_text": "We'll apply this coupon only if one of the rules in the list matches the product code. Wildcards are allowed.",
+    "unit_allow": "Allow",
+    "unit_block": "Block",
+    "label_allow": "Allow {{ value }}",
+    "label_block": "Block {{ value }}",
+    "v8n_too_long": "Unfortunately we are unable to store that many product code restrictions at the moment. Please reduce the number of rules in this section until this message disappears."
+  },
+  "options": {
+    "label": "Options",
+    "option_multiple_codes_allowed": "Allow multiple codes on the same order",
+    "option_combinable": "Allow combining with other coupons",
+    "option_exclude_category_discounts": "Don't apply category discounts with this coupon",
+    "option_exclude_line_item_discounts": "Don't apply line item discounts with this coupon",
+    "option_is_taxable": "Apply taxes before this coupon",
+    "option_shared_codes_allowed": "Enable code sharing between coupons",
+    "option_customer_auto_apply": "Enable auto-apply",
+    "helper_text": ""
+  },
+  "start-date": {
+    "label": "Start date",
+    "placeholder": "Optional",
+    "helper_text": "The date and time when this coupon will become active. Leave blank to activate immediately."
+  },
+  "end-date": {
+    "label": "End date",
+    "placeholder": "Optional",
+    "helper_text": "The date and time when this coupon will expire. Leave blank for no expiration."
+  },
   "customer-subscription-restrictions": {
     "label": "Auto-apply: subscription restrictions",
     "placeholder": "Enter a product code and hit Enter",
     "helper_text": "This coupon will be automatically applied when a subscription includes a product with one of the codes in the list. Wildcards are allowed just like in product code restrictions.",
     "submit": "Add this code",
-    "delete": "Delete this code"
+    "delete": "Delete this code",
+    "v8n_too_long": "Unfortunately we are unable to store that many subscription restrictions at the moment. Please reduce the number of rules in this section until this message disappears."
   },
   "customer-attribute-restrictions": {
     "label": "Auto-apply: customer restrictions",
     "helper_text": "This coupon will be automatically applied when a customer record matches this query.",
-    "add_or_clause": "Add OR clause",
-    "add_value": "Add value",
-    "code": "Code",
-    "date": "{{value, date}}",
+    "v8n_too_long": "Unfortunately we are unable to store that many customer restrictions at the moment. Please reduce the number of rules in this section until this message disappears.",
+    "query-builder": {
+      "add_or_clause": "Add OR clause",
+      "add_value": "Add value",
+      "code": "Code",
+      "date": "{{value, date}}",
+      "date_created": "Created on",
+      "date_modified": "Last updated on",
+      "delete": "Delete",
+      "field": "Field",
+      "hidden": "Hidden",
+      "is_defined_false": "Not defined",
+      "is_defined_true": "Defined",
+      "name": "Name",
+      "operator_equal": "Equal",
+      "operator_greaterthan": "Greater than",
+      "operator_greaterthanorequal": "Greater than or equal",
+      "operator_in": "One of",
+      "operator_isdefined": "Is defined",
+      "operator_lessthan": "Less than",
+      "operator_lessthanorequal": "Less than or equal",
+      "operator_not": "Not equal",
+      "or": "Or",
+      "query_builder_group": "Group of filters",
+      "query_builder_rule": "Filter",
+      "range_from": "From",
+      "range_to": "To",
+      "type": "Type",
+      "type_any": "Field of unknown type",
+      "type_attribute": "Key-value resource",
+      "type_date": "Date field",
+      "type_here": "Type here...",
+      "type_number": "Numeric field",
+      "type_string": "Text field",
+      "used_codes": "Codes used",
+      "value": "Value"
+    }
+  },
+  "item-option-restrictions": {
+    "label": "Item option restrictions",
+    "helper_text": "This restricts the usage of a coupon code based on an item option's name and value. When defined, the coupon will only apply to items with the specified option name and value. Wildcards are allowed.",
+    "v8n_too_long": "Unfortunately we are unable to store that many item option restrictions at the moment. Please reduce the number of rules in this section until this message disappears.",
+    "query-builder": {
+      "add_or_clause": "Add OR clause",
+      "add_value": "Add option value",
+      "code": "Code",
+      "date": "{{value, date}}",
+      "date_created": "Created on",
+      "date_modified": "Last updated on",
+      "delete": "Delete",
+      "field": "Option name",
+      "hidden": "Hidden",
+      "is_defined_false": "Not defined",
+      "is_defined_true": "Defined",
+      "name": "Name",
+      "operator_equal": "Equal",
+      "operator_greaterthan": "Greater than",
+      "operator_greaterthanorequal": "Greater than or equal",
+      "operator_in": "One of",
+      "operator_isdefined": "Is defined",
+      "operator_lessthan": "Less than",
+      "operator_lessthanorequal": "Less than or equal",
+      "operator_not": "Not equal",
+      "or": "Or",
+      "query_builder_group": "Group of filters",
+      "query_builder_rule": "Filter",
+      "range_from": "From",
+      "range_to": "To",
+      "type": "Type",
+      "type_any": "Field of unknown type",
+      "type_attribute": "Key-value resource",
+      "type_date": "Date field",
+      "type_here": "Type here...",
+      "type_number": "Numeric field",
+      "type_string": "Text field",
+      "used_codes": "Codes used",
+      "value": "Option value"
+    }
+  },
+  "category-restrictions": {
+    "label": "Item category restrictions",
+    "status_saving": "Saving...",
+    "status_loading": "Loading...",
+    "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No restrictions",
+          "loading_error": "Unknown error"
+        }
+      }
+    },
+    "helper_text": "Limit which categories this coupon applies to. All changes are saved automatically."
+  },
+  "inclusive-tax-rate": {
+    "label": "Tax rate",
+    "placeholder": "Optional",
+    "helper_text": "The tax rate to apply to the coupon in tax-inclusive mode. This is a decimal value from 0 to 1.",
+    "v8n_too_small": "Please enter a value greater or equal to 0.",
+    "v8n_too_big": "Please enter a value less than or equal to 1."
+  },
+  "timestamps": {
     "date_created": "Created on",
-    "date_modified": "Last updated",
+    "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "delete": {
     "delete": "Delete",
-    "field": "Field",
-    "hidden": "Hidden",
-    "is_defined_false": "Not defined",
-    "is_defined_true": "Defined",
-    "name": "Name",
-    "operator_equal": "Equal",
-    "operator_greaterthan": "Greater than",
-    "operator_greaterthanorequal": "Greater than or equal",
-    "operator_in": "One of",
-    "operator_isdefined": "Is defined",
-    "operator_lessthan": "Less than",
-    "operator_lessthanorequal": "Less than or equal",
-    "operator_not": "Not equal",
-    "or": "Or",
-    "query_builder_group": "Group of filters",
-    "query_builder_rule": "Filter",
-    "range_from": "From",
-    "range_to": "To",
-    "type": "Type",
-    "type_any": "Field of unknown type",
-    "type_attribute": "Key-value resource",
-    "type_date": "Date field",
-    "type_here": "Type here...",
-    "type_number": "Numeric field",
-    "type_string": "Text field",
-    "used_codes": "Codes used",
-    "value": "Value"
-  },
-  "copy-to-clipboard": {
-    "click_to_copy": "Click to copy",
-    "copying": "Copying",
-    "done": "Done",
-    "failed_to_copy": "Failed to copy"
-  },
-  "coupon-code-form": {
     "cancel": "Cancel",
-    "code": "Code",
-    "confirm": "Confirm",
-    "create": "Create",
-    "date": "{{value, date}}",
-    "date_created": "Created on",
-    "date_modified": "Last updated",
-    "delete": "Delete",
-    "delete_prompt": "This resource will be permanently removed. Are you sure?",
-    "v8n_required": "Required",
-    "v8n_too_long": "Too long",
-    "spinner": {
-      "loading_busy": "Loading",
-      "loading_error": "Failed to load"
-    }
+    "delete_prompt": "This action is irreversible. Are you sure you want to delete this coupon?"
   },
-  "coupon-codes-form": {
-    "code": "Code",
-    "code_import_hint": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats.",
-    "code_plural": "Codes",
-    "duplicate": "Duplicate",
-    "hidden_codes_explainer": "We’ve hidden some of your codes because there were too many of them. Don’t worry – we’ll import them anyway.",
-    "hidden_codes_header": "{{count}} code is hidden",
-    "hidden_codes_header_plural": "{{count}} codes are hidden",
-    "import": "Import",
-    "import_codes_done": "All done! We've imported your codes into the system.",
-    "loading_busy": "Loading",
-    "loading_error": "Failed to load",
-    "type_here": "Type here...",
-    "unique": "Unique",
-    "v8n_required": "Required",
-    "spinner": {
-      "loading_busy": "Loading",
-      "loading_error": "Failed to load"
-    }
-  },
-  "generate-codes-form": {
-    "balance": "Balance",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "current_balance": "Current balance",
-    "generate": "Generate",
-    "generate_codes_done": "All done! We've added new codes for you.",
-    "leave_empty_for_random_codes": "Leave empty to generate completely random codes.",
-    "length": "Length",
-    "number_of_codes": "Number of codes",
-    "prefix": "Prefix",
-    "spinner": {
-      "loading_busy": "Loading",
-      "loading_error": "Failed to load"
-    }
-  },
-  "pagination": {
-    "first": "First",
-    "last": "Last",
-    "next": "Next",
-    "pagination": "{{from}}-{{to}} out of {{total}}",
-    "previous": "Previous"
-  },
-  "query-builder": {
-    "add_or_clause": "Add OR clause",
-    "add_value": "Add value",
-    "code": "Code",
-    "date": "{{value, date}}",
-    "date_created": "Created on",
-    "date_modified": "Last updated",
-    "delete": "Delete",
-    "field": "Field",
-    "hidden": "Hidden",
-    "is_defined_false": "Not defined",
-    "is_defined_true": "Defined",
-    "name": "Name",
-    "operator_equal": "Equal",
-    "operator_greaterthan": "Greater than",
-    "operator_greaterthanorequal": "Greater than or equal",
-    "operator_in": "One of",
-    "operator_isdefined": "Is defined",
-    "operator_lessthan": "Less than",
-    "operator_lessthanorequal": "Less than or equal",
-    "operator_not": "Not equal",
-    "or": "Or",
-    "query_builder_group": "Group of filters",
-    "query_builder_rule": "Filter",
-    "range_from": "From",
-    "range_to": "To",
-    "type": "Type",
-    "type_any": "Field of unknown type",
-    "type_attribute": "Key-value resource",
-    "type_date": "Date field",
-    "type_here": "Type here...",
-    "type_number": "Numeric field",
-    "type_string": "Text field",
-    "used_codes": "Codes used",
-    "value": "Value"
+  "create": {
+    "create": "Create"
   },
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

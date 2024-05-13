@@ -4,6 +4,7 @@ import { CSSResultArray, LitElement, TemplateResult, css, html } from 'lit-eleme
 
 import { Themeable } from '../../../mixins/themeable';
 
+/** @deprecated – use internal controls instead */
 export class Page extends LitElement {
   public static get styles(): CSSResultArray {
     return [

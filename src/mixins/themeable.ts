@@ -111,6 +111,10 @@ export const ThemeableMixin = <TBase extends Base>(
             text-align: inherit !important;
           }
 
+          [hidden] {
+            display: none !important;
+          }
+
           @tailwind components;
 
           @tailwind utilities;
@@ -162,52 +166,82 @@ export const ThemeableMixin = <TBase extends Base>(
   };
 };
 
-registerStyles(
-  'vaadin-date-time-picker',
-  css`
-    vaadin-date-time-picker-custom-field {
-      --lumo-text-field-size: auto;
-      padding: 0;
-    }
+try {
+  registerStyles(
+    'vaadin-date-time-picker',
+    css`
+      vaadin-date-time-picker-custom-field {
+        --lumo-text-field-size: auto;
+        padding: 0;
+      }
 
-    vaadin-date-time-picker-custom-field::part(label) {
-      padding-bottom: 0.5em;
-    }
-  `
-);
+      vaadin-date-time-picker-custom-field::part(label) {
+        padding-bottom: 0.5em;
+      }
+    `
+  );
+} catch {
+  // ignore
+}
 
-registerStyles(
-  'vaadin-date-time-picker-date-picker',
-  css`
-    :host {
-      --lumo-text-field-size: auto;
-    }
-    vaadin-date-time-picker-date-text-field {
-      padding: 0;
-    }
-  `
-);
+try {
+  registerStyles(
+    'vaadin-date-time-picker-date-picker',
+    css`
+      :host {
+        --lumo-text-field-size: auto;
+      }
+      vaadin-date-time-picker-date-text-field {
+        padding: 0;
+      }
+    `
+  );
+} catch {
+  // ignore
+}
 
-registerStyles(
-  'vaadin-date-time-picker-time-picker',
-  css`
-    :host {
-      --lumo-text-field-size: auto;
-    }
-    vaadin-date-time-picker-time-text-field {
-      padding: 0;
-    }
-  `
-);
+try {
+  registerStyles(
+    'vaadin-date-time-picker-time-picker',
+    css`
+      :host {
+        --lumo-text-field-size: auto;
+      }
+      vaadin-date-time-picker-time-text-field {
+        padding: 0;
+      }
+    `
+  );
+} catch {
+  // ignore
+}
 
-registerStyles(
-  'vaadin-button',
-  css`
-    :host([theme~='primary']) {
-      font-weight: 500;
-    }
-  `
-);
+try {
+  registerStyles(
+    'vaadin-button',
+    css`
+      :host([theme~='primary']) {
+        font-weight: 500;
+      }
+    `
+  );
+} catch {
+  // ignore
+}
+
+try {
+  /** https://github.com/vaadin-component-factory/vcf-tooltip/issues/6 */
+  registerStyles(
+    'vcf-tooltip',
+    css`
+      :host([hidden]) [part='container'] {
+        display: none !important;
+      }
+    `
+  );
+} catch {
+  // ignore
+}
 
 /**
  * One of the base classes for each rel-specific element in the collection

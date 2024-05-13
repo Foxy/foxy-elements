@@ -160,7 +160,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
 
       expect(pages).to.have.attribute(
         'first',
-        'https://demo.api/hapi/subscriptions?customer_id=0&zoom=last_transaction%2Ctransaction_template%3Aitems'
+        'https://demo.api/hapi/subscriptions?customer_id=0&zoom=transaction_template%3Aitems'
       );
 
       await waitUntil(async () => (pages as CollectionPages<any>).in('idle'), undefined, {
@@ -235,8 +235,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
 
         dialog.parent = 'https://demo.api/hapi/subscriptions';
         dialog.open = true;
-        dialog.href =
-          'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+        dialog.href = 'https://demo.api/hapi/subscriptions/0?zoom=transaction_template:items';
 
         const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
         const alwaysHidden =
@@ -402,8 +401,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
               const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
 
               dialog.open = true;
-              dialog.href =
-                'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+              dialog.href = 'https://demo.api/hapi/subscriptions/0?zoom=transaction_template:items';
 
               const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
               await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
@@ -445,8 +443,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
               const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
 
               dialog.open = true;
-              dialog.href =
-                'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+              dialog.href = 'https://demo.api/hapi/subscriptions/0?zoom=transaction_template:items';
 
               const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
               await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
@@ -555,8 +552,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
               const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
 
               dialog.open = true;
-              dialog.href =
-                'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+              dialog.href = 'https://demo.api/hapi/subscriptions/0?zoom=transaction_template:items';
 
               const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
               await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
@@ -597,8 +593,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
               const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
 
               dialog.open = true;
-              dialog.href =
-                'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+              dialog.href = 'https://demo.api/hapi/subscriptions/0?zoom=transaction_template:items';
 
               const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
               await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
@@ -643,7 +638,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
           describe('update', () => {
             it('renders items:actions:update:before template in the subscription form', async () => {
               const customer = await getTestData('./hapi/customers/0');
-              const settings = await getTestData('./hapi/customer_portal_settings/0');
+              const settings = await getTestData('./portal/customer_portal_settings');
               const element = await fixture<InternalCustomerPortalSubscriptions>(html`
                 <foxy-internal-customer-portal-subscriptions
                   .templates=${{ 'list:form:items:actions:update:before': () => html`Test` }}
@@ -658,8 +653,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
               const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
 
               dialog.open = true;
-              dialog.href =
-                'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+              dialog.href = 'https://demo.api/hapi/subscriptions/0?zoom=transaction_template:items';
 
               const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
               await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
@@ -672,7 +666,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
 
             it('renders items:actions:update:after template in the subscription form', async () => {
               const customer = await getTestData('./hapi/customers/0');
-              const settings = await getTestData('./hapi/customer_portal_settings/0');
+              const settings = await getTestData('./portal/customer_portal_settings');
               const element = await fixture<InternalCustomerPortalSubscriptions>(html`
                 <foxy-internal-customer-portal-subscriptions
                   .templates=${{ 'list:form:items:actions:update:after': () => html`Test` }}
@@ -687,8 +681,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
               const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
 
               dialog.open = true;
-              dialog.href =
-                'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+              dialog.href = 'https://demo.api/hapi/subscriptions/0?zoom=transaction_template:items';
 
               const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
               await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
@@ -721,8 +714,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
               const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
 
               dialog.open = true;
-              dialog.href =
-                'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+              dialog.href = 'https://demo.api/hapi/subscriptions/0?zoom=transaction_template:items';
 
               const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
               await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
@@ -763,8 +755,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
               const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
 
               dialog.open = true;
-              dialog.href =
-                'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+              dialog.href = 'https://demo.api/hapi/subscriptions/0?zoom=transaction_template:items';
 
               const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
               await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });

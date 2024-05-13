@@ -18,6 +18,7 @@ const summary: Summary = {
       'codes',
       'product-restrictions',
       'category-restrictions',
+      'attributes',
     ],
     sections: ['timestamps'],
     buttons: ['create', 'delete'],

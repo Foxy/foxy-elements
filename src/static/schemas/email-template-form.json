@@ -8,7 +8,7 @@
     "create": { "type": "string", "default": "Create" },
     "date": { "type": "string", "default": "{{value, date}}" },
     "date_created": { "type": "string", "default": "Created on" },
-    "date_modified": { "type": "string", "default": "Last updated" },
+    "date_modified": { "type": "string", "default": "Last updated on" },
     "default": { "type": "string", "default": "Default" },
     "delete": { "type": "string", "default": "Delete" },
     "delete_prompt": {
@@ -53,10 +53,11 @@
     "spinner": {
       "additionalProperties": false,
       "properties": {
+        "refresh": { "type": "string", "default": "Refresh" },
         "loading_busy": { "type": "string", "default": "Loading" },
-        "loading_error": { "type": "string", "default": "Failed to load" }
+        "loading_error": { "type": "string", "default": "Unknown error" }
       },
-      "required": ["loading_busy", "loading_error"]
+      "required": ["refresh", "loading_busy", "loading_error"]
     }
   },
   "required": [

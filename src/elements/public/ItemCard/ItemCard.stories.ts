@@ -10,7 +10,6 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-item-card',
   translatable: true,
-  configurable: {},
 };
 
 export default getMeta(summary);

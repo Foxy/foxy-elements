@@ -37,6 +37,7 @@ const samples = {
 function testNs(ns: 'global' | 'custom') {
   return async (element: I18N) => {
     await element.whenReady;
+    await element.requestUpdate();
     expect(element.ns).to.equal(ns);
   };
 }
@@ -44,6 +45,7 @@ function testNs(ns: 'global' | 'custom') {
 function testKey(key: '' | 'test') {
   return async (element: I18N) => {
     await element.whenReady;
+    await element.requestUpdate();
     expect(element.key).to.equal(key);
   };
 }
@@ -51,6 +53,7 @@ function testKey(key: '' | 'test') {
 function testOpts(opts?: { value: string }) {
   return async (element: I18N) => {
     await element.whenReady;
+    await element.requestUpdate();
     expect(element.opts).to.deep.equal(opts);
   };
 }
@@ -58,12 +61,14 @@ function testOpts(opts?: { value: string }) {
 function testLang(lang: 'en' | 'fr') {
   return async (element: I18N) => {
     await element.whenReady;
+    await element.requestUpdate();
     expect(element.lang).to.equal(lang);
   };
 }
 
 async function testText(element: I18N) {
   await element.whenReady;
+  await element.requestUpdate();
 
   const lang = element.lang as 'en' | 'fr';
   const ns = element.ns as 'global' | 'custom';

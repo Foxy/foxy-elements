@@ -34,7 +34,7 @@ describe('ClientCard', () => {
 
     client.project_name = 'Test project';
     card.data = client;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text('Test project');
   });
@@ -46,7 +46,7 @@ describe('ClientCard', () => {
 
     client.project_name = '';
     card.data = client;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     const placeholder = await getByKey(card, 'no_project_name');
     expect(placeholder).to.exist;
@@ -60,7 +60,7 @@ describe('ClientCard', () => {
 
     client.project_description = 'Test description';
     card.data = client;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text('Test description');
   });
@@ -72,7 +72,7 @@ describe('ClientCard', () => {
 
     client.project_description = '';
     card.data = client;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     const placeholder = await getByKey(card, 'no_project_description');
     expect(placeholder).to.exist;
@@ -86,7 +86,7 @@ describe('ClientCard', () => {
 
     client.redirect_uri = 'https://admin.foxy.io/sign-in';
     card.data = client;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text('admin.foxy.io');
   });
@@ -98,7 +98,7 @@ describe('ClientCard', () => {
 
     client.company_name = 'Test Company';
     card.data = client;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text('Test Company');
   });
@@ -110,7 +110,7 @@ describe('ClientCard', () => {
 
     client.company_name = '';
     card.data = client;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     const placeholder = await getByKey(card, 'no_company_name');
     expect(placeholder).to.exist;
@@ -124,7 +124,7 @@ describe('ClientCard', () => {
 
     client.company_logo = 'https://example.com/logo.png';
     card.data = client;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     const img = await getByTag(card, 'img');
     expect(img).to.exist;
@@ -138,7 +138,7 @@ describe('ClientCard', () => {
 
     client.company_logo = '';
     card.data = client;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     const img = await getByTag(card, 'img');
     expect(img).to.exist;

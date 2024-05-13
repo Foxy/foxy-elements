@@ -12,7 +12,8 @@ const samples = {
   innerHTML: '<div>Lorem ipsum</div>',
 };
 
-function testItems(element: List) {
+async function testItems(element: List) {
+  await element.requestUpdate();
   const renderedItems = element.shadowRoot!.querySelectorAll('li');
   expect(renderedItems.length).to.equal(samples.value.length);
 
@@ -22,11 +23,13 @@ function testItems(element: List) {
   });
 }
 
-function testContent(element: List) {
+async function testContent(element: List) {
+  await element.requestUpdate();
   expect(element).lightDom.to.equal(samples.innerHTML);
 }
 
-function testGetText(element: List) {
+async function testGetText(element: List) {
+  await element.requestUpdate();
   const renderedItems = element.shadowRoot!.querySelectorAll('li');
   expect(renderedItems.length).to.equal(samples.value.length);
 
@@ -36,19 +39,22 @@ function testGetText(element: List) {
   });
 }
 
-function testEnabled(element: List) {
+async function testEnabled(element: List) {
+  await element.requestUpdate();
   expect(element.disabled).to.be.false;
   const buttons = element.shadowRoot!.querySelectorAll('button');
   Array.from(buttons).every(button => expect(button.disabled).to.be.false);
 }
 
-function testDisabled(element: List) {
+async function testDisabled(element: List) {
+  await element.requestUpdate();
   expect(element.disabled).to.be.true;
   const buttons = element.shadowRoot!.querySelectorAll('button');
   Array.from(buttons).every(button => expect(button.disabled).to.be.true);
 }
 
 async function testItemRemoval(element: List) {
+  await element.requestUpdate();
   const button = element.shadowRoot!.querySelector('li button') as HTMLButtonElement;
 
   if (element.disabled) {

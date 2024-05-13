@@ -5,7 +5,7 @@
   "create": "Create",
   "date": "{{value, date}}",
   "date_created": "Created on",
-  "date_modified": "Last updated",
+  "date_modified": "Last updated on",
   "default": "Default",
   "delete": "Delete",
   "delete_prompt": "This resource will be permanently removed. Are you sure?",
@@ -31,7 +31,8 @@
     "helper_text": ""
   },
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

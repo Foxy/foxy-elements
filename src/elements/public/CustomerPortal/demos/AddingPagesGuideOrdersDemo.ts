@@ -8,6 +8,7 @@ export const AddingPagesGuideOrdersDemo = (): TemplateResult => html`
   <foxy-customer-portal
     base="https://demo.api/portal/"
     hiddencontrols="customer:header:actions:edit customer:subscriptions customer:transactions customer:addresses customer:payment-methods"
+    simplify-ns-loading
   >
     <template slot="customer:header:before">
       <style>

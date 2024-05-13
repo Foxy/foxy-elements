@@ -2,11 +2,15 @@
   "code": "Code",
   "date": "{{value, date}}",
   "fraud_risk": "Fraud risk: {{ score }}",
+  "processor_response": "{{ processor_response }}",
+  "purchase_order": "PO {{ purchase_order }}",
+  "paypal_payer_id": "PayPal Payer ID {{ paypal_payer_id }}",
+  "third_party_id": "External ID {{ third_party_id }}",
   "price": "{{amount, price}}",
   "unknown": "Unknown",
   "spinner": {
     "loading_busy": "Loading",
     "loading_empty": "No data",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

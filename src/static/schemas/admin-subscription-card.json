@@ -23,6 +23,7 @@
     "subscription_failed": { "type": "string", "default": "Payment failed on {{date, date}}" },
     "subscription_inactive": { "type": "string", "default": "Inactive" },
     "subscription_will_be_cancelled": { "type": "string", "default": "Ends on {{date, date}}" },
+    "subscription_will_be_active": { "type": "string", "default": "Starts on {{date, date}}" },
     "summary": { "type": "string", "default": "{{ firstItem.name }}" },
     "summary_plural": {
       "type": "string",
@@ -39,7 +40,7 @@
       "properties": {
         "loading_busy": { "type": "string", "default": "Loading" },
         "loading_empty": { "type": "string", "default": "No data" },
-        "loading_error": { "type": "string", "default": "Failed to load" }
+        "loading_error": { "type": "string", "default": "Unknown error" }
       },
       "required": ["loading_busy", "loading_empty", "loading_error"]
     }
@@ -57,6 +58,7 @@
     "subscription_failed",
     "subscription_inactive",
     "subscription_will_be_cancelled",
+    "subscription_will_be_active",
     "summary",
     "summary_plural",
     "summary_approximate",

@@ -77,6 +77,7 @@ function check(
   `;
 }
 
+/** @deprecated – use internal controls instead */
 export class Choice extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {

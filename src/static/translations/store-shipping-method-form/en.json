@@ -67,12 +67,12 @@
     "pagination": "{{from}}-{{to}} out of {{total}}",
     "previous": "Previous",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load",
+    "loading_error": "Unknown error",
     "international_only": "– international only"
   },
   "timestamps": {
     "date_created": "Created on",
-    "date_modified": "Last updated",
+    "date_modified": "Last updated on",
     "date": "{{value, date}}"
   },
   "delete": {
@@ -84,7 +84,8 @@
     "create": "Create"
   },
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

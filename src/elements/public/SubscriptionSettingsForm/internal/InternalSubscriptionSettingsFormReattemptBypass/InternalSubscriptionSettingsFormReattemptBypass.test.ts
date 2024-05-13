@@ -118,7 +118,7 @@ describe('InternalSubscriptionSettingsFormReattemptBypass', () => {
     control.readonly = true;
     control.label = 'Test label';
     control.helperText = 'Test helper text';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(group).to.have.attribute('disabled');
     expect(group).to.have.attribute('readonly');
@@ -144,22 +144,22 @@ describe('InternalSubscriptionSettingsFormReattemptBypass', () => {
 
     element.edit({ reattempt_bypass_strings: '1,2' });
     element.edit({ reattempt_bypass_logic: 'skip_if_exists' });
-    await element.updateComplete.then(() => control.updateComplete);
+    await element.requestUpdate().then(() => control.requestUpdate());
     expect(group).to.have.property('value', 'skip_if_exists');
 
     element.edit({ reattempt_bypass_strings: '1,2' });
     element.edit({ reattempt_bypass_logic: 'reattempt_if_exists' });
-    await element.updateComplete.then(() => control.updateComplete);
+    await element.requestUpdate().then(() => control.requestUpdate());
     expect(group).to.have.property('value', 'reattempt_if_exists');
 
     element.edit({ reattempt_bypass_strings: '' });
     element.edit({ reattempt_bypass_logic: 'reattempt_if_exists' });
-    await element.updateComplete.then(() => control.updateComplete);
+    await element.requestUpdate().then(() => control.requestUpdate());
     expect(group).to.have.property('value', 'never_reattempt');
 
     element.edit({ reattempt_bypass_strings: '' });
     element.edit({ reattempt_bypass_logic: 'skip_if_exists' });
-    await element.updateComplete.then(() => control.updateComplete);
+    await element.requestUpdate().then(() => control.requestUpdate());
     expect(group).to.have.property('value', 'always_reattempt');
   });
 
@@ -221,7 +221,7 @@ describe('InternalSubscriptionSettingsFormReattemptBypass', () => {
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     element.edit({ reattempt_bypass_strings: '1,2,3' });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const control = element.firstElementChild as Control;
     const list = control.renderRoot.querySelector(

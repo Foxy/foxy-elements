@@ -634,6 +634,7 @@ export class Item extends SignableFields {
     e.currency = this.currency;
     e.isItem = false;
     e.isChildItem = true;
+    e.setAttribute('data-bundled', '');
     if (this.code) {
       e.parent_code = this.code;
     }

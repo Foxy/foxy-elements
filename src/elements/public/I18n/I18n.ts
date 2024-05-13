@@ -71,6 +71,7 @@ export class I18n extends TranslatableMixin(InferrableMixin(LitElement), '') {
    *
    * @param param0 `fx:hosted_payment_gateways` or `fx:payment_gateways`
    * @example I18n.setGateways({ values: { authorize: { name: 'Authorize.Net' }}})
+   * @deprecated
    */
   static setGateways({ values }: Gateways): void {
     for (const id in values) {

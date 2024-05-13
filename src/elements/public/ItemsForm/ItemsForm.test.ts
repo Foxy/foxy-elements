@@ -1,4 +1,4 @@
-import { fixture, expect, html, elementUpdated, oneEvent, aTimeout } from '@open-wc/testing';
+import { fixture, expect, html, oneEvent, aTimeout } from '@open-wc/testing';
 import * as sinon from 'sinon';
 import { ItemsForm } from './ItemsForm';
 import { MockItem } from '../../../mocks/FxItem';
@@ -46,7 +46,7 @@ describe('The form should allow new items to be added and removed', async functi
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
   it('Should recognize new items added as JS array', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form
         store="test.foxycart.com"
         currency="usd"
@@ -54,34 +54,34 @@ describe('The form should allow new items to be added and removed', async functi
       >
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     const items = el.querySelectorAll('[data-item]');
     expect(items).to.have.lengthOf(2);
   });
 
   it('Should recognize new items added as foxy-item', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form currency="usd" store="test.foxycart.com">
         <x-testitem name="Beta1" price="10"></x-testitem>
         <x-testitem name="Beta2" price="10"></x-testitem>
         <x-testitem name="Beta3" price="10"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     // Items will be found in the DOM even if not recognized by ItemsForm
     // So we check if the price was properly updated
     expect((el as ItemsForm).total).to.equal(30);
   });
 
   it('Should recognize changes to JS array', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form
         currency="usd"
         store="test.foxycart.com"
         items='[{"name": "GammaOrig1", "price": "1"}, {"name": "GammaOrig2", "price": "2"}]'
       ></test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     let items = el.querySelectorAll('[data-item]');
     expect(items).to.have.lengthOf(2);
     // Increase the number of items
@@ -90,12 +90,12 @@ describe('The form should allow new items to be added and removed', async functi
       { name: 'GammaNew2', price: 2 },
       { name: 'GammaNew3', price: 3 },
     ];
-    await elementUpdated(el);
+    await el.requestUpdate();
     items = el.querySelectorAll('[data-item]');
     expect(items).to.have.lengthOf(3);
     // Decrease the number of items
     (el as ItemsForm).items = [(el as ItemsForm).items[0]];
-    await elementUpdated(el);
+    await el.requestUpdate();
     items = el.querySelectorAll('[data-item]');
     expect(items).to.have.lengthOf(1);
   });
@@ -106,7 +106,7 @@ describe('The form should allow new items to be added and removed', async functi
     const lateItem = document.createElement('x-testitem') as MockItem;
     lateItem.price = 20;
     el.appendChild(lateItem);
-    await elementUpdated(el);
+    await el.requestUpdate();
     expect((el as ItemsForm).total).to.equal(40);
   });
 
@@ -116,14 +116,14 @@ describe('The form should allow new items to be added and removed', async functi
     if (toRemove) {
       el.removeChild(toRemove);
     }
-    await elementUpdated(el);
+    await el.requestUpdate();
     expect((el as ItemsForm).total).to.equal(10);
   });
 
   it('Should add new valid items', async function () {
     const el = await formWith2items(10, 10);
     (el as ItemsForm).addItems([{ name: 'p3', price: 10 }]);
-    await elementUpdated(el);
+    await el.requestUpdate();
     const items = el.querySelectorAll('[data-item]');
     expect(items).to.exist;
     expect(items.length).to.equal(3);
@@ -134,7 +134,7 @@ describe('The form should allow new items to be added and removed', async functi
     let items = el.querySelectorAll('[data-item]');
     const pid = (items[0] as MockItem).pid;
     el.removeItems([pid]);
-    await elementUpdated(el);
+    await el.requestUpdate();
     items = el.querySelectorAll('[data-item]');
     expect(items).to.exist;
     expect(items.length).to.equal(1);
@@ -151,12 +151,12 @@ describe('The form should allow new items to be added and removed', async functi
 
   it('Should listen to changes in child elements', async function () {
     const el = await formWith2items(10, 10);
-    await elementUpdated(el);
+    await el.requestUpdate();
     const input = document.createElement('input');
     const listener = oneEvent(input, 'change');
     const changeSpy = sinon.spy(el as any, '__itemChange');
     el.appendChild(input);
-    await elementUpdated(el);
+    await el.requestUpdate();
     input.dispatchEvent(new CustomEvent('change', { detail: 'changing' }));
     await listener;
     await aTimeout(3);
@@ -174,7 +174,7 @@ describe('The form should allow items to be retrieved', async function () {
 
   it('should allow items to be retrieved', async function () {
     const el = await formWith2items(10, 10);
-    await elementUpdated(el);
+    await el.requestUpdate();
     expect(el.items.length).to.equal(2);
     expect(el.items[0].price).to.equal(10);
     expect(el.items[1].price).to.equal(10);
@@ -182,21 +182,21 @@ describe('The form should allow items to be retrieved', async function () {
 
   it('Should update the items property', async function () {
     const el = await formWith2items(10, 10);
-    await elementUpdated(el);
+    await el.requestUpdate();
     el.items = [{ name: 'Foo', price: 30 }];
-    await elementUpdated(el);
+    await el.requestUpdate();
     expect(el.items[0].price).to.equal(30);
     expect(el.items[0].name).to.equal('Foo');
   });
 
   it('Should update the items themselves', async function () {
     const el = await formWith2items(10, 10);
-    await elementUpdated(el);
+    await el.requestUpdate();
     el.items[0].price = 2;
     el.items[0].name = 'foobarbaz';
     el.items[1].price = 2;
     el.items[1].name = 'foobarbaz';
-    await elementUpdated(el);
+    await el.requestUpdate();
     expect(el.items[0].price).to.equal(2);
     expect(el.items[0].name).to.equal('foobarbaz');
     expect(el.items[1].price).to.equal(2);
@@ -205,11 +205,11 @@ describe('The form should allow items to be retrieved', async function () {
 
   it('Should not pollute items with illegal values', async function () {
     const el = await formWith2items(10, 10);
-    await elementUpdated(el);
+    await el.requestUpdate();
     try {
       el.items[0].foo = 'bar';
       el.items[0].bar = 'foo';
-      await elementUpdated(el);
+      await el.requestUpdate();
     } catch (e) {
       expect(e instanceof TypeError).to.be.true;
     } finally {
@@ -246,27 +246,27 @@ describe('The form should remain valid', async function () {
   });
 
   it('Should not send a new order with empty items', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form currency="usd" store="test.foxycart.com">
         <x-testitem name="p1" price="10.00" quantity="0"></x-testitem>
         <x-testitem name="p2" price="10.00" quantity="0"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     expect(form).to.exist;
     expect(new FormData(form)).to.be.empty;
   });
 
   it('Should not allow negative prices or quantities', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form currency="usd" store="test.foxycart.com">
         <x-testitem name="p1" price="-10.00"></x-testitem>
         <x-testitem name="p2" price="10.00" quantity="-3"></x-testitem>
         <x-testitem name="p3" price="10.00" quantity="3"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     expect(el.shadowRoot).to.exist;
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     expect(form).to.exist;
@@ -308,7 +308,7 @@ describe('The form should remain valid', async function () {
 
   for (const t of frequencyTests) {
     it(t.it, async function () {
-      const el = await fixture(html`
+      const el = await fixture<ItemsForm>(html`
         <test-items-form
           store="test.foxycart.com"
           currency="usd"
@@ -317,7 +317,7 @@ describe('The form should remain valid', async function () {
           <x-testitem name="p3" price="10.00" quantity="3"></x-testitem>
         </test-items-form>
       `);
-      await elementUpdated(el);
+      await el.requestUpdate();
       expect(logSpy.calledWith('Invalid frequency')).to.equal(t.logHappens);
     });
   }
@@ -364,7 +364,7 @@ describe('The form should remain valid', async function () {
   for (const t of dateFormatsTests) {
     it(t.it, async function () {
       for (const d of t.dates) {
-        const el = await fixture(html`
+        const el = await fixture<ItemsForm>(html`
           <test-items-form
             currency="usd"
             store="test.foxycart.com"
@@ -375,7 +375,7 @@ describe('The form should remain valid', async function () {
             <x-testitem name="p3" price="10.00"></x-testitem>
           </test-items-form>
         `);
-        await elementUpdated(el);
+        await el.requestUpdate();
         expect(logSpy.calledWith(t.logMessage)).to.equal(t.logHappens);
       }
     });
@@ -390,7 +390,7 @@ describe('The form should be aware of its items', async function () {
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
   it('Shows the total price of the items added as tags', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form currency="usd" store="test.foxycart.com">
         <x-testitem name="p1" price="10.00" quantity="3"></x-testitem>
         <x-testitem name="p2" price="10.00" quantity="1"></x-testitem>
@@ -398,24 +398,24 @@ describe('The form should be aware of its items', async function () {
         <x-testitem name="p4" price="10.00" quantity="1"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     expect((el as ItemsForm).total).to.equal(70);
   });
 
   it('Shows the total price of the items added as arrays ', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form
         store="test.foxycart.com"
         items='[ {"name": "p1", "price":"10.00"}, {"name": "p2", "price":"10.00"}, {"name": "p3", "price":"10.00", "quantity": "2"}, {"name":"p4","price": "10"} ]'
       >
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     expect((el as ItemsForm).total).to.equal(50);
   });
 
   it('Update the total price as quantities change', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form currency="usd" store="test.foxycart.com">
         <x-testitem name="p1" price="10.00" quantity="3"></x-testitem>
         <x-testitem name="p2" price="10.00"></x-testitem>
@@ -423,14 +423,14 @@ describe('The form should be aware of its items', async function () {
         <x-testitem name="p4" price="10.00"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     expect((el as ItemsForm).total).to.equal(70);
     const firstItem = el.querySelector('[data-item]');
     expect(firstItem).to.exist;
     const m = firstItem as MockItem;
     m.quantity = 30;
     m.dispatchEvent(new Event('change'));
-    await elementUpdated(el);
+    await el.requestUpdate();
     expect((el as ItemsForm).total).to.equal(340);
   });
 });
@@ -443,12 +443,12 @@ describe('The form should add frequency fields', async function () {
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
   it('Should provide field to choose frequencies', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form currency="usd" store="test.foxycart.com" frequencies='["1m", "3m"]'>
         <x-testitem name="p1" price="10.00"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     const freqInput = el.shadowRoot?.querySelector('[name=frequency]');
     expect(freqInput).to.exist;
   });
@@ -504,7 +504,7 @@ describe('The form submits a valid POST to forxycart', async function () {
   });
 
   it('Uses signed versions of field names', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form
         currency="usd"
         store="test.foxycart.com"
@@ -514,7 +514,7 @@ describe('The form submits a valid POST to forxycart', async function () {
         <x-testitem name="p2" code="MyCode2" price="10.00" quantity="1"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     const items = el.querySelectorAll('[data-item]');
     expect(items).to.exist;
     let last: MockItem | null = null;
@@ -525,7 +525,7 @@ describe('The form submits a valid POST to forxycart', async function () {
     if (last) {
       last.dispatchEvent(new CustomEvent('change'));
     }
-    await elementUpdated(el);
+    await el.requestUpdate();
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     expect(form).to.exist;
     const fd = new FormData(form);
@@ -537,18 +537,18 @@ describe('The form submits a valid POST to forxycart', async function () {
   });
 
   it('Does not create empty frequency field', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form currency="usd" store="test.foxycart.com" frequencies="">
         <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     const frequencyField = el.shadowRoot?.querySelector('[name=frequency]');
     expect(frequencyField).not.to.exist;
   });
 
   it('Sends valid subscription fields', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form
         currency="usd"
         store="test.foxycart.com"
@@ -559,11 +559,11 @@ describe('The form submits a valid POST to forxycart', async function () {
         <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     const frequencyField = el.shadowRoot?.querySelector('[name=frequency]');
     expect(frequencyField).to.exist;
     frequencyField?.dispatchEvent(new CustomEvent('change', { detail: '1d' }));
-    await elementUpdated(el);
+    await el.requestUpdate();
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     let freqFound = false;
     for (const e of new FormData(form).entries()) {
@@ -576,12 +576,12 @@ describe('The form submits a valid POST to forxycart', async function () {
   });
 
   it('Avoids sending empty subscription fields', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form currency="usd" store="test.foxycart.com" sub_frequency="1m">
         <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     for (const e of new FormData(form).entries()) {
       expect(e[0].match(/.*sub_startdate$/)).not.to.exist;
@@ -590,7 +590,7 @@ describe('The form submits a valid POST to forxycart', async function () {
   });
 
   it('Adds the same frequency information to all products', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form
         currency="usd"
         store="test.foxycart.com"
@@ -603,7 +603,7 @@ describe('The form submits a valid POST to forxycart', async function () {
         <x-testitem name="So do I" code="MyCode" price="10.00" quantity="3"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     const freqStartEnd = [0, 0, 0];
     const allentries: any = [];
@@ -629,7 +629,7 @@ describe('The form submits a valid POST to forxycart', async function () {
 
   it('Defaults sub_modify to replace', async function () {
     const el = await formWith2items(10, 10);
-    await elementUpdated(el);
+    await el.requestUpdate();
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     for (const e of new FormData(form).entries()) {
       if (e[0].match(/.*sub_modify/)) {
@@ -639,24 +639,24 @@ describe('The form submits a valid POST to forxycart', async function () {
   });
 
   it('Allow user to set sub_modify to append mode', async function () {
-    let el = await fixture(html`
+    let el = await fixture<ItemsForm>(html`
       <test-items-form currency="usd" store="test.foxycart.com" sub_modify="">
         <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     let form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     for (const e of new FormData(form).entries()) {
       if (e[0].match(/.*sub_modify/)) {
         expect(e[1]).to.equal('');
       }
     }
-    el = await fixture(html`
+    el = await fixture<ItemsForm>(html`
       <test-items-form currency="usd" store="test.foxycart.com" sub_modify="append">
         <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     for (const e of new FormData(form).entries()) {
       if (e[0].match(/.*sub_modify/)) {
@@ -667,7 +667,7 @@ describe('The form submits a valid POST to forxycart', async function () {
 
   it('Defaults sub_restart to auto', async function () {
     const el = await formWith2items(10, 10);
-    await elementUpdated(el);
+    await el.requestUpdate();
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     for (const e of new FormData(form).entries()) {
       if (e[0].match(/.*sub_restart/)) {
@@ -677,24 +677,24 @@ describe('The form submits a valid POST to forxycart', async function () {
   });
 
   it('Allows user to set sub_restart to true', async function () {
-    let el = await fixture(html`
+    let el = await fixture<ItemsForm>(html`
       <test-items-form currency="usd" store="test.foxycart.com" sub_restart="true">
         <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     let form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     for (const e of new FormData(form).entries()) {
       if (e[0].match(/.*sub_restart/)) {
         expect(e[1]).to.equal('true');
       }
     }
-    el = await fixture(html`
+    el = await fixture<ItemsForm>(html`
       <test-items-form currency="usd" store="test.foxycart.com" sub_restart="anythingelse">
         <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     for (const e of new FormData(form).entries()) {
       if (e[0].match(/.*sub_restart/)) {
@@ -704,12 +704,12 @@ describe('The form submits a valid POST to forxycart', async function () {
   });
 
   it('Allow user to set sub_token', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form currency="usd" store="test.foxycart.com" sub_token="retrievedurl">
         <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     for (const e of new FormData(form).entries()) {
       if (e[0].match(/.*sub_token/)) {
@@ -733,7 +733,7 @@ describe('The form directs the user to the proper destination', async function (
   });
 
   it('Allows user to change the window used', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form target="_parent" currency="usd" store="test.foxycart.com" sub_frequency="1m">
         <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
       </test-items-form>
@@ -744,18 +744,19 @@ describe('The form directs the user to the proper destination', async function (
 
   it('Goes directly to the checkout', async function () {
     const el = await formWith2items(10, 10);
-    await elementUpdated(el);
+    await el.requestUpdate();
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     expect(form).to.exist;
     expect(new FormData(form).get('cart')).to.equal('checkout');
   });
 
   it('Allows user to configure it to add products to cart', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form cart="add" currency="usd" store="test.foxycart.com" sub_frequency="1m">
         <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
       </test-items-form>
     `);
+    await el.requestUpdate();
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     expect(new FormData(form).get('cart')).to.equal('add');
   });
@@ -788,12 +789,12 @@ describe('The form reveals its state to the user', async function () {
   });
 
   it('Disables submit button when no item is valid', async function () {
-    const el = await fixture(html`
+    const el = await fixture<ItemsForm>(html`
       <test-items-form currency="usd" store="test.foxycart.com" frequencies='["1d", "2d", "10d"]'>
         <x-testitem name="p1" code="MyCode" price="10.00" quantity="0"></x-testitem>
       </test-items-form>
     `);
-    await elementUpdated(el);
+    await el.requestUpdate();
     expect(el.shadowRoot?.querySelector('[data-testid=submit][disabled]')).to.exist;
   });
 });
@@ -801,13 +802,13 @@ describe('The form reveals its state to the user', async function () {
 /** Helper functions **/
 
 async function formWith2items(price1: number, price2: number) {
-  const el = await fixture(html`
+  const el = await fixture<ItemsForm>(html`
     <test-items-form currency="usd" store="test.foxycart.com">
       <x-testitem id="first" data-item name="p1" price="${price1}"></x-testitem>
       <x-testitem id="second" name="p2" price="${price2}"></x-testitem>
     </test-items-form>
   `);
-  await elementUpdated(el);
+  await el.requestUpdate();
   return el as ItemsForm;
 }
 

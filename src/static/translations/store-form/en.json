@@ -32,13 +32,13 @@
     "helper_text": "Unique Foxy subdomain or a custom domain for your cart, checkout, and receipt.",
     "custom_domain_note": "IMPORTANT: to use a custom domain, you must purchase an SSL certificate through Foxy. This option is only for developers who have full control of their domain settings and may take a few days to fully process.",
     "v8n_required": "Please enter the domain of your store",
-    "v8n_too_long": "Please use a domain that is 50 characters or less"
+    "v8n_too_long": "Please use a domain that is 100 characters or less"
   },
   "logo-url": {
     "label": "Logo",
     "placeholder": "https://example.com/logo.png",
     "helper_text": "URL to your store's logo that may be used in your store's templates.",
-    "v8n_too_long": "Please shorten this link to 100 characters of less"
+    "v8n_too_long": "Please shorten this link to 200 characters of less"
   },
   "timezone": {
     "label": "Timezone",
@@ -146,7 +146,7 @@
   "receipt-continue-url": {
     "label": "Return URL",
     "placeholder": "https://example.com/thank-you",
-    "helper_text": "By default, we send customers back to the page referrer after completing a purchase. Instead, you can set a specific URL here.",
+    "helper_text": "By default, the continue button on the receipt sends the customer to the store domain after completing a purchase. Instead, you can set a specific URL here.",
     "v8n_too_long": "Please use a URL that is 300 characters or less"
   },
   "app-session-time": {
@@ -298,12 +298,13 @@
   },
   "timestamps": {
     "date_created": "Created on",
-    "date_modified": "Last updated",
+    "date_modified": "Last updated on",
     "date": "{{value, date}}"
   },
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   },
   "delete": {
     "delete": "Delete",

@@ -1,2207 +1,369 @@
+import type { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
+import type { Data } from './types';
+
 import './index';
 
-import { expect, fixture, waitUntil } from '@open-wc/testing';
-
+import { expect, html, fixture } from '@open-wc/testing';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { AddressForm } from './AddressForm';
-import { ButtonElement } from '@vaadin/vaadin-button';
-import { Data } from './types';
-import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog';
-import { InternalSandbox } from '../../internal/InternalSandbox';
-import { NucleonElement } from '../NucleonElement';
-import { SelectElement } from '@vaadin/vaadin-select';
-import { TextFieldElement } from '@vaadin/vaadin-text-field';
-import { createRouter } from '../../../server/virtual';
-import { getByName } from '../../../testgen/getByName';
-import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
-import { html } from 'lit-element';
-import { stub } from 'sinon';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { countries } from './countries';
 
 describe('AddressForm', () => {
-  it('extends NucleonElement', () => {
-    expect(new AddressForm()).to.be.instanceOf(NucleonElement);
+  it('imports and registers foxy-internal-select-control', () => {
+    expect(customElements.get('foxy-internal-select-control')).to.exist;
   });
 
-  it('registers as foxy-address-form', () => {
+  it('imports and registers foxy-internal-text-control', () => {
+    expect(customElements.get('foxy-internal-text-control')).to.exist;
+  });
+
+  it('imports and registers foxy-internal-form', () => {
+    expect(customElements.get('foxy-internal-form')).to.exist;
+  });
+
+  it('imports and registers itself as foxy-address-form', () => {
     expect(customElements.get('foxy-address-form')).to.equal(AddressForm);
   });
 
-  describe('address-name', () => {
-    it('has i18n label key "address_name"', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'address-name');
-      expect(control).to.have.property('label', 'address_name');
-    });
-
-    it('has value of form.address_name', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      element.edit({ address_name: 'Home' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'address-name');
-      expect(control).to.have.property('value', 'Home');
-    });
-
-    it('writes to form.address_name on input', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'address-name');
-
-      control!.value = 'Home';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.address_name', 'Home');
-    });
-
-    it('invalidates the form when empty', async () => {
-      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-
-      element.data = validData;
-      element.edit({ address_name: '' });
-
-      expect(element.in({ idle: { snapshot: { dirty: 'invalid' } } })).to.be.true;
-      expect(element.errors).to.include('address_name_required');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'address-name');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ address_name: 'Home' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "address-name:before" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'address-name:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "address-name:before" slot with template "address-name:before" if available', async () => {
-      const name = 'address-name:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "address-name:after" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'address-name:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "address-name:after" slot with template "address-name:after" if available', async () => {
-      const name = 'address-name:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-name')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-address-form readonly></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-name')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when resource is a default billing address', async () => {
-      const data = await getTestData<Data>('./hapi/customer_addresses/0');
-
-      data.is_default_billing = true;
-
-      const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-
-      expect(await getByTestId(element, 'address-name')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when resource is a default shipping address', async () => {
-      const data = await getTestData<Data>('./hapi/customer_addresses/0');
-
-      data.is_default_shipping = true;
-
-      const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-
-      expect(await getByTestId(element, 'address-name')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes address-name', async () => {
-      const layout = html`<foxy-address-form readonlycontrols="address-name"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-name')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-name')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-address-form disabled></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes address-name', async () => {
-      const layout = html`<foxy-address-form disabledcontrols="address-name"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-name')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-name')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-address-form hidden></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-name')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes address-name', async () => {
-      const layout = html`<foxy-address-form hiddencontrols="address-name"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-name')).to.not.exist;
-    });
+  it('extends InternalForm', () => {
+    expect(new AddressForm()).to.be.instanceOf(InternalForm);
   });
 
-  describe('first-name', () => {
-    it('has i18n label key "first_name"', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'first-name');
-      expect(control).to.have.property('label', 'first_name');
-    });
-
-    it('has value of form.first_name', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      element.edit({ first_name: 'Justice' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'first-name');
-      expect(control).to.have.property('value', 'Justice');
-    });
-
-    it('writes to form.first_name on input', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'first-name');
-
-      control!.value = 'Justice';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.first_name', 'Justice');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'first-name');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ first_name: 'Justice' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "first-name:before" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'first-name:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "first-name:before" slot with template "first-name:before" if available', async () => {
-      const name = 'first-name:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "first-name:after" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'first-name:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "first-name:after" slot with template "first-name:after" if available', async () => {
-      const name = 'first-name:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'first-name')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-address-form readonly></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes first-name', async () => {
-      const layout = html`<foxy-address-form readonlycontrols="first-name"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'first-name')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-address-form disabled></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes first-name', async () => {
-      const layout = html`<foxy-address-form disabledcontrols="first-name"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-address-form hidden></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes first-name', async () => {
-      const layout = html`<foxy-address-form hiddencontrols="first-name"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'first-name')).to.not.exist;
-    });
+  it('has a default i18next namespace of "address-form"', () => {
+    expect(AddressForm).to.have.property('defaultNS', 'address-form');
+    expect(new AddressForm()).to.have.property('ns', 'address-form');
   });
 
-  describe('last-name', () => {
-    it('has i18n label key "last_name"', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'last-name');
-      expect(control).to.have.property('label', 'last_name');
-    });
+  it('produces "address-name:v8n_required" v8n error when address_name is empty', async () => {
+    const element = new AddressForm();
+    expect(element.errors).to.include('address-name:v8n_required');
 
-    it('has value of form.last_name', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      element.edit({ last_name: 'Witt' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'last-name');
-      expect(control).to.have.property('value', 'Witt');
-    });
-
-    it('writes to form.last_name on input', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'last-name');
-
-      control!.value = 'Witt';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.last_name', 'Witt');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'last-name');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ last_name: 'Witt' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "last-name:before" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'last-name:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "last-name:before" slot with template "last-name:before" if available', async () => {
-      const name = 'last-name:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "last-name:after" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'last-name:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "last-name:after" slot with template "last-name:after" if available', async () => {
-      const name = 'last-name:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'last-name')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-address-form readonly></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes last-name', async () => {
-      const layout = html`<foxy-address-form readonlycontrols="last-name"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'last-name')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-address-form disabled></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes last-name', async () => {
-      const layout = html`<foxy-address-form disabledcontrols="last-name"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-address-form hidden></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes last-name', async () => {
-      const layout = html`<foxy-address-form hiddencontrols="last-name"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'last-name')).to.not.exist;
-    });
+    element.edit({ address_name: 'foo' });
+    expect(element.errors).not.to.include('address-name:v8n_required');
   });
 
-  describe('company', () => {
-    it('has i18n label key "company"', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'company');
-      expect(control).to.have.property('label', 'company');
-    });
+  it('produces "address-name:v8n_too_long" v8n error when address_name is too long', async () => {
+    const element = new AddressForm();
+    expect(element.errors).to.not.include('address-name:v8n_too_long');
 
-    it('has value of form.company', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      element.edit({ company: 'Acme Corporation' });
+    element.edit({ address_name: 'foo' });
+    expect(element.errors).not.to.include('address-name:v8n_too_long');
 
-      const control = await getByTestId<TextFieldElement>(element, 'company');
-      expect(control).to.have.property('value', 'Acme Corporation');
-    });
-
-    it('writes to form.company on input', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'company');
-
-      control!.value = 'Acme Corporation';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.company', 'Acme Corporation');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'company');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ company: 'Acme Corporation' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "company:before" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'company:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "company:before" slot with template "company:before" if available', async () => {
-      const name = 'company:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "company:after" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'company:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "company:after" slot with template "company:after" if available', async () => {
-      const name = 'company:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'company')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-address-form readonly></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'company')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes company', async () => {
-      const layout = html`<foxy-address-form readonlycontrols="company"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'company')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'company')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'company')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'company')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-address-form disabled></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'company')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes company', async () => {
-      const layout = html`<foxy-address-form disabledcontrols="company"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'company')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'company')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-address-form hidden></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'company')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes company', async () => {
-      const layout = html`<foxy-address-form hiddencontrols="company"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'company')).to.not.exist;
-    });
+    element.edit({ address_name: 'a'.repeat(101) });
+    expect(element.errors).to.include('address-name:v8n_too_long');
   });
 
-  describe('phone', () => {
-    it('has i18n label key "phone"', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'phone');
-      expect(control).to.have.property('label', 'phone');
-    });
+  it('produces "first-name:v8n_too_long" v8n error when first_name is too long', async () => {
+    const element = new AddressForm();
+    expect(element.errors).to.not.include('first-name:v8n_too_long');
 
-    it('has value of form.phone', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      element.edit({ phone: '+1-202-555-0177' });
+    element.edit({ first_name: 'foo' });
+    expect(element.errors).not.to.include('first-name:v8n_too_long');
 
-      const control = await getByTestId<TextFieldElement>(element, 'phone');
-      expect(control).to.have.property('value', '+1-202-555-0177');
-    });
-
-    it('writes to form.phone on input', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'phone');
-
-      control!.value = '+1-202-555-0177';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.phone', '+1-202-555-0177');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'phone');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ phone: '+1-202-555-0177' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "phone:before" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'phone:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "phone:before" slot with template "phone:before" if available', async () => {
-      const name = 'phone:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "phone:after" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'phone:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "phone:after" slot with template "phone:after" if available', async () => {
-      const name = 'phone:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'phone')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-address-form readonly></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'phone')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes phone', async () => {
-      const layout = html`<foxy-address-form readonlycontrols="phone"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'phone')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'phone')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'phone')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'phone')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-address-form disabled></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'phone')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes phone', async () => {
-      const layout = html`<foxy-address-form disabledcontrols="phone"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'phone')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'phone')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-address-form hidden></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'phone')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes phone', async () => {
-      const layout = html`<foxy-address-form hiddencontrols="phone"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'phone')).to.not.exist;
-    });
+    element.edit({ first_name: 'a'.repeat(51) });
+    expect(element.errors).to.include('first-name:v8n_too_long');
   });
 
-  describe('address-one', () => {
-    it('has i18n label key "address1"', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'address-one');
-      expect(control).to.have.property('label', 'address1');
-    });
+  it('produces "last-name:v8n_too_long" v8n error when last_name is too long', async () => {
+    const element = new AddressForm();
+    expect(element.errors).to.not.include('last-name:v8n_too_long');
 
-    it('has value of form.address1', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      element.edit({ address1: '1459 Aaron Smith Drive' });
+    element.edit({ last_name: 'foo' });
+    expect(element.errors).not.to.include('last-name:v8n_too_long');
 
-      const control = await getByTestId<TextFieldElement>(element, 'address-one');
-      expect(control).to.have.property('value', '1459 Aaron Smith Drive');
-    });
-
-    it('writes to form.address1 on input', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'address-one');
-
-      control!.value = '1459 Aaron Smith Drive';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.address1', '1459 Aaron Smith Drive');
-    });
-
-    it('invalidates the form when empty', async () => {
-      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-
-      element.data = validData;
-      element.edit({ address1: '' });
-
-      expect(element.in({ idle: { snapshot: { dirty: 'invalid' } } })).to.be.true;
-      expect(element.errors).to.include('address1_required');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'address-one');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ address1: '1459 Aaron Smith Drive' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "address-one:before" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'address-one:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "address-one:before" slot with template "address-one:before" if available', async () => {
-      const name = 'address-one:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "address-one:after" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'address-one:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "address-one:after" slot with template "address-one:after" if available', async () => {
-      const name = 'address-one:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-one')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-address-form readonly></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-one')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes address-one', async () => {
-      const layout = html`<foxy-address-form readonlycontrols="address-one"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-one')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-one')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-one')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-one')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-address-form disabled></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-one')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes address-one', async () => {
-      const layout = html`<foxy-address-form disabledcontrols="address-one"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-one')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-one')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-address-form hidden></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-one')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes address-one', async () => {
-      const layout = html`<foxy-address-form hiddencontrols="address-one"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-one')).to.not.exist;
-    });
+    element.edit({ last_name: 'a'.repeat(51) });
+    expect(element.errors).to.include('last-name:v8n_too_long');
   });
 
-  describe('address-two', () => {
-    it('has i18n label key "address2"', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'address-two');
-      expect(control).to.have.property('label', 'address2');
-    });
+  it('produces "region:v8n_too_long" v8n error when region is too long', async () => {
+    const element = new AddressForm();
+    expect(element.errors).to.not.include('region:v8n_too_long');
 
-    it('has value of form.address2', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      element.edit({ address2: 'Apt. 12' });
+    element.edit({ region: 'foo' });
+    expect(element.errors).not.to.include('region:v8n_too_long');
 
-      const control = await getByTestId<TextFieldElement>(element, 'address-two');
-      expect(control).to.have.property('value', 'Apt. 12');
-    });
-
-    it('writes to form.address2 on input', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'address-two');
-
-      control!.value = 'Apt. 12';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.address2', 'Apt. 12');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'address-two');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ address2: 'Apt. 12' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "address-two:before" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'address-two:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "address-two:before" slot with template "address-two:before" if available', async () => {
-      const name = 'address-two:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "address-two:after" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'address-two:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "address-two:after" slot with template "address-two:after" if available', async () => {
-      const name = 'address-two:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-two')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-address-form readonly></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-two')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes address-two', async () => {
-      const layout = html`<foxy-address-form readonlycontrols="address-two"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-two')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-two')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-two')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-two')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-address-form disabled></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-two')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes address-two', async () => {
-      const layout = html`<foxy-address-form disabledcontrols="address-two"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-two')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-two')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-address-form hidden></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-two')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes address-two', async () => {
-      const layout = html`<foxy-address-form hiddencontrols="address-two"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'address-two')).to.not.exist;
-    });
+    element.edit({ region: 'a'.repeat(51) });
+    expect(element.errors).to.include('region:v8n_too_long');
   });
 
-  describe('country', () => {
-    it('renders a list of countries', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<SelectElement>(element, 'country');
-      expect(control).to.have.deep.property(
-        'items',
-        Object.keys(countries).map(code => ({
-          text: `country_${code.toLowerCase()}`,
-          code,
-        }))
-      );
-    });
+  it('produces "city:v8n_too_long" v8n error when city is too long', async () => {
+    const element = new AddressForm();
+    expect(element.errors).to.not.include('city:v8n_too_long');
 
-    it('has i18n label key "country"', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<SelectElement>(element, 'country');
-      expect(control).to.have.property('label', 'country');
-    });
+    element.edit({ city: 'foo' });
+    expect(element.errors).not.to.include('city:v8n_too_long');
 
-    it('has value of form.country', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      element.edit({ country: 'US' });
-
-      const control = await getByTestId<SelectElement>(element, 'country');
-      expect(control).to.have.property('value', 'US');
-    });
-
-    it('writes to form.country on change', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<SelectElement>(element, 'country');
-
-      control!.value = 'US';
-      control!.dispatchEvent(new CustomEvent('change'));
-
-      expect(element).to.have.nested.property('form.country', 'US');
-    });
-
-    it('clears form.region on change', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      element.edit({ country: 'US', region: 'TX' });
-
-      const control = await getByTestId<SelectElement>(element, 'country');
-      control!.value = 'AU';
-      control!.dispatchEvent(new CustomEvent('change'));
-
-      expect(element).to.have.nested.property('form.region', '');
-    });
-
-    it('renders "country:before" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'country:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "country:before" slot with template "country:before" if available', async () => {
-      const name = 'country:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "country:after" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'country:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "country:after" slot with template "country:after" if available', async () => {
-      const name = 'country:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'country')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-address-form readonly></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'country')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes country', async () => {
-      const layout = html`<foxy-address-form readonlycontrols="country"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'country')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'country')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'country')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'country')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-address-form disabled></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'country')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes country', async () => {
-      const layout = html`<foxy-address-form disabledcontrols="country"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'country')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'country')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-address-form hidden></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'country')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes country', async () => {
-      const layout = html`<foxy-address-form hiddencontrols="country"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'country')).to.not.exist;
-    });
+    element.edit({ city: 'a'.repeat(51) });
+    expect(element.errors).to.include('city:v8n_too_long');
   });
 
-  describe('region', () => {
-    it('renders an empty list by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<SelectElement>(element, 'region');
-      expect(control).to.have.deep.property('items', []);
-    });
+  it('produces "phone:v8n_too_long" v8n error when phone is too long', async () => {
+    const element = new AddressForm();
+    expect(element.errors).to.not.include('phone:v8n_too_long');
 
-    it("renders a list of regions for a country when it's selected", async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      element.edit({ country: 'US' });
+    element.edit({ phone: 'foo' });
+    expect(element.errors).not.to.include('phone:v8n_too_long');
 
-      const control = await getByTestId<SelectElement>(element, 'region');
-      expect(control).to.have.deep.property(
-        'items',
-        countries.US.map(code => ({
-          text: `country_us_region_${code.toLowerCase()}`,
-          code,
-        }))
-      );
-
-      element.edit({ country: 'AU' });
-      await element.updateComplete;
-
-      expect(control).to.have.deep.property(
-        'items',
-        countries.AU.map(code => ({
-          text: `country_au_region_${code.toLowerCase()}`,
-          code,
-        }))
-      );
-    });
-
-    it('allows custom value when selected country has no predefined regions', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      element.edit({ country: 'US' });
-      const control = await getByTestId<SelectElement>(element, 'region');
-      expect(control).to.not.have.attribute('allow-custom-value');
-
-      element.edit({ country: 'CD' });
-      await element.updateComplete;
-      expect(control).to.have.attribute('allow-custom-value');
-    });
-
-    it('has i18n label key "region"', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<SelectElement>(element, 'region');
-      expect(control).to.have.property('label', 'region');
-    });
-
-    it('has value of form.region', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      element.edit({ region: 'GA' });
-
-      const control = await getByTestId<SelectElement>(element, 'region');
-      expect(control).to.have.property('value', 'GA');
-    });
-
-    it('writes to form.region on change', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<SelectElement>(element, 'region');
-
-      control!.value = 'GA';
-      control!.dispatchEvent(new CustomEvent('change'));
-
-      expect(element).to.have.nested.property('form.region', 'GA');
-    });
-
-    it('renders "region:before" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'region:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "region:before" slot with template "region:before" if available', async () => {
-      const name = 'region:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "region:after" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'region:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "region:after" slot with template "region:after" if available', async () => {
-      const name = 'region:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'region')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-address-form readonly></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'region')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes region', async () => {
-      const layout = html`<foxy-address-form readonlycontrols="region"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'region')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'region')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'region')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'region')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-address-form disabled></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'region')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes region', async () => {
-      const layout = html`<foxy-address-form disabledcontrols="region"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'region')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'region')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-address-form hidden></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'region')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes region', async () => {
-      const layout = html`<foxy-address-form hiddencontrols="region"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'region')).to.not.exist;
-    });
+    element.edit({ phone: 'a'.repeat(51) });
+    expect(element.errors).to.include('phone:v8n_too_long');
   });
 
-  describe('city', () => {
-    it('has i18n label key "city"', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'city');
-      expect(control).to.have.property('label', 'city');
-    });
+  it('produces "company:v8n_too_long" v8n error when company is too long', async () => {
+    const element = new AddressForm();
+    expect(element.errors).to.not.include('company:v8n_too_long');
 
-    it('has value of form.city', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      element.edit({ city: 'Mershon' });
+    element.edit({ company: 'foo' });
+    expect(element.errors).not.to.include('company:v8n_too_long');
 
-      const control = await getByTestId<TextFieldElement>(element, 'city');
-      expect(control).to.have.property('value', 'Mershon');
-    });
-
-    it('writes to form.city on input', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'city');
-
-      control!.value = 'Mershon';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.city', 'Mershon');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'city');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ city: 'Mershon' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "city:before" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'city:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "city:before" slot with template "city:before" if available', async () => {
-      const name = 'city:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "city:after" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'city:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "city:after" slot with template "city:after" if available', async () => {
-      const name = 'city:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'city')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-address-form readonly></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'city')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes city', async () => {
-      const layout = html`<foxy-address-form readonlycontrols="city"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'city')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'city')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'city')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'city')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-address-form disabled></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'city')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes city', async () => {
-      const layout = html`<foxy-address-form disabledcontrols="city"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'city')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'city')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-address-form hidden></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'city')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes city', async () => {
-      const layout = html`<foxy-address-form hiddencontrols="city"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'city')).to.not.exist;
-    });
+    element.edit({ company: 'a'.repeat(51) });
+    expect(element.errors).to.include('company:v8n_too_long');
   });
 
-  describe('postal-code', () => {
-    it('has i18n label key "postal_code"', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'postal-code');
-      expect(control).to.have.property('label', 'postal_code');
-    });
+  it('produces "address-two:v8n_too_long" v8n error when address2 is too long', async () => {
+    const element = new AddressForm();
+    expect(element.errors).to.not.include('address-two:v8n_too_long');
 
-    it('has value of form.postal_code', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      element.edit({ postal_code: '31551' });
+    element.edit({ address2: 'foo' });
+    expect(element.errors).not.to.include('address-two:v8n_too_long');
 
-      const control = await getByTestId<TextFieldElement>(element, 'postal-code');
-      expect(control).to.have.property('value', '31551');
-    });
-
-    it('writes to form.postal_code on input', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'postal-code');
-
-      control!.value = '31551';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.postal_code', '31551');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<TextFieldElement>(element, 'postal-code');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ postal_code: '31551' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "postal-code:before" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'postal-code:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "postal-code:before" slot with template "postal-code:before" if available', async () => {
-      const name = 'postal-code:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "postal-code:after" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'postal-code:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "postal-code:after" slot with template "postal-code:after" if available', async () => {
-      const name = 'postal-code:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'postal-code')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-address-form readonly></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'postal-code')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes postal-code', async () => {
-      const layout = html`<foxy-address-form readonlycontrols="postal-code"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'postal-code')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'postal-code')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'postal-code')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'postal-code')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-address-form disabled></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'postal-code')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes postal-code', async () => {
-      const layout = html`<foxy-address-form disabledcontrols="postal-code"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'postal-code')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'postal-code')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-address-form hidden></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'postal-code')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes postal-code', async () => {
-      const layout = html`<foxy-address-form hiddencontrols="postal-code"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'postal-code')).to.not.exist;
-    });
+    element.edit({ address2: 'a'.repeat(101) });
+    expect(element.errors).to.include('address-two:v8n_too_long');
   });
 
-  describe('timestamps', () => {
-    it('once form data is loaded, renders a property table with created and modified dates', async () => {
-      const data = await getTestData<Data>('./hapi/customer_addresses/0');
-      const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      const control = await getByTestId(element, 'timestamps');
-      const items = [
-        { name: 'date_modified', value: 'date' },
-        { name: 'date_created', value: 'date' },
-      ];
+  it('produces "address-one:v8n_required" v8n error when address1 is empty', async () => {
+    const element = new AddressForm();
+    expect(element.errors).to.include('address-one:v8n_required');
 
-      expect(control).to.have.deep.property('items', items);
-    });
-
-    it('once form data is loaded, renders "timestamps:before" slot', async () => {
-      const data = await getTestData<Data>('./hapi/customer_addresses/0');
-      const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'timestamps:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('once form data is loaded, replaces "timestamps:before" slot with template "timestamps:before" if available', async () => {
-      const data = await getTestData<Data>('./hapi/customer_addresses/0');
-      const name = 'timestamps:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form .data=${data}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('once form data is loaded, renders "timestamps:after" slot', async () => {
-      const data = await getTestData<Data>('./hapi/customer_addresses/0');
-      const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'timestamps:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('once form data is loaded, replaces "timestamps:after" slot with template "timestamps:after" if available', async () => {
-      const data = await getTestData<Data>('./hapi/customer_addresses/0');
-      const name = 'timestamps:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form .data=${data}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
+    element.edit({ address1: 'foo' });
+    expect(element.errors).not.to.include('address-one:v8n_required');
   });
 
-  describe('create', () => {
-    it('if data is empty, renders create button', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      expect(await getByTestId(element, 'create')).to.exist;
-    });
+  it('produces "address-one:v8n_too_long" v8n error when address1 is too long', async () => {
+    const element = new AddressForm();
+    expect(element.errors).to.not.include('address-one:v8n_too_long');
 
-    it('renders with i18n key "create" for caption', async () => {
-      const layout = html`<foxy-address-form lang="es"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      const control = await getByTestId(element, 'create');
-      const caption = control?.firstElementChild;
+    element.edit({ address1: 'foo' });
+    expect(element.errors).not.to.include('address-one:v8n_too_long');
 
-      expect(caption).to.have.property('localName', 'foxy-i18n');
-      expect(caption).to.have.attribute('lang', 'es');
-      expect(caption).to.have.attribute('key', 'create');
-      expect(caption).to.have.attribute('ns', 'address-form');
-    });
-
-    it('renders disabled if form is disabled', async () => {
-      const layout = html`<foxy-address-form disabled></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if form is invalid', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      element.edit({ address1: '?'.repeat(1024) });
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if form is sending changes', async () => {
-      const layout = html`<foxy-address-form></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-
-      element.edit({ address1: '1459 Aaron Smith Drive' });
-      element.submit();
-
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if disabledcontrols includes "create"', async () => {
-      const layout = html`<foxy-address-form disabledcontrols="create"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('submits valid form on click', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const control = await getByTestId<ButtonElement>(element, 'create');
-      const submit = stub(element, 'submit');
-
-      element.edit({ address1: '1459 Aaron Smith Drive', address_name: 'Home' });
-      control!.dispatchEvent(new CustomEvent('click'));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it("doesn't render if form is hidden", async () => {
-      const layout = html`<foxy-address-form hidden></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'create')).to.not.exist;
-    });
-
-    it('doesn\'t render if hiddencontrols includes "create"', async () => {
-      const layout = html`<foxy-address-form hiddencontrols="create"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      expect(await getByTestId(element, 'create')).to.not.exist;
-    });
-
-    it('renders with "create:before" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'create:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "create:before" slot with template "create:before" if available and rendered', async () => {
-      const name = 'create:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders with "create:after" slot by default', async () => {
-      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'create:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "create:after" slot with template "create:after" if available and rendered', async () => {
-      const name = 'create:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
+    element.edit({ address1: 'a'.repeat(101) });
+    expect(element.errors).to.include('address-one:v8n_too_long');
   });
 
-  describe('delete', () => {
-    it('renders delete button once resource is loaded', async () => {
-      const href = 'https://demo.api/hapi/customer_addresses/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-address-form .data=${data} disabled></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
+  it('produces "postal-code:v8n_too_long" v8n error when postal code is too long', async () => {
+    const element = new AddressForm();
+    expect(element.errors).to.not.include('postal-code:v8n_too_long');
 
-      expect(await getByTestId(element, 'delete')).to.exist;
-    });
+    element.edit({ postal_code: 'foo' });
+    expect(element.errors).not.to.include('postal-code:v8n_too_long');
 
-    it('renders with i18n key "delete" for caption', async () => {
-      const layout = html`<foxy-address-form href="foxy://null" lang="es"></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      const control = await getByTestId(element, 'delete');
-      const caption = control?.firstElementChild;
-
-      expect(caption).to.have.property('localName', 'foxy-i18n');
-      expect(caption).to.have.attribute('lang', 'es');
-      expect(caption).to.have.attribute('key', 'delete');
-      expect(caption).to.have.attribute('ns', 'address-form');
-    });
-
-    it('renders disabled if form is disabled', async () => {
-      const href = 'https://demo.api/hapi/customer_addresses/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-address-form .data=${data} disabled></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if data.is_default_billing is true', async () => {
-      const href = 'https://demo.api/hapi/customer_addresses/0';
-      const data = await getTestData<Data>(href);
-
-      data.is_default_billing = true;
-
-      const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if data.is_default_shipping is true', async () => {
-      const href = 'https://demo.api/hapi/customer_addresses/0';
-      const data = await getTestData<Data>(href);
-
-      data.is_default_shipping = true;
-
-      const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if form is sending changes', async () => {
-      const href = 'https://demo.api/hapi/customer_addresses/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-
-      element.edit({ address1: '1459 Aaron Smith Drive' });
-      element.submit();
-
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if disabledcontrols includes "delete"', async () => {
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form
-          .data=${await getTestData<Data>('./hapi/customer_addresses/0')}
-          disabledcontrols="delete"
-        >
-        </foxy-address-form>
-      `);
-
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
-
-    it('shows deletion confirmation dialog on click', async () => {
-      const href = 'https://demo.api/hapi/customer_addresses/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      const control = await getByTestId<ButtonElement>(element, 'delete');
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const showMethod = stub(confirm!, 'show');
-
-      control!.dispatchEvent(new CustomEvent('click'));
-
-      expect(showMethod).to.have.been.called;
-    });
-
-    it('deletes resource if deletion is confirmed', async () => {
-      const href = 'https://demo.api/hapi/customer_addresses/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const deleteMethod = stub(element, 'delete');
-
-      confirm!.dispatchEvent(new InternalConfirmDialog.HideEvent(false));
-
-      expect(deleteMethod).to.have.been.called;
-    });
-
-    it('keeps resource if deletion is cancelled', async () => {
-      const href = 'https://demo.api/hapi/customer_addresses/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const deleteMethod = stub(element, 'delete');
-
-      confirm!.dispatchEvent(new InternalConfirmDialog.HideEvent(true));
-
-      expect(deleteMethod).not.to.have.been.called;
-    });
-
-    it("doesn't render if form is hidden", async () => {
-      const href = 'https://demo.api/hapi/customer_addresses/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-address-form .data=${data} hidden></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-
-      expect(await getByTestId(element, 'delete')).to.not.exist;
-    });
-
-    it('doesn\'t render if hiddencontrols includes "delete"', async () => {
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form
-          .data=${await getTestData<Data>('./hapi/customer_addresses/0')}
-          hiddencontrols="delete"
-        >
-        </foxy-address-form>
-      `);
-
-      expect(await getByTestId(element, 'delete')).to.not.exist;
-    });
-
-    it('renders with "delete:before" slot by default', async () => {
-      const href = 'https://demo.api/hapi/customer_addresses/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'delete:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "delete:before" slot with template "delete:before" if available and rendered', async () => {
-      const href = 'https://demo.api/hapi/customer_addresses/0';
-      const name = 'delete:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form .data=${await getTestData<Data>(href)}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders with "delete:after" slot by default', async () => {
-      const href = 'https://demo.api/hapi/customer_addresses/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'delete:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "delete:after" slot with template "delete:after" if available and rendered', async () => {
-      const href = 'https://demo.api/hapi/customer_addresses/0';
-      const name = 'delete:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<AddressForm>(html`
-        <foxy-address-form .data=${await getTestData<Data>(href)}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-address-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
+    element.edit({ postal_code: 'a'.repeat(51) });
+    expect(element.errors).to.include('postal-code:v8n_too_long');
   });
 
-  describe('spinner', () => {
-    it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const router = createRouter();
-      const layout = html`
-        <foxy-address-form
-          href="https://demo.api/virtual/stall"
-          lang="es"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-address-form>
-      `;
+  it('makes address name readonly for default billing address', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const data = await getTestData<Data>('./hapi/customer_addresses/0');
 
-      const element = await fixture<AddressForm>(layout);
-      const spinnerWrapper = await getByTestId(element, 'spinner');
-      const spinner = spinnerWrapper!.firstElementChild;
+    expect(element.readonlySelector.matches('address-name', true)).to.be.false;
 
-      expect(spinnerWrapper).not.to.have.class('opacity-0');
-      expect(spinner).to.have.attribute('state', 'busy');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'address-form spinner');
-    });
+    data.is_default_billing = true;
+    data.is_default_shipping = false;
+    element.data = data;
 
-    it('renders foxy-spinner in "error" state if loading data fails', async () => {
-      const router = createRouter();
-      const layout = html`
-        <foxy-address-form
-          href="https://demo.api/virtual/empty?status=404"
-          lang="es"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-address-form>
-      `;
+    expect(element.readonlySelector.matches('address-name', true)).to.be.true;
+  });
 
-      const element = await fixture<AddressForm>(layout);
-      const spinnerWrapper = await getByTestId(element, 'spinner');
-      const spinner = spinnerWrapper!.firstElementChild;
+  it('makes address name readonly for default shipping address', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const data = await getTestData<Data>('./hapi/customer_addresses/0');
 
-      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
+    expect(element.readonlySelector.matches('address-name', true)).to.be.false;
 
-      expect(spinnerWrapper).not.to.have.class('opacity-0');
-      expect(spinner).to.have.attribute('state', 'error');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'address-form spinner');
-    });
+    data.is_default_billing = false;
+    data.is_default_shipping = true;
+    element.data = data;
 
-    it('hides spinner once loaded', async () => {
-      const data = await getTestData('./hapi/customer_addresses/0');
-      const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
-      const element = await fixture<AddressForm>(layout);
-      const spinnerWrapper = await getByTestId(element, 'spinner');
+    expect(element.readonlySelector.matches('address-name', true)).to.be.true;
+  });
 
-      expect(spinnerWrapper).to.have.class('opacity-0');
-    });
+  it('makes Delete button disabled for default billing address', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const data = await getTestData<Data>('./hapi/customer_addresses/0');
+
+    expect(element.disabledSelector.matches('delete', true)).to.be.false;
+
+    data.is_default_billing = true;
+    data.is_default_shipping = false;
+    element.data = data;
+
+    expect(element.disabledSelector.matches('delete', true)).to.be.true;
+  });
+
+  it('makes Delete button disabled for default shipping address', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const data = await getTestData<Data>('./hapi/customer_addresses/0');
+
+    expect(element.disabledSelector.matches('delete', true)).to.be.false;
+
+    data.is_default_billing = false;
+    data.is_default_shipping = true;
+    element.data = data;
+
+    expect(element.disabledSelector.matches('delete', true)).to.be.true;
+  });
+
+  it('renders a text control for address name', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-text-control[infer="address-name"]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders a text control for first name', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-text-control[infer="first-name"]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders a text control for last name', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-text-control[infer="last-name"]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders a text control for company', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const control = element.renderRoot.querySelector('foxy-internal-text-control[infer="company"]');
+
+    expect(control).to.exist;
+  });
+
+  it('renders a text control for phone', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const control = element.renderRoot.querySelector('foxy-internal-text-control[infer="phone"]');
+
+    expect(control).to.exist;
+  });
+
+  it('renders a text control for address line 1', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-text-control[infer="address-one"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('property', 'address1');
+  });
+
+  it('renders a text control for address line 2', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-text-control[infer="address-two"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('property', 'address2');
+  });
+
+  it('renders a select control for country', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-select-control[infer="country"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.deep.property(
+      'options',
+      Object.keys(countries).map(code => ({
+        label: `country_${code.toLowerCase()}`,
+        value: code,
+      }))
+    );
+  });
+
+  it('clears region selection when country changes', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-select-control[infer="country"]'
+    ) as InternalSelectControl;
+
+    element.edit({ country: 'US', region: 'NY' });
+    expect(element.form).to.have.property('region', 'NY');
+    control.setValue('CA');
+    expect(element.form).to.have.property('region', '');
+  });
+
+  it('renders a select control for region when country has regions in foxy records', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+
+    element.edit({ country: 'US' });
+    await element.requestUpdate();
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-select-control[infer="region"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.deep.property(
+      'options',
+      countries.US.map(code => ({
+        label: `country_us_region_${code.toLowerCase()}`,
+        value: code,
+      }))
+    );
+  });
+
+  it('renders a text control for region when country is not selected or has no regions in foxy records', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    let control = element.renderRoot.querySelector('foxy-internal-text-control[infer="region"]');
+    expect(control).to.exist;
+
+    element.edit({ country: 'MX' });
+    await element.requestUpdate();
+
+    control = element.renderRoot.querySelector('foxy-internal-text-control[infer="region"]');
+    expect(control).to.exist;
+  });
+
+  it('renders a text control for city', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const control = element.renderRoot.querySelector('foxy-internal-text-control[infer="city"]');
+
+    expect(control).to.exist;
+  });
+
+  it('renders a text control for postal code', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-text-control[infer="postal-code"]'
+    );
+
+    expect(control).to.exist;
   });
 });

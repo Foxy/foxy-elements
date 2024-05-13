@@ -11,9 +11,9 @@ const summary: Summary = {
   localName: 'foxy-gift-card-code-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps'],
+    sections: ['timestamps', 'logs'],
     buttons: ['create', 'delete'],
-    inputs: ['code', 'current-balance', 'end-date'],
+    inputs: ['code', 'current-balance', 'end-date', 'customer'],
   },
 };
 

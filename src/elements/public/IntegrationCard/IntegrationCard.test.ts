@@ -43,7 +43,7 @@ describe('IntegrationCard', () => {
 
     data.project_name = 'Test project';
     element.data = { ...data };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.include.text('Test project');
   });
@@ -59,7 +59,7 @@ describe('IntegrationCard', () => {
 
     data.project_description = 'Description of a test project';
     element.data = { ...data };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.include.text('Description of a test project');
   });
@@ -75,7 +75,7 @@ describe('IntegrationCard', () => {
 
     data.project_description = '';
     element.data = { ...data };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(await getByKey(element, 'no_description')).to.exist;
     expect(await getByKey(element, 'no_description')).to.have.attribute('infer', '');
@@ -92,7 +92,7 @@ describe('IntegrationCard', () => {
 
     data.client_id = 'client_12345';
     element.data = { ...data };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.include.text('client_12345');
   });
@@ -108,7 +108,7 @@ describe('IntegrationCard', () => {
 
     data.added_by_email = 'test@example.com';
     element.data = { ...data };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.include.text('test@example.com');
   });

@@ -1,0 +1,11 @@
+{
+  "line_1": "{{ code }}",
+  "line_2": "Added on {{ date_created, date }} at {{ date_created, time }}",
+  "uses_count": "Used {{ count }} time",
+  "uses_count_plural": "Used {{ count }} times",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Unknown error"
+  }
+}

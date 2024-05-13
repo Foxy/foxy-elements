@@ -11,18 +11,10 @@ const summary: Summary = {
   localName: 'foxy-subscription-form',
   translatable: true,
   configurable: {
-    sections: [
-      'header',
-      'customer',
-      'items',
-      'items:actions',
-      'end-date:form:warning',
-      'transactions',
-      'timestamps',
-    ],
-    buttons: ['end-date', 'end-date:form:submit'],
+    sections: ['header', 'customer', 'items', 'items:actions', 'transactions', 'timestamps'],
+    buttons: [],
     inputs: [
-      'end-date:form:end-date',
+      'end-date',
       'next-transaction-date',
       'start-date',
       'frequency',

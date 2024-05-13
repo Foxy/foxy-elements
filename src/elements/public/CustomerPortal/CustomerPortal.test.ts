@@ -57,14 +57,7 @@ describe('CustomerPortal', () => {
     localStorage.clear();
 
     const layout = html`
-      <foxy-customer-portal
-        disabledcontrols="sign-in:recover"
-        readonlycontrols="customer:header:actions:edit:form"
-        hiddencontrols="access-recovery:header"
-        group="foo"
-        base="https://demo.foxycart.com/s/customer/"
-        lang="es"
-      >
+      <foxy-customer-portal base="https://demo.foxycart.com/s/customer/">
         <template slot="sign-in:header:before">
           <div>Test</div>
         </template>
@@ -76,12 +69,11 @@ describe('CustomerPortal', () => {
 
     expect(view).to.be.instanceOf(InternalCustomerPortalLoggedOutView);
     expect(view).to.have.property('localName', 'foxy-internal-customer-portal-logged-out-view');
-    expect(view).to.have.attribute('disabledcontrols', 'sign-in:recover');
-    expect(view).to.have.attribute('readonlycontrols', 'customer:header:actions:edit:form');
-    expect(view).to.have.attribute('hiddencontrols', 'access-recovery:header');
-    expect(view).to.have.attribute('group', 'foo');
-    expect(view).to.have.attribute('lang', 'es');
-    expect(view.templates).to.have.key('sign-in:header:before');
+    expect(view).to.have.attribute('infer', '');
+    expect(view).to.have.attribute(
+      'href',
+      'https://demo.foxycart.com/s/customer/customer_portal_settings'
+    );
   });
 
   it('renders foxy-internal-customer-portal-logged-in-view when logged in', async () => {
@@ -91,12 +83,7 @@ describe('CustomerPortal', () => {
 
     const layout = html`
       <foxy-customer-portal
-        disabledcontrols="sign-in:recover"
-        readonlycontrols="customer:header:actions:edit:form"
-        hiddencontrols="access-recovery:header"
-        group="foo"
         base="https://demo.api/portal/"
-        lang="es"
         .transactionsTableColumns=${transactionsTableColumns}
       >
         <template slot="sign-in:header:before">
@@ -111,13 +98,8 @@ describe('CustomerPortal', () => {
     expect(view).to.be.instanceOf(InternalCustomerPortalLoggedInView);
     expect(view).to.have.property('localName', 'foxy-internal-customer-portal-logged-in-view');
     expect(view).to.have.property('transactionsTableColumns', transactionsTableColumns);
-    expect(view).to.have.attribute('disabledcontrols', 'sign-in:recover');
-    expect(view).to.have.attribute('readonlycontrols', 'customer:header:actions:edit:form');
-    expect(view).to.have.attribute('hiddencontrols', 'access-recovery:header');
     expect(view).to.have.attribute('customer', 'https://demo.api/portal/');
-    expect(view).to.have.attribute('group', 'foo');
-    expect(view).to.have.attribute('lang', 'es');
-    expect(view.templates).to.have.key('sign-in:header:before');
+    expect(view).to.have.attribute('infer', '');
 
     localStorage.clear();
   });

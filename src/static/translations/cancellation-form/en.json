@@ -4,7 +4,8 @@
   "end_subscription_explainer": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later.",
   "v8n_required": "Required",
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

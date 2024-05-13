@@ -1,5 +1,5 @@
-import { Attributes, CustomerAddresses, Data, Tab, Templates } from './types';
-import { CSSResultArray, TemplateResult, html } from 'lit-element';
+import { Attributes, CustomerAddresses, Data, Settings, Tab, Templates } from './types';
+import { CSSResultArray, TemplateResult, html, PropertyDeclarations } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 
 import { Data as Attribute } from '../AttributeCard/types';
@@ -90,11 +90,21 @@ export class Customer extends Base<Data> {
     };
   }
 
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      settings: { type: Object },
+    };
+  }
+
   static get styles(): CSSResultArray {
     return [super.styles, styles];
   }
 
   templates: Templates = {};
+
+  /** Customer Portal settings for use in Customer mode. */
+  settings: Settings | null = null;
 
   // #region header
 
@@ -125,6 +135,7 @@ export class Customer extends Base<Data> {
         disabledcontrols=${disabledSelector.zoom(formId).toString()}
         hiddencontrols=${hiddenSelector.zoom(formId).toString()}
         .templates=${this.getNestedTemplates('header:actions:edit:form')}
+        .props=${{ '.settings': this.settings }}
       >
       </foxy-form-dialog>
 
@@ -742,6 +753,7 @@ export class Customer extends Base<Data> {
           ns=${this.ns}
           id="subscriptions-form"
           .templates=${this.getNestedTemplates(formId)}
+          .props=${{ '.settings': this.settings }}
         >
         </foxy-form-dialog>
 

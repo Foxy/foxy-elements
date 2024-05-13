@@ -2,6 +2,6 @@
   "loading_busy": "Loading",
   "loading_empty": "No data",
   "loading_end": "No more data",
-  "loading_error": "Failed to load",
+  "loading_error": "Unknown error",
   "loading_paused": "Paused"
 }

@@ -1,16 +1,16 @@
-import { Data, Templates } from './types';
-import { TemplateResult, html } from 'lit-html';
+import type { Data, Templates } from './types';
+import type { TemplateResult } from 'lit-html';
+import type { Rels } from '@foxy.io/sdk/backend';
 
+import { Resource, getResourceId } from '@foxy.io/sdk/core';
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { Rels } from '@foxy.io/sdk/backend';
-import { Resource } from '@foxy.io/sdk/core';
-import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { classMap } from '../../../utils/class-map';
+import { html } from 'lit-html';
 
 const NS = 'transaction-card';
-const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, NS)));
+const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
 /**
  * Basic card displaying a transaction.
@@ -32,7 +32,7 @@ class TransactionCard extends Base<Data> {
 
   private __currencyDisplay = '';
 
-  render(): TemplateResult {
+  renderBody(): TemplateResult {
     const hiddenSelector = this.hiddenSelector;
     const hasTotal = !hiddenSelector.matches('total', true);
     const hasStatus = !hiddenSelector.matches('status', true);
@@ -47,11 +47,12 @@ class TransactionCard extends Base<Data> {
           ${hasTotal || hasStatus
             ? html`
                 <div class="flex items-center justify-between gap-s">
-                  ${hasTotal ? this.__renderTotal() : ''} ${hasStatus ? this.__renderStatus() : ''}
+                  ${hasTotal ? this.__renderIdAndTotal() : ''}
+                  ${hasStatus ? this.__renderStatus() : ''}
                 </div>
               `
             : ''}
-          ${hiddenSelector.matches('description', true) ? '' : this.__renderDescription()}
+          ${hiddenSelector.matches('description', true) ? '' : this.__renderSummary()}
           ${hiddenSelector.matches('customer', true) ? '' : this.__renderCustomer()}
         </div>
 
@@ -88,39 +89,23 @@ class TransactionCard extends Base<Data> {
     return transaction;
   }
 
-  private __renderTotal() {
+  private __renderIdAndTotal() {
     const data = this.data;
     let content: TemplateResult;
 
     if (data) {
       const amount = `${data.total_order} ${data.currency_code}`;
       const currencyDisplay = this.__currencyDisplay;
-      const apiTypes = [
-        'subscription_cancellation',
-        'subscription_modification',
-        'subscription_renewal',
-        'updateinfo',
-      ];
-
-      const type = apiTypes.includes(data.type)
-        ? data.type
-        : 'fx:subscription' in data._links
-        ? 'new_subscription'
-        : 'new_order';
-
-      const source = this.data?.source?.substring(0, 3).toUpperCase();
+      const options = { amount, currencyDisplay };
 
       content = html`
-        ${source ? html`<span title=${this.t(`source_${source}`)}>${source}</span>` : ''}
-        <foxy-i18n class="truncate" lang=${this.lang} key="type_${type}" ns=${this.ns}></foxy-i18n>
-        <span>&bull;</span>
-        <foxy-i18n
-          options=${JSON.stringify({ amount, currencyDisplay })}
-          lang=${this.lang}
-          key="price"
-          ns=${this.ns}
-        >
-        </foxy-i18n>
+        <span class="truncate">ID ${data.display_id || getResourceId(data._links.self.href)}</span>
+        ${data.type !== 'updateinfo' && data.type !== 'subscription_cancellation'
+          ? html`
+              <span>&bull;</span>
+              <foxy-i18n .options=${options} infer="" key="price"></foxy-i18n>
+            `
+          : ''}
       `;
     } else {
       content = html`&ZeroWidthSpace;`;
@@ -137,26 +122,54 @@ class TransactionCard extends Base<Data> {
 
   private __renderStatus() {
     const specialIcons: Record<string, string> = {
+      authorized: 'icons:done',
+      capturing: 'icons:done',
+      captured: 'icons:done',
+      approved: 'icons:done',
+      pending: 'icons:done',
+
       completed: 'icons:done-all',
-      refunded: 'icons:restore',
-      rejected: 'icons:highlight-off',
+
+      pending_fraud_review: 'icons:info-outline',
       declined: 'icons:highlight-off',
+      rejected: 'icons:highlight-off',
+      problem: 'icons:info-outline',
+
+      refunded: 'icons:restore',
       voided: 'icons:remove-circle-outline',
     };
 
     const specialColors: Record<string, string> = {
+      authorized: 'text-success',
       completed: 'text-success',
-      rejected: 'text-error',
+      capturing: 'text-success',
+      captured: 'text-success',
+      approved: 'text-success',
+      pending: 'text-success',
+
+      pending_fraud_review: 'text-error',
       declined: 'text-error',
+      rejected: 'text-error',
+      problem: 'text-error',
     };
 
     const status = this.data?.status || 'completed';
+    const source = this.data?.source?.substring(0, 3).toUpperCase();
 
     return html`
       <div class="flex-shrink-0" data-testid="status">
         ${this.renderTemplateOrSlot('status:before')}
 
-        <div class="text-tertiary text-s flex items-center space-x-s">
+        <div class="text-tertiary text-s flex items-center space-x-xs">
+          ${source
+            ? html`
+                <vcf-tooltip for="source" theme="light" position="top">
+                  <foxy-i18n infer="" key="source_${source}"></foxy-i18n>
+                </vcf-tooltip>
+                <span class="cursor-default" id="source">${source}</span>
+              `
+            : ''}
+
           <foxy-i18n
             options=${JSON.stringify({ value: this.data?.transaction_date })}
             lang=${this.lang}
@@ -167,11 +180,15 @@ class TransactionCard extends Base<Data> {
 
           <iron-icon
             data-testid="status-icon"
-            class="icon-inline text-l ${specialColors[status] ?? 'text-tertiary'}"
-            title=${this.t(`transaction_${status}`)}
+            class="icon-inline cursor-default text-l ${specialColors[status] ?? 'text-tertiary'}"
+            id="status"
             icon=${specialIcons[status] ?? 'icons:schedule'}
           >
           </iron-icon>
+
+          <vcf-tooltip for="status" theme="light" position="top">
+            <foxy-i18n infer="" key="status_${status}"></foxy-i18n>
+          </vcf-tooltip>
         </div>
 
         ${this.renderTemplateOrSlot('status:after')}
@@ -179,9 +196,22 @@ class TransactionCard extends Base<Data> {
     `;
   }
 
-  private __renderDescription() {
+  private __renderSummary() {
     const items = this.data?._embedded?.['fx:items'];
+    const type = this.data?.type;
+
     let content: TemplateResult;
+    let key: string;
+
+    if (type === 'updateinfo') {
+      key = 'summary_payment_method_change';
+    } else if (type === 'subscription_modification') {
+      key = 'summary_subscription_modification';
+    } else if (type === 'subscription_cancellation') {
+      key = 'summary_subscription_cancellation';
+    } else {
+      key = 'summary';
+    }
 
     if (items) {
       const options = {
@@ -190,15 +220,7 @@ class TransactionCard extends Base<Data> {
         count: items.length,
       };
 
-      content = html`
-        <foxy-i18n
-          options=${JSON.stringify(options)}
-          lang=${this.lang}
-          key="transaction_summary"
-          ns=${this.ns}
-        >
-        </foxy-i18n>
-      `;
+      content = html`<foxy-i18n .options=${options} infer="" key=${key}></foxy-i18n>`;
     } else {
       content = html`&ZeroWidthSpace;`;
     }

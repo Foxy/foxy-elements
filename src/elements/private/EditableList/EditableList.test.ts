@@ -28,7 +28,7 @@ describe('EditableList', () => {
     const element = await fixture<EditableList>(layout);
 
     element.items = [{ value: 'foo' }, { value: 'bar' }];
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const list = element.renderRoot.querySelector('ol') as HTMLOListElement;
     const items = [...list.children] as HTMLLIElement[];
@@ -47,7 +47,7 @@ describe('EditableList', () => {
       { value: '1', label: 'bar' },
     ];
 
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const list = element.renderRoot.querySelector('ol') as HTMLOListElement;
     const items = [...list.children] as HTMLLIElement[];
@@ -66,7 +66,7 @@ describe('EditableList', () => {
       { value: '1', label: html`<div>bar</div>` },
     ];
 
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const list = element.renderRoot.querySelector('ol') as HTMLOListElement;
     const items = [...list.children] as HTMLLIElement[];
@@ -81,7 +81,7 @@ describe('EditableList', () => {
     const element = await fixture<EditableList>(layout);
 
     element.items = [{ value: '0' }, { value: '1' }];
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const whenChangeEmitted = oneEvent(element, 'change');
     const list = element.renderRoot.querySelector('ol') as HTMLOListElement;
@@ -114,7 +114,7 @@ describe('EditableList', () => {
 
     input.value = 'foo';
     input.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
     element.renderRoot.querySelector<HTMLElement>('button[aria-label="submit"]')?.click();
 
     expect(await whenChangeEmitted).to.be.instanceOf(CustomEvent);
@@ -126,7 +126,7 @@ describe('EditableList', () => {
     const element = await fixture<EditableList>(layout);
 
     element.options = [{ value: 'foo' }, { value: 'bar' }];
-    await element.updateComplete;
+    await element.requestUpdate();
     const input = element.renderRoot.querySelector('input') as HTMLInputElement;
 
     expect(input).to.have.nested.property('list.options.length', 2);
@@ -143,7 +143,7 @@ describe('EditableList', () => {
       { value: '1', label: 'Bar' },
     ];
 
-    await element.updateComplete;
+    await element.requestUpdate();
     const input = element.renderRoot.querySelector('input') as HTMLInputElement;
 
     expect(input).to.have.nested.property('list.options.length', 2);
@@ -168,7 +168,7 @@ describe('EditableList', () => {
 
     input.value = 'Test';
     input.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const button = element.renderRoot.querySelector('button[aria-label="submit"]');
     expect(button).to.not.have.attribute('disabled');
@@ -182,7 +182,7 @@ describe('EditableList', () => {
     input.value = 'Test';
     input.dispatchEvent(new InputEvent('input'));
     element.disabled = true;
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const controls = element.renderRoot.querySelectorAll('button, input');
     controls.forEach(control => expect(control).to.have.attribute('disabled'));

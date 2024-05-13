@@ -12,6 +12,14 @@ export const groups = [
     files: './src/elements/internal/InternalAsyncListControl/**/*.test.ts',
   },
   {
+    name: 'foxy-internal-async-resource-link-list-control',
+    files: './src/elements/internal/InternalAsyncResourceLinkListControl/**/*.test.ts',
+  },
+  {
+    name: 'foxy-internal-bulk-add-action-control',
+    files: './src/elements/internal/InternalBulkAddActionControl/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-calendar',
     files: './src/elements/internal/InternalCalendar/**/*.test.ts',
   },
@@ -76,8 +84,16 @@ export const groups = [
     files: './src/elements/internal/InternalPasswordControl/**/*.test.ts',
   },
   {
+    name: 'foxy-internal-query-builder-control',
+    files: './src/elements/internal/InternalQueryBuilderControl/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-radio-group-control',
     files: './src/elements/internal/InternalRadioGroupControl/**/*.test.ts',
+  },
+  {
+    name: 'foxy-internal-resource-picker-control',
+    files: './src/elements/internal/InternalResourcePickerControl/**/*.test.ts',
   },
   {
     name: 'foxy-internal-sandbox',
@@ -148,16 +164,16 @@ export const groups = [
     files: './src/elements/private/LoadingScreen/**/*.test.ts',
   },
   {
+    name: 'x-metadata',
+    files: './src/elements/private/Metadata/**/*.test.ts',
+  },
+  {
     name: 'x-monthday-picker',
     files: './src/elements/private/MonthdayPicker/**/*.test.ts',
   },
   {
     name: 'x-page',
     files: './src/elements/private/Page/**/*.test.ts',
-  },
-  {
-    name: 'x-property-table',
-    files: './src/elements/private/PropertyTable/**/*.test.ts',
   },
   {
     name: 'x-section',
@@ -224,6 +240,10 @@ export const groups = [
     files: './src/elements/public/AttributeForm/**/*.test.ts',
   },
   {
+    name: 'foxy-billing-address-card',
+    files: './src/elements/public/BillingAddressCard/**/*.test.ts',
+  },
+  {
     name: 'foxy-cancellation-form',
     files: './src/elements/public/CancellationForm/**/*.test.ts',
   },
@@ -258,6 +278,10 @@ export const groups = [
   {
     name: 'foxy-coupon-card',
     files: './src/elements/public/CouponCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-coupon-code-card',
+    files: './src/elements/public/CouponCodeCard/**/*.test.ts',
   },
   {
     name: 'foxy-coupon-code-form',
@@ -306,6 +330,10 @@ export const groups = [
   {
     name: 'foxy-customer-portal-settings',
     files: './src/elements/public/CustomerPortalSettings/**/*.test.ts',
+  },
+  {
+    name: 'foxy-customer-portal-settings-form',
+    files: './src/elements/public/CustomerPortalSettingsForm/**/*.test.ts',
   },
   {
     name: 'foxy-customers-table',
@@ -368,6 +396,10 @@ export const groups = [
     files: './src/elements/public/GiftCardCard/**/*.test.ts',
   },
   {
+    name: 'foxy-gift-card-code-card',
+    files: './src/elements/public/GiftCardCodeCard/**/*.test.ts',
+  },
+  {
     name: 'foxy-gift-card-code-form',
     files: './src/elements/public/GiftCardCodeForm/**/*.test.ts',
   },
@@ -426,6 +458,14 @@ export const groups = [
   {
     name: 'foxy-items-form',
     files: './src/elements/public/ItemsForm/**/*.test.ts',
+  },
+  {
+    name: 'foxy-native-integration-card',
+    files: './src/elements/public/NativeIntegrationCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-native-integration-form',
+    files: './src/elements/public/NativeIntegrationForm/**/*.test.ts',
   },
   {
     name: 'foxy-nucleon-element',

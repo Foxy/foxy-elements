@@ -41,6 +41,10 @@
       "url": "./src/static/schemas/attribute-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/billing-address-card/*.json"],
+      "url": "./src/static/schemas/billing-address-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/cancellation-form/*.json"],
       "url": "./src/static/schemas/cancellation-form.json"
     },
@@ -71,6 +75,10 @@
     {
       "fileMatch": ["/src/static/translations/coupon-card/*.json"],
       "url": "./src/static/schemas/coupon-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/coupon-code-card/*.json"],
+      "url": "./src/static/schemas/coupon-code-card.json"
     },
     {
       "fileMatch": ["/src/static/translations/coupon-code-form/*.json"],
@@ -111,6 +119,10 @@
     {
       "fileMatch": ["/src/static/translations/customer-portal-settings/*.json"],
       "url": "./src/static/schemas/customer-portal-settings.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/customer-portal-settings-form/*.json"],
+      "url": "./src/static/schemas/customer-portal-settings-form.json"
     },
     {
       "fileMatch": ["/src/static/translations/customers-table/*.json"],
@@ -163,6 +175,10 @@
     {
       "fileMatch": ["/src/static/translations/gift-card-card/*.json"],
       "url": "./src/static/schemas/gift-card-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/gift-card-code-card/*.json"],
+      "url": "./src/static/schemas/gift-card-code-card.json"
     },
     {
       "fileMatch": ["/src/static/translations/gift-card-code-form/*.json"],
@@ -219,6 +235,14 @@
     {
       "fileMatch": ["/src/static/translations/items-form/*.json"],
       "url": "./src/static/schemas/items-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/native-integration-card/*.json"],
+      "url": "./src/static/schemas/native-integration-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/native-integration-form/*.json"],
+      "url": "./src/static/schemas/native-integration-form.json"
     },
     {
       "fileMatch": ["/src/static/translations/pagination/*.json"],
@@ -283,6 +307,10 @@
     {
       "fileMatch": ["/src/static/translations/reports-table/*.json"],
       "url": "./src/static/schemas/reports-table.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/shared/*.json"],
+      "url": "./src/static/schemas/shared.json"
     },
     {
       "fileMatch": ["/src/static/translations/shipment-card/*.json"],

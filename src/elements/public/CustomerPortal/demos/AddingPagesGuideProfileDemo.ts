@@ -5,7 +5,7 @@ const getHref = (page: string) => {
 };
 
 export const AddingPagesGuideProfileDemo = (): TemplateResult => html`
-  <foxy-customer-portal base="https://demo.api/portal/">
+  <foxy-customer-portal base="https://demo.api/portal/" simplify-ns-loading>
     <template slot="customer:header:before">
       <style>
         a {

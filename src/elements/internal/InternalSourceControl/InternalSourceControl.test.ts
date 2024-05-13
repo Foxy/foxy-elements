@@ -72,7 +72,7 @@ describe('InternalSourceControl', () => {
     expect(field).to.have.property('placeholder', 'placeholder');
 
     control.placeholder = 'test placeholder';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('placeholder', 'test placeholder');
   });
@@ -85,7 +85,7 @@ describe('InternalSourceControl', () => {
     expect(field.labels[0]).to.contain.text('label');
 
     control.label = 'test label';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field.labels[0]).to.contain.text('test label');
   });
@@ -98,9 +98,21 @@ describe('InternalSourceControl', () => {
     expect(field.labels[0]).to.contain.text('helper_text');
 
     control.helperText = 'test helper text';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field.labels[0]).to.contain.text('test helper text');
+  });
+
+  it('renders error message if present', async () => {
+    const layout = html`<test-internal-source-control></test-internal-source-control>`;
+    const control = await fixture<TestControl>(layout);
+
+    expect(control.renderRoot).not.to.contain.text('test_error_message');
+
+    control.testErrorMessage = 'test_error_message';
+    await control.requestUpdate();
+
+    expect(control.renderRoot).to.contain.text('test_error_message');
   });
 
   it('sets "disabled" on textarea from "disabled" on itself', async () => {
@@ -109,11 +121,11 @@ describe('InternalSourceControl', () => {
     const field = control.renderRoot.querySelector('textarea')!;
 
     control.disabled = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.attribute('disabled');
 
     control.disabled = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.not.have.attribute('disabled');
   });
 
@@ -123,11 +135,11 @@ describe('InternalSourceControl', () => {
     const field = control.renderRoot.querySelector('textarea')!;
 
     control.readonly = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.attribute('readonly');
 
     control.readonly = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.not.have.attribute('readonly');
   });
 
@@ -139,7 +151,7 @@ describe('InternalSourceControl', () => {
     expect(field).to.have.property('value', '');
 
     control.testValue = 'test_value';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('value', 'test_value');
   });

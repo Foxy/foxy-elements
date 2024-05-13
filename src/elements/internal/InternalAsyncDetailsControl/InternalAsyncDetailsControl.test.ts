@@ -87,12 +87,12 @@ describe('InternalAsyncDetailsControl', () => {
     expect(details).to.have.property('summary', 'title');
 
     control.open = true;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(details).to.have.property('open', true);
 
     control.open = false;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(details).to.have.property('open', false);
 
@@ -219,7 +219,7 @@ describe('InternalAsyncDetailsControl', () => {
 
     control.first = 'https://demo.api/hapi/customers';
     control.limit = 10;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(pagination).to.have.property('first', 'https://demo.api/hapi/customers?limit=10');
   });
@@ -248,7 +248,7 @@ describe('InternalAsyncDetailsControl', () => {
     expect(page).to.have.deep.property('related', []);
 
     control.related = ['https://demo.api/hapi/customers/0'];
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(page).to.have.deep.property('related', ['https://demo.api/hapi/customers/0']);
   });

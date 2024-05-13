@@ -143,7 +143,7 @@ describe('InternalDownloadableFormUploadControl', () => {
       code: 'TEST',
     });
 
-    await element.updateComplete;
+    await element.requestUpdate();
     const control = element.renderRoot.querySelector<Control>('[infer="upload"]')!;
     const upload = control.uploadElement!;
 
@@ -194,7 +194,7 @@ describe('InternalDownloadableFormUploadControl', () => {
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     element.edit({ file_name: 'test_file_2.txt' });
 
-    await element.updateComplete;
+    await element.requestUpdate();
     const control = element.renderRoot.querySelector<Control>('[infer="upload"]')!;
     const upload = control.uploadElement!;
 
@@ -232,7 +232,7 @@ describe('InternalDownloadableFormUploadControl', () => {
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     const control = element.renderRoot.querySelector<Control>('[infer="upload"]');
 
-    await control?.updateComplete;
+    await control?.requestUpdate();
     const upload = control?.uploadElement;
 
     expect(upload).to.have.nested.property('files[0].complete', true);

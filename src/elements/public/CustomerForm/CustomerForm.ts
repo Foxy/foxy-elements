@@ -1,25 +1,23 @@
-import { Data, Templates, TextFieldParams } from './types';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { TemplateResult, html } from 'lit-html';
+import type { VanillaHCaptchaWebComponent } from 'vanilla-hcaptcha';
+import type { Data, Templates, Settings } from './types';
+import type { PropertyDeclarations } from 'lit-element';
+import type { ScopedElementsMap } from '@open-wc/scoped-elements';
+import type { TemplateResult } from 'lit-html';
+import type { NucleonV8N } from '../NucleonElement/types';
 
-import { ConfigurableMixin } from '../../../mixins/configurable';
-import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
-import { NucleonElement } from '../NucleonElement/index';
-import { NucleonV8N } from '../NucleonElement/types';
-import { PropertyTable } from '../../private/index';
-import { ResponsiveMixin } from '../../../mixins/responsive';
-import { ThemeableMixin } from '../../../mixins/themeable';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
-import { ifDefined } from 'lit-html/directives/if-defined';
+import { BooleanSelector } from '@foxy.io/sdk/core';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { validate as isEmail } from 'email-validator';
-import memoize from 'lodash-es/memoize';
+import { classMap } from '../../../utils/class-map';
+import { html } from 'lit-html';
+
+import checkPasswordStrength from 'check-password-strength';
 
 const NS = 'customer-form';
-const Base = ResponsiveMixin(
-  ConfigurableMixin(ThemeableMixin(ScopedElementsMixin(TranslatableMixin(NucleonElement, NS))))
-);
+const Base = ScopedElementsMixin(TranslatableMixin(InternalForm, NS));
+const passwordStrength = checkPasswordStrength.passwordStrength;
 
 /**
  * Form element for creating or editing customers.
@@ -36,6 +34,21 @@ const Base = ResponsiveMixin(
  * @slot tax-id:before - **new in v1.4.0**
  * @slot tax-id:after - **new in v1.4.0**
  *
+ * @slot is-anonymous:before - **new in v1.24.0**
+ * @slot is-anonymous:after - **new in v1.24.0**
+ *
+ * @slot password:before - **new in v1.24.0**
+ * @slot password:after - **new in v1.24.0**
+ *
+ * @slot password-old:before - **new in v1.24.0**
+ * @slot password-old:after - **new in v1.24.0**
+ *
+ * @slot forgot-password:before - **new in v1.24.0**
+ * @slot forgot-password:after - **new in v1.24.0**
+ *
+ * @slot legal-notice:before - **new in v1.24.0**
+ * @slot legal-notice:after - **new in v1.24.0**
+ *
  * @slot timestamps:before - **new in v1.4.0**
  * @slot timestamps:after - **new in v1.4.0**
  *
@@ -51,175 +64,268 @@ const Base = ResponsiveMixin(
 export class CustomerForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
-      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
-      'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'x-property-table': PropertyTable,
-      'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-internal-customer-form-legal-notice-control': customElements.get(
+        'foxy-internal-customer-form-legal-notice-control'
+      ),
+      'foxy-internal-radio-group-control': customElements.get('foxy-internal-radio-group-control'),
+      'foxy-internal-timestamps-control': customElements.get('foxy-internal-timestamps-control'),
+      'foxy-internal-password-control': customElements.get('foxy-internal-password-control'),
+      'foxy-internal-create-control': customElements.get('foxy-internal-create-control'),
+      'foxy-internal-delete-control': customElements.get('foxy-internal-delete-control'),
+      'foxy-internal-text-control': customElements.get('foxy-internal-text-control'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
+      'h-captcha': customElements.get('h-captcha'),
+      'vaadin-button': customElements.get('vaadin-button'),
     };
   }
 
-  static get v8n(): NucleonV8N<Data> {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      passwordless: { type: Boolean },
+      settings: { type: Object },
+    };
+  }
+
+  static get v8n(): NucleonV8N<Data, CustomerForm> {
     return [
-      ({ first_name: v }) => !v || v.length <= 50 || 'first_name_too_long',
-      ({ last_name: v }) => !v || v.length <= 50 || 'last_name_too_long',
-      ({ tax_id: v }) => !v || v.length <= 50 || 'tax_id_too_long',
-      ({ email: v }) => (v && v.length > 0) || 'email_required',
-      ({ email: v }) => (v && v.length <= 100) || 'email_too_long',
-      ({ email: v }) => (v && isEmail(v)) || 'email_invalid_email',
+      ({ password, _links, is_anonymous = true }, host) => {
+        if (host.passwordless) return true;
+        return !_links && !is_anonymous && !password ? 'password:v8n_required' : true;
+      },
+      ({ password_old, password, _links }, host) => {
+        if (!_links) return true;
+        if (host.settings?.sign_up === undefined) return true;
+        return password && !password_old ? 'password-old:v8n_required' : true;
+      },
+      ({ first_name: v }) => !v || v.length <= 50 || 'first-name:v8n_too_long',
+      ({ last_name: v }) => !v || v.length <= 50 || 'last-name:v8n_too_long',
+      ({ password: v }) => !v || passwordStrength(v).id >= 2 || 'password:v8n_too_weak',
+      ({ password: v }) => !v || v.length <= 50 || 'password:v8n_too_long',
+      ({ tax_id: v }) => !v || v.length <= 50 || 'tax-id:v8n_too_long',
+      ({ email: v }) => (v && v.length > 0) || 'email:v8n_required',
+      ({ email: v }) => !v || v.length <= 100 || 'email:v8n_too_long',
+      ({ email: v }) => !v || isEmail(v) || 'email:v8n_invalid_email',
     ];
   }
 
+  /** If true, won't require password when creating a customer. */
+  passwordless = false;
+
   templates: Templates = {};
 
-  private __getValidator = memoize((prefix: string) => () => {
-    return !this.errors.some(err => err.startsWith(prefix));
-  });
+  /** Full `fx:customer_portal_settings` resource from Customer API. If present, switches this element into the Customer API mode, enabling client verification. */
+  settings: Settings | null = null;
 
-  private __maybeRenderTextField = ({ field }: TextFieldParams) => {
-    const bsid = field.replace(/_/, '-');
-    const error = this.errors.find(err => err.startsWith(field));
-
-    if (this.hiddenSelector.matches(bsid, true)) return '';
-
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot(`${bsid}:before`)}
-
-        <vaadin-text-field
-          class="w-full"
-          label=${this.t(field).toString()}
-          value=${ifDefined(this.form?.[field]?.toString())}
-          error-message=${error ? this.t(error.replace(field, 'v8n')).toString() : ''}
-          data-testid=${bsid}
-          .checkValidity=${this.__getValidator(field)}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches(bsid, true)}
-          ?readonly=${this.readonlySelector.matches(bsid, true)}
-          @input=${(evt: Event) => this.edit({ [field]: (evt.target as HTMLInputElement).value })}
-          @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
-        >
-        </vaadin-text-field>
-
-        ${this.renderTemplateOrSlot(`${bsid}:after`)}
-      </div>
-    `;
+  private readonly __isAnonymousGetValue = () => {
+    return this.form?.is_anonymous === false ? 'false' : 'true';
   };
 
-  private __renderTimestamps = () => {
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('timestamps:before')}
-
-        <x-property-table
-          data-testid="timestamps"
-          .items=${(['date_modified', 'date_created'] as const).map(field => ({
-            name: this.t(field),
-            value: this.data?.[field]
-              ? this.t('date', { value: new Date(this.data[field] as string) })
-              : '',
-          }))}
-        >
-        </x-property-table>
-
-        ${this.renderTemplateOrSlot('timestamps:after')}
-      </div>
-    `;
+  private readonly __isAnonymousSetValue = (newValue: string) => {
+    const isAnonymous = newValue === 'true';
+    this.edit({ is_anonymous: isAnonymous });
+    if (isAnonymous && this.form.password) this.edit({ password: '' });
+    if (isAnonymous && this.form.password_old) this.edit({ password_old: '' });
+    if (isAnonymous && this.form.forgot_password) this.edit({ forgot_password: '' });
   };
 
-  private __renderAction = (action: string) => {
-    const { disabledSelector, href, lang, ns } = this;
+  private readonly __isAnonymousOptions = [
+    { value: 'true', label: 'option_true' },
+    { value: 'false', label: 'option_false' },
+  ];
 
-    const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
-    const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
-    const isDisabled = !this.in('idle') || disabledSelector.matches(action, true);
-    const isValid = isTemplateValid || isSnapshotValid;
+  private __refreshInterval: NodeJS.Timeout | null = null;
 
-    const handleClick = (evt: Event) => {
-      if (action === 'delete') {
-        const confirm = this.renderRoot.querySelector('#confirm');
-        (confirm as InternalConfirmDialog).show(evt.currentTarget as HTMLElement);
-      } else {
-        this.submit();
+  get hiddenSelector(): BooleanSelector {
+    const hidden = new Set<string>(super.hiddenSelector.toString().split(' '));
+
+    if (this.settings) {
+      hidden.add('forgot-password');
+      hidden.add('is-anonymous');
+      if (!this.form.password) hidden.add('password-old');
+      if (this.settings.tos_checkbox_settings.usage === 'none') hidden.add('legal-notice');
+    } else {
+      if (this.form.is_anonymous !== false) {
+        hidden.add('forgot-password');
+        hidden.add('password');
       }
-    };
+      hidden.add('password-old');
+      hidden.add('legal-notice');
+    }
 
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot(`${action}:before`)}
+    if (this.href) {
+      hidden.add('is-anonymous');
+      hidden.add('legal-notice');
+    }
 
-        <vaadin-button
-          class="w-full"
-          theme=${this.in('idle') ? (href ? 'error' : 'primary success') : ''}
-          data-testid=${action}
-          ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
-          @click=${handleClick}
-        >
-          <foxy-i18n ns=${ns} key=${action} lang=${lang}></foxy-i18n>
-        </vaadin-button>
-
-        ${this.renderTemplateOrSlot(`${action}:after`)}
-      </div>
-    `;
-  };
-
-  render(): TemplateResult {
-    const { hiddenSelector, href, lang, ns } = this;
-    const action = href ? 'delete' : 'create';
-    const isBusy = this.in('busy');
-    const isFail = this.in('fail');
-
-    return html`
-      <foxy-internal-confirm-dialog
-        message="delete_prompt"
-        confirm="delete"
-        cancel="cancel"
-        header="delete"
-        theme="primary error"
-        lang=${lang}
-        ns=${ns}
-        id="confirm"
-        data-testid="confirm"
-        @hide=${(evt: DialogHideEvent) => {
-          if (!evt.detail.cancelled) this.delete();
-        }}
-      >
-      </foxy-internal-confirm-dialog>
-
-      <div data-testid="wrapper" aria-busy=${isBusy} aria-live="polite" class="space-y-l relative">
-        <div class="grid grid-cols-1 sm-grid-cols-2 gap-m">
-          ${this.__maybeRenderTextField({ field: 'first_name' })}
-          ${this.__maybeRenderTextField({ field: 'last_name' })}
-          ${this.__maybeRenderTextField({ field: 'email' })}
-          ${this.__maybeRenderTextField({ field: 'tax_id' })}
-        </div>
-
-        ${hiddenSelector.matches('timestamps', true) || !href ? '' : this.__renderTimestamps()}
-        ${hiddenSelector.matches(action) ? '' : this.__renderAction(action)}
-
-        <div
-          data-testid="spinner"
-          class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex': true,
-            'opacity-0 pointer-events-none': !isBusy && !isFail,
-          })}
-        >
-          <foxy-spinner
-            layout="vertical"
-            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-            state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
-            lang=${lang}
-            ns="${ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
-          >
-          </foxy-spinner>
-        </div>
-      </div>
-    `;
+    return new BooleanSelector(Array.from(hidden).join(' ').trim());
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    this.__getValidator.cache.clear?.();
+    const interval = this.__refreshInterval;
+    if (interval) clearInterval(interval);
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    const interval = setInterval(() => this.requestUpdate(), 60 * 1000);
+    this.__refreshInterval = interval;
+  }
+
+  renderBody(): TemplateResult {
+    const isFirstNameHidden = this.hiddenSelector.matches('first-name', true);
+    const isLastNameHidden = this.hiddenSelector.matches('last-name', true);
+
+    return html`
+      <div
+        class=${classMap({
+          'grid-cols-2': !isFirstNameHidden && !isLastNameHidden,
+          'hidden': isFirstNameHidden && isLastNameHidden,
+          'gap-m': true,
+          'grid': !isFirstNameHidden || !isLastNameHidden,
+        })}
+      >
+        <foxy-internal-text-control infer="first-name"></foxy-internal-text-control>
+        <foxy-internal-text-control infer="last-name"></foxy-internal-text-control>
+      </div>
+
+      <foxy-internal-text-control helper-text=${this.__emailHelperText} infer="email">
+      </foxy-internal-text-control>
+
+      <foxy-internal-radio-group-control
+        infer="is-anonymous"
+        .getValue=${this.__isAnonymousGetValue}
+        .setValue=${this.__isAnonymousSetValue}
+        .options=${this.__isAnonymousOptions}
+      >
+      </foxy-internal-radio-group-control>
+
+      <foxy-internal-password-control
+        placeholder=${this.__passwordPlaceholder}
+        helper-text=${this.__passwordHelperText}
+        infer="password"
+        show-generator
+      >
+      </foxy-internal-password-control>
+
+      <foxy-internal-password-control infer="password-old"></foxy-internal-password-control>
+
+      <foxy-internal-password-control
+        helper-text=${this.__forgotPasswordHelperText}
+        infer="forgot-password"
+        show-generator
+      >
+      </foxy-internal-password-control>
+
+      <foxy-internal-text-control infer="tax-id"></foxy-internal-text-control>
+
+      <foxy-internal-customer-form-legal-notice-control infer="legal-notice">
+      </foxy-internal-customer-form-legal-notice-control>
+
+      ${!this.data &&
+      this.settings?.sign_up?.enabled &&
+      this.settings?.sign_up?.verification.type === 'hcaptcha'
+        ? html`
+            <h-captcha
+              site-key=${this.settings.sign_up.verification.site_key}
+              class="hidden"
+              size="invisible"
+              hl=${this.lang}
+              @verified=${({ token }: Record<'token' | 'eKey', string>) => {
+                this.edit({ verification: { type: 'hcaptcha', token } });
+                super.submit();
+              }}
+            >
+            </h-captcha>
+          `
+        : ''}
+      ${super.renderBody()}
+    `;
+  }
+
+  submit(): void {
+    if (this.settings?.sign_up?.verification?.type === 'hcaptcha' && !this.data) {
+      this.__hcaptcha?.reset();
+      this.__hcaptcha?.execute();
+    } else {
+      super.submit();
+    }
+  }
+
+  protected async _sendPatch(edits: Partial<Data>): Promise<Data> {
+    const data = await super._sendPatch(edits);
+
+    if (edits.password) {
+      const status = { key: 'password_change_success', options: { email: data.email } };
+      this.status = status;
+    }
+
+    return data;
+  }
+
+  protected async _sendGet(): Promise<Data> {
+    this.status = null;
+    return await super._sendGet();
+  }
+
+  protected async _fetch<TResult = Data>(...args: Parameters<Window['fetch']>): Promise<TResult> {
+    try {
+      return await super._fetch(...args);
+    } catch (err) {
+      let message;
+
+      try {
+        message = (await (err as Response).json())._embedded['fx:errors'][0].message;
+      } catch {
+        throw err;
+      }
+
+      if (message === 'Conflict' || message.startsWith('This email address is already in use')) {
+        throw ['error:email_already_used'];
+      } else if (message.startsWith('Customer registration is disabled')) {
+        throw ['error:registration_disabled'];
+      } else if (message.startsWith('Client verification failed')) {
+        throw ['error:verification_failed'];
+      } else if (message.startsWith('Provided password is incorrect')) {
+        throw ['error:old_password_incorrect'];
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  private get __forgotPasswordHelperText() {
+    const createdOn = this.data?.forgot_password_timestamp;
+    const password = this.data?.forgot_password;
+    const i18nKey = 'forgot-password.helper_text';
+
+    if (password && createdOn) {
+      const expiresOn = new Date(new Date(createdOn).getTime() + 30 * 60 * 1000);
+      const expiresInMin = Math.floor((expiresOn.getTime() - Date.now()) / 1000 / 60);
+      if (expiresInMin <= 0) return this.t(`${i18nKey}_expired_on`, { expiresOn });
+      return this.t(`${i18nKey}_expires_in`, { expiresInMin: `${expiresInMin}minutes` });
+    } else {
+      return this.t(i18nKey);
+    }
+  }
+
+  private get __passwordPlaceholder() {
+    return this.data ? this.t('password.placeholder_new') : this.t('password.placeholder');
+  }
+
+  private get __passwordHelperText() {
+    return this.data ? this.t('password.helper_text_new') : this.t('password.helper_text');
+  }
+
+  private get __emailHelperText() {
+    return this.data?.last_login_date
+      ? this.t('email.helper_text_last_login_date', { date: this.data.last_login_date })
+      : this.t('email.helper_text');
+  }
+
+  private get __hcaptcha() {
+    return this.renderRoot.querySelector<VanillaHCaptchaWebComponent>('h-captcha');
   }
 }

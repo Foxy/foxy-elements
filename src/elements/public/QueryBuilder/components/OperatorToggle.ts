@@ -8,6 +8,7 @@ import { classMap } from '../../../../utils/class-map';
 
 export type OperatorToggleParams = {
   parsedValue: ParsedValue;
+  operators: Operator[];
   readonly: boolean;
   disabled: boolean;
   option: Option | null;
@@ -44,11 +45,13 @@ export function OperatorToggle(params: OperatorToggleParams): TemplateResult {
     [Type.Any]: Object.values(Operator),
   };
 
-  const operatorsForType = params.option
-    ? operatorsByType[params.option.type]
-    : params.parsedValue.name
-    ? Object.values(Operator)
-    : Object.values(Operator).filter(v => v !== Operator.IsDefined);
+  const operatorsForType = (
+    params.option
+      ? operatorsByType[params.option.type]
+      : params.parsedValue.name
+      ? Object.values(Operator)
+      : Object.values(Operator).filter(v => v !== Operator.IsDefined)
+  ).filter(v => params.operators.includes(v));
 
   const isDisabled =
     params.disabled || params.readonly || operatorsForType.length === 0 || !params.parsedValue.path;
@@ -59,10 +62,11 @@ export function OperatorToggle(params: OperatorToggleParams): TemplateResult {
       class=${classMap({
         'flex items-center justify-center w-m h-m transition-colors': true,
         'focus-outline-none focus-ring-2 focus-ring-inset focus-ring-primary-50': true,
+        'text-body hover-bg-contrast-5': !isDisabled && operatorsForType.length > 1,
+        'cursor-default text-tertiary': !isDisabled && operatorsForType.length <= 1,
         'text-disabled cursor-default': isDisabled,
-        'hover-bg-contrast-5': !isDisabled,
       })}
-      ?disabled=${isDisabled}
+      ?disabled=${isDisabled || operatorsForType.length <= 1}
       @click=${() => {
         const newOperatorIndex = operator ? operatorsForType.indexOf(operator) : -1;
         const newOperator = operatorsForType[newOperatorIndex + 1] ?? null;

@@ -57,7 +57,7 @@
         "date": "{{value, date}}",
         "spinner": {
           "loading_busy": "Loading",
-          "loading_error": "Failed to load",
+          "loading_error": "Unknown error",
           "loading_empty": "No data"
         }
       }
@@ -75,7 +75,7 @@
         "date": "{{value, date}}",
         "spinner": {
           "loading_busy": "Loading",
-          "loading_error": "Failed to load",
+          "loading_error": "Unknown error",
           "loading_empty": "No data"
         }
       }
@@ -83,7 +83,7 @@
   },
   "timestamps": {
     "date_created": "Created on",
-    "date_modified": "Last updated",
+    "date_modified": "Last updated on",
     "date": "{{value, date}}"
   },
   "delete": {
@@ -95,7 +95,8 @@
     "create": "Create"
   },
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

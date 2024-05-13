@@ -76,6 +76,7 @@ export class CollectionPage<TPage extends Page> extends Base<TPage> {
             ?disabled=\${ctx.disabled}
             ?readonly=\${ctx.readonly}
             ?hidden=\${ctx.hidden}
+            .simplifyNsLoading=\${ctx.simplifyNsLoading}
             .templates=\${ctx.templates}
             ...=\${ctx.spread(ctx.props)}
           >
@@ -124,6 +125,7 @@ export class CollectionPage<TPage extends Page> extends Base<TPage> {
       item => item.key,
       (item, index) =>
         this.__renderItem?.({
+          simplifyNsLoading: this.simplifyNsLoading,
           disabledControls: this.disabledControls,
           readonlyControls: this.readonlyControls,
           hiddenControls: this.hiddenControls,

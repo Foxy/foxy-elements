@@ -105,7 +105,7 @@ describe('IntegrationForm', () => {
     data.project_name = 'Test project name';
     data.project_description = 'Test project description';
     element.data = data;
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.include.text('Test project name');
     expect(element.renderRoot).to.include.text('Test project description');
@@ -126,7 +126,7 @@ describe('IntegrationForm', () => {
     data.project_name = 'Test project name';
     data.project_description = 'Test project description';
     element.data = data;
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.not.include.text('Test project name');
     expect(element.renderRoot).to.not.include.text('Test project description');
@@ -143,7 +143,7 @@ describe('IntegrationForm', () => {
 
     data.project_description = 'Test project description';
     element.data = data;
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.include.text('Test project description');
   });
@@ -272,7 +272,7 @@ describe('IntegrationForm', () => {
 
     let messageAction = await getByTestId(element, 'message-action');
     messageAction?.click();
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const message = element.renderRoot.querySelector('foxy-i18n[infer="message"][key="text"]');
     messageAction = await getByTestId(element, 'message-action');
@@ -345,7 +345,7 @@ describe('IntegrationForm', () => {
     data.company_url = 'https://example.com';
 
     element.data = data;
-    await element.updateComplete;
+    await element.requestUpdate();
     const table = element.renderRoot.querySelector('table')!;
 
     const addedByValue = table.rows[0].cells[1].querySelector('a');
@@ -515,7 +515,7 @@ describe('IntegrationForm', () => {
     const messageAction = (await getByTestId(element, 'message-action'))!;
 
     messageAction.click();
-    await element.updateComplete;
+    await element.requestUpdate();
     const table = element.renderRoot.querySelector('table')!;
 
     expect(table.rows[5]?.cells[0]).to.not.include.text('Client secret');

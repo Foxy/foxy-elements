@@ -36,6 +36,7 @@ function getUnexistentValue() {
   return `@foxy.io/elements#dropdown-${Math.random().toFixed(16).substr(2)}`;
 }
 
+/** @deprecated – use internal controls instead */
 export class Dropdown extends LitElement {
   public static get properties(): PropertyDeclarations {
     return {

@@ -248,7 +248,7 @@ describe('TemplateForm', () => {
       const control = (await getByTestId(element, 'content')) as HTMLElement;
       const choice = (await getByTestId(control, 'content-type')) as Choice;
       choice.dispatchEvent(new ChoiceChangeEvent('url'));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(choice).to.have.property('value', 'url');
       expect(element.form).to.have.property('content', '');

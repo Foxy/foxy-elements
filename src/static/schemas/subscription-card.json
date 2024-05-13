@@ -24,7 +24,13 @@
     "subscription_inactive": { "type": "string", "default": "Inactive" },
     "subscription_plural": { "type": "string", "default": "Subscriptions" },
     "subscription_will_be_cancelled": { "type": "string", "default": "Ends on {{date, date}}" },
+    "subscription_will_be_active": { "type": "string", "default": "Starts on {{date, date}}" },
     "transaction_summary": { "type": "string", "default": "{{most_expensive_item.name}}" },
+    "fees_hint": { "type": "string", "default": "inc. shipping, taxes, etc." },
+    "fees_explainer": {
+      "type": "string",
+      "default": "Taxes, shipping, and discounts may change the amount charged."
+    },
     "twice_a_month": { "type": "string", "default": "Twice a month" },
     "weekly": { "type": "string", "default": "Weekly" },
     "weekly_plural": { "type": "string", "default": "Every {{count}} weeks" },
@@ -35,7 +41,7 @@
       "properties": {
         "loading_busy": { "type": "string", "default": "Loading" },
         "loading_empty": { "type": "string", "default": "No data" },
-        "loading_error": { "type": "string", "default": "Failed to load" }
+        "loading_error": { "type": "string", "default": "Unknown error" }
       },
       "required": ["loading_busy", "loading_empty", "loading_error"]
     }
@@ -54,7 +60,10 @@
     "subscription_inactive",
     "subscription_plural",
     "subscription_will_be_cancelled",
+    "subscription_will_be_active",
     "transaction_summary",
+    "fees_hint",
+    "fees_explainer",
     "twice_a_month",
     "weekly",
     "weekly_plural",

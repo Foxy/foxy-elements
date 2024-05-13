@@ -257,7 +257,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
     );
 
     item0Button.click();
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.nested.property('form.type', 'minfraud');
     expect(await getByKey(element, 'select_method_title')).to.not.exist;
@@ -342,7 +342,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
     };
 
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const field = element.renderRoot.querySelector(
       '[infer="json-foo-bar-baz"]'
@@ -409,7 +409,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
     };
 
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const field = element.renderRoot.querySelector(
       '[infer="json-foo-bar-baz"]'
@@ -475,7 +475,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
     };
 
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const field = element.renderRoot.querySelector(
       '[infer="json-foo-bar-baz"]'
@@ -554,7 +554,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
 
     element.data!.helper.uses_rejection_threshold = true;
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const control = root.querySelector('[infer="score-threshold-reject"]');
     expect(control).to.exist;
@@ -611,7 +611,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
 
     element.data = null;
     element.edit({ type: 'minfraud' });
-    await element.updateComplete;
+    await element.requestUpdate();
     const control = (await getByTestId(
       element,
       'select-another-button'
@@ -625,7 +625,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
     expect(label).to.have.attribute('key', 'select_another_button_label');
 
     control.click();
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.not.have.nested.property('form.type');
     expect(element.renderRoot.querySelector('[infer="select-another-button"]')).to.not.exist;

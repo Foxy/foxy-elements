@@ -1,0 +1,24 @@
+{
+  "image_alt": "Native integration logo",
+  "title_avalara": "Avalara",
+  "title_taxjar": "TaxJar",
+  "title_onesource": "ONESOURCE",
+  "title_webflow": "Webflow",
+  "title_zapier": "Zapier",
+  "title_webhook": "{{ title }}",
+  "title_apple_pay": "Apple Pay",
+  "title_custom_tax": "Custom Tax Endpoint",
+  "subtitle_avalara": "Account #{{ id }} • {{ service_url }}",
+  "subtitle_taxjar": "SmartCalcs API token ends in ****{{ api_token }}",
+  "subtitle_onesource": "{{ service_url }}",
+  "subtitle_webflow": "{{ site_name }} • ID {{ site_id }}",
+  "subtitle_zapier": "{{ url }}",
+  "subtitle_webhook": "{{ url }}",
+  "subtitle_apple_pay": "Merchant #{{ merchantID }}",
+  "subtitle_custom_tax": "{{ url }}",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Unknown error"
+  }
+}

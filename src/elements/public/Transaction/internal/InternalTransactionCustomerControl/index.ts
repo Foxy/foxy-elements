@@ -1,9 +1,8 @@
-import '../../../../internal/InternalDetails/index';
 import '../../../../internal/InternalControl/index';
-
 import '../../../CustomerCard/index';
-import '../../../FormDialog/index';
-import '../../../Customer/index';
+import '../../../SwipeActions/index';
+import '../../../Spinner/index';
+import '../../../I18n/index';
 
 import { InternalTransactionCustomerControl as Control } from './InternalTransactionCustomerControl';
 

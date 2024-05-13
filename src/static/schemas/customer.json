@@ -39,7 +39,7 @@
           "properties": {
             "loading_busy": { "type": "string", "default": "Loading" },
             "loading_empty": { "type": "string", "default": "No data" },
-            "loading_error": { "type": "string", "default": "Failed to load" }
+            "loading_error": { "type": "string", "default": "Unknown error" }
           },
           "required": ["loading_busy", "loading_empty", "loading_error"]
         }
@@ -55,30 +55,188 @@
     "address-form": {
       "additionalProperties": false,
       "properties": {
-        "address_name": { "type": "string", "default": "Address name" },
-        "address1": { "type": "string", "default": "Address Line 1" },
-        "address2": { "type": "string", "default": "Address Line 2" },
-        "cancel": { "type": "string", "default": "Cancel" },
-        "city": { "type": "string", "default": "City" },
-        "company": { "type": "string", "default": "Company" },
-        "confirm": { "type": "string", "default": "Confirm" },
-        "country": { "type": "string", "default": "Country" },
-        "create": { "type": "string", "default": "Create" },
-        "date": { "type": "string", "default": "{{value, date}}" },
-        "date_created": { "type": "string", "default": "Created on" },
-        "date_modified": { "type": "string", "default": "Last updated" },
-        "delete": { "type": "string", "default": "Delete" },
-        "delete_prompt": {
-          "type": "string",
-          "default": "This resource will be permanently removed. Are you sure?"
+        "address-name": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Address name" },
+            "placeholder": { "type": "string", "default": "Required" },
+            "helper_text": { "type": "string", "default": "" },
+            "v8n_required": { "type": "string", "default": "Please enter address name" },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Please shorten address name to 100 characters or less"
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
         },
-        "first_name": { "type": "string", "default": "First name" },
-        "last_name": { "type": "string", "default": "Last name" },
-        "phone": { "type": "string", "default": "Phone" },
-        "postal_code": { "type": "string", "default": "Postal code" },
-        "region": { "type": "string", "default": "Region" },
-        "v8n_required": { "type": "string", "default": "Required" },
-        "v8n_too_long": { "type": "string", "default": "Too long" },
+        "first-name": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "First name" },
+            "placeholder": { "type": "string", "default": "Optional" },
+            "helper_text": { "type": "string", "default": "" },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Unfortunately we can't store first names longer than 50 characters"
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "last-name": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Last name" },
+            "placeholder": { "type": "string", "default": "Optional" },
+            "helper_text": { "type": "string", "default": "" },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Unfortunately we can't store last names longer than 50 characters"
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "company": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Company" },
+            "placeholder": { "type": "string", "default": "Optional" },
+            "helper_text": { "type": "string", "default": "" },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Unfortunately we can't store company names longer than 50 characters"
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "phone": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Phone" },
+            "placeholder": { "type": "string", "default": "Optional" },
+            "helper_text": { "type": "string", "default": "" },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "This phone number appears to be too long"
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "address-one": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Address Line 1" },
+            "placeholder": { "type": "string", "default": "Required" },
+            "helper_text": {
+              "type": "string",
+              "default": "Street address, P.O. box, company name, c/o"
+            },
+            "v8n_required": { "type": "string", "default": "Please enter address line 1" },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Please shorten address line 1 to 100 characters or less"
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
+        },
+        "address-two": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Address Line 2" },
+            "placeholder": { "type": "string", "default": "Optional" },
+            "helper_text": {
+              "type": "string",
+              "default": "Apartment, suite, unit, building, floor, etc."
+            },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Please shorten address line 2 to 100 characters or less"
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "city": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "City" },
+            "placeholder": { "type": "string", "default": "Optional" },
+            "helper_text": { "type": "string", "default": "" },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Unfortunately we can't store city names longer than 50 characters"
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "postal-code": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Postal code" },
+            "placeholder": { "type": "string", "default": "Optional" },
+            "helper_text": { "type": "string", "default": "" },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "This postal code appears to be too long"
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "country": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Country" },
+            "placeholder": { "type": "string", "default": "Optional" },
+            "helper_text": { "type": "string", "default": "" }
+          },
+          "required": ["label", "placeholder", "helper_text"]
+        },
+        "region": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Region" },
+            "placeholder": { "type": "string", "default": "Optional" },
+            "helper_text": { "type": "string", "default": "" },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Unfortunately we can't store region names longer than 50 characters"
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "timestamps": {
+          "additionalProperties": false,
+          "properties": {
+            "date": { "type": "string", "default": "{{value, date}}" },
+            "date_created": { "type": "string", "default": "Created on" },
+            "date_modified": { "type": "string", "default": "Last updated on" }
+          },
+          "required": ["date", "date_created", "date_modified"]
+        },
+        "delete": {
+          "additionalProperties": false,
+          "properties": {
+            "delete": { "type": "string", "default": "Delete" },
+            "cancel": { "type": "string", "default": "Cancel" },
+            "delete_prompt": {
+              "type": "string",
+              "default": "Are you sure you'd like to remove this address? You won't be able to bring it back."
+            }
+          },
+          "required": ["delete", "cancel", "delete_prompt"]
+        },
+        "create": {
+          "additionalProperties": false,
+          "properties": { "create": { "type": "string", "default": "Create" } },
+          "required": ["create"]
+        },
+        "spinner": {
+          "additionalProperties": false,
+          "properties": {
+            "refresh": { "type": "string", "default": "Refresh" },
+            "loading_busy": { "type": "string", "default": "Loading" },
+            "loading_error": { "type": "string", "default": "Unknown error" }
+          },
+          "required": ["refresh", "loading_busy", "loading_error"]
+        },
         "country_af": { "type": "string", "default": "Afghanistan" },
         "country_ax": { "type": "string", "default": "Åland Islands" },
         "country_al": { "type": "string", "default": "Albania" },
@@ -667,38 +825,24 @@
         "country_eh": { "type": "string", "default": "Western Sahara" },
         "country_ye": { "type": "string", "default": "Yemen" },
         "country_zm": { "type": "string", "default": "Zambia" },
-        "country_zw": { "type": "string", "default": "Zimbabwe" },
-        "spinner": {
-          "additionalProperties": false,
-          "properties": {
-            "loading_busy": { "type": "string", "default": "Loading" },
-            "loading_error": { "type": "string", "default": "Failed to load" }
-          },
-          "required": ["loading_busy", "loading_error"]
-        }
+        "country_zw": { "type": "string", "default": "Zimbabwe" }
       },
       "required": [
-        "address_name",
-        "address1",
-        "address2",
-        "cancel",
-        "city",
+        "address-name",
+        "first-name",
+        "last-name",
         "company",
-        "confirm",
-        "country",
-        "create",
-        "date",
-        "date_created",
-        "date_modified",
-        "delete",
-        "delete_prompt",
-        "first_name",
-        "last_name",
         "phone",
-        "postal_code",
+        "address-one",
+        "address-two",
+        "city",
+        "postal-code",
+        "country",
         "region",
-        "v8n_required",
-        "v8n_too_long",
+        "timestamps",
+        "delete",
+        "create",
+        "spinner",
         "country_af",
         "country_ax",
         "country_al",
@@ -1275,8 +1419,7 @@
         "country_eh",
         "country_ye",
         "country_zm",
-        "country_zw",
-        "spinner"
+        "country_zw"
       ]
     },
     "attribute-card": {
@@ -1287,7 +1430,7 @@
           "properties": {
             "loading_busy": { "type": "string", "default": "Loading" },
             "loading_empty": { "type": "string", "default": "No data" },
-            "loading_error": { "type": "string", "default": "Failed to load" }
+            "loading_error": { "type": "string", "default": "Unknown error" }
           },
           "required": ["loading_busy", "loading_empty", "loading_error"]
         }
@@ -1297,100 +1440,334 @@
     "attribute-form": {
       "additionalProperties": false,
       "properties": {
-        "cancel": { "type": "string", "default": "Cancel" },
-        "confirm": { "type": "string", "default": "Confirm" },
-        "create": { "type": "string", "default": "Create" },
-        "date": { "type": "string", "default": "{{value, date}}" },
-        "date_created": { "type": "string", "default": "Created on" },
-        "date_modified": { "type": "string", "default": "Last updated" },
-        "delete": { "type": "string", "default": "Delete" },
-        "delete_prompt": {
-          "type": "string",
-          "default": "This resource will be permanently removed. Are you sure?"
+        "name": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Name" },
+            "placeholder": { "type": "string", "default": "Required" },
+            "helper_text": {
+              "type": "string",
+              "default": "Name of this attribute. It does not have to be unique."
+            },
+            "v8n_required": { "type": "string", "default": "Please name this attribute." },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Please choose a name that is 500 characters long or less."
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
         },
-        "name": { "type": "string", "default": "Name" },
-        "v8n_required": { "type": "string", "default": "Required" },
-        "v8n_too_long": { "type": "string", "default": "Too long" },
-        "value": { "type": "string", "default": "Value" },
-        "visibility": { "type": "string", "default": "Visibility" },
-        "visibility_private": { "type": "string", "default": "Only me" },
-        "visibility_public": { "type": "string", "default": "Everyone" },
-        "visibility_restricted": { "type": "string", "default": "Store admins" },
+        "value": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Value" },
+            "placeholder": { "type": "string", "default": "Required" },
+            "helper_text": {
+              "type": "string",
+              "default": "Value of this attribute. Attribute values are automatically HTML-escaped."
+            },
+            "v8n_required": {
+              "type": "string",
+              "default": "Please provide a value for this attribute."
+            },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Unfortunately we can't store values that are more than 1000 characters long."
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
+        },
+        "visibility": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Visibility" },
+            "option_public": { "type": "string", "default": "Everyone" },
+            "option_restricted": { "type": "string", "default": "Store admins" },
+            "option_private": { "type": "string", "default": "Only me" },
+            "helper_text": {
+              "type": "string",
+              "default": "Controls who can see this attribute. Public attributes can be shown to anyone, including customers. Private attributes are more suitable for configuration or technical details which are irrelevant to the public. Restricted attributes can only be viewed with the OAuth client that created them."
+            }
+          },
+          "required": [
+            "label",
+            "option_public",
+            "option_restricted",
+            "option_private",
+            "helper_text"
+          ]
+        },
+        "timestamps": {
+          "additionalProperties": false,
+          "properties": {
+            "date": { "type": "string", "default": "{{value, date}}" },
+            "date_created": { "type": "string", "default": "Created on" },
+            "date_modified": { "type": "string", "default": "Last updated on" }
+          },
+          "required": ["date", "date_created", "date_modified"]
+        },
+        "delete": {
+          "additionalProperties": false,
+          "properties": {
+            "delete": { "type": "string", "default": "Delete" },
+            "cancel": { "type": "string", "default": "Cancel" },
+            "delete_prompt": {
+              "type": "string",
+              "default": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
+            }
+          },
+          "required": ["delete", "cancel", "delete_prompt"]
+        },
+        "create": {
+          "additionalProperties": false,
+          "properties": { "create": { "type": "string", "default": "Create" } },
+          "required": ["create"]
+        },
         "spinner": {
           "additionalProperties": false,
           "properties": {
+            "refresh": { "type": "string", "default": "Refresh" },
             "loading_busy": { "type": "string", "default": "Loading" },
-            "loading_error": { "type": "string", "default": "Failed to load" }
+            "loading_error": { "type": "string", "default": "Unknown error" }
           },
-          "required": ["loading_busy", "loading_error"]
+          "required": ["refresh", "loading_busy", "loading_error"]
         }
       },
-      "required": [
-        "cancel",
-        "confirm",
-        "create",
-        "date",
-        "date_created",
-        "date_modified",
-        "delete",
-        "delete_prompt",
-        "name",
-        "v8n_required",
-        "v8n_too_long",
-        "value",
-        "visibility",
-        "visibility_private",
-        "visibility_public",
-        "visibility_restricted",
-        "spinner"
-      ]
+      "required": ["name", "value", "visibility", "timestamps", "delete", "create", "spinner"]
     },
     "customer-form": {
       "additionalProperties": false,
       "properties": {
-        "cancel": { "type": "string", "default": "Cancel" },
-        "confirm": { "type": "string", "default": "Confirm" },
-        "create": { "type": "string", "default": "Create" },
-        "date": { "type": "string", "default": "{{value, date}}" },
-        "date_created": { "type": "string", "default": "Created on" },
-        "date_modified": { "type": "string", "default": "Last updated" },
-        "delete": { "type": "string", "default": "Delete" },
-        "delete_prompt": {
-          "type": "string",
-          "default": "This resource will be permanently removed. Are you sure?"
+        "status": {
+          "additionalProperties": false,
+          "properties": {
+            "password_change_success": {
+              "type": "string",
+              "default": "You have successfully set a new password for {{ email }}."
+            },
+            "close": { "type": "string", "default": "Close" }
+          },
+          "required": ["password_change_success", "close"]
         },
-        "email": { "type": "string", "default": "Email" },
-        "first_name": { "type": "string", "default": "First name" },
-        "last_name": { "type": "string", "default": "Last name" },
-        "tax_id": { "type": "string", "default": "Tax ID" },
-        "v8n_invalid_email": { "type": "string", "default": "Invalid email" },
-        "v8n_required": { "type": "string", "default": "Required" },
-        "v8n_too_long": { "type": "string", "default": "Too long" },
+        "error": {
+          "additionalProperties": false,
+          "properties": {
+            "email_already_used": {
+              "type": "string",
+              "default": "This email is already in use. Please use a different email."
+            }
+          },
+          "required": ["email_already_used"]
+        },
+        "first-name": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "First name" },
+            "placeholder": { "type": "string", "default": "Not set" },
+            "helper_text": { "type": "string", "default": "Customer's given name, optional." },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "We can't store first names longer than 50 characters."
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "last-name": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Last name" },
+            "placeholder": { "type": "string", "default": "Not set" },
+            "helper_text": { "type": "string", "default": "Customer's surname, optional." },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "We can't store last names longer than 50 characters."
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "tax-id": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Tax ID" },
+            "placeholder": { "type": "string", "default": "Not set" },
+            "helper_text": {
+              "type": "string",
+              "default": "Tax identification number for this customer, optional."
+            },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "We can't store tax IDs longer than 50 characters."
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "email": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Email" },
+            "placeholder": { "type": "string", "default": "Required" },
+            "helper_text": {
+              "type": "string",
+              "default": "This email will be used as the login to the Checkout and Customer Portal."
+            },
+            "helper_text_last_login_date": {
+              "type": "string",
+              "default": "This customer's login to the Checkout and Customer Portal. Last used on {{ date, date }} at {{ date, time }}."
+            },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "We can't store emails longer than 100 characters."
+            },
+            "v8n_invalid_email": { "type": "string", "default": "This email is invalid." },
+            "v8n_required": { "type": "string", "default": "Please fill out this field." }
+          },
+          "required": [
+            "label",
+            "placeholder",
+            "helper_text",
+            "helper_text_last_login_date",
+            "v8n_too_long",
+            "v8n_invalid_email",
+            "v8n_required"
+          ]
+        },
+        "is-anonymous": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Account type" },
+            "helper_text": {
+              "type": "string",
+              "default": "Guest customers dont't have access to Customer Portal. Once the account type is set, it can not be changed."
+            },
+            "option_true": { "type": "string", "default": "Guest" },
+            "option_false": { "type": "string", "default": "Registered" }
+          },
+          "required": ["label", "helper_text", "option_true", "option_false"]
+        },
+        "password": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Password" },
+            "placeholder": { "type": "string", "default": "Required" },
+            "placeholder_new": { "type": "string", "default": "Keep current password" },
+            "helper_text_new": {
+              "type": "string",
+              "default": "To change this customer's password, enter a new password here. If you leave it blank, their password will remain the same."
+            },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Please use a password that is no longer than 50 characters."
+            },
+            "v8n_too_weak": {
+              "type": "string",
+              "default": "Please use a stronger password. To make this password stronger, make it at least 8 characters long and include a few upper and lower case letters, numbers, and special characters."
+            },
+            "v8n_required": { "type": "string", "default": "Please fill out this field." }
+          },
+          "required": [
+            "label",
+            "placeholder",
+            "placeholder_new",
+            "helper_text_new",
+            "v8n_too_long",
+            "v8n_too_weak",
+            "v8n_required"
+          ]
+        },
+        "password-old": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Old password" },
+            "placeholder": { "type": "string", "default": "" },
+            "helper_text": {
+              "type": "string",
+              "default": "Enter the old password to set a new password. If you're a store admin, you can leave this field blank."
+            },
+            "v8n_required": { "type": "string", "default": "Please fill out this field." }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_required"]
+        },
+        "forgot-password": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "One-time code" },
+            "placeholder": { "type": "string", "default": "Not set" },
+            "helper_text": {
+              "type": "string",
+              "default": "Set a one-time code that this customer can use instead of a password to sign in. Keep in mind that this code will expire after 30 minutes."
+            },
+            "helper_text_expired_on": {
+              "type": "string",
+              "default": "A one-time code that this customer can use instead of a password to sign in. This code expired on {{ expiresOn, date }} at {{ expiresOn, time }}."
+            },
+            "helper_text_expires_in": {
+              "type": "string",
+              "default": "A one-time code that this customer can use instead of a password to sign in. This code will expire in {{ expiresInMin, relative }}."
+            },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Please use a code that is no longer than 50 characters."
+            }
+          },
+          "required": [
+            "label",
+            "placeholder",
+            "helper_text",
+            "helper_text_expired_on",
+            "helper_text_expires_in",
+            "v8n_too_long"
+          ]
+        },
+        "timestamps": {
+          "additionalProperties": false,
+          "properties": {
+            "date_created": { "type": "string", "default": "Created on" },
+            "date_modified": { "type": "string", "default": "Last updated on" },
+            "date": { "type": "string", "default": "{{value, date}}" }
+          },
+          "required": ["date_created", "date_modified", "date"]
+        },
+        "delete": {
+          "additionalProperties": false,
+          "properties": {
+            "delete": { "type": "string", "default": "Delete" },
+            "cancel": { "type": "string", "default": "Cancel" },
+            "delete_prompt": {
+              "type": "string",
+              "default": "This action is irreversible. Are you sure you want to delete this customer?"
+            }
+          },
+          "required": ["delete", "cancel", "delete_prompt"]
+        },
+        "create": {
+          "additionalProperties": false,
+          "properties": { "create": { "type": "string", "default": "Create" } },
+          "required": ["create"]
+        },
         "spinner": {
           "additionalProperties": false,
           "properties": {
+            "refresh": { "type": "string", "default": "Refresh" },
             "loading_busy": { "type": "string", "default": "Loading" },
-            "loading_error": { "type": "string", "default": "Failed to load" }
+            "loading_error": { "type": "string", "default": "Unknown error" }
           },
-          "required": ["loading_busy", "loading_error"]
+          "required": ["refresh", "loading_busy", "loading_error"]
         }
       },
       "required": [
-        "cancel",
-        "confirm",
-        "create",
-        "date",
-        "date_created",
-        "date_modified",
-        "delete",
-        "delete_prompt",
+        "status",
+        "error",
+        "first-name",
+        "last-name",
+        "tax-id",
         "email",
-        "first_name",
-        "last_name",
-        "tax_id",
-        "v8n_invalid_email",
-        "v8n_required",
-        "v8n_too_long",
+        "is-anonymous",
+        "password",
+        "password-old",
+        "forgot-password",
+        "timestamps",
+        "delete",
+        "create",
         "spinner"
       ]
     },
@@ -1592,7 +1969,7 @@
           "properties": {
             "loading_busy": { "type": "string", "default": "Loading" },
             "loading_empty": { "type": "string", "default": "No data" },
-            "loading_error": { "type": "string", "default": "Failed to load" }
+            "loading_error": { "type": "string", "default": "Unknown error" }
           },
           "required": ["loading_busy", "loading_empty", "loading_error"]
         }
@@ -1602,34 +1979,40 @@
     "spinner": {
       "additionalProperties": false,
       "properties": {
+        "refresh": { "type": "string", "default": "Refresh" },
         "loading_busy": { "type": "string", "default": "Loading" },
-        "loading_error": { "type": "string", "default": "Failed to load" }
+        "loading_error": { "type": "string", "default": "Unknown error" }
       },
-      "required": ["loading_busy", "loading_error"]
+      "required": ["refresh", "loading_busy", "loading_error"]
     },
     "subscription-form": {
       "additionalProperties": false,
       "properties": {
+        "day": { "type": "string", "default": "Day" },
+        "day_plural": { "type": "string", "default": "Days" },
+        "week": { "type": "string", "default": "Week" },
+        "week_plural": { "type": "string", "default": "Weeks" },
+        "month": { "type": "string", "default": "Month" },
+        "month_plural": { "type": "string", "default": "Months" },
+        "year": { "type": "string", "default": "Year" },
+        "year_plural": { "type": "string", "default": "Years" },
         "cancel": { "type": "string", "default": "Cancel" },
         "close": { "type": "string", "default": "Close" },
         "confirm": { "type": "string", "default": "Confirm" },
         "currency": { "type": "string", "default": "Currency" },
         "daily": { "type": "string", "default": "Daily" },
         "daily_plural": { "type": "string", "default": "Every {{count}} days" },
-        "day": { "type": "string", "default": "Day" },
-        "day_plural": { "type": "string", "default": "Days" },
-        "end_subscription": { "type": "string", "default": "End subscription" },
+        "end_date": { "type": "string", "default": "End date" },
         "frequency": {
           "type": "string",
           "default": "$t(subscription-form.{{units}}, { \"count\": {{count}}, \"ns\": \"customer\" })"
         },
         "frequency_label": { "type": "string", "default": "Frequency" },
         "item_plural": { "type": "string", "default": "Items" },
-        "month": { "type": "string", "default": "Month" },
-        "month_plural": { "type": "string", "default": "Months" },
         "monthly": { "type": "string", "default": "Monthly" },
         "monthly_plural": { "type": "string", "default": "Every {{count}} months" },
         "next_transaction_date": { "type": "string", "default": "Next transaction date" },
+        "start_date": { "type": "string", "default": "Start date" },
         "price_recurring": {
           "type": "string",
           "default": "{{amount, price}} $t(subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer\" })"
@@ -1638,11 +2021,30 @@
           "type": "string",
           "default": "{{amount, price}} $t(subscription-form.twice_a_month, { \"ns\": \"customer\" })"
         },
-        "subscription_active": { "type": "string", "default": "Next payment on {{date, date}}" },
-        "subscription_cancelled": { "type": "string", "default": "Ended on {{date, date}}" },
-        "subscription_failed": { "type": "string", "default": "Payment failed on {{date, date}}" },
-        "subscription_inactive": { "type": "string", "default": "Inactive" },
-        "subscription_will_be_cancelled": { "type": "string", "default": "Ends on {{date, date}}" },
+        "subscription_active": {
+          "type": "string",
+          "default": "Including shipping, taxes, etc. Next payment on {{date, date}}."
+        },
+        "subscription_cancelled": {
+          "type": "string",
+          "default": "Including shipping, taxes, etc. Ended on {{date, date}}."
+        },
+        "subscription_failed": {
+          "type": "string",
+          "default": "Including shipping, taxes, etc. Payment failed on {{date, date}}."
+        },
+        "subscription_inactive": {
+          "type": "string",
+          "default": "Including shipping, taxes, etc. Inactive."
+        },
+        "subscription_will_be_cancelled": {
+          "type": "string",
+          "default": "Including shipping, taxes, etc. Ends on {{date, date}}."
+        },
+        "subscription_will_be_active": {
+          "type": "string",
+          "default": "Including shipping, taxes, etc. Starts on {{date, date}}."
+        },
         "transaction_plural": { "type": "string", "default": "Transactions" },
         "twice_a_month": { "type": "string", "default": "Twice a month" },
         "undo_cancel": { "type": "string", "default": "Review" },
@@ -1652,118 +2054,387 @@
           "type": "string",
           "default": "Looks like you didn't save your changes! What would you like to do with them?"
         },
-        "week": { "type": "string", "default": "Week" },
-        "week_plural": { "type": "string", "default": "Weeks" },
         "weekly": { "type": "string", "default": "Weekly" },
         "weekly_plural": { "type": "string", "default": "Every {{count}} weeks" },
-        "year": { "type": "string", "default": "Year" },
-        "year_plural": { "type": "string", "default": "Years" },
         "yearly": { "type": "string", "default": "Yearly" },
         "yearly_plural": { "type": "string", "default": "Every {{count}} years" },
-        "cancellation-form": {
+        "customer": {
           "additionalProperties": false,
           "properties": {
-            "end_date": { "type": "string", "default": "End date" },
-            "end_subscription": { "type": "string", "default": "End subscription" },
-            "end_subscription_explainer": {
-              "type": "string",
-              "default": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later."
-            },
-            "v8n_required": { "type": "string", "default": "Required" },
+            "label": { "type": "string", "default": "Customer" },
             "spinner": {
               "additionalProperties": false,
               "properties": {
                 "loading_busy": { "type": "string", "default": "Loading" },
-                "loading_error": { "type": "string", "default": "Failed to load" }
+                "loading_error": { "type": "string", "default": "Unknown error" }
               },
               "required": ["loading_busy", "loading_error"]
             }
           },
+          "required": ["label", "spinner"]
+        },
+        "past-due-amount": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Past due amount" },
+            "placeholder": { "type": "string", "default": "" },
+            "helper_text": {
+              "type": "string",
+              "default": "If a subscription payment is missed, this amount will be increased by that payment. The next time the subscription runs, it may be charged automatically depending on your store's subscription settings."
+            }
+          },
+          "required": ["label", "placeholder", "helper_text"]
+        },
+        "attributes": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Attributes" },
+            "delete_confirm": { "type": "string", "default": "Delete" },
+            "delete_cancel": { "type": "string", "default": "Cancel" },
+            "delete_message": {
+              "type": "string",
+              "default": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
+            },
+            "delete_header": { "type": "string", "default": "Delete attribute?" },
+            "pagination": {
+              "additionalProperties": false,
+              "properties": {
+                "create_button_text": { "type": "string", "default": "Add attribute +" },
+                "first": { "type": "string", "default": "First" },
+                "last": { "type": "string", "default": "Last" },
+                "next": { "type": "string", "default": "Next" },
+                "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+                "previous": { "type": "string", "default": "Previous" },
+                "card": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "delete_button_text": { "type": "string", "default": "Remove" },
+                    "spinner": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "loading_busy": { "type": "string", "default": "Loading" },
+                        "loading_empty": { "type": "string", "default": "No attributes" },
+                        "loading_error": { "type": "string", "default": "Unknown error" }
+                      },
+                      "required": ["loading_busy", "loading_empty", "loading_error"]
+                    }
+                  },
+                  "required": ["delete_button_text", "spinner"]
+                }
+              },
+              "required": [
+                "create_button_text",
+                "first",
+                "last",
+                "next",
+                "pagination",
+                "previous",
+                "card"
+              ]
+            },
+            "dialog": {
+              "additionalProperties": false,
+              "properties": {
+                "close": { "type": "string", "default": "Close" },
+                "header_update": { "type": "string", "default": "Attribute" },
+                "header_create": { "type": "string", "default": "New attribute" },
+                "save": { "type": "string", "default": "Save" },
+                "undo_header": { "type": "string", "default": "Unsaved changes" },
+                "undo_message": {
+                  "type": "string",
+                  "default": "Looks like you didn't save your changes! What would you like to do with them?"
+                },
+                "undo_cancel": { "type": "string", "default": "Review" },
+                "undo_confirm": { "type": "string", "default": "Discard" },
+                "cancel": { "type": "string", "default": "Cancel" },
+                "confirm": { "type": "string", "default": "Confirm" },
+                "create": { "type": "string", "default": "Create" },
+                "date": { "type": "string", "default": "{{value, date}}" },
+                "date_created": { "type": "string", "default": "Created on" },
+                "date_modified": { "type": "string", "default": "Last updated on" },
+                "delete": { "type": "string", "default": "Delete" },
+                "delete_prompt": {
+                  "type": "string",
+                  "default": "This attribute will be permanently removed. Are you sure?"
+                },
+                "name": { "type": "string", "default": "Name" },
+                "v8n_required": { "type": "string", "default": "Required" },
+                "v8n_too_long": { "type": "string", "default": "Too long" },
+                "value": { "type": "string", "default": "Value" },
+                "visibility": { "type": "string", "default": "Visibility" },
+                "visibility_private": { "type": "string", "default": "Only me" },
+                "visibility_public": { "type": "string", "default": "Everyone" },
+                "visibility_restricted": { "type": "string", "default": "Store admins" },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "refresh": { "type": "string", "default": "Refresh" },
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_error": { "type": "string", "default": "Unknown error" }
+                  },
+                  "required": ["refresh", "loading_busy", "loading_error"]
+                }
+              },
+              "required": [
+                "close",
+                "header_update",
+                "header_create",
+                "save",
+                "undo_header",
+                "undo_message",
+                "undo_cancel",
+                "undo_confirm",
+                "cancel",
+                "confirm",
+                "create",
+                "date",
+                "date_created",
+                "date_modified",
+                "delete",
+                "delete_prompt",
+                "name",
+                "v8n_required",
+                "v8n_too_long",
+                "value",
+                "visibility",
+                "visibility_private",
+                "visibility_public",
+                "visibility_restricted",
+                "spinner"
+              ]
+            }
+          },
           "required": [
-            "end_date",
-            "end_subscription",
-            "end_subscription_explainer",
-            "v8n_required",
-            "spinner"
+            "label",
+            "delete_confirm",
+            "delete_cancel",
+            "delete_message",
+            "delete_header",
+            "pagination",
+            "dialog"
           ]
+        },
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "pagination": {
+              "additionalProperties": false,
+              "properties": {
+                "first": { "type": "string", "default": "First" },
+                "last": { "type": "string", "default": "Last" },
+                "next": { "type": "string", "default": "Next" },
+                "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+                "previous": { "type": "string", "default": "Previous" },
+                "card": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "daily": { "type": "string", "default": "Daily" },
+                    "daily_plural": { "type": "string", "default": "Every {{count}} days" },
+                    "frequency": {
+                      "type": "string",
+                      "default": "$t(subscription-form.pagination.card.{{units}}, { \"count\": {{count}}, \"ns\": \"customer\" })"
+                    },
+                    "monthly": { "type": "string", "default": "Monthly" },
+                    "monthly_plural": { "type": "string", "default": "Every {{count}} months" },
+                    "subinfo_recurring": {
+                      "type": "string",
+                      "default": "$t(subscription-form.pagination.card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer\" }) from {{startDate, date}}"
+                    },
+                    "subinfo_twice_a_month": {
+                      "type": "string",
+                      "default": "$t(subscription-form.pagination.card.twice_a_month, { \"ns\": \"customer\" }) from {{startDate, date}}"
+                    },
+                    "twice_a_month": { "type": "string", "default": "Twice a month" },
+                    "no_code": { "type": "string", "default": "No SKU" },
+                    "weekly": { "type": "string", "default": "Weekly" },
+                    "weekly_plural": { "type": "string", "default": "Every {{count}} weeks" },
+                    "yearly": { "type": "string", "default": "Yearly" },
+                    "yearly_plural": { "type": "string", "default": "Every {{count}} years" },
+                    "price": { "type": "string", "default": "{{amount, price}}" },
+                    "spinner": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "loading_busy": { "type": "string", "default": "Loading" },
+                        "loading_empty": { "type": "string", "default": "No items" },
+                        "loading_error": { "type": "string", "default": "Unknown error" }
+                      },
+                      "required": ["loading_busy", "loading_empty", "loading_error"]
+                    }
+                  },
+                  "required": [
+                    "daily",
+                    "daily_plural",
+                    "frequency",
+                    "monthly",
+                    "monthly_plural",
+                    "subinfo_recurring",
+                    "subinfo_twice_a_month",
+                    "twice_a_month",
+                    "no_code",
+                    "weekly",
+                    "weekly_plural",
+                    "yearly",
+                    "yearly_plural",
+                    "price",
+                    "spinner"
+                  ]
+                }
+              },
+              "required": ["first", "last", "next", "pagination", "previous", "card"]
+            }
+          },
+          "required": ["pagination"]
+        },
+        "transactions": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Transactions" },
+            "pagination": {
+              "additionalProperties": false,
+              "properties": {
+                "first": { "type": "string", "default": "First" },
+                "last": { "type": "string", "default": "Last" },
+                "next": { "type": "string", "default": "Next" },
+                "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+                "previous": { "type": "string", "default": "Previous" },
+                "card": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": { "type": "string", "default": "Code" },
+                    "customer": { "type": "string", "default": "Customer" },
+                    "description": { "type": "string", "default": "Description" },
+                    "price": { "type": "string", "default": "{{amount, price}}" },
+                    "time": { "type": "string", "default": "{{value, date}}" },
+                    "status_capturing": { "type": "string", "default": "Capturing" },
+                    "status_captured": { "type": "string", "default": "Captured" },
+                    "status_approved": { "type": "string", "default": "Approved" },
+                    "status_authorized": { "type": "string", "default": "Authorized" },
+                    "status_pending": { "type": "string", "default": "Pending" },
+                    "status_completed": { "type": "string", "default": "Completed" },
+                    "status_problem": { "type": "string", "default": "Problem" },
+                    "status_pending_fraud_review": {
+                      "type": "string",
+                      "default": "Pending_fraud_review"
+                    },
+                    "status_rejected": { "type": "string", "default": "Rejected" },
+                    "status_declined": { "type": "string", "default": "Declined" },
+                    "status_refunding": { "type": "string", "default": "Refunding" },
+                    "status_refunded": { "type": "string", "default": "Refunded" },
+                    "status_voided": { "type": "string", "default": "Voided" },
+                    "status_verified": { "type": "string", "default": "Verified" },
+                    "summary": { "type": "string", "default": "{{most_expensive_item.name}}" },
+                    "summary_plural": {
+                      "type": "string",
+                      "default": "{{most_expensive_item.name}} and {{count_minus_one}} more"
+                    },
+                    "summary_payment_method_change": {
+                      "type": "string",
+                      "default": "Payment method change"
+                    },
+                    "summary_subscription_modification": {
+                      "type": "string",
+                      "default": "Subscription modification"
+                    },
+                    "summary_subscription_cancellation": {
+                      "type": "string",
+                      "default": "Subscription cancellation"
+                    },
+                    "source_MIT": {
+                      "type": "string",
+                      "default": "This transaction was initiated by the merchant"
+                    },
+                    "source_CIT": {
+                      "type": "string",
+                      "default": "This transaction was initiated by the customer"
+                    },
+                    "spinner": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "loading_busy": { "type": "string", "default": "Loading" },
+                        "loading_empty": { "type": "string", "default": "No transactions" },
+                        "loading_error": { "type": "string", "default": "Unknown error" }
+                      },
+                      "required": ["loading_busy", "loading_empty", "loading_error"]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "customer",
+                    "description",
+                    "price",
+                    "time",
+                    "status_capturing",
+                    "status_captured",
+                    "status_approved",
+                    "status_authorized",
+                    "status_pending",
+                    "status_completed",
+                    "status_problem",
+                    "status_pending_fraud_review",
+                    "status_rejected",
+                    "status_declined",
+                    "status_refunding",
+                    "status_refunded",
+                    "status_voided",
+                    "status_verified",
+                    "summary",
+                    "summary_plural",
+                    "summary_payment_method_change",
+                    "summary_subscription_modification",
+                    "summary_subscription_cancellation",
+                    "source_MIT",
+                    "source_CIT",
+                    "spinner"
+                  ]
+                }
+              },
+              "required": ["first", "last", "next", "pagination", "previous", "card"]
+            }
+          },
+          "required": ["label", "pagination"]
         },
         "spinner": {
           "additionalProperties": false,
           "properties": {
+            "refresh": { "type": "string", "default": "Refresh" },
             "loading_busy": { "type": "string", "default": "Loading" },
-            "loading_error": { "type": "string", "default": "Failed to load" }
+            "loading_error": { "type": "string", "default": "Unknown error" }
           },
-          "required": ["loading_busy", "loading_error"]
+          "required": ["refresh", "loading_busy", "loading_error"]
         },
-        "transactions-table": {
+        "timestamps": {
           "additionalProperties": false,
           "properties": {
-            "date": { "type": "string", "default": "{{value, date}}" },
-            "price": { "type": "string", "default": "{{amount, price}}" },
-            "receipt": { "type": "string", "default": "Receipt" },
-            "transaction_approved": { "type": "string", "default": "Approved" },
-            "transaction_authorized": { "type": "string", "default": "Authorized" },
-            "transaction_captured": { "type": "string", "default": "Captured" },
-            "transaction_completed": { "type": "string", "default": "Completed" },
-            "transaction_declined": { "type": "string", "default": "Declined" },
-            "transaction_pending": { "type": "string", "default": "Pending" },
-            "transaction_refunded": { "type": "string", "default": "Refunded" },
-            "transaction_rejected": { "type": "string", "default": "Rejected" },
-            "transaction_summary": { "type": "string", "default": "{{most_expensive_item.name}}" },
-            "transaction_summary_plural": {
-              "type": "string",
-              "default": "{{most_expensive_item.name}} and {{count_minus_one}} more"
-            },
-            "transaction_verified": { "type": "string", "default": "Verified" },
-            "transaction_voided": { "type": "string", "default": "Voided" },
-            "spinner": {
-              "additionalProperties": false,
-              "properties": {
-                "loading_busy": { "type": "string", "default": "Loading" },
-                "loading_empty": { "type": "string", "default": "No data" },
-                "loading_error": { "type": "string", "default": "Failed to load" }
-              },
-              "required": ["loading_busy", "loading_empty", "loading_error"]
-            }
+            "date_created": { "type": "string", "default": "Created on" },
+            "date_modified": { "type": "string", "default": "Last updated on" },
+            "date": { "type": "string", "default": "{{value, date}}" }
           },
-          "required": [
-            "date",
-            "price",
-            "receipt",
-            "transaction_approved",
-            "transaction_authorized",
-            "transaction_captured",
-            "transaction_completed",
-            "transaction_declined",
-            "transaction_pending",
-            "transaction_refunded",
-            "transaction_rejected",
-            "transaction_summary",
-            "transaction_summary_plural",
-            "transaction_verified",
-            "transaction_voided",
-            "spinner"
-          ]
+          "required": ["date_created", "date_modified", "date"]
         }
       },
       "required": [
+        "day",
+        "day_plural",
+        "week",
+        "week_plural",
+        "month",
+        "month_plural",
+        "year",
+        "year_plural",
         "cancel",
         "close",
         "confirm",
         "currency",
         "daily",
         "daily_plural",
-        "day",
-        "day_plural",
-        "end_subscription",
+        "end_date",
         "frequency",
         "frequency_label",
         "item_plural",
-        "month",
-        "month_plural",
         "monthly",
         "monthly_plural",
         "next_transaction_date",
+        "start_date",
         "price_recurring",
         "price_twice_a_month",
         "subscription_active",
@@ -1771,23 +2442,24 @@
         "subscription_failed",
         "subscription_inactive",
         "subscription_will_be_cancelled",
+        "subscription_will_be_active",
         "transaction_plural",
         "twice_a_month",
         "undo_cancel",
         "undo_confirm",
         "undo_header",
         "undo_message",
-        "week",
-        "week_plural",
         "weekly",
         "weekly_plural",
-        "year",
-        "year_plural",
         "yearly",
         "yearly_plural",
-        "cancellation-form",
+        "customer",
+        "past-due-amount",
+        "attributes",
+        "items",
+        "transactions",
         "spinner",
-        "transactions-table"
+        "timestamps"
       ]
     },
     "subscriptions-table": {
@@ -1814,6 +2486,7 @@
         "subscription_failed": { "type": "string", "default": "Payment failed on {{date, date}}" },
         "subscription_inactive": { "type": "string", "default": "Inactive" },
         "subscription_will_be_cancelled": { "type": "string", "default": "Ends on {{date, date}}" },
+        "subscription_will_be_active": { "type": "string", "default": "Starts on {{date, date}}" },
         "transaction_summary": { "type": "string", "default": "{{most_expensive_item.name}}" },
         "twice_a_month": { "type": "string", "default": "Twice a month" },
         "update": { "type": "string", "default": "Update" },
@@ -1824,11 +2497,12 @@
         "spinner": {
           "additionalProperties": false,
           "properties": {
+            "refresh": { "type": "string", "default": "Refresh" },
             "loading_busy": { "type": "string", "default": "Loading" },
             "loading_empty": { "type": "string", "default": "No data" },
-            "loading_error": { "type": "string", "default": "Failed to load" }
+            "loading_error": { "type": "string", "default": "Unknown error" }
           },
-          "required": ["loading_busy", "loading_empty", "loading_error"]
+          "required": ["refresh", "loading_busy", "loading_empty", "loading_error"]
         }
       },
       "required": [
@@ -1844,6 +2518,7 @@
         "subscription_failed",
         "subscription_inactive",
         "subscription_will_be_cancelled",
+        "subscription_will_be_active",
         "transaction_summary",
         "twice_a_month",
         "update",
@@ -1878,11 +2553,12 @@
         "spinner": {
           "additionalProperties": false,
           "properties": {
+            "refresh": { "type": "string", "default": "Refresh" },
             "loading_busy": { "type": "string", "default": "Loading" },
             "loading_empty": { "type": "string", "default": "No data" },
-            "loading_error": { "type": "string", "default": "Failed to load" }
+            "loading_error": { "type": "string", "default": "Unknown error" }
           },
-          "required": ["loading_busy", "loading_empty", "loading_error"]
+          "required": ["refresh", "loading_busy", "loading_empty", "loading_error"]
         }
       },
       "required": [

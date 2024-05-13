@@ -445,12 +445,12 @@ export const defaults: Defaults = {
   customer_portal_settings: (query, dataset) => ({
     id: increment('customer_portal_settings', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
-    session_lifespan_in_minutes: 0,
-    allowed_origins: [],
+    sessionLifespanInMinutes: 0,
+    allowedOrigins: [],
     sso: false,
     subscriptions: {
-      allow_frequency_modification: [],
-      allow_next_date_modification: [],
+      allowFrequencyModification: [],
+      allowNextDateModification: [],
     },
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
@@ -577,6 +577,17 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
+  coupon_attributes: (query, dataset) => ({
+    id: increment('coupon_attributes', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    coupon_id: parseInt(query.get('coupon_id') ?? '0'),
+    name: '',
+    value: '',
+    visibility: 'private',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
   coupon_item_categories: (query, dataset) => ({
     id: increment('coupon_item_categories', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
@@ -599,6 +610,17 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
+  gift_card_attributes: (query, dataset) => ({
+    id: increment('gift_card_attributes', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    gift_card_id: parseInt(query.get('gift_card_id') ?? '0'),
+    name: '',
+    value: '',
+    visibility: 'private',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
   gift_card_codes: (query, dataset) => ({
     id: increment('gift_card_codes', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
@@ -613,6 +635,20 @@ export const defaults: Defaults = {
 
   gift_card_code_logs: (query, dataset) => ({
     id: increment('gift_card_code_logs', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    gift_card_id: parseInt(query.get('gift_card_id') ?? '0'),
+    gift_card_code_id: parseInt(query.get('gift_card_code_id') ?? '0'),
+    transaction_id: null,
+    external_id: null,
+    balance_adjustment: 0,
+    user_id: null,
+    source: null,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  applied_gift_card_codes: (query, dataset) => ({
+    id: increment('applied_gift_card_codes', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     gift_card_id: parseInt(query.get('gift_card_id') ?? '0'),
     gift_card_code_id: parseInt(query.get('gift_card_code_id') ?? '0'),
@@ -1019,6 +1055,15 @@ export const defaults: Defaults = {
     coupon_id: parseInt(query.get('coupon_id') ?? '0'),
     coupon_code_id: parseInt(query.get('coupon_code_id') ?? '0'),
     code: '',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  native_integrations: (query, dataset) => ({
+    id: increment('native_integrations', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    provider: '',
+    config: '',
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),

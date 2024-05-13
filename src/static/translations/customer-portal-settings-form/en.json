@@ -1,0 +1,300 @@
+{
+  "session-lifespan-in-minutes": {
+    "label": "Session lifespan",
+    "option_minute": "Minute",
+    "option_minute_plural": "Minutes",
+    "option_hour": "Hour",
+    "option_hour_plural": "Hours",
+    "option_day": "Day",
+    "option_day_plural": "Days",
+    "option_week": "Week",
+    "option_week_plural": "Weeks",
+    "helper_text": "The maximum time a customer can be logged in without activity.",
+    "v8n_too_long": "We limit session lifespan to 4 weeks for security reasons. Please select a smaller value."
+  },
+  "allowed-origins": {
+    "label": "Allowed origins",
+    "helper_text": "The list of origins that are allowed to access the Customer Portal API. Must be https unless it's localhost. You can add up to 10 origins in this section.",
+    "placeholder": "Enter an origin and press Enter",
+    "v8n_invalid": "Some of the origins you've entered are invalid. Please check the items marked with ⚠️ and correct them.",
+    "v8n_too_many": "We support up to 10 origins. Please remove some of them."
+  },
+  "jwt-shared-secret": {
+    "label": "JWT shared secret",
+    "placeholder": "Leave empty to generate automatically",
+    "helper_text": "We use this key to sign customer JWTs. Changing it will drop all active sessions.",
+    "v8n_invalid": "Only letters (a-z), numbers (0-9) and dashes (-) are allowed in this field.",
+    "v8n_too_short": "This value must be at least 40 characters long.",
+    "v8n_too_long": "This value can't exceed 100 characters."
+  },
+  "features": {
+    "label": "Features",
+    "option_sso": "SSO (single sign-on)",
+    "option_sign_up": "Customer registration",
+    "option_frequency_modification": "Frequency changes for subscriptions",
+    "option_next_date_modification": "Next payment date changes for subscriptions",
+    "helper_text": ""
+  },
+  "sign-up-verification-hcaptcha-site-key": {
+    "label": "hCaptcha site key",
+    "placeholder": "Provided by Foxy",
+    "helper_text": "By default, we use our own hCaptcha site key for all portal installs. If you have a hCaptcha account and would like to use your own key, enter it here.",
+    "v8n_too_long": "This value can't exceed 100 characters."
+  },
+  "sign-up-verification-hcaptcha-secret-key": {
+    "label": "hCaptcha secret key",
+    "placeholder": "Provided by Foxy",
+    "helper_text": "By default, we use our own hCaptcha secret key for all portal installs. If you have a hCaptcha account and would like to use your own key, enter it here.",
+    "v8n_too_long": "This value can't exceed 100 characters."
+  },
+  "subscriptions-allow-frequency-modification": {
+    "label": "Frequency options",
+    "helper_text": "Customize how your customers can change the payment schedule of their subscriptions. You can add up to 10 rules in this section.",
+    "delete_header": "Remove this rule?",
+    "delete_message": "Please confirm that you'd like to remove this rule.",
+    "delete_confirm": "Remove",
+    "delete_cancel": "Cancel",
+    "dialog": {
+      "header_create": "Add rule",
+      "header_update": "Edit rule",
+      "close": "Close",
+      "save": "Save",
+      "cancel": "Cancel",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "jsonata-query": {
+        "label": "JSONata query",
+        "placeholder": "Enter * to match all subscriptions",
+        "helper_text": "This rule will apply only to subscriptions that match this query. We will run this query against the standard fx:subscription object.",
+        "v8n_required": "Please enter a JSONata expression. You can use * to match all subscriptions.",
+        "v8n_too_long": "Please limit your query to 200 characters."
+      },
+      "values": {
+        "label": "Values",
+        "unit_years": "Years",
+        "unit_months": "Months",
+        "unit_weeks": "Weeks",
+        "unit_days": "Days",
+        "twice_a_week": "Twice a week",
+        "yearly": "Yearly",
+        "yearly_plural": "Every {{ count }} years",
+        "weekly": "Weekly",
+        "weekly_plural": "Every {{ count }} weeks",
+        "monthly": "Monthly",
+        "monthly_plural": "Every {{ count }} months",
+        "daily": "Daily",
+        "daily_plural": "Every {{ count }} days",
+        "placeholder": "Enter a number",
+        "helper_text": "The frequency options that will be available to the customer. You can add up to 20 options.",
+        "v8n_required": "Please enter at least one value.",
+        "v8n_too_long": "Only up to 20 values are allowed. Please remove some of them to proceed."
+      },
+      "delete": {
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "delete_prompt": "Please confirm that you'd like to remove this rule."
+      },
+      "create": {
+        "create": "Create"
+      },
+      "spinner": {
+        "refresh": "Refresh",
+        "loading_busy": "Loading",
+        "loading_error": "Unknown error"
+      }
+    },
+    "pagination": {
+      "create_button_text": "Add rule +",
+      "card": {
+        "delete_button_text": "Delete",
+        "title_all": "All subscriptions",
+        "title_matching": "Matching {{ query }}",
+        "subtitle_empty": "No options",
+        "subtitle_list": "{{ list }}",
+        "twice_a_week": "Twice a week",
+        "yearly": "Yearly",
+        "yearly_plural": "Every {{ count }} years",
+        "weekly": "Weekly",
+        "weekly_plural": "Every {{ count }} weeks",
+        "monthly": "Monthly",
+        "monthly_plural": "Every {{ count }} months",
+        "daily": "Daily",
+        "daily_plural": "Every {{ count }} days",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No rules",
+          "loading_error": "Unknown error"
+        }
+      },
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous"
+    }
+  },
+  "subscriptions-allow-next-date-modification": {
+    "label": "Next payment date options",
+    "helper_text": "Customize how your customers can change the next payment date of their subscriptions. You can add up to 10 rules in this section.",
+    "delete_header": "Remove this rule?",
+    "delete_message": "Please confirm that you'd like to remove this rule.",
+    "delete_confirm": "Remove",
+    "delete_cancel": "Cancel",
+    "dialog": {
+      "header_create": "Add rule",
+      "header_update": "Edit rule",
+      "close": "Close",
+      "save": "Save",
+      "cancel": "Cancel",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "jsonata-query": {
+        "label": "JSONata query",
+        "placeholder": "Enter * to match all subscriptions",
+        "helper_text": "This rule will apply only to subscriptions that match this query. We will run this query against the standard fx:subscription object.",
+        "v8n_required": "Please enter a JSONata expression. You can use * to match all subscriptions.",
+        "v8n_too_long": "Please limit your query to 200 characters."
+      },
+      "minmax-restrictions": {
+        "label": "Range restrictions",
+        "option_min": "Minimum",
+        "option_max": "Maximum",
+        "helper_text": "Prevent customers from setting the next payment date too close to the current date or too far in the future. You will be able to customize the exact values below."
+      },
+      "min": {
+        "label": "Minimum",
+        "day": "Day",
+        "day_plural": "Days",
+        "week": "Week",
+        "week_plural": "Weeks",
+        "month": "Month",
+        "month_plural": "Months",
+        "year": "Year",
+        "year_plural": "Years",
+        "helper_text": "Select the period during which the next payment date can't be set."
+      },
+      "max": {
+        "label": "Maximum",
+        "day": "Day",
+        "day_plural": "Days",
+        "week": "Week",
+        "week_plural": "Weeks",
+        "month": "Month",
+        "month_plural": "Months",
+        "year": "Year",
+        "year_plural": "Years",
+        "helper_text": "Select the period after which the next payment date can't be set."
+      },
+      "day-and-date-restrictions": {
+        "label": "Day and date restrictions",
+        "option_none": "None",
+        "option_days": "Days of week",
+        "option_dates": "Dates of month",
+        "helper_text": "Opt to restrict the next payment date to a specific day of the week or date of the month. You will be able to customize the exact values below."
+      },
+      "days-of-week": {
+        "label": "Allowed days of week",
+        "option_1": "Monday",
+        "option_2": "Tuesday",
+        "option_3": "Wednesday",
+        "option_4": "Thursday",
+        "option_5": "Friday",
+        "option_6": "Saturday",
+        "option_7": "Sunday",
+        "helper_text": "Select all days of week that the next payment date can be set to."
+      },
+      "dates-of-month": {
+        "label": "Allowed dates of month",
+        "placeholder": "Enter a date (e.g. 14) and press Enter",
+        "helper_text": "Add all dates of month that the next payment date can be set to."
+      },
+      "disallowed-dates": {
+        "label": "Disallowed dates",
+        "range_from": "From",
+        "range_to": "To",
+        "range": "{{ from, date }} – {{ to, date }}",
+        "single": "{{ value, date }}",
+        "placeholder": "Enter a date",
+        "helper_text": "Prevent customers from setting the next payment date to specific dates or date ranges. You can add up to 10 items in this section.",
+        "v8n_too_long": "Only up to 10 values are allowed. Please remove some of them to proceed."
+      },
+      "delete": {
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "delete_prompt": "Please confirm that you'd like to remove this rule."
+      },
+      "create": {
+        "create": "Create"
+      },
+      "spinner": {
+        "refresh": "Refresh",
+        "loading_busy": "Loading",
+        "loading_error": "Unknown error"
+      }
+    },
+    "pagination": {
+      "create_button_text": "Add rule +",
+      "card": {
+        "delete_button_text": "Delete",
+        "line_1_all": "All subscriptions",
+        "line_1_matching": "Matching {{ query }}",
+        "line_2": "Range: {{ from }} – {{ to }}",
+        "line_3_month": "Allowed dates: {{ list }}",
+        "line_3_day": "Allowed days: {{ list }}",
+        "line_3_any": "Allowed dates and days: any",
+        "line_4_some": "Excluded: {{ list }}",
+        "line_4_none": "Excluded: none",
+        "any": "any",
+        "unit_y": "{{ count }} year",
+        "unit_y_plural": "{{ count }} years",
+        "unit_m": "{{ count }} month",
+        "unit_m_plural": "{{ count }} months",
+        "unit_w": "{{ count }} week",
+        "unit_w_plural": "{{ count }} weeks",
+        "unit_d": "{{ count }} day",
+        "unit_d_plural": "{{ count }} days",
+        "day_1": "Monday",
+        "day_2": "Tuesday",
+        "day_3": "Wednesday",
+        "day_4": "Thursday",
+        "day_5": "Friday",
+        "day_6": "Saturday",
+        "day_7": "Sunday",
+        "single_date": "{{ value, date }}",
+        "date_range": "{{ from, date }} – {{ to, date }}",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No rules",
+          "loading_error": "Unknown error"
+        }
+      },
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous"
+    }
+  },
+  "timestamps": {
+    "date_created": "Enabled on",
+    "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Disable",
+    "cancel": "Cancel",
+    "delete_prompt": "Disabling Customer Portal will erase the configuration and disable the related APIs. Would you like to proceed?"
+  },
+  "create": {
+    "create": "Enable"
+  },
+  "spinner": {
+    "refresh": "Refresh",
+    "loading_busy": "Loading",
+    "loading_error": "Unknown error"
+  }
+}

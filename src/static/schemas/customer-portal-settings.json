@@ -176,6 +176,33 @@
       },
       "required": ["title", "subtitle"]
     },
+    "sign_up": {
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "default": "Enable customer registration" },
+        "subtitle": {
+          "type": "string",
+          "default": "Add a sign up form to your portal and enable the API"
+        },
+        "hcaptcha_explainer": {
+          "type": "string",
+          "default": "By default, Customer Portal uses Foxy's hCaptcha account to protect the sign up form. If you'd like to use your own hCaptcha account, please enter your site key and secret key above."
+        },
+        "site_key_label": { "type": "string", "default": "hCaptcha site key" },
+        "site_key_placeholder": { "type": "string", "default": "Use Foxy default" },
+        "secret_key_label": { "type": "string", "default": "hCaptcha secret key" },
+        "secret_key_placeholder": { "type": "string", "default": "Use Foxy default" }
+      },
+      "required": [
+        "title",
+        "subtitle",
+        "hcaptcha_explainer",
+        "site_key_label",
+        "site_key_placeholder",
+        "secret_key_label",
+        "secret_key_placeholder"
+      ]
+    },
     "jwt": {
       "additionalProperties": false,
       "properties": {
@@ -232,6 +259,7 @@
     "fmod",
     "ndmod",
     "sso",
+    "sign_up",
     "jwt",
     "session",
     "advanced"

@@ -1,37 +1,24 @@
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+
+import './index';
+
 import { expect, fixture, waitUntil } from '@open-wc/testing';
-import { html } from 'lit-html';
-import { stub } from 'sinon';
 import { createRouter } from '../../../server/index';
+import { ShipmentCard } from './ShipmentCard';
 import { getByKey } from '../../../testgen/getByKey';
-import { InternalAsyncDetailsControl } from '../../internal/InternalAsyncDetailsControl';
-import { FormDialog } from '../FormDialog';
-import { FormRenderer } from '../FormDialog/types';
-import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { ShipmentCard } from './index';
+import { html } from 'lit-html';
 
 describe('ShipmentCard', () => {
-  it('imports and defines foxy-internal-async-details-control', () => {
-    expect(customElements.get('foxy-internal-async-details-control')).to.exist;
-  });
-
   it('imports and defines foxy-internal-card', () => {
     expect(customElements.get('foxy-internal-card')).to.exist;
   });
 
-  it('imports and defines foxy-item-card', () => {
-    expect(customElements.get('foxy-item-card')).to.exist;
-  });
-
-  it('imports and defines foxy-item-form', () => {
-    expect(customElements.get('foxy-item-form')).to.exist;
+  it('imports and defines foxy-nucleon', () => {
+    expect(customElements.get('foxy-nucleon')).to.exist;
   });
 
   it('imports and defines foxy-i18n', () => {
     expect(customElements.get('foxy-i18n')).to.exist;
-  });
-
-  it('imports and defines iron-icon', () => {
-    expect(customElements.get('iron-icon')).to.exist;
   });
 
   it('imports and defines itself as foxy-shipment-card', () => {
@@ -48,12 +35,12 @@ describe('ShipmentCard', () => {
       </foxy-shipment-card>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.isBodyReady);
     const address = await getByKey(element, 'full_address');
     const { address_name, address1, address2, city, region, postal_code } = element.data!;
 
     expect(address).to.exist;
-    expect(address).to.have.attribute('infer', 'address');
+    expect(address).to.have.attribute('infer', '');
     expect(address).to.have.deep.property('options', {
       address_name,
       address1,
@@ -74,11 +61,11 @@ describe('ShipmentCard', () => {
       </foxy-shipment-card>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.isBodyReady);
 
     element.data!.shipping_service_description = 'Test service';
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.include.text('Test service');
   });
@@ -93,86 +80,58 @@ describe('ShipmentCard', () => {
       </foxy-shipment-card>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.isBodyReady);
 
     element.data!.total_shipping = 123;
     element.data = { ...element.data! };
 
-    await element.updateComplete;
+    await element.requestUpdate();
     const price = element.renderRoot.querySelector('foxy-i18n[key="price"]');
 
     expect(price).to.exist;
-    expect(price).to.have.property('infer', 'address');
+    expect(price).to.have.property('infer', '');
     expect(price).to.have.deep.property('options', {
       amount: '123 USD',
       currencyDisplay: 'code',
     });
   });
 
-  it('renders items in an internal control', async () => {
+  it('renders items if they are present', async () => {
     const router = createRouter();
     const element = await fixture<ShipmentCard>(html`
       <foxy-shipment-card
-        href="https://demo.api/hapi/shipments/0"
+        href="https://demo.api/hapi/shipments/0?zoom=items:item_category"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-shipment-card>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.isBodyReady);
+    const count = await getByKey(element, 'item');
 
-    element.data!.total_shipping = 123;
-    element.data = { ...element.data! };
+    expect(count).to.exist;
+    expect(count).to.have.attribute('infer', '');
+    expect(count).to.have.deep.property('options', {
+      count: element.data!._embedded['fx:items'].length,
+    });
 
-    await element.updateComplete;
-    const details = element.renderRoot.querySelector(
-      'foxy-internal-async-details-control'
-    ) as InternalAsyncDetailsControl;
+    const table = element.renderRoot.querySelector('table');
 
-    expect(details).to.exist;
-    expect(details).to.have.property('infer', 'items');
-    expect(details).to.have.property('limit', 5);
-    expect(details).to.have.property('open', true);
-    expect(details).to.have.property('item', 'foxy-item-card');
-    expect(details).to.have.property(
-      'first',
-      'https://demo.api/hapi/items?shipment_id=0&zoom=item_options'
-    );
+    element.data?._embedded['fx:items'].forEach((item, i) => {
+      expect(table!.rows.item(i)!.cells.item(0)).to.include.text(item.code);
+      expect(table!.rows.item(i)!.cells.item(1)).to.include.text(item.name);
+      expect(table!.rows.item(i)!.cells.item(2)).to.include.text(
+        `${item.width}×${item.height}×${item.length} IN`
+      );
 
-    const form = details.form as FormRenderer;
-    const handleFetch = stub();
-    const handleUpdate = stub();
-    const renderedForm = await fixture(
-      form({
-        html,
-        dialog: { href: 'test-href', parent: 'test-parent' } as FormDialog,
-        handleFetch,
-        handleUpdate,
-      })
-    );
+      expect(table!.rows.item(i)!.cells.item(3)).to.include.text(`${item.weight} LBS`);
 
-    expect(renderedForm).to.have.property(
-      'customerAddresses',
-      'https://demo.api/hapi/customer_addresses?customer_id=0'
-    );
+      const quantityCell = table!.rows.item(i)!.cells.item(4);
+      const quantityLabel = quantityCell!.querySelector('foxy-i18n');
 
-    expect(renderedForm).to.have.property(
-      'itemCategories',
-      'https://demo.api/hapi/item_categories?store_id=0'
-    );
-
-    expect(renderedForm).to.have.property('coupons', 'https://demo.api/hapi/coupons?store_id=0');
-    expect(renderedForm).to.have.property('parent', 'test-parent');
-    expect(renderedForm).to.have.property('infer', '');
-    expect(renderedForm).to.have.property('href', 'test-href');
-
-    const fetchEvent = new CustomEvent('fetch');
-    const updateEvent = new CustomEvent('update');
-
-    renderedForm.dispatchEvent(fetchEvent);
-    renderedForm.dispatchEvent(updateEvent);
-
-    expect(handleFetch).to.have.been.calledWith(fetchEvent);
-    expect(handleUpdate).to.have.been.calledWith(updateEvent);
+      expect(quantityLabel).to.exist;
+      expect(quantityLabel).to.have.attribute('infer', '');
+      expect(quantityLabel).to.have.deep.property('options', { count: item.quantity });
+    });
   });
 });

@@ -92,7 +92,7 @@ config!.states!.selection.states!.single.meta = {
         inputs[newIndex].dispatchEvent(new Event('change'));
 
         await new Promise(r => setTimeout(r, 10));
-        await element.updateComplete;
+        await element.requestUpdate();
 
         expect(element.value).to.equal(newValue);
         expect(getInputs(element)[newIndex]).to.have.property('checked', true);
@@ -123,7 +123,7 @@ config!.states!.selection.states!.multiple.meta = {
       inputs[0].checked = newStatus;
       inputs[0].dispatchEvent(new Event('change'));
 
-      await element.updateComplete;
+      await element.requestUpdate();
       inputs = getInputs(element);
 
       if (newStatus) {

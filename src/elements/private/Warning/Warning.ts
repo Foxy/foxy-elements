@@ -2,6 +2,7 @@ import { CSSResult, CSSResultArray, LitElement, TemplateResult, html } from 'lit
 
 import { Themeable } from '../../../mixins/themeable';
 
+/** @deprecated – use internal controls instead */
 export class Warning extends LitElement {
   public static get styles(): CSSResult | CSSResultArray {
     return Themeable.styles;

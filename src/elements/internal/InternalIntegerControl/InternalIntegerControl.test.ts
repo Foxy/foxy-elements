@@ -59,6 +59,14 @@ describe('InternalIntegerControl', () => {
     expect(customElements.get('foxy-internal-integer-control')).to.equal(Control);
   });
 
+  it('has a reactive property for "showControls"', () => {
+    expect(new Control()).to.have.property('showControls', false);
+    expect(Control).to.have.deep.nested.property('properties.showControls', {
+      type: Boolean,
+      attribute: 'show-controls',
+    });
+  });
+
   it('extends InternalEditableControl', () => {
     expect(new Control()).to.be.instanceOf(InternalEditableControl);
   });
@@ -79,7 +87,7 @@ describe('InternalIntegerControl', () => {
     expect(field).to.have.property('errorMessage', '');
 
     control.testErrorMessage = 'test error message';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('errorMessage', 'test error message');
   });
@@ -92,7 +100,7 @@ describe('InternalIntegerControl', () => {
     expect(field).to.have.property('helperText', 'helper_text');
 
     control.helperText = 'test helper text';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('helperText', 'test helper text');
   });
@@ -105,7 +113,7 @@ describe('InternalIntegerControl', () => {
     expect(field).to.have.property('placeholder', 'placeholder');
 
     control.placeholder = 'test placeholder';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('placeholder', 'test placeholder');
   });
@@ -118,7 +126,7 @@ describe('InternalIntegerControl', () => {
     expect(field).to.have.property('label', 'label');
 
     control.label = 'test label';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('label', 'test label');
   });
@@ -129,11 +137,11 @@ describe('InternalIntegerControl', () => {
     const field = control.renderRoot.querySelector('vaadin-integer-field')!;
 
     control.disabled = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('disabled', true);
 
     control.disabled = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('disabled', false);
   });
 
@@ -143,11 +151,11 @@ describe('InternalIntegerControl', () => {
     const field = control.renderRoot.querySelector('vaadin-integer-field')!;
 
     control.readonly = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('readonly', true);
 
     control.readonly = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('readonly', false);
   });
 
@@ -167,9 +175,22 @@ describe('InternalIntegerControl', () => {
     expect(field).to.have.property('value', '0');
 
     control.testValue = 42;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('value', '42');
+  });
+
+  it('sets "has-controls" on vaadin-integer-field from "showControls" on itself', async () => {
+    const layout = html`<test-internal-integer-control></test-internal-integer-control>`;
+    const control = await fixture<TestControl>(layout);
+    const field = control.renderRoot.querySelector('vaadin-integer-field')!;
+
+    expect(field).to.not.have.attribute('has-controls');
+
+    control.showControls = true;
+    await control.requestUpdate();
+
+    expect(field).to.have.attribute('has-controls');
   });
 
   it('writes to "_value" on change', async () => {

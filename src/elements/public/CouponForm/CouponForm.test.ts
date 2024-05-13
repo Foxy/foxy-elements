@@ -1,34 +1,19 @@
-import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import type { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
+import type { InternalQueryBuilderControl } from '../../internal/InternalQueryBuilderControl/InternalQueryBuilderControl';
+import type { InternalEditableListControl } from '../../internal/InternalEditableListControl/InternalEditableListControl';
+import type { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
-import { CategoryRestrictionsPage } from './private/CategoryRestrictionsPage';
-import { CheckboxChangeEvent } from '../../private/events';
-import { CouponForm } from './index';
-import { Data } from './types';
-import { EditableList } from '../../private/EditableList/EditableList';
-import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { FormDialog } from '../FormDialog/FormDialog';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
-import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { Pagination } from '../Pagination';
-import { QueryBuilder } from '../QueryBuilder';
-import { Rels } from '@foxy.io/sdk/backend';
-import { Resource } from '@foxy.io/sdk/core';
-import { Table } from '../Table/Table';
-import { TemplateResult } from 'lit-html';
-import { TextFieldElement } from '@vaadin/vaadin-text-field';
+import './index';
+
+import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import { Operator, Type } from '../QueryBuilder/types';
 import { createRouter } from '../../../server/index';
-import { getByKey } from '../../../testgen/getByKey';
-import { getByName } from '../../../testgen/getByName';
-import { getByTestClass } from '../../../testgen/getByTestClass';
-import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
+import { CouponForm } from './CouponForm';
 import { stub } from 'sinon';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html';
-import { InternalEditableListControl } from '../../internal/InternalEditableListControl/InternalEditableListControl';
-import { DiscountBuilder } from '../DiscountBuilder';
-import { getByTag } from '../../../testgen/getByTag';
 
 describe('CouponForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -37,3026 +22,602 @@ describe('CouponForm', () => {
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
-  it('extends NucleonElement', () => {
-    expect(new CouponForm()).to.be.instanceOf(NucleonElement);
+  it('imports and defines foxy-internal-async-resource-link-list-control', () => {
+    expect(customElements.get('foxy-internal-async-resource-link-list-control')).to.exist;
   });
 
-  it('registers as foxy-coupon-form', () => {
+  it('imports and defines foxy-internal-checkbox-group-control', () => {
+    expect(customElements.get('foxy-internal-checkbox-group-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-editable-list-control', () => {
+    expect(customElements.get('foxy-internal-editable-list-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-query-builder-control', () => {
+    expect(customElements.get('foxy-internal-query-builder-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-integer-control', () => {
+    expect(customElements.get('foxy-internal-integer-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-number-control', () => {
+    expect(customElements.get('foxy-internal-number-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-text-control', () => {
+    expect(customElements.get('foxy-internal-text-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-date-control', () => {
+    expect(customElements.get('foxy-internal-date-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-form', () => {
+    expect(customElements.get('foxy-internal-form')).to.exist;
+  });
+
+  it('imports and defines foxy-generate-codes-form', () => {
+    expect(customElements.get('foxy-generate-codes-form')).to.exist;
+  });
+
+  it('imports and defines foxy-item-category-card', () => {
+    expect(customElements.get('foxy-item-category-card')).to.exist;
+  });
+
+  it('imports and defines foxy-coupon-codes-form', () => {
+    expect(customElements.get('foxy-coupon-codes-form')).to.exist;
+  });
+
+  it('imports and defines foxy-coupon-code-card', () => {
+    expect(customElements.get('foxy-coupon-code-card')).to.exist;
+  });
+
+  it('imports and defines foxy-coupon-code-form', () => {
+    expect(customElements.get('foxy-coupon-code-form')).to.exist;
+  });
+
+  it('imports and defines foxy-nucleon', () => {
+    expect(customElements.get('foxy-nucleon')).to.exist;
+  });
+
+  it('imports and defines foxy-attribute-form', () => {
+    expect(customElements.get('foxy-attribute-form')).to.exist;
+  });
+
+  it('imports and defines foxy-attribute-card', () => {
+    expect(customElements.get('foxy-attribute-card')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-bulk-add-action-control', () => {
+    expect(customElements.get('foxy-internal-bulk-add-action-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-coupon-form-rules-control', () => {
+    expect(customElements.get('foxy-internal-coupon-form-rules-control')).to.exist;
+  });
+
+  it('defines itself as foxy-coupon-form', () => {
     expect(customElements.get('foxy-coupon-form')).to.equal(CouponForm);
   });
 
-  it('has a default i18n namespace "coupon-form"', () => {
+  it('has a default i18n namespace of "coupon-form"', () => {
+    expect(CouponForm).to.have.property('defaultNS', 'coupon-form');
     expect(new CouponForm()).to.have.property('ns', 'coupon-form');
   });
 
-  describe('name', () => {
-    it('is an instance of Vaadin.TextFieldElement', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = await getByTestId<TextFieldElement>(element, 'name');
+  it('extends foxy-internal-form', () => {
+    expect(new CouponForm()).to.be.instanceOf(customElements.get('foxy-internal-form'));
+  });
 
-      expect(control).to.be.instanceOf(TextFieldElement);
-    });
-
-    it('has i18n label key "name"', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = await getByTestId<TextFieldElement>(element, 'name');
-
-      expect(control).to.have.property('label', 'name');
-    });
-
-    it('has value of form.name', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ name: 'Test Gift Card' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'name');
-      expect(control).to.have.property('value', 'Test Gift Card');
-    });
-
-    it('writes to form.name on input', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = await getByTestId<TextFieldElement>(element, 'name');
-
-      control!.value = 'Test Gift Card';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.name', 'Test Gift Card');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = await getByTestId<TextFieldElement>(element, 'name');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ name: 'Test Gift Card' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "name:before" slot by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByName(element, 'name:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "name:before" slot with template "name:before" if available', async () => {
-      const name = 'name:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "name:after" slot by default', async () => {
-      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'name:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "name:after" slot with template "name:after" if available', async () => {
-      const name = 'name:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'name')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-coupon-form readonly></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'name')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes name', async () => {
-      const layout = html`<foxy-coupon-form readonlycontrols="name"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'name')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'name')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-coupon-form href=${href}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-coupon-form href=${href}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-coupon-form disabled></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes name', async () => {
-      const layout = html`<foxy-coupon-form disabledcontrols="name"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'name')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'name')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-coupon-form hidden></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'name')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes name', async () => {
-      const layout = html`<foxy-coupon-form hiddencontrols="name"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'name')).to.not.exist;
+  it('has a reactive property "getTransactionPageHref', () => {
+    expect(new CouponForm()).to.haveOwnProperty('getTransactionPageHref', null);
+    expect(CouponForm).to.have.deep.nested.property('properties.getTransactionPageHref', {
+      attribute: false,
     });
   });
 
-  describe('rules', () => {
-    it('renders i18n label rule_plural', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const label = await getByKey(control, 'rule_plural');
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
-    });
-
-    it('renders with "rules:before" slot by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'rules:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "rules:before" slot with template "rules:before" if available and rendered', async () => {
-      const name = 'rules:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders with "rules:after" slot by default', async () => {
-      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'rules:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "rules:after" slot with template "rules:after" if available and rendered', async () => {
-      const name = 'rules:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'rules')).to.exist;
-    });
-
-    it("doesn't render if form is hidden", async () => {
-      const layout = html`<foxy-coupon-form hidden></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'rules')).to.not.exist;
-    });
-
-    it('doesn\'t render if hiddencontrols includes "rules"', async () => {
-      const layout = html`<foxy-coupon-form hiddencontrols="rules"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'rules')).to.not.exist;
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      // editing to render some rules
-      element.edit({
-        coupon_discount_details: 'allunits|1-2|3-4|5-6',
-        coupon_discount_type: 'price_amount',
-      });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const interactiveControls = await getByTestClass(control, 'interactive');
-
-      interactiveControls.forEach(input => {
-        expect(input).to.not.have.attribute('disabled');
-      });
-    });
-
-    it('is disabled when the form is disabled', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      // editing to render some rules
-      element.edit({
-        coupon_discount_details: 'allunits|1-2|3-4|5-6',
-        coupon_discount_type: 'price_amount',
-      });
-
-      element.disabled = true;
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const interactiveControls = await getByTestClass(control, 'interactive');
-
-      interactiveControls.forEach(input => {
-        expect(input).to.have.attribute('disabled');
-      });
-    });
-
-    it('is disabled when the form is loading data', async () => {
-      const router = createRouter();
-      const handle = (evt: FetchEvent) => router.handleEvent(evt);
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-coupon-form href=${href} @fetch=${handle}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      await waitUntil(() => element.in({ busy: 'fetching' }));
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const interactiveControls = await getByTestClass(control, 'interactive');
-
-      interactiveControls.forEach(input => {
-        expect(input).to.have.attribute('disabled');
-      });
-    });
-
-    it('is disabled when disabledcontrols includes rules', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      // editing to render some rules
-      element.edit({
-        coupon_discount_details: 'allunits|1-2|3-4|5-6',
-        coupon_discount_type: 'price_amount',
-      });
-
-      element.setAttribute('disabledcontrols', 'rules');
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const interactiveControls = await getByTestClass(control, 'interactive');
-
-      interactiveControls.forEach(input => {
-        expect(input).to.have.attribute('disabled');
-      });
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      // editing to render some rules
-      element.edit({
-        coupon_discount_details: 'allunits|1-2|3-4|5-6',
-        coupon_discount_type: 'price_amount',
-      });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const inputs = await getByTestClass(control, 'editable');
-
-      inputs.forEach(input => expect(input).to.not.have.attribute('readonly'));
-    });
-
-    it('is disabled when the form is readonly', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      // editing to render some rules
-      element.edit({
-        coupon_discount_details: 'allunits|1-2|3-4|5-6',
-        coupon_discount_type: 'price_amount',
-      });
-
-      element.readonly = true;
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const inputs = await getByTestClass(control, 'editable');
-
-      inputs.forEach(input => expect(input).to.have.attribute('disabled'));
-    });
-
-    it('is disabled when readonlycontrols includes rules', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      // editing to render some rules
-      element.edit({
-        coupon_discount_details: 'allunits|1-2|3-4|5-6',
-        coupon_discount_type: 'price_amount',
-      });
-
-      element.setAttribute('readonlycontrols', 'rules');
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const inputs = await getByTestClass(control, 'editable');
-
-      inputs.forEach(input => expect(input).to.have.attribute('disabled'));
-    });
-
-    it('renders preset picker', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const preset = (await getByTestId(control, 'rules:preset')) as HTMLElement;
-      const label = await getByKey(preset, 'preset');
-      const select = (await getByTestId(preset, 'rules:preset:select')) as HTMLSelectElement;
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
-
-      const presets = [
-        { type: 'quantity_amount', details: 'allunits|2-2' },
-        { type: 'quantity_percentage', details: 'allunits|5-10|10-20' },
-        { type: 'quantity_amount', details: 'incremental|3-5' },
-        { type: 'quantity_percentage', details: 'incremental|11-10|51-15|101-20' },
-        { type: 'quantity_percentage', details: 'repeat|2-100' },
-        { type: 'quantity_percentage', details: 'repeat|4-50' },
-        { type: 'quantity_amount', details: 'single|5-10' },
-        { type: 'price_percentage', details: 'single|99.99-10' },
-      ];
-
-      presets.forEach((preset, index) => {
-        expect(select).to.have.nested.property(`options[${index}].value`, preset.details);
-        expect(select).to.include.text('discount_summary');
-      });
-
-      expect(select).to.have.nested.property('options[8].value', 'custom');
-      expect(select).to.include.text('custom_discount');
-    });
-
-    it('binds preset picker to form.coupon_discount_details', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const preset = (await getByTestId(control, 'rules:preset')) as HTMLElement;
-
-      let select = (await getByTestId(preset, 'rules:preset:select')) as HTMLSelectElement;
-      expect(select).to.have.nested.property('selectedOptions[0].value', 'custom');
-
-      select.selectedIndex = 0;
-      select.dispatchEvent(new CustomEvent('change'));
-      await element.updateComplete;
-
-      expect(element).to.have.nested.property(
-        'form.coupon_discount_details',
-        select.options[0].value
-      );
-
-      element.edit({
-        coupon_discount_details: 'incremental|11-10|51-15|101-20',
-        coupon_discount_type: 'quantity_percentage',
-      });
-
-      select = (await getByTestId(preset, 'rules:preset:select')) as HTMLSelectElement;
-      expect(select).to.have.nested.property('selectedIndex', 3);
-    });
-
-    it('renders discount url parameter with Copy button', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({
-        coupon_discount_details: '1-2|3-4',
-        coupon_discount_type: 'price_amount',
-        name: 'Test',
-      });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const url = (await getByTestId(control, 'rules:url')) as HTMLElement;
-      const label = (await getByKey(url, 'url_parameter')) as HTMLElement;
-      const button = (await getByTestId(url, 'rules:url:copy')) as HTMLElement;
-      const expectedText = 'discount_price_amount=Test%7B1-2%7C3-4%7D';
-
-      expect(button).to.have.property('localName', 'foxy-copy-to-clipboard');
-      expect(button).to.have.property('text', expectedText);
-      expect(button).to.have.property('lang', 'es');
-      expect(button).to.have.property('ns', 'foo copy-to-clipboard');
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
-
-      expect(url).to.include.text(expectedText);
-    });
-
-    it('renders discount description', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({
-        coupon_discount_details: '1-2|3-4',
-        coupon_discount_type: 'price_amount',
-        name: 'Test',
-      });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const wrapper = (await getByTestId(control, 'rules:description')) as HTMLElement;
-      const label = (await getByKey(wrapper, 'description')) as HTMLElement;
-      const summary = (await getByKey(wrapper, 'discount_summary')) as HTMLElement;
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
-
-      expect(summary).to.exist;
-      expect(summary).to.have.attribute('lang', 'es');
-      expect(summary).to.have.attribute('ns', 'foo');
-      expect(summary).to.have.attribute(
-        'options',
-        JSON.stringify({ params: { details: '1-2|3-4', type: 'price_amount', ns: 'foo' } })
-      );
-    });
-
-    it('renders discount builder', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({
-        coupon_discount_details: '1-2|3-4',
-        coupon_discount_type: 'price_amount',
-        name: 'Test',
-      });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const builder = (await getByTag(control, 'foxy-discount-builder')) as DiscountBuilder;
-
-      expect(builder).to.exist;
-      expect(builder).to.have.attribute('lang', 'es');
-      expect(builder).to.have.attribute('ns', 'foo');
-      expect(builder).to.have.deep.property('parsedValue', {
-        details: '1-2|3-4',
-        type: 'price_amount',
-        name: 'Rules',
-      });
-
-      builder.parsedValue = {
-        details: '8-9|6+10',
-        type: 'quantity_percentage',
-        name: 'Whatever',
-      };
-
-      builder.dispatchEvent(new CustomEvent('change'));
-
-      expect(element).to.have.nested.property('form.coupon_discount_details', '8-9|6+10');
-      expect(element).to.have.nested.property('form.coupon_discount_type', 'quantity_percentage');
-    });
+  it('produces a v8n error "name:v8n_required" when name is empty', () => {
+    const element = new CouponForm();
+    expect(element.errors).to.include('name:v8n_required');
+    element.edit({ name: 'foo' });
+    expect(element.errors).not.to.include('name:v8n_required');
   });
 
-  describe('codes', () => {
-    it('renders "codes:before" slot when visible', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      expect(await getByName(element, 'codes:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "codes:before" slot with template "codes:before" if available', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const name = 'codes:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form .data=${data}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "codes:after" slot when visible', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'codes:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "codes:after" slot with template "codes:after" if available', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const name = 'codes:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form .data=${data}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is enabled by default when visible', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const selectors = ['vaadin-button', 'foxy-query-builder', 'foxy-pagination'];
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-
-      control.querySelectorAll(selectors.join()).forEach(control => {
-        expect(control).not.to.have.attribute('disabled');
-      });
-    });
-
-    it('is disabled when form is sending changes', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const stall = new Promise<Response>(() => void 0);
-
-      element.addEventListener('fetch', evt => (evt as FetchEvent).respondWith(stall));
-      element.edit({ name: 'Foo' });
-      element.submit();
-      await waitUntil(() => element.in('busy'));
-
-      const selectors = ['vaadin-button', 'foxy-query-builder', 'foxy-pagination'];
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-
-      control.querySelectorAll(selectors.join()).forEach(control => {
-        expect(control).to.have.attribute('disabled');
-      });
-    });
-
-    it('is disabled when form has failed to send changes', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const error = () => Promise.resolve(new Response(null, { status: 500 }));
-
-      element.addEventListener('fetch', evt => (evt as FetchEvent).respondWith(error()));
-      element.edit({ name: 'Foo' });
-      element.submit();
-      await waitUntil(() => element.in('fail'));
-
-      const selectors = ['vaadin-button', 'foxy-query-builder', 'foxy-pagination'];
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-
-      control.querySelectorAll(selectors.join()).forEach(control => {
-        expect(control).to.have.attribute('disabled');
-      });
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data} disabled></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const selectors = ['vaadin-button', 'foxy-query-builder', 'foxy-pagination'];
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-
-      control.querySelectorAll(selectors.join()).forEach(control => {
-        expect(control).to.have.attribute('disabled');
-      });
-    });
-
-    it('is disabled when disabledcontrols includes codes', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form .data=${data} disabledcontrols="codes"></foxy-coupon-form>
-      `);
-
-      const selectors = ['vaadin-button', 'foxy-query-builder', 'foxy-pagination'];
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-
-      control.querySelectorAll(selectors.join()).forEach(control => {
-        expect(control).to.have.attribute('disabled');
-      });
-    });
-
-    it('is hidden by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'codes')).to.not.exist;
-    });
-
-    it('is visible when loaded', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      expect(await getByTestId(element, 'codes')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data} hidden></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      expect(await getByTestId(element, 'codes')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes codes', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form .data=${data} hiddencontrols="codes"></foxy-coupon-form>
-      `);
-
-      expect(await getByTestId(element, 'codes')).to.not.exist;
-    });
-
-    it('renders Generate dialog', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          disabledcontrols="codes:generate:form:foo"
-          readonlycontrols="codes:generate:form:bar"
-          hiddencontrols="codes:generate:form:baz"
-          group="test"
-          lang="es"
-          ns="foo"
-          .data=${data}
-        >
-        </foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const dialog = control.querySelector('#generate-codes-dialog') as HTMLElement;
-      const relatedUrl = `${data._links['fx:coupon_codes'].href}&limit=5`;
-
-      expect(dialog).to.exist;
-      expect(dialog).to.have.attribute('disabledcontrols', 'foo');
-      expect(dialog).to.have.attribute('readonlycontrols', 'bar');
-      expect(dialog).to.have.attribute('hiddencontrols', 'save-button current-balance baz');
-      expect(dialog).to.have.attribute('header', 'generate');
-      expect(dialog).to.have.attribute('parent', data._links['fx:generate_codes'].href);
-      expect(dialog).to.have.attribute('group', 'test');
-      expect(dialog).to.have.attribute('lang', 'es');
-      expect(dialog).to.have.attribute('ns', 'foo');
-      expect(dialog).to.have.attribute('form', 'foxy-generate-codes-form');
-      expect(dialog).to.have.deep.property('related', [relatedUrl]);
-    });
-
-    it('renders Edit dialog', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          disabledcontrols="codes:form:foo"
-          readonlycontrols="codes:form:bar"
-          hiddencontrols="codes:form:baz"
-          group="test"
-          lang="es"
-          ns="foo"
-          .data=${data}
-        >
-        </foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const dialog = control.querySelector('#code-dialog') as HTMLElement;
-      const parent = `${data._links['fx:coupon_codes'].href}&limit=5`;
-
-      expect(dialog).to.exist;
-      expect(dialog).to.have.attribute('disabledcontrols', 'foo');
-      expect(dialog).to.have.attribute('readonlycontrols', 'bar');
-      expect(dialog).to.have.attribute('hiddencontrols', 'baz');
-      expect(dialog).to.have.attribute('header', 'code');
-      expect(dialog).to.have.attribute('parent', parent);
-      expect(dialog).to.have.attribute('group', 'test');
-      expect(dialog).to.have.attribute('lang', 'es');
-      expect(dialog).to.have.attribute('ns', 'foo');
-      expect(dialog).to.have.attribute('form', 'foxy-coupon-code-form');
-    });
-
-    it('renders Import dialog', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          disabledcontrols="codes:import:form:foo"
-          readonlycontrols="codes:import:form:bar"
-          hiddencontrols="codes:import:form:baz"
-          group="test"
-          lang="es"
-          ns="foo"
-          .data=${data}
-        >
-        </foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const dialog = control.querySelector('#import-dialog') as HTMLElement;
-
-      expect(dialog).to.exist;
-      expect(dialog).to.have.attribute('disabledcontrols', 'foo');
-      expect(dialog).to.have.attribute('readonlycontrols', 'bar');
-      expect(dialog).to.have.attribute('hiddencontrols', 'save-button baz');
-      expect(dialog).to.have.attribute('header', 'import');
-      expect(dialog).to.have.attribute('parent', data._links['fx:coupon_codes'].href);
-      expect(dialog).to.have.attribute('group', 'test');
-      expect(dialog).to.have.attribute('lang', 'es');
-      expect(dialog).to.have.attribute('ns', 'foo');
-      expect(dialog).to.have.attribute('form', 'foxy-coupon-codes-form');
-    });
-
-    it('renders translatable group label "code_plural"', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang="es" ns="foo" .data=${data}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const label = await getByKey(control, 'code_plural');
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
-    });
-
-    it('renders Generate button', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang="es" ns="foo" .data=${data}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const button = (await getByTestId(control, 'codes:generate-button')) as HTMLElement;
-      const label = button.querySelector('foxy-i18n[key="generate"]');
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
-    });
-
-    it('opens Generate dialog when Generate button is clicked', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang="es" ns="foo" .data=${data}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const dialog = control.querySelector('#generate-codes-dialog') as FormDialog;
-      const showMethod = stub(dialog, 'show');
-      const button = (await getByTestId(control, 'codes:generate-button')) as HTMLElement;
-
-      button.click();
-      expect(showMethod).to.have.been.calledOnceWith(button);
-      showMethod.restore();
-    });
-
-    it('renders Import button', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang="es" ns="foo" .data=${data}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const button = (await getByTestId(control, 'codes:import-button')) as HTMLElement;
-      const label = button.querySelector('foxy-i18n[key="import"]');
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
-    });
-
-    it('opens Import dialog when Import button is clicked', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang="es" ns="foo" .data=${data}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const dialog = control.querySelector('#import-dialog') as FormDialog;
-      const showMethod = stub(dialog, 'show');
-      const button = (await getByTestId(control, 'codes:import-button')) as HTMLElement;
-
-      button.click();
-      expect(showMethod).to.have.been.calledOnceWith(button);
-      showMethod.restore();
-    });
-
-    it('renders Filter button', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang="es" ns="foo" .data=${data}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const button = (await getByTestId(control, 'codes:filter-button')) as HTMLElement;
-      const label = button.querySelector('foxy-i18n[key="filter"]');
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
-    });
-
-    it('toggles query builder when Filter button is clicked', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang="es" ns="foo" .data=${data}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const button = (await getByTestId(control, 'codes:filter-button')) as HTMLElement;
-
-      button.click();
-      await element.updateComplete;
-
-      expect(button.querySelector('foxy-i18n')).to.have.attribute('key', 'clear_filters');
-      expect(control.querySelector('foxy-query-builder')).not.to.have.attribute('hidden');
-
-      button.click();
-      await element.updateComplete;
-
-      expect(button.querySelector('foxy-i18n')).to.have.attribute('key', 'filter');
-      expect(control.querySelector('foxy-query-builder')).to.have.attribute('hidden');
-    });
-
-    it('renders query builder for codes table', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang="es" ns="foo" .data=${data}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const builder = control.querySelector('foxy-query-builder') as QueryBuilder;
-
-      expect(builder).to.have.attribute('lang', 'es');
-      expect(builder).to.have.attribute('ns', 'foo query-builder');
-
-      builder.value = 'foo=bar&baz:in=1,2';
-      builder.dispatchEvent(new CustomEvent('change'));
-      await element.updateComplete;
-
-      const pagination = control.querySelector('foxy-pagination') as Pagination;
-      const paginationParams = new URL(pagination.first).searchParams;
-
-      expect(paginationParams.get('foo')).to.equal('bar');
-      expect(paginationParams.get('baz:in')).to.equal('1,2');
-    });
-
-    it('renders pagination for codes table', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang="es" ns="foo" .data=${data}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const pagination = control.querySelector('foxy-pagination') as Pagination;
-      const paginationURL = new URL(data._links['fx:coupon_codes'].href);
-
-      paginationURL.searchParams.set('limit', '5');
-
-      expect(pagination).to.have.attribute('first', paginationURL.toString());
-      expect(pagination).to.have.attribute('lang', 'es');
-      expect(pagination).to.have.attribute('ns', 'foo pagination');
-    });
-
-    it('renders codes table inside of foxy-pagination', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form group="test" lang="es" ns="foo" .data=${data}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const table = control.querySelector('foxy-pagination foxy-table') as Table<any>;
-
-      expect(table).to.have.attribute('group', 'test');
-      expect(table).to.have.attribute('lang', 'es');
-      expect(table).to.have.attribute('ns', 'foo');
-    });
-
-    it('renders Code column in the codes table', async () => {
-      type Codes = Resource<Rels.CouponCodes>;
-
-      const card = await getTestData<Data>('./hapi/coupons/0');
-      const codes = await getTestData<Codes>('./hapi/coupon_codes?coupon_id=0');
-      const code = codes._embedded['fx:coupon_codes'][0];
-      const lang = 'es';
-      const ns = 'foo';
-
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang=${lang} ns=${ns} .data=${card}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const table = control.querySelector('foxy-pagination foxy-table') as Table<any>;
-
-      const column = table.columns[0];
-      const headerTemplate = column.header?.({ html, data: codes, lang, ns }) as TemplateResult;
-      const cellTemplate = column.cell?.({ html, data: code, lang, ns }) as TemplateResult;
-
-      const header = await fixture(headerTemplate);
-      const cell = await fixture(cellTemplate);
-
-      expect(header).to.be.instanceOf(customElements.get('foxy-i18n'));
-      expect(header).to.have.attribute('lang', 'es');
-      expect(header).to.have.attribute('key', 'code');
-      expect(header).to.have.attribute('ns', 'foo');
-
-      expect(cell).to.include.text(code.code);
-    });
-
-    it('opens Code dialog when a coupon code in the Code column is clicked', async () => {
-      type Codes = Resource<Rels.CouponCodes>;
-
-      const card = await getTestData<Data>('./hapi/coupons/0');
-      const codes = await getTestData<Codes>('./hapi/coupon_codes?coupon_id=0');
-      const code = codes._embedded['fx:coupon_codes'][0];
-      const lang = 'es';
-      const ns = 'foo';
-
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang=${lang} ns=${ns} .data=${card}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const table = control.querySelector('foxy-pagination foxy-table') as Table<any>;
-      const dialog = control.querySelector('#code-dialog') as FormDialog;
-      const showMethod = stub(dialog, 'show');
-
-      const column = table.columns[0];
-      const cellTemplate = column.cell?.({ html, data: code, lang, ns }) as TemplateResult;
-      const cell = await fixture(cellTemplate);
-      const button = cell.querySelector('vaadin-button')!;
-
-      button.dispatchEvent(new CustomEvent('click'));
-
-      expect(showMethod).to.have.been.calledWith(button);
-      expect(dialog).to.have.property('href', code._links.self.href);
-
-      showMethod.restore();
-    });
-
-    it('renders Created On column in the codes table', async () => {
-      type Codes = Resource<Rels.CouponCodes>;
-
-      const card = await getTestData<Data>('./hapi/coupons/0');
-      const codes = await getTestData<Codes>('./hapi/coupon_codes?coupon_id=0');
-      const code = codes._embedded['fx:coupon_codes'][0];
-      const lang = 'es';
-      const ns = 'foo';
-
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang=${lang} ns=${ns} .data=${card}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const table = control.querySelector('foxy-pagination foxy-table') as Table<any>;
-
-      const column = table.columns[1];
-      const headerTemplate = column.header?.({ html, data: codes, lang, ns }) as TemplateResult;
-      const cellTemplate = column.cell?.({ html, data: code, lang, ns }) as TemplateResult;
-
-      const header = await fixture(headerTemplate);
-      const cell = await fixture(cellTemplate);
-
-      expect(header).to.be.instanceOf(customElements.get('foxy-i18n'));
-      expect(header).to.have.attribute('lang', 'es');
-      expect(header).to.have.attribute('key', 'date_created');
-      expect(header).to.have.attribute('ns', 'foo');
-
-      expect(cell).to.be.instanceOf(customElements.get('foxy-i18n'));
-      expect(cell).to.have.attribute('options', JSON.stringify({ value: code.date_created }));
-      expect(cell).to.have.attribute('lang', 'es');
-      expect(cell).to.have.attribute('key', 'date');
-      expect(cell).to.have.attribute('ns', 'foo');
-    });
-
-    it('renders Last Updated column in the codes table', async () => {
-      type Codes = Resource<Rels.CouponCodes>;
-
-      const card = await getTestData<Data>('./hapi/coupons/0');
-      const codes = await getTestData<Codes>('./hapi/coupon_codes?coupon_id=0');
-      const code = codes._embedded['fx:coupon_codes'][0];
-      const lang = 'es';
-      const ns = 'foo';
-
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang=${lang} ns=${ns} .data=${card}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const table = control.querySelector('foxy-pagination foxy-table') as Table<any>;
-
-      const column = table.columns[2];
-      const headerTemplate = column.header?.({ html, data: codes, lang, ns }) as TemplateResult;
-      const cellTemplate = column.cell?.({ html, data: code, lang, ns }) as TemplateResult;
-
-      const header = await fixture(headerTemplate);
-      const cell = await fixture(cellTemplate);
-
-      expect(header).to.be.instanceOf(customElements.get('foxy-i18n'));
-      expect(header).to.have.attribute('lang', 'es');
-      expect(header).to.have.attribute('key', 'date_modified');
-      expect(header).to.have.attribute('ns', 'foo');
-
-      expect(cell).to.be.instanceOf(customElements.get('foxy-i18n'));
-      expect(cell).to.have.attribute('options', JSON.stringify({ value: code.date_modified }));
-      expect(cell).to.have.attribute('lang', 'es');
-      expect(cell).to.have.attribute('key', 'date');
-      expect(cell).to.have.attribute('ns', 'foo');
-    });
-
-    it('renders Uses column in the codes table', async () => {
-      type Codes = Resource<Rels.CouponCodes>;
-
-      const card = await getTestData<Data>('./hapi/coupons/0');
-      const codes = await getTestData<Codes>('./hapi/coupon_codes?coupon_id=0');
-      const code = codes._embedded['fx:coupon_codes'][0];
-      const lang = 'es';
-      const ns = 'foo';
-
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang=${lang} ns=${ns} .data=${card}></foxy-coupon-form>
-      `);
-
-      const control = (await getByTestId(element, 'codes')) as HTMLElement;
-      const table = control.querySelector('foxy-pagination foxy-table') as Table<any>;
-
-      const column = table.columns[3];
-      const headerTemplate = column.header?.({ html, data: codes, lang, ns }) as TemplateResult;
-      const cellTemplate = column.cell?.({ html, data: code, lang, ns }) as TemplateResult;
-
-      const header = await fixture(headerTemplate);
-      const cell = await fixture(html`<div>${cellTemplate}</div>`);
-
-      expect(header).to.be.instanceOf(customElements.get('foxy-i18n'));
-      expect(header).to.have.attribute('lang', 'es');
-      expect(header).to.have.attribute('key', 'used_codes');
-      expect(header).to.have.attribute('ns', 'foo');
-
-      expect(cell).to.include.text(code.number_of_uses_to_date.toString());
-    });
+  it('produces a v8n error "name:v8n_too_long" when name is too long', () => {
+    const element = new CouponForm();
+    expect(element.errors).to.not.include('name:v8n_too_long');
+
+    element.edit({ name: 'a'.repeat(50) });
+    expect(element.errors).to.not.include('name:v8n_too_long');
+
+    element.edit({ name: 'a'.repeat(51) });
+    expect(element.errors).to.include('name:v8n_too_long');
   });
 
-  describe('usage', () => {
-    it('renders "usage:before" slot by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const slot = await getByName(element, 'usage:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "usage:before" slot with template "usage:before" if available', async () => {
-      const name = 'usage:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "usage:after" slot by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const slot = await getByName(element, 'usage:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "usage:after" slot with template "usage:after" if available', async () => {
-      const name = 'usage:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'usage')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-coupon-form hidden></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'usage')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes usage', async () => {
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form hiddencontrols="usage"></foxy-coupon-form>
-      `);
-
-      expect(await getByTestId(element, 'usage')).to.not.exist;
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const fields = ['per-customer', 'per-coupon', 'per-coupon-code'];
-
-      await Promise.all(
-        fields.map(async field => {
-          const fieldElement = await getByTestId(control, `usage:${field}`);
-          expect(fieldElement).to.not.have.attribute('disabled');
-        })
-      );
-    });
-
-    it('is disabled when form is busy', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.href = 'https://demo.api/virtual/stall';
-
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const fields = ['per-customer', 'per-coupon', 'per-coupon-code'];
-
-      await Promise.all(
-        fields.map(async field => {
-          const fieldElement = await getByTestId(control, `usage:${field}`);
-          expect(fieldElement).to.have.attribute('disabled');
-        })
-      );
-    });
-
-    it('is disabled when the form is disabled', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.setAttribute('disabled', 'disabled');
-
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const fields = ['per-customer', 'per-coupon', 'per-coupon-code'];
-
-      await Promise.all(
-        fields.map(async field => {
-          const fieldElement = await getByTestId(control, `usage:${field}`);
-          expect(fieldElement).to.have.attribute('disabled');
-        })
-      );
-    });
-
-    it('is disabled when disabledcontrols includes usage', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.setAttribute('disabledcontrols', 'usage');
-
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const fields = ['per-customer', 'per-coupon', 'per-coupon-code'];
-
-      await Promise.all(
-        fields.map(async field => {
-          const fieldElement = await getByTestId(control, `usage:${field}`);
-          expect(fieldElement).to.have.attribute('disabled');
-        })
-      );
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const fields = ['per-customer', 'per-coupon', 'per-coupon-code'];
-
-      await Promise.all(
-        fields.map(async field => {
-          const fieldElement = await getByTestId(control, `usage:${field}`);
-          expect(fieldElement).to.not.have.attribute('readonly');
-        })
-      );
-    });
-
-    it('is readonly when the form is readonly', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.setAttribute('readonly', 'readonly');
-
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const fields = ['per-customer', 'per-coupon', 'per-coupon-code'];
-
-      await Promise.all(
-        fields.map(async field => {
-          const fieldElement = await getByTestId(control, `usage:${field}`);
-          expect(fieldElement).to.have.attribute('readonly');
-        })
-      );
-    });
-
-    it('is readonly when readonlycontrols includes usage', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.setAttribute('readonlycontrols', 'usage');
-
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const fields = ['per-customer', 'per-coupon', 'per-coupon-code'];
-
-      await Promise.all(
-        fields.map(async field => {
-          const fieldElement = await getByTestId(control, `usage:${field}`);
-          expect(fieldElement).to.have.attribute('readonly');
-        })
-      );
-    });
-
-    it('renders an integer input for form.number_of_uses_allowed', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ number_of_uses_allowed: 3 });
-
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const field = (await getByTestId(control, 'usage:per-coupon')) as HTMLElement;
-
-      expect(field).to.be.instanceOf(customElements.get('vaadin-integer-field'));
-      expect(field).to.have.property('placeholder', 'unlimited');
-      expect(field).to.have.property('label', 'uses_per_coupon');
-      expect(field).to.have.property('value', '3');
-    });
-
-    it('writes to form.number_of_uses_allowed on change', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const field = (await getByTestId(control, 'usage:per-coupon')) as HTMLInputElement;
-
-      field.value = '3';
-      field.dispatchEvent(new CustomEvent('change'));
-
-      expect(element).to.have.nested.property('form.number_of_uses_allowed', 3);
-    });
-
-    it('renders an integer input for form.number_of_uses_allowed_per_code', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ number_of_uses_allowed_per_code: 8 });
-
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const field = (await getByTestId(control, 'usage:per-coupon-code')) as HTMLElement;
-
-      expect(field).to.be.instanceOf(customElements.get('vaadin-integer-field'));
-      expect(field).to.have.property('placeholder', 'unlimited');
-      expect(field).to.have.property('label', 'uses_per_coupon_code');
-      expect(field).to.have.property('value', '8');
-    });
-
-    it('writes to form.number_of_uses_allowed_per_code on change', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const field = (await getByTestId(control, 'usage:per-coupon-code')) as HTMLInputElement;
-
-      field.value = '8';
-      field.dispatchEvent(new CustomEvent('change'));
-
-      expect(element).to.have.nested.property('form.number_of_uses_allowed_per_code', 8);
-    });
-
-    it('renders an integer input for form.number_of_uses_allowed_per_customer', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ number_of_uses_allowed_per_customer: 1 });
-
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const field = (await getByTestId(control, 'usage:per-customer')) as HTMLElement;
-
-      expect(field).to.be.instanceOf(customElements.get('vaadin-integer-field'));
-      expect(field).to.have.property('placeholder', 'unlimited');
-      expect(field).to.have.property('label', 'uses_per_customer');
-      expect(field).to.have.property('value', '1');
-    });
-
-    it('writes to form.number_of_uses_allowed_per_customer on change', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const field = (await getByTestId(control, 'usage:per-customer')) as HTMLInputElement;
-
-      field.value = '1';
-      field.dispatchEvent(new CustomEvent('change'));
-
-      expect(element).to.have.nested.property('form.number_of_uses_allowed_per_customer', 1);
-    });
-
-    it('renders translatable usage summary', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({
-        number_of_uses_allowed: 1,
-        number_of_uses_allowed_per_code: 2,
-        number_of_uses_allowed_per_customer: 3,
-      });
-
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const perCustomer = await getByKey(control, 'uses_per_customer_summary');
-      const perCoupon = await getByKey(control, 'uses_per_coupon_summary');
-      const perCode = await getByKey(control, 'uses_per_coupon_code_summary');
-
-      expect(perCustomer).to.have.attribute('options', JSON.stringify({ count: 3 }));
-      expect(perCustomer).to.have.attribute('lang', 'es');
-      expect(perCustomer).to.have.attribute('ns', 'foo');
-
-      expect(perCoupon).to.have.attribute('options', JSON.stringify({ count: 1 }));
-      expect(perCoupon).to.have.attribute('lang', 'es');
-      expect(perCoupon).to.have.attribute('ns', 'foo');
-
-      expect(perCode).to.have.attribute('options', JSON.stringify({ count: 2 }));
-      expect(perCode).to.have.attribute('lang', 'es');
-      expect(perCode).to.have.attribute('ns', 'foo');
-    });
-
-    it('renders special translatable usage summary for unlimited values', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'usage')) as HTMLElement;
-      const perCustomer = await getByKey(control, 'uses_per_customer_summary_0');
-      const perCoupon = await getByKey(control, 'uses_per_coupon_summary_0');
-      const perCode = await getByKey(control, 'uses_per_coupon_code_summary_0');
-
-      expect(perCustomer).to.have.attribute('options', JSON.stringify({ count: 0 }));
-      expect(perCustomer).to.have.attribute('lang', 'es');
-      expect(perCustomer).to.have.attribute('ns', 'foo');
-
-      expect(perCoupon).to.have.attribute('options', JSON.stringify({ count: 0 }));
-      expect(perCoupon).to.have.attribute('lang', 'es');
-      expect(perCoupon).to.have.attribute('ns', 'foo');
-
-      expect(perCode).to.have.attribute('options', JSON.stringify({ count: 0 }));
-      expect(perCode).to.have.attribute('lang', 'es');
-      expect(perCode).to.have.attribute('ns', 'foo');
-    });
+  it('produces a v8n error "inclusive-tax-rate:v8n_too_small" when inclusive tax rate is less than 0', () => {
+    const element = new CouponForm();
+    expect(element.errors).to.not.include('inclusive-tax-rate:v8n_too_small');
+
+    element.edit({ inclusive_tax_rate: 0 });
+    expect(element.errors).to.not.include('inclusive-tax-rate:v8n_too_small');
+
+    element.edit({ inclusive_tax_rate: -1 });
+    expect(element.errors).to.include('inclusive-tax-rate:v8n_too_small');
   });
 
-  describe('product-restrictions', () => {
-    it('has i18n label "product_restrictions"', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
-      const label = await getByKey(control, 'product_restrictions');
+  it('produces a v8n error "inclusive-tax-rate:v8n_too_big" when inclusive tax rate is greater than 1', () => {
+    const element = new CouponForm();
+    expect(element.errors).to.not.include('inclusive-tax-rate:v8n_too_big');
 
-      expect(label).to.have.property('lang', 'es');
-      expect(label).to.have.property('ns', 'foo');
-    });
+    element.edit({ inclusive_tax_rate: 1 });
+    expect(element.errors).to.not.include('inclusive-tax-rate:v8n_too_big');
 
-    it('has i18n explainer "product_restrictions_explainer"', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
-      const label = await getByKey(control, 'product_restrictions_explainer');
-
-      expect(label).to.have.property('lang', 'es');
-      expect(label).to.have.property('ns', 'foo');
-    });
-
-    it('has i18n group label "allow"', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
-      const label = await getByKey(control, 'allow');
-
-      expect(label).to.have.property('lang', 'es');
-      expect(label).to.have.property('ns', 'foo');
-    });
-
-    it('has i18n group label "block"', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
-      const label = await getByKey(control, 'block');
-
-      expect(label).to.have.property('lang', 'es');
-      expect(label).to.have.property('ns', 'foo');
-    });
-
-    it('renders "product-restrictions:before" slot by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const slot = await getByName(element, 'product-restrictions:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "product-restrictions:before" slot with template "product-restrictions:before" if available', async () => {
-      const name = 'product-restrictions:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "product-restrictions:after" slot by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const slot = await getByName(element, 'product-restrictions:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "product-restrictions:after" slot with template "product-restrictions:after" if available', async () => {
-      const name = 'product-restrictions:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'product-restrictions')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-coupon-form hidden></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'product-restrictions')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes product-restrictions', async () => {
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form hiddencontrols="product-restrictions"></foxy-coupon-form>
-      `);
-
-      expect(await getByTestId(element, 'product-restrictions')).to.not.exist;
-    });
-
-    it('renders translatable allow and block lists', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
-      const allow = (await getByTestId(control, 'product-restrictions:allow')) as EditableList;
-      const block = (await getByTestId(control, 'product-restrictions:block')) as EditableList;
-
-      expect(allow).to.be.instanceOf(EditableList);
-      expect(allow).to.have.attribute('lang', 'es');
-      expect(allow).to.have.attribute('ns', 'foo');
-
-      expect(block).to.be.instanceOf(EditableList);
-      expect(block).to.have.attribute('lang', 'es');
-      expect(block).to.have.attribute('ns', 'foo');
-    });
-
-    it('reflects the value of form.product_code_restrictions to allow and block lists', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ product_code_restrictions: 'foo, -bar-*,   b*z,-qux' });
-
-      const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
-      const allow = (await getByTestId(control, 'product-restrictions:allow')) as EditableList;
-      const block = (await getByTestId(control, 'product-restrictions:block')) as EditableList;
-
-      expect(allow).to.have.deep.property('items', [
-        { label: 'foo', value: 'foo' },
-        { label: 'b*z', value: 'b*z' },
-      ]);
-
-      expect(block).to.have.deep.property('items', [
-        { label: 'bar-*', value: '-bar-*' },
-        { label: 'qux', value: '-qux' },
-      ]);
-    });
-
-    it('writes to form.product_code_restrictions on change', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
-      const allow = (await getByTestId(control, 'product-restrictions:allow')) as EditableList;
-      const block = (await getByTestId(control, 'product-restrictions:block')) as EditableList;
-
-      allow.items = [{ value: 'foo' }, { value: 'b*z' }];
-      allow.dispatchEvent(new CustomEvent('change'));
-
-      await element.updateComplete;
-
-      block.items = [{ value: 'bar-*' }, { value: 'qux' }];
-      block.dispatchEvent(new CustomEvent('change'));
-
-      await element.updateComplete;
-
-      expect(element).to.have.nested.property(
-        'form.product_code_restrictions',
-        'foo,b*z,-bar-*,-qux'
-      );
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
-      const allow = (await getByTestId(control, 'product-restrictions:allow')) as EditableList;
-      const block = (await getByTestId(control, 'product-restrictions:block')) as EditableList;
-
-      expect(allow).to.not.have.attribute('disabled');
-      expect(block).to.not.have.attribute('disabled');
-    });
-
-    it('is disabled when form is busy', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.href = 'https://demo.api/virtual/stall';
-
-      const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
-      const allow = (await getByTestId(control, 'product-restrictions:allow')) as EditableList;
-      const block = (await getByTestId(control, 'product-restrictions:block')) as EditableList;
-
-      expect(allow).to.have.attribute('disabled');
-      expect(block).to.have.attribute('disabled');
-    });
-
-    it('is disabled when the form is disabled', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.setAttribute('disabled', 'disabled');
-
-      const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
-      const allow = (await getByTestId(control, 'product-restrictions:allow')) as EditableList;
-      const block = (await getByTestId(control, 'product-restrictions:block')) as EditableList;
-
-      expect(allow).to.have.attribute('disabled');
-      expect(block).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes product-restrictions', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.setAttribute('disabledcontrols', 'product-restrictions');
-
-      const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
-      const allow = (await getByTestId(control, 'product-restrictions:allow')) as EditableList;
-      const block = (await getByTestId(control, 'product-restrictions:block')) as EditableList;
-
-      expect(allow).to.have.attribute('disabled');
-      expect(block).to.have.attribute('disabled');
-    });
-
-    it('is writable by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
-      const allow = (await getByTestId(control, 'product-restrictions:allow')) as EditableList;
-      const block = (await getByTestId(control, 'product-restrictions:block')) as EditableList;
-
-      expect(allow).to.not.have.attribute('readonly');
-      expect(block).to.not.have.attribute('readonly');
-    });
-
-    it('is readonly when the form is readonly', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.setAttribute('readonly', 'readonly');
-
-      const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
-      const allow = (await getByTestId(control, 'product-restrictions:allow')) as EditableList;
-      const block = (await getByTestId(control, 'product-restrictions:block')) as EditableList;
-
-      expect(allow).to.have.attribute('readonly');
-      expect(block).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes product-restrictions', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.setAttribute('readonlycontrols', 'product-restrictions');
-
-      const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
-      const allow = (await getByTestId(control, 'product-restrictions:allow')) as EditableList;
-      const block = (await getByTestId(control, 'product-restrictions:block')) as EditableList;
-
-      expect(allow).to.have.attribute('readonly');
-      expect(block).to.have.attribute('readonly');
-    });
+    element.edit({ inclusive_tax_rate: 1.1 });
+    expect(element.errors).to.include('inclusive-tax-rate:v8n_too_big');
   });
 
-  describe('category-restrictions', () => {
-    it('has i18n label "category_restrictions"', async () => {
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          lang="es"
-          ns="foo"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
+  it('produces a v8n error "number-of-uses-allowed:v8n_too_small" when number of uses allowed is less than 0', () => {
+    const element = new CouponForm();
+    expect(element.errors).to.not.include('number-of-uses-allowed:v8n_too_small');
 
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
+    element.edit({ number_of_uses_allowed: 0 });
+    expect(element.errors).to.not.include('number-of-uses-allowed:v8n_too_small');
 
-      const control = (await getByTestId(element, 'category-restrictions')) as HTMLElement;
-      const label = await getByKey(control, 'category_restrictions');
-
-      expect(label).to.have.property('lang', 'es');
-      expect(label).to.have.property('ns', 'foo');
-    });
-
-    it('has i18n helper text "category_restrictions_helper_text"', async () => {
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          lang="es"
-          ns="foo"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-
-      const control = (await getByTestId(element, 'category-restrictions')) as HTMLElement;
-      const label = await getByKey(control, 'category_restrictions_helper_text');
-
-      expect(label).to.have.property('lang', 'es');
-      expect(label).to.have.property('ns', 'foo');
-    });
-
-    it('renders "category-restrictions:before" slot by default', async () => {
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-      const slot = await getByName(element, 'category-restrictions:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "category-restrictions:before" slot with template "category-restrictions:before" if available', async () => {
-      const router = createRouter();
-      const name = 'category-restrictions:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "category-restrictions:after" slot by default', async () => {
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-      const slot = await getByName(element, 'category-restrictions:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "category-restrictions:after" slot with template "category-restrictions:after" if available', async () => {
-      const router = createRouter();
-      const name = 'category-restrictions:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is visible when loaded', async () => {
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-
-      expect(await getByTestId(element, 'category-restrictions')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          hidden
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-
-      expect(await getByTestId(element, 'category-restrictions')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes category-restrictions', async () => {
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          hiddencontrols="category-restrictions"
-          href="https://demo.api/hapi/coupons/0"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-
-      expect(await getByTestId(element, 'category-restrictions')).to.not.exist;
-    });
-
-    it('is enabled by default', async () => {
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-      const control = (await getByTestId(element, 'category-restrictions')) as HTMLElement;
-
-      ['foxy-pagination', '[data-testid="category-restrictions:page"]'].forEach(selector => {
-        expect(control.querySelector(selector)).to.not.have.attribute('disabled');
-      });
-    });
-
-    it('is disabled when form is busy', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const router = createRouter();
-      const handleAsUsual = (evt: FetchEvent) => router.handleEvent(evt);
-      const stall = (evt: FetchEvent) => evt.respondWith(new Promise(() => void 0));
-
-      element.addEventListener('fetch', handleAsUsual as (evt: Event) => unknown);
-      element.href = 'https://demo.api/hapi/coupons/0';
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-
-      element.removeEventListener('fetch', handleAsUsual as (evt: Event) => unknown);
-      element.addEventListener('fetch', stall as (evt: Event) => unknown);
-      element.edit({ name: 'Foo' });
-      element.submit();
-
-      await waitUntil(() => element.in({ busy: 'updating' }));
-
-      const control = (await getByTestId(element, 'category-restrictions')) as HTMLElement;
-      ['foxy-pagination', '[data-testid="category-restrictions:page"]'].forEach(selector => {
-        expect(control.querySelector(selector)).to.have.attribute('disabled');
-      });
-    });
-
-    it('is disabled when the form is disabled', async () => {
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          disabled
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-      const control = (await getByTestId(element, 'category-restrictions')) as HTMLElement;
-
-      ['foxy-pagination', '[data-testid="category-restrictions:page"]'].forEach(selector => {
-        expect(control.querySelector(selector)).to.have.attribute('disabled');
-      });
-    });
-
-    it('is disabled when disabledcontrols includes category-restrictions', async () => {
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          disabledcontrols="category-restrictions"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-      const control = (await getByTestId(element, 'category-restrictions')) as HTMLElement;
-
-      ['foxy-pagination', '[data-testid="category-restrictions:page"]'].forEach(selector => {
-        expect(control.querySelector(selector)).to.have.attribute('disabled');
-      });
-    });
-
-    it('is editable by default', async () => {
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-      const control = (await getByTestId(element, 'category-restrictions')) as HTMLElement;
-      const page = control.querySelector('[data-testid="category-restrictions:page"]');
-
-      expect(page).to.not.have.attribute('readonly');
-    });
-
-    it('is readonly when form is readonly', async () => {
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          readonly
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-      const control = (await getByTestId(element, 'category-restrictions')) as HTMLElement;
-      const page = control.querySelector('[data-testid="category-restrictions:page"]');
-
-      expect(page).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes category-restrictions', async () => {
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          readonlycontrols="category-restrictions"
-          href="https://demo.api/hapi/coupons/0"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-      const control = (await getByTestId(element, 'category-restrictions')) as HTMLElement;
-      const page = control.querySelector('[data-testid="category-restrictions:page"]');
-
-      expect(page).to.have.attribute('readonly');
-    });
-
-    it('renders translatable pagination for category restrictions', async () => {
-      type Store = Resource<Rels.Store>;
-
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          lang="es"
-          ns="foo"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-
-      const store = await getTestData<Store>(element.data!._links['fx:store'].href);
-      const control = (await getByTestId(element, 'category-restrictions')) as HTMLElement;
-      const pagination = control.querySelector('foxy-pagination') as Pagination;
-      const paginationURL = new URL(store._links['fx:item_categories'].href);
-
-      paginationURL.searchParams.set('limit', '5');
-
-      expect(pagination).to.have.attribute('first', paginationURL.toString());
-      expect(pagination).to.have.attribute('lang', 'es');
-      expect(pagination).to.have.attribute('ns', 'foo pagination');
-    });
-
-    it('renders private CategoryRestrictionsPage element inside pagination', async () => {
-      const router = createRouter();
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          href="https://demo.api/hapi/coupons/0"
-          group="test"
-          lang="es"
-          ns="foo"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-coupon-form>
-      `);
-
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-
-      const control = (await getByTestId(element, 'category-restrictions')) as HTMLElement;
-      const pagination = control.querySelector('foxy-pagination') as Pagination;
-      const page = pagination.querySelector('[data-testid="category-restrictions:page"]');
-      const couponItemCategories = element.data!._links['fx:coupon_item_categories'].href;
-
-      expect(page).to.be.instanceOf(CategoryRestrictionsPage);
-      expect(page).to.have.attribute('coupon-item-categories', couponItemCategories);
-      expect(page).to.have.attribute('coupon', 'https://demo.api/hapi/coupons/0');
-      expect(page).to.have.attribute('group', 'test');
-      expect(page).to.have.attribute('lang', 'es');
-      expect(page).to.have.attribute('ns', 'foo');
-    });
+    element.edit({ number_of_uses_allowed: -1 });
+    expect(element.errors).to.include('number-of-uses-allowed:v8n_too_small');
   });
 
-  describe('customer-subscription-restrictions', () => {
-    it('renders foxy-internal-editable-list-control with restrictions', async () => {
-      const form = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
-      const control = form.renderRoot.querySelector<InternalEditableListControl>(
-        '[infer="customer-subscription-restrictions"]'
-      )!;
+  it('produces a v8n error "rules:v8n_required" when rules are empty', () => {
+    const element = new CouponForm();
+    expect(element.errors).to.include('rules:v8n_required');
 
-      expect(control).to.be.instanceOf(InternalEditableListControl);
-      expect(control.getValue()).to.deep.equal([]);
-
-      form.edit({ customer_subscription_restrictions: 'foo,bar' });
-      await form.updateComplete;
-      expect(control.getValue()).to.deep.equal([{ value: 'foo' }, { value: 'bar' }]);
-
-      control.setValue([{ value: 'one' }, { value: 'two' }]);
-      expect(form).to.have.nested.property('form.customer_subscription_restrictions', 'one,two');
-      expect(form).to.have.nested.property('form.customer_auto_apply', true);
-
-      control.setValue([]);
-      expect(form).to.have.nested.property('form.customer_subscription_restrictions', '');
-      expect(form).to.have.nested.property('form.customer_auto_apply', false);
-    });
+    element.edit({ coupon_discount_details: 'allunits|5-10|10-20' });
+    expect(element.errors).not.to.include('rules:v8n_required');
   });
 
-  describe('customer-attribute-restrictions', () => {
-    it('has a translatable label', async () => {
-      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
-      const control = (await getByTestId(
-        element,
-        'customer-attribute-restrictions'
-      )) as HTMLElement;
+  it('produces a v8n error "rules:v8n_too_long" when rules are empty', () => {
+    const element = new CouponForm();
+    expect(element.errors).to.not.include('rules:v8n_too_long');
 
-      const label = await getByKey(control, 'label');
-      expect(label).to.have.property('infer', 'customer-attribute-restrictions');
-    });
+    element.edit({ coupon_discount_details: 'allunits|5-10|10-20' });
+    expect(element.errors).to.not.include('rules:v8n_too_long');
 
-    it('has a translatable helper text', async () => {
-      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
-      const control = (await getByTestId(
-        element,
-        'customer-attribute-restrictions'
-      )) as HTMLElement;
+    element.edit({ coupon_discount_details: `allunits${'|5-10'.repeat(38)}` });
+    expect(element.errors).to.not.include('rules:v8n_too_long');
 
-      const label = await getByKey(control, 'helper_text');
-      expect(label).to.have.property('infer', 'customer-attribute-restrictions');
-    });
-
-    it('renders foxy-query-builder with restrictions', async () => {
-      const form = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
-      const control = form.renderRoot.querySelector<QueryBuilder>('foxy-query-builder')!;
-
-      expect(control).to.have.attribute('infer', 'customer-attribute-restrictions');
-      expect(control.value).to.equal(null);
-
-      form.edit({ customer_attribute_restrictions: 'foo=bar&baz=0' });
-      await form.updateComplete;
-      expect(control.value).to.equal('foo=bar&baz=0');
-
-      control.value = 'one=two&three=3';
-      control.dispatchEvent(new CustomEvent('change'));
-      expect(form).to.have.nested.property(
-        'form.customer_attribute_restrictions',
-        'one=two&three=3'
-      );
-      expect(form).to.have.nested.property('form.customer_auto_apply', true);
-
-      control.value = null;
-      control.dispatchEvent(new CustomEvent('change'));
-      expect(form).to.have.nested.property('form.customer_attribute_restrictions', '');
-      expect(form).to.have.nested.property('form.customer_auto_apply', false);
-    });
-
-    it('renders "customer-attribute-restrictions:before" slot by default', async () => {
-      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
-      const slot = await getByName(element, 'customer-attribute-restrictions:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "customer-attribute-restrictions:before" slot with template "customer-attribute-restrictions:before" if available', async () => {
-      const name = 'customer-attribute-restrictions:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "customer-attribute-restrictions:after" slot by default', async () => {
-      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
-      const slot = await getByName(element, 'customer-attribute-restrictions:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "customer-attribute-restrictions:after" slot with template "customer-attribute-restrictions:after" if available', async () => {
-      const name = 'customer-attribute-restrictions:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is visible by default', async () => {
-      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
-      expect(await getByTestId(element, 'customer-attribute-restrictions')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const element = await fixture<CouponForm>(html`<foxy-coupon-form hidden></foxy-coupon-form>`);
-      expect(await getByTestId(element, 'customer-attribute-restrictions')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes customer-attribute-restrictions', async () => {
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form hiddencontrols="customer-attribute-restrictions"></foxy-coupon-form>
-      `);
-
-      expect(await getByTestId(element, 'customer-attribute-restrictions')).to.not.exist;
-    });
+    element.edit({ coupon_discount_details: `allunits${'|5-10'.repeat(39)}` });
+    expect(element.errors).to.include('rules:v8n_too_long');
   });
 
-  describe('options', () => {
-    it('renders i18n label option_plural', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const label = await getByKey(control, 'option_plural');
+  it('produces a v8n error "item-option-restrictions:v8n_too_long" when item option restrictions are too long', () => {
+    const element = new CouponForm();
+    expect(element.errors).to.not.include('item-option-restrictions:v8n_too_long');
 
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
+    element.edit({ item_option_restrictions: {} });
+    expect(element.errors).to.not.include('item-option-restrictions:v8n_too_long');
+
+    element.edit({ item_option_restrictions: { foo: ['a'.repeat(5988)] } });
+    expect(element.errors).to.not.include('item-option-restrictions:v8n_too_long');
+
+    element.edit({ item_option_restrictions: { foo: ['a'.repeat(5989)] } });
+    expect(element.errors).to.include('item-option-restrictions:v8n_too_long');
+  });
+
+  it('produces a v8n error "product-code-restrictions:v8n_too_long" when product code restrictions are too long', () => {
+    const element = new CouponForm();
+    expect(element.errors).to.not.include('product-code-restrictions:v8n_too_long');
+
+    element.edit({ product_code_restrictions: 'a'.repeat(5000) });
+    expect(element.errors).to.not.include('product-code-restrictions:v8n_too_long');
+
+    element.edit({ product_code_restrictions: 'a'.repeat(5001) });
+    expect(element.errors).to.include('product-code-restrictions:v8n_too_long');
+  });
+
+  it('produces a v8n error "customer-attribute-restrictions:v8n_too_long" when customer attribute restrictions are too long', () => {
+    const element = new CouponForm();
+    expect(element.errors).to.not.include('customer-attribute-restrictions:v8n_too_long');
+
+    element.edit({ customer_attribute_restrictions: 'a'.repeat(2000) });
+    expect(element.errors).to.not.include('customer-attribute-restrictions:v8n_too_long');
+
+    element.edit({ customer_attribute_restrictions: 'a'.repeat(2001) });
+    expect(element.errors).to.include('customer-attribute-restrictions:v8n_too_long');
+  });
+
+  it('produces a v8n error "number-of-uses-allowed-per-code:v8n_too_small" when number of uses allowed per code is less than 0', () => {
+    const element = new CouponForm();
+    expect(element.errors).to.not.include('number-of-uses-allowed-per-code:v8n_too_small');
+
+    element.edit({ number_of_uses_allowed_per_code: 0 });
+    expect(element.errors).to.not.include('number-of-uses-allowed-per-code:v8n_too_small');
+
+    element.edit({ number_of_uses_allowed_per_code: -1 });
+    expect(element.errors).to.include('number-of-uses-allowed-per-code:v8n_too_small');
+  });
+
+  it('produces a v8n error "customer-subscription-restrictions:v8n_too_long" when customer subscription restrictions are too long', () => {
+    const element = new CouponForm();
+    expect(element.errors).to.not.include('customer-subscription-restrictions:v8n_too_long');
+
+    element.edit({ customer_subscription_restrictions: 'a'.repeat(200) });
+    expect(element.errors).to.not.include('customer-subscription-restrictions:v8n_too_long');
+
+    element.edit({ customer_subscription_restrictions: 'a'.repeat(201) });
+    expect(element.errors).to.include('customer-subscription-restrictions:v8n_too_long');
+  });
+
+  it('produces a v8n error "number-of-uses-allowed-per-customer:v8n_too_small" when number of uses allowed per customer is less than 0', () => {
+    const element = new CouponForm();
+    expect(element.errors).to.not.include('number-of-uses-allowed-per-customer:v8n_too_small');
+
+    element.edit({ number_of_uses_allowed_per_customer: 0 });
+    expect(element.errors).to.not.include('number-of-uses-allowed-per-customer:v8n_too_small');
+
+    element.edit({ number_of_uses_allowed_per_customer: -1 });
+    expect(element.errors).to.include('number-of-uses-allowed-per-customer:v8n_too_small');
+  });
+
+  it('hides coupon codes, category restrictions and attributes when there is no data', async () => {
+    const element = new CouponForm();
+
+    expect(element.hiddenSelector.matches('coupon-codes', true)).to.be.true;
+    expect(element.hiddenSelector.matches('category-restrictions', true)).to.be.true;
+    expect(element.hiddenSelector.matches('attributes', true)).to.be.true;
+
+    element.data = await getTestData('./hapi/coupons/0');
+
+    expect(element.hiddenSelector.matches('coupon-codes', true)).to.be.false;
+    expect(element.hiddenSelector.matches('category-restrictions', true)).to.be.false;
+    expect(element.hiddenSelector.matches('attributes', true)).to.be.false;
+  });
+
+  it('hides customer attribute restrictions and customer subscription restrictions if auto-apply is off', () => {
+    const element = new CouponForm();
+
+    expect(element.hiddenSelector.matches('customer-attribute-restrictions', true)).to.be.true;
+    expect(element.hiddenSelector.matches('customer-subscription-restrictions', true)).to.be.true;
+
+    element.edit({ customer_auto_apply: true });
+
+    expect(element.hiddenSelector.matches('customer-attribute-restrictions', true)).to.be.false;
+    expect(element.hiddenSelector.matches('customer-subscription-restrictions', true)).to.be.false;
+  });
+
+  it('renders bulk add control for the Generate Codes header action', async () => {
+    const element = await fixture<CouponForm>(html`
+      <foxy-coupon-form .data=${await getTestData('./hapi/coupons/0')}></foxy-coupon-form>
+    `);
+
+    const action = element.renderRoot.querySelector('[infer=generate]');
+
+    expect(action).to.exist;
+    expect(action).to.have.attribute('parent', element.data?._links['fx:generate_codes'].href);
+    expect(action).to.have.attribute('form', 'foxy-generate-codes-form');
+    expect(action).to.be.instanceOf(customElements.get('foxy-internal-bulk-add-action-control'));
+    expect(action).to.have.deep.property('related', [element.data?._links['fx:coupon_codes'].href]);
+  });
+
+  it('renders bulk add control for the Import Codes header action', async () => {
+    const element = await fixture<CouponForm>(html`
+      <foxy-coupon-form .data=${await getTestData('./hapi/coupons/0')}></foxy-coupon-form>
+    `);
+
+    const action = element.renderRoot.querySelector('[infer=import]');
+
+    expect(action).to.exist;
+    expect(action).to.have.attribute('parent', element.data?._links['fx:coupon_codes'].href);
+    expect(action).to.have.attribute('form', 'foxy-coupon-codes-form');
+    expect(action).to.be.instanceOf(customElements.get('foxy-internal-bulk-add-action-control'));
+    expect(action).to.have.deep.property('related', [element.data?._links['fx:coupon_codes'].href]);
+  });
+
+  it('renders text control for name', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector('foxy-internal-text-control[infer=name]');
+    expect(control).to.exist;
+  });
+
+  it('renders rules control for rules', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-coupon-form-rules-control[infer=rules]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders async list control for coupon codes', async () => {
+    const writeTextMethod = stub(navigator.clipboard, 'writeText').resolves();
+    const getTransactionPageHref = () => '';
+
+    const element = await fixture<CouponForm>(html`
+      <foxy-coupon-form
+        .getTransactionPageHref=${getTransactionPageHref}
+        .data=${await getTestData('./hapi/coupons/0')}
+      >
+      </foxy-coupon-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-async-list-control[infer=coupon-codes]'
+    ) as InternalAsyncListControl;
+
+    expect(control).to.exist;
+
+    expect(control).to.have.attribute(
+      'first',
+      'https://demo.api/hapi/coupon_codes?coupon_id=0&order=date_created+desc'
+    );
+
+    expect(control).to.have.attribute('limit', '5');
+    expect(control).to.have.attribute('item', 'foxy-coupon-code-card');
+    expect(control).to.have.attribute('form', 'foxy-coupon-code-form');
+    expect(control).to.have.attribute('alert');
+
+    expect(control).to.have.deep.property('formProps', {
+      '.getTransactionPageHref': getTransactionPageHref,
     });
 
-    it('renders with "options:before" slot by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'options:before');
+    expect(control.actions).to.have.length(1);
+    expect(control.actions[0]).to.have.property('theme', 'contrast');
+    expect(control.actions[0]).to.have.property('state', 'idle');
+    expect(control.actions[0]).to.have.property('text', 'copy_button_text');
 
-      expect(slot).to.have.property('localName', 'slot');
+    const couponCode = await getTestData<Resource<Rels.CouponCode>>('./hapi/coupon_codes/0');
+    control.actions[0].onClick(couponCode);
+
+    await waitUntil(() => {
+      try {
+        expect(writeTextMethod).to.have.been.calledOnceWith(couponCode.code);
+        return true;
+      } catch {
+        return false;
+      }
     });
 
-    it('replaces "options:before" slot with template "options:before" if available and rendered', async () => {
-      const name = 'options:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
+    expect(writeTextMethod).to.have.been.calledOnceWith(couponCode.code);
+    writeTextMethod.restore();
+
+    expect(control).to.have.deep.property('filters', [
+      { label: 'code', path: 'code', type: Type.String },
+      { label: 'used_codes', path: 'number_of_uses_to_date', type: Type.Number },
+      { label: 'date_created', path: 'date_created', type: Type.Date },
+      { label: 'date_modified', path: 'date_modified', type: Type.Date },
+    ]);
+  });
+
+  it('renders query builder control for item option restrictions', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-query-builder-control[infer=item-option-restrictions]'
+    ) as InternalQueryBuilderControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('disable-or');
+    expect(control).to.have.deep.property('operators', [Operator.In]);
+
+    expect(control.getValue()).to.equal('');
+    control.setValue('foo:in=bar,baz');
+    expect(element).to.have.deep.nested.property('form.item_option_restrictions', {
+      foo: ['bar', 'baz'],
+    });
+
+    element.edit({ item_option_restrictions: { a: ['b', 'c'] } });
+    expect(control.getValue()).to.equal('a%3Ain=b%2Cc');
+  });
+
+  it('renders editable list control for product code restrictions', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-editable-list-control[infer=product-code-restrictions]'
+    ) as InternalEditableListControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.deep.property('units', [
+      { label: 'product-code-restrictions.unit_allow', value: 'allow' },
+      { label: 'product-code-restrictions.unit_block', value: 'block' },
+    ]);
+
+    expect(control.getValue()).to.equal(undefined);
+    control.setValue([{ value: 'a' }, { unit: 'block', value: 'b' }]);
+    expect(element).to.have.deep.nested.property('form.product_code_restrictions', 'a,-b');
+
+    element.edit({ product_code_restrictions: '-foo,bar' });
+    expect(control.getValue()).to.deep.equal([
+      { label: 'product-code-restrictions.label_block', value: '-foo' },
+      { label: 'product-code-restrictions.label_allow', value: 'bar' },
+    ]);
+  });
+
+  it('renders async resource link list control for category restrictions', async () => {
+    const router = createRouter();
+    const element = await fixture<CouponForm>(
+      html`
+        <foxy-coupon-form
+          href="https://demo.api/hapi/coupons/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
         </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders with "options:after" slot by default', async () => {
-      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'options:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "options:after" slot with template "options:after" if available and rendered', async () => {
-      const name = 'options:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
+      `
+    );
+
+    await waitUntil(() => element.in('idle'));
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-async-resource-link-list-control[infer=category-restrictions]'
+    );
+
+    expect(control).to.exist;
+    await waitUntil(() => !!control?.hasAttribute('options-href'));
+
+    expect(control).to.have.attribute('foreign-key-for-uri', 'item_category_uri');
+    expect(control).to.have.attribute('foreign-key-for-id', 'item_category_id');
+    expect(control).to.have.attribute('own-key-for-uri', 'coupon_uri');
+    expect(control).to.have.attribute('own-uri', 'https://demo.api/hapi/coupons/0');
+    expect(control).to.have.attribute('embed-key', 'fx:coupon_item_categories');
+
+    expect(control).to.have.attribute(
+      'options-href',
+      'https://demo.api/hapi/item_categories?store_id=0'
+    );
+
+    expect(control).to.have.attribute(
+      'links-href',
+      'https://demo.api/hapi/coupon_item_categories?coupon_id=0'
+    );
+
+    expect(control).to.have.attribute('limit', '5');
+    expect(control).to.have.attribute('item', 'foxy-item-category-card');
+  });
+
+  it('renders integer control for number of uses allowed', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-integer-control[infer=number-of-uses-allowed]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('min', '0');
+    expect(control).to.have.attribute('show-controls');
+  });
+
+  it('renders integer control for number of uses allowed per customer', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-integer-control[infer=number-of-uses-allowed-per-customer]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('min', '0');
+    expect(control).to.have.attribute('show-controls');
+  });
+
+  it('renders integer control for number of uses allowed per code', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-integer-control[infer=number-of-uses-allowed-per-code]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('min', '0');
+    expect(control).to.have.attribute('show-controls');
+  });
+
+  it('renders date control for start date', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-date-control[infer=start-date]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders date control for end date', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector('foxy-internal-date-control[infer=end-date]');
+
+    expect(control).to.exist;
+  });
+
+  it('renders number control for inclusive tax rate', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-number-control[infer=inclusive-tax-rate]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('min', '0');
+    expect(control).to.have.attribute('max', '1');
+  });
+
+  it('renders checkbox group control for various options', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-checkbox-group-control[infer=options]'
+    ) as InternalCheckboxGroupControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('theme', 'vertical');
+    expect(control).to.have.deep.property('options', [
+      { value: 'multiple_codes_allowed', label: 'option_multiple_codes_allowed' },
+      { value: 'combinable', label: 'option_combinable' },
+      { value: 'exclude_category_discounts', label: 'option_exclude_category_discounts' },
+      { value: 'exclude_line_item_discounts', label: 'option_exclude_line_item_discounts' },
+      { value: 'is_taxable', label: 'option_is_taxable' },
+      { value: 'shared_codes_allowed', label: 'option_shared_codes_allowed' },
+      { value: 'customer_auto_apply', label: 'option_customer_auto_apply' },
+    ]);
+
+    expect(control.getValue()).to.be.empty;
+
+    const props = [
+      'multiple_codes_allowed',
+      'combinable',
+      'exclude_category_discounts',
+      'exclude_line_item_discounts',
+      'is_taxable',
+      'shared_codes_allowed',
+      'customer_auto_apply',
+    ] as const;
+
+    for (const currentProp of props) {
+      control.setValue([currentProp]);
+
+      for (const prop of props) {
+        expect(element).to.have.nested.property(`form.${prop}`, prop === currentProp);
+      }
 
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'options')).to.exist;
-    });
-
-    it("doesn't render if form is hidden", async () => {
-      const layout = html`<foxy-coupon-form hidden></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'options')).to.not.exist;
-    });
-
-    it('doesn\'t render if hiddencontrols includes "options"', async () => {
-      const layout = html`<foxy-coupon-form hiddencontrols="options"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'options')).to.not.exist;
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      // editing to render start/end date inputs
-      element.edit({ start_date: '2022-01-01', end_date: '2022-12-31' });
-
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const inputs = await getByTestClass(control, 'inputs');
-
-      inputs.forEach(input => expect(input).to.not.have.attribute('disabled'));
-    });
-
-    it('is disabled when the form is disabled', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      // editing to render start/end date inputs
-      element.edit({ start_date: '2022-01-01', end_date: '2022-12-31' });
-      element.disabled = true;
-
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const inputs = await getByTestClass(control, 'inputs');
-
-      inputs.forEach(input => expect(input).to.have.attribute('disabled'));
-    });
-
-    it('is disabled when the form is loading data', async () => {
-      const router = createRouter();
-      const handle = (evt: FetchEvent) => router.handleEvent(evt);
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-coupon-form href=${href} @fetch=${handle}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      await waitUntil(() => element.in({ busy: 'fetching' }));
-
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const inputs = await getByTestClass(control, 'inputs');
-
-      inputs.forEach(input => expect(input).to.have.attribute('disabled'));
-    });
-
-    it('is disabled when disabledcontrols includes options', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      // editing to render start/end date inputs
-      element.edit({ start_date: '2022-01-01', end_date: '2022-12-31' });
-      element.setAttribute('disabledcontrols', 'options');
-
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const inputs = await getByTestClass(control, 'inputs');
-
-      inputs.forEach(input => expect(input).to.have.attribute('disabled'));
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      // editing to render start/end date inputs
-      element.edit({ start_date: '2022-01-01', end_date: '2022-12-31' });
-
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const inputs = await getByTestClass(control, 'inputs');
-
-      inputs.forEach(input => expect(input).to.not.have.attribute('readonly'));
-    });
-
-    it('is readonly when the form is readonly', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      // editing to render start/end date inputs
-      element.edit({ start_date: '2022-01-01', end_date: '2022-12-31' });
-      element.readonly = true;
-
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const inputs = await getByTestClass(control, 'inputs');
-
-      inputs.forEach(input => expect(input).to.have.attribute('readonly'));
-    });
-
-    it('is readonly when readonlycontrols includes options', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      // editing to render start/end date inputs
-      element.edit({ start_date: '2022-01-01', end_date: '2022-12-31' });
-      element.setAttribute('readonlycontrols', 'options');
-
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const inputs = await getByTestClass(control, 'inputs');
-
-      inputs.forEach(input => expect(input).to.have.attribute('readonly'));
-    });
-
-    it('renders a checkbox bound to form.multiple_codes_allowed', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-
-      const getInput = () => getByTestId(control, 'options:multiple-codes-allowed');
-      expect(await getInput()).to.not.have.attribute('checked');
-
-      element.edit({ multiple_codes_allowed: false });
-      expect(await getInput()).to.not.have.attribute('checked');
-
-      element.edit({ multiple_codes_allowed: true });
-      expect(await getInput()).to.have.attribute('checked');
-
-      (await getInput())?.dispatchEvent(new CheckboxChangeEvent(false));
-      expect(element).to.have.nested.property('form.multiple_codes_allowed', false);
-
-      (await getInput())?.dispatchEvent(new CheckboxChangeEvent(true));
-      expect(element).to.have.nested.property('form.multiple_codes_allowed', true);
-    });
-
-    it('renders translatable label and explainer for form.multiple_codes_allowed input', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const input = (await getByTestId(control, 'options:multiple-codes-allowed')) as HTMLElement;
-      const label = input.querySelector('foxy-i18n[key="multiple_codes_allowed"]');
-      const explainer = input.querySelector('foxy-i18n[key="multiple_codes_allowed_explainer"]');
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
-
-      expect(explainer).to.exist;
-      expect(explainer).to.have.attribute('lang', 'es');
-      expect(explainer).to.have.attribute('ns', 'foo');
-    });
-
-    it('renders a checkbox bound to form.combinable', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-
-      const getInput = () => getByTestId(control, 'options:combinable');
-      expect(await getInput()).to.not.have.attribute('checked');
-
-      element.edit({ combinable: false });
-      expect(await getInput()).to.not.have.attribute('checked');
-
-      element.edit({ combinable: true });
-      expect(await getInput()).to.have.attribute('checked');
-
-      (await getInput())?.dispatchEvent(new CheckboxChangeEvent(false));
-      expect(element).to.have.nested.property('form.combinable', false);
-
-      (await getInput())?.dispatchEvent(new CheckboxChangeEvent(true));
-      expect(element).to.have.nested.property('form.combinable', true);
-    });
-
-    it('renders translatable label and explainer for form.combinable input', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const input = (await getByTestId(control, 'options:combinable')) as HTMLElement;
-      const label = input.querySelector('foxy-i18n[key="combinable"]');
-      const explainer = input.querySelector('foxy-i18n[key="combinable_explainer"]');
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
-
-      expect(explainer).to.exist;
-      expect(explainer).to.have.attribute('lang', 'es');
-      expect(explainer).to.have.attribute('ns', 'foo');
-    });
-
-    it('renders a checkbox bound to form.exclude_category_discounts', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-
-      const getInput = () => getByTestId(control, 'options:exclude-category-discounts');
-      expect(await getInput()).to.have.attribute('checked');
-
-      element.edit({ exclude_category_discounts: false });
-      expect(await getInput()).to.have.attribute('checked');
-
-      element.edit({ exclude_category_discounts: true });
-      expect(await getInput()).to.not.have.attribute('checked');
-
-      (await getInput())?.dispatchEvent(new CheckboxChangeEvent(false));
-      expect(element).to.have.nested.property('form.exclude_category_discounts', true);
-
-      (await getInput())?.dispatchEvent(new CheckboxChangeEvent(true));
-      expect(element).to.have.nested.property('form.exclude_category_discounts', false);
-    });
-
-    it('renders translatable label and explainer for form.exclude_category_discounts input', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const input = (await getByTestId(control, 'options:exclude-category-discounts'))!;
-      const label = input.querySelector('foxy-i18n[key="combine_with_category_discounts"]');
-      const explainer = input.querySelector(
-        'foxy-i18n[key="combine_with_category_discounts_explainer"]'
-      );
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
-
-      expect(explainer).to.exist;
-      expect(explainer).to.have.attribute('lang', 'es');
-      expect(explainer).to.have.attribute('ns', 'foo');
-    });
-
-    it('renders a checkbox bound to form.exclude_line_item_discounts', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-
-      const getInput = () => getByTestId(control, 'options:exclude-line-item-discounts');
-      expect(await getInput()).to.have.attribute('checked');
-
-      element.edit({ exclude_line_item_discounts: false });
-      expect(await getInput()).to.have.attribute('checked');
-
-      element.edit({ exclude_line_item_discounts: true });
-      expect(await getInput()).to.not.have.attribute('checked');
-
-      (await getInput())?.dispatchEvent(new CheckboxChangeEvent(false));
-      expect(element).to.have.nested.property('form.exclude_line_item_discounts', true);
-
-      (await getInput())?.dispatchEvent(new CheckboxChangeEvent(true));
-      expect(element).to.have.nested.property('form.exclude_line_item_discounts', false);
-    });
-
-    it('renders translatable label and explainer for form.exclude_line_item_discounts input', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const input = (await getByTestId(control, 'options:exclude-line-item-discounts'))!;
-      const label = input.querySelector('foxy-i18n[key="combine_with_line_discounts"]');
-      const explainer = input.querySelector(
-        'foxy-i18n[key="combine_with_line_discounts_explainer"]'
-      );
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
-
-      expect(explainer).to.exist;
-      expect(explainer).to.have.attribute('lang', 'es');
-      expect(explainer).to.have.attribute('ns', 'foo');
-    });
-
-    it('renders a checkbox bound to form.is_taxable', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-
-      const getInput = () => getByTestId(control, 'options:is-taxable');
-      expect(await getInput()).to.not.have.attribute('checked');
-
-      element.edit({ is_taxable: false });
-      expect(await getInput()).to.not.have.attribute('checked');
-
-      element.edit({ is_taxable: true });
-      expect(await getInput()).to.have.attribute('checked');
-
-      (await getInput())?.dispatchEvent(new CheckboxChangeEvent(false));
-      expect(element).to.have.nested.property('form.is_taxable', false);
-
-      (await getInput())?.dispatchEvent(new CheckboxChangeEvent(true));
-      expect(element).to.have.nested.property('form.is_taxable', true);
-    });
-
-    it('renders translatable label and explainer for form.is_taxable input', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const input = (await getByTestId(control, 'options:is-taxable')) as HTMLElement;
-      const label = input.querySelector('foxy-i18n[key="apply_taxes_before_coupon"]');
-      const explainer = input.querySelector('foxy-i18n[key="apply_taxes_before_coupon_explainer"]');
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
-
-      expect(explainer).to.exist;
-      expect(explainer).to.have.attribute('lang', 'es');
-      expect(explainer).to.have.attribute('ns', 'foo');
-    });
-
-    it('renders a checkbox toggling form.start_date and form.end_date inputs', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-
-      const getCheckbox = () => getByTestId(control, 'options:dates');
-      expect(await getCheckbox()).to.not.have.attribute('checked');
-
-      element.edit({ start_date: '2022-01-01' });
-      expect(await getCheckbox()).to.have.attribute('checked');
       element.undo();
-
-      element.edit({ end_date: '2022-12-31' });
-      expect(await getCheckbox()).to.have.attribute('checked');
-      element.undo();
-
-      element.edit({ start_date: '2022-01-01', end_date: '2022-01-01' });
-      expect(await getCheckbox()).to.have.attribute('checked');
-
-      (await getCheckbox())?.dispatchEvent(new CheckboxChangeEvent(false));
-      expect(element).to.have.nested.property('form.start_date', null);
-      expect(element).to.have.nested.property('form.end_date', null);
-
-      (await getCheckbox())?.dispatchEvent(new CheckboxChangeEvent(true));
-      expect(element).to.have.nested.property('form.start_date');
-      expect(element).to.have.nested.property('form.end_date');
-      expect(element.form.start_date).to.be.string;
-      expect(element.form.end_date).to.be.string;
-    });
-
-    it('renders a date picker bound to form.start_date', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      element.edit({ start_date: '2022-01-01' });
-
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const input = (await getByTestId(control, 'options:start-date')) as HTMLInputElement;
-
-      expect(input).to.be.instanceOf(customElements.get('vaadin-date-picker'));
-      expect(input).to.have.attribute('placeholder', 'select');
-      expect(input).to.have.attribute('label', 'start_date');
-      expect(input).to.have.property('value', '2022-01-01');
-
-      input.value = '2022-12-31';
-      input.dispatchEvent(new CustomEvent('change'));
-
-      expect(element).to.have.nested.property('form.start_date', '2022-12-31');
-    });
-
-    it('renders a date picker bound to form.end_date', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      element.edit({ end_date: '2022-01-01' });
-
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const input = (await getByTestId(control, 'options:end-date')) as HTMLInputElement;
-
-      expect(input).to.be.instanceOf(customElements.get('vaadin-date-picker'));
-      expect(input).to.have.attribute('placeholder', 'select');
-      expect(input).to.have.attribute('label', 'end_date');
-      expect(input).to.have.property('value', '2022-01-01');
-
-      input.value = '2022-12-31';
-      input.dispatchEvent(new CustomEvent('change'));
-
-      expect(element).to.have.nested.property('form.end_date', '2022-12-31');
-    });
-
-    it('renders translatable label and explainer for date inputs', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'options')) as HTMLElement;
-      const checkbox = (await getByTestId(control, 'options:dates')) as HTMLElement;
-      const label = checkbox.querySelector('foxy-i18n[key="set_time_constraints"]');
-      const explainer = checkbox.querySelector('foxy-i18n[key="set_time_constraints_explainer"]');
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'foo');
-
-      expect(explainer).to.exist;
-      expect(explainer).to.have.attribute('lang', 'es');
-      expect(explainer).to.have.attribute('ns', 'foo');
-    });
+      element.edit({ [currentProp]: true });
+      expect(control.getValue()).to.deep.equal([currentProp]);
+    }
   });
 
-  describe('timestamps', () => {
-    it('once form data is loaded, renders a property table with created and modified dates', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = await getByTestId(element, 'timestamps');
-      const items = [
-        { name: 'date_modified', value: 'date' },
-        { name: 'date_created', value: 'date' },
-      ];
+  it('renders editable list control for subscription restrictions', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-editable-list-control[infer=customer-subscription-restrictions]'
+    ) as InternalEditableListControl;
 
-      expect(control).to.have.deep.property('items', items);
-    });
+    expect(control).to.exist;
 
-    it('once form data is loaded, renders "timestamps:before" slot', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'timestamps:before');
+    expect(control.getValue()).to.deep.equal([]);
+    control.setValue([{ value: 'a' }, { value: 'b' }]);
+    expect(element).to.have.deep.nested.property('form.customer_subscription_restrictions', 'a,b');
 
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('once form data is loaded, replaces "timestamps:before" slot with template "timestamps:before" if available', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const name = 'timestamps:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form .data=${data}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('once form data is loaded, renders "timestamps:after" slot', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'timestamps:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('once form data is loaded, replaces "timestamps:after" slot with template "timestamps:after" if available', async () => {
-      const data = await getTestData<Data>('./hapi/coupons/0');
-      const name = 'timestamps:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form .data=${data}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
+    element.edit({ customer_subscription_restrictions: 'foo,bar' });
+    expect(control.getValue()).to.deep.equal([{ value: 'foo' }, { value: 'bar' }]);
   });
 
-  describe('create', () => {
-    it('if data is empty, renders create button', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'create')).to.exist;
-    });
+  it('renders query builder control for customer attribute restrictions', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-query-builder-control[infer=customer-attribute-restrictions]'
+    ) as InternalQueryBuilderControl;
 
-    it('renders with i18n key "create" for caption', async () => {
-      const layout = html`<foxy-coupon-form lang="es"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = await getByTestId(element, 'create');
-      const caption = control?.firstElementChild;
-
-      expect(caption).to.have.property('localName', 'foxy-i18n');
-      expect(caption).to.have.attribute('lang', 'es');
-      expect(caption).to.have.attribute('key', 'create');
-      expect(caption).to.have.attribute('ns', 'coupon-form');
-    });
-
-    it('renders disabled if form is disabled', async () => {
-      const layout = html`<foxy-coupon-form disabled></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if form is invalid', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if form is sending changes', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ name: 'Foo' });
-      element.submit();
-
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if disabledcontrols includes "create"', async () => {
-      const layout = html`<foxy-coupon-form disabledcontrols="create"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('submits valid form on click', async () => {
-      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
-      const submit = stub(element, 'submit');
-      element.edit({ name: 'Foo' });
-
-      const control = await getByTestId<ButtonElement>(element, 'create');
-      control!.dispatchEvent(new CustomEvent('click'));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it("doesn't render if form is hidden", async () => {
-      const layout = html`<foxy-coupon-form hidden></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'create')).to.not.exist;
-    });
-
-    it('doesn\'t render if hiddencontrols includes "create"', async () => {
-      const layout = html`<foxy-coupon-form hiddencontrols="create"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      expect(await getByTestId(element, 'create')).to.not.exist;
-    });
-
-    it('renders with "create:before" slot by default', async () => {
-      const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'create:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "create:before" slot with template "create:before" if available and rendered', async () => {
-      const name = 'create:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders with "create:after" slot by default', async () => {
-      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'create:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "create:after" slot with template "create:after" if available and rendered', async () => {
-      const name = 'create:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
+    expect(control).to.exist;
   });
 
-  describe('delete', () => {
-    it('renders delete button once resource is loaded', async () => {
-      const href = './hapi/coupons/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-coupon-form .data=${data} disabled></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
+  it('renders async list control for attributes', async () => {
+    const element = await fixture<CouponForm>(
+      html`<foxy-coupon-form .data=${await getTestData('./hapi/coupons/0')}></foxy-coupon-form>`
+    );
 
-      expect(await getByTestId(element, 'delete')).to.exist;
-    });
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-async-list-control[infer=attributes]'
+    ) as InternalAsyncListControl;
 
-    it('renders with i18n key "delete" for caption', async () => {
-      const data = await getTestData('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data} lang="es"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = await getByTestId(element, 'delete');
-      const caption = control?.firstElementChild;
+    expect(control).to.exist;
+    expect(control).to.have.attribute(
+      'first',
+      'https://demo.api/hapi/coupon_attributes?coupon_id=0'
+    );
 
-      expect(caption).to.have.property('localName', 'foxy-i18n');
-      expect(caption).to.have.attribute('lang', 'es');
-      expect(caption).to.have.attribute('key', 'delete');
-      expect(caption).to.have.attribute('ns', 'coupon-form');
-    });
-
-    it('renders disabled if form is disabled', async () => {
-      const data = await getTestData('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data} disabled></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if form is sending changes', async () => {
-      const data = await getTestData('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ name: 'Foo' });
-      element.submit();
-
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if disabledcontrols includes "delete"', async () => {
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          .data=${await getTestData<Data>('./hapi/coupons/0')}
-          disabledcontrols="delete"
-        >
-        </foxy-coupon-form>
-      `);
-
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
-
-    it('shows deletion confirmation dialog on click', async () => {
-      const data = await getTestData('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = await getByTestId<ButtonElement>(element, 'delete');
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const showMethod = stub(confirm!, 'show');
-
-      control!.dispatchEvent(new CustomEvent('click'));
-
-      expect(showMethod).to.have.been.called;
-    });
-
-    it('deletes resource if deletion is confirmed', async () => {
-      const data = await getTestData('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const deleteMethod = stub(element, 'delete');
-
-      confirm!.dispatchEvent(new InternalConfirmDialog.HideEvent(false));
-
-      expect(deleteMethod).to.have.been.called;
-    });
-
-    it('keeps resource if deletion is cancelled', async () => {
-      const data = await getTestData('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const deleteMethod = stub(element, 'delete');
-
-      confirm!.dispatchEvent(new InternalConfirmDialog.HideEvent(true));
-
-      expect(deleteMethod).not.to.have.been.called;
-    });
-
-    it("doesn't render if form is hidden", async () => {
-      const data = await getTestData('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data} hidden></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      expect(await getByTestId(element, 'delete')).to.not.exist;
-    });
-
-    it('doesn\'t render if hiddencontrols includes "delete"', async () => {
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form
-          .data=${await getTestData<Data>('./hapi/coupons/0')}
-          hiddencontrols="delete"
-        >
-        </foxy-coupon-form>
-      `);
-
-      expect(await getByTestId(element, 'delete')).to.not.exist;
-    });
-
-    it('renders with "delete:before" slot by default', async () => {
-      const data = await getTestData('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'delete:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "delete:before" slot with template "delete:before" if available and rendered', async () => {
-      const href = './hapi/coupons/0';
-      const name = 'delete:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form .data=${await getTestData<Data>(href)}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders with "delete:after" slot by default', async () => {
-      const data = await getTestData('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'delete:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "delete:after" slot with template "delete:after" if available and rendered', async () => {
-      const href = './hapi/coupons/0';
-      const name = 'delete:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form .data=${await getTestData<Data>(href)}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-coupon-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-  });
-
-  describe('spinner', () => {
-    it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = './hapi/sleep';
-      const layout = html`<foxy-coupon-form href=${href} lang="es"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const spinnerWrapper = await getByTestId(element, 'spinner');
-      const spinner = spinnerWrapper!.firstElementChild;
-
-      expect(spinnerWrapper).not.to.have.class('opacity-0');
-      expect(spinner).to.have.attribute('state', 'busy');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'coupon-form spinner');
-    });
-
-    it('renders foxy-spinner in "error" state if loading data fails', async () => {
-      const href = './hapi/not-found';
-      const layout = html`<foxy-coupon-form href=${href} lang="es"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const spinnerWrapper = await getByTestId(element, 'spinner');
-      const spinner = spinnerWrapper!.firstElementChild;
-
-      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
-
-      expect(spinnerWrapper).not.to.have.class('opacity-0');
-      expect(spinner).to.have.attribute('state', 'error');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'coupon-form spinner');
-    });
-
-    it('hides spinner once loaded', async () => {
-      const data = await getTestData('./hapi/coupons/0');
-      const layout = html`<foxy-coupon-form .data=${data}></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const spinnerWrapper = await getByTestId(element, 'spinner');
-
-      expect(spinnerWrapper).to.have.class('opacity-0');
-    });
+    expect(control).to.have.attribute('limit', '5');
+    expect(control).to.have.attribute('item', 'foxy-attribute-card');
+    expect(control).to.have.attribute('form', 'foxy-attribute-form');
+    expect(control).to.have.attribute('alert');
   });
 });

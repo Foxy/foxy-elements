@@ -100,7 +100,7 @@ describe('Preview', () => {
       const images = picture.shadowRoot!.querySelectorAll('img');
 
       images.forEach(image => image.dispatchEvent(new Event('error')));
-      await picture.updateComplete;
+      await picture.requestUpdate();
       images.forEach(image => expect(image).to.have.property('src', Picture.placeholder));
     });
   });

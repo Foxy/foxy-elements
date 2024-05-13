@@ -71,7 +71,7 @@ describe('CopyToClipboard', () => {
     const button = element.renderRoot.querySelector('button') as HTMLButtonElement;
 
     button.click();
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(button).to.have.property('title', 'copying');
     writeTextMethod.restore();
@@ -84,8 +84,15 @@ describe('CopyToClipboard', () => {
     const button = element.renderRoot.querySelector('button') as HTMLButtonElement;
 
     button.click();
-    await element.updateComplete;
-    await waitUntil(() => button.title === 'click_to_copy', undefined, { timeout: 5000 });
+
+    await waitUntil(
+      async () => {
+        await element.requestUpdate();
+        return button.title === 'click_to_copy';
+      },
+      undefined,
+      { timeout: 5000 }
+    );
 
     expect(button).to.have.property('title', 'click_to_copy');
     writeTextMethod.restore();
@@ -98,8 +105,15 @@ describe('CopyToClipboard', () => {
     const button = element.renderRoot.querySelector('button') as HTMLButtonElement;
 
     button.click();
-    await element.updateComplete;
-    await waitUntil(() => button.title === 'failed_to_copy', undefined, { timeout: 5000 });
+
+    await waitUntil(
+      async () => {
+        await element.requestUpdate();
+        return button.title === 'failed_to_copy';
+      },
+      undefined,
+      { timeout: 5000 }
+    );
 
     expect(button).to.have.property('title', 'failed_to_copy');
     writeTextMethod.restore();
@@ -112,8 +126,15 @@ describe('CopyToClipboard', () => {
     const button = element.renderRoot.querySelector('button') as HTMLButtonElement;
 
     button.click();
-    await element.updateComplete;
-    await waitUntil(() => button.title === 'click_to_copy', undefined, { timeout: 5000 });
+
+    await waitUntil(
+      async () => {
+        await element.requestUpdate();
+        return button.title === 'click_to_copy';
+      },
+      undefined,
+      { timeout: 5000 }
+    );
 
     expect(button).to.have.property('title', 'click_to_copy');
     writeTextMethod.restore();

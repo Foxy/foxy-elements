@@ -186,7 +186,7 @@
       "additionalProperties": false,
       "properties": {
         "date_created": { "type": "string", "default": "Created on" },
-        "date_modified": { "type": "string", "default": "Last updated" },
+        "date_modified": { "type": "string", "default": "Last updated on" },
         "date": { "type": "string", "default": "{{value, date}}" }
       },
       "required": ["date_created", "date_modified", "date"]
@@ -194,10 +194,11 @@
     "spinner": {
       "additionalProperties": false,
       "properties": {
+        "refresh": { "type": "string", "default": "Refresh" },
         "loading_busy": { "type": "string", "default": "Loading" },
-        "loading_error": { "type": "string", "default": "Failed to load" }
+        "loading_error": { "type": "string", "default": "Unknown error" }
       },
-      "required": ["loading_busy", "loading_error"]
+      "required": ["refresh", "loading_busy", "loading_error"]
     },
     "delete": {
       "additionalProperties": false,

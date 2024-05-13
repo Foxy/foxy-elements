@@ -21,6 +21,7 @@ export interface RequestEventInit<TSource extends HTMLElement> extends RequestSe
   reject: (error: Error) => void;
 }
 
+/** @deprecated – use `FetchEvent` instead. */
 export class RequestEvent<TSource extends HTMLElement = HTMLElement> extends CustomEvent<
   RequestEventPayload<TSource>
 > {

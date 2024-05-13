@@ -1,22 +1,41 @@
 {
-  "cancel": "Cancel",
-  "confirm": "Confirm",
-  "create": "Create",
-  "date": "{{value, date}}",
-  "date_created": "Created on",
-  "date_modified": "Last updated",
-  "delete": "Delete",
-  "delete_prompt": "This resource will be permanently removed. Are you sure?",
-  "name": "Name",
-  "v8n_required": "Required",
-  "v8n_too_long": "Too long",
-  "value": "Value",
-  "visibility": "Visibility",
-  "visibility_private": "Only me",
-  "visibility_public": "Everyone",
-  "visibility_restricted": "Store admins",
+  "name": {
+    "label": "Name",
+    "placeholder": "Required",
+    "helper_text": "Name of this attribute. It does not have to be unique.",
+    "v8n_required": "Please name this attribute.",
+    "v8n_too_long": "Please choose a name that is 500 characters long or less."
+  },
+  "value": {
+    "label": "Value",
+    "placeholder": "Required",
+    "helper_text": "Value of this attribute. Attribute values are automatically HTML-escaped.",
+    "v8n_required": "Please provide a value for this attribute.",
+    "v8n_too_long": "Unfortunately we can't store values that are more than 1000 characters long."
+  },
+  "visibility": {
+    "label": "Visibility",
+    "option_public": "Everyone",
+    "option_restricted": "Store admins",
+    "option_private": "Only me",
+    "helper_text": "Controls who can see this attribute. Public attributes can be shown to anyone, including customers. Private attributes are more suitable for configuration or technical details which are irrelevant to the public. Restricted attributes can only be viewed with the OAuth client that created them."
+  },
+  "timestamps": {
+    "date": "{{value, date}}",
+    "date_created": "Created on",
+    "date_modified": "Last updated on"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
+  },
+  "create": {
+    "create": "Create"
+  },
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

@@ -59,6 +59,23 @@ describe('InternalTextControl', () => {
     expect(customElements.get('foxy-internal-password-control')).to.equal(Control);
   });
 
+  it('has a reactive property for "generatorOptions"', () => {
+    expect(Control).to.have.deep.nested.property('properties.generatorOptions', {
+      attribute: 'generator-options',
+      type: Object,
+    });
+
+    expect(new Control()).to.have.property('generatorOptions', null);
+  });
+
+  it('has a reactive property for "showGenerator"', () => {
+    expect(Control).to.have.deep.nested.property('properties.showGenerator', {
+      attribute: 'show-generator',
+      type: Boolean,
+    });
+    expect(new Control()).to.have.property('showGenerator', false);
+  });
+
   it('extends InternalEditableControl', () => {
     expect(new Control()).to.be.instanceOf(InternalEditableControl);
   });
@@ -79,7 +96,7 @@ describe('InternalTextControl', () => {
     expect(field).to.have.property('errorMessage', '');
 
     control.testErrorMessage = 'test error message';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('errorMessage', 'test error message');
   });
@@ -92,7 +109,7 @@ describe('InternalTextControl', () => {
     expect(field).to.have.property('helperText', 'helper_text');
 
     control.helperText = 'test helper text';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('helperText', 'test helper text');
   });
@@ -105,7 +122,7 @@ describe('InternalTextControl', () => {
     expect(field).to.have.property('placeholder', 'placeholder');
 
     control.placeholder = 'test placeholder';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('placeholder', 'test placeholder');
   });
@@ -118,7 +135,7 @@ describe('InternalTextControl', () => {
     expect(field).to.have.property('label', 'label');
 
     control.label = 'test label';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('label', 'test label');
   });
@@ -129,11 +146,11 @@ describe('InternalTextControl', () => {
     const field = control.renderRoot.querySelector('vaadin-password-field')!;
 
     control.disabled = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('disabled', true);
 
     control.disabled = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('disabled', false);
   });
 
@@ -143,11 +160,11 @@ describe('InternalTextControl', () => {
     const field = control.renderRoot.querySelector('vaadin-password-field')!;
 
     control.readonly = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('readonly', true);
 
     control.readonly = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('readonly', false);
   });
 
@@ -167,7 +184,7 @@ describe('InternalTextControl', () => {
     expect(field).to.have.property('value', '');
 
     control.testValue = 'test_value';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('value', 'test_value');
   });
@@ -195,5 +212,43 @@ describe('InternalTextControl', () => {
     expect(submitMethod).to.have.been.calledOnce;
 
     submitMethod.restore();
+  });
+
+  it('shows a password generator button when "showGenerator" is true', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-password-control show-generator></test-internal-password-control>
+    `);
+
+    let button = control.renderRoot.querySelector<HTMLElement>('[data-testid="generator"]')!;
+    expect(button).to.exist;
+
+    button.click();
+    expect(control).to.have.property('testValue').that.is.not.empty;
+
+    control.showGenerator = false;
+    await control.requestUpdate();
+
+    button = control.renderRoot.querySelector<HTMLElement>('[data-testid="generator"]')!;
+    expect(button).to.not.exist;
+  });
+
+  it('uses password generator options when generating a password', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-password-control show-generator></test-internal-password-control>
+    `);
+
+    const button = control.renderRoot.querySelector<HTMLElement>('[data-testid="generator"]')!;
+    expect(button).to.exist;
+
+    button.click();
+    expect(control.testValue).to.match(/^[a-zA-Z0-9]{6}-[a-zA-Z0-9]{6}-[a-zA-Z0-9]{6}$/);
+
+    control.generatorOptions = {
+      charset: 'abcdefghijklmnopqrstuvwxyz0123456789',
+      length: 12,
+    };
+
+    button.click();
+    expect(control.testValue).to.match(/^[a-z0-9]{6}-[a-z0-9]{6}$/);
   });
 });

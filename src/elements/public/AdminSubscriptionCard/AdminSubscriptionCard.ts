@@ -45,12 +45,15 @@ export class AdminSubscriptionCard extends Base<Data> {
 
   private readonly __templateSetLoaderId = 'templateSetLoader';
 
+  private readonly __customerLoaderId = 'customerLoader';
+
   private readonly __itemsLoaderId = 'itemsLoader';
 
   private readonly __storeLoaderId = 'storeLoader';
 
   renderBody(): TemplateResult {
     const isFailed = !!this.data?.first_failed_transaction_date;
+    const customer = this.__customer;
     const cart = this.__transactionTemplate;
 
     const priceKey = this.__priceKey;
@@ -100,6 +103,15 @@ export class AdminSubscriptionCard extends Base<Data> {
       <foxy-nucleon
         class="hidden"
         infer=""
+        href=${ifDefined(this.__customerHref)}
+        id=${this.__customerLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
         href=${ifDefined(this.__itemsHref)}
         id=${this.__itemsLoaderId}
         @update=${() => this.requestUpdate()}
@@ -135,14 +147,21 @@ export class AdminSubscriptionCard extends Base<Data> {
             : html`&ZeroWidthSpace;`}
         </div>
 
-        <div class="text-tertiary truncate text-s">${cart?.customer_email}&ZeroWidthSpace;</div>
+        <div class="text-tertiary truncate text-s">
+          ${customer?.first_name} ${customer?.last_name} (${cart?.customer_email})
+        </div>
       </div>
     `;
   }
 
   get isBodyReady(): boolean {
-    const isLoaded = !!this.__items && !!this.__currencyCode && !!this.__currencyDisplay;
-    return super.isBodyReady && isLoaded;
+    return (
+      super.isBodyReady &&
+      !!this.__items &&
+      !!this.__currencyCode &&
+      !!this.__currencyDisplay &&
+      !!this.__customer
+    );
   }
 
   private get __transactionTemplateHref() {
@@ -179,6 +198,11 @@ export class AdminSubscriptionCard extends Base<Data> {
   private get __templateSetHref() {
     const cart = this.__transactionTemplate;
     if (!cart?.currency_code) return cart?.template_set_uri || void 0;
+  }
+
+  private get __customerHref() {
+    if ('fx:customer' in (this.data?._embedded ?? {})) return;
+    return this.data?._links['fx:customer']?.href;
   }
 
   private get __itemsHref() {
@@ -227,6 +251,18 @@ export class AdminSubscriptionCard extends Base<Data> {
     type Loader = NucleonElement<Resource<Rels.TemplateSet>>;
     const selector = `#${this.__templateSetLoaderId}`;
     return this.renderRoot.querySelector<Loader>(selector)?.data ?? null;
+  }
+
+  private get __customer() {
+    const data = this.data;
+
+    if (data && '_embedded' in data && 'fx:customer' in data._embedded) {
+      return data._embedded['fx:customer'] as Resource<Rels.Customer>;
+    } else {
+      type Loader = NucleonElement<Resource<Rels.Customer>>;
+      const selector = `#${this.__customerLoaderId}`;
+      return this.renderRoot.querySelector<Loader>(selector)?.data ?? null;
+    }
   }
 
   private get __items() {
@@ -280,9 +316,15 @@ export class AdminSubscriptionCard extends Base<Data> {
   }
 
   private get __statusOptions() {
-    const d = this.data;
-    const date = d?.first_failed_transaction_date ?? d?.end_date ?? d?.next_transaction_date;
-    if (date) return { date };
+    const data = this.data;
+
+    if (data === null) return;
+    if (data.first_failed_transaction_date) return { date: data.first_failed_transaction_date };
+    if (data.end_date) return { date: data.end_date };
+    if (data.is_active === false) return {};
+    if (new Date(data.start_date) > new Date()) return { date: data.start_date };
+
+    return { date: data.next_transaction_date };
   }
 
   private get __currencyCode() {
@@ -329,7 +371,10 @@ export class AdminSubscriptionCard extends Base<Data> {
       return hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
     }
 
-    return `subscription_${data.is_active ? 'active' : 'inactive'}`;
+    if (data.is_active === false) return 'subscription_inactive';
+    if (new Date(data.start_date) > new Date()) return 'subscription_will_be_active';
+
+    return 'subscription_active';
   }
 
   private get __priceKey() {

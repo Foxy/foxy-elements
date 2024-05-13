@@ -1,9 +1,21 @@
 {
+  "daily": "Daily",
+  "daily_plural": "Every {{count}} days",
+  "frequency": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"item-card\" })",
+  "monthly": "Monthly",
+  "monthly_plural": "Every {{count}} months",
+  "subinfo_recurring": "$t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"item-card\" }) from {{startDate, date}}",
+  "subinfo_twice_a_month": "$t(twice_a_month, { \"ns\": \"item-card\" }) from {{startDate, date}}",
+  "twice_a_month": "Twice a month",
+  "no_code": "No SKU",
+  "weekly": "Weekly",
+  "weekly_plural": "Every {{count}} weeks",
+  "yearly": "Yearly",
+  "yearly_plural": "Every {{count}} years",
   "price": "{{amount, price}}",
-  "wgt": "WGT",
   "spinner": {
     "loading_busy": "Loading",
     "loading_empty": "No items",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

@@ -36,7 +36,7 @@ export class InternalTransactionPostActionControl extends InternalControl {
 
       <vaadin-button
         class="w-full"
-        theme="${theme} tertiary"
+        theme="${theme} tertiary-inline"
         ?disabled=${state === 'busy' || this.disabled}
         @click=${(evt: CustomEvent) => {
           const confirm = this.renderRoot.querySelector('#confirm') as InternalConfirmDialog;

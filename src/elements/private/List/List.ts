@@ -10,6 +10,7 @@ import {
 import { ListChangeEvent } from './ListChangeEvent';
 import { Themeable } from '../../../mixins/themeable';
 
+/** @deprecated – use internal controls instead */
 export class List extends LitElement {
   public static get properties(): PropertyDeclarations {
     return {

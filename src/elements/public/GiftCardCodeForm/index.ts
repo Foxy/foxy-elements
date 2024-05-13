@@ -1,15 +1,12 @@
-import '@vaadin/vaadin-text-field/vaadin-number-field';
-import '@vaadin/vaadin-text-field/vaadin-text-field';
-import '@vaadin/vaadin-date-picker';
-import '@vaadin/vaadin-button';
-
-import '../../internal/InternalAsyncDetailsControl/index';
-import '../../internal/InternalConfirmDialog/index';
-import '../../internal/InternalSandbox/index';
+import '../../internal/InternalResourcePickerControl/index';
+import '../../internal/InternalAsyncListControl/index';
+import '../../internal/InternalNumberControl/index';
+import '../../internal/InternalDateControl/index';
+import '../../internal/InternalTextControl/index';
+import '../../internal/InternalForm/index';
 
 import '../GiftCardCodeLogCard/index';
-import '../Spinner/index';
-import '../I18n/index';
+import '../CustomerCard/index';
 
 import './internal/InternalGiftCardCodeFormItemControl/index';
 

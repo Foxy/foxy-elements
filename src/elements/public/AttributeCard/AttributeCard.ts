@@ -61,7 +61,7 @@ export class AttributeCard extends Base<Data> {
         ${this.renderTemplateOrSlot('value:before')}
 
         <div
-          class="truncate text-tertiary text-s sm-text-m"
+          class="truncate text-secondary text-s sm-text-m"
           title=${data?.value ?? ''}
           data-testid="value"
         >

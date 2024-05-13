@@ -106,7 +106,7 @@ describe('InternalCard', () => {
     const element = await fixture<TestInternalCard>(layout);
 
     element.testBody = html`<div id="test-body"></div>`;
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot.querySelector('#test-body')).to.exist;
   });

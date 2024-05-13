@@ -16,7 +16,7 @@ customElements.define('x-error-screen', TestErrorScreen);
 
 function testType(type: TestErrorScreen['type']) {
   return async (element: TestErrorScreen) => {
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element).to.have.property('type', type);
 
     const title = element.shadowRoot!.querySelector(`[key="errors.${type}.title"]`);
@@ -31,7 +31,7 @@ function testType(type: TestErrorScreen['type']) {
 
 function testReload(reload: TestErrorScreen['reload']) {
   return async (element: TestErrorScreen) => {
-    await element.updateComplete;
+    await element.requestUpdate();
     const reloadBtn = element.shadowRoot!.querySelector('[data-testid=reload]') as ButtonElement;
     if (reload) {
       const whenReloadFired = oneEvent(element, 'reload');

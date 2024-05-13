@@ -22,7 +22,10 @@ import '../index.ts';
 To get started, make sure you've got your basic setup ready on the main page – in our guide that'd be `index.html`. If you're building a single page application, you'll need to include the JS portion only once.
 
 ```html
-<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/"></foxy-customer-portal>
+<foxy-customer-portal
+  base="https://foxy-demo.foxycart.com/s/customer/"
+  simplify-ns-loading
+></foxy-customer-portal>
 
 <script type="module">
   import 'https://unpkg.com/@foxy.io/elements@1/dist/cdn/foxy-customer-portal.js';
@@ -38,7 +41,7 @@ To get started, make sure you've got your basic setup ready on the main page –
 Let's add a `<nav>` element with `<a>` links. We can't use slots since their content is rendered for everyone regardless of auth status, but we can use a special feature that comes with every configurable element from Foxy – **templates**. Just like slots, templates allow developers to inject custom markup in predefined positions, except that it won't be rendered if template host is hidden. Let's add our navigation right **before the header**:
 
 ```html
-<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/">
+<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/" simplify-ns-loading>
   <template slot="customer:header:before">
     <nav>
       <a href="./index.html">My Profile</a>
@@ -56,7 +59,7 @@ If you run this code, you'll need to log in to see the links. It works!
 Let's add some CSS to make it look a bit better. Every template is rendered in an isolated Shadow DOM, so you'll need to link or define your styles **inside of the template**. Quick tip: use [Lumo](https://demo.vaadin.com/lumo-editor/) to make your custom content look native to the portal.
 
 ```html
-<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/">
+<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/" simplify-ns-loading>
   <template slot="customer:header:before">
     <style>
       a {
@@ -86,6 +89,7 @@ For our orders page, let's copy the contents of `index.html` and paste them into
 <foxy-customer-portal
   hiddencontrols="customer:header:actions:edit customer:subscriptions customer:transactions customer:addresses customer:payment-methods"
   base="https://foxy-demo.foxycart.com/s/customer/"
+  simplify-ns-loading
 >
   <template slot="customer:header:before">...</template>
 </foxy-customer-portal>
@@ -97,6 +101,7 @@ That's our custom page. To fill it with content, we can **use the `customer:defa
 <foxy-customer-portal
   hiddencontrols="customer:header:actions:edit customer:subscriptions customer:transactions customer:addresses customer:payment-methods"
   base="https://foxy-demo.foxycart.com/s/customer/"
+  simplify-ns-loading
 >
   <template slot="customer:header:before">...</template>
   <template slot="customer:default">

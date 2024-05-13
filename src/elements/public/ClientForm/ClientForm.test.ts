@@ -119,7 +119,7 @@ describe('ClientForm', () => {
 
     expect(element.readonlySelector.matches('client-id', true)).to.be.false;
     element.href = 'https://demo.api/virtual/stall';
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.readonlySelector.matches('client-id', true)).to.be.true;
   });
 

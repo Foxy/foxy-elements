@@ -233,7 +233,7 @@ describe('ItemCategoryForm', () => {
       expect(await getByTag(item, 'vaadin-checkbox')).to.not.have.attribute('disabled');
 
       item.disabled = true;
-      await item.updateComplete;
+      await item.requestUpdate();
       expect(await getByTag(item, 'vaadin-checkbox')).to.have.attribute('disabled');
     });
   });

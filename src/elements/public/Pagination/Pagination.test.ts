@@ -101,7 +101,7 @@ describe('Pagination', () => {
     expect(await getByTestId(element, 'next')).to.have.attribute('disabled');
   });
 
-  it('disables all buttons while loading', async () => {
+  it('hides all buttons while loading', async () => {
     const router = createRouter();
     const handle = (evt: FetchEvent) => router.handleEvent(evt);
     const element = await fixture(html`
@@ -113,10 +113,28 @@ describe('Pagination', () => {
     const page = element.firstElementChild as NucleonElement<TestData>;
     await waitUntil(() => page.in('busy'));
 
-    expect(await getByTestId(element, 'first')).to.have.attribute('disabled');
-    expect(await getByTestId(element, 'prev')).to.have.attribute('disabled');
-    expect(await getByTestId(element, 'last')).to.have.attribute('disabled');
-    expect(await getByTestId(element, 'next')).to.have.attribute('disabled');
+    expect(await getByTestId(element, 'first')).to.not.exist;
+    expect(await getByTestId(element, 'prev')).to.not.exist;
+    expect(await getByTestId(element, 'last')).to.not.exist;
+    expect(await getByTestId(element, 'next')).to.not.exist;
+  });
+
+  it('hides all buttons if collection length is less than limit', async () => {
+    const router = createRouter();
+    const handle = (evt: FetchEvent) => router.handleEvent(evt);
+    const element = await fixture(html`
+      <foxy-pagination first="https://demo.api/hapi/transactions">
+        <test-page-element @fetch=${handle}></test-page-element>
+      </foxy-pagination>
+    `);
+
+    const page = element.firstElementChild as NucleonElement<TestData>;
+    await waitUntil(() => page.in('idle'));
+
+    expect(await getByTestId(element, 'first')).to.not.exist;
+    expect(await getByTestId(element, 'prev')).to.not.exist;
+    expect(await getByTestId(element, 'last')).to.not.exist;
+    expect(await getByTestId(element, 'next')).to.not.exist;
   });
 
   it('disables all buttons when disabled is true', async () => {

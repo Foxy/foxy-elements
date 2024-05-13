@@ -201,8 +201,7 @@ describe('InternalEditableControl', () => {
 
     const control = wrapper.firstElementChild as InternalEditableControl;
     wrapper.edit({ address_name: 'Invalid'.repeat(1024) });
-    control.v8nPrefix = 'address_name_';
-    expect(control).to.have.property('_error', 'address_name_too_long');
+    expect(control).to.have.property('_error', 'address-name:v8n_too_long');
 
     wrapper.edit({ address_name: 'Valid' });
     expect(control).to.have.property('_error', undefined);
@@ -217,8 +216,7 @@ describe('InternalEditableControl', () => {
 
     const control = wrapper.firstElementChild as InternalEditableControl;
     wrapper.edit({ address_name: 'Invalid'.repeat(1024) });
-    control.v8nPrefix = 'address_name_';
-    expect(control).to.have.property('_errorMessage', 'too_long');
+    expect(control).to.have.property('_errorMessage', 'v8n_too_long');
 
     wrapper.edit({ address_name: 'Valid' });
     expect(control).to.have.property('_error', undefined);
@@ -233,7 +231,6 @@ describe('InternalEditableControl', () => {
 
     const control = wrapper.firstElementChild as any;
     wrapper.edit({ address_name: 'Invalid'.repeat(1024) });
-    control.v8nPrefix = 'address_name_';
 
     expect(control).to.have.property('_checkValidity');
     expect(control._checkValidity()).to.equal(false);

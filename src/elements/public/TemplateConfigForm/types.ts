@@ -33,6 +33,9 @@ export type Templates = {
   'google-analytics:before'?: Renderer<TemplateConfigForm>;
   'google-analytics:after'?: Renderer<TemplateConfigForm>;
 
+  'google-tag:before'?: Renderer<TemplateConfigForm>;
+  'google-tag:after'?: Renderer<TemplateConfigForm>;
+
   'segment-io:before'?: Renderer<TemplateConfigForm>;
   'segment-io:after'?: Renderer<TemplateConfigForm>;
 

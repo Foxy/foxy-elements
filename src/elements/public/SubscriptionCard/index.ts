@@ -1,3 +1,4 @@
+import '@vaadin-component-factory/vcf-tooltip';
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';
 import '../../internal/InternalSandbox/index';

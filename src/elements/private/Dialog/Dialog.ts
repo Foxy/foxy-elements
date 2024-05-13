@@ -326,9 +326,16 @@ export abstract class Dialog extends Base {
       Promise.all(Dialog.openDialogs.map(dialog => dialog.requestUpdate())),
 
       // trigger exit transition
-      new Promise(resolve => {
-        const backdrop = this.renderRoot.querySelector('#backdrop') as HTMLDivElement;
-        backdrop.addEventListener('transitionend', resolve, { once: true });
+      new Promise<void>(resolve => {
+        const backdrop = this.renderRoot.querySelector('#backdrop');
+
+        if (backdrop) {
+          backdrop.addEventListener('transitionend', () => resolve(), { once: true });
+          setTimeout(() => resolve(), 2000);
+        } else {
+          resolve();
+        }
+
         this.__visible = Dialog.openDialogs.includes(this);
       }),
     ]);

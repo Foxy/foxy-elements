@@ -17,6 +17,8 @@ export type Templates = {
   'number-of-codes:after'?: Renderer<GenerateCodesForm>;
   'prefix:before'?: Renderer<GenerateCodesForm>;
   'prefix:after'?: Renderer<GenerateCodesForm>;
-  'generate:before'?: Renderer<GenerateCodesForm>;
-  'generate:after'?: Renderer<GenerateCodesForm>;
+  'example:before'?: Renderer<GenerateCodesForm>;
+  'example:after'?: Renderer<GenerateCodesForm>;
+  'create:before'?: Renderer<GenerateCodesForm>;
+  'create:after'?: Renderer<GenerateCodesForm>;
 };
