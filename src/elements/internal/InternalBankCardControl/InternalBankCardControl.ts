@@ -83,6 +83,20 @@ export class InternalBankCardControl extends InternalControl {
         >
           <foxy-spinner infer="spinner" layout="no-label"></foxy-spinner>
         </div>
+
+        <div
+          class="hidden ml-m mr-s bg-contrast-5 text-contrast-10 h-m w-xs rounded-tr-m rounded-br-s font-lumo text-m leading-xs"
+          style="border-top-color: var(--lumo-primary-color); border-bottom-color: var(--lumo-primary-text-color); border-left-color: var(--lumo-primary-color-50pct); border-right-color: var(--lumo-secondary-text-color);"
+          id="d1"
+        ></div>
+
+        <div
+          class="hidden text-s text-disabled"
+          style="background-color: var(--lumo-body-text-color); border-top-color: var(--lumo-error-text-color); border-bottom-color: var(--lumo-error-color-10pct); border-left-color: var(--lumo-error-color-50pct);"
+          id="d2"
+        ></div>
+
+        <div class="hidden border-top-contrast-50 text-xs bg-base" id="d3"></div>
       </div>
     `;
   }
@@ -90,7 +104,8 @@ export class InternalBankCardControl extends InternalControl {
   updated(changes: Map<keyof this, unknown>): void {
     super.updated(changes);
     if (!this.__iframe && this.__isUiReady) this.__isUiReady = false;
-    this.__sendMessage(this.__createConfig());
+    const config = this.__createConfig();
+    if (config) this.__sendMessage(config);
     this.__configure();
   }
 
@@ -105,6 +120,7 @@ export class InternalBankCardControl extends InternalControl {
   private __createConfig() {
     const i18nKeys = [
       'stripe-card.label',
+      'square-card.label',
       'cc-number.v8n_unsupported',
       'cc-number.v8n_required',
       'cc-number.v8n_invalid',
@@ -122,44 +138,48 @@ export class InternalBankCardControl extends InternalControl {
       'supported-cards.label',
       'status-message.idle',
       'status-message.stripe_idle',
+      'status-message.square_idle',
       'status-message.busy',
       'status-message.fail_4xx',
       'status-message.fail_5xx',
     ];
 
-    const cssVars = [
-      '--lumo-space-m',
-      '--lumo-space-s',
-      '--lumo-contrast-5pct',
-      '--lumo-contrast-10pct',
-      '--lumo-contrast-50pct',
-      '--lumo-size-m',
-      '--lumo-size-xs',
-      '--lumo-border-radius-m',
-      '--lumo-border-radius-s',
-      '--lumo-font-family',
-      '--lumo-font-size-m',
-      '--lumo-font-size-s',
-      '--lumo-font-size-xs',
-      '--lumo-primary-color',
-      '--lumo-primary-text-color',
-      '--lumo-primary-color-50pct',
-      '--lumo-secondary-text-color',
-      '--lumo-disabled-text-color',
-      '--lumo-body-text-color',
-      '--lumo-error-text-color',
-      '--lumo-error-color-10pct',
-      '--lumo-error-color-50pct',
-      '--lumo-line-height-xs',
-      '--lumo-base-color',
-    ];
+    const d1 = this.renderRoot.querySelector('#d1');
+    const d2 = this.renderRoot.querySelector('#d2');
+    const d3 = this.renderRoot.querySelector('#d3');
 
-    const rootComputedStyle = getComputedStyle(document.documentElement);
-    const computedStyle = getComputedStyle(this);
-    const style: Record<string, string> = {};
+    if (!d1 || !d2 || !d3) return;
 
-    style.fontSize = rootComputedStyle.fontSize;
-    cssVars.forEach(key => (style[key] = computedStyle.getPropertyValue(key)));
+    const d1Style = getComputedStyle(d1);
+    const d2Style = getComputedStyle(d2);
+    const d3Style = getComputedStyle(d3);
+
+    const style: Record<string, string> = {
+      '--lumo-space-m': d1Style.marginLeft,
+      '--lumo-space-s': d1Style.marginRight,
+      '--lumo-contrast-5pct': d1Style.backgroundColor,
+      '--lumo-contrast-10pct': d1Style.color,
+      '--lumo-contrast-50pct': d3Style.borderTopColor,
+      '--lumo-size-m': d1Style.height,
+      '--lumo-size-xs': d1Style.width,
+      '--lumo-border-radius-m': d1Style.borderTopRightRadius,
+      '--lumo-border-radius-s': d1Style.borderBottomRightRadius,
+      '--lumo-font-family': d1Style.fontFamily,
+      '--lumo-font-size-m': d1Style.fontSize,
+      '--lumo-font-size-s': d2Style.fontSize,
+      '--lumo-font-size-xs': d3Style.fontSize,
+      '--lumo-primary-color': d1Style.borderTopColor,
+      '--lumo-primary-text-color': d1Style.borderBottomColor,
+      '--lumo-primary-color-50pct': d1Style.borderLeftColor,
+      '--lumo-secondary-text-color': d1Style.borderRightColor,
+      '--lumo-disabled-text-color': d2Style.color,
+      '--lumo-body-text-color': d2Style.backgroundColor,
+      '--lumo-error-text-color': d2Style.borderTopColor,
+      '--lumo-error-color-10pct': d2Style.borderBottomColor,
+      '--lumo-error-color-50pct': d2Style.borderLeftColor,
+      '--lumo-line-height-xs': d1Style.lineHeight,
+      '--lumo-base-color': d3Style.backgroundColor,
+    };
 
     return {
       translations: i18nKeys.reduce<Record<string, string>>((p, c) => {
@@ -182,7 +202,10 @@ export class InternalBankCardControl extends InternalControl {
   private __configure() {
     if (this.__refreshInterval) clearInterval(this.__refreshInterval);
     if (this.isConnected) {
-      const callback = () => this.__sendMessage(this.__createConfig());
+      const callback = () => {
+        const config = this.__createConfig();
+        this.__sendMessage(config);
+      };
       this.__refreshInterval = setInterval(callback, 1000);
     }
   }
