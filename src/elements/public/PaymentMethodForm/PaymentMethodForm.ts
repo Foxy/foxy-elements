@@ -54,7 +54,7 @@ export class PaymentMethodForm extends Base<Data> {
   }
 
   static get v8n(): NucleonV8N<Data> {
-    return [({ token: v }) => !v || v !== 'pending' || 'token:v8n_required'];
+    return [({ cc_token: v }) => v !== '' || 'cc-token:v8n_required'];
   }
 
   private readonly __ccNumberGetValue = () => {

@@ -21,11 +21,13 @@ export default getMeta(summary);
 
 export const Playground = getStory({ ...summary, code: true });
 export const Stripe = getStory(summary);
+export const Square = getStory(summary);
 export const Empty = getStory(summary);
 export const Error = getStory(summary);
 export const Busy = getStory(summary);
 
 Stripe.args.href = 'https://demo.api/hapi/payment_methods/1';
+Square.args.href = 'https://demo.api/hapi/payment_methods/2';
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
 Busy.args.href = 'https://demo.api/virtual/stall';

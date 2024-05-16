@@ -7,7 +7,7 @@ import type { Resource } from '@foxy.io/sdk/core';
 // TODO remove this after the SDK is updated
 export type Rel = (BackendRels.DefaultPaymentMethod | CustomerRels.DefaultPaymentMethod) & {
   links: { 'fx:cc_token_embed_url': never };
-  props: { token?: string };
+  props: { cc_token?: string };
 };
 
 export type Data = Resource<Rel>;
