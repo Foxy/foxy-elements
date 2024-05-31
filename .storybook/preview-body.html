@@ -1,59 +1,4 @@
 <style>
-  @media (prefers-color-scheme: light) {
-    :root {
-      --lumo-contrast-90pct: hsla(290deg, 52%, 3%, 0.9);
-      --lumo-contrast-80pct: hsla(290deg, 52%, 3%, 0.8);
-      --lumo-contrast-70pct: hsla(290deg, 52%, 3%, 0.7);
-      --lumo-contrast-60pct: hsla(290deg, 52%, 3%, 0.6);
-      --lumo-contrast-50pct: hsla(290deg, 52%, 3%, 0.5);
-      --lumo-contrast-40pct: hsla(290deg, 52%, 3%, 0.4);
-      --lumo-contrast-30pct: hsla(290deg, 52%, 3%, 0.3);
-      --lumo-contrast-20pct: hsla(290deg, 52%, 3%, 0.2);
-      --lumo-contrast-10pct: hsla(290deg, 52%, 3%, 0.1);
-      --lumo-contrast-5pct: hsla(290deg, 52%, 3%, 0.05);
-      --lumo-contrast: hsla(290deg, 52%, 3%, 1);
-
-      --lumo-shade-90pct: hsla(290deg, 52%, 3%, 0.9);
-      --lumo-shade-80pct: hsla(290deg, 52%, 3%, 0.8);
-      --lumo-shade-70pct: hsla(290deg, 52%, 3%, 0.7);
-      --lumo-shade-60pct: hsla(290deg, 52%, 3%, 0.6);
-      --lumo-shade-50pct: hsla(290deg, 52%, 3%, 0.5);
-      --lumo-shade-40pct: hsla(290deg, 52%, 3%, 0.4);
-      --lumo-shade-30pct: hsla(290deg, 52%, 3%, 0.3);
-      --lumo-shade-20pct: hsla(290deg, 52%, 3%, 0.2);
-      --lumo-shade-10pct: hsla(290deg, 52%, 3%, 0.1);
-      --lumo-shade-5pct: hsla(290deg, 52%, 3%, 0.05);
-      --lumo-shade: hsla(290deg, 52%, 3%, 1);
-
-      --lumo-tint-90pct: hsla(0deg, 0%, 100%, 0.9);
-      --lumo-tint-80pct: hsla(0deg, 0%, 100%, 0.8);
-      --lumo-tint-70pct: hsla(0deg, 0%, 100%, 0.7);
-      --lumo-tint-60pct: hsla(0deg, 0%, 100%, 0.6);
-      --lumo-tint-50pct: hsla(0deg, 0%, 100%, 0.5);
-      --lumo-tint-40pct: hsla(0deg, 0%, 100%, 0.4);
-      --lumo-tint-30pct: hsla(0deg, 0%, 100%, 0.3);
-      --lumo-tint-20pct: hsla(0deg, 0%, 100%, 0.2);
-      --lumo-tint-10pct: hsla(0deg, 0%, 100%, 0.1);
-      --lumo-tint-5pct: hsla(0deg, 0%, 100%, 0.05);
-      --lumo-tint: hsla(0deg, 0%, 100%, 1);
-
-      --lumo-primary-color-50pct: hsla(290deg, 52%, 28%, 0.5);
-      --lumo-primary-color-10pct: hsla(290deg, 52%, 28%, 0.1);
-      --lumo-primary-color: hsla(290deg, 52%, 28%, 1);
-      --lumo-primary-contrast-color: hsla(290deg, 52%, 100%, 1);
-
-      --lumo-success-color-50pct: hsla(100deg, 50%, 34%, 0.5);
-      --lumo-success-color-10pct: hsla(100deg, 50%, 34%, 0.1);
-      --lumo-success-color: hsla(100deg, 50%, 34%, 1);
-      --lumo-success-contrast-color: hsla(100deg, 50%, 100%, 1);
-
-      --lumo-error-color-50pct: hsla(0deg, 50%, 50%, 0.5);
-      --lumo-error-color-10pct: hsla(0deg, 50%, 50%, 0.1);
-      --lumo-error-color: hsla(0deg, 50%, 50%, 1);
-      --lumo-error-contrast-color: hsla(0deg, 50%, 100%, 1);
-    }
-  }
-
   @media (prefers-color-scheme: dark) {
     :root {
       --lumo-contrast-90pct: hsla(290deg, 52%, 100%, 0.9);
@@ -115,10 +60,67 @@
     }
   }
 
-  :root {
+  :root,
+  .docs-story {
+    --lumo-contrast-90pct: hsla(290deg, 52%, 3%, 0.9);
+    --lumo-contrast-80pct: hsla(290deg, 52%, 3%, 0.8);
+    --lumo-contrast-70pct: hsla(290deg, 52%, 3%, 0.7);
+    --lumo-contrast-60pct: hsla(290deg, 52%, 3%, 0.6);
+    --lumo-contrast-50pct: hsla(290deg, 52%, 3%, 0.5);
+    --lumo-contrast-40pct: hsla(290deg, 52%, 3%, 0.4);
+    --lumo-contrast-30pct: hsla(290deg, 52%, 3%, 0.3);
+    --lumo-contrast-20pct: hsla(290deg, 52%, 3%, 0.2);
+    --lumo-contrast-10pct: hsla(290deg, 52%, 3%, 0.1);
+    --lumo-contrast-5pct: hsla(290deg, 52%, 3%, 0.05);
+    --lumo-contrast: hsla(290deg, 52%, 3%, 1);
+
+    --lumo-shade-90pct: hsla(290deg, 52%, 3%, 0.9);
+    --lumo-shade-80pct: hsla(290deg, 52%, 3%, 0.8);
+    --lumo-shade-70pct: hsla(290deg, 52%, 3%, 0.7);
+    --lumo-shade-60pct: hsla(290deg, 52%, 3%, 0.6);
+    --lumo-shade-50pct: hsla(290deg, 52%, 3%, 0.5);
+    --lumo-shade-40pct: hsla(290deg, 52%, 3%, 0.4);
+    --lumo-shade-30pct: hsla(290deg, 52%, 3%, 0.3);
+    --lumo-shade-20pct: hsla(290deg, 52%, 3%, 0.2);
+    --lumo-shade-10pct: hsla(290deg, 52%, 3%, 0.1);
+    --lumo-shade-5pct: hsla(290deg, 52%, 3%, 0.05);
+    --lumo-shade: hsla(290deg, 52%, 3%, 1);
+
+    --lumo-tint-90pct: hsla(0deg, 0%, 100%, 0.9);
+    --lumo-tint-80pct: hsla(0deg, 0%, 100%, 0.8);
+    --lumo-tint-70pct: hsla(0deg, 0%, 100%, 0.7);
+    --lumo-tint-60pct: hsla(0deg, 0%, 100%, 0.6);
+    --lumo-tint-50pct: hsla(0deg, 0%, 100%, 0.5);
+    --lumo-tint-40pct: hsla(0deg, 0%, 100%, 0.4);
+    --lumo-tint-30pct: hsla(0deg, 0%, 100%, 0.3);
+    --lumo-tint-20pct: hsla(0deg, 0%, 100%, 0.2);
+    --lumo-tint-10pct: hsla(0deg, 0%, 100%, 0.1);
+    --lumo-tint-5pct: hsla(0deg, 0%, 100%, 0.05);
+    --lumo-tint: hsla(0deg, 0%, 100%, 1);
+
+    --lumo-primary-color-50pct: hsla(290deg, 52%, 28%, 0.5);
+    --lumo-primary-color-10pct: hsla(290deg, 52%, 28%, 0.1);
+    --lumo-primary-color: hsla(290deg, 52%, 28%, 1);
+    --lumo-primary-contrast-color: hsla(290deg, 52%, 100%, 1);
+
+    --lumo-success-color-50pct: hsla(100deg, 50%, 34%, 0.5);
+    --lumo-success-color-10pct: hsla(100deg, 50%, 34%, 0.1);
+    --lumo-success-color: hsla(100deg, 50%, 34%, 1);
+    --lumo-success-contrast-color: hsla(100deg, 50%, 100%, 1);
+
+    --lumo-error-color-50pct: hsla(0deg, 50%, 50%, 0.5);
+    --lumo-error-color-10pct: hsla(0deg, 50%, 50%, 0.1);
+    --lumo-error-color: hsla(0deg, 50%, 50%, 1);
+    --lumo-error-contrast-color: hsla(0deg, 50%, 100%, 1);
+
     --lumo-success-text-color: var(--lumo-success-color);
     --lumo-primary-text-color: var(--lumo-primary-color);
+    --lumo-secondary-text-color: var(--lumo-contrast-70pct);
+    --lumo-tertiary-text-color: var(--lumo-contrast-50pct);
     --lumo-error-text-color: var(--lumo-error-color);
+    --lumo-body-text-color: var(--lumo-contrast-90pct);
+    --lumo-disabled-text-color: var(--lumo-contrast-30pct);
+    --lumo-header-text-color: var(--lumo-contrast);
     --lumo-base-color: var(--lumo-tint);
     --lumo-border-radius-s: 0.2em;
     --lumo-border-radius-m: 0.4em;

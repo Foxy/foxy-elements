@@ -1,6 +1,9 @@
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500&display=swap"
+  rel="stylesheet"
+/>
 <link href="https://unpkg.com/tailwindcss@^2.0/dist/tailwind.min.css" rel="stylesheet" />
 
 <style>
@@ -55,7 +58,7 @@
     padding: var(--lumo-space-m);
   }
 
-  .foxy-story--narrow>.foxy-story__preview {
+  .foxy-story--narrow > .foxy-story__preview {
     max-width: 30rem;
     border: 1px solid var(--lumo-contrast-10pct);
     margin: var(--lumo-space-xl) auto;
@@ -82,8 +85,12 @@
   }
 
   /* Hide "No code available" warning (we have our own thing for this). */
-  .docs-story> :last-child {
+  .docs-story > :last-child {
     display: none;
+  }
+
+  .docs-story .innerZoomElementWrapper > * {
+    vertical-align: top;
   }
 
   #root {
