@@ -1,152 +1,152 @@
 {
   "access-recovery-form": {
-    "back": "Wróć",
-    "email": "E-mail",
-    "recover_access": "Uzyskaj hasło tymczasowe",
-    "recover_access_hint": "Wpisz swój adres e-mail, aby otrzymać hasło tymczasowe",
-    "recover_access_success": "Zrobione! ",
-    "unknown_error": "W tej chwili nie możemy wystawić kodu jednorazowego dla tego konta. ",
-    "v8n_invalid_email": "Niepoprawny email",
-    "v8n_required": "Wymagany",
+    "back": "Gå tillbaka",
+    "email": "E-post",
+    "recover_access": "Skaffa ett tillfälligt lösenord",
+    "recover_access_hint": "Ange din e-postadress för att få ett tillfälligt lösenord",
+    "recover_access_success": "Gjort! ",
+    "unknown_error": "Vi kan inte utfärda en engångskod för det här kontot för tillfället. ",
+    "v8n_invalid_email": "Ogiltig e-postadress",
+    "v8n_required": "Nödvändig",
     "spinner": {
-      "refresh": "Odświeżać",
-      "loading_busy": "Ładowanie",
-      "loading_error": "Nieznany błąd"
+      "refresh": "Uppdatera",
+      "loading_busy": "Läser in",
+      "loading_error": "Okänt fel"
     }
   },
   "customer": {
-    "address_plural": "Adresy",
-    "cancel": "Anulować",
-    "close": "Zamknąć",
-    "payment_method_plural": "Metody Płatności",
-    "save": "Ratować",
-    "subscription_plural": "Subskrypcje",
-    "transaction_plural": "Transakcje",
-    "undo_cancel": "Recenzja",
-    "undo_confirm": "Wyrzucać",
-    "undo_header": "Niezapisane zmiany",
-    "undo_message": "Wygląda na to, że nie zapisałeś zmian! ",
-    "update": "Aktualizacja",
+    "address_plural": "Adresser",
+    "cancel": "Annullera",
+    "close": "Stänga",
+    "payment_method_plural": "Betalningsmetoder",
+    "save": "Spara",
+    "subscription_plural": "Prenumerationer",
+    "transaction_plural": "Transaktioner",
+    "undo_cancel": "Recension",
+    "undo_confirm": "Kassera",
+    "undo_header": "Osparade ändringar",
+    "undo_message": "Det verkar som att du inte har sparat dina ändringar! ",
+    "update": "Uppdatering",
     "transactions-table": {
       "date": "{{value, date}}",
       "price": "{{amount, price}}",
-      "receipt": "Paragon",
-      "transaction_approved": "Zatwierdzony",
-      "transaction_authorized": "Upoważniony",
-      "transaction_captured": "Złapany",
-      "transaction_completed": "Zakończony",
-      "transaction_declined": "Odrzucony",
-      "transaction_pending": "Aż do",
-      "transaction_refunded": "Zwrócono pieniądze",
-      "transaction_rejected": "Odrzucony",
+      "receipt": "Mottagande",
+      "transaction_approved": "Godkänd",
+      "transaction_authorized": "Auktoriserad",
+      "transaction_captured": "Fångad",
+      "transaction_completed": "Avslutad",
+      "transaction_declined": "Tackade nej",
+      "transaction_pending": "I väntan på",
+      "transaction_refunded": "Återbetalas",
+      "transaction_rejected": "avvisade",
       "transaction_summary": "{{most_expensive_item.name}}",
-      "transaction_summary_plural": "{{most_expensive_item.name}} I {{count_minus_one}} więcej",
-      "transaction_verified": "Zweryfikowano",
-      "transaction_voided": "Unieważnione",
+      "transaction_summary_plural": "{{most_expensive_item.name}} och {{count_minus_one}} Mer",
+      "transaction_verified": "Verifierad",
+      "transaction_voided": "Ogiltigförklarad",
       "spinner": {
-        "refresh": "Odświeżać",
-        "loading_busy": "Ładowanie",
-        "loading_empty": "Brak danych",
-        "loading_error": "Nieznany błąd"
+        "refresh": "Uppdatera",
+        "loading_busy": "Läser in",
+        "loading_empty": "Inga data",
+        "loading_error": "Okänt fel"
       }
     },
     "address-card": {
-      "default_billing_address": "Domyślny adres rozliczeniowy",
-      "default_shipping_address": "Domyślny adres dostawy",
+      "default_billing_address": "Standardfaktureringsadress",
+      "default_shipping_address": "Standard leveransadress",
       "full_address": "{{address1}} {{address2}} {{city}} {{region}} {{postal_code}}",
       "full_name": "{{first_name}} {{last_name}}",
       "spinner": {
-        "loading_busy": "Ładowanie",
-        "loading_empty": "Brak adresów",
-        "loading_end": "Brak danych",
-        "loading_error": "Nieznany błąd"
+        "loading_busy": "Läser in",
+        "loading_empty": "Inga adresser",
+        "loading_end": "Inga mer data",
+        "loading_error": "Okänt fel"
       }
     },
     "address-form": {
       "address-name": {
-        "label": "Adres",
-        "placeholder": "Wymagany",
+        "label": "Adressnamn",
+        "placeholder": "Nödvändig",
         "helper_text": "",
-        "v8n_required": "Proszę wpisać nazwę adresu",
-        "v8n_too_long": "Skróć nazwę adresu do maksymalnie 100 znaków"
+        "v8n_required": "Vänligen ange adressnamn",
+        "v8n_too_long": "Förkorta adressnamnet till 100 tecken eller mindre"
       },
       "first-name": {
-        "label": "Imię",
-        "placeholder": "Opcjonalny",
+        "label": "Förnamn",
+        "placeholder": "Frivillig",
         "helper_text": "",
-        "v8n_too_long": "Niestety nie możemy przechowywać imion dłuższych niż 50 znaków"
+        "v8n_too_long": "Tyvärr kan vi inte lagra förnamn längre än 50 tecken"
       },
       "last-name": {
-        "label": "Nazwisko",
-        "placeholder": "Opcjonalny",
+        "label": "Efternamn",
+        "placeholder": "Frivillig",
         "helper_text": "",
-        "v8n_too_long": "Niestety nie możemy przechowywać nazwisk dłuższych niż 50 znaków"
+        "v8n_too_long": "Tyvärr kan vi inte lagra efternamn längre än 50 tecken"
       },
       "company": {
-        "label": "Firma",
-        "placeholder": "Opcjonalny",
+        "label": "Företag",
+        "placeholder": "Frivillig",
         "helper_text": "",
-        "v8n_too_long": "Niestety nie możemy przechowywać nazw firm dłuższych niż 50 znaków"
+        "v8n_too_long": "Tyvärr kan vi inte lagra företagsnamn längre än 50 tecken"
       },
       "phone": {
         "label": "Telefon",
-        "placeholder": "Opcjonalny",
+        "placeholder": "Frivillig",
         "helper_text": "",
-        "v8n_too_long": "Ten numer telefonu wydaje się być za długi"
+        "v8n_too_long": "Det här telefonnumret verkar vara för långt"
       },
       "address-one": {
-        "label": "Linia adresu 1",
-        "placeholder": "Wymagany",
-        "helper_text": "Adres, P.O. ",
-        "v8n_required": "Proszę wprowadzić linię adresu 1",
-        "v8n_too_long": "Skróć linię adresu od 1 do 100 znaków lub mniej"
+        "label": "Adressrad 1",
+        "placeholder": "Nödvändig",
+        "helper_text": "Gatuadress, P.O. ",
+        "v8n_required": "Ange adressrad 1",
+        "v8n_too_long": "Förkorta adressrad 1 till 100 tecken eller mindre"
       },
       "address-two": {
-        "label": "Linia adresu 2",
-        "placeholder": "Opcjonalny",
-        "helper_text": "Mieszkanie, apartament, moduł, budynek, piętro itp.",
-        "v8n_too_long": "Skróć wiersz adresu o długości od 2 do 100 znaków lub mniej"
+        "label": "Adress Linje 2",
+        "placeholder": "Frivillig",
+        "helper_text": "Lägenhet, svit, enhet, byggnad, våning, etc.",
+        "v8n_too_long": "Förkorta adressrad 2 till 100 tecken eller mindre"
       },
       "city": {
-        "label": "Miasto",
-        "placeholder": "Opcjonalny",
+        "label": "Stad",
+        "placeholder": "Frivillig",
         "helper_text": "",
-        "v8n_too_long": "Niestety nie możemy przechowywać nazw miast dłuższych niż 50 znaków"
+        "v8n_too_long": "Tyvärr kan vi inte lagra stadsnamn längre än 50 tecken"
       },
       "postal-code": {
-        "label": "Kod pocztowy",
-        "placeholder": "Opcjonalny",
+        "label": "Postnummer",
+        "placeholder": "Frivillig",
         "helper_text": "",
-        "v8n_too_long": "Ten kod pocztowy wydaje się być za długi"
+        "v8n_too_long": "Det här postnumret verkar vara för långt"
       },
       "country": {
-        "label": "Kraj",
-        "placeholder": "Opcjonalny",
+        "label": "Land",
+        "placeholder": "Frivillig",
         "helper_text": ""
       },
       "region": {
-        "label": "Region",
-        "placeholder": "Opcjonalny",
+        "label": "Område",
+        "placeholder": "Frivillig",
         "helper_text": "",
-        "v8n_too_long": "Niestety nie możemy przechowywać nazw regionów dłuższych niż 50 znaków"
+        "v8n_too_long": "Tyvärr kan vi inte lagra regionnamn som är längre än 50 tecken"
       },
       "timestamps": {
         "date": "{{value, date}}",
-        "date_created": "Utworzono dnia",
-        "date_modified": "Ostatnia aktualizacja:"
+        "date_created": "Skapad på",
+        "date_modified": "Senast uppdaterad den"
       },
       "delete": {
-        "delete": "Usuwać",
-        "cancel": "Anulować",
-        "delete_prompt": "Czy na pewno chcesz usunąć ten adres? "
+        "delete": "Radera",
+        "cancel": "Annullera",
+        "delete_prompt": "Är du säker på att du vill ta bort den här adressen? "
       },
       "create": {
-        "create": "Tworzyć"
+        "create": "Skapa"
       },
       "spinner": {
-        "refresh": "Odświeżać",
-        "loading_busy": "Ładowanie",
-        "loading_error": "Nieznany błąd"
+        "refresh": "Uppdatera",
+        "loading_busy": "Läser in",
+        "loading_error": "Okänt fel"
       },
       "country_af": "Afghanistan",
       "country_ax": "Åland Islands",
@@ -727,445 +727,445 @@
       "country_zw": "Zimbabwe"
     },
     "customer-form": {
-      "cancel": "Anulować",
-      "close": "Zamknąć",
+      "cancel": "Annullera",
+      "close": "Stänga",
       "message": {
-        "password_change_success": "Pomyślnie ustawiłeś nowe hasło do swojego konta.",
-        "close": "Zamknąć"
+        "password_change_success": "Du har angett ett nytt lösenord för ditt konto.",
+        "close": "Stänga"
       },
       "error": {
-        "old_password_incorrect": "Wpisane stare hasło jest nieprawidłowe. ",
-        "email_already_used": "Ten email jest już w użyciu. "
+        "old_password_incorrect": "Det gamla lösenordet du angav är felaktigt. ",
+        "email_already_used": "Denna e-post är redan i bruk. "
       },
       "first-name": {
-        "label": "Imię",
-        "placeholder": "Nie ustawiony",
-        "helper_text": "Twoje imię, opcjonalne.",
-        "v8n_too_long": "Nie możemy przechowywać imion dłuższych niż 50 znaków."
+        "label": "Förnamn",
+        "placeholder": "Inte inställd",
+        "helper_text": "Ditt förnamn, valfritt.",
+        "v8n_too_long": "Vi kan inte lagra förnamn längre än 50 tecken."
       },
       "last-name": {
-        "label": "Nazwisko",
-        "placeholder": "Nie ustawiony",
-        "helper_text": "Twoje nazwisko, opcjonalne.",
-        "v8n_too_long": "Nie możemy przechowywać nazwisk dłuższych niż 50 znaków."
+        "label": "Efternamn",
+        "placeholder": "Inte inställd",
+        "helper_text": "Ditt efternamn, valfritt.",
+        "v8n_too_long": "Vi kan inte lagra efternamn längre än 50 tecken."
       },
       "tax-id": {
-        "label": "Identyfikator podatkowy",
-        "placeholder": "Nie ustawiony",
-        "helper_text": "Twój numer identyfikacji podatkowej, opcjonalnie.",
-        "v8n_too_long": "Nie możemy przechowywać identyfikatorów podatkowych dłuższych niż 50 znaków."
+        "label": "Skatte ID",
+        "placeholder": "Inte inställd",
+        "helper_text": "Ditt skatte-ID-nummer, valfritt.",
+        "v8n_too_long": "Vi kan inte lagra skatte-ID som är längre än 50 tecken."
       },
       "email": {
-        "label": "E-mail",
-        "placeholder": "Wymagany",
-        "helper_text": "Będziemy używać tego adresu e-mail jako loginu do kasy i portalu klienta.",
-        "helper_text_last_login_date": "Twój login do Kasy i Portalu Klienta.  {{ date, date }} Na {{ date, time }}.",
-        "v8n_too_long": "Nie możemy przechowywać e-maili dłuższych niż 100 znaków.",
-        "v8n_invalid_email": "Ten adres e-mail jest nieprawidłowy.",
-        "v8n_required": "Proszę wypełnić to pole."
+        "label": "E-post",
+        "placeholder": "Nödvändig",
+        "helper_text": "Vi använder det här e-postmeddelandet som inloggning till kassan och kundportalen.",
+        "helper_text_last_login_date": "Din inloggning till kassan och kundportalen.  {{ date, date }} på {{ date, time }}.",
+        "v8n_too_long": "Vi kan inte lagra e-postmeddelanden längre än 100 tecken.",
+        "v8n_invalid_email": "Det här e-postmeddelandet är ogiltigt.",
+        "v8n_required": "Var vänlig fyll i det här fältet."
       },
       "password": {
-        "label": "Hasło",
-        "placeholder": "Wymagany",
-        "placeholder_new": "Zachowaj aktualne hasło",
-        "helper_text_new": "Aby zmienić hasło, wpisz tutaj nowe hasło. ",
-        "v8n_too_long": "Proszę używać hasła nie dłuższego niż 50 znaków.",
-        "v8n_too_weak": "Użyj silniejszego hasła. ",
-        "v8n_required": "Proszę wypełnić to pole."
+        "label": "Lösenord",
+        "placeholder": "Nödvändig",
+        "placeholder_new": "Behåll nuvarande lösenord",
+        "helper_text_new": "För att ändra ditt lösenord, ange ett nytt lösenord här. ",
+        "v8n_too_long": "Använd ett lösenord som inte är längre än 50 tecken.",
+        "v8n_too_weak": "Använd ett starkare lösenord. ",
+        "v8n_required": "Var vänlig fyll i det här fältet."
       },
       "password-old": {
-        "label": "Stare hasło",
+        "label": "Gammalt lösenord",
         "placeholder": "",
-        "helper_text": "Wprowadź swoje stare hasło, aby potwierdzić zmianę hasła.",
-        "v8n_required": "Proszę wypełnić to pole."
+        "helper_text": "Ange ditt gamla lösenord för att bekräfta lösenordsändringen.",
+        "v8n_required": "Var vänlig fyll i det här fältet."
       },
       "timestamps": {
-        "date_created": "Utworzono dnia",
-        "date_modified": "Ostatnia aktualizacja:",
+        "date_created": "Skapad på",
+        "date_modified": "Senast uppdaterad den",
         "date": "{{value, date}}"
       },
       "spinner": {
-        "refresh": "Odświeżać",
-        "loading_busy": "Ładowanie",
-        "loading_error": "Nieznany błąd"
+        "refresh": "Uppdatera",
+        "loading_busy": "Läser in",
+        "loading_error": "Okänt fel"
       }
     },
     "payment-method-card": {
-      "cancel": "Anulować",
-      "delete": "Usuwać",
-      "add": "Dodaj metodę płatności",
-      "update": "Zaktualizuj metodę płatności",
-      "delete_prompt": "Ta metoda płatności zostanie trwale usunięta z Twojego konta. ",
-      "expires": "Wygasa",
-      "last_4_digits": "Ostatnie 4 cyfry",
-      "unknown": "Nieznany",
+      "cancel": "Annullera",
+      "delete": "Radera",
+      "add": "Lägg till betalningsmetod",
+      "update": "Uppdatera betalningsmetod",
+      "delete_prompt": "Denna betalningsmetod kommer att raderas permanent från ditt konto. ",
+      "expires": "Upphör att gälla",
+      "last_4_digits": "Sista 4 siffrorna",
+      "unknown": "Okänd",
       "dialog": {
-        "close": "Zamknąć",
-        "dialog_header_add": "Dodaj metodę płatności",
-        "dialog_header_update": "Zaktualizuj metodę płatności",
+        "close": "Stänga",
+        "dialog_header_add": "Lägg till betalningsmetod",
+        "dialog_header_update": "Uppdatera betalningsmetod",
         "update-payment-method-form": {
           "status": {
-            "cc_token_success": "Dane karty zostały zapisane pomyślnie.",
-            "close": "Zamknąć"
+            "cc_token_success": "Kortinformationen har sparats.",
+            "close": "Stänga"
           },
           "error": {
-            "cc_token_invalid": "Niestety nie mogliśmy zapisać danych Twojej karty. "
+            "cc_token_invalid": "Tyvärr kunde vi inte spara dina kortuppgifter. "
           },
           "template-set": {
-            "label": "Zestaw szablonów",
+            "label": "Malluppsättning",
             "dialog": {
-              "cancel": "Anulować",
-              "close": "Zamknąć",
-              "header": "Wybierz zestaw szablonów",
+              "cancel": "Annullera",
+              "close": "Stänga",
+              "header": "Välj en malluppsättning",
               "selection": {
                 "label": "",
                 "helper_text": "",
-                "search": "Szukaj",
-                "clear": "Jasne",
+                "search": "Sök",
+                "clear": "Klar",
                 "pagination": {
-                  "search_button_text": "Szukaj",
-                  "first": "Pierwszy",
-                  "last": "Ostatni",
-                  "next": "Następny",
-                  "pagination": "{{from}}-{{to}} poza {{total}}",
-                  "previous": "Poprzedni",
+                  "search_button_text": "Sök",
+                  "first": "Först",
+                  "last": "Sista",
+                  "next": "Nästa",
+                  "pagination": "{{from}}-{{to}} ut ur {{total}}",
+                  "previous": "Tidigare",
                   "card": {
                     "spinner": {
-                      "loading_busy": "Ładowanie",
-                      "loading_empty": "Nie znaleziono zestawów szablonów",
-                      "loading_error": "Nieznany błąd"
+                      "loading_busy": "Läser in",
+                      "loading_empty": "Inga malluppsättningar hittades",
+                      "loading_error": "Okänt fel"
                     }
                   }
                 },
                 "query-builder": {
                   "filters": {},
-                  "add_or_clause": "Dodaj klauzulę OR",
-                  "add_value": "Dodać wartość",
-                  "code": "Kod",
+                  "add_or_clause": "Lägg till OR-sats",
+                  "add_value": "Lägg till värde",
+                  "code": "Koda",
                   "date": "{{value, date}}",
-                  "date_created": "Utworzono dnia",
-                  "date_modified": "Ostatnia aktualizacja:",
-                  "delete": "Usuwać",
-                  "field": "Pole",
-                  "hidden": "Ukryty",
-                  "is_defined_false": "Nie określono",
-                  "is_defined_true": "Zdefiniowane",
-                  "name": "Nazwa",
-                  "operator_equal": "Równy",
-                  "operator_greaterthan": "Lepszy niż",
-                  "operator_greaterthanorequal": "Większe lub równe",
-                  "operator_in": "Jeden z",
-                  "operator_isdefined": "Definiuje",
-                  "operator_lessthan": "Mniej niż",
-                  "operator_lessthanorequal": "Mniej niż lub równo",
-                  "operator_not": "Nie równe",
-                  "or": "Lub",
-                  "query_builder_group": "Grupa filtrów",
-                  "query_builder_rule": "Filtr",
-                  "range_from": "Z",
-                  "range_to": "Do",
+                  "date_created": "Skapad på",
+                  "date_modified": "Senast uppdaterad den",
+                  "delete": "Radera",
+                  "field": "Fält",
+                  "hidden": "Dold",
+                  "is_defined_false": "Inte definierad",
+                  "is_defined_true": "Definierad",
+                  "name": "namn",
+                  "operator_equal": "Likvärdig",
+                  "operator_greaterthan": "Större än",
+                  "operator_greaterthanorequal": "Större än eller lika med",
+                  "operator_in": "En av",
+                  "operator_isdefined": "Är definierad",
+                  "operator_lessthan": "Mindre än",
+                  "operator_lessthanorequal": "Mindre än eller lika",
+                  "operator_not": "Inte jämnlikt",
+                  "or": "Eller",
+                  "query_builder_group": "Grupp av filter",
+                  "query_builder_rule": "Filtrera",
+                  "range_from": "Från",
+                  "range_to": "Till",
                   "type": "Typ",
-                  "type_any": "Pole nieznanego typu",
-                  "type_attribute": "Zasób klucz-wartość",
-                  "type_date": "Pole daty",
-                  "type_here": "Pisz tutaj...",
-                  "type_number": "Pole numeryczne",
-                  "type_string": "Pole tekstowe",
-                  "used_codes": "Wykorzystane kody",
-                  "value": "Wartość"
+                  "type_any": "Fält av okänd typ",
+                  "type_attribute": "Nyckel-värde resurs",
+                  "type_date": "Datumfält",
+                  "type_here": "Skriv här...",
+                  "type_number": "Numeriskt fält",
+                  "type_string": "Textfält",
+                  "used_codes": "Koder som används",
+                  "value": "Värde"
                 }
               }
             },
             "card": {
               "spinner": {
-                "loading_busy": "Ładowanie",
-                "loading_empty": "Kliknij aby wybrać",
-                "loading_error": "Nieznany błąd"
+                "loading_busy": "Läser in",
+                "loading_empty": "Klicka för att välja",
+                "loading_error": "Okänt fel"
               }
             },
-            "helper_text": "Zestaw szablonów określa, która bramka płatnicza i usługa tokenizacji zostaną wykorzystane do przechwycenia danych karty."
+            "helper_text": "Malluppsättningen avgör vilken betalningsgateway och tokeniseringstjänst som kommer att användas för att fånga kortdetaljer."
           },
           "cc-token": {
-            "clear": "Jasne",
-            "tokenize": "Zapisz kartę",
+            "clear": "Klar",
+            "tokenize": "Spara kort",
             "payment-card-embed": {
               "stripe": {
-                "label": "Szczegóły karty",
+                "label": "Kortdetaljer",
                 "status": {
-                  "idle": "Dane Twojej karty są bezpiecznie przetwarzane przez Stripe. ",
-                  "busy": "Szyfrowanie danych Twojej karty...",
-                  "fail": "Ta usługa jest obecnie niedostępna. "
+                  "idle": "Dina kortuppgifter behandlas säkert av Stripe. ",
+                  "busy": "Krypterar dina kortuppgifter...",
+                  "fail": "Den här tjänsten är för närvarande inte tillgänglig. "
                 }
               },
               "square": {
-                "label": "Szczegóły karty",
+                "label": "Kortdetaljer",
                 "status": {
-                  "idle": "Dane Twojej karty są bezpiecznie przetwarzane przez Square. ",
-                  "busy": "Szyfrowanie danych Twojej karty...",
-                  "fail": "Ta usługa jest obecnie niedostępna. "
+                  "idle": "Dina kortuppgifter behandlas säkert av Square. ",
+                  "busy": "Krypterar dina kortuppgifter...",
+                  "fail": "Den här tjänsten är för närvarande inte tillgänglig. "
                 }
               },
               "default": {
                 "cc-number": {
-                  "label": "Numer karty",
+                  "label": "Kortnummer",
                   "placeholder": "1234 1234 1234 1234",
-                  "v8n_required": "Wprowadź numer karty.",
-                  "v8n_invalid": "Sprawdź numer swojej karty – wygląda na to, że jest nieprawidłowy.",
-                  "v8n_unsupported": "Nie obsługujemy tego typu kart."
+                  "v8n_required": "Ange ett kortnummer.",
+                  "v8n_invalid": "Kontrollera ditt kortnummer – det verkar inte vara giltigt.",
+                  "v8n_unsupported": "Vi stöder inte den här korttypen."
                 },
                 "cc-exp": {
-                  "label": "Upływa w dniu",
-                  "placeholder": "MM/RRRR",
-                  "v8n_required": "Wprowadź datę ważności.",
-                  "v8n_invalid": "Wprowadź datę w formacie MM/RRRR.",
-                  "v8n_expired": "Twoja karta utraciła ważność."
+                  "label": "Går ut den",
+                  "placeholder": "MM/ÅÅÅÅ",
+                  "v8n_required": "Ange ett utgångsdatum.",
+                  "v8n_invalid": "Ange ett datum som MM/ÅÅÅÅ.",
+                  "v8n_expired": "Ditt kort har gått ut."
                 },
                 "cc-csc": {
                   "label": "CSC",
                   "placeholder": "XXX",
-                  "v8n_required": "Wprowadź kod zabezpieczający.",
-                  "v8n_invalid": "Wprowadź 3-4 cyfrowy kod."
+                  "v8n_required": "Ange en säkerhetskod.",
+                  "v8n_invalid": "Ange en 3-4-siffrig kod."
                 },
                 "status": {
-                  "idle": "Dane Twojej karty są bezpiecznie przetwarzane przez Foxy.io. ",
-                  "busy": "Szyfrowanie danych Twojej karty...",
-                  "fail": "Ta usługa jest obecnie niedostępna. ",
-                  "misconfigured": "Ten formularz nie jest poprawnie skonfigurowany. "
+                  "idle": "Dina kortuppgifter behandlas säkert av Foxy.io. ",
+                  "busy": "Krypterar dina kortuppgifter...",
+                  "fail": "Den här tjänsten är för närvarande inte tillgänglig. ",
+                  "misconfigured": "Det här formuläret är inte korrekt konfigurerat. "
                 }
               }
             }
           },
           "spinner": {
-            "refresh": "Odświeżać",
-            "loading_busy": "Ładowanie",
-            "loading_error": "Nieznany błąd",
-            "loading_empty": "Ten formularz działa tylko z istniejącymi metodami płatności"
+            "refresh": "Uppdatera",
+            "loading_busy": "Läser in",
+            "loading_error": "Okänt fel",
+            "loading_empty": "Detta formulär fungerar endast med befintliga betalningsmetoder"
           }
         }
       }
     },
     "spinner": {
-      "refresh": "Odświeżać",
-      "loading_busy": "Ładowanie",
-      "loading_error": "Nieznany błąd"
+      "refresh": "Uppdatera",
+      "loading_busy": "Läser in",
+      "loading_error": "Okänt fel"
     },
     "subscription-card": {
-      "daily": "/ dzień",
-      "daily_plural": "/ {{count}} dni",
+      "daily": "/ dag",
+      "daily_plural": "/ {{count}} dagar",
       "frequency": "$t(customer.subscription-card.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
-      "monthly": "/ miesiąc",
-      "monthly_plural": "/ {{count}} miesiące",
+      "monthly": "/ månad",
+      "monthly_plural": "/ {{count}} månader",
       "price_recurring": "{{amount, price}} $t(customer.subscription-card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
       "price_twice_a_month": "{{amount, price}} $t(customer.subscription-card.twice_a_month, { \"ns\": \"customer-portal\" })",
-      "subscription_active": "Następna płatność w dniu {{date, date}}",
-      "subscription_cancelled": "Zakończono {{date, date}}",
-      "subscription_failed": "Płatność nie powiodła się {{date, date}}",
-      "subscription_inactive": "Nieaktywny",
-      "subscription_will_be_cancelled": "Kończy się {{date, date}}",
-      "subscription_will_be_active": "Zaczyna się {{date, date}}",
+      "subscription_active": "Nästa betalning på {{date, date}}",
+      "subscription_cancelled": "Slutade på {{date, date}}",
+      "subscription_failed": "Betalningen misslyckades den {{date, date}}",
+      "subscription_inactive": "Inaktiv",
+      "subscription_will_be_cancelled": "Slutar på {{date, date}}",
+      "subscription_will_be_active": "Börjar på {{date, date}}",
       "transaction_summary": "{{most_expensive_item.name}}",
-      "fees_hint": "Inc. ",
-      "fees_explainer": "Podatki, koszty wysyłki i rabaty mogą zmienić pobraną kwotę.",
-      "twice_a_month": "dwa razy w miesiącu",
-      "weekly": "/ tydzień",
-      "weekly_plural": "/ {{count}} tygodnie",
-      "yearly": "/ rok",
-      "yearly_plural": "/ {{count}} lata",
+      "fees_hint": "inkl. ",
+      "fees_explainer": "Skatter, frakt och rabatter kan ändra beloppet som debiteras.",
+      "twice_a_month": "två gånger i månaden",
+      "weekly": "/ vecka",
+      "weekly_plural": "/ {{count}} Veckor",
+      "yearly": "/ år",
+      "yearly_plural": "/ {{count}} år",
       "spinner": {
-        "loading_busy": "Ładowanie",
-        "loading_empty": "Brak subskrypcji",
-        "loading_end": "Brak danych",
-        "loading_error": "Nieznany błąd"
+        "loading_busy": "Läser in",
+        "loading_empty": "Inga prenumerationer",
+        "loading_end": "Inga mer data",
+        "loading_error": "Okänt fel"
       }
     },
     "subscription-form": {
-      "day": "Dzień",
-      "day_plural": "Dni",
-      "week": "Tydzień",
-      "week_plural": "Tygodnie",
-      "month": "Miesiąc",
-      "month_plural": "Miesiące",
-      "year": "Rok",
-      "year_plural": "Lata",
-      "cancel": "Anulować",
-      "close": "Zamknąć",
-      "confirm": "Potwierdzać",
-      "currency": "Waluta",
-      "daily": "Codziennie",
-      "daily_plural": "Każdy {{count}} dni",
-      "end_subscription": "Zakończ subskrypcję",
+      "day": "Dag",
+      "day_plural": "dagar",
+      "week": "Vecka",
+      "week_plural": "Veckor",
+      "month": "Månad",
+      "month_plural": "månader",
+      "year": "År",
+      "year_plural": "år",
+      "cancel": "Annullera",
+      "close": "Stänga",
+      "confirm": "Bekräfta",
+      "currency": "Valuta",
+      "daily": "Dagligen",
+      "daily_plural": "Varje {{count}} dagar",
+      "end_subscription": "Avsluta prenumerationen",
       "frequency": "$t(customer.subscription-form.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
-      "frequency_label": "Częstotliwość",
-      "item_plural": "Rzeczy",
-      "monthly": "Miesięczny",
-      "monthly_plural": "Każdy {{count}} miesiące",
-      "next_transaction_date": "Data następnej transakcji",
+      "frequency_label": "Frekvens",
+      "item_plural": "Föremål",
+      "monthly": "En gång i månaden",
+      "monthly_plural": "Varje {{count}} månader",
+      "next_transaction_date": "Nästa transaktionsdatum",
       "price_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
       "price_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
-      "subscription_active": "Obejmuje wysyłkę, podatki itp. Następna płatność w dniu {{date, date}}.",
-      "subscription_cancelled": "Obejmuje wysyłkę, podatki itp. Zakończono dnia {{date, date}}.",
-      "subscription_failed": "Obejmuje wysyłkę, podatki itp. Płatność nie powiodła się {{date, date}}.",
-      "subscription_inactive": "Łącznie z przesyłką, podatkami itp. Nieaktywne.",
-      "subscription_will_be_cancelled": "Łącznie z przesyłką, podatkami itp. Kończy się dnia {{date, date}}.",
-      "subscription_will_be_active": "Obejmuje wysyłkę, podatki itp. Rozpoczyna się w dniu {{date, date}}.",
-      "transaction_plural": "Transakcje",
-      "twice_a_month": "Dwa razy w miesiącu",
-      "update_billing": "Zaktualizuj rozliczenia",
-      "update_items": "Edytować",
-      "undo_cancel": "Recenzja",
-      "undo_confirm": "Wyrzucać",
-      "undo_header": "Niezapisane zmiany",
-      "undo_message": "Wygląda na to, że nie zapisałeś zmian! ",
-      "weekly": "Co tydzień",
-      "weekly_plural": "Każdy {{count}} tygodnie",
-      "yearly": "Rocznie",
-      "yearly_plural": "Każdy {{count}} lata",
+      "subscription_active": "Inklusive frakt, skatter etc. Nästa betalning på {{date, date}}.",
+      "subscription_cancelled": "Inklusive frakt, skatter etc. Slutade den {{date, date}}.",
+      "subscription_failed": "Inklusive frakt, skatter etc. Betalning misslyckades den {{date, date}}.",
+      "subscription_inactive": "Inklusive frakt, skatter etc. Inaktiv.",
+      "subscription_will_be_cancelled": "Inklusive frakt, skatter etc. Slutar på {{date, date}}.",
+      "subscription_will_be_active": "Inklusive frakt, skatter etc. Börjar på {{date, date}}.",
+      "transaction_plural": "Transaktioner",
+      "twice_a_month": "Två gånger i månaden",
+      "update_billing": "Uppdatera fakturering",
+      "update_items": "Redigera",
+      "undo_cancel": "Recension",
+      "undo_confirm": "Kassera",
+      "undo_header": "Osparade ändringar",
+      "undo_message": "Det verkar som att du inte har sparat dina ändringar! ",
+      "weekly": "Varje vecka",
+      "weekly_plural": "Varje {{count}} Veckor",
+      "yearly": "Årlig",
+      "yearly_plural": "Varje {{count}} år",
       "items": {
         "pagination": {
-          "first": "Pierwszy",
-          "last": "Ostatni",
-          "next": "Następny",
-          "pagination": "{{from}}-{{to}} poza {{total}}",
-          "previous": "Poprzedni",
+          "first": "Först",
+          "last": "Sista",
+          "next": "Nästa",
+          "pagination": "{{from}}-{{to}} ut ur {{total}}",
+          "previous": "Tidigare",
           "card": {
-            "daily": "Codziennie",
-            "daily_plural": "Każdy {{count}} dni",
+            "daily": "Dagligen",
+            "daily_plural": "Varje {{count}} dagar",
             "frequency": "$t(customer.subscription-form.pagination.card.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
-            "monthly": "Miesięczny",
-            "monthly_plural": "Każdy {{count}} miesiące",
-            "subinfo_recurring": "$t(customer.subscription-form.pagination.card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" }) z {{startDate, date}}",
-            "subinfo_twice_a_month": "$t(customer.subscription-form.pagination.card.twice_a_month, { \"ns\": \"customer-portal\" }) z {{startDate, date}}",
-            "twice_a_month": "Dwa razy w miesiącu",
-            "no_code": "Brak SKU",
-            "weekly": "Co tydzień",
-            "weekly_plural": "Każdy {{count}} tygodnie",
-            "yearly": "Rocznie",
-            "yearly_plural": "Każdy {{count}} lata",
+            "monthly": "En gång i månaden",
+            "monthly_plural": "Varje {{count}} månader",
+            "subinfo_recurring": "$t(customer.subscription-form.pagination.card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" }) från {{startDate, date}}",
+            "subinfo_twice_a_month": "$t(customer.subscription-form.pagination.card.twice_a_month, { \"ns\": \"customer-portal\" }) från {{startDate, date}}",
+            "twice_a_month": "Två gånger i månaden",
+            "no_code": "Ingen SKU",
+            "weekly": "Varje vecka",
+            "weekly_plural": "Varje {{count}} Veckor",
+            "yearly": "Årlig",
+            "yearly_plural": "Varje {{count}} år",
             "price": "{{amount, price}}",
             "spinner": {
-              "refresh": "Odświeżać",
-              "loading_busy": "Ładowanie",
-              "loading_empty": "Żadnych przedmiotów",
-              "loading_error": "Nieznany błąd"
+              "refresh": "Uppdatera",
+              "loading_busy": "Läser in",
+              "loading_empty": "Inga föremål",
+              "loading_error": "Okänt fel"
             }
           }
         }
       },
       "transactions": {
-        "label": "Transakcje",
+        "label": "Transaktioner",
         "pagination": {
-          "first": "Pierwszy",
-          "last": "Ostatni",
-          "next": "Następny",
-          "pagination": "{{from}}-{{to}} poza {{total}}",
-          "previous": "Poprzedni",
+          "first": "Först",
+          "last": "Sista",
+          "next": "Nästa",
+          "pagination": "{{from}}-{{to}} ut ur {{total}}",
+          "previous": "Tidigare",
           "card": {
-            "code": "Kod",
-            "customer": "Klient",
-            "description": "Opis",
+            "code": "Koda",
+            "customer": "Kund",
+            "description": "Beskrivning",
             "price": "{{amount, price}}",
             "time": "{{value, date}}",
-            "status_capturing": "Przechwytywanie",
-            "status_captured": "Złapany",
-            "status_approved": "Zatwierdzony",
-            "status_authorized": "Upoważniony",
-            "status_pending": "Aż do",
-            "status_completed": "Zakończony",
+            "status_capturing": "Fångande",
+            "status_captured": "Fångad",
+            "status_approved": "Godkänd",
+            "status_authorized": "Auktoriserad",
+            "status_pending": "I väntan på",
+            "status_completed": "Avslutad",
             "status_problem": "Problem",
-            "status_pending_fraud_review": "Oczekujący_oszustwo_recenzja",
-            "status_rejected": "Odrzucony",
-            "status_declined": "Odrzucony",
-            "status_refunding": "Zwrot pieniędzy",
-            "status_refunded": "Zwrócono pieniądze",
-            "status_voided": "Unieważnione",
-            "status_verified": "Zweryfikowano",
+            "status_pending_fraud_review": "Pending_fraud_review",
+            "status_rejected": "avvisade",
+            "status_declined": "Tackade nej",
+            "status_refunding": "Återbetalning",
+            "status_refunded": "Återbetalas",
+            "status_voided": "Ogiltigförklarad",
+            "status_verified": "Verifierad",
             "summary": "{{most_expensive_item.name}}",
-            "summary_plural": "{{most_expensive_item.name}} I {{count_minus_one}} więcej",
-            "summary_payment_method_change": "Zmiana sposobu płatności",
-            "summary_subscription_modification": "Modyfikacja subskrypcji",
-            "summary_subscription_cancellation": "Anulowanie subskrypcji",
-            "source_MIT": "Ta transakcja została zainicjowana przez sprzedawcę",
-            "source_CIT": "Transakcja ta została zainicjowana przez klienta",
+            "summary_plural": "{{most_expensive_item.name}} och {{count_minus_one}} Mer",
+            "summary_payment_method_change": "Ändring av betalningsmetod",
+            "summary_subscription_modification": "Ändring av abonnemang",
+            "summary_subscription_cancellation": "Uppsägning av prenumeration",
+            "source_MIT": "Denna transaktion initierades av handlaren",
+            "source_CIT": "Denna transaktion initierades av kunden",
             "spinner": {
-              "loading_busy": "Ładowanie",
-              "loading_empty": "Żadnych transakcji",
-              "loading_error": "Nieznany błąd"
+              "loading_busy": "Läser in",
+              "loading_empty": "Inga transaktioner",
+              "loading_error": "Okänt fel"
             }
           }
         }
       },
       "spinner": {
-        "refresh": "Odświeżać",
-        "loading_busy": "Ładowanie",
-        "loading_error": "Nieznany błąd"
+        "refresh": "Uppdatera",
+        "loading_busy": "Läser in",
+        "loading_error": "Okänt fel"
       }
     }
   },
   "sign-in-form": {
-    "email": "E-mail",
-    "invalid_credential_error": "Nieprawidłowy email lub hasło. ",
-    "password": "Hasło",
-    "recover_access": "Uzyskaj hasło tymczasowe",
-    "sign_in": "Zalogować się",
-    "sign_in_hint": "Proszę podać swój adres e-mail i hasło",
-    "sign_up": "Utwórz konto",
-    "unknown_error": "Wystąpił nieznany błąd. ",
-    "v8n_invalid_email": "Niepoprawny email",
-    "v8n_required": "Wymagany",
+    "email": "E-post",
+    "invalid_credential_error": "Felaktig e-postadress eller lösenord. ",
+    "password": "Lösenord",
+    "recover_access": "Skaffa ett tillfälligt lösenord",
+    "sign_in": "Logga in",
+    "sign_in_hint": "Vänligen ange din e-postadress och ditt lösenord",
+    "sign_up": "Skapa konto",
+    "unknown_error": "Ett okänt fel har inträffat. ",
+    "v8n_invalid_email": "Ogiltig e-postadress",
+    "v8n_required": "Nödvändig",
     "spinner": {
-      "refresh": "Odświeżać",
-      "loading_busy": "Ładowanie",
-      "loading_error": "Nieznany błąd"
+      "refresh": "Uppdatera",
+      "loading_busy": "Läser in",
+      "loading_error": "Okänt fel"
     }
   },
   "sign-up-form": {
-    "sign_up": "Zapisać się",
-    "sign_up_hint": "Utwórz konto, aby uzyskać dostęp do portalu",
-    "go_back": "Wróć",
+    "sign_up": "Bli Medlem",
+    "sign_up_hint": "Skapa ett konto för att komma åt portalen",
+    "go_back": "Gå tillbaka",
     "error": {
-      "registration_disabled": "Rejestracja klientów w tym sklepie jest wyłączona. ",
-      "verification_failed": "Weryfikacja klienta nie powiodła się. ",
-      "email_already_used": "Ten email jest już w użyciu. "
+      "registration_disabled": "Kundregistrering är inaktiverad för den här butiken. ",
+      "verification_failed": "Klientverifiering misslyckades. ",
+      "email_already_used": "Denna e-post är redan i bruk. "
     },
     "first-name": {
-      "label": "Imię",
-      "placeholder": "Nie ustawiony",
-      "helper_text": "Twoje imię, opcjonalne.",
-      "v8n_too_long": "Nie możemy przechowywać imion dłuższych niż 50 znaków."
+      "label": "Förnamn",
+      "placeholder": "Inte inställd",
+      "helper_text": "Ditt förnamn, valfritt.",
+      "v8n_too_long": "Vi kan inte lagra förnamn längre än 50 tecken."
     },
     "last-name": {
-      "label": "Nazwisko",
-      "placeholder": "Nie ustawiony",
-      "helper_text": "Twoje nazwisko, opcjonalne.",
-      "v8n_too_long": "Nie możemy przechowywać nazwisk dłuższych niż 50 znaków."
+      "label": "Efternamn",
+      "placeholder": "Inte inställd",
+      "helper_text": "Ditt efternamn, valfritt.",
+      "v8n_too_long": "Vi kan inte lagra efternamn längre än 50 tecken."
     },
     "email": {
-      "label": "E-mail",
-      "placeholder": "Wymagany",
-      "helper_text": "Będziemy używać tego adresu e-mail jako loginu do kasy i portalu klienta.",
-      "v8n_too_long": "Nie możemy przechowywać e-maili dłuższych niż 100 znaków.",
-      "v8n_invalid_email": "Ten adres e-mail jest nieprawidłowy.",
-      "v8n_required": "Proszę wypełnić to pole."
+      "label": "E-post",
+      "placeholder": "Nödvändig",
+      "helper_text": "Vi använder det här e-postmeddelandet som inloggning till kassan och kundportalen.",
+      "v8n_too_long": "Vi kan inte lagra e-postmeddelanden längre än 100 tecken.",
+      "v8n_invalid_email": "Det här e-postmeddelandet är ogiltigt.",
+      "v8n_required": "Var vänlig fyll i det här fältet."
     },
     "password": {
-      "label": "Hasło",
-      "placeholder": "Wymagany",
-      "helper_text": "Aby wygenerować bezpieczne losowe hasło do tego konta, użyj przycisku ✨.",
-      "v8n_too_long": "Proszę używać hasła nie dłuższego niż 50 znaków.",
-      "v8n_too_weak": "Użyj silniejszego hasła. ",
-      "v8n_required": "Proszę wypełnić to pole."
+      "label": "Lösenord",
+      "placeholder": "Nödvändig",
+      "helper_text": "För att skapa ett säkert slumpmässigt lösenord för detta konto, använd knappen ✨.",
+      "v8n_too_long": "Använd ett lösenord som inte är längre än 50 tecken.",
+      "v8n_too_weak": "Använd ett starkare lösenord. ",
+      "v8n_required": "Var vänlig fyll i det här fältet."
     },
     "legal-notice": {
-      "text": "Tworząc konto, wyrażasz zgodę na nasze Warunki świadczenia usług.",
-      "link": "Kliknij tutaj, aby otworzyć je w nowej karcie."
+      "text": "Genom att skapa ett konto godkänner du våra användarvillkor.",
+      "link": "Klicka här för att öppna dem på en ny flik."
     },
     "create": {
-      "create": "Utwórz konto"
+      "create": "Skapa konto"
     },
     "spinner": {
-      "refresh": "Odświeżać",
-      "loading_busy": "Ładowanie",
-      "loading_error": "Nieznany błąd"
+      "refresh": "Uppdatera",
+      "loading_busy": "Läser in",
+      "loading_error": "Okänt fel"
     }
   }
 }
