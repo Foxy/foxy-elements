@@ -446,6 +446,10 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
           result = UpdateResult.ResourceDeleted;
         } else if (state.history?.matches({ busy: 'creating' })) {
           result = UpdateResult.ResourceCreated;
+        } else if (state.history?.matches({ busy: 'updating' })) {
+          result = UpdateResult.ResourceUpdated;
+        } else if (state.history?.matches({ busy: 'fetching' })) {
+          result = UpdateResult.ResourceFetched;
         }
       }
 
