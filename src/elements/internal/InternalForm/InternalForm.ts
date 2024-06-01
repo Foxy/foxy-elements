@@ -157,6 +157,7 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
   }
 
   private __renderStatus({ key, options }: Status) {
+    if (this.hiddenSelector.matches('status', true)) return;
     return html`
       <p
         data-testid="status"

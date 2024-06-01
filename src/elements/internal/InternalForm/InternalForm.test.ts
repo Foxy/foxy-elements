@@ -233,6 +233,18 @@ describe('InternalForm', () => {
     expect(element).to.have.property('status', null);
   });
 
+  it('hides closable status message if hiddencontrols matches "status"', async () => {
+    const element = await fixture<InternalForm<any>>(
+      html`
+        <foxy-internal-form .status=${{ key: 'test' }} hiddencontrols="status">
+        </foxy-internal-form>
+      `
+    );
+
+    const wrapper = element.renderRoot.querySelector('[data-testid="status"]')!;
+    expect(wrapper).to.not.exist;
+  });
+
   it('renders general errors if present', async () => {
     const layout = html`<foxy-internal-form></foxy-internal-form>`;
     const element = await fixture<InternalForm<any>>(layout);
