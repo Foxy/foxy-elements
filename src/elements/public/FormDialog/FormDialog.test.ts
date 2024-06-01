@@ -1,7 +1,9 @@
+import type { AttributeForm } from '../AttributeForm/AttributeForm';
+
 import './index';
 import '../AttributeForm/index';
 
-import { expect, fixture, oneEvent } from '@open-wc/testing';
+import { expect, fixture, oneEvent, waitUntil } from '@open-wc/testing';
 
 import { Dialog } from '../../private';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
@@ -11,6 +13,7 @@ import { UpdateEvent } from '../NucleonElement/UpdateEvent';
 import { html } from 'lit-html';
 import isEqual from 'lodash-es/isEqual';
 import { stub } from 'sinon';
+import { createRouter } from '../../../server';
 
 describe('FormDialog', () => {
   it('extends Dialog', () => {
@@ -161,6 +164,32 @@ describe('FormDialog', () => {
 
     await new Promise(r => setTimeout(r, 5000));
     expect(dialog).to.have.property('open', true);
+  });
+
+  it('closes itself on successful PATCH request from form if closeOnPatch is true', async () => {
+    const router = createRouter();
+
+    const dialog = await fixture<FormDialog>(html`
+      <foxy-form-dialog
+        href="https://demo.api/hapi/customer_attributes/0"
+        form="foxy-attribute-form"
+        close-on-patch
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-form-dialog>
+    `);
+
+    await dialog.show();
+
+    const whenGotHideEvent = oneEvent(dialog, 'hide');
+    const formElement = dialog.renderRoot.querySelector<AttributeForm>('#form');
+
+    await waitUntil(() => !!formElement?.data);
+    formElement?.edit({ name: 'new name' });
+    formElement?.submit();
+
+    await whenGotHideEvent;
+    expect(dialog).to.have.property('open', false);
   });
 
   it('becomes unclosable when form is busy', async () => {
