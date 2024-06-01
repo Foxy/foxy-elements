@@ -7,7 +7,7 @@ import { getStoryCode } from './getStoryCode';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 type Story = ((args: Args) => TemplateResult) & { args: Args };
-type Params = Summary & { code?: boolean };
+type Params = Summary & { code?: boolean; ext?: string };
 type TemplateArgs = {
   readonlyControls: string;
   disabledControls: string;
@@ -51,6 +51,7 @@ export function getStory(params: Params): Story {
           ?hidden=\${args.hidden}
           class="foxy-story__preview"
           simplify-ns-loading
+          ${params.ext ?? ''}
         >
           ${allControls
             .reduce<string[]>((slots, name) => {
