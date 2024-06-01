@@ -261,12 +261,12 @@
       "url": "./src/static/schemas/payment-card.json"
     },
     {
-      "fileMatch": ["/src/static/translations/payment-method-card/*.json"],
-      "url": "./src/static/schemas/payment-method-card.json"
+      "fileMatch": ["/src/static/translations/payment-card-embed/*.json"],
+      "url": "./src/static/schemas/payment-card-embed.json"
     },
     {
-      "fileMatch": ["/src/static/translations/payment-method-form/*.json"],
-      "url": "./src/static/schemas/payment-method-form.json"
+      "fileMatch": ["/src/static/translations/payment-method-card/*.json"],
+      "url": "./src/static/schemas/payment-method-card.json"
     },
     {
       "fileMatch": ["/src/static/translations/payments-api-fraud-protection-card/*.json"],
@@ -391,6 +391,10 @@
     {
       "fileMatch": ["/src/static/translations/transactions-table/*.json"],
       "url": "./src/static/schemas/transactions-table.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/update-payment-method-form/*.json"],
+      "url": "./src/static/schemas/update-payment-method-form.json"
     },
     {
       "fileMatch": ["/src/static/translations/user-card/*.json"],

@@ -1,4 +1,5 @@
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { FormDialog } from '../FormDialog';
 
 import './index';
 
@@ -152,6 +153,194 @@ describe('PaymentMethodCard', () => {
       `);
 
       expect(await getByTestId(element, 'actions')).to.not.exist;
+    });
+  });
+
+  describe('actions:update', () => {
+    it('does not render actions:update by default', async () => {
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
+      const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
+      const element = await fixture<PaymentMethodCard>(layout);
+
+      expect(await getByTestId(element, 'actions:update')).to.not.exist;
+    });
+
+    it('renders actions:update when configured with embed url', async () => {
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
+      const layout = html`
+        <foxy-payment-method-card embed-url="https://embed.foxy.io/v1?demo=default" .data=${data}>
+        </foxy-payment-method-card>
+      `;
+
+      const element = await fixture<PaymentMethodCard>(layout);
+      expect(await getByTestId(element, 'actions:update')).to.exist;
+    });
+
+    it('renders "actions:update:before" slot', async () => {
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
+      const layout = html`
+        <foxy-payment-method-card embed-url="https://embed.foxy.io/v1?demo=default" .data=${data}>
+        </foxy-payment-method-card>
+      `;
+
+      const element = await fixture<PaymentMethodCard>(layout);
+
+      expect(await getByName(element, 'actions:update:before')).to.have.property(
+        'localName',
+        'slot'
+      );
+    });
+
+    it('replaces "actions:update:before" slot with template "actions:update:before" if available', async () => {
+      const name = 'actions:update:before';
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
+      const actions = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<PaymentMethodCard>(html`
+        <foxy-payment-method-card embed-url="https://embed.foxy.io/v1?demo=default" .data=${data}>
+          <template slot=${name}>${unsafeHTML(actions)}</template>
+        </foxy-payment-method-card>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(actions);
+    });
+
+    it('renders "actions:update:after" slot', async () => {
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
+      const layout = html`
+        <foxy-payment-method-card embed-url="https://embed.foxy.io/v1?demo=default" .data=${data}>
+        </foxy-payment-method-card>
+      `;
+
+      const element = await fixture<PaymentMethodCard>(layout);
+
+      expect(await getByName(element, 'actions:update:after')).to.have.property(
+        'localName',
+        'slot'
+      );
+    });
+
+    it('replaces "actions:update:after" slot with template "actions:update:after" if available', async () => {
+      const name = 'actions:update:after';
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
+      const actions = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<PaymentMethodCard>(html`
+        <foxy-payment-method-card embed-url="https://embed.foxy.io/v1?demo=default" .data=${data}>
+          <template slot=${name}>${unsafeHTML(actions)}</template>
+        </foxy-payment-method-card>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(actions);
+    });
+
+    it('shows update dialog on click', async () => {
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
+      const layout = html`
+        <foxy-payment-method-card
+          readonlycontrols="actions:update:form:foo"
+          disabledcontrols="actions:update:form:bar"
+          hiddencontrols="actions:update:form:baz"
+          embed-url="https://embed.foxy.io/v1?demo=default"
+          group="test"
+          lang="es"
+          ns="foo bar baz"
+          .data=${data}
+        >
+        </foxy-payment-method-card>
+      `;
+
+      const element = await fixture<PaymentMethodCard>(layout);
+      const control = await getByTestId<ButtonElement>(element, 'actions:update');
+      const confirm = await getByTestId<FormDialog>(element, 'update-dialog');
+      const showMethod = stub(confirm!, 'show');
+
+      control!.dispatchEvent(new CustomEvent('click'));
+      expect(showMethod).to.have.been.called;
+
+      expect(confirm).to.have.attribute('readonlycontrols', 'foo');
+      expect(confirm).to.have.attribute('disabledcontrols', 'bar');
+      expect(confirm).to.have.attribute('hiddencontrols', 'status baz');
+      expect(confirm).to.have.attribute('header', 'dialog_header_update');
+      expect(confirm).to.have.attribute('group', 'test');
+      expect(confirm).to.have.attribute('lang', 'es');
+      expect(confirm).to.have.attribute('href', element.href);
+      expect(confirm).to.have.attribute('form', 'foxy-update-payment-method-form');
+      expect(confirm).to.have.attribute('ns', 'foo bar baz dialog');
+      expect(confirm).to.have.attribute('close-on-patch');
+      expect(confirm).to.have.attribute('alert');
+      expect(confirm).to.have.deep.property('props', {
+        '.embedUrl': 'https://embed.foxy.io/v1?demo=default',
+      });
+    });
+
+    it('is hidden when card is hidden', async () => {
+      const element = await fixture<PaymentMethodCard>(html`
+        <foxy-payment-method-card
+          embed-url="https://embed.foxy.io/v1?demo=default"
+          .data=${await getTestData<Data>('./hapi/payment_methods/0')}
+          hidden
+        >
+        </foxy-payment-method-card>
+      `);
+
+      expect(await getByTestId(element, 'actions:update')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols includes actions:update', async () => {
+      const element = await fixture<PaymentMethodCard>(html`
+        <foxy-payment-method-card
+          hiddencontrols="actions:update"
+          embed-url="https://embed.foxy.io/v1?demo=default"
+          .data=${await getTestData<Data>('./hapi/payment_methods/0')}
+        >
+        </foxy-payment-method-card>
+      `);
+
+      expect(await getByTestId(element, 'actions:update')).to.not.exist;
+    });
+
+    it('is enabled when loaded', async () => {
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
+      const layout = html`
+        <foxy-payment-method-card embed-url="https://embed.foxy.io/v1?demo=default" .data=${data}>
+        </foxy-payment-method-card>
+      `;
+
+      const element = await fixture<PaymentMethodCard>(layout);
+      expect(await getByTestId(element, 'actions:update')).not.to.have.attribute('disabled');
+    });
+
+    it('is disabled when card is disabled', async () => {
+      const element = await fixture<PaymentMethodCard>(html`
+        <foxy-payment-method-card
+          embed-url="https://embed.foxy.io/v1?demo=default"
+          .data=${await getTestData<Data>('./hapi/payment_methods/0')}
+          disabled
+        >
+        </foxy-payment-method-card>
+      `);
+
+      expect(await getByTestId(element, 'actions:update')).to.have.attribute('disabled');
+    });
+
+    it('is disabled when disabledcontrols includes actions:update', async () => {
+      const element = await fixture<PaymentMethodCard>(html`
+        <foxy-payment-method-card
+          disabledcontrols="actions:update"
+          embed-url="https://embed.foxy.io/v1?demo=default"
+          .data=${await getTestData<Data>('./hapi/payment_methods/0')}
+        >
+        </foxy-payment-method-card>
+      `);
+
+      expect(await getByTestId(element, 'actions:update')).to.have.attribute('disabled');
     });
   });
 

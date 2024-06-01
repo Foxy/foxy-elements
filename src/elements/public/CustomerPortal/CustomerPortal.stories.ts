@@ -54,6 +54,8 @@ const summary: Summary = {
       'customer:header:actions:edit',
       'customer:header:actions:edit:form:change-password',
       'customer:header:actions:sign-out',
+      'customer:payment-methods:list:card:actions:update',
+      'customer:payment-methods:list:card:actions:delete',
     ],
     inputs: [
       'access-recovery:form:email',
@@ -76,6 +78,7 @@ const summary: Summary = {
       'customer:addresses:list:form:postal-code',
       'customer:subscriptions:list:form:next-transaction-date',
       'customer:subscriptions:list:form:frequency',
+      'customer:payment-methods:list:card:actions:update:form:cc-token',
     ],
   },
 };
@@ -85,6 +88,10 @@ const Meta = getMeta(summary);
 export default Meta;
 
 export const Playground = getStory({ ...summary, code: true });
+export const EditableCard = getStory({
+  ...summary,
+  ext: 'embed-url="https://embed.foxy.io/v1?demo=default"',
+});
 
 export { AddingPagesGuideProfileDemo } from './demos/AddingPagesGuideProfileDemo';
 export { AddingPagesGuideOrdersDemo } from './demos/AddingPagesGuideOrdersDemo';

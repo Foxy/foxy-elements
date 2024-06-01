@@ -33,6 +33,13 @@ describe('CustomerPortal', () => {
     ]);
   });
 
+  it('has a reactive property "embedUrl"', () => {
+    expect(new CustomerPortal()).to.have.property('embedUrl', null);
+    expect(CustomerPortal).to.have.deep.nested.property('properties.embedUrl', {
+      attribute: 'embed-url',
+    });
+  });
+
   it('has an empty group property by default', () => {
     expect(new CustomerPortal()).to.have.property('group', '');
   });

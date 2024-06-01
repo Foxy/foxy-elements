@@ -488,6 +488,10 @@ export const groups = [
     files: './src/elements/public/PaymentCard/**/*.test.ts',
   },
   {
+    name: 'foxy-payment-card-embed-element',
+    files: './src/elements/public/PaymentCardEmbedElement/**/*.test.ts',
+  },
+  {
     name: 'foxy-payment-method-card',
     files: './src/elements/public/PaymentMethodCard/**/*.test.ts',
   },
@@ -618,6 +622,10 @@ export const groups = [
   {
     name: 'foxy-transactions-table',
     files: './src/elements/public/TransactionsTable/**/*.test.ts',
+  },
+  {
+    name: 'foxy-update-payment-method-form',
+    files: './src/elements/public/UpdatePaymentMethodForm/**/*.test.ts',
   },
   {
     name: 'foxy-user-card',

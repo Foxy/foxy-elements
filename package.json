@@ -28,7 +28,7 @@
     "prepack": "npm run lint && rimraf dist && node ./.build/compile-for-npm.js && rollup -c"
   },
   "dependencies": {
-    "@foxy.io/sdk": "^1.11.3",
+    "@foxy.io/sdk": "file:foxy.io-sdk-0.0.0.tgz",
     "@open-wc/lit-helpers": "^0.3.12",
     "@open-wc/scoped-elements": "^1.2.1",
     "@polymer/iron-icons": "^3.0.1",

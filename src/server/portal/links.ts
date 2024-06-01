@@ -9,11 +9,8 @@ export const links: Links = {
     'fx:customer': { href: './' },
   }),
 
-  payment_methods: ({ store_id }) => ({
+  payment_methods: () => ({
     'fx:customer': { href: './' },
-    'fx:cc_token_embed_url': {
-      href: `https://embed.foxy.test/v1?cards=mastercard,visa,amex&store=${store_id}`,
-    },
   }),
 
   subscriptions: ({ id, last_transaction_id, transaction_template_id }) => ({

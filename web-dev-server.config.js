@@ -80,7 +80,10 @@ export default {
     }),
 
     storybookPlugin({ type: 'web-components' }),
-    replacePlugin({ 'process.env.NODE_ENV': '"production"' }),
+    replacePlugin({
+      'process.env.NODE_ENV': '"production"',
+      'embed.foxy.io': 'embed.foxy.test',
+    }),
     esbuildPlugin({ ts: true }),
     compatPlugin(),
     jsonPlugin(),

@@ -99,9 +99,12 @@ const summary: Summary = {
   },
 };
 
+const demoExt = 'embed-url="https://embed.foxy.io/v1?demo=default"';
+
 export default getMeta(summary);
 
 export const Playground = getStory({ ...summary, code: true });
+export const EditableCard = getStory({ ...summary, ext: demoExt });
 export const Empty = getStory(summary);
 export const Error = getStory(summary);
 export const Busy = getStory(summary);

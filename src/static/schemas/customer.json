@@ -1774,207 +1774,450 @@
     "payment-method-card": {
       "additionalProperties": false,
       "properties": {
+        "cancel": { "type": "string", "default": "Cancel" },
+        "delete": { "type": "string", "default": "Delete" },
+        "add": { "type": "string", "default": "Add payment method" },
+        "update": { "type": "string", "default": "Update payment method" },
+        "delete_prompt": {
+          "type": "string",
+          "default": "This payment method will be permanently deleted from your account. Would you like to continue?"
+        },
         "expires": { "type": "string", "default": "Expires" },
         "last_4_digits": { "type": "string", "default": "Last 4 digits" },
         "unknown": { "type": "string", "default": "Unknown" },
         "dialog": {
           "additionalProperties": false,
           "properties": {
-            "dialog_header": { "type": "string", "default": "Default payment method" },
             "close": { "type": "string", "default": "Close" },
-            "cancel": { "type": "string", "default": "Cancel" },
-            "save": { "type": "string", "default": "Save" },
-            "undo_cancel": { "type": "string", "default": "Review" },
-            "undo_confirm": { "type": "string", "default": "Discard" },
-            "undo_header": { "type": "string", "default": "Unsaved changes" },
-            "undo_message": {
-              "type": "string",
-              "default": "Looks like you didn't save your changes! What would you like to do with them?"
-            },
-            "payment-method-form": {
+            "dialog_header_add": { "type": "string", "default": "Add payment method" },
+            "dialog_header_update": { "type": "string", "default": "Update payment method" },
+            "update-payment-method-form": {
               "additionalProperties": false,
               "properties": {
-                "tab_0": { "type": "string", "default": "Use the saved card" },
-                "tab_1": { "type": "string", "default": "Add a new card" },
-                "cc-number": {
+                "status": {
                   "additionalProperties": false,
                   "properties": {
-                    "label": { "type": "string", "default": "Card number" },
-                    "placeholder": { "type": "string", "default": "" },
-                    "helper_text": { "type": "string", "default": "" }
+                    "cc_token_success": {
+                      "type": "string",
+                      "default": "Card details saved successfully."
+                    },
+                    "close": { "type": "string", "default": "Close" }
                   },
-                  "required": ["label", "placeholder", "helper_text"]
+                  "required": ["cc_token_success", "close"]
                 },
-                "cc-exp": {
+                "error": {
                   "additionalProperties": false,
                   "properties": {
-                    "label": { "type": "string", "default": "Expires on" },
-                    "placeholder": { "type": "string", "default": "" },
-                    "helper_text": { "type": "string", "default": "" }
+                    "cc_token_invalid": {
+                      "type": "string",
+                      "default": "Unfortunately, we couldn't save your card details. Please try again later or use a different card."
+                    }
                   },
-                  "required": ["label", "placeholder", "helper_text"]
+                  "required": ["cc_token_invalid"]
                 },
-                "cc-csc": {
+                "template-set": {
                   "additionalProperties": false,
                   "properties": {
-                    "label": { "type": "string", "default": "CSC" },
-                    "placeholder": { "type": "string", "default": "" },
-                    "helper_text": { "type": "string", "default": "" }
+                    "label": { "type": "string", "default": "Template set" },
+                    "dialog": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "cancel": { "type": "string", "default": "Cancel" },
+                        "close": { "type": "string", "default": "Close" },
+                        "header": { "type": "string", "default": "Choose a template set" },
+                        "selection": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "label": { "type": "string", "default": "" },
+                            "helper_text": { "type": "string", "default": "" },
+                            "search": { "type": "string", "default": "Search" },
+                            "clear": { "type": "string", "default": "Clear" },
+                            "pagination": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "search_button_text": { "type": "string", "default": "Search" },
+                                "first": { "type": "string", "default": "First" },
+                                "last": { "type": "string", "default": "Last" },
+                                "next": { "type": "string", "default": "Next" },
+                                "pagination": {
+                                  "type": "string",
+                                  "default": "{{from}}-{{to}} out of {{total}}"
+                                },
+                                "previous": { "type": "string", "default": "Previous" },
+                                "card": {
+                                  "additionalProperties": false,
+                                  "properties": {
+                                    "spinner": {
+                                      "additionalProperties": false,
+                                      "properties": {
+                                        "loading_busy": { "type": "string", "default": "Loading" },
+                                        "loading_empty": {
+                                          "type": "string",
+                                          "default": "No template sets found"
+                                        },
+                                        "loading_error": {
+                                          "type": "string",
+                                          "default": "Unknown error"
+                                        }
+                                      },
+                                      "required": ["loading_busy", "loading_empty", "loading_error"]
+                                    }
+                                  },
+                                  "required": ["spinner"]
+                                }
+                              },
+                              "required": [
+                                "search_button_text",
+                                "first",
+                                "last",
+                                "next",
+                                "pagination",
+                                "previous",
+                                "card"
+                              ]
+                            },
+                            "query-builder": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "filters": {
+                                  "additionalProperties": false,
+                                  "properties": {},
+                                  "required": []
+                                },
+                                "add_or_clause": { "type": "string", "default": "Add OR clause" },
+                                "add_value": { "type": "string", "default": "Add value" },
+                                "code": { "type": "string", "default": "Code" },
+                                "date": { "type": "string", "default": "{{value, date}}" },
+                                "date_created": { "type": "string", "default": "Created on" },
+                                "date_modified": { "type": "string", "default": "Last updated on" },
+                                "delete": { "type": "string", "default": "Delete" },
+                                "field": { "type": "string", "default": "Field" },
+                                "hidden": { "type": "string", "default": "Hidden" },
+                                "is_defined_false": { "type": "string", "default": "Not defined" },
+                                "is_defined_true": { "type": "string", "default": "Defined" },
+                                "name": { "type": "string", "default": "Name" },
+                                "operator_equal": { "type": "string", "default": "Equal" },
+                                "operator_greaterthan": {
+                                  "type": "string",
+                                  "default": "Greater than"
+                                },
+                                "operator_greaterthanorequal": {
+                                  "type": "string",
+                                  "default": "Greater than or equal"
+                                },
+                                "operator_in": { "type": "string", "default": "One of" },
+                                "operator_isdefined": { "type": "string", "default": "Is defined" },
+                                "operator_lessthan": { "type": "string", "default": "Less than" },
+                                "operator_lessthanorequal": {
+                                  "type": "string",
+                                  "default": "Less than or equal"
+                                },
+                                "operator_not": { "type": "string", "default": "Not equal" },
+                                "or": { "type": "string", "default": "Or" },
+                                "query_builder_group": {
+                                  "type": "string",
+                                  "default": "Group of filters"
+                                },
+                                "query_builder_rule": { "type": "string", "default": "Filter" },
+                                "range_from": { "type": "string", "default": "From" },
+                                "range_to": { "type": "string", "default": "To" },
+                                "type": { "type": "string", "default": "Type" },
+                                "type_any": {
+                                  "type": "string",
+                                  "default": "Field of unknown type"
+                                },
+                                "type_attribute": {
+                                  "type": "string",
+                                  "default": "Key-value resource"
+                                },
+                                "type_date": { "type": "string", "default": "Date field" },
+                                "type_here": { "type": "string", "default": "Type here..." },
+                                "type_number": { "type": "string", "default": "Numeric field" },
+                                "type_string": { "type": "string", "default": "Text field" },
+                                "used_codes": { "type": "string", "default": "Codes used" },
+                                "value": { "type": "string", "default": "Value" }
+                              },
+                              "required": [
+                                "filters",
+                                "add_or_clause",
+                                "add_value",
+                                "code",
+                                "date",
+                                "date_created",
+                                "date_modified",
+                                "delete",
+                                "field",
+                                "hidden",
+                                "is_defined_false",
+                                "is_defined_true",
+                                "name",
+                                "operator_equal",
+                                "operator_greaterthan",
+                                "operator_greaterthanorequal",
+                                "operator_in",
+                                "operator_isdefined",
+                                "operator_lessthan",
+                                "operator_lessthanorequal",
+                                "operator_not",
+                                "or",
+                                "query_builder_group",
+                                "query_builder_rule",
+                                "range_from",
+                                "range_to",
+                                "type",
+                                "type_any",
+                                "type_attribute",
+                                "type_date",
+                                "type_here",
+                                "type_number",
+                                "type_string",
+                                "used_codes",
+                                "value"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "label",
+                            "helper_text",
+                            "search",
+                            "clear",
+                            "pagination",
+                            "query-builder"
+                          ]
+                        }
+                      },
+                      "required": ["cancel", "close", "header", "selection"]
+                    },
+                    "card": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "spinner": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "loading_busy": { "type": "string", "default": "Loading" },
+                            "loading_empty": { "type": "string", "default": "Click to select" },
+                            "loading_error": { "type": "string", "default": "Unknown error" }
+                          },
+                          "required": ["loading_busy", "loading_empty", "loading_error"]
+                        }
+                      },
+                      "required": ["spinner"]
+                    },
+                    "helper_text": {
+                      "type": "string",
+                      "default": "Template set determines which payment gateway and tokenization service will be used to capture card details."
+                    }
                   },
-                  "required": ["label", "placeholder", "helper_text"]
+                  "required": ["label", "dialog", "card", "helper_text"]
                 },
                 "cc-token": {
                   "additionalProperties": false,
                   "properties": {
-                    "cc-number": {
+                    "tokenize": { "type": "string", "default": "Save card" },
+                    "payment-card-embed": {
                       "additionalProperties": false,
                       "properties": {
-                        "label": { "type": "string", "default": "Card number" },
-                        "placeholder": { "type": "string", "default": "1234 1234 1234 1234" },
-                        "v8n_required": { "type": "string", "default": "Enter a card number" },
-                        "v8n_invalid": {
-                          "type": "string",
-                          "default": "Check your card number – it doesn't seem to be valid"
+                        "stripe": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "label": { "type": "string", "default": "Card details" },
+                            "status": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "idle": {
+                                  "type": "string",
+                                  "default": "Your card details are securely processed by Stripe. Visit https://stripe.com to learn more."
+                                },
+                                "busy": {
+                                  "type": "string",
+                                  "default": "Encrypting your card details..."
+                                },
+                                "fail": {
+                                  "type": "string",
+                                  "default": "This service is currently unavailable. Please try again later."
+                                }
+                              },
+                              "required": ["idle", "busy", "fail"]
+                            }
+                          },
+                          "required": ["label", "status"]
                         },
-                        "v8n_unsupported": {
-                          "type": "string",
-                          "default": "We don't support this card type"
+                        "square": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "label": { "type": "string", "default": "Card details" },
+                            "status": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "idle": {
+                                  "type": "string",
+                                  "default": "Your card details are securely processed by Square. Visit https://squareup.com to learn more."
+                                },
+                                "busy": {
+                                  "type": "string",
+                                  "default": "Encrypting your card details..."
+                                },
+                                "fail": {
+                                  "type": "string",
+                                  "default": "This service is currently unavailable. Please try again later."
+                                }
+                              },
+                              "required": ["idle", "busy", "fail"]
+                            }
+                          },
+                          "required": ["label", "status"]
+                        },
+                        "default": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "cc-number": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "label": { "type": "string", "default": "Card number" },
+                                "placeholder": {
+                                  "type": "string",
+                                  "default": "1234 1234 1234 1234"
+                                },
+                                "v8n_required": {
+                                  "type": "string",
+                                  "default": "Enter a card number."
+                                },
+                                "v8n_invalid": {
+                                  "type": "string",
+                                  "default": "Check your card number – it doesn't seem to be valid."
+                                },
+                                "v8n_unsupported": {
+                                  "type": "string",
+                                  "default": "We don't support this card type."
+                                }
+                              },
+                              "required": [
+                                "label",
+                                "placeholder",
+                                "v8n_required",
+                                "v8n_invalid",
+                                "v8n_unsupported"
+                              ]
+                            },
+                            "cc-exp": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "label": { "type": "string", "default": "Expires on" },
+                                "placeholder": { "type": "string", "default": "MM/YYYY" },
+                                "v8n_required": {
+                                  "type": "string",
+                                  "default": "Enter an expiry date."
+                                },
+                                "v8n_invalid": {
+                                  "type": "string",
+                                  "default": "Enter a date as MM/YYYY."
+                                },
+                                "v8n_expired": {
+                                  "type": "string",
+                                  "default": "Your card has expired."
+                                }
+                              },
+                              "required": [
+                                "label",
+                                "placeholder",
+                                "v8n_required",
+                                "v8n_invalid",
+                                "v8n_expired"
+                              ]
+                            },
+                            "cc-csc": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "label": { "type": "string", "default": "CSC" },
+                                "placeholder": { "type": "string", "default": "XXX" },
+                                "v8n_required": {
+                                  "type": "string",
+                                  "default": "Enter a security code."
+                                },
+                                "v8n_invalid": {
+                                  "type": "string",
+                                  "default": "Enter a 3-4 digits code."
+                                }
+                              },
+                              "required": ["label", "placeholder", "v8n_required", "v8n_invalid"]
+                            },
+                            "status": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "idle": {
+                                  "type": "string",
+                                  "default": "Your card details are securely processed by Foxy.io. Visit https://foxy.io to learn more."
+                                },
+                                "busy": {
+                                  "type": "string",
+                                  "default": "Encrypting your card details..."
+                                },
+                                "fail": {
+                                  "type": "string",
+                                  "default": "This service is currently unavailable. Please try again later."
+                                },
+                                "misconfigured": {
+                                  "type": "string",
+                                  "default": "This form is not configured correctly. If you are seeing this message as a customer, please report this issue to the store support team."
+                                }
+                              },
+                              "required": ["idle", "busy", "fail", "misconfigured"]
+                            }
+                          },
+                          "required": ["cc-number", "cc-exp", "cc-csc", "status"]
                         }
                       },
-                      "required": [
-                        "label",
-                        "placeholder",
-                        "v8n_required",
-                        "v8n_invalid",
-                        "v8n_unsupported"
-                      ]
-                    },
-                    "cc-exp": {
-                      "additionalProperties": false,
-                      "properties": {
-                        "label": { "type": "string", "default": "Expires on" },
-                        "placeholder": { "type": "string", "default": "MM/YYYY" },
-                        "v8n_required": { "type": "string", "default": "Enter an expiry date" },
-                        "v8n_invalid": { "type": "string", "default": "Enter a date as MM/YYYY" },
-                        "v8n_expired": { "type": "string", "default": "Your card has expired" }
-                      },
-                      "required": [
-                        "label",
-                        "placeholder",
-                        "v8n_required",
-                        "v8n_invalid",
-                        "v8n_expired"
-                      ]
-                    },
-                    "cc-csc": {
-                      "additionalProperties": false,
-                      "properties": {
-                        "label": { "type": "string", "default": "CSC" },
-                        "placeholder": { "type": "string", "default": "XXX" },
-                        "v8n_required": { "type": "string", "default": "Enter a security code" },
-                        "v8n_invalid": { "type": "string", "default": "Enter a 3-4 digits code" }
-                      },
-                      "required": ["label", "placeholder", "v8n_required", "v8n_invalid"]
-                    },
-                    "supported-cards": {
-                      "additionalProperties": false,
-                      "properties": { "label": { "type": "string", "default": "Accepted cards" } },
-                      "required": ["label"]
-                    },
-                    "status-message": {
-                      "additionalProperties": false,
-                      "properties": {
-                        "idle": {
-                          "type": "string",
-                          "default": "Your card details are protected with SSL and a NSA-approved encryption algorithm."
-                        },
-                        "busy": { "type": "string", "default": "Encrypting your card details..." },
-                        "fail_5xx": {
-                          "type": "string",
-                          "default": "Card tokenization service is currently unavailable. Please try again later."
-                        },
-                        "fail_4xx": {
-                          "type": "string",
-                          "default": "This card doesn't appear to be valid. Please check the details and try again."
-                        }
-                      },
-                      "required": ["idle", "busy", "fail_5xx", "fail_4xx"]
+                      "required": ["stripe", "square", "default"]
                     }
                   },
-                  "required": ["cc-number", "cc-exp", "cc-csc", "supported-cards", "status-message"]
-                },
-                "timestamps": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "date_created": { "type": "string", "default": "Added on" },
-                    "date_modified": { "type": "string", "default": "Last updated" },
-                    "date": { "type": "string", "default": "{{value, date}}" }
-                  },
-                  "required": ["date_created", "date_modified", "date"]
-                },
-                "delete": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "delete": { "type": "string", "default": "Delete" },
-                    "cancel": { "type": "string", "default": "Cancel" },
-                    "delete_prompt": {
-                      "type": "string",
-                      "default": "If you have any active subscriptions, they will fail on next payment date. Are you sure you'd like to remove this card?"
-                    }
-                  },
-                  "required": ["delete", "cancel", "delete_prompt"]
-                },
-                "create": {
-                  "additionalProperties": false,
-                  "properties": { "create": { "type": "string", "default": "Add card" } },
-                  "required": ["create"]
+                  "required": ["tokenize", "payment-card-embed"]
                 },
                 "spinner": {
                   "additionalProperties": false,
                   "properties": {
+                    "refresh": { "type": "string", "default": "Refresh" },
                     "loading_busy": { "type": "string", "default": "Loading" },
-                    "loading_error": { "type": "string", "default": "Failed to load" }
+                    "loading_error": { "type": "string", "default": "Unknown error" },
+                    "loading_empty": {
+                      "type": "string",
+                      "default": "This form works only with existing payment methods"
+                    }
                   },
-                  "required": ["loading_busy", "loading_error"]
+                  "required": ["refresh", "loading_busy", "loading_error", "loading_empty"]
                 }
               },
-              "required": [
-                "tab_0",
-                "tab_1",
-                "cc-number",
-                "cc-exp",
-                "cc-csc",
-                "cc-token",
-                "timestamps",
-                "delete",
-                "create",
-                "spinner"
-              ]
+              "required": ["status", "error", "template-set", "cc-token", "spinner"]
             }
           },
           "required": [
-            "dialog_header",
             "close",
-            "cancel",
-            "save",
-            "undo_cancel",
-            "undo_confirm",
-            "undo_header",
-            "undo_message",
-            "payment-method-form"
+            "dialog_header_add",
+            "dialog_header_update",
+            "update-payment-method-form"
           ]
         },
         "spinner": {
           "additionalProperties": false,
           "properties": {
             "loading_busy": { "type": "string", "default": "Loading" },
-            "loading_empty": { "type": "string", "default": "No data" },
+            "loading_empty": { "type": "string", "default": "No payment method" },
             "loading_error": { "type": "string", "default": "Unknown error" }
           },
           "required": ["loading_busy", "loading_empty", "loading_error"]
         }
       },
-      "required": ["expires", "last_4_digits", "unknown", "dialog", "spinner"]
+      "required": [
+        "cancel",
+        "delete",
+        "add",
+        "update",
+        "delete_prompt",
+        "expires",
+        "last_4_digits",
+        "unknown",
+        "dialog",
+        "spinner"
+      ]
     },
     "spinner": {
       "additionalProperties": false,
