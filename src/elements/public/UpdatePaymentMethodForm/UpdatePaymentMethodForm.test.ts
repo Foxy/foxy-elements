@@ -53,14 +53,6 @@ describe('UpdatePaymentMethodForm', () => {
     expect(new Form()).to.have.property('embedUrl', null);
   });
 
-  it('produces a "cc-token:v8n_required" error when cc_token is empty', () => {
-    const form = new Form();
-    expect(form.errors).to.include('cc-token:v8n_required');
-
-    form.edit({ cc_token: 'foo' });
-    expect(form.errors).to.not.include('cc-token:v8n_required');
-  });
-
   it('hides template set picker when using a preconfigured or demo embed URL', () => {
     const form = new Form();
     form.embedUrl = 'https://embed.foxy.io/v1?demo=default';

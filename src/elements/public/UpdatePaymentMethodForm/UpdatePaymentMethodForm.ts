@@ -1,7 +1,6 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
-import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Data } from './types';
 import type { Rels } from '@foxy.io/sdk/backend';
@@ -35,10 +34,6 @@ export class UpdatePaymentMethodForm extends Base<Data> {
       __templateSetOverride: { attribute: false },
       embedUrl: { attribute: 'embed-url' },
     };
-  }
-
-  static get v8n(): NucleonV8N<Data> {
-    return [({ cc_token: v }) => !!v || 'cc-token:v8n_required'];
   }
 
   /** Configuration URL for the Payment Card Embed. Required for the form to work. */
@@ -108,19 +103,25 @@ export class UpdatePaymentMethodForm extends Base<Data> {
     if (changes.has('embedUrl') || changes.has('href')) this.__templateSetOverride = null;
   }
 
-  protected async _sendPatch(edits: Partial<Data>): Promise<Data> {
+  protected async _fetch<TResult = Data>(...args: Parameters<Window['fetch']>): Promise<TResult> {
     try {
-      const result = super._sendPatch(edits);
-      if (edits.cc_token) this.status = { key: 'cc_token_success' };
-      return result;
+      const response = await super._fetch<TResult>(...args);
+      this.status = { key: 'cc_token_success' };
+      return response;
     } catch (err) {
-      if (err instanceof Response) {
-        const details = await err.text();
-        if (details.includes('cc_token you provided is invalid')) {
-          throw ['error:cc_token_invalid'];
-        }
+      let message;
+
+      try {
+        message = (await (err as Response).json())._embedded['fx:errors'][0].message;
+      } catch {
+        throw err;
       }
-      throw err;
+
+      if (message.includes('cc_token you provided is invalid')) {
+        throw ['error:cc_token_invalid'];
+      } else {
+        throw err;
+      }
     }
   }
 
