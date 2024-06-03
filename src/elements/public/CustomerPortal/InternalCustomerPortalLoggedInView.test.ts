@@ -8,7 +8,7 @@ import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { InternalCustomerPortalLoggedInView } from './InternalCustomerPortalLoggedInView';
 import { InternalCustomerPortalSubscriptions } from './InternalCustomerPortalSubscriptions';
 import { InternalCustomerPortalTransactions } from './InternalCustomerPortalTransactions';
-import { InternalSandbox } from '../../internal/InternalSandbox';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement';
 import { createRouter } from '../../../server/index';
 import { getByTag } from '../../../testgen/getByTag';

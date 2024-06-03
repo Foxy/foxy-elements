@@ -11,7 +11,7 @@ import { Core } from '@foxy.io/sdk';
 import { Customer } from './Customer';
 import { Data } from './types';
 import { FormDialog } from '../FormDialog/FormDialog';
-import { InternalSandbox } from '../../internal/InternalSandbox';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { PaymentMethodCard } from '../PaymentMethodCard';
 import { Rels } from '@foxy.io/sdk/backend';

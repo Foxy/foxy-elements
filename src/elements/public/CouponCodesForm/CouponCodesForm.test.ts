@@ -5,7 +5,7 @@ import './index';
 
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { CouponCodesForm } from './CouponCodesForm';
-import { InternalForm } from '../../internal/InternalForm';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
 
 describe('CouponCodesForm', () => {
   it('imports and defines foxy-internal-editable-list-control', () => {

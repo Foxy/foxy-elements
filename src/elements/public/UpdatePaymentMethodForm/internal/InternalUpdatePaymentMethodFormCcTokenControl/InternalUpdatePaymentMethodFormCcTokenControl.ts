@@ -2,7 +2,7 @@ import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 
 import { PaymentCardEmbedElement } from '../../../PaymentCardEmbedElement/PaymentCardEmbedElement';
-import { InternalControl } from '../../../../internal/InternalControl';
+import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 

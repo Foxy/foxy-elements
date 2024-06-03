@@ -1,7 +1,7 @@
 import type { CustomerPageGetter, Data, Settings, Templates, TransactionPageGetter } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { ScopedElementsMap } from '@open-wc/scoped-elements';
-import type { InternalCalendar } from '../../internal/InternalCalendar';
+import type { InternalCalendar } from '../../internal/InternalCalendar/InternalCalendar';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { Rels } from '@foxy.io/sdk/backend';

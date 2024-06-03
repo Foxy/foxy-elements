@@ -1,11 +1,11 @@
-import type { InternalSourceControl } from '../../internal/InternalSourceControl';
+import type { InternalSourceControl } from '../../internal/InternalSourceControl/InternalSourceControl';
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
 
 import './index';
 
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { GenerateCodesForm } from './GenerateCodesForm';
-import { InternalForm } from '../../internal/InternalForm';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
 
 describe('GenerateCodesForm', () => {
   it('imports and defines foxy-internal-integer-control', () => {

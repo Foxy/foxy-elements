@@ -8,7 +8,7 @@ import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { Data } from './types';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
-import { InternalSandbox } from '../../internal/InternalSandbox';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement';
 import { PaymentMethodCard } from './PaymentMethodCard';
 import { getByName } from '../../../testgen/getByName';

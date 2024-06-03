@@ -8,7 +8,7 @@ import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormDialog } from '../FormDialog';
 import { InternalCustomerPortalLink } from './InternalCustomerPortalLink';
 import { InternalCustomerPortalSubscriptions } from './InternalCustomerPortalSubscriptions';
-import { InternalSandbox } from '../../internal/InternalSandbox';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { LitElement } from 'lit-element';
 import { SubscriptionCard } from '../SubscriptionCard';
 import { SubscriptionForm } from '../SubscriptionForm';

@@ -8,7 +8,7 @@ import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
-import { InternalCard } from '../../internal/InternalCard';
+import { InternalCard } from '../../internal/InternalCard/InternalCard';
 
 class TestTwoLineCard extends TwoLineCard<any> {
   renderBody() {

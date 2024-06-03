@@ -2,7 +2,7 @@ import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 
 import { Data } from './types';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { InternalSandbox } from '../../internal/InternalSandbox';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { Rels } from '@foxy.io/sdk/backend';
 import { Resource } from '@foxy.io/sdk/core';
 import { TransactionCard } from './index';

@@ -1,4 +1,4 @@
-import type { InternalDownloadableFormUploadControl } from './internal/InternalDownloadableFormUploadControl';
+import type { InternalDownloadableFormUploadControl } from './internal/InternalDownloadableFormUploadControl/InternalDownloadableFormUploadControl';
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonElement } from '../NucleonElement';
