@@ -90,7 +90,7 @@ export default Meta;
 export const Playground = getStory({ ...summary, code: true });
 export const EditableCard = getStory({
   ...summary,
-  ext: 'embed-url="https://embed.foxy.io/v1?demo=default"',
+  ext: 'embed-url="https://embed.foxy.io/v1.html?demo=default"',
 });
 
 export { AddingPagesGuideProfileDemo } from './demos/AddingPagesGuideProfileDemo';

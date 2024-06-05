@@ -1427,7 +1427,7 @@ describe('Customer', () => {
             <foxy-customer
               disabledcontrols="payment-methods:list:card:actions:delete"
               hiddencontrols="payment-methods:list:card:actions"
-              embed-url="https://embed.foxy.io/v1?demo=default"
+              embed-url="https://embed.foxy.io/v1.html?demo=default"
               group="foo"
               lang="es"
             >
@@ -1441,7 +1441,7 @@ describe('Customer', () => {
 
           expect(card).to.have.attribute('disabledcontrols', 'actions:delete');
           expect(card).to.have.attribute('hiddencontrols', 'actions');
-          expect(card).to.have.attribute('embed-url', 'https://embed.foxy.io/v1?demo=default');
+          expect(card).to.have.attribute('embed-url', 'https://embed.foxy.io/v1.html?demo=default');
           expect(card).to.have.attribute('group', 'foo');
           expect(card).to.have.attribute('lang', 'es');
           expect(card!.templates).to.have.key('actions:before');

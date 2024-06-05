@@ -9830,7 +9830,7 @@
       "attributes": [
         {
           "name": "embed-url",
-          "description": "URL of the Payment Card Embed for updating payment method.\nWhen set, the payment method will be editable. Otherwise, the customers\nwill only be able to view and delete it.\n\n```html\n<foxy-customer-portal\n  embed-url=\"https://embed.foxy.io/v1?template_set=123\"\n  base=\"https://demo.foxycart.com/s/customer/\"\n>\n</foxy-customer-portal>\n```"
+          "description": "URL of the Payment Card Embed for updating payment method.\nWhen set, the payment method will be editable. Otherwise, the customers\nwill only be able to view and delete it.\n\n```html\n<foxy-customer-portal\n  embed-url=\"https://embed.foxy.io/v1.html?template_set=123\"\n  base=\"https://demo.foxycart.com/s/customer/\"\n>\n</foxy-customer-portal>\n```"
         },
         {
           "name": "group",
@@ -9915,7 +9915,7 @@
         {
           "name": "embedUrl",
           "attribute": "embed-url",
-          "description": "URL of the Payment Card Embed for updating payment method.\nWhen set, the payment method will be editable. Otherwise, the customers\nwill only be able to view and delete it.\n\n```html\n<foxy-customer-portal\n  embed-url=\"https://embed.foxy.io/v1?template_set=123\"\n  base=\"https://demo.foxycart.com/s/customer/\"\n>\n</foxy-customer-portal>\n```"
+          "description": "URL of the Payment Card Embed for updating payment method.\nWhen set, the payment method will be editable. Otherwise, the customers\nwill only be able to view and delete it.\n\n```html\n<foxy-customer-portal\n  embed-url=\"https://embed.foxy.io/v1.html?template_set=123\"\n  base=\"https://demo.foxycart.com/s/customer/\"\n>\n</foxy-customer-portal>\n```"
         },
         {
           "name": "group",
@@ -20916,7 +20916,7 @@
       "attributes": [
         {
           "name": "url",
-          "description": "Full Bank Card Embed URL, e.g. `https://embed.foxy.io/v1?template_set_id=123`.\n\nThe following demo URLs are available:\n- `https://embed.foxy.io/v1?demo=default` (Default form)\n- `https://embed.foxy.io/v1?demo=stripe` (Stripe Card Element)\n- `https://embed.foxy.io/v1?demo=square` (Square Card Element)"
+          "description": "Full Bank Card Embed URL, e.g. `https://embed.foxy.io/v1.html?template_set_id=123`.\n\nThe following demo URLs are available:\n- `https://embed.foxy.io/v1.html?demo=default` (Default form)\n- `https://embed.foxy.io/v1.html?demo=stripe` (Stripe Card Element)\n- `https://embed.foxy.io/v1.html?demo=square` (Square Card Element)"
         },
         {
           "name": "mode",
@@ -20975,7 +20975,7 @@
         {
           "name": "url",
           "attribute": "url",
-          "description": "Full Bank Card Embed URL, e.g. `https://embed.foxy.io/v1?template_set_id=123`.\n\nThe following demo URLs are available:\n- `https://embed.foxy.io/v1?demo=default` (Default form)\n- `https://embed.foxy.io/v1?demo=stripe` (Stripe Card Element)\n- `https://embed.foxy.io/v1?demo=square` (Square Card Element)"
+          "description": "Full Bank Card Embed URL, e.g. `https://embed.foxy.io/v1.html?template_set_id=123`.\n\nThe following demo URLs are available:\n- `https://embed.foxy.io/v1.html?demo=default` (Default form)\n- `https://embed.foxy.io/v1.html?demo=stripe` (Stripe Card Element)\n- `https://embed.foxy.io/v1.html?demo=square` (Square Card Element)"
         },
         {
           "name": "templates",

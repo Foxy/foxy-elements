@@ -42,7 +42,7 @@ describe('UpdatePaymentMethodForm', () => {
     it('renders a foxy-payment-card-embed element', async () => {
       const control = await fixture<Control>(html`
         <foxy-internal-update-payment-method-form-cc-token-control
-          embed-url="https://embed.foxy.io/v1?demo=default"
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
         >
         </foxy-internal-update-payment-method-form-cc-token-control>
       `);
@@ -50,7 +50,7 @@ describe('UpdatePaymentMethodForm', () => {
       const element = control.renderRoot.querySelector('foxy-payment-card-embed');
       expect(element).to.exist;
       expect(element).to.have.attribute('infer', 'payment-card-embed');
-      expect(element).to.have.attribute('url', 'https://embed.foxy.io/v1?demo=default');
+      expect(element).to.have.attribute('url', 'https://embed.foxy.io/v1.html?demo=default');
     });
 
     it('renders a button that tokenizes the card on click', async () => {

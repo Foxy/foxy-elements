@@ -37,7 +37,7 @@ export class CustomerPortal extends TranslatableMixin(
    *
    * ```html
    * <foxy-customer-portal
-   *  embed-url="https://embed.foxy.io/v1?template_set=123"
+   *  embed-url="https://embed.foxy.io/v1.html?template_set=123"
    *  base="https://demo.foxycart.com/s/customer/"
    * >
    * </foxy-customer-portal>

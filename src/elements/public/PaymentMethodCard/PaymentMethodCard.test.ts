@@ -168,7 +168,10 @@ describe('PaymentMethodCard', () => {
     it('renders actions:update when configured with embed url', async () => {
       const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`
-        <foxy-payment-method-card embed-url="https://embed.foxy.io/v1?demo=default" .data=${data}>
+        <foxy-payment-method-card
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
+          .data=${data}
+        >
         </foxy-payment-method-card>
       `;
 
@@ -179,7 +182,10 @@ describe('PaymentMethodCard', () => {
     it('renders "actions:update:before" slot', async () => {
       const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`
-        <foxy-payment-method-card embed-url="https://embed.foxy.io/v1?demo=default" .data=${data}>
+        <foxy-payment-method-card
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
+          .data=${data}
+        >
         </foxy-payment-method-card>
       `;
 
@@ -196,7 +202,10 @@ describe('PaymentMethodCard', () => {
       const data = await getTestData<Data>('./hapi/payment_methods/0');
       const actions = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<PaymentMethodCard>(html`
-        <foxy-payment-method-card embed-url="https://embed.foxy.io/v1?demo=default" .data=${data}>
+        <foxy-payment-method-card
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
+          .data=${data}
+        >
           <template slot=${name}>${unsafeHTML(actions)}</template>
         </foxy-payment-method-card>
       `);
@@ -211,7 +220,10 @@ describe('PaymentMethodCard', () => {
     it('renders "actions:update:after" slot', async () => {
       const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`
-        <foxy-payment-method-card embed-url="https://embed.foxy.io/v1?demo=default" .data=${data}>
+        <foxy-payment-method-card
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
+          .data=${data}
+        >
         </foxy-payment-method-card>
       `;
 
@@ -228,7 +240,10 @@ describe('PaymentMethodCard', () => {
       const data = await getTestData<Data>('./hapi/payment_methods/0');
       const actions = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<PaymentMethodCard>(html`
-        <foxy-payment-method-card embed-url="https://embed.foxy.io/v1?demo=default" .data=${data}>
+        <foxy-payment-method-card
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
+          .data=${data}
+        >
           <template slot=${name}>${unsafeHTML(actions)}</template>
         </foxy-payment-method-card>
       `);
@@ -247,7 +262,7 @@ describe('PaymentMethodCard', () => {
           readonlycontrols="actions:update:form:foo"
           disabledcontrols="actions:update:form:bar"
           hiddencontrols="actions:update:form:baz"
-          embed-url="https://embed.foxy.io/v1?demo=default"
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
           group="test"
           lang="es"
           ns="foo bar baz"
@@ -276,14 +291,14 @@ describe('PaymentMethodCard', () => {
       expect(confirm).to.have.attribute('close-on-patch');
       expect(confirm).to.have.attribute('alert');
       expect(confirm).to.have.deep.property('props', {
-        '.embedUrl': 'https://embed.foxy.io/v1?demo=default',
+        '.embedUrl': 'https://embed.foxy.io/v1.html?demo=default',
       });
     });
 
     it('is hidden when card is hidden', async () => {
       const element = await fixture<PaymentMethodCard>(html`
         <foxy-payment-method-card
-          embed-url="https://embed.foxy.io/v1?demo=default"
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
           .data=${await getTestData<Data>('./hapi/payment_methods/0')}
           hidden
         >
@@ -297,7 +312,7 @@ describe('PaymentMethodCard', () => {
       const element = await fixture<PaymentMethodCard>(html`
         <foxy-payment-method-card
           hiddencontrols="actions:update"
-          embed-url="https://embed.foxy.io/v1?demo=default"
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
           .data=${await getTestData<Data>('./hapi/payment_methods/0')}
         >
         </foxy-payment-method-card>
@@ -309,7 +324,10 @@ describe('PaymentMethodCard', () => {
     it('is enabled when loaded', async () => {
       const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`
-        <foxy-payment-method-card embed-url="https://embed.foxy.io/v1?demo=default" .data=${data}>
+        <foxy-payment-method-card
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
+          .data=${data}
+        >
         </foxy-payment-method-card>
       `;
 
@@ -320,7 +338,7 @@ describe('PaymentMethodCard', () => {
     it('is disabled when card is disabled', async () => {
       const element = await fixture<PaymentMethodCard>(html`
         <foxy-payment-method-card
-          embed-url="https://embed.foxy.io/v1?demo=default"
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
           .data=${await getTestData<Data>('./hapi/payment_methods/0')}
           disabled
         >
@@ -334,7 +352,7 @@ describe('PaymentMethodCard', () => {
       const element = await fixture<PaymentMethodCard>(html`
         <foxy-payment-method-card
           disabledcontrols="actions:update"
-          embed-url="https://embed.foxy.io/v1?demo=default"
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
           .data=${await getTestData<Data>('./hapi/payment_methods/0')}
         >
         </foxy-payment-method-card>

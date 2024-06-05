@@ -55,13 +55,13 @@ describe('UpdatePaymentMethodForm', () => {
 
   it('hides template set picker when using a preconfigured or demo embed URL', () => {
     const form = new Form();
-    form.embedUrl = 'https://embed.foxy.io/v1?demo=default';
+    form.embedUrl = 'https://embed.foxy.io/v1.html?demo=default';
     expect(form.hiddenSelector.matches('template-set', true)).to.be.true;
 
-    form.embedUrl = 'https://embed.foxy.io/v1?template_set_id=0';
+    form.embedUrl = 'https://embed.foxy.io/v1.html?template_set_id=0';
     expect(form.hiddenSelector.matches('template-set', true)).to.be.true;
 
-    form.embedUrl = 'https://embed.foxy.io/v1';
+    form.embedUrl = 'https://embed.foxy.io/v1.html';
     expect(form.hiddenSelector.matches('template-set', true)).to.be.false;
   });
 
@@ -82,10 +82,10 @@ describe('UpdatePaymentMethodForm', () => {
 
     expect(form.hiddenSelector.matches('cc-token', true)).to.be.true;
 
-    form.embedUrl = 'https://embed.foxy.io/v1?template_set_id=0';
+    form.embedUrl = 'https://embed.foxy.io/v1.html?template_set_id=0';
     expect(form.hiddenSelector.matches('cc-token', true)).to.be.false;
 
-    form.embedUrl = 'https://embed.foxy.io/v1';
+    form.embedUrl = 'https://embed.foxy.io/v1.html';
     picker?.setValue('https://demo.api/hapi/template_sets/0');
     expect(form.hiddenSelector.matches('cc-token', true)).to.be.false;
   });
@@ -105,7 +105,7 @@ describe('UpdatePaymentMethodForm', () => {
     const router = createRouter();
     const form = await fixture<Form>(html`
       <foxy-update-payment-method-form
-        embed-url="https://embed.foxy.io/v1"
+        embed-url="https://embed.foxy.io/v1.html"
         href="https://demo.api/hapi/payment_methods/0"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
@@ -128,20 +128,23 @@ describe('UpdatePaymentMethodForm', () => {
     expect(picker).to.have.attribute('first', 'https://demo.api/hapi/template_sets?store_id=0');
     expect(picker).to.have.attribute('item', 'foxy-template-set-card');
     expect(picker.getValue()).to.equal(null);
-    expect(ccToken).to.have.attribute('embed-url', 'https://embed.foxy.io/v1');
+    expect(ccToken).to.have.attribute('embed-url', 'https://embed.foxy.io/v1.html');
 
     picker.setValue('https://demo.api/hapi/template_sets/0');
     expect(picker.getValue()).to.equal('https://demo.api/hapi/template_sets/0');
 
     await form.requestUpdate();
-    expect(ccToken).to.have.attribute('embed-url', 'https://embed.foxy.io/v1?template_set_id=0');
+    expect(ccToken).to.have.attribute(
+      'embed-url',
+      'https://embed.foxy.io/v1.html?template_set_id=0'
+    );
   });
 
   it('renders a card input when href is set', async () => {
     const router = createRouter();
     const form = await fixture<Form>(html`
       <foxy-update-payment-method-form
-        embed-url="https://embed.foxy.io/v1?demo=default"
+        embed-url="https://embed.foxy.io/v1.html?demo=default"
         href="https://demo.api/hapi/payment_methods/0"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
@@ -152,7 +155,7 @@ describe('UpdatePaymentMethodForm', () => {
     const control = form.renderRoot.querySelector('[infer="cc-token"]') as NucleonElement<any>;
 
     expect(control).to.be.instanceOf(InternalUpdatePaymentMethodFormCcTokenControl);
-    expect(control).to.have.attribute('embed-url', 'https://embed.foxy.io/v1?demo=default');
+    expect(control).to.have.attribute('embed-url', 'https://embed.foxy.io/v1.html?demo=default');
     expect(control).to.have.attribute('infer', 'cc-token');
   });
 });

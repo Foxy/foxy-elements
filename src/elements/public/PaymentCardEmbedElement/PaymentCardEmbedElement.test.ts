@@ -72,7 +72,7 @@ describe('PaymentCardEmbedElement', () => {
     const container = element.renderRoot.querySelector('#iframe-container');
     expect(element.embed).to.not.exist;
 
-    element.url = 'https://embed.foxy.io/v1?demo=default';
+    element.url = 'https://embed.foxy.io/v1.html?demo=default';
     await element.requestUpdate('url');
     await waitUntil(() => !!element.embed);
     expect(element.embed?.mount).to.have.been.calledOnceWithExactly(container);
@@ -80,7 +80,7 @@ describe('PaymentCardEmbedElement', () => {
 
   it('hides the spinner when embed is ready', async () => {
     const element = await fixture<TestElement>(
-      html`<test-element url="https://embed.foxy.io/v1?demo=default"></test-element>`
+      html`<test-element url="https://embed.foxy.io/v1.html?demo=default"></test-element>`
     );
 
     const spinner = element.renderRoot.querySelector('foxy-spinner');
@@ -97,7 +97,7 @@ describe('PaymentCardEmbedElement', () => {
 
   it('configures the embed with defaults', async () => {
     const element = await fixture<TestElement>(
-      html`<test-element url="https://embed.foxy.io/v1?demo=default"></test-element>`
+      html`<test-element url="https://embed.foxy.io/v1.html?demo=default"></test-element>`
     );
 
     await waitUntil(() => element.requestUpdate('url') && !!element.embed);
@@ -189,7 +189,7 @@ describe('PaymentCardEmbedElement', () => {
         <test-element
           style="--lumo-space-m:20px;--lumo-space-s:10px;--lumo-contrast-5pct:rgba(0, 0, 0, 0.05);--lumo-contrast-10pct:rgba(0, 0, 0, 0.1);--lumo-contrast-50pct:rgba(0, 0, 0, 0.5);--lumo-size-m:50px;--lumo-size-xs:25px;--lumo-border-radius:10px;--lumo-border-radius-s:7.5px;--lumo-font-family:serif;--lumo-font-size-m:18px;--lumo-font-size-s:16px;--lumo-font-size-xs:14px;--lumo-primary-color:rgba(0, 0, 255, 1);--lumo-primary-text-color:rgba(0, 0, 255, 1);--lumo-primary-color-50pct:rgba(0, 0, 255, 0.5);--lumo-secondary-text-color:rgba(0, 0, 0, 0.8);--lumo-disabled-text-color:rgba(0, 0, 0, 0.5);--lumo-body-text-color:rgba(0, 0, 0, 1);--lumo-error-text-color:rgba(255, 0, 0, 1);--lumo-error-color-10pct:rgba(255, 0, 0, 0.1);--lumo-error-color-50pct:rgba(255, 0, 0, 0.5);--lumo-line-height-xs:18px;--lumo-base-color:rgba(220, 220, 220, 1);"
           lang="es"
-          url="https://embed.foxy.io/v1?demo=default"
+          url="https://embed.foxy.io/v1.html?demo=default"
           ns="my-test-element"
           disabled
           readonly
@@ -286,7 +286,7 @@ describe('PaymentCardEmbedElement', () => {
 
   it('returns the result of PaymentCardEmded.tokenize() when calling tokenize()', async () => {
     const element = await fixture<TestElement>(
-      html`<test-element url="https://embed.foxy.io/v1?demo=default"></test-element>`
+      html`<test-element url="https://embed.foxy.io/v1.html?demo=default"></test-element>`
     );
 
     await waitUntil(() => element.requestUpdate('url') && !!element.embed);
@@ -299,7 +299,7 @@ describe('PaymentCardEmbedElement', () => {
 
   it('calls PaymentCardEmbed.clear() when calling clear()', async () => {
     const element = await fixture<TestElement>(
-      html`<test-element url="https://embed.foxy.io/v1?demo=default"></test-element>`
+      html`<test-element url="https://embed.foxy.io/v1.html?demo=default"></test-element>`
     );
 
     await waitUntil(() => element.requestUpdate('url') && !!element.embed);

@@ -45,7 +45,7 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
         disabledcontrols="sign-in:recover"
         readonlycontrols="customer:header:actions:edit:form"
         hiddencontrols="access-recovery:header"
-        embed-url="https://embed.foxy.io/v1?demo=default"
+        embed-url="https://embed.foxy.io/v1.html?demo=default"
         customer="https://demo.foxycart.com/s/customer/"
         group="foo"
         href="https://demo.foxycart.com/s/customer/customer_portal_settings"
@@ -72,7 +72,7 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
     expect(customer).to.have.attribute('disabledcontrols', '');
     expect(customer).to.have.attribute('readonlycontrols', 'header:actions:edit:form');
     expect(customer).to.have.attribute('hiddencontrols', hiddenByDefault.join(' '));
-    expect(customer).to.have.attribute('embed-url', 'https://embed.foxy.io/v1?demo=default');
+    expect(customer).to.have.attribute('embed-url', 'https://embed.foxy.io/v1.html?demo=default');
     expect(customer).to.have.attribute('group', 'foo');
     expect(customer).to.have.attribute('lang', 'es');
     expect(customer).to.have.attribute('href', 'https://demo.foxycart.com/s/customer/');

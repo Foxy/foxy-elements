@@ -99,7 +99,7 @@ const summary: Summary = {
   },
 };
 
-const demoExt = 'embed-url="https://embed.foxy.io/v1?demo=default"';
+const demoExt = 'embed-url="https://embed.foxy.io/v1.html?demo=default"';
 
 export default getMeta(summary);
 

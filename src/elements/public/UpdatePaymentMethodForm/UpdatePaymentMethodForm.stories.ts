@@ -13,8 +13,8 @@ const summary: Summary = {
   configurable: { inputs: ['template-set', 'cc-token'] },
 };
 
-const demoExt = 'embed-url="https://embed.foxy.io/v1?demo=default"';
-const noSetExt = 'embed-url="https://embed.foxy.io/v1"';
+const demoExt = 'embed-url="https://embed.foxy.io/v1.html?demo=default"';
+const noSetExt = 'embed-url="https://embed.foxy.io/v1.html"';
 
 export default getMeta(summary);
 

@@ -33,12 +33,12 @@ export class PaymentCardEmbedElement extends Base {
   }
 
   /**
-   * Full Bank Card Embed URL, e.g. `https://embed.foxy.io/v1?template_set_id=123`.
+   * Full Bank Card Embed URL, e.g. `https://embed.foxy.io/v1.html?template_set_id=123`.
    *
    * The following demo URLs are available:
-   * - `https://embed.foxy.io/v1?demo=default` (Default form)
-   * - `https://embed.foxy.io/v1?demo=stripe` (Stripe Card Element)
-   * - `https://embed.foxy.io/v1?demo=square` (Square Card Element)
+   * - `https://embed.foxy.io/v1.html?demo=default` (Default form)
+   * - `https://embed.foxy.io/v1.html?demo=stripe` (Stripe Card Element)
+   * - `https://embed.foxy.io/v1.html?demo=square` (Square Card Element)
    */
   url: string | null = null;
 
