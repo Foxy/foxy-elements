@@ -106,9 +106,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
           for (const field of block.fields) {
             if ('optional' in (field as Record<string, unknown>)) {
               if (!(field as Record<string, unknown>).optional) {
-                const path = [block.parent_id, block.id, field.id].filter(v => !!v);
-
-                if (!has(additionalFields, path)) {
+                if (!has(additionalFields, field.id)) {
                   if (field.type !== 'checkbox') {
                     return 'additional-fields:v8n_invalid';
                   }
@@ -456,13 +454,12 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
   private __renderBlock(block: Block) {
     return html`${block.fields.map(field => {
-      const path = [block.parent_id, block.id, field.id].filter(v => !!v);
-      const scope = ['additional-fields', ...path].join('-').replace(/_/g, '-');
+      const scope = ['additional-fields', field.id].join('-').replace(/_/g, '-');
 
       const getValue = () => {
         try {
           const config = JSON.parse(this.form.additional_fields ?? '{}');
-          return get(config, path) ?? config.default_value;
+          return get(config, field.id) ?? config.default_value;
         } catch {
           return field.default_value;
         }
@@ -471,7 +468,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
       const setValue = (newValue: unknown) => {
         try {
           const config = JSON.parse(this.form.additional_fields ?? '{}');
-          this.edit({ additional_fields: JSON.stringify(set(config, path, newValue)) });
+          this.edit({ additional_fields: JSON.stringify(set(config, field.id, newValue)) });
         } catch {
           return '';
         }
