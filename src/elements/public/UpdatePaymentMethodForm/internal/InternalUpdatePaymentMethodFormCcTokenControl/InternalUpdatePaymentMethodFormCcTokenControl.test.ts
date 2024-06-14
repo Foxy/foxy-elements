@@ -99,5 +99,34 @@ describe('UpdatePaymentMethodForm', () => {
       await control.requestUpdate();
       expect(button).to.have.attribute('disabled');
     });
+
+    it('tokenizes the card on submit', async () => {
+      const nucleon = await fixture<NucleonElement<any>>(html`
+        <foxy-nucleon>
+          <foxy-internal-update-payment-method-form-cc-token-control infer="">
+          </foxy-internal-update-payment-method-form-cc-token-control>
+        </foxy-nucleon>
+      `);
+
+      const control = nucleon.firstElementChild as Control;
+      const label = control.renderRoot.querySelector('foxy-i18n[key="tokenize"]')!;
+      expect(label).to.exist;
+      expect(label).to.have.attribute('infer', '');
+
+      const embed = control.renderRoot.querySelector(
+        'foxy-payment-card-embed'
+      ) as PaymentCardEmbedElement;
+
+      const tokenize = stub(embed, 'tokenize').resolves('test-token');
+      const edit = stub(nucleon, 'edit');
+      const submit = stub(nucleon, 'submit');
+
+      embed.dispatchEvent(new CustomEvent('submit'));
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(tokenize).to.have.been.called;
+      expect(edit).to.have.been.calledWith({ cc_token: 'test-token' });
+      expect(submit).to.have.been.called;
+    });
   });
 });

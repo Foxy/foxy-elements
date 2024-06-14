@@ -18,7 +18,11 @@ export class InternalUpdatePaymentMethodFormCcTokenControl extends InternalContr
 
   renderControl(): TemplateResult {
     return html`
-      <foxy-payment-card-embed infer="payment-card-embed" url=${ifDefined(this.embedUrl)}>
+      <foxy-payment-card-embed
+        infer="payment-card-embed"
+        url=${ifDefined(this.embedUrl)}
+        @submit=${this.__tokenize}
+      >
       </foxy-payment-card-embed>
 
       <vaadin-button

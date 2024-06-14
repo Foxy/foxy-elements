@@ -1,6 +1,6 @@
 import './index';
 
-import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import { expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
 import { PaymentCardEmbedElement } from './PaymentCardEmbedElement';
 import { PaymentCardEmbed } from '@foxy.io/sdk/customer';
 import { LitElement } from 'lit-element';
@@ -307,5 +307,17 @@ describe('PaymentCardEmbedElement', () => {
 
     element.clear();
     expect(clearStub).to.have.been.calledOnce;
+  });
+
+  it('dispatches "submit" event upon receiving "submit" event from iframe', async () => {
+    const element = await fixture<TestElement>(
+      html`<test-element url="https://embed.foxy.io/v1.html?demo=default"></test-element>`
+    );
+
+    await waitUntil(() => element.requestUpdate('url') && !!element.embed);
+    const submitEventPromise = oneEvent(element, 'submit');
+
+    element.embed?.onsubmit?.();
+    expect(await submitEventPromise).to.be.instanceOf(CustomEvent);
   });
 });

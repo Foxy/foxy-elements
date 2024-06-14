@@ -18,6 +18,8 @@ const Base = ConfigurableMixin(TranslatableMixin(InferrableMixin(ThemeableMixin(
  * A secure, PCI-compliant element for collecting payment card information with
  * support for Stripe, Square and embedded gateways.
  *
+ * @fires CustomEvent - Instance of `CustomEvent` with type `submit`. Dispatched when the user submits the form (not available for Stripe).
+ *
  * @element foxy-payment-card-embed
  * @since 1.27.0
  */
@@ -212,6 +214,7 @@ export class PaymentCardEmbedElement extends Base {
       const This = this.constructor as typeof PaymentCardEmbedElement;
       this.__embed = new This.PaymentCardEmbed({ url, ...config });
       this.__embed.mount(root).then(() => (this.__ready = true));
+      this.__embed.onsubmit = () => this.dispatchEvent(new CustomEvent('submit'));
     }
   }
 }
