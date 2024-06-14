@@ -894,7 +894,8 @@
                 "status": {
                   "idle": "Ihre Kartendaten werden von Stripe sicher verarbeitet. ",
                   "busy": "Verschlüsseln Ihrer Kartendaten...",
-                  "fail": "Dieser Dienst ist derzeit nicht verfügbar. "
+                  "fail": "Dieser Dienst ist derzeit nicht verfügbar. ",
+                  "unsupported": "Wir unterstützen diesen Kartentyp nicht."
                 }
               },
               "square": {
@@ -902,7 +903,8 @@
                 "status": {
                   "idle": "Ihre Kartendaten werden von Square sicher verarbeitet. ",
                   "busy": "Verschlüsseln Ihrer Kartendaten...",
-                  "fail": "Dieser Dienst ist derzeit nicht verfügbar. "
+                  "fail": "Dieser Dienst ist derzeit nicht verfügbar. ",
+                  "unsupported": "Wir unterstützen diesen Kartentyp nicht."
                 }
               },
               "default": {

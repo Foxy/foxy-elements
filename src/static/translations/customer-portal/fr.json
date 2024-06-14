@@ -894,7 +894,8 @@
                 "status": {
                   "idle": "Les détails de votre carte sont traités en toute sécurité par Stripe. ",
                   "busy": "Cryptage des détails de votre carte...",
-                  "fail": "Ce service est actuellement indisponible. "
+                  "fail": "Ce service est actuellement indisponible. ",
+                  "unsupported": "Nous ne prenons pas en charge ce type de carte."
                 }
               },
               "square": {
@@ -902,7 +903,8 @@
                 "status": {
                   "idle": "Les détails de votre carte sont traités en toute sécurité par Square. ",
                   "busy": "Cryptage des détails de votre carte...",
-                  "fail": "Ce service est actuellement indisponible. "
+                  "fail": "Ce service est actuellement indisponible. ",
+                  "unsupported": "Nous ne prenons pas en charge ce type de carte."
                 }
               },
               "default": {

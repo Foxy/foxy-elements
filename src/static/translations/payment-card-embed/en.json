@@ -4,7 +4,8 @@
     "status": {
       "idle": "Your card details are securely processed by Stripe. Visit https://stripe.com to learn more.",
       "busy": "Encrypting your card details...",
-      "fail": "This service is currently unavailable. Please try again later."
+      "fail": "This service is currently unavailable. Please try again later.",
+      "unsupported": "We don't support this card type. Please try another card."
     }
   },
   "square": {
@@ -12,7 +13,8 @@
     "status": {
       "idle": "Your card details are securely processed by Square. Visit https://squareup.com to learn more.",
       "busy": "Encrypting your card details...",
-      "fail": "This service is currently unavailable. Please try again later."
+      "fail": "This service is currently unavailable. Please try again later.",
+      "unsupported": "We don't support this card type. Please try another card."
     }
   },
   "default": {

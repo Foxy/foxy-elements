@@ -2035,9 +2035,13 @@
                                 "fail": {
                                   "type": "string",
                                   "default": "This service is currently unavailable. Please try again later."
+                                },
+                                "unsupported": {
+                                  "type": "string",
+                                  "default": "We don't support this card type. Please try another card."
                                 }
                               },
-                              "required": ["idle", "busy", "fail"]
+                              "required": ["idle", "busy", "fail", "unsupported"]
                             }
                           },
                           "required": ["label", "status"]
@@ -2060,9 +2064,13 @@
                                 "fail": {
                                   "type": "string",
                                   "default": "This service is currently unavailable. Please try again later."
+                                },
+                                "unsupported": {
+                                  "type": "string",
+                                  "default": "We don't support this card type. Please try another card."
                                 }
                               },
-                              "required": ["idle", "busy", "fail"]
+                              "required": ["idle", "busy", "fail", "unsupported"]
                             }
                           },
                           "required": ["label", "status"]
