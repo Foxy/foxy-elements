@@ -191,6 +191,8 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     return Object.entries(this.__availablePaymentMethods ?? {})
       .sort((a, b) => a[0].localeCompare(b[0], 'en'))
       .reduce((groups, [type, helper]) => {
+        if (helper.is_deprecated) return groups;
+
         const firstChar = type.charAt(0).toUpperCase();
         const isSpecialCharacter = !/\w/.test(firstChar);
         const name = isSpecialCharacter ? '#' : firstChar;
