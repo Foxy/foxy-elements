@@ -243,6 +243,29 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
   private __renderPaymentMethodSelector() {
     return html`
+      <figure data-testid="logo" class="relative flex flex-col gap-m p-m items-center">
+        <img
+          class="relative h-xl w-xl object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs"
+          src=${PaymentsApiPaymentMethodForm.defaultImageSrc}
+          alt=""
+        />
+
+        <figcaption class="relative min-w-0 font-medium text-xl text-center">
+          <foxy-i18n infer="" key="select_method_title"></foxy-i18n>
+        </figcaption>
+      </figure>
+
+      <section data-testid="select-method-list" class="-mt-m">
+        ${this.__groupedAvailablePaymentMethods.map(({ name, items }) => {
+          return html`
+            <p class="font-medium text-tertiary py-m">${name}</p>
+            <ul class="grid grid-cols-2 gap-m">
+              ${items.map(item => html`<li>${this.__renderPaymentMethodButton(item)}</li>`)}
+            </ul>
+          `;
+        })}
+      </section>
+
       <foxy-nucleon
         class="hidden"
         infer=""
@@ -251,26 +274,6 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
         @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
-
-      <foxy-i18n
-        class="block text-xxl font-medium border-b border-contrast-10 pb-m"
-        infer=""
-        key="select_method_title"
-      >
-      </foxy-i18n>
-
-      <section data-testid="select-method-list">
-        <div class="-my-s">
-          ${this.__groupedAvailablePaymentMethods.map(({ name, items }) => {
-            return html`
-              <p class="w-m text-center font-medium text-tertiary py-s">${name}</p>
-              <ul class="grid grid-cols-1">
-                ${items.map(item => html`<li>${this.__renderPaymentMethodButton(item)}</li>`)}
-              </ul>
-            `;
-          })}
-        </div>
-      </section>
     `;
   }
 
@@ -287,7 +290,19 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
         />
 
         <figcaption class="relative min-w-0 font-medium text-xl text-center">
-          ${this.form.helper?.name ?? this.form.type}&ZeroWidthSpace;
+          <div>${this.form.helper?.name ?? this.form.type}&ZeroWidthSpace;</div>
+          ${this.data?.type
+            ? ''
+            : html`
+                <vaadin-button
+                  data-testid="select-another-button"
+                  theme="tertiary-inline"
+                  class="text-m"
+                  @click=${() => this.undo()}
+                >
+                  <foxy-i18n infer="" key="select_another_button_label"></foxy-i18n>
+                </vaadin-button>
+              `}
         </figcaption>
       </figure>
 
@@ -394,60 +409,55 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
               : ''}
           `
         : ''}
-      ${this.data?.type
-        ? ''
-        : html`
-            <vaadin-button
-              data-testid="select-another-button"
-              theme="contrast"
-              @click=${() => this.undo()}
-            >
-              <foxy-i18n infer="" key="select_another_button_label"></foxy-i18n>
-            </vaadin-button>
-          `}
       ${super.renderBody()}
     `;
   }
 
   private __renderPaymentMethodButton({ type, helper }: PaymentMethod) {
     const defaultSrc = PaymentsApiPaymentMethodForm.defaultImageSrc;
+    const src = this.getImageSrc?.(type) ?? defaultSrc;
+    const onError = (evt: Event) => ((evt.currentTarget as HTMLImageElement).src = defaultSrc);
 
     return html`
       <button
         class=${classMap({
-          'w-full block text-left p-s rounded -mx-s': true,
-          'transition-colors hover-bg-contrast-5': !helper.conflict,
+          'relative w-full block text-left p-s rounded bg-contrast-5 overflow-hidden': true,
+          'focus-outline-none focus-ring-2 focus-ring-primary-50': true,
+          'transition-colors hover-bg-contrast-10': !helper.conflict,
           'cursor-default': !!helper.conflict,
         })}
         ?disabled=${!!helper.conflict}
+        title=${helper.conflict ? this.t('conflict_message', helper.conflict) : ''}
         @click=${() => this.edit({ type, helper })}
       >
-        <figure class="flex items-center gap-m h-m">
+        <img
+          class="absolute top-0 left-0 w-1-2 h-full object-cover bg-center filter saturate-200 blur-3xl"
+          style="transform: translate3d(0, 0, 0)"
+          src=${src}
+          alt=""
+          ?hidden=${!!helper.conflict}
+          @error=${onError}
+        />
+
+        <figure class="relative flex flex-col gap-m">
           <img
-            class="relative h-m w-m object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs"
-            src=${this.getImageSrc?.(type) ?? defaultSrc}
+            class=${classMap({
+              'h-m w-m object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs': true,
+              'filter grayscale': !!helper.conflict,
+            })}
+            src=${src}
             alt=""
-            @error=${(evt: Event) => ((evt.currentTarget as HTMLImageElement).src = defaultSrc)}
+            @error=${onError}
           />
 
           <figcaption
             class=${classMap({
               'min-w-0 flex-1 truncate leading-s': true,
-              'text-tertiary': !!helper.conflict,
+              'text-disabled': !!helper.conflict,
             })}
           >
             <div class="font-medium">${helper.name}&ZeroWidthSpace;</div>
-            ${helper.conflict
-              ? html`
-                  <foxy-i18n
-                    class="block text-tertiary text-xs"
-                    infer=""
-                    key="conflict_message"
-                    .options=${helper.conflict}
-                  >
-                  </foxy-i18n>
-                `
-              : ''}
+            <div class="text-xs ${helper.conflict ? '' : 'text-secondary'}">${type}</div>
           </figcaption>
         </figure>
       </button>
