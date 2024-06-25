@@ -4,6 +4,7 @@ import type { TemplateResult } from 'lit-html';
 import { Themeable } from '../../../mixins/themeable';
 import { html } from 'lit-html';
 
+/** @deprecated – use internal controls instead */
 export class Metadata extends Themeable {
   static get properties(): PropertyDeclarations {
     return {

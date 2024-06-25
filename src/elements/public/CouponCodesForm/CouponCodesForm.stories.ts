@@ -11,8 +11,8 @@ const summary: Summary = {
   localName: 'foxy-coupon-codes-form',
   translatable: true,
   configurable: {
-    buttons: ['import'],
-    inputs: ['codes'],
+    buttons: ['create'],
+    inputs: ['coupon-codes'],
   },
 };
 

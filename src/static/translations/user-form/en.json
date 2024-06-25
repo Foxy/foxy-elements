@@ -1,26 +1,61 @@
 {
-  "backend_developer": "Backend developer",
-  "backend_developer_explainer": "Manages server-side code in PHP, Python, Ruby, etc.",
-  "cancel": "Cancel",
-  "create": "Create",
-  "delete": "Delete",
-  "delete_prompt": "This resource will be permanently removed. Are you sure?",
-  "designer": "Designer",
-  "designer_explainer": "Manages appearance, art and user interface.",
-  "email": "Email",
-  "first_name": "First name",
-  "frontend_developer": "Frontend developer",
-  "frontend_developer_explainer": "Manages client-side code in JS, CSS, HTML, etc.",
-  "hidden": "Hidden",
-  "last_name": "Last name",
-  "merchant": "Merchant",
-  "merchant_explainer": "Manages items, finances and this store in general.",
-  "phone": "Phone",
-  "v8n_invalid_email": "Invalid email",
-  "v8n_required": "Required",
-  "v8n_too_long": "Too long",
+  "first-name": {
+    "label": "First name",
+    "placeholder": "Required",
+    "helper_text": "",
+    "v8n_required": "Please enter your first name",
+    "v8n_too_long": "Unfortunately we can't store first names longer than 50 characters"
+  },
+  "last-name": {
+    "label": "Last name",
+    "placeholder": "Required",
+    "helper_text": "",
+    "v8n_required": "Please enter your last name. If you don't have a last name, put any character in this field.",
+    "v8n_too_long": "Unfortunately we can't store last names longer than 50 characters"
+  },
+  "email": {
+    "label": "Email",
+    "placeholder": "Required",
+    "helper_text": "This email is your login to Foxy Admin. We'll also send important notifications to this address.",
+    "v8n_required": "Please enter your email address",
+    "v8n_invalid_email": "Please enter a valid email address",
+    "v8n_too_long": "Unfortunately we can't store email addresses longer than 100 characters"
+  },
+  "phone": {
+    "label": "Phone",
+    "placeholder": "Optional",
+    "helper_text": "We'll only use this number to contact you about your account.",
+    "v8n_too_long": "This phone number appears to be too long. Please make sure you entered it correctly."
+  },
+  "affiliate-id": {
+    "label": "Affiliate ID",
+    "placeholder": "Optional",
+    "helper_text": "This value can only be set during user creation. Contact us if you need this value changed later."
+  },
+  "role": {
+    "label": "Role",
+    "helper_text": "If you contact us for help, your role will help us understand how to best assist you.",
+    "option_merchant": "Merchant",
+    "option_backend_developer": "Backend Developer",
+    "option_frontend_developer": "Frontend Developer",
+    "option_designer": "Designer"
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this account? You won't be able to bring it back."
+  },
+  "create": {
+    "create": "Create"
+  },
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

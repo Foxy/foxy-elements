@@ -137,12 +137,6 @@ export class CustomerForm extends Base<Data> {
 
   private __refreshInterval: NodeJS.Timeout | null = null;
 
-  get readonlySelector(): BooleanSelector {
-    const readonly = this.data ? ['is-anonymous'] : [];
-    readonly.push(super.readonlySelector.toString());
-    return new BooleanSelector(readonly.join(' ').trim());
-  }
-
   get hiddenSelector(): BooleanSelector {
     const hidden = new Set<string>(super.hiddenSelector.toString().split(' '));
 
@@ -160,7 +154,10 @@ export class CustomerForm extends Base<Data> {
       hidden.add('legal-notice');
     }
 
-    if (this.href) hidden.add('legal-notice');
+    if (this.href) {
+      hidden.add('is-anonymous');
+      hidden.add('legal-notice');
+    }
 
     return new BooleanSelector(Array.from(hidden).join(' ').trim());
   }
@@ -194,8 +191,6 @@ export class CustomerForm extends Base<Data> {
         <foxy-internal-text-control infer="last-name"></foxy-internal-text-control>
       </div>
 
-      <foxy-internal-text-control infer="tax-id"></foxy-internal-text-control>
-
       <foxy-internal-text-control helper-text=${this.__emailHelperText} infer="email">
       </foxy-internal-text-control>
 
@@ -223,6 +218,8 @@ export class CustomerForm extends Base<Data> {
         show-generator
       >
       </foxy-internal-password-control>
+
+      <foxy-internal-text-control infer="tax-id"></foxy-internal-text-control>
 
       <foxy-internal-customer-form-legal-notice-control infer="legal-notice">
       </foxy-internal-customer-form-legal-notice-control>

@@ -2,54 +2,312 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
-    "cancel": { "type": "string", "default": "Cancel" },
-    "confirm": { "type": "string", "default": "Confirm" },
-    "code": { "type": "string", "default": "Code" },
-    "create": { "type": "string", "default": "Create" },
-    "current_balance": { "type": "string", "default": "Current balance" },
-    "date": { "type": "string", "default": "{{value, date}}" },
-    "date_created": { "type": "string", "default": "Created on" },
-    "date_modified": { "type": "string", "default": "Last updated on" },
-    "delete": { "type": "string", "default": "Delete" },
-    "delete_prompt": {
-      "type": "string",
-      "default": "This resource will be permanently removed. Are you sure?"
-    },
-    "end_date": { "type": "string", "default": "End date" },
-    "v8n_required": { "type": "string", "default": "Required" },
-    "v8n_too_long": { "type": "string", "default": "Too long" },
-    "v8n_code_has_spaces": {
-      "type": "string",
-      "default": "Spaces are not allowed in gift card codes"
-    },
-    "cart-item": {
+    "code": {
       "additionalProperties": false,
       "properties": {
-        "title": { "type": "string", "default": "Cart item" },
-        "item-card": {
+        "label": { "type": "string", "default": "Code" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "The string value of this gift card code which your customer will add to their cart to use this gift card."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a code" },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Please enter a code with no more than 50 characters"
+        },
+        "v8n_has_spaces": { "type": "string", "default": "Please enter a code without spaces" }
+      },
+      "required": [
+        "label",
+        "placeholder",
+        "helper_text",
+        "v8n_required",
+        "v8n_too_long",
+        "v8n_has_spaces"
+      ]
+    },
+    "current-balance": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Current balance" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": { "type": "string", "default": "The current balance of this gift card." },
+        "v8n_required": { "type": "string", "default": "Please enter a current balance" }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "end-date": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "End date" },
+        "placeholder": { "type": "string", "default": "Optional" },
+        "helper_text": { "type": "string", "default": "The date when this gift card will expire." }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "customer": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Customer" },
+        "dialog": {
           "additionalProperties": false,
           "properties": {
-            "price": { "type": "string", "default": "{{amount, price}}" },
-            "wgt": { "type": "string", "default": "WGT" },
+            "cancel": { "type": "string", "default": "Cancel" },
+            "close": { "type": "string", "default": "Close" },
+            "header": { "type": "string", "default": "Select a customer" },
+            "selection": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Customers" },
+                "helper_text": {
+                  "type": "string",
+                  "default": "Select a customer to assign this gift card code to them. You won't be able to clear this selection once saved but you will able able to reassign it to another customer."
+                },
+                "search": { "type": "string", "default": "Search" },
+                "clear": { "type": "string", "default": "Clear" },
+                "pagination": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "search_button_text": { "type": "string", "default": "Search" },
+                    "first": { "type": "string", "default": "First" },
+                    "last": { "type": "string", "default": "Last" },
+                    "next": { "type": "string", "default": "Next" },
+                    "pagination": {
+                      "type": "string",
+                      "default": "{{from}}-{{to}} out of {{total}}"
+                    },
+                    "previous": { "type": "string", "default": "Previous" },
+                    "card": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "spinner": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "loading_busy": { "type": "string", "default": "Loading" },
+                            "loading_empty": { "type": "string", "default": "No customers found" },
+                            "loading_error": { "type": "string", "default": "Unknown error" }
+                          },
+                          "required": ["loading_busy", "loading_empty", "loading_error"]
+                        }
+                      },
+                      "required": ["spinner"]
+                    }
+                  },
+                  "required": [
+                    "search_button_text",
+                    "first",
+                    "last",
+                    "next",
+                    "pagination",
+                    "previous",
+                    "card"
+                  ]
+                },
+                "query-builder": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "filters": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": { "type": "string", "default": "ID" },
+                        "tax_id": { "type": "string", "default": "Tax ID" },
+                        "email": { "type": "string", "default": "Email" },
+                        "first_name": { "type": "string", "default": "First name" },
+                        "last_name": { "type": "string", "default": "Last name" },
+                        "is_anonymous": { "type": "string", "default": "Anonymity" },
+                        "is_anonymous_true": { "type": "string", "default": "Anonymous" },
+                        "is_anonymous_false": { "type": "string", "default": "Registered" },
+                        "last_login_date": { "type": "string", "default": "Last login date" },
+                        "date_created": { "type": "string", "default": "Creation date" },
+                        "date_modified": { "type": "string", "default": "Last update date" }
+                      },
+                      "required": [
+                        "id",
+                        "tax_id",
+                        "email",
+                        "first_name",
+                        "last_name",
+                        "is_anonymous",
+                        "is_anonymous_true",
+                        "is_anonymous_false",
+                        "last_login_date",
+                        "date_created",
+                        "date_modified"
+                      ]
+                    },
+                    "add_or_clause": { "type": "string", "default": "Add OR clause" },
+                    "add_value": { "type": "string", "default": "Add value" },
+                    "code": { "type": "string", "default": "Code" },
+                    "date": { "type": "string", "default": "{{value, date}}" },
+                    "date_created": { "type": "string", "default": "Created on" },
+                    "date_modified": { "type": "string", "default": "Last updated on" },
+                    "delete": { "type": "string", "default": "Delete" },
+                    "field": { "type": "string", "default": "Field" },
+                    "hidden": { "type": "string", "default": "Hidden" },
+                    "is_defined_false": { "type": "string", "default": "Not defined" },
+                    "is_defined_true": { "type": "string", "default": "Defined" },
+                    "name": { "type": "string", "default": "Name" },
+                    "operator_equal": { "type": "string", "default": "Equal" },
+                    "operator_greaterthan": { "type": "string", "default": "Greater than" },
+                    "operator_greaterthanorequal": {
+                      "type": "string",
+                      "default": "Greater than or equal"
+                    },
+                    "operator_in": { "type": "string", "default": "One of" },
+                    "operator_isdefined": { "type": "string", "default": "Is defined" },
+                    "operator_lessthan": { "type": "string", "default": "Less than" },
+                    "operator_lessthanorequal": {
+                      "type": "string",
+                      "default": "Less than or equal"
+                    },
+                    "operator_not": { "type": "string", "default": "Not equal" },
+                    "or": { "type": "string", "default": "Or" },
+                    "query_builder_group": { "type": "string", "default": "Group of filters" },
+                    "query_builder_rule": { "type": "string", "default": "Filter" },
+                    "range_from": { "type": "string", "default": "From" },
+                    "range_to": { "type": "string", "default": "To" },
+                    "type": { "type": "string", "default": "Type" },
+                    "type_any": { "type": "string", "default": "Field of unknown type" },
+                    "type_attribute": { "type": "string", "default": "Key-value resource" },
+                    "type_date": { "type": "string", "default": "Date field" },
+                    "type_here": { "type": "string", "default": "Type here..." },
+                    "type_number": { "type": "string", "default": "Numeric field" },
+                    "type_string": { "type": "string", "default": "Text field" },
+                    "used_codes": { "type": "string", "default": "Codes used" },
+                    "value": { "type": "string", "default": "Value" }
+                  },
+                  "required": [
+                    "filters",
+                    "add_or_clause",
+                    "add_value",
+                    "code",
+                    "date",
+                    "date_created",
+                    "date_modified",
+                    "delete",
+                    "field",
+                    "hidden",
+                    "is_defined_false",
+                    "is_defined_true",
+                    "name",
+                    "operator_equal",
+                    "operator_greaterthan",
+                    "operator_greaterthanorequal",
+                    "operator_in",
+                    "operator_isdefined",
+                    "operator_lessthan",
+                    "operator_lessthanorequal",
+                    "operator_not",
+                    "or",
+                    "query_builder_group",
+                    "query_builder_rule",
+                    "range_from",
+                    "range_to",
+                    "type",
+                    "type_any",
+                    "type_attribute",
+                    "type_date",
+                    "type_here",
+                    "type_number",
+                    "type_string",
+                    "used_codes",
+                    "value"
+                  ]
+                }
+              },
+              "required": ["label", "helper_text", "search", "clear", "pagination", "query-builder"]
+            }
+          },
+          "required": ["cancel", "close", "header", "selection"]
+        },
+        "card": {
+          "additionalProperties": false,
+          "properties": {
             "spinner": {
               "additionalProperties": false,
               "properties": {
                 "loading_busy": { "type": "string", "default": "Loading" },
-                "loading_empty": { "type": "string", "default": "No items" },
-                "loading_error": { "type": "string", "default": "Failed to load" }
+                "loading_empty": { "type": "string", "default": "Not assigned – click to select" },
+                "loading_error": { "type": "string", "default": "Unknown error" }
               },
               "required": ["loading_busy", "loading_empty", "loading_error"]
             }
           },
-          "required": ["price", "wgt", "spinner"]
+          "required": ["spinner"]
+        },
+        "helper_text": {
+          "type": "string",
+          "default": "Select a customer to assign this gift card code to them. You won't be able to clear this selection once saved but you will able able to reassign it to another customer."
         }
       },
-      "required": ["title", "item-card"]
+      "required": ["label", "dialog", "card", "helper_text"]
+    },
+    "cart-item": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Cart item" },
+        "card": {
+          "additionalProperties": false,
+          "properties": {
+            "daily": { "type": "string", "default": "Daily" },
+            "daily_plural": { "type": "string", "default": "Every {{count}} days" },
+            "frequency": {
+              "type": "string",
+              "default": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"item-card\" })"
+            },
+            "monthly": { "type": "string", "default": "Monthly" },
+            "monthly_plural": { "type": "string", "default": "Every {{count}} months" },
+            "subinfo_recurring": {
+              "type": "string",
+              "default": "$t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"item-card\" }) from {{startDate, date}}"
+            },
+            "subinfo_twice_a_month": {
+              "type": "string",
+              "default": "$t(twice_a_month, { \"ns\": \"item-card\" }) from {{startDate, date}}"
+            },
+            "twice_a_month": { "type": "string", "default": "Twice a month" },
+            "no_code": { "type": "string", "default": "No SKU" },
+            "weekly": { "type": "string", "default": "Weekly" },
+            "weekly_plural": { "type": "string", "default": "Every {{count}} weeks" },
+            "yearly": { "type": "string", "default": "Yearly" },
+            "yearly_plural": { "type": "string", "default": "Every {{count}} years" },
+            "price": { "type": "string", "default": "{{amount, price}}" },
+            "spinner": {
+              "additionalProperties": false,
+              "properties": {
+                "loading_busy": { "type": "string", "default": "Loading" },
+                "loading_empty": { "type": "string", "default": "No info" },
+                "loading_error": { "type": "string", "default": "Unknown error" }
+              },
+              "required": ["loading_busy", "loading_empty", "loading_error"]
+            }
+          },
+          "required": [
+            "daily",
+            "daily_plural",
+            "frequency",
+            "monthly",
+            "monthly_plural",
+            "subinfo_recurring",
+            "subinfo_twice_a_month",
+            "twice_a_month",
+            "no_code",
+            "weekly",
+            "weekly_plural",
+            "yearly",
+            "yearly_plural",
+            "price",
+            "spinner"
+          ]
+        }
+      },
+      "required": ["label", "card"]
     },
     "logs": {
       "additionalProperties": false,
       "properties": {
-        "title": { "type": "string", "default": "Timeline" },
+        "label": { "type": "string", "default": "Timeline" },
         "pagination": {
           "additionalProperties": false,
           "properties": {
@@ -68,14 +326,17 @@
                   "default": "Transaction #{{ transaction_id }}"
                 },
                 "subtitle_no_transaction": { "type": "string", "default": "No transaction" },
-                "date": { "type": "string", "default": "{{ date_created, date }}" },
+                "date": {
+                  "type": "string",
+                  "default": "{{ date_created, date }} at {{ date_created, time }}"
+                },
                 "adjustment": { "type": "string", "default": "{{ amount, price }}" },
                 "spinner": {
                   "additionalProperties": false,
                   "properties": {
                     "loading_busy": { "type": "string", "default": "Loading" },
-                    "loading_empty": { "type": "string", "default": "No data" },
-                    "loading_error": { "type": "string", "default": "Failed to load" }
+                    "loading_empty": { "type": "string", "default": "No records" },
+                    "loading_error": { "type": "string", "default": "Unknown error" }
                   },
                   "required": ["loading_busy", "loading_empty", "loading_error"]
                 }
@@ -94,34 +355,54 @@
           "required": ["first", "last", "next", "pagination", "previous", "card"]
         }
       },
-      "required": ["title", "pagination"]
+      "required": ["label", "pagination"]
+    },
+    "timestamps": {
+      "additionalProperties": false,
+      "properties": {
+        "date": { "type": "string", "default": "{{value, date}}" },
+        "date_created": { "type": "string", "default": "Created on" },
+        "date_modified": { "type": "string", "default": "Last updated on" }
+      },
+      "required": ["date", "date_created", "date_modified"]
+    },
+    "delete": {
+      "additionalProperties": false,
+      "properties": {
+        "delete": { "type": "string", "default": "Delete" },
+        "cancel": { "type": "string", "default": "Cancel" },
+        "delete_prompt": {
+          "type": "string",
+          "default": "Are you sure you'd like to remove this gift card code? You won't be able to bring it back."
+        }
+      },
+      "required": ["delete", "cancel", "delete_prompt"]
+    },
+    "create": {
+      "additionalProperties": false,
+      "properties": { "create": { "type": "string", "default": "Create" } },
+      "required": ["create"]
     },
     "spinner": {
       "additionalProperties": false,
       "properties": {
+        "refresh": { "type": "string", "default": "Refresh" },
         "loading_busy": { "type": "string", "default": "Loading" },
-        "loading_error": { "type": "string", "default": "Failed to load" }
+        "loading_error": { "type": "string", "default": "Unknown error" }
       },
-      "required": ["loading_busy", "loading_error"]
+      "required": ["refresh", "loading_busy", "loading_error"]
     }
   },
   "required": [
-    "cancel",
-    "confirm",
     "code",
-    "create",
-    "current_balance",
-    "date",
-    "date_created",
-    "date_modified",
-    "delete",
-    "delete_prompt",
-    "end_date",
-    "v8n_required",
-    "v8n_too_long",
-    "v8n_code_has_spaces",
+    "current-balance",
+    "end-date",
+    "customer",
     "cart-item",
     "logs",
+    "timestamps",
+    "delete",
+    "create",
     "spinner"
   ]
 }

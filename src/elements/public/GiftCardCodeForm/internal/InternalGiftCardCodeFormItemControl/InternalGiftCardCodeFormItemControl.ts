@@ -10,7 +10,7 @@ export class InternalGiftCardCodeFormItemControl extends InternalControl {
 
     try {
       const url = new URL(
-        this.nucleon?.form._links?.['fx:provisioned_by_transaction_detail_id'].href ?? ''
+        this.nucleon?.data?._links?.['fx:provisioned_by_transaction_detail_id'].href ?? ''
       );
       url.searchParams.set('zoom', 'item_options');
       href = url.toString();
@@ -19,9 +19,20 @@ export class InternalGiftCardCodeFormItemControl extends InternalControl {
     }
 
     return html`
-      <foxy-internal-details summary="title" infer="" open>
-        <foxy-item-card infer="item-card" class="p-m" href=${ifDefined(href)}></foxy-item-card>
-      </foxy-internal-details>
+      <foxy-i18n
+        infer=""
+        class="text-secondary block text-s font-medium leading-xs mb-xs"
+        key="label"
+      >
+      </foxy-i18n>
+
+      <foxy-item-card
+        class="block rounded ring-1 ring-contrast-10"
+        style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+        infer="card"
+        href=${ifDefined(href)}
+      >
+      </foxy-item-card>
     `;
   }
 }

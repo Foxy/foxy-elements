@@ -5,7 +5,7 @@ import { expect, fixture, html } from '@open-wc/testing';
 import { AccessRecoveryForm } from '../AccessRecoveryForm';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { InternalCustomerPortalLoggedOutView } from './InternalCustomerPortalLoggedOutView';
-import { InternalSandbox } from '../../internal/InternalSandbox';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { SignInForm } from '../SignInForm';
 import { getByKey } from '../../../testgen/getByKey';
 import { getByName } from '../../../testgen/getByName';

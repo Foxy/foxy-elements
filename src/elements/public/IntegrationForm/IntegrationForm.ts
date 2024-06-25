@@ -117,14 +117,16 @@ export class IntegrationForm extends Base<Data> {
     const noDescription = html`<foxy-i18n infer="header" key="no_description"></foxy-i18n>`;
 
     return html`
-      ${this.renderTemplateOrSlot('header:before')}
+      <div>
+        ${this.renderTemplateOrSlot('header:before')}
 
-      <div class="space-y-xs">
-        <div class="font-medium truncate text-xl">${data.project_name}&ZeroWidthSpace;</div>
-        <div class="text-secondary">${data.project_description || noDescription}</div>
+        <div class="space-y-xs">
+          <div class="font-medium truncate text-xl">${data.project_name}&ZeroWidthSpace;</div>
+          <div class="text-secondary">${data.project_description || noDescription}</div>
+        </div>
+
+        ${this.renderTemplateOrSlot('header:after')}
       </div>
-
-      ${this.renderTemplateOrSlot('header:after')}
     `;
   }
 

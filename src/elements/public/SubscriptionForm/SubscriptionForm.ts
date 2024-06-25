@@ -1,11 +1,9 @@
 import type { CustomerPageGetter, Data, Settings, Templates, TransactionPageGetter } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { ScopedElementsMap } from '@open-wc/scoped-elements';
-import type { InternalCalendar } from '../../internal/InternalCalendar';
+import type { InternalCalendar } from '../../internal/InternalCalendar/InternalCalendar';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
-import type { ButtonElement } from '@vaadin/vaadin-button';
-import type { FormDialog } from '../FormDialog';
 import type { Rels } from '@foxy.io/sdk/backend';
 
 import { Choice, Group, Skeleton } from '../../private/index';
@@ -74,16 +72,12 @@ export class SubscriptionForm extends Base<Data> {
       'foxy-internal-async-list-control': customElements.get('foxy-internal-async-list-control'),
       'foxy-internal-number-control': customElements.get('foxy-internal-number-control'),
       'foxy-internal-calendar': customElements.get('foxy-internal-calendar'),
-      'foxy-collection-pages': customElements.get('foxy-collection-pages'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-customer-card': customElements.get('foxy-customer-card'),
       'vaadin-combo-box': customElements.get('vaadin-combo-box'),
-      'foxy-form-dialog': customElements.get('foxy-form-dialog'),
-      'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-nucleon': customElements.get('foxy-nucleon'),
       'vcf-tooltip': customElements.get('vcf-tooltip'),
-      'foxy-table': customElements.get('foxy-table'),
       'foxy-i18n': customElements.get('foxy-i18n'),
       'iron-icon': customElements.get('iron-icon'),
       'x-skeleton': Skeleton,
@@ -284,42 +278,28 @@ export class SubscriptionForm extends Base<Data> {
   };
 
   private readonly __renderEndDate = () => {
-    const { disabledSelector, lang, ns } = this;
-    const formHiddenSelector = this.hiddenSelector.zoom('end-date:form').toString();
+    const { data, lang, ns } = this;
 
     return html`
-      <div class="sm-col-span-2">
+      <div data-testid="end-date">
         ${this.renderTemplateOrSlot('end-date:before')}
 
-        <foxy-form-dialog
-          readonlycontrols=${this.readonlySelector.zoom('end-date:form').toString()}
-          disabledcontrols=${disabledSelector.zoom('end-date:form').toString()}
-          hiddencontrols="save-button ${formHiddenSelector}"
-          data-testid="cancellation-form"
-          parent=${this.parent}
-          header="end_subscription"
-          alert
-          form="foxy-cancellation-form"
-          href=${this.href}
-          lang=${lang}
-          id="end-date-form"
-          ns=${ns}
-          .templates=${this.getNestedTemplates('end-date:form')}
-        >
-        </foxy-form-dialog>
-
-        <vaadin-button
-          data-testid="end-date"
-          theme="error"
-          class="w-full"
-          ?disabled=${!this.data || disabledSelector.matches('end-date', true)}
-          @click=${(evt: Event) => {
-            const form = this.renderRoot.querySelector('#end-date-form') as FormDialog;
-            form.show(evt.currentTarget as ButtonElement);
-          }}
-        >
-          <foxy-i18n key="end_subscription" ns=${ns} lang=${lang}></foxy-i18n>
-        </vaadin-button>
+        <x-group frame>
+          <foxy-i18n key="end_date" ns=${ns} lang=${lang} slot="header"></foxy-i18n>
+          <foxy-internal-calendar
+            start=${ifDefined(data?.end_date?.substr(0, 10))}
+            value=${ifDefined(data?.end_date)}
+            lang=${lang}
+            ?readonly=${!this.__isEndDateEditable}
+            ?disabled=${this.disabledSelector.matches('end-date', true)}
+            .checkAvailability=${this.__checkEndDateAvailability}
+            @change=${(evt: Event) => {
+              const target = evt.target as InternalCalendar;
+              this.edit({ end_date: target.value });
+            }}
+          >
+          </foxy-internal-calendar>
+        </x-group>
 
         ${this.renderTemplateOrSlot('end-date:after')}
       </div>
@@ -339,6 +319,13 @@ export class SubscriptionForm extends Base<Data> {
 
   private readonly __checkStartDateAvailability = (date: Date) => {
     return date.getTime() >= Date.now();
+  };
+
+  private readonly __checkEndDateAvailability = (date: Date) => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    return date.getTime() >= tomorrow.getTime();
   };
 
   private readonly __renderStartDate = () => {
@@ -538,52 +525,52 @@ export class SubscriptionForm extends Base<Data> {
     }
 
     return html`
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__transactionTemplateHref)}
-        id=${this.__transactionTemplateLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__defaultTemplateSetHref)}
-        id=${this.__defaultTemplateSetLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__localeCodesHelperHref)}
-        id=${this.__localeCodesHelperLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__templateSetHref)}
-        id=${this.__templateSetLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__storeHref)}
-        id=${this.__storeLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
       <div class="relative grid grid-cols-1 sm-grid-cols-2 gap-l">
+        <foxy-nucleon
+          class="hidden"
+          infer=""
+          href=${ifDefined(this.__transactionTemplateHref)}
+          id=${this.__transactionTemplateLoaderId}
+          @update=${() => this.requestUpdate()}
+        >
+        </foxy-nucleon>
+
+        <foxy-nucleon
+          class="hidden"
+          infer=""
+          href=${ifDefined(this.__defaultTemplateSetHref)}
+          id=${this.__defaultTemplateSetLoaderId}
+          @update=${() => this.requestUpdate()}
+        >
+        </foxy-nucleon>
+
+        <foxy-nucleon
+          class="hidden"
+          infer=""
+          href=${ifDefined(this.__localeCodesHelperHref)}
+          id=${this.__localeCodesHelperLoaderId}
+          @update=${() => this.requestUpdate()}
+        >
+        </foxy-nucleon>
+
+        <foxy-nucleon
+          class="hidden"
+          infer=""
+          href=${ifDefined(this.__templateSetHref)}
+          id=${this.__templateSetLoaderId}
+          @update=${() => this.requestUpdate()}
+        >
+        </foxy-nucleon>
+
+        <foxy-nucleon
+          class="hidden"
+          infer=""
+          href=${ifDefined(this.__storeHref)}
+          id=${this.__storeLoaderId}
+          @update=${() => this.requestUpdate()}
+        >
+        </foxy-nucleon>
+
         ${this.hiddenSelector.matches('header', true)
           ? ''
           : this.__renderHeader(currencyCode ?? void 0, currencyDisplay)}
@@ -592,6 +579,7 @@ export class SubscriptionForm extends Base<Data> {
         ${this.__isFrequencyVisible ? this.__renderFrequency() : ''}
         ${this.__isStartDateVisible ? this.__renderStartDate() : ''}
         ${this.__isNextTransactionDateVisible ? this.__renderNextTransactionDate() : ''}
+        ${this.__isEndDateVisible ? this.__renderEndDate() : ''}
 
         <foxy-internal-number-control
           suffix=${ifDefined(currencyCode ?? void 0)}
@@ -624,8 +612,6 @@ export class SubscriptionForm extends Base<Data> {
 
         <foxy-internal-timestamps-control infer="timestamps" class="sm-col-span-2">
         </foxy-internal-timestamps-control>
-
-        ${this.hiddenSelector.matches('end-date', true) ? '' : this.__renderEndDate()}
       </div>
     `;
   }
@@ -722,12 +708,29 @@ export class SubscriptionForm extends Base<Data> {
     return this.__isNextTransactionDateVisible;
   }
 
+  private get __isEndDateVisible() {
+    if (this.hiddenSelector.matches('end-date', true)) return false;
+    if (this.data === null) return false;
+    if (this.data.end_date && new Date(this.data.end_date).getTime() <= Date.now()) return false;
+    if (this.data.is_active === false) return false;
+    return !this.settings;
+  }
+
   private get __isStartDateEditable() {
     if (this.readonlySelector.matches('start-date', true)) return false;
     if (this.data === null) return false;
     if (this.data.end_date && new Date(this.data.end_date) <= new Date()) return false;
     if (this.data.is_active === false) return false;
     if (this.data.start_date && new Date(this.data.start_date) <= new Date()) return false;
+
+    return this.settings === null;
+  }
+
+  private get __isEndDateEditable() {
+    if (this.readonlySelector.matches('end-date', true)) return false;
+    if (this.data === null) return false;
+    if (this.data.end_date && new Date(this.data.end_date) <= new Date()) return false;
+    if (this.data.is_active === false) return false;
 
     return this.settings === null;
   }

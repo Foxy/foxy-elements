@@ -1,9 +1,6 @@
-import '@vaadin/vaadin-button';
-import '@vaadin/vaadin-combo-box';
-import '../../internal/InternalConfirmDialog/index';
-import '../../internal/InternalSandbox/index';
-import '../Spinner/index';
-import '../I18n/index';
+import '../../internal/InternalSelectControl/index';
+import '../../internal/InternalTextControl/index';
+import '../../internal/InternalForm/index';
 
 import { AddressForm } from './AddressForm';
 

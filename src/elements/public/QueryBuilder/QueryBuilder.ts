@@ -37,6 +37,8 @@ class QueryBuilder extends Base {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      disableOr: { type: Boolean, attribute: 'disable-or' },
+      operators: { type: Array },
       options: { type: Array },
       value: { type: String },
     };
@@ -45,6 +47,12 @@ class QueryBuilder extends Base {
   static get styles(): CSSResultArray {
     return [super.styles, styles];
   }
+
+  /** List of operators available in the builder UI. */
+  operators: Operator[] = Object.values(Operator);
+
+  /** If true, hides the UI for the "OR" operator in queries. */
+  disableOr = false;
 
   /** Autocomplete suggestions. */
   options: Option[] | null = null;
@@ -64,6 +72,8 @@ class QueryBuilder extends Base {
 
     return Group({
       parsedValues: visibleValues,
+      disableOr: this.disableOr,
+      operators: this.operators ?? [],
       disabled: this.disabled,
       readonly: this.readonly,
       options: this.options ?? [],

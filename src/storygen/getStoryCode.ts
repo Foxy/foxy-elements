@@ -27,6 +27,7 @@ export function getStoryCode(summary: Summary, args: Args): TemplateResult {
       ${args.hidden ? 'hidden' : ''}
       ${args.readonly ? 'readonly' : ''}
       ${args.disabled ? 'disabled' : ''}
+      simplify-ns-loading
     >
       ${[...sections, ...buttons, ...inputs]
         .reduce<string[]>((slots, name) => {

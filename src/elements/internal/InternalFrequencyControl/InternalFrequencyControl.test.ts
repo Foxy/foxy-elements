@@ -63,6 +63,11 @@ describe('InternalFrequencyControl', () => {
     expect(customElements.get('foxy-internal-frequency-control')).to.equal(Control);
   });
 
+  it('has a reactive property "max"', () => {
+    expect(new Control()).to.have.property('max', 999);
+    expect(Control).to.have.deep.nested.property('properties.max', { type: Number });
+  });
+
   it('extends InternalEditableControl', () => {
     expect(new Control()).to.be.instanceOf(InternalEditableControl);
   });
@@ -268,5 +273,16 @@ describe('InternalFrequencyControl', () => {
     expect(submitMethod).to.have.been.calledOnce;
 
     submitMethod.restore();
+  });
+
+  it('uses "max" value on vaadin-integer-field', async () => {
+    const layout = html`<test-internal-frequency-control></test-internal-frequency-control>`;
+    const control = await fixture<TestControl>(layout);
+    const field = control.renderRoot.querySelector('vaadin-integer-field')!;
+    expect(field).to.have.attribute('max', '999');
+
+    control.max = 100;
+    await control.requestUpdate();
+    expect(field).to.have.attribute('max', '100');
   });
 });

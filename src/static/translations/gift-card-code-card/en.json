@@ -1,0 +1,10 @@
+{
+  "line_1": "{{ code }}",
+  "line_2": "End date: {{ end_date, date }}",
+  "current_balance": "Balance: {{ value, price }}",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Unknown error"
+  }
+}

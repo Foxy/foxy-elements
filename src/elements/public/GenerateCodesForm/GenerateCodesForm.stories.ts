@@ -11,8 +11,8 @@ const summary: Summary = {
   localName: 'foxy-generate-codes-form',
   translatable: true,
   configurable: {
-    buttons: ['generate'],
-    inputs: ['length', 'number-of-codes', 'prefix'],
+    buttons: ['create'],
+    inputs: ['length', 'number-of-codes', 'prefix', 'example'],
   },
 };
 

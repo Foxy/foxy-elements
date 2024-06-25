@@ -3,6 +3,8 @@ import '@polymer/iron-icons';
 import '@vaadin/vaadin-button';
 import '../../internal/InternalConfirmDialog/index';
 import '../../internal/InternalSandbox/index';
+import '../UpdatePaymentMethodForm/index';
+import '../FormDialog/index';
 import '../Spinner/index';
 import '../I18n/index';
 

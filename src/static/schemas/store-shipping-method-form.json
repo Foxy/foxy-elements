@@ -139,7 +139,7 @@
         "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
         "previous": { "type": "string", "default": "Previous" },
         "loading_busy": { "type": "string", "default": "Loading" },
-        "loading_error": { "type": "string", "default": "Failed to load" },
+        "loading_error": { "type": "string", "default": "Unknown error" },
         "international_only": { "type": "string", "default": "– international only" }
       },
       "required": [
@@ -183,10 +183,11 @@
     "spinner": {
       "additionalProperties": false,
       "properties": {
+        "refresh": { "type": "string", "default": "Refresh" },
         "loading_busy": { "type": "string", "default": "Loading" },
-        "loading_error": { "type": "string", "default": "Failed to load" }
+        "loading_error": { "type": "string", "default": "Unknown error" }
       },
-      "required": ["loading_busy", "loading_error"]
+      "required": ["refresh", "loading_busy", "loading_error"]
     }
   },
   "required": [

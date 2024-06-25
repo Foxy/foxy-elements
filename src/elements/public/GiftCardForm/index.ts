@@ -1,20 +1,20 @@
-import '@vaadin/vaadin-text-field/vaadin-text-field';
-import '@vaadin/vaadin-combo-box';
-import '@vaadin/vaadin-button';
-
-import '@polymer/iron-icons';
-import '@polymer/iron-icon';
+import '../../internal/InternalAsyncResourceLinkListControl/index';
+import '../../internal/InternalBulkAddActionControl/index';
+import '../../internal/InternalEditableListControl/index';
+import '../../internal/InternalAsyncListControl/index';
+import '../../internal/InternalFrequencyControl/index';
+import '../../internal/InternalSelectControl/index';
+import '../../internal/InternalTextControl/index';
+import '../../internal/InternalForm/index';
 
 import '../GenerateCodesForm/index';
 import '../GiftCardCodesForm/index';
+import '../ItemCategoryCard/index';
+import '../GiftCardCodeCard/index';
 import '../GiftCardCodeForm/index';
-import '../CopyToClipboard/index';
-import '../QueryBuilder/index';
-import '../Pagination/index';
-import '../FormDialog/index';
-import '../Spinner/index';
-import '../Table/index';
-import '../I18n/index';
+import '../NucleonElement/index';
+import '../AttributeCard/index';
+import '../AttributeForm/index';
 
 import './internal/InternalGiftCardFormProvisioningControl/index';
 

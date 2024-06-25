@@ -189,7 +189,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     form.edit({ type: 'foo', helper: availableMethods.values.foo });
     expect(form.errors).to.include('additional-fields:v8n_invalid');
 
-    form.edit({ additional_fields: JSON.stringify({ foo: { bar: { baz: 'test' } } }) });
+    form.edit({ additional_fields: JSON.stringify({ baz: 'test' }) });
     expect(form.errors).to.not.include('additional-fields:v8n_invalid');
   });
 
@@ -257,7 +257,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
         >
           <foxy-payments-api-payment-method-form
             parent="https://foxy-payments-api.element/payment_presets/0/payment_methods"
-            .getImageSrc=${(type: string) => `https://example.com/${type}.png`}
+            .getImageSrc=${(type: string) => `https://example.com?type=${type}`}
             @fetch=${(evt: FetchEvent) => {
               if (evt.request.url.endsWith('/payment_presets/0/available_payment_methods')) {
                 evt.preventDefault();
@@ -297,7 +297,6 @@ describe('PaymentsApiPaymentMethodForm', () => {
     const group0Item0Button = group0Items[0].querySelector('button') as HTMLButtonElement;
     const group1Item0Button = group1Items[0].querySelector('button') as HTMLButtonElement;
     const group1Item1Button = group1Items[1].querySelector('button') as HTMLButtonElement;
-    const group1Item1ButtonConflict = await getByKey(group1Item1Button, 'conflict_message');
 
     expect(group0Item0Button).to.exist;
     expect(group0Item0Button).to.not.have.attribute('disabled');
@@ -305,7 +304,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(await getByKey(group0Item0Button, 'conflict_message')).to.not.exist;
     expect(await getByTag(group0Item0Button, 'img')).to.have.attribute(
       'src',
-      'https://example.com/bar_one.png'
+      'https://example.com?type=bar_one'
     );
 
     expect(group1Item0Button).to.exist;
@@ -314,7 +313,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(await getByKey(group1Item0Button, 'conflict_message')).to.not.exist;
     expect(await getByTag(group1Item0Button, 'img')).to.have.attribute(
       'src',
-      'https://example.com/foo_one.png'
+      'https://example.com?type=foo_one'
     );
 
     expect(group1Item1Button).to.exist;
@@ -322,14 +321,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(group1Item1Button).to.include.text('Foo Two');
     expect(await getByTag(group1Item1Button, 'img')).to.have.attribute(
       'src',
-      'https://example.com/foo_two.png'
+      'https://example.com?type=foo_two'
     );
-    expect(group1Item1ButtonConflict).to.exist;
-    expect(group1Item1ButtonConflict).to.have.attribute('infer', '');
-    expect(group1Item1ButtonConflict).to.have.deep.property('options', {
-      type: 'foo_one',
-      name: 'Foo One',
-    });
+    expect(group1Item1Button).to.have.attribute('title', 'conflict_message');
 
     group0Item0Button.click();
     await element.requestUpdate();
@@ -337,6 +331,116 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(element).to.have.nested.property('form.type', 'bar_one');
     expect(await getByKey(element, 'select_method_title')).to.not.exist;
     expect(await getByTestId(element, 'select-method-list')).to.not.exist;
+  });
+
+  it('hides deprecated payment methods', async () => {
+    const availableMethods: AvailablePaymentMethods = {
+      _links: {
+        self: { href: '' },
+      },
+      values: {
+        foo_one: {
+          name: 'Foo One',
+          test_id: '',
+          test_key: '',
+          test_third_party_key: '',
+          third_party_key_description: '',
+          id_description: '',
+          key_description: '',
+          supports_3d_secure: 0,
+          supports_auth_only: 0,
+          is_deprecated: false,
+          additional_fields: null,
+        },
+        foo_two: {
+          name: 'Foo Two',
+          test_id: '',
+          test_key: '',
+          test_third_party_key: '',
+          third_party_key_description: '',
+          id_description: '',
+          key_description: '',
+          supports_3d_secure: 0,
+          supports_auth_only: 0,
+          additional_fields: null,
+          is_deprecated: true,
+          conflict: { type: 'foo_one', name: 'Foo One' },
+        },
+        bar_one: {
+          name: 'Bar One',
+          test_id: '',
+          test_key: '',
+          test_third_party_key: '',
+          third_party_key_description: '',
+          id_description: '',
+          key_description: '',
+          supports_3d_secure: 0,
+          supports_auth_only: 0,
+          is_deprecated: false,
+          additional_fields: null,
+        },
+      },
+    };
+
+    const router = createRouter();
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            parent="https://foxy-payments-api.element/payment_presets/0/payment_methods"
+            .getImageSrc=${(type: string) => `https://example.com?type=${type}`}
+            @fetch=${(evt: FetchEvent) => {
+              if (evt.request.url.endsWith('/payment_presets/0/available_payment_methods')) {
+                evt.preventDefault();
+                evt.respondWith(Promise.resolve(new Response(JSON.stringify(availableMethods))));
+              }
+            }}
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    const title = (await getByKey(element, 'select_method_title')) as I18n;
+    const list = (await getByTestId(element, 'select-method-list')) as HTMLElement;
+
+    expect(title).to.exist;
+    expect(title).to.have.attribute('infer', '');
+
+    await waitUntil(() => !!list.querySelector('li'), '', { timeout: 5000 });
+    const groups = list.querySelectorAll('ul');
+    const headers = list.querySelectorAll('p');
+
+    expect(list).to.exist;
+    expect(groups).to.have.length(2);
+    expect(headers).to.have.length(2);
+
+    expect(headers[0]).to.have.text('B');
+    expect(headers[1]).to.have.text('F');
+
+    const group0Items = groups[0].querySelectorAll('li');
+    const group1Items = groups[1].querySelectorAll('li');
+
+    expect(group0Items).to.have.length(1);
+    expect(group1Items).to.have.length(1);
+
+    const group0Item0Button = group0Items[0]?.querySelector('button');
+    const group1Item0Button = group1Items[0]?.querySelector('button');
+    const group1Item1Button = group1Items[1]?.querySelector('button');
+
+    expect(group0Item0Button).to.exist;
+    expect(group1Item0Button).to.exist;
+    expect(group1Item1Button).to.not.exist;
   });
 
   it('renders a payment method logo and name when "type" is selected', async () => {
@@ -643,7 +747,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
     const tabPanel = tabContent.children[0] as HTMLElement;
     const field = tabPanel.querySelector(
-      '[infer="additional-fields-foo-bar-baz"]'
+      '[infer="additional-fields-baz"]'
     ) as InternalCheckboxGroupControl;
 
     expect(field).to.exist;
@@ -652,14 +756,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(field).to.have.attribute('label', '');
     expect(field).to.have.deep.property('options', [{ label: 'Baz', value: 'checked' }]);
 
-    element.edit({ additional_fields: JSON.stringify({ foo: { bar: { baz: true } } }) });
+    element.edit({ additional_fields: JSON.stringify({ baz: true }) });
     expect(field.getValue()).to.deep.equal(['checked']);
 
     field.setValue([]);
-    expect(JSON.parse(element.form.additional_fields!)).to.have.nested.property(
-      'foo.bar.baz',
-      false
-    );
+    expect(JSON.parse(element.form.additional_fields!)).to.have.property('baz', false);
   });
 
   it('renders a checkbox control for a test "checkbox" block in additional fields if present', async () => {
@@ -711,7 +812,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
     const tabPanel = tabContent.children[1] as HTMLElement;
     const field = tabPanel.querySelector(
-      '[infer="additional-fields-foo-bar-baz"]'
+      '[infer="additional-fields-baz"]'
     ) as InternalCheckboxGroupControl;
 
     expect(field).to.exist;
@@ -720,14 +821,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(field).to.have.attribute('label', '');
     expect(field).to.have.deep.property('options', [{ label: 'Baz', value: 'checked' }]);
 
-    element.edit({ additional_fields: JSON.stringify({ foo: { bar: { baz: true } } }) });
+    element.edit({ additional_fields: JSON.stringify({ baz: true }) });
     expect(field.getValue()).to.deep.equal(['checked']);
 
     field.setValue([]);
-    expect(JSON.parse(element.form.additional_fields!)).to.have.nested.property(
-      'foo.bar.baz',
-      false
-    );
+    expect(JSON.parse(element.form.additional_fields!)).to.have.nested.property('baz', false);
   });
 
   it('renders a select control for a live "select" block in additional fields if present', async () => {
@@ -783,7 +881,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
     const tabPanel = tabContent.children[0] as HTMLElement;
     const field = tabPanel.querySelector(
-      '[infer="additional-fields-foo-bar-baz"]'
+      '[infer="additional-fields-baz"]'
     ) as InternalSelectControl;
 
     expect(field).to.exist;
@@ -795,14 +893,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
       { label: 'Field 2', value: 'field_2_value' },
     ]);
 
-    element.edit({ additional_fields: JSON.stringify({ foo: { bar: { baz: 'field_1_value' } } }) });
+    element.edit({ additional_fields: JSON.stringify({ baz: 'field_1_value' }) });
     expect(field.getValue()).to.deep.equal('field_1_value');
 
     field.setValue('field_2_value');
-    expect(JSON.parse(element.form.additional_fields!)).to.have.nested.property(
-      'foo.bar.baz',
-      'field_2_value'
-    );
+    expect(JSON.parse(element.form.additional_fields!)).to.have.property('baz', 'field_2_value');
   });
 
   it('renders a select control for a test "select" block in additional fields if present', async () => {
@@ -858,7 +953,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
     const tabPanel = tabContent.children[1] as HTMLElement;
     const field = tabPanel.querySelector(
-      '[infer="additional-fields-foo-bar-baz"]'
+      '[infer="additional-fields-baz"]'
     ) as InternalSelectControl;
 
     expect(field).to.exist;
@@ -870,14 +965,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
       { label: 'Field 2', value: 'field_2_value' },
     ]);
 
-    element.edit({ additional_fields: JSON.stringify({ foo: { bar: { baz: 'field_1_value' } } }) });
+    element.edit({ additional_fields: JSON.stringify({ baz: 'field_1_value' }) });
     expect(field.getValue()).to.deep.equal('field_1_value');
 
     field.setValue('field_2_value');
-    expect(JSON.parse(element.form.additional_fields!)).to.have.nested.property(
-      'foo.bar.baz',
-      'field_2_value'
-    );
+    expect(JSON.parse(element.form.additional_fields!)).to.have.property('baz', 'field_2_value');
   });
 
   it('renders a text control for any other live block in additional fields if present', async () => {
@@ -928,9 +1020,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
     const tabPanel = tabContent.children[0] as HTMLElement;
-    const field = tabPanel.querySelector(
-      '[infer="additional-fields-foo-bar-baz"]'
-    ) as InternalTextControl;
+    const field = tabPanel.querySelector('[infer="additional-fields-baz"]') as InternalTextControl;
 
     expect(field).to.exist;
     expect(field).to.be.instanceOf(InternalTextControl);
@@ -938,14 +1028,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(field).to.have.attribute('helper-text', 'Baz Description');
     expect(field).to.have.attribute('label', 'Baz');
 
-    element.edit({ additional_fields: JSON.stringify({ foo: { bar: { baz: 'test_value' } } }) });
+    element.edit({ additional_fields: JSON.stringify({ baz: 'test_value' }) });
     expect(field.getValue()).to.deep.equal('test_value');
 
     field.setValue('another_value');
-    expect(JSON.parse(element.form.additional_fields!)).to.have.nested.property(
-      'foo.bar.baz',
-      'another_value'
-    );
+    expect(JSON.parse(element.form.additional_fields!)).to.have.property('baz', 'another_value');
   });
 
   it('renders a text control for any other test block in additional fields if present', async () => {
@@ -996,9 +1083,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
     const tabPanel = tabContent.children[1] as HTMLElement;
-    const field = tabPanel.querySelector(
-      '[infer="additional-fields-foo-bar-baz"]'
-    ) as InternalTextControl;
+    const field = tabPanel.querySelector('[infer="additional-fields-baz"]') as InternalTextControl;
 
     expect(field).to.exist;
     expect(field).to.be.instanceOf(InternalTextControl);
@@ -1006,14 +1091,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(field).to.have.attribute('helper-text', 'Baz Description');
     expect(field).to.have.attribute('label', 'Baz');
 
-    element.edit({ additional_fields: JSON.stringify({ foo: { bar: { baz: 'test_value' } } }) });
+    element.edit({ additional_fields: JSON.stringify({ baz: 'test_value' }) });
     expect(field.getValue()).to.deep.equal('test_value');
 
     field.setValue('another_value');
-    expect(JSON.parse(element.form.additional_fields!)).to.have.nested.property(
-      'foo.bar.baz',
-      'another_value'
-    );
+    expect(JSON.parse(element.form.additional_fields!)).to.have.property('baz', 'another_value');
   });
 
   it('renders a text control for description', async () => {

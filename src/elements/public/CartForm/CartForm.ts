@@ -301,87 +301,6 @@ export class CartForm extends Base<Data> {
     }
 
     return html`
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__shippingRegionsHref)}
-        id=${this.__shippingRegionsLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__billingRegionsHref)}
-        id=${this.__billingRegionsLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__countriesHref)}
-        id=${this.__countriesHelperLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__customerHref)}
-        id=${this.__customerLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__discountsHref)}
-        id=${this.__discountsLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__defaultTemplateSetHref)}
-        id=${this.__defaultTemplateSetLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__localeCodesHelperHref)}
-        id=${this.__localeCodesHelperLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__templateSetHref)}
-        id=${this.__templateSetLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__storeHref)}
-        id=${this.__storeLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
       <div class="grid sm-grid-cols-2 gap-l">
         <div class="sm-col-span-2">
           <foxy-i18n class="text-l font-medium leading-s block" infer="" key="order_section_title">
@@ -586,6 +505,87 @@ export class CartForm extends Base<Data> {
             `
           : html`<foxy-internal-create-control infer="create"></foxy-internal-create-control>`}
       </div>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__shippingRegionsHref)}
+        id=${this.__shippingRegionsLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__billingRegionsHref)}
+        id=${this.__billingRegionsLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__countriesHref)}
+        id=${this.__countriesHelperLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__customerHref)}
+        id=${this.__customerLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__discountsHref)}
+        id=${this.__discountsLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__defaultTemplateSetHref)}
+        id=${this.__defaultTemplateSetLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__localeCodesHelperHref)}
+        id=${this.__localeCodesHelperLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__templateSetHref)}
+        id=${this.__templateSetLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__storeHref)}
+        id=${this.__storeLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
     `;
   }
 

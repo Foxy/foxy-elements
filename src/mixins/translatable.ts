@@ -176,6 +176,13 @@ type Base = Constructor<InferrableMixinHost> &
 type Translator = (key: string, options?: StringMap) => string;
 
 export declare class TranslatableMixinHost {
+  /**
+   * If true, this element won't attempt to load separate files for nested namespaces.
+   * For example, if `ns` is set to `foo bar`, this element will only load `foo` and
+   * expect that file to contain all translations for the `bar` namespace.
+   */
+  simplifyNsLoading: boolean;
+
   /** Optional ISO 639-1 code describing the language element content is written in. */
   lang: string;
 
@@ -192,18 +199,21 @@ export declare class TranslatableMixinHost {
   get t(): Translator;
 }
 
+const InstanceMark = Symbol('TranslatableMixin');
+
 export const TranslatableMixin = <T extends Base>(
   BaseElement: T,
   defaultNS = ''
 ): T & Constructor<TranslatableMixinHost> & { defaultNS: string } => {
   return class TranslatableElement extends BaseElement {
     static get inferredProperties(): string[] {
-      return [...super.inferredProperties, 'lang', 'ns'];
+      return [...super.inferredProperties, 'simplifyNsLoading', 'lang', 'ns'];
     }
 
     static get properties(): PropertyDeclarations {
       return {
         ...super.properties,
+        simplifyNsLoading: { type: Boolean, attribute: 'simplify-ns-loading' },
         lang: { type: String },
         ns: { type: String },
       };
@@ -212,6 +222,10 @@ export const TranslatableMixin = <T extends Base>(
     static get defaultNS(): string {
       return defaultNS;
     }
+
+    simplifyNsLoading = false;
+
+    [InstanceMark] = true;
 
     lang = '';
 
@@ -222,16 +236,23 @@ export const TranslatableMixin = <T extends Base>(
 
       if (!I18nElement) return key;
 
-      const keys = [
-        ...this.ns
+      let keys: string[];
+
+      if (this.simplifyNsLoading) {
+        const namespaces = this.ns.split(' ').filter(v => v.length > 0);
+        const path = [...namespaces.slice(1), key].join('.');
+        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];
+      } else {
+        keys = this.ns
           .split(' ')
           .reverse()
           .map(v => v.trim())
           .filter(v => v.length > 0)
           .reverse()
-          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),
-        `shared:${key}`,
-      ];
+          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);
+      }
+
+      keys.push(key);
 
       return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();
     };
@@ -249,10 +270,20 @@ export const TranslatableMixin = <T extends Base>(
       super.updated(changedProperties);
 
       const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;
+
       if (!I18nElement) return;
 
       if (changedProperties.has('lang')) I18nElement.i18next.loadLanguages(this.lang);
-      if (changedProperties.has('ns')) I18nElement.i18next.loadNamespaces(this.ns.split(' '));
+
+      if (changedProperties.has('ns')) {
+        const namespaces = this.ns.split(' ').filter(v => v.length > 0);
+
+        if (this.simplifyNsLoading) {
+          if (namespaces[0]) I18nElement.i18next.loadNamespaces(namespaces[0]);
+        } else {
+          I18nElement.i18next.loadNamespaces(namespaces);
+        }
+      }
     }
 
     disconnectedCallback(): void {
@@ -260,13 +291,20 @@ export const TranslatableMixin = <T extends Base>(
       this.__untrackTranslations?.();
     }
 
+    inferFromElement(key: string, element: HTMLElement): unknown | undefined {
+      if ((key === 'lang' || key === 'ns') && !(InstanceMark in element)) return;
+      return super.inferFromElement(key, element);
+    }
+
     applyInferredProperties(context: Map<string, unknown>): void {
       super.applyInferredProperties(context);
       if (this.infer === null) return;
 
+      const simplifyNsLoading = context.get('simplifyNsLoading') as boolean | undefined;
       const lang = context.get('lang') as string | undefined;
       const ns = context.get('ns') as string | undefined;
 
+      this.simplifyNsLoading = simplifyNsLoading ?? false;
       this.lang = lang ?? '';
       this.ns = ns ? `${ns} ${this.infer}`.trim() : defaultNS;
     }

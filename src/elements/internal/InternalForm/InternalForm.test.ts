@@ -1,7 +1,9 @@
+import { ButtonElement } from '@vaadin/vaadin-button';
 import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { html, render } from 'lit-html';
-import { spy } from 'sinon';
+import { spy, stub } from 'sinon';
 import { createRouter } from '../../../server/index';
+import { getByKey } from '../../../testgen/getByKey';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
@@ -21,8 +23,16 @@ describe('InternalForm', () => {
     expect(customElements.get('foxy-internal-delete-control')).to.exist;
   });
 
+  it('imports and registers foxy-copy-to-clipboard', () => {
+    expect(customElements.get('foxy-copy-to-clipboard')).to.exist;
+  });
+
   it('imports and registers foxy-spinner', () => {
     expect(customElements.get('foxy-spinner')).to.exist;
+  });
+
+  it('imports and registers foxy-i18n', () => {
+    expect(customElements.get('foxy-i18n')).to.exist;
   });
 
   it('imports and registers itself as foxy-internal-form', () => {
@@ -40,6 +50,46 @@ describe('InternalForm', () => {
   it('has a reactive property "status" that defaults to null', async () => {
     expect(InternalForm).to.have.deep.nested.property('properties.status', { type: Object });
     expect(new InternalForm()).to.have.property('status', null);
+  });
+
+  it('has a placeholder .renderHeaderActions() method that renders nothing', async () => {
+    const element = await fixture<InternalForm<any>>(
+      html`<foxy-internal-form></foxy-internal-form>`
+    );
+
+    const data = await getTestData<any>('./hapi/customers/0');
+    expect(element.renderHeaderActions(data)).to.equal(null);
+  });
+
+  it('has a .renderHeader() method rendering an optional header', async () => {
+    const root = document.createElement('div');
+    const element = await fixture<InternalForm<any>>(
+      html`<foxy-internal-form></foxy-internal-form>`
+    );
+
+    render(element.renderHeader(), root);
+
+    expect(root.querySelector('foxy-i18n[infer="header"][key="title_new"]')).to.exist;
+    expect(root.querySelector('foxy-i18n[infer="header"][key="title_existing"]')).to.not.exist;
+    expect(root.querySelector('foxy-i18n[infer="header"][key="subtitle"]')).to.not.exist;
+    expect(root.querySelector('foxy-copy-to-clipboard')).to.not.exist;
+
+    element.data = await getTestData<any>('./hapi/customers/0');
+    render(element.renderHeader(), root);
+
+    expect(root.querySelector('foxy-i18n[infer="header"][key="title_new"]')).to.not.exist;
+
+    const title = root.querySelector('foxy-i18n[infer="header"][key="title_existing"]');
+    expect(title).to.exist;
+    expect(title).to.have.deep.property('options', { id: 0 });
+
+    const subtitle = root.querySelector('foxy-i18n[infer="header"][key="subtitle"]');
+    expect(subtitle).to.exist;
+    expect(subtitle).to.have.deep.property('options', element.data);
+
+    const copyButton = root.querySelector('foxy-copy-to-clipboard');
+    expect(copyButton).to.exist;
+    expect(copyButton).to.have.property('text', '0');
   });
 
   it('has a .renderBody() method rendering timestamps and an appropriate action control', async () => {
@@ -129,6 +179,29 @@ describe('InternalForm', () => {
     expect(spinner).to.have.attribute('infer', 'spinner');
   });
 
+  it('renders Refresh button if loading data fails', async () => {
+    const router = createRouter();
+    const layout = html`
+      <foxy-internal-form
+        href="https://demo.api/virtual/empty?status=404"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-internal-form>
+    `;
+
+    const element = await fixture<InternalForm<any>>(layout);
+    await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
+
+    const caption = await getByKey(element, 'refresh');
+    expect(caption).to.exist;
+    expect(caption).to.have.attribute('infer', 'spinner');
+
+    const button = caption!.closest('vaadin-button') as ButtonElement;
+    const refreshStub = stub(element, 'refresh');
+    button.click();
+    expect(refreshStub).to.have.been.called;
+  });
+
   it('hides spinner once loaded', async () => {
     const data = await getTestData<any>('./hapi/customer_addresses/0');
     const layout = html`<foxy-internal-form .data=${data}></foxy-internal-form>`;
@@ -158,6 +231,18 @@ describe('InternalForm', () => {
 
     button.dispatchEvent(new CustomEvent('click'));
     expect(element).to.have.property('status', null);
+  });
+
+  it('hides closable status message if hiddencontrols matches "status"', async () => {
+    const element = await fixture<InternalForm<any>>(
+      html`
+        <foxy-internal-form .status=${{ key: 'test' }} hiddencontrols="status">
+        </foxy-internal-form>
+      `
+    );
+
+    const wrapper = element.renderRoot.querySelector('[data-testid="status"]')!;
+    expect(wrapper).to.not.exist;
   });
 
   it('renders general errors if present', async () => {

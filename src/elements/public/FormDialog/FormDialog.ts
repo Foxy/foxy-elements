@@ -30,10 +30,14 @@ export class FormDialog extends Dialog {
       props: { type: Object },
       parent: { type: String },
       related: { type: Array },
+      closeOnPatch: { type: Boolean, attribute: 'close-on-patch' },
       keepOpenOnPost: { type: Boolean, attribute: 'keep-open-on-post' },
       keepOpenOnDelete: { type: Boolean, attribute: 'keep-open-on-delete' },
     };
   }
+
+  /** If true, FormDialog will automatically close after the associated form updates the resource. */
+  closeOnPatch = false;
 
   /** If true, FormDialog won't automatically close after the associated form deletes the resource. */
   keepOpenOnDelete = false;
@@ -72,11 +76,15 @@ export class FormDialog extends Dialog {
 
     const result = evt.detail?.result;
     const Result = UpdateEvent.UpdateResult;
-
-    if (!this.keepOpenOnPost && result === Result.ResourceCreated) this.open = false;
-    if (!this.keepOpenOnDelete && result === Result.ResourceDeleted) this.open = false;
-
     const target = evt.currentTarget as NucleonElement<never>;
+
+    if (
+      (!this.keepOpenOnDelete && result === Result.ResourceDeleted) ||
+      (!this.keepOpenOnPost && result === Result.ResourceCreated) ||
+      (this.closeOnPatch && result === Result.ResourceUpdated && target.errors.length === 0)
+    ) {
+      this.open = false;
+    }
 
     if (this.parent !== target.parent) this.parent = target.parent;
     if (this.href !== target.href) this.href = target.href;

@@ -5,6 +5,6 @@
   "spinner": {
     "loading_busy": "Loading",
     "loading_empty": "No data",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

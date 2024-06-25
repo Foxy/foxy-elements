@@ -1,17 +1,20 @@
+import type { CSSResultArray, PropertyDeclarations } from 'lit-element';
+import type { Data, Templates } from './types';
+import type { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
+import type { TemplateResult } from 'lit-html';
+import type { FormDialog } from '../FormDialog/FormDialog';
+
 import * as logos from './logos';
 
-import { CSSResultArray, css } from 'lit-element';
-import { Data, Templates } from './types';
-import { TemplateResult, html } from 'lit-html';
-
-import { BooleanSelector } from '@foxy.io/sdk/core';
-import { ConfigurableMixin } from '../../../mixins/configurable';
-import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
+import { ConfigurableMixin } from '../../../mixins/configurable';
+import { TranslatableMixin } from '../../../mixins/translatable';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { NucleonElement } from '../NucleonElement/index';
 import { ThemeableMixin } from '../../../mixins/themeable';
-import { TranslatableMixin } from '../../../mixins/translatable';
 import { backgrounds } from './backgrounds';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { css, html } from 'lit-element';
 import { classMap } from '../../../utils/class-map';
 
 const NS = 'payment-method-card';
@@ -24,11 +27,20 @@ const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 
  * @slot actions:after - **new in v1.4.0**
  * @slot actions:delete:before - **new in v1.4.0**
  * @slot actions:delete:after - **new in v1.4.0**
+ * @slot actions:update:before - **new in v1.27.0**
+ * @slot actions:update:after - **new in v1.27.0**
  *
- * @element foxy-payment-method-form
+ * @element foxy-payment-method-card
  * @since 1.2.0
  */
 export class PaymentMethodCard extends Base<Data> {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      embedUrl: { attribute: 'embed-url' },
+    };
+  }
+
   static get styles(): CSSResultArray {
     return [
       super.styles,
@@ -53,6 +65,63 @@ export class PaymentMethodCard extends Base<Data> {
 
   templates: Templates = {};
 
+  /**
+   * Configuration URL for the Payment Card Embed. If provided,
+   * the card will have an option of updating payment method.
+   * Otherwise, only the delete option will be available.
+   */
+  embedUrl: string | null = null;
+
+  private readonly __renderActionsUpdate = () => {
+    const hasCC = !!this.data?.save_cc;
+    const buttonStyle = hasCC
+      ? '--lumo-primary-text-color: #fff; --lumo-primary-color-50pct: rgba(255, 255, 255, 0.5); --lumo-contrast-5pct: rgba(255, 255, 255, 0.05)'
+      : void 0;
+
+    return html`
+      <div class="flex">
+        ${this.renderTemplateOrSlot('actions:update:before')}
+
+        <foxy-form-dialog
+          data-testid="update-dialog"
+          readonlycontrols=${this.readonlySelector.zoom('actions:update:form')}
+          disabledcontrols=${this.disabledSelector.zoom('actions:update:form')}
+          hiddencontrols="status ${this.hiddenSelector.zoom('actions:update:form')}"
+          header=${hasCC ? 'dialog_header_update' : 'dialog_header_add'}
+          group=${this.group}
+          form="foxy-update-payment-method-form"
+          href=${this.href}
+          lang=${this.lang}
+          ns="${this.ns} dialog"
+          alert
+          close-on-patch
+          .props=${{ '.embedUrl': this.embedUrl }}
+        >
+        </foxy-form-dialog>
+
+        <vaadin-button
+          class=${ifDefined(hasCC ? 'px-xs rounded' : void 0)}
+          theme=${hasCC ? 'icon' : 'contrast small'}
+          style=${ifDefined(buttonStyle)}
+          aria-label=${this.t(hasCC ? 'update' : 'add')}
+          data-testid="actions:update"
+          ?disabled=${this.disabledSelector.matches('actions:update', true)}
+          @click=${(evt: CustomEvent) => {
+            const button = evt.currentTarget as HTMLElement;
+            const dialog = button.previousElementSibling as FormDialog;
+            dialog.show(button);
+          }}
+        >
+          ${hasCC
+            ? html`<iron-icon icon="icons:create"></iron-icon>`
+            : html`<foxy-i18n infer="" key="add"></foxy-i18n>`}
+        </vaadin-button>
+
+        ${this.renderTemplateOrSlot('actions:update:after')}
+      </div>
+    `;
+  };
+
   private readonly __renderActionsDelete = () => {
     return html`
       <div class="flex">
@@ -76,10 +145,14 @@ export class PaymentMethodCard extends Base<Data> {
   };
 
   private readonly __renderActions = () => {
+    const isUpdateHidden = this.hiddenSelector.matches('actions:update', true) || !this.embedUrl;
+    const isDeleteHidden = this.hiddenSelector.matches('actions:delete', true);
+
     return html`
-      <div class="flex" data-testid="actions">
+      <div class="flex gap-s" data-testid="actions">
         ${this.renderTemplateOrSlot('actions:before')}
-        ${this.hiddenSelector.matches('actions:delete', true) ? '' : this.__renderActionsDelete()}
+        ${isUpdateHidden ? '' : this.__renderActionsUpdate()}
+        ${isDeleteHidden ? '' : this.__renderActionsDelete()}
         ${this.renderTemplateOrSlot('actions:after')}
       </div>
     `;
@@ -90,6 +163,8 @@ export class PaymentMethodCard extends Base<Data> {
 
     if (this.in({ idle: 'template' }) || !data?.save_cc || !this.in('idle')) {
       const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';
+      const isUpdateHidden =
+        this.hiddenSelector.matches('actions:update', true) || !this.embedUrl || !this.data;
 
       return html`
         <div
@@ -99,14 +174,16 @@ export class PaymentMethodCard extends Base<Data> {
           data-testid="wrapper"
         >
           <div class="h-full bg-contrast-5"></div>
-          <div class="absolute inset-0 flex items-center justify-center">
+          <div class="absolute inset-0 flex flex-col gap-m items-center justify-center">
             <foxy-spinner
               data-testid="spinner"
+              layout="vertical"
               state=${spinnerState}
               lang=${this.lang}
               ns="${ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
             >
             </foxy-spinner>
+            ${isUpdateHidden ? '' : this.__renderActionsUpdate()}
           </div>
         </div>
       `;
@@ -142,11 +219,11 @@ export class PaymentMethodCard extends Base<Data> {
               'justify-end': this.readonlyControls === BooleanSelector.True,
             })}
           >
+            <div class="mr-auto rounded h-m">${logo}</div>
             ${this.hiddenSelector.matches('actions', true) ? '' : this.__renderActions()}
-            <div class="ml-auto rounded h-m">${logo}</div>
           </div>
 
-          <div class="font-tnum leading-none flex justify-between">
+          <div class="font-tnum leading-none flex justify-between" style="color: white">
             <div data-testid="expiry">
               ${data!.cc_exp_month && data.cc_exp_year
                 ? html`

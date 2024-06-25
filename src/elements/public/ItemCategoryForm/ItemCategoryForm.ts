@@ -254,33 +254,6 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
     const handlingFeeType = this.form.handling_fee_type ?? 'none';
 
     return html`
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.form.customer_email_template_uri || undefined)}
-        id=${this.__customerEmailTemplateLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.form.gift_recipient_email_template_uri || undefined)}
-        id=${this.__giftRecipientEmailTemplateLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.form.admin_email_template_uri || undefined)}
-        id=${this.__adminEmailTemplateLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
       <div class="grid grid-cols-2 gap-m">
         <foxy-internal-text-control infer="name" class="col-span-2"></foxy-internal-text-control>
         <foxy-internal-text-control infer="code" class="col-span-2"></foxy-internal-text-control>
@@ -365,6 +338,33 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
       </div>
 
       ${super.renderBody()}
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.form.customer_email_template_uri || undefined)}
+        id=${this.__customerEmailTemplateLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.form.gift_recipient_email_template_uri || undefined)}
+        id=${this.__giftRecipientEmailTemplateLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.form.admin_email_template_uri || undefined)}
+        id=${this.__adminEmailTemplateLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
     `;
   }
 

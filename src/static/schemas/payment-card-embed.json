@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
+  "properties": {
+    "stripe": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Card details" },
+        "status": {
+          "additionalProperties": false,
+          "properties": {
+            "idle": {
+              "type": "string",
+              "default": "Your card details are securely processed by Stripe. Visit https://stripe.com to learn more."
+            },
+            "busy": { "type": "string", "default": "Encrypting your card details..." },
+            "fail": {
+              "type": "string",
+              "default": "This service is currently unavailable. Please try again later."
+            },
+            "unsupported": {
+              "type": "string",
+              "default": "We don't support this card type. Please try another card."
+            }
+          },
+          "required": ["idle", "busy", "fail", "unsupported"]
+        }
+      },
+      "required": ["label", "status"]
+    },
+    "square": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Card details" },
+        "status": {
+          "additionalProperties": false,
+          "properties": {
+            "idle": {
+              "type": "string",
+              "default": "Your card details are securely processed by Square. Visit https://squareup.com to learn more."
+            },
+            "busy": { "type": "string", "default": "Encrypting your card details..." },
+            "fail": {
+              "type": "string",
+              "default": "This service is currently unavailable. Please try again later."
+            },
+            "unsupported": {
+              "type": "string",
+              "default": "We don't support this card type. Please try another card."
+            }
+          },
+          "required": ["idle", "busy", "fail", "unsupported"]
+        }
+      },
+      "required": ["label", "status"]
+    },
+    "default": {
+      "additionalProperties": false,
+      "properties": {
+        "cc-number": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Card number" },
+            "placeholder": { "type": "string", "default": "1234 1234 1234 1234" },
+            "v8n_required": { "type": "string", "default": "Enter a card number." },
+            "v8n_invalid": {
+              "type": "string",
+              "default": "Check your card number – it doesn't seem to be valid."
+            },
+            "v8n_unsupported": { "type": "string", "default": "We don't support this card type." }
+          },
+          "required": ["label", "placeholder", "v8n_required", "v8n_invalid", "v8n_unsupported"]
+        },
+        "cc-exp": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Expires on" },
+            "placeholder": { "type": "string", "default": "MM/YYYY" },
+            "v8n_required": { "type": "string", "default": "Enter an expiry date." },
+            "v8n_invalid": { "type": "string", "default": "Enter a date as MM/YYYY." },
+            "v8n_expired": { "type": "string", "default": "Your card has expired." }
+          },
+          "required": ["label", "placeholder", "v8n_required", "v8n_invalid", "v8n_expired"]
+        },
+        "cc-csc": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "CSC" },
+            "placeholder": { "type": "string", "default": "XXX" },
+            "v8n_required": { "type": "string", "default": "Enter a security code." },
+            "v8n_invalid": { "type": "string", "default": "Enter a 3-4 digits code." }
+          },
+          "required": ["label", "placeholder", "v8n_required", "v8n_invalid"]
+        },
+        "status": {
+          "additionalProperties": false,
+          "properties": {
+            "idle": {
+              "type": "string",
+              "default": "Your card details are securely processed by Foxy.io. Visit https://foxy.io to learn more."
+            },
+            "busy": { "type": "string", "default": "Encrypting your card details..." },
+            "fail": {
+              "type": "string",
+              "default": "This service is currently unavailable. Please try again later."
+            },
+            "misconfigured": {
+              "type": "string",
+              "default": "This form is not configured correctly. If you are seeing this message as a customer, please report this issue to the store support team."
+            }
+          },
+          "required": ["idle", "busy", "fail", "misconfigured"]
+        }
+      },
+      "required": ["cc-number", "cc-exp", "cc-csc", "status"]
+    }
+  },
+  "required": ["stripe", "square", "default"]
+}

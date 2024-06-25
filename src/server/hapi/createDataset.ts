@@ -375,12 +375,25 @@ export const createDataset: () => Dataset = () => ({
   payment_methods: [
     {
       id: 0,
+      store_id: 0,
       customer_id: 0,
       save_cc: true,
       cc_type: 'MasterCard',
       cc_number_masked: 'xxxxxxxxxxxx1111',
       cc_exp_month: '12',
       cc_exp_year: '2020',
+      date_created: '2009-02-10T21:41:51-0800',
+      date_modified: '2013-08-17T17:40:22-0700',
+    },
+    {
+      id: 1,
+      store_id: 0,
+      customer_id: 0,
+      save_cc: false,
+      cc_type: '',
+      cc_number_masked: '',
+      cc_exp_month: '',
+      cc_exp_year: '',
       date_created: '2009-02-10T21:41:51-0800',
       date_modified: '2013-08-17T17:40:22-0700',
     },
@@ -710,23 +723,27 @@ export const createDataset: () => Dataset = () => ({
     {
       id: 0,
       store_id: 0,
-      session_lifespan_in_minutes: 90,
-      allowed_origins: ['https://themancan.com'],
+      sessionLifespanInMinutes: 90,
+      allowedOrigins: ['https://themancan.com'],
       subscriptions: {
-        allow_frequency_modification: [
+        allowFrequencyModification: [
           {
-            jsonata_query: '$contains(frequency, "m")',
+            jsonataQuery: '$contains(frequency, "m")',
             values: ['.5m', '1m', '2m'],
           },
-        ],
-        allow_next_date_modification: [
           {
-            allowed_days: {
+            jsonataQuery: '$contains(frequency, "y")',
+            values: ['1y', '2y'],
+          },
+        ],
+        allowNextDateModification: [
+          {
+            allowedDays: {
               days: [1, 3, 5],
               type: 'day',
             },
-            disallowed_dates: ['2021-09-02', '2021-09-03', '2021-09-01'],
-            jsonata_query: '$contains(frequency, "m")',
+            disallowedDates: ['2021-09-02', '2021-09-03', '2021-09-01'],
+            jsonataQuery: '$contains(frequency, "m")',
             max: '2y',
             min: '1w',
           },
@@ -877,7 +894,19 @@ export const createDataset: () => Dataset = () => ({
     date_modified: '2012-10-31T14:12:39-0700',
   })),
 
-  coupon_item_categories: [],
+  coupon_attributes: [],
+
+  coupon_item_categories: [
+    {
+      id: 0,
+      coupon_id: 0,
+      item_category_id: 0,
+      coupon_uri: 'https://demo.api/hapi/coupons/0',
+      item_category_uri: 'https://demo.api/hapi/item_categories/0',
+      date_created: '2012-10-31T14:12:39-0700',
+      date_modified: '2012-10-31T14:12:39-0700',
+    },
+  ],
 
   gift_cards: [
     {
@@ -891,6 +920,8 @@ export const createDataset: () => Dataset = () => ({
       date_modified: '2015-03-16T12:30:58-0700',
     },
   ],
+
+  gift_card_attributes: [],
 
   gift_card_codes: new Array(100).fill(0).map((_, id) => ({
     id,
@@ -1693,6 +1724,31 @@ export const createDataset: () => Dataset = () => ({
       template_config_uri: 'https://demo.api/hapi/template_configs/0',
       code: 'DEFAULT',
       description: 'Default Template Set',
+      language: 'english',
+      locale_code: 'en_US',
+      config: '',
+      date_created: '2012-08-10T11:58:54-0700',
+      date_modified: '2012-08-10T11:58:54-0700',
+    },
+    {
+      id: 1,
+      store_id: 0,
+      cart_template_id: 0,
+      cart_include_template_id: 0,
+      checkout_template_id: 0,
+      receipt_template_id: 0,
+      email_template_id: 0,
+      payment_method_set_id: 0,
+      template_config_id: 0,
+      cart_template_uri: 'https://demo.api/hapi/cart_templates/0',
+      cart_include_template_uri: 'https://demo.api/hapi/cart_include_templates/0',
+      checkout_template_uri: 'https://demo.api/hapi/checkout_templates/0',
+      receipt_template_uri: 'https://demo.api/hapi/receipt_templates/0',
+      email_template_uri: 'https://demo.api/hapi/email_templates/0',
+      payment_method_set_uri: 'https://demo.api/hapi/payment_method_sets/0',
+      template_config_uri: 'https://demo.api/hapi/template_configs/0',
+      code: 'TEST',
+      description: 'Test (Localdev)',
       language: 'english',
       locale_code: 'en_US',
       config: '',

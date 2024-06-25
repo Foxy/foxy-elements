@@ -1,0 +1,48 @@
+{
+  "stripe": {
+    "label": "Card details",
+    "status": {
+      "idle": "Your card details are securely processed by Stripe. Visit https://stripe.com to learn more.",
+      "busy": "Encrypting your card details...",
+      "fail": "This service is currently unavailable. Please try again later.",
+      "unsupported": "We don't support this card type. Please try another card."
+    }
+  },
+  "square": {
+    "label": "Card details",
+    "status": {
+      "idle": "Your card details are securely processed by Square. Visit https://squareup.com to learn more.",
+      "busy": "Encrypting your card details...",
+      "fail": "This service is currently unavailable. Please try again later.",
+      "unsupported": "We don't support this card type. Please try another card."
+    }
+  },
+  "default": {
+    "cc-number": {
+      "label": "Card number",
+      "placeholder": "1234 1234 1234 1234",
+      "v8n_required": "Enter a card number.",
+      "v8n_invalid": "Check your card number – it doesn't seem to be valid.",
+      "v8n_unsupported": "We don't support this card type."
+    },
+    "cc-exp": {
+      "label": "Expires on",
+      "placeholder": "MM/YYYY",
+      "v8n_required": "Enter an expiry date.",
+      "v8n_invalid": "Enter a date as MM/YYYY.",
+      "v8n_expired": "Your card has expired."
+    },
+    "cc-csc": {
+      "label": "CSC",
+      "placeholder": "XXX",
+      "v8n_required": "Enter a security code.",
+      "v8n_invalid": "Enter a 3-4 digits code."
+    },
+    "status": {
+      "idle": "Your card details are securely processed by Foxy.io. Visit https://foxy.io to learn more.",
+      "busy": "Encrypting your card details...",
+      "fail": "This service is currently unavailable. Please try again later.",
+      "misconfigured": "This form is not configured correctly. If you are seeing this message as a customer, please report this issue to the store support team."
+    }
+  }
+}

@@ -103,6 +103,18 @@ describe('InternalSourceControl', () => {
     expect(field.labels[0]).to.contain.text('test helper text');
   });
 
+  it('renders error message if present', async () => {
+    const layout = html`<test-internal-source-control></test-internal-source-control>`;
+    const control = await fixture<TestControl>(layout);
+
+    expect(control.renderRoot).not.to.contain.text('test_error_message');
+
+    control.testErrorMessage = 'test_error_message';
+    await control.requestUpdate();
+
+    expect(control.renderRoot).to.contain.text('test_error_message');
+  });
+
   it('sets "disabled" on textarea from "disabled" on itself', async () => {
     const layout = html`<test-internal-source-control></test-internal-source-control>`;
     const control = await fixture<TestControl>(layout);

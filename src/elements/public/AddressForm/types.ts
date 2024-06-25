@@ -1,9 +1,10 @@
-import { AddressForm } from './AddressForm';
-import { Rels } from '@foxy.io/sdk/customer';
-import { Renderer } from '../../../mixins/configurable';
-import { Resource } from '@foxy.io/sdk/core';
+import type { AddressForm } from './AddressForm';
+import type { Renderer } from '../../../mixins/configurable';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/customer';
 
 export type Data = Resource<Rels.CustomerAddress>;
+
 export type Templates = {
   'address-name:before'?: Renderer<AddressForm>;
   'address-name:after'?: Renderer<AddressForm>;
@@ -31,17 +32,4 @@ export type Templates = {
   'delete:after'?: Renderer<AddressForm>;
   'create:before'?: Renderer<AddressForm>;
   'create:after'?: Renderer<AddressForm>;
-};
-
-export type ComboBoxParams = {
-  source: string[];
-  field: keyof Data;
-  custom?: boolean;
-};
-
-export type TextFieldParams = {
-  field: keyof Data;
-  wide?: boolean;
-  required?: boolean;
-  readonly?: boolean;
 };

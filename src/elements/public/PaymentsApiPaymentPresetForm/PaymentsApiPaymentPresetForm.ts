@@ -123,6 +123,7 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
               infer="payment-methods"
               first=${this.data._links['fx:payment_methods'].href}
               limit="5"
+              alert
               .item=${(ctx: ItemRendererContext) => html`
                 <foxy-payments-api-payment-method-card
                   parent=${ctx.parent}

@@ -1,4 +1,4 @@
-import { Option, ParsedValue } from '../types';
+import { Operator, Option, ParsedValue } from '../types';
 import { TemplateResult, html } from 'lit-html';
 
 import { I18n } from '../../I18n/I18n';
@@ -7,6 +7,8 @@ import { repeat } from 'lit-html/directives/repeat';
 
 export type GroupParams = {
   parsedValues: (ParsedValue | ParsedValue[])[];
+  operators: Operator[];
+  disableOr: boolean;
   disabled: boolean;
   readonly: boolean;
   options: Option[];
@@ -16,7 +18,8 @@ export type GroupParams = {
 };
 
 export function Group(params: GroupParams): TemplateResult {
-  const andDivider = html`<div class="h-xs"></div>`;
+  const hasNestedRules = params.parsedValues.some(v => Array.isArray(v));
+  const andDivider = html`<div class=${hasNestedRules ? 'h-xs' : 'mt-s'}></div>`;
 
   const orDivider = html`
     <div class="flex items-center h-s">
@@ -42,6 +45,8 @@ export function Group(params: GroupParams): TemplateResult {
             return [
               divider,
               Rule({
+                operators: params.operators,
+                disableOr: params.disableOr,
                 isFullSize: !params.isNested && params.parsedValues.length === 0,
                 isNested: params.isNested,
                 disabled: params.disabled,
@@ -61,6 +66,8 @@ export function Group(params: GroupParams): TemplateResult {
                 <div class="bg-contrast-10 rounded-t-l rounded-b-l p-s -m-s">
                   ${Group({
                     parsedValues: rule,
+                    disableOr: params.disableOr,
+                    operators: params.operators,
                     isNested: true,
                     disabled: params.disabled,
                     readonly: params.readonly,
@@ -82,6 +89,8 @@ export function Group(params: GroupParams): TemplateResult {
             divider,
             Rule({
               parsedValue: rule,
+              disableOr: params.disableOr,
+              operators: params.operators,
               isNested: params.isNested,
               disabled: params.disabled,
               readonly: params.readonly,

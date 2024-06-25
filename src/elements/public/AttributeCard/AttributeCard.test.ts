@@ -5,7 +5,7 @@ import './index';
 import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { AttributeCard } from './AttributeCard';
 import { Data } from './types';
-import { InternalSandbox } from '../../internal/InternalSandbox';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement';
 import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';

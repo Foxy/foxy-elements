@@ -2,11 +2,8 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
-    "select_method_title": {
-      "type": "string",
-      "default": "Select a payment method to get started"
-    },
-    "select_another_button_label": { "type": "string", "default": "Back to payment methods" },
+    "select_method_title": { "type": "string", "default": "Select a payment method" },
+    "select_another_button_label": { "type": "string", "default": "Select another" },
     "default_additional_field_placeholder": { "type": "string", "default": "None" },
     "conflict_message": { "type": "string", "default": "Remove {{ name }} to use this method" },
     "tab_live": { "type": "string", "default": "Live setup" },
@@ -86,10 +83,11 @@
     "spinner": {
       "additionalProperties": false,
       "properties": {
+        "refresh": { "type": "string", "default": "Refresh" },
         "loading_busy": { "type": "string", "default": "Loading" },
-        "loading_error": { "type": "string", "default": "Failed to load" }
+        "loading_error": { "type": "string", "default": "Unknown error" }
       },
-      "required": ["loading_busy", "loading_error"]
+      "required": ["refresh", "loading_busy", "loading_error"]
     },
     "delete": {
       "additionalProperties": false,

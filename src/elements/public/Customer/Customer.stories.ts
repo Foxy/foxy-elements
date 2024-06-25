@@ -28,7 +28,6 @@ const summary: Summary = {
       'addresses:list:card:phone',
       'payment-methods',
       'payment-methods:list',
-      'payment-methods:list:card:actions',
       'attributes',
       'attributes:actions',
       'attributes:list',
@@ -50,7 +49,6 @@ const summary: Summary = {
       'addresses:actions:create:form:create',
       'addresses:list:form:delete',
       'addresses:list:card',
-      'payment-methods:list:card:actions:delete',
       'attributes:actions:create',
       'attributes:actions:create:form:create',
       'attributes:list:form:delete',
@@ -101,9 +99,12 @@ const summary: Summary = {
   },
 };
 
+const demoExt = 'embed-url="https://embed.foxy.io/v1.html?demo=default"';
+
 export default getMeta(summary);
 
 export const Playground = getStory({ ...summary, code: true });
+export const EditableCard = getStory({ ...summary, ext: demoExt });
 export const Empty = getStory(summary);
 export const Error = getStory(summary);
 export const Busy = getStory(summary);

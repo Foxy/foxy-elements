@@ -108,7 +108,8 @@
   "troubleshooting_debug": "Log debug messages in the browser console",
   "troubleshooting_debug_explainer": "Enable this option to trigger console.log() calls for our JS, which can assist with troubleshooting your store.",
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

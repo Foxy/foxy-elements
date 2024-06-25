@@ -10,6 +10,7 @@ import type { Rels } from '@foxy.io/sdk/customer';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 import { API } from '../NucleonElement/API';
 
@@ -21,6 +22,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     return {
       ...super.properties,
       customer: { type: String },
+      embedUrl: { attribute: 'embed-url' },
       loggingOutState: { attribute: false },
       transactionsTableColumns: { attribute: false },
       loggingOutStateResetTimeout: { attribute: false },
@@ -30,6 +32,8 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
   templates: Templates = {};
 
   customer = '';
+
+  embedUrl: string | null = null;
 
   loggingOutState: 'idle' | 'busy' | 'fail' = 'idle';
 
@@ -157,6 +161,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         'transactions',
         'subscriptions',
         'addresses:actions:create',
+        'payment-methods:list:card:actions:update:form:template-set',
         'header:actions:edit:form:is-anonymous',
         'header:actions:edit:form:forgot-password',
         'header:actions:edit:form:create',
@@ -207,6 +212,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         disabledcontrols=${this.disabledSelector.zoom('customer').toString()}
         hiddencontrols=${customerHiddenControls}
         data-testid="customer"
+        embed-url=${ifDefined(this.embedUrl ?? void 0)}
         group=${this.group}
         href=${this.customer}
         lang=${this.lang}

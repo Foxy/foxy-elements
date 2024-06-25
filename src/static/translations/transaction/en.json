@@ -33,7 +33,7 @@
     "spinner": {
       "loading_busy": "Loading",
       "loading_empty": "No customer",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     }
   },
   "items": {
@@ -68,7 +68,7 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No items",
-          "loading_error": "Failed to load"
+          "loading_error": "Unknown error"
         }
       }
     },
@@ -224,7 +224,7 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No discounts",
-                "loading_error": "Failed to load"
+                "loading_error": "Unknown error"
               }
             }
           }
@@ -241,7 +241,7 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No coupons",
-                "loading_error": "Failed to load"
+                "loading_error": "Unknown error"
               }
             }
           }
@@ -263,25 +263,44 @@
             "undo_cancel": "Review",
             "undo_confirm": "Discard",
             "attribute-form": {
-              "cancel": "Cancel",
-              "confirm": "Confirm",
-              "create": "Create",
-              "date": "{{value, date}}",
-              "date_created": "Created on",
-              "date_modified": "Last updated on",
-              "delete": "Delete",
-              "delete_prompt": "This resource will be permanently removed. Are you sure?",
-              "name": "Name",
-              "v8n_required": "Required",
-              "v8n_too_long": "Too long",
-              "value": "Value",
-              "visibility": "Visibility",
-              "visibility_private": "Only me",
-              "visibility_public": "Everyone",
-              "visibility_restricted": "Store admins",
+              "name": {
+                "label": "Name",
+                "placeholder": "Required",
+                "helper_text": "Name of this attribute. It does not have to be unique.",
+                "v8n_required": "Please name this attribute.",
+                "v8n_too_long": "Please choose a name that is 500 characters long or less."
+              },
+              "value": {
+                "label": "Value",
+                "placeholder": "Required",
+                "helper_text": "Value of this attribute. Attribute values are automatically HTML-escaped.",
+                "v8n_required": "Please provide a value for this attribute.",
+                "v8n_too_long": "Unfortunately we can't store values that are more than 1000 characters long."
+              },
+              "visibility": {
+                "label": "Visibility",
+                "option_public": "Everyone",
+                "option_restricted": "Store admins",
+                "option_private": "Only me",
+                "helper_text": "Controls who can see this attribute. Public attributes can be shown to anyone, including customers. Private attributes are more suitable for configuration or technical details which are irrelevant to the public. Restricted attributes can only be viewed with the OAuth client that created them."
+              },
+              "timestamps": {
+                "date": "{{value, date}}",
+                "date_created": "Created on",
+                "date_modified": "Last updated on"
+              },
+              "delete": {
+                "delete": "Delete",
+                "cancel": "Cancel",
+                "delete_prompt": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
+              },
+              "create": {
+                "create": "Create"
+              },
               "spinner": {
+                "refresh": "Refresh",
                 "loading_busy": "Loading",
-                "loading_error": "Failed to load"
+                "loading_error": "Unknown error"
               }
             }
           },
@@ -292,7 +311,7 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No attributes",
-                "loading_error": "Failed to load"
+                "loading_error": "Unknown error"
               }
             },
             "first": "First",
@@ -349,8 +368,9 @@
                 "date": "{{value, date}}"
               },
               "spinner": {
+                "refresh": "Refresh",
                 "loading_busy": "Loading",
-                "loading_error": "Failed to load"
+                "loading_error": "Unknown error"
               },
               "delete": {
                 "delete": "Delete",
@@ -368,7 +388,7 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No item options",
-                "loading_error": "Failed to load"
+                "loading_error": "Unknown error"
               }
             },
             "create_button_text": "Add option +",
@@ -393,8 +413,9 @@
           "create": "Create"
         },
         "spinner": {
+          "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_error": "Failed to load"
+          "loading_error": "Unknown error"
         }
       }
     }
@@ -416,22 +437,42 @@
       "undo_cancel": "Review",
       "undo_confirm": "Discard",
       "custom-field-form": {
-        "cancel": "Cancel",
-        "create": "Create",
-        "date": "{{value, date}}",
-        "date_created": "Created on",
-        "date_modified": "Last updated on",
-        "delete": "Remove",
-        "delete_prompt": "Please confirm that you'd like to remove this custom field from the item.",
-        "name": "Name",
-        "show_on_receipt": "Show on receipt",
-        "v8n_required": "Required",
-        "v8n_too_long": "Too long",
-        "value": "Value",
-        "visibility": "Visibility",
+        "name": {
+          "label": "Name",
+          "placeholder": "Required",
+          "helper_text": "Maximum 100 characters.",
+          "v8n_required": "Please name this custom field.",
+          "v8n_too_long": "Please choose a name that is 100 characters long or less."
+        },
+        "value": {
+          "label": "Value",
+          "placeholder": "Required",
+          "helper_text": "Maximum 700 characters.",
+          "v8n_required": "Please provide a value for this custom field.",
+          "v8n_too_long": "Unfortunately we can't store values that are more than 700 characters long."
+        },
+        "visibility": {
+          "label": "Visibility",
+          "option_hidden": "Hide in receipts",
+          "helper_text": "Whether or not this custom field is visible on the receipt and email receipt. This correlates to custom fields with a \"h:\" prefix when added to the cart."
+        },
+        "timestamps": {
+          "date": "{{value, date}}",
+          "date_created": "Created on",
+          "date_modified": "Last updated on"
+        },
+        "delete": {
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "delete_prompt": "Are you sure you'd like to remove this custom field? You won't be able to bring it back."
+        },
+        "create": {
+          "create": "Create"
+        },
         "spinner": {
+          "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_error": "Failed to load"
+          "loading_error": "Unknown error"
         }
       }
     },
@@ -447,7 +488,7 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No custom fields",
-          "loading_error": "Failed to load"
+          "loading_error": "Unknown error"
         }
       }
     }
@@ -469,25 +510,44 @@
       "undo_cancel": "Review",
       "undo_confirm": "Discard",
       "attribute-form": {
-        "cancel": "Cancel",
-        "confirm": "Confirm",
-        "create": "Create",
-        "date": "{{value, date}}",
-        "date_created": "Created on",
-        "date_modified": "Last updated on",
-        "delete": "Remove",
-        "delete_prompt": "Please confirm that you'd like to remove this attribute from the item.",
-        "name": "Name",
-        "v8n_required": "Required",
-        "v8n_too_long": "Too long",
-        "value": "Value",
-        "visibility": "Visibility",
-        "visibility_private": "Only me",
-        "visibility_public": "Everyone",
-        "visibility_restricted": "Store admins",
+        "name": {
+          "label": "Name",
+          "placeholder": "Required",
+          "helper_text": "Name of this attribute. It does not have to be unique.",
+          "v8n_required": "Please name this attribute.",
+          "v8n_too_long": "Please choose a name that is 500 characters long or less."
+        },
+        "value": {
+          "label": "Value",
+          "placeholder": "Required",
+          "helper_text": "Value of this attribute. Attribute values are automatically HTML-escaped.",
+          "v8n_required": "Please provide a value for this attribute.",
+          "v8n_too_long": "Unfortunately we can't store values that are more than 1000 characters long."
+        },
+        "visibility": {
+          "label": "Visibility",
+          "option_public": "Everyone",
+          "option_restricted": "Store admins",
+          "option_private": "Only me",
+          "helper_text": "Controls who can see this attribute. Public attributes can be shown to anyone, including customers. Private attributes are more suitable for configuration or technical details which are irrelevant to the public. Restricted attributes can only be viewed with the OAuth client that created them."
+        },
+        "timestamps": {
+          "date": "{{value, date}}",
+          "date_created": "Created on",
+          "date_modified": "Last updated on"
+        },
+        "delete": {
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "delete_prompt": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
+        },
+        "create": {
+          "create": "Create"
+        },
         "spinner": {
+          "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_error": "Failed to load"
+          "loading_error": "Unknown error"
         }
       }
     },
@@ -503,7 +563,7 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No attributes",
-          "loading_error": "Failed to load"
+          "loading_error": "Unknown error"
         }
       }
     }
@@ -550,7 +610,7 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No payments",
-          "loading_error": "Failed to load"
+          "loading_error": "Unknown error"
         }
       }
     }
@@ -562,27 +622,91 @@
       "cancel": "Cancel",
       "header_update": "Billing address",
       "address-form": {
-        "address_name": "Address name",
-        "address1": "Address Line 1",
-        "address2": "Address Line 2",
-        "cancel": "Cancel",
-        "city": "City",
-        "company": "Company",
-        "confirm": "Confirm",
-        "country": "Country",
-        "create": "Create",
-        "date": "{{value, date}}",
-        "date_created": "Created on",
-        "date_modified": "Last updated on",
-        "delete": "Delete",
-        "delete_prompt": "This resource will be permanently removed. Are you sure?",
-        "first_name": "First name",
-        "last_name": "Last name",
-        "phone": "Phone",
-        "postal_code": "Postal code",
-        "region": "Region",
-        "v8n_required": "Required",
-        "v8n_too_long": "Too long",
+        "address-name": {
+          "label": "Address name",
+          "placeholder": "Required",
+          "helper_text": "",
+          "v8n_required": "Please enter address name",
+          "v8n_too_long": "Please shorten address name to 100 characters or less"
+        },
+        "first-name": {
+          "label": "First name",
+          "placeholder": "Optional",
+          "helper_text": "",
+          "v8n_too_long": "Unfortunately we can't store first names longer than 50 characters"
+        },
+        "last-name": {
+          "label": "Last name",
+          "placeholder": "Optional",
+          "helper_text": "",
+          "v8n_too_long": "Unfortunately we can't store last names longer than 50 characters"
+        },
+        "company": {
+          "label": "Company",
+          "placeholder": "Optional",
+          "helper_text": "",
+          "v8n_too_long": "Unfortunately we can't store company names longer than 50 characters"
+        },
+        "phone": {
+          "label": "Phone",
+          "placeholder": "Optional",
+          "helper_text": "",
+          "v8n_too_long": "This phone number appears to be too long"
+        },
+        "address-one": {
+          "label": "Address Line 1",
+          "placeholder": "Required",
+          "helper_text": "Street address, P.O. box, company name, c/o",
+          "v8n_required": "Please enter address line 1",
+          "v8n_too_long": "Please shorten address line 1 to 100 characters or less"
+        },
+        "address-two": {
+          "label": "Address Line 2",
+          "placeholder": "Optional",
+          "helper_text": "Apartment, suite, unit, building, floor, etc.",
+          "v8n_too_long": "Please shorten address line 2 to 100 characters or less"
+        },
+        "city": {
+          "label": "City",
+          "placeholder": "Optional",
+          "helper_text": "",
+          "v8n_too_long": "Unfortunately we can't store city names longer than 50 characters"
+        },
+        "postal-code": {
+          "label": "Postal code",
+          "placeholder": "Optional",
+          "helper_text": "",
+          "v8n_too_long": "This postal code appears to be too long"
+        },
+        "country": {
+          "label": "Country",
+          "placeholder": "Optional",
+          "helper_text": ""
+        },
+        "region": {
+          "label": "Region",
+          "placeholder": "Optional",
+          "helper_text": "",
+          "v8n_too_long": "Unfortunately we can't store region names longer than 50 characters"
+        },
+        "timestamps": {
+          "date": "{{value, date}}",
+          "date_created": "Created on",
+          "date_modified": "Last updated on"
+        },
+        "delete": {
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "delete_prompt": "Are you sure you'd like to remove this address? You won't be able to bring it back."
+        },
+        "create": {
+          "create": "Create"
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error"
+        },
         "country_af": "Afghanistan",
         "country_ax": "Åland Islands",
         "country_al": "Albania",
@@ -1159,11 +1283,7 @@
         "country_eh": "Western Sahara",
         "country_ye": "Yemen",
         "country_zm": "Zambia",
-        "country_zw": "Zimbabwe",
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_error": "Failed to load"
-        }
+        "country_zw": "Zimbabwe"
       }
     },
     "pagination": {
@@ -1178,7 +1298,7 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No addresses",
-          "loading_error": "Failed to load"
+          "loading_error": "Unknown error"
         }
       }
     }
@@ -1201,7 +1321,7 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No shipments",
-          "loading_error": "Failed to load"
+          "loading_error": "Unknown error"
         }
       }
     }
@@ -1256,8 +1376,9 @@
     }
   },
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
     "loading_empty": "No data",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

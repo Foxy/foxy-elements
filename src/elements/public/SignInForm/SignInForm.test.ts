@@ -6,7 +6,7 @@ import { BooleanSelector } from '@foxy.io/sdk/core';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { InternalSandbox } from '../../internal/InternalSandbox';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement';
 import { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-field';
 import { SignInForm } from './SignInForm';

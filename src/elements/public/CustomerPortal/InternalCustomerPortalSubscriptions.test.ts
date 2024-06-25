@@ -8,7 +8,7 @@ import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormDialog } from '../FormDialog';
 import { InternalCustomerPortalLink } from './InternalCustomerPortalLink';
 import { InternalCustomerPortalSubscriptions } from './InternalCustomerPortalSubscriptions';
-import { InternalSandbox } from '../../internal/InternalSandbox';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { LitElement } from 'lit-element';
 import { SubscriptionCard } from '../SubscriptionCard';
 import { SubscriptionForm } from '../SubscriptionForm';
@@ -638,7 +638,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
           describe('update', () => {
             it('renders items:actions:update:before template in the subscription form', async () => {
               const customer = await getTestData('./hapi/customers/0');
-              const settings = await getTestData('./hapi/customer_portal_settings/0');
+              const settings = await getTestData('./portal/customer_portal_settings');
               const element = await fixture<InternalCustomerPortalSubscriptions>(html`
                 <foxy-internal-customer-portal-subscriptions
                   .templates=${{ 'list:form:items:actions:update:before': () => html`Test` }}
@@ -666,7 +666,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
 
             it('renders items:actions:update:after template in the subscription form', async () => {
               const customer = await getTestData('./hapi/customers/0');
-              const settings = await getTestData('./hapi/customer_portal_settings/0');
+              const settings = await getTestData('./portal/customer_portal_settings');
               const element = await fixture<InternalCustomerPortalSubscriptions>(html`
                 <foxy-internal-customer-portal-subscriptions
                   .templates=${{ 'list:form:items:actions:update:after': () => html`Test` }}

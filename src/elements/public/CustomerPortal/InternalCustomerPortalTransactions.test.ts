@@ -4,7 +4,7 @@ import { expect, fixture, html } from '@open-wc/testing';
 
 import { CollectionPages } from '../CollectionPages';
 import { InternalCustomerPortalTransactions } from './InternalCustomerPortalTransactions';
-import { InternalSandbox } from '../../internal/InternalSandbox';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { LitElement } from 'lit-element';
 import { getByKey } from '../../../testgen/getByKey';
 import { getByTag } from '../../../testgen/getByTag';

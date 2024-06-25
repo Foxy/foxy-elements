@@ -17,9 +17,12 @@ export class InternalPasswordControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      generatorOptions: { type: Object, attribute: 'generator-options' },
       showGenerator: { type: Boolean, attribute: 'show-generator' },
     };
   }
+
+  generatorOptions: null | { length?: number; charset?: string } = null;
 
   /** If true, renders the password generator button. */
   showGenerator = false;
@@ -66,7 +69,7 @@ export class InternalPasswordControl extends InternalEditableControl {
         })}
         slot="suffix"
         @click=${() => {
-          this._value = generateRandomPassword();
+          this._value = generateRandomPassword(this.generatorOptions ?? void 0);
           const field = this.renderRoot.querySelector('vaadin-password-field');
           // @ts-expect-error: this is a private method but it's ok since the version is fixed
           field?._setPasswordVisible(true);

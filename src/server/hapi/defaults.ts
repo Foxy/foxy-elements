@@ -234,8 +234,9 @@ export const defaults: Defaults = {
 
   payment_methods: (query, dataset) => ({
     id: increment('payment_methods', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
-    save_cc: true,
+    save_cc: false,
     cc_type: '',
     cc_number_masked: '',
     cc_exp_month: '',
@@ -443,12 +444,12 @@ export const defaults: Defaults = {
   customer_portal_settings: (query, dataset) => ({
     id: increment('customer_portal_settings', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
-    session_lifespan_in_minutes: 0,
-    allowed_origins: [],
+    sessionLifespanInMinutes: 0,
+    allowedOrigins: [],
     sso: false,
     subscriptions: {
-      allow_frequency_modification: [],
-      allow_next_date_modification: [],
+      allowFrequencyModification: [],
+      allowNextDateModification: [],
     },
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
@@ -575,6 +576,17 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
+  coupon_attributes: (query, dataset) => ({
+    id: increment('coupon_attributes', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    coupon_id: parseInt(query.get('coupon_id') ?? '0'),
+    name: '',
+    value: '',
+    visibility: 'private',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
   coupon_item_categories: (query, dataset) => ({
     id: increment('coupon_item_categories', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
@@ -593,6 +605,17 @@ export const defaults: Defaults = {
     currency_code: '',
     expires_after: null,
     product_code_restrictions: null,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  gift_card_attributes: (query, dataset) => ({
+    id: increment('gift_card_attributes', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    gift_card_id: parseInt(query.get('gift_card_id') ?? '0'),
+    name: '',
+    value: '',
+    visibility: 'private',
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),

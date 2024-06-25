@@ -231,15 +231,16 @@ export const links: Links = {
 
   coupons: ({ store_id, id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
+    'fx:attributes': { href: `./coupon_attributes?coupon_id=${id}` },
     'fx:coupon_codes': { href: `./coupon_codes?coupon_id=${id}` },
     'fx:generate_codes': { href: './generate_codes' },
     'fx:coupon_item_categories': { href: `./coupon_item_categories?coupon_id=${id}` },
   }),
 
-  coupon_codes: ({ coupon_id, store_id, id }) => ({
+  coupon_codes: ({ coupon_id, store_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:coupon': { href: `./coupons/${coupon_id}` },
-    'fx:coupon_code_transactions': { href: `./transactions?coupon_code_id=${id}` },
+    'fx:coupon_code_transactions': { href: `./transactions` },
   }),
 
   generate_codes: () => ({}),
@@ -250,6 +251,11 @@ export const links: Links = {
     'fx:tax_item_categories': { href: `./tax_item_categories?item_category_id=${id}` },
   }),
 
+  coupon_attributes: ({ coupon_id, store_id }) => ({
+    'fx:coupon': { href: `./coupons/${coupon_id}` },
+    'fx:store': { href: `./stores/${store_id}` },
+  }),
+
   coupon_item_categories: ({ item_category_id, coupon_id, store_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:coupon': { href: `./coupons/${coupon_id}` },
@@ -258,9 +264,15 @@ export const links: Links = {
 
   gift_cards: ({ store_id, id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
+    'fx:attributes': { href: `./gift_card_attributes?gift_card_id=${id}` },
     'fx:generate_codes': { href: './generate_codes' },
     'fx:gift_card_codes': { href: `./gift_card_codes?gift_card_id=${id}` },
     'fx:gift_card_item_categories': { href: `./gift_card_item_categories?gift_card_id=${id}` },
+  }),
+
+  gift_card_attributes: ({ gift_card_id, store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:gift_card': { href: `./gift_cards/${gift_card_id}` },
   }),
 
   gift_card_codes: ({ gift_card_id, store_id, item_id, id }) => ({

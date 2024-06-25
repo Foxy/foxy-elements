@@ -94,6 +94,7 @@ export class Customer extends Base<Data> {
     return {
       ...super.properties,
       settings: { type: Object },
+      embedUrl: { attribute: 'embed-url' },
     };
   }
 
@@ -102,6 +103,12 @@ export class Customer extends Base<Data> {
   }
 
   templates: Templates = {};
+
+  /**
+   * Configuration URL for the Payment Card Embed. If provided, this element will allow
+   * the customer to update their default payment method using the Payment Card Embed.
+   */
+  embedUrl: string | null = null;
 
   /** Customer Portal settings for use in Customer mode. */
   settings: Settings | null = null;
@@ -391,15 +398,16 @@ export class Customer extends Base<Data> {
         ${this.renderTemplateOrSlot('payment-methods:list:before')}
 
         <foxy-payment-method-card
-          readonlycontrols=${this.readonlySelector.zoom(cardId).toString()}
-          disabledcontrols=${this.disabledSelector.zoom(cardId).toString()}
-          hiddencontrols=${this.hiddenSelector.zoom(cardId).toString()}
+          readonlycontrols=${this.readonlySelector.zoom(cardId)}
+          disabledcontrols=${this.disabledSelector.zoom(cardId)}
+          hiddencontrols=${this.hiddenSelector.zoom(cardId)}
           data-testid=${cardId}
+          embed-url=${ifDefined(this.embedUrl ?? void 0)}
           group=${this.group}
           class="w-payment-method-card border-radius-overflow-fix rounded-t-l rounded-b-l overflow-hidden"
-          href=${this.data?._links['fx:default_payment_method'].href ?? ''}
+          href=${ifDefined(this.data?._links['fx:default_payment_method'].href)}
           lang=${this.lang}
-          ns="${this.ns} ${customElements.get('foxy-payment-method-card')?.defaultNS ?? ''}"
+          ns="${this.ns} payment-method-card"
           .templates=${this.getNestedTemplates(cardId)}
         >
         </foxy-payment-method-card>

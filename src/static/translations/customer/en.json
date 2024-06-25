@@ -23,31 +23,95 @@
     "spinner": {
       "loading_busy": "Loading",
       "loading_empty": "No data",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     }
   },
   "address-form": {
-    "address_name": "Address name",
-    "address1": "Address Line 1",
-    "address2": "Address Line 2",
-    "cancel": "Cancel",
-    "city": "City",
-    "company": "Company",
-    "confirm": "Confirm",
-    "country": "Country",
-    "create": "Create",
-    "date": "{{value, date}}",
-    "date_created": "Created on",
-    "date_modified": "Last updated on",
-    "delete": "Delete",
-    "delete_prompt": "This resource will be permanently removed. Are you sure?",
-    "first_name": "First name",
-    "last_name": "Last name",
-    "phone": "Phone",
-    "postal_code": "Postal code",
-    "region": "Region",
-    "v8n_required": "Required",
-    "v8n_too_long": "Too long",
+    "address-name": {
+      "label": "Address name",
+      "placeholder": "Required",
+      "helper_text": "",
+      "v8n_required": "Please enter address name",
+      "v8n_too_long": "Please shorten address name to 100 characters or less"
+    },
+    "first-name": {
+      "label": "First name",
+      "placeholder": "Optional",
+      "helper_text": "",
+      "v8n_too_long": "Unfortunately we can't store first names longer than 50 characters"
+    },
+    "last-name": {
+      "label": "Last name",
+      "placeholder": "Optional",
+      "helper_text": "",
+      "v8n_too_long": "Unfortunately we can't store last names longer than 50 characters"
+    },
+    "company": {
+      "label": "Company",
+      "placeholder": "Optional",
+      "helper_text": "",
+      "v8n_too_long": "Unfortunately we can't store company names longer than 50 characters"
+    },
+    "phone": {
+      "label": "Phone",
+      "placeholder": "Optional",
+      "helper_text": "",
+      "v8n_too_long": "This phone number appears to be too long"
+    },
+    "address-one": {
+      "label": "Address Line 1",
+      "placeholder": "Required",
+      "helper_text": "Street address, P.O. box, company name, c/o",
+      "v8n_required": "Please enter address line 1",
+      "v8n_too_long": "Please shorten address line 1 to 100 characters or less"
+    },
+    "address-two": {
+      "label": "Address Line 2",
+      "placeholder": "Optional",
+      "helper_text": "Apartment, suite, unit, building, floor, etc.",
+      "v8n_too_long": "Please shorten address line 2 to 100 characters or less"
+    },
+    "city": {
+      "label": "City",
+      "placeholder": "Optional",
+      "helper_text": "",
+      "v8n_too_long": "Unfortunately we can't store city names longer than 50 characters"
+    },
+    "postal-code": {
+      "label": "Postal code",
+      "placeholder": "Optional",
+      "helper_text": "",
+      "v8n_too_long": "This postal code appears to be too long"
+    },
+    "country": {
+      "label": "Country",
+      "placeholder": "Optional",
+      "helper_text": ""
+    },
+    "region": {
+      "label": "Region",
+      "placeholder": "Optional",
+      "helper_text": "",
+      "v8n_too_long": "Unfortunately we can't store region names longer than 50 characters"
+    },
+    "timestamps": {
+      "date": "{{value, date}}",
+      "date_created": "Created on",
+      "date_modified": "Last updated on"
+    },
+    "delete": {
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "delete_prompt": "Are you sure you'd like to remove this address? You won't be able to bring it back."
+    },
+    "create": {
+      "create": "Create"
+    },
+    "spinner": {
+      "refresh": "Refresh",
+      "loading_busy": "Loading",
+      "loading_error": "Unknown error"
+    },
     "country_af": "Afghanistan",
     "country_ax": "Åland Islands",
     "country_al": "Albania",
@@ -624,39 +688,54 @@
     "country_eh": "Western Sahara",
     "country_ye": "Yemen",
     "country_zm": "Zambia",
-    "country_zw": "Zimbabwe",
-    "spinner": {
-      "loading_busy": "Loading",
-      "loading_error": "Failed to load"
-    }
+    "country_zw": "Zimbabwe"
   },
   "attribute-card": {
     "spinner": {
       "loading_busy": "Loading",
       "loading_empty": "No data",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     }
   },
   "attribute-form": {
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "create": "Create",
-    "date": "{{value, date}}",
-    "date_created": "Created on",
-    "date_modified": "Last updated on",
-    "delete": "Delete",
-    "delete_prompt": "This resource will be permanently removed. Are you sure?",
-    "name": "Name",
-    "v8n_required": "Required",
-    "v8n_too_long": "Too long",
-    "value": "Value",
-    "visibility": "Visibility",
-    "visibility_private": "Only me",
-    "visibility_public": "Everyone",
-    "visibility_restricted": "Store admins",
+    "name": {
+      "label": "Name",
+      "placeholder": "Required",
+      "helper_text": "Name of this attribute. It does not have to be unique.",
+      "v8n_required": "Please name this attribute.",
+      "v8n_too_long": "Please choose a name that is 500 characters long or less."
+    },
+    "value": {
+      "label": "Value",
+      "placeholder": "Required",
+      "helper_text": "Value of this attribute. Attribute values are automatically HTML-escaped.",
+      "v8n_required": "Please provide a value for this attribute.",
+      "v8n_too_long": "Unfortunately we can't store values that are more than 1000 characters long."
+    },
+    "visibility": {
+      "label": "Visibility",
+      "option_public": "Everyone",
+      "option_restricted": "Store admins",
+      "option_private": "Only me",
+      "helper_text": "Controls who can see this attribute. Public attributes can be shown to anyone, including customers. Private attributes are more suitable for configuration or technical details which are irrelevant to the public. Restricted attributes can only be viewed with the OAuth client that created them."
+    },
+    "timestamps": {
+      "date": "{{value, date}}",
+      "date_created": "Created on",
+      "date_modified": "Last updated on"
+    },
+    "delete": {
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "delete_prompt": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
+    },
+    "create": {
+      "create": "Create"
+    },
     "spinner": {
+      "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     }
   },
   "customer-form": {
@@ -737,26 +816,175 @@
       "create": "Create"
     },
     "spinner": {
+      "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     }
   },
   "payment-method-card": {
     "cancel": "Cancel",
     "delete": "Delete",
-    "delete_prompt": "This resource will be permanently removed. Are you sure?",
+    "add": "Add payment method",
+    "update": "Update payment method",
+    "delete_prompt": "This payment method will be permanently deleted from your account. Would you like to continue?",
     "expires": "Expires",
     "last_4_digits": "Last 4 digits",
     "unknown": "Unknown",
+    "dialog": {
+      "close": "Close",
+      "dialog_header_add": "Add payment method",
+      "dialog_header_update": "Update payment method",
+      "update-payment-method-form": {
+        "status": {
+          "cc_token_success": "Card details saved successfully.",
+          "close": "Close"
+        },
+        "error": {
+          "cc_token_invalid": "Unfortunately, we couldn't save your card details. Please try again later or use a different card."
+        },
+        "template-set": {
+          "label": "Template set",
+          "dialog": {
+            "cancel": "Cancel",
+            "close": "Close",
+            "header": "Choose a template set",
+            "selection": {
+              "label": "",
+              "helper_text": "",
+              "search": "Search",
+              "clear": "Clear",
+              "pagination": {
+                "search_button_text": "Search",
+                "first": "First",
+                "last": "Last",
+                "next": "Next",
+                "pagination": "{{from}}-{{to}} out of {{total}}",
+                "previous": "Previous",
+                "card": {
+                  "spinner": {
+                    "loading_busy": "Loading",
+                    "loading_empty": "No template sets found",
+                    "loading_error": "Unknown error"
+                  }
+                }
+              },
+              "query-builder": {
+                "filters": {},
+                "add_or_clause": "Add OR clause",
+                "add_value": "Add value",
+                "code": "Code",
+                "date": "{{value, date}}",
+                "date_created": "Created on",
+                "date_modified": "Last updated on",
+                "delete": "Delete",
+                "field": "Field",
+                "hidden": "Hidden",
+                "is_defined_false": "Not defined",
+                "is_defined_true": "Defined",
+                "name": "Name",
+                "operator_equal": "Equal",
+                "operator_greaterthan": "Greater than",
+                "operator_greaterthanorequal": "Greater than or equal",
+                "operator_in": "One of",
+                "operator_isdefined": "Is defined",
+                "operator_lessthan": "Less than",
+                "operator_lessthanorequal": "Less than or equal",
+                "operator_not": "Not equal",
+                "or": "Or",
+                "query_builder_group": "Group of filters",
+                "query_builder_rule": "Filter",
+                "range_from": "From",
+                "range_to": "To",
+                "type": "Type",
+                "type_any": "Field of unknown type",
+                "type_attribute": "Key-value resource",
+                "type_date": "Date field",
+                "type_here": "Type here...",
+                "type_number": "Numeric field",
+                "type_string": "Text field",
+                "used_codes": "Codes used",
+                "value": "Value"
+              }
+            }
+          },
+          "card": {
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "Click to select",
+              "loading_error": "Unknown error"
+            }
+          },
+          "helper_text": "Template set determines which payment gateway and tokenization service will be used to capture card details."
+        },
+        "cc-token": {
+          "tokenize": "Save card",
+          "payment-card-embed": {
+            "stripe": {
+              "label": "Card details",
+              "status": {
+                "idle": "Your card details are securely processed by Stripe. Visit https://stripe.com to learn more.",
+                "busy": "Encrypting your card details...",
+                "fail": "This service is currently unavailable. Please try again later.",
+                "unsupported": "We don't support this card type. Please try another card."
+              }
+            },
+            "square": {
+              "label": "Card details",
+              "status": {
+                "idle": "Your card details are securely processed by Square. Visit https://squareup.com to learn more.",
+                "busy": "Encrypting your card details...",
+                "fail": "This service is currently unavailable. Please try again later.",
+                "unsupported": "We don't support this card type. Please try another card."
+              }
+            },
+            "default": {
+              "cc-number": {
+                "label": "Card number",
+                "placeholder": "1234 1234 1234 1234",
+                "v8n_required": "Enter a card number.",
+                "v8n_invalid": "Check your card number – it doesn't seem to be valid.",
+                "v8n_unsupported": "We don't support this card type."
+              },
+              "cc-exp": {
+                "label": "Expires on",
+                "placeholder": "MM/YYYY",
+                "v8n_required": "Enter an expiry date.",
+                "v8n_invalid": "Enter a date as MM/YYYY.",
+                "v8n_expired": "Your card has expired."
+              },
+              "cc-csc": {
+                "label": "CSC",
+                "placeholder": "XXX",
+                "v8n_required": "Enter a security code.",
+                "v8n_invalid": "Enter a 3-4 digits code."
+              },
+              "status": {
+                "idle": "Your card details are securely processed by Foxy.io. Visit https://foxy.io to learn more.",
+                "busy": "Encrypting your card details...",
+                "fail": "This service is currently unavailable. Please try again later.",
+                "misconfigured": "This form is not configured correctly. If you are seeing this message as a customer, please report this issue to the store support team."
+              }
+            }
+          }
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error",
+          "loading_empty": "This form works only with existing payment methods"
+        }
+      }
+    },
     "spinner": {
       "loading_busy": "Loading",
-      "loading_empty": "No data",
-      "loading_error": "Failed to load"
+      "loading_empty": "No payment method",
+      "loading_error": "Unknown error"
     }
   },
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   },
   "subscription-form": {
     "day": "Day",
@@ -773,7 +1001,7 @@
     "currency": "Currency",
     "daily": "Daily",
     "daily_plural": "Every {{count}} days",
-    "end_subscription": "End subscription",
+    "end_date": "End date",
     "frequency": "$t(subscription-form.{{units}}, { \"count\": {{count}}, \"ns\": \"customer\" })",
     "frequency_label": "Frequency",
     "item_plural": "Items",
@@ -803,7 +1031,7 @@
       "label": "Customer",
       "spinner": {
         "loading_busy": "Loading",
-        "loading_error": "Failed to load"
+        "loading_error": "Unknown error"
       }
     },
     "past-due-amount": {
@@ -829,7 +1057,7 @@
           "spinner": {
             "loading_busy": "Loading",
             "loading_empty": "No attributes",
-            "loading_error": "Failed to load"
+            "loading_error": "Unknown error"
           }
         }
       },
@@ -859,8 +1087,9 @@
         "visibility_public": "Everyone",
         "visibility_restricted": "Store admins",
         "spinner": {
+          "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_error": "Failed to load"
+          "loading_error": "Unknown error"
         }
       }
     },
@@ -889,7 +1118,7 @@
           "spinner": {
             "loading_busy": "Loading",
             "loading_empty": "No items",
-            "loading_error": "Failed to load"
+            "loading_error": "Unknown error"
           }
         }
       }
@@ -932,24 +1161,15 @@
           "spinner": {
             "loading_busy": "Loading",
             "loading_empty": "No transactions",
-            "loading_error": "Failed to load"
+            "loading_error": "Unknown error"
           }
         }
       }
     },
-    "cancellation-form": {
-      "end_date": "End date",
-      "end_subscription": "End subscription",
-      "end_subscription_explainer": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later.",
-      "v8n_required": "Required",
-      "spinner": {
-        "loading_busy": "Loading",
-        "loading_error": "Failed to load"
-      }
-    },
     "spinner": {
+      "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     },
     "timestamps": {
       "date_created": "Created on",
@@ -979,9 +1199,10 @@
     "yearly": "Yearly",
     "yearly_plural": "Every {{count}} years",
     "spinner": {
+      "refresh": "Refresh",
       "loading_busy": "Loading",
       "loading_empty": "No data",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     }
   },
   "transactions-table": {
@@ -1001,9 +1222,10 @@
     "transaction_verified": "Verified",
     "transaction_voided": "Voided",
     "spinner": {
+      "refresh": "Refresh",
       "loading_busy": "Loading",
       "loading_empty": "No data",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     }
   }
 }

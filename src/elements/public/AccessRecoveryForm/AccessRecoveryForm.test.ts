@@ -6,7 +6,7 @@ import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { AccessRecoveryForm } from './AccessRecoveryForm';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { InternalSandbox } from '../../internal/InternalSandbox';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { getByName } from '../../../testgen/getByName';

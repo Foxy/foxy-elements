@@ -1,6 +1,8 @@
 export enum UpdateResult {
   ResourceCreated,
   ResourceDeleted,
+  ResourceUpdated,
+  ResourceFetched,
 }
 
 export type UpdateEventDetail = {

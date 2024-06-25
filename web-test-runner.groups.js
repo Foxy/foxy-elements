@@ -12,6 +12,14 @@ export const groups = [
     files: './src/elements/internal/InternalAsyncListControl/**/*.test.ts',
   },
   {
+    name: 'foxy-internal-async-resource-link-list-control',
+    files: './src/elements/internal/InternalAsyncResourceLinkListControl/**/*.test.ts',
+  },
+  {
+    name: 'foxy-internal-bulk-add-action-control',
+    files: './src/elements/internal/InternalBulkAddActionControl/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-calendar',
     files: './src/elements/internal/InternalCalendar/**/*.test.ts',
   },
@@ -76,8 +84,16 @@ export const groups = [
     files: './src/elements/internal/InternalPasswordControl/**/*.test.ts',
   },
   {
+    name: 'foxy-internal-query-builder-control',
+    files: './src/elements/internal/InternalQueryBuilderControl/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-radio-group-control',
     files: './src/elements/internal/InternalRadioGroupControl/**/*.test.ts',
+  },
+  {
+    name: 'foxy-internal-resource-picker-control',
+    files: './src/elements/internal/InternalResourcePickerControl/**/*.test.ts',
   },
   {
     name: 'foxy-internal-sandbox',
@@ -264,6 +280,10 @@ export const groups = [
     files: './src/elements/public/CouponCard/**/*.test.ts',
   },
   {
+    name: 'foxy-coupon-code-card',
+    files: './src/elements/public/CouponCodeCard/**/*.test.ts',
+  },
+  {
     name: 'foxy-coupon-code-form',
     files: './src/elements/public/CouponCodeForm/**/*.test.ts',
   },
@@ -310,6 +330,10 @@ export const groups = [
   {
     name: 'foxy-customer-portal-settings',
     files: './src/elements/public/CustomerPortalSettings/**/*.test.ts',
+  },
+  {
+    name: 'foxy-customer-portal-settings-form',
+    files: './src/elements/public/CustomerPortalSettingsForm/**/*.test.ts',
   },
   {
     name: 'foxy-customers-table',
@@ -370,6 +394,10 @@ export const groups = [
   {
     name: 'foxy-gift-card-card',
     files: './src/elements/public/GiftCardCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-gift-card-code-card',
+    files: './src/elements/public/GiftCardCodeCard/**/*.test.ts',
   },
   {
     name: 'foxy-gift-card-code-form',
@@ -458,6 +486,10 @@ export const groups = [
   {
     name: 'foxy-payment-card',
     files: './src/elements/public/PaymentCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-payment-card-embed-element',
+    files: './src/elements/public/PaymentCardEmbedElement/**/*.test.ts',
   },
   {
     name: 'foxy-payment-method-card',
@@ -590,6 +622,10 @@ export const groups = [
   {
     name: 'foxy-transactions-table',
     files: './src/elements/public/TransactionsTable/**/*.test.ts',
+  },
+  {
+    name: 'foxy-update-payment-method-form',
+    files: './src/elements/public/UpdatePaymentMethodForm/**/*.test.ts',
   },
   {
     name: 'foxy-user-card',

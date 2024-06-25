@@ -21,6 +21,7 @@ import memoize from 'lodash-es/memoize';
 import { parseDuration } from '../../../utils/parse-duration';
 import { InferrableMixin } from '../../../mixins/inferrable';
 
+/** @deprecated – use internal controls instead */
 export class FrequencyInput extends TranslatableMixin(InferrableMixin(LitElement)) {
   static get properties(): PropertyDeclarations {
     return {

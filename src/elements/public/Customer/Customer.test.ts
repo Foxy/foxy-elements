@@ -11,7 +11,7 @@ import { Core } from '@foxy.io/sdk';
 import { Customer } from './Customer';
 import { Data } from './types';
 import { FormDialog } from '../FormDialog/FormDialog';
-import { InternalSandbox } from '../../internal/InternalSandbox';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { PaymentMethodCard } from '../PaymentMethodCard';
 import { Rels } from '@foxy.io/sdk/backend';
@@ -57,6 +57,13 @@ describe('Customer', () => {
 
   it('registers as foxy-customer', () => {
     expect(customElements.get('foxy-customer')).to.equal(Customer);
+  });
+
+  it('has a reactive property "embedUrl"', () => {
+    expect(new Customer()).to.have.property('embedUrl', null);
+    expect(Customer).to.have.deep.nested.property('properties.embedUrl', {
+      attribute: 'embed-url',
+    });
   });
 
   describe('header', () => {
@@ -1420,6 +1427,7 @@ describe('Customer', () => {
             <foxy-customer
               disabledcontrols="payment-methods:list:card:actions:delete"
               hiddencontrols="payment-methods:list:card:actions"
+              embed-url="https://embed.foxy.io/v1.html?demo=default"
               group="foo"
               lang="es"
             >
@@ -1433,6 +1441,7 @@ describe('Customer', () => {
 
           expect(card).to.have.attribute('disabledcontrols', 'actions:delete');
           expect(card).to.have.attribute('hiddencontrols', 'actions');
+          expect(card).to.have.attribute('embed-url', 'https://embed.foxy.io/v1.html?demo=default');
           expect(card).to.have.attribute('group', 'foo');
           expect(card).to.have.attribute('lang', 'es');
           expect(card!.templates).to.have.key('actions:before');

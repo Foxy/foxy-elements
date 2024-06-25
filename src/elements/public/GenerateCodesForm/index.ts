@@ -1,9 +1,8 @@
-import '@vaadin/vaadin-text-field/vaadin-integer-field';
-import '@vaadin/vaadin-text-field/vaadin-text-field';
-import '@vaadin/vaadin-button';
-import '../../internal/InternalSandbox/index';
-import '../Spinner/index';
-import '../I18n/index';
+import '../../internal/InternalIntegerControl/index';
+import '../../internal/InternalNumberControl/index';
+import '../../internal/InternalSourceControl/index';
+import '../../internal/InternalTextControl/index';
+import '../../internal/InternalForm/index';
 
 import { GenerateCodesForm } from './GenerateCodesForm';
 

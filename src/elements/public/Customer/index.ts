@@ -4,6 +4,7 @@ import '@polymer/iron-icons/editor-icons';
 import '@vaadin/vaadin-button';
 import '../../internal/InternalSandbox/index';
 import '../PaymentMethodCard/index';
+import '../UpdatePaymentMethodForm/index';
 import '../SubscriptionForm/index';
 import '../FormDialog/index';
 import '../TransactionsTable/index';

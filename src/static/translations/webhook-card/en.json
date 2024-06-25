@@ -1,7 +1,7 @@
 {
   "spinner": {
     "loading_busy": "Loading",
-    "loading_error": "Failed to load",
+    "loading_error": "Unknown error",
     "loading_empty": "No data"
   }
 }

@@ -8,7 +8,7 @@ import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { InternalCustomerPortalLoggedInView } from './InternalCustomerPortalLoggedInView';
 import { InternalCustomerPortalSubscriptions } from './InternalCustomerPortalSubscriptions';
 import { InternalCustomerPortalTransactions } from './InternalCustomerPortalTransactions';
-import { InternalSandbox } from '../../internal/InternalSandbox';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement';
 import { createRouter } from '../../../server/index';
 import { getByTag } from '../../../testgen/getByTag';
@@ -31,12 +31,21 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
     expect(new View()).to.have.deep.property('transactionsTableColumns', []);
   });
 
+  it('has a reactive property "embedUrl"', () => {
+    const View = InternalCustomerPortalLoggedInView;
+    expect(new View()).to.have.property('embedUrl', null);
+    expect(View).to.have.deep.nested.property('properties.embedUrl', {
+      attribute: 'embed-url',
+    });
+  });
+
   it('renders configurable foxy-customer by default', async () => {
     const element = await fixture<InternalCustomerPortalLoggedInView>(html`
       <foxy-internal-customer-portal-logged-in-view
         disabledcontrols="sign-in:recover"
         readonlycontrols="customer:header:actions:edit:form"
         hiddencontrols="access-recovery:header"
+        embed-url="https://embed.foxy.io/v1.html?demo=default"
         customer="https://demo.foxycart.com/s/customer/"
         group="foo"
         href="https://demo.foxycart.com/s/customer/customer_portal_settings"
@@ -52,6 +61,7 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
       'transactions',
       'subscriptions',
       'addresses:actions:create',
+      'payment-methods:list:card:actions:update:form:template-set',
       'header:actions:edit:form:is-anonymous',
       'header:actions:edit:form:forgot-password',
       'header:actions:edit:form:create',
@@ -62,6 +72,7 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
     expect(customer).to.have.attribute('disabledcontrols', '');
     expect(customer).to.have.attribute('readonlycontrols', 'header:actions:edit:form');
     expect(customer).to.have.attribute('hiddencontrols', hiddenByDefault.join(' '));
+    expect(customer).to.have.attribute('embed-url', 'https://embed.foxy.io/v1.html?demo=default');
     expect(customer).to.have.attribute('group', 'foo');
     expect(customer).to.have.attribute('lang', 'es');
     expect(customer).to.have.attribute('href', 'https://demo.foxycart.com/s/customer/');

@@ -281,6 +281,7 @@ describe('PaymentsApiPaymentPresetForm', () => {
 
     const item = await fixture(
       (control.item as ItemRenderer)({
+        simplifyNsLoading: false,
         readonlyControls: new BooleanSelector(''),
         disabledControls: new BooleanSelector(''),
         hiddenControls: new BooleanSelector(''),
@@ -370,6 +371,7 @@ describe('PaymentsApiPaymentPresetForm', () => {
 
     const item = await fixture(
       (control.item as ItemRenderer)({
+        simplifyNsLoading: false,
         readonlyControls: new BooleanSelector(''),
         disabledControls: new BooleanSelector(''),
         hiddenControls: new BooleanSelector(''),

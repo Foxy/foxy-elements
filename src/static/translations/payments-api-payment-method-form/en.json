@@ -1,6 +1,6 @@
 {
-  "select_method_title": "Select a payment method to get started",
-  "select_another_button_label": "Back to payment methods",
+  "select_method_title": "Select a payment method",
+  "select_another_button_label": "Select another",
   "default_additional_field_placeholder": "None",
   "conflict_message": "Remove {{ name }} to use this method",
   "tab_live": "Live setup",
@@ -47,8 +47,9 @@
     "date": "{{value, date}}"
   },
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   },
   "delete": {
     "delete": "Remove",

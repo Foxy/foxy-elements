@@ -9,6 +9,7 @@ export type Page = HALJSONResource & { _embedded: Record<string, HALJSONResource
 export type ExtractItem<T> = T extends { _embedded: Record<string, (infer U)[]> } ? U : never;
 
 export type ItemRendererContext<TItem extends HALJSONResource = HALJSONResource> = {
+  simplifyNsLoading: boolean;
   readonlyControls: BooleanSelector;
   disabledControls: BooleanSelector;
   hiddenControls: BooleanSelector;

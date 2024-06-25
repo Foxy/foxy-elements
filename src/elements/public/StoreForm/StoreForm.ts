@@ -498,14 +498,6 @@ export class StoreForm extends Base<Data> {
     }
 
     return html`
-      ${customerPasswordHashTypesLoader.render(this.customerPasswordHashTypes)}
-      ${shippingAddressTypesLoader.render(this.shippingAddressTypes)}
-      ${checkoutTypesLoader.render(this.checkoutTypes)}
-      ${storeVersionLoader.render(this.form.store_version_uri)}
-      ${localeCodesLoader.render(this.localeCodes)} ${timezonesLoader.render(this.timezones)}
-      ${countriesLoader.render(this.countries)} ${languagesLoader.render(this.languages)}
-      ${regionsLoader.render(regionsUrl)}
-
       <div class="grid gap-m grid-cols-1 sm-grid-cols-2">
         <foxy-internal-text-control infer="store-name"></foxy-internal-text-control>
 
@@ -743,6 +735,13 @@ export class StoreForm extends Base<Data> {
       </div>
 
       ${super.renderBody()}
+      ${customerPasswordHashTypesLoader.render(this.customerPasswordHashTypes)}
+      ${shippingAddressTypesLoader.render(this.shippingAddressTypes)}
+      ${checkoutTypesLoader.render(this.checkoutTypes)}
+      ${storeVersionLoader.render(this.form.store_version_uri)}
+      ${localeCodesLoader.render(this.localeCodes)} ${timezonesLoader.render(this.timezones)}
+      ${countriesLoader.render(this.countries)} ${languagesLoader.render(this.languages)}
+      ${regionsLoader.render(regionsUrl)}
     `;
   }
 

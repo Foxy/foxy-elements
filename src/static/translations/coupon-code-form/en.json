@@ -1,18 +1,75 @@
 {
-  "cancel": "Cancel",
-  "code": "Code",
-  "confirm": "Confirm",
-  "create": "Create",
-  "date": "{{value, date}}",
-  "date_created": "Created on",
-  "date_modified": "Last updated on",
-  "delete": "Delete",
-  "delete_prompt": "This resource will be permanently removed. Are you sure?",
-  "v8n_required": "Required",
-  "v8n_too_long": "Too long",
-  "v8n_code_has_spaces": "Spaces are not allowed in coupon codes",
+  "code": {
+    "label": "Code",
+    "placeholder": "Required",
+    "helper_text": "The string value of this coupon code which your customer will add to their cart to use this coupon.",
+    "v8n_required": "Please enter a coupon code",
+    "v8n_too_long": "Coupon code must be 50 characters or less",
+    "v8n_has_spaces": "Please remove spaces from the coupon code"
+  },
+  "number-of-uses-to-date": {
+    "label": "Number of uses",
+    "helper_text": "For informational purposes, this shows you how many times this coupon code has already been used."
+  },
+  "transactions": {
+    "label": "Transactions",
+    "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "code": "Code",
+        "customer": "Customer",
+        "description": "Description",
+        "price": "{{amount, price}}",
+        "time": "{{value, date}}",
+        "status_capturing": "Capturing",
+        "status_captured": "Captured",
+        "status_approved": "Approved",
+        "status_authorized": "Authorized",
+        "status_pending": "Pending",
+        "status_completed": "Completed",
+        "status_problem": "Problem",
+        "status_pending_fraud_review": "Pending_fraud_review",
+        "status_rejected": "Rejected",
+        "status_declined": "Declined",
+        "status_refunding": "Refunding",
+        "status_refunded": "Refunded",
+        "status_voided": "Voided",
+        "status_verified": "Verified",
+        "summary": "{{most_expensive_item.name}}",
+        "summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
+        "summary_payment_method_change": "Payment method change",
+        "summary_subscription_modification": "Subscription modification",
+        "summary_subscription_cancellation": "Subscription cancellation",
+        "source_MIT": "This transaction was initiated by the merchant",
+        "source_CIT": "This transaction was initiated by the customer",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No transactions",
+          "loading_error": "Unknown error"
+        }
+      }
+    }
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this coupon code? You won't be able to bring it back."
+  },
+  "create": {
+    "create": "Create"
+  },
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

@@ -1,0 +1,282 @@
+import { Meta, Story, Title, Canvas, Subtitle } from '@web/storybook-prebuilt/addon-docs/blocks.js';
+import { html } from 'lit-html';
+import '../index.ts';
+
+<Meta title="Other / PaymentCardEmbedElement" />
+
+<Title>PaymentCardEmbedElement</Title>
+
+<Subtitle>
+  A secure, PCI-compliant way to collect payment information with support for Stripe, Square and
+  embedded gateways.
+</Subtitle>
+
+PaymentCardEmbedElement is a custom element wrapper for the `SDK.Customer.PaymentCardEmbed` class. If you're already using other Foxy Elements like Customer Portal in your projects, this is the recommended way to collect payment information from your customers. Othwerwise, you can use the SDK directly to reduce the bundle size.
+
+<Canvas
+  mdxSource={`
+<script type="module" src="https://cdn-js.foxy.io/elements@1/foxy-payment-card-embed.js"></script>
+<foxy-payment-card-embed url="https://embed.foxy.io/v1.html?template_set_id=123"></foxy-payment-card-embed>
+`}
+  isExpanded
+>
+  <Story name="Default">
+    {() =>
+      html`<foxy-payment-card-embed
+        lang="en"
+        url="https://embed.foxy.io/v1.html?demo=default"
+      ></foxy-payment-card-embed>`
+    }
+  </Story>
+  <Story name="Stripe">
+    {() =>
+      html`<foxy-payment-card-embed
+        lang="en"
+        url="https://embed.foxy.io/v1.html?demo=stripe"
+      ></foxy-payment-card-embed>`
+    }
+  </Story>
+  <Story name="Square">
+    {() =>
+      html`<foxy-payment-card-embed
+        lang="en"
+        url="https://embed.foxy.io/v1.html?demo=square"
+      ></foxy-payment-card-embed>`
+    }
+  </Story>
+</Canvas>
+
+To adapt the example above to your use case, replace the template set ID in the `url` attribute value with your own. The element will load the UI for the appropriate gateway based on the template set configuration.
+
+## Styling
+
+Like all other elements in this library, PaymentCardEmbedElement is designed to be styled with CSS custom properties. You can apply them the same way you would with any other element. Here's the list of all supported properties and their default values:
+
+```css
+foxy-payment-card-embed {
+  --lumo-space-m: 1rem;
+  --lumo-space-s: 0.5rem;
+  --lumo-contrast-5pct: hsla(214, 57%, 24%, 0.05);
+  --lumo-contrast-10pct: hsla(214, 57%, 24%, 0.1);
+  --lumo-contrast-50pct: hsla(214, 57%, 24%, 0.5);
+  --lumo-size-m: 2.25rem;
+  --lumo-size-xs: 1.625rem;
+  --lumo-border-radius-m: 0.25em;
+  --lumo-border-radius-s: 0.25em;
+  --lumo-font-family: -apple-system, BlinkMacSystemFont, 'Roboto', 'Segoe UI', Helvetica, Arial,
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  --lumo-font-size-m: 1rem;
+  --lumo-font-size-s: 0.875rem;
+  --lumo-font-size-xs: 0.8125rem;
+  --lumo-primary-color: hsl(214, 100%, 48%);
+  --lumo-primary-text-color: hsl(214, 100%, 43%);
+  --lumo-primary-color-50pct: hsla(214, 100%, 49%, 0.5);
+  --lumo-secondary-text-color: hsla(214, 42%, 18%, 0.69);
+  --lumo-disabled-text-color: hsla(214, 50%, 22%, 0.26);
+  --lumo-body-text-color: hsla(214, 40%, 16%, 0.94);
+  --lumo-error-text-color: hsl(3, 89%, 42%);
+  --lumo-error-color-10pct: hsla(3, 85%, 49%, 0.1);
+  --lumo-error-color-50pct: hsla(3, 85%, 49%, 0.5);
+  --lumo-line-height-xs: 1.25;
+  --lumo-base-color: white;
+}
+```
+
+You can see styling in action in the demos above. All of them are using the Foxy Brand theme, which is a part of all our newer products like [New Admin Beta](https://admin.foxy.io). The element itself ships with a generic theme. We recommend using it as a base and customizing it to match your brand.
+
+Please note that the default provider and Stripe support all web-safe fonts and free fonts available on Google Fonts. Square supports only web-safe fonts inside of the card element but you can use Google Fonts for surrounding text. There is no support for other custom fonts at the moment.
+
+## Translating
+
+PaymentCardEmbedElement comes with English translations only by default. If you need to support more languages, you can do so by using the same i18n approach as with other elements in this library. Here's an example of how you can add Spanish translations for the default configuration:
+
+```html
+<foxy-payment-card-embed
+  lang="es"
+  url="https://embed.foxy.io/v1.html?template_set_id=123"
+  ns="my-payment-card-embed"
+>
+</foxy-payment-card-embed>
+
+<script type="module">
+  import 'https://cdn-js.foxy.io/elements@1/foxy-payment-card-embed.js';
+
+  const { i18next } = customElements.get('foxy-i18n');
+
+  i18next.addResourceBundle('es', 'my-payment-card-embed', {
+    default: {
+      'cc-number': {
+        label: 'Número de tarjeta',
+        placeholder: '1234 1234 1234 1234',
+        v8n_required: 'Ingrese su número de tarjeta.',
+        v8n_invalid: 'Verifique su número de tarjeta, no parece ser válido.',
+        v8n_unsupported: 'No aceptamos este tipo de tarjeta.',
+      },
+      'cc-exp': {
+        label: 'Vence el',
+        placeholder: 'MM/AAAA',
+        v8n_required: 'Ingrese una fecha de vencimiento.',
+        v8n_invalid: 'Ingrese una fecha en formato MM/AAAA.',
+        v8n_expired: 'Su tarjeta ha vencido.',
+      },
+      'cc-csc': {
+        label: 'CSC',
+        placeholder: 'XXX',
+        v8n_required: 'Ingrese un código de seguridad.',
+        v8n_invalid: 'Ingrese un código de 3-4 dígitos.',
+      },
+      'status': {
+        idle: 'Sus datos de tarjeta se procesan de forma segura por Foxy.io. Visite https://foxy.io para obtener más información.',
+        busy: 'Encriptando sus datos de tarjeta...',
+        fail: 'Este servicio no está disponible en este momento. Por favor, inténtelo de nuevo más tarde.',
+        misconfigured:
+          'Este formulario no está configurado correctamente. Si está viendo este mensaje como cliente, informe este problema al equipo de soporte de la tienda.',
+      },
+    },
+  });
+</script>
+```
+
+You can use the same approach to add translations for the text surrounding Stripe and Square Card elements. Unfortunately, these providers do not allow customizing the text inside of the Card elements themselves. Additionally, Stripe will accept only a [limited number of languages](https://docs.stripe.com/js/appendix/supported_locales) and Square will always display the text in the language of the browser.
+
+Here are the language strings you can customize for Stripe:
+
+```js
+i18next.addResourceBundle('es', 'my-payment-card-embed', {
+  stripe: {
+    label: 'Detalles de la tarjeta',
+    status: {
+      idle: 'Sus detalles de tarjeta se procesan de forma segura por Stripe. Visite https://stripe.com para obtener más información.',
+      busy: 'Encriptando sus detalles de tarjeta...',
+      fail: 'Este servicio no está disponible en este momento. Por favor, inténtelo de nuevo más tarde.',
+    },
+  },
+});
+```
+
+And here are the language strings you can customize for Square:
+
+```js
+i18next.addResourceBundle('es', 'my-payment-card-embed', {
+  square: {
+    label: 'Detalles de la tarjeta',
+    status: {
+      idle: 'Sus detalles de tarjeta se procesan de forma segura por Square. Visite https://squareup.com para obtener más información.',
+      busy: 'Encriptando sus detalles de tarjeta...',
+      fail: 'Este servicio no está disponible en este momento. Por favor, inténtelo de nuevo más tarde.',
+    },
+  },
+});
+```
+
+## Interactivity
+
+Like all inputs in this library, PaymentCardEmbedElement has support for disabled and readonly states. You can toggle them by setting the `disabled` and `readonly` attributes respectively. In both cases that will prevent the user from interacting with the element but the styles and semantics will be slightly different.
+
+### Disabled
+
+<Canvas
+  mdxSource={`<foxy-payment-card-embed url="https://embed.foxy.io/v1.html?template_set_id=123" disabled></foxy-payment-card-embed>`}
+  isExpanded
+>
+  <Story name="DefaultDisabled">
+    {() =>
+      html`<foxy-payment-card-embed
+        lang="en"
+        url="https://embed.foxy.io/v1.html?demo=default"
+        disabled
+      ></foxy-payment-card-embed>`
+    }
+  </Story>
+  <Story name="StripeDisabled">
+    {() =>
+      html`<foxy-payment-card-embed
+        lang="en"
+        url="https://embed.foxy.io/v1.html?demo=stripe"
+        disabled
+      ></foxy-payment-card-embed>`
+    }
+  </Story>
+  <Story name="SquareDisabled">
+    {() =>
+      html`<foxy-payment-card-embed
+        lang="en"
+        url="https://embed.foxy.io/v1.html?demo=square"
+        disabled
+      ></foxy-payment-card-embed>`
+    }
+  </Story>
+</Canvas>
+
+### Readonly
+
+<Canvas
+  mdxSource={`<foxy-payment-card-embed url="https://embed.foxy.io/v1.html?template_set_id=123" readonly></foxy-payment-card-embed>`}
+  isExpanded
+>
+  <Story name="DefaultReadonly">
+    {() =>
+      html`<foxy-payment-card-embed
+        lang="en"
+        url="https://embed.foxy.io/v1.html?demo=default"
+        readonly
+      ></foxy-payment-card-embed>`
+    }
+  </Story>
+  <Story name="StripeReadonly">
+    {() =>
+      html`<foxy-payment-card-embed
+        lang="en"
+        url="https://embed.foxy.io/v1.html?demo=stripe"
+        readonly
+      ></foxy-payment-card-embed>`
+    }
+  </Story>
+  <Story name="SquareReadonly">
+    {() =>
+      html`<foxy-payment-card-embed
+        lang="en"
+        url="https://embed.foxy.io/v1.html?demo=square"
+        readonly
+      ></foxy-payment-card-embed>`
+    }
+  </Story>
+</Canvas>
+
+The embed will also automatically disable the form controls while the form is submitted for tokenization. The embed will restore the previous state once the tokenization process is complete.
+
+## Getting the card token
+
+To tokenize card details, call the `tokenize` method on the element. This method returns a promise that resolves with the tokenized card details (string) or rejects if card token can't be created. The rejection can happen because of invalid or incomplete card details, network issues, or other reasons. In this version we don't provide any information about the reason of rejection and suggest treating all rejections as a generic "missing card info" error.
+
+```js
+const element = document.querySelector('foxy-payment-card-embed');
+
+element
+  .tokenize()
+  .then(cardToken => {
+    console.log(cardToken);
+  })
+  .catch(() => {
+    console.error('Card tokenization failed.');
+  });
+```
+
+Once you have the token, you can use it to update customer's default payment method by sending a `PATCH` request to the customer endpoint with the token as a value of the `cc_token` property. This feeature is available both in Backend (`api.foxy.io/customers/123/default_payment_method`) and Customer API (`your-store.foxycart.com/s/customer/default_payment_method`) endpoints. Note that the card token has a limited lifespan and should be used immediately after it's created.
+
+## Clearing the form
+
+To clear the form, call the `clear` method on the element. This method will reset all form controls to their initial state.
+
+```js
+const element = document.querySelector('foxy-payment-card-embed');
+element.clear();
+```
+
+## Demo mode
+
+The element supports a demo mode that allows you to see how it works without setting up a template set. To enable the demo mode, set the `url` attribute to one of the following URLs:
+
+- Default form: `https://embed.foxy.io/v1.html?demo=default`
+- Stripe Card: `https://embed.foxy.io/v1.html?demo=stripe`
+- Square Card: `https://embed.foxy.io/v1.html?demo=square`

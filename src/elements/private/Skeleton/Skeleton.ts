@@ -9,6 +9,7 @@ import {
 
 import { Themeable } from '../../../mixins/themeable';
 
+/** @deprecated – use internal controls instead */
 export class Skeleton extends LitElement {
   public static get styles(): CSSResultArray {
     return [

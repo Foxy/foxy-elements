@@ -1,4 +1,4 @@
-import type { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl';
+import type { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl/InternalAsyncComboBoxControl';
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
 
 import './index';

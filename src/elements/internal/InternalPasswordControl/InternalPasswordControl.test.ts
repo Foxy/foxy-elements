@@ -59,6 +59,23 @@ describe('InternalTextControl', () => {
     expect(customElements.get('foxy-internal-password-control')).to.equal(Control);
   });
 
+  it('has a reactive property for "generatorOptions"', () => {
+    expect(Control).to.have.deep.nested.property('properties.generatorOptions', {
+      attribute: 'generator-options',
+      type: Object,
+    });
+
+    expect(new Control()).to.have.property('generatorOptions', null);
+  });
+
+  it('has a reactive property for "showGenerator"', () => {
+    expect(Control).to.have.deep.nested.property('properties.showGenerator', {
+      attribute: 'show-generator',
+      type: Boolean,
+    });
+    expect(new Control()).to.have.property('showGenerator', false);
+  });
+
   it('extends InternalEditableControl', () => {
     expect(new Control()).to.be.instanceOf(InternalEditableControl);
   });
@@ -197,7 +214,7 @@ describe('InternalTextControl', () => {
     submitMethod.restore();
   });
 
-  it('shows a password generator button when "showPasswordGenerator" is true', async () => {
+  it('shows a password generator button when "showGenerator" is true', async () => {
     const control = await fixture<TestControl>(html`
       <test-internal-password-control show-generator></test-internal-password-control>
     `);
@@ -213,5 +230,25 @@ describe('InternalTextControl', () => {
 
     button = control.renderRoot.querySelector<HTMLElement>('[data-testid="generator"]')!;
     expect(button).to.not.exist;
+  });
+
+  it('uses password generator options when generating a password', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-password-control show-generator></test-internal-password-control>
+    `);
+
+    const button = control.renderRoot.querySelector<HTMLElement>('[data-testid="generator"]')!;
+    expect(button).to.exist;
+
+    button.click();
+    expect(control.testValue).to.match(/^[a-zA-Z0-9]{6}-[a-zA-Z0-9]{6}-[a-zA-Z0-9]{6}$/);
+
+    control.generatorOptions = {
+      charset: 'abcdefghijklmnopqrstuvwxyz0123456789',
+      length: 12,
+    };
+
+    button.click();
+    expect(control.testValue).to.match(/^[a-z0-9]{6}-[a-z0-9]{6}$/);
   });
 });

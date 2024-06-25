@@ -14,6 +14,7 @@ import { CheckboxChangeEvent } from './CheckboxChangeEvent';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 
+/** @deprecated – use internal controls instead */
 export class Checkbox extends ThemeableMixin(LitElement) {
   static get properties(): PropertyDeclarations {
     return {

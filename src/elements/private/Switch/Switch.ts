@@ -10,6 +10,7 @@ export class SwitchChangeEvent extends CustomEvent<boolean> {
   }
 }
 
+/** @deprecated – use internal controls instead */
 export class Switch extends LitElement {
   public static get properties(): PropertyDeclarations {
     return {

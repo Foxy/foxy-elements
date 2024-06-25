@@ -2,8 +2,9 @@
   "date": "{{value, date}}",
   "date_created": "Created on",
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load",
+    "loading_error": "Unknown error",
     "loading_empty": "No data"
   }
 }
