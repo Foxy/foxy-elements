@@ -43,7 +43,10 @@ export class InternalSelectControl extends InternalEditableControl {
         ?readonly=${this.readonly}
         clear-button-visible
         .checkValidity=${this._checkValidity}
-        .items=${this.options.map(({ value, label }) => ({ value, label: this.t(label) }))}
+        .items=${this.options.map(option => ({
+          label: 'label' in option ? this.t(option.label) : option.rawLabel,
+          value: option.value,
+        }))}
         .value=${this._value}
         @change=${(evt: CustomEvent) => {
           evt.stopPropagation();
