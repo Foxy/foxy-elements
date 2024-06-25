@@ -118,7 +118,7 @@ export class TemplateSetForm extends Base<Data> {
 
   renderBody(): TemplateResult {
     const localeCodeEntries = Object.entries(this.__localeCodesLoader?.data?.values ?? {});
-    const localeCodes = localeCodeEntries.map(([value, label]) => ({ value, label }));
+    const localeCodes = localeCodeEntries.map(([value, rawLabel]) => ({ value, rawLabel }));
 
     const languageEntries = Object.entries(this.__languagesLoader?.data?.values ?? {});
     const languages = languageEntries.map(([value, label]) => ({ value, label }));

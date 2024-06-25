@@ -162,7 +162,7 @@ describe('TemplateSetForm', () => {
 
     const helperHref = 'https://demo.api/hapi/property_helpers/7';
     const helper = await getTestData<Resource<Rels.LocaleCodes>>(helperHref, router);
-    const options = Object.entries(helper.values).map(v => ({ value: v[0], label: v[1] }));
+    const options = Object.entries(helper.values).map(v => ({ value: v[0], rawLabel: v[1] }));
 
     const element = await fixture<Form>(html`
       <foxy-template-set-form
