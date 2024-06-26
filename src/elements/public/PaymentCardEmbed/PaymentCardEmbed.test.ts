@@ -1,14 +1,14 @@
 import './index';
 
 import { expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
-import { PaymentCardEmbedElement } from './PaymentCardEmbedElement';
-import { PaymentCardEmbed } from '@foxy.io/sdk/customer';
+import { PaymentCardEmbed } from './PaymentCardEmbed';
+import { PaymentCardEmbed as SDKPaymentCardEmbed } from '@foxy.io/sdk/customer';
 import { LitElement } from 'lit-element';
 import { I18n } from '../I18n/I18n';
 import { stub } from 'sinon';
 
-class TestElement extends PaymentCardEmbedElement {
-  static readonly PaymentCardEmbed = class extends PaymentCardEmbed {
+class TestElement extends PaymentCardEmbed {
+  static readonly PaymentCardEmbed = class extends SDKPaymentCardEmbed {
     configure = stub();
 
     mount = stub().resolves();
@@ -22,7 +22,7 @@ class TestElement extends PaymentCardEmbedElement {
 
 customElements.define('test-element', TestElement);
 
-describe('PaymentCardEmbedElement', () => {
+describe('PaymentCardEmbed', () => {
   it('imports and defines foxy-spinner element', () => {
     expect(customElements.get('foxy-spinner')).to.exist;
   });
@@ -32,25 +32,25 @@ describe('PaymentCardEmbedElement', () => {
   });
 
   it('defines itself as foxy-payment-card-embed element', () => {
-    expect(customElements.get('foxy-payment-card-embed')).to.equal(PaymentCardEmbedElement);
+    expect(customElements.get('foxy-payment-card-embed')).to.equal(PaymentCardEmbed);
   });
 
   it('exposes PaymentCardEmbed class as a static property', () => {
-    expect(PaymentCardEmbedElement.PaymentCardEmbed).to.equal(PaymentCardEmbed);
+    expect(PaymentCardEmbed.PaymentCardEmbed).to.equal(SDKPaymentCardEmbed);
   });
 
   it('has a default i18next namespace "payment-card-embed"', () => {
-    expect(PaymentCardEmbedElement).to.have.property('defaultNS', 'payment-card-embed');
-    expect(new PaymentCardEmbedElement()).to.have.property('ns', 'payment-card-embed');
+    expect(PaymentCardEmbed).to.have.property('defaultNS', 'payment-card-embed');
+    expect(new PaymentCardEmbed()).to.have.property('ns', 'payment-card-embed');
   });
 
   it('extends LitElement', () => {
-    expect(new PaymentCardEmbedElement()).to.be.instanceOf(LitElement);
+    expect(new PaymentCardEmbed()).to.be.instanceOf(LitElement);
   });
 
   it('has a reactive property "url" that defaults to null', () => {
-    expect(PaymentCardEmbedElement).to.have.deep.nested.property('properties.url', {});
-    expect(new PaymentCardEmbedElement()).to.have.property('url', null);
+    expect(PaymentCardEmbed).to.have.deep.nested.property('properties.url', {});
+    expect(new PaymentCardEmbed()).to.have.property('url', null);
   });
 
   it('renders a spinner by default', async () => {
@@ -160,22 +160,22 @@ describe('PaymentCardEmbedElement', () => {
         '--lumo-contrast-50pct': 'rgba(28, 48, 74, 0.5)',
         '--lumo-size-m': '36px',
         '--lumo-size-xs': '26px',
-        '--lumo-border-radius-m': '8px',
+        '--lumo-border-radius-m': '4px',
         '--lumo-border-radius-s': '4px',
         '--lumo-font-family':
           '-apple-system, "system-ui", Roboto, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
         '--lumo-font-size-m': '16px',
         '--lumo-font-size-s': '14px',
         '--lumo-font-size-xs': '13px',
-        '--lumo-primary-color': 'rgba(26, 57, 96, 0.1)',
-        '--lumo-primary-text-color': 'rgba(26, 57, 96, 0.1)',
-        '--lumo-primary-color-50pct': 'rgba(26, 57, 96, 0.1)',
-        '--lumo-secondary-text-color': 'rgba(26, 57, 96, 0.1)',
+        '--lumo-primary-color': 'rgb(22, 118, 243)',
+        '--lumo-primary-text-color': 'rgb(22, 118, 243)',
+        '--lumo-primary-color-50pct': 'rgba(22, 118, 243, 0.5)',
+        '--lumo-secondary-text-color': 'rgba(27, 43, 65, 0.72)',
         '--lumo-disabled-text-color': 'rgba(28, 52, 84, 0.26)',
-        '--lumo-body-text-color': 'rgba(0, 0, 0, 0)',
-        '--lumo-error-text-color': 'rgba(28, 52, 84, 0.26)',
-        '--lumo-error-color-10pct': 'rgba(28, 52, 84, 0.26)',
-        '--lumo-error-color-50pct': 'rgba(28, 52, 84, 0.26)',
+        '--lumo-body-text-color': 'rgba(24, 39, 57, 0.94)',
+        '--lumo-error-text-color': 'rgb(245, 36, 25)',
+        '--lumo-error-color-10pct': 'rgba(255, 61, 51, 0.1)',
+        '--lumo-error-color-50pct': 'rgba(255, 61, 51, 0.5)',
         '--lumo-line-height-xs': '20px',
         '--lumo-base-color': 'rgb(255, 255, 255)',
       },

@@ -2,16 +2,16 @@ import { Meta, Story, Title, Canvas, Subtitle } from '@web/storybook-prebuilt/ad
 import { html } from 'lit-html';
 import '../index.ts';
 
-<Meta title="Other / PaymentCardEmbedElement" />
+<Meta title="Other / PaymentCardEmbed" />
 
-<Title>PaymentCardEmbedElement</Title>
+<Title>PaymentCardEmbed</Title>
 
 <Subtitle>
   A secure, PCI-compliant way to collect payment information with support for Stripe, Square and
   embedded gateways.
 </Subtitle>
 
-PaymentCardEmbedElement is a custom element wrapper for the `SDK.Customer.PaymentCardEmbed` class. If you're already using other Foxy Elements like Customer Portal in your projects, this is the recommended way to collect payment information from your customers. Othwerwise, you can use the SDK directly to reduce the bundle size.
+PaymentCardEmbed is a custom element wrapper for the `SDK.Customer.PaymentCardEmbed` class. If you're already using other Foxy Elements like Customer Portal in your projects, this is the recommended way to collect payment information from your customers. Othwerwise, you can use the SDK directly to reduce the bundle size.
 
 <Canvas
   mdxSource={`
@@ -50,7 +50,7 @@ To adapt the example above to your use case, replace the template set ID in the 
 
 ## Styling
 
-Like all other elements in this library, PaymentCardEmbedElement is designed to be styled with CSS custom properties. You can apply them the same way you would with any other element. Here's the list of all supported properties and their default values:
+Like all other elements in this library, PaymentCardEmbed is designed to be styled with CSS custom properties. You can apply them the same way you would with any other element. Here's the list of all supported properties and their default values:
 
 ```css
 foxy-payment-card-embed {
@@ -88,7 +88,7 @@ Please note that the default provider and Stripe support all web-safe fonts and 
 
 ## Translating
 
-PaymentCardEmbedElement comes with English translations only by default. If you need to support more languages, you can do so by using the same i18n approach as with other elements in this library. Here's an example of how you can add Spanish translations for the default configuration:
+PaymentCardEmbed comes with English translations only by default. If you need to support more languages, you can do so by using the same i18n approach as with other elements in this library. Here's an example of how you can add Spanish translations for the default configuration:
 
 ```html
 <foxy-payment-card-embed
@@ -171,7 +171,7 @@ i18next.addResourceBundle('es', 'my-payment-card-embed', {
 
 ## Interactivity
 
-Like all inputs in this library, PaymentCardEmbedElement has support for disabled and readonly states. You can toggle them by setting the `disabled` and `readonly` attributes respectively. In both cases that will prevent the user from interacting with the element but the styles and semantics will be slightly different.
+Like all inputs in this library, PaymentCardEmbed has support for disabled and readonly states. You can toggle them by setting the `disabled` and `readonly` attributes respectively. In both cases that will prevent the user from interacting with the element but the styles and semantics will be slightly different.
 
 ### Disabled
 
@@ -262,7 +262,7 @@ element
   });
 ```
 
-Once you have the token, you can use it to update customer's default payment method by sending a `PATCH` request to the customer endpoint with the token as a value of the `cc_token` property. This feeature is available both in Backend (`api.foxy.io/customers/123/default_payment_method`) and Customer API (`your-store.foxycart.com/s/customer/default_payment_method`) endpoints. Note that the card token has a limited lifespan and should be used immediately after it's created.
+Once you have the token, you can use it to update customer's default payment method by sending a `PATCH` request to the customer endpoint with the token as a value of the `cc_token` property. This feature is available both in Backend (`api.foxy.io/customers/123/default_payment_method`) and Customer API (`your-store.foxycart.com/s/customer/default_payment_method`) endpoints. Note that the card token has a limited lifespan and should be used immediately after it's created.
 
 ## Clearing the form
 
