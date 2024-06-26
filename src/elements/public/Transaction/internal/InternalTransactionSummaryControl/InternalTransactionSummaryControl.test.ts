@@ -52,7 +52,7 @@ describe('Transaction', () => {
 
       expect(value).to.exist;
       expect(value).to.have.deep.property('options', {
-        currencyDisplay: 'code',
+        currencyDisplay: 'symbol',
         signDisplay: 'auto',
         amount: '10 USD',
       });

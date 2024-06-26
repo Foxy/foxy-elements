@@ -5,7 +5,7 @@ import type { TemplateResult } from 'lit-html';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { LitElement, html } from 'lit-element';
-import { PaymentCardEmbed } from '@foxy.io/sdk/customer';
+import { PaymentCardEmbed as SDKPaymentCardEmbed } from '@foxy.io/sdk/customer';
 import { InferrableMixin } from '../../../mixins/inferrable';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
@@ -23,8 +23,8 @@ const Base = ConfigurableMixin(TranslatableMixin(InferrableMixin(ThemeableMixin(
  * @element foxy-payment-card-embed
  * @since 1.27.0
  */
-export class PaymentCardEmbedElement extends Base {
-  static readonly PaymentCardEmbed = PaymentCardEmbed;
+export class PaymentCardEmbed extends Base {
+  static readonly PaymentCardEmbed = SDKPaymentCardEmbed;
 
   static get properties(): PropertyDeclarations {
     return {
@@ -46,7 +46,7 @@ export class PaymentCardEmbedElement extends Base {
 
   private __configRefreshInterval: NodeJS.Timeout | null = null;
 
-  private __embed: PaymentCardEmbed | null = null;
+  private __embed: SDKPaymentCardEmbed | null = null;
 
   private __ready = false;
 
@@ -211,7 +211,7 @@ export class PaymentCardEmbedElement extends Base {
       this.__ready = false;
       this.__embed = null;
     } else {
-      const This = this.constructor as typeof PaymentCardEmbedElement;
+      const This = this.constructor as typeof PaymentCardEmbed;
       this.__embed = new This.PaymentCardEmbed({ url, ...config });
       this.__embed.mount(root).then(() => (this.__ready = true));
       this.__embed.onsubmit = () => this.dispatchEvent(new CustomEvent('submit'));

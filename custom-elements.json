@@ -9830,7 +9830,7 @@
       "attributes": [
         {
           "name": "embed-url",
-          "description": "URL of the Payment Card Embed for updating payment method.\nWhen set, the payment method will be editable. Otherwise, the customers\nwill only be able to view and delete it.\n\n```html\n<foxy-customer-portal\n  embed-url=\"https://embed.foxy.io/v1.html?template_set=123\"\n  base=\"https://demo.foxycart.com/s/customer/\"\n>\n</foxy-customer-portal>\n```"
+          "description": "URL of the Payment Card Embed for updating payment method.\nWhen set, the payment method will be editable. Otherwise, the customers\nwill only be able to view and delete it.\n\n```html\n<foxy-customer-portal\n  embed-url=\"https://embed.foxy.io/v1.html?template_set_id=123\"\n  base=\"https://demo.foxycart.com/s/customer/\"\n>\n</foxy-customer-portal>\n```"
         },
         {
           "name": "group",
@@ -9915,7 +9915,7 @@
         {
           "name": "embedUrl",
           "attribute": "embed-url",
-          "description": "URL of the Payment Card Embed for updating payment method.\nWhen set, the payment method will be editable. Otherwise, the customers\nwill only be able to view and delete it.\n\n```html\n<foxy-customer-portal\n  embed-url=\"https://embed.foxy.io/v1.html?template_set=123\"\n  base=\"https://demo.foxycart.com/s/customer/\"\n>\n</foxy-customer-portal>\n```"
+          "description": "URL of the Payment Card Embed for updating payment method.\nWhen set, the payment method will be editable. Otherwise, the customers\nwill only be able to view and delete it.\n\n```html\n<foxy-customer-portal\n  embed-url=\"https://embed.foxy.io/v1.html?template_set_id=123\"\n  base=\"https://demo.foxycart.com/s/customer/\"\n>\n</foxy-customer-portal>\n```"
         },
         {
           "name": "group",
@@ -20911,7 +20911,7 @@
     },
     {
       "name": "foxy-payment-card-embed",
-      "path": "./src/elements/public/PaymentCardEmbedElement/index.ts",
+      "path": "./src/elements/public/PaymentCardEmbed/index.ts",
       "description": "A secure, PCI-compliant element for collecting payment card information with\nsupport for Stripe, Square and embedded gateways.",
       "attributes": [
         {
@@ -20972,6 +20972,11 @@
         }
       ],
       "properties": [
+        {
+          "name": "PaymentCardEmbed",
+          "type": "typeof PaymentCardEmbed",
+          "default": "\"SDKPaymentCardEmbed\""
+        },
         {
           "name": "url",
           "attribute": "url",
@@ -21060,6 +21065,12 @@
           "attribute": "infer",
           "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
           "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "CustomEvent",
+          "description": "Instance of `CustomEvent` with type `submit`. Dispatched when the user submits the form (not available for Stripe)."
         }
       ]
     },

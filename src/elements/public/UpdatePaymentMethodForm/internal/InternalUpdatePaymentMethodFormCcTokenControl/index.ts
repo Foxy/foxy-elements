@@ -1,5 +1,5 @@
 import '../../../../internal/InternalControl/index';
-import '../../../PaymentCardEmbedElement/index';
+import '../../../PaymentCardEmbed/index';
 import '../../../I18n/index';
 
 import '@vaadin/vaadin-button';

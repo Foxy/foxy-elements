@@ -1,4 +1,4 @@
-import type { PaymentCardEmbedElement } from '../../../PaymentCardEmbedElement/PaymentCardEmbedElement';
+import type { PaymentCardEmbed } from '../../../PaymentCardEmbed/PaymentCardEmbed';
 import type { NucleonElement } from '../../../NucleonElement/NucleonElement';
 
 import '../../../NucleonElement/index';
@@ -70,9 +70,7 @@ describe('UpdatePaymentMethodForm', () => {
       expect(button).to.exist;
       expect(button).to.have.attribute('theme', 'primary');
 
-      const embed = control.renderRoot.querySelector(
-        'foxy-payment-card-embed'
-      ) as PaymentCardEmbedElement;
+      const embed = control.renderRoot.querySelector('foxy-payment-card-embed') as PaymentCardEmbed;
 
       const tokenize = stub(embed, 'tokenize').resolves('test-token');
       const edit = stub(nucleon, 'edit');
@@ -113,9 +111,7 @@ describe('UpdatePaymentMethodForm', () => {
       expect(label).to.exist;
       expect(label).to.have.attribute('infer', '');
 
-      const embed = control.renderRoot.querySelector(
-        'foxy-payment-card-embed'
-      ) as PaymentCardEmbedElement;
+      const embed = control.renderRoot.querySelector('foxy-payment-card-embed') as PaymentCardEmbed;
 
       const tokenize = stub(embed, 'tokenize').resolves('test-token');
       const edit = stub(nucleon, 'edit');

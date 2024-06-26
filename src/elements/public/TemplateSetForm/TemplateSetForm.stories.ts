@@ -26,10 +26,17 @@ const summary: Summary = {
 
 export default getMeta(summary);
 
-export const Playground = getStory({ ...summary, code: true });
-export const Empty = getStory(summary);
-export const Error = getStory(summary);
-export const Busy = getStory(summary);
+const ext = `
+  payment-method-sets="https://demo.api/hapi/payment_method_sets"
+  language-strings="https://demo.api/hapi/property_helpers/10"
+  locale-codes="https://demo.api/hapi/property_helpers/7"
+  languages="https://demo.api/hapi/property_helpers/6"
+`;
+
+export const Playground = getStory({ ...summary, code: true, ext });
+export const Empty = getStory({ ...summary, ext });
+export const Error = getStory({ ...summary, ext });
+export const Busy = getStory({ ...summary, ext });
 
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';

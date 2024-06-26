@@ -167,6 +167,18 @@ describe('InternalSelectControl', () => {
     expect(comboBox).to.have.deep.property('items', [{ label: 'i18n_test', value: 'test' }]);
   });
 
+  it('sets "items" with raw label text on vaadin-combo-box from "options" on itself', async () => {
+    const layout = html`<test-internal-select-control></test-internal-select-control>`;
+    const control = await fixture<TestControl>(layout);
+    const comboBox = control.renderRoot.querySelector('vaadin-combo-box')!;
+
+    expect(comboBox).to.have.deep.property('items', []);
+
+    control.options = [{ rawLabel: 'foo bar', value: 'test' }];
+    await control.requestUpdate();
+    expect(comboBox).to.have.deep.property('items', [{ label: 'foo bar', value: 'test' }]);
+  });
+
   it('sets "disabled" on vaadin-combo-box from "disabled" on itself', async () => {
     const layout = html`<test-internal-select-control></test-internal-select-control>`;
     const control = await fixture<TestControl>(layout);

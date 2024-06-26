@@ -2359,17 +2359,17 @@
                         "daily_plural": { "type": "string", "default": "Every {{count}} days" },
                         "frequency": {
                           "type": "string",
-                          "default": "$t(customer.subscription-form.pagination.card.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })"
+                          "default": "$t(customer.subscription-form.items.pagination.card.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })"
                         },
                         "monthly": { "type": "string", "default": "Monthly" },
                         "monthly_plural": { "type": "string", "default": "Every {{count}} months" },
                         "subinfo_recurring": {
                           "type": "string",
-                          "default": "$t(customer.subscription-form.pagination.card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" }) from {{startDate, date}}"
+                          "default": "$t(customer.subscription-form.items.pagination.card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" }) from {{startDate, date}}"
                         },
                         "subinfo_twice_a_month": {
                           "type": "string",
-                          "default": "$t(customer.subscription-form.pagination.card.twice_a_month, { \"ns\": \"customer-portal\" }) from {{startDate, date}}"
+                          "default": "$t(customer.subscription-form.items.pagination.card.twice_a_month, { \"ns\": \"customer-portal\" }) from {{startDate, date}}"
                         },
                         "twice_a_month": { "type": "string", "default": "Twice a month" },
                         "no_code": { "type": "string", "default": "No SKU" },
