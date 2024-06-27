@@ -285,3 +285,9 @@ The element supports a demo mode that allows you to see how it works without set
 - Default form: `https://embed.foxy.io/v1.html?demo=default`
 - Stripe Card: `https://embed.foxy.io/v1.html?demo=stripe`
 - Square Card: `https://embed.foxy.io/v1.html?demo=square`
+
+## Note about Maestro cards
+
+Stripe and Square mark all Maestro cards as Mastercard. To avoid ambiguity, we require store admins to enable both Maestro and Mastercard in store settings to accept either card type in the embed via the `stripe_connect` or `square_up` gateways.
+
+We'd also like to take this opportunity to remind you that [Maestro cards are being phased out](https://www.mastercard.com/news/europe/en/perspectives/en/2021/blog-from-valerie-nowak-why-this-maestro-is-retiring-after-30-years). If this is the only card brand you accept, we recommend updating your store settings to make sure your customers can still pay for your products and services in the future. Until then, you can use any other supported payment gateway with the Payment Card Embed element.
