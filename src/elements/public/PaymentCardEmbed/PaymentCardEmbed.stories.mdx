@@ -15,8 +15,13 @@ PaymentCardEmbed is a custom element wrapper for the `SDK.Customer.PaymentCardEm
 
 <Canvas
   mdxSource={`
-<script type="module" src="https://cdn-js.foxy.io/elements@1/foxy-payment-card-embed.js"></script>
 <foxy-payment-card-embed url="https://embed.foxy.io/v1.html?template_set_id=123"></foxy-payment-card-embed>
+<script type="module">
+  import 'https://cdn-js.foxy.io/elements@1/foxy-payment-card-embed.js';
+  customElements
+    .get('foxy-i18n')
+    .onResourceFetch((ns, lang) => fetch(\`https://cdn-js.foxy.io/elements@1/translations/\${ns}/\${lang}.json\`));
+</script>
 `}
   isExpanded
 >
