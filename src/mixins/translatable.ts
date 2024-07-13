@@ -1,11 +1,13 @@
-import { Constructor, LitElement, PropertyDeclarations } from 'lit-element';
-import i18next, { FormatFunction, StringMap, TFunction, i18n } from 'i18next';
+import type { Constructor, LitElement, PropertyDeclarations } from 'lit-element';
+import type { FormatFunction, StringMap, TFunction, i18n } from 'i18next';
+import type { InferrableMixinHost } from './inferrable';
+import type { I18n } from '../elements/public/I18n/I18n';
 
-import HttpApi from 'i18next-http-backend';
-import { I18n } from '../elements/public/I18n/I18n';
 import { Themeable } from './themeable';
 import { cdn } from '../env';
-import { InferrableMixinHost } from './inferrable';
+
+import HttpApi from 'i18next-http-backend';
+import i18next from 'i18next';
 
 /**
  * One of the base classes for each rel-specific element in the collection,
@@ -270,20 +272,11 @@ export const TranslatableMixin = <T extends Base>(
       super.updated(changedProperties);
 
       const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;
+      const namespaces = this.ns.split(' ').filter(v => v.length > 0);
+      const i18next = I18nElement?.i18next;
 
-      if (!I18nElement) return;
-
-      if (changedProperties.has('lang')) I18nElement.i18next.loadLanguages(this.lang);
-
-      if (changedProperties.has('ns')) {
-        const namespaces = this.ns.split(' ').filter(v => v.length > 0);
-
-        if (this.simplifyNsLoading) {
-          if (namespaces[0]) I18nElement.i18next.loadNamespaces(namespaces[0]);
-        } else {
-          I18nElement.i18next.loadNamespaces(namespaces);
-        }
-      }
+      i18next?.loadNamespaces(this.simplifyNsLoading ? namespaces[0] ?? [] : namespaces);
+      i18next?.loadLanguages(this.lang);
     }
 
     disconnectedCallback(): void {
