@@ -391,11 +391,15 @@ export class TaxForm extends Base<Data> {
   }
 
   private __renderCountry(): TemplateResult {
-    const isLoadingItems = this.__countriesService.state.matches('busy');
+    const isLoadingItems = !!this.__countriesService.state?.matches('busy');
     const isLoadingData = this.in('busy');
     const isLoading = isLoadingItems || isLoadingData;
     const isFail = this.in('fail');
-    const json = this.__countriesService.state.context.data as Resource<Rels.Countries> | null;
+    const json = this.__countriesService.state?.context.data as
+      | Resource<Rels.Countries>
+      | undefined
+      | null;
+
     const items = Object.values(json?.values ?? {});
 
     return html`
@@ -438,11 +442,15 @@ export class TaxForm extends Base<Data> {
   }
 
   private __renderRegion(): TemplateResult {
-    const isLoadingItems = this.__regionsService.state.matches('busy');
+    const isLoadingItems = !!this.__regionsService.state?.matches('busy');
     const isLoadingData = this.in('busy');
     const isLoading = isLoadingItems || isLoadingData;
     const isFail = this.in('fail');
-    const json = this.__regionsService.state.context.data as Resource<Rels.Regions> | null;
+    const json = this.__regionsService.state?.context.data as
+      | Resource<Rels.Regions>
+      | undefined
+      | null;
+
     const items = Object.values(json?.values ?? {});
 
     return html`

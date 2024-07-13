@@ -148,7 +148,7 @@ export class CollectionPages<TPage extends Page> extends Base {
 
   /** URL of the first page in a collection. */
   get first(): string {
-    return this.__service.state.context.first;
+    return this.__service.state?.context.first ?? '';
   }
 
   set first(data: string) {
@@ -157,7 +157,7 @@ export class CollectionPages<TPage extends Page> extends Base {
 
   /** Array of all currently loaded pages in a collection. */
   get pages(): TPage[] {
-    return this.__service.state.context.pages;
+    return this.__service.state?.context.pages ?? [];
   }
 
   set pages(data: TPage[]) {
@@ -177,7 +177,7 @@ export class CollectionPages<TPage extends Page> extends Base {
 
   /** If false, will load pages on scroll. If true, will display a button triggering the process. */
   get manual(): boolean {
-    return this.__service.state.context.manual;
+    return !!this.__service.state?.context.manual;
   }
 
   set manual(data: boolean) {
@@ -199,7 +199,7 @@ export class CollectionPages<TPage extends Page> extends Base {
    * @example element.in({ idle: 'empty' })
    */
   in(stateValue: State<Context, Event>['value']): boolean {
-    return this.__service.state.matches(stateValue);
+    return !!this.__service.state?.matches(stateValue);
   }
 
   /** @readonly */
@@ -222,11 +222,11 @@ export class CollectionPages<TPage extends Page> extends Base {
       href: page._links.self.href,
     }));
 
-    if (this.__service.state.matches('busy')) {
+    if (this.__service.state?.matches('busy')) {
       items.push({ key: 'stalled', href: 'foxy://collection-pages/stall' });
-    } else if (this.__service.state.matches('fail')) {
+    } else if (this.__service.state?.matches('fail')) {
       items.push({ key: 'failed', href: 'foxy://collection-pages/fail' });
-    } else if (this.__service.state.matches({ idle: 'empty' })) {
+    } else if (this.__service.state?.matches({ idle: 'empty' })) {
       items.push({ key: 'empty', href: '' });
     }
 
@@ -340,7 +340,9 @@ export class CollectionPages<TPage extends Page> extends Base {
   }
 
   private __failRequest(event: FetchEvent) {
+    const error = this.__service.state?.context.error as Response | undefined;
+    const response = error ?? new Response('Unknown error, details unavailable.', { status: 500 });
     event.stopImmediatePropagation();
-    event.respondWith(Promise.resolve(this.__service.state.context.error as Response));
+    event.respondWith(Promise.resolve(response));
   }
 }
