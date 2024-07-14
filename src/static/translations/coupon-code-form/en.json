@@ -1,4 +1,21 @@
 {
+  "header": {
+    "title_existing": "Coupon code #{{ id }}",
+    "title_new": "New coupon code",
+    "subtitle": "Number of uses: {{ number_of_uses_to_date }}",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
   "code": {
     "label": "Code",
     "placeholder": "Required",
@@ -6,10 +23,6 @@
     "v8n_required": "Please enter a coupon code",
     "v8n_too_long": "Coupon code must be 50 characters or less",
     "v8n_has_spaces": "Please remove spaces from the coupon code"
-  },
-  "number-of-uses-to-date": {
-    "label": "Number of uses",
-    "helper_text": "For informational purposes, this shows you how many times this coupon code has already been used."
   },
   "transactions": {
     "label": "Transactions",
@@ -64,8 +77,14 @@
     "cancel": "Cancel",
     "delete_prompt": "Are you sure you'd like to remove this coupon code? You won't be able to bring it back."
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Create"
+    "caption": "Create"
   },
   "spinner": {
     "refresh": "Refresh",

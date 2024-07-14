@@ -37,7 +37,7 @@
     "helper_text": ""
   },
   "action": {
-    "create": "Pin to sidebar",
+    "caption": "Pin to sidebar",
     "update": "Save changes",
     "delete": "Unpin",
     "reset": "Reset"

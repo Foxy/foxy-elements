@@ -1,4 +1,21 @@
 {
+  "header": {
+    "title_existing": "Item option #{{ id }}",
+    "title_new": "New item option",
+    "subtitle": "",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
   "name": {
     "label": "Name",
     "helper_text": "",
@@ -38,7 +55,13 @@
     "cancel": "Cancel",
     "delete_prompt": "Are you sure you'd like to remove this item option? You won't be able to bring it back."
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Create"
+    "caption": "Create"
   }
 }

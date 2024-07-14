@@ -8,8 +8,14 @@
     "helper_text": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats.",
     "v8n_required": "Please add at least one code"
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Import"
+    "caption": "Import"
   },
   "spinner": {
     "refresh": "Refresh",

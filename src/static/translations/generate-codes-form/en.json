@@ -30,8 +30,14 @@
     "placeholder": "",
     "helper_text": "This is what the generated codes will look like."
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Generate"
+    "caption": "Generate"
   },
   "spinner": {
     "refresh": "Refresh",

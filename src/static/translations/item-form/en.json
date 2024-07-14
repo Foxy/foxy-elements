@@ -1,4 +1,22 @@
 {
+  "header": {
+    "title_existing": "Item #{{ id }}",
+    "title_new": "New item",
+    "subtitle_future_line_item": "This item is part of a future subscription",
+    "subtitle_regular": "",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
   "dimensions": "Dimensions",
   "subscriptions": "Subscriptions",
   "discount": "Discount",
@@ -91,7 +109,7 @@
   },
   "shipto": {
     "label": "Shipping address",
-    "helper_text": "Used for multiship to assign this item to a specific shipment.",
+    "helper_text": "Used for multiship to assign this item to a specific shipment. This value will be the address name of the shipment.",
     "placeholder": "Select address to ship this item to..."
   },
   "width": {
@@ -116,8 +134,40 @@
   },
   "item-category-uri": {
     "label": "Item category",
-    "helper_text": "Item category associated with this item.",
-    "placeholder": "Select item category..."
+    "dialog": {
+      "cancel": "Cancel",
+      "close": "Close",
+      "header": "Select an item category",
+      "selection": {
+        "label": "Item categories",
+        "helper_text": "Select an item category to use with this item.",
+        "search": "Search",
+        "clear": "Clear",
+        "pagination": {
+          "search_button_text": "Search",
+          "first": "First",
+          "last": "Last",
+          "next": "Next",
+          "pagination": "{{from}}-{{to}} out of {{total}}",
+          "previous": "Previous",
+          "card": {
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "No item categories found",
+              "loading_error": "Unknown error"
+            }
+          }
+        }
+      }
+    },
+    "card": {
+      "spinner": {
+        "loading_busy": "Loading",
+        "loading_empty": "Not assigned – click to select",
+        "loading_error": "Unknown error"
+      }
+    },
+    "helper_text": "Item category associated with this item."
   },
   "code": {
     "label": "Code",
@@ -180,6 +230,25 @@
       "undo_cancel": "Review",
       "undo_confirm": "Discard",
       "attribute-form": {
+        "header": {
+          "title_existing": "Item attribute #{{ id }}",
+          "title_new": "New item attribute",
+          "subtitle_private": "Visible only to you",
+          "subtitle_restricted": "Visible to store admins",
+          "subtitle_public": "Visible to everyone",
+          "copy-id": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy ID",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          },
+          "copy-json": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy source as JSON",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          }
+        },
         "name": {
           "label": "Name",
           "placeholder": "Required",
@@ -211,8 +280,14 @@
           "cancel": "Cancel",
           "delete_prompt": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
         },
+        "undo": {
+          "caption": "Undo"
+        },
+        "submit": {
+          "caption": "Save changes"
+        },
         "create": {
-          "create": "Create"
+          "caption": "Create"
         },
         "spinner": {
           "refresh": "Refresh",
@@ -255,6 +330,23 @@
       "undo_cancel": "Review",
       "undo_confirm": "Discard",
       "item-option-form": {
+        "header": {
+          "title_existing": "Item option #{{ id }}",
+          "title_new": "New item option",
+          "subtitle": "",
+          "copy-id": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy ID",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          },
+          "copy-json": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy source as JSON",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          }
+        },
         "name": {
           "label": "Name",
           "helper_text": "",
@@ -294,8 +386,14 @@
           "cancel": "Cancel",
           "delete_prompt": "Are you sure you'd like to remove this item option? You won't be able to bring it back."
         },
+        "undo": {
+          "caption": "Undo"
+        },
+        "submit": {
+          "caption": "Save changes"
+        },
         "create": {
-          "create": "Create"
+          "caption": "Create"
         }
       }
     },
@@ -326,8 +424,14 @@
     "cancel": "Cancel",
     "delete_prompt": "Are you sure you'd like to remove this item? You won't be able to bring it back."
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Create"
+    "caption": "Create"
   },
   "spinner": {
     "refresh": "Refresh",

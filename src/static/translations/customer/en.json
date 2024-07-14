@@ -3,7 +3,7 @@
   "attribute_plural": "Attributes",
   "cancel": "Cancel",
   "close": "Close",
-  "create": "Create",
+  "caption": "Create",
   "customer": "Customer",
   "delete_prompt": "This resource will be permanently removed. Are you sure?",
   "payment_method_plural": "Payment methods",
@@ -27,6 +27,29 @@
     }
   },
   "address-form": {
+    "header": {
+      "title_existing": "Customer address #{{ id }}",
+      "title_new": "New customer address",
+      "subtitle_default_shipping": "Default shipping address",
+      "subtitle_default_billing": "Default billing address",
+      "subtitle_custom": "Custom address",
+      "copy-id": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy ID",
+        "copying": "Copying...",
+        "done": "Copied to clipboard"
+      },
+      "copy-json": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy source as JSON",
+        "copying": "Copying...",
+        "done": "Copied to clipboard"
+      }
+    },
+    "error": {
+      "country_banned": "Store settings prohibit addresses in this country. Please adjust your store settings or use the Ignore address restrictions option.",
+      "address_name_exists": "Another address with the same name already exists. Please choose a unique name."
+    },
     "address-name": {
       "label": "Address name",
       "placeholder": "Required",
@@ -94,6 +117,11 @@
       "helper_text": "",
       "v8n_too_long": "Unfortunately we can't store region names longer than 50 characters"
     },
+    "ignore-address-restrictions": {
+      "label": "Advanced",
+      "option_true": "Ignore address restrictions",
+      "helper_text": "By default, the country value must be valid according to the store's location filtering settings. Checking this box will remove this restriction."
+    },
     "timestamps": {
       "date": "{{value, date}}",
       "date_created": "Created on",
@@ -104,8 +132,14 @@
       "cancel": "Cancel",
       "delete_prompt": "Are you sure you'd like to remove this address? You won't be able to bring it back."
     },
+    "undo": {
+      "caption": "Undo"
+    },
+    "submit": {
+      "caption": "Save changes"
+    },
     "create": {
-      "create": "Create"
+      "caption": "Create"
     },
     "spinner": {
       "refresh": "Refresh",
@@ -698,6 +732,25 @@
     }
   },
   "attribute-form": {
+    "header": {
+      "title_existing": "Customer attribute #{{ id }}",
+      "title_new": "New customer attribute",
+      "subtitle_private": "Visible only to you",
+      "subtitle_restricted": "Visible to store admins",
+      "subtitle_public": "Visible to everyone",
+      "copy-id": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy ID",
+        "copying": "Copying...",
+        "done": "Copied to clipboard"
+      },
+      "copy-json": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy source as JSON",
+        "copying": "Copying...",
+        "done": "Copied to clipboard"
+      }
+    },
     "name": {
       "label": "Name",
       "placeholder": "Required",
@@ -729,8 +782,14 @@
       "cancel": "Cancel",
       "delete_prompt": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
     },
+    "undo": {
+      "caption": "Undo"
+    },
+    "submit": {
+      "caption": "Save changes"
+    },
     "create": {
-      "create": "Create"
+      "caption": "Create"
     },
     "spinner": {
       "refresh": "Refresh",
@@ -739,6 +798,25 @@
     }
   },
   "customer-form": {
+    "header": {
+      "title_existing": "{{ first_name }} {{ last_name }}",
+      "title_no_name": "No name",
+      "title_new": "New customer",
+      "subtitle_anonymous": "Guest customer #{{ id }}",
+      "subtitle_registered": "Customer #{{ id }}",
+      "copy-id": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy ID",
+        "copying": "Copying...",
+        "done": "Copied to clipboard"
+      },
+      "copy-json": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy source as JSON",
+        "copying": "Copying...",
+        "done": "Copied to clipboard"
+      }
+    },
     "status": {
       "password_change_success": "You have successfully set a new password for {{ email }}.",
       "close": "Close"
@@ -812,8 +890,14 @@
       "cancel": "Cancel",
       "delete_prompt": "This action is irreversible. Are you sure you want to delete this customer?"
     },
+    "undo": {
+      "caption": "Undo"
+    },
+    "submit": {
+      "caption": "Save changes"
+    },
     "create": {
-      "create": "Create"
+      "caption": "Create"
     },
     "spinner": {
       "refresh": "Refresh",
@@ -835,6 +919,10 @@
       "dialog_header_add": "Add payment method",
       "dialog_header_update": "Update payment method",
       "update-payment-method-form": {
+        "header": {
+          "title_existing": "Update card",
+          "subtitle": "Enter card details below and click Save card"
+        },
         "status": {
           "cc_token_success": "Card details saved successfully.",
           "close": "Close"
@@ -987,6 +1075,30 @@
     "loading_error": "Unknown error"
   },
   "subscription-form": {
+    "header": {
+      "title_new": "Subscription",
+      "title_existing": "Subscription",
+      "title_recurring": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-form\" })",
+      "title_twice_a_month": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscription-form\" })",
+      "subtitle_active": "Including shipping, taxes, etc. Next payment on {{date, date}}.",
+      "subtitle_cancelled": "Including shipping, taxes, etc. Ended on {{date, date}}.",
+      "subtitle_failed": "Including shipping, taxes, etc. Payment failed on {{date, date}}.",
+      "subtitle_inactive": "Including shipping, taxes, etc. Inactive.",
+      "subtitle_will_be_cancelled": "Including shipping, taxes, etc. Ends on {{date, date}}.",
+      "subtitle_will_be_active": "Including shipping, taxes, etc. Starts on {{date, date}}.",
+      "copy-id": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy ID",
+        "copying": "Copying...",
+        "done": "Copied to clipboard"
+      },
+      "copy-json": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy source as JSON",
+        "copying": "Copying...",
+        "done": "Copied to clipboard"
+      }
+    },
     "day": "Day",
     "day_plural": "Days",
     "week": "Week",
@@ -1011,12 +1123,6 @@
     "start_date": "Start date",
     "price_recurring": "{{amount, price}} $t(subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer\" })",
     "price_twice_a_month": "{{amount, price}} $t(subscription-form.twice_a_month, { \"ns\": \"customer\" })",
-    "subscription_active": "Including shipping, taxes, etc. Next payment on {{date, date}}.",
-    "subscription_cancelled": "Including shipping, taxes, etc. Ended on {{date, date}}.",
-    "subscription_failed": "Including shipping, taxes, etc. Payment failed on {{date, date}}.",
-    "subscription_inactive": "Including shipping, taxes, etc. Inactive.",
-    "subscription_will_be_cancelled": "Including shipping, taxes, etc. Ends on {{date, date}}.",
-    "subscription_will_be_active": "Including shipping, taxes, etc. Starts on {{date, date}}.",
     "transaction_plural": "Transactions",
     "twice_a_month": "Twice a month",
     "undo_cancel": "Review",
@@ -1072,7 +1178,7 @@
         "undo_confirm": "Discard",
         "cancel": "Cancel",
         "confirm": "Confirm",
-        "create": "Create",
+        "caption": "Create",
         "date": "{{value, date}}",
         "date_created": "Created on",
         "date_modified": "Last updated on",
@@ -1103,11 +1209,11 @@
         "card": {
           "daily": "Daily",
           "daily_plural": "Every {{count}} days",
-          "frequency": "$t(subscription-form.pagination.card.{{units}}, { \"count\": {{count}}, \"ns\": \"customer\" })",
+          "frequency": "$t(items.pagination.card.{{units}}, { \"count\": {{count}}, \"ns\": \"subscription-form\" })",
           "monthly": "Monthly",
           "monthly_plural": "Every {{count}} months",
-          "subinfo_recurring": "$t(subscription-form.pagination.card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer\" }) from {{startDate, date}}",
-          "subinfo_twice_a_month": "$t(subscription-form.pagination.card.twice_a_month, { \"ns\": \"customer\" }) from {{startDate, date}}",
+          "subinfo_recurring": "$t(items.pagination.card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-form\" }) from {{startDate, date}}",
+          "subinfo_twice_a_month": "$t(items.pagination.card.twice_a_month, { \"ns\": \"subscription-form\" }) from {{startDate, date}}",
           "twice_a_month": "Twice a month",
           "no_code": "No SKU",
           "weekly": "Weekly",

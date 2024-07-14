@@ -2,7 +2,7 @@
   "status_successful": "Successful",
   "status_pending": "Pending",
   "status_failed": "Failed",
-  "date": "{{value, date}}",
+  "date": "{{ value, date }} at {{ value, time }}",
   "spinner": {
     "loading_busy": "Loading",
     "loading_error": "Unknown error",

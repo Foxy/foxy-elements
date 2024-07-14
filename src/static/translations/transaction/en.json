@@ -1,6 +1,6 @@
 {
   "header": {
-    "title": "ID {{ display_id }}",
+    "title": "Transaction #{{ display_id }}",
     "subtitle": "{{ transaction_date, date }} at {{ transaction_date, time }} • {{ ip_country }}",
     "subtitle_customer_changed_payment_method": "{{ transaction_date, date }} at {{ transaction_date, time }} • {{ ip_country }} • Customer changed payment method",
     "subtitle_admin_changed_payment_method_with_uoe": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin used UOE password to change payment method",
@@ -24,7 +24,19 @@
     "alert_status_problem": "We were unable to complete this transaction because the amount that was sent to the payment gateway did not match the final total amount.",
     "alert_status_pending_fraud_review": "The payment gateway flagged this transaction as potentially fraudulent. Please log in to your gateway’s dashboard and look for this transaction to review.",
     "alert_status_rejected": "The payment gateway refused to process this transaction based on its internal policy. You may be able to get more information about this error by logging in to your gateway’s dashboard and looking for this transaction.",
-    "alert_status_declined": "The payment method used for this transaction was declined. This could be due to insufficient funds, an expired card, or a different reason. You may be able to get more information about this error in your gateway’s dashboard."
+    "alert_status_declined": "The payment method used for this transaction was declined. This could be due to insufficient funds, an expired card, or a different reason. You may be able to get more information about this error in your gateway’s dashboard.",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
   },
   "customer": {
     "label": "Customer",
@@ -83,6 +95,24 @@
       "undo_cancel": "Review",
       "undo_confirm": "Discard",
       "item-form": {
+        "header": {
+          "title_existing": "Item #{{ id }}",
+          "title_new": "New item",
+          "subtitle_future_line_item": "This item is part of a future subscription",
+          "subtitle_regular": "",
+          "copy-id": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy ID",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          },
+          "copy-json": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy source as JSON",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          }
+        },
         "dimensions": "Dimensions",
         "subscriptions": "Subscriptions",
         "discount": "Discount",
@@ -108,6 +138,7 @@
         },
         "subscription-frequency": {
           "label": "Subscription frequency",
+          "helper_text": "",
           "day": "Day",
           "day_plural": "Days",
           "week": "Week",
@@ -174,7 +205,7 @@
         },
         "shipto": {
           "label": "Shipping address",
-          "helper_text": "Used for multiship to assign this item to a specific shipment.",
+          "helper_text": "Used for multiship to assign this item to a specific shipment. This value will be the address name of the shipment.",
           "placeholder": "Select address to ship this item to..."
         },
         "width": {
@@ -199,8 +230,40 @@
         },
         "item-category-uri": {
           "label": "Item category",
-          "helper_text": "Item category associated with this item.",
-          "placeholder": "Select item category..."
+          "dialog": {
+            "cancel": "Cancel",
+            "close": "Close",
+            "header": "Select an item category",
+            "selection": {
+              "label": "Item categories",
+              "helper_text": "Select an item category to use with this item.",
+              "search": "Search",
+              "clear": "Clear",
+              "pagination": {
+                "search_button_text": "Search",
+                "first": "First",
+                "last": "Last",
+                "next": "Next",
+                "pagination": "{{from}}-{{to}} out of {{total}}",
+                "previous": "Previous",
+                "card": {
+                  "spinner": {
+                    "loading_busy": "Loading",
+                    "loading_empty": "No item categories found",
+                    "loading_error": "Unknown error"
+                  }
+                }
+              }
+            }
+          },
+          "card": {
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "Not assigned – click to select",
+              "loading_error": "Unknown error"
+            }
+          },
+          "helper_text": "Item category associated with this item."
         },
         "code": {
           "label": "Code",
@@ -213,7 +276,7 @@
           "placeholder": "MY-BUNDLE-001"
         },
         "discount-details": {
-          "title": "Discounts",
+          "title": "Discount details",
           "pagination": {
             "first": "First",
             "last": "Last",
@@ -223,14 +286,14 @@
             "card": {
               "spinner": {
                 "loading_busy": "Loading",
-                "loading_empty": "No discounts",
+                "loading_empty": "No data",
                 "loading_error": "Unknown error"
               }
             }
           }
         },
         "coupon-details": {
-          "title": "Coupons",
+          "title": "Coupon details",
           "pagination": {
             "first": "First",
             "last": "Last",
@@ -240,7 +303,7 @@
             "card": {
               "spinner": {
                 "loading_busy": "Loading",
-                "loading_empty": "No coupons",
+                "loading_empty": "No data",
                 "loading_error": "Unknown error"
               }
             }
@@ -263,6 +326,25 @@
             "undo_cancel": "Review",
             "undo_confirm": "Discard",
             "attribute-form": {
+              "header": {
+                "title_existing": "Item attribute #{{ id }}",
+                "title_new": "New item attribute",
+                "subtitle_private": "Visible only to you",
+                "subtitle_restricted": "Visible to store admins",
+                "subtitle_public": "Visible to everyone",
+                "copy-id": {
+                  "failed_to_copy": "Failed to copy",
+                  "click_to_copy": "Copy ID",
+                  "copying": "Copying...",
+                  "done": "Copied to clipboard"
+                },
+                "copy-json": {
+                  "failed_to_copy": "Failed to copy",
+                  "click_to_copy": "Copy source as JSON",
+                  "copying": "Copying...",
+                  "done": "Copied to clipboard"
+                }
+              },
               "name": {
                 "label": "Name",
                 "placeholder": "Required",
@@ -294,8 +376,14 @@
                 "cancel": "Cancel",
                 "delete_prompt": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
               },
+              "undo": {
+                "caption": "Undo"
+              },
+              "submit": {
+                "caption": "Save changes"
+              },
               "create": {
-                "create": "Create"
+                "caption": "Create"
               },
               "spinner": {
                 "refresh": "Refresh",
@@ -310,7 +398,7 @@
               "delete_button_text": "Delete",
               "spinner": {
                 "loading_busy": "Loading",
-                "loading_empty": "No attributes",
+                "loading_empty": "No data",
                 "loading_error": "Unknown error"
               }
             },
@@ -338,6 +426,23 @@
             "undo_cancel": "Review",
             "undo_confirm": "Discard",
             "item-option-form": {
+              "header": {
+                "title_existing": "Item option #{{ id }}",
+                "title_new": "New item option",
+                "subtitle": "",
+                "copy-id": {
+                  "failed_to_copy": "Failed to copy",
+                  "click_to_copy": "Copy ID",
+                  "copying": "Copying...",
+                  "done": "Copied to clipboard"
+                },
+                "copy-json": {
+                  "failed_to_copy": "Failed to copy",
+                  "click_to_copy": "Copy source as JSON",
+                  "copying": "Copying...",
+                  "done": "Copied to clipboard"
+                }
+              },
               "name": {
                 "label": "Name",
                 "helper_text": "",
@@ -377,8 +482,14 @@
                 "cancel": "Cancel",
                 "delete_prompt": "Are you sure you'd like to remove this item option? You won't be able to bring it back."
               },
+              "undo": {
+                "caption": "Undo"
+              },
+              "submit": {
+                "caption": "Save changes"
+              },
               "create": {
-                "create": "Create"
+                "caption": "Create"
               }
             }
           },
@@ -387,7 +498,7 @@
               "delete_button_text": "Delete",
               "spinner": {
                 "loading_busy": "Loading",
-                "loading_empty": "No item options",
+                "loading_empty": "No data",
                 "loading_error": "Unknown error"
               }
             },
@@ -409,8 +520,14 @@
           "cancel": "Cancel",
           "delete_prompt": "Are you sure you'd like to remove this item? You won't be able to bring it back."
         },
+        "undo": {
+          "caption": "Undo"
+        },
+        "submit": {
+          "caption": "Save changes"
+        },
         "create": {
-          "create": "Create"
+          "caption": "Create"
         },
         "spinner": {
           "refresh": "Refresh",
@@ -437,6 +554,23 @@
       "undo_cancel": "Review",
       "undo_confirm": "Discard",
       "custom-field-form": {
+        "header": {
+          "title_existing": "Transaction custom field #{{ id }}",
+          "title_new": "New transaction custom field",
+          "subtitle": "",
+          "copy-id": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy ID",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          },
+          "copy-json": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy source as JSON",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          }
+        },
         "name": {
           "label": "Name",
           "placeholder": "Required",
@@ -466,8 +600,14 @@
           "cancel": "Cancel",
           "delete_prompt": "Are you sure you'd like to remove this custom field? You won't be able to bring it back."
         },
+        "undo": {
+          "caption": "Undo"
+        },
+        "submit": {
+          "caption": "Save changes"
+        },
         "create": {
-          "create": "Create"
+          "caption": "Create"
         },
         "spinner": {
           "refresh": "Refresh",
@@ -510,6 +650,25 @@
       "undo_cancel": "Review",
       "undo_confirm": "Discard",
       "attribute-form": {
+        "header": {
+          "title_existing": "ID {{ id }}",
+          "title_new": "New attribute",
+          "subtitle_private": "Visible only to you",
+          "subtitle_restricted": "Visible to store admins",
+          "subtitle_public": "Visible to everyone",
+          "copy-id": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy ID",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          },
+          "copy-json": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy source as JSON",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          }
+        },
         "name": {
           "label": "Name",
           "placeholder": "Required",
@@ -541,8 +700,14 @@
           "cancel": "Cancel",
           "delete_prompt": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
         },
+        "undo": {
+          "caption": "Undo"
+        },
+        "submit": {
+          "caption": "Save changes"
+        },
         "create": {
-          "create": "Create"
+          "caption": "Create"
         },
         "spinner": {
           "refresh": "Refresh",
@@ -622,6 +787,29 @@
       "cancel": "Cancel",
       "header_update": "Billing address",
       "address-form": {
+        "header": {
+          "title_existing": "ID {{ id }}",
+          "title_new": "New address",
+          "subtitle_default_shipping": "Default shipping address",
+          "subtitle_default_billing": "Default billing address",
+          "subtitle_custom": "Custom address",
+          "copy-id": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy ID",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          },
+          "copy-json": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy source as JSON",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          }
+        },
+        "error": {
+          "country_banned": "Store settings prohibit addresses in this country. Please adjust your store settings or use the Ignore address restrictions option.",
+          "address_name_exists": "Another address with the same name already exists. Please choose a unique name."
+        },
         "address-name": {
           "label": "Address name",
           "placeholder": "Required",
@@ -689,6 +877,11 @@
           "helper_text": "",
           "v8n_too_long": "Unfortunately we can't store region names longer than 50 characters"
         },
+        "ignore-address-restrictions": {
+          "label": "Advanced",
+          "option_true": "Ignore address restrictions",
+          "helper_text": "By default, the country value must be valid according to the store's location filtering settings. Checking this box will remove this restriction."
+        },
         "timestamps": {
           "date": "{{value, date}}",
           "date_created": "Created on",
@@ -699,8 +892,14 @@
           "cancel": "Cancel",
           "delete_prompt": "Are you sure you'd like to remove this address? You won't be able to bring it back."
         },
+        "undo": {
+          "caption": "Undo"
+        },
+        "submit": {
+          "caption": "Save changes"
+        },
         "create": {
-          "create": "Create"
+          "caption": "Create"
         },
         "spinner": {
           "refresh": "Refresh",

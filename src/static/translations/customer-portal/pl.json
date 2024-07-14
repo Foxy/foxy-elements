@@ -63,6 +63,10 @@
       }
     },
     "address-form": {
+      "error": {
+        "country_banned": "Niestety, nie akceptujemy zamówień z wybranego kraju.",
+        "address_name_exists": "Inny adres o takiej samej nazwie już istnieje. Proszę wybrać unikalną nazwę."
+      },
       "address-name": {
         "label": "Adres",
         "placeholder": "Wymagany",
@@ -140,8 +144,14 @@
         "cancel": "Anulować",
         "delete_prompt": "Czy na pewno chcesz usunąć ten adres? "
       },
+      "undo": {
+        "caption": "Undo"
+      },
+      "submit": {
+        "caption": "Save changes"
+      },
       "create": {
-        "create": "Tworzyć"
+        "caption": "Tworzyć"
       },
       "spinner": {
         "refresh": "Odświeżać",
@@ -804,6 +814,10 @@
         "dialog_header_add": "Dodaj metodę płatności",
         "dialog_header_update": "Zaktualizuj metodę płatności",
         "update-payment-method-form": {
+          "header": {
+            "title_existing": "Aktualizuj kartę",
+            "subtitle": "Wprowadź dane karty poniżej i kliknij Zapisz kartę"
+          },
           "status": {
             "cc_token_success": "Dane karty zostały zapisane pomyślnie.",
             "close": "Zamknąć"
@@ -981,6 +995,30 @@
       }
     },
     "subscription-form": {
+      "header": {
+        "title_new": "Subskrypcja",
+        "title_existing": "Subskrypcja",
+        "title_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+        "title_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
+        "subtitle_active": "Obejmuje wysyłkę, podatki itp. Następna płatność w dniu {{date, date}}.",
+        "subtitle_cancelled": "Obejmuje wysyłkę, podatki itp. Zakończono dnia {{date, date}}.",
+        "subtitle_failed": "Obejmuje wysyłkę, podatki itp. Płatność nie powiodła się {{date, date}}.",
+        "subtitle_inactive": "Łącznie z przesyłką, podatkami itp. Nieaktywne.",
+        "subtitle_will_be_cancelled": "Łącznie z przesyłką, podatkami itp. Kończy się dnia {{date, date}}.",
+        "subtitle_will_be_active": "Obejmuje wysyłkę, podatki itp. Rozpoczyna się w dniu {{date, date}}.",
+        "copy-id": {
+          "failed_to_copy": "Nie udało się skopiować",
+          "click_to_copy": "Skopiuj ID",
+          "copying": "Kopiowanie...",
+          "done": "Skopiowano do schowka"
+        },
+        "copy-json": {
+          "failed_to_copy": "Nie udało się skopiować",
+          "click_to_copy": "Skopiuj źródło jako JSON",
+          "copying": "Kopiowanie...",
+          "done": "Skopiowano do schowka"
+        }
+      },
       "day": "Dzień",
       "day_plural": "Dni",
       "week": "Tydzień",
@@ -1004,12 +1042,6 @@
       "next_transaction_date": "Data następnej transakcji",
       "price_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
       "price_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
-      "subscription_active": "Obejmuje wysyłkę, podatki itp. Następna płatność w dniu {{date, date}}.",
-      "subscription_cancelled": "Obejmuje wysyłkę, podatki itp. Zakończono dnia {{date, date}}.",
-      "subscription_failed": "Obejmuje wysyłkę, podatki itp. Płatność nie powiodła się {{date, date}}.",
-      "subscription_inactive": "Łącznie z przesyłką, podatkami itp. Nieaktywne.",
-      "subscription_will_be_cancelled": "Łącznie z przesyłką, podatkami itp. Kończy się dnia {{date, date}}.",
-      "subscription_will_be_active": "Obejmuje wysyłkę, podatki itp. Rozpoczyna się w dniu {{date, date}}.",
       "transaction_plural": "Transakcje",
       "twice_a_month": "Dwa razy w miesiącu",
       "update_billing": "Zaktualizuj rozliczenia",
@@ -1161,8 +1193,14 @@
       "text": "Tworząc konto, wyrażasz zgodę na nasze Warunki świadczenia usług.",
       "link": "Kliknij tutaj, aby otworzyć je w nowej karcie."
     },
+    "undo": {
+      "caption": "Undo"
+    },
+    "submit": {
+      "caption": "Save changes"
+    },
     "create": {
-      "create": "Utwórz konto"
+      "caption": "Utwórz konto"
     },
     "spinner": {
       "refresh": "Odświeżać",

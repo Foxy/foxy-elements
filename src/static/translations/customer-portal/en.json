@@ -63,6 +63,10 @@
       }
     },
     "address-form": {
+      "error": {
+        "country_banned": "Unfortunately, we don't accept orders from the country you've selected.",
+        "address_name_exists": "Another address with the same name already exists. Please choose a unique name."
+      },
       "address-name": {
         "label": "Address name",
         "placeholder": "Required",
@@ -140,8 +144,14 @@
         "cancel": "Cancel",
         "delete_prompt": "Are you sure you'd like to remove this address? You won't be able to bring it back."
       },
+      "undo": {
+        "caption": "Undo"
+      },
+      "submit": {
+        "caption": "Save changes"
+      },
       "create": {
-        "create": "Create"
+        "caption": "Create"
       },
       "spinner": {
         "refresh": "Refresh",
@@ -804,6 +814,10 @@
         "dialog_header_add": "Add payment method",
         "dialog_header_update": "Update payment method",
         "update-payment-method-form": {
+          "header": {
+            "title_existing": "Update card",
+            "subtitle": "Enter card details below and click Save card"
+          },
           "status": {
             "cc_token_success": "Card details saved successfully.",
             "close": "Close"
@@ -981,6 +995,30 @@
       }
     },
     "subscription-form": {
+      "header": {
+        "title_new": "Subscription",
+        "title_existing": "Subscription",
+        "title_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+        "title_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
+        "subtitle_active": "Including shipping, taxes, etc. Next payment on {{date, date}}.",
+        "subtitle_cancelled": "Including shipping, taxes, etc. Ended on {{date, date}}.",
+        "subtitle_failed": "Including shipping, taxes, etc. Payment failed on {{date, date}}.",
+        "subtitle_inactive": "Including shipping, taxes, etc. Inactive.",
+        "subtitle_will_be_cancelled": "Including shipping, taxes, etc. Ends on {{date, date}}.",
+        "subtitle_will_be_active": "Including shipping, taxes, etc. Starts on {{date, date}}.",
+        "copy-id": {
+          "failed_to_copy": "Failed to copy",
+          "click_to_copy": "Copy ID",
+          "copying": "Copying...",
+          "done": "Copied to clipboard"
+        },
+        "copy-json": {
+          "failed_to_copy": "Failed to copy",
+          "click_to_copy": "Copy source as JSON",
+          "copying": "Copying...",
+          "done": "Copied to clipboard"
+        }
+      },
       "day": "Day",
       "day_plural": "Days",
       "week": "Week",
@@ -1004,12 +1042,6 @@
       "next_transaction_date": "Next transaction date",
       "price_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
       "price_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
-      "subscription_active": "Including shipping, taxes, etc. Next payment on {{date, date}}.",
-      "subscription_cancelled": "Including shipping, taxes, etc. Ended on {{date, date}}.",
-      "subscription_failed": "Including shipping, taxes, etc. Payment failed on {{date, date}}.",
-      "subscription_inactive": "Including shipping, taxes, etc. Inactive.",
-      "subscription_will_be_cancelled": "Including shipping, taxes, etc. Ends on {{date, date}}.",
-      "subscription_will_be_active": "Including shipping, taxes, etc. Starts on {{date, date}}.",
       "transaction_plural": "Transactions",
       "twice_a_month": "Twice a month",
       "update_billing": "Update billing",
@@ -1161,8 +1193,14 @@
       "text": "By creating an account, you agree to our Terms of Service.",
       "link": "Click here to open them in a new tab."
     },
+    "undo": {
+      "caption": "Undo"
+    },
+    "submit": {
+      "caption": "Save changes"
+    },
     "create": {
-      "create": "Create account"
+      "caption": "Create account"
     },
     "spinner": {
       "refresh": "Refresh",

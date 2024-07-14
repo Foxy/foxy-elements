@@ -63,6 +63,10 @@
       }
     },
     "address-form": {
+      "error": {
+        "country_banned": "Helaas accepteren we geen bestellingen uit het geselecteerde land.",
+        "address_name_exists": "Er bestaat al een ander adres met dezelfde naam. Kies alstublieft een unieke naam."
+      },
       "address-name": {
         "label": "Adres naam",
         "placeholder": "Vereist",
@@ -140,8 +144,14 @@
         "cancel": "Annuleren",
         "delete_prompt": "Weet u zeker dat u dit adres wilt verwijderen? "
       },
+      "undo": {
+        "caption": "Undo"
+      },
+      "submit": {
+        "caption": "Save changes"
+      },
       "create": {
-        "create": "Creëren"
+        "caption": "Creëren"
       },
       "spinner": {
         "refresh": "Vernieuwen",
@@ -804,6 +814,10 @@
         "dialog_header_add": "Betaalmethode toevoegen",
         "dialog_header_update": "Betaalmethode bijwerken",
         "update-payment-method-form": {
+          "header": {
+            "title_existing": "Kaart bijwerken",
+            "subtitle": "Voer hieronder de kaartgegevens in en klik op Kaart opslaan"
+          },
           "status": {
             "cc_token_success": "Kaartgegevens zijn succesvol opgeslagen.",
             "close": "Dichtbij"
@@ -981,6 +995,30 @@
       }
     },
     "subscription-form": {
+      "header": {
+        "title_new": "Abonnement",
+        "title_existing": "Abonnement",
+        "title_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+        "title_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
+        "subtitle_active": "Inclusief verzendkosten, belastingen etc. Volgende betaling op {{date, date}}.",
+        "subtitle_cancelled": "Inclusief verzendkosten, belastingen, etc. Beëindigd op {{date, date}}.",
+        "subtitle_failed": "Inclusief verzendkosten, belastingen etc. Betaling mislukt op {{date, date}}.",
+        "subtitle_inactive": "Inclusief verzendkosten, belastingen etc. Inactief.",
+        "subtitle_will_be_cancelled": "Inclusief verzendkosten, belastingen etc. Eindigt op {{date, date}}.",
+        "subtitle_will_be_active": "Inclusief verzendkosten, belastingen etc. Begint op {{date, date}}.",
+        "copy-id": {
+          "failed_to_copy": "Kopiëren mislukt",
+          "click_to_copy": "ID kopiëren",
+          "copying": "Kopiëren...",
+          "done": "Gekopieerd naar klembord"
+        },
+        "copy-json": {
+          "failed_to_copy": "Kopiëren mislukt",
+          "click_to_copy": "Bron kopiëren als JSON",
+          "copying": "Kopiëren...",
+          "done": "Gekopieerd naar klembord"
+        }
+      },
       "day": "Dag",
       "day_plural": "Dagen",
       "week": "Week",
@@ -1004,12 +1042,6 @@
       "next_transaction_date": "Volgende transactiedatum",
       "price_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
       "price_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
-      "subscription_active": "Inclusief verzendkosten, belastingen etc. Volgende betaling op {{date, date}}.",
-      "subscription_cancelled": "Inclusief verzendkosten, belastingen, etc. Beëindigd op {{date, date}}.",
-      "subscription_failed": "Inclusief verzendkosten, belastingen etc. Betaling mislukt {{date, date}}.",
-      "subscription_inactive": "Inclusief verzendkosten, belastingen etc. Inactief.",
-      "subscription_will_be_cancelled": "Inclusief verzendkosten, belastingen etc. Eindigt op {{date, date}}.",
-      "subscription_will_be_active": "Inclusief verzendkosten, belastingen etc. Begint op {{date, date}}.",
       "transaction_plural": "Transacties",
       "twice_a_month": "Twee keer per maand",
       "update_billing": "Facturering bijwerken",
@@ -1161,8 +1193,14 @@
       "text": "Door een account aan te maken, gaat u akkoord met onze Servicevoorwaarden.",
       "link": "Klik hier om ze in een nieuw tabblad te openen."
     },
+    "undo": {
+      "caption": "Undo"
+    },
+    "submit": {
+      "caption": "Save changes"
+    },
     "create": {
-      "create": "Account aanmaken"
+      "caption": "Account aanmaken"
     },
     "spinner": {
       "refresh": "Vernieuwen",

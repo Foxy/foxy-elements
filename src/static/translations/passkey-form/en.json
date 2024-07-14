@@ -1,13 +1,25 @@
 {
+  "header": {
+    "title_existing": "Passkey #{{ id }}",
+    "title_new": "",
+    "subtitle": "Last used on {{ last_login_date, date }}",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
   "credential-id": {
     "label": "Credential ID",
     "placeholder": "",
     "helper_text": "Unique identifier of your passkey. You might be able to find this passkey by Credential ID in your password manager."
-  },
-  "last-login-date": {
-    "label": "Last login date",
-    "placeholder": "",
-    "helper_text": "The last time this passkey was used to sign in to your Foxy Account."
   },
   "last-login-ua": {
     "label": "Last browser",
@@ -24,8 +36,14 @@
     "cancel": "Cancel",
     "delete_prompt": "Once deleted, this passkey will no longer be accepted on login but will remain in your password manager. Sessions created with this passkey will stay active."
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Create"
+    "caption": "Create"
   },
   "spinner": {
     "refresh": "Refresh",

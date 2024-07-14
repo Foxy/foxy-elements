@@ -1,4 +1,8 @@
 {
+  "header": {
+    "title_existing": "Update card",
+    "subtitle": "Enter card details below and click Save card"
+  },
   "status": {
     "cc_token_success": "Card details saved successfully.",
     "close": "Close"

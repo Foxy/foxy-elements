@@ -63,6 +63,10 @@
       }
     },
     "address-form": {
+      "error": {
+        "country_banned": "Malheureusement, nous n'acceptons pas les commandes du pays que vous avez sélectionné.",
+        "address_name_exists": "Une autre adresse avec le même nom existe déjà. Veuillez choisir un nom unique."
+      },
       "address-name": {
         "label": "Nom de l'adresse",
         "placeholder": "Requis",
@@ -140,8 +144,14 @@
         "cancel": "Annuler",
         "delete_prompt": "Êtes-vous sûr de vouloir supprimer cette adresse ? "
       },
+      "undo": {
+        "caption": "Undo"
+      },
+      "submit": {
+        "caption": "Save changes"
+      },
       "create": {
-        "create": "Créer"
+        "caption": "Créer"
       },
       "spinner": {
         "refresh": "Rafraîchir",
@@ -804,6 +814,10 @@
         "dialog_header_add": "Ajouter un mode de paiement",
         "dialog_header_update": "Mettre à jour le mode de paiement",
         "update-payment-method-form": {
+          "header": {
+            "title_existing": "Mettre à jour la carte",
+            "subtitle": "Entrez les détails de la carte ci-dessous et cliquez sur Enregistrer la carte"
+          },
           "status": {
             "cc_token_success": "Les détails de la carte ont été enregistrés avec succès.",
             "close": "Fermer"
@@ -981,6 +995,30 @@
       }
     },
     "subscription-form": {
+      "header": {
+        "title_new": "Abonnement",
+        "title_existing": "Abonnement",
+        "title_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+        "title_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
+        "subtitle_active": "Incluant les frais d'expédition, les taxes, etc. Prochain paiement le {{date, date}}.",
+        "subtitle_cancelled": "Incluant les frais d'expédition, les taxes, etc. Terminé le {{date, date}}.",
+        "subtitle_failed": "Incluant les frais d'expédition, les taxes, etc. Le paiement a échoué le {{date, date}}.",
+        "subtitle_inactive": "Incluant les frais d'expédition, les taxes, etc. Inactif.",
+        "subtitle_will_be_cancelled": "Incluant les frais d'expédition, les taxes, etc. Se termine le {{date, date}}.",
+        "subtitle_will_be_active": "Incluant les frais d'expédition, les taxes, etc. Commence le {{date, date}}.",
+        "copy-id": {
+          "failed_to_copy": "Échec de la copie",
+          "click_to_copy": "Copier l'ID",
+          "copying": "Copie en cours...",
+          "done": "Copié dans le presse-papiers"
+        },
+        "copy-json": {
+          "failed_to_copy": "Échec de la copie",
+          "click_to_copy": "Copier la source en JSON",
+          "copying": "Copie en cours...",
+          "done": "Copié dans le presse-papiers"
+        }
+      },
       "day": "Jour",
       "day_plural": "Jours",
       "week": "Semaine",
@@ -1004,12 +1042,6 @@
       "next_transaction_date": "Date de la prochaine transaction",
       "price_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
       "price_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
-      "subscription_active": "Y compris les frais d'expédition, les taxes, etc. Prochain paiement le {{date, date}}.",
-      "subscription_cancelled": "Y compris les frais d'expédition, les taxes, etc. Terminé le {{date, date}}.",
-      "subscription_failed": "Y compris les frais d'expédition, les taxes, etc. Le paiement a échoué le {{date, date}}.",
-      "subscription_inactive": "Y compris les frais d'expédition, les taxes, etc. Inactif.",
-      "subscription_will_be_cancelled": "Y compris les frais d'expédition, les taxes, etc. Se termine le {{date, date}}.",
-      "subscription_will_be_active": "Y compris les frais d'expédition, les taxes, etc. À partir du {{date, date}}.",
       "transaction_plural": "Transactions",
       "twice_a_month": "Deux fois par mois",
       "update_billing": "Mettre à jour la facturation",
@@ -1161,8 +1193,14 @@
       "text": "En créant un compte, vous acceptez nos conditions d'utilisation.",
       "link": "Cliquez ici pour les ouvrir dans un nouvel onglet."
     },
+    "undo": {
+      "caption": "Undo"
+    },
+    "submit": {
+      "caption": "Save changes"
+    },
     "create": {
-      "create": "Créer un compte"
+      "caption": "Créer un compte"
     },
     "spinner": {
       "refresh": "Rafraîchir",

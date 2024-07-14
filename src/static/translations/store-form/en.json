@@ -1,4 +1,21 @@
 {
+  "header": {
+    "title_existing": "Store #{{ id }}",
+    "title_new": "New store",
+    "subtitle": "",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
   "maintenance_mode_on_explainer": "Maintenance mode is on. Your customers can't make purchases or use the checkout page in any way. Once you're done making changes, disable this mode to continue getting orders.",
   "maintenance_mode_off_explainer": "If you're about to make changes that may disrupt the checkout process, we recommend enabling the maintenance mode first. In this mode the checkout page will be completely non-functioning and the customers will see a message asking them to come back later.",
   "enable_maintenance_mode": "Enable maintenance mode",
@@ -14,7 +31,7 @@
     "label": "Emails",
     "placeholder": "Enter an email and press Enter",
     "helper_text": "Email addresses used for billing and communication with Foxy.",
-    "submit": "Submit",
+    "caption": "Submit",
     "delete": "Delete",
     "v8n_required": "Please enter at least one email",
     "v8n_too_long": "All emails for this store must fit within 300 characters when comma-separated"
@@ -311,7 +328,13 @@
     "cancel": "Cancel",
     "delete_prompt": "Are you sure you'd like to remove this store? You won't be able to bring it back."
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Create"
+    "caption": "Create"
   }
 }

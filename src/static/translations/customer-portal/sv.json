@@ -63,6 +63,10 @@
       }
     },
     "address-form": {
+      "error": {
+        "country_banned": "Tyvärr accepterar vi inte beställningar från det land du har valt.",
+        "address_name_exists": "Ett annat adress med samma namn finns redan. Vänligen välj ett unikt namn."
+      },
       "address-name": {
         "label": "Adressnamn",
         "placeholder": "Nödvändig",
@@ -140,8 +144,14 @@
         "cancel": "Annullera",
         "delete_prompt": "Är du säker på att du vill ta bort den här adressen? "
       },
+      "undo": {
+        "caption": "Undo"
+      },
+      "submit": {
+        "caption": "Save changes"
+      },
       "create": {
-        "create": "Skapa"
+        "caption": "Skapa"
       },
       "spinner": {
         "refresh": "Uppdatera",
@@ -804,6 +814,10 @@
         "dialog_header_add": "Lägg till betalningsmetod",
         "dialog_header_update": "Uppdatera betalningsmetod",
         "update-payment-method-form": {
+          "header": {
+            "title_existing": "Uppdatera kort",
+            "subtitle": "Ange kortuppgifter nedan och klicka på Spara kort"
+          },
           "status": {
             "cc_token_success": "Kortinformationen har sparats.",
             "close": "Stänga"
@@ -981,6 +995,30 @@
       }
     },
     "subscription-form": {
+      "header": {
+        "title_new": "Prenumeration",
+        "title_existing": "Prenumeration",
+        "title_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+        "title_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
+        "subtitle_active": "Inklusive frakt, skatter etc. Nästa betalning på {{date, date}}.",
+        "subtitle_cancelled": "Inklusive frakt, skatter etc. Slutade den {{date, date}}.",
+        "subtitle_failed": "Inklusive frakt, skatter etc. Betalning misslyckades den {{date, date}}.",
+        "subtitle_inactive": "Inklusive frakt, skatter etc. Inaktiv.",
+        "subtitle_will_be_cancelled": "Inklusive frakt, skatter etc. Slutar på {{date, date}}.",
+        "subtitle_will_be_active": "Inklusive frakt, skatter etc. Börjar på {{date, date}}.",
+        "copy-id": {
+          "failed_to_copy": "Misslyckades att kopiera",
+          "click_to_copy": "Kopiera ID",
+          "copying": "Kopierar...",
+          "done": "Kopierad till urklipp"
+        },
+        "copy-json": {
+          "failed_to_copy": "Misslyckades att kopiera",
+          "click_to_copy": "Kopiera källa som JSON",
+          "copying": "Kopierar...",
+          "done": "Kopierad till urklipp"
+        }
+      },
       "day": "Dag",
       "day_plural": "dagar",
       "week": "Vecka",
@@ -1004,12 +1042,6 @@
       "next_transaction_date": "Nästa transaktionsdatum",
       "price_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
       "price_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
-      "subscription_active": "Inklusive frakt, skatter etc. Nästa betalning på {{date, date}}.",
-      "subscription_cancelled": "Inklusive frakt, skatter etc. Slutade den {{date, date}}.",
-      "subscription_failed": "Inklusive frakt, skatter etc. Betalning misslyckades den {{date, date}}.",
-      "subscription_inactive": "Inklusive frakt, skatter etc. Inaktiv.",
-      "subscription_will_be_cancelled": "Inklusive frakt, skatter etc. Slutar på {{date, date}}.",
-      "subscription_will_be_active": "Inklusive frakt, skatter etc. Börjar på {{date, date}}.",
       "transaction_plural": "Transaktioner",
       "twice_a_month": "Två gånger i månaden",
       "update_billing": "Uppdatera fakturering",
@@ -1161,8 +1193,14 @@
       "text": "Genom att skapa ett konto godkänner du våra användarvillkor.",
       "link": "Klicka här för att öppna dem på en ny flik."
     },
+    "undo": {
+      "caption": "Undo"
+    },
+    "submit": {
+      "caption": "Save changes"
+    },
     "create": {
-      "create": "Skapa konto"
+      "caption": "Skapa konto"
     },
     "spinner": {
       "refresh": "Uppdatera",
