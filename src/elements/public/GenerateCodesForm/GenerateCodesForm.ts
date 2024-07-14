@@ -1,4 +1,4 @@
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 
@@ -13,21 +13,6 @@ const Base = TranslatableMixin(InternalForm, NS);
 /**
  * Form element for generating codes for coupons or gift cards (`fx:generate_codes`).
  *
- * @slot length:before
- * @slot length:after
- *
- * @slot number-of-codes:before
- * @slot number-of-codes:after
- *
- * @slot prefix:before
- * @slot prefix:after
- *
- * @slot current-balance:before
- * @slot current-balance:after
- *
- * @slot create:before
- * @slot create:after
- *
  * @element foxy-generate-codes-form
  * @since 1.15.0
  */
@@ -38,8 +23,6 @@ export class GenerateCodesForm extends Base<Data> {
         (l - p.length > 0 && l <= 50 && !p?.includes(' ')) || 'error:invalid_form',
     ];
   }
-
-  templates: Templates = {};
 
   private readonly __exampleGetValue = () => {
     const templates = [

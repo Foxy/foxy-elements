@@ -9,18 +9,6 @@ import { html } from 'lit-html';
 /**
  * Form element for creating or editing item options (`fx:item_option`).
  *
- * @slot name:before
- * @slot name:after
- *
- * @slot value:before
- * @slot value:after
- *
- * @slot price-mod:before
- * @slot price-mod:after
- *
- * @slot weight-mod:before
- * @slot weight-mod:after
- *
  * @element foxy-item-option-form
  * @since 1.17.0
  */

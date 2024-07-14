@@ -14,27 +14,6 @@ const Base = TranslatableMixin(InternalForm, NS);
 /**
  * Form element for managing integrations (`fx:integration`).
  *
- * @slot project-name:before
- * @slot project-name:after
- *
- * @slot project-description:before
- * @slot project-description:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot header:before
- * @slot header:after
- *
- * @slot message:before
- * @slot message:after
- *
- * @slot table:before
- * @slot table:after
- *
- * @slot delete:before
- * @slot delete:after
- *
  * @element foxy-integration-form
  * @since 1.21.0
  */

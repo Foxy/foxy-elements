@@ -1,4 +1,4 @@
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 
@@ -13,48 +13,6 @@ const Base = TranslatableMixin(InternalForm, NS);
 
 /**
  * Basic form displaying customer address.
- *
- * @slot address-name:before - **new in v1.4.0**
- * @slot address-name:after - **new in v1.4.0**
- *
- * @slot first-name:before - **new in v1.4.0**
- * @slot first-name:after - **new in v1.4.0**
- *
- * @slot last-name:before - **new in v1.4.0**
- * @slot last-name:after - **new in v1.4.0**
- *
- * @slot region:before - **new in v1.4.0**
- * @slot region:after - **new in v1.4.0**
- *
- * @slot city:before - **new in v1.4.0**
- * @slot city:after - **new in v1.4.0**
- *
- * @slot phone:before - **new in v1.4.0**
- * @slot phone:after - **new in v1.4.0**
- *
- * @slot company:before - **new in v1.4.0**
- * @slot company:after - **new in v1.4.0**
- *
- * @slot address-one:before - **new in v1.4.0**
- * @slot address-one:after - **new in v1.4.0**
- *
- * @slot address-two:before - **new in v1.4.0**
- * @slot address-two:after - **new in v1.4.0**
- *
- * @slot country:before - **new in v1.4.0**
- * @slot country:after - **new in v1.4.0**
- *
- * @slot postal-code:before - **new in v1.4.0**
- * @slot postal-code:after - **new in v1.4.0**
- *
- * @slot timestamps:before - **new in v1.4.0**
- * @slot timestamps:after - **new in v1.4.0**
- *
- * @slot create:before - **new in v1.4.0**
- * @slot create:after - **new in v1.4.0**
- *
- * @slot delete:before - **new in v1.4.0**
- * @slot delete:after - **new in v1.4.0**
  *
  * @element foxy-address-form
  * @since 1.2.0

@@ -10,33 +10,6 @@ import { html } from 'lit-html';
 /**
  * Form element for creating or editing webhooks (`fx:webhook`).
  *
- * @slot name:before
- * @slot name:after
- *
- * @slot event-resource:before
- * @slot event-resource:after
- *
- * @slot query:before
- * @slot query:after
- *
- * @slot url:before
- * @slot url:after
- *
- * @slot format:before
- * @slot format:after
- *
- * @slot encryption-key:before
- * @slot encryption-key:after
- *
- * @slot version:before
- * @slot version:after
- *
- * @slot statuses:before
- * @slot statuses:after
- *
- * @slot logs:before
- * @slot logs:after
- *
  * @element foxy-webhook-form
  * @since 1.17.0
  */

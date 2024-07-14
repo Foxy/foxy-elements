@@ -1,6 +1,6 @@
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { Choice, Group, Metadata } from '../../private/index';
-import { Data, Templates } from './types';
+import { Data } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 
 import { ChoiceChangeEvent } from '../../private/events';
@@ -20,21 +20,6 @@ const Base = ScopedElementsMixin(
 
 /**
  * Form element for creating or editing templates (`fx:cart_include_template`, `fx:checkout_template`, `fx:cart_template`).
- *
- * @slot description:before
- * @slot description:after
- *
- * @slot content:before
- * @slot content:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot delete:before
- * @slot delete:after
  *
  * @element foxy-template-form
  * @since 1.14.0
@@ -62,8 +47,6 @@ export class TemplateForm extends Base<Data> {
       'x-group': Group,
     };
   }
-
-  templates: Templates = {};
 
   private __cacheState: 'idle' | 'busy' | 'fail' = 'idle';
 

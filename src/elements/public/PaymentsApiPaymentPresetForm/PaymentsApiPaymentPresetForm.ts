@@ -2,7 +2,7 @@ import type { InternalCheckboxGroupControl } from '../../internal/InternalCheckb
 import type { PropertyDeclarations } from 'lit-element';
 import type { FormRendererContext } from '../FormDialog/types';
 import type { ItemRendererContext } from '../CollectionPage/types';
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 
@@ -20,30 +20,6 @@ const Base = TranslatableMixin(InternalForm, NS);
  * in an attempt to streamline access to stores' payment method settings
  * that is currently a bit quirky due to the legacy functionality. To use
  * this element with hAPI, wrap it into a foxy-payments-api node._
- *
- * @slot description:before
- * @slot description:after
- *
- * @slot is-live:before
- * @slot is-live:after
- *
- * @slot is-purchase-order-enabled:before
- * @slot is-purchase-order-enabled:after
- *
- * @slot payment-methods:before
- * @slot payment-methods:after
- *
- * @slot fraud-protections:before
- * @slot fraud-protections:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot delete:before
- * @slot delete:after
  *
  * @element foxy-payments-api-payment-preset-form
  * @since 1.21.0
@@ -69,9 +45,6 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
 
   /** A function that returns image URL for given payment method `type`. */
   getPaymentMethodImageSrc: ((type: string) => string) | null = null;
-
-  /** Template render functions mapped to their name. */
-  templates: Templates = {};
 
   private static readonly __isPOEnabledOptions = [{ label: 'option_true', value: 'true' }];
 

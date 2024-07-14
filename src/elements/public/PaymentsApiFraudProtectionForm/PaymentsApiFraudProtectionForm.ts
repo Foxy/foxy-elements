@@ -1,5 +1,5 @@
 import type { AvailableFraudProtections } from '../PaymentsApi/api/types';
-import type { Templates, Block, Data } from './types';
+import type { Block, Data } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
@@ -24,24 +24,6 @@ const Base = TranslatableMixin(InternalForm, NS);
  * in an attempt to streamline access to stores' payment method settings
  * that is currently a bit quirky due to the legacy functionality. To use
  * this element with hAPI, wrap it into a foxy-payments-api node._
- *
- * @slot description:before
- * @slot description:after
- *
- * @slot score-threshold-reject:before
- * @slot score-threshold-reject:after
- *
- * @slot json-[field-name-in-kebab-case]:before
- * @slot json-[field-name-in-kebab-case]:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot delete:before
- * @slot delete:after
  *
  * @element foxy-payments-api-fraud-protection-form
  * @since 1.21.0
@@ -97,9 +79,6 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
 
   /** A function that returns a URL of a fraud protection icon based on the given type. */
   getImageSrc: ((type: string) => string) | null = null;
-
-  /** Template render functions mapped to their name. */
-  templates: Templates = {};
 
   private readonly __availableFraudProtectionsLoaderId = 'availableFraudProtections';
 

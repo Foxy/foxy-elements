@@ -1,5 +1,5 @@
 import type { PropertyDeclarations } from 'lit-element';
-import type { Templates, Data } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { FormRenderer } from '../FormDialog/types';
@@ -22,96 +22,6 @@ const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 
 /**
  * Form element for creating or editing carts (`fx:cart`).
- *
- * @slot customer-type:before
- * @slot customer-type:after
- *
- * @slot customer:before
- * @slot customer:after
- *
- * @slot template-set-uri:before
- * @slot template-set-uri:after
- *
- * @slot items:before
- * @slot items:after
- *
- * @slot applied-coupon-codes:before
- * @slot applied-coupon-codes:after
- *
- * @slot custom-fields:before
- * @slot custom-fields:after
- *
- * @slot attributes:before
- * @slot attributes:after
- *
- * @slot billing-first-name:before
- * @slot billing-first-name:after
- *
- * @slot billing-last-name:before
- * @slot billing-last-name:after
- *
- * @slot billing-company:before
- * @slot billing-company:after
- *
- * @slot billing-phone:before
- * @slot billing-phone:after
- *
- * @slot billing-address-one:before
- * @slot billing-address-one:after
- *
- * @slot billing-address-two:before
- * @slot billing-address-two:after
- *
- * @slot billing-country:before
- * @slot billing-country:after
- *
- * @slot billing-region:before
- * @slot billing-region:after
- *
- * @slot billing-city:before
- * @slot billing-city:after
- *
- * @slot billing-postal-code:before
- * @slot billing-postal-code:after
- *
- * @slot shipping-first-name:before
- * @slot shipping-first-name:after
- *
- * @slot shipping-last-name:before
- * @slot shipping-last-name:after
- *
- * @slot shipping-company:before
- * @slot shipping-company:after
- *
- * @slot shipping-phone:before
- * @slot shipping-phone:after
- *
- * @slot shipping-address-one:before
- * @slot shipping-address-one:after
- *
- * @slot shipping-address-two:before
- * @slot shipping-address-two:after
- *
- * @slot shipping-country:before
- * @slot shipping-country:after
- *
- * @slot shipping-region:before
- * @slot shipping-region:after
- *
- * @slot shipping-city:before
- * @slot shipping-city:after
- *
- * @slot shipping-postal-code:before
- * @slot shipping-postal-code:after
- *
- * @slot view-as-customer:before
- * @slot view-as-customer:after
- *
- * @slot delete:before
- * @slot delete:after
- *
- * @slot create:before
- * @slot create:after
  *
  * @element foxy-cart-form
  * @since 1.21.0
@@ -168,9 +78,6 @@ export class CartForm extends Base<Data> {
 
   /** URL of the `fx:countries` property helper. */
   countries: string | null = null;
-
-  /** Template render functions mapped to their name. */
-  templates: Templates = {};
 
   /** URL of the `fx:regions` property helper. */
   regions: string | null = null;

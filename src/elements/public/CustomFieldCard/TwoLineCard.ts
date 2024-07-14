@@ -1,6 +1,5 @@
 import type { HALJSONResource } from '../NucleonElement/types';
 import type { TemplateResult } from 'lit-html';
-import type { Renderer } from '../../../mixins/configurable';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { ResponsiveMixin } from '../../../mixins/responsive';
@@ -8,13 +7,6 @@ import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { html } from 'lit-html';
 
 export type TemplateFn<TData extends HALJSONResource> = (data: TData) => TemplateResult;
-
-export type Templates<TData extends HALJSONResource> = {
-  'title:before'?: Renderer<TData>;
-  'title:after'?: Renderer<TData>;
-  'subtitle:before'?: Renderer<TData>;
-  'subtitle:after'?: Renderer<TData>;
-};
 
 export type RenderOptions<TData extends HALJSONResource> = {
   title: TemplateFn<TData>;
@@ -24,8 +16,6 @@ export type RenderOptions<TData extends HALJSONResource> = {
 const Base = ResponsiveMixin(ConfigurableMixin(InternalCard));
 
 export class TwoLineCard<TData extends HALJSONResource> extends Base<TData> {
-  templates: Templates<TData> = {};
-
   private readonly __renderTitle = (content?: TemplateFn<TData>) => {
     return html`
       <div data-testid="title">

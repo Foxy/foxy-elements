@@ -1,4 +1,4 @@
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 
@@ -13,30 +13,6 @@ const Base = TranslatableMixin(InternalForm, NS);
 
 /**
  * Form element for `fx:user` resources.
- *
- * @slot first-name:before – new in v1.22.0
- * @slot first-name:after – new in v1.22.0
- *
- * @slot last-name:before – new in v1.22.0
- * @slot last-name:after – new in v1.22.0
- *
- * @slot email:before – new in v1.22.0
- * @slot email:after – new in v1.22.0
- *
- * @slot phone:before – new in v1.22.0
- * @slot phone:after – new in v1.22.0
- *
- * @slot role:before – new in v1.22.0
- * @slot role:after – new in v1.22.0
- *
- * @slot timestamps:before – new in v1.27.0
- * @slot timestamps:after – new in v1.27.0
- *
- * @slot create:before – new in v1.22.0
- * @slot create:after – new in v1.22.0
- *
- * @slot delete:before – new in v1.22.0
- * @slot delete:after – new in v1.22.0
  *
  * @element foxy-user-form
  * @since 1.3.0
@@ -54,8 +30,6 @@ export class UserForm extends Base<Data> {
       ({ phone: v }) => !v || v.length <= 50 || 'phone:v8n_too_long',
     ];
   }
-
-  templates: Templates = {};
 
   private readonly __roleGetValue = () => {
     const value: string[] = [];

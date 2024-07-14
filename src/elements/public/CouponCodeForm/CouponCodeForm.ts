@@ -1,4 +1,4 @@
-import type { Data, Templates, TransactionPageHrefGetter } from './types';
+import type { Data, TransactionPageHrefGetter } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
@@ -14,24 +14,6 @@ const Base = TranslatableMixin(InternalForm, NS);
 
 /**
  * Form element for creating or editing coupon codes (`fx:coupon_code`).
- *
- * @slot code:before
- * @slot code:after
- *
- * @slot number-of-uses-to-date:before – **new in v1.27.0**
- * @slot number-of-uses-to-date:after – **new in v1.27.0**
- *
- * @slot transactions:before – **new in v1.27.0**
- * @slot transactions:after – **new in v1.27.0**
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot delete:before
- * @slot delete:after
- *
- * @slot create:before
- * @slot create:after
  *
  * @element foxy-coupon-code-form
  * @since 1.15.0
@@ -53,12 +35,6 @@ export class CouponCodeForm extends Base<Data> {
   }
 
   getTransactionPageHref: TransactionPageHrefGetter | null = null;
-
-  templates: Templates = {};
-
-  get readonlySelector(): BooleanSelector {
-    return new BooleanSelector(`number-of-uses-to-date ${super.readonlySelector}`.trim());
-  }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch: string[] = [super.hiddenSelector.toString()];

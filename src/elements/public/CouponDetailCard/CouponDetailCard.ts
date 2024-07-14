@@ -12,12 +12,6 @@ const Base = TranslatableMixin(TwoLineCard, NS);
 /**
  * Basic card displaying a coupon detail.
  *
- * @slot title:before
- * @slot title:after
- *
- * @slot subtitle:before
- * @slot subtitle:after
- *
  * @element foxy-coupon-detail-card
  * @since 1.17.0
  */

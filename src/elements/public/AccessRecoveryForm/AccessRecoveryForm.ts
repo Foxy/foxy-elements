@@ -1,4 +1,4 @@
-import { Data, Templates } from './types';
+import { Data } from './types';
 import { TemplateResult, html } from 'lit-element';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
@@ -17,15 +17,6 @@ const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 
 /**
  * Email-based "forgot password" form.
  *
- * @slot email:before
- * @slot email:after
- *
- * @slot message:before
- * @slot message:after
- *
- * @slot submit:before
- * @slot submit:after
- *
  * @element foxy-access-recovery-form
  * @since 1.4.0
  */
@@ -36,8 +27,6 @@ export class AccessRecoveryForm extends Base<Data> {
       ({ detail: d }) => isEmail(d?.email ?? '') || 'email_invalid_email',
     ];
   }
-
-  templates: Templates = {};
 
   private readonly __checkEmailValidity = () => {
     return !this.errors.some(err => err.startsWith('email'));

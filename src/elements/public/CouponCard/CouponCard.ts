@@ -1,4 +1,4 @@
-import { Data, Templates } from './types';
+import { Data } from './types';
 import { TemplateResult, html } from 'lit-html';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
@@ -13,19 +13,10 @@ const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 
 /**
  * Basic card displaying a coupon.
  *
- * @slot title:before
- * @slot title:after
- * @slot description:before
- * @slot description:after
- * @slot status:before
- * @slot status:after
- *
  * @element foxy-coupon-card
  * @since 1.15.0
  */
 export class CouponCard extends Base<Data> {
-  templates: Templates = {};
-
   render(): TemplateResult {
     const hiddenSelector = this.hiddenSelector;
 

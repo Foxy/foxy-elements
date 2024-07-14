@@ -1,4 +1,4 @@
-import type { CustomerPageGetter, Data, Settings, Templates, TransactionPageGetter } from './types';
+import type { CustomerPageGetter, Data, Settings, TransactionPageGetter } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { ScopedElementsMap } from '@open-wc/scoped-elements';
 import type { InternalCalendar } from '../../internal/InternalCalendar/InternalCalendar';
@@ -29,38 +29,6 @@ const Base = ScopedElementsMixin(ResponsiveMixin(TranslatableMixin(InternalForm,
 
 /**
  * Form element for creating or editing subscriptions.
- *
- * @slot header:before - **new in v1.4.0**
- * @slot header:after - **new in v1.4.0**
- *
- * @slot items:before - **new in v1.4.0**
- * @slot items:after - **new in v1.4.0**
- * @slot items:actions:before - **new in v1.4.0**
- * @slot items:actions:after - **new in v1.4.0**
- *
- * @slot end-date:before - **new in v1.4.0**
- * @slot end-date:after - **new in v1.4.0**
- *
- * @slot next-transaction-date:before - **new in v1.4.0**
- * @slot next-transaction-date:after - **new in v1.4.0**
- *
- * @slot frequency:before - **new in v1.4.0**
- * @slot frequency:after - **new in v1.4.0**
- *
- * @slot transactions:before - **new in v1.4.0**
- * @slot transactions:after - **new in v1.4.0**
- *
- * @slot attributes:before - **new in v1.20.0**
- * @slot attributes:after - **new in v1.20.0**
- *
- * @slot timestamps:before - **new in v1.20.0**
- * @slot timestamps:after - **new in v1.20.0**
- *
- * @slot past-due-amount:before - **new in v1.20.0**
- * @slot past-due-amount:after - **new in v1.20.0**
- *
- * @slot start-date:before - **new in v1.20.0**
- * @slot start-date:after - **new in v1.20.0**
  *
  * @element foxy-subscription-form
  * @since 1.2.0
@@ -110,8 +78,6 @@ export class SubscriptionForm extends Base<Data> {
   itemCategories: string | null = null;
 
   localeCodes: string | null = null;
-
-  templates: Templates = {};
 
   settings: Settings | null = null;
 

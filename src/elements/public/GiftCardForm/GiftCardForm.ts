@@ -23,36 +23,6 @@ const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 /**
  * Form element for creating or editing gift cards (`fx:gift_card`).
  *
- * @slot name:before
- * @slot name:after
- *
- * @slot currency:before
- * @slot currency:after
- *
- * @slot expires:before
- * @slot expires:after
- *
- * @slot codes:before
- * @slot codes:after
- *
- * @slot product-restrictions:before
- * @slot product-restrictions:after
- *
- * @slot category-restrictions:before
- * @slot category-restrictions:after
- *
- * @slot attributes:before - **new in v1.27.0**
- * @slot attributes:after - **new in v1.27.0**
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot delete:before
- * @slot delete:after
- *
- * @slot create:before
- * @slot create:after
- *
  * @element foxy-gift-card-form
  * @since 1.15.0
  */

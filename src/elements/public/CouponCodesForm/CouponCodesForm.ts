@@ -1,4 +1,4 @@
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
@@ -14,12 +14,6 @@ const Base = TranslatableMixin(InternalForm, NS);
 /**
  * Form element for importing coupon codes (`fx:coupon_codes`).
  *
- * @slot coupon-codes:before - **new in v1.27.0**
- * @slot coupon-codes:after - **new in v1.27.0**
- *
- * @slot create:before - **new in v1.27.0**
- * @slot create:after - **new in v1.27.0**
- *
  * @element foxy-coupon-codes-form
  * @since 1.15.0
  */
@@ -27,8 +21,6 @@ export class CouponCodesForm extends Base<Data> {
   static get v8n(): NucleonV8N<Data> {
     return [({ coupon_codes: v }) => (v && v.length > 0) || 'coupon-codes:v8n_required'];
   }
-
-  templates: Templates = {};
 
   private readonly __couponCodesGetValue = () => {
     return this.form.coupon_codes?.map(value => ({ value })) ?? [];

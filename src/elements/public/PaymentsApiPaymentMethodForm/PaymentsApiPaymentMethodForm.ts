@@ -1,5 +1,5 @@
 import type { AvailablePaymentMethods } from '../PaymentsApi/api/types';
-import type { Templates, Block, Data } from './types';
+import type { Block, Data } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
@@ -31,45 +31,6 @@ const Base = TranslatableMixin(InternalForm, NS);
  * in an attempt to streamline access to stores' payment method settings
  * that is currently a bit quirky due to the legacy functionality. To use
  * this element with hAPI, wrap it into a foxy-payments-api node._
- *
- * @slot description:before
- * @slot description:after
- *
- * @slot account-id:before
- * @slot account-id:after
- *
- * @slot account-key:before
- * @slot account-key:after
- *
- * @slot third-party-key:before
- * @slot third-party-key:after
- *
- * @slot test-account-id:before
- * @slot test-account-id:after
- *
- * @slot test-account-key:before
- * @slot test-account-key:after
- *
- * @slot test-third-party-key:before
- * @slot test-third-party-key:after
- *
- * @slot additional-fields-[field-name-in-kebab-case]:before
- * @slot additional-fields-[field-name-in-kebab-case]:after
- *
- * @slot three-d-secure-toggle:before
- * @slot three-d-secure-toggle:after
- *
- * @slot three-d-secure-response:before
- * @slot three-d-secure-response:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot delete:before
- * @slot delete:after
  *
  * @element foxy-payments-api-payment-method-form
  * @since 1.21.0
@@ -123,9 +84,6 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
   /** A function that returns a URL of a payment method icon based on the given type. */
   getImageSrc: ((type: string) => string) | null = null;
-
-  /** Template render functions mapped to their name. */
-  templates: Templates = {};
 
   private readonly __availablePaymentMethodsLoaderId = 'availablePaymentMethodsLoader';
 

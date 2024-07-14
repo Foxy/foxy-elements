@@ -13,12 +13,6 @@ const Base = TranslatableMixin(TwoLineCard, NS);
 /**
  * Basic card displaying a saved passkey.
  *
- * @slot title:before
- * @slot title:after
- *
- * @slot subtitle:before
- * @slot subtitle:after
- *
  * @element foxy-passkey-card
  * @since 1.24.0
  */

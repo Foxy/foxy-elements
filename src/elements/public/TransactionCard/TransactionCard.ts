@@ -1,4 +1,4 @@
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { Rels } from '@foxy.io/sdk/backend';
 
@@ -15,21 +15,10 @@ const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 /**
  * Basic card displaying a transaction.
  *
- * @slot total:before
- * @slot total:after
- * @slot status:before
- * @slot status:after
- * @slot description:before
- * @slot description:after
- * @slot customer:before
- * @slot customer:after
- *
  * @element foxy-transaction-card
  * @since 1.12.0
  */
 class TransactionCard extends Base<Data> {
-  templates: Templates = {};
-
   private __currencyDisplay = '';
 
   renderBody(): TemplateResult {

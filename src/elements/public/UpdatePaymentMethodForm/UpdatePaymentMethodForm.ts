@@ -18,12 +18,6 @@ const Base = TranslatableMixin(InternalForm, NS);
  * Form element for updating customer's default payment method (`fx:default_payment_method`)
  * using the Payment Card Embed. Works only with existing payment methods.
  *
- * @slot template-set:before
- * @slot template-set:after
- *
- * @slot cc-token:before
- * @slot cc-token:after
- *
  * @element foxy-update-payment-method-form
  * @since 1.27.0
  */

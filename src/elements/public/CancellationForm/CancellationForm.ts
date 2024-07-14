@@ -1,4 +1,4 @@
-import { Data, Templates } from './types';
+import { Data } from './types';
 import { Group, Warning } from '../../private/index';
 import { TemplateResult, html } from 'lit-element';
 
@@ -22,13 +22,6 @@ const Base = ScopedElementsMixin(
 /**
  * Form element for canceling subscriptions.
  *
- * @slot warning:before
- * @slot warning:after
- * @slot end-date:before
- * @slot end-date:after
- * @slot submit:before
- * @slot submit:after
- *
  * @element foxy-cancellation-form
  * @since 1.4.0
  * @deprecated
@@ -49,8 +42,6 @@ export class CancellationForm extends Base<Data> {
   static get v8n(): NucleonV8N<Data> {
     return [({ end_date: v }) => !!v || 'end_date_required'];
   }
-
-  templates: Templates = {};
 
   private readonly __renderWarning = () => {
     const { lang, ns } = this;

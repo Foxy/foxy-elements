@@ -1,5 +1,5 @@
 import type { PropertyDeclarations } from 'lit-element';
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
@@ -18,33 +18,6 @@ const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 
 /**
  * Form element for creating and editing template sets (`fx:template_set`).
- *
- * @slot description:before
- * @slot description:after
- *
- * @slot code:before
- * @slot code:after
- *
- * @slot language:before
- * @slot language:after
- *
- * @slot locale-code:before
- * @slot locale-code:after
- *
- * @slot payment-method-set-uri:before
- * @slot payment-method-set-uri:after
- *
- * @slot language-overrides:before
- * @slot language-overrides:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot delete:before
- * @slot delete:after
  *
  * @element foxy-template-set-form
  * @since 1.21.0
@@ -82,11 +55,6 @@ export class TemplateSetForm extends Base<Data> {
 
   /** URL of the `fx:languages` property helper (used to fill the relevant dropdown with options). */
   languages: string | null = null;
-
-  /** Template render functions mapped to their name. */
-  templates: Templates = {};
-
-  private readonly __paymentMethodSetLoaderId = 'paymentMethodSetLoader';
 
   private readonly __localeCodesLoaderId = 'localeCodesLoader';
 

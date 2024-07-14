@@ -1,5 +1,5 @@
 import { Choice, Group, Metadata } from '../../private/index';
-import { Data, Templates } from './types';
+import { Data } from './types';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import {
@@ -43,21 +43,6 @@ const Base = ScopedElementsMixin(
 /**
  * Form element for creating or editing reports (`fx:report`).
  *
- * @slot name:before
- * @slot name:after
- *
- * @slot range:before
- * @slot range:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot delete:before
- * @slot delete:after
- *
- * @slot create:before
- * @slot create:after
- *
  * @element foxy-report-form
  * @since 1.16.0
  */
@@ -95,8 +80,6 @@ export class ReportForm extends Base<Data> {
       ({ datetime_end: v }) => !!v || 'datetime_end_required',
     ];
   }
-
-  templates: Templates = {};
 
   private __showRangeTime = false;
 

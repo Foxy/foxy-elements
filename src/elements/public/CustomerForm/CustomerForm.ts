@@ -1,5 +1,5 @@
 import type { VanillaHCaptchaWebComponent } from 'vanilla-hcaptcha';
-import type { Data, Templates, Settings } from './types';
+import type { Data, Settings } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { ScopedElementsMap } from '@open-wc/scoped-elements';
 import type { TemplateResult } from 'lit-html';
@@ -21,42 +21,6 @@ const passwordStrength = checkPasswordStrength.passwordStrength;
 
 /**
  * Form element for creating or editing customers.
- *
- * @slot first-name:before - **new in v1.4.0**
- * @slot first-name:after - **new in v1.4.0**
- *
- * @slot last-name:before - **new in v1.4.0**
- * @slot last-name:after - **new in v1.4.0**
- *
- * @slot email:before - **new in v1.4.0**
- * @slot email:after - **new in v1.4.0**
- *
- * @slot tax-id:before - **new in v1.4.0**
- * @slot tax-id:after - **new in v1.4.0**
- *
- * @slot is-anonymous:before - **new in v1.24.0**
- * @slot is-anonymous:after - **new in v1.24.0**
- *
- * @slot password:before - **new in v1.24.0**
- * @slot password:after - **new in v1.24.0**
- *
- * @slot password-old:before - **new in v1.24.0**
- * @slot password-old:after - **new in v1.24.0**
- *
- * @slot forgot-password:before - **new in v1.24.0**
- * @slot forgot-password:after - **new in v1.24.0**
- *
- * @slot legal-notice:before - **new in v1.24.0**
- * @slot legal-notice:after - **new in v1.24.0**
- *
- * @slot timestamps:before - **new in v1.4.0**
- * @slot timestamps:after - **new in v1.4.0**
- *
- * @slot create:before - **new in v1.4.0**
- * @slot create:after - **new in v1.4.0**
- *
- * @slot delete:before - **new in v1.4.0**
- * @slot delete:after - **new in v1.4.0**
  *
  * @element foxy-customer-form
  * @since 1.2.0
@@ -112,8 +76,6 @@ export class CustomerForm extends Base<Data> {
 
   /** If true, won't require password when creating a customer. */
   passwordless = false;
-
-  templates: Templates = {};
 
   /** Full `fx:customer_portal_settings` resource from Customer API. If present, switches this element into the Customer API mode, enabling client verification. */
   settings: Settings | null = null;

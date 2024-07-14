@@ -1,59 +1,7 @@
-import { Rels } from '@foxy.io/sdk/backend';
-import { Renderer } from '../../../mixins/configurable';
-import { Resource } from '@foxy.io/sdk/core';
-import { TemplateConfigForm } from './TemplateConfigForm';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 export type Data = Resource<Rels.TemplateConfig>;
-
-export type Templates = {
-  'cart-type:before'?: Renderer<TemplateConfigForm>;
-  'cart-type:after'?: Renderer<TemplateConfigForm>;
-
-  'foxycomplete:before'?: Renderer<TemplateConfigForm>;
-  'foxycomplete:after'?: Renderer<TemplateConfigForm>;
-
-  'locations:before'?: Renderer<TemplateConfigForm>;
-  'locations:after'?: Renderer<TemplateConfigForm>;
-
-  'hidden-fields:before'?: Renderer<TemplateConfigForm>;
-  'hidden-fields:after'?: Renderer<TemplateConfigForm>;
-
-  'cards:before'?: Renderer<TemplateConfigForm>;
-  'cards:after'?: Renderer<TemplateConfigForm>;
-
-  'checkout-type:before'?: Renderer<TemplateConfigForm>;
-  'checkout-type:after'?: Renderer<TemplateConfigForm>;
-
-  'consent:before'?: Renderer<TemplateConfigForm>;
-  'consent:after'?: Renderer<TemplateConfigForm>;
-
-  'fields:before'?: Renderer<TemplateConfigForm>;
-  'fields:after'?: Renderer<TemplateConfigForm>;
-
-  'google-analytics:before'?: Renderer<TemplateConfigForm>;
-  'google-analytics:after'?: Renderer<TemplateConfigForm>;
-
-  'google-tag:before'?: Renderer<TemplateConfigForm>;
-  'google-tag:after'?: Renderer<TemplateConfigForm>;
-
-  'segment-io:before'?: Renderer<TemplateConfigForm>;
-  'segment-io:after'?: Renderer<TemplateConfigForm>;
-
-  'troubleshooting:before'?: Renderer<TemplateConfigForm>;
-  'troubleshooting:after'?: Renderer<TemplateConfigForm>;
-
-  'custom-config:before'?: Renderer<TemplateConfigForm>;
-  'custom-config:after'?: Renderer<TemplateConfigForm>;
-
-  'header:before'?: Renderer<TemplateConfigForm>;
-  'header:after'?: Renderer<TemplateConfigForm>;
-
-  'custom-fields:before'?: Renderer<TemplateConfigForm>;
-  'custom-fields:after'?: Renderer<TemplateConfigForm>;
-
-  'footer:before'?: Renderer<TemplateConfigForm>;
-  'footer:after'?: Renderer<TemplateConfigForm>;
-};
 
 export type TemplateConfigJSON = {
   /** Controls how your cart functions. */

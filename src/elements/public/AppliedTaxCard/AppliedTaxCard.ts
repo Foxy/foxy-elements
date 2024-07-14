@@ -9,12 +9,6 @@ import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
 /**
  * Basic card displaying an applied tax.
  *
- * @slot title:before
- * @slot title:after
- *
- * @slot subtitle:before
- * @slot subtitle:after
- *
  * @element foxy-applied-tax-card
  * @since 1.11.0
  */
