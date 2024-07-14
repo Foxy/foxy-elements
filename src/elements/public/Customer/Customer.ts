@@ -103,6 +103,7 @@ export class Customer extends Base<Data> {
         readonlycontrols=${readonlySelector.zoom(formId).toString()}
         disabledcontrols=${disabledSelector.zoom(formId).toString()}
         hiddencontrols=${hiddenSelector.zoom(formId).toString()}
+        alert
         .templates=${this.getNestedTemplates('header:actions:edit:form')}
         .props=${{ '.settings': this.settings }}
       >
@@ -203,6 +204,7 @@ export class Customer extends Base<Data> {
           lang=${lang}
           ns=${ns}
           id="address-dialog"
+          alert
           .templates=${this.getNestedTemplates('addresses:actions:create:form')}
         >
         </foxy-form-dialog>
@@ -304,6 +306,7 @@ export class Customer extends Base<Data> {
         lang=${this.lang}
         ns=${this.ns}
         id="addresses-list-form"
+        alert
         .templates=${this.getNestedTemplates(formId)}
       >
       </foxy-form-dialog>
@@ -444,6 +447,7 @@ export class Customer extends Base<Data> {
           form="foxy-attribute-form"
           lang=${lang}
           ns=${ns}
+          alert
           .templates=${this.getNestedTemplates('attributes:actions:create:form')}
         >
         </foxy-form-dialog>
@@ -543,6 +547,7 @@ export class Customer extends Base<Data> {
         lang=${this.lang}
         ns=${this.ns}
         id="attributes-list-form"
+        alert
         .templates=${this.getNestedTemplates(formId)}
       >
       </foxy-form-dialog>
@@ -691,6 +696,7 @@ export class Customer extends Base<Data> {
           lang=${this.lang}
           ns=${this.ns}
           id="subscriptions-form"
+          alert
           .templates=${this.getNestedTemplates(formId)}
           .props=${{ '.settings': this.settings }}
         >
