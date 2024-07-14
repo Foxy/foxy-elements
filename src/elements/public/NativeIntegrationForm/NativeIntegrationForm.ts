@@ -156,7 +156,6 @@ export class NativeIntegrationForm extends Base<Data> {
     { value: 'avalara', label: 'option_avalara' },
     { value: 'onesource', label: 'option_onesource' },
     { value: 'taxjar', label: 'option_taxjar' },
-    { value: 'webflow', label: 'option_webflow' },
   ];
 
   private readonly __avalaraConfigOptions: Option[] = [
@@ -281,13 +280,10 @@ export class NativeIntegrationForm extends Base<Data> {
 
     return html`
       ${this.href
-        ? provider === 'webhook'
-          ? ''
-          : html`<foxy-internal-text-control infer="provider"></foxy-internal-text-control>`
+        ? ''
         : html`
             <foxy-internal-radio-group-control
               infer="provider"
-              theme="vertical"
               .getValue=${this.__providerGetValue}
               .setValue=${this.__providerSetValue}
               .options=${this.__templateProviderOptions}

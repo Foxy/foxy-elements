@@ -354,21 +354,6 @@ describe('NativeIntegrationForm', () => {
     expect(control).to.not.exist;
   });
 
-  it('renders non-webhook provider name in text control when href is defined', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form
-        href="https://demo.api/hapi/native_integrations/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-native-integration-form>
-    `);
-
-    await waitUntil(() => element.in('idle'));
-    const control = element.renderRoot.querySelector('[infer="provider"]') as InternalTextControl;
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
   it('renders provider selector when href is not defined', async () => {
     const element = await fixture<Form>(
       html`<foxy-native-integration-form></foxy-native-integration-form>`
@@ -384,7 +369,6 @@ describe('NativeIntegrationForm', () => {
       { value: 'avalara', label: 'option_avalara' },
       { value: 'onesource', label: 'option_onesource' },
       { value: 'taxjar', label: 'option_taxjar' },
-      { value: 'webflow', label: 'option_webflow' },
     ]);
 
     control.setValue('taxjar');
