@@ -61,13 +61,12 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
         <foxy-internal-integer-control infer="quantity"></foxy-internal-integer-control>
       </div>
 
-      <foxy-internal-async-combo-box-control
-        item-value-path="_links.self.href"
-        item-label-path="name"
+      <foxy-internal-resource-picker-control
         first=${ifDefined(this?.itemCategories ?? undefined)}
         infer="item-category-uri"
+        item="foxy-item-category-card"
       >
-      </foxy-internal-async-combo-box-control>
+      </foxy-internal-resource-picker-control>
 
       <foxy-internal-text-control infer="code"></foxy-internal-text-control>
       <foxy-internal-text-control infer="parent-code"></foxy-internal-text-control>

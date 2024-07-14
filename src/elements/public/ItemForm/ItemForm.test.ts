@@ -20,8 +20,8 @@ describe('ItemForm', () => {
     expect(customElements.get('vaadin-details')).to.exist;
   });
 
-  it('imports and defines foxy-internal-async-combo-box-control', () => {
-    expect(customElements.get('foxy-internal-async-combo-box-control')).to.exist;
+  it('imports and defines foxy-internal-resource-picker-control', () => {
+    expect(customElements.get('foxy-internal-resource-picker-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-async-list-control', () => {
@@ -66,6 +66,10 @@ describe('ItemForm', () => {
 
   it('imports and defines foxy-discount-builder', () => {
     expect(customElements.get('foxy-discount-builder')).to.exist;
+  });
+
+  it('imports and defines foxy-item-category-card', () => {
+    expect(customElements.get('foxy-item-category-card')).to.exist;
   });
 
   it('imports and defines foxy-item-option-card', () => {
@@ -154,14 +158,12 @@ describe('ItemForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(
-      'foxy-internal-async-combo-box-control[infer="item-category-uri"]'
+      'foxy-internal-resource-picker-control[infer="item-category-uri"]'
     );
 
     expect(control).to.exist;
-    expect(control).to.have.property('itemValuePath', '_links.self.href');
-    expect(control).to.have.property('itemLabelPath', 'name');
-    expect(control).to.have.property('property', 'item_category_uri');
     expect(control).to.have.property('first', 'https://demo.api/hapi/item_categories');
+    expect(control).to.have.property('item', 'foxy-item-category-card');
   });
 
   it('renders item code as a control', async () => {
