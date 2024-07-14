@@ -95,6 +95,28 @@ export class AddressForm extends Base<Data> {
     `;
   }
 
+  protected async _fetch<TResult = Data>(...args: Parameters<Window['fetch']>): Promise<TResult> {
+    try {
+      return await super._fetch(...args);
+    } catch (err) {
+      let message;
+
+      try {
+        message = (await (err as Response).json())._embedded['fx:errors'][0].message;
+      } catch {
+        throw err;
+      }
+
+      if (message.includes('Country is invalid or disallowed by store configuration')) {
+        throw ['error:country_banned'];
+      } else if (message.includes('this address name already exists for this customer')) {
+        throw ['error:address_name_exists'];
+      } else {
+        throw err;
+      }
+    }
+  }
+
   private get __countryOptions() {
     return Object.keys(countries).map(code => ({
       label: this.t(`country_${code.toLowerCase()}`),

@@ -1,9 +1,10 @@
 import type { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
 import type { Data } from './types';
 
 import './index';
 
-import { expect, html, fixture } from '@open-wc/testing';
+import { expect, html, fixture, waitUntil } from '@open-wc/testing';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { AddressForm } from './AddressForm';
 import { getTestData } from '../../../testgen/getTestData';
@@ -365,5 +366,70 @@ describe('AddressForm', () => {
     );
 
     expect(control).to.exist;
+  });
+
+  it('renders a checkbox group control for ignoring address restrictions', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const control = element.renderRoot.querySelector<InternalCheckboxGroupControl>(
+      'foxy-internal-checkbox-group-control[infer="ignore-address-restrictions"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.deep.property('options', [{ label: 'option_true', value: 'true' }]);
+    expect(control?.getValue()).to.deep.equal([]);
+
+    element.edit({ ignore_address_restrictions: true });
+    expect(control?.getValue()).to.deep.equal(['true']);
+
+    control?.setValue([]);
+    expect(element.form).to.have.property('ignore_address_restrictions', false);
+
+    control?.setValue(['true']);
+    expect(element.form).to.have.property('ignore_address_restrictions', true);
+  });
+
+  it('renders "country_banned" general error when selected country is disallowed by store settings', async () => {
+    const form = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
+
+    form.data = await getTestData<Data>('./hapi/customer_addresses/0');
+    form.addEventListener('fetch', (evt: Event) => {
+      const event = evt as FetchEvent;
+      const body = JSON.stringify({
+        _embedded: {
+          'fx:errors': [{ message: 'Country is invalid or disallowed by store configuration' }],
+        },
+      });
+
+      event.respondWith(Promise.resolve(new Response(body, { status: 400 })));
+    });
+
+    form.edit({ address_name: 'Test Address', address1: 'Foo Bar 123' });
+    form.submit();
+
+    await waitUntil(() => !!form.in('idle'));
+    expect(form.errors).to.include('error:country_banned');
+  });
+
+  it('renders "address_name_exists" general error when address name is already taken', async () => {
+    const form = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
+
+    form.data = await getTestData<Data>('./hapi/customer_addresses/0');
+    form.addEventListener('fetch', (evt: Event) => {
+      const event = evt as FetchEvent;
+      const body = JSON.stringify({
+        _embedded: {
+          'fx:errors': [{ message: 'this address name already exists for this customer' }],
+        },
+      });
+
+      event.respondWith(Promise.resolve(new Response(body, { status: 400 })));
+    });
+
+    form.edit({ address_name: 'Test Address', address1: 'Foo Bar 123' });
+    form.submit();
+
+    await waitUntil(() => !!form.in('idle'));
+    expect(form.errors).to.include('error:address_name_exists');
   });
 });
