@@ -4,6 +4,10 @@ import { stub } from 'sinon';
 import { CopyToClipboard } from './index';
 
 describe('CopyToClipboard', () => {
+  it('imports and registers vcf-tooltip element', () => {
+    expect(customElements.get('vcf-tooltip')).to.exist;
+  });
+
   it('imports and registers iron-icon element', () => {
     expect(customElements.get('iron-icon')).to.exist;
   });
@@ -24,6 +28,10 @@ describe('CopyToClipboard', () => {
     expect(CopyToClipboard).to.have.nested.property('properties.text.type', String);
   });
 
+  it('has a reactive property/attribite named "icon" (String)', () => {
+    expect(CopyToClipboard).to.have.nested.property('properties.icon.type', String);
+  });
+
   it('has a default i18next namespace "copy-to-clipboard"', () => {
     expect(CopyToClipboard).to.have.property('defaultNS', 'copy-to-clipboard');
     expect(new CopyToClipboard()).to.have.property('ns', 'copy-to-clipboard');
@@ -32,9 +40,26 @@ describe('CopyToClipboard', () => {
   it('renders in the idle state by default', async () => {
     const layout = html`<foxy-copy-to-clipboard></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
-    const button = element.renderRoot.querySelector('button') as HTMLButtonElement;
+    const tooltip = element.renderRoot.querySelector('vcf-tooltip foxy-i18n') as HTMLElement;
 
-    expect(button).to.have.property('title', 'click_to_copy');
+    expect(tooltip).to.have.property('infer', '');
+    expect(tooltip).to.have.property('key', 'click_to_copy');
+  });
+
+  it('renders default icon when icon attribute is not set', async () => {
+    const layout = html`<foxy-copy-to-clipboard></foxy-copy-to-clipboard>`;
+    const element = await fixture<CopyToClipboard>(layout);
+    const icon = element.renderRoot.querySelector('iron-icon') as HTMLElement;
+
+    expect(icon).to.have.property('icon', 'icons:content-copy');
+  });
+
+  it('renders custom icon when icon attribute is set', async () => {
+    const layout = html`<foxy-copy-to-clipboard icon="icons:foo"></foxy-copy-to-clipboard>`;
+    const element = await fixture<CopyToClipboard>(layout);
+    const icon = element.renderRoot.querySelector('iron-icon') as HTMLElement;
+
+    expect(icon).to.have.property('icon', 'icons:foo');
   });
 
   it('copies text on click', async () => {
@@ -69,11 +94,13 @@ describe('CopyToClipboard', () => {
     const layout = html`<foxy-copy-to-clipboard text="Foo"></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
     const button = element.renderRoot.querySelector('button') as HTMLButtonElement;
+    const tooltip = element.renderRoot.querySelector('vcf-tooltip foxy-i18n') as HTMLElement;
 
     button.click();
     await element.requestUpdate();
 
-    expect(button).to.have.property('title', 'copying');
+    expect(tooltip).to.have.property('infer', '');
+    expect(tooltip).to.have.property('key', 'copying');
     writeTextMethod.restore();
   });
 
@@ -82,19 +109,21 @@ describe('CopyToClipboard', () => {
     const layout = html`<foxy-copy-to-clipboard></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
     const button = element.renderRoot.querySelector('button') as HTMLButtonElement;
+    const tooltip = element.renderRoot.querySelector('vcf-tooltip foxy-i18n') as HTMLElement;
 
     button.click();
 
     await waitUntil(
       async () => {
         await element.requestUpdate();
-        return button.title === 'click_to_copy';
+        return tooltip.getAttribute('key') === 'click_to_copy';
       },
       undefined,
       { timeout: 5000 }
     );
 
-    expect(button).to.have.property('title', 'click_to_copy');
+    expect(tooltip).to.have.property('infer', '');
+    expect(tooltip).to.have.property('key', 'click_to_copy');
     writeTextMethod.restore();
   });
 
@@ -103,19 +132,21 @@ describe('CopyToClipboard', () => {
     const layout = html`<foxy-copy-to-clipboard text="Foo"></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
     const button = element.renderRoot.querySelector('button') as HTMLButtonElement;
+    const tooltip = element.renderRoot.querySelector('vcf-tooltip foxy-i18n') as HTMLElement;
 
     button.click();
 
     await waitUntil(
       async () => {
         await element.requestUpdate();
-        return button.title === 'failed_to_copy';
+        return tooltip.getAttribute('key') === 'failed_to_copy';
       },
       undefined,
       { timeout: 5000 }
     );
 
-    expect(button).to.have.property('title', 'failed_to_copy');
+    expect(tooltip).to.have.property('infer', '');
+    expect(tooltip).to.have.property('key', 'failed_to_copy');
     writeTextMethod.restore();
   });
 
@@ -124,19 +155,21 @@ describe('CopyToClipboard', () => {
     const layout = html`<foxy-copy-to-clipboard></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
     const button = element.renderRoot.querySelector('button') as HTMLButtonElement;
+    const tooltip = element.renderRoot.querySelector('vcf-tooltip foxy-i18n') as HTMLElement;
 
     button.click();
 
     await waitUntil(
       async () => {
         await element.requestUpdate();
-        return button.title === 'click_to_copy';
+        return tooltip.getAttribute('key') === 'click_to_copy';
       },
       undefined,
       { timeout: 5000 }
     );
 
-    expect(button).to.have.property('title', 'click_to_copy');
+    expect(tooltip).to.have.property('infer', '');
+    expect(tooltip).to.have.property('key', 'click_to_copy');
     writeTextMethod.restore();
   });
 });

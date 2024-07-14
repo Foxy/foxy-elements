@@ -7,6 +7,7 @@ export default {
   component: 'foxy-copy-to-clipboard',
   argTypes: {
     disabled: { control: { type: 'boolean' } },
+    icon: { control: { type: 'text' } },
     text: { control: { type: 'text' } },
     lang: { control: { type: 'text' } },
     ns: { control: { type: 'text' } },
@@ -17,6 +18,7 @@ export const Playground = (args: Record<string, unknown>): TemplateResult => htm
   <div class="flex items-center gap-2 text-m mb-4" style="color: var(--lumo-secondary-text-color)">
     <span>${args.text}</span>
     <foxy-copy-to-clipboard
+      icon=${args.icon as string}
       text=${args.text as string}
       lang=${args.lang as string}
       ns=${args.ns as string}
@@ -31,6 +33,7 @@ export const Playground = (args: Record<string, unknown>): TemplateResult => htm
   >
     <span>${args.text}</span>
     <foxy-copy-to-clipboard
+      icon=${args.icon as string}
       text=${args.text as string}
       lang=${args.lang as string}
       ns=${args.ns as string}
@@ -45,6 +48,7 @@ export const Playground = (args: Record<string, unknown>): TemplateResult => htm
   >
     <span>${new Array(16).fill(args.text).join(' ')}</span>
     <foxy-copy-to-clipboard
+      icon=${args.icon as string}
       text=${new Array(16).fill(args.text).join(' ')}
       lang=${args.lang as string}
       ns=${args.ns as string}
@@ -56,6 +60,7 @@ export const Playground = (args: Record<string, unknown>): TemplateResult => htm
 
 Playground.args = {
   disabled: false,
+  icon: 'icons:content-copy',
   text: 'Text to copy',
   lang: 'en',
   ns: 'copy-to-clipboard',
