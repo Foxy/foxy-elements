@@ -2,7 +2,7 @@ import type { FetchEvent } from '../NucleonElement/FetchEvent';
 
 import './index';
 
-import { InternalItemCategoryFormTaxesControl } from './internal/InternalItemCategoryFormTaxesControl/InternalItemCategoryFormTaxesControl';
+import { InternalAsyncResourceLinkListControl } from '../../internal/InternalAsyncResourceLinkListControl/InternalAsyncResourceLinkListControl';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl/InternalAsyncComboBoxControl';
 import { ItemCategoryForm as Form } from './ItemCategoryForm';
@@ -21,6 +21,11 @@ describe('ItemCategoryForm', () => {
   // @ts-expect-error disabling ResizeObserver because it errors in test env
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
+
+  it('imports and defines foxy-internal-async-resource-link-list-control', () => {
+    const element = customElements.get('foxy-internal-async-resource-link-list-control');
+    expect(element).to.equal(InternalAsyncResourceLinkListControl);
+  });
 
   it('imports and defines foxy-internal-async-combo-box-control', () => {
     const element = customElements.get('foxy-internal-async-combo-box-control');
@@ -60,11 +65,6 @@ describe('ItemCategoryForm', () => {
   it('imports and defines foxy-nucleon', () => {
     const element = customElements.get('foxy-nucleon');
     expect(element).to.equal(NucleonElement);
-  });
-
-  it('imports and defines foxy-internal-item-category-form-taxes-control', () => {
-    const element = customElements.get('foxy-internal-item-category-form-taxes-control');
-    expect(element).to.equal(InternalItemCategoryFormTaxesControl);
   });
 
   it('imports and defines itself as foxy-item-category-form', () => {
@@ -808,18 +808,27 @@ describe('ItemCategoryForm', () => {
     const element = await fixture<Form>(html`
       <foxy-item-category-form
         taxes="https://demo.api/hapi/taxes"
+        href="https://demo.api/hapi/item_categories/0"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-item-category-form>
     `);
 
-    expect(element.renderRoot.querySelector('[infer="taxes"]')).to.not.exist;
-
-    element.href = 'https://demo.api/hapi/item_categories/0';
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="taxes"]');
 
-    expect(control).to.be.instanceOf(InternalItemCategoryFormTaxesControl);
-    expect(control).to.have.attribute('taxes', 'https://demo.api/hapi/taxes');
+    expect(control).to.be.instanceOf(InternalAsyncResourceLinkListControl);
+    expect(control).to.have.attribute('foreign-key-for-uri', 'tax_uri');
+    expect(control).to.have.attribute('foreign-key-for-id', 'tax_id');
+    expect(control).to.have.attribute('own-key-for-uri', 'item_category_uri');
+    expect(control).to.have.attribute('options-href', 'https://demo.api/hapi/taxes');
+    expect(control).to.have.attribute(
+      'links-href',
+      'https://demo.api/hapi/tax_item_categories?item_category_id=0'
+    );
+    expect(control).to.have.attribute('embed-key', 'fx:tax_item_categories');
+    expect(control).to.have.attribute('own-uri', 'https://demo.api/hapi/item_categories/0');
+    expect(control).to.have.attribute('limit', '5');
+    expect(control).to.have.attribute('item', 'foxy-tax-card');
   });
 });

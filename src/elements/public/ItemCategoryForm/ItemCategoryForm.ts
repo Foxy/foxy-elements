@@ -9,6 +9,7 @@ import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
@@ -173,6 +174,12 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
 
   private readonly __adminEmailTemplateLoaderId = 'admin-email-template-loader';
 
+  get hiddenSelector(): BooleanSelector {
+    const alwaysHidden = [super.hiddenSelector.toString()];
+    if (!this.data) alwaysHidden.unshift('taxes');
+    return new BooleanSelector(alwaysHidden.join(' ').trim());
+  }
+
   renderBody(): TemplateResult {
     const itemDeliveryType = this.form.item_delivery_type;
     const handlingFeeType = this.form.handling_fee_type ?? 'none';
@@ -258,7 +265,20 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
         >
         </foxy-internal-async-combo-box-control>
 
-        ${this.data ? this.__renderTaxes() : ''}
+        <foxy-internal-async-resource-link-list-control
+          foreign-key-for-uri="tax_uri"
+          foreign-key-for-id="tax_id"
+          own-key-for-uri="item_category_uri"
+          own-uri=${ifDefined(this.data?._links.self.href)}
+          embed-key="fx:tax_item_categories"
+          options-href=${ifDefined(this.taxes ?? undefined)}
+          links-href=${ifDefined(this.data?._links['fx:tax_item_categories'].href)}
+          infer="taxes"
+          class="col-span-2"
+          limit="5"
+          item="foxy-tax-card"
+        >
+        </foxy-internal-async-resource-link-list-control>
       </div>
 
       ${super.renderBody()}
@@ -408,16 +428,5 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
 
   private __renderAdminEmail() {
     return html`<foxy-internal-text-control infer="admin-email"> </foxy-internal-text-control>`;
-  }
-
-  private __renderTaxes() {
-    return html`
-      <foxy-internal-item-category-form-taxes-control
-        taxes=${ifDefined(this.taxes ?? undefined)}
-        class="col-span-2"
-        infer="taxes"
-      >
-      </foxy-internal-item-category-form-taxes-control>
-    `;
   }
 }
