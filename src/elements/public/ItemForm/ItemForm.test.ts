@@ -319,14 +319,8 @@ describe('ItemForm', () => {
       </foxy-item-form>
     `);
 
-    const control = element.renderRoot.querySelector(
-      'foxy-internal-async-combo-box-control[infer="shipto"]'
-    );
-
+    const control = element.renderRoot.querySelector('foxy-internal-text-control[infer="shipto"]');
     expect(control).to.exist;
-    expect(control).to.have.property('itemValuePath', 'address_name');
-    expect(control).to.have.property('itemLabelPath', 'address_name');
-    expect(control).to.have.property('first', 'https://demo.api/hapi/customer_addresses');
   });
 
   it('renders expiry date as a control', async () => {

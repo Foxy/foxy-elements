@@ -131,14 +131,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
         </div>
       </vaadin-details>
 
-      <foxy-internal-async-combo-box-control
-        item-value-path="address_name"
-        item-label-path="address_name"
-        first=${ifDefined(this?.customerAddresses ?? undefined)}
-        infer="shipto"
-      >
-      </foxy-internal-async-combo-box-control>
-
+      <foxy-internal-text-control infer="shipto"></foxy-internal-text-control>
       <foxy-internal-date-control infer="expires" format="unix"></foxy-internal-date-control>
 
       ${this.data
