@@ -1,3 +1,4 @@
+import type { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
 import type { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
 import type { Data } from './types';
@@ -11,6 +12,10 @@ import { getTestData } from '../../../testgen/getTestData';
 import { countries } from './countries';
 
 describe('AddressForm', () => {
+  it('imports and registers foxy-internal-checkbox-group-control', () => {
+    expect(customElements.get('foxy-internal-checkbox-group-control')).to.exist;
+  });
+
   it('imports and registers foxy-internal-select-control', () => {
     expect(customElements.get('foxy-internal-select-control')).to.exist;
   });

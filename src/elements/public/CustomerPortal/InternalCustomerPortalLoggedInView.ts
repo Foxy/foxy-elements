@@ -27,8 +27,6 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     };
   }
 
-  templates: Templates = {};
-
   customer = '';
 
   embedUrl: string | null = null;
@@ -159,6 +157,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         'transactions',
         'subscriptions',
         'addresses:actions:create',
+        'addresses:list:form:ignore-address-restrictions',
         'payment-methods:list:card:actions:update:form:template-set',
         'header:actions:edit:form:is-anonymous',
         'header:actions:edit:form:forgot-password',

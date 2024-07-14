@@ -35,7 +35,15 @@ export class AddressForm extends Base<Data> {
     ];
   }
 
-  templates: Templates = {};
+  private __ignoreAddressRestrictionsGetValue = () => {
+    return this.form.ignore_address_restrictions ? ['true'] : [];
+  };
+
+  private __ignoreAddressRestrictionsSetValue = (newValue: string[]) => {
+    this.edit({ ignore_address_restrictions: newValue.includes('true') });
+  };
+
+  private __ignoreAddressRestrictionsOptions = [{ label: 'option_true', value: 'true' }];
 
   private __countrySetValue = (newValue: string) => {
     this.edit({ country: newValue, region: '' });
@@ -90,6 +98,15 @@ export class AddressForm extends Base<Data> {
 
         <foxy-internal-text-control infer="city"></foxy-internal-text-control>
         <foxy-internal-text-control infer="postal-code"></foxy-internal-text-control>
+
+        <foxy-internal-checkbox-group-control
+          infer="ignore-address-restrictions"
+          class="col-span-2"
+          .getValue=${this.__ignoreAddressRestrictionsGetValue}
+          .setValue=${this.__ignoreAddressRestrictionsSetValue}
+          .options=${this.__ignoreAddressRestrictionsOptions}
+        >
+        </foxy-internal-checkbox-group-control>
       </div>
       ${super.renderBody()}
     `;
