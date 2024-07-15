@@ -20,7 +20,7 @@ export class WebhookStatusCard extends Base<Data> {
     const status = this.data?.status;
 
     return html`
-      <p class="flex justify-between items-center leading-none">
+      <p class="flex flex-col leading-xs">
         <foxy-i18n
           .options=${{ value: this.data?.date_created }}
           class="font-medium"
@@ -31,9 +31,10 @@ export class WebhookStatusCard extends Base<Data> {
 
         <foxy-i18n
           class=${classMap({
-            'text-error': status === 'failed',
-            'text-tertiary': status === 'pending',
+            'text-secondary': status === 'pending',
             'text-success': status === 'successful',
+            'text-error': status === 'failed',
+            'text-s': true,
           })}
           infer=""
           key="status_${status}"
