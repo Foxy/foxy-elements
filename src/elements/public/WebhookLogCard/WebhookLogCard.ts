@@ -17,14 +17,13 @@ export class WebhookLogCard extends TranslatableMixin(InternalCard, 'webhook-log
 
     return html`
       <div class="leading-none space-y-xs">
-        <p class="flex justify-between items-center font-medium">
-          <foxy-i18n .options=${{ value: date_created }} infer="" key="date"></foxy-i18n>
-          <span class="inline-block text-xs bg-contrast-5 text-secondary rounded p-xs">
-            ${response_code}&ZeroWidthSpace;
-          </span>
+        <p class="flex justify-between items-center">
+          <foxy-i18n .options=${{ value: date_created }} class="font-medium" infer="" key="date">
+          </foxy-i18n>
+          <span class="text-xs text-tertiary">${response_code}&ZeroWidthSpace;</span>
         </p>
 
-        <p class="text-tertiary">${response_body}&ZeroWidthSpace;</p>
+        <p class="text-secondary text-s">${response_body}&ZeroWidthSpace;</p>
       </div>
     `;
   }
