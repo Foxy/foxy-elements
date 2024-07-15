@@ -75,6 +75,7 @@ export { PaymentCard } from './PaymentCard/index';
 export { PaymentCardEmbed } from './PaymentCardEmbed/index';
 export { ShipmentCard } from './ShipmentCard/index';
 export { ShippingContainerCard } from './ShippingContainerCard/index';
+export { ShippingDropTypeCard } from './ShippingDropTypeCard/index';
 export { ShippingMethodCard } from './ShippingMethodCard/index';
 export { PaymentMethodCard } from './PaymentMethodCard/index';
 export { PaymentsApi } from './PaymentsApi/index';
