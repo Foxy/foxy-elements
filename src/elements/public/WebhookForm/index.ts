@@ -1,5 +1,5 @@
-import '../../internal/InternalAsyncDetailsControl/index';
 import '../../internal/InternalRadioGroupControl/index';
+import '../../internal/InternalAsyncListControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 

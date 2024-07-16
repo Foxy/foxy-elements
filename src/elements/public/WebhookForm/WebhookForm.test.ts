@@ -1,6 +1,6 @@
 import { expect, fixture, html } from '@open-wc/testing';
 import { getTestData } from '../../../testgen/getTestData';
-import { InternalAsyncDetailsControl } from '../../internal/InternalAsyncDetailsControl/InternalAsyncDetailsControl';
+import { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { InternalRadioGroupControl } from '../../internal/InternalRadioGroupControl/InternalRadioGroupControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
@@ -8,8 +8,8 @@ import { WebhookForm } from './index';
 import { Data } from './types';
 
 describe('WebhookForm', () => {
-  it('imports and defines foxy-internal-async-details-control element', () => {
-    expect(customElements.get('foxy-internal-async-details-control')).to.exist;
+  it('imports and defines foxy-internal-async-list-control element', () => {
+    expect(customElements.get('foxy-internal-async-list-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-radio-group-control element', () => {
@@ -163,7 +163,7 @@ describe('WebhookForm', () => {
     const control = element.renderRoot.querySelector('[infer="statuses"]');
 
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalAsyncDetailsControl);
+    expect(control).to.be.instanceOf(InternalAsyncListControl);
     expect(control).to.have.property('first', webhook._links['fx:statuses'].href);
     expect(control).to.have.property('item', 'foxy-webhook-status-card');
   });
@@ -178,7 +178,7 @@ describe('WebhookForm', () => {
     const control = element.renderRoot.querySelector('[infer="logs"]');
 
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalAsyncDetailsControl);
+    expect(control).to.be.instanceOf(InternalAsyncListControl);
     expect(control).to.have.property('first', webhook._links['fx:logs'].href);
     expect(control).to.have.property('item', 'foxy-webhook-log-card');
   });

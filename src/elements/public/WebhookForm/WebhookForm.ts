@@ -38,7 +38,7 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
     { value: 'customer', label: 'event_resource_customer' },
   ];
 
-  get readonlySelector(): BooleanSelector {
+  get hiddenSelector(): BooleanSelector {
     const alwaysMatch: string[] = [];
     if (this.data) alwaysMatch.push('event-resource');
     return new BooleanSelector(`${super.readonlySelector} ${alwaysMatch.join(' ')}`.trim());
@@ -62,21 +62,21 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
 
       ${this.data
         ? html`
-            <foxy-internal-async-details-control
+            <foxy-internal-async-list-control
               first=${this.data._links['fx:statuses'].href}
               infer="statuses"
               limit="10"
               item="foxy-webhook-status-card"
             >
-            </foxy-internal-async-details-control>
+            </foxy-internal-async-list-control>
 
-            <foxy-internal-async-details-control
+            <foxy-internal-async-list-control
               first=${this.data._links['fx:logs'].href}
               infer="logs"
               limit="5"
               item="foxy-webhook-log-card"
             >
-            </foxy-internal-async-details-control>
+            </foxy-internal-async-list-control>
           `
         : ''}
       ${super.renderBody()}
