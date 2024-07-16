@@ -11,9 +11,9 @@ const summary: Summary = {
   localName: 'foxy-passkey-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps'],
-    buttons: ['create', 'delete'],
-    inputs: [],
+    sections: ['timestamps', 'header'],
+    buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
+    inputs: ['credential-id', 'last-login-ua'],
   },
 };
 

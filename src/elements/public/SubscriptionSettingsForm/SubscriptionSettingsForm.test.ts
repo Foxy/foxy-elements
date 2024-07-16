@@ -14,6 +14,7 @@ import { InternalTextControl } from '../../internal/InternalTextControl/Internal
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server';
 import { getTestData } from '../../../testgen/getTestData';
+import { stub } from 'sinon';
 
 describe('SubscriptionSettingsForm', () => {
   it('imports and defines foxy-internal-checkbox-group-control', () => {
@@ -116,6 +117,18 @@ describe('SubscriptionSettingsForm', () => {
 
     form.edit({ reattempt_schedule: 'A'.repeat(101) });
     expect(form.errors).to.include('reattempt-schedule:v8n_too_long');
+  });
+
+  it('renders a form header', async () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('always hides Copy ID button', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('header:copy-id', true)).to.be.true;
   });
 
   it('renders radio group with past due amount handling options', async () => {

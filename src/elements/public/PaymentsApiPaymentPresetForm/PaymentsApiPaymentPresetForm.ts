@@ -7,6 +7,7 @@ import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { html } from 'lit-html';
 
@@ -66,10 +67,16 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
     this.edit({ is_live: (newValue as string[]).includes('live') });
   };
 
+  get hiddenSelector(): BooleanSelector {
+    return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
+  }
+
   renderBody(): TemplateResult {
     const constructor = this.constructor as typeof PaymentsApiPaymentPresetForm;
 
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-text-control infer="description"></foxy-internal-text-control>
 
       <div class="-mb-s">
@@ -125,6 +132,7 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
               infer="fraud-protections"
               first=${this.data._links['fx:fraud_protections'].href}
               limit="5"
+              alert
               .item=${(ctx: ItemRendererContext) => html`
                 <foxy-payments-api-fraud-protection-card
                   parent=${ctx.parent}

@@ -11,9 +11,9 @@ const summary: Summary = {
   localName: 'foxy-custom-field-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps'],
-    buttons: ['create', 'delete', 'visibility'],
-    inputs: ['name', 'value'],
+    sections: ['timestamps', 'header'],
+    buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
+    inputs: ['name', 'value', 'visibility'],
   },
 };
 

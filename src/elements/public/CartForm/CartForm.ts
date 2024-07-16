@@ -208,6 +208,8 @@ export class CartForm extends Base<Data> {
     }
 
     return html`
+      ${this.renderHeader()}
+
       <div class="grid sm-grid-cols-2 gap-l">
         <div class="sm-col-span-2">
           <foxy-i18n class="text-l font-medium leading-s block" infer="" key="order_section_title">
@@ -410,7 +412,7 @@ export class CartForm extends Base<Data> {
                 <foxy-internal-delete-control infer="delete"></foxy-internal-delete-control>
               </div>
             `
-          : html`<foxy-internal-create-control infer="create"></foxy-internal-create-control>`}
+          : html`<foxy-internal-submit-control infer="create"></foxy-internal-submit-control>`}
       </div>
 
       <foxy-nucleon

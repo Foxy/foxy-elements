@@ -59,6 +59,8 @@ export class DownloadableForm extends Base<Data> {
 
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-async-combo-box-control
         item-label-path="name"
         item-value-path="_links.self.href"

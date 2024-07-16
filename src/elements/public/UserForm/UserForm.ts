@@ -4,7 +4,6 @@ import type { NucleonV8N } from '../NucleonElement/types';
 
 import { validate as isEmail } from 'email-validator';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { html } from 'lit-html';
 
@@ -58,20 +57,21 @@ export class UserForm extends Base<Data> {
     { label: 'option_designer', value: 'designer' },
   ];
 
-  get readonlySelector(): BooleanSelector {
-    const alwaysMatch = [super.readonlySelector.toString()];
-    if (this.href) alwaysMatch.unshift('affiliate-id');
-    return new BooleanSelector(alwaysMatch.join(' ').trim());
+  get headerSubtitleOptions(): Record<string, unknown> {
+    return {
+      ...super.headerSubtitleOptions,
+      context: this.data?.affiliate_id ? 'affiliate' : '',
+    };
   }
 
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-text-control infer="first-name"></foxy-internal-text-control>
       <foxy-internal-text-control infer="last-name"></foxy-internal-text-control>
       <foxy-internal-text-control infer="email"></foxy-internal-text-control>
       <foxy-internal-text-control infer="phone"></foxy-internal-text-control>
-
-      <foxy-internal-integer-control infer="affiliate-id"></foxy-internal-integer-control>
 
       <foxy-internal-checkbox-group-control
         infer="role"

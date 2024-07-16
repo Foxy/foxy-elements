@@ -8,6 +8,7 @@ import './index';
 
 import { CustomerPortalSettingsForm as Form } from './CustomerPortalSettingsForm';
 import { expect, fixture, html } from '@open-wc/testing';
+import { stub } from 'sinon';
 
 describe('CustomerPortalSettingsForm', () => {
   it('imports and defines foxy-internal-checkbox-group-control', () => {
@@ -176,6 +177,11 @@ describe('CustomerPortalSettingsForm', () => {
     expect(form.errors).to.not.include('sign-up-verification-hcaptcha-secret-key:v8n_too_long');
   });
 
+  it('always hides Copy ID button', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('header:copy-id', true)).to.be.true;
+  });
+
   it('hides sign-up verification settings when sign-up is disabled', () => {
     const form = new Form();
 
@@ -241,6 +247,13 @@ describe('CustomerPortalSettingsForm', () => {
 
     expect(form.hiddenSelector.matches('subscriptions-allow-next-date-modification', true)).to.be
       .false;
+  });
+
+  it('renders a form header', () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
   });
 
   it('renders editable list control for allowed origins', async () => {

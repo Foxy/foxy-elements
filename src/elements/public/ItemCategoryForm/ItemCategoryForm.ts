@@ -185,6 +185,8 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
     const handlingFeeType = this.form.handling_fee_type ?? 'none';
 
     return html`
+      ${this.renderHeader()}
+
       <div class="grid grid-cols-2 gap-m">
         <foxy-internal-text-control infer="name" class="col-span-2"></foxy-internal-text-control>
         <foxy-internal-text-control infer="code" class="col-span-2"></foxy-internal-text-control>

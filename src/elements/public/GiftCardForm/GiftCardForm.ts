@@ -139,6 +139,10 @@ export class GiftCardForm extends Base<Data> {
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
+  get headerSubtitleOptions(): Record<string, unknown> {
+    return { id: this.headerCopyIdValue };
+  }
+
   renderHeaderActions(data: Data): TemplateResult {
     return html`
       <foxy-internal-bulk-add-action-control

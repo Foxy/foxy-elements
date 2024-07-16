@@ -6,6 +6,7 @@ import { html, expect, fixture } from '@open-wc/testing';
 import { createRouter } from '../../../server/index';
 import { getTestData } from '../../../testgen/getTestData';
 import { ClientForm as Form } from './ClientForm';
+import { stub } from 'sinon';
 
 describe('ClientForm', () => {
   it('imports and defines foxy-internal-text-area-control', () => {
@@ -31,6 +32,13 @@ describe('ClientForm', () => {
   it('has a default i18n namespace "client-form"', () => {
     expect(Form).to.have.property('defaultNS', 'client-form');
     expect(new Form()).to.have.property('ns', 'client-form');
+  });
+
+  it('renders a form header', () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
   });
 
   it('renders a foxy-internal-text-control for client id', async () => {

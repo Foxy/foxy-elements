@@ -1,9 +1,12 @@
 import type { InternalRadioGroupControl } from '../../internal/InternalRadioGroupControl/InternalRadioGroupControl';
+import type { Data } from './types';
 
 import './index';
 
 import { expect, fixture, html } from '@open-wc/testing';
 import { AttributeForm } from './AttributeForm';
+import { getTestData } from '../../../testgen/getTestData';
+import { stub } from 'sinon';
 
 describe('AttributeForm', () => {
   it('imports and defines foxy-internal-radio-group-control', () => {
@@ -65,12 +68,33 @@ describe('AttributeForm', () => {
     expect(element.errors).to.include('name:v8n_too_long');
   });
 
-  it('makes visibility control readonly when href is set', async () => {
+  it('hides visibility control readonly when href is set', async () => {
     const element = new AttributeForm();
-    expect(element.readonlySelector.matches('visibility', true)).to.be.false;
+    expect(element.hiddenSelector.matches('visibility', true)).to.be.false;
 
     element.href = 'https://demo.api/hapi/customer_attributes/0';
-    expect(element.readonlySelector.matches('visibility', true)).to.be.true;
+    expect(element.hiddenSelector.matches('visibility', true)).to.be.true;
+  });
+
+  it('renders a form header', () => {
+    const form = new AttributeForm();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('uses a custom header subtitle key', async () => {
+    const element = await fixture<AttributeForm>(html`<foxy-attribute-form></foxy-attribute-form>`);
+    const data = await getTestData<Data>('./hapi/customer_attributes/0');
+
+    element.data = { ...data, visibility: 'public' };
+    expect(element.headerSubtitleKey).to.equal('subtitle_public');
+
+    element.data = { ...data, visibility: 'restricted' };
+    expect(element.headerSubtitleKey).to.equal('subtitle_restricted');
+
+    element.data = { ...data, visibility: 'private' };
+    expect(element.headerSubtitleKey).to.equal('subtitle_private');
   });
 
   it('renders a source control for name', async () => {

@@ -1,3 +1,4 @@
+import '../../internal/InternalCheckboxGroupControl/index';
 import '../../internal/InternalSelectControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';

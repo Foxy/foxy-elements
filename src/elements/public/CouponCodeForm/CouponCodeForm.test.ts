@@ -4,14 +4,11 @@ import { expect, fixture, html } from '@open-wc/testing';
 import { CouponCodeForm } from './CouponCodeForm';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { getTestData } from '../../../testgen/getTestData';
+import { stub } from 'sinon';
 
 describe('foxy-coupon-code-form', () => {
   it('imports and defines foxy-internal-async-list-control', () => {
     expect(customElements.get('foxy-internal-async-list-control')).to.exist;
-  });
-
-  it('imports and defines foxy-internal-integer-control', () => {
-    expect(customElements.get('foxy-internal-integer-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-text-control', () => {
@@ -71,21 +68,19 @@ describe('foxy-coupon-code-form', () => {
     expect(element.errors).to.include('code:v8n_has_spaces');
   });
 
-  it('hides transactions and number of uses when href is not set', () => {
+  it('hides transactions when href is not set', () => {
     const element = new CouponCodeForm();
     expect(element.hiddenSelector.matches('transactions', true)).to.be.true;
-    expect(element.hiddenSelector.matches('number-of-uses-to-date', true)).to.be.true;
 
     element.href = 'https://demo.api/hapi/coupon_codes/0';
     expect(element.hiddenSelector.matches('transactions', true)).to.be.false;
-    expect(element.hiddenSelector.matches('number-of-uses-to-date', true)).to.be.false;
   });
 
-  it('always keeps number of uses to date readonly', () => {
-    const element = new CouponCodeForm();
-    expect(element.readonlySelector.matches('number-of-uses-to-date', true)).to.be.true;
-    element.readonly = false;
-    expect(element.readonlySelector.matches('number-of-uses-to-date', true)).to.be.true;
+  it('renders a form header', () => {
+    const form = new CouponCodeForm();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
   });
 
   it('renders a text control for code', async () => {
@@ -93,16 +88,6 @@ describe('foxy-coupon-code-form', () => {
       html`<foxy-coupon-code-form></foxy-coupon-code-form>`
     );
     const control = element.renderRoot.querySelector('foxy-internal-text-control[infer="code"]');
-    expect(control).to.exist;
-  });
-
-  it('renders an integer control for number of uses', async () => {
-    const element = await fixture<CouponCodeForm>(
-      html`<foxy-coupon-code-form></foxy-coupon-code-form>`
-    );
-    const control = element.renderRoot.querySelector(
-      'foxy-internal-integer-control[infer="number-of-uses-to-date"]'
-    );
     expect(control).to.exist;
   });
 

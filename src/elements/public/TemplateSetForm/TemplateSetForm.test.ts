@@ -97,6 +97,24 @@ describe('TemplateSetForm', () => {
     expect(Form).to.have.nested.property('properties.languages');
   });
 
+  it('renders a form header', async () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('renders a custom header subtitle for default template set', async () => {
+    const form = new Form();
+    const data = await getTestData<Data>('./hapi/template_sets/0');
+
+    form.data = { ...data, code: 'DEFAULT' };
+    expect(form.headerSubtitleOptions).to.have.property('context', 'default');
+
+    form.data = { ...data, code: 'CUSTOM' };
+    expect(form.headerSubtitleOptions).to.have.property('context', '');
+  });
+
   it('renders a textbox for code', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`

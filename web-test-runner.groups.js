@@ -40,10 +40,6 @@ export const groups = [
     files: './src/elements/internal/InternalControl/**/*.test.ts',
   },
   {
-    name: 'foxy-internal-create-control',
-    files: './src/elements/internal/InternalCreateControl/**/*.test.ts',
-  },
-  {
     name: 'foxy-internal-date-control',
     files: './src/elements/internal/InternalDateControl/**/*.test.ts',
   },
@@ -108,6 +104,10 @@ export const groups = [
     files: './src/elements/internal/InternalSourceControl/**/*.test.ts',
   },
   {
+    name: 'foxy-internal-submit-control',
+    files: './src/elements/internal/InternalSubmitControl/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-text-area-control',
     files: './src/elements/internal/InternalTextAreaControl/**/*.test.ts',
   },
@@ -118,6 +118,10 @@ export const groups = [
   {
     name: 'foxy-internal-timestamps-control',
     files: './src/elements/internal/InternalTimestampsControl/**/*.test.ts',
+  },
+  {
+    name: 'foxy-internal-undo-control',
+    files: './src/elements/internal/InternalUndoControl/**/*.test.ts',
   },
   {
     name: 'x-checkbox',
@@ -540,8 +544,20 @@ export const groups = [
     files: './src/elements/public/ShipmentCard/**/*.test.ts',
   },
   {
+    name: 'foxy-shipping-container-card',
+    files: './src/elements/public/ShippingContainerCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-shipping-drop-type-card',
+    files: './src/elements/public/ShippingDropTypeCard/**/*.test.ts',
+  },
+  {
     name: 'foxy-shipping-method-card',
     files: './src/elements/public/ShippingMethodCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-shipping-service-card',
+    files: './src/elements/public/ShippingServiceCard/**/*.test.ts',
   },
   {
     name: 'foxy-sign-in-form',

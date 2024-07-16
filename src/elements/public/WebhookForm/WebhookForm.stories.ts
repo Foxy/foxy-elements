@@ -11,9 +11,9 @@ const summary: Summary = {
   localName: 'foxy-webhook-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps'],
+    sections: ['timestamps', 'header'],
     inputs: ['name', 'format', 'version', 'url', 'query', 'encryption-key', 'event-resource'],
-    buttons: ['create', 'delete'],
+    buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
   },
 };
 

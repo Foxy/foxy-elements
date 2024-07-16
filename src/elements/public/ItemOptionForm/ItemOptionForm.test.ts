@@ -1,4 +1,5 @@
 import { expect, fixture, html } from '@open-wc/testing';
+import { stub } from 'sinon';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { InternalNumberControl } from '../../internal/InternalNumberControl/InternalNumberControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
@@ -50,6 +51,13 @@ describe('ItemOptionForm', () => {
     const value = 'A'.repeat(1025);
     const form = new ItemOptionForm();
     expect(ItemOptionForm.v8n.map(fn => fn({ value }, form))).to.include('value:v8n_too_long');
+  });
+
+  it('renders a form header', () => {
+    const form = new ItemOptionForm();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
   });
 
   it('renders item option name as text control', async () => {

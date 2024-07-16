@@ -52,8 +52,14 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
 
   private __itemsLink = '';
 
+  get headerSubtitleOptions(): Record<string, unknown> {
+    return { context: this.data?.is_future_line_item ? 'future_line_item' : 'regular' };
+  }
+
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-text-control infer="name"></foxy-internal-text-control>
 
       <div class="grid grid-cols-2 gap-s">

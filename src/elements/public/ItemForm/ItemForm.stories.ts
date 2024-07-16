@@ -38,17 +38,23 @@ const summary: Summary = {
       'attributes',
       'item-options',
     ],
-    buttons: ['delete', 'create'],
-    sections: ['timestamps'],
+    buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
+    sections: ['timestamps', 'header'],
   },
 };
 
+const ext = `
+  customer-addresses="https://demo.api/hapi/customer_addresses"
+  item-categories="https://demo.api/hapi/item_categories"
+  locale-codes="https://demo.api/hapi/property_helpers/7"
+`;
+
 export default getMeta(summary);
 
-export const Playground = getStory({ ...summary, code: true });
-export const Empty = getStory(summary);
-export const Error = getStory(summary);
-export const Busy = getStory(summary);
+export const Playground = getStory({ ...summary, ext, code: true });
+export const Empty = getStory({ ...summary, ext });
+export const Error = getStory({ ...summary, ext });
+export const Busy = getStory({ ...summary, ext });
 
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';

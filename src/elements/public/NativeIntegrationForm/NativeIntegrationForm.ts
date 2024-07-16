@@ -275,10 +275,18 @@ export class NativeIntegrationForm extends Base<Data> {
     return new BooleanSelector(match.join(' ').trim());
   }
 
+  get headerTitleOptions(): Record<string, unknown> {
+    return {
+      context: this.data ? `existing_${this.data.provider}` : 'new',
+      id: this.headerCopyIdValue,
+    };
+  }
+
   renderBody(): TemplateResult {
     const provider = this.form.provider ?? 'avalara';
 
     return html`
+      ${this.renderHeader()}
       ${this.href
         ? ''
         : html`

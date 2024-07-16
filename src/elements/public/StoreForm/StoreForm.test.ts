@@ -496,6 +496,13 @@ describe('StoreForm', () => {
     expect(form.errors).to.not.include('custom-display-id-config-enabled:v8n_too_long');
   });
 
+  it('renders a form header', () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
   it('renders a text control for store name', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`

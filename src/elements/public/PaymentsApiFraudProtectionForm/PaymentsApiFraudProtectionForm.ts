@@ -1,4 +1,4 @@
-import type { AvailableFraudProtections } from '../PaymentsApi/api/types';
+import type { AvailableFraudProtections, FraudProtection } from '../PaymentsApi/api/types';
 import type { Block, Data } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -6,6 +6,7 @@ import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
@@ -82,9 +83,40 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
 
   private readonly __availableFraudProtectionsLoaderId = 'availableFraudProtections';
 
+  get hiddenSelector(): BooleanSelector {
+    return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
+  }
+
+  get headerTitleOptions(): Record<string, unknown> {
+    return { ...this.data, context: this.form.type ?? 'new' };
+  }
+
+  get headerSubtitleOptions(): Record<string, unknown> {
+    return { id: this.headerCopyIdValue };
+  }
+
+  renderHeader(...params: Parameters<InternalForm<Data>['renderHeader']>): TemplateResult {
+    return html`
+      <div>
+        ${super.renderHeader(...params)}
+        ${this.data?.type || !this.form.type
+          ? html``
+          : html`
+              <vaadin-button
+                data-testid="select-another-button"
+                theme="tertiary-inline"
+                @click=${() => this.undo()}
+              >
+                <foxy-i18n infer="" key="select_another_button_label"></foxy-i18n>
+              </vaadin-button>
+            `}
+      </div>
+    `;
+  }
+
   renderBody(): TemplateResult {
     return this.form.type
-      ? this.__renderFraudProtectionConfig(this.form.type)
+      ? this.__renderFraudProtectionConfig()
       : this.__renderFraudProtectionSelector();
   }
 
@@ -114,9 +146,15 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
   }
 
   private __renderFraudProtectionSelector() {
-    const defaultSrc = PaymentsApiFraudProtectionForm.defaultImageSrc;
-
     return html`
+      ${this.renderHeader()}
+
+      <div class="grid grid-cols-2 gap-m" data-testid="select-protection-list">
+        ${Object.entries(this.__availableFraudProtections ?? {}).map(([type, helper]) => {
+          return this.__renderFraudProtectionButton({ type, helper } as FraudProtection);
+        })}
+      </div>
+
       <foxy-nucleon
         class="hidden"
         infer=""
@@ -125,63 +163,47 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
         @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
-
-      <foxy-i18n
-        class="block text-xxl font-medium border-b border-contrast-10 pb-m"
-        infer=""
-        key="select_protection_title"
-      >
-      </foxy-i18n>
-
-      <div data-testid="select-protection-list">
-        <ul class="-my-s grid grid-cols-1">
-          ${Object.entries(this.__availableFraudProtections ?? {}).map(([type, helper]) => {
-            return html`
-              <li class="-mx-s">
-                <button
-                  class="w-full block text-left hover-bg-contrast-5 p-s rounded"
-                  @click=${() => this.edit({ type: type as Data['type'], helper })}
-                >
-                  <figure class="flex items-center gap-m h-m">
-                    <img
-                      class="relative h-m w-m object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs"
-                      src=${this.getImageSrc?.(type) ?? defaultSrc}
-                      alt=""
-                      @error=${(evt: Event) => {
-                        (evt.currentTarget as HTMLImageElement).src = defaultSrc;
-                      }}
-                    />
-
-                    <figcaption class="min-w-0 flex-1 truncate leading-s font-medium">
-                      ${helper.name}&ZeroWidthSpace;
-                    </figcaption>
-                  </figure>
-                </button>
-              </li>
-            `;
-          })}
-        </ul>
-      </div>
     `;
   }
 
-  private __renderFraudProtectionConfig(type: string) {
+  private __renderFraudProtectionButton({ type, helper }: FraudProtection) {
     const defaultSrc = PaymentsApiFraudProtectionForm.defaultImageSrc;
+    const src = this.getImageSrc?.(type) ?? defaultSrc;
+    const onError = (evt: Event) => ((evt.currentTarget as HTMLImageElement).src = defaultSrc);
 
     return html`
-      <figure data-testid="logo" class="relative flex flex-col gap-m p-m items-center">
+      <button
+        class="relative w-full block text-left p-s rounded bg-contrast-5 overflow-hidden transition-colors hover-bg-contrast-10 focus-outline-none focus-ring-2 focus-ring-primary-50"
+        @click=${() => this.edit({ type, helper })}
+      >
         <img
-          class="relative h-xl w-xl object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs"
-          src=${this.getImageSrc?.(type) ?? defaultSrc}
+          class="absolute top-0 left-0 w-1-2 h-full object-cover bg-center filter saturate-200 blur-3xl"
+          style="transform: translate3d(0, 0, 0)"
+          src=${src}
           alt=""
-          @error=${(evt: Event) => ((evt.currentTarget as HTMLImageElement).src = defaultSrc)}
+          @error=${onError}
         />
 
-        <figcaption class="relative min-w-0 font-medium text-xl text-center">
-          ${this.form.helper?.name ?? this.form.type}&ZeroWidthSpace;
-        </figcaption>
-      </figure>
+        <figure class="relative flex flex-col gap-m">
+          <img
+            class="h-m w-m object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs"
+            src=${src}
+            alt=""
+            @error=${onError}
+          />
 
+          <figcaption class="min-w-0 flex-1 truncate leading-s">
+            <div class="font-medium">${helper.name}&ZeroWidthSpace;</div>
+            <div class="text-xs text-secondary">${type}</div>
+          </figcaption>
+        </figure>
+      </button>
+    `;
+  }
+
+  private __renderFraudProtectionConfig() {
+    return html`
+      ${this.renderHeader()}
       <foxy-internal-text-control infer="description"></foxy-internal-text-control>
       ${this.form.helper?.uses_rejection_threshold
         ? html`
@@ -190,17 +212,6 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
           `
         : ''}
       ${this.form.helper?.json?.blocks.map(block => this.__renderBlock(block))}
-      ${this.data?.type
-        ? ''
-        : html`
-            <vaadin-button
-              data-testid="select-another-button"
-              theme="contrast"
-              @click=${() => this.undo()}
-            >
-              <foxy-i18n infer="" key="select_another_button_label"></foxy-i18n>
-            </vaadin-button>
-          `}
       ${super.renderBody()}
     `;
   }

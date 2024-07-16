@@ -4,6 +4,9 @@ import './index';
 
 import { expect, fixture, html } from '@open-wc/testing';
 import { UserForm } from './UserForm';
+import { stub } from 'sinon';
+import { getTestData } from '../../../testgen/getTestData';
+import { Data } from './types';
 
 describe('UserForm', () => {
   it('imports and defines foxy-internal-checkbox-group-control', () => {
@@ -12,10 +15,6 @@ describe('UserForm', () => {
 
   it('imports and defines foxy-internal-text-control', () => {
     expect(customElements.get('foxy-internal-text-control')).to.exist;
-  });
-
-  it('imports and defines foxy-internal-integer-control', () => {
-    expect(customElements.get('foxy-internal-integer-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-form', () => {
@@ -113,12 +112,20 @@ describe('UserForm', () => {
     expect(element.errors).to.include('phone:v8n_too_long');
   });
 
-  it('makes affiliate-id control readonly when href is set', () => {
-    const element = new UserForm();
-    expect(element.readonlySelector.matches('affiliate-id', true)).to.be.false;
+  it('renders a form header', () => {
+    const form = new UserForm();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
 
-    element.href = 'https://demo.api/hapi/users/0';
-    expect(element.readonlySelector.matches('affiliate-id', true)).to.be.true;
+  it('renders a special subtitle for affiliates', async () => {
+    const form = new UserForm();
+    form.data = { ...(await getTestData<Data>('./hapi/users/0')), affiliate_id: 123 };
+    expect(form.headerSubtitleOptions).to.have.property('context', 'affiliate');
+
+    form.data = { ...(await getTestData<Data>('./hapi/users/0')), affiliate_id: 0 };
+    expect(form.headerSubtitleOptions).to.have.property('context', '');
   });
 
   it('renders a text control for first name', async () => {
@@ -144,14 +151,6 @@ describe('UserForm', () => {
   it('renders a text control for phone', async () => {
     const element = await fixture<UserForm>(html`<foxy-user-form></foxy-user-form>`);
     const control = element.renderRoot.querySelector('foxy-internal-text-control[infer=phone]');
-    expect(control).to.exist;
-  });
-
-  it('renders an integer control for affiliate id', async () => {
-    const element = await fixture<UserForm>(html`<foxy-user-form></foxy-user-form>`);
-    const control = element.renderRoot.querySelector(
-      'foxy-internal-integer-control[infer=affiliate-id]'
-    );
     expect(control).to.exist;
   });
 

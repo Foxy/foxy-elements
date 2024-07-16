@@ -41,6 +41,8 @@ export class AppliedCouponCodeForm extends Base<Data> {
 
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-text-control
         helper-text=${this.t(this.data ? 'code.helper_text_existing' : 'code.helper_text_new')}
         infer="code"

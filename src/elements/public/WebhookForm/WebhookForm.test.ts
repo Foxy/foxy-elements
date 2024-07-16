@@ -1,4 +1,5 @@
 import { expect, fixture, html } from '@open-wc/testing';
+import { stub } from 'sinon';
 import { getTestData } from '../../../testgen/getTestData';
 import { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
@@ -83,6 +84,19 @@ describe('WebhookForm', () => {
     const form = new WebhookForm();
     const errors = WebhookForm.v8n.map(fn => fn({ encryption_key }, form));
     expect(errors).to.include('encryption-key:v8n_too_long');
+  });
+
+  it('renders a form header', () => {
+    const form = new WebhookForm();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('uses event resource as context for header subtitle', async () => {
+    const form = new WebhookForm();
+    form.data = await getTestData<Data>('./hapi/webhooks/0');
+    expect(form.headerSubtitleOptions).to.have.property('context', form.data?.event_resource);
   });
 
   it('renders webhook name as text control', async () => {
@@ -183,12 +197,12 @@ describe('WebhookForm', () => {
     expect(control).to.have.property('item', 'foxy-webhook-log-card');
   });
 
-  it('makes event resource selector readonly when loaded', async () => {
+  it('hides event resource selector when loaded', async () => {
     const webhook = await getTestData<Data>('./hapi/webhooks/0');
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
 
-    expect(element.readonlySelector.matches('event-resource', true)).to.be.false;
+    expect(element.hiddenSelector.matches('event-resource', true)).to.be.false;
     element.data = webhook;
-    expect(element.readonlySelector.matches('event-resource', true)).to.be.true;
+    expect(element.hiddenSelector.matches('event-resource', true)).to.be.true;
   });
 });

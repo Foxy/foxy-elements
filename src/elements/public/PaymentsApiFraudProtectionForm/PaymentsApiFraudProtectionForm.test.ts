@@ -17,6 +17,7 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getByTag } from '../../../testgen/getByTag';
 import { getByKey } from '../../../testgen/getByKey';
 import { I18n } from '../I18n/I18n';
+import { stub } from 'sinon';
 
 describe('PaymentsApiFraudProtectionForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -175,6 +176,54 @@ describe('PaymentsApiFraudProtectionForm', () => {
     expect(form.errors).to.not.include('json:v8n_invalid');
   });
 
+  it('renders a form header', async () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('always hides Copy JSON button in the header', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('header:copy-json', true)).to.be.true;
+  });
+
+  it('uses custom options for form header title', () => {
+    const form = new Form();
+    expect(form.headerTitleOptions).to.deep.equal({ context: 'new' });
+
+    form.edit({ type: 'minfraud' });
+    expect(form.headerTitleOptions).to.deep.equal({ context: 'minfraud' });
+  });
+
+  it('uses custom options for form header subtitle', async () => {
+    const router = createRouter();
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-fraud-protection-form
+            href="https://foxy-payments-api.element/payment_presets/0/fraud_protections/0C0"
+          >
+          </foxy-payments-api-fraud-protection-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    expect(element.headerSubtitleOptions).to.deep.equal({ id: element.headerCopyIdValue });
+  });
+
   it('renders a fraud protection selector when "type" is not present in form', async () => {
     const availableProtections: AvailableFraudProtections = {
       _links: {
@@ -209,7 +258,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
         >
           <foxy-payments-api-fraud-protection-form
             parent="https://foxy-payments-api.element/payment_presets/0/fraud_protections"
-            .getImageSrc=${(type: string) => `https://example.com/${type}.png`}
+            .getImageSrc=${(type: string) => `https://example.com?${type}`}
             @fetch=${(evt: FetchEvent) => {
               if (evt.request.url.endsWith('/payment_presets/0/available_fraud_protections')) {
                 evt.preventDefault();
@@ -225,35 +274,29 @@ describe('PaymentsApiFraudProtectionForm', () => {
     `);
 
     const element = wrapper.firstElementChild!.firstElementChild as Form;
-    const title = (await getByKey(element, 'select_protection_title')) as I18n;
     const listWrapper = (await getByTestId(element, 'select-protection-list')) as HTMLElement;
 
-    expect(title).to.exist;
-    expect(title).to.have.attribute('infer', '');
-
-    await waitUntil(() => !!listWrapper.querySelector('li'), '', { timeout: 5000 });
-    const list = listWrapper.querySelector('ul') as HTMLElement;
-    const items = list.querySelectorAll('li');
+    await waitUntil(() => !!listWrapper.querySelector('button'), '', { timeout: 5000 });
+    const items = listWrapper.querySelectorAll('button');
 
     expect(listWrapper).to.exist;
-    expect(list).to.exist;
     expect(items).to.have.length(2);
 
-    const item0Button = items[0].querySelector('button') as HTMLButtonElement;
-    const item1Button = items[1].querySelector('button') as HTMLButtonElement;
+    const item0Button = items[0] as HTMLButtonElement;
+    const item1Button = items[1] as HTMLButtonElement;
 
     expect(item0Button).to.exist;
     expect(item0Button).to.include.text('Minfraud');
     expect(await getByTag(item0Button, 'img')).to.have.attribute(
       'src',
-      'https://example.com/minfraud.png'
+      'https://example.com?minfraud'
     );
 
     expect(item1Button).to.exist;
     expect(item1Button).to.include.text('Google reCaptcha');
     expect(await getByTag(item1Button, 'img')).to.have.attribute(
       'src',
-      'https://example.com/google_recaptcha.png'
+      'https://example.com?google_recaptcha'
     );
 
     item0Button.click();
@@ -262,40 +305,6 @@ describe('PaymentsApiFraudProtectionForm', () => {
     expect(element).to.have.nested.property('form.type', 'minfraud');
     expect(await getByKey(element, 'select_method_title')).to.not.exist;
     expect(await getByTestId(element, 'select-method-list')).to.not.exist;
-  });
-
-  it('renders a fraud protection logo and name when "type" is selected', async () => {
-    const router = createRouter();
-
-    const wrapper = await fixture(html`
-      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
-        <foxy-payments-api
-          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
-          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
-          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
-          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
-          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
-          fraud-protections-url="https://demo.api/hapi/fraud_protections"
-          payment-gateways-url="https://demo.api/hapi/payment_gateways"
-        >
-          <foxy-payments-api-fraud-protection-form
-            href="https://foxy-payments-api.element/payment_presets/0/fraud_protections/0C0"
-            .getImageSrc=${(type: string) => `https://example.com/${type}.png`}
-          >
-          </foxy-payments-api-fraud-protection-form>
-        </foxy-payments-api>
-      </div>
-    `);
-
-    const element = wrapper.firstElementChild!.firstElementChild as Form;
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-
-    const figure = (await getByTestId(element, 'logo')) as HTMLElement;
-    const img = (await getByTag(figure, 'img')) as HTMLImageElement;
-    const caption = (await getByTag(figure, 'figcaption')) as HTMLElement;
-
-    expect(img).to.have.attribute('src', `https://example.com/${element.form.type}.png`);
-    expect(caption).to.include.text(element.form.helper!.name);
   });
 
   it('renders a checkbox control for a "checkbox" block in json if present', async () => {

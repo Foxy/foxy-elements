@@ -38,7 +38,7 @@ export class CouponCodeForm extends Base<Data> {
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch: string[] = [super.hiddenSelector.toString()];
-    if (!this.href) alwaysMatch.unshift('transactions', 'number-of-uses-to-date');
+    if (!this.href) alwaysMatch.unshift('transactions');
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
@@ -54,8 +54,9 @@ export class CouponCodeForm extends Base<Data> {
     }
 
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-text-control infer="code"></foxy-internal-text-control>
-      <foxy-internal-integer-control infer="number-of-uses-to-date"></foxy-internal-integer-control>
       <foxy-internal-async-list-control
         first=${ifDefined(transactions)}
         infer="transactions"

@@ -181,7 +181,7 @@ export class CustomerPortalSettingsForm extends Base<Data> {
   };
 
   get hiddenSelector(): BooleanSelector {
-    const alwaysMatch = [super.hiddenSelector.toString()];
+    const alwaysMatch = ['header:copy-id', super.hiddenSelector.toString()];
 
     if (!this.form.signUp?.enabled) {
       alwaysMatch.push(
@@ -203,6 +203,8 @@ export class CustomerPortalSettingsForm extends Base<Data> {
 
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-editable-list-control
         infer="allowed-origins"
         .getValue=${this.__allowedOriginsGetValue}

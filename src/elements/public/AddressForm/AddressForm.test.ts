@@ -10,6 +10,7 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { AddressForm } from './AddressForm';
 import { getTestData } from '../../../testgen/getTestData';
 import { countries } from './countries';
+import { stub } from 'sinon';
 
 describe('AddressForm', () => {
   it('imports and registers foxy-internal-checkbox-group-control', () => {
@@ -167,60 +168,82 @@ describe('AddressForm', () => {
     expect(element.errors).to.include('postal-code:v8n_too_long');
   });
 
-  it('makes address name readonly for default billing address', async () => {
+  it('hides address name input for default billing address', async () => {
     const layout = html`<foxy-address-form></foxy-address-form>`;
     const element = await fixture<AddressForm>(layout);
     const data = await getTestData<Data>('./hapi/customer_addresses/0');
 
-    expect(element.readonlySelector.matches('address-name', true)).to.be.false;
+    expect(element.hiddenSelector.matches('address-name', true)).to.be.false;
 
     data.is_default_billing = true;
     data.is_default_shipping = false;
     element.data = data;
 
-    expect(element.readonlySelector.matches('address-name', true)).to.be.true;
+    expect(element.hiddenSelector.matches('address-name', true)).to.be.true;
   });
 
-  it('makes address name readonly for default shipping address', async () => {
+  it('hides address name input for default shipping address', async () => {
     const layout = html`<foxy-address-form></foxy-address-form>`;
     const element = await fixture<AddressForm>(layout);
     const data = await getTestData<Data>('./hapi/customer_addresses/0');
 
-    expect(element.readonlySelector.matches('address-name', true)).to.be.false;
+    expect(element.hiddenSelector.matches('address-name', true)).to.be.false;
 
     data.is_default_billing = false;
     data.is_default_shipping = true;
     element.data = data;
 
-    expect(element.readonlySelector.matches('address-name', true)).to.be.true;
+    expect(element.hiddenSelector.matches('address-name', true)).to.be.true;
   });
 
-  it('makes Delete button disabled for default billing address', async () => {
+  it('hides Delete button for default billing address', async () => {
     const layout = html`<foxy-address-form></foxy-address-form>`;
     const element = await fixture<AddressForm>(layout);
     const data = await getTestData<Data>('./hapi/customer_addresses/0');
 
-    expect(element.disabledSelector.matches('delete', true)).to.be.false;
+    expect(element.hiddenSelector.matches('delete', true)).to.be.false;
 
     data.is_default_billing = true;
     data.is_default_shipping = false;
     element.data = data;
 
-    expect(element.disabledSelector.matches('delete', true)).to.be.true;
+    expect(element.hiddenSelector.matches('delete', true)).to.be.true;
   });
 
-  it('makes Delete button disabled for default shipping address', async () => {
+  it('hides Delete button for default shipping address', async () => {
     const layout = html`<foxy-address-form></foxy-address-form>`;
     const element = await fixture<AddressForm>(layout);
     const data = await getTestData<Data>('./hapi/customer_addresses/0');
 
-    expect(element.disabledSelector.matches('delete', true)).to.be.false;
+    expect(element.hiddenSelector.matches('delete', true)).to.be.false;
 
     data.is_default_billing = false;
     data.is_default_shipping = true;
     element.data = data;
 
-    expect(element.disabledSelector.matches('delete', true)).to.be.true;
+    expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+  });
+
+  it('renders a form header', () => {
+    const form = new AddressForm();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('uses a custom subtitle key for form header', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+
+    element.data = await getTestData<Data>('./hapi/customer_addresses/0');
+    element.data = { ...element.data, is_default_billing: true, is_default_shipping: false };
+    expect(element.headerSubtitleKey).to.equal('subtitle_default_billing');
+
+    element.data = { ...element.data, is_default_billing: false, is_default_shipping: true };
+    expect(element.headerSubtitleKey).to.equal('subtitle_default_shipping');
+
+    element.data = { ...element.data, is_default_billing: false, is_default_shipping: false };
+    expect(element.headerSubtitleKey).to.equal('subtitle_custom');
   });
 
   it('renders a text control for address name', async () => {

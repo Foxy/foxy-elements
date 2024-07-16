@@ -6,6 +6,7 @@ import type { TemplateResult } from 'lit-html';
 import type { TabsElement } from '@vaadin/vaadin-tabs';
 import type { NucleonV8N } from '../NucleonElement/types';
 
+import { BooleanSelector, getResourceId } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
@@ -139,10 +140,71 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
   private __tab = 0;
 
+  get hiddenSelector(): BooleanSelector {
+    return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
+  }
+
+  renderHeader(...params: Parameters<InternalForm<Data>['renderHeader']>): TemplateResult {
+    return html`
+      <div>
+        ${super.renderHeader(...params)}
+        ${this.data?.type || !this.form.type
+          ? html``
+          : html`
+              <vaadin-button
+                data-testid="select-another-button"
+                theme="tertiary-inline"
+                @click=${() => this.undo()}
+              >
+                <foxy-i18n infer="" key="select_another_button_label"></foxy-i18n>
+              </vaadin-button>
+            `}
+      </div>
+    `;
+  }
+
+  get headerTitleOptions(): Record<string, unknown> {
+    return {
+      context: this.form.type ? 'selected' : 'new',
+      name: this.form.helper?.name,
+    };
+  }
+
+  get headerSubtitleOptions(): Record<string, unknown> {
+    if (this.href) {
+      const vId = getResourceId(this.href) as string;
+      const id = this.headerCopyIdValue;
+      if (vId.startsWith('R')) return { context: 'regular', id };
+      return { context: 'hosted', id };
+    }
+
+    return {};
+  }
+
+  get headerCopyIdValue(): string | number {
+    if (this.href) {
+      const id = getResourceId(this.href) as string;
+      return id.startsWith('R') ? id.slice(1) : id.slice(1).split('C')[0];
+    } else {
+      return '';
+    }
+  }
+
   renderBody(): TemplateResult {
-    return this.form.type
-      ? this.__renderPaymentMethodConfig(this.form.type)
-      : this.__renderPaymentMethodSelector();
+    const paymentMethodsLoader = html`
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__availablePaymentMethodsHref)}
+        id=${this.__availablePaymentMethodsLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+    `;
+
+    return html`${this.renderHeader()}${this.form.type
+      ? this.__renderPaymentMethodConfig()
+      : this.__renderPaymentMethodSelector()}${paymentMethodsLoader}`;
   }
 
   private get __groupedAvailablePaymentMethods() {
@@ -200,71 +262,34 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
   }
 
   private __renderPaymentMethodSelector() {
+    const loader = this.__availablePaymentMethodsLoader;
+
+    if (!loader?.data) {
+      return html`
+        <foxy-spinner infer="list-spinner" state=${loader?.in('fail') ? 'error' : 'busy'}>
+        </foxy-spinner>
+      `;
+    }
+
     return html`
-      <figure data-testid="logo" class="relative flex flex-col gap-m p-m items-center">
-        <img
-          class="relative h-xl w-xl object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs"
-          src=${PaymentsApiPaymentMethodForm.defaultImageSrc}
-          alt=""
-        />
-
-        <figcaption class="relative min-w-0 font-medium text-xl text-center">
-          <foxy-i18n infer="" key="select_method_title"></foxy-i18n>
-        </figcaption>
-      </figure>
-
-      <section data-testid="select-method-list" class="-mt-m">
-        ${this.__groupedAvailablePaymentMethods.map(({ name, items }) => {
-          return html`
-            <p class="font-medium text-tertiary py-m">${name}</p>
-            <ul class="grid grid-cols-2 gap-m">
-              ${items.map(item => html`<li>${this.__renderPaymentMethodButton(item)}</li>`)}
-            </ul>
-          `;
-        })}
-      </section>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__availablePaymentMethodsHref)}
-        id=${this.__availablePaymentMethodsLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
+      <div>
+        <section data-testid="select-method-list" class="-mt-m">
+          ${this.__groupedAvailablePaymentMethods.map(({ name, items }) => {
+            return html`
+              <p class="font-medium text-tertiary py-m">${name}</p>
+              <ul class="grid grid-cols-2 gap-m">
+                ${items.map(item => html`<li>${this.__renderPaymentMethodButton(item)}</li>`)}
+              </ul>
+            `;
+          })}
+        </section>
+      </div>
     `;
   }
 
-  private __renderPaymentMethodConfig(type: string) {
-    const defaultSrc = PaymentsApiPaymentMethodForm.defaultImageSrc;
-
+  private __renderPaymentMethodConfig() {
     return html`
-      <figure data-testid="logo" class="relative flex flex-col gap-m p-m items-center">
-        <img
-          class="relative h-xl w-xl object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs"
-          src=${this.getImageSrc?.(type) ?? defaultSrc}
-          alt=""
-          @error=${(evt: Event) => ((evt.currentTarget as HTMLImageElement).src = defaultSrc)}
-        />
-
-        <figcaption class="relative min-w-0 font-medium text-xl text-center">
-          <div>${this.form.helper?.name ?? this.form.type}&ZeroWidthSpace;</div>
-          ${this.data?.type
-            ? ''
-            : html`
-                <vaadin-button
-                  data-testid="select-another-button"
-                  theme="tertiary-inline"
-                  class="text-m"
-                  @click=${() => this.undo()}
-                >
-                  <foxy-i18n infer="" key="select_another_button_label"></foxy-i18n>
-                </vaadin-button>
-              `}
-        </figcaption>
-      </figure>
-
-      <div class="rounded border border-contrast-10">
+      <div class="rounded-t-l rounded-b-l border border-contrast-10">
         <vaadin-tabs
           selected=${this.__tab}
           theme="centered"
@@ -277,7 +302,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
           <vaadin-tab><foxy-i18n infer="" key="tab_test"></foxy-i18n></vaadin-tab>
         </vaadin-tabs>
 
-        <div class="overflow-hidden" style="--lumo-border-radius: var(--lumo-border-radius-s)">
+        <div class="overflow-hidden">
           <div
             data-testid="tab-content"
             class="grid grid-cols-2 gap-m transition-transform transform duration-300"

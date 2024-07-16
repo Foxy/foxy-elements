@@ -34,10 +34,13 @@ export class CustomerForm extends Base<Data> {
       'foxy-internal-radio-group-control': customElements.get('foxy-internal-radio-group-control'),
       'foxy-internal-timestamps-control': customElements.get('foxy-internal-timestamps-control'),
       'foxy-internal-password-control': customElements.get('foxy-internal-password-control'),
-      'foxy-internal-create-control': customElements.get('foxy-internal-create-control'),
+      'foxy-internal-submit-control': customElements.get('foxy-internal-submit-control'),
       'foxy-internal-delete-control': customElements.get('foxy-internal-delete-control'),
       'foxy-internal-text-control': customElements.get('foxy-internal-text-control'),
+      'foxy-internal-undo-control': customElements.get('foxy-internal-undo-control'),
+      'foxy-copy-to-clipboard': customElements.get('foxy-copy-to-clipboard'),
       'foxy-spinner': customElements.get('foxy-spinner'),
+      'vcf-tooltip': customElements.get('vcf-tooltip'),
       'foxy-i18n': customElements.get('foxy-i18n'),
       'h-captcha': customElements.get('h-captcha'),
       'vaadin-button': customElements.get('vaadin-button'),
@@ -124,6 +127,20 @@ export class CustomerForm extends Base<Data> {
     return new BooleanSelector(Array.from(hidden).join(' ').trim());
   }
 
+  get headerTitleOptions(): Record<string, unknown> {
+    const data = this.data;
+    if (!data || data.first_name.trim() || data.last_name.trim()) return super.headerTitleOptions;
+    return { ...super.headerTitleOptions, context: 'no_name' };
+  }
+
+  get headerSubtitleKey(): string {
+    return this.data?.is_anonymous ? 'subtitle_anonymous' : 'subtitle_registered';
+  }
+
+  get headerSubtitleOptions(): Record<string, unknown> {
+    return { ...super.headerSubtitleOptions, id: this.headerCopyIdValue };
+  }
+
   disconnectedCallback(): void {
     super.disconnectedCallback();
     const interval = this.__refreshInterval;
@@ -141,6 +158,8 @@ export class CustomerForm extends Base<Data> {
     const isLastNameHidden = this.hiddenSelector.matches('last-name', true);
 
     return html`
+      ${this.renderHeader()}
+
       <div
         class=${classMap({
           'grid-cols-2': !isFirstNameHidden && !isLastNameHidden,

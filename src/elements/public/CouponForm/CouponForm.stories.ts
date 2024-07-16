@@ -29,8 +29,17 @@ const summary: Summary = {
       'customer-attribute-restrictions',
       'attributes',
     ],
-    sections: ['timestamps'],
-    buttons: ['import', 'generate', 'create', 'delete'],
+    sections: ['timestamps', 'header'],
+    buttons: [
+      'import',
+      'generate',
+      'delete',
+      'create',
+      'submit',
+      'undo',
+      'header:copy-id',
+      'header:copy-json',
+    ],
   },
 };
 

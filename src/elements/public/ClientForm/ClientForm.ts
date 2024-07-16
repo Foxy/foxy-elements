@@ -31,6 +31,8 @@ export class ClientForm extends Base<Data> {
 
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <div class="grid grid-cols-2 gap-m">
         <foxy-internal-text-control class="col-span-2" infer="client-id">
         </foxy-internal-text-control>

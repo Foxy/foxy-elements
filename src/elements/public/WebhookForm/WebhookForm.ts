@@ -44,8 +44,14 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
     return new BooleanSelector(`${super.readonlySelector} ${alwaysMatch.join(' ')}`.trim());
   }
 
+  get headerSubtitleOptions(): Record<string, unknown> {
+    return { context: this.data?.event_resource };
+  }
+
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-text-control infer="name"></foxy-internal-text-control>
 
       <foxy-internal-radio-group-control infer="event-resource" .options=${this.__eventResources}>

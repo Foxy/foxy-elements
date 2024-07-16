@@ -12,8 +12,8 @@ const summary: Summary = {
   translatable: true,
   configurable: {
     inputs: ['item-category-uri', 'name', 'code', 'price'],
-    buttons: ['create', 'delete'],
-    sections: ['timestamps'],
+    buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
+    sections: ['timestamps', 'header'],
   },
 };
 

@@ -50,12 +50,16 @@ describe('Transaction', () => {
       await control.requestUpdate();
       const value = control.renderRoot.querySelector('foxy-i18n[key="price"]');
 
+      // @ts-expect-error using private property for testing purposes
+      await waitUntil(() => !!control.__store);
+
       expect(value).to.exist;
       expect(value).to.have.deep.property('options', {
-        currencyDisplay: 'symbol',
+        currencyDisplay: 'code',
         signDisplay: 'auto',
         amount: '10 USD',
       });
+
       expect(value).to.have.property('infer', '');
     });
 
@@ -100,13 +104,16 @@ describe('Transaction', () => {
       const label = control.renderRoot.querySelector('foxy-i18n[key="total"]')!;
       const value = label.nextElementSibling!;
 
+      // @ts-expect-error using private property for testing purposes
+      await waitUntil(() => !!control.__store);
+
       expect(label).to.exist;
       expect(label).to.have.property('infer', '');
 
       expect(value).to.exist;
       expect(value).to.have.property('infer', '');
       expect(value).to.have.deep.property('options', {
-        currencyDisplay: 'symbol',
+        currencyDisplay: 'code',
         signDisplay: 'auto',
         amount: '11.9 USD',
       });
@@ -131,13 +138,16 @@ describe('Transaction', () => {
       const label = control.renderRoot.querySelector('foxy-i18n[key="total_shipping"]')!;
       const value = label.parentElement!.nextElementSibling!.firstElementChild;
 
+      // @ts-expect-error using private property for testing purposes
+      await waitUntil(() => !!control.__store);
+
       expect(label).to.exist;
       expect(label).to.have.property('infer', '');
 
       expect(value).to.exist;
       expect(value).to.have.property('infer', '');
       expect(value).to.have.deep.property('options', {
-        currencyDisplay: 'symbol',
+        currencyDisplay: 'code',
         signDisplay: 'exceptZero',
         amount: '0 USD',
       });
@@ -162,13 +172,16 @@ describe('Transaction', () => {
       const label = control.renderRoot.querySelector('foxy-i18n[key="total_tax"]')!;
       const value = label.parentElement!.nextElementSibling!.firstElementChild;
 
+      // @ts-expect-error using private property for testing purposes
+      await waitUntil(() => !!control.__store);
+
       expect(label).to.exist;
       expect(label).to.have.property('infer', '');
 
       expect(value).to.exist;
       expect(value).to.have.property('infer', '');
       expect(value).to.have.deep.property('options', {
-        currencyDisplay: 'symbol',
+        currencyDisplay: 'code',
         signDisplay: 'exceptZero',
         amount: '1.9 USD',
       });
@@ -266,6 +279,9 @@ describe('Transaction', () => {
       const label1 = control.renderRoot.querySelectorAll('[data-testclass="discount"]')[0];
       const value1 = label1.nextElementSibling!.firstElementChild;
 
+      // @ts-expect-error using private property for testing purposes
+      await waitUntil(() => !!control.__store);
+
       expect(label1).to.exist;
       expect(label1).to.include.text('Test1');
 
@@ -274,7 +290,7 @@ describe('Transaction', () => {
       expect(value1).to.have.property('infer', '');
       expect(value1).to.have.deep.property('options', {
         amount: '-1 USD',
-        currencyDisplay: 'symbol',
+        currencyDisplay: 'code',
         signDisplay: 'exceptZero',
       });
 
@@ -289,7 +305,7 @@ describe('Transaction', () => {
       expect(value2).to.have.property('infer', '');
       expect(value2).to.have.deep.property('options', {
         amount: '-2 USD',
-        currencyDisplay: 'symbol',
+        currencyDisplay: 'code',
         signDisplay: 'exceptZero',
       });
     });

@@ -14,6 +14,7 @@ import { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
+import { stub } from 'sinon';
 
 describe('ItemCategoryForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -355,6 +356,13 @@ describe('ItemCategoryForm', () => {
 
     form.edit({ admin_email: 'test@example.com' });
     expect(form.errors).to.not.include('admin-email:v8n_required');
+  });
+
+  it('renders a form header', () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
   });
 
   it('renders a text control for category name', async () => {

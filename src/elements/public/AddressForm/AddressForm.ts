@@ -49,24 +49,25 @@ export class AddressForm extends Base<Data> {
     this.edit({ country: newValue, region: '' });
   };
 
-  get readonlySelector(): BooleanSelector {
-    const alwaysReadonly = [super.readonlySelector.toString()];
+  get hiddenSelector(): BooleanSelector {
+    const alwaysHidden = [super.hiddenSelector.toString()];
     const isDefault = !!this.data?.is_default_shipping || !!this.data?.is_default_billing;
-    if (isDefault) alwaysReadonly.unshift('address-name');
-    return new BooleanSelector(alwaysReadonly.join(' ').trim());
+    if (isDefault) alwaysHidden.unshift('delete', 'address-name');
+    return new BooleanSelector(alwaysHidden.join(' ').trim());
   }
 
-  get disabledSelector(): BooleanSelector {
-    const alwaysDisabled = [super.disabledSelector.toString()];
-    const isDefault = !!this.data?.is_default_shipping || !!this.data?.is_default_billing;
-    if (isDefault) alwaysDisabled.unshift('delete');
-    return new BooleanSelector(alwaysDisabled.join(' ').trim());
+  get headerSubtitleKey(): string {
+    if (this.data?.is_default_shipping) return 'subtitle_default_shipping';
+    if (this.data?.is_default_billing) return 'subtitle_default_billing';
+    return 'subtitle_custom';
   }
 
   renderBody(): TemplateResult {
     const regionOptions = this.__regionOptions;
 
     return html`
+      ${this.renderHeader()}
+
       <div class="grid grid-cols-2 gap-m">
         <foxy-internal-text-control class="col-span-2" infer="address-name">
         </foxy-internal-text-control>

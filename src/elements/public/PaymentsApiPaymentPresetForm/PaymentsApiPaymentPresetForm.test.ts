@@ -19,7 +19,7 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
 import { FormDialog } from '../FormDialog';
 import { spread } from '@open-wc/lit-helpers';
-import { fake } from 'sinon';
+import { fake, stub } from 'sinon';
 
 describe('PaymentsApiPaymentPresetForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -112,6 +112,18 @@ describe('PaymentsApiPaymentPresetForm', () => {
 
     form.edit({ description: 'A'.repeat(100) });
     expect(form.errors).to.not.include('description:v8n_too_long');
+  });
+
+  it('renders a form header', async () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('always hides Copy JSON button in the header', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('header:copy-json', true)).to.be.true;
   });
 
   it('renders a text control for description', async () => {

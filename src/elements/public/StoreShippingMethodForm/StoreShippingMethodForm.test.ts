@@ -15,6 +15,9 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
 import { getTestData } from '../../../testgen/getTestData';
+import { stub } from 'sinon';
+import { Resource } from '@foxy.io/sdk/core';
+import { Rels } from '@foxy.io/sdk/backend';
 
 describe('StoreShippingMethodForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -401,6 +404,31 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal('endpoint custom-code services');
+  });
+
+  it('renders a form header', async () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('uses custom header title options', async () => {
+    const form = new Form();
+    form.data = await getTestData('./hapi/store_shipping_methods/0?zoom=shipping_method');
+    type Embed = { 'fx:shipping_method': Resource<Rels.ShippingMethod> };
+    const shippingMethod = (form.data!._embedded as Embed)['fx:shipping_method'];
+    expect(form.headerTitleOptions).to.deep.equal({
+      ...form.data!,
+      context: 'existing',
+      provider: shippingMethod.name,
+    });
+  });
+
+  it('uses custom header subtitle options', async () => {
+    const form = new Form();
+    form.data = await getTestData('./hapi/store_shipping_methods/0?zoom=shipping_method');
+    expect(form.headerSubtitleOptions).to.deep.equal({ id: form.headerCopyIdValue });
   });
 
   it('renders resource picker control for shipping method uri', async () => {

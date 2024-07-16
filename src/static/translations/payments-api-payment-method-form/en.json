@@ -4,6 +4,7 @@
     "title_selected": "{{ name }}",
     "subtitle_regular": "Payment gateway #{{ id }}",
     "subtitle_hosted": "Hosted payment gateway #{{ id }}",
+    "subtitle": "",
     "copy-id": {
       "failed_to_copy": "Failed to copy",
       "click_to_copy": "Copy ID",

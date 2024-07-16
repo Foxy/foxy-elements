@@ -4,7 +4,7 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { html } from 'lit-html';
 import { createRouter } from '../../../server/index';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { getByKey } from '../../../testgen/getByKey';
+import { stub } from 'sinon';
 
 describe('Transaction', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -118,42 +118,11 @@ describe('Transaction', () => {
     expect(new Transaction()).to.be.instanceOf(InternalForm);
   });
 
-  it('renders translatable title in header', async () => {
-    const router = createRouter();
-    const element = await fixture<Transaction>(html`
-      <foxy-transaction
-        href="https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-transaction>
-    `);
-
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
-    await element.requestUpdate();
-    const title = await getByKey(element, 'title');
-
-    expect(title).to.exist;
-    expect(title).to.have.attribute('infer', 'header');
-    expect(title).to.have.property('options', element.data);
-  });
-
-  it('renders a copy-to-clipboard button in header', async () => {
-    const router = createRouter();
-    const element = await fixture<Transaction>(html`
-      <foxy-transaction
-        href="https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-transaction>
-    `);
-
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
-    await element.requestUpdate();
-    const button = element.renderRoot.querySelector('foxy-copy-to-clipboard');
-
-    expect(button).to.exist;
-    expect(button).to.have.attribute('infer', 'header');
-    expect(button).to.have.attribute('text', String(element.data!.display_id));
+  it('renders a form header', () => {
+    const form = new Transaction();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
   });
 
   it('renders a special subtitle for payment method changes initiated by customer', async () => {
@@ -170,12 +139,17 @@ describe('Transaction', () => {
     element.data = { ...element.data!, type: 'updateinfo', source: 'cit_ecommerce' };
     await element.requestUpdate();
 
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_customer_changed_payment_method');
+    expect(element.headerSubtitleOptions).to.have.property(
+      'context',
+      'customer_changed_payment_method'
+    );
 
     element.data = { ...element.data!, source: 'mit_api' };
     await element.requestUpdate();
-    expect(subtitle).to.not.have.attribute('key', 'subtitle_customer_changed_payment_method');
+    expect(element.headerSubtitleOptions).to.not.have.property(
+      'context',
+      'customer_changed_payment_method'
+    );
   });
 
   it('renders a special subtitle for payment method changes made with UOE password', async () => {
@@ -192,14 +166,16 @@ describe('Transaction', () => {
     element.data = { ...element.data!, type: 'updateinfo', source: 'mit_uoe' };
     await element.requestUpdate();
 
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_admin_changed_payment_method_with_uoe');
+    expect(element.headerSubtitleOptions).to.have.property(
+      'context',
+      'admin_changed_payment_method_with_uoe'
+    );
 
     element.data = { ...element.data!, source: 'cit_ecommerce' };
     await element.requestUpdate();
-    expect(subtitle).to.not.have.attribute(
-      'key',
-      'subtitle_customer_changed_payment_method_with_uoe'
+    expect(element.headerSubtitleOptions).to.not.have.property(
+      'context',
+      'admin_changed_payment_method_with_uoe'
     );
   });
 
@@ -217,12 +193,17 @@ describe('Transaction', () => {
     element.data = { ...element.data!, type: 'updateinfo', source: 'mit_api' };
     await element.requestUpdate();
 
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_integration_changed_payment_method');
+    expect(element.headerSubtitleOptions).to.have.property(
+      'context',
+      'integration_changed_payment_method'
+    );
 
     element.data = { ...element.data!, source: 'cit_ecommerce' };
     await element.requestUpdate();
-    expect(subtitle).to.not.have.attribute('key', 'subtitle_integration_changed_payment_method');
+    expect(element.headerSubtitleOptions).to.not.have.property(
+      'context',
+      'integration_changed_payment_method'
+    );
   });
 
   it('renders a special subtitle for subscription changes initiated by customer', async () => {
@@ -239,12 +220,17 @@ describe('Transaction', () => {
     element.data = { ...element.data!, type: 'subscription_modification', source: 'cit_ecommerce' };
     await element.requestUpdate();
 
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_customer_changed_subscription');
+    expect(element.headerSubtitleOptions).to.have.property(
+      'context',
+      'customer_changed_subscription'
+    );
 
     element.data = { ...element.data!, source: 'mit_api' };
     await element.requestUpdate();
-    expect(subtitle).to.not.have.attribute('key', 'subtitle_customer_changed_subscription');
+    expect(element.headerSubtitleOptions).to.not.have.property(
+      'context',
+      'customer_changed_subscription'
+    );
   });
 
   it('renders a special subtitle for subscription changes made with UOE password', async () => {
@@ -261,14 +247,16 @@ describe('Transaction', () => {
     element.data = { ...element.data!, type: 'subscription_modification', source: 'mit_uoe' };
     await element.requestUpdate();
 
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_admin_changed_subscription_with_uoe');
+    expect(element.headerSubtitleOptions).to.have.property(
+      'context',
+      'admin_changed_subscription_with_uoe'
+    );
 
     element.data = { ...element.data!, source: 'cit_ecommerce' };
     await element.requestUpdate();
-    expect(subtitle).to.not.have.attribute(
-      'key',
-      'subtitle_customer_changed_subscription_with_uoe'
+    expect(element.headerSubtitleOptions).to.not.have.property(
+      'context',
+      'admin_changed_subscription_with_uoe'
     );
   });
 
@@ -286,12 +274,17 @@ describe('Transaction', () => {
     element.data = { ...element.data!, type: 'subscription_modification', source: 'mit_api' };
     await element.requestUpdate();
 
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_integration_changed_subscription');
+    expect(element.headerSubtitleOptions).to.have.property(
+      'context',
+      'integration_changed_subscription'
+    );
 
     element.data = { ...element.data!, source: 'cit_ecommerce' };
     await element.requestUpdate();
-    expect(subtitle).to.not.have.attribute('key', 'subtitle_integration_changed_subscription');
+    expect(element.headerSubtitleOptions).to.not.have.property(
+      'context',
+      'integration_changed_subscription'
+    );
   });
 
   it('renders a special subtitle for subscription renewal attempts', async () => {
@@ -308,12 +301,17 @@ describe('Transaction', () => {
     element.data = { ...element.data!, type: 'subscription_renewal', source: 'mit_recurring' };
     await element.requestUpdate();
 
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_subscription_renewal_attempt');
+    expect(element.headerSubtitleOptions).to.have.property(
+      'context',
+      'subscription_renewal_attempt'
+    );
 
     element.data = { ...element.data!, source: 'cit_ecommerce' };
     await element.requestUpdate();
-    expect(subtitle).to.not.have.attribute('key', 'subtitle_subscription_renewal_attempt');
+    expect(element.headerSubtitleOptions).to.not.have.property(
+      'context',
+      'subscription_renewal_attempt'
+    );
   });
 
   it('renders a special subtitle for automated subscription renewal reattempts', async () => {
@@ -334,14 +332,16 @@ describe('Transaction', () => {
     };
     await element.requestUpdate();
 
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_subscription_renewal_automated_reattempt');
+    expect(element.headerSubtitleOptions).to.have.property(
+      'context',
+      'subscription_renewal_automated_reattempt'
+    );
 
     element.data = { ...element.data!, source: 'cit_ecommerce' };
     await element.requestUpdate();
-    expect(subtitle).to.not.have.attribute(
-      'key',
-      'subtitle_subscription_renewal_automated_reattempt'
+    expect(element.headerSubtitleOptions).to.not.have.property(
+      'context',
+      'subscription_renewal_automated_reattempt'
     );
   });
 
@@ -363,12 +363,17 @@ describe('Transaction', () => {
     };
     await element.requestUpdate();
 
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_subscription_renewal_manual_reattempt');
+    expect(element.headerSubtitleOptions).to.have.property(
+      'context',
+      'subscription_renewal_manual_reattempt'
+    );
 
     element.data = { ...element.data!, source: 'cit_ecommerce' };
     await element.requestUpdate();
-    expect(subtitle).to.not.have.attribute('key', 'subtitle_subscription_renewal_manual_reattempt');
+    expect(element.headerSubtitleOptions).to.not.have.property(
+      'context',
+      'subscription_renewal_manual_reattempt'
+    );
   });
 
   it('renders a special subtitle for subscription cancellations initiated by customer', async () => {
@@ -389,12 +394,17 @@ describe('Transaction', () => {
     };
     await element.requestUpdate();
 
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_customer_canceled_subscription');
+    expect(element.headerSubtitleOptions).to.have.property(
+      'context',
+      'customer_canceled_subscription'
+    );
 
     element.data = { ...element.data!, source: 'mit_recurring_cancellation' };
     await element.requestUpdate();
-    expect(subtitle).to.not.have.attribute('key', 'subtitle_customer_canceled_subscription');
+    expect(element.headerSubtitleOptions).to.not.have.property(
+      'context',
+      'customer_canceled_subscription'
+    );
   });
 
   it('renders a special subtitle for subscription cancellations initiated by merchant', async () => {
@@ -415,12 +425,17 @@ describe('Transaction', () => {
     };
     await element.requestUpdate();
 
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_admin_canceled_subscription');
+    expect(element.headerSubtitleOptions).to.have.property(
+      'context',
+      'admin_canceled_subscription'
+    );
 
     element.data = { ...element.data!, source: 'cit_recurring_cancellation' };
     await element.requestUpdate();
-    expect(subtitle).to.not.have.attribute('key', 'subtitle_admin_canceled_subscription');
+    expect(element.headerSubtitleOptions).to.not.have.property(
+      'context',
+      'admin_canceled_subscription'
+    );
   });
 
   it('renders a special subtitle for new subscriptions', async () => {
@@ -447,16 +462,15 @@ describe('Transaction', () => {
 
     await element.requestUpdate();
 
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_customer_subscribed');
+    expect(element.headerSubtitleOptions).to.have.property('context', 'customer_subscribed');
 
     element.data = { ...element.data!, source: 'mit_uoe' };
     await element.requestUpdate();
-    expect(subtitle).to.have.attribute('key', 'subtitle_admin_subscribed_with_uoe');
+    expect(element.headerSubtitleOptions).to.have.property('context', 'admin_subscribed_with_uoe');
 
     element.data = { ...element.data!, source: 'mit_api' };
     await element.requestUpdate();
-    expect(subtitle).to.have.attribute('key', 'subtitle_integration_subscribed');
+    expect(element.headerSubtitleOptions).to.have.property('context', 'integration_subscribed');
   });
 
   it('renders a special subtitle for new orders', async () => {
@@ -478,16 +492,34 @@ describe('Transaction', () => {
 
     await element.requestUpdate();
 
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_customer_placed_order');
+    expect(element.headerSubtitleOptions).to.have.property('context', 'customer_placed_order');
 
     element.data = { ...element.data!, source: 'mit_uoe' };
     await element.requestUpdate();
-    expect(subtitle).to.have.attribute('key', 'subtitle_admin_placed_order_with_uoe');
+    expect(element.headerSubtitleOptions).to.have.property(
+      'context',
+      'admin_placed_order_with_uoe'
+    );
 
     element.data = { ...element.data!, source: 'mit_api' };
     await element.requestUpdate();
-    expect(subtitle).to.have.attribute('key', 'subtitle_integration_placed_order');
+    expect(element.headerSubtitleOptions).to.have.property('context', 'integration_placed_order');
+  });
+
+  it('uses display_id as ID copied by Copy ID button', async () => {
+    const router = createRouter();
+    const element = await fixture<Transaction>(html`
+      <foxy-transaction
+        href="https://demo.api/hapi/transactions/1?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-transaction>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    element.data = { ...element.data!, display_id: '123' };
+
+    expect(element.headerCopyIdValue).to.equal('123');
   });
 
   it('renders transaction actions as control', async () => {

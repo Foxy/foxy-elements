@@ -5,6 +5,7 @@ import type { Option } from '../../internal/InternalCheckboxGroupControl/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { html } from 'lit-html';
 
@@ -144,8 +145,14 @@ export class SubscriptionSettingsForm extends Base<Data> {
     this.edit({ reattempt_schedule: newItems.map(({ value }) => value).join() });
   };
 
+  get hiddenSelector(): BooleanSelector {
+    return new BooleanSelector(`header:copy-id ${super.hiddenSelector}`.trim());
+  }
+
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-radio-group-control
         infer="past-due-amount-handling"
         theme="vertical list"

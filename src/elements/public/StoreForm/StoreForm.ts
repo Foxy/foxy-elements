@@ -140,9 +140,6 @@ export class StoreForm extends Base<Data> {
   /** URL of the `fx:regions` property helper resource. */
   regions: string | null = null;
 
-  /** Template render functions mapped to their name. */
-  templates: Templates = {};
-
   private __singleCheckboxGroupOptions = [{ label: 'option_checked', value: 'checked' }];
 
   private __appSessionTimeOptions = [
@@ -363,6 +360,8 @@ export class StoreForm extends Base<Data> {
     }
 
     return html`
+      ${this.renderHeader()}
+
       <div class="grid gap-m grid-cols-1 sm-grid-cols-2">
         <foxy-internal-text-control infer="store-name"></foxy-internal-text-control>
 

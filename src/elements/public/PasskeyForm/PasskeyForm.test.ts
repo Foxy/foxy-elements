@@ -3,6 +3,7 @@ import './index';
 import { html, expect, fixture } from '@open-wc/testing';
 import { PasskeyForm as Form } from './PasskeyForm';
 import { getTestData } from '../../../testgen/getTestData';
+import { stub } from 'sinon';
 
 describe('passkeyForm', () => {
   it('imports and defines foxy-internal-text-area-control', () => {
@@ -34,21 +35,20 @@ describe('passkeyForm', () => {
     expect(new Form()).to.have.property('ns', 'passkey-form');
   });
 
+  it('renders a form header', async () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.data = await getTestData('./hapi/passkeys/0');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
   it('renders a foxy-internal-text-control for credential id', async () => {
     const element = await fixture<Form>(html`<foxy-passkey-form></foxy-passkey-form>`);
     element.data = await getTestData('./hapi/passkeys/0');
     await element.requestUpdate();
 
     const control = element.renderRoot.querySelector('[infer="credential-id"]');
-    expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
-  });
-
-  it('renders a foxy-internal-text-control for last login date', async () => {
-    const element = await fixture<Form>(html`<foxy-passkey-form></foxy-passkey-form>`);
-    element.data = await getTestData('./hapi/passkeys/0');
-    await element.requestUpdate();
-
-    const control = element.renderRoot.querySelector('[infer="last-login-date"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 

@@ -10,7 +10,7 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-update-payment-method-form',
   translatable: true,
-  configurable: { inputs: ['template-set', 'cc-token'] },
+  configurable: { sections: ['header'], inputs: ['template-set', 'cc-token'] },
 };
 
 const demoExt = 'embed-url="https://embed.foxy.io/v1.html?demo=default"';

@@ -637,7 +637,7 @@ export const createDataset: () => Dataset = () => ({
     transaction_id: id > 4 ? 1 : 0,
     subscription_id: 0,
     item_category_id: 0,
-    item_category_uri: '',
+    item_category_uri: `https://demo.api/hapi/item_categories/${id}`,
     name: `Basic Product #${id}`,
     price: 10,
     quantity: Math.ceil(Math.random() * 10),

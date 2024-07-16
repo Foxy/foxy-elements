@@ -85,6 +85,8 @@ export class GiftCardCodeForm extends Base<Data> {
 
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-text-control infer="code"></foxy-internal-text-control>
       <foxy-internal-number-control infer="current-balance"></foxy-internal-number-control>
       <foxy-internal-date-control infer="end-date"></foxy-internal-date-control>

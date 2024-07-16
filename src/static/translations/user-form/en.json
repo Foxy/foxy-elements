@@ -3,7 +3,7 @@
     "title_new": "New user",
     "title_existing": "User #{{ id }}",
     "subtitle": "",
-    "subtitle_affiliate": "Affiliate ID: {{ affiliate_id }}",
+    "subtitle_affiliate": "Affiliate #{{ affiliate_id }}",
     "copy-id": {
       "failed_to_copy": "Failed to copy",
       "click_to_copy": "Copy ID",

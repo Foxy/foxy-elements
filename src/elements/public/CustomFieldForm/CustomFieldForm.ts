@@ -37,6 +37,8 @@ export class CustomFieldForm extends Base<Data> {
 
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-source-control infer="name"></foxy-internal-source-control>
       <foxy-internal-source-control infer="value"></foxy-internal-source-control>
       <foxy-internal-checkbox-group-control

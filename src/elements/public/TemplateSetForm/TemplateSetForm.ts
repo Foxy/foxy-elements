@@ -60,6 +60,13 @@ export class TemplateSetForm extends Base<Data> {
 
   private readonly __languagesLoaderId = 'languagesLoader';
 
+  get headerSubtitleOptions(): Record<string, unknown> {
+    return {
+      ...super.headerSubtitleOptions,
+      context: this.data?.code === 'DEFAULT' ? 'default' : '',
+    };
+  }
+
   get disabledSelector(): BooleanSelector {
     const alwaysDisabled: string[] = [];
     if (!this.__languagesLoader?.data) alwaysDisabled.push('language');
@@ -81,6 +88,8 @@ export class TemplateSetForm extends Base<Data> {
     const languages = languageEntries.map(([value, label]) => ({ value, label }));
 
     return html`
+      ${this.renderHeader()}
+
       <div class="grid grid-cols-1 gap-m sm-grid-cols-2">
         <foxy-internal-text-control infer="description"></foxy-internal-text-control>
 

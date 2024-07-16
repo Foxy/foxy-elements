@@ -16,6 +16,7 @@ import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { I18n } from '../I18n';
 
 import * as defaults from './defaults';
+import { stub } from 'sinon';
 
 describe('NativeIntegrationForm', () => {
   it('imports and defines foxy-internal-checkbox-group-control element', () => {
@@ -334,6 +335,29 @@ describe('NativeIntegrationForm', () => {
     await waitUntil(() => element.in('idle'));
 
     expect(element.errors).to.include('error:already_configured');
+  });
+
+  it('renders a form header', () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('uses custom options for form header title', async () => {
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form></foxy-native-integration-form>
+    `);
+
+    expect(element.headerTitleOptions).to.deep.equal({ context: 'new', id: '' });
+
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    element.data = data;
+
+    expect(element.headerTitleOptions).to.deep.equal({
+      context: `existing_${data.provider}`,
+      id: 0,
+    });
   });
 
   it('does not render provider name for webhooks when href is defined', async () => {

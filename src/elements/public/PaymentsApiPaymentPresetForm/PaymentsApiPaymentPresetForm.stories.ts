@@ -15,8 +15,8 @@ const summary: Summary = {
   localName: 'foxy-payments-api-payment-preset-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps'],
-    buttons: ['create', 'delete'],
+    sections: ['timestamps', 'header'],
+    buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
     inputs: [
       'description',
       'is-live',

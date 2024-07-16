@@ -157,6 +157,8 @@ export class StoreShippingMethodForm extends Base<Data> {
     const shippingMethod = this.__shippingMethod;
 
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-resource-picker-control
         infer="shipping-method-uri"
         first=${ifDefined(this.shippingMethods ?? this.form._links?.['fx:shipping_methods'].href)}

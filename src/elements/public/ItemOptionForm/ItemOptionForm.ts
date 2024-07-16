@@ -24,10 +24,15 @@ export class ItemOptionForm extends TranslatableMixin(InternalForm, 'item-option
 
   renderBody(): TemplateResult {
     return html`
-      <foxy-internal-text-control infer="name"></foxy-internal-text-control>
-      <foxy-internal-text-control infer="value"></foxy-internal-text-control>
-      <foxy-internal-number-control infer="price-mod"></foxy-internal-number-control>
-      <foxy-internal-number-control infer="weight-mod"></foxy-internal-number-control>
+      ${this.renderHeader()}
+
+      <div class="grid grid-cols-2 gap-m">
+        <foxy-internal-text-control infer="name" class="col-span-2"></foxy-internal-text-control>
+        <foxy-internal-text-control infer="value" class="col-span-2"></foxy-internal-text-control>
+        <foxy-internal-number-control infer="price-mod"></foxy-internal-number-control>
+        <foxy-internal-number-control infer="weight-mod"></foxy-internal-number-control>
+      </div>
+
       ${super.renderBody()}
     `;
   }

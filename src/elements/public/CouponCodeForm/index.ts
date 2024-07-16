@@ -1,5 +1,4 @@
 import '../../internal/InternalAsyncListControl/index';
-import '../../internal/InternalIntegerControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 import '../TransactionCard/index';

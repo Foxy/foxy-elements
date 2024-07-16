@@ -1,4 +1,5 @@
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { Data } from './types';
 
 import './index';
 
@@ -8,6 +9,8 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ItemForm } from './ItemForm';
 import { html } from 'lit-html';
 import { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
+import { getTestData } from '../../../testgen/getTestData';
+import { stub } from 'sinon';
 
 describe('ItemForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -127,6 +130,24 @@ describe('ItemForm', () => {
     expect(ItemForm).to.have.nested.property('properties.coupons');
     expect(ItemForm).to.have.nested.property('properties.coupons.type', String);
     expect(new ItemForm()).to.have.property('coupons', null);
+  });
+
+  it('renders a form header', () => {
+    const form = new ItemForm();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('uses custom header subtitle options', async () => {
+    const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
+    const data = await getTestData<Data>('./hapi/items/0');
+
+    element.data = { ...data, is_future_line_item: true };
+    expect(element.headerSubtitleOptions).to.deep.equal({ context: 'future_line_item' });
+
+    element.data = { ...data, is_future_line_item: false };
+    expect(element.headerSubtitleOptions).to.deep.equal({ context: 'regular' });
   });
 
   it('renders name as a control', async () => {

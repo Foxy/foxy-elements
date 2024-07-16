@@ -33,8 +33,8 @@ export class PasskeyForm extends Base<Data> {
     }
 
     return html`
+      ${this.renderHeader()}
       <foxy-internal-text-control infer="credential-id"></foxy-internal-text-control>
-      <foxy-internal-text-control infer="last-login-date"></foxy-internal-text-control>
       <foxy-internal-text-area-control infer="last-login-ua"></foxy-internal-text-area-control>
       ${super.renderBody()}
     `;

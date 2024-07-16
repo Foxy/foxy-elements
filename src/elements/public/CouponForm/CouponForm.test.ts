@@ -286,6 +286,24 @@ describe('CouponForm', () => {
     expect(element.hiddenSelector.matches('customer-subscription-restrictions', true)).to.be.false;
   });
 
+  it('renders a form header', () => {
+    const form = new CouponForm();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('renders header subtitle with custom options', async () => {
+    const element = await fixture<CouponForm>(html`
+      <foxy-coupon-form .data=${await getTestData('./hapi/coupons/0')}> </foxy-coupon-form>
+    `);
+
+    expect(element.headerSubtitleOptions).to.deep.equal({
+      ...element.data,
+      id: element.headerCopyIdValue,
+    });
+  });
+
   it('renders bulk add control for the Generate Codes header action', async () => {
     const element = await fixture<CouponForm>(html`
       <foxy-coupon-form .data=${await getTestData('./hapi/coupons/0')}></foxy-coupon-form>

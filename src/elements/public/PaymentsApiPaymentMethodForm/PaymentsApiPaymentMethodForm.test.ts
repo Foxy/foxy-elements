@@ -18,6 +18,7 @@ import { getByKey } from '../../../testgen/getByKey';
 import { I18n } from '../I18n/I18n';
 import { AvailablePaymentMethods } from '../PaymentsApi/api/types';
 import { getByTag } from '../../../testgen/getByTag';
+import { stub } from 'sinon';
 
 describe('PaymentsApiPaymentMethodForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -193,6 +194,65 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(form.errors).to.not.include('additional-fields:v8n_invalid');
   });
 
+  it('renders a form header', async () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('always hides Copy JSON button in the header', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('header:copy-json', true)).to.be.true;
+  });
+
+  it('uses custom options for form header title', () => {
+    const form = new Form();
+
+    expect(form.headerTitleOptions).to.deep.equal({ context: 'new', name: undefined });
+
+    form.edit({
+      type: 'bar_one',
+      helper: {
+        name: 'Bar One',
+        test_id: '',
+        test_key: '',
+        test_third_party_key: '',
+        third_party_key_description: '',
+        id_description: '',
+        key_description: '',
+        supports_3d_secure: 0,
+        supports_auth_only: 0,
+        is_deprecated: false,
+        additional_fields: null,
+      },
+    });
+
+    expect(form.headerTitleOptions).to.deep.equal({ context: 'selected', name: 'Bar One' });
+  });
+
+  it('uses custom options for form header subtitle', () => {
+    const form = new Form();
+    expect(form.headerSubtitleOptions).to.deep.equal({});
+
+    form.href = 'https://foxy-payments-api.element/payment_presets/0/payment_methods/R0';
+    expect(form.headerSubtitleOptions).to.deep.equal({ context: 'regular', id: '0' });
+
+    form.href = 'https://foxy-payments-api.element/payment_presets/0/payment_methods/H1C2';
+    expect(form.headerSubtitleOptions).to.deep.equal({ context: 'hosted', id: '1' });
+  });
+
+  it('uses custom Copy ID value', () => {
+    const form = new Form();
+    expect(form.headerCopyIdValue).to.equal('');
+
+    form.href = 'https://foxy-payments-api.element/payment_presets/0/payment_methods/R0';
+    expect(form.headerCopyIdValue).to.equal('0');
+
+    form.href = 'https://foxy-payments-api.element/payment_presets/0/payment_methods/H1C2';
+    expect(form.headerCopyIdValue).to.equal('1');
+  });
+
   it('renders a payment method selector when "type" is not present in form', async () => {
     const availableMethods: AvailablePaymentMethods = {
       _links: {
@@ -271,13 +331,13 @@ describe('PaymentsApiPaymentMethodForm', () => {
     `);
 
     const element = wrapper.firstElementChild!.firstElementChild as Form;
-    const title = (await getByKey(element, 'select_method_title')) as I18n;
+    await waitUntil(
+      () => !!element.renderRoot.querySelector('[data-testid="select-method-list"]'),
+      '',
+      { timeout: 5000 }
+    );
+
     const list = (await getByTestId(element, 'select-method-list')) as HTMLElement;
-
-    expect(title).to.exist;
-    expect(title).to.have.attribute('infer', '');
-
-    await waitUntil(() => !!list.querySelector('li'), '', { timeout: 5000 });
     const groups = list.querySelectorAll('ul');
     const headers = list.querySelectorAll('p');
 
@@ -411,13 +471,13 @@ describe('PaymentsApiPaymentMethodForm', () => {
     `);
 
     const element = wrapper.firstElementChild!.firstElementChild as Form;
-    const title = (await getByKey(element, 'select_method_title')) as I18n;
+    await waitUntil(
+      () => !!element.renderRoot.querySelector('[data-testid="select-method-list"]'),
+      '',
+      { timeout: 5000 }
+    );
+
     const list = (await getByTestId(element, 'select-method-list')) as HTMLElement;
-
-    expect(title).to.exist;
-    expect(title).to.have.attribute('infer', '');
-
-    await waitUntil(() => !!list.querySelector('li'), '', { timeout: 5000 });
     const groups = list.querySelectorAll('ul');
     const headers = list.querySelectorAll('p');
 
@@ -441,40 +501,6 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(group0Item0Button).to.exist;
     expect(group1Item0Button).to.exist;
     expect(group1Item1Button).to.not.exist;
-  });
-
-  it('renders a payment method logo and name when "type" is selected', async () => {
-    const router = createRouter();
-
-    const wrapper = await fixture(html`
-      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
-        <foxy-payments-api
-          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
-          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
-          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
-          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
-          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
-          fraud-protections-url="https://demo.api/hapi/fraud_protections"
-          payment-gateways-url="https://demo.api/hapi/payment_gateways"
-        >
-          <foxy-payments-api-payment-method-form
-            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
-            .getImageSrc=${(type: string) => `https://example.com/${type}.png`}
-          >
-          </foxy-payments-api-payment-method-form>
-        </foxy-payments-api>
-      </div>
-    `);
-
-    const element = wrapper.firstElementChild!.firstElementChild as Form;
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-
-    const figure = (await getByTestId(element, 'logo')) as HTMLElement;
-    const img = (await getByTag(figure, 'img')) as HTMLImageElement;
-    const caption = (await getByTag(figure, 'figcaption')) as HTMLElement;
-
-    expect(img).to.have.attribute('src', `https://example.com/${element.form.type}.png`);
-    expect(caption).to.include.text(element.form.helper!.name);
   });
 
   it('renders tabs for live and test credentials', async () => {

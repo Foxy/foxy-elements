@@ -11,8 +11,16 @@ const summary: Summary = {
   localName: 'foxy-store-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps'],
-    buttons: ['is-maintenance-mode', 'create', 'delete'],
+    sections: ['timestamps', 'header'],
+    buttons: [
+      'is-maintenance-mode',
+      'create',
+      'delete',
+      'undo',
+      'submit',
+      'header:copy-id',
+      'header:copy-json',
+    ],
     inputs: [
       'store-name',
       'logo-url',

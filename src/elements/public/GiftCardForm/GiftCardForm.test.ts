@@ -205,6 +205,21 @@ describe('GiftCardForm', () => {
     expect(element.hiddenSelector.matches('attributes', true)).to.be.false;
   });
 
+  it('renders a form header', () => {
+    const form = new GiftCardForm();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('uses custom form header subtitle options', async () => {
+    const element = await fixture<GiftCardForm>(html`
+      <foxy-gift-card-form .data=${await getTestData('./hapi/gift_cards/0')}></foxy-gift-card-form>
+    `);
+
+    expect(element.headerSubtitleOptions).to.deep.equal({ id: element.headerCopyIdValue });
+  });
+
   it('renders bulk add control for the Generate Codes header action', async () => {
     const element = await fixture<GiftCardForm>(html`
       <foxy-gift-card-form .data=${await getTestData('./hapi/gift_cards/0')}></foxy-gift-card-form>

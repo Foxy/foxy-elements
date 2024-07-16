@@ -36,14 +36,20 @@ export class AttributeForm extends Base<Data> {
     { label: 'option_private', value: 'private' },
   ];
 
-  get readonlySelector(): BooleanSelector {
-    const alwaysMatch = [super.readonlySelector.toString()];
+  get hiddenSelector(): BooleanSelector {
+    const alwaysMatch = [super.hiddenSelector.toString()];
     if (this.href) alwaysMatch.unshift('visibility');
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
+  get headerSubtitleKey(): string {
+    return `subtitle_${this.data?.visibility}`;
+  }
+
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-source-control infer="name"></foxy-internal-source-control>
       <foxy-internal-source-control infer="value"></foxy-internal-source-control>
       <foxy-internal-radio-group-control

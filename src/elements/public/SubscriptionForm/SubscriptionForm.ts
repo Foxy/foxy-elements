@@ -39,6 +39,10 @@ export class SubscriptionForm extends Base<Data> {
       'foxy-internal-timestamps-control': customElements.get('foxy-internal-timestamps-control'),
       'foxy-internal-async-list-control': customElements.get('foxy-internal-async-list-control'),
       'foxy-internal-number-control': customElements.get('foxy-internal-number-control'),
+      'foxy-internal-submit-control': customElements.get('foxy-internal-submit-control'),
+      'foxy-internal-delete-control': customElements.get('foxy-internal-delete-control'),
+      'foxy-internal-undo-control': customElements.get('foxy-internal-undo-control'),
+      'foxy-copy-to-clipboard': customElements.get('foxy-copy-to-clipboard'),
       'foxy-internal-calendar': customElements.get('foxy-internal-calendar'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-customer-card': customElements.get('foxy-customer-card'),
@@ -92,110 +96,6 @@ export class SubscriptionForm extends Base<Data> {
   private readonly __templateSetLoaderId = 'templateSetLoader';
 
   private readonly __storeLoaderId = 'storeLoader';
-
-  private readonly __renderHeaderSubtitle = () => {
-    const { data, lang, ns } = this;
-
-    if (data) {
-      let color = 'text-secondary';
-      let date: string;
-      let key: string;
-
-      if (data.first_failed_transaction_date) {
-        color = 'text-error';
-        date = data.first_failed_transaction_date;
-        key = 'subscription_failed';
-      } else if (data.end_date) {
-        date = data.end_date;
-        const hasEnded = new Date(data.end_date).getTime() > Date.now();
-        key = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
-      } else if (!data.is_active) {
-        date = '';
-        key = 'subscription_inactive';
-      } else if (new Date(data.start_date) > new Date()) {
-        date = data.start_date;
-        key = 'subscription_will_be_active';
-      } else {
-        date = data.next_transaction_date;
-        key = 'subscription_active';
-      }
-
-      const text = html`
-        <foxy-i18n
-          data-testid="header-subtitle"
-          options=${JSON.stringify({ date })}
-          class=${color}
-          lang=${lang}
-          key=${key}
-          ns=${ns}
-        >
-        </foxy-i18n>
-      `;
-
-      if (data.first_failed_transaction_date) {
-        return html`
-          <span id="status" class="flex items-center space-x-xs ${color}">
-            ${text}<iron-icon icon="icons:info-outline" class="icon-inline"></iron-icon>
-          </span>
-          <vcf-tooltip for="status" position="bottom">
-            <span class="text-s">${data.error_message}</span>
-          </vcf-tooltip>
-        `;
-      }
-
-      return text;
-    }
-
-    return html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`;
-  };
-
-  private readonly __renderHeaderTitle = (
-    currency: string | undefined,
-    currencyDisplay: string | undefined
-  ) => {
-    const { data, lang, ns } = this;
-
-    if (data) {
-      const frequency = parseFrequency(data.frequency);
-      const transactionTemplate = this.__transactionTemplate;
-      const total = transactionTemplate?.total_order;
-
-      if (typeof currency !== 'string') return html`--`;
-
-      return html`
-        <foxy-i18n
-          data-testid="header-title"
-          options=${JSON.stringify({
-            ...frequency,
-            amount: `${total} ${currency}`,
-            currencyDisplay,
-          })}
-          lang=${lang}
-          key="price_${data.frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
-          ns=${ns}
-        >
-        </foxy-i18n>
-      `;
-    }
-
-    return html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`;
-  };
-
-  private readonly __renderHeader = (
-    currencyCode: string | undefined,
-    currencyDisplay: string | undefined
-  ) => {
-    return html`
-      <div data-testid="header" class="sm-col-span-2">
-        ${this.renderTemplateOrSlot('header:before')}
-        <div class="leading-xs text-xxl font-medium truncate">
-          ${this.__renderHeaderTitle(currencyCode, currencyDisplay)}
-        </div>
-        <div class="leading-xs text-l">${this.__renderHeaderSubtitle()}</div>
-        ${this.renderTemplateOrSlot('header:after')}
-      </div>
-    `;
-  };
 
   private readonly __renderItemsActions = () => {
     return html`
@@ -463,6 +363,49 @@ export class SubscriptionForm extends Base<Data> {
     return new BooleanSelector(`items:pagination:card:autorenew-icon ${super.hiddenSelector}`);
   }
 
+  get headerTitleOptions(): Record<string, unknown> {
+    if (this.data && this.__currencyCode) {
+      const frequency = parseFrequency(this.data.frequency);
+      const transactionTemplate = this.__transactionTemplate;
+      const total = transactionTemplate?.total_order;
+      const amount = `${total} ${this.__currencyCode}`;
+      const currencyDisplay = this.__currencyDisplay;
+      const context = this.__currencyCode
+        ? this.data.frequency === '.5m'
+          ? 'twice_a_month'
+          : 'recurring'
+        : 'existing';
+
+      return { ...frequency, amount, currencyDisplay, context };
+    } else {
+      return {};
+    }
+  }
+
+  get headerSubtitleOptions(): Record<string, unknown> {
+    let context: string;
+    let date: string | null = null;
+
+    if (this.data?.first_failed_transaction_date) {
+      context = 'failed';
+      date = this.data.first_failed_transaction_date;
+    } else if (this.data?.end_date) {
+      const hasEnded = new Date(this.data.end_date).getTime() > Date.now();
+      context = hasEnded ? 'will_be_cancelled' : 'cancelled';
+      date = this.data.end_date;
+    } else if (!this.data?.is_active) {
+      context = 'inactive';
+    } else if (new Date(this.data.start_date) > new Date()) {
+      context = 'will_be_active';
+      date = this.data.start_date;
+    } else {
+      context = 'active';
+      date = this.data.next_transaction_date;
+    }
+
+    return { date, context };
+  }
+
   renderBody(): TemplateResult {
     let transactionsHref: string | undefined;
 
@@ -475,22 +418,9 @@ export class SubscriptionForm extends Base<Data> {
       transactionsHref = undefined;
     }
 
-    const currencyDisplay = this.__store?.use_international_currency_symbol ? 'code' : 'symbol';
-    const cart = this.__transactionTemplate;
-
-    let currencyCode: string | null = null;
-
-    if (cart?.currency_code) {
-      currencyCode = cart.currency_code;
-    } else {
-      const allLocaleCodes = this.__localeCodesHelper;
-      const localeCode = (this.__templateSet ?? this.__defaultTemplateSet)?.locale_code;
-      const localeInfo = localeCode ? allLocaleCodes?.values[localeCode] : void 0;
-
-      if (localeInfo) currencyCode = /Currency: ([A-Z]{3})/g.exec(localeInfo)?.[1] ?? null;
-    }
-
     return html`
+      ${this.renderHeader()}
+
       <div class="relative grid grid-cols-1 sm-grid-cols-2 gap-l">
         <foxy-nucleon
           class="hidden"
@@ -537,9 +467,6 @@ export class SubscriptionForm extends Base<Data> {
         >
         </foxy-nucleon>
 
-        ${this.hiddenSelector.matches('header', true)
-          ? ''
-          : this.__renderHeader(currencyCode ?? void 0, currencyDisplay)}
         ${this.hiddenSelector.matches('customer', true) ? '' : this.__renderCustomer()}
         ${this.hiddenSelector.matches('items', true) ? '' : this.__renderItems()}
         ${this.__isFrequencyVisible ? this.__renderFrequency() : ''}
@@ -548,7 +475,7 @@ export class SubscriptionForm extends Base<Data> {
         ${this.__isEndDateVisible ? this.__renderEndDate() : ''}
 
         <foxy-internal-number-control
-          suffix=${ifDefined(currencyCode ?? void 0)}
+          suffix=${ifDefined(this.__currencyCode ?? void 0)}
           infer="past-due-amount"
           class="sm-col-span-2"
           min="0"
@@ -725,5 +652,21 @@ export class SubscriptionForm extends Base<Data> {
     });
 
     return Array.from(allowedFrequencies);
+  }
+
+  private get __currencyCode() {
+    const cart = this.__transactionTemplate;
+    if (cart?.currency_code) return cart.currency_code;
+
+    const allLocaleCodes = this.__localeCodesHelper;
+    const localeCode = (this.__templateSet ?? this.__defaultTemplateSet)?.locale_code;
+    const localeInfo = localeCode ? allLocaleCodes?.values[localeCode] : void 0;
+    if (localeInfo) return /Currency: ([A-Z]{3})/g.exec(localeInfo)?.[1] ?? null;
+
+    return null;
+  }
+
+  private get __currencyDisplay() {
+    return this.__store?.use_international_currency_symbol ? 'code' : 'symbol';
   }
 }

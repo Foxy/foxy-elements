@@ -11,8 +11,8 @@ const summary: Summary = {
   localName: 'foxy-item-category-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps'],
-    buttons: ['create', 'delete'],
+    sections: ['timestamps', 'header'],
+    buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
     inputs: [
       'name',
       'code',
@@ -39,12 +39,17 @@ const summary: Summary = {
   },
 };
 
+const ext = `
+  email-templates="https://demo.api/hapi/email_templates"
+  taxes="https://demo.api/hapi/taxes"
+`;
+
 export default getMeta(summary);
 
-export const Playground = getStory({ ...summary, code: true });
-export const Empty = getStory(summary);
-export const Error = getStory(summary);
-export const Busy = getStory(summary);
+export const Playground = getStory({ ...summary, ext, code: true });
+export const Empty = getStory({ ...summary, ext });
+export const Error = getStory({ ...summary, ext });
+export const Busy = getStory({ ...summary, ext });
 
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';

@@ -12,7 +12,7 @@ import { InternalSelectControl } from '../../internal/InternalSelectControl/Inte
 import { AppliedCouponCodeCard } from '../AppliedCouponCodeCard/AppliedCouponCodeCard';
 import { AppliedCouponCodeForm } from '../AppliedCouponCodeForm/AppliedCouponCodeForm';
 import { InternalDeleteControl } from '../../internal/InternalDeleteControl/InternalDeleteControl';
-import { InternalCreateControl } from '../../internal/InternalCreateControl/InternalCreateControl';
+import { InternalSubmitControl } from '../../internal/InternalSubmitControl/InternalSubmitControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { CartForm as Form } from './CartForm';
 import { CustomFieldCard } from '../CustomFieldCard/CustomFieldCard';
@@ -33,7 +33,7 @@ import { ItemCard } from '../ItemCard/ItemCard';
 import { ItemForm } from '../ItemForm/ItemForm';
 import { spread } from '@open-wc/lit-helpers';
 import { I18n } from '../I18n/I18n';
-import { fake } from 'sinon';
+import { fake, stub } from 'sinon';
 
 describe('CartForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -62,9 +62,9 @@ describe('CartForm', () => {
     expect(element).to.equal(InternalDeleteControl);
   });
 
-  it('imports and defines foxy-internal-create-control', () => {
-    const element = customElements.get('foxy-internal-create-control');
-    expect(element).to.equal(InternalCreateControl);
+  it('imports and defines foxy-internal-submit-control', () => {
+    const element = customElements.get('foxy-internal-submit-control');
+    expect(element).to.equal(InternalSubmitControl);
   });
 
   it('imports and defines foxy-internal-text-control', () => {
@@ -374,6 +374,13 @@ describe('CartForm', () => {
 
     form.edit({ shipping_postal_code: 'A'.repeat(50) });
     expect(form.errors).to.not.include('shipping-postal-code:v8n_too_long');
+  });
+
+  it('renders a form header', () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
   });
 
   it('renders order section title and description', async () => {
@@ -1746,6 +1753,6 @@ describe('CartForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(`[infer="create"]`);
-    expect(control).to.be.instanceOf(InternalCreateControl);
+    expect(control).to.be.instanceOf(InternalSubmitControl);
   });
 });
