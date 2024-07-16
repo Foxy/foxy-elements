@@ -1,8 +1,6 @@
-import type { CustomerForm } from './CustomerForm';
-import type { Renderer } from '../../../mixins/configurable';
-import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels as CustomerRels } from '@foxy.io/sdk/customer';
 import type { Rels as BackendRels } from '@foxy.io/sdk/backend';
+import type { Resource } from '@foxy.io/sdk/core';
 
 export type Settings = Resource<CustomerRels.CustomerPortalSettings>;
 
@@ -21,38 +19,3 @@ export type Rel = BackendRels.Customer & {
 };
 
 export type Data = Resource<Rel, undefined>;
-
-export type Templates = {
-  'first-name:before'?: Renderer<CustomerForm>;
-  'first-name:after'?: Renderer<CustomerForm>;
-
-  'last-name:before'?: Renderer<CustomerForm>;
-  'last-name:after'?: Renderer<CustomerForm>;
-
-  'email:before'?: Renderer<CustomerForm>;
-  'email:after'?: Renderer<CustomerForm>;
-
-  'tax-id:before'?: Renderer<CustomerForm>;
-  'tax-id:after'?: Renderer<CustomerForm>;
-
-  'is-anonymous:before'?: Renderer<CustomerForm>;
-  'is-anonymous:after'?: Renderer<CustomerForm>;
-
-  'password:before'?: Renderer<CustomerForm>;
-  'password:after'?: Renderer<CustomerForm>;
-
-  'password-old:before'?: Renderer<CustomerForm>;
-  'password-old:after'?: Renderer<CustomerForm>;
-
-  'forgot-password:before'?: Renderer<CustomerForm>;
-  'forgot-password:after'?: Renderer<CustomerForm>;
-
-  'timestamps:before'?: Renderer<CustomerForm>;
-  'timestamps:after'?: Renderer<CustomerForm>;
-
-  'delete:before'?: Renderer<CustomerForm>;
-  'delete:after'?: Renderer<CustomerForm>;
-
-  'create:before'?: Renderer<CustomerForm>;
-  'create:after'?: Renderer<CustomerForm>;
-};

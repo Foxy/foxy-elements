@@ -6,7 +6,7 @@ import type { Data } from './types';
 import './index';
 
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
-import { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl/InternalAsyncComboBoxControl';
+import { InternalResourcePickerControl } from '../../internal/InternalResourcePickerControl/InternalResourcePickerControl';
 import { TemplateSetForm as Form } from './TemplateSetForm';
 import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
@@ -26,9 +26,9 @@ describe('TemplateSetForm', () => {
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
-  it('imports and registers foxy-internal-async-combo-box-control element', () => {
-    const constructor = customElements.get('foxy-internal-async-combo-box-control');
-    expect(constructor).to.equal(InternalAsyncComboBoxControl);
+  it('imports and registers foxy-internal-resource-picker-control element', () => {
+    const constructor = customElements.get('foxy-internal-resource-picker-control');
+    expect(constructor).to.equal(InternalResourcePickerControl);
   });
 
   it('imports and registers foxy-internal-select-control element', () => {
@@ -95,6 +95,24 @@ describe('TemplateSetForm', () => {
   it('has a reactive property languages (String, attribute languages)', () => {
     expect(new Form()).to.have.property('languages', null);
     expect(Form).to.have.nested.property('properties.languages');
+  });
+
+  it('renders a form header', async () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('renders a custom header subtitle for default template set', async () => {
+    const form = new Form();
+    const data = await getTestData<Data>('./hapi/template_sets/0');
+
+    form.data = { ...data, code: 'DEFAULT' };
+    expect(form.headerSubtitleOptions).to.have.property('context', 'default');
+
+    form.data = { ...data, code: 'CUSTOM' };
+    expect(form.headerSubtitleOptions).to.have.property('context', '');
   });
 
   it('renders a textbox for code', async () => {
@@ -183,7 +201,7 @@ describe('TemplateSetForm', () => {
     expect(control).to.have.deep.property('options', options);
   });
 
-  it('renders a combobox dropdown for payment method set', async () => {
+  it('renders a resource picker control for payment method set', async () => {
     const router = createRouter();
     const data = await getTestData<Data>('https://demo.api/hapi/template_sets/0', router);
     const element = await fixture<Form>(html`
@@ -199,21 +217,14 @@ describe('TemplateSetForm', () => {
     await element.requestUpdate();
 
     const root = element.renderRoot;
-    const control = root.querySelector<InternalAsyncComboBoxControl>(
+    const control = root.querySelector<InternalResourcePickerControl>(
       '[infer="payment-method-set-uri"]'
     )!;
 
-    await waitUntil(() => !!control.selectedItem);
-
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalAsyncComboBoxControl);
-    expect(control).to.have.attribute('item-label-path', 'description');
-    expect(control).to.have.attribute('item-id-path', '_links.self.href');
+    expect(control).to.be.instanceOf(InternalResourcePickerControl);
     expect(control).to.have.attribute('first', element.paymentMethodSets as string);
-    expect(control).to.have.deep.property(
-      'selectedItem',
-      await getTestData(data.payment_method_set_uri, router)
-    );
+    expect(control).to.have.attribute('item', 'foxy-payments-api-payment-preset-card');
   });
 
   it('renders i18n editor in snapshot state', async () => {

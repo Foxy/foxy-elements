@@ -84,7 +84,7 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
       <div style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)">${content}</div>
     `;
 
-    if (ctx.href.startsWith('foxy://')) return wrap(render(ctx));
+    if (!ctx.href || ctx.href.startsWith('foxy://')) return wrap(render(ctx));
     let linkHref: string | undefined;
     const id = getResourceId(ctx.data?._links.self.href ?? '');
 

@@ -1,4 +1,22 @@
 {
+  "header": {
+    "title_new": "New template set",
+    "title_existing": "Template set #{{ id }}",
+    "subtitle": "",
+    "subtitle_default": "Default template set",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
   "description": {
     "label": "Description",
     "placeholder": "Required - e.g. My Template Set",
@@ -27,7 +45,40 @@
   },
   "payment-method-set-uri": {
     "label": "Payment method set",
-    "placeholder": "Default payment method set",
+    "dialog": {
+      "cancel": "Cancel",
+      "close": "Close",
+      "header": "Select a payment method set",
+      "selection": {
+        "label": "Payment method sets",
+        "helper_text": "",
+        "pagination": {
+          "first": "First",
+          "last": "Last",
+          "next": "Next",
+          "pagination": "{{from}}-{{to}} out of {{total}}",
+          "previous": "Previous",
+          "card": {
+            "status_test": "Test",
+            "status_live": "Live",
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "No payment method sets found",
+              "loading_error": "Unknown error"
+            }
+          }
+        }
+      }
+    },
+    "card": {
+      "status_test": "Test",
+      "status_live": "Live",
+      "spinner": {
+        "loading_busy": "Loading",
+        "loading_empty": "Select a payment method set",
+        "loading_error": "Unknown error"
+      }
+    },
     "helper_text": "With this template set applied, your customers will see payment methods from the selected set."
   },
   "language-overrides": {
@@ -51,8 +102,14 @@
     "cancel": "Cancel",
     "delete_prompt": "Are you sure you'd like to remove this template set? You won't be able to bring it back."
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Create"
+    "caption": "Create"
   },
   "spinner": {
     "refresh": "Refresh",

@@ -1,6 +1,18 @@
 {
+  "header": {
+    "title_new": "New fraud protection",
+    "title_minfraud": "MaxMind minFraud",
+    "title_google_recaptcha": "Google reCAPTCHA",
+    "title_custom_precheckout_hook": "Pre-checkout webhook",
+    "subtitle": "Fraud protection #{{ id }}",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
   "default_additional_field_placeholder": "None",
-  "select_protection_title": "Select a fraud protection type to get started",
   "select_another_button_label": "Back to fraud protections",
   "score-threshold-reject": {
     "label": "Rejection threshold",
@@ -29,7 +41,13 @@
     "cancel": "Cancel",
     "delete_prompt": "Are you sure you'd like to remove this fraud protection? You'll need to configure it again if you decide to add it back."
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Add fraud protection"
+    "caption": "Add fraud protection"
   }
 }

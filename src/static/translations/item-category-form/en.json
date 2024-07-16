@@ -1,4 +1,21 @@
 {
+  "header": {
+    "title_existing": "Item category #{{ id }}",
+    "title_new": "New item category",
+    "subtitle": "",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
   "name": {
     "label": "Name",
     "placeholder": "Books",
@@ -14,26 +31,28 @@
     "v8n_too_long": "Item categoty code can't exceed 50 characters"
   },
   "taxes": {
-    "title": "Taxes",
-    "helper_text": "Select taxes that will apply to the products in this category. Changes here are saved immediately.",
+    "label": "Taxes",
+    "status_saving": "Saving...",
+    "status_loading": "Loading...",
     "pagination": {
       "first": "First",
       "last": "Last",
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
-      "tax-card": {
+      "card": {
         "percent": "{{fraction, percent}}",
         "tax_global": "Global tax",
         "tax_rate_provider_default": "Default (Thomson Reuters; others)",
         "tax_union": "European Union tax",
         "spinner": {
           "loading_busy": "Loading",
-          "loading_empty": "No data",
+          "loading_empty": "Add a tax in settings to apply it here",
           "loading_error": "Unknown error"
         }
       }
-    }
+    },
+    "helper_text": "Select taxes that will apply to the products in this category. Changes here are saved immediately."
   },
   "item-delivery-type": {
     "label": "Delivery",
@@ -186,8 +205,14 @@
     "cancel": "Cancel",
     "delete_prompt": "Are you sure you'd like to remove this item category? You won't be able to bring it back."
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Create"
+    "caption": "Create"
   },
   "spinner": {
     "refresh": "Refresh",

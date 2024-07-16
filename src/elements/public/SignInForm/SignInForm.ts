@@ -1,4 +1,4 @@
-import { Data, Templates } from './types';
+import { Data } from './types';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
 import { CheckboxElement } from '@vaadin/vaadin-checkbox';
@@ -18,23 +18,6 @@ const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 
 
 /**
  * Form element for email/password sign in.
- *
- * @slot email:before
- * @slot email:after
- * @slot password:before
- * @slot password:after
- * @slot new-password:before
- * @slot new-password:after
- * @slot mfa-secret-code:before
- * @slot mfa-secret-code:after
- * @slot mfa-totp-code:before
- * @slot mfa-totp-code:after
- * @slot mfa-remember-device:before
- * @slot mfa-remember-device:after
- * @slot error:before
- * @slot error:after
- * @slot submit:before
- * @slot submit:after
  *
  * @element foxy-sign-in-form
  * @since 1.4.0
@@ -56,8 +39,6 @@ export class SignInForm extends Base<Data> {
       ({ credential: c }) => (c?.mfa_totp_code?.length === 0 ? 'mfa_totp_code_required' : true),
     ];
   }
-
-  templates: Templates = {};
 
   issuer = 'Unknown';
 

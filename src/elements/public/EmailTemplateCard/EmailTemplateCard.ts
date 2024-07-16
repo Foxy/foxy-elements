@@ -11,12 +11,6 @@ const Base = TranslatableMixin(TwoLineCard, NS);
 /**
  * Card element displaying an email template (`fx:email_template`).
  *
- * @slot title:before
- * @slot title:after
- *
- * @slot subtitle:before
- * @slot subtitle:after
- *
  * @element foxy-email-template-card
  * @since 1.21.0
  */

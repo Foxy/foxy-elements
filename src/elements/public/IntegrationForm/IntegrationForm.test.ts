@@ -7,7 +7,7 @@ import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { IntegrationForm as Form } from './IntegrationForm';
 import { InternalTextAreaControl } from '../../internal/InternalTextAreaControl/InternalTextAreaControl';
 import { InternalDeleteControl } from '../../internal/InternalDeleteControl/InternalDeleteControl';
-import { InternalCreateControl } from '../../internal/InternalCreateControl/InternalCreateControl';
+import { InternalSubmitControl } from '../../internal/InternalSubmitControl/InternalSubmitControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
@@ -31,9 +31,9 @@ describe('IntegrationForm', () => {
     expect(constructor).to.equal(InternalDeleteControl);
   });
 
-  it('imports and registers foxy-internal-create-control element', () => {
-    const constructor = customElements.get('foxy-internal-create-control');
-    expect(constructor).to.equal(InternalCreateControl);
+  it('imports and registers foxy-internal-submit-control element', () => {
+    const constructor = customElements.get('foxy-internal-submit-control');
+    expect(constructor).to.equal(InternalSubmitControl);
   });
 
   it('imports and registers foxy-internal-text-control element', () => {
@@ -58,6 +58,18 @@ describe('IntegrationForm', () => {
 
   it('extends InternalForm', () => {
     expect(new Form()).to.be.instanceOf(InternalForm);
+  });
+
+  it('renders a form header', () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('always hides Copy ID button in header', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('header:copy-id', true)).to.be.true;
   });
 
   it('renders a textbox for project name in template state', async () => {
@@ -90,62 +102,7 @@ describe('IntegrationForm', () => {
     `);
 
     const control = element.renderRoot.querySelector('[infer="create"]');
-    expect(control).to.be.instanceOf(InternalCreateControl);
-  });
-
-  it('renders project name and description in snapshot state', async () => {
-    const router = createRouter();
-    const href = 'https://demo.api/hapi/integrations/0';
-    const data = await getTestData<Data>(href, router);
-    const element = await fixture<Form>(html`
-      <foxy-integration-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
-      </foxy-integration-form>
-    `);
-
-    data.project_name = 'Test project name';
-    data.project_description = 'Test project description';
-    element.data = data;
-    await element.requestUpdate();
-
-    expect(element.renderRoot).to.include.text('Test project name');
-    expect(element.renderRoot).to.include.text('Test project description');
-  });
-
-  it('hides project name and description in snapshot state if header is hidden', async () => {
-    const router = createRouter();
-    const href = 'https://demo.api/hapi/integrations/0';
-    const data = await getTestData<Data>(href, router);
-    const element = await fixture<Form>(html`
-      <foxy-integration-form
-        hiddencontrols="header"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-integration-form>
-    `);
-
-    data.project_name = 'Test project name';
-    data.project_description = 'Test project description';
-    element.data = data;
-    await element.requestUpdate();
-
-    expect(element.renderRoot).to.not.include.text('Test project name');
-    expect(element.renderRoot).to.not.include.text('Test project description');
-  });
-
-  it('renders project description in snapshot state', async () => {
-    const router = createRouter();
-    const href = 'https://demo.api/hapi/integrations/0';
-    const data = await getTestData<Data>(href, router);
-    const element = await fixture<Form>(html`
-      <foxy-integration-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
-      </foxy-integration-form>
-    `);
-
-    data.project_description = 'Test project description';
-    element.data = data;
-    await element.requestUpdate();
-
-    expect(element.renderRoot).to.include.text('Test project description');
+    expect(control).to.be.instanceOf(InternalSubmitControl);
   });
 
   it('renders slots or templates before and after header in snapshot state', async () => {

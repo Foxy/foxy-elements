@@ -25,6 +25,7 @@ export class CopyToClipboard extends Base {
     return {
       ...super.properties,
       text: { type: String },
+      icon: { type: String },
       __state: { attribute: false },
     };
   }
@@ -85,6 +86,9 @@ export class CopyToClipboard extends Base {
     `;
   }
 
+  /** Default icon. */
+  icon: string | null = null;
+
   /** Text to copy. */
   text: string | null = null;
 
@@ -105,12 +109,12 @@ export class CopyToClipboard extends Base {
       icon = 'icons:done';
     } else {
       label = 'click_to_copy';
-      icon = 'icons:content-copy';
+      icon = this.icon ?? 'icons:content-copy';
     }
 
     return html`
       <button
-        title=${this.t(label)}
+        id="trigger"
         ?disabled=${this.disabled}
         @click=${() => {
           if (this.__state === 'idle') {
@@ -126,6 +130,9 @@ export class CopyToClipboard extends Base {
       >
         <iron-icon icon=${icon}></iron-icon>
       </button>
+      <vcf-tooltip for="trigger" position="bottom">
+        <span class="text-s"><foxy-i18n infer="" class="text-s" key=${label}></foxy-i18n></span>
+      </vcf-tooltip>
     `;
   }
 }

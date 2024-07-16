@@ -1,4 +1,4 @@
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Option } from '../../internal/InternalRadioGroupControl/types';
@@ -17,89 +17,6 @@ const Base = TranslatableMixin(InternalForm, NS);
 
 /**
  * Form element for configuring native integrations (`fx:native_integration`).
- *
- * @slot timestamps:before
- * @slot timestamps:after
- * @slot delete:before
- * @slot delete:after
- * @slot create:before
- * @slot create:after
- * @slot provider:before
- * @slot provider:after
- * @slot avalara-service-url:before
- * @slot avalara-service-url:after
- * @slot avalara-id:before
- * @slot avalara-id:after
- * @slot avalara-key:before
- * @slot avalara-key:after
- * @slot avalara-company-code:before
- * @slot avalara-company-code:after
- * @slot avalara-options:before
- * @slot avalara-options:after
- * @slot avalara-address-validation-countries:before
- * @slot avalara-address-validation-countries:after
- * @slot avalara-category-to-product-tax-code-mappings:before
- * @slot avalara-category-to-product-tax-code-mappings:after
- * @slot taxjar-api-token:before
- * @slot taxjar-api-token:after
- * @slot taxjar-category-to-product-tax-code-mappings:before
- * @slot taxjar-category-to-product-tax-code-mappings:after
- * @slot taxjar-options:before
- * @slot taxjar-options:after
- * @slot onesource-service-url:before
- * @slot onesource-service-url:after
- * @slot onesource-external-company-id:before
- * @slot onesource-external-company-id:after
- * @slot onesource-calling-system-number:before
- * @slot onesource-calling-system-number:after
- * @slot onesource-from-city:before
- * @slot onesource-from-city:after
- * @slot onesource-host-system:before
- * @slot onesource-host-system:after
- * @slot onesource-company-role:before
- * @slot onesource-company-role:after
- * @slot onesource-part-number-product-option:before
- * @slot onesource-part-number-product-option:after
- * @slot onesource-product-order-priority:before
- * @slot onesource-product-order-priority:after
- * @slot onesource-audit-settings:before
- * @slot onesource-audit-settings:after
- * @slot webhook-service:before
- * @slot webhook-service:after
- * @slot webhook-json-title:before
- * @slot webhook-json-title:after
- * @slot webhook-json-encryption-key:before
- * @slot webhook-json-encryption-key:after
- * @slot webhook-json-url:before
- * @slot webhook-json-url:after
- * @slot webhook-json-events:before
- * @slot webhook-json-events:after
- * @slot webhook-legacy-xml-title:before
- * @slot webhook-legacy-xml-title:after
- * @slot webhook-legacy-xml-url:before
- * @slot webhook-legacy-xml-url:after
- * @slot webflow-site-id:before
- * @slot webflow-site-id:after
- * @slot webflow-site-name:before
- * @slot webflow-site-name:after
- * @slot webflow-collection-id:before
- * @slot webflow-collection-id:after
- * @slot webflow-collection-name:before
- * @slot webflow-collection-name:after
- * @slot webflow-sku-field-id:before
- * @slot webflow-sku-field-id:after
- * @slot webflow-sku-field-name:before
- * @slot webflow-sku-field-name:after
- * @slot webflow-inventory-field-id:before
- * @slot webflow-inventory-field-id:after
- * @slot webflow-inventory-field-name:before
- * @slot webflow-inventory-field-name:after
- * @slot webflow-auth:before
- * @slot webflow-auth:after
- * @slot zapier-event:before
- * @slot zapier-event:after
- * @slot zapier-url:before
- * @slot zapier-url:after
  *
  * @element foxy-native-integration-form
  * @since 1.25.0
@@ -218,8 +135,6 @@ export class NativeIntegrationForm extends Base<Data> {
     ];
   }
 
-  templates: Templates = {};
-
   private readonly __createConfigGetterFor = memoize((key: string) => {
     return () => this.__config?.[key];
   });
@@ -241,7 +156,6 @@ export class NativeIntegrationForm extends Base<Data> {
     { value: 'avalara', label: 'option_avalara' },
     { value: 'onesource', label: 'option_onesource' },
     { value: 'taxjar', label: 'option_taxjar' },
-    { value: 'webflow', label: 'option_webflow' },
   ];
 
   private readonly __avalaraConfigOptions: Option[] = [
@@ -361,18 +275,23 @@ export class NativeIntegrationForm extends Base<Data> {
     return new BooleanSelector(match.join(' ').trim());
   }
 
+  get headerTitleOptions(): Record<string, unknown> {
+    return {
+      context: this.data ? `existing_${this.data.provider}` : 'new',
+      id: this.headerCopyIdValue,
+    };
+  }
+
   renderBody(): TemplateResult {
     const provider = this.form.provider ?? 'avalara';
 
     return html`
+      ${this.renderHeader()}
       ${this.href
-        ? provider === 'webhook'
-          ? ''
-          : html`<foxy-internal-text-control infer="provider"></foxy-internal-text-control>`
+        ? ''
         : html`
             <foxy-internal-radio-group-control
               infer="provider"
-              theme="vertical"
               .getValue=${this.__providerGetValue}
               .setValue=${this.__providerSetValue}
               .options=${this.__templateProviderOptions}

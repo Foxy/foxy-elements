@@ -9,6 +9,7 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server';
 import { getTestData } from '../../../testgen/getTestData';
 import { Type } from '../QueryBuilder/types';
+import { stub } from 'sinon';
 
 describe('GiftCardCodeForm', () => {
   it('imports and defines foxy-internal-resource-picker-control', () => {
@@ -108,6 +109,13 @@ describe('GiftCardCodeForm', () => {
     expect(element.hiddenSelector.matches('customer', true)).to.be.false;
     expect(element.hiddenSelector.matches('cart-item', true)).to.be.false;
     expect(element.hiddenSelector.matches('logs', true)).to.be.false;
+  });
+
+  it('renders a form header', () => {
+    const form = new GiftCardCodeForm();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
   });
 
   it('renders a text control for code', async () => {

@@ -9,12 +9,6 @@ import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
 /**
  * Basic card displaying a discount.
  *
- * @slot title:before
- * @slot title:after
- *
- * @slot subtitle:before
- * @slot subtitle:after
- *
  * @element foxy-discount-card
  * @since 1.11.0
  */

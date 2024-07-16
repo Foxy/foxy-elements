@@ -63,6 +63,10 @@
       }
     },
     "address-form": {
+      "error": {
+        "country_banned": "Leider akzeptieren wir keine Bestellungen aus dem von Ihnen gewählten Land.",
+        "address_name_exists": "Es existiert bereits eine andere Adresse mit demselben Namen. Bitte wählen Sie einen eindeutigen Namen."
+      },
       "address-name": {
         "label": "Adressname",
         "placeholder": "Erforderlich",
@@ -140,8 +144,14 @@
         "cancel": "Abbrechen",
         "delete_prompt": "Sind Sie sicher, dass Sie diese Adresse entfernen möchten? "
       },
+      "undo": {
+        "caption": "Undo"
+      },
+      "submit": {
+        "caption": "Save changes"
+      },
       "create": {
-        "create": "Erstellen"
+        "caption": "Erstellen"
       },
       "spinner": {
         "refresh": "Aktualisierung",
@@ -804,6 +814,10 @@
         "dialog_header_add": "Zahlungsmethode hinzufügen",
         "dialog_header_update": "Zahlungsmethode aktualisieren",
         "update-payment-method-form": {
+          "header": {
+            "title_existing": "Karte aktualisieren",
+            "subtitle": "Geben Sie unten die Kartendetails ein und klicken Sie auf Karte speichern"
+          },
           "status": {
             "cc_token_success": "Kartendetails erfolgreich gespeichert.",
             "close": "Schließen"
@@ -981,6 +995,30 @@
       }
     },
     "subscription-form": {
+      "header": {
+        "title_new": "Abonnement",
+        "title_existing": "Abonnement",
+        "title_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+        "title_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
+        "subscription_active": "Inklusive Versand, Steuern usw. Nächste Zahlung am {{date, date}}.",
+        "subscription_cancelled": "Inklusive Versand, Steuern usw. Endet am {{date, date}}.",
+        "subscription_failed": "Einschließlich Versand, Steuern usw. Die Zahlung ist fehlgeschlagen {{date, date}}.",
+        "subscription_inactive": "Inklusive Versand, Steuern usw. Inaktiv.",
+        "subscription_will_be_cancelled": "Inklusive Versand, Steuern usw. Endet am {{date, date}}.",
+        "subscription_will_be_active": "Inklusive Versand, Steuern usw. Beginnt am {{date, date}}.",
+        "copy-id": {
+          "failed_to_copy": "Kopieren fehlgeschlagen",
+          "click_to_copy": "ID kopieren",
+          "copying": "Kopieren...",
+          "done": "In Zwischenablage kopiert"
+        },
+        "copy-json": {
+          "failed_to_copy": "Kopieren fehlgeschlagen",
+          "click_to_copy": "Quelle als JSON kopieren",
+          "copying": "Kopieren...",
+          "done": "In Zwischenablage kopiert"
+        }
+      },
       "day": "Tag",
       "day_plural": "Tage",
       "week": "Woche",
@@ -1004,12 +1042,6 @@
       "next_transaction_date": "Nächstes Transaktionsdatum",
       "price_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
       "price_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
-      "subscription_active": "Inklusive Versand, Steuern usw. Nächste Zahlung am {{date, date}}.",
-      "subscription_cancelled": "Inklusive Versand, Steuern usw. Endet am {{date, date}}.",
-      "subscription_failed": "Einschließlich Versand, Steuern usw. Die Zahlung ist fehlgeschlagen {{date, date}}.",
-      "subscription_inactive": "Inklusive Versand, Steuern usw. Inaktiv.",
-      "subscription_will_be_cancelled": "Inklusive Versand, Steuern usw. Endet am {{date, date}}.",
-      "subscription_will_be_active": "Inklusive Versand, Steuern usw. Beginnt am {{date, date}}.",
       "transaction_plural": "Transaktionen",
       "twice_a_month": "Zweimal im Monat",
       "update_billing": "Abrechnung aktualisieren",
@@ -1161,8 +1193,14 @@
       "text": "Durch die Erstellung eines Kontos stimmen Sie unseren Nutzungsbedingungen zu.",
       "link": "Klicken Sie hier, um sie in einem neuen Tab zu öffnen."
     },
+    "undo": {
+      "caption": "Undo"
+    },
+    "submit": {
+      "caption": "Save changes"
+    },
     "create": {
-      "create": "Benutzerkonto erstellen"
+      "caption": "Benutzerkonto erstellen"
     },
     "spinner": {
       "refresh": "Aktualisierung",

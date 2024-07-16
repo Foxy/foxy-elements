@@ -1,5 +1,5 @@
 import type { CSSResultArray, PropertyDeclarations } from 'lit-element';
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import type { TemplateResult } from 'lit-html';
 import type { FormDialog } from '../FormDialog/FormDialog';
@@ -22,13 +22,6 @@ const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 
 
 /**
  * Basic card displaying a payment method.
- *
- * @slot actions:before - **new in v1.4.0**
- * @slot actions:after - **new in v1.4.0**
- * @slot actions:delete:before - **new in v1.4.0**
- * @slot actions:delete:after - **new in v1.4.0**
- * @slot actions:update:before - **new in v1.27.0**
- * @slot actions:update:after - **new in v1.27.0**
  *
  * @element foxy-payment-method-card
  * @since 1.2.0
@@ -62,8 +55,6 @@ export class PaymentMethodCard extends Base<Data> {
       `,
     ];
   }
-
-  templates: Templates = {};
 
   /**
    * Configuration URL for the Payment Card Embed. If provided,

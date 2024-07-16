@@ -17,12 +17,6 @@ const Base = TranslatableMixin(TwoLineCard, NS);
  * that is currently a bit quirky due to the legacy functionality. To use
  * this element with hAPI, wrap it into a foxy-payments-api node._
  *
- * @slot title:before
- * @slot title:after
- *
- * @slot subtitle:before
- * @slot subtitle:after
- *
  * @element foxy-payments-api-payment-method-card
  * @since 1.21.0
  */

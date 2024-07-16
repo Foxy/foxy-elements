@@ -11,7 +11,8 @@ const summary: Summary = {
   localName: 'foxy-applied-coupon-code-form',
   translatable: true,
   configurable: {
-    buttons: ['create', 'delete'],
+    sections: ['header'],
+    buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
     inputs: ['code', 'ignore-usage-limits'],
   },
 };

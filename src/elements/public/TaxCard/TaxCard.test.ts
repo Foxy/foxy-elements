@@ -14,6 +14,12 @@ import { InternalCard } from '../../internal/InternalCard/InternalCard';
 const router = createRouter();
 
 describe('TaxCard', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('extends InternalCard', () => {
     expect(new TaxCard()).to.be.instanceOf(InternalCard);
   });

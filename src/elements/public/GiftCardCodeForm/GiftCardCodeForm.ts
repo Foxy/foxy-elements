@@ -1,5 +1,5 @@
 import type { PropertyDeclarations } from 'lit-element';
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { NucleonV8N } from '../NucleonElement/types';
@@ -18,30 +18,6 @@ const Base = TranslatableMixin(InternalForm, NS);
 
 /**
  * Form element for creating or editing gift card codes (`fx:gift_card_code`).
- *
- * @slot code:before
- * @slot code:after
- *
- * @slot current-balance:before
- * @slot current-balance:after
- *
- * @slot end-date:before
- * @slot end-date:after
- *
- * @slot customer:before – **new in v1.27.0**
- * @slot customer:after – **new in v1.27.0**
- *
- * @slot logs:before
- * @slot logs:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot delete:before
- * @slot delete:after
- *
- * @slot create:before
- * @slot create:after
  *
  * @element foxy-gift-card-code-form
  * @since 1.15.0
@@ -67,8 +43,6 @@ export class GiftCardCodeForm extends Base<Data> {
   getCustomerHref: (id: number | string) => string = id => {
     return `https://api.foxycart.com/customers/${id}`;
   };
-
-  templates: Templates = {};
 
   private readonly __customerGetValue = () => {
     const link = this.data?._links?.['fx:customer']?.href;
@@ -111,6 +85,8 @@ export class GiftCardCodeForm extends Base<Data> {
 
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-text-control infer="code"></foxy-internal-text-control>
       <foxy-internal-number-control infer="current-balance"></foxy-internal-number-control>
       <foxy-internal-date-control infer="end-date"></foxy-internal-date-control>

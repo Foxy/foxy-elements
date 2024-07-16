@@ -1,4 +1,4 @@
-import { Data, Templates } from './types';
+import { Data } from './types';
 import { TemplateResult, html } from 'lit-html';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
@@ -13,27 +13,10 @@ const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement, 
 /**
  * Card element displaying a customer address.
  *
- * @slot address-name:before - **new in v1.4.0**
- * @slot address-name:after - **new in v1.4.0**
- *
- * @slot full-name:before - **new in v1.4.0**
- * @slot full-name:after - **new in v1.4.0**
- *
- * @slot full-address:before - **new in v1.4.0**
- * @slot full-address:after - **new in v1.4.0**
- *
- * @slot company:before - **new in v1.4.0**
- * @slot company:after - **new in v1.4.0**
- *
- * @slot phone:before - **new in v1.4.0**
- * @slot phone:after - **new in v1.4.0**
- *
  * @element foxy-address-card
  * @since 1.2.0
  */
 export class AddressCard extends Base<Data> {
-  templates: Templates = {};
-
   private readonly __renderAddressName = () => {
     const isDefaultBilling = !!this.data?.is_default_billing;
     const isDefaultShipping = !!this.data?.is_default_shipping;

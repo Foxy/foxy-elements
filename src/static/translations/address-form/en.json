@@ -1,4 +1,27 @@
 {
+  "header": {
+    "title_existing": "Customer address #{{ id }}",
+    "title_new": "New customer address",
+    "subtitle_default_shipping": "Default shipping address",
+    "subtitle_default_billing": "Default billing address",
+    "subtitle_custom": "Custom address",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
+  "error": {
+    "country_banned": "Store settings prohibit addresses in this country. Please adjust your store settings or use the Ignore address restrictions option.",
+    "address_name_exists": "Another address with the same name already exists. Please choose a unique name."
+  },
   "address-name": {
     "label": "Address name",
     "placeholder": "Required",
@@ -66,6 +89,11 @@
     "helper_text": "",
     "v8n_too_long": "Unfortunately we can't store region names longer than 50 characters"
   },
+  "ignore-address-restrictions": {
+    "label": "Advanced",
+    "option_true": "Ignore address restrictions",
+    "helper_text": "By default, the country value must be valid according to the store's location filtering settings. Checking this box will remove this restriction."
+  },
   "timestamps": {
     "date": "{{value, date}}",
     "date_created": "Created on",
@@ -76,8 +104,14 @@
     "cancel": "Cancel",
     "delete_prompt": "Are you sure you'd like to remove this address? You won't be able to bring it back."
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Create"
+    "caption": "Create"
   },
   "spinner": {
     "refresh": "Refresh",

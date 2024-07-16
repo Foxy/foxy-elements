@@ -1,3 +1,4 @@
+import '../../internal/InternalAsyncResourceLinkListControl/index';
 import '../../internal/InternalAsyncComboBoxControl/index';
 import '../../internal/InternalIntegerControl/index';
 import '../../internal/InternalNumberControl/index';
@@ -7,8 +8,7 @@ import '../../internal/InternalForm/index';
 
 import '../DiscountBuilder/index';
 import '../NucleonElement/index';
-
-import './internal/InternalItemCategoryFormTaxesControl/index';
+import '../TaxCard/index';
 
 import { ItemCategoryForm } from './ItemCategoryForm';
 

@@ -15,12 +15,6 @@ const Base = TranslatableMixin(TwoLineCard, NS);
 /**
  * Basic card displaying an item option.
  *
- * @slot title:before
- * @slot title:after
- *
- * @slot subtitle:before
- * @slot subtitle:after
- *
  * @element foxy-item-option-card
  * @since 1.17.0
  */

@@ -1,5 +1,5 @@
 import '../../internal/InternalSandbox/index';
-import '../Spinner/index';
+import '../../internal/InternalCard/index';
 
 import { CustomFieldCard } from './CustomFieldCard';
 

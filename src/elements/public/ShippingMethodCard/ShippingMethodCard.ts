@@ -51,6 +51,22 @@ export class ShippingMethodCard extends Base<Data> {
     const data = this.data;
 
     return html`
+      <figure class="flex" style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)">
+        <img
+          class="relative h-s w-s object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs"
+          src=${(data ? this.getImageSrc?.(data.code) : null) ?? defaultSrc}
+          alt=${this.t('image_alt')}
+          @error=${(evt: Event) => ((evt.currentTarget as HTMLImageElement).src = defaultSrc)}
+        />
+
+        <figcaption class="min-w-0 flex-1 leading-xs -my-xs">
+          <p class="text-m truncate text-body font-medium">${data?.name}</p>
+          <p class="text-s truncate text-secondary">
+            <foxy-i18n infer="" key=${isActive ? 'status_active' : 'status_inactive'}></foxy-i18n>
+          </p>
+        </figcaption>
+      </figure>
+
       <foxy-nucleon
         class="hidden"
         infer=""
@@ -59,24 +75,6 @@ export class ShippingMethodCard extends Base<Data> {
         @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
-
-      <figure class="flex items-center gap-m h-m">
-        <img
-          class="relative h-s w-s object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs"
-          src=${(data ? this.getImageSrc?.(data.code) : null) ?? defaultSrc}
-          alt=${this.t('image_alt')}
-          @error=${(evt: Event) => ((evt.currentTarget as HTMLImageElement).src = defaultSrc)}
-        />
-
-        <figcaption class="min-w-0 flex-1 flex justify-between gap-s">
-          <span class="font-medium truncate flex-shrink-0">${data?.name}&ZeroWidthSpace;</span>
-          ${isActive
-            ? html`
-                <foxy-i18n infer="" class="truncate text-tertiary" key="status_active"></foxy-i18n>
-              `
-            : ''}
-        </figcaption>
-      </figure>
     `;
   }
 

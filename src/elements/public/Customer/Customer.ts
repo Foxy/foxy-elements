@@ -1,4 +1,4 @@
-import { Attributes, CustomerAddresses, Data, Settings, Tab, Templates } from './types';
+import { Attributes, CustomerAddresses, Data, Settings, Tab } from './types';
 import { CSSResultArray, TemplateResult, html, PropertyDeclarations } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 
@@ -29,42 +29,6 @@ const Base = ScopedElementsMixin(
 
 /**
  * All-in-one element for customer management.
- *
- * @slot header:before - **new in v1.4.0**
- * @slot header:after - **new in v1.4.0**
- * @slot header:actions:before - **new in v1.4.0**
- * @slot header:actions:after - **new in v1.4.0**
- * @slot header:actions:edit:before - **new in v1.4.0**
- * @slot header:actions:edit:after - **new in v1.4.0**
- *
- * @slot addresses:before - **new in v1.4.0**
- * @slot addresses:after - **new in v1.4.0**
- * @slot addresses:actions:before - **new in v1.4.0**
- * @slot addresses:actions:after - **new in v1.4.0**
- * @slot addresses:actions:create:before - **new in v1.4.0**
- * @slot addresses:actions:create:after - **new in v1.4.0**
- * @slot addresses:list:before - **new in v1.4.0**
- * @slot addresses:list:after - **new in v1.4.0**
- *
- * @slot payment-methods:before - **new in v1.4.0**
- * @slot payment-methods:after - **new in v1.4.0**
- * @slot payment-methods:list:before - **new in v1.4.0**
- * @slot payment-methods:list:after - **new in v1.4.0**
- *
- * @slot attributes:before - **new in v1.4.0**
- * @slot attributes:after - **new in v1.4.0**
- * @slot attributes:actions:before - **new in v1.4.0**
- * @slot attributes:actions:after - **new in v1.4.0**
- * @slot attributes:actions:create:before - **new in v1.4.0**
- * @slot attributes:actions:create:after - **new in v1.4.0**
- * @slot attributes:list:before - **new in v1.4.0**
- * @slot attributes:list:after - **new in v1.4.0**
- *
- * @slot transactions:before - **new in v1.4.0**
- * @slot transactions:after - **new in v1.4.0**
- *
- * @slot subscriptions:before - **new in v1.4.0**
- * @slot subscriptions:after - **new in v1.4.0**
  *
  * @element foxy-customer
  * @since 1.2.0
@@ -101,8 +65,6 @@ export class Customer extends Base<Data> {
   static get styles(): CSSResultArray {
     return [super.styles, styles];
   }
-
-  templates: Templates = {};
 
   /**
    * Configuration URL for the Payment Card Embed. If provided, this element will allow
@@ -141,6 +103,7 @@ export class Customer extends Base<Data> {
         readonlycontrols=${readonlySelector.zoom(formId).toString()}
         disabledcontrols=${disabledSelector.zoom(formId).toString()}
         hiddencontrols=${hiddenSelector.zoom(formId).toString()}
+        alert
         .templates=${this.getNestedTemplates('header:actions:edit:form')}
         .props=${{ '.settings': this.settings }}
       >
@@ -241,6 +204,7 @@ export class Customer extends Base<Data> {
           lang=${lang}
           ns=${ns}
           id="address-dialog"
+          alert
           .templates=${this.getNestedTemplates('addresses:actions:create:form')}
         >
         </foxy-form-dialog>
@@ -342,6 +306,7 @@ export class Customer extends Base<Data> {
         lang=${this.lang}
         ns=${this.ns}
         id="addresses-list-form"
+        alert
         .templates=${this.getNestedTemplates(formId)}
       >
       </foxy-form-dialog>
@@ -482,6 +447,7 @@ export class Customer extends Base<Data> {
           form="foxy-attribute-form"
           lang=${lang}
           ns=${ns}
+          alert
           .templates=${this.getNestedTemplates('attributes:actions:create:form')}
         >
         </foxy-form-dialog>
@@ -581,6 +547,7 @@ export class Customer extends Base<Data> {
         lang=${this.lang}
         ns=${this.ns}
         id="attributes-list-form"
+        alert
         .templates=${this.getNestedTemplates(formId)}
       >
       </foxy-form-dialog>
@@ -729,6 +696,7 @@ export class Customer extends Base<Data> {
           lang=${this.lang}
           ns=${this.ns}
           id="subscriptions-form"
+          alert
           .templates=${this.getNestedTemplates(formId)}
           .props=${{ '.settings': this.settings }}
         >

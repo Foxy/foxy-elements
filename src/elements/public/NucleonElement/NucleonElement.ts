@@ -150,7 +150,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * @since 1.4.0
    */
   get failure(): Response | null {
-    return this.__service.state.context.failure;
+    return this.__service.state?.context.failure ?? null;
   }
 
   /**
@@ -160,7 +160,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * not guaranteed to work. NucleonElement does not provide a way to override validity status.
    */
   get errors(): string[] {
-    return this.__service.state.context.errors;
+    return this.__service.state?.context.errors ?? [];
   }
 
   /**
@@ -171,7 +171,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * If you need to replace the entire data object, consider using `element.data`.
    */
   get form(): Partial<TData> {
-    const { data, edits } = this.__service.state.context;
+    const { data, edits } = this.__service.state?.context ?? {};
     return { ...data, ...edits } as Partial<TData>;
   }
 
@@ -183,7 +183,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * If you're processing user input, consider using `element.form` and `element.edit()` instead.
    */
   get data(): TData | null {
-    return this.__service.state.context.data;
+    return this.__service.state?.context.data ?? null;
   }
 
   set data(data: TData | null) {
@@ -232,7 +232,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   in<TStateValue extends Nucleon.State<TData, string>['value']>(
     stateValue: TStateValue
   ): this is this & ComputedElementProperties<TData, TStateValue> {
-    return this.__service.state.matches(stateValue);
+    return !!this.__service.state?.matches(stateValue);
   }
 
   /**
@@ -431,8 +431,8 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   // this getter is used by LitElement to set the "state" attribute
   private get __state(): string {
     const state = this.__service.state;
-    const flags = state.toStrings().reduce((p, c) => [...p, ...c.split('.')], [] as string[]);
-    return [...new Set(flags)].join(' ');
+    const flags = state?.toStrings().reduce((p, c) => [...p, ...c.split('.')], [] as string[]);
+    return [...new Set(flags ?? [])].join(' ');
   }
 
   private __createService() {
@@ -563,7 +563,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     if (method === 'GET') {
       event.preventDefault();
       this.__fetchEventQueue.push(event);
-      if (!this.__service.state.matches('busy')) this.__processFetchEventQueue();
+      if (!this.__service.state?.matches('busy')) this.__processFetchEventQueue();
     }
   }
 }

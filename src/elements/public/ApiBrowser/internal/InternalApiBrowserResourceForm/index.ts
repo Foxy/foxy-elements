@@ -3,7 +3,7 @@ import '@polymer/iron-icons';
 import '@polymer/iron-icon';
 
 import '../../../../internal/InternalDeleteControl/index';
-import '../../../../internal/InternalCreateControl/index';
+import '../../../../internal/InternalSubmitControl/index';
 import '../../../../internal/InternalSourceControl/index';
 import '../../../../internal/InternalForm/index';
 import '../../../CopyToClipboard/index';

@@ -1,6 +1,6 @@
 {
   "cancel": "Cancel",
-  "create": "Create",
+  "caption": "Create",
   "date": "{{value, date}}",
   "date_created": "Created on",
   "date_modified": "Last updated on",

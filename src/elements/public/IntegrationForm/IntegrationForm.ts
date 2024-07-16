@@ -4,6 +4,7 @@ import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
@@ -13,27 +14,6 @@ const Base = TranslatableMixin(InternalForm, NS);
 
 /**
  * Form element for managing integrations (`fx:integration`).
- *
- * @slot project-name:before
- * @slot project-name:after
- *
- * @slot project-description:before
- * @slot project-description:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot header:before
- * @slot header:after
- *
- * @slot message:before
- * @slot message:after
- *
- * @slot table:before
- * @slot table:after
- *
- * @slot delete:before
- * @slot delete:after
  *
  * @element foxy-integration-form
  * @since 1.21.0
@@ -51,6 +31,10 @@ export class IntegrationForm extends Base<Data> {
   }
 
   private __postResponse: PostResponseData | null = null;
+
+  get hiddenSelector(): BooleanSelector {
+    return new BooleanSelector(`header:copy-id ${super.hiddenSelector}`.trimEnd());
+  }
 
   renderBody(): TemplateResult {
     return this.data ? this.__renderSnapshotBody() : this.__renderTemplateBody();
@@ -75,7 +59,7 @@ export class IntegrationForm extends Base<Data> {
     const postResponse = this.__postResponse;
 
     return html`
-      ${hiddenSelector.matches('header', true) ? '' : this.__renderHeader()}
+      ${this.renderHeader()}
       ${hiddenSelector.matches('message', true) || !postResponse ? '' : this.__renderMessage()}
       ${hiddenSelector.matches('table') ? '' : this.__renderTable()}
       <foxy-internal-delete-control infer="delete"></foxy-internal-delete-control>
@@ -84,10 +68,11 @@ export class IntegrationForm extends Base<Data> {
 
   private __renderTemplateBody() {
     return html`
+      ${this.renderHeader()}
       <foxy-internal-text-control infer="project-name"></foxy-internal-text-control>
       <foxy-internal-text-area-control infer="project-description">
       </foxy-internal-text-area-control>
-      <foxy-internal-create-control infer="create"></foxy-internal-create-control>
+      <foxy-internal-submit-control infer="create"></foxy-internal-submit-control>
     `;
   }
 
@@ -109,24 +94,6 @@ export class IntegrationForm extends Base<Data> {
       </div>
 
       ${this.renderTemplateOrSlot('message:after')}
-    `;
-  }
-
-  private __renderHeader() {
-    const data = this.data as Data;
-    const noDescription = html`<foxy-i18n infer="header" key="no_description"></foxy-i18n>`;
-
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('header:before')}
-
-        <div class="space-y-xs">
-          <div class="font-medium truncate text-xl">${data.project_name}&ZeroWidthSpace;</div>
-          <div class="text-secondary">${data.project_description || noDescription}</div>
-        </div>
-
-        ${this.renderTemplateOrSlot('header:after')}
-      </div>
     `;
   }
 

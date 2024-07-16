@@ -1,6 +1,7 @@
 {
   "image_alt": "Shipping method logo",
   "status_active": "Active",
+  "status_inactive": "Inactive",
   "spinner": {
     "loading_busy": "Loading",
     "loading_empty": "No data",

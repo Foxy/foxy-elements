@@ -4,8 +4,6 @@ import type {
 } from '@foxy.io/sdk/dist/types/core/defaults';
 
 import type { Graph, Resource } from '@foxy.io/sdk/core';
-import type { PasskeyCard } from './PasskeyCard';
-import type { Renderer } from '../../../mixins/configurable';
 import type { Rels } from '@foxy.io/sdk/backend';
 
 export interface Passkeys extends Graph {
@@ -32,10 +30,3 @@ export interface Passkey extends Graph {
 }
 
 export type Data = Resource<Passkey>;
-
-export type Templates = {
-  'title:before'?: Renderer<PasskeyCard>;
-  'title:after'?: Renderer<PasskeyCard>;
-  'subtitle:before'?: Renderer<PasskeyCard>;
-  'subtitle:after'?: Renderer<PasskeyCard>;
-};

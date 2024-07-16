@@ -1,22 +1,23 @@
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
-import type { Resource } from '@foxy.io/sdk/core';
-import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
 
 import './index';
 
-import { InternalStoreShippingMethodFormServicesControl } from './internal/InternalStoreShippingMethodFormServicesControl/InternalStoreShippingMethodFormServicesControl';
+import { InternalAsyncResourceLinkListControl } from '../../internal/InternalAsyncResourceLinkListControl/InternalAsyncResourceLinkListControl';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { StoreShippingMethodForm as Form } from './StoreShippingMethodForm';
-import { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl/InternalAsyncComboBoxControl';
+import { InternalResourcePickerControl } from '../../internal/InternalResourcePickerControl/InternalResourcePickerControl';
 import { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
-import { InternalTextAreaControl } from '../../internal/InternalTextAreaControl/InternalTextAreaControl';
 import { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
+import { InternalSourceControl } from '../../internal/InternalSourceControl/InternalSourceControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
 import { getTestData } from '../../../testgen/getTestData';
+import { stub } from 'sinon';
+import { Resource } from '@foxy.io/sdk/core';
+import { Rels } from '@foxy.io/sdk/backend';
 
 describe('StoreShippingMethodForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -25,9 +26,14 @@ describe('StoreShippingMethodForm', () => {
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
-  it('imports and defines foxy-internal-async-combo-box-control', () => {
-    const element = customElements.get('foxy-internal-async-combo-box-control');
-    expect(element).to.equal(InternalAsyncComboBoxControl);
+  it('imports and defines foxy-internal-async-resource-link-list-control', () => {
+    const element = customElements.get('foxy-internal-async-resource-link-list-control');
+    expect(element).to.equal(InternalAsyncResourceLinkListControl);
+  });
+
+  it('imports and defines foxy-internal-resource-picker-control', () => {
+    const element = customElements.get('foxy-internal-resource-picker-control');
+    expect(element).to.equal(InternalResourcePickerControl);
   });
 
   it('imports and defines foxy-internal-checkbox-group-control', () => {
@@ -35,9 +41,9 @@ describe('StoreShippingMethodForm', () => {
     expect(element).to.equal(InternalCheckboxGroupControl);
   });
 
-  it('imports and defines foxy-internal-text-area-control', () => {
-    const element = customElements.get('foxy-internal-text-area-control');
-    expect(element).to.equal(InternalTextAreaControl);
+  it('imports and defines foxy-internal-source-control', () => {
+    const element = customElements.get('foxy-internal-source-control');
+    expect(element).to.equal(InternalSourceControl);
   });
 
   it('imports and defines foxy-internal-password-control', () => {
@@ -58,11 +64,6 @@ describe('StoreShippingMethodForm', () => {
   it('imports and defines foxy-nucleon', () => {
     const element = customElements.get('foxy-nucleon');
     expect(element).to.equal(NucleonElement);
-  });
-
-  it('imports and defines foxy-internal-store-shipping-method-form-services-control', () => {
-    const element = customElements.get('foxy-internal-store-shipping-method-form-services-control');
-    expect(element).to.equal(InternalStoreShippingMethodFormServicesControl);
   });
 
   it('imports and defines itself as foxy-store-shipping-method-form', () => {
@@ -243,7 +244,7 @@ describe('StoreShippingMethodForm', () => {
   it('hides everything except for shipping method uri, timestamps, create and delete buttons by default', () => {
     const form = new Form();
     expect(form.hiddenSelector.toString()).to.equal(
-      'not=shipping-method-uri,timestamps,create,delete'
+      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint custom-code services'
     );
   });
 
@@ -270,7 +271,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'not=shipping-method-uri,endpoint,timestamps,delete,create'
+      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password custom-code services'
     );
   });
 
@@ -297,7 +298,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'not=shipping-method-uri,custom-code,timestamps,delete,create'
+      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint services'
     );
   });
 
@@ -324,7 +325,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'not=shipping-method-uri,destinations,services,timestamps,delete,create'
+      'shipping-container-uri shipping-drop-type-uri authentication-key meter-number accountid password endpoint custom-code services'
     );
   });
 
@@ -350,9 +351,7 @@ describe('StoreShippingMethodForm', () => {
       } as Data['_embedded'],
     });
 
-    expect(form.hiddenSelector.toString()).to.equal(
-      'not=shipping-method-uri,shipping-container-uri,shipping-drop-type-uri,destinations,authentication-key,meter-number,accountid,password,services,timestamps,delete,create'
-    );
+    expect(form.hiddenSelector.toString()).to.equal('endpoint custom-code services');
   });
 
   it('hides everything except for shipping method uri, shipping container uri, shipping drop type uri, destinations, services, timestamps, create and delete buttons for USPS method', () => {
@@ -378,7 +377,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'not=shipping-method-uri,shipping-container-uri,shipping-drop-type-uri,destinations,services,timestamps,delete,create'
+      'authentication-key meter-number accountid password endpoint custom-code services'
     );
   });
 
@@ -404,12 +403,35 @@ describe('StoreShippingMethodForm', () => {
       } as Data['_embedded'],
     });
 
-    expect(form.hiddenSelector.toString()).to.equal(
-      'not=shipping-method-uri,shipping-container-uri,shipping-drop-type-uri,destinations,authentication-key,meter-number,accountid,password,services,timestamps,delete,create'
-    );
+    expect(form.hiddenSelector.toString()).to.equal('endpoint custom-code services');
   });
 
-  it('renders async combo box control for shipping method uri', async () => {
+  it('renders a form header', async () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('uses custom header title options', async () => {
+    const form = new Form();
+    form.data = await getTestData('./hapi/store_shipping_methods/0?zoom=shipping_method');
+    type Embed = { 'fx:shipping_method': Resource<Rels.ShippingMethod> };
+    const shippingMethod = (form.data!._embedded as Embed)['fx:shipping_method'];
+    expect(form.headerTitleOptions).to.deep.equal({
+      ...form.data!,
+      context: 'existing',
+      provider: shippingMethod.name,
+    });
+  });
+
+  it('uses custom header subtitle options', async () => {
+    const form = new Form();
+    form.data = await getTestData('./hapi/store_shipping_methods/0?zoom=shipping_method');
+    expect(form.headerSubtitleOptions).to.deep.equal({ id: form.headerCopyIdValue });
+  });
+
+  it('renders resource picker control for shipping method uri', async () => {
     const router = createRouter();
 
     const element = await fixture<Form>(html`
@@ -422,36 +444,14 @@ describe('StoreShippingMethodForm', () => {
 
     const control = element.renderRoot.querySelector(
       '[infer="shipping-method-uri"]'
-    ) as InternalAsyncComboBoxControl;
+    ) as InternalResourcePickerControl;
 
-    expect(control).to.be.instanceOf(InternalAsyncComboBoxControl);
-    expect(control).to.have.attribute('item-value-path', '_links.self.href');
-    expect(control).to.have.attribute('item-label-path', 'name');
+    expect(control).to.be.instanceOf(InternalResourcePickerControl);
     expect(control).to.have.attribute('first', 'https://demo.api/hapi/shipping_methods');
-    expect(control).to.have.property('selectedItem', null);
-
-    element.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/0' });
-    await waitUntil(() => !!control.selectedItem, '', { timeout: 5000 });
-
-    const method = await getTestData('https://demo.api/hapi/shipping_methods/0', router);
-    expect(control).to.have.deep.property('selectedItem', method);
-    expect(element).to.have.deep.nested.property('form._embedded.fx:shipping_method', method);
-
-    element.undo();
-    await element.requestUpdate();
-    control.selectedItem = method;
-    control.dispatchEvent(new CustomEvent('selected-item-changed'));
-
-    expect(element).to.have.deep.nested.property('form._embedded.fx:shipping_method', method);
-    expect(element).to.have.nested.property('form.shipping_container_uri', '');
-    expect(element).to.have.nested.property('form.shipping_drop_type_uri', '');
-    expect(element).to.have.nested.property(
-      'form.shipping_method_uri',
-      'https://demo.api/hapi/shipping_methods/0'
-    );
+    expect(control).to.have.attribute('item', 'foxy-shipping-method-card');
   });
 
-  it('renders async combo box control for shipping container uri', async () => {
+  it('renders resource picker control for shipping container uri', async () => {
     const router = createRouter();
 
     const element = await fixture<Form>(html`
@@ -461,52 +461,28 @@ describe('StoreShippingMethodForm', () => {
       >
       </foxy-store-shipping-method-form>
     `);
+
+    element.edit({
+      _embedded: {
+        'fx:shipping_method': await getTestData('./hapi/shipping_methods/0', router),
+      },
+    });
+
+    await element.requestUpdate();
 
     const control = element.renderRoot.querySelector(
       '[infer="shipping-container-uri"]'
-    ) as InternalAsyncComboBoxControl;
+    ) as InternalResourcePickerControl;
 
-    expect(control).to.be.instanceOf(InternalAsyncComboBoxControl);
-    expect(control).to.have.attribute('item-value-path', '_links.self.href');
-    expect(control).to.have.attribute('item-label-path', 'name');
-    expect(control).to.not.have.attribute('first');
-    expect(control).to.have.property('selectedItem', null);
-
-    element.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/0' });
-    await waitUntil(() => !!element.form._embedded?.['fx:shipping_method'], '', { timeout: 5000 });
-
-    const method = element.form._embedded!['fx:shipping_method'];
-    const containersHref = method._links['fx:shipping_containers'].href;
-    const containers = await getTestData<Resource<Rels.ShippingContainers>>(containersHref, router);
-    const firstContainer = containers._embedded['fx:shipping_containers'][0];
-
-    expect(control).to.have.attribute('first', containersHref);
-
-    element.edit({ shipping_container_uri: firstContainer._links.self.href });
-    await waitUntil(() => !!control.selectedItem, '', { timeout: 5000 });
-
-    expect(control).to.have.deep.property('selectedItem', firstContainer);
-    expect(element).to.have.deep.nested.property(
-      'form._embedded.fx:shipping_container',
-      firstContainer
-    );
-
-    element.undo();
-    await element.requestUpdate();
-    control.selectedItem = firstContainer;
-    control.dispatchEvent(new CustomEvent('selected-item-changed'));
-
-    expect(element).to.have.deep.nested.property(
-      'form._embedded.fx:shipping_container',
-      firstContainer
-    );
-    expect(element).to.have.nested.property(
-      'form.shipping_container_uri',
-      firstContainer._links.self.href
+    expect(control).to.be.instanceOf(InternalResourcePickerControl);
+    expect(control).to.have.attribute('item', 'foxy-shipping-container-card');
+    expect(control).to.have.attribute(
+      'first',
+      'https://demo.api/hapi/shipping_containers?shipping_method_id=0'
     );
   });
 
-  it('renders async combo box control for shipping drop type uri', async () => {
+  it('renders resource picker control for shipping drop type uri', async () => {
     const router = createRouter();
 
     const element = await fixture<Form>(html`
@@ -517,47 +493,23 @@ describe('StoreShippingMethodForm', () => {
       </foxy-store-shipping-method-form>
     `);
 
+    element.edit({
+      _embedded: {
+        'fx:shipping_method': await getTestData('./hapi/shipping_methods/0', router),
+      },
+    });
+
+    await element.requestUpdate();
+
     const control = element.renderRoot.querySelector(
       '[infer="shipping-drop-type-uri"]'
-    ) as InternalAsyncComboBoxControl;
+    ) as InternalResourcePickerControl;
 
-    expect(control).to.be.instanceOf(InternalAsyncComboBoxControl);
-    expect(control).to.have.attribute('item-value-path', '_links.self.href');
-    expect(control).to.have.attribute('item-label-path', 'name');
-    expect(control).to.not.have.attribute('first');
-    expect(control).to.have.property('selectedItem', null);
-
-    element.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/0' });
-    await waitUntil(() => !!element.form._embedded?.['fx:shipping_method'], '', { timeout: 5000 });
-
-    const method = element.form._embedded!['fx:shipping_method'];
-    const dropTypesHref = method._links['fx:shipping_drop_types'].href;
-    const containers = await getTestData<Resource<Rels.ShippingDropTypes>>(dropTypesHref, router);
-    const firstDropType = containers._embedded['fx:shipping_drop_types'][0];
-
-    expect(control).to.have.attribute('first', dropTypesHref);
-
-    element.edit({ shipping_drop_type_uri: firstDropType._links.self.href });
-    await waitUntil(() => !!control.selectedItem, '', { timeout: 5000 });
-
-    expect(control).to.have.deep.property('selectedItem', firstDropType);
-    expect(element).to.have.deep.nested.property(
-      'form._embedded.fx:shipping_drop_type',
-      firstDropType
-    );
-
-    element.undo();
-    await element.requestUpdate();
-    control.selectedItem = firstDropType;
-    control.dispatchEvent(new CustomEvent('selected-item-changed'));
-
-    expect(element).to.have.deep.nested.property(
-      'form._embedded.fx:shipping_drop_type',
-      firstDropType
-    );
-    expect(element).to.have.nested.property(
-      'form.shipping_drop_type_uri',
-      firstDropType._links.self.href
+    expect(control).to.be.instanceOf(InternalResourcePickerControl);
+    expect(control).to.have.attribute('item', 'foxy-shipping-drop-type-card');
+    expect(control).to.have.attribute(
+      'first',
+      'https://demo.api/hapi/shipping_drop_types?shipping_method_id=0'
     );
   });
 
@@ -649,6 +601,7 @@ describe('StoreShippingMethodForm', () => {
     expect(element.renderRoot.querySelector('[infer="accountid"]')).to.exist;
 
     element.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/0' });
+    // @ts-expect-error type is not resolved for some reason
     await waitUntil(() => !!element.form._embedded?.['fx:shipping_method'], '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="endpoint"]') as InternalTextControl;
 
@@ -681,7 +634,7 @@ describe('StoreShippingMethodForm', () => {
     );
   });
 
-  it('renders textarea control for custom code', async () => {
+  it('renders source control for custom code', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -689,19 +642,42 @@ describe('StoreShippingMethodForm', () => {
     `);
 
     expect(element.renderRoot.querySelector('[infer="custom-code"]')).to.be.instanceOf(
-      InternalTextAreaControl
+      InternalSourceControl
     );
   });
 
-  it('renders internal control for services', async () => {
+  it('renders resource link list control for services', async () => {
     const router = createRouter();
+
     const element = await fixture<Form>(html`
-      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      <foxy-store-shipping-method-form
+        shipping-methods="https://demo.api/hapi/shipping_methods"
+        href="https://demo.api/hapi/store_shipping_methods/0?zoom=shipping_method"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
       </foxy-store-shipping-method-form>
     `);
 
-    expect(element.renderRoot.querySelector('[infer="services"]')).to.be.instanceOf(
-      InternalStoreShippingMethodFormServicesControl
+    await waitUntil(() => !!element.data);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="services"]'
+    ) as InternalAsyncResourceLinkListControl;
+
+    expect(control).to.be.instanceOf(InternalAsyncResourceLinkListControl);
+    expect(control).to.have.attribute('foreign-key-for-uri', 'shipping_service_uri');
+    expect(control).to.have.attribute('foreign-key-for-id', 'shipping_service_id');
+    expect(control).to.have.attribute('own-key-for-uri', 'shipping_method_uri');
+    expect(control).to.have.attribute('embed-key', 'fx:store_shipping_services');
+    expect(control).to.have.attribute('infer', 'services');
+    expect(control).to.have.attribute('item', 'foxy-shipping-service-card');
+    expect(control).to.have.attribute(
+      'options-href',
+      'https://demo.api/hapi/shipping_services?shipping_method_id=0'
+    );
+    expect(control).to.have.attribute(
+      'links-href',
+      'https://demo.api/hapi/store_shipping_services?shipping_method_id=0'
     );
   });
 });

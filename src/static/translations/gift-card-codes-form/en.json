@@ -14,8 +14,14 @@
     "placeholder": "0",
     "helper_text": "All imported codes will have this balance."
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Import"
+    "caption": "Import"
   },
   "spinner": {
     "refresh": "Refresh",

@@ -9,18 +9,6 @@ import { html } from 'lit-html';
 /**
  * Form element for creating or editing item options (`fx:item_option`).
  *
- * @slot name:before
- * @slot name:after
- *
- * @slot value:before
- * @slot value:after
- *
- * @slot price-mod:before
- * @slot price-mod:after
- *
- * @slot weight-mod:before
- * @slot weight-mod:after
- *
  * @element foxy-item-option-form
  * @since 1.17.0
  */
@@ -36,10 +24,15 @@ export class ItemOptionForm extends TranslatableMixin(InternalForm, 'item-option
 
   renderBody(): TemplateResult {
     return html`
-      <foxy-internal-text-control infer="name"></foxy-internal-text-control>
-      <foxy-internal-text-control infer="value"></foxy-internal-text-control>
-      <foxy-internal-number-control infer="price-mod"></foxy-internal-number-control>
-      <foxy-internal-number-control infer="weight-mod"></foxy-internal-number-control>
+      ${this.renderHeader()}
+
+      <div class="grid grid-cols-2 gap-m">
+        <foxy-internal-text-control infer="name" class="col-span-2"></foxy-internal-text-control>
+        <foxy-internal-text-control infer="value" class="col-span-2"></foxy-internal-text-control>
+        <foxy-internal-number-control infer="price-mod"></foxy-internal-number-control>
+        <foxy-internal-number-control infer="weight-mod"></foxy-internal-number-control>
+      </div>
+
       ${super.renderBody()}
     `;
   }

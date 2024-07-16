@@ -12,12 +12,6 @@ const Base = TranslatableMixin(TwoLineCard, NS);
 /**
  * Card element representing a `fx:store` resource.
  *
- * @slot title:before
- * @slot title:after
- *
- * @slot subtitle:before
- * @slot subtitle:after
- *
  * @element foxy-store-card
  * @since 1.22.0
  */

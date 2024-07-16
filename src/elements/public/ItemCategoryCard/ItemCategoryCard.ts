@@ -11,12 +11,6 @@ const Base = TranslatableMixin(TwoLineCard, NS);
 /**
  * Card element representing an item category (`fx:item_category`).
  *
- * @slot title:before
- * @slot title:after
- *
- * @slot subtitle:before
- * @slot subtitle:after
- *
  * @element foxy-item-category-card
  * @since 1.21.0
  */

@@ -15,8 +15,12 @@ describe('InternalForm', () => {
     expect(customElements.get('foxy-internal-timestamps-control')).to.exist;
   });
 
-  it('imports and registers foxy-internal-create-control', () => {
-    expect(customElements.get('foxy-internal-create-control')).to.exist;
+  it('imports and registers foxy-internal-submit-control', () => {
+    expect(customElements.get('foxy-internal-submit-control')).to.exist;
+  });
+
+  it('imports and registers foxy-internal-undo-control', () => {
+    expect(customElements.get('foxy-internal-undo-control')).to.exist;
   });
 
   it('imports and registers foxy-internal-delete-control', () => {
@@ -61,7 +65,27 @@ describe('InternalForm', () => {
     expect(element.renderHeaderActions(data)).to.equal(null);
   });
 
-  it('has a .renderHeader() method rendering an optional header', async () => {
+  it('renders a configurable title in the optional header', async () => {
+    const root = document.createElement('div');
+    const element = await fixture<InternalForm<any>>(
+      html`<foxy-internal-form></foxy-internal-form>`
+    );
+
+    render(element.renderHeader(), root);
+    let title = root.querySelector(`foxy-i18n[infer="header"][key="${element.headerTitleKey}"]`);
+
+    expect(title).to.exist;
+    expect(title).to.have.deep.property('options', element.headerTitleOptions);
+
+    element.data = await getTestData<any>('./hapi/customers/0');
+    render(element.renderHeader(), root);
+
+    title = root.querySelector(`foxy-i18n[infer="header"][key="${element.headerTitleKey}"]`);
+    expect(title).to.exist;
+    expect(title).to.have.deep.property('options', element.headerTitleOptions);
+  });
+
+  it('when loaded, renders a configurable subtitle in the optional header', async () => {
     const root = document.createElement('div');
     const element = await fixture<InternalForm<any>>(
       html`<foxy-internal-form></foxy-internal-form>`
@@ -69,27 +93,52 @@ describe('InternalForm', () => {
 
     render(element.renderHeader(), root);
 
-    expect(root.querySelector('foxy-i18n[infer="header"][key="title_new"]')).to.exist;
-    expect(root.querySelector('foxy-i18n[infer="header"][key="title_existing"]')).to.not.exist;
-    expect(root.querySelector('foxy-i18n[infer="header"][key="subtitle"]')).to.not.exist;
-    expect(root.querySelector('foxy-copy-to-clipboard')).to.not.exist;
+    let subtitle = root.querySelector(
+      `foxy-i18n[infer="header"][key="${element.headerSubtitleKey}"]`
+    );
+
+    expect(subtitle).to.not.exist;
 
     element.data = await getTestData<any>('./hapi/customers/0');
     render(element.renderHeader(), root);
 
-    expect(root.querySelector('foxy-i18n[infer="header"][key="title_new"]')).to.not.exist;
-
-    const title = root.querySelector('foxy-i18n[infer="header"][key="title_existing"]');
-    expect(title).to.exist;
-    expect(title).to.have.deep.property('options', { id: 0 });
-
-    const subtitle = root.querySelector('foxy-i18n[infer="header"][key="subtitle"]');
+    subtitle = root.querySelector(`foxy-i18n[infer="header"][key="${element.headerSubtitleKey}"]`);
     expect(subtitle).to.exist;
-    expect(subtitle).to.have.deep.property('options', element.data);
+    expect(subtitle).to.have.deep.property('options', element.headerSubtitleOptions);
+  });
 
-    const copyButton = root.querySelector('foxy-copy-to-clipboard');
+  it('when loaded, renders a Copy ID button in the optional header', async () => {
+    const root = document.createElement('div');
+    const element = await fixture<InternalForm<any>>(
+      html`<foxy-internal-form></foxy-internal-form>`
+    );
+
+    render(element.renderHeader(), root);
+    let copyButton = root.querySelector('foxy-copy-to-clipboard[infer="header copy-id"]');
+    expect(copyButton).to.not.exist;
+
+    element.data = await getTestData<any>('./hapi/customers/0');
+    render(element.renderHeader(), root);
+    copyButton = root.querySelector('foxy-copy-to-clipboard[infer="header copy-id"]');
     expect(copyButton).to.exist;
-    expect(copyButton).to.have.property('text', '0');
+    expect(copyButton).to.have.attribute('text', String(element.headerCopyIdValue));
+  });
+
+  it('when loaded, renders a Copy JSON button in the optional header', async () => {
+    const root = document.createElement('div');
+    const element = await fixture<InternalForm<any>>(
+      html`<foxy-internal-form></foxy-internal-form>`
+    );
+
+    render(element.renderHeader(), root);
+    let copyButton = root.querySelector('foxy-copy-to-clipboard[infer="header copy-json"]');
+    expect(copyButton).to.not.exist;
+
+    element.data = await getTestData<any>('./hapi/customers/0');
+    render(element.renderHeader(), root);
+    copyButton = root.querySelector('foxy-copy-to-clipboard[infer="header copy-json"]');
+    expect(copyButton).to.exist;
+    expect(copyButton).to.have.attribute('text', JSON.stringify(element.data, null, 2));
   });
 
   it('has a .renderBody() method rendering timestamps and an appropriate action control', async () => {
@@ -100,15 +149,19 @@ describe('InternalForm', () => {
 
     render(element.renderBody(), root);
 
-    expect(root.querySelector('foxy-internal-create-control[infer="create"]')).to.exist;
+    expect(root.querySelector('foxy-internal-submit-control[infer="submit"]')).to.not.exist;
+    expect(root.querySelector('foxy-internal-submit-control[infer="create"]')).to.exist;
     expect(root.querySelector('foxy-internal-delete-control[infer="delete"]')).to.not.exist;
+    expect(root.querySelector('foxy-internal-undo-control[infer="undo"]')).to.not.exist;
     expect(root.querySelector('foxy-internal-timestamps-control[infer="timestamps"]')).to.not.exist;
 
     element.data = await getTestData<any>('./hapi/customers/0');
     render(element.renderBody(), root);
 
-    expect(root.querySelector('foxy-internal-create-control[infer="create"]')).to.not.exist;
+    expect(root.querySelector('foxy-internal-submit-control[infer="submit"]')).to.exist;
+    expect(root.querySelector('foxy-internal-submit-control[infer="create"]')).to.not.exist;
     expect(root.querySelector('foxy-internal-delete-control[infer="delete"]')).to.exist;
+    expect(root.querySelector('foxy-internal-undo-control[infer="undo"]')).to.exist;
     expect(root.querySelector('foxy-internal-timestamps-control[infer="timestamps"]')).to.exist;
   });
 
@@ -123,7 +176,7 @@ describe('InternalForm', () => {
     await element.requestUpdate();
 
     expect(renderBodyMethod).to.have.been.called;
-    expect(root.querySelector('foxy-internal-create-control[infer="create"]')).to.exist;
+    expect(root.querySelector('foxy-internal-submit-control[infer="create"]')).to.exist;
     expect(root.querySelector('foxy-internal-delete-control[infer="delete"]')).to.not.exist;
     expect(root.querySelector('foxy-internal-timestamps-control[infer="timestamps"]')).to.not.exist;
 
@@ -132,7 +185,7 @@ describe('InternalForm', () => {
     await element.requestUpdate();
 
     expect(renderBodyMethod).to.have.been.called;
-    expect(root.querySelector('foxy-internal-create-control[infer="create"]')).to.not.exist;
+    expect(root.querySelector('foxy-internal-submit-control[infer="create"]')).to.not.exist;
     expect(root.querySelector('foxy-internal-delete-control[infer="delete"]')).to.exist;
     expect(root.querySelector('foxy-internal-timestamps-control[infer="timestamps"]')).to.exist;
 

@@ -1,12 +1,5 @@
-import * as FoxySDK from '@foxy.io/sdk';
-import { Renderer } from '../../../mixins/configurable';
-import { PaymentMethodCard } from './PaymentMethodCard';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
-export type Rel = FoxySDK.Backend.Rels.DefaultPaymentMethod;
-export type Data = FoxySDK.Core.Resource<Rel, undefined>;
-export type Templates = {
-  'actions:before'?: Renderer<PaymentMethodCard>;
-  'actions:after'?: Renderer<PaymentMethodCard>;
-  'actions:delete:before'?: Renderer<PaymentMethodCard>;
-  'actions:delete:after'?: Renderer<PaymentMethodCard>;
-};
+export type Rel = Rels.DefaultPaymentMethod;
+export type Data = Resource<Rel, undefined>;

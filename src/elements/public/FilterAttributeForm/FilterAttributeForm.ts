@@ -19,13 +19,6 @@ const Base = TranslatableMixin(InternalForm, NS);
  * to Admin. Bookmark attributes are named `foxy-admin-bookmark` and contain a
  * relative URL of the bookmarked Admin page in the value.
  *
- * @slot filter-query:before
- * @slot filter-query:after
- * @slot filter-name:before
- * @slot filter-name:after
- * @slot action:before
- * @slot action:after
- *
  * @element foxy-filter-attribute-form
  * @since 1.24.0
  */

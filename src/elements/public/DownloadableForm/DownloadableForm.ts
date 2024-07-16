@@ -21,30 +21,6 @@ const Base = TranslatableMixin(InternalForm, NS);
  * This element requires an augmented version of hAPI currently limited
  * only to the new Foxy Admin.
  *
- * @slot item-category-uri:before
- * @slot item-category-uri:after
- *
- * @slot name:before
- * @slot name:after
- *
- * @slot code:before
- * @slot code:after
- *
- * @slot price:before
- * @slot price:after
- *
- * @slot upload:before
- * @slot upload:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot delete:before
- * @slot delete:after
- *
  * @element foxy-downloadable-form
  * @since 1.22.0
  */
@@ -83,6 +59,8 @@ export class DownloadableForm extends Base<Data> {
 
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-async-combo-box-control
         item-label-path="name"
         item-value-path="_links.self.href"

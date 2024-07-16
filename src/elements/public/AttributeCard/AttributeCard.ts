@@ -1,4 +1,4 @@
-import { Data, Templates } from './types';
+import { Data } from './types';
 import { TemplateResult, html } from 'lit-html';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
@@ -16,17 +16,10 @@ const Base = ResponsiveMixin(
 /**
  * Basic card displaying an attribute.
  *
- * @slot name:before - **new in v1.4.0**
- * @slot name:after - **new in v1.4.0**
- * @slot value:before - **new in v1.4.0**
- * @slot value:after - **new in v1.4.0**
- *
  * @element foxy-attribute-card
  * @since 1.2.0
  */
 export class AttributeCard extends Base<Data> {
-  templates: Templates = {};
-
   private readonly __renderName = () => {
     const { data } = this;
 

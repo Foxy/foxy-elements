@@ -1,6 +1,6 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { Resource, Graph } from '@foxy.io/sdk/core';
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonElement } from '../NucleonElement';
 import type { NucleonV8N } from '../NucleonElement/types';
@@ -21,141 +21,6 @@ const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 
 /**
  * Form element for store settings (`fx:store`).
- *
- * @slot store-name:before
- * @slot store-name:after
- *
- * @slot logo-url:before
- * @slot logo-url:after
- *
- * @slot store-domain:before
- * @slot store-domain:after
- *
- * @slot store-url:before
- * @slot store-url:after
- *
- * @slot store-email:before
- * @slot store-email:after
- *
- * @slot timezone:before
- * @slot timezone:after
- *
- * @slot store-version-uri:before
- * @slot store-version-uri:after
- *
- * @slot from-email:before
- * @slot from-email:after
- *
- * @slot bcc-on-receipt-email:before
- * @slot bcc-on-receipt-email:after
- *
- * @slot use-email-dns:before
- * @slot use-email-dns:after
- *
- * @slot use-smtp-config:before
- * @slot use-smtp-config:after
- *
- * @slot smtp-config:before
- * @slot smtp-config:after
- *
- * @slot smtp-config-host:before
- * @slot smtp-config-host:after
- *
- * @slot smtp-config-port:before
- * @slot smtp-config-port:after
- *
- * @slot smtp-config-username:before
- * @slot smtp-config-username:after
- *
- * @slot smtp-config-password:before
- * @slot smtp-config-password:after
- *
- * @slot smtp-config-security:before
- * @slot smtp-config-security:after
- *
- * @slot country:before
- * @slot country:after
- *
- * @slot region:before
- * @slot region:after
- *
- * @slot postal-code:before
- * @slot postal-code:after
- *
- * @slot shipping-address-type:before
- * @slot shipping-address-type:after
- *
- * @slot features-multiship:before
- * @slot features-multiship:after
- *
- * @slot require-signed-shipping-rates:before
- * @slot require-signed-shipping-rates:after
- *
- * @slot language:before
- * @slot language:after
- *
- * @slot locale-code:before
- * @slot locale-code:after
- *
- * @slot currency-style:before
- * @slot currency-style:after
- *
- * @slot custom-display-id-config:before
- * @slot custom-display-id-config:after
- *
- * @slot receipt-continue-url:before
- * @slot receipt-continue-url:after
- *
- * @slot app-session-time:before
- * @slot app-session-time:after
- *
- * @slot products-require-expires-property:before
- * @slot products-require-expires-property:after
- *
- * @slot use-cart-validation:before
- * @slot use-cart-validation:after
- *
- * @slot checkout-type:before
- * @slot checkout-type:after
- *
- * @slot customer-password-hash-type:before
- * @slot customer-password-hash-type:after
- *
- * @slot customer-password-hash-config:before
- * @slot customer-password-hash-config:after
- *
- * @slot unified-order-entry-password:before
- * @slot unified-order-entry-password:after
- *
- * @slot single-sign-on-url:before
- * @slot single-sign-on-url:after
- *
- * @slot webhook-url:before
- * @slot webhook-url:after
- *
- * @slot webhook-key-cart-signing:before
- * @slot webhook-key-cart-signing:after
- *
- * @slot webhook-key-xml-datafeed:before
- * @slot webhook-key-xml-datafeed:after
- *
- * @slot webhook-key-api-legacy:before
- * @slot webhook-key-api-legacy:after
- *
- * @slot webhook-key-sso:before
- * @slot webhook-key-sso:after
- *
- * @slot is-maintenance-mode:before
- * @slot is-maintenance-mode:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot delete:before
- * @slot delete:after
  *
  * @element foxy-store-form
  * @since 1.21.0
@@ -274,9 +139,6 @@ export class StoreForm extends Base<Data> {
 
   /** URL of the `fx:regions` property helper resource. */
   regions: string | null = null;
-
-  /** Template render functions mapped to their name. */
-  templates: Templates = {};
 
   private __singleCheckboxGroupOptions = [{ label: 'option_checked', value: 'checked' }];
 
@@ -498,6 +360,8 @@ export class StoreForm extends Base<Data> {
     }
 
     return html`
+      ${this.renderHeader()}
+
       <div class="grid gap-m grid-cols-1 sm-grid-cols-2">
         <foxy-internal-text-control infer="store-name"></foxy-internal-text-control>
 

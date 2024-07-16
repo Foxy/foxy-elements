@@ -1,4 +1,4 @@
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 
@@ -13,18 +13,6 @@ const Base = TranslatableMixin(InternalForm, NS);
 /**
  * Form element for managing applied coupon codes (`fx:applied_coupon_code`).
  *
- * @slot code:before
- * @slot code:after
- *
- * @slot ignore-usage-limits:before
- * @slot ignore-usage-limits:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot delete:before
- * @slot delete:after
- *
  * @element foxy-applied-coupon-code-form
  * @since 1.21.0
  */
@@ -32,8 +20,6 @@ export class AppliedCouponCodeForm extends Base<Data> {
   static get v8n(): NucleonV8N<Data> {
     return [({ code: v }) => !!v || 'code:v8n_required'];
   }
-
-  templates: Templates = {};
 
   private readonly __ignoreUsageLimitsOptions = [{ value: 'checked', label: 'option_checked' }];
 
@@ -55,6 +41,8 @@ export class AppliedCouponCodeForm extends Base<Data> {
 
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-text-control
         helper-text=${this.t(this.data ? 'code.helper_text_existing' : 'code.helper_text_new')}
         infer="code"

@@ -1,4 +1,28 @@
 {
+  "header": {
+    "title_new": "Subscription",
+    "title_existing": "Subscription",
+    "title_recurring": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-form\" })",
+    "title_twice_a_month": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscription-form\" })",
+    "subtitle_active": "Including shipping, taxes, etc. Next payment on {{date, date}}.",
+    "subtitle_cancelled": "Including shipping, taxes, etc. Ended on {{date, date}}.",
+    "subtitle_failed": "Including shipping, taxes, etc. Payment failed on {{date, date}}.",
+    "subtitle_inactive": "Including shipping, taxes, etc. Inactive.",
+    "subtitle_will_be_cancelled": "Including shipping, taxes, etc. Ends on {{date, date}}.",
+    "subtitle_will_be_active": "Including shipping, taxes, etc. Starts on {{date, date}}.",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
   "day": "Day",
   "day_plural": "Days",
   "week": "Week",
@@ -23,12 +47,6 @@
   "start_date": "Start date",
   "price_recurring": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-form\" })",
   "price_twice_a_month": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscription-form\" })",
-  "subscription_active": "Including shipping, taxes, etc. Next payment on {{date, date}}.",
-  "subscription_cancelled": "Including shipping, taxes, etc. Ended on {{date, date}}.",
-  "subscription_failed": "Including shipping, taxes, etc. Payment failed on {{date, date}}.",
-  "subscription_inactive": "Including shipping, taxes, etc. Inactive.",
-  "subscription_will_be_cancelled": "Including shipping, taxes, etc. Ends on {{date, date}}.",
-  "subscription_will_be_active": "Including shipping, taxes, etc. Starts on {{date, date}}.",
   "transaction_plural": "Transactions",
   "twice_a_month": "Twice a month",
   "undo_cancel": "Review",
@@ -84,7 +102,7 @@
       "undo_confirm": "Discard",
       "cancel": "Cancel",
       "confirm": "Confirm",
-      "create": "Create",
+      "caption": "Create",
       "date": "{{value, date}}",
       "date_created": "Created on",
       "date_modified": "Last updated on",

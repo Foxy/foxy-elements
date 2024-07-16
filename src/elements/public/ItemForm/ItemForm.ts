@@ -1,6 +1,6 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
@@ -13,90 +13,6 @@ import { html } from 'lit-html';
 
 /**
  * Form element for creating or editing items (`fx:item`).
- *
- * @slot name:before
- * @slot name:after
- *
- * @slot price:before
- * @slot price:after
- *
- * @slot quantity:before
- * @slot quantity:after
- *
- * @slot subscription-frequency:before – new in 1.25.0
- * @slot subscription-frequency:after – new in 1.25.0
- *
- * @slot subscription-start-date:before – new in 1.25.0
- * @slot subscription-start-date:after – new in 1.25.0
- *
- * @slot subscription-end-date:before – new in 1.25.0
- * @slot subscription-end-date:after – new in 1.25.0
- *
- * @slot discount-name:before – new in 1.25.0
- * @slot discount-name:after – new in 1.25.0
- *
- * @slot discount-builder:before – new in 1.25.0
- * @slot discount-builder:after – new in 1.25.0
- *
- * @slot expires:before – new in 1.25.0
- * @slot expires:after – new in 1.25.0
- *
- * @slot url:before – new in 1.25.0
- * @slot url:after – new in 1.25.0
- *
- * @slot image:before – new in 1.25.0
- * @slot image:after – new in 1.25.0
- *
- * @slot quantity-min:before – new in 1.25.0
- * @slot quantity-min:after – new in 1.25.0
- *
- * @slot quantity-max:before – new in 1.25.0
- * @slot quantity-max:after – new in 1.25.0
- *
- * @slot shipto:before – new in 1.25.0
- * @slot shipto:after – new in 1.25.0
- *
- * @slot width:before – new in 1.25.0
- * @slot width:after – new in 1.25.0
- *
- * @slot height:before – new in 1.25.0
- * @slot height:after – new in 1.25.0
- *
- * @slot length:before – new in 1.25.0
- * @slot length:after – new in 1.25.0
- *
- * @slot weight:before – new in 1.25.0
- * @slot weight:after – new in 1.25.0
- *
- * @slot item-category-uri:before – new in 1.25.0
- * @slot item-category-uri:after – new in 1.25.0
- *
- * @slot code:before – new in 1.25.0
- * @slot code:after – new in 1.25.0
- *
- * @slot parent-code:before – new in 1.25.0
- * @slot parent-code:after – new in 1.25.0
- *
- * @slot discount-details:before – new in 1.25.0
- * @slot discount-details:after – new in 1.25.0
- *
- * @slot coupon-details:before – new in 1.25.0
- * @slot coupon-details:after – new in 1.25.0
- *
- * @slot attributes:before – new in 1.25.0
- * @slot attributes:after – new in 1.25.0
- *
- * @slot item-options:before – new in 1.25.0
- * @slot item-options:after – new in 1.25.0
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot delete:before
- * @slot delete:after
- *
- * @slot create:before
- * @slot create:after
  *
  * @element foxy-item-form
  * @since 1.17.0
@@ -122,7 +38,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
     ];
   }
 
-  /** Link to the collection of customer addresses that can be used with this item. */
+  /** @deprecated Link to the collection of customer addresses that can be used with this item. */
   customerAddresses: string | null = null;
 
   /** Link to the collection of item categories that can be used with this item. */
@@ -134,12 +50,16 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
   /** @deprecated Link to the collection of coupons that can be used with this item. */
   coupons: string | null = null;
 
-  templates: Templates = {};
-
   private __itemsLink = '';
+
+  get headerSubtitleOptions(): Record<string, unknown> {
+    return { context: this.data?.is_future_line_item ? 'future_line_item' : 'regular' };
+  }
 
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-text-control infer="name"></foxy-internal-text-control>
 
       <div class="grid grid-cols-2 gap-s">
@@ -147,13 +67,12 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
         <foxy-internal-integer-control infer="quantity"></foxy-internal-integer-control>
       </div>
 
-      <foxy-internal-async-combo-box-control
-        item-value-path="_links.self.href"
-        item-label-path="name"
+      <foxy-internal-resource-picker-control
         first=${ifDefined(this?.itemCategories ?? undefined)}
         infer="item-category-uri"
+        item="foxy-item-category-card"
       >
-      </foxy-internal-async-combo-box-control>
+      </foxy-internal-resource-picker-control>
 
       <foxy-internal-text-control infer="code"></foxy-internal-text-control>
       <foxy-internal-text-control infer="parent-code"></foxy-internal-text-control>
@@ -218,14 +137,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
         </div>
       </vaadin-details>
 
-      <foxy-internal-async-combo-box-control
-        item-value-path="address_name"
-        item-label-path="address_name"
-        first=${ifDefined(this?.customerAddresses ?? undefined)}
-        infer="shipto"
-      >
-      </foxy-internal-async-combo-box-control>
-
+      <foxy-internal-text-control infer="shipto"></foxy-internal-text-control>
       <foxy-internal-date-control infer="expires" format="unix"></foxy-internal-date-control>
 
       ${this.data

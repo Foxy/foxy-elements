@@ -2,7 +2,7 @@ import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import type { ScopedElementsMap } from '@open-wc/scoped-elements';
 import type { TextFieldElement } from '@vaadin/vaadin-text-field';
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 
 import { Choice, Group, Metadata } from '../../private/index';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
@@ -23,24 +23,6 @@ const Base = ScopedElementsMixin(
 
 /**
  * Form element for creating or editing email templates (`fx:email_template`).
- *
- * @slot description:before
- * @slot description:after
- *
- * @slot template-language:before
- * @slot template-language:after
- *
- * @slot content:before
- * @slot content:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot delete:before
- * @slot delete:after
  *
  * @element foxy-email-template-form
  * @since 1.14.0
@@ -70,8 +52,6 @@ export class EmailTemplateForm extends Base<Data> {
       'x-group': Group,
     };
   }
-
-  templates: Templates = {};
 
   private __templateLanguageOptions = [
     { label: 'Nunjucks', value: 'nunjucks' },

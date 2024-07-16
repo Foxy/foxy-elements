@@ -10,33 +10,6 @@ import { html } from 'lit-html';
 /**
  * Form element for creating or editing webhooks (`fx:webhook`).
  *
- * @slot name:before
- * @slot name:after
- *
- * @slot event-resource:before
- * @slot event-resource:after
- *
- * @slot query:before
- * @slot query:after
- *
- * @slot url:before
- * @slot url:after
- *
- * @slot format:before
- * @slot format:after
- *
- * @slot encryption-key:before
- * @slot encryption-key:after
- *
- * @slot version:before
- * @slot version:after
- *
- * @slot statuses:before
- * @slot statuses:after
- *
- * @slot logs:before
- * @slot logs:after
- *
  * @element foxy-webhook-form
  * @since 1.17.0
  */
@@ -65,14 +38,20 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
     { value: 'customer', label: 'event_resource_customer' },
   ];
 
-  get readonlySelector(): BooleanSelector {
+  get hiddenSelector(): BooleanSelector {
     const alwaysMatch: string[] = [];
     if (this.data) alwaysMatch.push('event-resource');
     return new BooleanSelector(`${super.readonlySelector} ${alwaysMatch.join(' ')}`.trim());
   }
 
+  get headerSubtitleOptions(): Record<string, unknown> {
+    return { context: this.data?.event_resource };
+  }
+
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-text-control infer="name"></foxy-internal-text-control>
 
       <foxy-internal-radio-group-control infer="event-resource" .options=${this.__eventResources}>
@@ -89,21 +68,21 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
 
       ${this.data
         ? html`
-            <foxy-internal-async-details-control
+            <foxy-internal-async-list-control
               first=${this.data._links['fx:statuses'].href}
               infer="statuses"
               limit="10"
               item="foxy-webhook-status-card"
             >
-            </foxy-internal-async-details-control>
+            </foxy-internal-async-list-control>
 
-            <foxy-internal-async-details-control
+            <foxy-internal-async-list-control
               first=${this.data._links['fx:logs'].href}
               infer="logs"
               limit="5"
               item="foxy-webhook-log-card"
             >
-            </foxy-internal-async-details-control>
+            </foxy-internal-async-list-control>
           `
         : ''}
       ${super.renderBody()}

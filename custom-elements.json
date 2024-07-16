@@ -90,7 +90,6 @@
       "properties": [
         {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -253,26 +252,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "email:before"
-        },
-        {
-          "name": "email:after"
-        },
-        {
-          "name": "message:before"
-        },
-        {
-          "name": "message:after"
-        },
-        {
-          "name": "submit:before"
-        },
-        {
-          "name": "submit:after"
         }
       ]
     },
@@ -365,7 +344,6 @@
       "properties": [
         {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -528,48 +506,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "address-name:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "address-name:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "full-name:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "full-name:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "full-address:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "full-address:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "company:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "company:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "phone:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "phone:after",
-          "description": "**new in v1.4.0**"
         }
       ]
     },
@@ -695,8 +631,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -842,120 +802,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "address-name:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "address-name:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "first-name:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "first-name:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "last-name:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "last-name:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "region:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "region:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "city:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "city:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "phone:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "phone:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "company:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "company:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "address-one:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "address-one:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "address-two:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "address-two:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "country:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "country:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "postal-code:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "postal-code:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "timestamps:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "timestamps:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "create:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "create:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "delete:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "delete:after",
-          "description": "**new in v1.4.0**"
         }
       ]
     },
@@ -1597,7 +1443,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -1872,8 +1717,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -2020,32 +1889,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "code:before"
-        },
-        {
-          "name": "code:after"
-        },
-        {
-          "name": "ignore-usage-limits:before"
-        },
-        {
-          "name": "ignore-usage-limits:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        }
       ]
     },
     {
@@ -2154,7 +1997,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -2305,20 +2147,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
-        }
       ]
     },
     {
@@ -2427,7 +2255,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -2573,24 +2400,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "name:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "name:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "value:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "value:after",
-          "description": "**new in v1.4.0**"
         }
       ]
     },
@@ -2716,8 +2525,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -2863,56 +2696,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "name:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "name:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "value:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "value:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "visibility:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "visibility:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "timestamps:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "timestamps:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "create:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "create:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "delete:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "delete:after",
-          "description": "**new in v1.4.0**"
         }
       ]
     },
@@ -3176,7 +2959,6 @@
       "properties": [
         {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -3339,26 +3121,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "warning:before"
-        },
-        {
-          "name": "warning:after"
-        },
-        {
-          "name": "end-date:before"
-        },
-        {
-          "name": "end-date:after"
-        },
-        {
-          "name": "submit:before"
-        },
-        {
-          "name": "submit:after"
         }
       ],
       "deprecated": true
@@ -3817,9 +3579,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "description": "Template render functions mapped to their name.",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -3965,188 +3750,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "customer-type:before"
-        },
-        {
-          "name": "customer-type:after"
-        },
-        {
-          "name": "customer:before"
-        },
-        {
-          "name": "customer:after"
-        },
-        {
-          "name": "template-set-uri:before"
-        },
-        {
-          "name": "template-set-uri:after"
-        },
-        {
-          "name": "items:before"
-        },
-        {
-          "name": "items:after"
-        },
-        {
-          "name": "applied-coupon-codes:before"
-        },
-        {
-          "name": "applied-coupon-codes:after"
-        },
-        {
-          "name": "custom-fields:before"
-        },
-        {
-          "name": "custom-fields:after"
-        },
-        {
-          "name": "attributes:before"
-        },
-        {
-          "name": "attributes:after"
-        },
-        {
-          "name": "billing-first-name:before"
-        },
-        {
-          "name": "billing-first-name:after"
-        },
-        {
-          "name": "billing-last-name:before"
-        },
-        {
-          "name": "billing-last-name:after"
-        },
-        {
-          "name": "billing-company:before"
-        },
-        {
-          "name": "billing-company:after"
-        },
-        {
-          "name": "billing-phone:before"
-        },
-        {
-          "name": "billing-phone:after"
-        },
-        {
-          "name": "billing-address-one:before"
-        },
-        {
-          "name": "billing-address-one:after"
-        },
-        {
-          "name": "billing-address-two:before"
-        },
-        {
-          "name": "billing-address-two:after"
-        },
-        {
-          "name": "billing-country:before"
-        },
-        {
-          "name": "billing-country:after"
-        },
-        {
-          "name": "billing-region:before"
-        },
-        {
-          "name": "billing-region:after"
-        },
-        {
-          "name": "billing-city:before"
-        },
-        {
-          "name": "billing-city:after"
-        },
-        {
-          "name": "billing-postal-code:before"
-        },
-        {
-          "name": "billing-postal-code:after"
-        },
-        {
-          "name": "shipping-first-name:before"
-        },
-        {
-          "name": "shipping-first-name:after"
-        },
-        {
-          "name": "shipping-last-name:before"
-        },
-        {
-          "name": "shipping-last-name:after"
-        },
-        {
-          "name": "shipping-company:before"
-        },
-        {
-          "name": "shipping-company:after"
-        },
-        {
-          "name": "shipping-phone:before"
-        },
-        {
-          "name": "shipping-phone:after"
-        },
-        {
-          "name": "shipping-address-one:before"
-        },
-        {
-          "name": "shipping-address-one:after"
-        },
-        {
-          "name": "shipping-address-two:before"
-        },
-        {
-          "name": "shipping-address-two:after"
-        },
-        {
-          "name": "shipping-country:before"
-        },
-        {
-          "name": "shipping-country:after"
-        },
-        {
-          "name": "shipping-region:before"
-        },
-        {
-          "name": "shipping-region:after"
-        },
-        {
-          "name": "shipping-city:before"
-        },
-        {
-          "name": "shipping-city:after"
-        },
-        {
-          "name": "shipping-postal-code:before"
-        },
-        {
-          "name": "shipping-postal-code:after"
-        },
-        {
-          "name": "view-as-customer:before"
-        },
-        {
-          "name": "view-as-customer:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
         }
       ]
     },
@@ -4443,8 +4046,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -4590,92 +4217,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "client-id:before"
-        },
-        {
-          "name": "client-id:after"
-        },
-        {
-          "name": "client-secret:before"
-        },
-        {
-          "name": "client-secret:after"
-        },
-        {
-          "name": "redirect-uri:before"
-        },
-        {
-          "name": "redirect-uri:after"
-        },
-        {
-          "name": "project-name:before"
-        },
-        {
-          "name": "project-name:after"
-        },
-        {
-          "name": "project-description:before"
-        },
-        {
-          "name": "project-description:after"
-        },
-        {
-          "name": "company-name:before"
-        },
-        {
-          "name": "company-name:after"
-        },
-        {
-          "name": "company-url:before"
-        },
-        {
-          "name": "company-url:after"
-        },
-        {
-          "name": "company-logo:before"
-        },
-        {
-          "name": "company-logo:after"
-        },
-        {
-          "name": "contact-name:before"
-        },
-        {
-          "name": "contact-name:after"
-        },
-        {
-          "name": "contact-email:before"
-        },
-        {
-          "name": "contact-email:after"
-        },
-        {
-          "name": "contact-phone:before"
-        },
-        {
-          "name": "contact-phone:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
         }
       ]
     },
@@ -5176,6 +4717,11 @@
       "description": "A simple \"click to copy\" button that takes the size of the font\nyour text is written in (considering that the font styles are applied to container).",
       "attributes": [
         {
+          "name": "icon",
+          "description": "Default icon.",
+          "type": "string"
+        },
+        {
           "name": "text",
           "description": "Text to copy.",
           "type": "string"
@@ -5234,6 +4780,12 @@
         }
       ],
       "properties": [
+        {
+          "name": "icon",
+          "attribute": "icon",
+          "description": "Default icon.",
+          "type": "string"
+        },
         {
           "name": "text",
           "attribute": "text",
@@ -5415,7 +4967,6 @@
       "properties": [
         {
           "name": "templates",
-          "type": "Partial<{ 'total:before': Renderer<CouponCard>; 'total:after': Renderer<CouponCard>; 'status:before': Renderer<CouponCard>; ... 4 more ...; 'customer:after': Renderer<...>; }>",
           "default": "{}"
         },
         {
@@ -5578,26 +5129,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "description:before"
-        },
-        {
-          "name": "description:after"
-        },
-        {
-          "name": "status:before"
-        },
-        {
-          "name": "status:after"
         }
       ]
     },
@@ -5897,8 +5428,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -6044,40 +5599,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "code:before"
-        },
-        {
-          "name": "code:after"
-        },
-        {
-          "name": "number-of-uses-to",
-          "description": "date:before – **new in v1.27.0**"
-        },
-        {
-          "name": "",
-          "description": "transactions:before – **new in v1.27.0**"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
         }
       ]
     },
@@ -6203,8 +5724,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -6351,24 +5896,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "coupon-codes:before",
-          "description": "**new in v1.27.0**"
-        },
-        {
-          "name": "coupon-codes:after",
-          "description": "**new in v1.27.0**"
-        },
-        {
-          "name": "create:before",
-          "description": "**new in v1.27.0**"
-        },
-        {
-          "name": "create:after",
-          "description": "**new in v1.27.0**"
-        }
       ]
     },
     {
@@ -6477,7 +6004,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -6627,20 +6153,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
         }
       ]
     },
@@ -6769,6 +6281,31 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
           "default": "{}"
         },
@@ -6916,134 +6453,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "import:before"
-        },
-        {
-          "name": "import:after"
-        },
-        {
-          "name": "generate:before"
-        },
-        {
-          "name": "generate:after"
-        },
-        {
-          "name": "name:before"
-        },
-        {
-          "name": "name:after"
-        },
-        {
-          "name": "rules:before"
-        },
-        {
-          "name": "rules:after"
-        },
-        {
-          "name": "coupon-codes:before"
-        },
-        {
-          "name": "coupon-codes:after"
-        },
-        {
-          "name": "item-option-restrictions:before"
-        },
-        {
-          "name": "item-option-restrictions:after"
-        },
-        {
-          "name": "product-code-restrictions:before"
-        },
-        {
-          "name": "product-code-restrictions:after"
-        },
-        {
-          "name": "category-restrictions:before"
-        },
-        {
-          "name": "category-restrictions:after"
-        },
-        {
-          "name": "number-of-uses-allowed:before"
-        },
-        {
-          "name": "number-of-uses-allowed:after"
-        },
-        {
-          "name": "number-of-uses-allowed-per-customer:before"
-        },
-        {
-          "name": "number-of-uses-allowed-per-customer:after"
-        },
-        {
-          "name": "number-of-uses-allowed-per-code:before"
-        },
-        {
-          "name": "number-of-uses-allowed-per-code:after"
-        },
-        {
-          "name": "start-date:before"
-        },
-        {
-          "name": "start-date:after"
-        },
-        {
-          "name": "end-date:before"
-        },
-        {
-          "name": "end-date:after"
-        },
-        {
-          "name": "inclusive-tax-rate:before"
-        },
-        {
-          "name": "inclusive-tax-rate:after"
-        },
-        {
-          "name": "options:before"
-        },
-        {
-          "name": "options:after"
-        },
-        {
-          "name": "customer-subscription-restrictions:before"
-        },
-        {
-          "name": "customer-subscription-restrictions:after"
-        },
-        {
-          "name": "customer-attribute-restrictions:before"
-        },
-        {
-          "name": "customer-attribute-restrictions:after"
-        },
-        {
-          "name": "attributes:before"
-        },
-        {
-          "name": "attributes:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        }
       ]
     },
     {
@@ -7152,7 +6561,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -7303,20 +6711,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
-        }
       ]
     },
     {
@@ -7441,8 +6835,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -7589,56 +7007,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "name:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "name:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "value:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "value:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "visibility:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "visibility:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "timestamps:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "timestamps:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "create:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "create:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "delete:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "delete:after",
-          "description": "**new in v1.4.0**"
-        }
       ]
     },
     {
@@ -7750,7 +7118,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -7913,128 +7280,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "header:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "header:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "header:actions:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "header:actions:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "header:actions:edit:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "header:actions:edit:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "addresses:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "addresses:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "addresses:actions:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "addresses:actions:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "addresses:actions:create:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "addresses:actions:create:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "addresses:list:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "addresses:list:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "payment-methods:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "payment-methods:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "payment-methods:list:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "payment-methods:list:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "attributes:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "attributes:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "attributes:actions:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "attributes:actions:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "attributes:actions:create:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "attributes:actions:create:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "attributes:list:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "attributes:list:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "transactions:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "transactions:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "subscriptions:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "subscriptions:after",
-          "description": "**new in v1.4.0**"
         }
       ]
     },
@@ -8305,7 +7550,6 @@
       "properties": [
         {
           "name": "templates",
-          "type": "Partial<{ 'name:before': Renderer<CustomerCard>; 'name:after': Renderer<CustomerCard>; 'email:before': Renderer<CustomerCard>; 'email:after': Renderer<...>; }>",
           "default": "{}"
         },
         {
@@ -8468,20 +7712,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "name:before"
-        },
-        {
-          "name": "name:after"
-        },
-        {
-          "name": "email:before"
-        },
-        {
-          "name": "email:after"
         }
       ]
     },
@@ -8631,8 +7861,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -8778,104 +8032,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "first-name:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "first-name:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "last-name:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "last-name:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "email:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "email:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "tax-id:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "tax-id:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "is-anonymous:before",
-          "description": "**new in v1.24.0**"
-        },
-        {
-          "name": "is-anonymous:after",
-          "description": "**new in v1.24.0**"
-        },
-        {
-          "name": "password:before",
-          "description": "**new in v1.24.0**"
-        },
-        {
-          "name": "password:after",
-          "description": "**new in v1.24.0**"
-        },
-        {
-          "name": "password-old:before",
-          "description": "**new in v1.24.0**"
-        },
-        {
-          "name": "password-old:after",
-          "description": "**new in v1.24.0**"
-        },
-        {
-          "name": "forgot-password:before",
-          "description": "**new in v1.24.0**"
-        },
-        {
-          "name": "forgot-password:after",
-          "description": "**new in v1.24.0**"
-        },
-        {
-          "name": "legal-notice:before",
-          "description": "**new in v1.24.0**"
-        },
-        {
-          "name": "legal-notice:after",
-          "description": "**new in v1.24.0**"
-        },
-        {
-          "name": "timestamps:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "timestamps:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "create:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "create:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "delete:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "delete:after",
-          "description": "**new in v1.4.0**"
         }
       ]
     },
@@ -9029,8 +8185,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -9309,6 +8489,31 @@
           "attribute": "status",
           "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
           "type": "object"
+        },
+        {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
         },
         {
           "name": "templates",
@@ -10236,6 +9441,31 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
           "default": "{}"
         },
@@ -10499,7 +9729,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -10936,7 +10165,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -11086,20 +10314,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
         }
       ]
     },
@@ -11209,7 +10423,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -11359,20 +10572,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
         }
       ]
     },
@@ -11756,7 +10955,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -12040,6 +11238,31 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
           "default": "{}"
         },
@@ -12187,56 +11410,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "item-category-uri:before"
-        },
-        {
-          "name": "item-category-uri:after"
-        },
-        {
-          "name": "name:before"
-        },
-        {
-          "name": "name:after"
-        },
-        {
-          "name": "code:before"
-        },
-        {
-          "name": "code:after"
-        },
-        {
-          "name": "price:before"
-        },
-        {
-          "name": "price:after"
-        },
-        {
-          "name": "upload:before"
-        },
-        {
-          "name": "upload:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        }
       ]
     },
     {
@@ -12345,7 +11518,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -12496,20 +11668,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
-        }
       ]
     },
     {
@@ -12601,7 +11759,6 @@
       "properties": [
         {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -12764,44 +11921,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "description:before"
-        },
-        {
-          "name": "description:after"
-        },
-        {
-          "name": "template-language:before"
-        },
-        {
-          "name": "template-language:after"
-        },
-        {
-          "name": "content:before"
-        },
-        {
-          "name": "content:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
         }
       ]
     },
@@ -13344,6 +12463,31 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
           "default": "{}"
         },
@@ -13490,26 +12634,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "filter-query:before"
-        },
-        {
-          "name": "filter-query:after"
-        },
-        {
-          "name": "filter-name:before"
-        },
-        {
-          "name": "filter-name:after"
-        },
-        {
-          "name": "action:before"
-        },
-        {
-          "name": "action:after"
         }
       ]
     },
@@ -14020,8 +13144,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -14168,38 +13316,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "length:before"
-        },
-        {
-          "name": "length:after"
-        },
-        {
-          "name": "number-of-codes:before"
-        },
-        {
-          "name": "number-of-codes:after"
-        },
-        {
-          "name": "prefix:before"
-        },
-        {
-          "name": "prefix:after"
-        },
-        {
-          "name": "current-balance:before"
-        },
-        {
-          "name": "current-balance:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        }
       ]
     },
     {
@@ -14291,7 +13407,6 @@
       "properties": [
         {
           "name": "templates",
-          "type": "Partial<{ 'title:before': Renderer<GiftCardCard>; 'title:after': Renderer<GiftCardCard>; 'status:before': Renderer<GiftCardCard>; 'status:after': Renderer<...>; }>",
           "default": "{}"
         },
         {
@@ -14454,20 +13569,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "status:before"
-        },
-        {
-          "name": "status:after"
         }
       ]
     },
@@ -14769,8 +13870,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -14916,54 +14041,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "code:before"
-        },
-        {
-          "name": "code:after"
-        },
-        {
-          "name": "current-balance:before"
-        },
-        {
-          "name": "current-balance:after"
-        },
-        {
-          "name": "end-date:before"
-        },
-        {
-          "name": "end-date:after"
-        },
-        {
-          "name": "",
-          "description": "customer:before – **new in v1.27.0**"
-        },
-        {
-          "name": "logs:before"
-        },
-        {
-          "name": "logs:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
         }
       ]
     },
@@ -15260,8 +14337,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -15407,32 +14508,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "gift-card-codes:before",
-          "description": "**new in v1.27.0**"
-        },
-        {
-          "name": "gift-card-codes:after",
-          "description": "**new in v1.27.0**"
-        },
-        {
-          "name": "current-balance:before",
-          "description": "**new in v1.27.0**"
-        },
-        {
-          "name": "current-balance:after",
-          "description": "**new in v1.27.0**"
-        },
-        {
-          "name": "create:before",
-          "description": "**new in v1.27.0**"
-        },
-        {
-          "name": "create:after",
-          "description": "**new in v1.27.0**"
         }
       ]
     },
@@ -15563,6 +14638,31 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
           "default": "{}"
         },
@@ -15709,70 +14809,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "name:before"
-        },
-        {
-          "name": "name:after"
-        },
-        {
-          "name": "currency:before"
-        },
-        {
-          "name": "currency:after"
-        },
-        {
-          "name": "expires:before"
-        },
-        {
-          "name": "expires:after"
-        },
-        {
-          "name": "codes:before"
-        },
-        {
-          "name": "codes:after"
-        },
-        {
-          "name": "product-restrictions:before"
-        },
-        {
-          "name": "product-restrictions:after"
-        },
-        {
-          "name": "category-restrictions:before"
-        },
-        {
-          "name": "category-restrictions:after"
-        },
-        {
-          "name": "attributes:before",
-          "description": "**new in v1.27.0**"
-        },
-        {
-          "name": "attributes:after",
-          "description": "**new in v1.27.0**"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
         }
       ]
     },
@@ -16443,6 +15479,31 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
           "default": "{}"
         },
@@ -16589,50 +15650,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "project-name:before"
-        },
-        {
-          "name": "project-name:after"
-        },
-        {
-          "name": "project-description:before"
-        },
-        {
-          "name": "project-description:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "header:before"
-        },
-        {
-          "name": "header:after"
-        },
-        {
-          "name": "message:before"
-        },
-        {
-          "name": "message:after"
-        },
-        {
-          "name": "table:before"
-        },
-        {
-          "name": "table:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
         }
       ]
     },
@@ -17009,7 +16026,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -17159,20 +16175,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
         }
       ]
     },
@@ -17316,9 +16318,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "description": "Template render functions mapped to their name.",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -17465,152 +16490,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "name:before"
-        },
-        {
-          "name": "name:after"
-        },
-        {
-          "name": "code:before"
-        },
-        {
-          "name": "code:after"
-        },
-        {
-          "name": "handling-fee-type:before"
-        },
-        {
-          "name": "handling-fee-type:after"
-        },
-        {
-          "name": "handling-fee:before"
-        },
-        {
-          "name": "handling-fee:after"
-        },
-        {
-          "name": "handling-fee-percentage:before"
-        },
-        {
-          "name": "handling-fee-percentage:after"
-        },
-        {
-          "name": "handling-fee-minimum:before"
-        },
-        {
-          "name": "handling-fee-minimum:after"
-        },
-        {
-          "name": "item-delivery-type:before"
-        },
-        {
-          "name": "item-delivery-type:after"
-        },
-        {
-          "name": "max-downloads-per-customer:before"
-        },
-        {
-          "name": "max-downloads-per-customer:after"
-        },
-        {
-          "name": "max-downloads-time-period:before"
-        },
-        {
-          "name": "max-downloads-time-period:after"
-        },
-        {
-          "name": "shipping-flat-rate:before"
-        },
-        {
-          "name": "shipping-flat-rate:after"
-        },
-        {
-          "name": "shipping-flat-rate-type:before"
-        },
-        {
-          "name": "shipping-flat-rate-type:after"
-        },
-        {
-          "name": "default-weight:before"
-        },
-        {
-          "name": "default-weight:after"
-        },
-        {
-          "name": "default-weight-unit:before"
-        },
-        {
-          "name": "default-weight-unit:after"
-        },
-        {
-          "name": "default-length-unit:before"
-        },
-        {
-          "name": "default-length-unit:after"
-        },
-        {
-          "name": "customs-value:before"
-        },
-        {
-          "name": "customs-value:after"
-        },
-        {
-          "name": "discount-name:before"
-        },
-        {
-          "name": "discount-name:after"
-        },
-        {
-          "name": "discount-builder:before"
-        },
-        {
-          "name": "discount-builder:after"
-        },
-        {
-          "name": "admin-email-template-uri:before"
-        },
-        {
-          "name": "admin-email-template-uri:after"
-        },
-        {
-          "name": "customer-email-template-uri:before"
-        },
-        {
-          "name": "customer-email-template-uri:after"
-        },
-        {
-          "name": "gift-recipient-email-template-uri:before"
-        },
-        {
-          "name": "gift-recipient-email-template-uri:after"
-        },
-        {
-          "name": "taxes:before"
-        },
-        {
-          "name": "taxes:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        }
       ]
     },
     {
@@ -17620,8 +16499,8 @@
       "attributes": [
         {
           "name": "customer-addresses",
-          "description": "Link to the collection of customer addresses that can be used with this item.",
-          "type": "string"
+          "type": "string",
+          "deprecatedMessage": "Link to the collection of customer addresses that can be used with this item."
         },
         {
           "name": "item-categories",
@@ -17727,8 +16606,8 @@
         {
           "name": "customerAddresses",
           "attribute": "customer-addresses",
-          "description": "Link to the collection of customer addresses that can be used with this item.",
-          "type": "string"
+          "type": "string",
+          "deprecatedMessage": "Link to the collection of customer addresses that can be used with this item."
         },
         {
           "name": "itemCategories",
@@ -17777,8 +16656,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -17924,84 +16827,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "name:before"
-        },
-        {
-          "name": "name:after"
-        },
-        {
-          "name": "price:before"
-        },
-        {
-          "name": "price:after"
-        },
-        {
-          "name": "quantity:before"
-        },
-        {
-          "name": "quantity:after"
-        },
-        {
-          "name": "subscription",
-          "description": "frequency:before – new in 1.25.0"
-        },
-        {
-          "name": "subscription-start",
-          "description": "date:before – new in 1.25.0"
-        },
-        {
-          "name": "subscription-end",
-          "description": "date:before – new in 1.25.0"
-        },
-        {
-          "name": "discount",
-          "description": "name:before – new in 1.25.0"
-        },
-        {
-          "name": "",
-          "description": "expires:before – new in 1.25.0"
-        },
-        {
-          "name": "quantity",
-          "description": "min:before – new in 1.25.0"
-        },
-        {
-          "name": "item-category",
-          "description": "uri:before – new in 1.25.0"
-        },
-        {
-          "name": "parent",
-          "description": "code:before – new in 1.25.0"
-        },
-        {
-          "name": "coupon",
-          "description": "details:before – new in 1.25.0"
-        },
-        {
-          "name": "item",
-          "description": "options:before – new in 1.25.0"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
         }
       ]
     },
@@ -18118,7 +16943,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -18269,20 +17093,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
-        }
       ]
     },
     {
@@ -18405,6 +17215,31 @@
           "attribute": "status",
           "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
           "type": "object"
+        },
+        {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
         },
         {
           "name": "templates",
@@ -18553,32 +17388,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "name:before"
-        },
-        {
-          "name": "name:after"
-        },
-        {
-          "name": "value:before"
-        },
-        {
-          "name": "value:after"
-        },
-        {
-          "name": "price-mod:before"
-        },
-        {
-          "name": "price-mod:after"
-        },
-        {
-          "name": "weight-mod:before"
-        },
-        {
-          "name": "weight-mod:after"
         }
       ]
     },
@@ -19444,8 +18253,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -19591,254 +18424,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "provider:before"
-        },
-        {
-          "name": "provider:after"
-        },
-        {
-          "name": "avalara-service-url:before"
-        },
-        {
-          "name": "avalara-service-url:after"
-        },
-        {
-          "name": "avalara-id:before"
-        },
-        {
-          "name": "avalara-id:after"
-        },
-        {
-          "name": "avalara-key:before"
-        },
-        {
-          "name": "avalara-key:after"
-        },
-        {
-          "name": "avalara-company-code:before"
-        },
-        {
-          "name": "avalara-company-code:after"
-        },
-        {
-          "name": "avalara-options:before"
-        },
-        {
-          "name": "avalara-options:after"
-        },
-        {
-          "name": "avalara-address-validation-countries:before"
-        },
-        {
-          "name": "avalara-address-validation-countries:after"
-        },
-        {
-          "name": "avalara-category-to-product-tax-code-mappings:before"
-        },
-        {
-          "name": "avalara-category-to-product-tax-code-mappings:after"
-        },
-        {
-          "name": "taxjar-api-token:before"
-        },
-        {
-          "name": "taxjar-api-token:after"
-        },
-        {
-          "name": "taxjar-category-to-product-tax-code-mappings:before"
-        },
-        {
-          "name": "taxjar-category-to-product-tax-code-mappings:after"
-        },
-        {
-          "name": "taxjar-options:before"
-        },
-        {
-          "name": "taxjar-options:after"
-        },
-        {
-          "name": "onesource-service-url:before"
-        },
-        {
-          "name": "onesource-service-url:after"
-        },
-        {
-          "name": "onesource-external-company-id:before"
-        },
-        {
-          "name": "onesource-external-company-id:after"
-        },
-        {
-          "name": "onesource-calling-system-number:before"
-        },
-        {
-          "name": "onesource-calling-system-number:after"
-        },
-        {
-          "name": "onesource-from-city:before"
-        },
-        {
-          "name": "onesource-from-city:after"
-        },
-        {
-          "name": "onesource-host-system:before"
-        },
-        {
-          "name": "onesource-host-system:after"
-        },
-        {
-          "name": "onesource-company-role:before"
-        },
-        {
-          "name": "onesource-company-role:after"
-        },
-        {
-          "name": "onesource-part-number-product-option:before"
-        },
-        {
-          "name": "onesource-part-number-product-option:after"
-        },
-        {
-          "name": "onesource-product-order-priority:before"
-        },
-        {
-          "name": "onesource-product-order-priority:after"
-        },
-        {
-          "name": "onesource-audit-settings:before"
-        },
-        {
-          "name": "onesource-audit-settings:after"
-        },
-        {
-          "name": "webhook-service:before"
-        },
-        {
-          "name": "webhook-service:after"
-        },
-        {
-          "name": "webhook-json-title:before"
-        },
-        {
-          "name": "webhook-json-title:after"
-        },
-        {
-          "name": "webhook-json-encryption-key:before"
-        },
-        {
-          "name": "webhook-json-encryption-key:after"
-        },
-        {
-          "name": "webhook-json-url:before"
-        },
-        {
-          "name": "webhook-json-url:after"
-        },
-        {
-          "name": "webhook-json-events:before"
-        },
-        {
-          "name": "webhook-json-events:after"
-        },
-        {
-          "name": "webhook-legacy-xml-title:before"
-        },
-        {
-          "name": "webhook-legacy-xml-title:after"
-        },
-        {
-          "name": "webhook-legacy-xml-url:before"
-        },
-        {
-          "name": "webhook-legacy-xml-url:after"
-        },
-        {
-          "name": "webflow-site-id:before"
-        },
-        {
-          "name": "webflow-site-id:after"
-        },
-        {
-          "name": "webflow-site-name:before"
-        },
-        {
-          "name": "webflow-site-name:after"
-        },
-        {
-          "name": "webflow-collection-id:before"
-        },
-        {
-          "name": "webflow-collection-id:after"
-        },
-        {
-          "name": "webflow-collection-name:before"
-        },
-        {
-          "name": "webflow-collection-name:after"
-        },
-        {
-          "name": "webflow-sku-field-id:before"
-        },
-        {
-          "name": "webflow-sku-field-id:after"
-        },
-        {
-          "name": "webflow-sku-field-name:before"
-        },
-        {
-          "name": "webflow-sku-field-name:after"
-        },
-        {
-          "name": "webflow-inventory-field-id:before"
-        },
-        {
-          "name": "webflow-inventory-field-id:after"
-        },
-        {
-          "name": "webflow-inventory-field-name:before"
-        },
-        {
-          "name": "webflow-inventory-field-name:after"
-        },
-        {
-          "name": "webflow-auth:before"
-        },
-        {
-          "name": "webflow-auth:after"
-        },
-        {
-          "name": "zapier-event:before"
-        },
-        {
-          "name": "zapier-event:after"
-        },
-        {
-          "name": "zapier-url:before"
-        },
-        {
-          "name": "zapier-url:after"
         }
       ]
     },
@@ -20244,7 +18829,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -20395,20 +18979,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
-        }
       ]
     },
     {
@@ -20531,6 +19101,31 @@
           "attribute": "status",
           "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
           "type": "object"
+        },
+        {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
         },
         {
           "name": "templates",
@@ -20679,44 +19274,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "credential-id:before"
-        },
-        {
-          "name": "credential-id:after"
-        },
-        {
-          "name": "last-login-date:before"
-        },
-        {
-          "name": "last-login-date:after"
-        },
-        {
-          "name": "last-login-ua:before"
-        },
-        {
-          "name": "last-login-ua:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
         }
       ]
     },
@@ -21172,7 +19729,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -21335,32 +19891,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "actions:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "actions:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "actions:delete:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "actions:delete:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "actions:update:before",
-          "description": "**new in v1.27.0**"
-        },
-        {
-          "name": "actions:update:after",
-          "description": "**new in v1.27.0**"
         }
       ]
     },
@@ -21591,7 +20121,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -21741,20 +20270,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
         }
       ]
     },
@@ -21884,9 +20399,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "description": "Template render functions mapped to their name.",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -22033,44 +20571,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "description:before"
-        },
-        {
-          "name": "description:after"
-        },
-        {
-          "name": "score-threshold-reject:before"
-        },
-        {
-          "name": "score-threshold-reject:after"
-        },
-        {
-          "name": "json-[field-name-in-kebab-case]:before"
-        },
-        {
-          "name": "json-[field-name-in-kebab-case]:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        }
       ]
     },
     {
@@ -22183,7 +20683,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -22333,20 +20832,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
         }
       ]
     },
@@ -22476,9 +20961,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "description": "Template render functions mapped to their name.",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -22625,86 +21133,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "description:before"
-        },
-        {
-          "name": "description:after"
-        },
-        {
-          "name": "account-id:before"
-        },
-        {
-          "name": "account-id:after"
-        },
-        {
-          "name": "account-key:before"
-        },
-        {
-          "name": "account-key:after"
-        },
-        {
-          "name": "third-party-key:before"
-        },
-        {
-          "name": "third-party-key:after"
-        },
-        {
-          "name": "test-account-id:before"
-        },
-        {
-          "name": "test-account-id:after"
-        },
-        {
-          "name": "test-account-key:before"
-        },
-        {
-          "name": "test-account-key:after"
-        },
-        {
-          "name": "test-third-party-key:before"
-        },
-        {
-          "name": "test-third-party-key:after"
-        },
-        {
-          "name": "additional-fields-[field-name-in-kebab-case]:before"
-        },
-        {
-          "name": "additional-fields-[field-name-in-kebab-case]:after"
-        },
-        {
-          "name": "three-d-secure-toggle:before"
-        },
-        {
-          "name": "three-d-secure-toggle:after"
-        },
-        {
-          "name": "three-d-secure-response:before"
-        },
-        {
-          "name": "three-d-secure-response:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        }
       ]
     },
     {
@@ -22813,7 +21241,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -22963,20 +21390,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
         }
       ]
     },
@@ -23110,9 +21523,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "description": "Template render functions mapped to their name.",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -23258,56 +21694,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "description:before"
-        },
-        {
-          "name": "description:after"
-        },
-        {
-          "name": "is-live:before"
-        },
-        {
-          "name": "is-live:after"
-        },
-        {
-          "name": "is-purchase-order-enabled:before"
-        },
-        {
-          "name": "is-purchase-order-enabled:after"
-        },
-        {
-          "name": "payment-methods:before"
-        },
-        {
-          "name": "payment-methods:after"
-        },
-        {
-          "name": "fraud-protections:before"
-        },
-        {
-          "name": "fraud-protections:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
         }
       ]
     },
@@ -23611,7 +21997,6 @@
       "properties": [
         {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -23775,38 +22160,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "name:before"
-        },
-        {
-          "name": "name:after"
-        },
-        {
-          "name": "range:before"
-        },
-        {
-          "name": "range:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        }
       ]
     },
     {
@@ -23929,7 +22282,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -24267,6 +22619,522 @@
       ]
     },
     {
+      "name": "foxy-shipping-container-card",
+      "path": "./src/elements/public/ShippingContainerCard/index.ts",
+      "description": "Basic card displaying a shipping container (`fx:shipping_container`).",
+      "attributes": [
+        {
+          "name": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "virtual-host",
+          "description": "Unique identifier for the virtual host used by the element to serve internal requests.\n\nCurrently only one endpoint is supported: `foxy://<virtualHost>/form/<path>`.\nThis endpoint supports POST, GET, PATCH and DELETE methods and functions like a hAPI server.\n\nFor example, `GET foxy://nucleon-123/form/subscriptions/allowNextDateModification/0` on a NucleonElement\nwith `fx:customer_portal_settings` will return the first item of the `subscriptions.allowNextDateModification` array.",
+          "default": "\"uniqueId('nucleon-')\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "simplifyNsLoading",
+          "attribute": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "templates",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "virtualHost",
+          "attribute": "virtual-host",
+          "description": "Unique identifier for the virtual host used by the element to serve internal requests.\n\nCurrently only one endpoint is supported: `foxy://<virtualHost>/form/<path>`.\nThis endpoint supports POST, GET, PATCH and DELETE methods and functions like a hAPI server.\n\nFor example, `GET foxy://nucleon-123/form/subscriptions/allowNextDateModification/0` on a NucleonElement\nwith `fx:customer_portal_settings` will return the first item of the `subscriptions.allowNextDateModification` array.",
+          "default": "\"uniqueId('nucleon-')\""
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-shipping-drop-type-card",
+      "path": "./src/elements/public/ShippingDropTypeCard/index.ts",
+      "description": "Basic card displaying a shipping drop type (`fx:shipping_drop_type`).",
+      "attributes": [
+        {
+          "name": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "virtual-host",
+          "description": "Unique identifier for the virtual host used by the element to serve internal requests.\n\nCurrently only one endpoint is supported: `foxy://<virtualHost>/form/<path>`.\nThis endpoint supports POST, GET, PATCH and DELETE methods and functions like a hAPI server.\n\nFor example, `GET foxy://nucleon-123/form/subscriptions/allowNextDateModification/0` on a NucleonElement\nwith `fx:customer_portal_settings` will return the first item of the `subscriptions.allowNextDateModification` array.",
+          "default": "\"uniqueId('nucleon-')\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "simplifyNsLoading",
+          "attribute": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "templates",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "virtualHost",
+          "attribute": "virtual-host",
+          "description": "Unique identifier for the virtual host used by the element to serve internal requests.\n\nCurrently only one endpoint is supported: `foxy://<virtualHost>/form/<path>`.\nThis endpoint supports POST, GET, PATCH and DELETE methods and functions like a hAPI server.\n\nFor example, `GET foxy://nucleon-123/form/subscriptions/allowNextDateModification/0` on a NucleonElement\nwith `fx:customer_portal_settings` will return the first item of the `subscriptions.allowNextDateModification` array.",
+          "default": "\"uniqueId('nucleon-')\""
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
       "name": "foxy-shipping-method-card",
       "path": "./src/elements/public/ShippingMethodCard/index.ts",
       "description": "Card element representing a shipping method (`fx:shipping_method`).",
@@ -24350,6 +23218,264 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "virtualHost",
+          "attribute": "virtual-host",
+          "description": "Unique identifier for the virtual host used by the element to serve internal requests.\n\nCurrently only one endpoint is supported: `foxy://<virtualHost>/form/<path>`.\nThis endpoint supports POST, GET, PATCH and DELETE methods and functions like a hAPI server.\n\nFor example, `GET foxy://nucleon-123/form/subscriptions/allowNextDateModification/0` on a NucleonElement\nwith `fx:customer_portal_settings` will return the first item of the `subscriptions.allowNextDateModification` array.",
+          "default": "\"uniqueId('nucleon-')\""
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-shipping-service-card",
+      "path": "./src/elements/public/ShippingServiceCard/index.ts",
+      "description": "Basic card displaying a shipping service (`fx:shipping_service`).",
+      "attributes": [
+        {
+          "name": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "virtual-host",
+          "description": "Unique identifier for the virtual host used by the element to serve internal requests.\n\nCurrently only one endpoint is supported: `foxy://<virtualHost>/form/<path>`.\nThis endpoint supports POST, GET, PATCH and DELETE methods and functions like a hAPI server.\n\nFor example, `GET foxy://nucleon-123/form/subscriptions/allowNextDateModification/0` on a NucleonElement\nwith `fx:customer_portal_settings` will return the first item of the `subscriptions.allowNextDateModification` array.",
+          "default": "\"uniqueId('nucleon-')\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "simplifyNsLoading",
+          "attribute": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "templates",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
         },
         {
           "name": "isBodyReady",
@@ -24550,7 +23676,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -24713,56 +23838,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "email:before"
-        },
-        {
-          "name": "email:after"
-        },
-        {
-          "name": "password:before"
-        },
-        {
-          "name": "password:after"
-        },
-        {
-          "name": "new-password:before"
-        },
-        {
-          "name": "new-password:after"
-        },
-        {
-          "name": "mfa-secret-code:before"
-        },
-        {
-          "name": "mfa-secret-code:after"
-        },
-        {
-          "name": "mfa-totp-code:before"
-        },
-        {
-          "name": "mfa-totp-code:after"
-        },
-        {
-          "name": "mfa-remember-device:before"
-        },
-        {
-          "name": "mfa-remember-device:after"
-        },
-        {
-          "name": "error:before"
-        },
-        {
-          "name": "error:after"
-        },
-        {
-          "name": "submit:before"
-        },
-        {
-          "name": "submit:after"
         }
       ]
     },
@@ -24964,7 +24039,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -25114,20 +24188,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
         }
       ]
     },
@@ -25334,9 +24394,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "description": "Template render functions mapped to their name.",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -25482,278 +24565,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "store-name:before"
-        },
-        {
-          "name": "store-name:after"
-        },
-        {
-          "name": "logo-url:before"
-        },
-        {
-          "name": "logo-url:after"
-        },
-        {
-          "name": "store-domain:before"
-        },
-        {
-          "name": "store-domain:after"
-        },
-        {
-          "name": "store-url:before"
-        },
-        {
-          "name": "store-url:after"
-        },
-        {
-          "name": "store-email:before"
-        },
-        {
-          "name": "store-email:after"
-        },
-        {
-          "name": "timezone:before"
-        },
-        {
-          "name": "timezone:after"
-        },
-        {
-          "name": "store-version-uri:before"
-        },
-        {
-          "name": "store-version-uri:after"
-        },
-        {
-          "name": "from-email:before"
-        },
-        {
-          "name": "from-email:after"
-        },
-        {
-          "name": "bcc-on-receipt-email:before"
-        },
-        {
-          "name": "bcc-on-receipt-email:after"
-        },
-        {
-          "name": "use-email-dns:before"
-        },
-        {
-          "name": "use-email-dns:after"
-        },
-        {
-          "name": "use-smtp-config:before"
-        },
-        {
-          "name": "use-smtp-config:after"
-        },
-        {
-          "name": "smtp-config:before"
-        },
-        {
-          "name": "smtp-config:after"
-        },
-        {
-          "name": "smtp-config-host:before"
-        },
-        {
-          "name": "smtp-config-host:after"
-        },
-        {
-          "name": "smtp-config-port:before"
-        },
-        {
-          "name": "smtp-config-port:after"
-        },
-        {
-          "name": "smtp-config-username:before"
-        },
-        {
-          "name": "smtp-config-username:after"
-        },
-        {
-          "name": "smtp-config-password:before"
-        },
-        {
-          "name": "smtp-config-password:after"
-        },
-        {
-          "name": "smtp-config-security:before"
-        },
-        {
-          "name": "smtp-config-security:after"
-        },
-        {
-          "name": "country:before"
-        },
-        {
-          "name": "country:after"
-        },
-        {
-          "name": "region:before"
-        },
-        {
-          "name": "region:after"
-        },
-        {
-          "name": "postal-code:before"
-        },
-        {
-          "name": "postal-code:after"
-        },
-        {
-          "name": "shipping-address-type:before"
-        },
-        {
-          "name": "shipping-address-type:after"
-        },
-        {
-          "name": "features-multiship:before"
-        },
-        {
-          "name": "features-multiship:after"
-        },
-        {
-          "name": "require-signed-shipping-rates:before"
-        },
-        {
-          "name": "require-signed-shipping-rates:after"
-        },
-        {
-          "name": "language:before"
-        },
-        {
-          "name": "language:after"
-        },
-        {
-          "name": "locale-code:before"
-        },
-        {
-          "name": "locale-code:after"
-        },
-        {
-          "name": "currency-style:before"
-        },
-        {
-          "name": "currency-style:after"
-        },
-        {
-          "name": "custom-display-id-config:before"
-        },
-        {
-          "name": "custom-display-id-config:after"
-        },
-        {
-          "name": "receipt-continue-url:before"
-        },
-        {
-          "name": "receipt-continue-url:after"
-        },
-        {
-          "name": "app-session-time:before"
-        },
-        {
-          "name": "app-session-time:after"
-        },
-        {
-          "name": "products-require-expires-property:before"
-        },
-        {
-          "name": "products-require-expires-property:after"
-        },
-        {
-          "name": "use-cart-validation:before"
-        },
-        {
-          "name": "use-cart-validation:after"
-        },
-        {
-          "name": "checkout-type:before"
-        },
-        {
-          "name": "checkout-type:after"
-        },
-        {
-          "name": "customer-password-hash-type:before"
-        },
-        {
-          "name": "customer-password-hash-type:after"
-        },
-        {
-          "name": "customer-password-hash-config:before"
-        },
-        {
-          "name": "customer-password-hash-config:after"
-        },
-        {
-          "name": "unified-order-entry-password:before"
-        },
-        {
-          "name": "unified-order-entry-password:after"
-        },
-        {
-          "name": "single-sign-on-url:before"
-        },
-        {
-          "name": "single-sign-on-url:after"
-        },
-        {
-          "name": "webhook-url:before"
-        },
-        {
-          "name": "webhook-url:after"
-        },
-        {
-          "name": "webhook-key-cart-signing:before"
-        },
-        {
-          "name": "webhook-key-cart-signing:after"
-        },
-        {
-          "name": "webhook-key-xml-datafeed:before"
-        },
-        {
-          "name": "webhook-key-xml-datafeed:after"
-        },
-        {
-          "name": "webhook-key-api-legacy:before"
-        },
-        {
-          "name": "webhook-key-api-legacy:after"
-        },
-        {
-          "name": "webhook-key-sso:before"
-        },
-        {
-          "name": "webhook-key-sso:after"
-        },
-        {
-          "name": "is-maintenance-mode:before"
-        },
-        {
-          "name": "is-maintenance-mode:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
         }
       ]
     },
@@ -25888,9 +24699,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "description": "Template render functions mapped to their name.",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -26036,92 +24870,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "shipping-method-uri:before"
-        },
-        {
-          "name": "shipping-method-uri:after"
-        },
-        {
-          "name": "shipping-container-uri:before"
-        },
-        {
-          "name": "shipping-container-uri:after"
-        },
-        {
-          "name": "shipping-drop-type-uri:before"
-        },
-        {
-          "name": "shipping-drop-type-uri:after"
-        },
-        {
-          "name": "destinations:before"
-        },
-        {
-          "name": "destinations:after"
-        },
-        {
-          "name": "authentication-key:before"
-        },
-        {
-          "name": "authentication-key:after"
-        },
-        {
-          "name": "meter-number:before"
-        },
-        {
-          "name": "meter-number:after"
-        },
-        {
-          "name": "endpoint:before"
-        },
-        {
-          "name": "endpoint:after"
-        },
-        {
-          "name": "accountid:before"
-        },
-        {
-          "name": "accountid:after"
-        },
-        {
-          "name": "password:before"
-        },
-        {
-          "name": "password:after"
-        },
-        {
-          "name": "custom-code:before"
-        },
-        {
-          "name": "custom-code:after"
-        },
-        {
-          "name": "services:before"
-        },
-        {
-          "name": "services:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
         }
       ]
     },
@@ -26545,8 +25293,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -26692,96 +25464,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "header:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "header:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "items:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "items:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "items:actions:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "items:actions:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "end-date:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "end-date:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "next-transaction-date:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "next-transaction-date:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "frequency:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "frequency:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "transactions:before",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "transactions:after",
-          "description": "**new in v1.4.0**"
-        },
-        {
-          "name": "attributes:before",
-          "description": "**new in v1.20.0**"
-        },
-        {
-          "name": "attributes:after",
-          "description": "**new in v1.20.0**"
-        },
-        {
-          "name": "timestamps:before",
-          "description": "**new in v1.20.0**"
-        },
-        {
-          "name": "timestamps:after",
-          "description": "**new in v1.20.0**"
-        },
-        {
-          "name": "past-due-amount:before",
-          "description": "**new in v1.20.0**"
-        },
-        {
-          "name": "past-due-amount:after",
-          "description": "**new in v1.20.0**"
-        },
-        {
-          "name": "start-date:before",
-          "description": "**new in v1.20.0**"
-        },
-        {
-          "name": "start-date:after",
-          "description": "**new in v1.20.0**"
         }
       ]
     },
@@ -26907,8 +25589,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -27055,88 +25761,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "past-due-amount-handling:before"
-        },
-        {
-          "name": "past-due-amount-handling:after"
-        },
-        {
-          "name": "automatically-charge-past-due-amount:before"
-        },
-        {
-          "name": "automatically-charge-past-due-amount:after"
-        },
-        {
-          "name": "clear-past-due-amounts-on",
-          "description": "success:before – only if `form.automatically_charge_past_due_amount` is `false`"
-        },
-        {
-          "name": "reset-nextdate-on-makeup",
-          "description": "payment:before – only if `form.automatically_charge_past_due_amount` is `false`"
-        },
-        {
-          "name": "reattempt-bypass:before"
-        },
-        {
-          "name": "reattempt-bypass:after"
-        },
-        {
-          "name": "reattempt-schedule:before"
-        },
-        {
-          "name": "reattempt-schedule:after"
-        },
-        {
-          "name": "reminder-email-schedule:before"
-        },
-        {
-          "name": "reminder-email-schedule:after"
-        },
-        {
-          "name": "expiring-soon-payment-reminder-schedule:before"
-        },
-        {
-          "name": "expiring-soon-payment-reminder-schedule:after"
-        },
-        {
-          "name": "send-email-receipts-for-automated-billing:before"
-        },
-        {
-          "name": "send-email-receipts-for-automated-billing:after"
-        },
-        {
-          "name": "cancellation-schedule:before"
-        },
-        {
-          "name": "cancellation-schedule:after"
-        },
-        {
-          "name": "modification-url:before"
-        },
-        {
-          "name": "modification-url:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        }
       ]
     },
     {
@@ -27253,7 +25877,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -27518,7 +26141,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -27940,20 +26562,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
-        }
       ]
     },
     {
@@ -28067,7 +26675,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -28230,86 +26837,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "name:before"
-        },
-        {
-          "name": "name:after"
-        },
-        {
-          "name": "type:before"
-        },
-        {
-          "name": "type:after"
-        },
-        {
-          "name": "country:before"
-        },
-        {
-          "name": "country:after"
-        },
-        {
-          "name": "region:before"
-        },
-        {
-          "name": "region:after"
-        },
-        {
-          "name": "city:before"
-        },
-        {
-          "name": "city:after"
-        },
-        {
-          "name": "provider:before"
-        },
-        {
-          "name": "provider:after"
-        },
-        {
-          "name": "rate:before"
-        },
-        {
-          "name": "rate:after"
-        },
-        {
-          "name": "apply-to-shipping:before"
-        },
-        {
-          "name": "apply-to-shipping:after"
-        },
-        {
-          "name": "use-origin-rates:before"
-        },
-        {
-          "name": "use-origin-rates:after"
-        },
-        {
-          "name": "exempt-all-customer-tax-ids:before"
-        },
-        {
-          "name": "exempt-all-customer-tax-ids:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
         }
       ]
     },
@@ -28428,7 +26955,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -28591,98 +27117,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "cart-type:before"
-        },
-        {
-          "name": "cart-type:after"
-        },
-        {
-          "name": "foxycomplete:before"
-        },
-        {
-          "name": "foxycomplete:after"
-        },
-        {
-          "name": "locations:before"
-        },
-        {
-          "name": "locations:after"
-        },
-        {
-          "name": "hidden-fields:before"
-        },
-        {
-          "name": "hidden-fields:after"
-        },
-        {
-          "name": "cards:before"
-        },
-        {
-          "name": "cards:after"
-        },
-        {
-          "name": "checkout-type:before"
-        },
-        {
-          "name": "checkout-type:after"
-        },
-        {
-          "name": "consent:before"
-        },
-        {
-          "name": "consent:after"
-        },
-        {
-          "name": "fields:before"
-        },
-        {
-          "name": "fields:after"
-        },
-        {
-          "name": "google-analytics:before"
-        },
-        {
-          "name": "google-analytics:after"
-        },
-        {
-          "name": "google-tag:before"
-        },
-        {
-          "name": "google-tag:after"
-        },
-        {
-          "name": "troubleshooting:before"
-        },
-        {
-          "name": "troubleshooting:after"
-        },
-        {
-          "name": "custom-config:before"
-        },
-        {
-          "name": "custom-config:after"
-        },
-        {
-          "name": "header:before"
-        },
-        {
-          "name": "header:after"
-        },
-        {
-          "name": "custom-fields:before"
-        },
-        {
-          "name": "custom-fields:after"
-        },
-        {
-          "name": "footer:before"
-        },
-        {
-          "name": "footer:after"
         }
       ]
     },
@@ -28775,7 +27209,6 @@
       "properties": [
         {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -28938,38 +27371,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "description:before"
-        },
-        {
-          "name": "description:after"
-        },
-        {
-          "name": "content:before"
-        },
-        {
-          "name": "content:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
         }
       ]
     },
@@ -29079,7 +27480,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -29229,20 +27629,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
         }
       ]
     },
@@ -29404,9 +27790,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "description": "Template render functions mapped to their name.",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -29552,62 +27961,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "description:before"
-        },
-        {
-          "name": "description:after"
-        },
-        {
-          "name": "code:before"
-        },
-        {
-          "name": "code:after"
-        },
-        {
-          "name": "language:before"
-        },
-        {
-          "name": "language:after"
-        },
-        {
-          "name": "locale-code:before"
-        },
-        {
-          "name": "locale-code:after"
-        },
-        {
-          "name": "payment-method-set-uri:before"
-        },
-        {
-          "name": "payment-method-set-uri:after"
-        },
-        {
-          "name": "language-overrides:before"
-        },
-        {
-          "name": "language-overrides:after"
-        },
-        {
-          "name": "timestamps:before"
-        },
-        {
-          "name": "timestamps:after"
-        },
-        {
-          "name": "create:before"
-        },
-        {
-          "name": "create:after"
-        },
-        {
-          "name": "delete:before"
-        },
-        {
-          "name": "delete:after"
         }
       ]
     },
@@ -29755,6 +28108,31 @@
           "attribute": "status",
           "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
           "type": "object"
+        },
+        {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string"
         },
         {
           "name": "templates",
@@ -29995,7 +28373,6 @@
       "properties": [
         {
           "name": "templates",
-          "type": "Partial<{ 'total:before': Renderer<TransactionCard>; 'total:after': Renderer<TransactionCard>; 'status:before': Renderer<TransactionCard>; ... 4 more ...; 'customer:after': Renderer<...>; }>",
           "default": "{}"
         },
         {
@@ -30163,32 +28540,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "total:before"
-        },
-        {
-          "name": "total:after"
-        },
-        {
-          "name": "status:before"
-        },
-        {
-          "name": "status:after"
-        },
-        {
-          "name": "description:before"
-        },
-        {
-          "name": "description:after"
-        },
-        {
-          "name": "customer:before"
-        },
-        {
-          "name": "customer:after"
-        }
       ]
     },
     {
@@ -30315,7 +28666,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -30612,6 +28962,31 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
           "default": "{}"
         },
@@ -30759,20 +29134,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "template-set:before"
-        },
-        {
-          "name": "template-set:after"
-        },
-        {
-          "name": "cc-token:before"
-        },
-        {
-          "name": "cc-token:after"
-        }
       ]
     },
     {
@@ -30881,7 +29242,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -31032,20 +29392,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
-        }
       ]
     },
     {
@@ -31170,8 +29516,32 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
-          "type": "Templates",
           "default": "{}"
         },
         {
@@ -31318,20 +29688,6 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
-      ],
-      "slots": [
-        {
-          "name": "first",
-          "description": "name:before – new in v1.22.0"
-        },
-        {
-          "name": "last",
-          "description": "name:before – new in v1.22.0"
-        },
-        {
-          "name": "",
-          "description": "email:before – new in v1.22.0"
-        }
       ]
     },
     {
@@ -31453,7 +29809,6 @@
         },
         {
           "name": "templates",
-          "type": "Templates<TData>",
           "default": "{}"
         },
         {
@@ -31912,6 +30267,31 @@
           "type": "object"
         },
         {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
           "name": "templates",
           "default": "{}"
         },
@@ -32058,62 +30438,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "name:before"
-        },
-        {
-          "name": "name:after"
-        },
-        {
-          "name": "event-resource:before"
-        },
-        {
-          "name": "event-resource:after"
-        },
-        {
-          "name": "query:before"
-        },
-        {
-          "name": "query:after"
-        },
-        {
-          "name": "url:before"
-        },
-        {
-          "name": "url:after"
-        },
-        {
-          "name": "format:before"
-        },
-        {
-          "name": "format:after"
-        },
-        {
-          "name": "encryption-key:before"
-        },
-        {
-          "name": "encryption-key:after"
-        },
-        {
-          "name": "version:before"
-        },
-        {
-          "name": "version:after"
-        },
-        {
-          "name": "statuses:before"
-        },
-        {
-          "name": "statuses:after"
-        },
-        {
-          "name": "logs:before"
-        },
-        {
-          "name": "logs:after"
         }
       ]
     },

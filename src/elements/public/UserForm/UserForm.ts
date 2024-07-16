@@ -1,10 +1,9 @@
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 
 import { validate as isEmail } from 'email-validator';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { html } from 'lit-html';
 
@@ -13,30 +12,6 @@ const Base = TranslatableMixin(InternalForm, NS);
 
 /**
  * Form element for `fx:user` resources.
- *
- * @slot first-name:before – new in v1.22.0
- * @slot first-name:after – new in v1.22.0
- *
- * @slot last-name:before – new in v1.22.0
- * @slot last-name:after – new in v1.22.0
- *
- * @slot email:before – new in v1.22.0
- * @slot email:after – new in v1.22.0
- *
- * @slot phone:before – new in v1.22.0
- * @slot phone:after – new in v1.22.0
- *
- * @slot role:before – new in v1.22.0
- * @slot role:after – new in v1.22.0
- *
- * @slot timestamps:before – new in v1.27.0
- * @slot timestamps:after – new in v1.27.0
- *
- * @slot create:before – new in v1.22.0
- * @slot create:after – new in v1.22.0
- *
- * @slot delete:before – new in v1.22.0
- * @slot delete:after – new in v1.22.0
  *
  * @element foxy-user-form
  * @since 1.3.0
@@ -54,8 +29,6 @@ export class UserForm extends Base<Data> {
       ({ phone: v }) => !v || v.length <= 50 || 'phone:v8n_too_long',
     ];
   }
-
-  templates: Templates = {};
 
   private readonly __roleGetValue = () => {
     const value: string[] = [];
@@ -84,20 +57,21 @@ export class UserForm extends Base<Data> {
     { label: 'option_designer', value: 'designer' },
   ];
 
-  get readonlySelector(): BooleanSelector {
-    const alwaysMatch = [super.readonlySelector.toString()];
-    if (this.href) alwaysMatch.unshift('affiliate-id');
-    return new BooleanSelector(alwaysMatch.join(' ').trim());
+  get headerSubtitleOptions(): Record<string, unknown> {
+    return {
+      ...super.headerSubtitleOptions,
+      context: this.data?.affiliate_id ? 'affiliate' : '',
+    };
   }
 
   renderBody(): TemplateResult {
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-text-control infer="first-name"></foxy-internal-text-control>
       <foxy-internal-text-control infer="last-name"></foxy-internal-text-control>
       <foxy-internal-text-control infer="email"></foxy-internal-text-control>
       <foxy-internal-text-control infer="phone"></foxy-internal-text-control>
-
-      <foxy-internal-integer-control infer="affiliate-id"></foxy-internal-integer-control>
 
       <foxy-internal-checkbox-group-control
         infer="role"

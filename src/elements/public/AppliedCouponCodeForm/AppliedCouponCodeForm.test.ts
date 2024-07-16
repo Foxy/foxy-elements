@@ -10,6 +10,7 @@ import { InternalTextControl } from '../../internal/InternalTextControl/Internal
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server';
 import { getTestData } from '../../../testgen/getTestData';
+import { stub } from 'sinon';
 
 describe('AppliedCouponCodeForm', () => {
   it('imports and registers foxy-internal-checkbox-group-control element', () => {
@@ -47,6 +48,13 @@ describe('AppliedCouponCodeForm', () => {
 
   it('hides the default timestamps control', () => {
     expect(new Form().hiddenSelector.toString()).to.equal('timestamps');
+  });
+
+  it('renders a form header', () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
   });
 
   it('renders a text control for "code" field', async () => {

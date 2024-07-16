@@ -1,4 +1,5 @@
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { Data } from './types';
 
 import './index';
 
@@ -8,6 +9,8 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ItemForm } from './ItemForm';
 import { html } from 'lit-html';
 import { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
+import { getTestData } from '../../../testgen/getTestData';
+import { stub } from 'sinon';
 
 describe('ItemForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -20,8 +23,8 @@ describe('ItemForm', () => {
     expect(customElements.get('vaadin-details')).to.exist;
   });
 
-  it('imports and defines foxy-internal-async-combo-box-control', () => {
-    expect(customElements.get('foxy-internal-async-combo-box-control')).to.exist;
+  it('imports and defines foxy-internal-resource-picker-control', () => {
+    expect(customElements.get('foxy-internal-resource-picker-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-async-list-control', () => {
@@ -66,6 +69,10 @@ describe('ItemForm', () => {
 
   it('imports and defines foxy-discount-builder', () => {
     expect(customElements.get('foxy-discount-builder')).to.exist;
+  });
+
+  it('imports and defines foxy-item-category-card', () => {
+    expect(customElements.get('foxy-item-category-card')).to.exist;
   });
 
   it('imports and defines foxy-item-option-card', () => {
@@ -125,6 +132,24 @@ describe('ItemForm', () => {
     expect(new ItemForm()).to.have.property('coupons', null);
   });
 
+  it('renders a form header', () => {
+    const form = new ItemForm();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('uses custom header subtitle options', async () => {
+    const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
+    const data = await getTestData<Data>('./hapi/items/0');
+
+    element.data = { ...data, is_future_line_item: true };
+    expect(element.headerSubtitleOptions).to.deep.equal({ context: 'future_line_item' });
+
+    element.data = { ...data, is_future_line_item: false };
+    expect(element.headerSubtitleOptions).to.deep.equal({ context: 'regular' });
+  });
+
   it('renders name as a control', async () => {
     const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
     const control = element.renderRoot.querySelector('foxy-internal-text-control[infer="name"]');
@@ -154,14 +179,12 @@ describe('ItemForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(
-      'foxy-internal-async-combo-box-control[infer="item-category-uri"]'
+      'foxy-internal-resource-picker-control[infer="item-category-uri"]'
     );
 
     expect(control).to.exist;
-    expect(control).to.have.property('itemValuePath', '_links.self.href');
-    expect(control).to.have.property('itemLabelPath', 'name');
-    expect(control).to.have.property('property', 'item_category_uri');
     expect(control).to.have.property('first', 'https://demo.api/hapi/item_categories');
+    expect(control).to.have.property('item', 'foxy-item-category-card');
   });
 
   it('renders item code as a control', async () => {
@@ -317,14 +340,8 @@ describe('ItemForm', () => {
       </foxy-item-form>
     `);
 
-    const control = element.renderRoot.querySelector(
-      'foxy-internal-async-combo-box-control[infer="shipto"]'
-    );
-
+    const control = element.renderRoot.querySelector('foxy-internal-text-control[infer="shipto"]');
     expect(control).to.exist;
-    expect(control).to.have.property('itemValuePath', 'address_name');
-    expect(control).to.have.property('itemLabelPath', 'address_name');
-    expect(control).to.have.property('first', 'https://demo.api/hapi/customer_addresses');
   });
 
   it('renders expiry date as a control', async () => {

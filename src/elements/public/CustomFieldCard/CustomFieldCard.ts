@@ -7,12 +7,6 @@ import { TwoLineCard } from './TwoLineCard';
 /**
  * Basic card displaying a custom field.
  *
- * @slot title:before
- * @slot title:after
- *
- * @slot subtitle:before
- * @slot subtitle:after
- *
  * @element foxy-custom-field-card
  * @since 1.11.0
  */

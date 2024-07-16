@@ -24,8 +24,8 @@ describe('ApiBrowser', () => {
       expect(customElements.get('foxy-internal-delete-control')).to.exist;
     });
 
-    it('imports and defines foxy-internal-create-control', () => {
-      expect(customElements.get('foxy-internal-create-control')).to.exist;
+    it('imports and defines foxy-internal-submit-control', () => {
+      expect(customElements.get('foxy-internal-submit-control')).to.exist;
     });
 
     it('imports and defines foxy-internal-form', () => {
@@ -154,12 +154,12 @@ describe('ApiBrowser', () => {
       expect(summary).to.include.text('hapi/customers?email=foo');
     });
 
-    it('renders foxy-internal-create-control in idle.snapshot.dirty and idle.template states', async () => {
+    it('renders foxy-internal-submit-control in idle.snapshot.dirty and idle.template states', async () => {
       const form = await fixture<InternalApiBrowserResourceForm>(html`
         <foxy-internal-api-browser-resource-form></foxy-internal-api-browser-resource-form>
       `);
 
-      let control = form.renderRoot.querySelector('foxy-internal-create-control');
+      let control = form.renderRoot.querySelector('foxy-internal-submit-control');
 
       expect(control).to.exist;
       expect(control).to.have.property('infer', 'create');
@@ -167,13 +167,13 @@ describe('ApiBrowser', () => {
       form.href = 'https://demo.api/hapi/customers/0';
       await form.requestUpdate();
 
-      control = form.renderRoot.querySelector('foxy-internal-create-control');
+      control = form.renderRoot.querySelector('foxy-internal-submit-control');
       expect(control).to.not.exist;
 
       form.data = null;
       await form.requestUpdate();
 
-      control = form.renderRoot.querySelector('foxy-internal-create-control');
+      control = form.renderRoot.querySelector('foxy-internal-submit-control');
       expect(control).to.exist;
     });
 

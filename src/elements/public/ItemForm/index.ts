@@ -1,6 +1,6 @@
 import '@vaadin/vaadin-details';
 
-import '../../internal/InternalAsyncComboBoxControl/index';
+import '../../internal/InternalResourcePickerControl/index';
 import '../../internal/InternalAsyncListControl/index';
 import '../../internal/InternalFrequencyControl/index';
 import '../../internal/InternalTextAreaControl/index';
@@ -12,6 +12,7 @@ import '../../internal/InternalForm/index';
 
 import '../DiscountDetailCard/index';
 import '../CouponDetailCard/index';
+import '../ItemCategoryCard/index';
 import '../DiscountBuilder/index';
 import '../ItemOptionCard/index';
 import '../ItemOptionForm/index';

@@ -4,6 +4,7 @@ import './index';
 
 import { expect, fixture, html } from '@open-wc/testing';
 import { CustomFieldForm } from './CustomFieldForm';
+import { stub } from 'sinon';
 
 describe('CustomFieldForm', () => {
   it('imports and defines foxy-internal-checkbox-group-control', () => {
@@ -63,6 +64,13 @@ describe('CustomFieldForm', () => {
 
     element.edit({ name: 'a'.repeat(101) });
     expect(element.errors).to.include('name:v8n_too_long');
+  });
+
+  it('renders a form header', () => {
+    const form = new CustomFieldForm();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
   });
 
   it('renders a source control for name', async () => {

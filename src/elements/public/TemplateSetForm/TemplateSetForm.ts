@@ -1,5 +1,5 @@
 import type { PropertyDeclarations } from 'lit-element';
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
@@ -18,33 +18,6 @@ const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 
 /**
  * Form element for creating and editing template sets (`fx:template_set`).
- *
- * @slot description:before
- * @slot description:after
- *
- * @slot code:before
- * @slot code:after
- *
- * @slot language:before
- * @slot language:after
- *
- * @slot locale-code:before
- * @slot locale-code:after
- *
- * @slot payment-method-set-uri:before
- * @slot payment-method-set-uri:after
- *
- * @slot language-overrides:before
- * @slot language-overrides:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot delete:before
- * @slot delete:after
  *
  * @element foxy-template-set-form
  * @since 1.21.0
@@ -83,36 +56,27 @@ export class TemplateSetForm extends Base<Data> {
   /** URL of the `fx:languages` property helper (used to fill the relevant dropdown with options). */
   languages: string | null = null;
 
-  /** Template render functions mapped to their name. */
-  templates: Templates = {};
-
-  private readonly __paymentMethodSetLoaderId = 'paymentMethodSetLoader';
-
   private readonly __localeCodesLoaderId = 'localeCodesLoader';
 
   private readonly __languagesLoaderId = 'languagesLoader';
 
-  get disabledSelector(): BooleanSelector {
-    const alwaysDisabled: string[] = [];
-
-    if (!this.__languagesLoader?.data) alwaysDisabled.push('language');
-    if (!this.__localeCodesLoader?.data) alwaysDisabled.push('locale-code');
-    if (!this.__paymentMethodSetLoader?.data && this.form.payment_method_set_uri) {
-      alwaysDisabled.push('payment-method-set-uri');
-    }
-
-    return new BooleanSelector(`${alwaysDisabled.join(' ')} ${super.disabledSelector}`);
+  get headerSubtitleOptions(): Record<string, unknown> {
+    return {
+      ...super.headerSubtitleOptions,
+      context: this.data?.code === 'DEFAULT' ? 'default' : '',
+    };
   }
 
-  get readonlySelector(): BooleanSelector {
-    const alwaysReadonly: string[] = [];
-    if (this.data?.code === 'DEFAULT') alwaysReadonly.push('code', 'description');
-    return new BooleanSelector(`${alwaysReadonly.join(' ')} ${super.readonlySelector}`);
+  get disabledSelector(): BooleanSelector {
+    const alwaysDisabled: string[] = [];
+    if (!this.__languagesLoader?.data) alwaysDisabled.push('language');
+    if (!this.__localeCodesLoader?.data) alwaysDisabled.push('locale-code');
+    return new BooleanSelector(`${alwaysDisabled.join(' ')} ${super.disabledSelector}`);
   }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysHidden: string[] = [];
-    if (this.data?.code === 'DEFAULT') alwaysHidden.push('delete');
+    if (this.data?.code === 'DEFAULT') alwaysHidden.push('delete', 'code', 'description');
     return new BooleanSelector(`${alwaysHidden.join(' ')} ${super.hiddenSelector}`);
   }
 
@@ -124,6 +88,8 @@ export class TemplateSetForm extends Base<Data> {
     const languages = languageEntries.map(([value, label]) => ({ value, label }));
 
     return html`
+      ${this.renderHeader()}
+
       <div class="grid grid-cols-1 gap-m sm-grid-cols-2">
         <foxy-internal-text-control infer="description"></foxy-internal-text-control>
 
@@ -136,30 +102,30 @@ export class TemplateSetForm extends Base<Data> {
         </foxy-internal-select-control>
       </div>
 
-      <foxy-internal-async-combo-box-control
-        item-label-path="description"
-        item-id-path="_links.self.href"
+      <foxy-internal-resource-picker-control
         infer="payment-method-set-uri"
         first=${this.paymentMethodSets}
-        .selectedItem=${this.__paymentMethodSetLoader?.data}
+        item="foxy-payments-api-payment-preset-card"
       >
-      </foxy-internal-async-combo-box-control>
+      </foxy-internal-resource-picker-control>
 
       ${this.data &&
       this.languageStrings &&
       !this.hiddenSelector.matches('language-overrides', true)
         ? html`
-            ${this.renderTemplateOrSlot('language-overrides:before')}
+            <div>
+              ${this.renderTemplateOrSlot('language-overrides:before')}
 
-            <foxy-i18n-editor
-              language-overrides=${this.data._links['fx:language_overrides'].href}
-              selected-language=${this.form.language}
-              infer="language-overrides"
-              href=${this.languageStrings}
-            >
-            </foxy-i18n-editor>
+              <foxy-i18n-editor
+                language-overrides=${this.data._links['fx:language_overrides'].href}
+                selected-language=${this.form.language}
+                infer="language-overrides"
+                href=${this.languageStrings}
+              >
+              </foxy-i18n-editor>
 
-            ${this.renderTemplateOrSlot('language-overrides:after')}
+              ${this.renderTemplateOrSlot('language-overrides:after')}
+            </div>
           `
         : ''}
 
@@ -184,21 +150,7 @@ export class TemplateSetForm extends Base<Data> {
         @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.form.payment_method_set_uri || undefined)}
-        id=${this.__paymentMethodSetLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
     `;
-  }
-
-  private get __paymentMethodSetLoader() {
-    type Loader = NucleonElement<Resource<Rels.PaymentMethodSet>>;
-    return this.renderRoot.querySelector<Loader>(`#${this.__paymentMethodSetLoaderId}`);
   }
 
   private get __localeCodesLoader() {

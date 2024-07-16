@@ -12,8 +12,8 @@ const summary: Summary = {
   translatable: true,
   configurable: {
     inputs: ['name', 'value', 'price-mod', 'weight-mod'],
-    buttons: ['delete', 'create'],
-    sections: ['timestamps'],
+    buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
+    sections: ['timestamps', 'header'],
   },
 };
 

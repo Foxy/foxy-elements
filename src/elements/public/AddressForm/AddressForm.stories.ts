@@ -11,8 +11,8 @@ const summary: Summary = {
   localName: 'foxy-address-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps'],
-    buttons: ['delete', 'create'],
+    sections: ['timestamps', 'header'],
+    buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
     inputs: [
       'address-name',
       'first-name',
@@ -25,6 +25,7 @@ const summary: Summary = {
       'region',
       'city',
       'postal-code',
+      'ignore-address-restrictions',
     ],
   },
 };

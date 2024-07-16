@@ -1,24 +1,9 @@
-import { GenerateCodesForm } from '.';
-import { Rels } from '@foxy.io/sdk/backend';
-import { Renderer } from '../../../mixins/configurable';
-import { Resource } from '@foxy.io/sdk/core';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 export type Data = Resource<Rels.GenerateCodes> & {
   /** Present only in the response. */
   _links: { self: { href: string } };
   /** Present only in the response. */
   message: string;
-};
-
-export type Templates = {
-  'length:before'?: Renderer<GenerateCodesForm>;
-  'length:after'?: Renderer<GenerateCodesForm>;
-  'number-of-codes:before'?: Renderer<GenerateCodesForm>;
-  'number-of-codes:after'?: Renderer<GenerateCodesForm>;
-  'prefix:before'?: Renderer<GenerateCodesForm>;
-  'prefix:after'?: Renderer<GenerateCodesForm>;
-  'example:before'?: Renderer<GenerateCodesForm>;
-  'example:after'?: Renderer<GenerateCodesForm>;
-  'create:before'?: Renderer<GenerateCodesForm>;
-  'create:after'?: Renderer<GenerateCodesForm>;
 };

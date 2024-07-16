@@ -8,6 +8,8 @@ import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { UpdatePaymentMethodForm as Form } from './UpdatePaymentMethodForm';
 import { InternalResourcePickerControl } from '../../internal/InternalResourcePickerControl/InternalResourcePickerControl';
 import { createRouter } from '../../../server/index';
+import { stub } from 'sinon';
+import { getTestData } from '../../../testgen/getTestData';
 
 describe('UpdatePaymentMethodForm', () => {
   it('imports and defines foxy-internal-resource-picker-control', () => {
@@ -88,6 +90,20 @@ describe('UpdatePaymentMethodForm', () => {
     form.embedUrl = 'https://embed.foxy.io/v1.html';
     picker?.setValue('https://demo.api/hapi/template_sets/0');
     expect(form.hiddenSelector.matches('cc-token', true)).to.be.false;
+  });
+
+  it('always hides Copy ID and Copy JSON buttons', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('header:copy-id', true)).to.be.true;
+    expect(form.hiddenSelector.matches('header:copy-json', true)).to.be.true;
+  });
+
+  it('renders a form header', async () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.data = await getTestData('./hapi/payment_methods/0');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
   });
 
   it('renders a spinner in empty state when href is not set', async () => {

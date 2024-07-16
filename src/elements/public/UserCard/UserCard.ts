@@ -11,12 +11,6 @@ const Base = TranslatableMixin(TwoLineCard, NS);
 /**
  * Card element representing a `fx:user` resource.
  *
- * @slot title:before
- * @slot title:after
- *
- * @slot subtitle:before
- * @slot subtitle:after
- *
  * @element foxy-user-card
  * @since 1.22.0
  */

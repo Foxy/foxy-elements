@@ -1,7 +1,5 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { TransactionsTable } from '../TransactionsTable/TransactionsTable';
-import type { Templates as CustomerTemplates } from '../Customer/types';
-import type { Templates } from './types';
 import type { Renderer } from '../../../mixins/configurable';
 import type { Customer } from '../Customer/Customer';
 import type { Resource } from '@foxy.io/sdk/core';
@@ -28,8 +26,6 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       loggingOutStateResetTimeout: { attribute: false },
     };
   }
-
-  templates: Templates = {};
 
   customer = '';
 
@@ -161,7 +157,10 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         'transactions',
         'subscriptions',
         'addresses:actions:create',
+        'addresses:list:form:header',
+        'addresses:list:form:ignore-address-restrictions',
         'payment-methods:list:card:actions:update:form:template-set',
+        'header:actions:edit:form:header',
         'header:actions:edit:form:is-anonymous',
         'header:actions:edit:form:forgot-password',
         'header:actions:edit:form:create',
@@ -170,7 +169,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       ].join(' ')
     ).toString();
 
-    const templates: CustomerTemplates = this.getNestedTemplates('customer');
+    const templates = this.getNestedTemplates('customer');
     const originalHeaderActionsAfterTemplate = templates['header:actions:after'];
     const originalDefaultTemplate = templates['default'];
 

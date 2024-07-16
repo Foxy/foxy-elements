@@ -11,12 +11,6 @@ const Base = TranslatableMixin(TwoLineCard, NS);
 /**
  * Card element representing a template set (`fx:template_set`).
  *
- * @slot title:before
- * @slot title:after
- *
- * @slot subtitle:before
- * @slot subtitle:after
- *
  * @element foxy-template-set-card
  * @since 1.21.0
  */

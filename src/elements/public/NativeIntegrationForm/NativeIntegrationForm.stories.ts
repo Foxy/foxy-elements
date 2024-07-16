@@ -11,8 +11,8 @@ const summary: Summary = {
   localName: 'foxy-native-integration-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps'],
-    buttons: ['delete', 'create'],
+    sections: ['timestamps', 'header'],
+    buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
     inputs: [
       'provider',
       'avalara-service-url',

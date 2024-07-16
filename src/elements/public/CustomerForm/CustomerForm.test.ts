@@ -213,6 +213,40 @@ describe('CustomerForm', () => {
     expect(form.errors).to.not.include('email:v8n_invalid_email');
   });
 
+  it('renders a form header', () => {
+    const form = new CustomerForm();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('uses custom form header title options', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    const data = await getTestData<Data>('./hapi/customers/0');
+    expect(form.headerTitleOptions).to.have.property('context', 'new');
+
+    form.data = { ...data, first_name: 'Foo', last_name: 'Bar' };
+    expect(form.headerTitleOptions).to.have.property('context', 'existing');
+
+    form.data = { ...data, first_name: '', last_name: '' };
+    expect(form.headerTitleOptions).to.have.property('context', 'no_name');
+  });
+
+  it('uses custom form header subtitle key', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    const data = await getTestData<Data>('./hapi/customers/0');
+    form.data = { ...data, is_anonymous: false };
+    expect(form.headerSubtitleKey).to.equal('subtitle_registered');
+
+    form.data = { ...data, is_anonymous: true };
+    expect(form.headerSubtitleKey).to.equal('subtitle_anonymous');
+  });
+
+  it('uses custom form header subtitle options', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    expect(form.headerSubtitleOptions).to.deep.equal({ id: form.headerCopyIdValue });
+  });
+
   it('renders a text field for first name', async () => {
     const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
     const control = form.renderRoot.querySelector('[infer="first-name"]');

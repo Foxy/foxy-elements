@@ -1,6 +1,14 @@
 {
   "header": {
-    "no_description": "No description"
+    "title_existing": "{{ project_name }}",
+    "title_new": "New test client",
+    "subtitle": "{{ project_description }}",
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
   },
   "message": {
     "text": "Please copy the highlighted values below to a safe place and treat them like your password. We will not show them again for security reasons.",
@@ -29,8 +37,14 @@
     "cancel": "Cancel",
     "delete_prompt": "Are you sure you'd like to remove this token? All applications using this token will lose access to Foxy API immediately."
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Create"
+    "caption": "Create"
   },
   "spinner": {
     "refresh": "Refresh",

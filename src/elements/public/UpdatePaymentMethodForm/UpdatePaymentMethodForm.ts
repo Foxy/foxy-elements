@@ -18,12 +18,6 @@ const Base = TranslatableMixin(InternalForm, NS);
  * Form element for updating customer's default payment method (`fx:default_payment_method`)
  * using the Payment Card Embed. Works only with existing payment methods.
  *
- * @slot template-set:before
- * @slot template-set:after
- *
- * @slot cc-token:before
- * @slot cc-token:after
- *
  * @element foxy-update-payment-method-form
  * @since 1.27.0
  */
@@ -47,7 +41,7 @@ export class UpdatePaymentMethodForm extends Base<Data> {
 
   get hiddenSelector(): BooleanSelector {
     const formEmbedUrlParams = this.__formEmbedUrl?.searchParams;
-    const alwaysMatch = [super.hiddenSelector.toString()];
+    const alwaysMatch = ['header:copy-id', 'header:copy-json', super.hiddenSelector.toString()];
     const isDemo = formEmbedUrlParams?.has('demo');
 
     if (this.__isPreConfigured || isDemo) alwaysMatch.unshift('template-set');
@@ -72,6 +66,8 @@ export class UpdatePaymentMethodForm extends Base<Data> {
     const storeLoader = this.renderRoot.querySelector<StoreLoader>('#store-loader');
 
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-resource-picker-control
         first=${ifDefined(storeLoader?.data?._links['fx:template_sets'].href)}
         infer="template-set"
@@ -106,7 +102,8 @@ export class UpdatePaymentMethodForm extends Base<Data> {
   protected async _fetch<TResult = Data>(...args: Parameters<Window['fetch']>): Promise<TResult> {
     try {
       const response = await super._fetch<TResult>(...args);
-      this.status = { key: 'cc_token_success' };
+      const method = new UpdatePaymentMethodForm.API.WHATWGRequest(...args).method;
+      if (method === 'PATCH') this.status = { key: 'cc_token_success' };
       return response;
     } catch (err) {
       let message;

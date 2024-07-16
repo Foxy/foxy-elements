@@ -2,11 +2,12 @@ import type { InternalCheckboxGroupControl } from '../../internal/InternalCheckb
 import type { PropertyDeclarations } from 'lit-element';
 import type { FormRendererContext } from '../FormDialog/types';
 import type { ItemRendererContext } from '../CollectionPage/types';
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { html } from 'lit-html';
 
@@ -20,30 +21,6 @@ const Base = TranslatableMixin(InternalForm, NS);
  * in an attempt to streamline access to stores' payment method settings
  * that is currently a bit quirky due to the legacy functionality. To use
  * this element with hAPI, wrap it into a foxy-payments-api node._
- *
- * @slot description:before
- * @slot description:after
- *
- * @slot is-live:before
- * @slot is-live:after
- *
- * @slot is-purchase-order-enabled:before
- * @slot is-purchase-order-enabled:after
- *
- * @slot payment-methods:before
- * @slot payment-methods:after
- *
- * @slot fraud-protections:before
- * @slot fraud-protections:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot delete:before
- * @slot delete:after
  *
  * @element foxy-payments-api-payment-preset-form
  * @since 1.21.0
@@ -70,9 +47,6 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
   /** A function that returns image URL for given payment method `type`. */
   getPaymentMethodImageSrc: ((type: string) => string) | null = null;
 
-  /** Template render functions mapped to their name. */
-  templates: Templates = {};
-
   private static readonly __isPOEnabledOptions = [{ label: 'option_true', value: 'true' }];
 
   private static readonly __isLiveOptions = [{ label: 'option_live', value: 'live' }];
@@ -93,10 +67,16 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
     this.edit({ is_live: (newValue as string[]).includes('live') });
   };
 
+  get hiddenSelector(): BooleanSelector {
+    return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
+  }
+
   renderBody(): TemplateResult {
     const constructor = this.constructor as typeof PaymentsApiPaymentPresetForm;
 
     return html`
+      ${this.renderHeader()}
+
       <foxy-internal-text-control infer="description"></foxy-internal-text-control>
 
       <div class="-mb-s">
@@ -152,6 +132,7 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
               infer="fraud-protections"
               first=${this.data._links['fx:fraud_protections'].href}
               limit="5"
+              alert
               .item=${(ctx: ItemRendererContext) => html`
                 <foxy-payments-api-fraud-protection-card
                   parent=${ctx.parent}

@@ -1,4 +1,4 @@
-import { Collection, Column, Templates } from './types';
+import { Collection, Column } from './types';
 import { TemplateResult, html } from 'lit-html';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
@@ -25,8 +25,6 @@ export class Table<TData extends Collection> extends Base<TData> {
       columns: { attribute: false },
     };
   }
-
-  templates: Templates<TData> = {};
 
   /** Array of column templates. See `Column` type for more details. */
   columns: Column<TData>[] = [];

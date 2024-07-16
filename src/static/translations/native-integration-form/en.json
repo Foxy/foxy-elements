@@ -1,4 +1,28 @@
 {
+  "header": {
+    "title_existing_avalara": "Avalara",
+    "title_existing_taxjar": "TaxJar",
+    "title_existing_onesource": "ONESOURCE",
+    "title_existing_webflow": "Webflow",
+    "title_existing_zapier": "Zapier webhook #{{ id }}",
+    "title_existing_webhook": "Legacy webhook #{{ id }}",
+    "title_existing_apple_pay": "Apple Pay",
+    "title_existing_custom_tax": "Custom tax endpoint #{{ id }}",
+    "title_new": "New native integration",
+    "subtitle": "",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
   "error": {
     "already_configured": "This integration is already configured. Please edit the existing integration instead."
   },
@@ -269,8 +293,14 @@
     "cancel": "Cancel",
     "delete_prompt": "Please confirm that you want to delete this integration. This action cannot be undone."
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Create"
+    "caption": "Create"
   },
   "spinner": {
     "refresh": "Refresh",

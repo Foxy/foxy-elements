@@ -2,7 +2,7 @@
   "cancel": "Cancel",
   "city": "City",
   "country": "Country",
-  "create": "Create",
+  "caption": "Create",
   "date": "{{value, date}}",
   "date_created": "Created on",
   "date_modified": "Last updated on",

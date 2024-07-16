@@ -12,7 +12,7 @@ const summary: Summary = {
   translatable: true,
   configurable: {
     sections: ['header', 'customer', 'items', 'items:actions', 'transactions', 'timestamps'],
-    buttons: [],
+    buttons: ['header:copy-id', 'header:copy-json'],
     inputs: [
       'end-date',
       'next-transaction-date',

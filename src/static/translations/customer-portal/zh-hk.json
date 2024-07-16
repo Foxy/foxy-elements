@@ -63,6 +63,10 @@
       }
     },
     "address-form": {
+      "error": {
+        "country_banned": "很抱歉，我们不接受来自您选择的国家的订单。",
+        "address_name_exists": "已存在具有相同名称的其他地址。请选择一个唯一的名称。"
+      },
       "address-name": {
         "label": "地址名称",
         "placeholder": "必需的",
@@ -140,8 +144,14 @@
         "cancel": "取消",
         "delete_prompt": "您确定要删除该地址吗？"
       },
+      "undo": {
+        "caption": "Undo"
+      },
+      "submit": {
+        "caption": "Save changes"
+      },
       "create": {
-        "create": "创造"
+        "caption": "创造"
       },
       "spinner": {
         "refresh": "刷新",
@@ -804,6 +814,10 @@
         "dialog_header_add": "添加付款方式",
         "dialog_header_update": "更新付款方式",
         "update-payment-method-form": {
+          "header": {
+            "title_existing": "更新信用卡",
+            "subtitle": "在下方输入信用卡详细信息，然后点击保存信用卡"
+          },
           "status": {
             "cc_token_success": "卡详细信息已成功保存。",
             "close": "关闭"
@@ -981,6 +995,30 @@
       }
     },
     "subscription-form": {
+      "header": {
+        "title_new": "訂閱",
+        "title_existing": "訂閱",
+        "title_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+        "title_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
+        "subtitle_active": "包括運費、稅金等。下次付款日期 {{date, date}}。",
+        "subtitle_cancelled": "包括運費、稅金等。結束於 {{date, date}}。",
+        "subtitle_failed": "包括運費、稅金等。付款失敗於 {{date, date}}。",
+        "subtitle_inactive": "包括運費、稅金等。不活躍。",
+        "subtitle_will_be_cancelled": "包括運費、稅金等。結束於 {{date, date}}。",
+        "subtitle_will_be_active": "包括運費、稅金等。開始於 {{date, date}}。",
+        "copy-id": {
+          "failed_to_copy": "複製失敗",
+          "click_to_copy": "複製 ID",
+          "copying": "複製中...",
+          "done": "已複製到剪貼板"
+        },
+        "copy-json": {
+          "failed_to_copy": "複製失敗",
+          "click_to_copy": "複製原始碼為 JSON",
+          "copying": "複製中...",
+          "done": "已複製到剪貼板"
+        }
+      },
       "day": "天",
       "day_plural": "天",
       "week": "星期",
@@ -1004,12 +1042,6 @@
       "next_transaction_date": "下次交易日期",
       "price_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
       "price_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
-      "subscription_active": "包括运费、税费等。下次付款 {{date, date}}。",
-      "subscription_cancelled": "包括运费、税金等。结束于 {{date, date}}。",
-      "subscription_failed": "包括运费、税费等。付款失败于 {{date, date}}。",
-      "subscription_inactive": "包括运费、税金等。不活跃。",
-      "subscription_will_be_cancelled": "包括运费、税费等。结束于 {{date, date}}。",
-      "subscription_will_be_active": "包括运费、税费等。开始于 {{date, date}}。",
       "transaction_plural": "交易",
       "twice_a_month": "每月两次",
       "update_billing": "更新帐单",
@@ -1161,8 +1193,14 @@
       "text": "创建帐户即表示您同意我们的服务条款。",
       "link": "单击此处在新选项卡中打开它们。"
     },
+    "undo": {
+      "caption": "Undo"
+    },
+    "submit": {
+      "caption": "Save changes"
+    },
     "create": {
-      "create": "创建账户"
+      "caption": "创建账户"
     },
     "spinner": {
       "refresh": "刷新",

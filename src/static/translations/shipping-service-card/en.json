@@ -1,0 +1,9 @@
+{
+  "subtitle": "Code: {{ code }}",
+  "subtitle_international_only": "Code: {{ code }} • International Only",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Unknown error"
+  }
+}

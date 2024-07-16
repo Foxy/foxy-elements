@@ -9,6 +9,7 @@ import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 
 import '../NucleonElement/index';
+import '../Spinner/index';
 import '../I18n/index';
 
 import { PaymentsApiPaymentMethodForm } from './PaymentsApiPaymentMethodForm';

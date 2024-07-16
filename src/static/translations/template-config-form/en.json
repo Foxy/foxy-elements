@@ -32,7 +32,7 @@
   "copy": "Copy",
   "country": "Country",
   "coupon_entry": "Coupon code",
-  "create": "Create",
+  "caption": "Create",
   "custom_config": "Custom config",
   "custom_config_helper_text": "If you have any custom values you'd like to make available to your twig template, you can add them here as a valid JSON string.",
   "custom_fields": "Custom fields",

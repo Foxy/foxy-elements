@@ -1,7 +1,7 @@
 import '../../internal/InternalAsyncComboBoxControl/index';
 import '../../internal/InternalAsyncListControl/index';
 import '../../internal/InternalSelectControl/index';
-import '../../internal/InternalCreateControl/index';
+import '../../internal/InternalSubmitControl/index';
 import '../../internal/InternalDeleteControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';

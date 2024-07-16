@@ -22,70 +22,6 @@ const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 /**
  * Form element for creating or editing coupons (`fx:coupon`).
  *
- * @slot import:before
- * @slot import:after
- *
- * @slot generate:before
- * @slot generate:after
- *
- * @slot name:before
- * @slot name:after
- *
- * @slot rules:before
- * @slot rules:after
- *
- * @slot coupon-codes:before
- * @slot coupon-codes:after
- *
- * @slot item-option-restrictions:before
- * @slot item-option-restrictions:after
- *
- * @slot product-code-restrictions:before
- * @slot product-code-restrictions:after
- *
- * @slot category-restrictions:before
- * @slot category-restrictions:after
- *
- * @slot number-of-uses-allowed:before
- * @slot number-of-uses-allowed:after
- *
- * @slot number-of-uses-allowed-per-customer:before
- * @slot number-of-uses-allowed-per-customer:after
- *
- * @slot number-of-uses-allowed-per-code:before
- * @slot number-of-uses-allowed-per-code:after
- *
- * @slot start-date:before
- * @slot start-date:after
- *
- * @slot end-date:before
- * @slot end-date:after
- *
- * @slot inclusive-tax-rate:before
- * @slot inclusive-tax-rate:after
- *
- * @slot options:before
- * @slot options:after
- *
- * @slot customer-subscription-restrictions:before
- * @slot customer-subscription-restrictions:after
- *
- * @slot customer-attribute-restrictions:before
- * @slot customer-attribute-restrictions:after
- *
- * @slot attributes:before
- * @slot attributes:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot delete:before
- * @slot delete:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- *
  * @element foxy-coupon-form
  * @since 1.15.0
  */
@@ -281,6 +217,10 @@ export class CouponForm extends Base<Data> {
     }
 
     return new BooleanSelector(alwaysMatch.join(' ').trim());
+  }
+
+  get headerSubtitleOptions(): Record<string, unknown> {
+    return { ...super.headerSubtitleOptions, id: this.headerCopyIdValue };
   }
 
   renderHeaderActions(data: Data): TemplateResult {

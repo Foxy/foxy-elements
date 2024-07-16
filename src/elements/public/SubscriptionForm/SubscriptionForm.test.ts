@@ -34,6 +34,7 @@ import { ItemCard } from '../ItemCard/ItemCard';
 import { Choice } from '../../private/Choice/Choice';
 import { links } from '../../../server/hapi/links';
 import { I18n } from '../I18n/I18n';
+import { stub } from 'sinon';
 
 const fromDefaults = (key: string, overrides: Record<PropertyKey, unknown>) => {
   return { ...defaults[key](new URLSearchParams(), {}), ...overrides };
@@ -183,6 +184,13 @@ describe('SubscriptionForm', () => {
   });
 
   describe('header', () => {
+    it('renders a form header', () => {
+      const form = new Form();
+      const renderHeaderMethod = stub(form, 'renderHeader');
+      form.render();
+      expect(renderHeaderMethod).to.have.been.called;
+    });
+
     it('once loaded, renders price and frequency in title (intl currency symbol: true)', async () => {
       const router = createBaseRouter({
         defaults,
@@ -203,23 +211,15 @@ describe('SubscriptionForm', () => {
         </foxy-subscription-form>
       `);
 
-      await waitUntil(
-        () => !!element.renderRoot.querySelector('[data-testid="header-title"]'),
-        '',
-        { timeout: 10000 }
-      );
+      await waitUntil(() => !!element.headerTitleOptions.context, '', { timeout: 10000 });
 
-      const control = (await getByTestId(element, 'header-title'))!;
-      const options = { count: 3, units: 'weekly', amount: '25.99 EUR', currencyDisplay: 'code' };
-      const strOptions = JSON.stringify(options);
-
-      await waitUntil(() => control.getAttribute('options') === strOptions);
-
-      expect(control).to.have.property('localName', 'foxy-i18n');
-      expect(control).to.have.attribute('options', strOptions);
-      expect(control).to.have.attribute('lang', 'es');
-      expect(control).to.have.attribute('key', 'price_recurring');
-      expect(control).to.have.attribute('ns', 'subscription-form');
+      expect(element.headerTitleOptions).to.deep.equal({
+        currencyDisplay: 'code',
+        context: 'recurring',
+        amount: '25.99 EUR',
+        units: 'weekly',
+        count: 3,
+      });
     });
 
     it('once loaded, renders price and frequency in title (intl currency symbol: false)', async () => {
@@ -242,23 +242,15 @@ describe('SubscriptionForm', () => {
         </foxy-subscription-form>
       `);
 
-      await waitUntil(
-        () => !!element.renderRoot.querySelector('[data-testid="header-title"]'),
-        '',
-        { timeout: 10000 }
-      );
+      await waitUntil(() => !!element.headerTitleOptions.context, '', { timeout: 10000 });
 
-      const control = (await getByTestId(element, 'header-title'))!;
-      const options = { count: 3, units: 'weekly', amount: '25.99 EUR', currencyDisplay: 'symbol' };
-      const strOptions = JSON.stringify(options);
-
-      await waitUntil(() => control.getAttribute('options') === strOptions);
-
-      expect(control).to.have.property('localName', 'foxy-i18n');
-      expect(control).to.have.attribute('options', JSON.stringify(options));
-      expect(control).to.have.attribute('lang', 'es');
-      expect(control).to.have.attribute('key', 'price_recurring');
-      expect(control).to.have.attribute('ns', 'subscription-form');
+      expect(element.headerTitleOptions).to.deep.equal({
+        currencyDisplay: 'symbol',
+        context: 'recurring',
+        amount: '25.99 EUR',
+        units: 'weekly',
+        count: 3,
+      });
     });
 
     it('once loaded, renders price and frequency in title (frequency: .5m)', async () => {
@@ -281,28 +273,15 @@ describe('SubscriptionForm', () => {
         </foxy-subscription-form>
       `);
 
-      await waitUntil(
-        () => !!element.renderRoot.querySelector('[data-testid="header-title"]'),
-        '',
-        { timeout: 10000 }
-      );
+      await waitUntil(() => !!element.headerTitleOptions.context, '', { timeout: 10000 });
 
-      const control = (await getByTestId(element, 'header-title'))!;
-      const options = {
-        count: 0.5,
-        units: 'monthly',
-        amount: '25.99 EUR',
+      expect(element.headerTitleOptions).to.deep.equal({
         currencyDisplay: 'symbol',
-      };
-
-      const strOptions = JSON.stringify(options);
-      await waitUntil(() => control.getAttribute('options') === strOptions);
-
-      expect(control).to.have.property('localName', 'foxy-i18n');
-      expect(control).to.have.attribute('options', JSON.stringify(options));
-      expect(control).to.have.attribute('lang', 'es');
-      expect(control).to.have.attribute('key', 'price_twice_a_month');
-      expect(control).to.have.attribute('ns', 'subscription-form');
+        context: 'twice_a_month',
+        amount: '25.99 EUR',
+        units: 'monthly',
+        count: 0.5,
+      });
     });
 
     it('once loaded, renders price and frequency in title (currency in custom template set)', async () => {
@@ -341,22 +320,15 @@ describe('SubscriptionForm', () => {
         </foxy-subscription-form>
       `);
 
-      await waitUntil(
-        () => !!element.renderRoot.querySelector('[data-testid="header-title"]'),
-        '',
-        { timeout: 10000 }
-      );
+      await waitUntil(() => !!element.headerTitleOptions.context, '', { timeout: 10000 });
 
-      const control = (await getByTestId(element, 'header-title'))!;
-      const options = { count: 3, units: 'weekly', amount: '25.99 AUD', currencyDisplay: 'code' };
-      const strOptions = JSON.stringify(options);
-      await waitUntil(() => control.getAttribute('options') === strOptions);
-
-      expect(control).to.have.property('localName', 'foxy-i18n');
-      expect(control).to.have.attribute('options', JSON.stringify(options));
-      expect(control).to.have.attribute('lang', 'es');
-      expect(control).to.have.attribute('key', 'price_recurring');
-      expect(control).to.have.attribute('ns', 'subscription-form');
+      expect(element.headerTitleOptions).to.deep.equal({
+        currencyDisplay: 'code',
+        context: 'recurring',
+        amount: '25.99 AUD',
+        units: 'weekly',
+        count: 3,
+      });
     });
 
     it('once loaded, renders price and frequency in title (currency in default template set)', async () => {
@@ -390,22 +362,15 @@ describe('SubscriptionForm', () => {
         </foxy-subscription-form>
       `);
 
-      await waitUntil(
-        () => !!element.renderRoot.querySelector('[data-testid="header-title"]'),
-        '',
-        { timeout: 10000 }
-      );
+      await waitUntil(() => !!element.headerTitleOptions.context, '', { timeout: 10000 });
 
-      const control = (await getByTestId(element, 'header-title'))!;
-      const options = { count: 3, units: 'weekly', amount: '25.99 AUD', currencyDisplay: 'code' };
-      const strOptions = JSON.stringify(options);
-      await waitUntil(() => control.getAttribute('options') === strOptions);
-
-      expect(control).to.have.property('localName', 'foxy-i18n');
-      expect(control).to.have.attribute('options', JSON.stringify(options));
-      expect(control).to.have.attribute('lang', 'es');
-      expect(control).to.have.attribute('key', 'price_recurring');
-      expect(control).to.have.attribute('ns', 'subscription-form');
+      expect(element.headerTitleOptions).to.deep.equal({
+        currencyDisplay: 'code',
+        context: 'recurring',
+        amount: '25.99 AUD',
+        units: 'weekly',
+        count: 3,
+      });
     });
 
     it('once loaded, renders a special status for failed subscriptions in subtitle', async () => {
@@ -416,13 +381,8 @@ describe('SubscriptionForm', () => {
         <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
       `);
 
-      const control = await getByTestId(element, 'header-subtitle');
-
-      expect(control).to.have.property('localName', 'foxy-i18n');
-      expect(control).to.have.attribute('options', JSON.stringify({ date }));
-      expect(control).to.have.attribute('lang', 'es');
-      expect(control).to.have.attribute('key', 'subscription_failed');
-      expect(control).to.have.attribute('ns', 'subscription-form');
+      await waitUntil(() => !!element.headerSubtitleOptions.context, '', { timeout: 10000 });
+      expect(element.headerSubtitleOptions).to.deep.equal({ context: 'failed', date });
     });
 
     it('once loaded, renders a special status for subscriptions that are about to end in subtitle', async () => {
@@ -436,13 +396,11 @@ describe('SubscriptionForm', () => {
         <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
       `);
 
-      const control = await getByTestId(element, 'header-subtitle');
-
-      expect(control).to.have.property('localName', 'foxy-i18n');
-      expect(control).to.have.attribute('options', JSON.stringify({ date: data.end_date }));
-      expect(control).to.have.attribute('lang', 'es');
-      expect(control).to.have.attribute('key', 'subscription_will_be_cancelled');
-      expect(control).to.have.attribute('ns', 'subscription-form');
+      await waitUntil(() => !!element.headerSubtitleOptions.context, '', { timeout: 10000 });
+      expect(element.headerSubtitleOptions).to.deep.equal({
+        context: 'will_be_cancelled',
+        date: data.end_date,
+      });
     });
 
     it('once loaded, renders a special status for subscriptions that have ended in subtitle', async () => {
@@ -456,13 +414,11 @@ describe('SubscriptionForm', () => {
         <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
       `);
 
-      const control = await getByTestId(element, 'header-subtitle');
-
-      expect(control).to.have.property('localName', 'foxy-i18n');
-      expect(control).to.have.attribute('options', JSON.stringify({ date: data.end_date }));
-      expect(control).to.have.attribute('lang', 'es');
-      expect(control).to.have.attribute('key', 'subscription_cancelled');
-      expect(control).to.have.attribute('ns', 'subscription-form');
+      await waitUntil(() => !!element.headerSubtitleOptions.context, '', { timeout: 10000 });
+      expect(element.headerSubtitleOptions).to.deep.equal({
+        context: 'cancelled',
+        date: data.end_date,
+      });
     });
 
     it('once loaded, renders a special status for active subscriptions in subtitle', async () => {
@@ -476,17 +432,14 @@ describe('SubscriptionForm', () => {
         <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
       `);
 
-      const control = await getByTestId(element, 'header-subtitle');
-      const options = { date: data.next_transaction_date };
-
-      expect(control).to.have.property('localName', 'foxy-i18n');
-      expect(control).to.have.attribute('options', JSON.stringify(options));
-      expect(control).to.have.attribute('lang', 'es');
-      expect(control).to.have.attribute('key', 'subscription_active');
-      expect(control).to.have.attribute('ns', 'subscription-form');
+      await waitUntil(() => !!element.headerSubtitleOptions.context, '', { timeout: 10000 });
+      expect(element.headerSubtitleOptions).to.deep.equal({
+        context: 'active',
+        date: data.next_transaction_date,
+      });
     });
 
-    it('once loaded, renders a special status for active subscriptions in subtitle', async () => {
+    it('once loaded, renders a special status for subscriptions with future start date in subtitle', async () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
 
@@ -498,14 +451,11 @@ describe('SubscriptionForm', () => {
         <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
       `);
 
-      const control = await getByTestId(element, 'header-subtitle');
-      const options = { date: data.start_date };
-
-      expect(control).to.have.property('localName', 'foxy-i18n');
-      expect(control).to.have.attribute('options', JSON.stringify(options));
-      expect(control).to.have.attribute('lang', 'es');
-      expect(control).to.have.attribute('key', 'subscription_will_be_active');
-      expect(control).to.have.attribute('ns', 'subscription-form');
+      await waitUntil(() => !!element.headerSubtitleOptions.context, '', { timeout: 10000 });
+      expect(element.headerSubtitleOptions).to.deep.equal({
+        context: 'will_be_active',
+        date: data.start_date,
+      });
     });
 
     it('once loaded, renders a special status for inactive subscriptions in subtitle', async () => {
@@ -520,78 +470,11 @@ describe('SubscriptionForm', () => {
         <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
       `);
 
-      const control = await getByTestId(element, 'header-subtitle');
-
-      expect(control).to.have.property('localName', 'foxy-i18n');
-      expect(control).to.have.attribute('lang', 'es');
-      expect(control).to.have.attribute('key', 'subscription_inactive');
-      expect(control).to.have.attribute('ns', 'subscription-form');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<Form>(layout);
-
-      expect(await getByTestId(element, 'header')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-subscription-form hidden></foxy-subscription-form>`;
-      const element = await fixture<Form>(layout);
-
-      expect(await getByTestId(element, 'header')).not.to.exist;
-    });
-
-    it('is hidden when hiddencontrols includes "header"', async () => {
-      const element = await fixture<Form>(html`
-        <foxy-subscription-form hiddencontrols="header"></foxy-subscription-form>
-      `);
-
-      expect(await getByTestId(element, 'header')).not.to.exist;
-    });
-
-    it('renders "header:before" slot by default', async () => {
-      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<Form>(layout);
-      expect(await getByName(element, 'header:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "header:before" slot with template "header:before" if available', async () => {
-      const name = 'header:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<Form>(html`
-        <foxy-subscription-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-subscription-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "header:after" slot by default', async () => {
-      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<Form>(layout);
-      expect(await getByName(element, 'header:after')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "header:after" slot with template "header:after" if available', async () => {
-      const name = 'header:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<Form>(html`
-        <foxy-subscription-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-subscription-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
+      await waitUntil(() => !!element.headerSubtitleOptions.context, '', { timeout: 10000 });
+      expect(element.headerSubtitleOptions).to.deep.equal({
+        context: 'inactive',
+        date: null,
+      });
     });
   });
 

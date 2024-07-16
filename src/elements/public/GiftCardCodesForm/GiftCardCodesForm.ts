@@ -1,4 +1,4 @@
-import type { Data, Templates } from './types';
+import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
@@ -14,15 +14,6 @@ const Base = TranslatableMixin(InternalForm, NS);
 /**
  * Form element for importing gift card codes (`fx:gift_card_codes`).
  *
- * @slot gift-card-codes:before - **new in v1.27.0**
- * @slot gift-card-codes:after - **new in v1.27.0**
- *
- * @slot current-balance:before - **new in v1.27.0**
- * @slot current-balance:after - **new in v1.27.0**
- *
- * @slot create:before - **new in v1.27.0**
- * @slot create:after - **new in v1.27.0**
- *
  * @element foxy-gift-card-codes-form
  * @since 1.15.0
  */
@@ -30,8 +21,6 @@ export class GiftCardCodesForm extends Base<Data> {
   static get v8n(): NucleonV8N<Data> {
     return [({ gift_card_codes: v }) => (v && v.length > 0) || 'gift-card-codes:v8n_required'];
   }
-
-  templates: Templates = {};
 
   private readonly __giftCardCodesGetValue = () => {
     return this.form.gift_card_codes?.map(value => ({ value })) ?? [];

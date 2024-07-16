@@ -1,4 +1,15 @@
 {
+  "header": {
+    "title_existing": "Payment method set #{{ id }}",
+    "title_new": "New payment method set",
+    "subtitle": "",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
   "description": {
     "label": "Description",
     "placeholder": "E.g. EU & UK Payment Options",
@@ -55,7 +66,67 @@
       "undo_header": "Unsaved changes",
       "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
       "undo_cancel": "Review",
-      "undo_confirm": "Discard"
+      "undo_confirm": "Discard",
+      "payments-api-fraud-protection-form": {
+        "header": {
+          "title_new": "New fraud protection",
+          "title_minfraud": "MaxMind minFraud",
+          "title_google_recaptcha": "Google reCAPTCHA",
+          "title_custom_precheckout_hook": "Pre-checkout webhook",
+          "subtitle": "Fraud protection #{{ id }}",
+          "copy-id": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy ID",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          },
+          "copy-json": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy source as JSON",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          }
+        },
+        "default_additional_field_placeholder": "None",
+        "select_protection_title": "Select a fraud protection type to get started",
+        "select_another_button_label": "Back to fraud protections",
+        "score-threshold-reject": {
+          "label": "Rejection threshold",
+          "placeholder": "Default",
+          "helper_text": "A number between 0 and 100. 0 will disable minFraud and 100 will turn it on for logging but still allow all transactions to go through.",
+          "v8n_out_of_range": "Please enter a whole number between 0 and 100 (inclusive)."
+        },
+        "description": {
+          "label": "Description",
+          "placeholder": "None",
+          "helper_text": "",
+          "v8n_too_long": "Please reduce this description to a 100 characters or less"
+        },
+        "timestamps": {
+          "date_created": "Created on",
+          "date_modified": "Last updated on",
+          "date": "{{value, date}}"
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error"
+        },
+        "delete": {
+          "delete": "Remove",
+          "cancel": "Cancel",
+          "delete_prompt": "Are you sure you'd like to remove this fraud protection? You'll need to configure it again if you decide to add it back."
+        },
+        "undo": {
+          "caption": "Undo"
+        },
+        "submit": {
+          "caption": "Save changes"
+        },
+        "create": {
+          "caption": "Add fraud protection"
+        }
+      }
     },
     "pagination": {
       "create_button_text": "Add fraud protection +",
@@ -79,7 +150,13 @@
     "cancel": "Cancel",
     "delete_prompt": "Are you sure you'd like to remove this payment method set? You won't be able to bring it back."
   },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
   "create": {
-    "create": "Create"
+    "caption": "Create"
   }
 }

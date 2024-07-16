@@ -65,69 +65,90 @@ export class Transaction extends Base<Data> {
     return new BooleanSelector(`${super.hiddenSelector} ${hidden.join(' ')}`.trim());
   }
 
-  renderBody(): TemplateResult {
-    let shipmentsLink: string | undefined = undefined;
-    let subtitleKey = 'subtitle';
-    let itemsLink: string | undefined = undefined;
-
-    const alertStatuses = ['problem', 'pending_fraud_review', 'rejected', 'declined'];
-    const hidden = this.hiddenSelector;
+  get headerSubtitleOptions(): Record<string, unknown> {
     const source = this.data?.source;
     const type = this.data?.type;
 
+    let context = '';
+
     if (type === 'updateinfo') {
       if (!source || source?.startsWith('cit_')) {
-        subtitleKey = 'subtitle_customer_changed_payment_method';
+        context = 'customer_changed_payment_method';
       } else if (source === 'mit_uoe') {
-        subtitleKey = 'subtitle_admin_changed_payment_method_with_uoe';
+        context = 'admin_changed_payment_method_with_uoe';
       } else if (source === 'mit_api') {
-        subtitleKey = 'subtitle_integration_changed_payment_method';
+        context = 'integration_changed_payment_method';
       } else {
-        subtitleKey = 'subtitle_admin_changed_payment_method';
+        context = 'admin_changed_payment_method';
       }
     } else if (type === 'subscription_modification') {
       if (!source || source?.startsWith('cit_')) {
-        subtitleKey = 'subtitle_customer_changed_subscription';
+        context = 'customer_changed_subscription';
       } else if (source === 'mit_uoe') {
-        subtitleKey = 'subtitle_admin_changed_subscription_with_uoe';
+        context = 'admin_changed_subscription_with_uoe';
       } else if (source === 'mit_api') {
-        subtitleKey = 'subtitle_integration_changed_subscription';
+        context = 'integration_changed_subscription';
       } else {
-        subtitleKey = 'subtitle_admin_changed_subscription';
+        context = 'admin_changed_subscription';
       }
     } else if (type === 'subscription_renewal') {
       if (source === 'mit_recurring') {
-        subtitleKey = 'subtitle_subscription_renewal_attempt';
+        context = 'subscription_renewal_attempt';
       } else if (source === 'mit_recurring_reattempt_automated') {
-        subtitleKey = 'subtitle_subscription_renewal_automated_reattempt';
+        context = 'subscription_renewal_automated_reattempt';
       } else if (source === 'mit_recurring_reattempt_manual') {
-        subtitleKey = 'subtitle_subscription_renewal_manual_reattempt';
+        context = 'subscription_renewal_manual_reattempt';
       }
     } else if (type === 'subscription_cancellation') {
       if (source === 'cit_recurring_cancellation') {
-        subtitleKey = 'subtitle_customer_canceled_subscription';
+        context = 'customer_canceled_subscription';
       } else if (source === 'mit_recurring_cancellation') {
-        subtitleKey = 'subtitle_admin_canceled_subscription';
+        context = 'admin_canceled_subscription';
       }
     } else {
       if (this.data?._links['fx:subscription']) {
         if (source?.startsWith('cit_')) {
-          subtitleKey = 'subtitle_customer_subscribed';
+          context = 'customer_subscribed';
         } else if (source === 'mit_uoe') {
-          subtitleKey = 'subtitle_admin_subscribed_with_uoe';
+          context = 'admin_subscribed_with_uoe';
         } else if (source === 'mit_api') {
-          subtitleKey = 'subtitle_integration_subscribed';
+          context = 'integration_subscribed';
         }
       } else {
         if (source?.startsWith('cit_')) {
-          subtitleKey = 'subtitle_customer_placed_order';
+          context = 'customer_placed_order';
         } else if (source === 'mit_uoe') {
-          subtitleKey = 'subtitle_admin_placed_order_with_uoe';
+          context = 'admin_placed_order_with_uoe';
         } else if (source === 'mit_api') {
-          subtitleKey = 'subtitle_integration_placed_order';
+          context = 'integration_placed_order';
         }
       }
     }
+
+    return {
+      transaction_date: this.data?.transaction_date,
+      ip_country: this.data?.ip_country,
+      context,
+    };
+  }
+
+  get headerCopyIdValue(): string {
+    return this.data?.display_id?.toString() ?? '';
+  }
+
+  renderHeaderActions(): TemplateResult {
+    return html`
+      <foxy-internal-transaction-actions-control infer="actions">
+      </foxy-internal-transaction-actions-control>
+    `;
+  }
+
+  renderBody(): TemplateResult {
+    let shipmentsLink: string | undefined = undefined;
+    let itemsLink: string | undefined = undefined;
+
+    const alertStatuses = ['problem', 'pending_fraud_review', 'rejected', 'declined'];
+    const hidden = this.hiddenSelector;
 
     if (this.data) {
       try {
@@ -143,32 +164,7 @@ export class Transaction extends Base<Data> {
     }
 
     return html`
-      <h2>
-        <div class="flex items-center gap-s leading-xs text-xxl font-medium break-all">
-          <foxy-i18n infer="header" key="title" .options=${this.data}></foxy-i18n>
-          <foxy-copy-to-clipboard
-            infer="header"
-            class="inline-block text-m"
-            text=${this.data?.display_id}
-          >
-          </foxy-copy-to-clipboard>
-        </div>
-
-        <foxy-i18n
-          class="block leading-xs text-l text-secondary"
-          infer="header"
-          key=${subtitleKey}
-          .options=${{
-            transaction_date: this.data?.transaction_date,
-            ip_country: this.data?.ip_country,
-          }}
-        >
-        </foxy-i18n>
-
-        <foxy-internal-transaction-actions-control class="mt-xs" infer="actions">
-        </foxy-internal-transaction-actions-control>
-      </h2>
-
+      ${this.renderHeader()}
       ${alertStatuses.includes(this.data?.status ?? '')
         ? html`
             <p

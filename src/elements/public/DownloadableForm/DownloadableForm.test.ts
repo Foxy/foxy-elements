@@ -7,6 +7,7 @@ import { html, expect, fixture, waitUntil } from '@open-wc/testing';
 import { DownloadableForm as Form } from './DownloadableForm';
 import { createRouter } from '../../../server/hapi/index';
 import { getTestData } from '../../../testgen/getTestData';
+import { stub } from 'sinon';
 
 describe('DownloadableForm', () => {
   it('imports and defines foxy-internal-downloadable-form-upload-control', () => {
@@ -130,6 +131,13 @@ describe('DownloadableForm', () => {
 
     form.edit({ code: 'A'.repeat(51) });
     expect(form.errors).to.include('code:v8n_too_long');
+  });
+
+  it('renders a form header', () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
   });
 
   it('renders a foxy-internal-async-combo-box-control for item category uri', async () => {

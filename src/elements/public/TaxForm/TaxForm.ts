@@ -1,6 +1,6 @@
 import { Checkbox, Dropdown, Metadata } from '../../private/index';
 import { CheckboxChangeEvent, DropdownChangeEvent } from '../../private/events';
-import { Data, Templates } from './types';
+import { Data } from './types';
 import { Nucleon, Resource } from '@foxy.io/sdk/core';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
@@ -33,45 +33,6 @@ const Base = ConfigurableMixin(
 
 /**
  * Form element for creating or editing taxes (`fx:tax`).
- *
- * @slot name:before
- * @slot name:after
- *
- * @slot type:before
- * @slot type:after
- *
- * @slot country:before
- * @slot country:after
- *
- * @slot region:before
- * @slot region:after
- *
- * @slot city:before
- * @slot city:after
- *
- * @slot provider:before
- * @slot provider:after
- *
- * @slot rate:before
- * @slot rate:after
- *
- * @slot apply-to-shipping:before
- * @slot apply-to-shipping:after
- *
- * @slot use-origin-rates:before
- * @slot use-origin-rates:after
- *
- * @slot exempt-all-customer-tax-ids:before
- * @slot exempt-all-customer-tax-ids:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot delete:before
- * @slot delete:after
- *
- * @slot create:before
- * @slot create:after
  *
  * @element foxy-tax-form
  * @since 1.13.0
@@ -116,8 +77,6 @@ export class TaxForm extends Base<Data> {
       ({ rate: v }) => !v || v <= 100 || 'rate_invalid',
     ];
   }
-
-  templates: Templates = {};
 
   private __previousCountry: string | undefined = undefined;
 
@@ -391,11 +350,15 @@ export class TaxForm extends Base<Data> {
   }
 
   private __renderCountry(): TemplateResult {
-    const isLoadingItems = this.__countriesService.state.matches('busy');
+    const isLoadingItems = !!this.__countriesService.state?.matches('busy');
     const isLoadingData = this.in('busy');
     const isLoading = isLoadingItems || isLoadingData;
     const isFail = this.in('fail');
-    const json = this.__countriesService.state.context.data as Resource<Rels.Countries> | null;
+    const json = this.__countriesService.state?.context.data as
+      | Resource<Rels.Countries>
+      | undefined
+      | null;
+
     const items = Object.values(json?.values ?? {});
 
     return html`
@@ -438,11 +401,15 @@ export class TaxForm extends Base<Data> {
   }
 
   private __renderRegion(): TemplateResult {
-    const isLoadingItems = this.__regionsService.state.matches('busy');
+    const isLoadingItems = !!this.__regionsService.state?.matches('busy');
     const isLoadingData = this.in('busy');
     const isLoading = isLoadingItems || isLoadingData;
     const isFail = this.in('fail');
-    const json = this.__regionsService.state.context.data as Resource<Rels.Regions> | null;
+    const json = this.__regionsService.state?.context.data as
+      | Resource<Rels.Regions>
+      | undefined
+      | null;
+
     const items = Object.values(json?.values ?? {});
 
     return html`

@@ -42,40 +42,100 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
     return null;
   }
 
+  /** Getter that returns a i18n key for the optional form header title. */
+  get headerTitleKey(): string {
+    return 'title';
+  }
+
+  /** I18next options to pass to the header title translation function. */
+  get headerTitleOptions(): Record<string, unknown> {
+    return {
+      ...this.data,
+      context: this.data ? 'existing' : 'new',
+      id: this.data ? getResourceId(this.data._links.self.href) : null,
+    };
+  }
+
+  /** Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable. */
+  get headerSubtitleKey(): string {
+    return 'subtitle';
+  }
+
+  /** I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable. */
+  get headerSubtitleOptions(): Record<string, unknown> {
+    return this.data ?? {};
+  }
+
+  /** ID that will be written to clipboard when Copy ID button in header is clicked. */
+  get headerCopyIdValue(): string | number {
+    return this.data ? getResourceId(this.data._links.self.href) ?? '' : '';
+  }
+
   /**
-   * Renders optional form header with ID, last update timestamp and actions list (snapshot-only).
-   * Customize which actions are rendered with `.renderHeaderActions()` method.
+   * Renders optional form header.
+   * - Customize which actions are rendered with `.renderHeaderActions()` method.
+   * - Customize the header title and subtitle with `.headerTitleKey` and `.headerSubtitleKey` getters.
+   * - Customize the header title and subtitle options with `.headerTitleOptions` and `.headerSubtitleOptions` getters.
+   * - To hide the header completely, add `header` to `hidden-controls` attribute.
    */
   renderHeader(): TemplateResult {
+    if (this.hiddenSelector.matches('header', true)) return html``;
+
     const data = this.data;
     const actions = data ? this.renderHeaderActions(data) : null;
-    const id = data ? getResourceId(data._links.self.href) : '';
 
     return html`
-      <h2>
-        <span class="flex items-center gap-s leading-xs text-xxl font-medium break-all">
-          <foxy-i18n infer="header" key=${data ? 'title_existing' : 'title_new'} .options=${{ id }}>
-          </foxy-i18n>
+      <div>
+        ${this.renderTemplateOrSlot('header:before')}
+        <h2>
+          <span class="flex items-center gap-s leading-xs text-xl font-medium break-all">
+            <foxy-i18n
+              options=${JSON.stringify(this.headerTitleOptions)}
+              infer="header"
+              key=${this.headerTitleKey}
+            >
+            </foxy-i18n>
+            ${data
+              ? html`
+                  ${this.hiddenSelector.matches('header:copy-id', true)
+                    ? ''
+                    : html`
+                        <foxy-copy-to-clipboard
+                          infer="header copy-id"
+                          class="text-m"
+                          text=${this.headerCopyIdValue}
+                        >
+                        </foxy-copy-to-clipboard>
+                      `}
+                  ${this.hiddenSelector.matches('header:copy-json', true)
+                    ? ''
+                    : html`
+                        <foxy-copy-to-clipboard
+                          infer="header copy-json"
+                          class="text-m"
+                          icon="icons:code"
+                          text=${JSON.stringify(data, null, 2)}
+                        >
+                        </foxy-copy-to-clipboard>
+                      `}
+                `
+              : ''}
+          </span>
           ${data
             ? html`
-                <foxy-copy-to-clipboard infer="header" class="text-m" text=${id}>
-                </foxy-copy-to-clipboard>
+                <foxy-i18n
+                  infer="header"
+                  class="text-m text-secondary"
+                  key=${this.headerSubtitleKey}
+                  .options=${this.headerSubtitleOptions}
+                >
+                </foxy-i18n>
+                ${actions ? html`<div class="mt-xs flex gap-m">${actions}</div>` : ''}
               `
             : ''}
-        </span>
-        ${data
-          ? html`
-              <foxy-i18n
-                infer="header"
-                class="text-l text-secondary"
-                key="subtitle"
-                .options=${data}
-              >
-              </foxy-i18n>
-              ${actions ? html`<div class="mt-xs flex gap-m">${actions}</div>` : ''}
-            `
-          : ''}
-      </h2>
+        </h2>
+        ${this.renderTemplateOrSlot('header:after')}
+      </div>
     `;
   }
 
@@ -85,12 +145,34 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
    * don't forget to add `super.renderBody()` to your template.
    */
   renderBody(): TemplateResult {
-    return this.data
-      ? html`
-          <foxy-internal-timestamps-control infer="timestamps"></foxy-internal-timestamps-control>
-          <foxy-internal-delete-control infer="delete"></foxy-internal-delete-control>
-        `
-      : html`<foxy-internal-create-control infer="create"></foxy-internal-create-control>`;
+    if (this.data) {
+      const isSnapshotDirty = this.in({ idle: { snapshot: 'dirty' } });
+      const isDeleteHidden = this.hiddenSelector.matches('delete', true);
+      const actionClass = classMap({ 'transition-opacity': true, 'opacity-0': !isSnapshotDirty });
+
+      return html`
+        <foxy-internal-timestamps-control infer="timestamps"></foxy-internal-timestamps-control>
+        ${!isDeleteHidden || isSnapshotDirty
+          ? html`
+              <div class="flex gap-s">
+                <foxy-internal-delete-control infer="delete"></foxy-internal-delete-control>
+                <div class="w-full"></div>
+                <foxy-internal-undo-control class=${actionClass} infer="undo">
+                </foxy-internal-undo-control>
+                <foxy-internal-submit-control class=${actionClass} infer="submit">
+                </foxy-internal-submit-control>
+              </div>
+            `
+          : ''}
+      `;
+    } else {
+      return html`
+        <div class="flex">
+          <foxy-internal-submit-control infer="create" theme="primary success" class="ml-auto">
+          </foxy-internal-submit-control>
+        </div>
+      `;
+    }
   }
 
   /**

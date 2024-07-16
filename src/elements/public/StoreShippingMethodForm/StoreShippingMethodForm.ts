@@ -1,15 +1,19 @@
-import type { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl/InternalAsyncComboBoxControl';
 import type { PropertyDeclarations } from 'lit-element';
-import type { Templates, Data } from './types';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
+import type { UpdateEvent } from '../NucleonElement/UpdateEvent';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
+import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
+
+type Embed = { 'fx:shipping_method': Resource<Rels.ShippingMethod> } | undefined;
 
 const NS = 'store-shipping-method-form';
 const Base = TranslatableMixin(InternalForm, NS);
@@ -25,48 +29,6 @@ const isURL = (value: string) => {
 
 /**
  * Form element for creating and editing store shipping methods (`fx:store_shipping_method`).
- *
- * @slot shipping-method-uri:before
- * @slot shipping-method-uri:after
- *
- * @slot shipping-container-uri:before
- * @slot shipping-container-uri:after
- *
- * @slot shipping-drop-type-uri:before
- * @slot shipping-drop-type-uri:after
- *
- * @slot destinations:before
- * @slot destinations:after
- *
- * @slot authentication-key:before
- * @slot authentication-key:after
- *
- * @slot meter-number:before
- * @slot meter-number:after
- *
- * @slot endpoint:before
- * @slot endpoint:after
- *
- * @slot accountid:before
- * @slot accountid:after
- *
- * @slot password:before
- * @slot password:after
- *
- * @slot custom-code:before
- * @slot custom-code:after
- *
- * @slot services:before
- * @slot services:after
- *
- * @slot timestamps:before
- * @slot timestamps:after
- *
- * @slot create:before
- * @slot create:after
- *
- * @slot delete:before
- * @slot delete:after
  *
  * @element foxy-store-shipping-method-form
  * @since 1.21.0
@@ -89,7 +51,7 @@ export class StoreShippingMethodForm extends Base<Data> {
       ({ custom_code: v }) => !v || getKbSize(v) <= 64 || 'custom-code:v8n_too_long',
 
       form => {
-        if (form._embedded?.['fx:shipping_method']?.code === 'CUSTOM-ENDPOINT-POST') {
+        if ((form._embedded as Embed)?.['fx:shipping_method']?.code === 'CUSTOM-ENDPOINT-POST') {
           return (form.accountid && isURL(form.accountid)) || 'endpoint:v8n_required';
         } else {
           return true;
@@ -98,7 +60,7 @@ export class StoreShippingMethodForm extends Base<Data> {
 
       form => {
         const url = form.shipping_container_uri;
-        const code = form._embedded?.['fx:shipping_method']?.code;
+        const code = (form._embedded as Embed)?.['fx:shipping_method']?.code;
         const codes = ['USPS', 'FedEx', 'UPS'];
 
         if (code && codes.includes(code)) {
@@ -110,7 +72,7 @@ export class StoreShippingMethodForm extends Base<Data> {
 
       form => {
         const url = form.shipping_drop_type_uri;
-        const code = form._embedded?.['fx:shipping_method']?.code;
+        const code = (form._embedded as Embed)?.['fx:shipping_method']?.code;
         const codes = ['FedEx', 'UPS'];
 
         if (code && codes.includes(code)) {
@@ -125,152 +87,112 @@ export class StoreShippingMethodForm extends Base<Data> {
   /** URL of the `fx:shipping_methods` property helper. */
   shippingMethods: string | null = null;
 
-  /** Template render functions mapped to their name. */
-  templates: Templates = {};
+  private readonly __shippingMethodLoaderId = 'shippingMethodLoader';
 
-  private __destinations = [
-    { value: 'domestic', label: 'domestic' },
-    { value: 'international', label: 'international' },
-  ];
+  private readonly __shippingMethodUriSetValue = (newValue: string) => {
+    this.undo();
+    this.edit({ shipping_method_uri: newValue });
+  };
 
-  private __getDestinations = () => {
+  private readonly __destinationsGetValue = () => {
     const value: string[] = [];
     if (this.form.use_for_domestic) value.push('domestic');
     if (this.form.use_for_international) value.push('international');
     return value;
   };
 
-  private __setDestinations = (newValue: string[]) => {
+  private readonly __destinationsSetValue = (newValue: string[]) => {
     this.edit({
       use_for_domestic: newValue.includes('domestic'),
       use_for_international: newValue.includes('international'),
     });
   };
 
+  private readonly __destinationsOptions = [
+    { value: 'domestic', label: 'domestic' },
+    { value: 'international', label: 'international' },
+  ];
+
   get hiddenSelector(): BooleanSelector {
-    const code = this.form._embedded?.['fx:shipping_method'].code;
-    if (!code) return new BooleanSelector('not=shipping-method-uri,timestamps,create,delete');
+    const hasData = !!this.data;
+    const code = this.__shippingMethod?.code;
 
-    const orgControls = ['shipping-container-uri', 'shipping-drop-type-uri', 'destinations'];
-    const authControls = ['authentication-key', 'meter-number', 'accountid', 'password'];
-    const codeToControls: Record<string, string[]> = {
-      'CUSTOM-ENDPOINT-POST': ['endpoint'],
-      'CUSTOM-CODE': ['custom-code'],
-      'CUSTOM': ['destinations', 'services'],
-      'FedEx': [...orgControls, ...authControls, 'services'],
-      'USPS': [...orgControls, 'services'],
-      'UPS': [...orgControls, ...authControls, 'services'],
-    };
+    // prettier-ignore
+    let hiddenControls = 'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint custom-code';
 
-    if (codeToControls[code]) {
-      const controls = codeToControls[code];
-      const set = ['shipping-method-uri', ...controls, 'timestamps', 'delete', 'create'];
-      return new BooleanSelector(`not=${set.join()} ${super.hiddenSelector}`);
-    } else {
-      return super.hiddenSelector;
+    if (code) {
+      const codeToHiddenControls: Record<string, string> = {
+        // prettier-ignore
+        'CUSTOM-ENDPOINT-POST': 'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password custom-code',
+        // prettier-ignore
+        'CUSTOM-CODE': 'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint',
+        // prettier-ignore
+        'CUSTOM': 'shipping-container-uri shipping-drop-type-uri authentication-key meter-number accountid password endpoint custom-code',
+        // prettier-ignore
+        'FedEx': 'endpoint custom-code',
+        // prettier-ignore
+        'USPS': 'authentication-key meter-number accountid password endpoint custom-code',
+        // prettier-ignore
+        'UPS': 'endpoint custom-code',
+      };
+
+      if (codeToHiddenControls[code]) hiddenControls = codeToHiddenControls[code];
     }
+
+    if (!hasData || code?.startsWith('CUSTOM')) hiddenControls += ' services';
+    if (hasData) hiddenControls = `shipping-method-uri ${hiddenControls}`;
+
+    return new BooleanSelector(`${hiddenControls} ${super.hiddenSelector}`.trim());
+  }
+
+  get headerSubtitleOptions(): Record<string, unknown> {
+    return { id: this.headerCopyIdValue };
+  }
+
+  get headerTitleOptions(): Record<string, unknown> {
+    return { ...super.headerTitleOptions, provider: this.__shippingMethod?.name };
   }
 
   renderBody(): TemplateResult {
-    const method = this.form._embedded?.['fx:shipping_method'];
+    const shippingMethod = this.__shippingMethod;
 
     return html`
-      ${['method', 'container', 'drop_type'].map(tgt => {
-        const curie = `fx:shipping_${tgt}` as keyof Data['_embedded'];
-        const prop = `shipping_${tgt}_uri` as keyof Data;
+      ${this.renderHeader()}
 
-        if (this.form._embedded?.[curie] || !this.form[prop]) return;
-
-        return html`
-          <foxy-nucleon
-            class="hidden"
-            infer=""
-            href=${this.form[prop]}
-            @update=${(evt: CustomEvent) => {
-              const loader = evt.currentTarget as NucleonElement<any>;
-              const data = loader.data;
-
-              if (data) {
-                const newEmbeds = { ...this.form._embedded, [curie]: data };
-                this.edit({ _embedded: newEmbeds as Data['_embedded'] });
-              }
-            }}
-          >
-          </foxy-nucleon>
-        `;
-      })}
-
-      <foxy-internal-async-combo-box-control
-        item-value-path="_links.self.href"
-        item-label-path="name"
-        first=${ifDefined(this.shippingMethods ?? this.form._links?.['fx:shipping_methods'].href)}
+      <foxy-internal-resource-picker-control
         infer="shipping-method-uri"
-        .selectedItem=${this.form._embedded?.['fx:shipping_method'] ?? null}
-        @selected-item-changed=${(evt: CustomEvent) => {
-          const { selectedItem } = evt.currentTarget as InternalAsyncComboBoxControl;
-          const newEmbeds = { 'fx:shipping_method': selectedItem };
-          type ShippingMethod = Data['_embedded']['fx:shipping_method'];
-
-          this.edit({
-            _embedded: newEmbeds as Data['_embedded'],
-            shipping_container_uri: '',
-            shipping_drop_type_uri: '',
-            shipping_method_uri: (selectedItem as ShippingMethod)?._links.self.href ?? '',
-          });
-        }}
+        first=${ifDefined(this.shippingMethods ?? this.form._links?.['fx:shipping_methods'].href)}
+        item="foxy-shipping-method-card"
+        .setValue=${this.__shippingMethodUriSetValue}
       >
-      </foxy-internal-async-combo-box-control>
+      </foxy-internal-resource-picker-control>
 
-      <foxy-internal-async-combo-box-control
-        item-value-path="_links.self.href"
-        item-label-path="name"
-        first=${ifDefined(method?._links['fx:shipping_containers'].href)}
+      <foxy-internal-resource-picker-control
         infer="shipping-container-uri"
-        .selectedItem=${this.form._embedded?.['fx:shipping_container'] ?? null}
-        @selected-item-changed=${(evt: CustomEvent) => {
-          const { selectedItem } = evt.currentTarget as InternalAsyncComboBoxControl;
-          const newEmbeds = { ...this.form._embedded, 'fx:shipping_container': selectedItem };
-          type ShippingContainer = Data['_embedded']['fx:shipping_container'];
-
-          this.edit({
-            shipping_container_uri: (selectedItem as ShippingContainer)?._links.self.href ?? '',
-            _embedded: newEmbeds as Data['_embedded'],
-          });
-        }}
+        first=${ifDefined(shippingMethod?._links['fx:shipping_containers'].href)}
+        item="foxy-shipping-container-card"
       >
-      </foxy-internal-async-combo-box-control>
+      </foxy-internal-resource-picker-control>
 
-      <foxy-internal-async-combo-box-control
-        item-value-path="_links.self.href"
-        item-label-path="name"
-        first=${ifDefined(method?._links['fx:shipping_drop_types'].href)}
+      <foxy-internal-resource-picker-control
         infer="shipping-drop-type-uri"
-        .selectedItem=${this.form._embedded?.['fx:shipping_drop_type'] ?? null}
-        @selected-item-changed=${(evt: CustomEvent) => {
-          const { selectedItem } = evt.currentTarget as InternalAsyncComboBoxControl;
-          const newEmbeds = { ...this.form._embedded, 'fx:shipping_drop_type': selectedItem };
-          type DropType = Data['_embedded']['fx:shipping_drop_type'];
-
-          this.edit({
-            shipping_drop_type_uri: (selectedItem as DropType)?._links.self.href ?? '',
-            _embedded: newEmbeds as Data['_embedded'],
-          });
-        }}
+        first=${ifDefined(shippingMethod?._links['fx:shipping_drop_types'].href)}
+        item="foxy-shipping-drop-type-card"
       >
-      </foxy-internal-async-combo-box-control>
+      </foxy-internal-resource-picker-control>
 
       <foxy-internal-checkbox-group-control
         infer="destinations"
-        .getValue=${this.__getDestinations}
-        .setValue=${this.__setDestinations}
-        .options=${this.__destinations}
+        .getValue=${this.__destinationsGetValue}
+        .setValue=${this.__destinationsSetValue}
+        .options=${this.__destinationsOptions}
       >
       </foxy-internal-checkbox-group-control>
 
       <foxy-internal-text-control infer="authentication-key"></foxy-internal-text-control>
       <foxy-internal-text-control infer="meter-number"></foxy-internal-text-control>
 
-      ${method?.code === 'CUSTOM-ENDPOINT-POST'
+      ${shippingMethod?.code === 'CUSTOM-ENDPOINT-POST'
         ? html`
             <foxy-internal-text-control infer="endpoint" property="accountid">
             </foxy-internal-text-control>
@@ -278,12 +200,46 @@ export class StoreShippingMethodForm extends Base<Data> {
         : html`<foxy-internal-text-control infer="accountid"></foxy-internal-text-control>`}
 
       <foxy-internal-password-control infer="password"></foxy-internal-password-control>
-      <foxy-internal-text-area-control infer="custom-code"></foxy-internal-text-area-control>
+      <foxy-internal-source-control infer="custom-code"></foxy-internal-source-control>
 
-      <foxy-internal-store-shipping-method-form-services-control infer="services">
-      </foxy-internal-store-shipping-method-form-services-control>
+      <foxy-internal-async-resource-link-list-control
+        foreign-key-for-uri="shipping_service_uri"
+        foreign-key-for-id="shipping_service_id"
+        own-key-for-uri="shipping_method_uri"
+        own-uri=${ifDefined(this.data?._links.self.href)}
+        embed-key="fx:store_shipping_services"
+        options-href=${ifDefined(shippingMethod?._links['fx:shipping_services'].href)}
+        links-href=${ifDefined(this.data?._links['fx:store_shipping_services'].href)}
+        infer="services"
+        item="foxy-shipping-service-card"
+      >
+      </foxy-internal-async-resource-link-list-control>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.form.shipping_method_uri || undefined)}
+        id=${this.__shippingMethodLoaderId}
+        @update=${(evt: UpdateEvent) => {
+          const nucleon = evt.target as NucleonElement<Resource<Rels.ShippingMethod>>;
+          const embed = nucleon.data;
+          this.edit({ _embedded: embed ? { 'fx:shipping_method': embed } : {} });
+        }}
+      >
+      </foxy-nucleon>
 
       ${super.renderBody()}
     `;
+  }
+
+  private get __shippingMethodLoader() {
+    type Loader = NucleonElement<Resource<Rels.ShippingMethod>>;
+    return this.renderRoot.querySelector<Loader>(`#${this.__shippingMethodLoaderId}`);
+  }
+
+  private get __shippingMethod() {
+    return (
+      this.__shippingMethodLoader?.data ?? (this.form._embedded as Embed)?.['fx:shipping_method']
+    );
   }
 }
