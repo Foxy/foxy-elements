@@ -1,9 +1,10 @@
-import '../../internal/InternalAsyncComboBoxControl/index';
+import '../../internal/InternalResourcePickerControl/index';
 import '../../internal/InternalSelectControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalSandbox/index';
 import '../../internal/InternalForm/index';
 
+import '../PaymentsApiPaymentPresetCard/index';
 import '../NucleonElement/index';
 import '../I18nEditor/index';
 
