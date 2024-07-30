@@ -150,7 +150,8 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
     return html`
       <label
         class=${classMap({
-          'font-tnum select-none relative flex h-m items-center justify-center rounded': true,
+          'relative flex w-m h-m items-center justify-center rounded-s': true,
+          'font-tnum text-l select-none leading-none': true,
           'cursor-pointer focus-within-ring-2 focus-within-ring-primary-50': !disabled,
           'bg-contrast-5 hover-bg-contrast-10': !checked && !disabled,
           'bg-primary text-primary-contrast': checked && !disabled,
