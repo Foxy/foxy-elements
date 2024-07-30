@@ -72,7 +72,7 @@ export abstract class Dialog extends Base {
         }
 
         .max-h-alert {
-          max-height: calc(100vh - var(--lumo-size-l) - var(--lumo-space-m) * 2);
+          max-height: calc(100dvh - var(--lumo-size-l) - var(--lumo-space-m) * 2);
         }
       `,
     ];
