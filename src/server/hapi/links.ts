@@ -136,8 +136,12 @@ export const links: Links = {
     'fx:subscriptions': { href: `./subscriptions?customer_id=${document.id}` },
     'fx:customer_addresses': { href: `./customer_addresses?customer_id=${document.id}` },
     'fx:default_payment_method': { href: `./payment_methods/${document.payment_method_id}` },
-    'fx:default_billing_address': { href: `./customer_addresses/${document.billing_address_id}` },
-    'fx:default_shipping_address': { href: `./customer_addresses/${document.shipping_address_id}` },
+    'fx:default_billing_address': {
+      href: `./customer_addresses/${document.default_billing_address_id}`,
+    },
+    'fx:default_shipping_address': {
+      href: `./customer_addresses/${document.default_shipping_address_id}`,
+    },
   }),
 
   stores: ({ id, subscription_settings_id, customer_portal_settings_id: cps_id }) => ({
