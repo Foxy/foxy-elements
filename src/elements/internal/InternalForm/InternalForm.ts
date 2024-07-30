@@ -148,30 +148,35 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
     if (this.data) {
       const isSnapshotDirty = this.in({ idle: { snapshot: 'dirty' } });
       const isDeleteHidden = this.hiddenSelector.matches('delete', true);
+      const isClean = this.in({ idle: { snapshot: 'clean' } });
+      const isUndoHidden = isClean || this.hiddenSelector.matches('undo', true);
+      const isSubmitHidden = this.hiddenSelector.matches('submit', true);
       const actionClass = classMap({ 'transition-opacity': true, 'opacity-0': !isSnapshotDirty });
+      const actionsHidden =
+        ((isDeleteHidden && isUndoHidden && isSubmitHidden) ||
+          (isDeleteHidden && !isSnapshotDirty)) &&
+        !isSnapshotDirty;
 
       return html`
         <foxy-internal-timestamps-control infer="timestamps"></foxy-internal-timestamps-control>
-        ${!isDeleteHidden || isSnapshotDirty
-          ? html`
-              <div class="flex gap-s">
-                <foxy-internal-delete-control infer="delete"></foxy-internal-delete-control>
-                <div class="w-full"></div>
-                <foxy-internal-undo-control class=${actionClass} infer="undo">
-                </foxy-internal-undo-control>
-                <foxy-internal-submit-control class=${actionClass} infer="submit">
-                </foxy-internal-submit-control>
-              </div>
-            `
-          : ''}
+        <div class=${classMap({ 'flex gap-m': !actionsHidden, 'hidden': actionsHidden })}>
+          <foxy-internal-delete-control infer="delete"></foxy-internal-delete-control>
+          <div class="w-full"></div>
+          <foxy-internal-undo-control class=${actionClass} infer="undo">
+          </foxy-internal-undo-control>
+          <foxy-internal-submit-control class=${actionClass} infer="submit">
+          </foxy-internal-submit-control>
+        </div>
       `;
-    } else {
+    } else if (!this.hiddenSelector.matches('create', true)) {
       return html`
         <div class="flex">
           <foxy-internal-submit-control infer="create" theme="primary success" class="ml-auto">
           </foxy-internal-submit-control>
         </div>
       `;
+    } else {
+      return html``;
     }
   }
 
