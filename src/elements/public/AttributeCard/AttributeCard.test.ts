@@ -15,6 +15,12 @@ import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { createRouter } from '../../../server/index';
 
 describe('AttributeCard', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('extends NucleonElement', () => {
     expect(new AttributeCard()).to.be.instanceOf(NucleonElement);
   });

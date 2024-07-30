@@ -75,7 +75,7 @@ export class AttributeCard extends Base<Data> {
       <div
         aria-live="polite"
         aria-busy=${this.in('busy')}
-        class="h-s flex flex-col justify-center relative text-body text-m font-lumo leading-xs sm-flex-row sm-items-center sm-justify-between"
+        class="relative text-body text-m font-lumo leading-xs sm-flex sm-items-center sm-justify-between"
       >
         ${hiddenSelector.matches('name', true) ? '' : this.__renderName()}
         ${hiddenSelector.matches('value', true) ? '' : this.__renderValue()}
@@ -83,15 +83,15 @@ export class AttributeCard extends Base<Data> {
         <div
           class=${classMap({
             'transition duration-250 ease-in-out absolute inset-0 flex': true,
+            'items-center justify-center': true,
             'opacity-0 pointer-events-none': isLoaded,
           })}
         >
           <foxy-spinner
             data-testid="spinner"
-            class="m-auto"
             state=${this.in('fail') ? 'error' : isEmpty ? 'empty' : 'busy'}
             lang=${this.lang}
-            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
+            ns="${this.ns} spinner"
           >
           </foxy-spinner>
         </div>
