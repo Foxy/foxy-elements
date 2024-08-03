@@ -54,6 +54,7 @@ export default {
               'lit-element': ['html', { name: 'css', encapsulation: 'style' }],
             },
             strictCSS: true,
+            failOnError: false,
             htmlMinifier: {
               collapseWhitespace: true,
               conservativeCollapse: true,
