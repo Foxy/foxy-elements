@@ -1,35 +1,56 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { HALJSONResource } from '../../public/NucleonElement/types';
+import type { NucleonElement } from '../../public/NucleonElement/NucleonElement';
+import type { FormRenderer } from '../../public/FormDialog/types';
 import type { ItemRenderer } from '../../public/CollectionPage/types';
 import type { FormDialog } from '../../public/FormDialog/FormDialog';
 import type { Option } from '../../public/QueryBuilder/types';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { html, svg } from 'lit-html';
 import { classMap } from '../../../utils/class-map';
 import { uniqueId } from 'lodash-es';
 import { spread } from '@open-wc/lit-helpers';
-import { html } from 'lit-html';
 
 import memoize from 'lodash-es/memoize';
+
+type DisplayValueOptionsCb = (
+  resource: HALJSONResource | null,
+  context: string
+) => Record<string, unknown>;
 
 export class InternalResourcePickerControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      getDisplayValueOptions: { attribute: false },
       virtualHost: {},
+      formProps: { type: Object },
       filters: { type: Array },
+      layout: {},
       first: {},
       item: {},
+      form: {},
     };
   }
 
+  getDisplayValueOptions: DisplayValueOptionsCb = (r, c) => ({ resource: r, context: c });
+
   virtualHost = uniqueId('internal-resource-picker-control-');
 
+  formProps: Record<string, unknown> = {};
+
   filters: Option[] = [];
+
+  layout: 'summary-item' | 'standalone' | null = null;
 
   first: string | null = null;
 
   item: string | null = null;
+
+  form: string | null | FormRenderer = null;
 
   private readonly __getItemRenderer = memoize((item: string | null) => {
     return new Function(
@@ -47,23 +68,119 @@ export class InternalResourcePickerControl extends InternalEditableControl {
   });
 
   renderControl(): TemplateResult {
+    const dialogProps = {
+      ...this.formProps,
+      '.selectionProps': { '.filters': this.filters, '.first': this.first, '.item': this.item },
+    };
+
     return html`
       <foxy-form-dialog
         parent="foxy://${this.virtualHost}/select"
+        header="header"
         infer="dialog"
-        form="foxy-internal-resource-picker-control-form"
         alert
-        .props=${{
-          '.selectionProps': {
-            '.filters': this.filters,
-            '.first': this.first,
-            '.item': this.item,
-          },
-        }}
+        .props=${dialogProps}
+        .form=${this.form ?? 'foxy-internal-resource-picker-control-form'}
         @fetch=${this.__handleFetchEvent}
       >
       </foxy-form-dialog>
 
+      ${this.layout === 'summary-item'
+        ? this.__renderSummaryItemLayout()
+        : this.__renderStandaloneLayout()}
+    `;
+  }
+
+  updated(changes: Map<keyof this, unknown>): void {
+    super.updated(changes);
+    if (changes.has('item')) this.__getItemRenderer.cache.clear?.();
+  }
+
+  private __renderSummaryItemLayout() {
+    const resource = this.renderRoot.querySelector<NucleonElement<any>>('#value');
+    const onClick = (evt: Event) => {
+      if (this.disabled || this.readonly) return;
+      const button = evt.currentTarget as HTMLButtonElement;
+      const dialog = this.renderRoot.querySelector('foxy-form-dialog') as FormDialog;
+
+      dialog.href = '';
+      dialog.show(button);
+    };
+
+    return html`
+      <div class="flex items-start leading-xs gap-m">
+        <div class="flex-1">
+          <div class="text-m text-body whitespace-nowrap">${this.label}</div>
+          <div class="text-s text-secondary">${this.helperText}</div>
+          <div class="text-s text-error" ?hidden=${this.disabled || this.readonly}>
+            ${this._errorMessage}
+          </div>
+        </div>
+
+        <div class="flex items-center gap-xs">
+          <button
+            aria-label=${this.t('select')}
+            class=${classMap({
+              'text-right min-w-0 transition-colors transition-opacity': true,
+              'rounded-s focus-outline-none focus-ring-2 focus-ring-primary-50': true,
+              'text-secondary': this.readonly,
+              'text-disabled': this.disabled,
+              'cursor-pointer text-body hover-opacity-80': !this.disabled && !this.readonly,
+              'font-medium': !this.readonly,
+            })}
+            ?disabled=${this.disabled || this.readonly}
+            @click=${onClick}
+          >
+            <div class="truncate min-w-0">
+              ${this._value
+                ? html`
+                    <foxy-i18n
+                      infer=""
+                      key="value"
+                      .options=${this.getDisplayValueOptions(
+                        resource?.data ?? null,
+                        resource?.data ? '' : resource?.in('fail') ? 'fail' : 'busy'
+                      )}
+                    >
+                    </foxy-i18n>
+                  `
+                : this.placeholder}
+            </div>
+          </button>
+
+          <button
+            aria-label=${this.t('clear')}
+            class=${classMap({
+              'rounded-full transition-colors': true,
+              'focus-outline-none focus-ring-2 focus-ring-primary-50': true,
+              'cursor-pointer text-tertiary hover-text-body': !this.disabled,
+              'cursor-default text-disabled': this.disabled,
+            })}
+            style="width: 1em; height: 1em;"
+            ?disabled=${this.disabled}
+            ?hidden=${this.readonly || !this._value}
+            @click=${() => {
+              this._value = '';
+              this.dispatchEvent(new CustomEvent('clear'));
+            }}
+          >
+            ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1em; height: 1em; transform: scale(1.25); margin-right: -0.16em"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" /></svg>`}
+          </button>
+        </div>
+      </div>
+
+      <foxy-nucleon
+        infer=""
+        href=${ifDefined(this._value || void 0)}
+        id="value"
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+    `;
+  }
+
+  private __renderStandaloneLayout() {
+    return html`
       <div class="block group">
         <div
           class=${classMap({
@@ -144,11 +261,6 @@ export class InternalResourcePickerControl extends InternalEditableControl {
     `;
   }
 
-  updated(changes: Map<keyof this, unknown>): void {
-    super.updated(changes);
-    if (changes.has('item')) this.__getItemRenderer.cache.clear?.();
-  }
-
   private __handleFetchEvent(event: Event) {
     if (!(event instanceof FetchEvent)) return;
     if (event.defaultPrevented) return;
@@ -164,7 +276,9 @@ export class InternalResourcePickerControl extends InternalEditableControl {
     }
   }
 
-  private async __handleEmpty(): Promise<Response> {
+  private async __handleSelect(request: Request): Promise<Response> {
+    const body = (await request.clone().json()) as { selection: string };
+    this._value = body.selection;
     return new Response(
       JSON.stringify({
         _links: { self: { href: `foxy://${this.virtualHost}/empty` } },
@@ -173,9 +287,7 @@ export class InternalResourcePickerControl extends InternalEditableControl {
     );
   }
 
-  private async __handleSelect(request: Request): Promise<Response> {
-    const body = (await request.clone().json()) as { selection: string };
-    this._value = body.selection;
+  private async __handleEmpty(): Promise<Response> {
     return new Response(
       JSON.stringify({
         _links: { self: { href: `foxy://${this.virtualHost}/empty` } },

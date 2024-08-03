@@ -4,10 +4,9 @@ import { InternalResourcePickerControlForm as Form } from './InternalResourcePic
 import { InternalResourcePickerControl as Control } from './InternalResourcePickerControl';
 import { expect, fixture, html } from '@open-wc/testing';
 import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
+import { FormDialog } from '../../public/FormDialog/FormDialog';
 import { Type } from '../../public/QueryBuilder/types';
 import { stub } from 'sinon';
-import { FormDialog } from '../../public';
-import { getByKey } from '../../../testgen/getByKey';
 
 describe('InternalResourcePickerControl', () => {
   it('imports and defines foxy-internal-editable-control element', () => {
@@ -26,6 +25,14 @@ describe('InternalResourcePickerControl', () => {
     expect(customElements.get('foxy-form-dialog')).to.exist;
   });
 
+  it('imports and defines foxy-nucleon element', () => {
+    expect(customElements.get('foxy-nucleon')).to.exist;
+  });
+
+  it('imports and defines foxy-i18n element', () => {
+    expect(customElements.get('foxy-i18n')).to.exist;
+  });
+
   it('defines itself as foxy-internal-resource-picker-control', () => {
     expect(customElements.get('foxy-internal-resource-picker-control')).to.equal(Control);
   });
@@ -34,14 +41,35 @@ describe('InternalResourcePickerControl', () => {
     expect(new Control()).to.be.instanceOf(customElements.get('foxy-internal-editable-control'));
   });
 
+  it('has a reactive property "getDisplayValueOptions"', () => {
+    expect(Control).to.have.deep.nested.property('properties.getDisplayValueOptions', {
+      attribute: false,
+    });
+
+    expect(new Control().getDisplayValueOptions(null, 'test')).to.deep.equal({
+      resource: null,
+      context: 'test',
+    });
+  });
+
   it('has a reactive property "virtualHost"', () => {
     expect(Control).to.have.deep.nested.property('properties.virtualHost', {});
     expect(new Control()).to.have.property('virtualHost').that.is.a('string');
   });
 
+  it('has a reactive property "formProps"', () => {
+    expect(Control).to.have.deep.nested.property('properties.formProps', { type: Object });
+    expect(new Control()).to.have.deep.property('formProps', {});
+  });
+
   it('has a reactive property "filters"', () => {
     expect(Control).to.have.deep.nested.property('properties.filters', { type: Array });
     expect(new Control()).to.have.deep.property('filters', []);
+  });
+
+  it('has a reactive property "layout"', () => {
+    expect(Control).to.have.deep.nested.property('properties.layout', {});
+    expect(new Control()).to.have.deep.property('layout', null);
   });
 
   it('has a reactive property "first"', () => {
@@ -54,7 +82,12 @@ describe('InternalResourcePickerControl', () => {
     expect(new Control()).to.have.deep.property('item', null);
   });
 
-  it('renders label', async () => {
+  it('has a reactive property "form"', () => {
+    expect(Control).to.have.deep.nested.property('properties.form', {});
+    expect(new Control()).to.have.deep.property('form', null);
+  });
+
+  it('renders label in standalone layout', async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-resource-picker-control></foxy-internal-resource-picker-control>
     `);
@@ -68,7 +101,23 @@ describe('InternalResourcePickerControl', () => {
     expect(control.renderRoot).to.include.text('Foo bar');
   });
 
-  it('renders helper text', async () => {
+  it('renders label in summary item layout', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control
+        layout="summary-item"
+      ></foxy-internal-resource-picker-control>
+    `);
+
+    expect(control.renderRoot).to.include.text('label');
+
+    control.label = 'Foo bar';
+    await control.requestUpdate();
+
+    expect(control.renderRoot).to.not.include.text('label');
+    expect(control.renderRoot).to.include.text('Foo bar');
+  });
+
+  it('renders helper text in standalone layout', async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-resource-picker-control></foxy-internal-resource-picker-control>
     `);
@@ -82,7 +131,23 @@ describe('InternalResourcePickerControl', () => {
     expect(control.renderRoot).to.include.text('Test helper text');
   });
 
-  it('renders error text if available', async () => {
+  it('render helper text in summary item layout', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control
+        layout="summary-item"
+      ></foxy-internal-resource-picker-control>
+    `);
+
+    expect(control.renderRoot).to.include.text('helper_text');
+
+    control.helperText = 'Test helper text';
+    await control.requestUpdate();
+
+    expect(control.renderRoot).to.not.include.text('helper_text');
+    expect(control.renderRoot).to.include.text('Test helper text');
+  });
+
+  it('renders error text  in standalone layout if available', async () => {
     let control = await fixture<Control>(html`
       <foxy-internal-resource-picker-control></foxy-internal-resource-picker-control>
     `);
@@ -99,6 +164,28 @@ describe('InternalResourcePickerControl', () => {
     );
 
     control = await fixture<Control>(html`<x-test-control></x-test-control>`);
+    expect(control.renderRoot).to.include.text('Test error message');
+  });
+
+  it('renders error text in summary item layout if available', async () => {
+    let control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control
+        layout="summary-item"
+      ></foxy-internal-resource-picker-control>
+    `);
+
+    expect(control.renderRoot).to.not.include.text('Test error message');
+
+    customElements.define(
+      'x-test-control-2',
+      class extends Control {
+        protected get _errorMessage() {
+          return 'Test error message';
+        }
+      }
+    );
+
+    control = await fixture<Control>(html`<x-test-control-2></x-test-control-2>`);
     expect(control.renderRoot).to.include.text('Test error message');
   });
 
@@ -121,8 +208,9 @@ describe('InternalResourcePickerControl', () => {
 
     expect(dialog).to.exist;
     expect(dialog).to.have.attribute('parent', `foxy://${control.virtualHost}/select`);
+    expect(dialog).to.have.attribute('header', 'header');
     expect(dialog).to.have.attribute('infer', 'dialog');
-    expect(dialog).to.have.attribute('form', 'foxy-internal-resource-picker-control-form');
+    expect(dialog).to.have.property('form', 'foxy-internal-resource-picker-control-form');
     expect(dialog).to.have.attribute('alert');
     expect(dialog).to.have.deep.property('props', {
       '.selectionProps': {
@@ -152,7 +240,27 @@ describe('InternalResourcePickerControl', () => {
     expect(value).to.equal('https://demo.api/hapi/customers/0');
   });
 
-  it('renders item as a button that opens a dialog on click', async () => {
+  it('renders a custom form in form dialog', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control form="my-custom-form">
+      </foxy-internal-resource-picker-control>
+    `);
+
+    const dialog = control.renderRoot.querySelector('foxy-form-dialog')!;
+    expect(dialog).to.have.property('form', 'my-custom-form');
+  });
+
+  it('adds custom props to form dialog', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control .formProps=${{ foo: 'bar' }}>
+      </foxy-internal-resource-picker-control>
+    `);
+
+    const dialog = control.renderRoot.querySelector('foxy-form-dialog')!;
+    expect(dialog).to.have.nested.property('props.foo', 'bar');
+  });
+
+  it('renders item as a button that opens a dialog on click in standalone layout', async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-resource-picker-control
         infer=""
@@ -183,7 +291,72 @@ describe('InternalResourcePickerControl', () => {
     expect(item).to.have.attribute('href', 'https://demo.api/hapi/customers/0');
   });
 
-  it('disables button when control is disabled', async () => {
+  it('renders a custom button that opens a dialog on click in summary item layout', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control
+        placeholder="Test Placeholder"
+        layout="summary-item"
+        infer=""
+        first="https://demo.api/hapi/customers"
+        item="foxy-customer-card"
+        .getDisplayValueOptions=${() => ({ foo: 'bar' })}
+      >
+      </foxy-internal-resource-picker-control>
+    `);
+
+    const selectBtn = control.renderRoot.querySelector<HTMLButtonElement>(
+      'button[aria-label="select"]'
+    )!;
+
+    const dialog = control.renderRoot.querySelector('foxy-form-dialog') as FormDialog;
+    const showMethod = stub(dialog, 'show');
+
+    expect(selectBtn).to.exist;
+    expect(selectBtn).to.include.text('Test Placeholder');
+
+    control.getValue = () => 'https://demo.api/hapi/customers/0';
+    await control.requestUpdate();
+    const label = selectBtn.querySelector('foxy-i18n')!;
+
+    expect(label).to.exist;
+    expect(label).to.have.attribute('infer', '');
+    expect(label).to.have.attribute('key', 'value');
+    expect(label).to.have.deep.property('options', { foo: 'bar' });
+    expect(selectBtn).to.not.include.text('Test Placeholder');
+
+    selectBtn.click();
+    expect(showMethod).to.have.been.calledOnceWith(selectBtn);
+  });
+
+  it('renders a Clear button in summary item layout if value is set', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control
+        layout="summary-item"
+        infer=""
+        first="https://demo.api/hapi/customers"
+        item="foxy-customer-card"
+      >
+      </foxy-internal-resource-picker-control>
+    `);
+
+    let clearBtn = control.renderRoot.querySelector<HTMLButtonElement>(
+      'button[aria-label="clear"]'
+    )!;
+    expect(clearBtn).to.have.attribute('hidden');
+
+    control.getValue = () => 'https://demo.api/hapi/customers/0';
+    await control.requestUpdate();
+
+    clearBtn = control.renderRoot.querySelector<HTMLButtonElement>('button[aria-label="clear"]')!;
+    expect(clearBtn).to.not.have.attribute('hidden');
+
+    const setValueStub = stub();
+    control.setValue = setValueStub;
+    clearBtn.click();
+    expect(setValueStub).to.have.been.calledOnceWith('');
+  });
+
+  it('disables button when control is disabled in standalone layout', async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-resource-picker-control disabled></foxy-internal-resource-picker-control>
     `);
@@ -192,13 +365,45 @@ describe('InternalResourcePickerControl', () => {
     expect(button).to.have.attribute('disabled');
   });
 
-  it('disables button when control is readonly', async () => {
+  it('disables buttons when control is disabled in summary item layout', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control
+        layout="summary-item"
+        disabled
+      ></foxy-internal-resource-picker-control>
+    `);
+
+    const buttons = control.renderRoot.querySelectorAll('button');
+    buttons.forEach(button => expect(button).to.have.attribute('disabled'));
+  });
+
+  it('disables button when control is readonly in standalone layout', async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-resource-picker-control readonly></foxy-internal-resource-picker-control>
     `);
 
     const button = control.renderRoot.querySelector('button')!;
     expect(button).to.have.attribute('disabled');
+  });
+
+  it('disables select button and hides clear button when control is readonly in summary item layout', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control
+        layout="summary-item"
+        readonly
+      ></foxy-internal-resource-picker-control>
+    `);
+
+    const selectBtn = control.renderRoot.querySelector<HTMLButtonElement>(
+      'button[aria-label="select"]'
+    )!;
+
+    const clearBtn = control.renderRoot.querySelector<HTMLButtonElement>(
+      'button[aria-label="clear"]'
+    )!;
+
+    expect(selectBtn).to.have.attribute('disabled');
+    expect(clearBtn).to.have.attribute('hidden');
   });
 
   describe('InternalResourcePickerControlForm', () => {
@@ -217,16 +422,6 @@ describe('InternalResourcePickerControl', () => {
 
       form.edit({ selection: 'https://demo.api/hapi/customers/0' });
       expect(form.errors).to.not.include('silent:selection_required');
-    });
-
-    it('renders a header', async () => {
-      const form = await fixture<Form>(
-        html`<foxy-internal-resource-picker-control-form></foxy-internal-resource-picker-control-form>`
-      );
-
-      const header = await getByKey(form, 'header');
-      expect(header).to.exist;
-      expect(header).to.have.attribute('infer', '');
     });
 
     it('renders an async list control for selection', async () => {
