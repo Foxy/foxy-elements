@@ -103,7 +103,10 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
 
             ${this.in({ idle: { snapshot: 'dirty' } }) || this.in({ idle: 'template' })
               ? html`
-                  <foxy-internal-submit-control infer="create" theme="tertiary-inline success">
+                  <foxy-internal-submit-control
+                    infer=${this.href ? 'submit' : 'create'}
+                    theme="tertiary-inline success"
+                  >
                   </foxy-internal-submit-control>
                 `
               : ''}
