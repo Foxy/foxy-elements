@@ -47,7 +47,7 @@ describe('AppliedCouponCodeForm', () => {
   });
 
   it('hides the default timestamps control', () => {
-    expect(new Form().hiddenSelector.toString()).to.equal('timestamps');
+    expect(new Form().hiddenSelector.matches('timestamps', true)).to.be.true;
   });
 
   it('renders a form header', () => {

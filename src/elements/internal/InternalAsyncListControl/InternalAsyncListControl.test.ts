@@ -29,6 +29,12 @@ import { createRouter } from '../../../server/hapi';
 import { Type } from '../../public/QueryBuilder/types';
 
 describe('InternalAsyncListControl', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('imports and defines vaadin-button', () => {
     const element = customElements.get('vaadin-button');
     expect(element).to.exist;

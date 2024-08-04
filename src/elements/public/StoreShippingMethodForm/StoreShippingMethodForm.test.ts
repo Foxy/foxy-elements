@@ -244,7 +244,7 @@ describe('StoreShippingMethodForm', () => {
   it('hides everything except for shipping method uri, timestamps, create and delete buttons by default', () => {
     const form = new Form();
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint custom-code services'
+      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint custom-code services undo delete timestamps submit'
     );
   });
 
@@ -271,7 +271,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password custom-code services'
+      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password custom-code services undo delete timestamps submit'
     );
   });
 
@@ -298,7 +298,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint services'
+      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint services undo delete timestamps submit'
     );
   });
 
@@ -325,7 +325,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri authentication-key meter-number accountid password endpoint custom-code services'
+      'shipping-container-uri shipping-drop-type-uri authentication-key meter-number accountid password endpoint custom-code services undo delete timestamps submit'
     );
   });
 
@@ -351,7 +351,9 @@ describe('StoreShippingMethodForm', () => {
       } as Data['_embedded'],
     });
 
-    expect(form.hiddenSelector.toString()).to.equal('endpoint custom-code services');
+    expect(form.hiddenSelector.toString()).to.equal(
+      'endpoint custom-code services undo delete timestamps submit'
+    );
   });
 
   it('hides everything except for shipping method uri, shipping container uri, shipping drop type uri, destinations, services, timestamps, create and delete buttons for USPS method', () => {
@@ -377,7 +379,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'authentication-key meter-number accountid password endpoint custom-code services'
+      'authentication-key meter-number accountid password endpoint custom-code services undo delete timestamps submit'
     );
   });
 
@@ -403,7 +405,9 @@ describe('StoreShippingMethodForm', () => {
       } as Data['_embedded'],
     });
 
-    expect(form.hiddenSelector.toString()).to.equal('endpoint custom-code services');
+    expect(form.hiddenSelector.toString()).to.equal(
+      'endpoint custom-code services undo delete timestamps submit'
+    );
   });
 
   it('renders a form header', async () => {

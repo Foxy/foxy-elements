@@ -239,7 +239,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
 
         const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
         const alwaysHidden =
-          'attributes timestamps start-date past-due-amount customer header end-date';
+          'attributes timestamps start-date past-due-amount customer submit undo header end-date';
 
         expect(form).to.have.attribute('disabledcontrols', 'end-date');
         expect(form).to.have.attribute('readonlycontrols', 'frequency');
