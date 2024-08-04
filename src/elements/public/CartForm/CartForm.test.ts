@@ -1,39 +1,50 @@
-import type { ItemRenderer } from '../CollectionPage/types';
-import type { FormRenderer } from '../FormDialog/types';
+import type { InternalResourcePickerControl } from '../../internal/InternalResourcePickerControl/InternalResourcePickerControl';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 import './index';
 
-import { InternalCartFormViewAsCustomerControl } from './internal/InternalCartFormViewAsCustomerControl/InternalCartFormViewAsCustomerControl';
+import { InternalCartFormCreateSessionAction } from './internal/InternalCartFormCreateSessionAction/InternalCartFormCreateSessionAction';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
-import { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl/InternalAsyncComboBoxControl';
-import { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
-import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
-import { AppliedCouponCodeCard } from '../AppliedCouponCodeCard/AppliedCouponCodeCard';
-import { AppliedCouponCodeForm } from '../AppliedCouponCodeForm/AppliedCouponCodeForm';
-import { InternalDeleteControl } from '../../internal/InternalDeleteControl/InternalDeleteControl';
-import { InternalSubmitControl } from '../../internal/InternalSubmitControl/InternalSubmitControl';
-import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { CartForm as Form } from './CartForm';
-import { CustomFieldCard } from '../CustomFieldCard/CustomFieldCard';
-import { CustomFieldForm } from '../CustomFieldForm/CustomFieldForm';
-import { BooleanSelector } from '@foxy.io/sdk/core';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { getByTestClass } from '../../../testgen/getByTestClass';
-import { AttributeCard } from '../AttributeCard/AttributeCard';
-import { AttributeForm } from '../AttributeForm/AttributeForm';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
-import { DiscountCard } from '../DiscountCard/DiscountCard';
 import { createRouter } from '../../../server/index';
 import { getTestData } from '../../../testgen/getTestData';
-import { getByTestId } from '../../../testgen/getByTestId';
-import { FormDialog } from '../FormDialog';
-import { getByKey } from '../../../testgen/getByKey';
-import { ItemCard } from '../ItemCard/ItemCard';
-import { ItemForm } from '../ItemForm/ItemForm';
-import { spread } from '@open-wc/lit-helpers';
-import { I18n } from '../I18n/I18n';
-import { fake, stub } from 'sinon';
+import { stub } from 'sinon';
+import { Type } from '../QueryBuilder/types';
+
+async function waitForIdle(element: Form) {
+  await waitUntil(() => element.in('idle'), '', { timeout: 5000 });
+  await waitUntil(
+    () => {
+      const loaders = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...loaders].every(loader => loader.in('idle'));
+    },
+    '',
+    { timeout: 5000 }
+  );
+}
+
+async function createElement(router = createRouter()) {
+  return await fixture<Form>(html`
+    <foxy-cart-form
+      payment-card-embed-url="https://embed.foxy.io/v1.html"
+      item-categories="https://demo.api/hapi/item_categories?store_id=0"
+      template-sets="https://demo.api/hapi/template_sets?store_id=0"
+      locale-codes="https://demo.api/hapi/property_helpers/7"
+      languages="https://demo.api/hapi/property_helpers/6"
+      customers="https://demo.api/hapi/customers?store_id=0"
+      countries="https://demo.api/hapi/property_helpers/3"
+      regions="https://demo.api/hapi/property_helpers/4"
+      coupons="https://demo.api/hapi/coupons?store_id=0"
+      href="https://demo.api/hapi/carts/0?zoom=discounts"
+      @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+    >
+    </foxy-cart-form>
+  `);
+}
 
 describe('CartForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -42,99 +53,124 @@ describe('CartForm', () => {
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
-  it('imports and defines foxy-internal-async-combo-box-control', () => {
-    const element = customElements.get('foxy-internal-async-combo-box-control');
-    expect(element).to.equal(InternalAsyncComboBoxControl);
+  it('imports and defines foxy-internal-resource-picker-control', () => {
+    const element = customElements.get('foxy-internal-resource-picker-control');
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-internal-async-list-control', () => {
     const element = customElements.get('foxy-internal-async-list-control');
-    expect(element).to.equal(InternalAsyncListControl);
+    expect(element).to.exist;
+  });
+
+  it('imports and defines foxy-internal-summary-control', () => {
+    const element = customElements.get('foxy-internal-summary-control');
+    expect(element).to.exist;
+  });
+
+  it('imports and defines foxy-internal-switch-control', () => {
+    const element = customElements.get('foxy-internal-switch-control');
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-internal-select-control', () => {
     const element = customElements.get('foxy-internal-select-control');
-    expect(element).to.equal(InternalSelectControl);
-  });
-
-  it('imports and defines foxy-internal-delete-control', () => {
-    const element = customElements.get('foxy-internal-delete-control');
-    expect(element).to.equal(InternalDeleteControl);
-  });
-
-  it('imports and defines foxy-internal-submit-control', () => {
-    const element = customElements.get('foxy-internal-submit-control');
-    expect(element).to.equal(InternalSubmitControl);
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-internal-text-control', () => {
     const element = customElements.get('foxy-internal-text-control');
-    expect(element).to.equal(InternalTextControl);
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-internal-form', () => {
     const element = customElements.get('foxy-internal-form');
-    expect(element).to.equal(InternalForm);
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-applied-coupon-code-card', () => {
     const element = customElements.get('foxy-applied-coupon-code-card');
-    expect(element).to.equal(AppliedCouponCodeCard);
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-applied-coupon-code-form', () => {
     const element = customElements.get('foxy-applied-coupon-code-form');
-    expect(element).to.equal(AppliedCouponCodeForm);
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-custom-field-card', () => {
     const element = customElements.get('foxy-custom-field-card');
-    expect(element).to.equal(CustomFieldCard);
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-custom-field-form', () => {
     const element = customElements.get('foxy-custom-field-form');
-    expect(element).to.equal(CustomFieldForm);
+    expect(element).to.exist;
+  });
+
+  it('imports and defines foxy-template-set-card', () => {
+    const element = customElements.get('foxy-template-set-card');
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-nucleon', () => {
     const element = customElements.get('foxy-nucleon');
-    expect(element).to.equal(NucleonElement);
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-attribute-card', () => {
     const element = customElements.get('foxy-attribute-card');
-    expect(element).to.equal(AttributeCard);
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-attribute-form', () => {
     const element = customElements.get('foxy-attribute-form');
-    expect(element).to.equal(AttributeForm);
+    expect(element).to.exist;
   });
 
-  it('imports and defines foxy-discount-card', () => {
-    const element = customElements.get('foxy-discount-card');
-    expect(element).to.equal(DiscountCard);
+  it('imports and defines foxy-customer-card', () => {
+    const element = customElements.get('foxy-customer-card');
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-item-card', () => {
     const element = customElements.get('foxy-item-card');
-    expect(element).to.equal(ItemCard);
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-item-form', () => {
     const element = customElements.get('foxy-item-form');
-    expect(element).to.equal(ItemForm);
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-i18n', () => {
     const element = customElements.get('foxy-i18n');
-    expect(element).to.equal(I18n);
+    expect(element).to.exist;
   });
 
-  it('imports and defines foxy-internal-cart-form-view-as-customer-control', () => {
-    const element = customElements.get('foxy-internal-cart-form-view-as-customer-control');
-    expect(element).to.equal(InternalCartFormViewAsCustomerControl);
+  it('imports and defines foxy-internal-cart-form-create-session-action', () => {
+    const element = customElements.get('foxy-internal-cart-form-create-session-action');
+    expect(element).to.exist;
+  });
+
+  it('imports and defines foxy-internal-cart-form-address-summary-item', () => {
+    const element = customElements.get('foxy-internal-cart-form-address-summary-item');
+    expect(element).to.exist;
+  });
+
+  it('imports and defines foxy-internal-cart-form-payment-method-form', () => {
+    const element = customElements.get('foxy-internal-cart-form-payment-method-form');
+    expect(element).to.exist;
+  });
+
+  it('imports and defines foxy-internal-cart-form-payment-method-card', () => {
+    const element = customElements.get('foxy-internal-cart-form-payment-method-card');
+    expect(element).to.exist;
+  });
+
+  it('imports and defines foxy-internal-cart-form-totals-control', () => {
+    const element = customElements.get('foxy-internal-cart-form-totals-control');
+    expect(element).to.exist;
   });
 
   it('imports and defines itself as foxy-cart-form', () => {
@@ -149,6 +185,16 @@ describe('CartForm', () => {
   it('has a default i18n namespace "cart-form"', () => {
     expect(Form).to.have.property('defaultNS', 'cart-form');
     expect(new Form()).to.have.property('ns', 'cart-form');
+  });
+
+  it('has a reactive property "paymentCardEmbedUrl"', () => {
+    expect(new Form()).to.have.property('paymentCardEmbedUrl', null);
+    expect(Form).to.have.nested.property('properties.paymentCardEmbedUrl');
+    expect(Form).to.not.have.nested.property('properties.paymentCardEmbedUrl.type');
+    expect(Form).to.have.nested.property(
+      'properties.paymentCardEmbedUrl.attribute',
+      'payment-card-embed-url'
+    );
   });
 
   it('has a reactive property "itemCategories"', () => {
@@ -170,6 +216,12 @@ describe('CartForm', () => {
     expect(Form).to.have.nested.property('properties.localeCodes');
     expect(Form).to.not.have.nested.property('properties.localeCodes.type');
     expect(Form).to.have.nested.property('properties.localeCodes.attribute', 'locale-codes');
+  });
+
+  it('has a reactive property "languages"', () => {
+    expect(new Form()).to.have.property('languages', null);
+    expect(Form).to.have.nested.property('properties.languages');
+    expect(Form).to.not.have.nested.property('properties.languages.type');
   });
 
   it('has a reactive property "customers"', () => {
@@ -216,14 +268,14 @@ describe('CartForm', () => {
     expect(form.errors).to.not.include('billing-last-name:v8n_too_long');
   });
 
-  it('produces the billing-region:v8n_too_long error if "billing_region" is longer than 50 characters', () => {
+  it('produces the billing-state:v8n_too_long error if "billing_state" is longer than 50 characters', () => {
     const form = new Form();
 
-    form.edit({ billing_region: 'A'.repeat(51) });
-    expect(form.errors).to.include('billing-region:v8n_too_long');
+    form.edit({ billing_state: 'A'.repeat(51) });
+    expect(form.errors).to.include('billing-state:v8n_too_long');
 
-    form.edit({ billing_region: 'A'.repeat(50) });
-    expect(form.errors).to.not.include('billing-region:v8n_too_long');
+    form.edit({ billing_state: 'A'.repeat(50) });
+    expect(form.errors).to.not.include('billing-state:v8n_too_long');
   });
 
   it('produces the billing-city:v8n_too_long error if "billing_city" is longer than 50 characters', () => {
@@ -306,14 +358,14 @@ describe('CartForm', () => {
     expect(form.errors).to.not.include('shipping-last-name:v8n_too_long');
   });
 
-  it('produces the shipping-region:v8n_too_long error if "shipping_region" is longer than 50 characters', () => {
+  it('produces the shipping-state:v8n_too_long error if "shipping_state" is longer than 50 characters', () => {
     const form = new Form();
 
-    form.edit({ shipping_region: 'A'.repeat(51) });
-    expect(form.errors).to.include('shipping-region:v8n_too_long');
+    form.edit({ shipping_state: 'A'.repeat(51) });
+    expect(form.errors).to.include('shipping-state:v8n_too_long');
 
-    form.edit({ shipping_region: 'A'.repeat(50) });
-    expect(form.errors).to.not.include('shipping-region:v8n_too_long');
+    form.edit({ shipping_state: 'A'.repeat(50) });
+    expect(form.errors).to.not.include('shipping-state:v8n_too_long');
   });
 
   it('produces the shipping-city:v8n_too_long error if "shipping_city" is longer than 50 characters', () => {
@@ -376,6 +428,48 @@ describe('CartForm', () => {
     expect(form.errors).to.not.include('shipping-postal-code:v8n_too_long');
   });
 
+  it('hides customer email when customer uri is set', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('general:customer-email', true)).to.be.false;
+    form.edit({ customer_uri: 'https://demo.api/hapi/customers/0' });
+    expect(form.hiddenSelector.matches('general:customer-email', true)).to.be.true;
+  });
+
+  it('hides payment method uri when customer uri is not set', async () => {
+    const form = new Form();
+    form.data = await getTestData('https://demo.api/hapi/carts/0?zoom=discounts');
+    form.edit({ customer_uri: '' });
+    expect(form.hiddenSelector.matches('billing:payment-method-uri', true)).to.be.true;
+    form.edit({ customer_uri: 'https://demo.api/hapi/customers/0' });
+    expect(form.hiddenSelector.matches('billing:payment-method-uri', true)).to.be.false;
+  });
+
+  it('hides shipping address when "Use billing address for shipping" is checked', async () => {
+    const form = new Form();
+    form.data = await getTestData('https://demo.api/hapi/carts/0?zoom=discounts');
+    form.edit({ use_customer_shipping_address: false });
+    expect(form.hiddenSelector.matches('shipping:shipping-address', true)).to.be.true;
+    form.edit({ use_customer_shipping_address: true });
+    expect(form.hiddenSelector.matches('shipping:shipping-address', true)).to.be.false;
+  });
+
+  [
+    'applied-coupon-codes',
+    'custom-fields',
+    'attributes',
+    'shipping',
+    'billing',
+    'totals',
+    'items',
+  ].forEach(control => {
+    it(`hides "${control}" when in template state`, async () => {
+      const form = new Form();
+      expect(form.hiddenSelector.matches(control, true)).to.be.true;
+      form.data = await getTestData('https://demo.api/hapi/carts/0?zoom=discounts');
+      expect(form.hiddenSelector.matches(control, true)).to.be.false;
+    });
+  });
+
   it('renders a form header', () => {
     const form = new Form();
     const renderHeaderMethod = stub(form, 'renderHeader');
@@ -383,1376 +477,395 @@ describe('CartForm', () => {
     expect(renderHeaderMethod).to.have.been.called;
   });
 
-  it('renders order section title and description', async () => {
-    const element = await fixture<Form>(html`<foxy-cart-form></foxy-cart-form>`);
-    const title = await getByKey(element, 'order_section_title');
-    const description = await getByKey(element, 'order_section_description');
+  it('renders "View as customer" button for existing carts', async () => {
+    const router = createRouter();
+    const element = await createElement(router);
 
-    expect(title).to.exist;
-    expect(title).to.have.property('infer', '');
-
-    expect(description).to.exist;
-    expect(description).to.have.property('infer', '');
+    await waitForIdle(element);
+    const control = element.renderRoot.querySelector(`[infer="view-as-customer"]`);
+    expect(control).to.be.instanceOf(InternalCartFormCreateSessionAction);
   });
 
-  it('renders a select control for customer type', async () => {
+  it('renders General summary', async () => {
     const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}></foxy-cart-form>
-    `);
+    const element = await createElement(router);
+    await waitForIdle(element);
+
+    const summary = element.renderRoot.querySelector(`[infer="general"]`);
+    expect(summary).to.exist;
+    expect(summary?.localName).to.equal('foxy-internal-summary-control');
+  });
+
+  it('renders resource picker control for template set uri inside General summary', async () => {
+    const router = createRouter();
+    const element = await createElement(router);
+    await waitForIdle(element);
 
     const control = element.renderRoot.querySelector(
-      `[infer="customer-type"]`
-    ) as InternalSelectControl;
+      `[infer="general"] [infer="template-set-uri"]`
+    );
 
-    expect(control).to.be.instanceOf(InternalSelectControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_new', value: 'new' },
-      { label: 'option_guest', value: 'guest' },
-      { label: 'option_regular', value: 'regular' },
-    ]);
-
-    expect(control.getValue()).to.equal('new');
-
-    const api = new NucleonElement.API(element);
-    await api.fetch('https://demo.api/hapi/customers/0', {
-      method: 'PATCH',
-      body: JSON.stringify({ is_anonymous: true }),
-    });
-    element.edit({ customer_uri: 'https://demo.api/hapi/customers/0' });
-    await waitUntil(() => control.getValue() === 'guest', '', { timeout: 5000 });
-
-    expect(control.getValue()).to.equal('guest');
-
-    await api.fetch('https://demo.api/hapi/customers/0', {
-      method: 'PATCH',
-      body: JSON.stringify({ is_anonymous: false }),
-    });
-    element.edit({ customer_uri: '' });
-    await element.requestUpdate();
-    element.edit({ customer_uri: 'https://demo.api/hapi/customers/0' });
-    await waitUntil(() => control.getValue() === 'regular', '', { timeout: 5000 });
-
-    expect(control.getValue()).to.equal('regular');
+    expect(control).to.exist;
+    expect(control?.localName).to.equal('foxy-internal-resource-picker-control');
+    expect(control?.getAttribute('layout')).to.equal('summary-item');
+    expect(control?.getAttribute('item')).to.equal('foxy-template-set-card');
+    expect(control?.getAttribute('first')).to.equal(
+      'https://demo.api/hapi/template_sets?store_id=0'
+    );
   });
 
-  it('renders an async combo box control for customer', async () => {
+  it('renders select control for language inside General summary', async () => {
     const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        customers="https://demo.api/hapi/customers"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-cart-form>
-    `);
+    const element = await createElement(router);
+    const languages = await getTestData<Resource<Rels.Languages>>(
+      'https://demo.api/hapi/property_helpers/6',
+      router
+    );
 
-    const $ = element.renderRoot;
-    const control = $.querySelector(`[infer="customer"]`) as InternalAsyncComboBoxControl;
+    await waitForIdle(element);
+    const control = element.renderRoot.querySelector(`[infer="general"] [infer="language"]`);
 
-    expect(control).to.be.instanceOf(InternalAsyncComboBoxControl);
-    expect(control).to.have.attribute('item-label-path', 'email');
-    expect(control).to.have.attribute('item-value-path', '_links.self.href');
-    expect(control).to.have.attribute('item-id-path', '_links.self.href');
-    expect(control).to.have.attribute('allow-custom-value');
-    expect(control).to.have.attribute('first', 'https://demo.api/hapi/customers?is_anonymous=0');
+    expect(control).to.exist;
+    expect(control).to.have.property('localName', 'foxy-internal-select-control');
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.deep.property(
+      'options',
+      Object.entries(languages.values).map(([value, rawLabel]) => ({ value, rawLabel }))
+    );
+  });
 
-    const customerTypeControl = $.querySelector(`[infer="customer-type"]`) as InternalSelectControl;
-    customerTypeControl.setValue('guest');
-    await element.requestUpdate();
-    expect(control).to.have.attribute('first', 'https://demo.api/hapi/customers?is_anonymous=1');
+  it('renders resource picker control for customer uri inside General summary', async () => {
+    const router = createRouter();
+    const element = await createElement(router);
+    await waitForIdle(element);
 
-    element.edit({ customer_email: 'test@example.com', customer_uri: '' });
-    expect(control.getValue()).to.equal('test@example.com');
+    const control = element.renderRoot.querySelector<InternalResourcePickerControl>(
+      `[infer="general"] [infer="customer-uri"]`
+    );
 
-    element.edit({ customer_uri: 'https://demo.api/hapi/customers/0' });
-    expect(control.getValue()).to.equal('https://demo.api/hapi/customers/0');
+    expect(control).to.exist;
+    expect(control?.localName).to.equal('foxy-internal-resource-picker-control');
+    expect(control?.getAttribute('layout')).to.equal('summary-item');
+    expect(control?.getAttribute('item')).to.equal('foxy-customer-card');
+    expect(control?.getAttribute('first')).to.equal('https://demo.api/hapi/customers?store_id=0');
 
-    control.setValue('foo@example.com');
-    expect(element).to.have.nested.property('form.customer_email', 'foo@example.com');
-    expect(element).to.have.nested.property('form.customer_uri', '');
+    expect(control).to.have.deep.property('filters', [
+      { label: 'filter_email', path: 'email', type: Type.String },
+      {
+        label: 'filter_is_anonymous',
+        path: 'is_anonymous',
+        type: Type.String,
+        list: [
+          { value: 'false', label: 'filter_is_anonymous_value_false' },
+          { value: 'true', label: 'filter_is_anonymous_value_true' },
+        ],
+      },
+    ]);
 
-    control.setValue('https://demo.api/hapi/customers/0');
-    expect(element).to.not.have.nested.property('form.customer_email');
+    element.edit({ customer_email: 'foo@bar.com', customer_uri: '' });
+    control?.setValue('https://demo.api/hapi/customers/0');
+
+    expect(element).to.have.nested.property('form.customer_email', '');
     expect(element).to.have.nested.property(
       'form.customer_uri',
       'https://demo.api/hapi/customers/0'
     );
-
-    element.undo();
-    await element.requestUpdate();
-    expect(control).to.have.property('selectedItem', null);
-
-    element.edit({ customer_uri: 'https://demo.api/hapi/customers/0' });
-    const customer = await getTestData('https://demo.api/hapi/customers/0', router);
-    await waitUntil(() => !!control.selectedItem, '', { timeout: 5000 });
-    expect(control).to.have.deep.property('selectedItem', customer);
   });
 
-  it('renders an async combo box control for template set uri', async () => {
+  it('renders text control for customer email inside General summary', async () => {
     const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        template-sets="https://demo.api/hapi/template_sets"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-cart-form>
-    `);
+    const element = await createElement(router);
+    await waitForIdle(element);
 
-    const $ = element.renderRoot;
-    const control = $.querySelector(`[infer="template-set-uri"]`) as InternalAsyncComboBoxControl;
-
-    expect(control).to.be.instanceOf(InternalAsyncComboBoxControl);
-    expect(control).to.have.attribute('item-label-path', 'description');
-    expect(control).to.have.attribute('item-value-path', '_links.self.href');
-    expect(control).to.have.attribute('item-id-path', '_links.self.href');
-    expect(control).to.have.attribute('first', 'https://demo.api/hapi/template_sets');
-    expect(control).to.have.property('selectedItem', null);
-
-    element.edit({ template_set_uri: 'https://demo.api/hapi/template_sets/0' });
-    const templateSet = await getTestData('https://demo.api/hapi/template_sets/0', router);
-    await waitUntil(() => !!control.selectedItem, '', { timeout: 5000 });
-    expect(control).to.have.deep.property('selectedItem', templateSet);
+    const control = element.renderRoot.querySelector(`[infer="general"] [infer="customer-email"]`);
+    expect(control).to.exist;
+    expect(control).to.have.property('localName', 'foxy-internal-text-control');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders an async list control for items', async () => {
-    let isCustomerLoaded = false;
-
+  it('renders async list control for items', async () => {
     const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        item-categories="https://demo.api/hapi/item_categories"
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        coupons="https://demo.api/hapi/coupons"
-        href="https://demo.api/hapi/carts/0"
-        @fetch=${(evt: FetchEvent) => {
-          router.handleEvent(evt)?.handlerPromise.then(() => {
-            if (evt.request.url === 'https://demo.api/hapi/customers/0') {
-              setTimeout(() => (isCustomerLoaded = true));
-            }
-          });
-        }}
-      >
-      </foxy-cart-form>
-    `);
+    const element = await createElement(router);
+    await waitForIdle(element);
 
-    await waitUntil(() => !!element.data && isCustomerLoaded, '', { timeout: 5000 });
+    const control = element.renderRoot.querySelector(`[infer="items"]`);
+    expect(control).to.exist;
 
-    const $ = element.renderRoot;
-    const control = $.querySelector(`[infer="items"]`) as InternalAsyncListControl;
+    expect(control).to.have.attribute('item', 'foxy-item-card');
+    expect(control).to.have.attribute('form', 'foxy-item-form');
+    expect(control).to.have.attribute('alert');
 
-    expect(control).to.be.instanceOf(InternalAsyncListControl);
-    expect(control).to.have.attribute('limit', '5');
-    expect(control).to.have.attribute(
-      'first',
-      'https://demo.api/hapi/items?cart_id=0&zoom=item_options'
+    expect(control).to.have.property('localName', 'foxy-internal-async-list-control');
+
+    expect(control).to.have.deep.property('related', [
+      'https://demo.api/hapi/carts/0?zoom=discounts',
+    ]);
+
+    expect(control).to.have.deep.nested.property(
+      'itemProps.locale-codes',
+      'https://demo.api/hapi/property_helpers/7'
     );
 
-    const card = await fixture<ItemCard>(
-      (control.item as ItemRenderer)({
-        simplifyNsLoading: false,
-        readonlyControls: BooleanSelector.False,
-        disabledControls: BooleanSelector.False,
-        hiddenControls: BooleanSelector.False,
-        templates: {},
-        readonly: false,
-        disabled: false,
-        previous: null,
-        related: ['https://demo.api/hapi/carts/0'],
-        hidden: false,
-        parent: 'https://demo.api/hapi/items',
-        spread,
-        props: {},
-        group: '',
-        html,
-        lang: 'en',
-        href: 'https://demo.api/hapi/items/0',
-        data: null,
-        next: null,
-        ns: 'item-card',
-      })
-    );
-
-    expect(card).to.have.attribute('locale-codes', 'https://demo.api/hapi/property_helpers/7');
-    expect(card).to.have.attribute('parent', 'https://demo.api/hapi/items');
-    expect(card).to.have.attribute('href', 'https://demo.api/hapi/items/0');
-    expect(card).to.have.deep.property('related', ['https://demo.api/hapi/carts/0']);
-
-    const formHandleUpdate = fake();
-    const formHandleFetch = fake();
-    const formDialog = await fixture<FormDialog>(html`
-      <foxy-form-dialog
-        parent="https://demo.api/hapi/items"
-        href="https://demo.api/hapi/items/0"
-        .related=${['https://demo.api/hapi/carts/0']}
-      >
-      </foxy-form-dialog>
-    `);
-
-    const form = await fixture(
-      (control.form as FormRenderer)({
-        handleUpdate: formHandleUpdate,
-        handleFetch: formHandleFetch,
-        dialog: formDialog,
-        spread,
-        html,
-      })
-    );
-
-    expect(form).to.have.attribute(
-      'customer-addresses',
+    expect(control).to.have.deep.nested.property(
+      'formProps.customer-addresses',
       'https://demo.api/hapi/customer_addresses?customer_id=0'
     );
 
-    expect(form).to.have.attribute('item-categories', 'https://demo.api/hapi/item_categories');
-    expect(form).to.have.attribute('locale-codes', 'https://demo.api/hapi/property_helpers/7');
-    expect(form).to.have.attribute('coupons', 'https://demo.api/hapi/coupons');
-    expect(form).to.have.attribute('parent', 'https://demo.api/hapi/items');
-    expect(form).to.have.attribute('href', 'https://demo.api/hapi/items/0');
-    expect(form).to.have.attribute('infer', '');
-    expect(form).to.have.attribute('id', 'form');
-    expect(form).to.have.deep.property('related', ['https://demo.api/hapi/carts/0']);
+    expect(control).to.have.deep.nested.property(
+      'formProps.item-categories',
+      'https://demo.api/hapi/item_categories?store_id=0'
+    );
 
-    formHandleUpdate.resetHistory();
-    form.dispatchEvent(new CustomEvent('update'));
-    expect(formHandleUpdate).to.have.been.called;
+    expect(control).to.have.deep.nested.property(
+      'formProps.locale-codes',
+      'https://demo.api/hapi/property_helpers/7'
+    );
 
-    formHandleFetch.resetHistory();
-    form.dispatchEvent(new CustomEvent('fetch'));
-    expect(formHandleFetch).to.have.been.called;
-  });
-
-  it('renders an async list control for applied coupon codes', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        href="https://demo.api/hapi/carts/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-cart-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-
-    const $ = element.renderRoot;
-    const control = $.querySelector(`[infer="applied-coupon-codes"]`) as InternalAsyncListControl;
-
-    expect(control).to.be.instanceOf(InternalAsyncListControl);
-    expect(control).to.have.attribute('limit', '5');
-    expect(control).to.have.attribute('alert');
-    expect(control).to.have.attribute('item', 'foxy-applied-coupon-code-card');
-    expect(control).to.have.attribute('form', 'foxy-applied-coupon-code-form');
-    expect(control).to.have.attribute(
-      'first',
-      'https://demo.api/hapi/applied_coupon_codes?cart_id=0'
+    expect(control).to.have.deep.nested.property(
+      'formProps.coupons',
+      'https://demo.api/hapi/coupons?store_id=0'
     );
   });
 
-  it('renders an async list control for custom fields', async () => {
+  it('renders totals control', async () => {
     const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        href="https://demo.api/hapi/carts/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-cart-form>
-    `);
+    const element = await createElement(router);
+    await waitForIdle(element);
 
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+    const control = element.renderRoot.querySelector(`[infer="totals"]`);
+    expect(control).to.exist;
+    expect(control?.localName).to.equal('foxy-internal-cart-form-totals-control');
+  });
 
-    const $ = element.renderRoot;
-    const control = $.querySelector(`[infer="custom-fields"]`) as InternalAsyncListControl;
+  it('renders async list control for applied coupon codes', async () => {
+    const router = createRouter();
+    const element = await createElement(router);
+    await waitForIdle(element);
 
-    expect(control).to.be.instanceOf(InternalAsyncListControl);
-    expect(control).to.have.attribute('limit', '5');
+    const control = element.renderRoot.querySelector(`[infer="applied-coupon-codes"]`);
+    expect(control).to.exist;
+
+    expect(control).to.have.attribute('item', 'foxy-applied-coupon-code-card');
+    expect(control).to.have.attribute('form', 'foxy-applied-coupon-code-form');
     expect(control).to.have.attribute('alert');
+
+    expect(control).to.have.property('localName', 'foxy-internal-async-list-control');
+    expect(control).to.have.deep.property('related', [
+      'https://demo.api/hapi/carts/0?zoom=discounts',
+    ]);
+  });
+
+  it('renders summary control for Billing', async () => {
+    const router = createRouter();
+    const element = await createElement(router);
+    await waitForIdle(element);
+
+    const control = element.renderRoot.querySelector(`[infer="billing"]`);
+    expect(control).to.exist;
+    expect(control?.localName).to.equal('foxy-internal-summary-control');
+  });
+
+  it('renders resource picker control for payment method uri inside Billing summary', async () => {
+    const router = createRouter();
+    const element = await createElement(router);
+    await waitForIdle(element);
+
+    const control = element.renderRoot.querySelector<InternalResourcePickerControl>(
+      `[infer="billing"] [infer="payment-method-uri"]`
+    );
+
+    expect(control).to.exist;
+    expect(control?.localName).to.equal('foxy-internal-resource-picker-control');
+    expect(control?.getAttribute('layout')).to.equal('summary-item');
+    expect(control?.getAttribute('item')).to.equal('foxy-internal-cart-form-payment-method-card');
+    expect(control?.getAttribute('form')).to.equal('foxy-internal-cart-form-payment-method-form');
+    expect(control?.getAttribute('first')).to.equal(
+      'https://demo.api/hapi/transactions?customer_id=0&zoom=payments'
+    );
+
+    expect(control).to.have.deep.property('formProps', {
+      'default-payment-method': 'https://demo.api/hapi/payment_methods/0',
+      'payment-card-embed-url': 'https://embed.foxy.test/v1.html?template_set_id=0',
+    });
+
+    element.edit({ payment_method_uri: '' });
+    control?.setValue('https://demo.api/transactions/0?zoom=payments');
+    expect(element).to.have.nested.property(
+      'form.payment_method_uri',
+      'https://demo.api/transactions/0/payments'
+    );
+
+    expect(control).to.have.deep.property('filters', [
+      {
+        label: 'filter_type',
+        type: Type.String,
+        path: 'payments:type',
+        list: [
+          { label: 'filter_type_value_purchase_order', value: 'purchase_order' },
+          { label: 'filter_type_value_amazon_mws', value: 'amazon_mws' },
+          { label: 'filter_type_value_paypal_ec', value: 'paypal_ec' },
+          { label: 'filter_type_value_paypal', value: 'paypal' },
+          { label: 'filter_type_value_hosted', value: 'hosted' },
+          { label: 'filter_type_value_ogone', value: 'ogone' },
+        ],
+      },
+      {
+        label: 'filter_cc_type',
+        type: Type.String,
+        path: 'payments:cc_type',
+        list: [
+          { label: 'filter_cc_type_value_mastercard', value: 'mastercard' },
+          { label: 'filter_cc_type_value_discover', value: 'discover' },
+          { label: 'filter_cc_type_value_unionpay', value: 'unionpay' },
+          { label: 'filter_cc_type_value_maestro', value: 'maestro' },
+          { label: 'filter_cc_type_value_diners', value: 'diners' },
+          { label: 'filter_cc_type_value_visa', value: 'visa' },
+          { label: 'filter_cc_type_value_amex', value: 'amex' },
+          { label: 'filter_cc_type_value_jcb', value: 'jcb' },
+        ],
+      },
+      {
+        label: 'filter_cc_number_masked',
+        type: Type.String,
+        path: 'payments:cc_number_masked',
+      },
+    ]);
+
+    expect(control?.getDisplayValueOptions(await getTestData('./hapi/payments'), '')).to.deep.equal(
+      {
+        cc_exp_month: '01',
+        cc_exp_year: '2017',
+        cc_last4: '1111',
+        cc_type: 'Visa',
+        context: '',
+      }
+    );
+
+    expect(control?.getDisplayValueOptions(null, '')).to.deep.equal({
+      cc_exp_month: '12',
+      cc_exp_year: '2020',
+      cc_last4: '1111',
+      cc_type: 'MasterCard',
+      context: '',
+    });
+
+    element.edit({ customer_uri: '' });
+    await element.requestUpdate();
+    await waitUntil(
+      () =>
+        [...element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon')].every(el =>
+          el.in('idle')
+        ),
+      '',
+      { timeout: 5000 }
+    );
+
+    expect(control?.getDisplayValueOptions(null, '')).to.deep.equal({
+      cc_exp_month: '',
+      cc_exp_year: '',
+      cc_last4: '',
+      cc_type: '',
+      context: 'empty',
+    });
+  });
+
+  it('renders cart form address summary item control for billing address inside Billing summary', async () => {
+    const router = createRouter();
+    const element = await createElement(router);
+    await waitForIdle(element);
+
+    const control = element.renderRoot.querySelector(`[infer="billing"] [infer="billing-address"]`);
+    expect(control).to.exist;
+    expect(control?.localName).to.equal('foxy-internal-cart-form-address-summary-item');
+
+    expect(control).to.have.attribute('countries', 'https://demo.api/hapi/property_helpers/3');
+    expect(control).to.have.attribute('regions', 'https://demo.api/hapi/property_helpers/4');
+    expect(control).to.have.attribute('type', 'billing');
+
+    expect(control).to.have.deep.property(
+      'customer',
+      await getTestData(
+        './hapi/customers/0?zoom=default_payment_method%2Cdefault_billing_address%2Cdefault_shipping_address'
+      )
+    );
+  });
+
+  it('renders summary control for Shipping', async () => {
+    const router = createRouter();
+    const element = await createElement(router);
+    await waitForIdle(element);
+
+    const control = element.renderRoot.querySelector(`[infer="shipping"]`);
+    expect(control).to.exist;
+    expect(control?.localName).to.equal('foxy-internal-summary-control');
+  });
+
+  it('renders a switch control for using billing address as shipping address inside Shipping summary', async () => {
+    const router = createRouter();
+    const element = await createElement(router);
+
+    await waitForIdle(element);
+    const control = element.renderRoot.querySelector(
+      `[infer="shipping"] [infer="use-customer-shipping-address"]`
+    );
+
+    expect(control).to.exist;
+    expect(control?.localName).to.equal('foxy-internal-switch-control');
+    expect(control).to.have.attribute('invert');
+  });
+
+  it('renders cart form address summary item control for shipping address inside Shipping summary', async () => {
+    const router = createRouter();
+    const element = await createElement(router);
+    await waitForIdle(element);
+    const control = element.renderRoot.querySelector(
+      `[infer="shipping"] [infer="shipping-address"]`
+    );
+
+    expect(control).to.exist;
+    expect(control?.localName).to.equal('foxy-internal-cart-form-address-summary-item');
+
+    expect(control).to.have.attribute('countries', 'https://demo.api/hapi/property_helpers/3');
+    expect(control).to.have.attribute('regions', 'https://demo.api/hapi/property_helpers/4');
+    expect(control).to.have.attribute('type', 'shipping');
+
+    expect(control).to.have.deep.property(
+      'customer',
+      await getTestData(
+        './hapi/customers/0?zoom=default_payment_method%2Cdefault_billing_address%2Cdefault_shipping_address'
+      )
+    );
+  });
+
+  it('renders async list control for custom fields', async () => {
+    const router = createRouter();
+    const element = await createElement(router);
+    await waitForIdle(element);
+
+    const control = element.renderRoot.querySelector(`[infer="custom-fields"]`);
+    expect(control).to.exist;
+
+    expect(control).to.have.attribute('first', 'https://demo.api/hapi/custom_fields?cart_id=0');
     expect(control).to.have.attribute('item', 'foxy-custom-field-card');
     expect(control).to.have.attribute('form', 'foxy-custom-field-form');
-    expect(control).to.have.attribute('first', 'https://demo.api/hapi/custom_fields?cart_id=0');
+    expect(control).to.have.attribute('alert');
+
+    expect(control).to.have.property('localName', 'foxy-internal-async-list-control');
   });
 
-  it('renders an async list control for attributes', async () => {
+  it('renders async list control for attributes', async () => {
     const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        href="https://demo.api/hapi/carts/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-cart-form>
-    `);
+    const element = await createElement(router);
+    await waitForIdle(element);
 
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+    const control = element.renderRoot.querySelector(`[infer="attributes"]`);
+    expect(control).to.exist;
 
-    const $ = element.renderRoot;
-    const control = $.querySelector(`[infer="attributes"]`) as InternalAsyncListControl;
-
-    expect(control).to.be.instanceOf(InternalAsyncListControl);
-    expect(control).to.have.attribute('limit', '5');
-    expect(control).to.have.attribute('alert');
+    expect(control).to.have.attribute('first', 'https://demo.api/hapi/cart_attributes?cart_id=0');
     expect(control).to.have.attribute('item', 'foxy-attribute-card');
     expect(control).to.have.attribute('form', 'foxy-attribute-form');
-    expect(control).to.have.attribute('first', 'https://demo.api/hapi/cart_attributes?cart_id=0');
-  });
+    expect(control).to.have.attribute('alert');
 
-  it('renders billing section title and description', async () => {
-    const element = await fixture<Form>(html`<foxy-cart-form></foxy-cart-form>`);
-    const title = await getByKey(element, 'billing_section_title');
-    const description = await getByKey(element, 'billing_section_description');
-
-    expect(title).to.exist;
-    expect(title).to.have.property('infer', '');
-
-    expect(description).to.exist;
-    expect(description).to.have.property('infer', '');
-  });
-
-  it('renders a text control for billing first name', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="billing-first-name"]`);
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders a text control for billing last name', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="billing-last-name"]`);
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders a text control for billing company', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="billing-company"]`);
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders a text control for billing phone', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="billing-phone"]`);
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders a text control for billing address line 1', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="billing-address-one"]`);
-
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control).to.have.attribute('property', 'billing_address1');
-  });
-
-  it('renders a text control for billing address line 2', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="billing-address-two"]`);
-
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control).to.have.attribute('property', 'billing_address2');
-  });
-
-  it('renders a select control for billing country', async () => {
-    let isHelperLoaded = false;
-    const router = createRouter();
-
-    await router.handleRequest(
-      new Request('https://demo.api/hapi/property_helpers/3', {
-        method: 'PATCH',
-        body: JSON.stringify({
-          values: {
-            GB: {
-              default: 'United Kingdom',
-              cc2: 'GB',
-              cc3: 'GBR',
-              alternate_values: ['Great Britain', 'England', 'Northern Ireland', 'Britain', 'UK'],
-              boost: 4,
-              has_regions: false,
-              regions_required: false,
-              regions_type: 'county',
-              active: true,
-            },
-            US: {
-              default: 'United States',
-              cc2: 'US',
-              cc3: 'USA',
-              alternate_values: ['USA', 'United States of America', 'America'],
-              boost: 4.5,
-              has_regions: true,
-              regions_required: true,
-              regions_type: 'state',
-              active: true,
-            },
-          },
-        }),
-      })
-    )?.handlerPromise;
-
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        countries="https://demo.api/hapi/property_helpers/3"
-        @fetch=${(evt: FetchEvent) => {
-          router.handleEvent(evt)?.handlerPromise.then(() => {
-            if (evt.request.url === 'https://demo.api/hapi/property_helpers/3') {
-              setTimeout(() => (isHelperLoaded = true));
-            }
-          });
-        }}
-      >
-      </foxy-cart-form>
-    `);
-
-    await waitUntil(() => isHelperLoaded, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(`[infer="billing-country"]`);
-
-    expect(control).to.be.instanceOf(InternalSelectControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'United Kingdom', value: 'GB' },
-      { label: 'United States', value: 'US' },
-    ]);
-  });
-
-  it('renders a select control for billing region', async () => {
-    let isHelperLoaded = false;
-    const router = createRouter();
-
-    await router.handleRequest(
-      new Request('https://demo.api/hapi/property_helpers/4', {
-        method: 'PATCH',
-        body: JSON.stringify({
-          values: {
-            SD: {
-              default: 'South Dakota',
-              code: 'SD',
-              alternate_values: [],
-              boost: 1,
-              active: true,
-            },
-            TN: {
-              default: 'Tennessee',
-              code: 'TN',
-              alternate_values: [],
-              boost: 1,
-              active: true,
-            },
-          },
-        }),
-      })
-    )?.handlerPromise;
-
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        regions="https://demo.api/hapi/property_helpers/4"
-        @fetch=${(evt: FetchEvent) => {
-          router.handleEvent(evt)?.handlerPromise.then(() => {
-            if (evt.request.url === 'https://demo.api/hapi/property_helpers/4?country_code=US') {
-              setTimeout(() => (isHelperLoaded = true));
-            }
-          });
-        }}
-      >
-      </foxy-cart-form>
-    `);
-
-    element.edit({ billing_country: 'US' });
-    await waitUntil(() => isHelperLoaded, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(`[infer="billing-region"]`);
-
-    expect(control).to.be.instanceOf(InternalSelectControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'South Dakota', value: 'SD' },
-      { label: 'Tennessee', value: 'TN' },
-    ]);
-  });
-
-  it('renders a text control for billing city', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="billing-city"]`);
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders a text control for billing postal code', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="billing-postal-code"]`);
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders shipping section title and description', async () => {
-    const element = await fixture<Form>(html`<foxy-cart-form></foxy-cart-form>`);
-    const title = await getByKey(element, 'shipping_section_title');
-    const description = await getByKey(element, 'shipping_section_description');
-
-    expect(title).to.exist;
-    expect(title).to.have.property('infer', '');
-
-    expect(description).to.exist;
-    expect(description).to.have.property('infer', '');
-  });
-
-  it('renders a text control for shipping first name', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="shipping-first-name"]`);
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders a text control for shipping last name', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="shipping-last-name"]`);
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders a text control for shipping company', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="shipping-company"]`);
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders a text control for shipping phone', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="shipping-phone"]`);
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders a text control for shipping address line 1', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="shipping-address-one"]`);
-
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control).to.have.attribute('property', 'shipping_address1');
-  });
-
-  it('renders a text control for shipping address line 2', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="shipping-address-two"]`);
-
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control).to.have.attribute('property', 'shipping_address2');
-  });
-
-  it('renders a select control for shipping country', async () => {
-    let isHelperLoaded = false;
-    const router = createRouter();
-
-    await router.handleRequest(
-      new Request('https://demo.api/hapi/property_helpers/3', {
-        method: 'PATCH',
-        body: JSON.stringify({
-          values: {
-            GB: {
-              default: 'United Kingdom',
-              cc2: 'GB',
-              cc3: 'GBR',
-              alternate_values: ['Great Britain', 'England', 'Northern Ireland', 'Britain', 'UK'],
-              boost: 4,
-              has_regions: false,
-              regions_required: false,
-              regions_type: 'county',
-              active: true,
-            },
-            US: {
-              default: 'United States',
-              cc2: 'US',
-              cc3: 'USA',
-              alternate_values: ['USA', 'United States of America', 'America'],
-              boost: 4.5,
-              has_regions: true,
-              regions_required: true,
-              regions_type: 'state',
-              active: true,
-            },
-          },
-        }),
-      })
-    )?.handlerPromise;
-
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        countries="https://demo.api/hapi/property_helpers/3"
-        @fetch=${(evt: FetchEvent) => {
-          router.handleEvent(evt)?.handlerPromise.then(() => {
-            if (evt.request.url === 'https://demo.api/hapi/property_helpers/3') {
-              setTimeout(() => (isHelperLoaded = true));
-            }
-          });
-        }}
-      >
-      </foxy-cart-form>
-    `);
-
-    await waitUntil(() => isHelperLoaded, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(`[infer="shipping-country"]`);
-
-    expect(control).to.be.instanceOf(InternalSelectControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'United Kingdom', value: 'GB' },
-      { label: 'United States', value: 'US' },
-    ]);
-  });
-
-  it('renders a select control for shipping region', async () => {
-    let isHelperLoaded = false;
-    const router = createRouter();
-
-    await router.handleRequest(
-      new Request('https://demo.api/hapi/property_helpers/4', {
-        method: 'PATCH',
-        body: JSON.stringify({
-          values: {
-            SD: {
-              default: 'South Dakota',
-              code: 'SD',
-              alternate_values: [],
-              boost: 1,
-              active: true,
-            },
-            TN: {
-              default: 'Tennessee',
-              code: 'TN',
-              alternate_values: [],
-              boost: 1,
-              active: true,
-            },
-          },
-        }),
-      })
-    )?.handlerPromise;
-
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        regions="https://demo.api/hapi/property_helpers/4"
-        @fetch=${(evt: FetchEvent) => {
-          router.handleEvent(evt)?.handlerPromise.then(() => {
-            if (evt.request.url === 'https://demo.api/hapi/property_helpers/4?country_code=US') {
-              setTimeout(() => (isHelperLoaded = true));
-            }
-          });
-        }}
-      >
-      </foxy-cart-form>
-    `);
-
-    element.edit({ shipping_country: 'US' });
-    await waitUntil(() => isHelperLoaded, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(`[infer="shipping-region"]`);
-
-    expect(control).to.be.instanceOf(InternalSelectControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'South Dakota', value: 'SD' },
-      { label: 'Tennessee', value: 'TN' },
-    ]);
-  });
-
-  it('renders a text control for shipping city', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="shipping-city"]`);
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders a text control for shipping postal code', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="shipping-postal-code"]`);
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders total order when currency comes from the cart resource', async () => {
-    const router = createRouter();
-
-    await router.handleRequest(
-      new Request('https://demo.api/hapi/carts/0', {
-        method: 'PATCH',
-        body: JSON.stringify({ currency_code: 'MXN', total_order: 123 }),
-      })
-    )?.handlerPromise;
-
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        href="https://demo.api/hapi/carts/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-cart-form>
-    `);
-
-    const $ = element.renderRoot;
-    await waitUntil(() => !!$.querySelector('[key="total_order"]'), '', { timeout: 5000 });
-    const total = await getByKey(element, 'total_order');
-
-    expect(total).to.exist;
-    expect(total).to.have.attribute('infer', 'totals');
-    expect(total).to.have.nested.property('options.amount', '123 MXN');
-  });
-
-  it("renders total order when currency comes from the custom template set's locale", async () => {
-    const router = createRouter();
-
-    const newTemplateSetResponse = await router.handleRequest(
-      new Request('https://demo.api/hapi/template_sets', {
-        method: 'POST',
-        body: JSON.stringify({ code: 'TEST', locale_code: 'en_AU' }),
-      })
-    )!.handlerPromise;
-
-    const newTemplateSet = await newTemplateSetResponse.json();
-
-    const newCartResponse = await router.handleRequest(
-      new Request('https://demo.api/hapi/carts', {
-        method: 'POST',
-        body: JSON.stringify({
-          template_set_uri: newTemplateSet._links.self.href,
-          total_order: 456,
-        }),
-      })
-    )!.handlerPromise;
-
-    const newCart = await newCartResponse.json();
-
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        href=${newCart._links.self.href}
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-cart-form>
-    `);
-
-    const $ = element.renderRoot;
-    await waitUntil(() => !!$.querySelector('[key="total_order"]'), '', { timeout: 5000 });
-    const total = await getByKey(element, 'total_order');
-
-    expect(total).to.exist;
-    expect(total).to.have.attribute('infer', 'totals');
-    expect(total).to.have.nested.property('options.amount', '456 AUD');
-  });
-
-  it("renders total order when currency comes from the default template set's locale", async () => {
-    const router = createRouter();
-
-    await router.handleRequest(
-      new Request('https://demo.api/hapi/template_sets/0', {
-        method: 'PATCH',
-        body: JSON.stringify({ code: 'DEFAULT', locale_code: 'en_PH' }),
-      })
-    )!.handlerPromise;
-
-    const newCartResponse = await router.handleRequest(
-      new Request('https://demo.api/hapi/carts', {
-        method: 'POST',
-        body: JSON.stringify({ total_order: 892 }),
-      })
-    )!.handlerPromise;
-
-    const newCart = await newCartResponse.json();
-
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        href=${newCart._links.self.href}
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-cart-form>
-    `);
-
-    const $ = element.renderRoot;
-    await waitUntil(() => !!$.querySelector('[key="total_order"]'), '', { timeout: 5000 });
-    const total = await getByKey(element, 'total_order');
-
-    expect(total).to.exist;
-    expect(total).to.have.attribute('infer', 'totals');
-    expect(total).to.have.nested.property('options.amount', '892 PHP');
-  });
-
-  it('respects store-wide currency code display setting in total order (international: yes)', async () => {
-    const router = createRouter();
-
-    await router.handleRequest(
-      new Request('https://demo.api/hapi/stores/0', {
-        method: 'PATCH',
-        body: JSON.stringify({ use_international_currency_symbol: true }),
-      })
-    )!.handlerPromise;
-
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        href="https://demo.api/hapi/carts/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-cart-form>
-    `);
-
-    const $ = element.renderRoot;
-    await waitUntil(() => !!$.querySelector('[key="total_order"]'), '', { timeout: 5000 });
-    const total = await getByKey(element, 'total_order');
-
-    expect(total).to.have.nested.property('options.currencyDisplay', 'code');
-  });
-
-  it('respects store-wide currency code display setting in total order (international: no)', async () => {
-    const router = createRouter();
-
-    await router.handleRequest(
-      new Request('https://demo.api/hapi/stores/0', {
-        method: 'PATCH',
-        body: JSON.stringify({ use_international_currency_symbol: false }),
-      })
-    )!.handlerPromise;
-
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        href="https://demo.api/hapi/carts/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-cart-form>
-    `);
-
-    const $ = element.renderRoot;
-    await waitUntil(() => !!$.querySelector('[key="total_order"]'), '', { timeout: 5000 });
-    const total = await getByKey(element, 'total_order');
-
-    expect(total).to.have.nested.property('options.currencyDisplay', 'symbol');
-  });
-
-  for (const prop of ['total_item_price', 'total_shipping', 'total_tax'] as const) {
-    const propDescription = prop.replace(/_/g, ' ');
-
-    it(`renders ${propDescription} when currency comes from the cart resource`, async () => {
-      const router = createRouter();
-
-      await router.handleRequest(
-        new Request('https://demo.api/hapi/carts/0', {
-          method: 'PATCH',
-          body: JSON.stringify({ currency_code: 'MXN', [prop]: 123 }),
-        })
-      )?.handlerPromise;
-
-      const element = await fixture<Form>(html`
-        <foxy-cart-form
-          href="https://demo.api/hapi/carts/0"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-cart-form>
-      `);
-
-      await waitUntil(() => !!element.data, '', { timeout: 5000 });
-      const wrapper = (await getByTestId(element, prop)) as HTMLElement;
-      await waitUntil(() => !!wrapper.querySelector('[key="price"]'), '', { timeout: 5000 });
-
-      const label = wrapper.querySelector(`[key="${prop}"]`) as HTMLElement;
-      const price = wrapper.querySelector('[key="price"]') as HTMLElement;
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('infer', 'totals');
-
-      expect(price).to.exist;
-      expect(price).to.have.attribute('infer', 'totals');
-      expect(price).to.have.nested.property('options.amount', '123 MXN');
-    });
-
-    it(`renders ${propDescription} when currency comes from the custom template set's locale`, async () => {
-      const router = createRouter();
-
-      const newTemplateSetResponse = await router.handleRequest(
-        new Request('https://demo.api/hapi/template_sets', {
-          method: 'POST',
-          body: JSON.stringify({ code: 'TEST', locale_code: 'en_AU' }),
-        })
-      )!.handlerPromise;
-
-      const newTemplateSet = await newTemplateSetResponse.json();
-
-      const newCartResponse = await router.handleRequest(
-        new Request('https://demo.api/hapi/carts', {
-          method: 'POST',
-          body: JSON.stringify({
-            template_set_uri: newTemplateSet._links.self.href,
-            [prop]: 456,
-          }),
-        })
-      )!.handlerPromise;
-
-      const newCart = await newCartResponse.json();
-
-      const element = await fixture<Form>(html`
-        <foxy-cart-form
-          locale-codes="https://demo.api/hapi/property_helpers/7"
-          href=${newCart._links.self.href}
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-cart-form>
-      `);
-
-      await waitUntil(() => !!element.data, '', { timeout: 5000 });
-      const wrapper = (await getByTestId(element, prop)) as HTMLElement;
-      await waitUntil(() => !!wrapper.querySelector('[key="price"]'), '', { timeout: 5000 });
-
-      const label = wrapper.querySelector(`[key="${prop}"]`) as HTMLElement;
-      const price = wrapper.querySelector('[key="price"]') as HTMLElement;
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('infer', 'totals');
-
-      expect(price).to.exist;
-      expect(price).to.have.attribute('infer', 'totals');
-      expect(price).to.have.nested.property('options.amount', '456 AUD');
-    });
-
-    it(`renders ${propDescription} when currency comes from the default template set's locale`, async () => {
-      const router = createRouter();
-
-      await router.handleRequest(
-        new Request('https://demo.api/hapi/template_sets/0', {
-          method: 'PATCH',
-          body: JSON.stringify({ code: 'DEFAULT', locale_code: 'en_PH' }),
-        })
-      )!.handlerPromise;
-
-      const newCartResponse = await router.handleRequest(
-        new Request('https://demo.api/hapi/carts', {
-          method: 'POST',
-          body: JSON.stringify({ [prop]: 892 }),
-        })
-      )!.handlerPromise;
-
-      const newCart = await newCartResponse.json();
-
-      const element = await fixture<Form>(html`
-        <foxy-cart-form
-          locale-codes="https://demo.api/hapi/property_helpers/7"
-          href=${newCart._links.self.href}
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-cart-form>
-      `);
-
-      await waitUntil(() => !!element.data, '', { timeout: 5000 });
-      const wrapper = (await getByTestId(element, prop)) as HTMLElement;
-      await waitUntil(() => !!wrapper.querySelector('[key="price"]'), '', { timeout: 5000 });
-
-      const label = wrapper.querySelector(`[key="${prop}"]`) as HTMLElement;
-      const price = wrapper.querySelector('[key="price"]') as HTMLElement;
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('infer', 'totals');
-
-      expect(price).to.exist;
-      expect(price).to.have.attribute('infer', 'totals');
-      expect(price).to.have.nested.property('options.amount', '892 PHP');
-    });
-
-    it(`respects store-wide currency code display setting in ${propDescription} (international: yes)`, async () => {
-      const router = createRouter();
-
-      await router.handleRequest(
-        new Request('https://demo.api/hapi/stores/0', {
-          method: 'PATCH',
-          body: JSON.stringify({ use_international_currency_symbol: true }),
-        })
-      )!.handlerPromise;
-
-      const element = await fixture<Form>(html`
-        <foxy-cart-form
-          locale-codes="https://demo.api/hapi/property_helpers/7"
-          href="https://demo.api/hapi/carts/0"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-cart-form>
-      `);
-
-      await waitUntil(() => !!element.data, '', { timeout: 5000 });
-      const wrapper = (await getByTestId(element, prop)) as HTMLElement;
-      await waitUntil(() => !!wrapper.querySelector('[key="price"]'), '', { timeout: 5000 });
-
-      const price = wrapper.querySelector('[key="price"]') as HTMLElement;
-      expect(price).to.have.nested.property('options.currencyDisplay', 'code');
-    });
-
-    it(`respects store-wide currency code display setting in ${propDescription} (international: no)`, async () => {
-      const router = createRouter();
-
-      await router.handleRequest(
-        new Request('https://demo.api/hapi/stores/0', {
-          method: 'PATCH',
-          body: JSON.stringify({ use_international_currency_symbol: false }),
-        })
-      )!.handlerPromise;
-
-      const element = await fixture<Form>(html`
-        <foxy-cart-form
-          locale-codes="https://demo.api/hapi/property_helpers/7"
-          href="https://demo.api/hapi/carts/0"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-cart-form>
-      `);
-
-      await waitUntil(() => !!element.data, '', { timeout: 5000 });
-      const wrapper = (await getByTestId(element, prop)) as HTMLElement;
-      await waitUntil(() => !!wrapper.querySelector('[key="price"]'), '', { timeout: 5000 });
-
-      const price = wrapper.querySelector('[key="price"]') as HTMLElement;
-      expect(price).to.have.nested.property('options.currencyDisplay', 'symbol');
-    });
-  }
-
-  const discounts = {
-    _embedded: {
-      'fx:discounts': [
-        {
-          code: '1WLCM',
-          amount: -1,
-          name: 'Welcome Bonus',
-          display: '-1.00',
-          is_taxable: false,
-          is_future_discount: false,
-          date_created: '2021-03-29T13:57:40-0700',
-          date_modified: '2021-03-29T13:57:40-0700',
-        },
-        {
-          code: 'FEE01',
-          amount: 5,
-          name: 'Test Surcharge',
-          display: '+5.00',
-          is_taxable: false,
-          is_future_discount: false,
-          date_created: '2021-03-29T13:57:40-0700',
-          date_modified: '2021-03-29T13:57:40-0700',
-        },
-      ],
-    },
-  };
-
-  it('renders discounts when currency comes from the cart resource', async () => {
-    const router = createRouter();
-
-    await router.handleRequest(
-      new Request('https://demo.api/hapi/carts/0', {
-        method: 'PATCH',
-        body: JSON.stringify({ currency_code: 'MXN' }),
-      })
-    )?.handlerPromise;
-
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        href="https://demo.api/hapi/carts/0"
-        @fetch=${(evt: FetchEvent) => {
-          if (evt.request.url === 'https://demo.api/hapi/discounts?cart_id=0&limit=300') {
-            evt.respondWith(Promise.resolve(new Response(JSON.stringify(discounts))));
-          } else {
-            router.handleEvent(evt);
-          }
-        }}
-      >
-      </foxy-cart-form>
-    `);
-
-    const $ = element.renderRoot;
-    await waitUntil(() => !!$.querySelector('[data-testclass="discount"] [key="price"]'), '', {
-      timeout: 5000,
-    });
-
-    const wrappers = await getByTestClass(element, 'discount');
-    const wrapper0Price = await getByKey(wrappers[0], 'price');
-    const wrapper1Price = await getByKey(wrappers[1], 'price');
-
-    expect(wrappers).to.have.length(2);
-
-    expect(wrappers[0]).to.include.text('Welcome Bonus');
-    expect(wrappers[0]).to.include.text('1WLCM');
-    expect(wrapper0Price).to.have.attribute('infer', 'totals');
-    expect(wrapper0Price).to.have.nested.property('options.amount', '-1 MXN');
-
-    expect(wrappers[1]).to.include.text('Test Surcharge');
-    expect(wrappers[1]).to.include.text('FEE01');
-    expect(wrapper1Price).to.have.attribute('infer', 'totals');
-    expect(wrapper1Price).to.have.nested.property('options.amount', '5 MXN');
-  });
-
-  it("renders discounts when currency comes from the custom template set's locale", async () => {
-    const router = createRouter();
-
-    const newTemplateSetResponse = await router.handleRequest(
-      new Request('https://demo.api/hapi/template_sets', {
-        method: 'POST',
-        body: JSON.stringify({ code: 'TEST', locale_code: 'en_AU' }),
-      })
-    )!.handlerPromise;
-
-    const newTemplateSet = await newTemplateSetResponse.json();
-
-    const newCartResponse = await router.handleRequest(
-      new Request('https://demo.api/hapi/carts', {
-        method: 'POST',
-        body: JSON.stringify({ template_set_uri: newTemplateSet._links.self.href }),
-      })
-    )!.handlerPromise;
-
-    const newCart = await newCartResponse.json();
-
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        href=${newCart._links.self.href}
-        @fetch=${(evt: FetchEvent) => {
-          if (evt.request.url.startsWith('https://demo.api/hapi/discounts?cart_id=')) {
-            evt.respondWith(Promise.resolve(new Response(JSON.stringify(discounts))));
-          } else {
-            router.handleEvent(evt);
-          }
-        }}
-      >
-      </foxy-cart-form>
-    `);
-
-    const $ = element.renderRoot;
-    await waitUntil(() => !!$.querySelector('[data-testclass="discount"] [key="price"]'), '', {
-      timeout: 5000,
-    });
-
-    const wrappers = await getByTestClass(element, 'discount');
-    const wrapper0Price = await getByKey(wrappers[0], 'price');
-    const wrapper1Price = await getByKey(wrappers[1], 'price');
-
-    expect(wrappers).to.have.length(2);
-
-    expect(wrappers[0]).to.include.text('Welcome Bonus');
-    expect(wrappers[0]).to.include.text('1WLCM');
-    expect(wrapper0Price).to.have.attribute('infer', 'totals');
-    expect(wrapper0Price).to.have.nested.property('options.amount', '-1 AUD');
-
-    expect(wrappers[1]).to.include.text('Test Surcharge');
-    expect(wrappers[1]).to.include.text('FEE01');
-    expect(wrapper1Price).to.have.attribute('infer', 'totals');
-    expect(wrapper1Price).to.have.nested.property('options.amount', '5 AUD');
-  });
-
-  it("renders discounts when currency comes from the default template set's locale", async () => {
-    const router = createRouter();
-
-    await router.handleRequest(
-      new Request('https://demo.api/hapi/template_sets/0', {
-        method: 'PATCH',
-        body: JSON.stringify({ code: 'DEFAULT', locale_code: 'en_PH' }),
-      })
-    )!.handlerPromise;
-
-    const newCartResponse = await router.handleRequest(
-      new Request('https://demo.api/hapi/carts', {
-        method: 'POST',
-        body: JSON.stringify({}),
-      })
-    )!.handlerPromise;
-
-    const newCart = await newCartResponse.json();
-
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        href=${newCart._links.self.href}
-        @fetch=${(evt: FetchEvent) => {
-          if (evt.request.url.startsWith('https://demo.api/hapi/discounts?cart_id=')) {
-            evt.respondWith(Promise.resolve(new Response(JSON.stringify(discounts))));
-          } else {
-            router.handleEvent(evt);
-          }
-        }}
-      >
-      </foxy-cart-form>
-    `);
-
-    const $ = element.renderRoot;
-    await waitUntil(() => !!$.querySelector('[data-testclass="discount"] [key="price"]'), '', {
-      timeout: 5000,
-    });
-
-    const wrappers = await getByTestClass(element, 'discount');
-    const wrapper0Price = await getByKey(wrappers[0], 'price');
-    const wrapper1Price = await getByKey(wrappers[1], 'price');
-
-    expect(wrappers).to.have.length(2);
-
-    expect(wrappers[0]).to.include.text('Welcome Bonus');
-    expect(wrappers[0]).to.include.text('1WLCM');
-    expect(wrapper0Price).to.have.attribute('infer', 'totals');
-    expect(wrapper0Price).to.have.nested.property('options.amount', '-1 PHP');
-
-    expect(wrappers[1]).to.include.text('Test Surcharge');
-    expect(wrappers[1]).to.include.text('FEE01');
-    expect(wrapper1Price).to.have.attribute('infer', 'totals');
-    expect(wrapper1Price).to.have.nested.property('options.amount', '5 PHP');
-  });
-
-  it('respects store-wide currency code display setting in discounts (international: yes)', async () => {
-    const router = createRouter();
-
-    await router.handleRequest(
-      new Request('https://demo.api/hapi/stores/0', {
-        method: 'PATCH',
-        body: JSON.stringify({ use_international_currency_symbol: true }),
-      })
-    )!.handlerPromise;
-
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        href="https://demo.api/hapi/carts/0"
-        @fetch=${(evt: FetchEvent) => {
-          if (evt.request.url.startsWith('https://demo.api/hapi/discounts?cart_id=')) {
-            evt.respondWith(Promise.resolve(new Response(JSON.stringify(discounts))));
-          } else {
-            router.handleEvent(evt);
-          }
-        }}
-      >
-      </foxy-cart-form>
-    `);
-
-    const $ = element.renderRoot;
-    await waitUntil(() => !!$.querySelector('[data-testclass="discount"] [key="price"]'), '', {
-      timeout: 5000,
-    });
-
-    const wrappers = await getByTestClass(element, 'discount');
-    const wrapper0Price = await getByKey(wrappers[0], 'price');
-    const wrapper1Price = await getByKey(wrappers[1], 'price');
-
-    expect(wrapper0Price).to.have.nested.property('options.currencyDisplay', 'code');
-    expect(wrapper1Price).to.have.nested.property('options.currencyDisplay', 'code');
-  });
-
-  it('respects store-wide currency code display setting in discounts (international: no)', async () => {
-    const router = createRouter();
-
-    await router.handleRequest(
-      new Request('https://demo.api/hapi/stores/0', {
-        method: 'PATCH',
-        body: JSON.stringify({ use_international_currency_symbol: false }),
-      })
-    )!.handlerPromise;
-
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        href="https://demo.api/hapi/carts/0"
-        @fetch=${(evt: FetchEvent) => {
-          if (evt.request.url.startsWith('https://demo.api/hapi/discounts?cart_id=')) {
-            evt.respondWith(Promise.resolve(new Response(JSON.stringify(discounts))));
-          } else {
-            router.handleEvent(evt);
-          }
-        }}
-      >
-      </foxy-cart-form>
-    `);
-
-    const $ = element.renderRoot;
-    await waitUntil(() => !!$.querySelector('[data-testclass="discount"] [key="price"]'), '', {
-      timeout: 5000,
-    });
-
-    const wrappers = await getByTestClass(element, 'discount');
-    const wrapper0Price = await getByKey(wrappers[0], 'price');
-    const wrapper1Price = await getByKey(wrappers[1], 'price');
-
-    expect(wrapper0Price).to.have.nested.property('options.currencyDisplay', 'symbol');
-    expect(wrapper1Price).to.have.nested.property('options.currencyDisplay', 'symbol');
-  });
-
-  it('renders "View as customer" button for existing carts', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        href="https://demo.api/hapi/carts/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-cart-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(`[infer="view-as-customer"]`);
-
-    expect(control).to.be.instanceOf(InternalCartFormViewAsCustomerControl);
-  });
-
-  it('renders "Delete" button for existing carts', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form
-        href="https://demo.api/hapi/carts/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-cart-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(`[infer="delete"]`);
-
-    expect(control).to.be.instanceOf(InternalDeleteControl);
-  });
-
-  it('renders "Create" button for new carts', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-cart-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-cart-form>
-    `);
-
-    const control = element.renderRoot.querySelector(`[infer="create"]`);
-    expect(control).to.be.instanceOf(InternalSubmitControl);
+    expect(control).to.have.property('localName', 'foxy-internal-async-list-control');
   });
 });
