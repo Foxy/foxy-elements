@@ -9,6 +9,7 @@ import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/Inte
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
 import { spread } from '@open-wc/lit-helpers';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 
 /**
  * Dialog wrapper for the forms made with NucleonElement.
@@ -96,6 +97,10 @@ export class FormDialog extends Dialog {
       target.in({ idle: { snapshot: { dirty: 'valid' } } });
   };
 
+  get hiddenSelector(): BooleanSelector {
+    return new BooleanSelector(`submit undo ${super.hiddenSelector}`.trim());
+  }
+
   /**
    * Form's custom element tag. Generated custom element will have the following attributes:
    *
@@ -121,9 +126,9 @@ export class FormDialog extends Dialog {
             lang=\${options.dialog.lang}
             group=\${options.dialog.group}
             parent=\${options.dialog.parent}
-            disabledcontrols=\${options.dialog.disabledControls.toString()}
-            readonlycontrols=\${options.dialog.readonlyControls.toString()}
-            hiddencontrols=\${options.dialog.hiddenControls.toString()}
+            disabledcontrols=\${options.dialog.disabledSelector.toString()}
+            readonlycontrols=\${options.dialog.readonlySelector.toString()}
+            hiddencontrols=\${options.dialog.hiddenSelector.toString()}
             ?disabled=\${options.dialog.disabled}
             ?readonly=\${options.dialog.readonly}
             ?hidden=\${options.dialog.hidden}

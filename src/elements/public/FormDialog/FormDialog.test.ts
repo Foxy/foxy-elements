@@ -231,4 +231,10 @@ describe('FormDialog', () => {
       expect(dialog).to.have.property('editable', true);
     });
   });
+
+  it('hides built-in Undo and Submit buttons in forms because it provides its own', () => {
+    const dialog = new FormDialog();
+    expect(dialog.hiddenSelector.matches('undo', true)).to.be.true;
+    expect(dialog.hiddenSelector.matches('submit', true)).to.be.true;
+  });
 });

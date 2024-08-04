@@ -3,10 +3,10 @@ import type { HALJSONResource } from '../../public/NucleonElement/types';
 import type { TemplateResult } from 'lit-html';
 import type { Status } from './types';
 
+import { BooleanSelector, getResourceId } from '@foxy.io/sdk/core';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { NucleonElement } from '../../public/NucleonElement/NucleonElement';
-import { getResourceId } from '@foxy.io/sdk/core';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
 
@@ -69,6 +69,14 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
   /** ID that will be written to clipboard when Copy ID button in header is clicked. */
   get headerCopyIdValue(): string | number {
     return this.data ? getResourceId(this.data._links.self.href) ?? '' : '';
+  }
+
+  get hiddenSelector(): BooleanSelector {
+    const alwaysMatch = [super.hiddenSelector.toString()];
+    if (this.href) alwaysMatch.unshift('create');
+    if (!this.href) alwaysMatch.unshift('delete', 'timestamps', 'submit');
+    if (!this.in({ idle: { snapshot: 'dirty' } })) alwaysMatch.unshift('undo');
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
   /**
@@ -145,39 +153,22 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
    * don't forget to add `super.renderBody()` to your template.
    */
   renderBody(): TemplateResult {
-    if (this.data) {
-      const isSnapshotDirty = this.in({ idle: { snapshot: 'dirty' } });
-      const isDeleteHidden = this.hiddenSelector.matches('delete', true);
-      const isClean = this.in({ idle: { snapshot: 'clean' } });
-      const isUndoHidden = isClean || this.hiddenSelector.matches('undo', true);
-      const isSubmitHidden = this.hiddenSelector.matches('submit', true);
-      const actionClass = classMap({ 'transition-opacity': true, 'opacity-0': !isSnapshotDirty });
-      const actionsHidden =
-        ((isDeleteHidden && isUndoHidden && isSubmitHidden) ||
-          (isDeleteHidden && !isSnapshotDirty)) &&
-        !isSnapshotDirty;
+    const nested = ['delete', 'undo', 'submit', 'create'];
 
-      return html`
-        <foxy-internal-timestamps-control infer="timestamps"></foxy-internal-timestamps-control>
-        <div class=${classMap({ 'flex gap-m': !actionsHidden, 'hidden': actionsHidden })}>
-          <foxy-internal-delete-control infer="delete"></foxy-internal-delete-control>
-          <div class="w-full"></div>
-          <foxy-internal-undo-control class=${actionClass} infer="undo">
-          </foxy-internal-undo-control>
-          <foxy-internal-submit-control class=${actionClass} infer="submit">
-          </foxy-internal-submit-control>
-        </div>
-      `;
-    } else if (!this.hiddenSelector.matches('create', true)) {
-      return html`
-        <div class="flex">
-          <foxy-internal-submit-control infer="create" theme="primary success" class="ml-auto">
-          </foxy-internal-submit-control>
-        </div>
-      `;
-    } else {
-      return html``;
-    }
+    return html`
+      <foxy-internal-timestamps-control infer="timestamps"></foxy-internal-timestamps-control>
+
+      <div class="flex gap-m" ?hidden=${nested.every(v => this.hiddenSelector.matches(v, true))}>
+        <foxy-internal-delete-control infer="delete"></foxy-internal-delete-control>
+
+        <div class="w-full"></div>
+
+        <foxy-internal-undo-control infer="undo"> </foxy-internal-undo-control>
+        <foxy-internal-submit-control infer="submit"> </foxy-internal-submit-control>
+        <foxy-internal-submit-control infer="create" theme="primary success">
+        </foxy-internal-submit-control>
+      </div>
+    `;
   }
 
   /**
