@@ -52,14 +52,14 @@ export class AddressForm extends Base<Data> {
   get hiddenSelector(): BooleanSelector {
     const alwaysHidden = [super.hiddenSelector.toString()];
     const isDefault = !!this.data?.is_default_shipping || !!this.data?.is_default_billing;
-    if (isDefault) alwaysHidden.unshift('delete', 'address-name');
+    if (isDefault) alwaysHidden.unshift('delete', 'address-name', 'header:copy-id');
     return new BooleanSelector(alwaysHidden.join(' ').trim());
   }
 
-  get headerSubtitleKey(): string {
-    if (this.data?.is_default_shipping) return 'subtitle_default_shipping';
-    if (this.data?.is_default_billing) return 'subtitle_default_billing';
-    return 'subtitle_custom';
+  get headerTitleKey(): string {
+    if (this.data?.is_default_shipping) return 'title_default_shipping';
+    if (this.data?.is_default_billing) return 'title_default_billing';
+    return super.headerTitleKey;
   }
 
   renderBody(): TemplateResult {
