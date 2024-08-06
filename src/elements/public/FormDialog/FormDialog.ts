@@ -92,7 +92,6 @@ export class FormDialog extends Dialog {
 
     this.closable = !target.in('busy');
     this.editable =
-      target.in({ idle: { template: { clean: 'valid' } } }) ||
       target.in({ idle: { template: { dirty: 'valid' } } }) ||
       target.in({ idle: { snapshot: { dirty: 'valid' } } });
   };
@@ -176,7 +175,7 @@ export class FormDialog extends Dialog {
   }
 
   async hide(cancelled = false): Promise<void> {
-    if (cancelled) {
+    if (cancelled && this.editable) {
       const confirm = this.renderRoot.querySelector('#confirm') as InternalConfirmDialog;
       confirm.show();
     } else {
