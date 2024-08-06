@@ -75,7 +75,7 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
     const alwaysMatch = [super.hiddenSelector.toString()];
     if (this.href) alwaysMatch.unshift('create');
     if (!this.href) alwaysMatch.unshift('delete', 'timestamps', 'submit');
-    if (!this.in({ idle: { snapshot: 'dirty' } })) alwaysMatch.unshift('undo');
+    if (!this.in({ idle: { snapshot: 'dirty' } })) alwaysMatch.unshift('undo', 'submit');
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 

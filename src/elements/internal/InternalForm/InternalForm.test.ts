@@ -298,7 +298,7 @@ describe('InternalForm', () => {
 
     element.href = 'https://demo.api/hapi/customer_addresses/0';
     expect(element.hiddenSelector.matches('delete', true)).to.be.false;
-    expect(element.hiddenSelector.matches('submit', true)).to.be.false;
+    expect(element.hiddenSelector.matches('submit', true)).to.be.true; // remains hidden because of another condition
     expect(element.hiddenSelector.matches('timestamps', true)).to.be.false;
   });
 
