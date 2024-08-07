@@ -63,6 +63,11 @@ describe('InternalNumberControl', () => {
     expect(new Control()).to.be.instanceOf(InternalEditableControl);
   });
 
+  it('defines a reactive property for "layout" (String)', () => {
+    expect(Control).to.have.deep.nested.property('properties.layout', {});
+    expect(new Control()).to.have.property('layout', null);
+  });
+
   it('renders vaadin-number-field element', async () => {
     const layout = html`<test-internal-number-control></test-internal-number-control>`;
     const control = await fixture<TestControl>(layout);
@@ -71,7 +76,7 @@ describe('InternalNumberControl', () => {
     expect(field).to.not.be.null;
   });
 
-  it('sets "errorMessage" on vaadin-number-field from "_errorMessage" on itself', async () => {
+  it('sets "errorMessage" on vaadin-number-field from "_errorMessage" on itself in standalone mode', async () => {
     const layout = html`<test-internal-number-control></test-internal-number-control>`;
     const control = await fixture<TestControl>(layout);
     const field = control.renderRoot.querySelector('vaadin-number-field')!;
@@ -84,7 +89,7 @@ describe('InternalNumberControl', () => {
     expect(field).to.have.property('errorMessage', 'test error message');
   });
 
-  it('sets "helperText" on vaadin-number-field from "helperText" on itself', async () => {
+  it('sets "helperText" on vaadin-number-field from "helperText" on itself in standalone mode', async () => {
     const layout = html`<test-internal-number-control></test-internal-number-control>`;
     const control = await fixture<TestControl>(layout);
     const field = control.renderRoot.querySelector('vaadin-number-field')!;
@@ -97,7 +102,7 @@ describe('InternalNumberControl', () => {
     expect(field).to.have.property('helperText', 'test helper text');
   });
 
-  it('sets "placeholder" on vaadin-number-field from "placeholder" on itself', async () => {
+  it('sets "placeholder" on vaadin-number-field from "placeholder" on itself in standalone mode', async () => {
     const layout = html`<test-internal-number-control></test-internal-number-control>`;
     const control = await fixture<TestControl>(layout);
     const field = control.renderRoot.querySelector('vaadin-number-field')!;
@@ -110,7 +115,7 @@ describe('InternalNumberControl', () => {
     expect(field).to.have.property('placeholder', 'test placeholder');
   });
 
-  it('sets "label" on vaadin-number-field from "label" on itself', async () => {
+  it('sets "label" on vaadin-number-field from "label" on itself in standalone mode', async () => {
     const layout = html`<test-internal-number-control></test-internal-number-control>`;
     const control = await fixture<TestControl>(layout);
     const field = control.renderRoot.querySelector('vaadin-number-field')!;
@@ -123,7 +128,7 @@ describe('InternalNumberControl', () => {
     expect(field).to.have.property('label', 'test label');
   });
 
-  it('sets "disabled" on vaadin-number-field from "disabled" on itself', async () => {
+  it('sets "disabled" on vaadin-number-field from "disabled" on itself in standalone mode', async () => {
     const layout = html`<test-internal-number-control></test-internal-number-control>`;
     const control = await fixture<TestControl>(layout);
     const field = control.renderRoot.querySelector('vaadin-number-field')!;
@@ -137,7 +142,7 @@ describe('InternalNumberControl', () => {
     expect(field).to.have.property('disabled', false);
   });
 
-  it('sets "readonly" on vaadin-number-field from "readonly" on itself', async () => {
+  it('sets "readonly" on vaadin-number-field from "readonly" on itself in standalone mode', async () => {
     const layout = html`<test-internal-number-control></test-internal-number-control>`;
     const control = await fixture<TestControl>(layout);
     const field = control.renderRoot.querySelector('vaadin-number-field')!;
@@ -151,7 +156,7 @@ describe('InternalNumberControl', () => {
     expect(field).to.have.property('readonly', false);
   });
 
-  it('sets "checkValidity" on vaadin-number-field from "_checkValidity" on itself', async () => {
+  it('sets "checkValidity" on vaadin-number-field from "_checkValidity" on itself in standalone mode', async () => {
     const layout = html`<test-internal-number-control></test-internal-number-control>`;
     const control = await fixture<TestControl>(layout);
     const field = control.renderRoot.querySelector('vaadin-number-field')!;
@@ -159,7 +164,7 @@ describe('InternalNumberControl', () => {
     expect(field).to.have.property('checkValidity', get(control, '_checkValidity'));
   });
 
-  it('sets "value" on vaadin-number-field from "_value" on itself', async () => {
+  it('sets "value" on vaadin-number-field from "_value" on itself in standalone mode', async () => {
     const layout = html`<test-internal-number-control></test-internal-number-control>`;
     const control = await fixture<TestControl>(layout);
     const field = control.renderRoot.querySelector('vaadin-number-field')!;
@@ -172,7 +177,7 @@ describe('InternalNumberControl', () => {
     expect(field).to.have.property('value', '12.34');
   });
 
-  it('writes to "_value" on change', async () => {
+  it('writes to "_value" on input in standalone mode', async () => {
     const layout = html`<test-internal-number-control></test-internal-number-control>`;
     const control = await fixture<TestControl>(layout);
     const field = control.renderRoot.querySelector('vaadin-number-field')!;
@@ -185,13 +190,161 @@ describe('InternalNumberControl', () => {
     expect(control).to.have.property('testValue', 12.34);
   });
 
-  it('submits the host nucleon form on Enter', async () => {
+  it('submits the host nucleon form on Enter in standalone mode', async () => {
     const layout = html`<test-internal-number-control></test-internal-number-control>`;
     const control = await fixture<TestControl>(layout);
     const field = control.renderRoot.querySelector('vaadin-number-field')!;
     const submitMethod = stub(control.nucleon, 'submit');
 
     field.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    expect(submitMethod).to.have.been.calledOnce;
+
+    submitMethod.restore();
+  });
+
+  it('renders label in summary item layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-number-control layout="summary-item"></test-internal-number-control>
+    `);
+
+    expect(control.renderRoot).to.include.text('label');
+
+    control.label = 'Foo bar';
+    await control.requestUpdate();
+
+    expect(control.renderRoot).to.not.include.text('label');
+    expect(control.renderRoot).to.include.text('Foo bar');
+  });
+
+  it('renders helper text in summary item layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-number-control layout="summary-item"></test-internal-number-control>
+    `);
+
+    expect(control.renderRoot).to.include.text('helper_text');
+
+    control.helperText = 'Test helper text';
+    await control.requestUpdate();
+
+    expect(control.renderRoot).to.not.include.text('helper_text');
+    expect(control.renderRoot).to.include.text('Test helper text');
+  });
+
+  it('renders error text in summary item layout if available', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-number-control layout="summary-item"></test-internal-number-control>
+    `);
+
+    expect(control.renderRoot).to.not.include.text('Test error message');
+
+    control.testErrorMessage = 'Test error message';
+    await control.requestUpdate();
+
+    expect(control.renderRoot).to.include.text('Test error message');
+  });
+
+  it('renders text input in summary item layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-number-control layout="summary-item"></test-internal-number-control>
+    `);
+
+    const vaadinTextField = control.renderRoot.querySelector('vaadin-number-field');
+    expect(vaadinTextField).to.be.null;
+
+    const input = control.renderRoot.querySelector('input');
+    expect(input).to.not.be.null;
+    expect(input).to.have.attribute('type', 'number');
+  });
+
+  it('sets "disabled" on input from "disabled" on itself in summary item layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-number-control layout="summary-item"></test-internal-number-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    expect(input).to.have.property('disabled', false);
+
+    control.disabled = true;
+    await control.requestUpdate();
+
+    expect(input).to.have.property('disabled', true);
+
+    control.disabled = false;
+    await control.requestUpdate();
+
+    expect(input).to.have.property('disabled', false);
+  });
+
+  it('sets "readonly" on input from "readonly" on itself in summary item layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-number-control layout="summary-item"></test-internal-number-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    expect(input).to.have.property('readOnly', false);
+
+    control.readonly = true;
+    await control.requestUpdate();
+
+    expect(input).to.have.property('readOnly', true);
+
+    control.readonly = false;
+    await control.requestUpdate();
+
+    expect(input).to.have.property('readOnly', false);
+  });
+
+  it('sets "placeholder" on input from "placeholder" on itself in summary item layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-number-control layout="summary-item"></test-internal-number-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    expect(input).to.have.property('placeholder', 'placeholder');
+
+    control.placeholder = 'Test placeholder';
+    await control.requestUpdate();
+
+    expect(input).to.have.property('placeholder', 'Test placeholder');
+  });
+
+  it('sets "value" on input from "_value" on itself in summary item layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-number-control layout="summary-item"></test-internal-number-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    expect(input).to.have.property('value', '0');
+
+    control.testValue = 12.34;
+    await control.requestUpdate();
+
+    expect(input).to.have.property('value', '12.34');
+  });
+
+  it('writes to "_value" on input in summary item layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-number-control layout="summary-item"></test-internal-number-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    expect(input).to.have.property('value', '0');
+
+    input.value = '12.34';
+    input.dispatchEvent(new CustomEvent('input'));
+
+    expect(control).to.have.property('testValue', '12.34');
+  });
+
+  it('submits the host nucleon form on Enter in summary item layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-number-control layout="summary-item"></test-internal-number-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    const submitMethod = stub(control.nucleon, 'submit');
+
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
     expect(submitMethod).to.have.been.calledOnce;
 
     submitMethod.restore();
