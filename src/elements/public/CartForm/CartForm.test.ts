@@ -731,41 +731,12 @@ describe('CartForm', () => {
       },
     ]);
 
-    expect(control?.getDisplayValueOptions(await getTestData('./hapi/payments'), '')).to.deep.equal(
-      {
-        cc_exp_month: '01',
-        cc_exp_year: '2017',
-        cc_last4: '1111',
-        cc_type: 'Visa',
-        context: '',
-      }
-    );
-
-    expect(control?.getDisplayValueOptions(null, '')).to.deep.equal({
-      cc_exp_month: '12',
-      cc_exp_year: '2020',
+    expect(control?.getDisplayValueOptions(await getTestData('./hapi/payments'))).to.deep.equal({
+      cc_exp_month: '01',
+      cc_exp_year: '2017',
       cc_last4: '1111',
-      cc_type: 'MasterCard',
+      cc_type: 'Visa',
       context: '',
-    });
-
-    element.edit({ customer_uri: '' });
-    await element.requestUpdate();
-    await waitUntil(
-      () =>
-        [...element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon')].every(el =>
-          el.in('idle')
-        ),
-      '',
-      { timeout: 5000 }
-    );
-
-    expect(control?.getDisplayValueOptions(null, '')).to.deep.equal({
-      cc_exp_month: '',
-      cc_exp_year: '',
-      cc_last4: '',
-      cc_type: '',
-      context: 'empty',
     });
   });
 

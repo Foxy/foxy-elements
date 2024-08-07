@@ -142,11 +142,11 @@
       "value_empty": "Not set",
       "value_busy": "Loading...",
       "value_fail": "Failed to load",
-      "placeholder": "Not set",
       "edit": "Edit",
       "dialog": {
         "cancel": "Cancel",
         "close": "Close",
+        "save": "Save",
         "header": "Payment method",
         "or": "or",
         "select_previous": "Select previous",

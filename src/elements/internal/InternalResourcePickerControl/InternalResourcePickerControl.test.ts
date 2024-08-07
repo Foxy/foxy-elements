@@ -2,11 +2,24 @@ import './index';
 
 import { InternalResourcePickerControlForm as Form } from './InternalResourcePickerControlForm';
 import { InternalResourcePickerControl as Control } from './InternalResourcePickerControl';
-import { expect, fixture, html } from '@open-wc/testing';
+import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import { NucleonElement } from '../../public/NucleonElement/NucleonElement';
 import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
 import { FormDialog } from '../../public/FormDialog/FormDialog';
 import { Type } from '../../public/QueryBuilder/types';
 import { stub } from 'sinon';
+import { createRouter } from '../../../server';
+
+async function waitForIdle(element: Control) {
+  await waitUntil(
+    () => {
+      const loaders = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...loaders].every(loader => loader.in('idle'));
+    },
+    '',
+    { timeout: 5000 }
+  );
+}
 
 describe('InternalResourcePickerControl', () => {
   it('imports and defines foxy-internal-editable-control element', () => {
@@ -46,10 +59,8 @@ describe('InternalResourcePickerControl', () => {
       attribute: false,
     });
 
-    expect(new Control().getDisplayValueOptions(null, 'test')).to.deep.equal({
-      resource: null,
-      context: 'test',
-    });
+    const resource = { _links: { self: { href: 'https://demo.api/virtual/empty' } } };
+    expect(new Control().getDisplayValueOptions(resource)).to.deep.equal({ resource });
   });
 
   it('has a reactive property "virtualHost"', () => {
@@ -292,6 +303,8 @@ describe('InternalResourcePickerControl', () => {
   });
 
   it('renders a custom button that opens a dialog on click in summary item layout', async () => {
+    const router = createRouter();
+
     const control = await fixture<Control>(html`
       <foxy-internal-resource-picker-control
         placeholder="Test Placeholder"
@@ -300,6 +313,7 @@ describe('InternalResourcePickerControl', () => {
         first="https://demo.api/hapi/customers"
         item="foxy-customer-card"
         .getDisplayValueOptions=${() => ({ foo: 'bar' })}
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-internal-resource-picker-control>
     `);
@@ -316,6 +330,7 @@ describe('InternalResourcePickerControl', () => {
 
     control.getValue = () => 'https://demo.api/hapi/customers/0';
     await control.requestUpdate();
+    await waitForIdle(control);
     const label = selectBtn.querySelector('foxy-i18n')!;
 
     expect(label).to.exist;

@@ -95,37 +95,20 @@ export class CartForm extends Base<Data> {
   private readonly __customerLoaderId = 'customerLoader';
 
   private readonly __paymentMethodUriGetDisplayValueOptions = (
-    payments: Resource<Rels.Payments> | null,
-    defaultContext: string
+    payments: Resource<Rels.Payments>
   ) => {
     const payment = payments?._embedded?.['fx:payments']?.[0] ?? null;
-
-    let ccExpMonth: string | null;
-    let ccExpYear: string | null;
-    let ccLast4: string | null;
-    let ccType: string | null;
-
-    if (payment) {
-      ccExpMonth = payment.cc_exp_month;
-      ccExpYear = payment.cc_exp_year;
-      ccLast4 = payment.cc_number_masked?.replace(/x/g, '');
-      ccType = payment.cc_type;
-    } else {
-      const customer = this.__customer;
-      const defaultPaymentMethod = customer?._embedded['fx:default_payment_method'];
-
-      ccExpMonth = defaultPaymentMethod?.cc_exp_month ?? null;
-      ccExpYear = defaultPaymentMethod?.cc_exp_year ?? null;
-      ccLast4 = defaultPaymentMethod?.cc_number_masked?.replace(/x/g, '') ?? null;
-      ccType = defaultPaymentMethod?.cc_type ?? null;
-    }
+    const ccExpMonth = payment?.cc_exp_month;
+    const ccExpYear = payment?.cc_exp_year;
+    const ccLast4 = payment?.cc_number_masked?.replace(/x/g, '');
+    const ccType = payment?.cc_type;
 
     return {
       cc_exp_month: ccExpMonth ?? '',
       cc_exp_year: ccExpYear ?? '',
       cc_last4: ccLast4 ?? '',
       cc_type: ccType ?? '',
-      context: defaultContext || (ccLast4 && ccExpMonth && ccExpYear && ccType ? '' : 'empty'),
+      context: ccLast4 && ccExpMonth && ccExpYear && ccType ? '' : 'empty',
     };
   };
 
@@ -301,6 +284,7 @@ export class CartForm extends Base<Data> {
 
       <foxy-internal-summary-control infer="billing">
         <foxy-internal-resource-picker-control
+          placeholder=${this.__paymentMethodUriPlaceholder}
           layout="summary-item"
           first=${ifDefined(this.__transactionsWithPaymentsUrl)}
           infer="payment-method-uri"
@@ -382,6 +366,22 @@ export class CartForm extends Base<Data> {
       >
       </foxy-nucleon>
     `;
+  }
+
+  private get __paymentMethodUriPlaceholder() {
+    const defaultPaymentMethod = this.__customer?._embedded['fx:default_payment_method'];
+    const ccExpMonth = defaultPaymentMethod?.cc_exp_month ?? null;
+    const ccExpYear = defaultPaymentMethod?.cc_exp_year ?? null;
+    const ccLast4 = defaultPaymentMethod?.cc_number_masked?.replace(/x/g, '') ?? null;
+    const ccType = defaultPaymentMethod?.cc_type ?? null;
+
+    return this.t('billing.payment-method-uri.value', {
+      cc_exp_month: ccExpMonth ?? '',
+      cc_exp_year: ccExpYear ?? '',
+      cc_last4: ccLast4 ?? '',
+      cc_type: ccType ?? '',
+      context: ccLast4 && ccExpMonth && ccExpYear && ccType ? '' : 'empty',
+    });
   }
 
   private get __transactionsWithPaymentsUrl() {

@@ -16,10 +16,7 @@ import { spread } from '@open-wc/lit-helpers';
 
 import memoize from 'lodash-es/memoize';
 
-type DisplayValueOptionsCb = (
-  resource: HALJSONResource | null,
-  context: string
-) => Record<string, unknown>;
+type DisplayValueOptionsCb = (resource: HALJSONResource) => Record<string, unknown>;
 
 export class InternalResourcePickerControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
@@ -36,7 +33,7 @@ export class InternalResourcePickerControl extends InternalEditableControl {
     };
   }
 
-  getDisplayValueOptions: DisplayValueOptionsCb = (r, c) => ({ resource: r, context: c });
+  getDisplayValueOptions: DisplayValueOptionsCb = resource => ({ resource });
 
   virtualHost = uniqueId('internal-resource-picker-control-');
 
@@ -137,10 +134,9 @@ export class InternalResourcePickerControl extends InternalEditableControl {
                     <foxy-i18n
                       infer=""
                       key="value"
-                      .options=${this.getDisplayValueOptions(
-                        resource?.data ?? null,
-                        resource?.data ? '' : resource?.in('fail') ? 'fail' : 'busy'
-                      )}
+                      .options=${resource?.data
+                        ? this.getDisplayValueOptions(resource.data)
+                        : { context: resource?.in('fail') ? 'fail' : 'busy' }}
                     >
                     </foxy-i18n>
                   `
