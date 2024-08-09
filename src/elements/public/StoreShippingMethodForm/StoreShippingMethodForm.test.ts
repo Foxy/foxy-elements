@@ -244,7 +244,7 @@ describe('StoreShippingMethodForm', () => {
   it('hides everything except for shipping method uri, timestamps, create and delete buttons by default', () => {
     const form = new Form();
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint custom-code services undo delete timestamps submit'
+      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint custom-code services undo submit delete timestamps'
     );
   });
 
@@ -271,7 +271,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password custom-code services undo delete timestamps submit'
+      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password custom-code services undo submit delete timestamps'
     );
   });
 
@@ -298,7 +298,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint services undo delete timestamps submit'
+      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint services undo submit delete timestamps'
     );
   });
 
@@ -325,7 +325,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri authentication-key meter-number accountid password endpoint custom-code services undo delete timestamps submit'
+      'shipping-container-uri shipping-drop-type-uri authentication-key meter-number accountid password endpoint custom-code services undo submit delete timestamps'
     );
   });
 
@@ -352,7 +352,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'endpoint custom-code services undo delete timestamps submit'
+      'endpoint custom-code services undo submit delete timestamps'
     );
   });
 
@@ -379,7 +379,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'authentication-key meter-number accountid password endpoint custom-code services undo delete timestamps submit'
+      'authentication-key meter-number accountid password endpoint custom-code services undo submit delete timestamps'
     );
   });
 
@@ -406,7 +406,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'endpoint custom-code services undo delete timestamps submit'
+      'endpoint custom-code services undo submit delete timestamps'
     );
   });
 
