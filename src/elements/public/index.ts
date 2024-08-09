@@ -2,6 +2,7 @@ export { AccessRecoveryForm } from './AccessRecoveryForm/AccessRecoveryForm';
 export { AddressCard } from './AddressCard/AddressCard';
 export { AddressForm } from './AddressForm/AddressForm';
 export { AdminSubscriptionCard } from './AdminSubscriptionCard/AdminSubscriptionCard';
+export { AdminSubscriptionForm } from './AdminSubscriptionForm/AdminSubscriptionForm';
 export { ApiBrowser } from './ApiBrowser/ApiBrowser';
 export { AppliedCouponCodeCard } from './AppliedCouponCodeCard/AppliedCouponCodeCard';
 export { AppliedCouponCodeForm } from './AppliedCouponCodeForm/AppliedCouponCodeForm';
