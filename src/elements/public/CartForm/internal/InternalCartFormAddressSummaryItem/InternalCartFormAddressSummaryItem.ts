@@ -56,8 +56,8 @@ export class InternalCartFormAddressSummaryItem extends ResponsiveMixin(Internal
       <div class="flex flex-col gap-m sm-flex-row items-start leading-xs">
         <div class="flex-1">
           <p class="text-m text-body">${this.label}</p>
-          <p class="text-s text-secondary">${this.helperText}</p>
-          <p class="text-s text-error" ?hidden=${this.disabled || this.readonly}>
+          <p class="text-xs text-secondary">${this.helperText}</p>
+          <p class="text-xs text-error" ?hidden=${this.disabled || this.readonly}>
             ${this._errorMessage}
           </p>
         </div>
@@ -136,7 +136,7 @@ export class InternalCartFormAddressSummaryItem extends ResponsiveMixin(Internal
           ${this.__renderTextField(address.company)} ${this.__renderTextField(address.phone)}
         </foxy-internal-summary-control>
 
-        <p class="text-s text-secondary">
+        <p class="text-xs text-secondary">
           <foxy-i18n infer="" key="form_helper_text"></foxy-i18n>
         </p>
 

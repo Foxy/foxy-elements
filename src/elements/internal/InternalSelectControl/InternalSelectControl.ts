@@ -79,8 +79,8 @@ export class InternalSelectControl extends InternalEditableControl {
       <div class="flex items-start leading-xs">
         <div class="flex-1">
           <label class="text-m text-body" for="select">${this.label}</label>
-          <p class="text-s text-secondary">${this.helperText}</p>
-          <p class="text-s text-error" ?hidden=${this.disabled || this.readonly}>
+          <p class="text-xs text-secondary">${this.helperText}</p>
+          <p class="text-xs text-error" ?hidden=${this.disabled || this.readonly}>
             ${this._errorMessage}
           </p>
         </div>

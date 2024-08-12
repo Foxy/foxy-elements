@@ -83,8 +83,8 @@ export class InternalTextControl extends InternalEditableControl {
       <div class="flex items-start gap-m leading-xs">
         <div>
           <label class="text-m text-body" for="input">${this.label}</label>
-          <p class="text-s text-secondary">${this.helperText}</p>
-          <p class="text-s text-error" ?hidden=${this.disabled || this.readonly}>
+          <p class="text-xs text-secondary">${this.helperText}</p>
+          <p class="text-xs text-error" ?hidden=${this.disabled || this.readonly}>
             ${this._errorMessage}
           </p>
         </div>
