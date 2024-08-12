@@ -14,6 +14,7 @@ export class InternalEditableListControl extends InternalEditableControl {
       ...super.properties,
       inputParams: { attribute: false },
       options: { type: Array },
+      layout: {},
       units: { type: Array },
       range: {},
       __isErrorVisible: { attribute: false },
@@ -49,6 +50,8 @@ export class InternalEditableListControl extends InternalEditableControl {
 
   options: Option[] = [];
 
+  layout: 'standalone' | 'summary-item' | null = null;
+
   units: Unit[] = [];
 
   range: null | 'optional' = null;
@@ -58,20 +61,26 @@ export class InternalEditableListControl extends InternalEditableControl {
   private __newItem = '';
 
   render(): TemplateResult {
+    const isSummaryItem = this.layout === 'summary-item';
+    const isInteractive = !this.disabled && !this.readonly;
+
     const deleteButtonClass = classMap({
-      'w-xs h-xs mr-xs rounded-full transition-colors flex-shrink-0': true,
+      'w-xs h-xs rounded-s transition-colors flex-shrink-0': true,
       'focus-outline-none focus-ring-2 ring-inset ring-error-50': true,
       'text-tertiary hover-bg-error-10 hover-text-error': !this.disabled,
       'cursor-default text-disabled': this.disabled,
       'flex items-center justify-center': !this.readonly,
       'hidden': this.readonly,
+      'mr-xs': !isSummaryItem,
     });
 
     const itemClass = classMap({
-      'transition-colors h-m ml-s flex items-center': true,
+      'transition-colors flex items-center': true,
       'text-secondary': this.readonly,
       'text-disabled': this.disabled,
-      'group-hover-divide-contrast-20': !this.disabled && !this.readonly,
+      'group-hover-divide-contrast-20': !isSummaryItem && isInteractive,
+      'pl-s border border-contrast-10 rounded-s': isSummaryItem,
+      'ml-s h-m': !isSummaryItem,
     });
 
     const isAddButtonDisabled = this.disabled || !this.__newItem;
@@ -98,9 +107,11 @@ export class InternalEditableListControl extends InternalEditableControl {
       <div class="group">
         <div
           class=${classMap({
-            'transition-colors mb-xs font-medium text-s': true,
-            'text-secondary group-hover-text-body': !this.disabled && !this.readonly,
-            'text-disabled': this.disabled,
+            'transition-colors mb-xs': true,
+            'text-secondary group-hover-text-body': !isSummaryItem && isInteractive,
+            'text-disabled': !isSummaryItem && this.disabled,
+            'font-medium text-s': !isSummaryItem,
+            'text-m': isSummaryItem,
           })}
         >
           ${this.label}
@@ -108,11 +119,18 @@ export class InternalEditableListControl extends InternalEditableControl {
 
         <div
           class=${classMap({
-            'border border-contrast-10 rounded transition-colors': true,
-            'group-hover-border-contrast-20': !this.disabled && !this.readonly,
+            'transition-colors': true,
+            'border border-contrast-10 rounded': !isSummaryItem,
+            'group-hover-border-contrast-20': !isSummaryItem && isInteractive,
           })}
         >
-          <ol class="transition-colors divide-y divide-contrast-10 font-medium">
+          <ol
+            class=${classMap({
+              'transition-colors font-medium': true,
+              'divide-y divide-contrast-10': !isSummaryItem,
+              'flex flex-wrap gap-s': isSummaryItem,
+            })}
+          >
             ${repeat(
               this._value,
               item => item.value,
@@ -138,16 +156,20 @@ export class InternalEditableListControl extends InternalEditableControl {
           </ol>
 
           <div
-            style=${this._value.length === 0
+            style=${isSummaryItem
+              ? ''
+              : this._value.length === 0
               ? 'border-radius: calc(var(--lumo-border-radius-m) - 1px)'
               : 'border-radius: 0 0 calc(var(--lumo-border-radius-m) - 1px) calc(var(--lumo-border-radius-m) - 1px)'}
             class=${classMap({
               'transition-colors pl-s h-m flex items-center gap-xs': true,
-              'focus-within-ring-2 focus-within-ring-primary-50': true,
-              'bg-contrast-10 group-hover-bg-contrast-20': !this.disabled && !this.readonly,
-              'bg-contrast-5': this.disabled,
+              'focus-within-ring-2 focus-within-ring-primary-50': !isSummaryItem,
+              'bg-contrast-10 group-hover-bg-contrast-20': !isSummaryItem && isInteractive,
+              'bg-contrast-5': !isSummaryItem && this.disabled,
               'flex': !this.readonly,
               'hidden': this.readonly,
+              'rounded-s border border-contrast-10': isSummaryItem,
+              'mt-s': this._value.length > 0,
             })}
           >
             ${this.range
@@ -302,9 +324,10 @@ export class InternalEditableListControl extends InternalEditableControl {
 
         <div
           class=${classMap({
-            'transition-colors mt-xs text-xs': true,
-            'text-secondary group-hover-text-body': !this.disabled && !this.readonly,
-            'text-disabled': this.disabled,
+            'transition-colors text-xs mt-xs': true,
+            'text-secondary group-hover-text-body': !isSummaryItem && isInteractive,
+            'text-disabled': !isSummaryItem && this.disabled,
+            'text-secondary': isSummaryItem,
           })}
           ?hidden=${!this.helperText}
         >

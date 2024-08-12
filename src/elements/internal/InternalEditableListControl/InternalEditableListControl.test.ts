@@ -24,6 +24,11 @@ describe('InternalEditableListControl', () => {
     expect(new Control()).to.have.deep.property('inputParams', {});
   });
 
+  it('has a reactive property "layout"', () => {
+    expect(Control).to.have.deep.nested.property('properties.layout', {});
+    expect(new Control()).to.have.property('layout', null);
+  });
+
   it('has a reactive property "options"', () => {
     expect(Control).to.have.deep.nested.property('properties.options', { type: Array });
     expect(new Control()).to.have.deep.property('options', []);
