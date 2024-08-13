@@ -22,6 +22,7 @@ export class InternalNumberControl extends InternalEditableControl {
       step: { type: Number },
       min: { type: Number },
       max: { type: Number },
+      __isErrorVisible: { attribute: false },
     };
   }
 
@@ -61,6 +62,13 @@ export class InternalNumberControl extends InternalEditableControl {
   min: number | null = null;
 
   max: number | null = null;
+
+  private __isErrorVisible = false;
+
+  reportValidity(): void {
+    this.__isErrorVisible = true;
+    super.reportValidity();
+  }
 
   renderControl(): TemplateResult {
     if (this.layout === 'summary-item') return this.__renderSummaryItemLayout();
@@ -103,7 +111,10 @@ export class InternalNumberControl extends InternalEditableControl {
         <div>
           <label class="text-m text-body" for="input">${this.label}</label>
           <p class="text-xs text-secondary">${this.helperText}</p>
-          <p class="text-xs text-error" ?hidden=${this.disabled || this.readonly}>
+          <p
+            class="text-xs text-error"
+            ?hidden=${!this.__isErrorVisible || this.disabled || this.readonly}
+          >
             ${this._errorMessage}
           </p>
         </div>
@@ -132,6 +143,7 @@ export class InternalNumberControl extends InternalEditableControl {
             ?disabled=${this.disabled}
             ?readonly=${this.readonly}
             @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
+            @blur=${() => (this.__isErrorVisible = true)}
             @input=${(evt: Event) => {
               evt.stopPropagation();
               const newValue = parseFloat((evt.target as HTMLInputElement).value);

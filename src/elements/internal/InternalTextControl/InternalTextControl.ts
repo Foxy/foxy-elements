@@ -5,6 +5,7 @@ import { InternalEditableControl } from '../InternalEditableControl/InternalEdit
 import { html, css, svg } from 'lit-element';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../utils/class-map';
+import { live } from 'lit-html/directives/live';
 
 /**
  * Internal control displaying a basic text box.
@@ -19,6 +20,7 @@ export class InternalTextControl extends InternalEditableControl {
       layout: {},
       prefix: {},
       suffix: {},
+      __isErrorVisible: { attribute: false },
     };
   }
 
@@ -42,6 +44,13 @@ export class InternalTextControl extends InternalEditableControl {
   prefix: string | null = null;
 
   suffix: string | null = null;
+
+  private __isErrorVisible = false;
+
+  reportValidity(): void {
+    this.__isErrorVisible = true;
+    super.reportValidity();
+  }
 
   renderControl(): TemplateResult {
     if (this.layout === 'summary-item') return this.__renderSummaryItemLayout();
@@ -84,7 +93,10 @@ export class InternalTextControl extends InternalEditableControl {
         <div>
           <label class="text-m text-body" for="input">${this.label}</label>
           <p class="text-xs text-secondary">${this.helperText}</p>
-          <p class="text-xs text-error" ?hidden=${this.disabled || this.readonly}>
+          <p
+            class="text-xs text-error"
+            ?hidden=${!this.__isErrorVisible || this.disabled || this.readonly}
+          >
             ${this._errorMessage}
           </p>
         </div>
@@ -101,10 +113,11 @@ export class InternalTextControl extends InternalEditableControl {
             })}
             type="text"
             id="input"
-            .value=${this._value}
+            .value=${live(this._value)}
             ?disabled=${this.disabled}
             ?readonly=${this.readonly}
             @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
+            @blur=${() => (this.__isErrorVisible = true)}
             @input=${(evt: Event) => {
               evt.stopPropagation();
               this._value = (evt.target as HTMLInputElement).value;

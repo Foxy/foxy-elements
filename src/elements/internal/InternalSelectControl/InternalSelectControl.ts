@@ -20,6 +20,7 @@ export class InternalSelectControl extends InternalEditableControl {
       options: { type: Array },
       layout: {},
       theme: { type: String },
+      __isErrorVisible: { attribute: false },
     };
   }
 
@@ -31,6 +32,8 @@ export class InternalSelectControl extends InternalEditableControl {
 
   /** Same as the "theme" attribute/property of `vaadin-combo-box`. */
   theme: string | null = null;
+
+  private __isErrorVisible = false;
 
   renderControl(): TemplateResult {
     if (this.layout === 'summary-item') return this.__renderSummaryItemLayout();
@@ -66,6 +69,11 @@ export class InternalSelectControl extends InternalEditableControl {
     `;
   }
 
+  reportValidity(): void {
+    this.__isErrorVisible = true;
+    super.reportValidity();
+  }
+
   updated(changes: Map<keyof this, unknown>): void {
     super.updated(changes);
     const comboBox = this.renderRoot.querySelector('vaadin-combo-box');
@@ -80,7 +88,10 @@ export class InternalSelectControl extends InternalEditableControl {
         <div class="flex-1">
           <label class="text-m text-body" for="select">${this.label}</label>
           <p class="text-xs text-secondary">${this.helperText}</p>
-          <p class="text-xs text-error" ?hidden=${this.disabled || this.readonly}>
+          <p
+            class="text-xs text-error"
+            ?hidden=${!this.__isErrorVisible || this.disabled || this.readonly}
+          >
             ${this._errorMessage}
           </p>
         </div>
@@ -116,6 +127,7 @@ export class InternalSelectControl extends InternalEditableControl {
             id="select"
             ?disabled=${this.disabled}
             ?hidden=${this.readonly}
+            @blur=${() => (this.__isErrorVisible = true)}
             @change=${(evt: Event) => {
               evt.stopPropagation();
               this._value = (evt.target as HTMLSelectElement).value;
