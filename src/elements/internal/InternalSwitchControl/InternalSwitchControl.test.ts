@@ -9,6 +9,10 @@ describe('InternalSwitchControl', () => {
     expect(customElements.get('foxy-internal-editable-control')).to.exist;
   });
 
+  it('imports and defines vcf-tooltip', () => {
+    expect(customElements.get('vcf-tooltip')).to.exist;
+  });
+
   it('imports and defines foxy-i18n', () => {
     expect(customElements.get('foxy-i18n')).to.exist;
   });
@@ -19,6 +23,14 @@ describe('InternalSwitchControl', () => {
 
   it('extends foxy-internal-editable-control', () => {
     expect(new Control()).to.be.instanceOf(customElements.get('foxy-internal-editable-control'));
+  });
+
+  it('has a reactive property "helperTextAsToolip"', () => {
+    expect(new Control()).to.have.property('helperTextAsToolip', false);
+    expect(Control).to.have.deep.nested.property('properties.helperTextAsToolip', {
+      attribute: 'helper-text-as-tooltip',
+      type: Boolean,
+    });
   });
 
   it('has a reactive property "invert"', () => {
@@ -140,5 +152,23 @@ describe('InternalSwitchControl', () => {
     await control.requestUpdate();
     expect(control.renderRoot).to.include.text('checked');
     expect(control.renderRoot.querySelector('input')).to.not.exist;
+  });
+
+  it('renders helper text as tooltip when "helperTextAsToolip" is set', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-switch-control helper-text="Foo bar test" helper-text-as-tooltip>
+      </foxy-internal-switch-control>
+    `);
+
+    const tooltip = control.renderRoot.querySelector('vcf-tooltip')!;
+    expect(tooltip).to.exist;
+    expect(tooltip).to.include.text('Foo bar test');
+
+    const trigger = control.renderRoot.querySelector(`#${tooltip.getAttribute('for')}`)!;
+    expect(trigger).to.exist;
+
+    control.helperTextAsToolip = false;
+    await control.requestUpdate();
+    expect(control.renderRoot.querySelector('vcf-tooltip')).to.not.exist;
   });
 });

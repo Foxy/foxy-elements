@@ -1,3 +1,4 @@
+import '@vaadin-component-factory/vcf-tooltip';
 import '../InternalEditableControl/index';
 import '../../public/I18n/index';
 
