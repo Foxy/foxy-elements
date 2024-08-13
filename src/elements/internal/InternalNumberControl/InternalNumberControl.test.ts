@@ -333,7 +333,7 @@ describe('InternalNumberControl', () => {
     input.value = '12.34';
     input.dispatchEvent(new CustomEvent('input'));
 
-    expect(control).to.have.property('testValue', '12.34');
+    expect(control).to.have.property('testValue', 12.34);
   });
 
   it('submits the host nucleon form on Enter in summary item layout', async () => {

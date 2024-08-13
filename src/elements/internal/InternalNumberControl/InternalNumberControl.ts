@@ -129,7 +129,8 @@ export class InternalNumberControl extends InternalEditableControl {
             @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
             @input=${(evt: Event) => {
               evt.stopPropagation();
-              this._value = (evt.target as HTMLInputElement).value;
+              const newValue = parseFloat((evt.target as HTMLInputElement).value);
+              this._value = isNaN(newValue) ? 0 : newValue;
             }}
           />
 
