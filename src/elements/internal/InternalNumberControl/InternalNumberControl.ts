@@ -28,6 +28,14 @@ export class InternalNumberControl extends InternalEditableControl {
     return [
       ...super.styles,
       css`
+        input::-webkit-contacts-auto-fill-button {
+          visibility: hidden;
+          display: none !important;
+          pointer-events: none;
+          position: absolute;
+          right: 0;
+        }
+
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
           -webkit-appearance: none;
@@ -115,7 +123,7 @@ export class InternalNumberControl extends InternalEditableControl {
             min=${ifDefined(this.min ?? void 0)}
             max=${ifDefined(this.max ?? void 0)}
             id="input"
-            .value=${this._value}
+            .value=${this._value === 0 ? '' : this._value}
             ?disabled=${this.disabled}
             ?readonly=${this.readonly}
             @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
@@ -139,7 +147,7 @@ export class InternalNumberControl extends InternalEditableControl {
             })}
             style="width: 1em; height: 1em;"
             ?disabled=${this.disabled}
-            ?hidden=${this.readonly}
+            ?hidden=${this.readonly || !this._value}
             @click=${() => {
               this._value = 0;
               this.dispatchEvent(new CustomEvent('clear'));
