@@ -19,6 +19,7 @@ export class InternalNumberControl extends InternalEditableControl {
       layout: {},
       prefix: {},
       suffix: {},
+      step: { type: Number },
       min: { type: Number },
       max: { type: Number },
     };
@@ -55,6 +56,8 @@ export class InternalNumberControl extends InternalEditableControl {
 
   suffix: string | null = null;
 
+  step: number | null = null;
+
   min: number | null = null;
 
   max: number | null = null;
@@ -69,6 +72,7 @@ export class InternalNumberControl extends InternalEditableControl {
         helper-text=${this.helperText}
         label=${this.label}
         class="w-full"
+        step=${ifDefined(this.step ?? undefined)}
         min=${ifDefined(this.min ?? undefined)}
         max=${ifDefined(this.max ?? undefined)}
         ?disabled=${this.disabled}
@@ -120,6 +124,7 @@ export class InternalNumberControl extends InternalEditableControl {
               'font-medium': !this.readonly,
             })}
             type="number"
+            step=${ifDefined(this.step ?? void 0)}
             min=${ifDefined(this.min ?? void 0)}
             max=${ifDefined(this.max ?? void 0)}
             id="input"

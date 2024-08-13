@@ -68,6 +68,11 @@ describe('InternalNumberControl', () => {
     expect(new Control()).to.have.property('layout', null);
   });
 
+  it('defines a reactive property for "step" (Number)', () => {
+    expect(Control).to.have.deep.nested.property('properties.step', { type: Number });
+    expect(new Control()).to.have.property('step', null);
+  });
+
   it('renders vaadin-number-field element', async () => {
     const layout = html`<test-internal-number-control></test-internal-number-control>`;
     const control = await fixture<TestControl>(layout);
@@ -113,6 +118,19 @@ describe('InternalNumberControl', () => {
     await control.requestUpdate();
 
     expect(field).to.have.property('placeholder', 'test placeholder');
+  });
+
+  it('sets "step" on vaadin-number-field from "step" on itself in standalone mode', async () => {
+    const layout = html`<test-internal-number-control></test-internal-number-control>`;
+    const control = await fixture<TestControl>(layout);
+    const field = control.renderRoot.querySelector('vaadin-number-field')!;
+
+    expect(field).to.have.attribute('step', '1');
+
+    control.step = 5;
+    await control.requestUpdate();
+
+    expect(field).to.have.attribute('step', '5');
   });
 
   it('sets "label" on vaadin-number-field from "label" on itself in standalone mode', async () => {
@@ -306,6 +324,20 @@ describe('InternalNumberControl', () => {
     await control.requestUpdate();
 
     expect(input).to.have.property('placeholder', 'Test placeholder');
+  });
+
+  it('sets "step" on input from "step" on itself in summary item layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-number-control layout="summary-item"></test-internal-number-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    expect(input).to.not.have.attribute('step');
+
+    control.step = 5;
+    await control.requestUpdate();
+
+    expect(input).to.have.attribute('step', '5');
   });
 
   it('sets "value" on input from "_value" on itself in summary item layout', async () => {
