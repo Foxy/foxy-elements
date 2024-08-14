@@ -7,6 +7,7 @@ import { createRouter } from '../../../server/index';
 import { getTestData } from '../../../testgen/getTestData';
 import { ClientForm as Form } from './ClientForm';
 import { stub } from 'sinon';
+import { Data } from './types';
 
 describe('ClientForm', () => {
   it('imports and defines foxy-internal-text-area-control', () => {
@@ -134,5 +135,18 @@ describe('ClientForm', () => {
   it('hides client secret control when empty', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
     expect(element.hiddenSelector.matches('client-secret', true)).to.be.true;
+  });
+
+  it('uses custom options for header subtitle', async () => {
+    const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
+    const data = await getTestData<Data>('./hapi/clients/0');
+
+    data.redirect_uri = 'https://demo.api/redirect';
+    element.data = data;
+
+    expect(element.headerSubtitleOptions).to.deep.equal({
+      context: 'with_domain',
+      domain: 'demo.api',
+    });
   });
 });
