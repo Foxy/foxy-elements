@@ -169,7 +169,7 @@ export class InternalEditableListControl extends InternalEditableControl {
               'flex': !this.readonly,
               'hidden': this.readonly,
               'rounded-s border border-contrast-10': isSummaryItem,
-              'mt-s': this._value.length > 0,
+              'mt-s': isSummaryItem && this._value.length > 0,
             })}
           >
             ${this.range
