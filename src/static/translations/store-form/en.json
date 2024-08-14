@@ -253,10 +253,9 @@
   "custom-display-id-config-transaction-journal-entries-void-example": "When voided:",
   "custom-display-id-config-transaction-journal-entries-refund-example": "When refunded:",
   "webhook-url": {
-    "label": "XML webhook endpoint",
-    "placeholder": "https://example.com/xml-webhook",
-    "helper_text": "Foxy will encrypt order info and POST it to this URL on each purchase as XML. When using this webhook, make sure to configure the encryption key for your store.",
-    "v8n_required": "Please enter the XML webhook endpoint",
+    "label": "XML Datafeed",
+    "placeholder": "https://example.com/my-xml-datafeed",
+    "helper_text": "The XML datafeed is a deprecated webhook that should only be used for third-party integrations that still require it. For any new integrations where you need to trigger a webhook for each transaction on your store, we strongly recommend using the JSON webhooks.",
     "v8n_too_long": "Please shorten this URL to 300 characters or less"
   },
   "webhook-key-cart-signing": {
