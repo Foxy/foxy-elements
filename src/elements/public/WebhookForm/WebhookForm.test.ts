@@ -60,11 +60,6 @@ describe('WebhookForm', () => {
     expect(WebhookForm.v8n.map(fn => fn({ name }, form))).to.include('name:v8n_too_long');
   });
 
-  it('produces an v8n error if webhook version is missing', () => {
-    const form = new WebhookForm();
-    expect(WebhookForm.v8n.map(fn => fn({}, form))).to.include('version:v8n_required');
-  });
-
   it('produces an v8n error if webhook url is too long', () => {
     const url = 'A'.repeat(1001);
     const form = new WebhookForm();
@@ -138,14 +133,6 @@ describe('WebhookForm', () => {
   it('renders webhook encryption key as text control', async () => {
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
     const control = element.renderRoot.querySelector('[infer="encryption-key"]');
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders webhook version as text control', async () => {
-    const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
-    const control = element.renderRoot.querySelector('[infer="version"]');
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
