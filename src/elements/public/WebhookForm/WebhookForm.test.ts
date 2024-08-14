@@ -4,6 +4,7 @@ import type { Data } from './types';
 
 import { InternalRadioGroupControl } from '../../internal/InternalRadioGroupControl/InternalRadioGroupControl';
 import { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
+import { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
 import { expect, fixture, html } from '@open-wc/testing';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
@@ -18,6 +19,10 @@ describe('WebhookForm', () => {
 
   it('imports and defines foxy-internal-radio-group-control element', () => {
     expect(customElements.get('foxy-internal-radio-group-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-password-control element', () => {
+    expect(customElements.get('foxy-internal-password-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-text-control element', () => {
@@ -130,12 +135,14 @@ describe('WebhookForm', () => {
     expect(control).to.be.instanceOf(InternalTextControl);
   });
 
-  it('renders webhook encryption key as text control', async () => {
+  it('renders webhook encryption key as password control', async () => {
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
     const control = element.renderRoot.querySelector('[infer="encryption-key"]');
 
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.be.instanceOf(InternalPasswordControl);
+    expect(control).to.have.attribute('show-generator');
+    expect(control).to.have.deep.property('generatorOptions', { separator: '', length: 512 });
   });
 
   it('renders webhook statuses when an existing webhook is loaded', async () => {

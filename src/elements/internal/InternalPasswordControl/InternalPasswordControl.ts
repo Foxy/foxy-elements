@@ -1,5 +1,6 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-field';
+import type { GeneratorOptions } from './generateRandomPassword';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { generateRandomPassword } from './generateRandomPassword';
@@ -22,7 +23,7 @@ export class InternalPasswordControl extends InternalEditableControl {
     };
   }
 
-  generatorOptions: null | { length?: number; charset?: string } = null;
+  generatorOptions: null | GeneratorOptions = null;
 
   /** If true, renders the password generator button. */
   showGenerator = false;

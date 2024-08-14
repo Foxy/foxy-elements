@@ -24,6 +24,8 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
     ];
   }
 
+  private __encryptionKeyGeneratorOptions = { separator: '', length: 512 };
+
   private __eventResources = [
     { value: 'subscription', label: 'event_resource_subscription' },
     { value: 'transaction', label: 'event_resource_transaction' },
@@ -59,7 +61,12 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
       <foxy-internal-text-control infer="query"></foxy-internal-text-control>
       <foxy-internal-text-control infer="url"></foxy-internal-text-control>
 
-      <foxy-internal-text-control infer="encryption-key"></foxy-internal-text-control>
+      <foxy-internal-password-control
+        infer="encryption-key"
+        show-generator
+        .generatorOptions=${this.__encryptionKeyGeneratorOptions}
+      >
+      </foxy-internal-password-control>
 
       ${this.data
         ? html`
