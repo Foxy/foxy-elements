@@ -1,18 +1,16 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
 import type { Data } from './types';
-import type { NucleonElement } from '../NucleonElement/NucleonElement';
+
 import type { TemplateResult } from 'lit-html';
 import type { ParsedValue } from '../DiscountBuilder/types';
 import type { NucleonV8N } from '../NucleonElement/types';
-import type { Resource } from '@foxy.io/sdk/core';
-import type { Rels } from '@foxy.io/sdk/backend';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { html } from 'lit-html';
+import { html, svg } from 'lit-html';
 
 /**
  * Form element for item categories (`fx:item_category`).
@@ -126,8 +124,6 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
       ({ handling_fee_percentage: v }) => {
         return (typeof v === 'number' ? v >= 0 : true) || 'handling-fee-percentage:v8n_negative';
       },
-
-      ({ send_admin_email: s, admin_email: v }) => (s ? !!v : true) || 'admin-email:v8n_required',
     ];
   }
 
@@ -168,16 +164,17 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
     { label: 'option_flat_percent_with_minimum', value: 'flat_percent_with_minimum' },
   ];
 
-  private readonly __giftRecipientEmailTemplateLoaderId = 'gift-recipient-email-template-loader';
-
-  private readonly __customerEmailTemplateLoaderId = 'customer-email-template-loader';
-
-  private readonly __adminEmailTemplateLoaderId = 'admin-email-template-loader';
+  get readonlySelector(): BooleanSelector {
+    const alwaysMatch = [super.readonlySelector.toString()];
+    if (this.data?.code === 'DEFAULT') alwaysMatch.unshift('code', 'name');
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
+  }
 
   get hiddenSelector(): BooleanSelector {
-    const alwaysHidden = [super.hiddenSelector.toString()];
-    if (!this.data) alwaysHidden.unshift('taxes');
-    return new BooleanSelector(alwaysHidden.join(' ').trim());
+    const alwaysMatch = [super.hiddenSelector.toString()];
+    if (!this.data) alwaysMatch.unshift('taxes');
+    if (this.data?.code === 'DEFAULT') alwaysMatch.unshift('delete');
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
   renderBody(): TemplateResult {
@@ -187,13 +184,46 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
     return html`
       ${this.renderHeader()}
 
-      <div class="grid grid-cols-2 gap-m">
-        <foxy-internal-text-control infer="name" class="col-span-2"></foxy-internal-text-control>
-        <foxy-internal-text-control infer="code" class="col-span-2"></foxy-internal-text-control>
+      <foxy-internal-summary-control infer="general">
+        <foxy-internal-text-control infer="name" layout="summary-item"></foxy-internal-text-control>
+        <foxy-internal-text-control infer="code" layout="summary-item"></foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
+      <foxy-internal-async-resource-link-list-control
+        foreign-key-for-uri="tax_uri"
+        foreign-key-for-id="tax_id"
+        own-key-for-uri="item_category_uri"
+        options-href=${ifDefined(this.taxes ?? undefined)}
+        links-href=${ifDefined(this.data?._links['fx:tax_item_categories'].href)}
+        embed-key="fx:tax_item_categories"
+        own-uri=${ifDefined(this.data?._links.self.href)}
+        infer="taxes"
+        limit="5"
+        item="foxy-tax-card"
+      >
+      </foxy-internal-async-resource-link-list-control>
+
+      <foxy-internal-summary-control infer="delivery">
         <foxy-internal-select-control
+          layout="summary-item"
+          infer="item-delivery-type"
+          .options=${ItemCategoryForm.__itemDeliveryTypeOptions}
+        >
+        </foxy-internal-select-control>
+
+        ${itemDeliveryType === 'downloaded'
+          ? this.__renderDownloadDeliveryControls()
+          : itemDeliveryType === 'flat_rate'
+          ? [this.__renderFlatRateControls(), this.__renderCustomsValue()]
+          : itemDeliveryType === 'shipped'
+          ? [this.__renderShippingControls(), this.__renderCustomsValue()]
+          : ''}
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="handling-and-discount">
+        <foxy-internal-select-control
+          layout="summary-item"
           infer="handling-fee-type"
-          class="col-span-2"
           .options=${ItemCategoryForm.__handlingFeeTypeOptions}
         >
         </foxy-internal-select-control>
@@ -208,167 +238,97 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
                 : ''}
             `}
 
-        <foxy-internal-select-control
-          infer="item-delivery-type"
-          class="col-span-2"
-          .options=${ItemCategoryForm.__itemDeliveryTypeOptions}
-        >
-        </foxy-internal-select-control>
-
-        ${itemDeliveryType === 'downloaded'
-          ? this.__renderDownloadDeliveryControls()
-          : itemDeliveryType === 'flat_rate'
-          ? [this.__renderFlatRateControls(), this.__renderCustomsValue()]
-          : itemDeliveryType === 'shipped'
-          ? [this.__renderShippingControls(), this.__renderCustomsValue()]
-          : ''}
-
-        <foxy-internal-text-control infer="discount-name" class="col-span-2">
+        <foxy-internal-text-control layout="summary-item" infer="discount-name">
         </foxy-internal-text-control>
 
         ${this.form.discount_name ? this.__renderDiscountBuilder() : ''}
+      </foxy-internal-summary-control>
 
-        <foxy-internal-async-combo-box-control
-          item-label-path="description"
-          item-value-path="_links.self.href"
-          first=${ifDefined(this.emailTemplates ?? undefined)}
-          infer="admin-email-template-uri"
-          class=${this.form.send_admin_email ? '' : 'col-span-2'}
-          .selectedItem=${this.__adminEmailTemplateLoader?.data}
-          @change=${(evt: CustomEvent) => {
-            this.edit({
-              send_admin_email: !!evt.detail,
-              admin_email: evt.detail ? this.form.admin_email : '',
-            });
-          }}
-        >
-        </foxy-internal-async-combo-box-control>
-
-        ${this.form.send_admin_email ? this.__renderAdminEmail() : ''}
-
-        <foxy-internal-async-combo-box-control
-          item-label-path="description"
-          item-value-path="_links.self.href"
-          first=${ifDefined(this.emailTemplates ?? undefined)}
-          infer="customer-email-template-uri"
-          class="col-span-2"
-          .selectedItem=${this.__customerEmailTemplateLoader?.data}
-          @change=${(evt: CustomEvent) => this.edit({ send_customer_email: !!evt.detail })}
-        >
-        </foxy-internal-async-combo-box-control>
-
-        <foxy-internal-async-combo-box-control
-          item-label-path="description"
-          item-value-path="_links.self.href"
+      <foxy-internal-summary-control infer="emails">
+        <foxy-internal-resource-picker-control
+          layout="summary-item"
           first=${ifDefined(this.emailTemplates ?? undefined)}
           infer="gift-recipient-email-template-uri"
-          class="col-span-2"
-          .selectedItem=${this.__giftRecipientEmailTemplateLoader?.data}
+          item="foxy-email-template-card"
         >
-        </foxy-internal-async-combo-box-control>
+        </foxy-internal-resource-picker-control>
 
-        <foxy-internal-async-resource-link-list-control
-          foreign-key-for-uri="tax_uri"
-          foreign-key-for-id="tax_id"
-          own-key-for-uri="item_category_uri"
-          own-uri=${ifDefined(this.data?._links.self.href)}
-          embed-key="fx:tax_item_categories"
-          options-href=${ifDefined(this.taxes ?? undefined)}
-          links-href=${ifDefined(this.data?._links['fx:tax_item_categories'].href)}
-          infer="taxes"
-          class="col-span-2"
-          limit="5"
-          item="foxy-tax-card"
+        <div
+          class="flex items-start"
+          style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
         >
-        </foxy-internal-async-resource-link-list-control>
-      </div>
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="flex-shrink-0 text-primary" style="width: 1.25em"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>`}
+          <p>
+            <foxy-i18n infer="" key="wip_message"></foxy-i18n>
+            <br />
+            <a
+              target="_blank"
+              class="mt-xs inline-block rounded font-medium text-primary transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
+              href="https://admin.foxycart.com"
+            >
+              admin.foxycart.com
+            </a>
+          </p>
+        </div>
+      </foxy-internal-summary-control>
 
       ${super.renderBody()}
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.form.customer_email_template_uri || undefined)}
-        id=${this.__customerEmailTemplateLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.form.gift_recipient_email_template_uri || undefined)}
-        id=${this.__giftRecipientEmailTemplateLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.form.admin_email_template_uri || undefined)}
-        id=${this.__adminEmailTemplateLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
     `;
-  }
-
-  private get __giftRecipientEmailTemplateLoader() {
-    const id = this.__giftRecipientEmailTemplateLoaderId;
-    type Loader = NucleonElement<Resource<Rels.EmailTemplate>>;
-    return this.renderRoot.querySelector<Loader>(`#${id}`);
-  }
-
-  private get __customerEmailTemplateLoader() {
-    const id = this.__customerEmailTemplateLoaderId;
-    type Loader = NucleonElement<Resource<Rels.EmailTemplate>>;
-    return this.renderRoot.querySelector<Loader>(`#${id}`);
-  }
-
-  private get __adminEmailTemplateLoader() {
-    const id = this.__adminEmailTemplateLoaderId;
-    type Loader = NucleonElement<Resource<Rels.EmailTemplate>>;
-    return this.renderRoot.querySelector<Loader>(`#${id}`);
   }
 
   private __renderHandlingFee() {
     return html`
-      <foxy-internal-number-control
-        infer="handling-fee"
-        class=${this.form.handling_fee_type === 'flat_percent' ? '' : 'col-span-2'}
-      >
+      <foxy-internal-number-control layout="summary-item" infer="handling-fee" min="0">
       </foxy-internal-number-control>
     `;
   }
 
   private __renderHandlingFeePercentage() {
     return html`
-      <foxy-internal-number-control infer="handling-fee-percentage"> </foxy-internal-number-control>
+      <foxy-internal-number-control
+        layout="summary-item"
+        suffix="%"
+        infer="handling-fee-percentage"
+        min="0"
+      >
+      </foxy-internal-number-control>
     `;
   }
 
   private __renderHandlingFeeMinimum() {
     return html`
-      <foxy-internal-number-control infer="handling-fee-minimum"> </foxy-internal-number-control>
+      <foxy-internal-number-control layout="summary-item" infer="handling-fee-minimum" min="0">
+      </foxy-internal-number-control>
     `;
   }
 
   private __renderDownloadDeliveryControls() {
     return html`
-      <foxy-internal-integer-control infer="max-downloads-per-customer">
-      </foxy-internal-integer-control>
+      <foxy-internal-number-control
+        layout="summary-item"
+        infer="max-downloads-per-customer"
+        step="1"
+        min="0"
+      >
+      </foxy-internal-number-control>
 
-      <foxy-internal-integer-control infer="max-downloads-time-period">
-      </foxy-internal-integer-control>
+      <foxy-internal-number-control
+        layout="summary-item"
+        infer="max-downloads-time-period"
+        step="1"
+        min="0"
+      >
+      </foxy-internal-number-control>
     `;
   }
 
   private __renderFlatRateControls() {
     return html`
-      <foxy-internal-number-control infer="shipping-flat-rate"> </foxy-internal-number-control>
+      <foxy-internal-number-control layout="summary-item" infer="shipping-flat-rate" min="0">
+      </foxy-internal-number-control>
 
       <foxy-internal-select-control
+        layout="summary-item"
         infer="shipping-flat-rate-type"
         .options=${ItemCategoryForm.__shippingFlatRateTypeOptions}
       >
@@ -378,16 +338,18 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
 
   private __renderShippingControls() {
     return html`
-      <foxy-internal-integer-control infer="default-weight" class="col-span-2">
-      </foxy-internal-integer-control>
+      <foxy-internal-number-control layout="summary-item" infer="default-weight" min="0">
+      </foxy-internal-number-control>
 
       <foxy-internal-select-control
+        layout="summary-item"
         infer="default-weight-unit"
         .options=${ItemCategoryForm.__defaultWeightUnitOptions}
       >
       </foxy-internal-select-control>
 
       <foxy-internal-select-control
+        layout="summary-item"
         infer="default-length-unit"
         .options=${ItemCategoryForm.__defaultLengthUnitOptions}
       >
@@ -397,7 +359,7 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
 
   private __renderCustomsValue() {
     return html`
-      <foxy-internal-number-control infer="customs-value" class="col-span-2">
+      <foxy-internal-number-control layout="summary-item" infer="customs-value" min="0">
       </foxy-internal-number-control>
     `;
   }
@@ -426,9 +388,5 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
       >
       </foxy-discount-builder>
     `;
-  }
-
-  private __renderAdminEmail() {
-    return html`<foxy-internal-text-control infer="admin-email"> </foxy-internal-text-control>`;
   }
 }

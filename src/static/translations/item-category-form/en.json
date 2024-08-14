@@ -16,19 +16,23 @@
       "done": "Copied to clipboard"
     }
   },
-  "name": {
-    "label": "Name",
-    "placeholder": "Books",
-    "helper_text": "Category description for admins.",
-    "v8n_required": "Item category name is required",
-    "v8n_too_long": "Item category name can't exceed 50 characters"
-  },
-  "code": {
-    "label": "Code",
-    "placeholder": "MY_BOOKS_CATEGORY",
-    "helper_text": "Unique identifier for the cart.",
-    "v8n_required": "Item category code is required",
-    "v8n_too_long": "Item categoty code can't exceed 50 characters"
+  "general": {
+    "label": "",
+    "helper_text": "",
+    "name": {
+      "label": "Name",
+      "placeholder": "Books",
+      "helper_text": "",
+      "v8n_required": "Item category name is required",
+      "v8n_too_long": "Item category name can't exceed 50 characters"
+    },
+    "code": {
+      "label": "Code",
+      "placeholder": "MY_BOOKS_CATEGORY",
+      "helper_text": "",
+      "v8n_required": "Item category code is required",
+      "v8n_too_long": "Item categoty code can't exceed 50 characters"
+    }
   },
   "taxes": {
     "label": "Taxes",
@@ -54,146 +58,175 @@
     },
     "helper_text": "Select taxes that will apply to the products in this category. Changes here are saved immediately."
   },
-  "item-delivery-type": {
-    "label": "Delivery",
-    "option_shipped": "Shipped using live rates",
-    "option_flat_rate": "Shipped using a flat rate",
-    "option_downloaded": "Downloaded by the customer",
-    "option_pickup": "Picked up by the customer",
-    "option_notshipped": "Not shipped",
-    "placeholder": "Select...",
+  "delivery": {
+    "label": "Delivery Options",
     "helper_text": "",
-    "v8n_required": "Please select a delivery type"
+    "item-delivery-type": {
+      "label": "Delivery type",
+      "option_shipped": "Shipped using live rates",
+      "option_flat_rate": "Shipped using a flat rate",
+      "option_downloaded": "Downloaded by the customer",
+      "option_pickup": "Picked up by the customer",
+      "option_notshipped": "Not shipped",
+      "placeholder": "Select...",
+      "helper_text": "",
+      "v8n_required": "Please select a delivery type"
+    },
+    "max-downloads-per-customer": {
+      "label": "Max downloads",
+      "placeholder": "3",
+      "helper_text": "",
+      "v8n_required": "This field is required",
+      "v8n_negative": "Please enter a positive number"
+    },
+    "max-downloads-time-period": {
+      "label": "Access duration (hrs)",
+      "placeholder": "24",
+      "helper_text": "",
+      "v8n_required": "This field is required",
+      "v8n_negative": "Please enter a positive number"
+    },
+    "shipping-flat-rate": {
+      "label": "Shipping rate",
+      "placeholder": "0",
+      "helper_text": "",
+      "v8n_required": "This field is required",
+      "v8n_negative": "Please enter a positive number"
+    },
+    "shipping-flat-rate-type": {
+      "label": "Flat rate applies",
+      "placeholder": "Select...",
+      "option_per_order": "Per order",
+      "option_per_shipment": "Per shipment",
+      "helper_text": "",
+      "v8n_required": "Please select a value"
+    },
+    "customs-value": {
+      "label": "Customs value",
+      "placeholder": "0",
+      "helper_text": "Enter a dollar amount here for the declared customs value for international shipments. If you leave this blank, the sale price of the item will be used.",
+      "v8n_negative": "Please enter a positive number"
+    },
+    "default-weight": {
+      "label": "Default weight",
+      "placeholder": "1",
+      "helper_text": "",
+      "v8n_required": "This field is required",
+      "v8n_negative": "Please enter a positive number"
+    },
+    "default-weight-unit": {
+      "label": "Default weight unit",
+      "placeholder": "Select...",
+      "option_kgs": "KG",
+      "option_lbs": "LG",
+      "helper_text": "",
+      "v8n_required": "Please select a unit"
+    },
+    "default-length-unit": {
+      "label": "Default length unit",
+      "placeholder": "Select...",
+      "option_cm": "CM",
+      "option_in": "IN",
+      "helper_text": "",
+      "v8n_required": "Please select a unit"
+    }
   },
-  "default-weight": {
-    "label": "Default weight",
-    "placeholder": "1",
+  "handling-and-discount": {
+    "label": "Handling Fees and Discounts",
     "helper_text": "",
-    "v8n_required": "This field is required",
-    "v8n_negative": "Please enter a positive number"
+    "handling-fee-type": {
+      "label": "Handling fee type",
+      "option_none": "No handling fee",
+      "option_flat_per_order": "Flat fee per shipment",
+      "option_flat_per_item": "Flat fee per product",
+      "option_flat_percent": "Flat fee per shipment + % of price",
+      "option_flat_percent_with_minimum": "Flat fee per shipment or % of price, whichever is greater",
+      "placeholder": "Select...",
+      "helper_text": "",
+      "v8n_required": "Please select a value"
+    },
+    "handling-fee": {
+      "label": "Handling fee amount",
+      "placeholder": "0",
+      "helper_text": "",
+      "v8n_required": "This field is required",
+      "v8n_negative": "Please enter a positive number"
+    },
+    "handling-fee-minimum": {
+      "label": "Minimum fee",
+      "placeholder": "0",
+      "helper_text": "",
+      "v8n_required": "This field is required",
+      "v8n_negative": "Please enter a positive number"
+    },
+    "handling-fee-percentage": {
+      "label": "Percentage of price",
+      "placeholder": "0",
+      "helper_text": "",
+      "v8n_required": "This field is required",
+      "v8n_negative": "Please enter a positive number"
+    },
+    "discount-name": {
+      "label": "Discount",
+      "placeholder": "None",
+      "helper_text": "Enter a name for the discount to open the discount builder."
+    },
+    "discount-builder": {
+      "tier": "Tier",
+      "tier_by": "by",
+      "tier_if": "if",
+      "tier_allunits": "price of each item",
+      "tier_incremental": "price of additional items",
+      "tier_repeat": "price of next item",
+      "tier_single": "order total",
+      "tier_then": "then",
+      "quantity": "quantity",
+      "total": "total",
+      "reduce": "reduce",
+      "increase": "increase"
+    }
   },
-  "default-weight-unit": {
-    "label": "Default weight unit",
-    "placeholder": "Select...",
-    "option_kgs": "KG",
-    "option_lbs": "LG",
+  "emails": {
+    "label": "Emails",
     "helper_text": "",
-    "v8n_required": "Please select a unit"
-  },
-  "default-length-unit": {
-    "label": "Default length unit",
-    "placeholder": "Select...",
-    "option_cm": "CM",
-    "option_in": "IN",
-    "helper_text": "",
-    "v8n_required": "Please select a unit"
-  },
-  "max-downloads-per-customer": {
-    "label": "Max downloads",
-    "placeholder": "3",
-    "helper_text": "",
-    "v8n_required": "This field is required",
-    "v8n_negative": "Please enter a positive number"
-  },
-  "max-downloads-time-period": {
-    "label": "Access duration (hrs)",
-    "placeholder": "24",
-    "helper_text": "",
-    "v8n_required": "This field is required",
-    "v8n_negative": "Please enter a positive number"
-  },
-  "shipping-flat-rate": {
-    "label": "Rate",
-    "placeholder": "0",
-    "helper_text": "",
-    "v8n_required": "This field is required",
-    "v8n_negative": "Please enter a positive number"
-  },
-  "shipping-flat-rate-type": {
-    "label": "Applies",
-    "placeholder": "Select...",
-    "option_per_order": "Per order",
-    "option_per_shipment": "Per shipment",
-    "helper_text": "",
-    "v8n_required": "Please select a value"
-  },
-  "customs-value": {
-    "label": "Customs value",
-    "placeholder": "0",
-    "helper_text": "Enter a dollar amount here for the declared customs value for international shipments. If you leave this blank, the sale price of the item will be used.",
-    "v8n_negative": "Please enter a positive number"
-  },
-  "handling-fee-type": {
-    "label": "Handling fee",
-    "option_none": "No handling fee",
-    "option_flat_per_order": "Flat fee per shipment",
-    "option_flat_per_item": "Flat fee per product",
-    "option_flat_percent": "Flat fee per shipment + % of price",
-    "option_flat_percent_with_minimum": "Flat fee per shipment or % of price, whichever is greater",
-    "placeholder": "Select...",
-    "helper_text": "",
-    "v8n_required": "Please select a value"
-  },
-  "handling-fee": {
-    "label": "Amount",
-    "placeholder": "0",
-    "helper_text": "",
-    "v8n_required": "This field is required",
-    "v8n_negative": "Please enter a positive number"
-  },
-  "handling-fee-minimum": {
-    "label": "Minimum fee",
-    "placeholder": "0",
-    "helper_text": "",
-    "v8n_required": "This field is required",
-    "v8n_negative": "Please enter a positive number"
-  },
-  "handling-fee-percentage": {
-    "label": "Percentage of price",
-    "placeholder": "0",
-    "helper_text": "",
-    "v8n_required": "This field is required",
-    "v8n_negative": "Please enter a positive number"
-  },
-  "discount-name": {
-    "label": "Discount",
-    "placeholder": "Name your discount to open the builder",
-    "helper_text": ""
-  },
-  "discount-builder": {
-    "tier": "Tier",
-    "tier_by": "by",
-    "tier_if": "if",
-    "tier_allunits": "price of each item",
-    "tier_incremental": "price of additional items",
-    "tier_repeat": "price of next item",
-    "tier_single": "order total",
-    "tier_then": "then",
-    "quantity": "quantity",
-    "total": "total",
-    "reduce": "reduce",
-    "increase": "increase"
-  },
-  "admin-email-template-uri": {
-    "label": "Message to admin",
-    "placeholder": "None (don't send)",
-    "helper_text": ""
-  },
-  "admin-email": {
-    "label": "Send to",
-    "placeholder": "admin@example.com",
-    "helper_text": "",
-    "v8n_required": "Please enter an email"
-  },
-  "customer-email-template-uri": {
-    "label": "Message to customer",
-    "placeholder": "None (don't send)",
-    "helper_text": ""
-  },
-  "gift-recipient-email-template-uri": {
-    "label": "Message to gift recipient",
-    "placeholder": "None (don't send)",
-    "helper_text": ""
+    "wip_message": "We are making changes to our API to support setting email messages for admin and customers from the category. For now, please use the legacy Foxy administration to make changes to category-specific emails for admins and customers.",
+    "gift-recipient-email-template-uri": {
+      "label": "Message to gift recipient",
+      "helper_text": "",
+      "value": "{{ resource.description }}",
+      "value_busy": "Loading...",
+      "value_fail": "Failed to load",
+      "placeholder": "None",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select an email template",
+        "selection": {
+          "label": "Email templates",
+          "helper_text": "",
+          "pagination": {
+            "search_button_text": "Search",
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "type_custom_url": "Custom (URL)",
+              "type_custom_text": "Custom (Text)",
+              "type_custom_html": "Custom (HTML)",
+              "type_mixed": "Mixed",
+              "type_default": "Default",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No email templates found",
+                "loading_error": "Unknown error"
+              }
+            }
+          }
+        }
+      }
+    }
   },
   "timestamps": {
     "date_created": "Created on",

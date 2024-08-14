@@ -4,9 +4,9 @@ import './index';
 
 import { InternalAsyncResourceLinkListControl } from '../../internal/InternalAsyncResourceLinkListControl/InternalAsyncResourceLinkListControl';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
-import { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl/InternalAsyncComboBoxControl';
+import { InternalResourcePickerControl } from '../../internal/InternalResourcePickerControl/InternalResourcePickerControl';
 import { ItemCategoryForm as Form } from './ItemCategoryForm';
-import { InternalIntegerControl } from '../../internal/InternalIntegerControl/InternalIntegerControl';
+import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
 import { InternalNumberControl } from '../../internal/InternalNumberControl/InternalNumberControl';
 import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
@@ -28,14 +28,14 @@ describe('ItemCategoryForm', () => {
     expect(element).to.equal(InternalAsyncResourceLinkListControl);
   });
 
-  it('imports and defines foxy-internal-async-combo-box-control', () => {
-    const element = customElements.get('foxy-internal-async-combo-box-control');
-    expect(element).to.equal(InternalAsyncComboBoxControl);
+  it('imports and defines foxy-internal-resource-picker-control', () => {
+    const element = customElements.get('foxy-internal-resource-picker-control');
+    expect(element).to.exist;
   });
 
-  it('imports and defines foxy-internal-integer-control', () => {
-    const element = customElements.get('foxy-internal-integer-control');
-    expect(element).to.equal(InternalIntegerControl);
+  it('imports and defines foxy-internal-summary-control', () => {
+    const element = customElements.get('foxy-internal-summary-control');
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-internal-number-control', () => {
@@ -58,9 +58,24 @@ describe('ItemCategoryForm', () => {
     expect(element).to.equal(InternalForm);
   });
 
+  it('imports and defines foxy-email-template-card', () => {
+    const element = customElements.get('foxy-email-template-card');
+    expect(element).to.exist;
+  });
+
   it('imports and defines foxy-discount-builder', () => {
     const element = customElements.get('foxy-discount-builder');
     expect(element).to.equal(DiscountBuilder);
+  });
+
+  it('imports and defines foxy-tax-card', () => {
+    const element = customElements.get('foxy-tax-card');
+    expect(element).to.exist;
+  });
+
+  it('imports and defines foxy-i18n', () => {
+    const element = customElements.get('foxy-i18n');
+    expect(element).to.exist;
   });
 
   it('imports and defines foxy-nucleon', () => {
@@ -344,20 +359,6 @@ describe('ItemCategoryForm', () => {
     expect(form.errors).to.include('handling-fee-percentage:v8n_negative');
   });
 
-  it('produces the admin-email:v8n_required error if "send_admin_email" is true admin email is not specified', () => {
-    const form = new Form();
-    expect(form.errors).to.not.include('admin-email:v8n_required');
-
-    form.edit({ send_admin_email: false });
-    expect(form.errors).to.not.include('admin-email:v8n_required');
-
-    form.edit({ send_admin_email: true });
-    expect(form.errors).to.include('admin-email:v8n_required');
-
-    form.edit({ admin_email: 'test@example.com' });
-    expect(form.errors).to.not.include('admin-email:v8n_required');
-  });
-
   it('renders a form header', () => {
     const form = new Form();
     const renderHeaderMethod = stub(form, 'renderHeader');
@@ -365,38 +366,65 @@ describe('ItemCategoryForm', () => {
     expect(renderHeaderMethod).to.have.been.called;
   });
 
-  it('renders a text control for category name', async () => {
+  it('renders a summary control for General section', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
       </foxy-item-category-form>
     `);
 
-    const control = element.renderRoot.querySelector('[infer="name"]');
-    expect(control).to.be.instanceOf(InternalTextControl);
+    const control = element.renderRoot.querySelector('[infer="general"]');
+    expect(control).to.be.instanceOf(InternalSummaryControl);
   });
 
-  it('renders a text control for category code', async () => {
+  it('renders a text control for category name in the General section', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
       </foxy-item-category-form>
     `);
 
-    const control = element.renderRoot.querySelector('[infer="code"]');
+    const control = element.renderRoot.querySelector('[infer="general"] [infer="name"]');
     expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a select control for handling fee type', async () => {
+  it('renders a text control for category code in the General section', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
       </foxy-item-category-form>
     `);
 
-    const control = element.renderRoot.querySelector('[infer="handling-fee-type"]');
+    const control = element.renderRoot.querySelector('[infer="general"] [infer="code"]');
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a summary control for Handling and Discount section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-item-category-form>
+    `);
+
+    const control = element.renderRoot.querySelector('[infer="handling-and-discount"]');
+    expect(control).to.be.instanceOf(InternalSummaryControl);
+  });
+
+  it('renders a select control for handling fee type in the Handling and Discount section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-item-category-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="handling-and-discount"] [infer="handling-fee-type"]'
+    );
 
     expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.deep.property('options', [
       { label: 'option_none', value: 'none' },
       { label: 'option_flat_per_order', value: 'flat_per_order' },
@@ -406,7 +434,7 @@ describe('ItemCategoryForm', () => {
     ]);
   });
 
-  it('renders a number control for handling fee if handling fee type is not "none"', async () => {
+  it('renders a number control for handling fee in the Handling and Discount section if handling fee type is not "none"', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -415,16 +443,22 @@ describe('ItemCategoryForm', () => {
 
     element.edit({ handling_fee_type: 'none' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="handling-fee"]')).to.not.exist;
+    expect(
+      element.renderRoot.querySelector('[infer="handling-and-discount"] [infer="handling-fee"]')
+    ).to.not.exist;
 
     element.edit({ handling_fee_type: 'flat_per_item' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="handling-fee"]')).to.be.instanceOf(
-      InternalNumberControl
+    const control = element.renderRoot.querySelector(
+      '[infer="handling-and-discount"] [infer="handling-fee"]'
     );
+
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('min', '0');
   });
 
-  it('renders a number control for handling fee percentage if handling fee type is "flat_percent"', async () => {
+  it('renders a number control for handling fee percentage in the Handling and Discount section if handling fee type is "flat_percent"', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -433,16 +467,25 @@ describe('ItemCategoryForm', () => {
 
     element.edit({ handling_fee_type: 'none' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="handling-fee-percentage"]')).to.not.exist;
+    expect(
+      element.renderRoot.querySelector(
+        '[infer="handling-and-discount"] [infer="handling-fee-percentage"]'
+      )
+    ).to.not.exist;
 
     element.edit({ handling_fee_type: 'flat_percent' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="handling-fee-percentage"]')).to.be.instanceOf(
-      InternalNumberControl
+    const control = element.renderRoot.querySelector(
+      '[infer="handling-and-discount"] [infer="handling-fee-percentage"]'
     );
+
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('suffix', '%');
+    expect(control).to.have.attribute('min', '0');
   });
 
-  it('renders a number control for handling fee percentage if handling fee type is "flat_percent_with_minimum"', async () => {
+  it('renders a number control for handling fee percentage in the Handling and Discount section if handling fee type is "flat_percent_with_minimum"', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -451,16 +494,25 @@ describe('ItemCategoryForm', () => {
 
     element.edit({ handling_fee_type: 'none' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="handling-fee-percentage"]')).to.not.exist;
+    expect(
+      element.renderRoot.querySelector(
+        '[infer="handling-and-discount"] [infer="handling-fee-percentage"]'
+      )
+    ).to.not.exist;
 
     element.edit({ handling_fee_type: 'flat_percent_with_minimum' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="handling-fee-percentage"]')).to.be.instanceOf(
-      InternalNumberControl
+    const control = element.renderRoot.querySelector(
+      '[infer="handling-and-discount"] [infer="handling-fee-percentage"]'
     );
+
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('suffix', '%');
+    expect(control).to.have.attribute('min', '0');
   });
 
-  it('renders a number control for handling fee minimum if handling fee type is "flat_percent_with_minimum"', async () => {
+  it('renders a number control for handling fee minimum in the Handling and Discount section if handling fee type is "flat_percent_with_minimum"', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -469,25 +521,47 @@ describe('ItemCategoryForm', () => {
 
     element.edit({ handling_fee_type: 'none' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="handling-fee-minimum"]')).to.not.exist;
+    expect(
+      element.renderRoot.querySelector(
+        '[infer="handling-and-discount"] [infer="handling-fee-minimum"]'
+      )
+    ).to.not.exist;
 
     element.edit({ handling_fee_type: 'flat_percent_with_minimum' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="handling-fee-minimum"]')).to.be.instanceOf(
-      InternalNumberControl
+    const control = element.renderRoot.querySelector(
+      '[infer="handling-and-discount"] [infer="handling-fee-minimum"]'
     );
+
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('min', '0');
   });
 
-  it('renders a select control for item delivery type', async () => {
+  it('renders a summary control for Delivery section', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
       </foxy-item-category-form>
     `);
 
-    const control = element.renderRoot.querySelector('[infer="item-delivery-type"]');
+    const control = element.renderRoot.querySelector('[infer="delivery"]');
+    expect(control).to.be.instanceOf(InternalSummaryControl);
+  });
+
+  it('renders a select control for item delivery type in the Delivery section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-item-category-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="delivery"] [infer="item-delivery-type"]'
+    );
 
     expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.deep.property('options', [
       { label: 'option_notshipped', value: 'notshipped' },
       { label: 'option_downloaded', value: 'downloaded' },
@@ -497,7 +571,7 @@ describe('ItemCategoryForm', () => {
     ]);
   });
 
-  it('renders an integer control for max downloads per customer if item delivery type is "downloaded"', async () => {
+  it('renders a number control for max downloads per customer in the Delivery section if item delivery type is "downloaded"', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -507,16 +581,18 @@ describe('ItemCategoryForm', () => {
     const $ = element.renderRoot;
     element.edit({ item_delivery_type: 'notshipped' });
     await element.requestUpdate();
-    expect($.querySelector('[infer="max-downloads-per-customer"]')).to.not.exist;
+    expect($.querySelector('[infer="delivery"] [infer="max-downloads-per-customer"]')).to.not.exist;
 
     element.edit({ item_delivery_type: 'downloaded' });
     await element.requestUpdate();
-    expect($.querySelector('[infer="max-downloads-per-customer"]')).to.be.instanceOf(
-      InternalIntegerControl
-    );
+    const control = $.querySelector('[infer="delivery"] [infer="max-downloads-per-customer"]');
+
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('min', '0');
   });
 
-  it('renders an integer control for max downloads per time period if item delivery type is "downloaded"', async () => {
+  it('renders a number control for max downloads per time period in the Delivery section if item delivery type is "downloaded"', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -526,16 +602,18 @@ describe('ItemCategoryForm', () => {
     const $ = element.renderRoot;
     element.edit({ item_delivery_type: 'notshipped' });
     await element.requestUpdate();
-    expect($.querySelector('[infer="max-downloads-time-period"]')).to.not.exist;
+    expect($.querySelector('[infer="delivery"] [infer="max-downloads-time-period"]')).to.not.exist;
 
     element.edit({ item_delivery_type: 'downloaded' });
     await element.requestUpdate();
-    expect($.querySelector('[infer="max-downloads-time-period"]')).to.be.instanceOf(
-      InternalIntegerControl
-    );
+    const control = $.querySelector('[infer="delivery"] [infer="max-downloads-time-period"]');
+
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('min', '0');
   });
 
-  it('renders a number control for shipping flat rate if item delivery type is "flat_rate"', async () => {
+  it('renders a number control for shipping flat rate in the Delivery section if item delivery type is "flat_rate"', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -544,16 +622,21 @@ describe('ItemCategoryForm', () => {
 
     element.edit({ item_delivery_type: 'pickup' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="shipping-flat-rate"]')).to.not.exist;
+    expect(element.renderRoot.querySelector('[infer="delivery"] [infer="shipping-flat-rate"]')).to
+      .not.exist;
 
     element.edit({ item_delivery_type: 'flat_rate' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="shipping-flat-rate"]')).to.be.instanceOf(
-      InternalNumberControl
+    const control = element.renderRoot.querySelector(
+      '[infer="delivery"] [infer="shipping-flat-rate"]'
     );
+
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('min', '0');
   });
 
-  it('renders a number control for customs value if item delivery type is "flat_rate"', async () => {
+  it('renders a number control for customs value in the Delivery section if item delivery type is "flat_rate"', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -562,16 +645,19 @@ describe('ItemCategoryForm', () => {
 
     element.edit({ item_delivery_type: 'pickup' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="customs-value"]')).to.not.exist;
+    expect(element.renderRoot.querySelector('[infer="delivery"] [infer="customs-value"]')).to.not
+      .exist;
 
     element.edit({ item_delivery_type: 'flat_rate' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="customs-value"]')).to.be.instanceOf(
-      InternalNumberControl
-    );
+    const control = element.renderRoot.querySelector('[infer="delivery"] [infer="customs-value"]');
+
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('min', '0');
   });
 
-  it('renders a select control for shipping flat rate type if item delivery type is "flat_rate"', async () => {
+  it('renders a select control for shipping flat rate type in the Delivery section if item delivery type is "flat_rate"', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -581,20 +667,24 @@ describe('ItemCategoryForm', () => {
     element.edit({ item_delivery_type: 'pickup' });
     await element.requestUpdate();
 
-    expect(element.renderRoot.querySelector('[infer="shipping-flat-rate-type"]')).to.not.exist;
+    expect(element.renderRoot.querySelector('[infer="delivery"] [infer="shipping-flat-rate-type"]'))
+      .to.not.exist;
 
     element.edit({ item_delivery_type: 'flat_rate' });
     await element.requestUpdate();
-    const control = element.renderRoot.querySelector('[infer="shipping-flat-rate-type"]');
+    const control = element.renderRoot.querySelector(
+      '[infer="delivery"] [infer="shipping-flat-rate-type"]'
+    );
 
     expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.deep.property('options', [
       { label: 'option_per_order', value: 'per_order' },
       { label: 'option_per_shipment', value: 'per_shipment' },
     ]);
   });
 
-  it('renders an integer control for default weight if item delivery type is "shipped"', async () => {
+  it('renders a number control for default weight in the Delivery section if item delivery type is "shipped"', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -603,16 +693,19 @@ describe('ItemCategoryForm', () => {
 
     element.edit({ item_delivery_type: 'pickup' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="default-weight"]')).to.not.exist;
+    expect(element.renderRoot.querySelector('[infer="delivery"] [infer="default-weight"]')).to.not
+      .exist;
 
     element.edit({ item_delivery_type: 'shipped' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="default-weight"]')).to.be.instanceOf(
-      InternalIntegerControl
-    );
+    const control = element.renderRoot.querySelector('[infer="delivery"] [infer="default-weight"]');
+
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('min', '0');
   });
 
-  it('renders a select control for default weight unit if item delivery type is "shipped"', async () => {
+  it('renders a select control for default weight unit in the Delivery section if item delivery type is "shipped"', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -622,20 +715,24 @@ describe('ItemCategoryForm', () => {
     element.edit({ item_delivery_type: 'pickup' });
     await element.requestUpdate();
 
-    expect(element.renderRoot.querySelector('[infer="default-weight-unit"]')).to.not.exist;
+    expect(element.renderRoot.querySelector('[infer="delivery"] [infer="default-weight-unit"]')).to
+      .not.exist;
 
     element.edit({ item_delivery_type: 'shipped' });
     await element.requestUpdate();
-    const control = element.renderRoot.querySelector('[infer="default-weight-unit"]');
+    const control = element.renderRoot.querySelector(
+      '[infer="delivery"] [infer="default-weight-unit"]'
+    );
 
     expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.deep.property('options', [
       { label: 'option_lbs', value: 'LBS' },
       { label: 'option_kgs', value: 'KGS' },
     ]);
   });
 
-  it('renders a select control for default length unit if item delivery type is "shipped"', async () => {
+  it('renders a select control for default length unit in the Delivery section if item delivery type is "shipped"', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -645,20 +742,24 @@ describe('ItemCategoryForm', () => {
     element.edit({ item_delivery_type: 'pickup' });
     await element.requestUpdate();
 
-    expect(element.renderRoot.querySelector('[infer="default-length-unit"]')).to.not.exist;
+    expect(element.renderRoot.querySelector('[infer="delivery"] [infer="default-length-unit"]')).to
+      .not.exist;
 
     element.edit({ item_delivery_type: 'shipped' });
     await element.requestUpdate();
-    const control = element.renderRoot.querySelector('[infer="default-length-unit"]');
+    const control = element.renderRoot.querySelector(
+      '[infer="delivery"] [infer="default-length-unit"]'
+    );
 
     expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.deep.property('options', [
       { label: 'option_in', value: 'IN' },
       { label: 'option_cm', value: 'CM' },
     ]);
   });
 
-  it('renders a number control for customs value if item delivery type is "shipped"', async () => {
+  it('renders a number control for customs value in the Delivery section if item delivery type is "shipped"', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -667,39 +768,48 @@ describe('ItemCategoryForm', () => {
 
     element.edit({ item_delivery_type: 'pickup' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="customs-value"]')).to.not.exist;
+    expect(element.renderRoot.querySelector('[infer="delivery"] [infer="customs-value"]')).to.not
+      .exist;
 
     element.edit({ item_delivery_type: 'shipped' });
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="customs-value"]')).to.be.instanceOf(
-      InternalNumberControl
+    const control = element.renderRoot.querySelector('[infer="delivery"] [infer="customs-value"]');
+
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('min', '0');
+  });
+
+  it('renders a text control for discount name in the Handling and Discount section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-item-category-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="handling-and-discount"] [infer="discount-name"]'
     );
-  });
 
-  it('renders a text control for discount name', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
-      </foxy-item-category-form>
-    `);
-
-    const control = element.renderRoot.querySelector('[infer="discount-name"]');
     expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a discount builder if discount name is not empty', async () => {
+  it('renders a discount builder in the Handling and Discount section if discount name is not empty', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
       </foxy-item-category-form>
     `);
 
-    expect(element.renderRoot.querySelector('[infer="discount-builder"]')).to.not.exist;
+    expect(
+      element.renderRoot.querySelector('[infer="handling-and-discount"] [infer="discount-builder"]')
+    ).to.not.exist;
 
     element.edit({ discount_name: 'Foo' });
     await element.requestUpdate();
     const control = element.renderRoot.querySelector(
-      '[infer="discount-builder"]'
+      '[infer="handling-and-discount"] [infer="discount-builder"]'
     ) as DiscountBuilder;
 
     expect(control).to.be.instanceOf(DiscountBuilder);
@@ -717,7 +827,21 @@ describe('ItemCategoryForm', () => {
     expect(element).to.have.nested.property('form.discount_details', '1-2|3+4');
   });
 
-  it('renders an async combo box control for admin email template uri', async () => {
+  it('renders a summary control for Emails section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-item-category-form
+        email-templates="https://demo.api/hapi/email_templates"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-item-category-form>
+    `);
+
+    const control = element.renderRoot.querySelector('[infer="emails"]');
+    expect(control).to.be.instanceOf(InternalSummaryControl);
+  });
+
+  it('renders an resource picker control for gift recipient email template uri in the Emails section', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form
@@ -728,90 +852,16 @@ describe('ItemCategoryForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="admin-email-template-uri"]'
-    ) as InternalAsyncComboBoxControl;
+      '[infer="emails"] [infer="gift-recipient-email-template-uri"]'
+    ) as InternalResourcePickerControl;
 
-    expect(control).to.be.instanceOf(InternalAsyncComboBoxControl);
-    expect(control).to.have.attribute('item-label-path', 'description');
-    expect(control).to.have.attribute('item-value-path', '_links.self.href');
+    expect(control).to.be.instanceOf(InternalResourcePickerControl);
     expect(control).to.have.attribute('first', 'https://demo.api/hapi/email_templates');
-
-    expect(element).to.not.have.nested.property('form.send_admin_email');
-    control.dispatchEvent(
-      new CustomEvent('change', { detail: 'https://demo.api/hapi/email_templates/0' })
-    );
-    expect(element).to.have.nested.property('form.send_admin_email', true);
-
-    control.dispatchEvent(new CustomEvent('change', { detail: '' }));
-    expect(element).to.have.nested.property('form.send_admin_email', false);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('item', 'foxy-email-template-card');
   });
 
-  it('renders a text control for admin email if "send_admin_email" is true', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-item-category-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
-      </foxy-item-category-form>
-    `);
-
-    expect(element.renderRoot.querySelector('[infer="admin-email"]')).to.not.exist;
-
-    element.edit({ send_admin_email: true });
-    await element.requestUpdate();
-    expect(element.renderRoot.querySelector('[infer="admin-email"]')).to.be.instanceOf(
-      InternalTextControl
-    );
-  });
-
-  it('renders an async combo box control for customer email template uri', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-item-category-form
-        email-templates="https://demo.api/hapi/email_templates"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-item-category-form>
-    `);
-
-    const control = element.renderRoot.querySelector(
-      '[infer="customer-email-template-uri"]'
-    ) as InternalAsyncComboBoxControl;
-
-    expect(control).to.be.instanceOf(InternalAsyncComboBoxControl);
-    expect(control).to.have.attribute('item-label-path', 'description');
-    expect(control).to.have.attribute('item-value-path', '_links.self.href');
-    expect(control).to.have.attribute('first', 'https://demo.api/hapi/email_templates');
-
-    expect(element).to.not.have.nested.property('form.send_customer_email');
-    control.dispatchEvent(
-      new CustomEvent('change', { detail: 'https://demo.api/hapi/email_templates/0' })
-    );
-    expect(element).to.have.nested.property('form.send_customer_email', true);
-
-    control.dispatchEvent(new CustomEvent('change', { detail: '' }));
-    expect(element).to.have.nested.property('form.send_customer_email', false);
-  });
-
-  it('renders an async combo box control for gift recipient email template uri', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-item-category-form
-        email-templates="https://demo.api/hapi/email_templates"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-item-category-form>
-    `);
-
-    const control = element.renderRoot.querySelector(
-      '[infer="gift-recipient-email-template-uri"]'
-    ) as InternalAsyncComboBoxControl;
-
-    expect(control).to.be.instanceOf(InternalAsyncComboBoxControl);
-    expect(control).to.have.attribute('item-label-path', 'description');
-    expect(control).to.have.attribute('item-value-path', '_links.self.href');
-    expect(control).to.have.attribute('first', 'https://demo.api/hapi/email_templates');
-  });
-
-  it('renders a taxes control when resource is loaded', async () => {
+  it('renders an async list control for taxes when resource is loaded', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-item-category-form

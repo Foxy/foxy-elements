@@ -1,14 +1,15 @@
 import '../../internal/InternalAsyncResourceLinkListControl/index';
-import '../../internal/InternalAsyncComboBoxControl/index';
-import '../../internal/InternalIntegerControl/index';
+import '../../internal/InternalResourcePickerControl/index';
+import '../../internal/InternalSummaryControl/index';
 import '../../internal/InternalNumberControl/index';
 import '../../internal/InternalSelectControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 
+import '../EmailTemplateCard/index';
 import '../DiscountBuilder/index';
-import '../NucleonElement/index';
 import '../TaxCard/index';
+import '../I18n/index';
 
 import { ItemCategoryForm } from './ItemCategoryForm';
 
