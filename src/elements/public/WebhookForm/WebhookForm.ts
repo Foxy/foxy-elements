@@ -19,18 +19,11 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
       ({ name: v }) => !!v || 'name:v8n_required',
       ({ name: v }) => (!!v && v.length <= 255) || 'name:v8n_too_long',
       ({ version: v }) => !!v || 'version:v8n_required',
-      ({ format: v }) => !!v || 'format:v8n_required',
       ({ url: v }) => !v || v.length <= 1000 || 'url:v8n_too_long',
       ({ query: v }) => !v || v.length <= 1000 || 'query:v8n_too_long',
       ({ encryption_key: v }) => !v || v.length <= 1000 || 'encryption-key:v8n_too_long',
     ];
   }
-
-  private __formats = [
-    { value: 'json', label: 'JSON' },
-    { value: 'webflow', label: 'Webflow' },
-    { value: 'zapier', label: 'Zapier' },
-  ];
 
   private __eventResources = [
     { value: 'subscription', label: 'event_resource_subscription' },
@@ -45,7 +38,13 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
   }
 
   get headerSubtitleOptions(): Record<string, unknown> {
-    return { context: this.data?.event_resource };
+    const format = this.data?.format;
+    return { context: format === 'json' ? this.data?.event_resource : format };
+  }
+
+  edit(data: Partial<Data>): void {
+    super.edit(data);
+    if (!this.form.format) super.edit({ format: 'json' });
   }
 
   renderBody(): TemplateResult {
@@ -59,9 +58,6 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
 
       <foxy-internal-text-control infer="query"></foxy-internal-text-control>
       <foxy-internal-text-control infer="url"></foxy-internal-text-control>
-
-      <foxy-internal-radio-group-control infer="format" .options=${this.__formats}>
-      </foxy-internal-radio-group-control>
 
       <foxy-internal-text-control infer="encryption-key"></foxy-internal-text-control>
       <foxy-internal-text-control infer="version"></foxy-internal-text-control>

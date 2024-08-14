@@ -3,6 +3,8 @@
     "title_new": "New webhook",
     "title_existing": "Webhook #{{ id }}",
     "subtitle": "",
+    "subtitle_webflow": "Webflow webhook",
+    "subtitle_zapier": "Zapier webhook",
     "subtitle_transaction": "Transaction webhook",
     "subtitle_subscription": "Subscription webhook",
     "subtitle_customer": "Customer webhook",
@@ -25,11 +27,6 @@
     "helper_text": "The name of this webhook.",
     "v8n_required": "Webhook name is required",
     "v8n_too_long": "Webhook name cannot exceed 255 characters"
-  },
-  "format": {
-    "label": "Format",
-    "helper_text": "The type of this webhook.",
-    "v8n_required": "Please select a format"
   },
   "version": {
     "label": "Version",

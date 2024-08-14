@@ -1,12 +1,15 @@
-import { expect, fixture, html } from '@open-wc/testing';
-import { stub } from 'sinon';
-import { getTestData } from '../../../testgen/getTestData';
-import { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
-import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import './index';
+
+import type { Data } from './types';
+
 import { InternalRadioGroupControl } from '../../internal/InternalRadioGroupControl/InternalRadioGroupControl';
+import { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
+import { expect, fixture, html } from '@open-wc/testing';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
-import { WebhookForm } from './index';
-import { Data } from './types';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { getTestData } from '../../../testgen/getTestData';
+import { WebhookForm } from './WebhookForm';
+import { stub } from 'sinon';
 
 describe('WebhookForm', () => {
   it('imports and defines foxy-internal-async-list-control element', () => {
@@ -60,11 +63,6 @@ describe('WebhookForm', () => {
   it('produces an v8n error if webhook version is missing', () => {
     const form = new WebhookForm();
     expect(WebhookForm.v8n.map(fn => fn({}, form))).to.include('version:v8n_required');
-  });
-
-  it('produces an v8n error if webhook format is missing', () => {
-    const form = new WebhookForm();
-    expect(WebhookForm.v8n.map(fn => fn({}, form))).to.include('format:v8n_required');
   });
 
   it('produces an v8n error if webhook url is too long', () => {
@@ -135,20 +133,6 @@ describe('WebhookForm', () => {
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders webhook format as radio group control', async () => {
-    const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
-    const control = element.renderRoot.querySelector('[infer="format"]');
-    const options = [
-      { value: 'json', label: 'JSON' },
-      { value: 'webflow', label: 'Webflow' },
-      { value: 'zapier', label: 'Zapier' },
-    ];
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalRadioGroupControl);
-    expect(control).to.have.deep.property('options', options);
   });
 
   it('renders webhook encryption key as text control', async () => {
