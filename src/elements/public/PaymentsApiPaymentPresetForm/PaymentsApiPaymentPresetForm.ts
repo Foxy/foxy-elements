@@ -1,14 +1,13 @@
 import type { PropertyDeclarations } from 'lit-element';
-import type { FormRendererContext } from '../FormDialog/types';
-import type { ItemRendererContext } from '../CollectionPage/types';
-import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { html } from 'lit-html';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
 const NS = 'payments-api-payment-preset-form';
 const Base = TranslatableMixin(InternalForm, NS);
@@ -47,7 +46,9 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
   getPaymentMethodImageSrc: ((type: string) => string) | null = null;
 
   get hiddenSelector(): BooleanSelector {
-    return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
+    const alwaysMatch = ['header:copy-json', super.hiddenSelector.toString()];
+    if (!this.data) alwaysMatch.unshift('payment-methods', 'fraud-protections');
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
   renderBody(): TemplateResult {
@@ -62,67 +63,30 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
         </foxy-internal-switch-control>
       </foxy-internal-summary-control>
 
-      ${this.data
-        ? html`
-            <foxy-internal-async-list-control
-              infer="payment-methods"
-              first=${this.data._links['fx:payment_methods'].href}
-              limit="5"
-              alert
-              .item=${(ctx: ItemRendererContext) => html`
-                <foxy-payments-api-payment-method-card
-                  parent=${ctx.parent}
-                  infer="payments-api-payment-method-card"
-                  href=${ctx.href}
-                  .getImageSrc=${this.getPaymentMethodImageSrc}
-                >
-                </foxy-payments-api-payment-method-card>
-              `}
-              .form=${(ctx: FormRendererContext) => html`
-                <foxy-payments-api-payment-method-form
-                  parent=${ctx.dialog.parent}
-                  infer="payments-api-payment-method-form"
-                  href=${ctx.dialog.href}
-                  id="form"
-                  .getImageSrc=${this.getPaymentMethodImageSrc}
-                  @fetch=${ctx.handleFetch}
-                  @update=${ctx.handleUpdate}
-                >
-                </foxy-payments-api-payment-method-form>
-              `}
-            >
-            </foxy-internal-async-list-control>
+      <foxy-internal-async-list-control
+        infer="payment-methods"
+        first=${ifDefined(this.data?._links['fx:payment_methods'].href)}
+        limit="5"
+        item="foxy-payments-api-payment-method-card"
+        form="foxy-payments-api-payment-method-form"
+        alert
+        .itemProps=${{ '.getImageSrc': this.getPaymentMethodImageSrc }}
+        .formProps=${{ '.getImageSrc': this.getPaymentMethodImageSrc }}
+      >
+      </foxy-internal-async-list-control>
 
-            <foxy-internal-async-list-control
-              infer="fraud-protections"
-              first=${this.data._links['fx:fraud_protections'].href}
-              limit="5"
-              alert
-              .item=${(ctx: ItemRendererContext) => html`
-                <foxy-payments-api-fraud-protection-card
-                  parent=${ctx.parent}
-                  infer="payments-api-fraud-protection-card"
-                  href=${ctx.href}
-                  .getImageSrc=${this.getFraudProtectionImageSrc}
-                >
-                </foxy-payments-api-fraud-protection-card>
-              `}
-              .form=${(ctx: FormRendererContext) => html`
-                <foxy-payments-api-fraud-protection-form
-                  parent=${ctx.dialog.parent}
-                  infer="payments-api-fraud-protection-form"
-                  href=${ctx.dialog.href}
-                  id="form"
-                  .getImageSrc=${this.getFraudProtectionImageSrc}
-                  @fetch=${ctx.handleFetch}
-                  @update=${ctx.handleUpdate}
-                >
-                </foxy-payments-api-fraud-protection-form>
-              `}
-            >
-            </foxy-internal-async-list-control>
-          `
-        : ''}
+      <foxy-internal-async-list-control
+        infer="fraud-protections"
+        first=${ifDefined(this.data?._links['fx:fraud_protections'].href)}
+        limit="5"
+        item="foxy-payments-api-fraud-protection-card"
+        form="foxy-payments-api-fraud-protection-form"
+        alert
+        .itemProps=${{ '.getImageSrc': this.getFraudProtectionImageSrc }}
+        .formProps=${{ '.getImageSrc': this.getFraudProtectionImageSrc }}
+      >
+      </foxy-internal-async-list-control>
+
       ${super.renderBody()}
     `;
   }
