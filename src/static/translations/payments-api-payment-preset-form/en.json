@@ -10,22 +10,28 @@
       "done": "Copied to clipboard"
     }
   },
-  "description": {
-    "label": "Description",
-    "placeholder": "E.g. EU & UK Payment Options",
+  "general": {
+    "label": "",
     "helper_text": "",
-    "v8n_required": "Please describe this payment method set",
-    "v8n_too_long": "Please reduce this description to a 100 characters or less"
-  },
-  "is-live": {
-    "label": "",
-    "option_live": "Use live credentials",
-    "helper_text": ""
-  },
-  "is-purchase-order-enabled": {
-    "label": "",
-    "option_true": "Allow purchase orders",
-    "helper_text": ""
+    "description": {
+      "label": "Description",
+      "placeholder": "E.g. EU & UK Payment Options",
+      "helper_text": "",
+      "v8n_required": "Please describe this payment method set",
+      "v8n_too_long": "Please reduce this description to a 100 characters or less"
+    },
+    "is-live": {
+      "label": "Use live credentials",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "is-purchase-order-enabled": {
+      "label": "Allow purchase orders",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
   },
   "payment-methods": {
     "delete_header": "Remove payment method",

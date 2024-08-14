@@ -11,8 +11,9 @@ import { PaymentsApiFraudProtectionCard } from '../PaymentsApiFraudProtectionCar
 import { PaymentsApiFraudProtectionForm } from '../PaymentsApiFraudProtectionForm/PaymentsApiFraudProtectionForm';
 import { PaymentsApiPaymentMethodCard } from '../PaymentsApiPaymentMethodCard/PaymentsApiPaymentMethodCard';
 import { PaymentsApiPaymentMethodForm } from '../PaymentsApiPaymentMethodForm/PaymentsApiPaymentMethodForm';
-import { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
 import { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
+import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
+import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
@@ -28,9 +29,14 @@ describe('PaymentsApiPaymentPresetForm', () => {
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
-  it('imports and defines foxy-internal-checkbox-group-control', () => {
-    const element = customElements.get('foxy-internal-checkbox-group-control');
-    expect(element).to.equal(InternalCheckboxGroupControl);
+  it('imports and defines foxy-internal-switch-control', () => {
+    const element = customElements.get('foxy-internal-switch-control');
+    expect(element).to.equal(InternalSwitchControl);
+  });
+
+  it('imports and defines foxy-internal-summary-control', () => {
+    const element = customElements.get('foxy-internal-summary-control');
+    expect(element).to.equal(InternalSummaryControl);
   });
 
   it('imports and defines foxy-internal-async-list-control', () => {
@@ -126,7 +132,7 @@ describe('PaymentsApiPaymentPresetForm', () => {
     expect(form.hiddenSelector.matches('header:copy-json', true)).to.be.true;
   });
 
-  it('renders a text control for description', async () => {
+  it('renders a summary control for general settings', async () => {
     const router = createRouter();
     const wrapper = await fixture(html`
       <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -149,13 +155,42 @@ describe('PaymentsApiPaymentPresetForm', () => {
 
     const element = wrapper.firstElementChild!.firstElementChild as Form;
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="description"]');
+    const control = element.renderRoot.querySelector('[infer="general"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSummaryControl);
+  });
+
+  it('renders a text control for description inside of the General section', async () => {
+    const router = createRouter();
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-preset-form
+            href="https://foxy-payments-api.element/payment_presets/0"
+          >
+          </foxy-payments-api-payment-preset-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+    const control = element.renderRoot.querySelector('[infer="general"] [infer="description"]');
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
   });
 
-  it('renders a checkbox control for live credentials toggle', async () => {
+  it('renders a switch control for live credentials toggle inside of the General section', async () => {
     const router = createRouter();
     const wrapper = await fixture(html`
       <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -178,23 +213,14 @@ describe('PaymentsApiPaymentPresetForm', () => {
 
     const element = wrapper.firstElementChild!.firstElementChild as Form;
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
     const control = element.renderRoot.querySelector(
-      '[infer="is-live"]'
-    ) as InternalCheckboxGroupControl;
-
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [{ label: 'option_live', value: 'live' }]);
-
-    element.edit({ is_live: false });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['test']);
-
-    element.edit({ is_live: true });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['live']);
+      '[infer="general"] [infer="is-live"]'
+    ) as InternalSwitchControl;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
   });
 
-  it('renders a checkbox control for purchase order toggle', async () => {
+  it('renders a switch control for purchase order toggle inside of the General section', async () => {
     const router = createRouter();
     const wrapper = await fixture(html`
       <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -218,19 +244,10 @@ describe('PaymentsApiPaymentPresetForm', () => {
     const element = wrapper.firstElementChild!.firstElementChild as Form;
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     const control = element.renderRoot.querySelector(
-      '[infer="is-purchase-order-enabled"]'
-    ) as InternalCheckboxGroupControl;
+      '[infer="general"] [infer="is-purchase-order-enabled"]'
+    ) as InternalSwitchControl;
 
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [{ label: 'option_true', value: 'true' }]);
-
-    element.edit({ is_purchase_order_enabled: false });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal([]);
-
-    element.edit({ is_purchase_order_enabled: true });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['true']);
+    expect(control).to.be.instanceOf(InternalSwitchControl);
   });
 
   it('renders an async list control for payment methods', async () => {

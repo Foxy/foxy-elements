@@ -1,4 +1,3 @@
-import type { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
 import type { PropertyDeclarations } from 'lit-element';
 import type { FormRendererContext } from '../FormDialog/types';
 import type { ItemRendererContext } from '../CollectionPage/types';
@@ -47,55 +46,21 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
   /** A function that returns image URL for given payment method `type`. */
   getPaymentMethodImageSrc: ((type: string) => string) | null = null;
 
-  private static readonly __isPOEnabledOptions = [{ label: 'option_true', value: 'true' }];
-
-  private static readonly __isLiveOptions = [{ label: 'option_live', value: 'live' }];
-
-  private __getIsPOEnabledValue: InternalCheckboxGroupControl['getValue'] = () => {
-    return this.form.is_purchase_order_enabled ? ['true'] : [];
-  };
-
-  private __setIsPOEnabledValue: InternalCheckboxGroupControl['setValue'] = newValue => {
-    this.edit({ is_purchase_order_enabled: (newValue as string[]).includes('true') });
-  };
-
-  private __getIsLiveValue: InternalCheckboxGroupControl['getValue'] = () => {
-    return this.form.is_live ? ['live'] : ['test'];
-  };
-
-  private __setIsLiveValue: InternalCheckboxGroupControl['setValue'] = newValue => {
-    this.edit({ is_live: (newValue as string[]).includes('live') });
-  };
-
   get hiddenSelector(): BooleanSelector {
     return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
   }
 
   renderBody(): TemplateResult {
-    const constructor = this.constructor as typeof PaymentsApiPaymentPresetForm;
-
     return html`
       ${this.renderHeader()}
 
-      <foxy-internal-text-control infer="description"></foxy-internal-text-control>
-
-      <div class="-mb-s">
-        <foxy-internal-checkbox-group-control
-          infer="is-live"
-          .getValue=${this.__getIsLiveValue}
-          .setValue=${this.__setIsLiveValue}
-          .options=${constructor.__isLiveOptions}
-        >
-        </foxy-internal-checkbox-group-control>
-
-        <foxy-internal-checkbox-group-control
-          infer="is-purchase-order-enabled"
-          .getValue=${this.__getIsPOEnabledValue}
-          .setValue=${this.__setIsPOEnabledValue}
-          .options=${constructor.__isPOEnabledOptions}
-        >
-        </foxy-internal-checkbox-group-control>
-      </div>
+      <foxy-internal-summary-control infer="general">
+        <foxy-internal-text-control layout="summary-item" infer="description">
+        </foxy-internal-text-control>
+        <foxy-internal-switch-control infer="is-live"></foxy-internal-switch-control>
+        <foxy-internal-switch-control infer="is-purchase-order-enabled">
+        </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
       ${this.data
         ? html`
