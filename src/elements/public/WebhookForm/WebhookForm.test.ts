@@ -77,6 +77,17 @@ describe('WebhookForm', () => {
     expect(WebhookForm.v8n.map(fn => fn({ query }, form))).to.include('query:v8n_too_long');
   });
 
+  it('produces an v8n error if webhook encryption-key is missing', () => {
+    const form = new WebhookForm();
+    const errors = WebhookForm.v8n.map(fn => fn({}, form));
+    expect(errors).to.include('encryption-key:v8n_required');
+
+    const encryption_key = 'A'.repeat(1000);
+    expect(WebhookForm.v8n.map(fn => fn({ encryption_key }, form))).to.not.include(
+      'encryption-key:v8n_required'
+    );
+  });
+
   it('produces an v8n error if webhook encryption-key is too long', () => {
     const encryption_key = 'A'.repeat(1001);
     const form = new WebhookForm();

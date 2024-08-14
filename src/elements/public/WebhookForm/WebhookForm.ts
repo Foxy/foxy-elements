@@ -20,6 +20,7 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
       ({ name: v }) => (!!v && v.length <= 255) || 'name:v8n_too_long',
       ({ url: v }) => !v || v.length <= 1000 || 'url:v8n_too_long',
       ({ query: v }) => !v || v.length <= 1000 || 'query:v8n_too_long',
+      ({ encryption_key: v }) => !!v || 'encryption-key:v8n_required',
       ({ encryption_key: v }) => !v || v.length <= 1000 || 'encryption-key:v8n_too_long',
     ];
   }
