@@ -1241,28 +1241,6 @@ describe('NativeIntegrationForm', () => {
     expect(config).to.have.property('inventory_field_name', 'def');
   });
 
-  it('renders a password control for webflow auth', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webflow';
-    data.config = JSON.stringify({ ...defaults.webflow, auth: 'abc' });
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
-    `);
-
-    const control = element.renderRoot.querySelector(
-      '[infer="webflow-auth"]'
-    ) as InternalPasswordControl;
-
-    expect(control).to.be.instanceOf(InternalPasswordControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-
-    const newConfig = JSON.parse(element.form.config as string);
-    expect(newConfig).to.have.property('auth', 'def');
-  });
-
   it('renders a readonly list control for zapier events', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'zapier';

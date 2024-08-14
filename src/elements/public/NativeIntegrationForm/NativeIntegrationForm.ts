@@ -674,13 +674,6 @@ export class NativeIntegrationForm extends Base<Data> {
         >
         </foxy-internal-text-control>
       </div>
-
-      <foxy-internal-password-control
-        infer="webflow-auth"
-        .getValue=${this.__createConfigGetterFor('auth')}
-        .setValue=${this.__createConfigSetterFor('auth')}
-      >
-      </foxy-internal-password-control>
     `;
   }
 
