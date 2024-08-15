@@ -1,4 +1,7 @@
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 import '../PaymentsApi/index';
 import './index';
@@ -15,6 +18,7 @@ import { InternalSwitchControl } from '../../internal/InternalSwitchControl/Inte
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
+import { getTestData } from '../../../testgen/getTestData';
 import { fake, stub } from 'sinon';
 
 describe('PaymentsApiPaymentPresetForm', () => {
@@ -155,6 +159,177 @@ describe('PaymentsApiPaymentPresetForm', () => {
 
     expect(element.hiddenSelector.matches('fraud-protections', true)).to.be.false;
     expect(element.hiddenSelector.matches('payment-methods', true)).to.be.false;
+  });
+
+  it('hides Live and Purchase Order toggles when there is no data or the store info is not loaded yet', async () => {
+    let resolve: ((response: Response) => void) | null = null;
+
+    const router = createRouter();
+    const wrapper = await fixture(html`
+      <div
+        @fetch=${(evt: FetchEvent) => {
+          if (evt.request.url.startsWith('https://demo.api/hapi/stores/0')) {
+            evt.respondWith(new Promise(r => (resolve = r)));
+          } else {
+            router.handleEvent(evt);
+          }
+        }}
+      >
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-preset-form></foxy-payments-api-payment-preset-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+
+    expect(element.hiddenSelector.matches('general:is-live', true)).to.be.true;
+    expect(element.hiddenSelector.matches('general:is-purchase-order-enabled', true)).to.be.true;
+
+    element.href = 'https://foxy-payments-api.element/payment_presets/0';
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    expect(element.hiddenSelector.matches('general:is-live', true)).to.be.true;
+    expect(element.hiddenSelector.matches('general:is-purchase-order-enabled', true)).to.be.true;
+
+    const store = await getTestData<Resource<Rels.Store>>('./hapi/stores/0', router);
+    store.is_active = true;
+    (resolve as ((response: Response) => void) | null)?.(new Response(JSON.stringify(store)));
+    await new Promise(r => setTimeout(r));
+
+    expect(element.hiddenSelector.matches('general:is-live', true)).to.be.false;
+    expect(element.hiddenSelector.matches('general:is-purchase-order-enabled', true)).to.be.false;
+  });
+
+  it('makes Live and Purchase Order toggles readonly with special helper text when the store is inactive', async () => {
+    const router = createRouter();
+    const wrapper = await fixture(html`
+      <div
+        @fetch=${(evt: FetchEvent) => {
+          if (evt.request.url.startsWith('https://demo.api/hapi/stores/0')) {
+            evt.respondWith(
+              (async () => {
+                const store = await getTestData<Resource<Rels.Store>>('./hapi/stores/0', router);
+                store.is_active = false;
+                return new Response(JSON.stringify(store));
+              })()
+            );
+          } else {
+            router.handleEvent(evt);
+          }
+        }}
+      >
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-preset-form></foxy-payments-api-payment-preset-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    element.href = 'https://foxy-payments-api.element/payment_presets/0';
+    await waitUntil(
+      () => {
+        if (!element.data) return false;
+        const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+        return [...nucleons].every(nucleon => nucleon.in('idle'));
+      },
+      '',
+      { timeout: 5000 }
+    );
+
+    expect(element.readonlySelector.matches('general:is-live', true)).to.be.true;
+    expect(element.readonlySelector.matches('general:is-purchase-order-enabled', true)).to.be.true;
+
+    const isLiveControl = element.renderRoot.querySelector('[infer="general"] [infer="is-live"]');
+    const isPoEnabledControl = element.renderRoot.querySelector(
+      '[infer="general"] [infer="is-purchase-order-enabled"]'
+    );
+
+    expect(isLiveControl).to.have.attribute(
+      'helper-text',
+      'general.is-live.helper_text_inactive_store'
+    );
+
+    expect(isPoEnabledControl).to.have.attribute(
+      'helper-text',
+      'general.is-purchase-order-enabled.helper_text_inactive_store'
+    );
+  });
+
+  it('makes Live and Purchase Order toggles interactive with regular helper text when the store is active', async () => {
+    const router = createRouter();
+    const wrapper = await fixture(html`
+      <div
+        @fetch=${(evt: FetchEvent) => {
+          if (evt.request.url.startsWith('https://demo.api/hapi/stores/0')) {
+            evt.respondWith(
+              (async () => {
+                const store = await getTestData<Resource<Rels.Store>>('./hapi/stores/0', router);
+                store.is_active = true;
+                return new Response(JSON.stringify(store));
+              })()
+            );
+          } else {
+            router.handleEvent(evt);
+          }
+        }}
+      >
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-preset-form></foxy-payments-api-payment-preset-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    element.href = 'https://foxy-payments-api.element/payment_presets/0';
+
+    await waitUntil(
+      () => {
+        if (!element.data) return false;
+        const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+        return [...nucleons].every(nucleon => nucleon.in('idle'));
+      },
+      '',
+      { timeout: 5000 }
+    );
+
+    expect(element.readonlySelector.matches('general:is-live', true)).to.be.false;
+    expect(element.readonlySelector.matches('general:is-purchase-order-enabled', true)).to.be.false;
+
+    const isLiveControl = element.renderRoot.querySelector('[infer="general"] [infer="is-live"]');
+    const isPoEnabledControl = element.renderRoot.querySelector(
+      '[infer="general"] [infer="is-purchase-order-enabled"]'
+    );
+
+    expect(isLiveControl).to.have.attribute('helper-text', 'general.is-live.helper_text');
+    expect(isPoEnabledControl).to.have.attribute(
+      'helper-text',
+      'general.is-purchase-order-enabled.helper_text'
+    );
   });
 
   it('renders a summary control for general settings', async () => {

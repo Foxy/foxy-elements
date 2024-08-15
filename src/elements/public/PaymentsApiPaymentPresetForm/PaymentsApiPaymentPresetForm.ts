@@ -1,13 +1,16 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { Resource } from '@foxy.io/sdk/core';
 import type { Data } from './types';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
-import { html } from 'lit-html';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { html } from 'lit-html';
 
 const NS = 'payments-api-payment-preset-form';
 const Base = TranslatableMixin(InternalForm, NS);
@@ -45,21 +48,49 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
   /** A function that returns image URL for given payment method `type`. */
   getPaymentMethodImageSrc: ((type: string) => string) | null = null;
 
+  private readonly __storeLoaderId = 'storeLoader';
+
+  get readonlySelector(): BooleanSelector {
+    const alwaysMatch = [super.hiddenSelector.toString()];
+
+    if (!this.__storeLoader?.data?.is_active) {
+      alwaysMatch.unshift('general:is-live', 'general:is-purchase-order-enabled');
+    }
+
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
+  }
+
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = ['header:copy-json', super.hiddenSelector.toString()];
+    const store = this.__storeLoader?.data;
+
     if (!this.data) alwaysMatch.unshift('payment-methods', 'fraud-protections');
+    if (!store) alwaysMatch.unshift('general:is-live', 'general:is-purchase-order-enabled');
+
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
   renderBody(): TemplateResult {
+    const isStoreActive = !!this.__storeLoader?.data?.is_active;
+    const helperTextSuffix = isStoreActive ? '' : '_inactive_store';
+
     return html`
       ${this.renderHeader()}
 
       <foxy-internal-summary-control infer="general">
         <foxy-internal-text-control layout="summary-item" infer="description">
         </foxy-internal-text-control>
-        <foxy-internal-switch-control infer="is-live"></foxy-internal-switch-control>
-        <foxy-internal-switch-control infer="is-purchase-order-enabled">
+
+        <foxy-internal-switch-control
+          helper-text=${this.t(`general.is-live.helper_text${helperTextSuffix}`)}
+          infer="is-live"
+        >
+        </foxy-internal-switch-control>
+
+        <foxy-internal-switch-control
+          helper-text=${this.t(`general.is-purchase-order-enabled.helper_text${helperTextSuffix}`)}
+          infer="is-purchase-order-enabled"
+        >
         </foxy-internal-switch-control>
       </foxy-internal-summary-control>
 
@@ -88,6 +119,20 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
       </foxy-internal-async-list-control>
 
       ${super.renderBody()}
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.data?._links['fx:store'].href)}
+        id=${this.__storeLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
     `;
+  }
+
+  private get __storeLoader() {
+    type Loader = NucleonElement<Resource<Rels.Store>>;
+    return this.renderRoot.querySelector<Loader>(`#${this.__storeLoaderId}`);
   }
 }

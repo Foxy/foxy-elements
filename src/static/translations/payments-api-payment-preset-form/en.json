@@ -23,12 +23,14 @@
     "is-live": {
       "label": "Use live credentials",
       "helper_text": "",
+      "helper_text_inactive_store": "Only active stores can use live credentials.",
       "checked": "Yes",
       "unchecked": "No"
     },
     "is-purchase-order-enabled": {
       "label": "Allow purchase orders",
       "helper_text": "",
+      "helper_text_inactive_store": "Only active stores can use Purchase Orders as payment option.",
       "checked": "Yes",
       "unchecked": "No"
     }

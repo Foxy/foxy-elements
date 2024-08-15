@@ -633,7 +633,7 @@ export const createDataset: () => Dataset = () => ({
       custom_display_id_config: '',
       affiliate_id: 0,
       is_maintenance_mode: false,
-      is_active: false,
+      is_active: true,
       first_payment_date: '2016-02-05T10:25:26-0800',
       date_created: '2016-02-05T10:25:26-0800',
       date_modified: '2016-02-05T10:25:26-0800',
