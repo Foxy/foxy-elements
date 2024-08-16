@@ -1,23 +1,22 @@
+import type { AvailablePaymentMethods } from '../PaymentsApi/api/types';
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
 
 import '../PaymentsApi/index';
 import './index';
 
 import { PaymentsApiPaymentMethodForm as Form } from './PaymentsApiPaymentMethodForm';
-import { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl/InternalAsyncComboBoxControl';
-import { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
-import { InternalRadioGroupControl } from '../../internal/InternalRadioGroupControl/InternalRadioGroupControl';
-import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
+import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
+import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getByKey } from '../../../testgen/getByKey';
-import { I18n } from '../I18n/I18n';
-import { AvailablePaymentMethods } from '../PaymentsApi/api/types';
 import { getByTag } from '../../../testgen/getByTag';
+import { I18n } from '../I18n/I18n';
 import { stub } from 'sinon';
 
 describe('PaymentsApiPaymentMethodForm', () => {
@@ -31,23 +30,14 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(customElements.get('vaadin-button')).to.exist;
   });
 
-  it('imports and defines vaadin-tabs', () => {
-    expect(customElements.get('vaadin-tabs')).to.exist;
+  it('imports and defines foxy-internal-switch-control', () => {
+    const element = customElements.get('foxy-internal-switch-control');
+    expect(element).to.equal(InternalSwitchControl);
   });
 
-  it('imports and defines foxy-internal-async-combo-box-control', () => {
-    const element = customElements.get('foxy-internal-async-combo-box-control');
-    expect(element).to.equal(InternalAsyncComboBoxControl);
-  });
-
-  it('imports and defines foxy-internal-checkbox-group-control', () => {
-    const element = customElements.get('foxy-internal-checkbox-group-control');
-    expect(element).to.equal(InternalCheckboxGroupControl);
-  });
-
-  it('imports and defines foxy-internal-radio-group-control', () => {
-    const element = customElements.get('foxy-internal-radio-group-control');
-    expect(element).to.equal(InternalRadioGroupControl);
+  it('imports and defines foxy-internal-summary-control', () => {
+    const element = customElements.get('foxy-internal-summary-control');
+    expect(element).to.equal(InternalSummaryControl);
   });
 
   it('imports and defines foxy-internal-select-control', () => {
@@ -89,10 +79,22 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(new Form()).to.have.property('ns', 'payments-api-payment-method-form');
   });
 
+  it('has a reactive property "paymentPreset"', () => {
+    expect(new Form()).to.have.property('paymentPreset', null);
+    expect(Form).to.have.deep.nested.property('properties.paymentPreset', {
+      attribute: 'payment-preset',
+    });
+  });
+
   it('has a reactive property "getImageSrc"', () => {
     expect(new Form()).to.have.property('getImageSrc', null);
     expect(Form).to.have.nested.property('properties.getImageSrc');
     expect(Form).to.have.nested.property('properties.getImageSrc.attribute', false);
+  });
+
+  it('has a reactive property "store"', () => {
+    expect(new Form()).to.have.property('store', null);
+    expect(Form).to.have.deep.nested.property('properties.store', {});
   });
 
   it('produces the description:v8n_too_long error if description is longer than 100 characters', () => {
@@ -118,7 +120,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
   it('produces the additional-fields:v8n_invalid error if some of the required additional fields are empty', async () => {
     const availableMethods: AvailablePaymentMethods = {
       _links: {
-        self: { href: '' },
+        self: {
+          href: 'https://foxy-payments-api.element/payment_presets/0/available_payment_methods',
+        },
       },
       values: {
         foo: {
@@ -170,7 +174,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
             parent="https://foxy-payments-api.element/payment_presets/0/payment_methods"
+            store="https://demo.api/hapi/stores/0"
             @fetch=${(evt: FetchEvent) => {
               if (evt.request.url.endsWith('/payment_presets/0/available_payment_methods')) {
                 evt.preventDefault();
@@ -316,7 +322,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
             parent="https://foxy-payments-api.element/payment_presets/0/payment_methods"
+            store="https://demo.api/hapi/stores/0"
             .getImageSrc=${(type: string) => `https://example.com?type=${type}`}
             @fetch=${(evt: FetchEvent) => {
               if (evt.request.url.endsWith('/payment_presets/0/available_payment_methods')) {
@@ -456,7 +464,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
             parent="https://foxy-payments-api.element/payment_presets/0/payment_methods"
+            store="https://demo.api/hapi/stores/0"
             .getImageSrc=${(type: string) => `https://example.com?type=${type}`}
             @fetch=${(evt: FetchEvent) => {
               if (evt.request.url.endsWith('/payment_presets/0/available_payment_methods')) {
@@ -503,59 +513,6 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(group1Item1Button).to.not.exist;
   });
 
-  it('renders tabs for live and test credentials', async () => {
-    const router = createRouter();
-
-    const wrapper = await fixture(html`
-      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
-        <foxy-payments-api
-          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
-          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
-          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
-          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
-          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
-          fraud-protections-url="https://demo.api/hapi/fraud_protections"
-          payment-gateways-url="https://demo.api/hapi/payment_gateways"
-        >
-          <foxy-payments-api-payment-method-form
-            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
-          >
-          </foxy-payments-api-payment-method-form>
-        </foxy-payments-api>
-      </div>
-    `);
-
-    const element = wrapper.firstElementChild!.firstElementChild as Form;
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-
-    const tabs = (await getByTag(element, 'vaadin-tabs')) as HTMLElement;
-    const tab1 = tabs.querySelector('vaadin-tab:nth-of-type(1)') as HTMLElement;
-    const tab1Label = tab1.querySelector('foxy-i18n') as HTMLElement;
-    const tab2 = tabs.querySelector('vaadin-tab:nth-of-type(2)') as HTMLElement;
-    const tab2Label = tab2.querySelector('foxy-i18n') as HTMLElement;
-    const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
-
-    expect(tabs.querySelectorAll('vaadin-tab')).to.have.length(2);
-    expect(tab1Label).to.have.attribute('infer', '');
-    expect(tab1Label).to.have.attribute('key', 'tab_live');
-    expect(tab2Label).to.have.attribute('infer', '');
-    expect(tab2Label).to.have.attribute('key', 'tab_test');
-
-    tabs.setAttribute('selected', '0');
-    tabs.dispatchEvent(new CustomEvent('selected-changed'));
-    await element.requestUpdate();
-
-    expect(tabContent.style.getPropertyValue('--tw-translate-x').trim()).to.equal('0');
-
-    tabs.setAttribute('selected', '1');
-    tabs.dispatchEvent(new CustomEvent('selected-changed'));
-    await element.requestUpdate();
-
-    expect(tabContent.style.getPropertyValue('--tw-translate-x').trim()).to.equal(
-      'calc(-50% - (var(--lumo-space-m) / 2))'
-    );
-  });
-
   it('renders a text control for live and test account id if applicable', async () => {
     const router = createRouter();
 
@@ -571,6 +528,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
             href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
           >
           </foxy-payments-api-payment-method-form>
@@ -582,18 +541,19 @@ describe('PaymentsApiPaymentMethodForm', () => {
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
 
     element.edit({ helper: { ...element.data!.helper, id_description: 'Test ID Description' } });
-    const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
+    await element.requestUpdate();
 
     for (let index = 0; index < 2; ++index) {
       const type = index === 0 ? 'live' : 'test';
       const prefix = index === 0 ? '' : `${type}-`;
-      const tabPanel = tabContent.children[index] as HTMLElement;
+      const tabPanel = element.renderRoot.querySelector(`[infer="${type}-group"]`) as HTMLElement;
       const field = tabPanel.querySelector(`[infer="${prefix}account-id"]`);
 
       expect(field).to.exist;
       expect(field).to.be.instanceOf(InternalTextControl);
       expect(field).to.have.attribute('placeholder', 'default_additional_field_placeholder');
       expect(field).to.have.attribute('helper-text', '');
+      expect(field).to.have.attribute('layout', 'summary-item');
       expect(field).to.have.attribute('label', element.form.helper!.id_description);
     }
 
@@ -603,7 +563,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     for (let index = 0; index < 2; ++index) {
       const type = index === 0 ? 'live' : 'test';
       const prefix = index === 0 ? '' : `${type}-`;
-      const tabPanel = tabContent.children[index] as HTMLElement;
+      const tabPanel = element.renderRoot.querySelector(`[infer="${type}-group"]`) as HTMLElement;
       const field = tabPanel.querySelector(`[infer="${prefix}account-id"]`);
 
       expect(field).to.not.exist;
@@ -625,6 +585,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
             href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
           >
           </foxy-payments-api-payment-method-form>
@@ -642,18 +604,19 @@ describe('PaymentsApiPaymentMethodForm', () => {
       },
     });
 
-    const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
+    await element.requestUpdate();
 
     for (let index = 0; index < 2; ++index) {
       const type = index === 0 ? 'live' : 'test';
       const prefix = index === 0 ? '' : `${type}-`;
-      const tabPanel = tabContent.children[index] as HTMLElement;
+      const tabPanel = element.renderRoot.querySelector(`[infer="${type}-group"]`) as HTMLElement;
       const field = tabPanel.querySelector(`[infer="${prefix}third-party-key"]`);
 
       expect(field).to.exist;
       expect(field).to.be.instanceOf(InternalTextControl);
       expect(field).to.have.attribute('placeholder', 'default_additional_field_placeholder');
       expect(field).to.have.attribute('helper-text', '');
+      expect(field).to.have.attribute('layout', 'summary-item');
       expect(field).to.have.attribute('label', element.form.helper!.third_party_key_description);
     }
 
@@ -663,7 +626,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     for (let index = 0; index < 2; ++index) {
       const type = index === 0 ? 'live' : 'test';
       const prefix = index === 0 ? '' : `${type}-`;
-      const tabPanel = tabContent.children[index] as HTMLElement;
+      const tabPanel = element.renderRoot.querySelector(`[infer="${type}-group"]`) as HTMLElement;
       const field = tabPanel.querySelector(`[infer="${prefix}third-party-key"]`);
 
       expect(field).to.not.exist;
@@ -685,6 +648,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
             href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
           >
           </foxy-payments-api-payment-method-form>
@@ -696,18 +661,19 @@ describe('PaymentsApiPaymentMethodForm', () => {
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
 
     element.edit({ helper: { ...element.data!.helper, key_description: 'Test key description' } });
-    const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
+    await element.requestUpdate();
 
     for (let index = 0; index < 2; ++index) {
       const type = index === 0 ? 'live' : 'test';
       const prefix = index === 0 ? '' : `${type}-`;
-      const tabPanel = tabContent.children[index] as HTMLElement;
+      const tabPanel = element.renderRoot.querySelector(`[infer="${type}-group"]`) as HTMLElement;
       const field = tabPanel.querySelector(`[infer="${prefix}account-key"]`);
 
       expect(field).to.exist;
       expect(field).to.be.instanceOf(InternalTextControl);
       expect(field).to.have.attribute('placeholder', 'default_additional_field_placeholder');
       expect(field).to.have.attribute('helper-text', '');
+      expect(field).to.have.attribute('layout', 'summary-item');
       expect(field).to.have.attribute('label', element.form.helper!.key_description);
     }
 
@@ -717,14 +683,14 @@ describe('PaymentsApiPaymentMethodForm', () => {
     for (let index = 0; index < 2; ++index) {
       const type = index === 0 ? 'live' : 'test';
       const prefix = index === 0 ? '' : `${type}-`;
-      const tabPanel = tabContent.children[index] as HTMLElement;
+      const tabPanel = element.renderRoot.querySelector(`[infer="${type}-group"]`) as HTMLElement;
       const field = tabPanel.querySelector(`[infer="${prefix}account-key"]`);
 
       expect(field).to.not.exist;
     }
   });
 
-  it('renders a checkbox control for a live "checkbox" block in additional fields if present', async () => {
+  it('renders a switch control for a live "checkbox" block in additional fields if present', async () => {
     const router = createRouter();
 
     const wrapper = await fixture(html`
@@ -739,6 +705,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
             href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
           >
           </foxy-payments-api-payment-method-form>
@@ -769,27 +737,26 @@ describe('PaymentsApiPaymentMethodForm', () => {
     };
 
     element.data = { ...element.data! };
+    await element.requestUpdate();
 
-    const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
-    const tabPanel = tabContent.children[0] as HTMLElement;
+    const tabPanel = element.renderRoot.querySelector('[infer="live-group"]') as HTMLElement;
     const field = tabPanel.querySelector(
       '[infer="additional-fields-baz"]'
-    ) as InternalCheckboxGroupControl;
+    ) as InternalSwitchControl;
 
     expect(field).to.exist;
-    expect(field).to.be.instanceOf(InternalCheckboxGroupControl);
+    expect(field).to.be.instanceOf(InternalSwitchControl);
     expect(field).to.have.attribute('helper-text', 'Baz Description');
-    expect(field).to.have.attribute('label', '');
-    expect(field).to.have.deep.property('options', [{ label: 'Baz', value: 'checked' }]);
+    expect(field).to.have.attribute('label', 'Baz');
 
     element.edit({ additional_fields: JSON.stringify({ baz: true }) });
-    expect(field.getValue()).to.deep.equal(['checked']);
+    expect(field.getValue()).to.equal(true);
 
-    field.setValue([]);
+    field.setValue(false);
     expect(JSON.parse(element.form.additional_fields!)).to.have.property('baz', false);
   });
 
-  it('renders a checkbox control for a test "checkbox" block in additional fields if present', async () => {
+  it('renders a switch control for a test "checkbox" block in additional fields if present', async () => {
     const router = createRouter();
 
     const wrapper = await fixture(html`
@@ -804,6 +771,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
             href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
           >
           </foxy-payments-api-payment-method-form>
@@ -834,23 +803,22 @@ describe('PaymentsApiPaymentMethodForm', () => {
     };
 
     element.data = { ...element.data! };
+    await element.requestUpdate();
 
-    const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
-    const tabPanel = tabContent.children[1] as HTMLElement;
+    const tabPanel = element.renderRoot.querySelector('[infer="test-group"]') as HTMLElement;
     const field = tabPanel.querySelector(
       '[infer="additional-fields-baz"]'
-    ) as InternalCheckboxGroupControl;
+    ) as InternalSwitchControl;
 
     expect(field).to.exist;
-    expect(field).to.be.instanceOf(InternalCheckboxGroupControl);
+    expect(field).to.be.instanceOf(InternalSwitchControl);
     expect(field).to.have.attribute('helper-text', 'Baz Description');
-    expect(field).to.have.attribute('label', '');
-    expect(field).to.have.deep.property('options', [{ label: 'Baz', value: 'checked' }]);
+    expect(field).to.have.attribute('label', 'Baz');
 
     element.edit({ additional_fields: JSON.stringify({ baz: true }) });
-    expect(field.getValue()).to.deep.equal(['checked']);
+    expect(field.getValue()).to.equal(true);
 
-    field.setValue([]);
+    field.setValue(false);
     expect(JSON.parse(element.form.additional_fields!)).to.have.nested.property('baz', false);
   });
 
@@ -869,6 +837,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
             href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
           >
           </foxy-payments-api-payment-method-form>
@@ -903,9 +873,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
     };
 
     element.data = { ...element.data! };
+    await element.requestUpdate();
 
-    const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
-    const tabPanel = tabContent.children[0] as HTMLElement;
+    const tabPanel = element.renderRoot.querySelector('[infer="live-group"]') as HTMLElement;
     const field = tabPanel.querySelector(
       '[infer="additional-fields-baz"]'
     ) as InternalSelectControl;
@@ -913,6 +883,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(field).to.exist;
     expect(field).to.be.instanceOf(InternalSelectControl);
     expect(field).to.have.attribute('helper-text', 'Baz Description');
+    expect(field).to.have.attribute('layout', 'summary-item');
     expect(field).to.have.attribute('label', 'Baz');
     expect(field).to.have.deep.property('options', [
       { label: 'Field 1', value: 'field_1_value' },
@@ -941,6 +912,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
             href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
           >
           </foxy-payments-api-payment-method-form>
@@ -975,9 +948,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
     };
 
     element.data = { ...element.data! };
+    await element.requestUpdate();
 
-    const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
-    const tabPanel = tabContent.children[1] as HTMLElement;
+    const tabPanel = element.renderRoot.querySelector('[infer="test-group"]') as HTMLElement;
     const field = tabPanel.querySelector(
       '[infer="additional-fields-baz"]'
     ) as InternalSelectControl;
@@ -985,6 +958,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(field).to.exist;
     expect(field).to.be.instanceOf(InternalSelectControl);
     expect(field).to.have.attribute('helper-text', 'Baz Description');
+    expect(field).to.have.attribute('layout', 'summary-item');
     expect(field).to.have.attribute('label', 'Baz');
     expect(field).to.have.deep.property('options', [
       { label: 'Field 1', value: 'field_1_value' },
@@ -1013,6 +987,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
             href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
           >
           </foxy-payments-api-payment-method-form>
@@ -1043,15 +1019,16 @@ describe('PaymentsApiPaymentMethodForm', () => {
     };
 
     element.data = { ...element.data! };
+    await element.requestUpdate();
 
-    const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
-    const tabPanel = tabContent.children[0] as HTMLElement;
+    const tabPanel = element.renderRoot.querySelector('[infer="live-group"]') as HTMLElement;
     const field = tabPanel.querySelector('[infer="additional-fields-baz"]') as InternalTextControl;
 
     expect(field).to.exist;
     expect(field).to.be.instanceOf(InternalTextControl);
     expect(field).to.have.attribute('placeholder', 'baz_default');
     expect(field).to.have.attribute('helper-text', 'Baz Description');
+    expect(field).to.have.attribute('layout', 'summary-item');
     expect(field).to.have.attribute('label', 'Baz');
 
     element.edit({ additional_fields: JSON.stringify({ baz: 'test_value' }) });
@@ -1076,6 +1053,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
             href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
           >
           </foxy-payments-api-payment-method-form>
@@ -1106,15 +1085,16 @@ describe('PaymentsApiPaymentMethodForm', () => {
     };
 
     element.data = { ...element.data! };
+    await element.requestUpdate();
 
-    const tabContent = (await getByTestId(element, 'tab-content')) as HTMLElement;
-    const tabPanel = tabContent.children[1] as HTMLElement;
+    const tabPanel = element.renderRoot.querySelector('[infer="test-group"]') as HTMLElement;
     const field = tabPanel.querySelector('[infer="additional-fields-baz"]') as InternalTextControl;
 
     expect(field).to.exist;
     expect(field).to.be.instanceOf(InternalTextControl);
     expect(field).to.have.attribute('placeholder', 'baz_default');
     expect(field).to.have.attribute('helper-text', 'Baz Description');
+    expect(field).to.have.attribute('layout', 'summary-item');
     expect(field).to.have.attribute('label', 'Baz');
 
     element.edit({ additional_fields: JSON.stringify({ baz: 'test_value' }) });
@@ -1139,6 +1119,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
             href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
           >
           </foxy-payments-api-payment-method-form>
@@ -1152,9 +1134,10 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a radio group control for toggling 3DS on and off if supported', async () => {
+  it('renders a select control for toggling 3DS on and off if supported', async () => {
     const router = createRouter();
 
     const wrapper = await fixture(html`
@@ -1169,6 +1152,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
             href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
           >
           </foxy-payments-api-payment-method-form>
@@ -1190,10 +1175,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
     await element.requestUpdate();
     const control = element.renderRoot.querySelector(
       '[infer="three-d-secure-toggle"]'
-    ) as InternalRadioGroupControl;
+    ) as InternalSelectControl;
 
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalRadioGroupControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.be.instanceOf(InternalSelectControl);
     expect(control).to.have.deep.property('options', [
       { value: 'off', label: 'option_off' },
       { value: 'all_cards', label: 'option_all_cards' },
@@ -1241,7 +1227,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     );
   });
 
-  it('renders a checkbox control for requiring valid 3DS response if applicable', async () => {
+  it('renders a switch control for requiring valid 3DS response if applicable', async () => {
     const router = createRouter();
 
     const wrapper = await fixture(html`
@@ -1256,6 +1242,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
             href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
           >
           </foxy-payments-api-payment-method-form>
@@ -1279,46 +1267,43 @@ describe('PaymentsApiPaymentMethodForm', () => {
     await element.requestUpdate();
     const control = element.renderRoot.querySelector(
       '[infer="three-d-secure-response"]'
-    ) as InternalCheckboxGroupControl;
+    ) as InternalSwitchControl;
 
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { value: 'valid_only', label: 'option_valid_only' },
-    ]);
+    expect(control).to.be.instanceOf(InternalSwitchControl);
 
     element.edit({ config_3d_secure: 'all_cards' });
-    expect(control.getValue()).to.deep.equal([]);
+    expect(control.getValue()).to.equal(false);
 
     element.edit({ config_3d_secure: 'all_cards_require_valid_response' });
-    expect(control.getValue()).to.deep.equal(['valid_only']);
+    expect(control.getValue()).to.equal(true);
 
     element.edit({ config_3d_secure: 'maestro_only' });
-    expect(control.getValue()).to.deep.equal([]);
+    expect(control.getValue()).to.equal(false);
 
     element.edit({ config_3d_secure: 'maestro_only_require_valid_response' });
-    expect(control.getValue()).to.deep.equal(['valid_only']);
+    expect(control.getValue()).to.equal(true);
 
     element.edit({ config_3d_secure: 'all_cards' });
-    control.setValue(['valid_only']);
+    control.setValue(true);
     expect(element).to.have.nested.property(
       'form.config_3d_secure',
       'all_cards_require_valid_response'
     );
 
     element.edit({ config_3d_secure: 'all_cards' });
-    control.setValue([]);
+    control.setValue(false);
     expect(element).to.have.nested.property('form.config_3d_secure', 'all_cards');
 
     element.edit({ config_3d_secure: 'maestro_only' });
-    control.setValue(['valid_only']);
+    control.setValue(true);
     expect(element).to.have.nested.property(
       'form.config_3d_secure',
       'maestro_only_require_valid_response'
     );
 
     element.edit({ config_3d_secure: 'maestro_only' });
-    control.setValue([]);
+    control.setValue(false);
     expect(element).to.have.nested.property('form.config_3d_secure', 'maestro_only');
   });
 
@@ -1358,7 +1343,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           payment-gateways-url="https://demo.api/hapi/payment_gateways"
         >
           <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
             parent="https://foxy-payments-api.element/payment_presets/0/payment_methods"
+            store="https://demo.api/hapi/stores/0"
             href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
             @fetch=${(evt: FetchEvent) => {
               if (evt.request.url.endsWith('/payment_presets/0/available_payment_methods')) {
@@ -1379,10 +1366,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     element.data = null;
     element.edit({ type: 'foo' });
     await element.requestUpdate();
-    const control = (await getByTestId(
-      element,
-      'select-another-button'
-    )) as InternalCheckboxGroupControl;
+    const control = (await getByTestId(element, 'select-another-button')) as InternalSwitchControl;
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(customElements.get('vaadin-button'));
@@ -1396,5 +1380,150 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     expect(element).to.not.have.nested.property('form.type');
     expect(element.renderRoot.querySelector('[infer="select-another-button"]')).to.not.exist;
+  });
+
+  it('renders a warning for live setup if store is inactive', async () => {
+    const router = createRouter();
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/stores/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ is_active: false }),
+      })
+    )?.handlerPromise;
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
+            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    const liveGroup = element.renderRoot.querySelector('[infer="live-group"]') as HTMLElement;
+    const message = liveGroup.querySelector('[key="inactive_message"]') as HTMLElement;
+
+    expect(liveGroup.children).to.have.lengthOf(1);
+    expect(message).to.exist;
+    expect(message).to.be.instanceOf(I18n);
+    expect(message).to.have.attribute('infer', '');
+  });
+
+  it('renders a hint showing which config is currently active (test is active)', async () => {
+    const router = createRouter();
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/payment_method_sets/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ is_live: false }),
+      })
+    )?.handlerPromise;
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            parent="https://foxy-payments-api.element/payment_presets/0/payment_methods"
+            store="https://demo.api/hapi/stores/0"
+            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+    await waitUntil(
+      () => {
+        const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+        return [...nucleons].every(nucleon => !!nucleon.data);
+      },
+      '',
+      { timeout: 5000 }
+    );
+
+    await element.requestUpdate();
+    const liveGroup = element.renderRoot.querySelector('[infer="live-group"]') as HTMLElement;
+    const testGroup = element.renderRoot.querySelector('[infer="test-group"]') as HTMLElement;
+
+    expect(liveGroup).to.have.attribute('helper-text', 'live-group.helper_text_inactive');
+    expect(testGroup).to.not.have.attribute('helper-text');
+  });
+
+  it('renders a hint showing which config is currently active (live is active)', async () => {
+    const router = createRouter();
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/payment_method_sets/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ is_live: true }),
+      })
+    )?.handlerPromise;
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            parent="https://foxy-payments-api.element/payment_presets/0/payment_methods"
+            store="https://demo.api/hapi/stores/0"
+            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+    await waitUntil(
+      () => {
+        const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+        return [...nucleons].every(nucleon => !!nucleon.data);
+      },
+      '',
+      { timeout: 5000 }
+    );
+
+    await element.requestUpdate();
+    const liveGroup = element.renderRoot.querySelector('[infer="live-group"]') as HTMLElement;
+    const testGroup = element.renderRoot.querySelector('[infer="test-group"]') as HTMLElement;
+
+    expect(testGroup).to.have.attribute('helper-text', 'test-group.helper_text_inactive');
+    expect(liveGroup).to.not.have.attribute('helper-text');
   });
 });

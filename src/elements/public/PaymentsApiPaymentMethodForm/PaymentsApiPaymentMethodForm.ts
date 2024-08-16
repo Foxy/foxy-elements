@@ -1,17 +1,18 @@
-import type { AvailablePaymentMethods } from '../PaymentsApi/api/types';
+import type { AvailablePaymentMethods, PaymentPreset } from '../PaymentsApi/api/types';
 import type { Block, Data } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
-import type { TabsElement } from '@vaadin/vaadin-tabs';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 import { BooleanSelector, getResourceId } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { html, svg } from 'lit-html';
 import { classMap } from '../../../utils/class-map';
-import { html } from 'lit-html';
 
 import has from 'lodash-es/has';
 import get from 'lodash-es/get';
@@ -44,8 +45,9 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      __tab: { attribute: false },
+      paymentPreset: { attribute: 'payment-preset' },
       getImageSrc: { attribute: false },
+      store: {},
     };
   }
 
@@ -83,29 +85,32 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     ];
   }
 
+  /** URL of the linked `fx:payment_preset` resource from the virtual Payments API. */
+  paymentPreset: string | null = null;
+
   /** A function that returns a URL of a payment method icon based on the given type. */
   getImageSrc: ((type: string) => string) | null = null;
 
+  /** URL of the linked `fx:store` resource. */
+  store: string | null = null;
+
   private readonly __availablePaymentMethodsLoaderId = 'availablePaymentMethodsLoader';
 
+  private readonly __paymentPresetLoaderId = 'paymentPresetLoader';
+
+  private readonly __storeLoaderId = 'storeLoader';
+
   private readonly __threeDSecureResponseGetValue = () => {
-    return this.form.config_3d_secure?.endsWith('require_valid_response') ? ['valid_only'] : [];
+    return this.form.config_3d_secure?.endsWith('require_valid_response');
   };
 
-  private readonly __threeDSecureResponseSetValue = (newValue: string[]) => {
-    const postfix = newValue.includes('valid_only') ? '_require_valid_response' : '';
-
+  private readonly __threeDSecureResponseSetValue = (newValue: boolean) => {
+    const postfix = newValue ? '_require_valid_response' : '';
     const config = this.form.config_3d_secure;
     const type = config?.startsWith('all_cards') ? 'all_cards' : 'maestro_only';
 
-    this.edit({
-      config_3d_secure: `${type}${postfix}` as Data['config_3d_secure'],
-    });
+    this.edit({ config_3d_secure: `${type}${postfix}` as Data['config_3d_secure'] });
   };
-
-  private readonly __threeDSecureResponseOptions = [
-    { value: 'valid_only', label: 'option_valid_only' },
-  ];
 
   private readonly __threeDSecureToggleGetValue = () => {
     const config = this.form.config_3d_secure;
@@ -137,8 +142,6 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     { value: 'all_cards', label: 'option_all_cards' },
     { value: 'maestro_only', label: 'option_maestro_only' },
   ];
-
-  private __tab = 0;
 
   get hiddenSelector(): BooleanSelector {
     return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
@@ -191,12 +194,32 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
   }
 
   renderBody(): TemplateResult {
-    const paymentMethodsLoader = html`
+    const paymentPreset = this.__paymentPresetLoader?.data;
+
+    const loaders = html`
       <foxy-nucleon
         class="hidden"
         infer=""
-        href=${ifDefined(this.__availablePaymentMethodsHref)}
+        href=${ifDefined(paymentPreset?._links['fx:available_payment_methods'].href)}
         id=${this.__availablePaymentMethodsLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.store)}
+        id=${this.__storeLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.paymentPreset)}
+        id=${this.__paymentPresetLoaderId}
         @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
@@ -204,7 +227,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
     return html`${this.renderHeader()}${this.form.type
       ? this.__renderPaymentMethodConfig()
-      : this.__renderPaymentMethodSelector()}${paymentMethodsLoader}`;
+      : this.__renderPaymentMethodSelector()}${loaders}`;
   }
 
   private get __groupedAvailablePaymentMethods() {
@@ -233,24 +256,18 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     return this.renderRoot.querySelector<Loader>(`#${this.__availablePaymentMethodsLoaderId}`);
   }
 
-  private get __availablePaymentMethodsHref() {
-    try {
-      const presetIdRegex = /\/payment_presets\/(?<presetId>.+)\//;
-      const pathname = new URL(this.href || this.parent).pathname;
-      const presetId = presetIdRegex.exec(pathname)!.groups!.presetId;
-      const url = new URL(
-        `/payment_presets/${presetId}/available_payment_methods`,
-        this.href || this.parent
-      );
-
-      return url.toString();
-    } catch {
-      // ignore
-    }
-  }
-
   private get __availablePaymentMethods() {
     return this.__availablePaymentMethodsLoader?.data?.values;
+  }
+
+  private get __paymentPresetLoader() {
+    type Loader = NucleonElement<PaymentPreset>;
+    return this.renderRoot.querySelector<Loader>(`#${this.__paymentPresetLoaderId}`);
+  }
+
+  private get __storeLoader() {
+    type Loader = NucleonElement<Resource<Rels.Store>>;
+    return this.renderRoot.querySelector<Loader>(`#${this.__storeLoaderId}`);
   }
 
   private get __liveBlocks() {
@@ -289,109 +306,109 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
   private __renderPaymentMethodConfig() {
     return html`
-      <div class="rounded-t-l rounded-b-l border border-contrast-10">
-        <vaadin-tabs
-          selected=${this.__tab}
-          theme="centered"
-          @selected-changed=${(evt: CustomEvent) => {
-            const tabs = evt.currentTarget as TabsElement;
-            this.__tab = tabs.selected ?? 0;
-          }}
-        >
-          <vaadin-tab><foxy-i18n infer="" key="tab_live"></foxy-i18n></vaadin-tab>
-          <vaadin-tab><foxy-i18n infer="" key="tab_test"></foxy-i18n></vaadin-tab>
-        </vaadin-tabs>
+      <foxy-internal-summary-control infer="general">
+        <foxy-internal-text-control layout="summary-item" infer="description">
+        </foxy-internal-text-control>
 
-        <div class="overflow-hidden">
-          <div
-            data-testid="tab-content"
-            class="grid grid-cols-2 gap-m transition-transform transform duration-300"
-            style=${classMap({
-              'width: calc(200% + var(--lumo-space-m));': true,
-              '--tw-translate-x: 0;': this.__tab === 0,
-              '--tw-translate-x: calc(-50% - (var(--lumo-space-m) / 2));': this.__tab !== 0,
-            })}
+        ${this.form.helper?.supports_3d_secure
+          ? html`
+              <foxy-internal-select-control
+                layout="summary-item"
+                infer="three-d-secure-toggle"
+                .getValue=${this.__threeDSecureToggleGetValue}
+                .setValue=${this.__threeDSecureToggleSetValue}
+                .options=${this.__threeDSecureToggleOptions}
+              >
+              </foxy-internal-select-control>
+
+              ${this.form.config_3d_secure
+                ? html`
+                    <foxy-internal-switch-control
+                      layout="summary-item"
+                      infer="three-d-secure-response"
+                      .getValue=${this.__threeDSecureResponseGetValue}
+                      .setValue=${this.__threeDSecureResponseSetValue}
+                    >
+                    </foxy-internal-switch-control>
+                  `
+                : ''}
+            `
+          : ''}
+      </foxy-internal-summary-control>
+
+      ${['live', 'test'].map((type, index) => {
+        const prefix = index === 0 ? '' : `${type}-`;
+        const blocks = index === 0 ? this.__liveBlocks : this.__testBlocks;
+        const scope = `${type}-group`;
+
+        if (type === 'live' && !this.__storeLoader?.data) return html``;
+        if (type === 'live' && !this.__storeLoader?.data?.is_active) {
+          return html`
+            <foxy-internal-summary-control infer="${type}-group">
+              <div
+                class="flex items-start"
+                style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+              >
+                ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="flex-shrink-0 text-primary" style="width: 1.25em"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>`}
+                <p><foxy-i18n infer="" key="inactive_message"></foxy-i18n></p>
+              </div>
+            </foxy-internal-summary-control>
+          `;
+        }
+
+        const showInactiveSetText =
+          this.__storeLoader?.data?.is_active === true &&
+          ((type === 'test' && this.__paymentPresetLoader?.data?.is_live === true) ||
+            (type === 'live' && this.__paymentPresetLoader?.data?.is_live === false));
+
+        return html`
+          <foxy-internal-summary-control
+            helper-text=${ifDefined(
+              showInactiveSetText ? this.t(`${scope}.helper_text_inactive`) : void 0
+            )}
+            label=${ifDefined(showInactiveSetText ? this.t(`${scope}.label_inactive`) : void 0)}
+            infer=${scope}
           >
-            ${['live', 'test'].map((type, index) => {
-              const prefix = index === 0 ? '' : `${type}-`;
-              const blocks = index === 0 ? this.__liveBlocks : this.__testBlocks;
-
-              return html`
-                <div
-                  class=${classMap({
-                    'grid grid-cols-1 gap-m p-m transition-opacity duration-300': true,
-                    'opacity-100': this.__tab === index,
-                    'opacity-0': this.__tab !== index,
-                  })}
-                >
-                  ${this.form.helper?.id_description
-                    ? html`
-                        <foxy-internal-text-control
-                          placeholder=${this.t('default_additional_field_placeholder')}
-                          helper-text=""
-                          label=${this.form.helper.id_description}
-                          infer="${prefix}account-id"
-                        >
-                        </foxy-internal-text-control>
-                      `
-                    : ''}
-                  ${this.form.helper?.third_party_key_description
-                    ? html`
-                        <foxy-internal-text-control
-                          placeholder=${this.t('default_additional_field_placeholder')}
-                          helper-text=""
-                          label=${this.form.helper.third_party_key_description}
-                          infer="${prefix}third-party-key"
-                        >
-                        </foxy-internal-text-control>
-                      `
-                    : ''}
-                  ${this.form.helper?.key_description
-                    ? html`
-                        <foxy-internal-text-control
-                          placeholder=${this.t('default_additional_field_placeholder')}
-                          helper-text=""
-                          label=${this.form.helper.key_description}
-                          infer="${prefix}account-key"
-                        >
-                        </foxy-internal-text-control>
-                      `
-                    : ''}
-                  ${blocks.map(block => this.__renderBlock(block))}
-                </div>
-              `;
-            })}
-          </div>
-        </div>
-      </div>
-
-      <foxy-internal-text-control infer="description"></foxy-internal-text-control>
-
-      ${this.form.helper?.supports_3d_secure
-        ? html`
-            <foxy-internal-radio-group-control
-              infer="three-d-secure-toggle"
-              class="-mb-s"
-              .getValue=${this.__threeDSecureToggleGetValue}
-              .setValue=${this.__threeDSecureToggleSetValue}
-              .options=${this.__threeDSecureToggleOptions}
-            >
-            </foxy-internal-radio-group-control>
-
-            ${this.form.config_3d_secure
+            ${this.form.helper?.id_description
               ? html`
-                  <foxy-internal-checkbox-group-control
-                    infer="three-d-secure-response"
-                    class="-mb-s"
-                    .getValue=${this.__threeDSecureResponseGetValue}
-                    .setValue=${this.__threeDSecureResponseSetValue}
-                    .options=${this.__threeDSecureResponseOptions}
+                  <foxy-internal-text-control
+                    placeholder=${this.t('default_additional_field_placeholder')}
+                    helper-text=""
+                    layout="summary-item"
+                    label=${this.form.helper.id_description}
+                    infer="${prefix}account-id"
                   >
-                  </foxy-internal-checkbox-group-control>
+                  </foxy-internal-text-control>
                 `
               : ''}
-          `
-        : ''}
+            ${this.form.helper?.third_party_key_description
+              ? html`
+                  <foxy-internal-text-control
+                    placeholder=${this.t('default_additional_field_placeholder')}
+                    helper-text=""
+                    layout="summary-item"
+                    label=${this.form.helper.third_party_key_description}
+                    infer="${prefix}third-party-key"
+                  >
+                  </foxy-internal-text-control>
+                `
+              : ''}
+            ${this.form.helper?.key_description
+              ? html`
+                  <foxy-internal-text-control
+                    placeholder=${this.t('default_additional_field_placeholder')}
+                    layout="summary-item"
+                    helper-text=""
+                    label=${this.form.helper.key_description}
+                    infer="${prefix}account-key"
+                  >
+                  </foxy-internal-text-control>
+                `
+              : ''}
+            ${blocks.map(block => this.__renderBlock(block))}
+          </foxy-internal-summary-control>
+        `;
+      })}
       ${super.renderBody()}
     `;
   }
@@ -461,12 +478,15 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
       };
 
       const setValue = (newValue: unknown) => {
+        let config: Record<string, unknown> = {};
+
         try {
-          const config = JSON.parse(this.form.additional_fields ?? '{}');
-          this.edit({ additional_fields: JSON.stringify(set(config, field.id, newValue)) });
+          config = JSON.parse(this.form.additional_fields ?? '');
         } catch {
-          return '';
+          // ignore
         }
+
+        this.edit({ additional_fields: JSON.stringify(set(config, field.id, newValue)) });
       };
 
       type Option = { name: string; value: string };
@@ -475,23 +495,21 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
       return html`
         ${field.type === 'checkbox'
           ? html`
-              <foxy-internal-checkbox-group-control
+              <foxy-internal-switch-control
                 helper-text=${field.description ?? ''}
-                label=""
-                class="-mb-s"
+                label=${field.name}
                 infer=${scope}
-                .options=${[{ label: field.name, value: 'checked' }]}
-                .getValue=${() => (getValue() ? ['checked'] : [])}
-                .setValue=${(newValue: string[]) => {
-                  setValue(newValue.includes('checked'));
-                }}
+                helper-text-as-tooltip
+                .getValue=${getValue}
+                .setValue=${setValue}
               >
-              </foxy-internal-checkbox-group-control>
+              </foxy-internal-switch-control>
             `
           : field.type === 'select'
           ? html`
               <foxy-internal-select-control
                 helper-text=${field.description ?? ''}
+                layout="summary-item"
                 label=${field.name}
                 infer=${scope}
                 .options=${options!.map(({ name, value }) => ({ label: name, value }))}
@@ -504,6 +522,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
               <foxy-internal-text-control
                 helper-text=${field.description ?? ''}
                 placeholder=${field.default_value || this.t('default_additional_field_placeholder')}
+                layout="summary-item"
                 label=${field.name}
                 infer=${scope}
                 .getValue=${getValue}

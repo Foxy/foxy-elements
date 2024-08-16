@@ -1,8 +1,8 @@
 {
   "header": {
-    "title_existing": "Payment method set #{{ id }}",
+    "title_existing": "{{ description }}",
     "title_new": "New payment method set",
-    "subtitle": "",
+    "subtitle": "Payment method set #{{ id }}",
     "copy-id": {
       "failed_to_copy": "Failed to copy",
       "click_to_copy": "Copy ID",
@@ -50,7 +50,108 @@
       "undo_header": "Unsaved changes",
       "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
       "undo_cancel": "Review",
-      "undo_confirm": "Discard"
+      "undo_confirm": "Discard",
+      "payments-api-payment-method-form": {
+        "header": {
+          "title_new": "New payment method",
+          "title_selected": "{{ name }}",
+          "subtitle_regular": "Payment gateway #{{ id }}",
+          "subtitle_hosted": "Hosted payment gateway #{{ id }}",
+          "subtitle": "",
+          "copy-id": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy ID",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          }
+        },
+        "list-spinner": {
+          "loading_busy": "Loading payment methods...",
+          "loading_error": "Unknown error. Failed to load payment methods."
+        },
+        "select_another_button_label": "Select another",
+        "default_additional_field_placeholder": "None",
+        "conflict_message": "Remove {{ name }} to use this method",
+        "test-group": {
+          "label": "Test setup",
+          "label_inactive": "Test setup (inactive)",
+          "helper_text": "",
+          "helper_text_inactive": "To use this setup, turn off the \"Use live credentials\" option in the payment method set."
+        },
+        "live-group": {
+          "label": "Live setup",
+          "label_inactive": "Live setup (inactive)",
+          "helper_text": "",
+          "helper_text_inactive": "To use this setup, turn on the \"Use live credentials\" option in the payment method set.",
+          "inactive_message": "Only active stores can accept real payments. To activate your store, please upgrade to a paid plan."
+        },
+        "general": {
+          "label": "",
+          "helper_text": "",
+          "three-d-secure-toggle": {
+            "label": "3D Secure",
+            "placeholder": "Select",
+            "option_off": "Off",
+            "option_all_cards": "On for all cards",
+            "option_maestro_only": "On for Maestro cards",
+            "helper_text": ""
+          },
+          "three-d-secure-response": {
+            "label": "Require valid 3D Secure response",
+            "checked": "Yes",
+            "unchecked": "No",
+            "helper_text": ""
+          },
+          "description": {
+            "label": "Description",
+            "placeholder": "Defaults to the gateway name",
+            "helper_text": "",
+            "v8n_too_long": "Please reduce this description to a 100 characters or less"
+          }
+        },
+        "account-id": {
+          "label": "Account ID"
+        },
+        "account-key": {
+          "label": "Account Key"
+        },
+        "third-party-key": {
+          "label": "3rd-party key"
+        },
+        "test-account-id": {
+          "label": "Account ID"
+        },
+        "test-account-key": {
+          "label": "Account Key"
+        },
+        "test-third-party-key": {
+          "label": "3rd-party key"
+        },
+        "timestamps": {
+          "date_created": "Added on",
+          "date_modified": "Last updated on",
+          "date": "{{value, date}}"
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error"
+        },
+        "delete": {
+          "delete": "Remove",
+          "cancel": "Cancel",
+          "delete_prompt": "Are you sure you'd like to remove this payment method? You'll need to configure it again if you decide to bring it back."
+        },
+        "undo": {
+          "caption": "Undo"
+        },
+        "submit": {
+          "caption": "Save changes"
+        },
+        "create": {
+          "caption": "Create"
+        }
+      }
     },
     "pagination": {
       "create_button_text": "Add payment method +",

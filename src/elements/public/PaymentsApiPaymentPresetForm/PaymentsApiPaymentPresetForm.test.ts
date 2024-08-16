@@ -485,7 +485,11 @@ describe('PaymentsApiPaymentPresetForm', () => {
     expect(control).to.have.attribute('item', 'foxy-payments-api-payment-method-card');
     expect(control).to.have.attribute('form', 'foxy-payments-api-payment-method-form');
     expect(control).to.have.deep.property('itemProps', { '.getImageSrc': getImageSrc });
-    expect(control).to.have.deep.property('formProps', { '.getImageSrc': getImageSrc });
+    expect(control).to.have.deep.property('formProps', {
+      '.getImageSrc': getImageSrc,
+      'payment-preset': 'https://foxy-payments-api.element/payment_presets/0',
+      'store': 'https://demo.api/hapi/stores/0',
+    });
   });
 
   it('renders an async list control for fraud protections', async () => {

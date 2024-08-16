@@ -102,7 +102,11 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
         form="foxy-payments-api-payment-method-form"
         alert
         .itemProps=${{ '.getImageSrc': this.getPaymentMethodImageSrc }}
-        .formProps=${{ '.getImageSrc': this.getPaymentMethodImageSrc }}
+        .formProps=${{
+          '.getImageSrc': this.getPaymentMethodImageSrc,
+          'payment-preset': this.href,
+          'store': this.data?._links['fx:store'].href,
+        }}
       >
       </foxy-internal-async-list-control>
 
