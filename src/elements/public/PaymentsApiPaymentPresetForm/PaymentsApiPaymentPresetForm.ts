@@ -48,6 +48,14 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
   /** A function that returns image URL for given payment method `type`. */
   getPaymentMethodImageSrc: ((type: string) => string) | null = null;
 
+  private readonly __isPurchaseOrderEnabledGetValue = () => {
+    this.__storeLoader?.data?.is_active ? this.form.is_purchase_order_enabled : false;
+  };
+
+  private readonly __isLiveGetValue = () => {
+    this.__storeLoader?.data?.is_active ? this.form.is_live : false;
+  };
+
   private readonly __storeLoaderId = 'storeLoader';
 
   get readonlySelector(): BooleanSelector {
@@ -84,12 +92,16 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
         <foxy-internal-switch-control
           helper-text=${this.t(`general.is-live.helper_text${helperTextSuffix}`)}
           infer="is-live"
+          helper-text-as-tooltip
+          .getValue=${this.__isLiveGetValue}
         >
         </foxy-internal-switch-control>
 
         <foxy-internal-switch-control
           helper-text=${this.t(`general.is-purchase-order-enabled.helper_text${helperTextSuffix}`)}
           infer="is-purchase-order-enabled"
+          helper-text-as-tooltip
+          .getValue=${this.__isPurchaseOrderEnabledGetValue}
         >
         </foxy-internal-switch-control>
       </foxy-internal-summary-control>

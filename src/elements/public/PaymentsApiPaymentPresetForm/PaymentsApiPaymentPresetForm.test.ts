@@ -256,16 +256,21 @@ describe('PaymentsApiPaymentPresetForm', () => {
     expect(element.readonlySelector.matches('general:is-live', true)).to.be.true;
     expect(element.readonlySelector.matches('general:is-purchase-order-enabled', true)).to.be.true;
 
-    const isLiveControl = element.renderRoot.querySelector('[infer="general"] [infer="is-live"]');
-    const isPoEnabledControl = element.renderRoot.querySelector(
+    const isLiveControl = element.renderRoot.querySelector<InternalSwitchControl>(
+      '[infer="general"] [infer="is-live"]'
+    );
+
+    const isPoEnabledControl = element.renderRoot.querySelector<InternalSwitchControl>(
       '[infer="general"] [infer="is-purchase-order-enabled"]'
     );
 
+    expect(isLiveControl?.getValue()).to.be.false;
     expect(isLiveControl).to.have.attribute(
       'helper-text',
       'general.is-live.helper_text_inactive_store'
     );
 
+    expect(isLiveControl?.getValue()).to.be.false;
     expect(isPoEnabledControl).to.have.attribute(
       'helper-text',
       'general.is-purchase-order-enabled.helper_text_inactive_store'
