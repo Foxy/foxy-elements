@@ -825,80 +825,6 @@
           "error": {
             "cc_token_invalid": "Lamentablemente, no pudimos guardar los datos de su tarjeta. "
           },
-          "template-set": {
-            "label": "Conjunto de plantillas",
-            "dialog": {
-              "cancel": "Cancelar",
-              "close": "Cerca",
-              "header": "Elija un conjunto de plantillas",
-              "selection": {
-                "label": "",
-                "helper_text": "",
-                "search": "Buscar",
-                "clear": "Borrar",
-                "pagination": {
-                  "search_button_text": "Buscar",
-                  "first": "Primero",
-                  "last": "Último",
-                  "next": "Próximo",
-                  "pagination": "{{from}}-{{to}} fuera de {{total}}",
-                  "previous": "Anterior",
-                  "card": {
-                    "spinner": {
-                      "loading_busy": "Cargando",
-                      "loading_empty": "No se encontraron conjuntos de plantillas",
-                      "loading_error": "Error desconocido"
-                    }
-                  }
-                },
-                "query-builder": {
-                  "filters": {},
-                  "add_or_clause": "Agregar cláusula O",
-                  "add_value": "Añadir valor",
-                  "code": "Código",
-                  "date": "{{value, date}}",
-                  "date_created": "Creado en",
-                  "date_modified": "Ultima actualización en",
-                  "delete": "Borrar",
-                  "field": "Campo",
-                  "hidden": "Oculto",
-                  "is_defined_false": "No definida",
-                  "is_defined_true": "Definido",
-                  "name": "Nombre",
-                  "operator_equal": "Igual",
-                  "operator_greaterthan": "Mas grande que",
-                  "operator_greaterthanorequal": "Mayor que o igual",
-                  "operator_in": "Uno de",
-                  "operator_isdefined": "Se define",
-                  "operator_lessthan": "Menos que",
-                  "operator_lessthanorequal": "Menor o igual",
-                  "operator_not": "No es igual",
-                  "or": "O",
-                  "query_builder_group": "grupo de filtros",
-                  "query_builder_rule": "Filtrar",
-                  "range_from": "De",
-                  "range_to": "A",
-                  "type": "Tipo",
-                  "type_any": "Campo de tipo desconocido",
-                  "type_attribute": "Recurso de valor clave",
-                  "type_date": "Campo de fecha",
-                  "type_here": "Escriba aquí...",
-                  "type_number": "Campo numérico",
-                  "type_string": "Campo de texto",
-                  "used_codes": "Códigos utilizados",
-                  "value": "Valor"
-                }
-              }
-            },
-            "card": {
-              "spinner": {
-                "loading_busy": "Cargando",
-                "loading_empty": "Clic para seleccionar",
-                "loading_error": "Error desconocido"
-              }
-            },
-            "helper_text": "El conjunto de plantillas determina qué pasarela de pago y servicio de tokenización se utilizarán para capturar los detalles de la tarjeta."
-          },
           "cc-token": {
             "tokenize": "Guardar tarjeta",
             "payment-card-embed": {
@@ -957,6 +883,11 @@
             "loading_empty": "Este formulario solo funciona con métodos de pago existentes."
           }
         }
+      },
+      "spinner": {
+        "loading_busy": "Cargando",
+        "loading_empty": "Sin método de pago",
+        "loading_error": "Error desconocido"
       }
     },
     "spinner": {

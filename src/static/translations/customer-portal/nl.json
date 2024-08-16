@@ -825,82 +825,7 @@
           "error": {
             "cc_token_invalid": "Helaas kunnen we uw kaartgegevens niet opslaan. "
           },
-          "template-set": {
-            "label": "Sjablonenset",
-            "dialog": {
-              "cancel": "Annuleren",
-              "close": "Dichtbij",
-              "header": "Kies een sjablonenset",
-              "selection": {
-                "label": "",
-                "helper_text": "",
-                "search": "Zoekopdracht",
-                "clear": "Duidelijk",
-                "pagination": {
-                  "search_button_text": "Zoekopdracht",
-                  "first": "Eerst",
-                  "last": "Laatst",
-                  "next": "Volgende",
-                  "pagination": "{{from}}-{{to}} uit {{total}}",
-                  "previous": "Vorig",
-                  "card": {
-                    "spinner": {
-                      "loading_busy": "Bezig met laden",
-                      "loading_empty": "Geen sjablonensets gevonden",
-                      "loading_error": "Onbekende fout"
-                    }
-                  }
-                },
-                "query-builder": {
-                  "filters": {},
-                  "add_or_clause": "OR-clausule toevoegen",
-                  "add_value": "Waarde toevoegen",
-                  "code": "Code",
-                  "date": "{{value, date}}",
-                  "date_created": "Gemaakt op",
-                  "date_modified": "Laatst geupdate op",
-                  "delete": "Verwijderen",
-                  "field": "Veld",
-                  "hidden": "Verborgen",
-                  "is_defined_false": "Niet gedefinieerd",
-                  "is_defined_true": "Bepaald",
-                  "name": "Naam",
-                  "operator_equal": "Gelijkwaardig",
-                  "operator_greaterthan": "Groter dan",
-                  "operator_greaterthanorequal": "Groter dan of gelijk aan",
-                  "operator_in": "Een van de",
-                  "operator_isdefined": "Is gedefinieerd",
-                  "operator_lessthan": "Minder dan",
-                  "operator_lessthanorequal": "Minder dan of gelijk",
-                  "operator_not": "Niet gelijk",
-                  "or": "Of",
-                  "query_builder_group": "Groep filters",
-                  "query_builder_rule": "Filter",
-                  "range_from": "Van",
-                  "range_to": "Naar",
-                  "type": "Type",
-                  "type_any": "Veld van onbekend type",
-                  "type_attribute": "Sleutelwaardebron",
-                  "type_date": "Datumveld",
-                  "type_here": "Typ hier...",
-                  "type_number": "Numeriek veld",
-                  "type_string": "Tekstveld",
-                  "used_codes": "Gebruikte codes",
-                  "value": "Waarde"
-                }
-              }
-            },
-            "card": {
-              "spinner": {
-                "loading_busy": "Bezig met laden",
-                "loading_empty": "Klik om te selecteren",
-                "loading_error": "Onbekende fout"
-              }
-            },
-            "helper_text": "De sjablonenset bepaalt welke betalingsgateway en tokenisatieservice worden gebruikt om kaartgegevens vast te leggen."
-          },
           "cc-token": {
-            "clear": "Duidelijk",
             "tokenize": "Kaart opslaan",
             "payment-card-embed": {
               "stripe": {
@@ -958,6 +883,11 @@
             "loading_empty": "Dit formulier werkt alleen met bestaande betaalmethoden"
           }
         }
+      },
+      "spinner": {
+        "loading_busy": "Bezig met laden",
+        "loading_empty": "Geen betaalmethode",
+        "loading_error": "Onbekende fout"
       }
     },
     "spinner": {

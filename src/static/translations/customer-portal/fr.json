@@ -825,82 +825,7 @@
           "error": {
             "cc_token_invalid": "Malheureusement, nous n'avons pas pu enregistrer les détails de votre carte. "
           },
-          "template-set": {
-            "label": "Ensemble de modèles",
-            "dialog": {
-              "cancel": "Annuler",
-              "close": "Fermer",
-              "header": "Choisissez un ensemble de modèles",
-              "selection": {
-                "label": "",
-                "helper_text": "",
-                "search": "Recherche",
-                "clear": "Clair",
-                "pagination": {
-                  "search_button_text": "Recherche",
-                  "first": "D'abord",
-                  "last": "Dernier",
-                  "next": "Suivant",
-                  "pagination": "{{from}}-{{to}} hors de {{total}}",
-                  "previous": "Précédent",
-                  "card": {
-                    "spinner": {
-                      "loading_busy": "Chargement",
-                      "loading_empty": "Aucun ensemble de modèles trouvé",
-                      "loading_error": "Erreur inconnue"
-                    }
-                  }
-                },
-                "query-builder": {
-                  "filters": {},
-                  "add_or_clause": "Ajouter une clause OU",
-                  "add_value": "Ajouter de la valeur",
-                  "code": "Code",
-                  "date": "{{value, date}}",
-                  "date_created": "Créé sur",
-                  "date_modified": "Dernière mise à jour le",
-                  "delete": "Supprimer",
-                  "field": "Champ",
-                  "hidden": "Caché",
-                  "is_defined_false": "Non défini",
-                  "is_defined_true": "Défini",
-                  "name": "Nom",
-                  "operator_equal": "Égal",
-                  "operator_greaterthan": "Plus grand que",
-                  "operator_greaterthanorequal": "Meilleur que ou égal",
-                  "operator_in": "Un des",
-                  "operator_isdefined": "Est défini",
-                  "operator_lessthan": "Moins que",
-                  "operator_lessthanorequal": "Inférieur ou égal",
-                  "operator_not": "Inégal",
-                  "or": "Ou",
-                  "query_builder_group": "Groupe de filtres",
-                  "query_builder_rule": "Filtre",
-                  "range_from": "Depuis",
-                  "range_to": "À",
-                  "type": "Taper",
-                  "type_any": "Champ de type inconnu",
-                  "type_attribute": "Ressource clé-valeur",
-                  "type_date": "Champ Date",
-                  "type_here": "Écrivez ici...",
-                  "type_number": "Champ numérique",
-                  "type_string": "Champ de texte",
-                  "used_codes": "Codes utilisés",
-                  "value": "Valeur"
-                }
-              }
-            },
-            "card": {
-              "spinner": {
-                "loading_busy": "Chargement",
-                "loading_empty": "Cliquez pour sélectionner",
-                "loading_error": "Erreur inconnue"
-              }
-            },
-            "helper_text": "L'ensemble de modèles détermine quelle passerelle de paiement et quel service de tokenisation seront utilisés pour capturer les détails de la carte."
-          },
           "cc-token": {
-            "clear": "Clair",
             "tokenize": "Enregistrer la carte",
             "payment-card-embed": {
               "stripe": {
@@ -958,6 +883,11 @@
             "loading_empty": "Ce formulaire fonctionne uniquement avec les modes de paiement existants"
           }
         }
+      },
+      "spinner": {
+        "loading_busy": "Chargement",
+        "loading_empty": "Aucun mode de paiement",
+        "loading_error": "Erreur inconnue"
       }
     },
     "spinner": {

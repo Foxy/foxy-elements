@@ -825,82 +825,7 @@
           "error": {
             "cc_token_invalid": "Niestety nie mogliśmy zapisać danych Twojej karty. "
           },
-          "template-set": {
-            "label": "Zestaw szablonów",
-            "dialog": {
-              "cancel": "Anulować",
-              "close": "Zamknąć",
-              "header": "Wybierz zestaw szablonów",
-              "selection": {
-                "label": "",
-                "helper_text": "",
-                "search": "Szukaj",
-                "clear": "Jasne",
-                "pagination": {
-                  "search_button_text": "Szukaj",
-                  "first": "Pierwszy",
-                  "last": "Ostatni",
-                  "next": "Następny",
-                  "pagination": "{{from}}-{{to}} poza {{total}}",
-                  "previous": "Poprzedni",
-                  "card": {
-                    "spinner": {
-                      "loading_busy": "Ładowanie",
-                      "loading_empty": "Nie znaleziono zestawów szablonów",
-                      "loading_error": "Nieznany błąd"
-                    }
-                  }
-                },
-                "query-builder": {
-                  "filters": {},
-                  "add_or_clause": "Dodaj klauzulę OR",
-                  "add_value": "Dodać wartość",
-                  "code": "Kod",
-                  "date": "{{value, date}}",
-                  "date_created": "Utworzono dnia",
-                  "date_modified": "Ostatnia aktualizacja:",
-                  "delete": "Usuwać",
-                  "field": "Pole",
-                  "hidden": "Ukryty",
-                  "is_defined_false": "Nie określono",
-                  "is_defined_true": "Zdefiniowane",
-                  "name": "Nazwa",
-                  "operator_equal": "Równy",
-                  "operator_greaterthan": "Lepszy niż",
-                  "operator_greaterthanorequal": "Większe lub równe",
-                  "operator_in": "Jeden z",
-                  "operator_isdefined": "Definiuje",
-                  "operator_lessthan": "Mniej niż",
-                  "operator_lessthanorequal": "Mniej niż lub równo",
-                  "operator_not": "Nie równe",
-                  "or": "Lub",
-                  "query_builder_group": "Grupa filtrów",
-                  "query_builder_rule": "Filtr",
-                  "range_from": "Z",
-                  "range_to": "Do",
-                  "type": "Typ",
-                  "type_any": "Pole nieznanego typu",
-                  "type_attribute": "Zasób klucz-wartość",
-                  "type_date": "Pole daty",
-                  "type_here": "Pisz tutaj...",
-                  "type_number": "Pole numeryczne",
-                  "type_string": "Pole tekstowe",
-                  "used_codes": "Wykorzystane kody",
-                  "value": "Wartość"
-                }
-              }
-            },
-            "card": {
-              "spinner": {
-                "loading_busy": "Ładowanie",
-                "loading_empty": "Kliknij aby wybrać",
-                "loading_error": "Nieznany błąd"
-              }
-            },
-            "helper_text": "Zestaw szablonów określa, która bramka płatnicza i usługa tokenizacji zostaną wykorzystane do przechwycenia danych karty."
-          },
           "cc-token": {
-            "clear": "Jasne",
             "tokenize": "Zapisz kartę",
             "payment-card-embed": {
               "stripe": {
@@ -958,6 +883,11 @@
             "loading_empty": "Ten formularz działa tylko z istniejącymi metodami płatności"
           }
         }
+      },
+      "spinner": {
+        "loading_busy": "Ładowanie",
+        "loading_empty": "Brak metody płatności",
+        "loading_error": "Nieznany błąd"
       }
     },
     "spinner": {

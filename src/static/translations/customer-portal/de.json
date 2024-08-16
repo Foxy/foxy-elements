@@ -825,82 +825,7 @@
           "error": {
             "cc_token_invalid": "Leider konnten wir Ihre Kartendaten nicht speichern. "
           },
-          "template-set": {
-            "label": "Vorlagensatz",
-            "dialog": {
-              "cancel": "Abbrechen",
-              "close": "Schließen",
-              "header": "Wählen Sie einen Vorlagensatz",
-              "selection": {
-                "label": "",
-                "helper_text": "",
-                "search": "Suchen",
-                "clear": "Klar",
-                "pagination": {
-                  "search_button_text": "Suchen",
-                  "first": "Erste",
-                  "last": "Zuletzt",
-                  "next": "Nächste",
-                  "pagination": "{{from}}-{{to}} aus {{total}}",
-                  "previous": "Vorherige",
-                  "card": {
-                    "spinner": {
-                      "loading_busy": "Wird geladen",
-                      "loading_empty": "Keine Vorlagensätze gefunden",
-                      "loading_error": "Wurde nicht geladen"
-                    }
-                  }
-                },
-                "query-builder": {
-                  "filters": {},
-                  "add_or_clause": "OR-Klausel hinzufügen",
-                  "add_value": "Mehrwert",
-                  "code": "Code",
-                  "date": "{{value, date}}",
-                  "date_created": "Erstellt am",
-                  "date_modified": "Zuletzt aktualisiert am",
-                  "delete": "Löschen",
-                  "field": "Feld",
-                  "hidden": "Versteckt",
-                  "is_defined_false": "Nicht definiert",
-                  "is_defined_true": "Definiert",
-                  "name": "Name",
-                  "operator_equal": "Gleich",
-                  "operator_greaterthan": "Größer als",
-                  "operator_greaterthanorequal": "Größer als oder gleich",
-                  "operator_in": "Einer von",
-                  "operator_isdefined": "Ist definiert",
-                  "operator_lessthan": "Weniger als",
-                  "operator_lessthanorequal": "Weniger als oder gleich",
-                  "operator_not": "Nicht gleich",
-                  "or": "Oder",
-                  "query_builder_group": "Gruppe von Filtern",
-                  "query_builder_rule": "Filter",
-                  "range_from": "Aus",
-                  "range_to": "Zu",
-                  "type": "Typ",
-                  "type_any": "Feld unbekannten Typs",
-                  "type_attribute": "Schlüsselwertressource",
-                  "type_date": "Datumsfeld",
-                  "type_here": "Geben Sie hier ein...",
-                  "type_number": "Numerisches Feld",
-                  "type_string": "Textfeld",
-                  "used_codes": "Verwendete Codes",
-                  "value": "Wert"
-                }
-              }
-            },
-            "card": {
-              "spinner": {
-                "loading_busy": "Wird geladen",
-                "loading_empty": "Klicke um auszuwählen",
-                "loading_error": "Wurde nicht geladen"
-              }
-            },
-            "helper_text": "Der Vorlagensatz bestimmt, welches Zahlungsgateway und welcher Tokenisierungsdienst zum Erfassen von Kartendetails verwendet werden."
-          },
           "cc-token": {
-            "clear": "Klar",
             "tokenize": "Karte speichern",
             "payment-card-embed": {
               "stripe": {
@@ -958,6 +883,11 @@
             "loading_empty": "Dieses Formular funktioniert nur mit bestehenden Zahlungsmethoden"
           }
         }
+      },
+      "spinner": {
+        "loading_busy": "Wird geladen",
+        "loading_empty": "Keine Zahlungsmethode",
+        "loading_error": "Unbekannter Fehler"
       }
     },
     "spinner": {

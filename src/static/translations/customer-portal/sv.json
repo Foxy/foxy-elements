@@ -825,82 +825,7 @@
           "error": {
             "cc_token_invalid": "Tyvärr kunde vi inte spara dina kortuppgifter. "
           },
-          "template-set": {
-            "label": "Malluppsättning",
-            "dialog": {
-              "cancel": "Annullera",
-              "close": "Stänga",
-              "header": "Välj en malluppsättning",
-              "selection": {
-                "label": "",
-                "helper_text": "",
-                "search": "Sök",
-                "clear": "Klar",
-                "pagination": {
-                  "search_button_text": "Sök",
-                  "first": "Först",
-                  "last": "Sista",
-                  "next": "Nästa",
-                  "pagination": "{{from}}-{{to}} ut ur {{total}}",
-                  "previous": "Tidigare",
-                  "card": {
-                    "spinner": {
-                      "loading_busy": "Läser in",
-                      "loading_empty": "Inga malluppsättningar hittades",
-                      "loading_error": "Okänt fel"
-                    }
-                  }
-                },
-                "query-builder": {
-                  "filters": {},
-                  "add_or_clause": "Lägg till OR-sats",
-                  "add_value": "Lägg till värde",
-                  "code": "Koda",
-                  "date": "{{value, date}}",
-                  "date_created": "Skapad på",
-                  "date_modified": "Senast uppdaterad den",
-                  "delete": "Radera",
-                  "field": "Fält",
-                  "hidden": "Dold",
-                  "is_defined_false": "Inte definierad",
-                  "is_defined_true": "Definierad",
-                  "name": "namn",
-                  "operator_equal": "Likvärdig",
-                  "operator_greaterthan": "Större än",
-                  "operator_greaterthanorequal": "Större än eller lika med",
-                  "operator_in": "En av",
-                  "operator_isdefined": "Är definierad",
-                  "operator_lessthan": "Mindre än",
-                  "operator_lessthanorequal": "Mindre än eller lika",
-                  "operator_not": "Inte jämnlikt",
-                  "or": "Eller",
-                  "query_builder_group": "Grupp av filter",
-                  "query_builder_rule": "Filtrera",
-                  "range_from": "Från",
-                  "range_to": "Till",
-                  "type": "Typ",
-                  "type_any": "Fält av okänd typ",
-                  "type_attribute": "Nyckel-värde resurs",
-                  "type_date": "Datumfält",
-                  "type_here": "Skriv här...",
-                  "type_number": "Numeriskt fält",
-                  "type_string": "Textfält",
-                  "used_codes": "Koder som används",
-                  "value": "Värde"
-                }
-              }
-            },
-            "card": {
-              "spinner": {
-                "loading_busy": "Läser in",
-                "loading_empty": "Klicka för att välja",
-                "loading_error": "Okänt fel"
-              }
-            },
-            "helper_text": "Malluppsättningen avgör vilken betalningsgateway och tokeniseringstjänst som kommer att användas för att fånga kortdetaljer."
-          },
           "cc-token": {
-            "clear": "Klar",
             "tokenize": "Spara kort",
             "payment-card-embed": {
               "stripe": {
@@ -958,6 +883,11 @@
             "loading_empty": "Detta formulär fungerar endast med befintliga betalningsmetoder"
           }
         }
+      },
+      "spinner": {
+        "loading_busy": "Laddar",
+        "loading_empty": "Ingen betalningsmetod",
+        "loading_error": "Okänt fel"
       }
     },
     "spinner": {
