@@ -72,7 +72,7 @@ export class InternalSwitchControl extends InternalEditableControl {
                 </div>
               </div>
             `}
-        ${this.helperTextAsToolip
+        ${this.helperTextAsToolip && this.helperText
           ? html`
               <div
                 class="transition-colors text-tertiary flex-shrink-0 cursor-pointer hover-text-body"
