@@ -1,13 +1,16 @@
+import type { PaymentMethod, PaymentMethods } from '../types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 
 import { fetchJson } from '../utils';
 import { compose } from '../composers/available_payment_methods';
+import { handle as paymentMethodsHandle } from './payment_methods';
 
 export type Params = {
   hostedPaymentGatewaysHelperUrl: string;
   paymentGatewaysHelperUrl: string;
   getPaymentMethodSetUrl: (id: string) => string;
+  paymentGatewaysUrl: string;
   request: Request;
   fetch: Window['fetch'];
 };
@@ -29,6 +32,7 @@ export async function handle(params: Params): Promise<Response> {
       hostedPaymentGatewaysHelperUrl: hostedGwsHelperUrl,
       paymentGatewaysHelperUrl: gwsHelperUrl,
       getPaymentMethodSetUrl: getSetUrl,
+      paymentGatewaysUrl: gwsUrl,
       request,
       fetch,
     } = params;
@@ -49,6 +53,38 @@ export async function handle(params: Params): Promise<Response> {
     const whenHostedGwsHelperLoaded = fetchJson<HostedGwsHelper>(fetch(hostedGwsHelperUrl));
     const whenGwsHelperLoaded = fetchJson<GwsHelper>(fetch(gwsHelperUrl));
     const set = await fetchJson<Set>(fetch(getSetUrl(presetId)));
+
+    const whenPaymentMethodsLoaded = (async () => {
+      const result: PaymentMethod[] = [];
+
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const base = new URL(request.url).origin;
+        const url = new URL(`${base}/payment_presets/${presetId}/payment_methods`);
+        url.searchParams.set('offset', result.length.toString());
+        url.searchParams.set('limit', '200');
+
+        const response = await paymentMethodsHandle({
+          hostedPaymentGatewaysHelperUrl: hostedGwsHelperUrl,
+          paymentGatewaysHelperUrl: gwsHelperUrl,
+          hostedPaymentGatewaysUrl:
+            set._links['fx:payment_method_set_hosted_payment_gateways'].href,
+          getPaymentMethodSetUrl: getSetUrl,
+          paymentGatewaysUrl: gwsUrl,
+          request: new Request(url.toString()),
+          fetch,
+        });
+
+        if (!response.ok) throw new Error(await response.text());
+        const json = (await response.json()) as PaymentMethods;
+        result.push(...json._embedded['fx:payment_methods']);
+
+        if (json._embedded['fx:payment_methods'].length < 200) break;
+      }
+
+      return result;
+    })();
+
     const gwUrl = set._links['fx:payment_gateway']?.href as string | undefined;
     const gw = gwUrl ? await fetchJson<Gw>(fetch(gwUrl)) : undefined;
 
@@ -57,6 +93,7 @@ export async function handle(params: Params): Promise<Response> {
       paymentGatewaysHelper: await whenGwsHelperLoaded,
       paymentPresetId: presetId,
       paymentGateway: gw,
+      paymentMethods: await whenPaymentMethodsLoaded,
       base: new URL(request.url).origin,
     });
 

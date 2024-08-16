@@ -829,7 +829,7 @@ describe('PaymentsApi', () => {
     });
   });
 
-  it('handles GET requests to the fx:available_payment_methods helper (with gateway conflict)', async () => {
+  it('handles GET requests to the fx:available_payment_methods helper (with regular gateway conflict)', async () => {
     const router = createRouter({
       defaults,
       dataset: {
@@ -1026,6 +1026,238 @@ describe('PaymentsApi', () => {
             name: 'Default payment gateway',
             type: 'authorize',
           },
+        },
+      },
+    });
+  });
+
+  it('handles GET requests to the fx:available_payment_methods helper (with hosted gateway conflict)', async () => {
+    const router = createRouter({
+      defaults,
+      dataset: {
+        payment_method_set_hosted_payment_gateways: [
+          {
+            id: 0,
+            store_id: 0,
+            payment_method_set_id: 0,
+            hosted_payment_gateway_id: 0,
+            payment_method_set_uri: 'https://demo.api/hapi/payment_method_sets/0',
+            hosted_payment_gateway_uri: 'https://demo.api/hapi/hosted_payment_gateways/0',
+            date_created: '2012-08-10T11:58:54-0700',
+            date_modified: '2012-08-10T11:58:54-0700',
+          },
+        ],
+        hosted_payment_gateways: [
+          {
+            id: 0,
+            store_id: 0,
+            payment_method_set_id: 0,
+            description: 'Default hosted payment gateway',
+            type: 'amazon_mws',
+            use_auth_only: false,
+            account_id: '',
+            account_key: '',
+            third_party_key: '',
+            config_3d_secure: '',
+            additional_fields: '',
+            test_account_id: '',
+            test_account_key: '',
+            test_third_party_key: '',
+            date_created: '2015-05-26T17:49:56-0700',
+            date_modified: '2015-05-26T17:49:56-0700',
+          },
+        ],
+        payment_gateways: [
+          {
+            id: 0,
+            store_id: 0,
+            description: 'Default payment gateway',
+            type: 'authorize',
+            use_auth_only: false,
+            account_id: '',
+            account_key: '',
+            third_party_key: '',
+            config_3d_secure: '',
+            additional_fields: '',
+            test_account_id: 'BxFSnPy7',
+            test_account_key: '8SPBTpqs4uf2ZwM8',
+            test_third_party_key: '',
+            date_created: '2014-07-17T06:46:00-0700',
+            date_modified: '2014-07-17T06:46:00-0700',
+          },
+        ],
+        payment_method_sets: [
+          {
+            id: 0,
+            store_id: 0,
+            payment_gateway_id: null,
+            gateway_uri: 'https://demo.api/hapi/payment_gateways/0',
+            description: 'Default Payment Method Set',
+            is_live: false,
+            is_purchase_order_enabled: true,
+            date_created: '2012-08-10T11:58:54-0700',
+            date_modified: '2012-08-10T11:58:54-0700',
+          },
+        ],
+        property_helpers: [
+          {
+            id: 0,
+            store_id: 0,
+            message: 'fx:payment_gateways property helper',
+            values: {
+              authorize: {
+                name: 'Authorize.net AIM',
+                id_description: 'API ID',
+                test_id: 'BxFSnPy7',
+                key_description: 'Transaction Key',
+                test_key: '8SPBTpqs4uf2ZwM8',
+                third_party_key_description: '',
+                test_third_party_key: '',
+                supports_auth_only: true,
+                supports_3d_secure: true,
+                additional_fields: null,
+              },
+            },
+          },
+          {
+            id: 1,
+            store_id: 0,
+            message: 'fx:hosted_payment_gateways property helper',
+            values: {
+              amazon_mws: {
+                name: 'Amazon Pay',
+                id_description: 'Seller ID',
+                test_id: '',
+                key_description: 'MWS Auth Token',
+                test_key: '',
+                third_party_key_description: 'Client ID',
+                test_third_party_key: '',
+                supports_auth_only: false,
+                supports_3d_secure: false,
+                additional_fields: {
+                  blocks: [
+                    {
+                      id: 'amazon_mws_additonal_fields',
+                      parent_id: 'gateway_live_amazon_mws',
+                      is_live: true,
+                      fields: [
+                        {
+                          id: 'on_amazon_mws_auth',
+                          name: 'Authorize only (do not capture funds)',
+                          type: 'checkbox',
+                          default_value: false,
+                        },
+                      ],
+                    },
+                    {
+                      id: 'test_amazon_mws_additonal_fields',
+                      parent_id: 'gateway_test_amazon_mws',
+                      is_live: false,
+                      fields: [
+                        {
+                          id: 'test_on_amazon_mws_auth',
+                          name: 'Authorize only (do not capture funds)',
+                          type: 'checkbox',
+                          default_value: false,
+                        },
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      },
+      links,
+    });
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-nucleon
+            href="https://foxy-payments-api.element/payment_presets/0/available_payment_methods"
+          >
+          </foxy-nucleon>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const api = wrapper.firstElementChild as PaymentsApi;
+    const nucleon = api.firstElementChild as NucleonElement<any>;
+    await waitUntil(() => !!nucleon.data, '', { timeout: 5000 });
+
+    expect(nucleon).to.have.deep.property('data', {
+      _links: {
+        self: {
+          href: 'https://foxy-payments-api.element/payment_presets/0/available_payment_methods',
+        },
+      },
+      values: {
+        amazon_mws: {
+          name: 'Amazon Pay',
+          id_description: 'Seller ID',
+          test_id: '',
+          key_description: 'MWS Auth Token',
+          test_key: '',
+          third_party_key_description: 'Client ID',
+          test_third_party_key: '',
+          supports_auth_only: false,
+          supports_3d_secure: false,
+          additional_fields: {
+            blocks: [
+              {
+                id: 'amazon_mws_additonal_fields',
+                parent_id: 'gateway_live_amazon_mws',
+                is_live: true,
+                fields: [
+                  {
+                    id: 'on_amazon_mws_auth',
+                    name: 'Authorize only (do not capture funds)',
+                    type: 'checkbox',
+                    default_value: false,
+                  },
+                ],
+              },
+              {
+                id: 'test_amazon_mws_additonal_fields',
+                parent_id: 'gateway_test_amazon_mws',
+                is_live: false,
+                fields: [
+                  {
+                    id: 'test_on_amazon_mws_auth',
+                    name: 'Authorize only (do not capture funds)',
+                    type: 'checkbox',
+                    default_value: false,
+                  },
+                ],
+              },
+            ],
+          },
+          conflict: {
+            name: 'Default hosted payment gateway',
+            type: 'amazon_mws',
+          },
+        },
+        authorize: {
+          name: 'Authorize.net AIM',
+          id_description: 'API ID',
+          test_id: 'BxFSnPy7',
+          key_description: 'Transaction Key',
+          test_key: '8SPBTpqs4uf2ZwM8',
+          third_party_key_description: '',
+          test_third_party_key: '',
+          supports_auth_only: true,
+          supports_3d_secure: true,
+          additional_fields: null,
         },
       },
     });
