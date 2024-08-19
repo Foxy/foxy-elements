@@ -972,6 +972,116 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(JSON.parse(element.form.additional_fields!)).to.have.property('baz', 'field_2_value');
   });
 
+  it('does not render a hidden live block in additional fields if present', async () => {
+    const router = createRouter();
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
+            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    element.data!.helper.additional_fields = {
+      blocks: [
+        {
+          id: 'bar',
+          is_live: true,
+          parent_id: 'foo',
+          fields: [
+            {
+              id: 'baz',
+              name: 'Baz',
+              type: 'hidden',
+              description: 'Baz Description',
+              default_value: 'baz_default',
+            },
+          ],
+        },
+      ],
+    };
+
+    element.data = { ...element.data! };
+    await element.requestUpdate();
+
+    const tabPanel = element.renderRoot.querySelector('[infer="live-group"]') as HTMLElement;
+    const field = tabPanel.querySelector('[infer="additional-fields-baz"]') as InternalTextControl;
+
+    expect(field).to.not.exist;
+  });
+
+  it('does not render a hidden test block in additional fields if present', async () => {
+    const router = createRouter();
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
+            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    element.data!.helper.additional_fields = {
+      blocks: [
+        {
+          id: 'bar',
+          is_live: false,
+          parent_id: 'foo',
+          fields: [
+            {
+              id: 'baz',
+              name: 'Baz',
+              type: 'hidden',
+              description: 'Baz Description',
+              default_value: 'baz_default',
+            },
+          ],
+        },
+      ],
+    };
+
+    element.data = { ...element.data! };
+    await element.requestUpdate();
+
+    const tabPanel = element.renderRoot.querySelector('[infer="test-group"]') as HTMLElement;
+    const field = tabPanel.querySelector('[infer="additional-fields-baz"]') as InternalTextControl;
+
+    expect(field).to.not.exist;
+  });
+
   it('renders a text control for any other live block in additional fields if present', async () => {
     const router = createRouter();
 

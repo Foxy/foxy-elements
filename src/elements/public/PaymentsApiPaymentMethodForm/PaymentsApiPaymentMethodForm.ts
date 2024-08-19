@@ -466,6 +466,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
   private __renderBlock(block: Block) {
     return html`${block.fields.map(field => {
+      if (field.type === 'hidden') return;
       const scope = ['additional-fields', field.id].join('-').replace(/_/g, '-');
 
       const getValue = () => {
