@@ -305,6 +305,36 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
   }
 
   private __renderPaymentMethodConfig() {
+    const oauthGateways = [
+      'stripe_connect',
+      'square_up',
+      'quickbook_payments',
+      'amazon_mws',
+      'paypal_platform',
+    ];
+
+    if (this.form.type && oauthGateways.includes(this.form.type)) {
+      return html`
+        <div
+          class="flex items-start rounded border border-primary"
+          style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px); padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+        >
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="flex-shrink-0 text-primary" style="width: 1.25em"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>`}
+          <p>
+            <foxy-i18n infer="" key="no_oauth_support_message"></foxy-i18n>
+            <br />
+            <a
+              target="_blank"
+              class="mt-xs inline-block rounded font-medium text-primary transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
+              href="https://admin.foxycart.com"
+            >
+              admin.foxycart.com
+            </a>
+          </p>
+        </div>
+      `;
+    }
+
     return html`
       <foxy-internal-summary-control infer="general">
         <foxy-internal-text-control layout="summary-item" infer="description">
@@ -509,6 +539,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
           : field.type === 'select'
           ? html`
               <foxy-internal-select-control
+                placeholder=${this.t('default_additional_field_select_placeholder')}
                 helper-text=${field.description ?? ''}
                 layout="summary-item"
                 label=${field.name}

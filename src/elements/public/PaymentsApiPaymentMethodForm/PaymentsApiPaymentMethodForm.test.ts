@@ -513,6 +513,57 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(group1Item1Button).to.not.exist;
   });
 
+  it('renders a temporary warning for oauth-based payment gateways', async () => {
+    const router = createRouter();
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
+            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    const oauthGateways = [
+      'stripe_connect',
+      'square_up',
+      'quickbook_payments',
+      'amazon_mws',
+      'paypal_platform',
+    ];
+
+    for (const type of oauthGateways) {
+      element.edit({ type });
+      await element.requestUpdate();
+
+      const warning = element.renderRoot.querySelector('[key="no_oauth_support_message"]');
+      expect(warning).to.exist;
+      expect(warning).to.have.property('localName', 'foxy-i18n');
+      expect(warning).to.have.attribute('infer', '');
+    }
+
+    element.edit({ type: 'any_other_gateway' });
+    await element.requestUpdate();
+    const warning = element.renderRoot.querySelector('[key="no_oauth_support_message"]');
+    expect(warning).to.not.exist;
+  });
+
   it('renders a text control for live and test account id if applicable', async () => {
     const router = createRouter();
 
