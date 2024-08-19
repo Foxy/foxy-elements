@@ -204,14 +204,22 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
   private __renderFraudProtectionConfig() {
     return html`
       ${this.renderHeader()}
-      <foxy-internal-text-control infer="description"></foxy-internal-text-control>
-      ${this.form.helper?.uses_rejection_threshold
-        ? html`
-            <foxy-internal-integer-control infer="score-threshold-reject">
-            </foxy-internal-integer-control>
-          `
-        : ''}
-      ${this.form.helper?.json?.blocks.map(block => this.__renderBlock(block))}
+
+      <foxy-internal-summary-control infer="general">
+        <foxy-internal-text-control layout="summary-item" infer="description">
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="setup">
+        ${this.form.helper?.uses_rejection_threshold
+          ? html`
+              <foxy-internal-number-control layout="summary-item" infer="score-threshold-reject">
+              </foxy-internal-number-control>
+            `
+          : ''}
+        ${this.form.helper?.json?.blocks.map(block => this.__renderBlock(block))}
+      </foxy-internal-summary-control>
+
       ${super.renderBody()}
     `;
   }
@@ -252,22 +260,21 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
       return html`
         ${field.type === 'checkbox'
           ? html`
-              <foxy-internal-checkbox-group-control
+              <foxy-internal-switch-control
                 helper-text=${field.description ?? ''}
-                label=""
+                label=${field.name}
                 infer=${scope}
-                .options=${[{ label: field.name, value: 'checked' }]}
-                .getValue=${() => (getValue() ? ['checked'] : [])}
-                .setValue=${(newValue: string[]) => setValue(newValue.includes('checked'))}
+                .getValue=${getValue}
+                .setValue=${setValue}
               >
-              </foxy-internal-checkbox-group-control>
+              </foxy-internal-switch-control>
             `
           : field.type === 'select'
           ? html`
               <foxy-internal-select-control
                 helper-text=${field.description ?? ''}
-                placeholder=${field.options?.find(o => o.value === field.default_value)?.name ??
-                this.t('default_additional_field_placeholder')}
+                placeholder=${this.t('default_additional_field_placeholder')}
+                layout="summary-item"
                 label=${field.name}
                 infer=${scope}
                 .options=${options!.map(({ name, value }) => ({ label: name, value }))}
@@ -280,6 +287,7 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
               <foxy-internal-text-control
                 helper-text=${field.description ?? ''}
                 placeholder=${field.default_value || this.t('default_additional_field_placeholder')}
+                layout="summary-item"
                 label=${field.name}
                 infer=${scope}
                 .getValue=${getValue}

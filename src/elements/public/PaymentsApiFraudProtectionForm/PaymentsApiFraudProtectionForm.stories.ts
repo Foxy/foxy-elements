@@ -15,9 +15,9 @@ const summary: Summary = {
   localName: 'foxy-payments-api-fraud-protection-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps', 'header'],
+    sections: ['timestamps', 'header', 'general', 'setup'],
     buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
-    inputs: ['description', 'score-threshold-reject'],
+    inputs: ['general:description', 'setup:score-threshold-reject'],
   },
 };
 

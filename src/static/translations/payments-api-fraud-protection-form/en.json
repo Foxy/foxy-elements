@@ -14,17 +14,25 @@
   },
   "default_additional_field_placeholder": "None",
   "select_another_button_label": "Back to fraud protections",
-  "score-threshold-reject": {
-    "label": "Rejection threshold",
-    "placeholder": "Default",
-    "helper_text": "A number between 0 and 100. 0 will disable minFraud and 100 will turn it on for logging but still allow all transactions to go through.",
-    "v8n_out_of_range": "Please enter a whole number between 0 and 100 (inclusive)."
-  },
-  "description": {
-    "label": "Description",
-    "placeholder": "None",
+  "general": {
+    "label": "",
     "helper_text": "",
-    "v8n_too_long": "Please reduce this description to a 100 characters or less"
+    "description": {
+      "label": "Description",
+      "placeholder": "None",
+      "helper_text": "",
+      "v8n_too_long": "Please reduce this description to a 100 characters or less"
+    }
+  },
+  "setup": {
+    "label": "",
+    "helper_text": "",
+    "score-threshold-reject": {
+      "label": "Rejection threshold",
+      "placeholder": "Default",
+      "helper_text": "A number between 0 and 100. 0 will disable minFraud and 100 will turn it on for logging but still allow all transactions to go through.",
+      "v8n_out_of_range": "Please enter a whole number between 0 and 100 (inclusive)."
+    }
   },
   "timestamps": {
     "date_created": "Created on",

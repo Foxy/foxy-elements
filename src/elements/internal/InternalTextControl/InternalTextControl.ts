@@ -101,7 +101,7 @@ export class InternalTextControl extends InternalEditableControl {
           </p>
         </div>
 
-        <div class="flex-1 flex items-center gap-xs">
+        <div class="flex-1 flex items-center gap-xs" style="min-width: 30%">
           <input
             placeholder=${this.placeholder}
             class=${classMap({
