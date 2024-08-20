@@ -274,18 +274,6 @@ describe('CouponForm', () => {
     expect(element.hiddenSelector.matches('attributes', true)).to.be.false;
   });
 
-  it('hides customer attribute restrictions and customer subscription restrictions if auto-apply is off', () => {
-    const element = new CouponForm();
-
-    expect(element.hiddenSelector.matches('customer-attribute-restrictions', true)).to.be.true;
-    expect(element.hiddenSelector.matches('customer-subscription-restrictions', true)).to.be.true;
-
-    element.edit({ customer_auto_apply: true });
-
-    expect(element.hiddenSelector.matches('customer-attribute-restrictions', true)).to.be.false;
-    expect(element.hiddenSelector.matches('customer-subscription-restrictions', true)).to.be.false;
-  });
-
   it('renders a form header', () => {
     const form = new CouponForm();
     const renderHeaderMethod = stub(form, 'renderHeader');

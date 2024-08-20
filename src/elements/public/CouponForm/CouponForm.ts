@@ -212,10 +212,6 @@ export class CouponForm extends Base<Data> {
       alwaysMatch.push('coupon-codes', 'category-restrictions', 'attributes');
     }
 
-    if (!this.form.customer_auto_apply) {
-      alwaysMatch.push('customer-attribute-restrictions', 'customer-subscription-restrictions');
-    }
-
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
@@ -287,6 +283,9 @@ export class CouponForm extends Base<Data> {
       >
       </foxy-internal-query-builder-control>
 
+      <foxy-internal-query-builder-control infer="customer-attribute-restrictions">
+      </foxy-internal-query-builder-control>
+
       <foxy-internal-editable-list-control
         infer="product-code-restrictions"
         .getValue=${this.__productCodeRestrictionsGetValue}
@@ -295,6 +294,13 @@ export class CouponForm extends Base<Data> {
           { label: this.t('product-code-restrictions.unit_allow'), value: 'allow' },
           { label: this.t('product-code-restrictions.unit_block'), value: 'block' },
         ]}
+      >
+      </foxy-internal-editable-list-control>
+
+      <foxy-internal-editable-list-control
+        infer="customer-subscription-restrictions"
+        .getValue=${this.__customerSubscriptionRestrictionsGetValue}
+        .setValue=${this.__customerSubscriptionRestrictionsSetValue}
       >
       </foxy-internal-editable-list-control>
 
@@ -347,16 +353,6 @@ export class CouponForm extends Base<Data> {
         .options=${this.__optionsOptions}
       >
       </foxy-internal-checkbox-group-control>
-
-      <foxy-internal-editable-list-control
-        infer="customer-subscription-restrictions"
-        .getValue=${this.__customerSubscriptionRestrictionsGetValue}
-        .setValue=${this.__customerSubscriptionRestrictionsSetValue}
-      >
-      </foxy-internal-editable-list-control>
-
-      <foxy-internal-query-builder-control infer="customer-attribute-restrictions">
-      </foxy-internal-query-builder-control>
 
       <foxy-internal-async-list-control
         first=${ifDefined(this.data?._links['fx:attributes'].href)}

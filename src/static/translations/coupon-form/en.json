@@ -489,16 +489,16 @@
     "helper_text": "The date and time when this coupon will expire. Leave blank for no expiration."
   },
   "customer-subscription-restrictions": {
-    "label": "Auto-apply: subscription restrictions",
+    "label": "Subscription restrictions",
     "placeholder": "Enter a product code and hit Enter",
-    "helper_text": "This coupon will be automatically applied when a subscription includes a product with one of the codes in the list. Wildcards are allowed just like in product code restrictions.",
+    "helper_text": "This coupon will be applied only when a subscription includes a product with one of the codes in the list. Wildcards are allowed just like in product code restrictions.",
     "caption": "Add this code",
     "delete": "Delete this code",
     "v8n_too_long": "Unfortunately we are unable to store that many subscription restrictions at the moment. Please reduce the number of rules in this section until this message disappears."
   },
   "customer-attribute-restrictions": {
-    "label": "Auto-apply: customer restrictions",
-    "helper_text": "This coupon will be automatically applied when a customer record matches this query.",
+    "label": "Customer restrictions",
+    "helper_text": "This coupon will be applied only when a customer record matches this query.",
     "v8n_too_long": "Unfortunately we are unable to store that many customer restrictions at the moment. Please reduce the number of rules in this section until this message disappears.",
     "query-builder": {
       "add_or_clause": "Add OR clause",
