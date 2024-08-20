@@ -120,12 +120,16 @@
   "ordinal_other": "th",
   "ordinal_two": "nd",
   "ordinal_zero": "th",
-  "name": {
-    "label": "Name",
-    "placeholder": "Required",
-    "helper_text": "Coupon name is visible to the customers.",
-    "v8n_required": "Please enter a name for this coupon.",
-    "v8n_too_long": "Please shorten the name to 50 characters or less."
+  "general": {
+    "label": "",
+    "helper_text": "",
+    "name": {
+      "label": "Name",
+      "placeholder": "Required",
+      "helper_text": "Coupon name is visible to the customers.",
+      "v8n_required": "Please enter a name for this coupon.",
+      "v8n_too_long": "Please shorten the name to 50 characters or less."
+    }
   },
   "rules": {
     "label": "Rules",
@@ -439,23 +443,27 @@
       "previous": "Previous"
     }
   },
-  "number-of-uses-allowed": {
-    "label": "Uses per coupon",
-    "placeholder": "Unlimited",
-    "helper_text": "The maximum number of times this coupon can be used. Leave blank for unlimited uses.",
-    "v8n_too_small": "Please enter a value greater or equal to 0."
-  },
-  "number-of-uses-allowed-per-customer": {
-    "label": "Uses per customer",
-    "placeholder": "Unlimited",
-    "helper_text": "The maximum number of times a single customer can use this coupon. Leave blank for unlimited uses.",
-    "v8n_too_small": "Please enter a value greater or equal to 0."
-  },
-  "number-of-uses-allowed-per-code": {
-    "label": "Uses per code",
-    "placeholder": "Unlimited",
-    "helper_text": "The maximum number of times a single code can be used. Leave blank for unlimited uses.",
-    "v8n_too_small": "Please enter a value greater or equal to 0."
+  "uses": {
+    "label": "Usage restrictions",
+    "helper_text": "",
+    "number-of-uses-allowed": {
+      "label": "Uses per coupon",
+      "placeholder": "Unlimited",
+      "helper_text": "The maximum number of times this coupon can be used. Leave blank for unlimited uses.",
+      "v8n_too_small": "Please enter a value greater or equal to 0."
+    },
+    "number-of-uses-allowed-per-customer": {
+      "label": "Uses per customer",
+      "placeholder": "Unlimited",
+      "helper_text": "The maximum number of times a single customer can use this coupon. Leave blank for unlimited uses.",
+      "v8n_too_small": "Please enter a value greater or equal to 0."
+    },
+    "number-of-uses-allowed-per-code": {
+      "label": "Uses per code",
+      "placeholder": "Unlimited",
+      "helper_text": "The maximum number of times a single code can be used. Leave blank for unlimited uses.",
+      "v8n_too_small": "Please enter a value greater or equal to 0."
+    }
   },
   "product-code-restrictions": {
     "label": "Product code restrictions",
@@ -469,24 +477,65 @@
   },
   "options": {
     "label": "Options",
-    "option_multiple_codes_allowed": "Allow multiple codes on the same order",
-    "option_combinable": "Allow combining with other coupons",
-    "option_exclude_category_discounts": "Don't apply category discounts with this coupon",
-    "option_exclude_line_item_discounts": "Don't apply line item discounts with this coupon",
-    "option_is_taxable": "Apply taxes before this coupon",
-    "option_shared_codes_allowed": "Enable code sharing between coupons",
-    "option_customer_auto_apply": "Enable auto-apply",
-    "helper_text": ""
+    "helper_text": "",
+    "multiple-codes-allowed": {
+      "label": "Allow multiple codes on the same order",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "combinable": {
+      "label": "Allow combining with other coupons",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "exclude-category-discounts": {
+      "label": "Don't apply category discounts with this coupon",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "exclude-line-item-discounts": {
+      "label": "Don't apply line item discounts with this coupon",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "is-taxable": {
+      "label": "Apply taxes before this coupon",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "shared-codes-allowed": {
+      "label": "Enable code sharing between coupons",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "customer-auto-apply": {
+      "label": "Enable auto-apply",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
   },
-  "start-date": {
-    "label": "Start date",
-    "placeholder": "Optional",
-    "helper_text": "The date and time when this coupon will become active. Leave blank to activate immediately."
-  },
-  "end-date": {
-    "label": "End date",
-    "placeholder": "Optional",
-    "helper_text": "The date and time when this coupon will expire. Leave blank for no expiration."
+  "timeframe": {
+    "label": "Date restrictions",
+    "helper_text": "",
+    "start-date": {
+      "label": "Start date",
+      "placeholder": "Select",
+      "display_value": "{{ value, date }}",
+      "helper_text": "The date and time when this coupon will become active. Leave blank to activate immediately."
+    },
+    "end-date": {
+      "label": "End date",
+      "placeholder": "Select",
+      "display_value": "{{ value, date }}",
+      "helper_text": "The date and time when this coupon will expire. Leave blank for no expiration."
+    }
   },
   "customer-subscription-restrictions": {
     "label": "Subscription restrictions",
@@ -598,12 +647,16 @@
     },
     "helper_text": "Limit which categories this coupon applies to. All changes are saved automatically."
   },
-  "inclusive-tax-rate": {
-    "label": "Tax rate",
-    "placeholder": "Optional",
-    "helper_text": "The tax rate to apply to the coupon in tax-inclusive mode. This is a decimal value from 0 to 1.",
-    "v8n_too_small": "Please enter a value greater or equal to 0.",
-    "v8n_too_big": "Please enter a value less than or equal to 1."
+  "taxes": {
+    "label": "Tax settings",
+    "helper_text": "",
+    "inclusive-tax-rate": {
+      "label": "Tax rate",
+      "placeholder": "Optional",
+      "helper_text": "The tax rate to apply to the coupon in tax-inclusive mode. This is a decimal value from 0 to 1.",
+      "v8n_too_small": "Please enter a value greater or equal to 0.",
+      "v8n_too_big": "Please enter a value less than or equal to 1."
+    }
   },
   "timestamps": {
     "date_created": "Created on",
