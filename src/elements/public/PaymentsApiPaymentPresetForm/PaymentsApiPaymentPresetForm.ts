@@ -49,11 +49,11 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
   getPaymentMethodImageSrc: ((type: string) => string) | null = null;
 
   private readonly __isPurchaseOrderEnabledGetValue = () => {
-    this.__storeLoader?.data?.is_active ? this.form.is_purchase_order_enabled : false;
+    return this.__storeLoader?.data?.is_active ? this.form.is_purchase_order_enabled : false;
   };
 
   private readonly __isLiveGetValue = () => {
-    this.__storeLoader?.data?.is_active ? this.form.is_live : false;
+    return this.__storeLoader?.data?.is_active ? this.form.is_live : false;
   };
 
   private readonly __storeLoaderId = 'storeLoader';
