@@ -306,6 +306,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
         google_recaptcha: {
           name: 'Google reCaptcha',
           uses_rejection_threshold: false,
+          conflict: { type: 'google_recaptcha', name: 'Google reCaptcha' },
           json: null,
         },
       },
@@ -314,7 +315,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
     const router = createRouter();
 
     const wrapper = await fixture(html`
-      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      <div @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}>
         <foxy-payments-api
           payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
           hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
@@ -342,8 +343,13 @@ describe('PaymentsApiFraudProtectionForm', () => {
     `);
 
     const element = wrapper.firstElementChild!.firstElementChild as Form;
-    const listWrapper = (await getByTestId(element, 'select-protection-list')) as HTMLElement;
+    await waitUntil(
+      () => !!element.renderRoot.querySelector('[data-testid="select-protection-list"]'),
+      '',
+      { timeout: 5000 }
+    );
 
+    const listWrapper = (await getByTestId(element, 'select-protection-list')) as HTMLElement;
     await waitUntil(() => !!listWrapper.querySelector('button'), '', { timeout: 5000 });
     const items = listWrapper.querySelectorAll('button');
 
@@ -354,6 +360,8 @@ describe('PaymentsApiFraudProtectionForm', () => {
     const item1Button = items[1] as HTMLButtonElement;
 
     expect(item0Button).to.exist;
+    expect(item0Button).to.not.have.attribute('disabled');
+    expect(item0Button).to.not.have.attribute('title');
     expect(item0Button).to.include.text('Minfraud');
     expect(await getByTag(item0Button, 'img')).to.have.attribute(
       'src',
@@ -361,6 +369,8 @@ describe('PaymentsApiFraudProtectionForm', () => {
     );
 
     expect(item1Button).to.exist;
+    expect(item1Button).to.have.attribute('disabled');
+    expect(item1Button).to.have.attribute('title', 'conflict_message');
     expect(item1Button).to.include.text('Google reCaptcha');
     expect(await getByTag(item1Button, 'img')).to.have.attribute(
       'src',

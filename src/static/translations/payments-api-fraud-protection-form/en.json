@@ -12,8 +12,14 @@
       "done": "Copied to clipboard"
     }
   },
+  "list-spinner": {
+    "loading_busy": "Loading fraud protections...",
+    "loading_error": "Unknown error. Failed to load fraud protections."
+  },
   "default_additional_field_placeholder": "None",
-  "select_another_button_label": "Back to fraud protections",
+  "default_additional_field_select_placeholder": "Select",
+  "select_another_button_label": "Select another",
+  "conflict_message": "You've already added this fraud protection to the payment method set.",
   "general": {
     "label": "",
     "helper_text": "",
