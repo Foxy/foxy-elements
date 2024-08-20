@@ -4,13 +4,11 @@ import type { Rels } from '@foxy.io/sdk/backend';
 
 import { fetchJson } from '../utils';
 import { compose } from '../composers/available_payment_methods';
-import { handle as paymentMethodsHandle } from './payment_methods';
 
 export type Params = {
   hostedPaymentGatewaysHelperUrl: string;
   paymentGatewaysHelperUrl: string;
   getPaymentMethodSetUrl: (id: string) => string;
-  paymentGatewaysUrl: string;
   request: Request;
   fetch: Window['fetch'];
 };
@@ -32,7 +30,6 @@ export async function handle(params: Params): Promise<Response> {
       hostedPaymentGatewaysHelperUrl: hostedGwsHelperUrl,
       paymentGatewaysHelperUrl: gwsHelperUrl,
       getPaymentMethodSetUrl: getSetUrl,
-      paymentGatewaysUrl: gwsUrl,
       request,
       fetch,
     } = params;
@@ -64,19 +61,7 @@ export async function handle(params: Params): Promise<Response> {
         url.searchParams.set('offset', result.length.toString());
         url.searchParams.set('limit', '200');
 
-        const response = await paymentMethodsHandle({
-          hostedPaymentGatewaysHelperUrl: hostedGwsHelperUrl,
-          paymentGatewaysHelperUrl: gwsHelperUrl,
-          hostedPaymentGatewaysUrl:
-            set._links['fx:payment_method_set_hosted_payment_gateways'].href,
-          getPaymentMethodSetUrl: getSetUrl,
-          paymentGatewaysUrl: gwsUrl,
-          request: new Request(url.toString()),
-          fetch,
-        });
-
-        if (!response.ok) throw new Error(await response.text());
-        const json = (await response.json()) as PaymentMethods;
+        const json = await fetchJson<PaymentMethods>(fetch(url.toString()));
         result.push(...json._embedded['fx:payment_methods']);
 
         if (json._embedded['fx:payment_methods'].length < 200) break;

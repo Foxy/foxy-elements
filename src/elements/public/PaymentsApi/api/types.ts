@@ -127,6 +127,8 @@ interface AvailableFraudProtectionsRel extends Graph {
     values: {
       [key: string]: {
         name: string;
+        /** If this fraud protection can't be used due to a conflict with another fraud protection, the details about it will be here. */
+        conflict?: { type: string; name: string };
         uses_rejection_threshold: boolean;
         json: null | {
           blocks: {
