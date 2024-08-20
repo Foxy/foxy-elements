@@ -825,82 +825,7 @@
           "error": {
             "cc_token_invalid": "不幸的是，我们无法保存您的银行卡详细信息。"
           },
-          "template-set": {
-            "label": "模板集",
-            "dialog": {
-              "cancel": "取消",
-              "close": "关闭",
-              "header": "选择模板集",
-              "selection": {
-                "label": "",
-                "helper_text": "",
-                "search": "搜索",
-                "clear": "清除",
-                "pagination": {
-                  "search_button_text": "搜索",
-                  "first": "第一的",
-                  "last": "最后的",
-                  "next": "下一个",
-                  "pagination": "{{from}}-{{to}} 在......之外 {{total}}",
-                  "previous": "以前的",
-                  "card": {
-                    "spinner": {
-                      "loading_busy": "加载中",
-                      "loading_empty": "未找到模板集",
-                      "loading_error": "未知错误"
-                    }
-                  }
-                },
-                "query-builder": {
-                  "filters": {},
-                  "add_or_clause": "添加 OR 子句",
-                  "add_value": "增值",
-                  "code": "代码",
-                  "date": "{{value, date}}",
-                  "date_created": "创建于",
-                  "date_modified": "最后更新于",
-                  "delete": "删除",
-                  "field": "场地",
-                  "hidden": "隐",
-                  "is_defined_false": "没有定义的",
-                  "is_defined_true": "定义",
-                  "name": "姓名",
-                  "operator_equal": "平等的",
-                  "operator_greaterthan": "比...更棒",
-                  "operator_greaterthanorequal": "大于或等于",
-                  "operator_in": "之一",
-                  "operator_isdefined": "被定义为",
-                  "operator_lessthan": "少于",
-                  "operator_lessthanorequal": "小于或等于",
-                  "operator_not": "不等于",
-                  "or": "或者",
-                  "query_builder_group": "过滤器组",
-                  "query_builder_rule": "筛选",
-                  "range_from": "从",
-                  "range_to": "到",
-                  "type": "类型",
-                  "type_any": "未知类型的字段",
-                  "type_attribute": "键值资源",
-                  "type_date": "日期字段",
-                  "type_here": "在此输入...",
-                  "type_number": "数字字段",
-                  "type_string": "文本域",
-                  "used_codes": "使用的代码",
-                  "value": "价值"
-                }
-              }
-            },
-            "card": {
-              "spinner": {
-                "loading_busy": "加载中",
-                "loading_empty": "单击选择",
-                "loading_error": "未知错误"
-              }
-            },
-            "helper_text": "模板集确定将使用哪个支付网关和标记化服务来捕获卡详细信息。"
-          },
           "cc-token": {
-            "clear": "清除",
             "tokenize": "保存卡",
             "payment-card-embed": {
               "stripe": {
@@ -958,6 +883,11 @@
             "loading_empty": "此表格仅适用于现有付款方式"
           }
         }
+      },
+      "spinner": {
+        "loading_busy": "載入中",
+        "loading_empty": "沒有付款方式",
+        "loading_error": "未知錯誤"
       }
     },
     "spinner": {

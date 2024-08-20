@@ -1,8 +1,8 @@
-import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Option } from '../../internal/InternalCheckboxGroupControl/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
+import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
@@ -36,40 +36,15 @@ export class SubscriptionSettingsForm extends Base<Data> {
     ];
   }
 
-  private __sendEmailReceiptsForAutomatedBillingOptions: Option[] = [
-    { label: 'option_checked', value: 'checked' },
-  ];
-
-  private __automaticallyChargePastDueAmountOptions: Option[] = [
-    { label: 'option_checked', value: 'checked' },
-  ];
-
-  private __clearPastDueAmountsOnSuccessOptions: Option[] = [
-    { label: 'option_checked', value: 'checked' },
-  ];
-
-  private __resetNextDateOnMakeUpPaymentOptions: Option[] = [
-    { label: 'option_checked', value: 'checked' },
-  ];
-
   private __pastDueAmountHandlingOptions: Option[] = [
     { label: 'option_increment', value: 'increment' },
     { label: 'option_replace', value: 'replace' },
-    { label: 'option_ignore', value: 'ignore' },
   ];
 
   private __positiveIntegerInputParams = {
     type: 'number',
     step: '1',
     min: '0',
-  };
-
-  private __sendEmailReceiptsForAutomatedBillingGetValue = () => {
-    return this.form.send_email_receipts_for_automated_billing ? ['checked'] : [];
-  };
-
-  private __sendEmailReceiptsForAutomatedBillingSetValue = (newValue: string[]) => {
-    this.edit({ send_email_receipts_for_automated_billing: newValue.includes('checked') });
   };
 
   private __expiringSoonPaymentReminderScheduleGetValue = () => {
@@ -86,35 +61,6 @@ export class SubscriptionSettingsForm extends Base<Data> {
     this.edit({
       expiring_soon_payment_reminder_schedule: newItems.map(({ value }) => value).join(),
     });
-  };
-
-  private __automaticallyChargePastDueAmountGetValue = () => {
-    return this.form.automatically_charge_past_due_amount ? ['checked'] : [];
-  };
-
-  private __automaticallyChargePastDueAmountSetValue = (newValue: string[]) => {
-    const isChecked = newValue.includes('checked');
-    this.edit({
-      automatically_charge_past_due_amount: isChecked,
-      clear_past_due_amounts_on_success: isChecked ? false : void 0,
-      reset_nextdate_on_makeup_payment: isChecked ? false : void 0,
-    });
-  };
-
-  private __clearPastDueAmountsOnSuccessGetValue = () => {
-    return this.form.clear_past_due_amounts_on_success ? ['checked'] : [];
-  };
-
-  private __clearPastDueAmountsOnSuccessSetValue = (newValue: string[]) => {
-    this.edit({ clear_past_due_amounts_on_success: newValue.includes('checked') });
-  };
-
-  private __resetNextDateOnMakeUpPaymentGetValue = () => {
-    return this.form.reset_nextdate_on_makeup_payment ? ['checked'] : [];
-  };
-
-  private __resetNextDateOnMakeUpPaymentSetValue = (newValue: string[]) => {
-    this.edit({ reset_nextdate_on_makeup_payment: newValue.includes('checked') });
   };
 
   private __reminderEmailScheduleGetValue = () => {
@@ -145,96 +91,133 @@ export class SubscriptionSettingsForm extends Base<Data> {
     this.edit({ reattempt_schedule: newItems.map(({ value }) => value).join() });
   };
 
+  private __getReattemptBypassStringsValue = () => {
+    const strings = this.form.reattempt_bypass_strings?.split(',') ?? [];
+
+    return strings
+      .map(text => text.trim())
+      .filter((text, index, strings) => text && strings.indexOf(text) === index)
+      .map(text => ({ value: text }));
+  };
+
+  private __setReattemptBypassStringsValue = (newValue: Item[]) => {
+    this.edit({ reattempt_bypass_strings: newValue.map(({ value }) => value).join() });
+  };
+
+  private __reattemptBypassLogicOptions: Option[] = [
+    { value: '', label: 'option_always_reattempt' },
+    { value: 'skip_if_exists', label: 'option_skip_if_exists' },
+    { value: 'reattempt_if_exists', label: 'option_reattempt_if_exists' },
+  ];
+
   get hiddenSelector(): BooleanSelector {
-    return new BooleanSelector(`header:copy-id ${super.hiddenSelector}`.trim());
+    const alwaysMatch = ['header:copy-id', super.hiddenSelector.toString()];
+
+    if (!this.form.reattempt_bypass_logic) {
+      alwaysMatch.push('reattempts-group:reattempt-bypass-strings');
+    }
+
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
   renderBody(): TemplateResult {
     return html`
       ${this.renderHeader()}
 
-      <foxy-internal-radio-group-control
-        infer="past-due-amount-handling"
-        theme="vertical list"
-        .options=${this.__pastDueAmountHandlingOptions}
-      >
-      </foxy-internal-radio-group-control>
+      <foxy-internal-summary-control infer="past-due-amount-group">
+        <foxy-internal-select-control
+          layout="summary-item"
+          infer="past-due-amount-handling"
+          .options=${this.__pastDueAmountHandlingOptions}
+        >
+        </foxy-internal-select-control>
 
-      <foxy-internal-checkbox-group-control
-        infer="automatically-charge-past-due-amount"
-        class="-mt-xs -mb-m"
-        .getValue=${this.__automaticallyChargePastDueAmountGetValue}
-        .setValue=${this.__automaticallyChargePastDueAmountSetValue}
-        .options=${this.__automaticallyChargePastDueAmountOptions}
-      >
-      </foxy-internal-checkbox-group-control>
+        <foxy-internal-switch-control
+          infer="automatically-charge-past-due-amount"
+          helper-text-as-tooltip
+        >
+        </foxy-internal-switch-control>
 
-      ${this.form.automatically_charge_past_due_amount
-        ? ''
-        : html`
-            <foxy-internal-checkbox-group-control
-              infer="clear-past-due-amounts-on-success"
-              class="-mt-xs -mb-m"
-              .getValue=${this.__clearPastDueAmountsOnSuccessGetValue}
-              .setValue=${this.__clearPastDueAmountsOnSuccessSetValue}
-              .options=${this.__clearPastDueAmountsOnSuccessOptions}
-            >
-            </foxy-internal-checkbox-group-control>
+        <foxy-internal-switch-control
+          infer="reset-nextdate-on-makeup-payment"
+          helper-text-as-tooltip
+        >
+        </foxy-internal-switch-control>
 
-            <foxy-internal-checkbox-group-control
-              infer="reset-nextdate-on-makeup-payment"
-              class="-mt-xs -mb-m"
-              .getValue=${this.__resetNextDateOnMakeUpPaymentGetValue}
-              .setValue=${this.__resetNextDateOnMakeUpPaymentSetValue}
-              .options=${this.__resetNextDateOnMakeUpPaymentOptions}
-            >
-            </foxy-internal-checkbox-group-control>
-          `}
+        <foxy-internal-switch-control
+          infer="prevent-customer-cancel-with-past-due"
+          helper-text-as-tooltip
+        >
+        </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-subscription-settings-form-reattempt-bypass infer="reattempt-bypass">
-      </foxy-internal-subscription-settings-form-reattempt-bypass>
+      <foxy-internal-summary-control infer="reattempts-group">
+        <foxy-internal-select-control
+          layout="summary-item"
+          infer="reattempt-bypass-logic"
+          .options=${this.__reattemptBypassLogicOptions}
+        >
+        </foxy-internal-select-control>
 
-      <foxy-internal-editable-list-control
-        infer="reattempt-schedule"
-        .inputParams=${this.__positiveIntegerInputParams}
-        .getValue=${this.__reattemptScheduleGetValue}
-        .setValue=${this.__reattemptScheduleSetValue}
-      >
-      </foxy-internal-editable-list-control>
+        <foxy-internal-editable-list-control
+          layout="summary-item"
+          infer="reattempt-bypass-strings"
+          .getValue=${this.__getReattemptBypassStringsValue}
+          .setValue=${this.__setReattemptBypassStringsValue}
+        >
+        </foxy-internal-editable-list-control>
 
-      <foxy-internal-editable-list-control
-        infer="reminder-email-schedule"
-        .inputParams=${this.__positiveIntegerInputParams}
-        .getValue=${this.__reminderEmailScheduleGetValue}
-        .setValue=${this.__reminderEmailScheduleSetValue}
-      >
-      </foxy-internal-editable-list-control>
+        <foxy-internal-editable-list-control
+          layout="summary-item"
+          infer="reattempt-schedule"
+          .inputParams=${this.__positiveIntegerInputParams}
+          .getValue=${this.__reattemptScheduleGetValue}
+          .setValue=${this.__reattemptScheduleSetValue}
+        >
+        </foxy-internal-editable-list-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-editable-list-control
-        infer="expiring-soon-payment-reminder-schedule"
-        .inputParams=${this.__positiveIntegerInputParams}
-        .getValue=${this.__expiringSoonPaymentReminderScheduleGetValue}
-        .setValue=${this.__expiringSoonPaymentReminderScheduleSetValue}
-      >
-      </foxy-internal-editable-list-control>
+      <foxy-internal-summary-control infer="emails-group">
+        <foxy-internal-switch-control
+          infer="send-email-receipts-for-automated-billing"
+          helper-text-as-tooltip
+        >
+        </foxy-internal-switch-control>
 
-      <foxy-internal-checkbox-group-control
-        infer="send-email-receipts-for-automated-billing"
-        class="-mt-xs -mb-m"
-        .options=${this.__sendEmailReceiptsForAutomatedBillingOptions}
-        .getValue=${this.__sendEmailReceiptsForAutomatedBillingGetValue}
-        .setValue=${this.__sendEmailReceiptsForAutomatedBillingSetValue}
-      >
-      </foxy-internal-checkbox-group-control>
+        <foxy-internal-editable-list-control
+          layout="summary-item"
+          infer="reminder-email-schedule"
+          .inputParams=${this.__positiveIntegerInputParams}
+          .getValue=${this.__reminderEmailScheduleGetValue}
+          .setValue=${this.__reminderEmailScheduleSetValue}
+        >
+        </foxy-internal-editable-list-control>
 
-      <foxy-internal-integer-control
-        suffix=${this.__cancellationScheduleSuffix}
-        infer="cancellation-schedule"
-        min="1"
-      >
-      </foxy-internal-integer-control>
+        <foxy-internal-editable-list-control
+          layout="summary-item"
+          infer="expiring-soon-payment-reminder-schedule"
+          .inputParams=${this.__positiveIntegerInputParams}
+          .getValue=${this.__expiringSoonPaymentReminderScheduleGetValue}
+          .setValue=${this.__expiringSoonPaymentReminderScheduleSetValue}
+        >
+        </foxy-internal-editable-list-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-text-control infer="modification-url"></foxy-internal-text-control>
+      <foxy-internal-summary-control infer="modification-group">
+        <foxy-internal-text-control layout="summary-item" infer="modification-url">
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="cancellation-group">
+        <foxy-internal-number-control
+          layout="summary-item"
+          suffix=${this.__cancellationScheduleSuffix}
+          infer="cancellation-schedule"
+          step="1"
+          min="1"
+        >
+        </foxy-internal-number-control>
+      </foxy-internal-summary-control>
 
       ${super.renderBody()}
     `;

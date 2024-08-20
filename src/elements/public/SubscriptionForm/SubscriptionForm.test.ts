@@ -41,6 +41,12 @@ const fromDefaults = (key: string, overrides: Record<PropertyKey, unknown>) => {
 };
 
 describe('SubscriptionForm', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('imports and defines vcf-tooltip', () => {
     expect(customElements.get('vcf-tooltip')).to.exist;
   });

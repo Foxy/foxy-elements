@@ -1,4 +1,4 @@
-import type { AvailablePaymentMethods } from '../types';
+import type { AvailablePaymentMethods, PaymentMethod } from '../types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 
@@ -6,6 +6,7 @@ export type Params = {
   hostedPaymentGatewaysHelper: Resource<Rels.HostedPaymentGatewaysHelper>;
   paymentGatewaysHelper: Resource<Rels.PaymentGatewaysHelper>;
   paymentPresetId: string;
+  paymentMethods: PaymentMethod[];
   paymentGateway?: Resource<Rels.PaymentGateway>;
   base: string;
 };
@@ -15,6 +16,7 @@ export function compose(params: Params): AvailablePaymentMethods {
     hostedPaymentGatewaysHelper: hostedGwsHelper,
     paymentGatewaysHelper: gwsHelper,
     paymentPresetId: presetId,
+    paymentMethods: pmds,
     paymentGateway: gw,
     base,
   } = params;
@@ -24,6 +26,8 @@ export function compose(params: Params): AvailablePaymentMethods {
 
   Object.entries(hostedGwsHelper.values).forEach(([type, helper]) => {
     values[type] = helper;
+    const pmd = pmds.find(pm => pm.type === type);
+    if (pmd) values[type].conflict = { type: pmd.type, name: pmd.description };
   });
 
   Object.entries(gwsHelper.values).forEach(([type, helper]) => {

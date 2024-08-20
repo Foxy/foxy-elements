@@ -209,26 +209,30 @@ describe('FormDialog', () => {
     expect(dialog).to.have.property('closable', false);
   });
 
-  [
-    { idle: { template: { clean: 'valid' } } },
-    { idle: { template: { dirty: 'valid' } } },
-    { idle: { snapshot: { dirty: 'valid' } } },
-  ].forEach(stateValue => {
-    it(`becomes editable when form is in ${JSON.stringify(stateValue)} state`, async () => {
-      const href = 'https://demo.api/hapi/attributes/0';
-      const form = 'foxy-attribute-form';
-      const dialog = await fixture<FormDialog>(html`
-        <foxy-form-dialog href=${href} form=${form}></foxy-form-dialog>
-      `);
+  [{ idle: { template: { dirty: 'valid' } } }, { idle: { snapshot: { dirty: 'valid' } } }].forEach(
+    stateValue => {
+      it(`becomes editable when form is in ${JSON.stringify(stateValue)} state`, async () => {
+        const href = 'https://demo.api/hapi/attributes/0';
+        const form = 'foxy-attribute-form';
+        const dialog = await fixture<FormDialog>(html`
+          <foxy-form-dialog href=${href} form=${form}></foxy-form-dialog>
+        `);
 
-      await dialog.show();
+        await dialog.show();
 
-      const formElement = dialog.renderRoot.querySelector('#form') as NucleonElement<never>;
-      stub(formElement, 'in').callsFake(v => isEqual(v, stateValue));
-      formElement.dispatchEvent(new UpdateEvent());
+        const formElement = dialog.renderRoot.querySelector('#form') as NucleonElement<never>;
+        stub(formElement, 'in').callsFake(v => isEqual(v, stateValue));
+        formElement.dispatchEvent(new UpdateEvent());
 
-      await dialog.requestUpdate();
-      expect(dialog).to.have.property('editable', true);
-    });
+        await dialog.requestUpdate();
+        expect(dialog).to.have.property('editable', true);
+      });
+    }
+  );
+
+  it('hides built-in Undo and Submit buttons in forms because it provides its own', () => {
+    const dialog = new FormDialog();
+    expect(dialog.hiddenSelector.matches('undo', true)).to.be.true;
+    expect(dialog.hiddenSelector.matches('submit', true)).to.be.true;
   });
 });

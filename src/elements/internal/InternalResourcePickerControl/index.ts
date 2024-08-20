@@ -2,7 +2,9 @@ import '../InternalAsyncListControl/index';
 import '../InternalEditableControl/index';
 import '../InternalForm/index';
 
+import '../../public/NucleonElement/index';
 import '../../public/FormDialog/index';
+import '../../public/I18n/index';
 
 import { InternalResourcePickerControlForm } from './InternalResourcePickerControlForm';
 import { InternalResourcePickerControl } from './InternalResourcePickerControl';

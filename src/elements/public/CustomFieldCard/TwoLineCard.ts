@@ -49,7 +49,7 @@ export class TwoLineCard<TData extends HALJSONResource> extends Base<TData> {
 
     return html`
       <div
-        class="h-s flex flex-col justify-center relative text-body text-m font-lumo leading-xs sm-h-xs sm-flex-row sm-items-center sm-justify-between"
+        class="relative text-body text-m font-lumo leading-xs sm-h-auto sm-flex sm-items-center sm-justify-between"
       >
         ${hiddenSelector.matches('title', true) ? '' : this.__renderTitle(options?.title)}
         ${hiddenSelector.matches('subtitle', true) ? '' : this.__renderSubtitle(options?.subtitle)}

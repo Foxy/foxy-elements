@@ -1,8 +1,8 @@
 {
   "header": {
-    "title_existing": "Payment method set #{{ id }}",
+    "title_existing": "{{ description }}",
     "title_new": "New payment method set",
-    "subtitle": "",
+    "subtitle": "Payment method set #{{ id }}",
     "copy-id": {
       "failed_to_copy": "Failed to copy",
       "click_to_copy": "Copy ID",
@@ -10,22 +10,30 @@
       "done": "Copied to clipboard"
     }
   },
-  "description": {
-    "label": "Description",
-    "placeholder": "E.g. EU & UK Payment Options",
+  "general": {
+    "label": "",
     "helper_text": "",
-    "v8n_required": "Please describe this payment method set",
-    "v8n_too_long": "Please reduce this description to a 100 characters or less"
-  },
-  "is-live": {
-    "label": "",
-    "option_live": "Use live credentials",
-    "helper_text": ""
-  },
-  "is-purchase-order-enabled": {
-    "label": "",
-    "option_true": "Allow purchase orders",
-    "helper_text": ""
+    "description": {
+      "label": "Description",
+      "placeholder": "E.g. EU & UK Payment Options",
+      "helper_text": "",
+      "v8n_required": "Please describe this payment method set",
+      "v8n_too_long": "Please reduce this description to a 100 characters or less"
+    },
+    "is-live": {
+      "label": "Use live credentials",
+      "helper_text": "",
+      "helper_text_inactive_store": "Only active stores can use live credentials.",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "is-purchase-order-enabled": {
+      "label": "Allow purchase orders",
+      "helper_text": "",
+      "helper_text_inactive_store": "Only active stores can use Purchase Orders as payment option.",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
   },
   "payment-methods": {
     "delete_header": "Remove payment method",
@@ -42,7 +50,110 @@
       "undo_header": "Unsaved changes",
       "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
       "undo_cancel": "Review",
-      "undo_confirm": "Discard"
+      "undo_confirm": "Discard",
+      "payments-api-payment-method-form": {
+        "header": {
+          "title_new": "New payment method",
+          "title_selected": "{{ name }}",
+          "subtitle_regular": "Payment gateway #{{ id }}",
+          "subtitle_hosted": "Hosted payment gateway #{{ id }}",
+          "subtitle": "",
+          "copy-id": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy ID",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          }
+        },
+        "list-spinner": {
+          "loading_busy": "Loading payment methods...",
+          "loading_error": "Unknown error. Failed to load payment methods."
+        },
+        "select_another_button_label": "Select another",
+        "default_additional_field_placeholder": "None",
+        "default_additional_field_select_placeholder": "Select",
+        "conflict_message": "Remove {{ name }} to use this method",
+        "no_oauth_support_message": "Adding this gateway is currently restricted from this admin. Please utilise our legacy administration to connect this gateway to your payment set.",
+        "test-group": {
+          "label": "Test setup",
+          "label_inactive": "Test setup (inactive)",
+          "helper_text": "",
+          "helper_text_inactive": "To use this setup, turn off the \"Use live credentials\" option in the payment method set."
+        },
+        "live-group": {
+          "label": "Live setup",
+          "label_inactive": "Live setup (inactive)",
+          "helper_text": "",
+          "helper_text_inactive": "To use this setup, turn on the \"Use live credentials\" option in the payment method set.",
+          "inactive_message": "Only active stores can accept real payments. To activate your store, please upgrade to a paid plan."
+        },
+        "general": {
+          "label": "",
+          "helper_text": "",
+          "three-d-secure-toggle": {
+            "label": "3D Secure",
+            "placeholder": "Select",
+            "option_off": "Off",
+            "option_all_cards": "On for all cards",
+            "option_maestro_only": "On for Maestro cards",
+            "helper_text": ""
+          },
+          "three-d-secure-response": {
+            "label": "Require valid 3D Secure response",
+            "checked": "Yes",
+            "unchecked": "No",
+            "helper_text": ""
+          },
+          "description": {
+            "label": "Description",
+            "placeholder": "Defaults to the gateway name",
+            "helper_text": "",
+            "v8n_too_long": "Please reduce this description to a 100 characters or less"
+          }
+        },
+        "account-id": {
+          "label": "Account ID"
+        },
+        "account-key": {
+          "label": "Account Key"
+        },
+        "third-party-key": {
+          "label": "3rd-party key"
+        },
+        "test-account-id": {
+          "label": "Account ID"
+        },
+        "test-account-key": {
+          "label": "Account Key"
+        },
+        "test-third-party-key": {
+          "label": "3rd-party key"
+        },
+        "timestamps": {
+          "date_created": "Added on",
+          "date_modified": "Last updated on",
+          "date": "{{value, date}}"
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error"
+        },
+        "delete": {
+          "delete": "Remove",
+          "cancel": "Cancel",
+          "delete_prompt": "Are you sure you'd like to remove this payment method? You'll need to configure it again if you decide to bring it back."
+        },
+        "undo": {
+          "caption": "Undo"
+        },
+        "submit": {
+          "caption": "Save changes"
+        },
+        "create": {
+          "caption": "Create"
+        }
+      }
     },
     "pagination": {
       "create_button_text": "Add payment method +",
@@ -79,28 +190,35 @@
             "click_to_copy": "Copy ID",
             "copying": "Copying...",
             "done": "Copied to clipboard"
-          },
-          "copy-json": {
-            "failed_to_copy": "Failed to copy",
-            "click_to_copy": "Copy source as JSON",
-            "copying": "Copying...",
-            "done": "Copied to clipboard"
           }
         },
-        "default_additional_field_placeholder": "None",
-        "select_protection_title": "Select a fraud protection type to get started",
-        "select_another_button_label": "Back to fraud protections",
-        "score-threshold-reject": {
-          "label": "Rejection threshold",
-          "placeholder": "Default",
-          "helper_text": "A number between 0 and 100. 0 will disable minFraud and 100 will turn it on for logging but still allow all transactions to go through.",
-          "v8n_out_of_range": "Please enter a whole number between 0 and 100 (inclusive)."
+        "list-spinner": {
+          "loading_busy": "Loading fraud protections...",
+          "loading_error": "Unknown error. Failed to load fraud protections."
         },
-        "description": {
-          "label": "Description",
-          "placeholder": "None",
+        "default_additional_field_placeholder": "None",
+        "default_additional_field_select_placeholder": "Select",
+        "select_another_button_label": "Select another",
+        "conflict_message": "You've already added this fraud protection to the payment method set.",
+        "general": {
+          "label": "",
           "helper_text": "",
-          "v8n_too_long": "Please reduce this description to a 100 characters or less"
+          "description": {
+            "label": "Description",
+            "placeholder": "None",
+            "helper_text": "",
+            "v8n_too_long": "Please reduce this description to a 100 characters or less"
+          }
+        },
+        "setup": {
+          "label": "",
+          "helper_text": "",
+          "score-threshold-reject": {
+            "label": "Rejection threshold",
+            "placeholder": "Default",
+            "helper_text": "A number between 0 and 100. 0 will disable minFraud and 100 will turn it on for logging but still allow all transactions to go through.",
+            "v8n_out_of_range": "Please enter a whole number between 0 and 100 (inclusive)."
+          }
         },
         "timestamps": {
           "date_created": "Created on",

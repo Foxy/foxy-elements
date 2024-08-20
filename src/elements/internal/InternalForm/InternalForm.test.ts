@@ -9,6 +9,8 @@ import { getTestData } from '../../../testgen/getTestData';
 import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
 import { NucleonElement } from '../../public/NucleonElement/NucleonElement';
 import { InternalForm } from './index';
+import { Resource } from '@foxy.io/sdk/core';
+import { Rels } from '@foxy.io/sdk/backend';
 
 describe('InternalForm', () => {
   it('imports and registers foxy-internal-timestamps-control', () => {
@@ -149,17 +151,8 @@ describe('InternalForm', () => {
 
     render(element.renderBody(), root);
 
-    expect(root.querySelector('foxy-internal-submit-control[infer="submit"]')).to.not.exist;
-    expect(root.querySelector('foxy-internal-submit-control[infer="create"]')).to.exist;
-    expect(root.querySelector('foxy-internal-delete-control[infer="delete"]')).to.not.exist;
-    expect(root.querySelector('foxy-internal-undo-control[infer="undo"]')).to.not.exist;
-    expect(root.querySelector('foxy-internal-timestamps-control[infer="timestamps"]')).to.not.exist;
-
-    element.data = await getTestData<any>('./hapi/customers/0');
-    render(element.renderBody(), root);
-
     expect(root.querySelector('foxy-internal-submit-control[infer="submit"]')).to.exist;
-    expect(root.querySelector('foxy-internal-submit-control[infer="create"]')).to.not.exist;
+    expect(root.querySelector('foxy-internal-submit-control[infer="create"]')).to.exist;
     expect(root.querySelector('foxy-internal-delete-control[infer="delete"]')).to.exist;
     expect(root.querySelector('foxy-internal-undo-control[infer="undo"]')).to.exist;
     expect(root.querySelector('foxy-internal-timestamps-control[infer="timestamps"]')).to.exist;
@@ -177,19 +170,10 @@ describe('InternalForm', () => {
 
     expect(renderBodyMethod).to.have.been.called;
     expect(root.querySelector('foxy-internal-submit-control[infer="create"]')).to.exist;
-    expect(root.querySelector('foxy-internal-delete-control[infer="delete"]')).to.not.exist;
-    expect(root.querySelector('foxy-internal-timestamps-control[infer="timestamps"]')).to.not.exist;
-
-    renderBodyMethod.resetHistory();
-    element.data = await getTestData<any>('./hapi/customers/0');
-    await element.requestUpdate();
-
-    expect(renderBodyMethod).to.have.been.called;
-    expect(root.querySelector('foxy-internal-submit-control[infer="create"]')).to.not.exist;
     expect(root.querySelector('foxy-internal-delete-control[infer="delete"]')).to.exist;
     expect(root.querySelector('foxy-internal-timestamps-control[infer="timestamps"]')).to.exist;
-
-    renderBodyMethod.restore();
+    expect(root.querySelector('foxy-internal-undo-control[infer="undo"]')).to.exist;
+    expect(root.querySelector('foxy-internal-submit-control[infer="submit"]')).to.exist;
   });
 
   it('renders foxy-spinner in "busy" state while loading data', async () => {
@@ -296,6 +280,35 @@ describe('InternalForm', () => {
 
     const wrapper = element.renderRoot.querySelector('[data-testid="status"]')!;
     expect(wrapper).to.not.exist;
+  });
+
+  it('hides Create button when href is set', () => {
+    const element = new InternalForm();
+    expect(element.hiddenSelector.matches('create', true)).to.be.false;
+
+    element.href = 'https://demo.api/hapi/customer_addresses/0';
+    expect(element.hiddenSelector.matches('create', true)).to.be.true;
+  });
+
+  it('hides Delete button, Submit button and timestamps when href is not set', () => {
+    const element = new InternalForm();
+    expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+    expect(element.hiddenSelector.matches('submit', true)).to.be.true;
+    expect(element.hiddenSelector.matches('timestamps', true)).to.be.true;
+
+    element.href = 'https://demo.api/hapi/customer_addresses/0';
+    expect(element.hiddenSelector.matches('delete', true)).to.be.false;
+    expect(element.hiddenSelector.matches('submit', true)).to.be.true; // remains hidden because of another condition
+    expect(element.hiddenSelector.matches('timestamps', true)).to.be.false;
+  });
+
+  it('hides Undo button when there are no edits to undo', async () => {
+    const element = new InternalForm<Resource<Rels.CustomerAddress>>();
+    expect(element.hiddenSelector.matches('undo', true)).to.be.true;
+
+    element.data = await getTestData('./hapi/customer_addresses/0');
+    element.edit({ first_name: 'John' });
+    expect(element.hiddenSelector.matches('undo', true)).to.be.false;
   });
 
   it('renders general errors if present', async () => {

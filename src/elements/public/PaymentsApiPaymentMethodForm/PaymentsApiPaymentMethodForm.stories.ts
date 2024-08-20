@@ -50,10 +50,15 @@ export default {
   ],
 };
 
-export const Playground = getStory({ ...summary, code: true });
-export const Empty = getStory(summary);
-export const Error = getStory(summary);
-export const Busy = getStory(summary);
+const ext = `
+  payment-preset="https://foxy-payments-api.element/payment_presets/0"
+  store="https://demo.api/hapi/stores/0"
+`;
+
+export const Playground = getStory({ ...summary, ext, code: true });
+export const Empty = getStory({ ...summary, ext });
+export const Error = getStory({ ...summary, ext });
+export const Busy = getStory({ ...summary, ext });
 
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';

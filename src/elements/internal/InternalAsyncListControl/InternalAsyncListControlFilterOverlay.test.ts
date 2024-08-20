@@ -10,6 +10,12 @@ import { Type } from '../../public/QueryBuilder/types';
 
 describe('InternalAsyncListControl', () => {
   describe('InternalAsyncListControlFilterOverlay', () => {
+    const OriginalResizeObserver = window.ResizeObserver;
+
+    // @ts-expect-error disabling ResizeObserver because it errors in test env
+    before(() => (window.ResizeObserver = undefined));
+    after(() => (window.ResizeObserver = OriginalResizeObserver));
+
     it('extends OverlayElement', () => {
       expect(new Overlay()).to.be.instanceOf(OverlayElement);
     });

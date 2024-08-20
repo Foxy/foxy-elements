@@ -248,12 +248,6 @@
     "helper_text": "The name of the inventory field in your products collection.",
     "v8n_required": "Please enter an inventory field name."
   },
-  "webflow-auth": {
-    "label": "Token",
-    "placeholder": "Required",
-    "helper_text": "The OAuth2 authorization token for your Webflow site.",
-    "v8n_required": "Please enter an authorization token."
-  },
   "zapier-event": {
     "label": "Event",
     "placeholder": "Defined by Zapier",

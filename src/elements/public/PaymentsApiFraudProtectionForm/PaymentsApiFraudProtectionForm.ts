@@ -1,14 +1,15 @@
 import type { AvailableFraudProtections, FraudProtection } from '../PaymentsApi/api/types';
-import type { Block, Data } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
+import type { Block, Data } from './types';
 import type { NucleonV8N } from '../NucleonElement/types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
 
 import get from 'lodash-es/get';
@@ -115,9 +116,20 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
   }
 
   renderBody(): TemplateResult {
-    return this.form.type
+    const loaders = html`
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__availableFraudProtectionsHref)}
+        id=${this.__availableFraudProtectionsLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+    `;
+
+    return html`${this.renderHeader()}${this.form.type
       ? this.__renderFraudProtectionConfig()
-      : this.__renderFraudProtectionSelector();
+      : this.__renderFraudProtectionSelector()}${loaders}`;
   }
 
   private get __availableFraudProtectionsLoader() {
@@ -146,23 +158,21 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
   }
 
   private __renderFraudProtectionSelector() {
+    const loader = this.__availableFraudProtectionsLoader;
+
     return html`
-      ${this.renderHeader()}
-
-      <div class="grid grid-cols-2 gap-m" data-testid="select-protection-list">
-        ${Object.entries(this.__availableFraudProtections ?? {}).map(([type, helper]) => {
-          return this.__renderFraudProtectionButton({ type, helper } as FraudProtection);
-        })}
-      </div>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.__availableFraudProtectionsHref)}
-        id=${this.__availableFraudProtectionsLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
+      ${loader?.data
+        ? html`
+            <div class="grid grid-cols-2 gap-m" data-testid="select-protection-list">
+              ${Object.entries(this.__availableFraudProtections ?? {}).map(([type, helper]) => {
+                return this.__renderFraudProtectionButton({ type, helper } as FraudProtection);
+              })}
+            </div>
+          `
+        : html`
+            <foxy-spinner infer="list-spinner" state=${loader?.in('fail') ? 'error' : 'busy'}>
+            </foxy-spinner>
+          `}
     `;
   }
 
@@ -173,7 +183,14 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
 
     return html`
       <button
-        class="relative w-full block text-left p-s rounded bg-contrast-5 overflow-hidden transition-colors hover-bg-contrast-10 focus-outline-none focus-ring-2 focus-ring-primary-50"
+        class=${classMap({
+          'relative w-full block text-left p-s rounded bg-contrast-5 overflow-hidden': true,
+          'focus-outline-none focus-ring-2 focus-ring-primary-50': true,
+          'transition-colors hover-bg-contrast-10': !helper.conflict,
+          'cursor-default': !!helper.conflict,
+        })}
+        ?disabled=${!!helper.conflict}
+        title=${ifDefined(helper.conflict ? this.t('conflict_message') : void 0)}
         @click=${() => this.edit({ type, helper })}
       >
         <img
@@ -181,20 +198,29 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
           style="transform: translate3d(0, 0, 0)"
           src=${src}
           alt=""
+          ?hidden=${!!helper.conflict}
           @error=${onError}
         />
 
         <figure class="relative flex flex-col gap-m">
           <img
-            class="h-m w-m object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs"
+            class=${classMap({
+              'h-m w-m object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs': true,
+              'filter grayscale': !!helper.conflict,
+            })}
             src=${src}
             alt=""
             @error=${onError}
           />
 
-          <figcaption class="min-w-0 flex-1 truncate leading-s">
+          <figcaption
+            class=${classMap({
+              'min-w-0 flex-1 truncate leading-s': true,
+              'text-disabled': !!helper.conflict,
+            })}
+          >
             <div class="font-medium">${helper.name}&ZeroWidthSpace;</div>
-            <div class="text-xs text-secondary">${type}</div>
+            <div class="text-xs ${helper.conflict ? '' : 'text-secondary'}">${type}</div>
           </figcaption>
         </figure>
       </button>
@@ -203,15 +229,21 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
 
   private __renderFraudProtectionConfig() {
     return html`
-      ${this.renderHeader()}
-      <foxy-internal-text-control infer="description"></foxy-internal-text-control>
-      ${this.form.helper?.uses_rejection_threshold
-        ? html`
-            <foxy-internal-integer-control infer="score-threshold-reject">
-            </foxy-internal-integer-control>
-          `
-        : ''}
-      ${this.form.helper?.json?.blocks.map(block => this.__renderBlock(block))}
+      <foxy-internal-summary-control infer="general">
+        <foxy-internal-text-control layout="summary-item" infer="description">
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="setup">
+        ${this.form.helper?.uses_rejection_threshold
+          ? html`
+              <foxy-internal-number-control layout="summary-item" infer="score-threshold-reject">
+              </foxy-internal-number-control>
+            `
+          : ''}
+        ${this.form.helper?.json?.blocks.map(block => this.__renderBlock(block))}
+      </foxy-internal-summary-control>
+
       ${super.renderBody()}
     `;
   }
@@ -252,22 +284,21 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
       return html`
         ${field.type === 'checkbox'
           ? html`
-              <foxy-internal-checkbox-group-control
+              <foxy-internal-switch-control
                 helper-text=${field.description ?? ''}
-                label=""
+                label=${field.name}
                 infer=${scope}
-                .options=${[{ label: field.name, value: 'checked' }]}
-                .getValue=${() => (getValue() ? ['checked'] : [])}
-                .setValue=${(newValue: string[]) => setValue(newValue.includes('checked'))}
+                .getValue=${getValue}
+                .setValue=${setValue}
               >
-              </foxy-internal-checkbox-group-control>
+              </foxy-internal-switch-control>
             `
           : field.type === 'select'
           ? html`
               <foxy-internal-select-control
                 helper-text=${field.description ?? ''}
-                placeholder=${field.options?.find(o => o.value === field.default_value)?.name ??
-                this.t('default_additional_field_placeholder')}
+                placeholder=${this.t('default_additional_field_placeholder')}
+                layout="summary-item"
                 label=${field.name}
                 infer=${scope}
                 .options=${options!.map(({ name, value }) => ({ label: name, value }))}
@@ -280,6 +311,7 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
               <foxy-internal-text-control
                 helper-text=${field.description ?? ''}
                 placeholder=${field.default_value || this.t('default_additional_field_placeholder')}
+                layout="summary-item"
                 label=${field.name}
                 infer=${scope}
                 .getValue=${getValue}

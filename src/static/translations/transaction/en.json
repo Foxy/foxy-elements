@@ -138,7 +138,6 @@
         },
         "subscription-frequency": {
           "label": "Subscription frequency",
-          "helper_text": "",
           "day": "Day",
           "day_plural": "Days",
           "week": "Week",

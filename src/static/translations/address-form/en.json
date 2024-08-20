@@ -1,10 +1,10 @@
 {
   "header": {
+    "title_default_shipping": "Default shipping address",
+    "title_default_billing": "Default billing address",
     "title_existing": "Customer address #{{ id }}",
     "title_new": "New customer address",
-    "subtitle_default_shipping": "Default shipping address",
-    "subtitle_default_billing": "Default billing address",
-    "subtitle_custom": "Custom address",
+    "subtitle": "",
     "copy-id": {
       "failed_to_copy": "Failed to copy",
       "click_to_copy": "Copy ID",

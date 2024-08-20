@@ -3,6 +3,7 @@
     "title_existing": "Client #{{ id }}",
     "title_new": "New client",
     "subtitle": "",
+    "subtitle_with_domain": "{{ domain }}",
     "copy-id": {
       "failed_to_copy": "Failed to copy",
       "click_to_copy": "Copy ID",

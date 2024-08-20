@@ -244,11 +244,12 @@ describe('InternalTextControl', () => {
     expect(control.testValue).to.match(/^[a-zA-Z0-9]{6}-[a-zA-Z0-9]{6}-[a-zA-Z0-9]{6}$/);
 
     control.generatorOptions = {
+      separator: '|',
       charset: 'abcdefghijklmnopqrstuvwxyz0123456789',
       length: 12,
     };
 
     button.click();
-    expect(control.testValue).to.match(/^[a-z0-9]{6}-[a-z0-9]{6}$/);
+    expect(control.testValue).to.match(/^[a-z0-9]{6}\|[a-z0-9]{6}$/);
   });
 });

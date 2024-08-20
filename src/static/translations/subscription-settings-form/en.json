@@ -14,73 +14,97 @@
   "day_plural": "{{ count }} days",
   "day_suffix": "day",
   "day_suffix_plural": "days",
-  "modification-url": {
-    "label": "Modification URL",
-    "placeholder": "https://example.com/edit-subscription",
-    "helper_text": "Enter a full URL or a path to the page under your Store URL where customers can modify their subscription. If present, subscriptions in the Customer Portal will show an Edit link that will send subscribers to this page."
-  },
-  "past-due-amount-handling": {
-    "label": "Past due amount value",
-    "option_increment": "Contains the sum of all missed payments",
-    "option_replace": "Contains the last missed payment amount",
-    "option_ignore": "Doesn't change",
-    "helper_text": "This setting determines how you'd like to handle past due amounts when we try to process a subscription and that subscritpion fails."
-  },
-  "automatically-charge-past-due-amount": {
-    "label": "",
-    "option_checked": "Charge past due amount with subscription payment",
-    "helper_text": ""
-  },
-  "clear-past-due-amounts-on-success": {
-    "label": "",
-    "option_checked": "Clear past due amount on successful payment",
-    "helper_text": ""
-  },
-  "reset-nextdate-on-makeup-payment": {
-    "label": "",
-    "option_checked": "Reset next transaction date on make-up payment",
-    "helper_text": ""
-  },
-  "reattempt-schedule": {
-    "label": "Reattempt schedule",
-    "placeholder": "Period in days, e.g. 14",
+  "past-due-amount-group": {
+    "label": "Past due amount",
     "helper_text": "",
-    "v8n_too_long": "This schedule is too large. Please reduce the number of entries."
+    "past-due-amount-handling": {
+      "label": "Past due amount handling",
+      "placeholder": "Select",
+      "option_increment": "Increment on each failure",
+      "option_replace": "Replace on each failure",
+      "helper_text": ""
+    },
+    "automatically-charge-past-due-amount": {
+      "label": "Charge with subscription payment",
+      "helper_text": "If enabled, the past due amount will be included in automatic subscription processing, and will be included in the cart if a customer attempts to update their subscription. If unchecked, any successful subscription payment (automatic or customer-initiated) will clear out the past due amount.",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "reset-nextdate-on-makeup-payment": {
+      "label": "Reset next transaction date on make-up payment",
+      "helper_text": "If enabled, and a past due amount is successfully paid, the next transaction date for the subscription will be reset to be one frequency ahead of the day that the transaction is processed.",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "prevent-customer-cancel-with-past-due": {
+      "label": "Prevent modification or cancellation if past due is present",
+      "helper_text": "If enabled, if the customer has a past due amount and wishes to cancel their subscription using a sub_token through the cart interface, they will be prevented from doing so until they first pay their past due amount.",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
   },
-  "reminder-email-schedule": {
-    "label": "Failed subscription payment email schedule",
-    "placeholder": "Period in days, e.g. 14",
-    "helper_text": "Number of days after the initial failure that an email notification to the customer should be sent. This only happens for active subscriptions which still have a past due amount. If a reattempt is successful, no additional reminder email will be sent.",
-    "v8n_too_long": "This schedule is too large. Please reduce the number of entries."
-  },
-  "expiring-soon-payment-reminder-schedule": {
-    "label": "Payment method expiration email schedule",
-    "placeholder": "Period in days, e.g. 14",
-    "helper_text": "Number of days until the payment card expires that an email notification should be sent to the customer. This only happens for customers with active subscriptions.",
-    "v8n_too_long": "This schedule is too large. Please reduce the number of entries."
-  },
-  "cancellation-schedule": {
-    "label": "Cancel failed subscriptions after",
-    "placeholder": "Don't cancel",
-    "helper_text": "A single number representing the number of days after the initial failure that a subscription should be set to cancel (assuming a successful payment hasn't been made in the meantime)."
-  },
-  "send-email-receipts-for-automated-billing": {
-    "label": "",
-    "option_checked": "Send email receipts for automated billing",
-    "helper_text": ""
-  },
-  "reattempt-bypass": {
-    "label": "Reattempt behavior",
-    "helper_text": "Determines whether Foxy should reattempt the subscription charge if the transaction's previous error string does or doesn't contain specific text.",
-    "option_reattempt_if_exists": "Reattempt on certain errors",
-    "option_skip_if_exists": "Skip on certain errors",
-    "option_always_reattempt": "Always reattempt",
-    "option_never_reattempt": "Never reattempt",
-    "reattempt-bypass-strings": {
-      "label": "",
-      "placeholder": "Add errors...",
+  "reattempts-group": {
+    "label": "Reattempts",
+    "helper_text": "",
+    "reattempt-bypass-logic": {
+      "label": "Reattempt behavior",
       "helper_text": "",
+      "placeholder": "Select",
+      "option_reattempt_if_exists": "Reattempt on certain errors",
+      "option_skip_if_exists": "Skip on certain errors",
+      "option_always_reattempt": "Always reattempt"
+    },
+    "reattempt-bypass-strings": {
+      "label": "Reattempt bypass strings",
+      "placeholder": "Add errors...",
+      "helper_text": "Text strings that should prevent or allow (based on the above setting) a rebilling attempt. For example, setting the logic to \"Skip on certain errors\" with a value for the strings field of \"Code: 8\" and \"Code: 37\" would instruct Foxy to not initiate the rebilling process if the last error contained either Code: 8 or Code: 37, but to attempt the rebilling in all other cases.",
       "v8n_too_long": "This list is too large. Please reduce the number of entries."
+    },
+    "reattempt-schedule": {
+      "label": "Reattempt schedule",
+      "placeholder": "Add period in days, e.g. 14",
+      "helper_text": "List of numbers. Each number represents the number of days after the initial failure that a reattempt should be made. For example, a setting of 1, 3, 5, 15, 30 would direct Foxy to attempt to collect the past-due amount on the 1st, 3rd, 5th, and 15th days after the initial transaction.",
+      "v8n_too_long": "This schedule is too large. Please reduce the number of entries."
+    }
+  },
+  "emails-group": {
+    "label": "Emails",
+    "helper_text": "",
+    "send-email-receipts-for-automated-billing": {
+      "label": "Send email receipts for automated billing",
+      "helper_text": "When subscriptions run automatically to bill your customers, turning this setting off will prevent the normal receipt emails from being sent for their automated payment.",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "reminder-email-schedule": {
+      "label": "Failed subscription payment email schedule",
+      "placeholder": "Add period in days, e.g. 14",
+      "helper_text": "Number of days after the initial failure that an email notification to the customer should be sent. This only happens for active subscriptions which still have a past due amount. If a reattempt is successful, no additional reminder email will be sent.",
+      "v8n_too_long": "This schedule is too large. Please reduce the number of entries."
+    },
+    "expiring-soon-payment-reminder-schedule": {
+      "label": "Payment method expiration email schedule",
+      "placeholder": "Add period in days, e.g. 14",
+      "helper_text": "Number of days until the payment card expires that an email notification should be sent to the customer. This only happens for customers with active subscriptions.",
+      "v8n_too_long": "This schedule is too large. Please reduce the number of entries."
+    }
+  },
+  "cancellation-group": {
+    "label": "Cancellation",
+    "helper_text": "A single number representing the number of days after the initial failure that a subscription should be set to cancel (assuming a successful payment hasn't been made in the meantime).",
+    "cancellation-schedule": {
+      "label": "Cancel failed subscriptions after",
+      "helper_text": "",
+      "placeholder": "Don't cancel"
+    }
+  },
+  "modification-group": {
+    "label": "Modification",
+    "helper_text": "Enter a full URL or a path to the page under your Store URL where customers can modify their subscription. If present, subscriptions in the Customer Portal will show an Edit link that will send subscribers to this page.",
+    "modification-url": {
+      "label": "Modification URL",
+      "helper_text": "",
+      "placeholder": "https://example.com/edit-subscription"
     }
   },
   "timestamps": {

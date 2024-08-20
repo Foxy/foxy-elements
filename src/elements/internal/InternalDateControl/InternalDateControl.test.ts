@@ -66,7 +66,7 @@ describe('InternalDateControl', () => {
   });
 
   it('defines a reactive property for "format" (String)', () => {
-    expect(Control).to.have.nested.property('properties.format.type', String);
+    expect(Control).to.have.deep.nested.property('properties.format', {});
     expect(new Control()).to.have.property('format', null);
   });
 
@@ -158,6 +158,19 @@ describe('InternalDateControl', () => {
     expect(field).to.have.property('readonly', false);
   });
 
+  it('sets "theme" on vaadin-date-picker from "layout" on itself', async () => {
+    const layout = html`<test-internal-date-control></test-internal-date-control>`;
+    const control = await fixture<TestControl>(layout);
+    const field = control.renderRoot.querySelector('vaadin-date-picker')!;
+
+    expect(field).to.have.property('theme', 'standalone');
+
+    control.layout = 'summary-item';
+    await control.requestUpdate();
+
+    expect(field).to.have.property('theme', 'summary-item');
+  });
+
   it('sets "checkValidity" on vaadin-date-picker from "_checkValidity" on itself', async () => {
     const layout = html`<test-internal-date-control></test-internal-date-control>`;
     const control = await fixture<TestControl>(layout);
@@ -177,6 +190,20 @@ describe('InternalDateControl', () => {
     await control.requestUpdate();
 
     expect(field).to.have.property('value', '2020-01-01');
+  });
+
+  it('sets long ISO "value" on vaadin-date-picker from "_value" on itself', async () => {
+    const layout = html`<test-internal-date-control></test-internal-date-control>`;
+    const control = await fixture<TestControl>(layout);
+    const field = control.renderRoot.querySelector('vaadin-date-picker')!;
+
+    expect(field).to.have.property('value', '');
+
+    control.format = 'iso-long';
+    control.testValue = '2020-01-01T00:00:00Z';
+    await control.requestUpdate();
+
+    expect(field).to.have.property('value', serializeDate(new Date('2020-01-01T00:00:00Z')));
   });
 
   it('sets UNIX "value" on vaadin-date-picker from "_value" on itself', async () => {
@@ -221,6 +248,21 @@ describe('InternalDateControl', () => {
     expect(control).to.have.property('testValue', expectedValue);
   });
 
+  it('writes long ISO date to "_value" on change', async () => {
+    const layout = html`<test-internal-date-control></test-internal-date-control>`;
+    const control = await fixture<TestControl>(layout);
+    const field = control.renderRoot.querySelector('vaadin-date-picker')!;
+
+    expect(field).to.have.property('value', '');
+
+    control.format = 'iso-long';
+    field.value = '2020-01-01';
+    field.dispatchEvent(new CustomEvent('change'));
+
+    const expectedValue = parseDate('2020-01-01')?.toISOString();
+    expect(control).to.have.property('testValue', expectedValue);
+  });
+
   it('submits the host nucleon form on Enter', async () => {
     const layout = html`<test-internal-date-control></test-internal-date-control>`;
     const control = await fixture<TestControl>(layout);
@@ -231,5 +273,61 @@ describe('InternalDateControl', () => {
     expect(submitMethod).to.have.been.calledOnce;
 
     submitMethod.restore();
+  });
+
+  it('provides translations for vaadin-date-picker', async () => {
+    const layout = html`<test-internal-date-control lang="en"></test-internal-date-control>`;
+    const control = await fixture<TestControl>(layout);
+    const field = control.renderRoot.querySelector('vaadin-date-picker');
+
+    expect(field).to.have.deep.nested.property('i18n.monthNames', [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ]);
+
+    expect(field).to.have.deep.nested.property('i18n.weekdays', [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ]);
+
+    expect(field).to.have.deep.nested.property('i18n.weekdaysShort', [
+      'Sun',
+      'Mon',
+      'Tue',
+      'Wed',
+      'Thu',
+      'Fri',
+      'Sat',
+    ]);
+
+    expect(field).to.have.nested.property('i18n.firstDayOfWeek', 0);
+    expect(field).to.have.nested.property('i18n.week', 'week');
+    expect(field).to.have.nested.property('i18n.calendar', 'calendar');
+    expect(field).to.have.nested.property('i18n.clear', 'clear');
+    expect(field).to.have.nested.property('i18n.today', 'today');
+    expect(field).to.have.nested.property('i18n.cancel', 'cancel');
+    expect(field).to.have.nested.property('i18n.referenceDate', '');
+    expect(field).to.have.nested.property('i18n.parseDate', null);
+
+    expect(field).to.have.nested.property('i18n.formatTitle').to.be.a('function');
+    expect(field?.i18n.formatTitle('January', 2020)).to.equal('January 2020');
+
+    expect(field).to.have.nested.property('i18n.formatDate').to.be.a('function');
+    expect(field?.i18n.formatDate({ day: 1, month: 1, year: 2020 })).to.equal('display_value');
   });
 });

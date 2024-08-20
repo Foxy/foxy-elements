@@ -17,6 +17,15 @@ const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
  * @since 1.24.0
  */
 export class ClientForm extends Base<Data> {
+  get headerSubtitleOptions(): Record<string, unknown> {
+    try {
+      const url = new URL(this.data?.redirect_uri ?? '');
+      return { context: 'with_domain', domain: url.hostname };
+    } catch {
+      return super.headerSubtitleOptions;
+    }
+  }
+
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = ['client-secret'];
     if (this.data || this.in({ busy: 'fetching' })) alwaysMatch.push('client-id');

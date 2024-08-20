@@ -1,13 +1,13 @@
-import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Option } from '../../internal/InternalRadioGroupControl/types';
+import type { Data } from './types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
-import { html } from 'lit-html';
+import { html, svg } from 'lit-html';
 
 import * as defaults from './defaults';
 import memoize from 'lodash-es/memoize';
@@ -522,23 +522,23 @@ export class NativeIntegrationForm extends Base<Data> {
 
   private __renderWebhookConfig() {
     return html`
-      <p
-        style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
-        class="rounded bg-error-10 text-error font-medium"
+      <div
+        class="flex items-start border border-error rounded"
+        style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px); gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
       >
-        <foxy-i18n infer="webhook-warning" key="warning_text"></foxy-i18n>
-        <br />
-        <br />
-        <a
-          target="_blank"
-          class="text-body rounded hover-underline hover-cursor-pointer focus-outline-none focus-ring-2 focus-ring-error-50"
-          lang="en"
-          rel="noopener"
-          href="https://www.foxy.io/blog/new-feature-json-webhook/"
-        >
-          <foxy-i18n infer="webhook-warning" key="link_text"></foxy-i18n>
-        </a>
-      </p>
+        ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="flex-shrink-0 text-error" style="width: 1.25em"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>`}
+        <p>
+          <foxy-i18n infer="webhook-warning" key="warning_text"></foxy-i18n>
+          <br />
+          <a
+            target="_blank"
+            class="mt-xs inline-block rounded font-medium text-error transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
+            href="https://admin.foxycart.com"
+          >
+            <foxy-i18n infer="webhook-warning" key="link_text"></foxy-i18n>
+          </a>
+        </p>
+      </div>
 
       ${this.__config?.service === 'json'
         ? this.__renderWebhookJsonConfig()
@@ -674,13 +674,6 @@ export class NativeIntegrationForm extends Base<Data> {
         >
         </foxy-internal-text-control>
       </div>
-
-      <foxy-internal-password-control
-        infer="webflow-auth"
-        .getValue=${this.__createConfigGetterFor('auth')}
-        .setValue=${this.__createConfigSetterFor('auth')}
-      >
-      </foxy-internal-password-control>
     `;
   }
 

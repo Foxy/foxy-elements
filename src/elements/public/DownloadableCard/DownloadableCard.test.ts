@@ -5,6 +5,12 @@ import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
 import { Data } from './types';
 
 describe('DownloadableCard', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('imports and defines foxy-internal-sandbox element', () => {
     expect(customElements.get('foxy-internal-sandbox')).to.exist;
   });

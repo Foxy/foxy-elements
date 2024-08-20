@@ -46,13 +46,13 @@ export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElem
         <div
           class=${classMap({
             'transition duration-500 ease-in-out absolute inset-0 flex': true,
+            'items-center justify-center': true,
             'opacity-0 pointer-events-none': this.isBodyReady,
           })}
         >
           <foxy-spinner
             layout=${spinnerState === 'busy' ? 'no-label' : 'horizontal'}
             state=${spinnerState}
-            class="m-auto"
             infer="spinner"
           >
           </foxy-spinner>

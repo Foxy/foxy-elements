@@ -4,7 +4,7 @@ import type { CartForm } from '../../CartForm';
 import '../../index';
 import './index';
 
-import { InternalCartFormViewAsCustomerControl as Control } from './InternalCartFormViewAsCustomerControl';
+import { InternalCartFormCreateSessionAction as Control } from './InternalCartFormCreateSessionAction';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
 import { createRouter } from '../../../../../server/index';
@@ -13,7 +13,7 @@ import { getByTag } from '../../../../../testgen/getByTag';
 import { I18n } from '../../../I18n/I18n';
 
 describe('CartForm', () => {
-  describe('InternalCartFormViewAsCustomerControl', () => {
+  describe('InternalCartFormCreateSessionAction', () => {
     const OriginalResizeObserver = window.ResizeObserver;
 
     // @ts-expect-error disabling ResizeObserver because it errors in test env
@@ -30,8 +30,8 @@ describe('CartForm', () => {
       expect(element).to.equal(I18n);
     });
 
-    it('imports and defines itself as foxy-internal-cart-form-view-as-customer-control', () => {
-      const element = customElements.get('foxy-internal-cart-form-view-as-customer-control');
+    it('imports and defines itself as foxy-internal-cart-form-create-session-action', () => {
+      const element = customElements.get('foxy-internal-cart-form-create-session-action');
       expect(element).to.equal(Control);
     });
 
@@ -42,8 +42,8 @@ describe('CartForm', () => {
     it('renders loading indicator by default', async () => {
       const form = await fixture(html`
         <foxy-cart-form @fetch=${(evt: FetchEvent) => evt.respondWith(new Promise(() => void 0))}>
-          <foxy-internal-cart-form-view-as-customer-control infer="view-as-customer">
-          </foxy-internal-cart-form-view-as-customer-control>
+          <foxy-internal-cart-form-create-session-action infer="view-as-customer">
+          </foxy-internal-cart-form-create-session-action>
         </foxy-cart-form>
       `);
 
@@ -63,14 +63,14 @@ describe('CartForm', () => {
 
       const form = await fixture<CartForm>(html`<foxy-cart-form></foxy-cart-form>`);
       form.addEventListener('fetch', handleFetch as (evt: Event) => unknown);
-      form.href = 'https://demo.api/hapi/carts/0';
+      form.href = 'https://demo.api/hapi/carts/0?zoom=discounts';
 
       await waitUntil(() => !!form.data, '', { timeout: 5000 });
 
       form.removeEventListener('fetch', handleFetch as (evt: Event) => unknown);
       form.addEventListener('fetch', failAnyFetch as (evt: Event) => unknown);
       form.innerHTML = `
-        <foxy-internal-cart-form-view-as-customer-control infer="view-as-customer"></foxy-internal-cart-form-view-as-customer-control>
+        <foxy-internal-cart-form-create-session-action infer="view-as-customer"></foxy-internal-cart-form-create-session-action>
       `;
 
       const control = form.firstElementChild as Control;
@@ -94,12 +94,13 @@ describe('CartForm', () => {
 
       const form = await fixture<CartForm>(html`
         <foxy-cart-form
-          href="https://demo.api/hapi/carts/0"
+          href="https://demo.api/hapi/carts/0?zoom=discounts"
           @fetch=${(evt: FetchEvent) => {
             if (evt.request.url === 'https://test.api/create_session') {
               const link = { cart_link: 'https://example.com/cart' };
               evt.respondWith(Promise.resolve(new Response(JSON.stringify(link))));
             } else {
+              console.log('FETCH HANDLER', evt);
               router.handleEvent(evt);
             }
           }}
@@ -112,7 +113,7 @@ describe('CartForm', () => {
       form.data!._links['fx:create_session'].href = 'https://test.api/create_session';
       form.data = { ...form.data! };
       form.innerHTML = `
-        <foxy-internal-cart-form-view-as-customer-control infer="view-as-customer"></foxy-internal-cart-form-view-as-customer-control>
+        <foxy-internal-cart-form-create-session-action infer="view-as-customer"></foxy-internal-cart-form-create-session-action>
       `;
 
       const control = form.firstElementChild as Control;

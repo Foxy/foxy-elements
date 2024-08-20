@@ -77,8 +77,6 @@ export class StoreForm extends Base<Data> {
 
       ({ logo_url: v }) => !v || v.length <= 200 || 'logo-url:v8n_too_long',
 
-      ({ webhook_url: v, use_webhook }) => !use_webhook || !!v || 'webhook-url:v8n_required',
-
       ({ webhook_url: v, use_webhook }) => {
         return !use_webhook || !v || v.length <= 300 || 'webhook-url:v8n_too_long';
       },
@@ -395,6 +393,7 @@ export class StoreForm extends Base<Data> {
         <foxy-internal-async-combo-box-control
           item-label-path="version"
           item-value-path="_links.self.href"
+          class="sm-col-span-2"
           infer="store-version-uri"
           first=${ifDefined(this.storeVersions ?? undefined)}
           .selectedItem=${storeVersion}

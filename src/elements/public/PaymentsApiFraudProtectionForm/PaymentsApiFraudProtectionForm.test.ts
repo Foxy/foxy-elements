@@ -6,8 +6,8 @@ import './index';
 
 import { PaymentsApiFraudProtectionForm as Form } from './PaymentsApiFraudProtectionForm';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
-import { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
-import { InternalIntegerControl } from '../../internal/InternalIntegerControl/InternalIntegerControl';
+import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
+import { InternalNumberControl } from '../../internal/InternalNumberControl/InternalNumberControl';
 import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -18,6 +18,7 @@ import { getByTag } from '../../../testgen/getByTag';
 import { getByKey } from '../../../testgen/getByKey';
 import { I18n } from '../I18n/I18n';
 import { stub } from 'sinon';
+import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
 
 describe('PaymentsApiFraudProtectionForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -30,14 +31,19 @@ describe('PaymentsApiFraudProtectionForm', () => {
     expect(customElements.get('vaadin-button')).to.exist;
   });
 
-  it('imports and defines foxy-internal-checkbox-group-control', () => {
-    const element = customElements.get('foxy-internal-checkbox-group-control');
-    expect(element).to.equal(InternalCheckboxGroupControl);
+  it('imports and defines foxy-internal-summary-control', () => {
+    const element = customElements.get('foxy-internal-summary-control');
+    expect(element).to.equal(InternalSummaryControl);
   });
 
-  it('imports and defines foxy-internal-integer-control', () => {
-    const element = customElements.get('foxy-internal-integer-control');
-    expect(element).to.equal(InternalIntegerControl);
+  it('imports and defines foxy-internal-switch-control', () => {
+    const element = customElements.get('foxy-internal-switch-control');
+    expect(element).to.equal(InternalSwitchControl);
+  });
+
+  it('imports and defines foxy-internal-number-control', () => {
+    const element = customElements.get('foxy-internal-number-control');
+    expect(element).to.equal(InternalNumberControl);
   });
 
   it('imports and defines foxy-internal-select-control', () => {
@@ -224,6 +230,68 @@ describe('PaymentsApiFraudProtectionForm', () => {
     expect(element.headerSubtitleOptions).to.deep.equal({ id: element.headerCopyIdValue });
   });
 
+  it('renders a general summary control', async () => {
+    const router = createRouter();
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-fraud-protection-form
+            href="https://foxy-payments-api.element/payment_presets/0/fraud_protections/0C0"
+          >
+          </foxy-payments-api-fraud-protection-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+    await element.requestUpdate();
+    const summary = element.renderRoot.querySelector('[infer="general"]');
+
+    expect(summary).to.exist;
+    expect(summary).to.be.instanceOf(InternalSummaryControl);
+  });
+
+  it('renders a setup summary control', async () => {
+    const router = createRouter();
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-fraud-protection-form
+            href="https://foxy-payments-api.element/payment_presets/0/fraud_protections/0C0"
+          >
+          </foxy-payments-api-fraud-protection-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+    await element.requestUpdate();
+    const summary = element.renderRoot.querySelector('[infer="setup"]');
+
+    expect(summary).to.exist;
+    expect(summary).to.be.instanceOf(InternalSummaryControl);
+  });
+
   it('renders a fraud protection selector when "type" is not present in form', async () => {
     const availableProtections: AvailableFraudProtections = {
       _links: {
@@ -238,6 +306,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
         google_recaptcha: {
           name: 'Google reCaptcha',
           uses_rejection_threshold: false,
+          conflict: { type: 'google_recaptcha', name: 'Google reCaptcha' },
           json: null,
         },
       },
@@ -246,7 +315,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
     const router = createRouter();
 
     const wrapper = await fixture(html`
-      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      <div @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}>
         <foxy-payments-api
           payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
           hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
@@ -274,8 +343,13 @@ describe('PaymentsApiFraudProtectionForm', () => {
     `);
 
     const element = wrapper.firstElementChild!.firstElementChild as Form;
-    const listWrapper = (await getByTestId(element, 'select-protection-list')) as HTMLElement;
+    await waitUntil(
+      () => !!element.renderRoot.querySelector('[data-testid="select-protection-list"]'),
+      '',
+      { timeout: 5000 }
+    );
 
+    const listWrapper = (await getByTestId(element, 'select-protection-list')) as HTMLElement;
     await waitUntil(() => !!listWrapper.querySelector('button'), '', { timeout: 5000 });
     const items = listWrapper.querySelectorAll('button');
 
@@ -286,6 +360,8 @@ describe('PaymentsApiFraudProtectionForm', () => {
     const item1Button = items[1] as HTMLButtonElement;
 
     expect(item0Button).to.exist;
+    expect(item0Button).to.not.have.attribute('disabled');
+    expect(item0Button).to.not.have.attribute('title');
     expect(item0Button).to.include.text('Minfraud');
     expect(await getByTag(item0Button, 'img')).to.have.attribute(
       'src',
@@ -293,6 +369,8 @@ describe('PaymentsApiFraudProtectionForm', () => {
     );
 
     expect(item1Button).to.exist;
+    expect(item1Button).to.have.attribute('disabled');
+    expect(item1Button).to.have.attribute('title', 'conflict_message');
     expect(item1Button).to.include.text('Google reCaptcha');
     expect(await getByTag(item1Button, 'img')).to.have.attribute(
       'src',
@@ -307,7 +385,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
     expect(await getByTestId(element, 'select-method-list')).to.not.exist;
   });
 
-  it('renders a checkbox control for a "checkbox" block in json if present', async () => {
+  it('renders a switch control for a "checkbox" block in json if present', async () => {
     const router = createRouter();
 
     const wrapper = await fixture(html`
@@ -354,19 +432,18 @@ describe('PaymentsApiFraudProtectionForm', () => {
     await element.requestUpdate();
 
     const field = element.renderRoot.querySelector(
-      '[infer="json-foo-bar-baz"]'
-    ) as InternalCheckboxGroupControl;
+      '[infer="setup"] [infer="json-foo-bar-baz"]'
+    ) as InternalSwitchControl;
 
     expect(field).to.exist;
-    expect(field).to.be.instanceOf(InternalCheckboxGroupControl);
+    expect(field).to.be.instanceOf(InternalSwitchControl);
     expect(field).to.have.attribute('helper-text', 'Baz Description');
-    expect(field).to.have.attribute('label', '');
-    expect(field).to.have.deep.property('options', [{ label: 'Baz', value: 'checked' }]);
+    expect(field).to.have.attribute('label', 'Baz');
 
     element.edit({ json: JSON.stringify({ foo: { bar: { baz: true } } }) });
-    expect(field.getValue()).to.deep.equal(['checked']);
+    expect(field.getValue()).to.be.true;
 
-    field.setValue([]);
+    field.setValue(false);
     expect(JSON.parse(element.form.json!)).to.have.nested.property('foo.bar.baz', false);
   });
 
@@ -421,12 +498,13 @@ describe('PaymentsApiFraudProtectionForm', () => {
     await element.requestUpdate();
 
     const field = element.renderRoot.querySelector(
-      '[infer="json-foo-bar-baz"]'
+      '[infer="setup"] [infer="json-foo-bar-baz"]'
     ) as InternalSelectControl;
 
     expect(field).to.exist;
     expect(field).to.be.instanceOf(InternalSelectControl);
     expect(field).to.have.attribute('helper-text', 'Baz Description');
+    expect(field).to.have.attribute('layout', 'summary-item');
     expect(field).to.have.attribute('label', 'Baz');
     expect(field).to.have.deep.property('options', [
       { label: 'Field 1', value: 'field_1_value' },
@@ -487,12 +565,13 @@ describe('PaymentsApiFraudProtectionForm', () => {
     await element.requestUpdate();
 
     const field = element.renderRoot.querySelector(
-      '[infer="json-foo-bar-baz"]'
+      '[infer="setup"] [infer="json-foo-bar-baz"]'
     ) as InternalTextControl;
 
     expect(field).to.exist;
     expect(field).to.be.instanceOf(InternalTextControl);
     expect(field).to.have.attribute('placeholder', 'baz_default');
+    expect(field).to.have.attribute('layout', 'summary-item');
     expect(field).to.have.attribute('helper-text', 'Baz Description');
     expect(field).to.have.attribute('label', 'Baz');
 
@@ -527,9 +606,10 @@ describe('PaymentsApiFraudProtectionForm', () => {
 
     const element = wrapper.firstElementChild!.firstElementChild as Form;
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="description"]');
+    const control = element.renderRoot.querySelector('[infer="general"] [infer="description"]');
 
     expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.be.instanceOf(InternalTextControl);
   });
 
@@ -567,7 +647,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
 
     const control = root.querySelector('[infer="score-threshold-reject"]');
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalIntegerControl);
+    expect(control).to.be.instanceOf(InternalNumberControl);
   });
 
   it('renders a Back button clearing "type" on first selection', async () => {
@@ -621,10 +701,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
     element.data = null;
     element.edit({ type: 'minfraud' });
     await element.requestUpdate();
-    const control = (await getByTestId(
-      element,
-      'select-another-button'
-    )) as InternalCheckboxGroupControl;
+    const control = (await getByTestId(element, 'select-another-button')) as InternalSwitchControl;
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(customElements.get('vaadin-button'));

@@ -48,17 +48,20 @@ export class InternalControl extends ConfigurableMixin(
     if (this.nucleon?.in('idle') === false) this.disabled = true;
   }
 
+  renderLightDom(): void {
+    if (typeof this.infer !== 'string') return;
+
+    const lightDomTemplate = html`
+      <slot name="${this.infer}:before" slot="before"></slot>
+      <slot name="${this.infer}:after" slot="after"></slot>
+    `;
+
+    render(lightDomTemplate, this);
+  }
+
   updated(changes: Map<keyof this, unknown>): void {
     super.updated(changes);
-
-    if (typeof this.infer === 'string') {
-      const lightDomTemplate = html`
-        <slot name="${this.infer}:before" slot="before"></slot>
-        <slot name="${this.infer}:after" slot="after"></slot>
-      `;
-
-      render(lightDomTemplate, this);
-    }
+    this.renderLightDom();
   }
 
   /**

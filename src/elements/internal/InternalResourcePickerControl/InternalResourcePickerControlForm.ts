@@ -23,10 +23,6 @@ export class InternalResourcePickerControlForm extends InternalForm<Data> {
 
   renderBody(): TemplateResult {
     return html`
-      <h2 class="leading-xs text-xxl font-medium break-all">
-        <foxy-i18n infer="" key="header"></foxy-i18n>
-      </h2>
-
       <foxy-internal-async-list-control
         infer="selection"
         form="foxy-null"

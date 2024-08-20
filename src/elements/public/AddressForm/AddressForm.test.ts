@@ -201,12 +201,13 @@ describe('AddressForm', () => {
     const element = await fixture<AddressForm>(layout);
     const data = await getTestData<Data>('./hapi/customer_addresses/0');
 
+    data.is_default_billing = false;
+    data.is_default_shipping = false;
+    element.data = { ...data };
     expect(element.hiddenSelector.matches('delete', true)).to.be.false;
 
     data.is_default_billing = true;
-    data.is_default_shipping = false;
-    element.data = data;
-
+    element.data = { ...data };
     expect(element.hiddenSelector.matches('delete', true)).to.be.true;
   });
 
@@ -215,13 +216,48 @@ describe('AddressForm', () => {
     const element = await fixture<AddressForm>(layout);
     const data = await getTestData<Data>('./hapi/customer_addresses/0');
 
+    data.is_default_billing = false;
+    data.is_default_shipping = false;
+    element.data = { ...data };
     expect(element.hiddenSelector.matches('delete', true)).to.be.false;
 
-    data.is_default_billing = false;
     data.is_default_shipping = true;
-    element.data = data;
-
+    element.data = { ...data };
     expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+  });
+
+  it('hides Copy ID button for default billing address', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const data = await getTestData<Data>('./hapi/customer_addresses/0');
+
+    data.is_default_billing = false;
+    data.is_default_shipping = false;
+    element.data = { ...data };
+
+    expect(element.hiddenSelector.matches('header:copy-id', true)).to.be.false;
+
+    data.is_default_billing = true;
+    element.data = { ...data };
+
+    expect(element.hiddenSelector.matches('header:copy-id', true)).to.be.true;
+  });
+
+  it('hides Copy ID button for default shipping address', async () => {
+    const layout = html`<foxy-address-form></foxy-address-form>`;
+    const element = await fixture<AddressForm>(layout);
+    const data = await getTestData<Data>('./hapi/customer_addresses/0');
+
+    data.is_default_billing = false;
+    data.is_default_shipping = false;
+    element.data = { ...data };
+
+    expect(element.hiddenSelector.matches('header:copy-id', true)).to.be.false;
+
+    data.is_default_shipping = true;
+    element.data = { ...data };
+
+    expect(element.hiddenSelector.matches('header:copy-id', true)).to.be.true;
   });
 
   it('renders a form header', () => {
@@ -231,19 +267,22 @@ describe('AddressForm', () => {
     expect(renderHeaderMethod).to.have.been.called;
   });
 
-  it('uses a custom subtitle key for form header', async () => {
+  it('uses a custom title key for form header', async () => {
     const layout = html`<foxy-address-form></foxy-address-form>`;
     const element = await fixture<AddressForm>(layout);
 
     element.data = await getTestData<Data>('./hapi/customer_addresses/0');
     element.data = { ...element.data, is_default_billing: true, is_default_shipping: false };
-    expect(element.headerSubtitleKey).to.equal('subtitle_default_billing');
+    expect(element.headerTitleKey).to.equal('title_default_billing');
 
     element.data = { ...element.data, is_default_billing: false, is_default_shipping: true };
-    expect(element.headerSubtitleKey).to.equal('subtitle_default_shipping');
+    expect(element.headerTitleKey).to.equal('title_default_shipping');
 
     element.data = { ...element.data, is_default_billing: false, is_default_shipping: false };
-    expect(element.headerSubtitleKey).to.equal('subtitle_custom');
+    expect(element.headerTitleKey).to.equal('title');
+
+    element.data = null;
+    expect(element.headerTitleKey).to.equal('title');
   });
 
   it('renders a text control for address name', async () => {

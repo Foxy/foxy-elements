@@ -12,7 +12,7 @@ type Loader = {
   href: string;
 };
 
-export class InternalCartFormViewAsCustomerControl extends InternalControl {
+export class InternalCartFormCreateSessionAction extends InternalControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -30,7 +30,7 @@ export class InternalCartFormViewAsCustomerControl extends InternalControl {
       return html`
         <a
           target="_blank"
-          class="flex h-m px-m rounded font-medium transition-colors text-body bg-contrast-5 hover-bg-contrast-10 items-center justify-center focus-outline-none focus-ring-2 focus-ring-primary-50"
+          class="rounded font-medium transition-colors text-body focus-outline-none focus-ring-2 focus-ring-primary-50"
           href=${href}
         >
           <foxy-i18n infer="" key="state_idle"></foxy-i18n>
@@ -40,8 +40,7 @@ export class InternalCartFormViewAsCustomerControl extends InternalControl {
       return html`
         <div
           class=${classMap({
-            'flex h-m px-m rounded items-center justify-center': true,
-            'transition-colors bg-contrast-5 font-medium': true,
+            'transition-colors font-medium rounded': true,
             'text-tertiary': state !== 'fail',
             'text-error': state === 'fail',
           })}
@@ -63,6 +62,7 @@ export class InternalCartFormViewAsCustomerControl extends InternalControl {
   }
 
   private async __reloadSessionHref(href: string | null) {
+    console.log('RELOAD SESSION HREF', href);
     if (this.__loader?.href === href) return;
 
     const nucleon = this.nucleon as CartForm | null;

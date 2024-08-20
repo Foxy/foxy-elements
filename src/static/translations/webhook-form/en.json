@@ -3,6 +3,8 @@
     "title_new": "New webhook",
     "title_existing": "Webhook #{{ id }}",
     "subtitle": "",
+    "subtitle_webflow": "Webflow webhook",
+    "subtitle_zapier": "Zapier webhook",
     "subtitle_transaction": "Transaction webhook",
     "subtitle_subscription": "Subscription webhook",
     "subtitle_customer": "Customer webhook",
@@ -26,17 +28,6 @@
     "v8n_required": "Webhook name is required",
     "v8n_too_long": "Webhook name cannot exceed 255 characters"
   },
-  "format": {
-    "label": "Format",
-    "helper_text": "The type of this webhook.",
-    "v8n_required": "Please select a format"
-  },
-  "version": {
-    "label": "Version",
-    "placeholder": "2",
-    "helper_text": "Version of the webhook. Enter 2 for latest or use other if you have specific instructions from Foxy.",
-    "v8n_required": "Version is required"
-  },
   "url": {
     "label": "URL",
     "placeholder": "https://example.com/webhook",
@@ -53,6 +44,7 @@
     "label": "Encryption key",
     "placeholder": "HNL978XVXXCM66DM5N2T78D5MT66BC6D",
     "helper_text": "The JSON webhooks are encrypted in certain situations. This key is also used to generate a signature to verify the integrity of the payload.",
+    "v8n_required": "Encryption key is required. Use the ✨ button to generate a new key.",
     "v8n_too_long": "Encryption key cannot exceed 1000 characters"
   },
   "event-resource": {

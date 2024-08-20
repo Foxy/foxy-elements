@@ -1,14 +1,15 @@
-import type { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
 import type { PropertyDeclarations } from 'lit-element';
-import type { FormRendererContext } from '../FormDialog/types';
-import type { ItemRendererContext } from '../CollectionPage/types';
-import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Data } from './types';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
 const NS = 'payments-api-payment-preset-form';
@@ -47,118 +48,107 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
   /** A function that returns image URL for given payment method `type`. */
   getPaymentMethodImageSrc: ((type: string) => string) | null = null;
 
-  private static readonly __isPOEnabledOptions = [{ label: 'option_true', value: 'true' }];
-
-  private static readonly __isLiveOptions = [{ label: 'option_live', value: 'live' }];
-
-  private __getIsPOEnabledValue: InternalCheckboxGroupControl['getValue'] = () => {
-    return this.form.is_purchase_order_enabled ? ['true'] : [];
+  private readonly __isPurchaseOrderEnabledGetValue = () => {
+    return this.__storeLoader?.data?.is_active ? this.form.is_purchase_order_enabled : false;
   };
 
-  private __setIsPOEnabledValue: InternalCheckboxGroupControl['setValue'] = newValue => {
-    this.edit({ is_purchase_order_enabled: (newValue as string[]).includes('true') });
+  private readonly __isLiveGetValue = () => {
+    return this.__storeLoader?.data?.is_active ? this.form.is_live : false;
   };
 
-  private __getIsLiveValue: InternalCheckboxGroupControl['getValue'] = () => {
-    return this.form.is_live ? ['live'] : ['test'];
-  };
+  private readonly __storeLoaderId = 'storeLoader';
 
-  private __setIsLiveValue: InternalCheckboxGroupControl['setValue'] = newValue => {
-    this.edit({ is_live: (newValue as string[]).includes('live') });
-  };
+  get readonlySelector(): BooleanSelector {
+    const alwaysMatch = [super.hiddenSelector.toString()];
+
+    if (!this.__storeLoader?.data?.is_active) {
+      alwaysMatch.unshift('general:is-live', 'general:is-purchase-order-enabled');
+    }
+
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
+  }
 
   get hiddenSelector(): BooleanSelector {
-    return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
+    const alwaysMatch = ['header:copy-json', super.hiddenSelector.toString()];
+    const store = this.__storeLoader?.data;
+
+    if (!this.data) alwaysMatch.unshift('payment-methods', 'fraud-protections');
+    if (!store) alwaysMatch.unshift('general:is-live', 'general:is-purchase-order-enabled');
+
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
   renderBody(): TemplateResult {
-    const constructor = this.constructor as typeof PaymentsApiPaymentPresetForm;
+    const isStoreActive = !!this.__storeLoader?.data?.is_active;
+    const helperTextSuffix = isStoreActive ? '' : '_inactive_store';
 
     return html`
       ${this.renderHeader()}
 
-      <foxy-internal-text-control infer="description"></foxy-internal-text-control>
+      <foxy-internal-summary-control infer="general">
+        <foxy-internal-text-control layout="summary-item" infer="description">
+        </foxy-internal-text-control>
 
-      <div class="-mb-s">
-        <foxy-internal-checkbox-group-control
+        <foxy-internal-switch-control
+          helper-text=${this.t(`general.is-live.helper_text${helperTextSuffix}`)}
           infer="is-live"
-          .getValue=${this.__getIsLiveValue}
-          .setValue=${this.__setIsLiveValue}
-          .options=${constructor.__isLiveOptions}
+          helper-text-as-tooltip
+          .getValue=${this.__isLiveGetValue}
         >
-        </foxy-internal-checkbox-group-control>
+        </foxy-internal-switch-control>
 
-        <foxy-internal-checkbox-group-control
+        <foxy-internal-switch-control
+          helper-text=${this.t(`general.is-purchase-order-enabled.helper_text${helperTextSuffix}`)}
           infer="is-purchase-order-enabled"
-          .getValue=${this.__getIsPOEnabledValue}
-          .setValue=${this.__setIsPOEnabledValue}
-          .options=${constructor.__isPOEnabledOptions}
+          helper-text-as-tooltip
+          .getValue=${this.__isPurchaseOrderEnabledGetValue}
         >
-        </foxy-internal-checkbox-group-control>
-      </div>
+        </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
-      ${this.data
-        ? html`
-            <foxy-internal-async-list-control
-              infer="payment-methods"
-              first=${this.data._links['fx:payment_methods'].href}
-              limit="5"
-              alert
-              .item=${(ctx: ItemRendererContext) => html`
-                <foxy-payments-api-payment-method-card
-                  parent=${ctx.parent}
-                  infer="payments-api-payment-method-card"
-                  href=${ctx.href}
-                  .getImageSrc=${this.getPaymentMethodImageSrc}
-                >
-                </foxy-payments-api-payment-method-card>
-              `}
-              .form=${(ctx: FormRendererContext) => html`
-                <foxy-payments-api-payment-method-form
-                  parent=${ctx.dialog.parent}
-                  infer="payments-api-payment-method-form"
-                  href=${ctx.dialog.href}
-                  id="form"
-                  .getImageSrc=${this.getPaymentMethodImageSrc}
-                  @fetch=${ctx.handleFetch}
-                  @update=${ctx.handleUpdate}
-                >
-                </foxy-payments-api-payment-method-form>
-              `}
-            >
-            </foxy-internal-async-list-control>
+      <foxy-internal-async-list-control
+        infer="payment-methods"
+        first=${ifDefined(this.data?._links['fx:payment_methods'].href)}
+        limit="5"
+        item="foxy-payments-api-payment-method-card"
+        form="foxy-payments-api-payment-method-form"
+        alert
+        .itemProps=${{ '.getImageSrc': this.getPaymentMethodImageSrc }}
+        .formProps=${{
+          '.getImageSrc': this.getPaymentMethodImageSrc,
+          'payment-preset': this.href,
+          'store': this.data?._links['fx:store'].href,
+        }}
+      >
+      </foxy-internal-async-list-control>
 
-            <foxy-internal-async-list-control
-              infer="fraud-protections"
-              first=${this.data._links['fx:fraud_protections'].href}
-              limit="5"
-              alert
-              .item=${(ctx: ItemRendererContext) => html`
-                <foxy-payments-api-fraud-protection-card
-                  parent=${ctx.parent}
-                  infer="payments-api-fraud-protection-card"
-                  href=${ctx.href}
-                  .getImageSrc=${this.getFraudProtectionImageSrc}
-                >
-                </foxy-payments-api-fraud-protection-card>
-              `}
-              .form=${(ctx: FormRendererContext) => html`
-                <foxy-payments-api-fraud-protection-form
-                  parent=${ctx.dialog.parent}
-                  infer="payments-api-fraud-protection-form"
-                  href=${ctx.dialog.href}
-                  id="form"
-                  .getImageSrc=${this.getFraudProtectionImageSrc}
-                  @fetch=${ctx.handleFetch}
-                  @update=${ctx.handleUpdate}
-                >
-                </foxy-payments-api-fraud-protection-form>
-              `}
-            >
-            </foxy-internal-async-list-control>
-          `
-        : ''}
+      <foxy-internal-async-list-control
+        infer="fraud-protections"
+        first=${ifDefined(this.data?._links['fx:fraud_protections'].href)}
+        limit="5"
+        item="foxy-payments-api-fraud-protection-card"
+        form="foxy-payments-api-fraud-protection-form"
+        alert
+        .itemProps=${{ '.getImageSrc': this.getFraudProtectionImageSrc }}
+        .formProps=${{ '.getImageSrc': this.getFraudProtectionImageSrc }}
+      >
+      </foxy-internal-async-list-control>
+
       ${super.renderBody()}
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.data?._links['fx:store'].href)}
+        id=${this.__storeLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
     `;
+  }
+
+  private get __storeLoader() {
+    type Loader = NucleonElement<Resource<Rels.Store>>;
+    return this.renderRoot.querySelector<Loader>(`#${this.__storeLoaderId}`);
   }
 }

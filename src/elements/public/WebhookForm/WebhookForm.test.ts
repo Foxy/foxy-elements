@@ -1,12 +1,16 @@
-import { expect, fixture, html } from '@open-wc/testing';
-import { stub } from 'sinon';
-import { getTestData } from '../../../testgen/getTestData';
-import { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
-import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import './index';
+
+import type { Data } from './types';
+
 import { InternalRadioGroupControl } from '../../internal/InternalRadioGroupControl/InternalRadioGroupControl';
+import { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
+import { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
+import { expect, fixture, html } from '@open-wc/testing';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
-import { WebhookForm } from './index';
-import { Data } from './types';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { getTestData } from '../../../testgen/getTestData';
+import { WebhookForm } from './WebhookForm';
+import { stub } from 'sinon';
 
 describe('WebhookForm', () => {
   it('imports and defines foxy-internal-async-list-control element', () => {
@@ -15,6 +19,10 @@ describe('WebhookForm', () => {
 
   it('imports and defines foxy-internal-radio-group-control element', () => {
     expect(customElements.get('foxy-internal-radio-group-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-password-control element', () => {
+    expect(customElements.get('foxy-internal-password-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-text-control element', () => {
@@ -57,16 +65,6 @@ describe('WebhookForm', () => {
     expect(WebhookForm.v8n.map(fn => fn({ name }, form))).to.include('name:v8n_too_long');
   });
 
-  it('produces an v8n error if webhook version is missing', () => {
-    const form = new WebhookForm();
-    expect(WebhookForm.v8n.map(fn => fn({}, form))).to.include('version:v8n_required');
-  });
-
-  it('produces an v8n error if webhook format is missing', () => {
-    const form = new WebhookForm();
-    expect(WebhookForm.v8n.map(fn => fn({}, form))).to.include('format:v8n_required');
-  });
-
   it('produces an v8n error if webhook url is too long', () => {
     const url = 'A'.repeat(1001);
     const form = new WebhookForm();
@@ -77,6 +75,17 @@ describe('WebhookForm', () => {
     const query = 'A'.repeat(1001);
     const form = new WebhookForm();
     expect(WebhookForm.v8n.map(fn => fn({ query }, form))).to.include('query:v8n_too_long');
+  });
+
+  it('produces an v8n error if webhook encryption-key is missing', () => {
+    const form = new WebhookForm();
+    const errors = WebhookForm.v8n.map(fn => fn({}, form));
+    expect(errors).to.include('encryption-key:v8n_required');
+
+    const encryption_key = 'A'.repeat(1000);
+    expect(WebhookForm.v8n.map(fn => fn({ encryption_key }, form))).to.not.include(
+      'encryption-key:v8n_required'
+    );
   });
 
   it('produces an v8n error if webhook encryption-key is too long', () => {
@@ -137,34 +146,14 @@ describe('WebhookForm', () => {
     expect(control).to.be.instanceOf(InternalTextControl);
   });
 
-  it('renders webhook format as radio group control', async () => {
-    const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
-    const control = element.renderRoot.querySelector('[infer="format"]');
-    const options = [
-      { value: 'json', label: 'JSON' },
-      { value: 'webflow', label: 'Webflow' },
-      { value: 'zapier', label: 'Zapier' },
-    ];
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalRadioGroupControl);
-    expect(control).to.have.deep.property('options', options);
-  });
-
-  it('renders webhook encryption key as text control', async () => {
+  it('renders webhook encryption key as password control', async () => {
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
     const control = element.renderRoot.querySelector('[infer="encryption-key"]');
 
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders webhook version as text control', async () => {
-    const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
-    const control = element.renderRoot.querySelector('[infer="version"]');
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.be.instanceOf(InternalPasswordControl);
+    expect(control).to.have.attribute('show-generator');
+    expect(control).to.have.deep.property('generatorOptions', { separator: '', length: 512 });
   });
 
   it('renders webhook statuses when an existing webhook is loaded', async () => {

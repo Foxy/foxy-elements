@@ -3,13 +3,13 @@ import type { Data } from './types';
 
 import './index';
 
-import { InternalSubscriptionSettingsFormReattemptBypass } from './internal/InternalSubscriptionSettingsFormReattemptBypass/InternalSubscriptionSettingsFormReattemptBypass';
 import { SubscriptionSettingsForm as Form } from './SubscriptionSettingsForm';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
-import { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
 import { InternalEditableListControl } from '../../internal/InternalEditableListControl/InternalEditableListControl';
-import { InternalRadioGroupControl } from '../../internal/InternalRadioGroupControl/InternalRadioGroupControl';
-import { InternalIntegerControl } from '../../internal/InternalIntegerControl/InternalIntegerControl';
+import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
+import { InternalNumberControl } from '../../internal/InternalNumberControl/InternalNumberControl';
+import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
+import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server';
@@ -17,24 +17,29 @@ import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 
 describe('SubscriptionSettingsForm', () => {
-  it('imports and defines foxy-internal-checkbox-group-control', () => {
-    const constructor = customElements.get('foxy-internal-checkbox-group-control');
-    expect(constructor).to.equal(InternalCheckboxGroupControl);
-  });
-
   it('imports and defines foxy-internal-editable-list-control', () => {
     const constructor = customElements.get('foxy-internal-editable-list-control');
     expect(constructor).to.equal(InternalEditableListControl);
   });
 
-  it('imports and defines foxy-internal-radio-group-control', () => {
-    const constructor = customElements.get('foxy-internal-radio-group-control');
-    expect(constructor).to.equal(InternalRadioGroupControl);
+  it('imports and defines foxy-internal-summary-control', () => {
+    const constructor = customElements.get('foxy-internal-summary-control');
+    expect(constructor).to.equal(InternalSummaryControl);
   });
 
-  it('imports and defines foxy-internal-integer-control', () => {
-    const constructor = customElements.get('foxy-internal-integer-control');
-    expect(constructor).to.equal(InternalIntegerControl);
+  it('imports and defines foxy-internal-switch-control', () => {
+    const constructor = customElements.get('foxy-internal-switch-control');
+    expect(constructor).to.equal(InternalSwitchControl);
+  });
+
+  it('imports and defines foxy-internal-select-control', () => {
+    const constructor = customElements.get('foxy-internal-select-control');
+    expect(constructor).to.equal(InternalSelectControl);
+  });
+
+  it('imports and defines foxy-internal-number-control', () => {
+    const constructor = customElements.get('foxy-internal-number-control');
+    expect(constructor).to.equal(InternalNumberControl);
   });
 
   it('imports and defines foxy-internal-text-control', () => {
@@ -45,12 +50,6 @@ describe('SubscriptionSettingsForm', () => {
   it('imports and defines foxy-internal-form', () => {
     const constructor = customElements.get('foxy-internal-form');
     expect(constructor).to.equal(InternalForm);
-  });
-
-  it('imports and defines foxy-internal-subscription-settings-form-reattempt-bypass', () => {
-    const tag = 'foxy-internal-subscription-settings-form-reattempt-bypass';
-    const constructor = customElements.get(tag);
-    expect(constructor).to.equal(InternalSubscriptionSettingsFormReattemptBypass);
   });
 
   it('imports and defines itself as foxy-subscription-settings-form', () => {
@@ -131,7 +130,19 @@ describe('SubscriptionSettingsForm', () => {
     expect(form.hiddenSelector.matches('header:copy-id', true)).to.be.true;
   });
 
-  it('renders radio group with past due amount handling options', async () => {
+  it('hides reattempt bypass strings control if reattempt bypass is off', async () => {
+    const form = new Form();
+    const scope = 'reattempts-group:reattempt-bypass-strings';
+
+    form.data = await getTestData<Data>('./hapi/subscription_settings/0');
+    form.edit({ reattempt_bypass_logic: '' });
+    expect(form.hiddenSelector.matches(scope, true)).to.be.true;
+
+    form.edit({ reattempt_bypass_logic: 'skip_if_exists' });
+    expect(form.hiddenSelector.matches(scope, true)).to.be.false;
+  });
+
+  it('renders a summary control for past due amount settings', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-subscription-settings-form
@@ -142,17 +153,34 @@ describe('SubscriptionSettingsForm', () => {
     `);
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="past-due-amount-handling"]');
+    const control = element.renderRoot.querySelector('[infer="past-due-amount-group"]');
+    expect(control).to.be.instanceOf(InternalSummaryControl);
+  });
 
-    expect(control).to.be.instanceOf(InternalRadioGroupControl);
+  it('renders a select control with past due amount handling options', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-subscription-settings-form
+        href="https://demo.api/hapi/subscription_settings/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-subscription-settings-form>
+    `);
+
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+    const control = element.renderRoot.querySelector(
+      '[infer="past-due-amount-group"] [infer="past-due-amount-handling"]'
+    );
+
+    expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.deep.property('options', [
       { label: 'option_increment', value: 'increment' },
       { label: 'option_replace', value: 'replace' },
-      { label: 'option_ignore', value: 'ignore' },
     ]);
   });
 
-  it('renders a checkbox controlling automatic past due charging', async () => {
+  it('renders a switch controlling automatic past due charging', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-subscription-settings-form
@@ -163,25 +191,15 @@ describe('SubscriptionSettingsForm', () => {
     `);
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector<InternalCheckboxGroupControl>(
-      '[infer="automatically-charge-past-due-amount"]'
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      '[infer="past-due-amount-group"] [infer="automatically-charge-past-due-amount"]'
     );
 
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_checked', value: 'checked' },
-    ]);
-
-    element.edit({ automatically_charge_past_due_amount: false });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal([]);
-
-    element.edit({ automatically_charge_past_due_amount: true });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['checked']);
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control).to.have.attribute('helper-text-as-tooltip');
   });
 
-  it('renders a checkbox controlling clearing past due amounts on success when automatic past due charging is off', async () => {
+  it('renders a switch controlling resetting next date on makeup payment', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-subscription-settings-form
@@ -192,31 +210,15 @@ describe('SubscriptionSettingsForm', () => {
     `);
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
-
-    element.edit({
-      automatically_charge_past_due_amount: false,
-      clear_past_due_amounts_on_success: false,
-    });
-
-    await element.requestUpdate();
-
-    const control = element.renderRoot.querySelector<InternalCheckboxGroupControl>(
-      '[infer="clear-past-due-amounts-on-success"]'
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      '[infer="past-due-amount-group"] [infer="reset-nextdate-on-makeup-payment"]'
     );
 
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_checked', value: 'checked' },
-    ]);
-
-    expect(control?.getValue()).to.deep.equal([]);
-
-    element.edit({ clear_past_due_amounts_on_success: true });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['checked']);
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control).to.have.attribute('helper-text-as-tooltip');
   });
 
-  it('renders a checkbox controlling resetting next date on makeup payment when automatic past due charging is off', async () => {
+  it('renders a switch controlling preventing customer cancel with past due', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-subscription-settings-form
@@ -227,31 +229,15 @@ describe('SubscriptionSettingsForm', () => {
     `);
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
-
-    element.edit({
-      automatically_charge_past_due_amount: false,
-      reset_nextdate_on_makeup_payment: false,
-    });
-
-    await element.requestUpdate();
-
-    const control = element.renderRoot.querySelector<InternalCheckboxGroupControl>(
-      '[infer="reset-nextdate-on-makeup-payment"]'
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      '[infer="past-due-amount-group"] [infer="prevent-customer-cancel-with-past-due"]'
     );
 
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_checked', value: 'checked' },
-    ]);
-
-    expect(control?.getValue()).to.deep.equal([]);
-
-    element.edit({ reset_nextdate_on_makeup_payment: true });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['checked']);
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control).to.have.attribute('helper-text-as-tooltip');
   });
 
-  it('renders reattempt bypass settings control', async () => {
+  it('renders a summary control for reattempt settings', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-subscription-settings-form
@@ -262,12 +248,65 @@ describe('SubscriptionSettingsForm', () => {
     `);
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="reattempt-bypass"]');
-
-    expect(control).to.be.instanceOf(InternalSubscriptionSettingsFormReattemptBypass);
+    const control = element.renderRoot.querySelector('[infer="reattempts-group"]');
+    expect(control).to.be.instanceOf(InternalSummaryControl);
   });
 
-  it('renders reattempt schedule list control', async () => {
+  it('renders a select control with reattempt bypass logic options', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-subscription-settings-form
+        href="https://demo.api/hapi/subscription_settings/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-subscription-settings-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="reattempts-group"] [infer="reattempt-bypass-logic"]'
+    );
+
+    expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.deep.property('options', [
+      { value: '', label: 'option_always_reattempt' },
+      { value: 'skip_if_exists', label: 'option_skip_if_exists' },
+      { value: 'reattempt_if_exists', label: 'option_reattempt_if_exists' },
+    ]);
+  });
+
+  it('renders a reattempt bypass strings list control', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-subscription-settings-form
+        href="https://demo.api/hapi/subscription_settings/0"
+        ns="subscription-settings-form"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-subscription-settings-form>
+    `);
+
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+    const control = element.renderRoot.querySelector<InternalEditableListControl>(
+      '[infer="reattempts-group"] [infer="reattempt-bypass-strings"]'
+    );
+
+    expect(control).to.be.instanceOf(InternalEditableListControl);
+    expect(control).to.have.property('layout', 'summary-item');
+
+    element.edit({ reattempt_bypass_strings: 'foo, bar, baz' });
+    await element.requestUpdate();
+    expect(control?.getValue()).to.deep.equal([
+      { value: 'foo' },
+      { value: 'bar' },
+      { value: 'baz' },
+    ]);
+
+    control?.setValue([{ value: 'qux' }, { value: 'quux' }]);
+    expect(element).to.have.nested.property('form.reattempt_bypass_strings', 'qux,quux');
+  });
+
+  it('renders a reattempt schedule list control', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-subscription-settings-form
@@ -279,7 +318,7 @@ describe('SubscriptionSettingsForm', () => {
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     const control = element.renderRoot.querySelector<InternalEditableListControl>(
-      '[infer="reattempt-schedule"]'
+      '[infer="reattempts-group"] [infer="reattempt-schedule"]'
     );
 
     expect(control).to.be.instanceOf(InternalEditableListControl);
@@ -302,7 +341,23 @@ describe('SubscriptionSettingsForm', () => {
     expect(element).to.have.nested.property('form.reattempt_schedule', '8,20');
   });
 
-  it('renders reminder email schedule list control', async () => {
+  it('renders a summary control for email settings', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-subscription-settings-form
+        ns="subscription-settings-form"
+        href="https://demo.api/hapi/subscription_settings/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-subscription-settings-form>
+    `);
+
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+    const control = element.renderRoot.querySelector('[infer="emails-group"]');
+    expect(control).to.be.instanceOf(InternalSummaryControl);
+  });
+
+  it('renders a reminder email schedule list control', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-subscription-settings-form
@@ -314,10 +369,11 @@ describe('SubscriptionSettingsForm', () => {
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     const control = element.renderRoot.querySelector<InternalEditableListControl>(
-      '[infer="reminder-email-schedule"]'
+      '[infer="emails-group"] [infer="reminder-email-schedule"]'
     );
 
     expect(control).to.be.instanceOf(InternalEditableListControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.deep.property('inputParams', {
       type: 'number',
       step: '1',
@@ -337,7 +393,7 @@ describe('SubscriptionSettingsForm', () => {
     expect(element).to.have.nested.property('form.reminder_email_schedule', '8,20');
   });
 
-  it('renders payment method expiry email schedule list control', async () => {
+  it('renders a payment method expiry email schedule list control', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-subscription-settings-form
@@ -349,10 +405,11 @@ describe('SubscriptionSettingsForm', () => {
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     const control = element.renderRoot.querySelector<InternalEditableListControl>(
-      '[infer="expiring-soon-payment-reminder-schedule"]'
+      '[infer="emails-group"] [infer="expiring-soon-payment-reminder-schedule"]'
     );
 
     expect(control).to.be.instanceOf(InternalEditableListControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.deep.property('inputParams', {
       type: 'number',
       step: '1',
@@ -383,28 +440,19 @@ describe('SubscriptionSettingsForm', () => {
     `);
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector<InternalCheckboxGroupControl>(
-      '[infer="send-email-receipts-for-automated-billing"]'
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      '[infer="emails-group"] [infer="send-email-receipts-for-automated-billing"]'
     );
 
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_checked', value: 'checked' },
-    ]);
-
-    element.edit({ send_email_receipts_for_automated_billing: false });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal([]);
-
-    element.edit({ send_email_receipts_for_automated_billing: true });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['checked']);
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control).to.have.attribute('helper-text-as-tooltip');
   });
 
-  it('renders an integer input for cancellation schedule', async () => {
+  it('renders a summary control for modification settings', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-subscription-settings-form
+        ns="subscription-settings-form"
         href="https://demo.api/hapi/subscription_settings/0"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
@@ -412,20 +460,8 @@ describe('SubscriptionSettingsForm', () => {
     `);
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector<InternalIntegerControl>(
-      '[infer="cancellation-schedule"]'
-    );
-
-    expect(control).to.be.instanceOf(InternalIntegerControl);
-    expect(control).to.have.property('min', 1);
-
-    element.edit({ cancellation_schedule: 0 });
-    await element.requestUpdate();
-    expect(control).to.have.property('suffix', '');
-
-    element.edit({ cancellation_schedule: 7 });
-    await element.requestUpdate();
-    expect(control).to.have.property('suffix', 'day_suffix');
+    const control = element.renderRoot.querySelector('[infer="modification-group"]');
+    expect(control).to.be.instanceOf(InternalSummaryControl);
   });
 
   it('renders a text control for modification url', async () => {
@@ -439,8 +475,55 @@ describe('SubscriptionSettingsForm', () => {
     `);
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="modification-url"]');
+    const control = element.renderRoot.querySelector(
+      '[infer="modification-group"] [infer="modification-url"]'
+    );
 
     expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a summary control for cancellation settings', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-subscription-settings-form
+        ns="subscription-settings-form"
+        href="https://demo.api/hapi/subscription_settings/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-subscription-settings-form>
+    `);
+
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+    const control = element.renderRoot.querySelector('[infer="cancellation-group"]');
+    expect(control).to.be.instanceOf(InternalSummaryControl);
+  });
+
+  it('renders a number control for cancellation schedule', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-subscription-settings-form
+        href="https://demo.api/hapi/subscription_settings/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-subscription-settings-form>
+    `);
+
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+    const control = element.renderRoot.querySelector<InternalNumberControl>(
+      '[infer="cancellation-group"] [infer="cancellation-schedule"]'
+    );
+
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('step', '1');
+    expect(control).to.have.attribute('min', '1');
+
+    element.edit({ cancellation_schedule: 0 });
+    await element.requestUpdate();
+    expect(control).to.have.attribute('suffix', '');
+
+    element.edit({ cancellation_schedule: 7 });
+    await element.requestUpdate();
+    expect(control).to.have.attribute('suffix', 'day_suffix');
   });
 });

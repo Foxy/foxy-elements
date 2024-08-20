@@ -12,7 +12,7 @@ const summary: Summary = {
   translatable: true,
   configurable: {
     sections: ['timestamps', 'header'],
-    inputs: ['name', 'format', 'version', 'url', 'query', 'encryption-key', 'event-resource'],
+    inputs: ['name', 'url', 'query', 'encryption-key', 'event-resource'],
     buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
   },
 };

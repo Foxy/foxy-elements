@@ -825,82 +825,7 @@
           "error": {
             "cc_token_invalid": "Unfortunately, we couldn't save your card details. Please try again later or use a different card."
           },
-          "template-set": {
-            "label": "Template set",
-            "dialog": {
-              "cancel": "Cancel",
-              "close": "Close",
-              "header": "Choose a template set",
-              "selection": {
-                "label": "",
-                "helper_text": "",
-                "search": "Search",
-                "clear": "Clear",
-                "pagination": {
-                  "search_button_text": "Search",
-                  "first": "First",
-                  "last": "Last",
-                  "next": "Next",
-                  "pagination": "{{from}}-{{to}} out of {{total}}",
-                  "previous": "Previous",
-                  "card": {
-                    "spinner": {
-                      "loading_busy": "Loading",
-                      "loading_empty": "No template sets found",
-                      "loading_error": "Unknown error"
-                    }
-                  }
-                },
-                "query-builder": {
-                  "filters": {},
-                  "add_or_clause": "Add OR clause",
-                  "add_value": "Add value",
-                  "code": "Code",
-                  "date": "{{value, date}}",
-                  "date_created": "Created on",
-                  "date_modified": "Last updated on",
-                  "delete": "Delete",
-                  "field": "Field",
-                  "hidden": "Hidden",
-                  "is_defined_false": "Not defined",
-                  "is_defined_true": "Defined",
-                  "name": "Name",
-                  "operator_equal": "Equal",
-                  "operator_greaterthan": "Greater than",
-                  "operator_greaterthanorequal": "Greater than or equal",
-                  "operator_in": "One of",
-                  "operator_isdefined": "Is defined",
-                  "operator_lessthan": "Less than",
-                  "operator_lessthanorequal": "Less than or equal",
-                  "operator_not": "Not equal",
-                  "or": "Or",
-                  "query_builder_group": "Group of filters",
-                  "query_builder_rule": "Filter",
-                  "range_from": "From",
-                  "range_to": "To",
-                  "type": "Type",
-                  "type_any": "Field of unknown type",
-                  "type_attribute": "Key-value resource",
-                  "type_date": "Date field",
-                  "type_here": "Type here...",
-                  "type_number": "Numeric field",
-                  "type_string": "Text field",
-                  "used_codes": "Codes used",
-                  "value": "Value"
-                }
-              }
-            },
-            "card": {
-              "spinner": {
-                "loading_busy": "Loading",
-                "loading_empty": "Click to select",
-                "loading_error": "Unknown error"
-              }
-            },
-            "helper_text": "Template set determines which payment gateway and tokenization service will be used to capture card details."
-          },
           "cc-token": {
-            "clear": "Clear",
             "tokenize": "Save card",
             "payment-card-embed": {
               "stripe": {
@@ -909,7 +834,7 @@
                   "idle": "Your card details are securely processed by Stripe. Visit https://stripe.com to learn more.",
                   "busy": "Encrypting your card details...",
                   "fail": "This service is currently unavailable. Please try again later.",
-                  "unsupported": "We don't support this card type. Please try another card."
+                  "unsupported": "We don't support this card type. Please try a different card."
                 }
               },
               "square": {
@@ -918,7 +843,7 @@
                   "idle": "Your card details are securely processed by Square. Visit https://squareup.com to learn more.",
                   "busy": "Encrypting your card details...",
                   "fail": "This service is currently unavailable. Please try again later.",
-                  "unsupported": "We don't support this card type. Please try another card."
+                  "unsupported": "We don't support this card type. Please try a different card."
                 }
               },
               "default": {
@@ -958,6 +883,11 @@
             "loading_empty": "This form works only with existing payment methods"
           }
         }
+      },
+      "spinner": {
+        "loading_busy": "Loading",
+        "loading_empty": "No payment method",
+        "loading_error": "Unknown error"
       }
     },
     "spinner": {

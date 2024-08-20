@@ -354,19 +354,6 @@ describe('StoreForm', () => {
     expect(form.errors).to.not.include('logo-url:v8n_too_long');
   });
 
-  it('produces the webhook-url:v8n_required error if legacy webhook is enabled and url is empty', () => {
-    const form = new Form();
-
-    form.edit({ use_webhook: false, webhook_url: '' });
-    expect(form.errors).to.not.include('webhook-url:v8n_required');
-
-    form.edit({ use_webhook: true, webhook_url: '' });
-    expect(form.errors).to.include('webhook-url:v8n_required');
-
-    form.edit({ use_webhook: true, webhook_url: 'https://example.com' });
-    expect(form.errors).to.not.include('webhook-url:v8n_required');
-  });
-
   it('produces the webhook-url:v8n_too_long error if legacy webhook is enabled and the url exceeds 300 characters', () => {
     const form = new Form();
 
@@ -393,10 +380,10 @@ describe('StoreForm', () => {
     const form = new Form();
 
     form.edit({ use_webhook: false, webhook_key: '' });
-    expect(form.errors).to.not.include('webhook-url:v8n_required');
+    expect(form.errors).to.not.include('webhook-key:v8n_required');
 
     form.edit({ use_webhook: true, webhook_key: '' });
-    expect(form.errors).to.include('webhook-url:v8n_required');
+    expect(form.errors).to.include('webhook-key:v8n_required');
   });
 
   it('produces the webhook-key:v8n_required error if hmac for carts is enabled and key is empty', () => {
