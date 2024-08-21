@@ -1,9 +1,9 @@
 import type { TemplateResult, PropertyDeclarations } from 'lit-element';
 import type { Data, TransactionPageHrefGetter } from './types';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
+import type { SwipeAction } from '../../internal/InternalAsyncListControl/types';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
-import type { Action } from '../../internal/InternalAsyncListControl/types';
 import type { Option } from '../QueryBuilder/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 import type { Rels } from '@foxy.io/sdk/backend';
@@ -144,7 +144,7 @@ export class CouponForm extends Base<Data> {
     { label: 'date_modified', path: 'date_modified', type: Type.Date },
   ];
 
-  private __couponCodesActions: Action<Resource<Rels.CouponCode>>[] = [
+  private __couponCodesActions: SwipeAction<Resource<Rels.CouponCode>>[] = [
     {
       theme: 'contrast',
       state: 'idle',

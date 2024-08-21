@@ -1,3 +1,5 @@
+import '@vaadin/vaadin-notification';
+import '@vaadin/vaadin-checkbox';
 import '@vaadin/vaadin-overlay';
 import '@vaadin/vaadin-button';
 
@@ -9,6 +11,8 @@ import '../../public/I18n/index';
 
 import '../InternalEditableControl/index';
 import '../InternalConfirmDialog/index';
+
+import './styles';
 
 import { InternalAsyncListControlFilterOverlay as Overlay } from './InternalAsyncListControlFilterOverlay';
 import { InternalAsyncListControl as Control } from './InternalAsyncListControl';
