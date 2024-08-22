@@ -1,8 +1,11 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
+import type { Resource } from '@foxy.io/sdk/core';
 import type { Data } from './types';
+import type { Rels } from '@foxy.io/sdk/backend';
 
+import { BooleanSelector, getResourceId } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { BooleanSelector } from '@foxy.io/sdk/core';
 import { ResponsiveMixin } from '../../../mixins/responsive';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
@@ -38,31 +41,75 @@ export class Transaction extends Base<Data> {
 
   getCustomerPageHref: ((href: string) => string) | null = null;
 
+  private readonly __webhooksBulkActions = [
+    {
+      name: 'refeed',
+      onClick: async (selection: Resource<Rels.Webhook>[]) => {
+        if (!this.data) return;
+
+        // TODO remove ts-expect-error when SDK has the types
+        // @ts-expect-error SDK types are incomplete
+        const url = this.data._links['fx:send_webhooks'].href;
+        const api = new Transaction.API(this);
+        const response = await api.fetch(url, {
+          method: 'POST',
+          body: JSON.stringify({
+            refeed_hooks: selection.map(hook => getResourceId(hook._links['self'].href)),
+            event: 'refeed',
+          }),
+        });
+
+        selection.forEach(hook => {
+          Transaction.Rumour('').share({
+            related: [
+              ...selection.map(hook => hook._links['fx:logs'].href),
+              ...selection.map(hook => hook._links['fx:statuses'].href),
+            ],
+            source: hook._links.self.href,
+            data: hook,
+          });
+        });
+
+        if (!response.ok) throw new Error(await response.text());
+      },
+    },
+  ];
+
   get readonlySelector(): BooleanSelector {
+    const alwaysMatch = ['billing-addresses', 'webhooks:dialog:url', super.readonlySelector];
     const isEditable = Boolean(this.data?._links['fx:void'] ?? this.data?._links['fx:refund']);
-    return isEditable
-      ? new BooleanSelector(`${super.readonlySelector} billing-addresses`)
-      : new BooleanSelector(
-          `${super.readonlySelector} billing-addresses items attributes custom-fields`
-        );
+    if (!isEditable) alwaysMatch.push('items', 'attributes', 'custom-fields');
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
   get hiddenSelector(): BooleanSelector {
-    const hidden = ['billing-addresses:dialog:delete billing-addresses:dialog:timestamps'];
+    const alwaysMatch = [
+      'billing-addresses:dialog:delete',
+      'billing-addresses:dialog:timestamps',
+      'webhooks:dialog:header:copy-json',
+      'webhooks:dialog:header:copy-id',
+      'webhooks:dialog:timestamps',
+      'webhooks:dialog:name',
+      'webhooks:dialog:query',
+      'webhooks:dialog:encryption-key',
+      'webhooks:dialog:delete',
+      super.readonlySelector,
+    ];
+
     const type = this.data?.type;
 
-    if (!this.data?._links['fx:subscription']) hidden.push('subscription');
-    if (type === 'subscription_modification') hidden.push('actions');
+    if (!this.data?._links['fx:subscription']) alwaysMatch.unshift('subscription');
+    if (type === 'subscription_modification') alwaysMatch.unshift('actions');
 
     if (type === 'updateinfo') {
-      hidden.push('not=customer,subscription,payments,custom-fields,attributes');
+      alwaysMatch.unshift('not=customer,subscription,payments,custom-fields,attributes');
     }
 
     if (type === 'subscription_cancellation') {
-      hidden.push('not=customer,subscription,custom-fields,attributes');
+      alwaysMatch.unshift('not=customer,subscription,custom-fields,attributes');
     }
 
-    return new BooleanSelector(`${super.hiddenSelector} ${hidden.join(' ')}`.trim());
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
   get headerSubtitleOptions(): Record<string, unknown> {
@@ -145,6 +192,7 @@ export class Transaction extends Base<Data> {
 
   renderBody(): TemplateResult {
     let shipmentsLink: string | undefined = undefined;
+    let webhooksLink: string | undefined = undefined;
     let itemsLink: string | undefined = undefined;
 
     const alertStatuses = ['problem', 'pending_fraud_review', 'rejected', 'declined'];
@@ -153,10 +201,17 @@ export class Transaction extends Base<Data> {
     if (this.data) {
       try {
         const shipmentsUrl = new URL(this.data._links['fx:shipments'].href);
+        // TODO: Remove the ts-expect-error comment when SDK has the types
+        // @ts-expect-error SDK doesn't have the types
+        const webhooksUrl = new URL(this.__storeLoader?.data._links['fx:webhooks'].href ?? '');
         const itemsUrl = new URL(this.data._links['fx:items'].href);
+
         shipmentsUrl.searchParams.set('zoom', 'items:item_category');
+        webhooksUrl.searchParams.set('event_resource', 'transaction');
         itemsUrl.searchParams.set('zoom', 'item_options');
+
         shipmentsLink = shipmentsUrl.toString();
+        webhooksLink = webhooksUrl.toString();
         itemsLink = itemsUrl.toString();
       } catch {
         //
@@ -254,6 +309,34 @@ export class Transaction extends Base<Data> {
         item="foxy-shipment-card"
       >
       </foxy-internal-async-list-control>
+
+      <foxy-internal-async-list-control
+        infer="webhooks"
+        first=${ifDefined(webhooksLink)}
+        item="foxy-webhook-card"
+        form="foxy-webhook-form"
+        hide-create-button
+        hide-delete-button
+        alert
+        .bulkActions=${this.__webhooksBulkActions}
+        .itemProps=${{ 'resource-uri': this.href }}
+        .formProps=${{ 'resource-uri': this.href }}
+      >
+      </foxy-internal-async-list-control>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.data?._links['fx:store'].href)}
+        id="storeLoader"
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
     `;
+  }
+
+  private get __storeLoader() {
+    type Loader = NucleonElement<Resource<Rels.Store>>;
+    return this.renderRoot.querySelector<Loader>('#storeLoader');
   }
 }

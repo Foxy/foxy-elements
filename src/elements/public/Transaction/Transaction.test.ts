@@ -1,9 +1,15 @@
+import type { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/dist/types/backend';
+
 import { expect, fixture, waitUntil } from '@open-wc/testing';
-import { Transaction } from './index';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
-import { html } from 'lit-html';
 import { createRouter } from '../../../server/index';
-import { FetchEvent } from '../NucleonElement/FetchEvent';
+import { Transaction } from './index';
+import { getTestData } from '../../../testgen/getTestData';
+import { html } from 'lit-html';
 import { stub } from 'sinon';
 
 describe('Transaction', () => {
@@ -116,6 +122,21 @@ describe('Transaction', () => {
 
   it('extends InternalForm', () => {
     expect(new Transaction()).to.be.instanceOf(InternalForm);
+  });
+
+  [
+    'webhooks:dialog:header:copy-json',
+    'webhooks:dialog:header:copy-id',
+    'webhooks:dialog:timestamps',
+    'webhooks:dialog:name',
+    'webhooks:dialog:query',
+    'webhooks:dialog:encryption-key',
+    'webhooks:dialog:delete',
+  ].forEach(key => {
+    it(`always hides ${key}`, () => {
+      const element = new Transaction();
+      expect(element.hiddenSelector.matches(key, true)).to.be.true;
+    });
   });
 
   it('renders a form header', () => {
@@ -720,5 +741,94 @@ describe('Transaction', () => {
     );
     expect(control).to.have.property('form', null);
     expect(control).to.have.property('item', 'foxy-shipment-card');
+  });
+
+  it('renders webhooks as control', async () => {
+    const router = createRouter();
+    const element = await fixture<Transaction>(html`
+      <foxy-transaction
+        href="https://demo.api/hapi/transactions/0"
+        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+      >
+      </foxy-transaction>
+    `);
+
+    await waitUntil(
+      () => {
+        if (!element.in({ idle: 'snapshot' })) return false;
+        const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+        return [...nucleons].every(nucleon => nucleon.in({ idle: 'snapshot' }));
+      },
+      '',
+      { timeout: 5000 }
+    );
+
+    const control = element.renderRoot.querySelector('[infer="webhooks"]');
+
+    expect(control).to.exist;
+    expect(control).to.have.property('localName', 'foxy-internal-async-list-control');
+    expect(control).to.have.attribute('form', 'foxy-webhook-form');
+    expect(control).to.have.attribute('item', 'foxy-webhook-card');
+    expect(control).to.have.attribute('hide-create-button');
+    expect(control).to.have.attribute('hide-delete-button');
+    expect(control).to.have.attribute('alert');
+    expect(control).to.have.attribute(
+      'first',
+      'https://demo.api/hapi/webhooks?store_id=0&event_resource=transaction'
+    );
+
+    expect(control).to.have.deep.property('itemProps', {
+      'resource-uri': 'https://demo.api/hapi/transactions/0',
+    });
+
+    expect(control).to.have.deep.property('formProps', {
+      'resource-uri': 'https://demo.api/hapi/transactions/0',
+    });
+  });
+
+  it('supports refeeding multiple webhooks at once', async () => {
+    const requests: Request[] = [];
+    const router = createRouter();
+    const element = await fixture<Transaction>(html`
+      <foxy-transaction
+        href="https://demo.api/hapi/transactions/0"
+        @fetch=${(evt: FetchEvent) => {
+          if (evt.defaultPrevented) return;
+          requests.push(evt.request.clone());
+          router.handleEvent(evt);
+        }}
+      >
+      </foxy-transaction>
+    `);
+
+    await waitUntil(
+      () => {
+        if (!element.in({ idle: 'snapshot' })) return false;
+        const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+        return [...nucleons].every(nucleon => nucleon.in({ idle: 'snapshot' }));
+      },
+      '',
+      { timeout: 5000 }
+    );
+
+    const control =
+      element.renderRoot.querySelector<InternalAsyncListControl>('[infer="webhooks"]');
+
+    expect(control).to.have.nested.property('bulkActions.0.name', 'refeed');
+    expect(control).to.have.nested.property('bulkActions.0.onClick').that.is.a('function');
+
+    const webhooksCollection = await getTestData<Resource<Rels.Webhooks>>(
+      './hapi/webhooks',
+      router
+    );
+
+    requests.length = 0;
+    const webhooksArray = webhooksCollection._embedded['fx:webhooks'] as Resource<Rels.Webhook>[];
+    await control?.bulkActions[0].onClick(webhooksArray);
+
+    const refeedRequest = requests.find(req => req.method === 'POST');
+    expect(refeedRequest).to.exist;
+    expect(refeedRequest?.url).to.equal('https://demo.api/virtual/empty?status=200');
+    expect(await refeedRequest?.json()).to.deep.equal({ refeed_hooks: [0], event: 'refeed' });
   });
 });

@@ -732,6 +732,93 @@
       }
     }
   },
+  "webhooks": {
+    "label": "Webhooks",
+    "helper_text": "This list shows v2 webhooks only. Legacy v1 webhooks are available in Settings > Integrations and on admin.foxycart.com.",
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header_update": "Webhook",
+      "webhook-form": {
+        "header": {
+          "title_existing": "{{ name }}",
+          "subtitle_transaction": ""
+        },
+        "url": {
+          "label": "URL",
+          "helper_text": ""
+        },
+        "statuses": {
+          "label": "Runs",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "status_successful": "Successful",
+              "status_pending": "Pending",
+              "status_failed": "Failed",
+              "date": "{{ value, date }} at {{ value, time }}",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_error": "Unknown error",
+                "loading_empty": "No runs for this transaction yet"
+              }
+            }
+          }
+        },
+        "logs": {
+          "label": "Logs",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "date": "{{ value, date }} at {{ value, time }}",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_error": "Unknown error",
+                "loading_empty": "No runs for this transaction yet"
+              }
+            }
+          }
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error"
+        }
+      }
+    },
+    "pagination": {
+      "select_button_text": "Select",
+      "cancel_button_text": "Cancel",
+      "refeed_bulk_action_caption_idle": "Refeed ({{ count }})",
+      "refeed_bulk_action_caption_busy": "Refeeding...",
+      "refeed_bulk_action_notification_done": "Selected webhooks were sent successfully.",
+      "refeed_bulk_action_notification_fail": "Failed to refeed selected webhooks.",
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "status_successful": "OK",
+        "status_pending": "Pending",
+        "status_failed": "Failed",
+        "status_none": "No runs yet",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No webhooks",
+          "loading_error": "Unknown error"
+        }
+      }
+    }
+  },
   "summary": {
     "total_shipping": "Shipping",
     "total_tax": "Tax",
