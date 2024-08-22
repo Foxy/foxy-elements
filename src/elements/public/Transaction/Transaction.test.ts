@@ -177,7 +177,6 @@ describe('Transaction', () => {
     );
 
     expect(element.hiddenSelector.matches('datafeed', true)).to.be.true;
-    expect(element.hiddenSelector.matches('actions:resend-datafeed', true)).to.be.true;
 
     const store = await getTestData<Resource<Rels.Store>>('https://demo.api/hapi/stores/0');
     store.use_webhook = true;
@@ -188,7 +187,6 @@ describe('Transaction', () => {
 
     await element.requestUpdate();
     expect(element.hiddenSelector.matches('datafeed', true)).to.be.false;
-    expect(element.hiddenSelector.matches('actions:resend-datafeed', true)).to.be.false;
   });
 
   it('renders a form header', () => {
@@ -623,7 +621,9 @@ describe('Transaction', () => {
     `);
 
     await waitUntil(() => element.in({ idle: 'snapshot' }));
-    const control = element.renderRoot.querySelector('[infer="actions resend-datafeed"]');
+    const control = element.renderRoot.querySelector(
+      '[infer="datafeed"] [infer="process-webhook"]'
+    );
 
     expect(control).to.exist;
     expect(control).to.have.property('localName', 'foxy-internal-transaction-post-action-control');

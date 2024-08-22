@@ -35,7 +35,6 @@ export class InternalTransactionPostActionControl extends InternalControl {
       </foxy-internal-confirm-dialog>
 
       <vaadin-button
-        class="w-full"
         theme="${theme} tertiary-inline"
         ?disabled=${state === 'busy' || this.disabled}
         @click=${(evt: CustomEvent) => {

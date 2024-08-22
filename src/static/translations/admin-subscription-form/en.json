@@ -1066,6 +1066,17 @@
             "helper_text": "",
             "checked": "Sent",
             "unchecked": "Not sent"
+          },
+          "process-webhook": {
+            "idle": "Resend datafeed",
+            "busy": "Resending datafeed...",
+            "fail": "Failed to resend datafeed",
+            "confirm": {
+              "header": "Resend datafeed",
+              "message": "Are you sure you'd like to resend XML datafeed for this transaction?",
+              "confirm": "Yes",
+              "cancel": "No"
+            }
           }
         },
         "summary": {
@@ -1901,17 +1912,6 @@
             "confirm": {
               "header": "Send emails",
               "message": "Are you sure you'd like to send emails for this transaction?",
-              "confirm": "Yes",
-              "cancel": "No"
-            }
-          },
-          "resend-datafeed": {
-            "idle": "Resend datafeed",
-            "busy": "Resending datafeed...",
-            "fail": "Failed to resend datafeed",
-            "confirm": {
-              "header": "Resend datafeed",
-              "message": "Are you sure you'd like to resend XML datafeed for this transaction?",
               "confirm": "Yes",
               "cancel": "No"
             }

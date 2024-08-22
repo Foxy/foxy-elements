@@ -115,9 +115,7 @@ export class Transaction extends Base<Data> {
       alwaysMatch.unshift('not=customer,subscription,custom-fields,attributes');
     }
 
-    if (!this.__storeLoader?.data?.use_webhook) {
-      alwaysMatch.unshift('datafeed', 'actions:resend-datafeed');
-    }
+    if (!this.__storeLoader?.data?.use_webhook) alwaysMatch.unshift('datafeed');
 
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
@@ -197,12 +195,6 @@ export class Transaction extends Base<Data> {
     return html`
       <foxy-internal-transaction-actions-control infer="actions">
       </foxy-internal-transaction-actions-control>
-
-      <foxy-internal-transaction-post-action-control
-        infer="actions resend-datafeed"
-        href=${ifDefined(this.data?._links['fx:process_webhook']?.href)}
-      >
-      </foxy-internal-transaction-post-action-control>
     `;
   }
 
@@ -342,6 +334,11 @@ export class Transaction extends Base<Data> {
 
       <foxy-internal-summary-control infer="datafeed">
         <foxy-internal-switch-control infer="data-is-fed"></foxy-internal-switch-control>
+        <foxy-internal-transaction-post-action-control
+          infer="process-webhook"
+          href=${ifDefined(this.data?._links['fx:process_webhook']?.href)}
+        >
+        </foxy-internal-transaction-post-action-control>
       </foxy-internal-summary-control>
 
       <foxy-nucleon
