@@ -67,8 +67,20 @@ describe('Transaction', () => {
     expect(customElements.get('foxy-internal-async-list-control')).to.exist;
   });
 
+  it('imports and defines foxy-internal-summary-control', () => {
+    expect(customElements.get('foxy-internal-summary-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-switch-control', () => {
+    expect(customElements.get('foxy-internal-switch-control')).to.exist;
+  });
+
   it('imports and defines foxy-internal-form', () => {
     expect(customElements.get('foxy-internal-form')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-transaction-post-action-control', () => {
+    expect(customElements.get('foxy-internal-transaction-post-action-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-transaction-customer-control', () => {
@@ -137,6 +149,46 @@ describe('Transaction', () => {
       const element = new Transaction();
       expect(element.hiddenSelector.matches(key, true)).to.be.true;
     });
+  });
+
+  it('always keeps datafeed controls readonly', () => {
+    const element = new Transaction();
+    expect(element.readonlySelector.matches('datafeed', true)).to.be.true;
+  });
+
+  it("hides XML datafeed controls when store doesn't have XML datafeed enabled", async () => {
+    const router = createRouter();
+    const element = await fixture<Transaction>(html`
+      <foxy-transaction
+        href="https://demo.api/hapi/transactions/0"
+        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+      >
+      </foxy-transaction>
+    `);
+
+    await waitUntil(
+      () => {
+        if (!element.in({ idle: 'snapshot' })) return false;
+        const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+        return [...nucleons].every(nucleon => nucleon.in({ idle: 'snapshot' }));
+      },
+      '',
+      { timeout: 5000 }
+    );
+
+    expect(element.hiddenSelector.matches('datafeed', true)).to.be.true;
+    expect(element.hiddenSelector.matches('actions:resend-datafeed', true)).to.be.true;
+
+    const store = await getTestData<Resource<Rels.Store>>('https://demo.api/hapi/stores/0');
+    store.use_webhook = true;
+    Transaction.Rumour('').share({
+      source: 'https://demo.api/hapi/stores/0',
+      data: store,
+    });
+
+    await element.requestUpdate();
+    expect(element.hiddenSelector.matches('datafeed', true)).to.be.false;
+    expect(element.hiddenSelector.matches('actions:resend-datafeed', true)).to.be.false;
   });
 
   it('renders a form header', () => {
@@ -560,6 +612,24 @@ describe('Transaction', () => {
     expect(control).to.have.property('localName', 'foxy-internal-transaction-actions-control');
   });
 
+  it('renders a post action control for refeeding XML datafeed', async () => {
+    const router = createRouter();
+    const element = await fixture<Transaction>(html`
+      <foxy-transaction
+        href="https://demo.api/hapi/transactions/1"
+        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+      >
+      </foxy-transaction>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    const control = element.renderRoot.querySelector('[infer="actions resend-datafeed"]');
+
+    expect(control).to.exist;
+    expect(control).to.have.property('localName', 'foxy-internal-transaction-post-action-control');
+    expect(control).to.have.attribute('href', element.data!._links['fx:process_webhook'].href);
+  });
+
   it('renders customer info as control', async () => {
     const router = createRouter();
     const element = await fixture<Transaction>(html`
@@ -830,5 +900,26 @@ describe('Transaction', () => {
     expect(refeedRequest).to.exist;
     expect(refeedRequest?.url).to.equal('https://demo.api/virtual/empty?status=200');
     expect(await refeedRequest?.json()).to.deep.equal({ refeed_hooks: [0], event: 'refeed' });
+  });
+
+  it('renders XML datafeed status as control', async () => {
+    const router = createRouter();
+    const element = await fixture<Transaction>(html`
+      <foxy-transaction
+        href="https://demo.api/hapi/transactions/1"
+        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+      >
+      </foxy-transaction>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    const summary = element.renderRoot.querySelector('[infer="datafeed"]');
+    expect(summary).to.exist;
+    expect(summary).to.have.property('localName', 'foxy-internal-summary-control');
+
+    const status = summary?.querySelector('[infer="data-is-fed"');
+    expect(status).to.exist;
+    expect(status).to.have.property('localName', 'foxy-internal-switch-control');
   });
 });

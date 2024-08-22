@@ -76,7 +76,13 @@ export class Transaction extends Base<Data> {
   ];
 
   get readonlySelector(): BooleanSelector {
-    const alwaysMatch = ['billing-addresses', 'webhooks:dialog:url', super.readonlySelector];
+    const alwaysMatch = [
+      'billing-addresses',
+      'datafeed',
+      'webhooks:dialog:url',
+      super.readonlySelector,
+    ];
+
     const isEditable = Boolean(this.data?._links['fx:void'] ?? this.data?._links['fx:refund']);
     if (!isEditable) alwaysMatch.push('items', 'attributes', 'custom-fields');
     return new BooleanSelector(alwaysMatch.join(' ').trim());
@@ -107,6 +113,10 @@ export class Transaction extends Base<Data> {
 
     if (type === 'subscription_cancellation') {
       alwaysMatch.unshift('not=customer,subscription,custom-fields,attributes');
+    }
+
+    if (!this.__storeLoader?.data?.use_webhook) {
+      alwaysMatch.unshift('datafeed', 'actions:resend-datafeed');
     }
 
     return new BooleanSelector(alwaysMatch.join(' ').trim());
@@ -187,6 +197,12 @@ export class Transaction extends Base<Data> {
     return html`
       <foxy-internal-transaction-actions-control infer="actions">
       </foxy-internal-transaction-actions-control>
+
+      <foxy-internal-transaction-post-action-control
+        infer="actions resend-datafeed"
+        href=${ifDefined(this.data?._links['fx:process_webhook'].href)}
+      >
+      </foxy-internal-transaction-post-action-control>
     `;
   }
 
@@ -323,6 +339,10 @@ export class Transaction extends Base<Data> {
         .formProps=${{ 'resource-uri': this.href }}
       >
       </foxy-internal-async-list-control>
+
+      <foxy-internal-summary-control infer="datafeed">
+        <foxy-internal-switch-control infer="data-is-fed"></foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
       <foxy-nucleon
         class="hidden"

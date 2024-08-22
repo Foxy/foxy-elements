@@ -819,6 +819,16 @@
       }
     }
   },
+  "datafeed": {
+    "label": "Legacy XML datafeed",
+    "helper_text": "To resend this webhook, use the Resend datafeed button at the top of the page.",
+    "data-is-fed": {
+      "label": "Status",
+      "helper_text": "",
+      "checked": "Sent",
+      "unchecked": "Not sent"
+    }
+  },
   "summary": {
     "total_shipping": "Shipping",
     "total_tax": "Tax",
@@ -1652,6 +1662,17 @@
       "confirm": {
         "header": "Send emails",
         "message": "Are you sure you'd like to send emails for this transaction?",
+        "confirm": "Yes",
+        "cancel": "No"
+      }
+    },
+    "resend-datafeed": {
+      "idle": "Resend datafeed",
+      "busy": "Resending datafeed...",
+      "fail": "Failed to resend datafeed",
+      "confirm": {
+        "header": "Resend datafeed",
+        "message": "Are you sure you'd like to resend XML datafeed for this transaction?",
         "confirm": "Yes",
         "cancel": "No"
       }
