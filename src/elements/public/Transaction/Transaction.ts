@@ -200,7 +200,7 @@ export class Transaction extends Base<Data> {
 
       <foxy-internal-transaction-post-action-control
         infer="actions resend-datafeed"
-        href=${ifDefined(this.data?._links['fx:process_webhook'].href)}
+        href=${ifDefined(this.data?._links['fx:process_webhook']?.href)}
       >
       </foxy-internal-transaction-post-action-control>
     `;
