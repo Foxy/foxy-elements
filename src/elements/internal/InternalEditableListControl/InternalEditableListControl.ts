@@ -103,6 +103,27 @@ export class InternalEditableListControl extends InternalEditableControl {
       this.__newItem = '';
     };
 
+    const helperAndError = html`
+      <div
+        class=${classMap({
+          'transition-colors text-xs mt-xs': true,
+          'text-secondary group-hover-text-body': !isSummaryItem && isInteractive,
+          'text-disabled': !isSummaryItem && this.disabled,
+          'text-secondary': isSummaryItem,
+        })}
+        ?hidden=${!this.helperText}
+      >
+        ${this.helperText}
+      </div>
+
+      <div
+        class="mt-xs text-xs leading-xs text-error"
+        ?hidden=${!this.__isErrorVisible || !this._errorMessage || this.disabled || this.readonly}
+      >
+        ${this._errorMessage}
+      </div>
+    `;
+
     return html`
       <div class="group">
         <div
@@ -117,8 +138,11 @@ export class InternalEditableListControl extends InternalEditableControl {
           ${this.label}
         </div>
 
+        ${isSummaryItem ? helperAndError : ''}
+
         <div
           class=${classMap({
+            'mt-s': isSummaryItem,
             'transition-colors': true,
             'border border-contrast-10 rounded': !isSummaryItem,
             'group-hover-border-contrast-20': !isSummaryItem && isInteractive,
@@ -322,24 +346,7 @@ export class InternalEditableListControl extends InternalEditableControl {
           </div>
         </div>
 
-        <div
-          class=${classMap({
-            'transition-colors text-xs mt-xs': true,
-            'text-secondary group-hover-text-body': !isSummaryItem && isInteractive,
-            'text-disabled': !isSummaryItem && this.disabled,
-            'text-secondary': isSummaryItem,
-          })}
-          ?hidden=${!this.helperText}
-        >
-          ${this.helperText}
-        </div>
-
-        <div
-          class="mt-xs text-xs leading-xs text-error"
-          ?hidden=${!this.__isErrorVisible || !this._errorMessage || this.disabled || this.readonly}
-        >
-          ${this._errorMessage}
-        </div>
+        ${isSummaryItem ? '' : helperAndError}
       </div>
     `;
   }
