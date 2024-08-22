@@ -597,7 +597,6 @@ describe('CouponForm', () => {
     'exclude-line-item-discounts',
     'is-taxable',
     'shared-codes-allowed',
-    'customer-auto-apply',
   ] as const;
 
   for (const prop of props) {
@@ -611,13 +610,23 @@ describe('CouponForm', () => {
     });
   }
 
-  it('renders editable list control for subscription restrictions', async () => {
+  it('renders a Customer Restrictions summary control', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-editable-list-control[infer=customer-subscription-restrictions]'
+      'foxy-internal-summary-control[infer="customer-restrictions"]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders editable list control for subscription restrictions inside of the Customer Restrictions summary', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer=customer-restrictions] foxy-internal-editable-list-control[infer=customer-subscription-restrictions]'
     ) as InternalEditableListControl;
 
     expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
 
     expect(control.getValue()).to.deep.equal([]);
     control.setValue([{ value: 'a' }, { value: 'b' }]);
@@ -627,11 +636,21 @@ describe('CouponForm', () => {
     expect(control.getValue()).to.deep.equal([{ value: 'foo' }, { value: 'bar' }]);
   });
 
-  it('renders query builder control for customer attribute restrictions', async () => {
+  it('renders query builder control for customer attribute restrictions inside of the Customer Restrictions summary', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-query-builder-control[infer=customer-attribute-restrictions]'
+      '[infer=customer-restrictions] foxy-internal-query-builder-control[infer=customer-attribute-restrictions]'
     ) as InternalQueryBuilderControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders switch control for auto-apply inside of the Customer Restrictions summary', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer=customer-restrictions] foxy-internal-switch-control[infer=customer-auto-apply]'
+    );
 
     expect(control).to.exist;
   });

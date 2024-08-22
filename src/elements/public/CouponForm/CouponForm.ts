@@ -240,18 +240,6 @@ export class CouponForm extends Base<Data> {
       >
       </foxy-internal-async-list-control>
 
-      <foxy-internal-query-builder-control
-        infer="item-option-restrictions"
-        disable-or
-        .operators=${this.__itemOptionRestrictionsOperators}
-        .getValue=${this.__itemOptionRestrictionsGetValue}
-        .setValue=${this.__itemOptionRestrictionsSetValue}
-      >
-      </foxy-internal-query-builder-control>
-
-      <foxy-internal-query-builder-control infer="customer-attribute-restrictions">
-      </foxy-internal-query-builder-control>
-
       <foxy-internal-editable-list-control
         infer="product-code-restrictions"
         .getValue=${this.__productCodeRestrictionsGetValue}
@@ -263,12 +251,32 @@ export class CouponForm extends Base<Data> {
       >
       </foxy-internal-editable-list-control>
 
-      <foxy-internal-editable-list-control
-        infer="customer-subscription-restrictions"
-        .getValue=${this.__customerSubscriptionRestrictionsGetValue}
-        .setValue=${this.__customerSubscriptionRestrictionsSetValue}
+      <foxy-internal-query-builder-control
+        infer="item-option-restrictions"
+        disable-or
+        .operators=${this.__itemOptionRestrictionsOperators}
+        .getValue=${this.__itemOptionRestrictionsGetValue}
+        .setValue=${this.__itemOptionRestrictionsSetValue}
       >
-      </foxy-internal-editable-list-control>
+      </foxy-internal-query-builder-control>
+
+      <foxy-internal-summary-control infer="customer-restrictions">
+        <foxy-internal-query-builder-control
+          layout="summary-item"
+          infer="customer-attribute-restrictions"
+        >
+        </foxy-internal-query-builder-control>
+
+        <foxy-internal-editable-list-control
+          layout="summary-item"
+          infer="customer-subscription-restrictions"
+          .getValue=${this.__customerSubscriptionRestrictionsGetValue}
+          .setValue=${this.__customerSubscriptionRestrictionsSetValue}
+        >
+        </foxy-internal-editable-list-control>
+
+        <foxy-internal-switch-control infer="customer-auto-apply"></foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
       <foxy-internal-async-resource-link-list-control
         foreign-key-for-uri="item_category_uri"
@@ -336,7 +344,6 @@ export class CouponForm extends Base<Data> {
         </foxy-internal-switch-control>
         <foxy-internal-switch-control infer="is-taxable"></foxy-internal-switch-control>
         <foxy-internal-switch-control infer="shared-codes-allowed"></foxy-internal-switch-control>
-        <foxy-internal-switch-control infer="customer-auto-apply"></foxy-internal-switch-control>
       </foxy-internal-summary-control>
 
       <foxy-internal-async-list-control

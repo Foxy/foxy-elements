@@ -513,12 +513,6 @@
       "helper_text": "",
       "checked": "Yes",
       "unchecked": "No"
-    },
-    "customer-auto-apply": {
-      "label": "Enable auto-apply",
-      "helper_text": "",
-      "checked": "Yes",
-      "unchecked": "No"
     }
   },
   "timeframe": {
@@ -535,55 +529,6 @@
       "placeholder": "Select",
       "display_value": "{{ value, date }}",
       "helper_text": "The date and time when this coupon will expire. Leave blank for no expiration."
-    }
-  },
-  "customer-subscription-restrictions": {
-    "label": "Subscription restrictions",
-    "placeholder": "Enter a product code and hit Enter",
-    "helper_text": "This coupon will be applied only when a subscription includes a product with one of the codes in the list. Wildcards are allowed just like in product code restrictions.",
-    "caption": "Add this code",
-    "delete": "Delete this code",
-    "v8n_too_long": "Unfortunately we are unable to store that many subscription restrictions at the moment. Please reduce the number of rules in this section until this message disappears."
-  },
-  "customer-attribute-restrictions": {
-    "label": "Customer restrictions",
-    "helper_text": "This coupon will be applied only when a customer record matches this query.",
-    "v8n_too_long": "Unfortunately we are unable to store that many customer restrictions at the moment. Please reduce the number of rules in this section until this message disappears.",
-    "query-builder": {
-      "add_or_clause": "Add OR clause",
-      "add_value": "Add value",
-      "code": "Code",
-      "date": "{{value, date}}",
-      "date_created": "Created on",
-      "date_modified": "Last updated on",
-      "delete": "Delete",
-      "field": "Field",
-      "hidden": "Hidden",
-      "is_defined_false": "Not defined",
-      "is_defined_true": "Defined",
-      "name": "Name",
-      "operator_equal": "Equal",
-      "operator_greaterthan": "Greater than",
-      "operator_greaterthanorequal": "Greater than or equal",
-      "operator_in": "One of",
-      "operator_isdefined": "Is defined",
-      "operator_lessthan": "Less than",
-      "operator_lessthanorequal": "Less than or equal",
-      "operator_not": "Not equal",
-      "or": "Or",
-      "query_builder_group": "Group of filters",
-      "query_builder_rule": "Filter",
-      "range_from": "From",
-      "range_to": "To",
-      "type": "Type",
-      "type_any": "Field of unknown type",
-      "type_attribute": "Key-value resource",
-      "type_date": "Date field",
-      "type_here": "Type here...",
-      "type_number": "Numeric field",
-      "type_string": "Text field",
-      "used_codes": "Codes used",
-      "value": "Value"
     }
   },
   "item-option-restrictions": {
@@ -646,6 +591,65 @@
       }
     },
     "helper_text": "Limit which categories this coupon applies to. All changes are saved automatically."
+  },
+  "customer-restrictions": {
+    "label": "Customer restrictions",
+    "helper_text": "",
+    "customer-attribute-restrictions": {
+      "label": "Customer attribute restrictions",
+      "helper_text": "This restricts the usage of the coupon based on an attribute name and value. When defined, the coupon will only apply if the customer has the specified attribute name and value. Wildcards are allowed.",
+      "v8n_too_long": "Unfortunately we are unable to store that many customer attribute restrictions at the moment. Please reduce the number of rules in this section until this message disappears.",
+      "query-builder": {
+        "add_or_clause": "Add OR clause",
+        "add_value": "Add value",
+        "code": "Code",
+        "date": "{{value, date}}",
+        "date_created": "Created on",
+        "date_modified": "Last updated on",
+        "delete": "Delete",
+        "field": "Field",
+        "hidden": "Hidden",
+        "is_defined_false": "Not defined",
+        "is_defined_true": "Defined",
+        "name": "Name",
+        "operator_equal": "Equal",
+        "operator_greaterthan": "Greater than",
+        "operator_greaterthanorequal": "Greater than or equal",
+        "operator_in": "One of",
+        "operator_isdefined": "Is defined",
+        "operator_lessthan": "Less than",
+        "operator_lessthanorequal": "Less than or equal",
+        "operator_not": "Not equal",
+        "or": "Or",
+        "query_builder_group": "Group of filters",
+        "query_builder_rule": "Filter",
+        "range_from": "From",
+        "range_to": "To",
+        "type": "Type",
+        "type_any": "Field of unknown type",
+        "type_attribute": "Key-value resource",
+        "type_date": "Date field",
+        "type_here": "Type here...",
+        "type_number": "Numeric field",
+        "type_string": "Text field",
+        "used_codes": "Codes used",
+        "value": "Value"
+      }
+    },
+    "customer-subscription-restrictions": {
+      "label": "Customer subscription restrictions",
+      "placeholder": "Enter a product code and hit Enter",
+      "helper_text": "This restricts the usage of the coupon based on product codes in the current customer's active subscriptions. When defined, the coupon will only apply if the customer has an active subscription with a matching product code. Wildcards are allowed.",
+      "caption": "Add this code",
+      "delete": "Delete this code",
+      "v8n_too_long": "Unfortunately we are unable to store that many subscription restrictions at the moment. Please reduce the number of rules in this section until this message disappears."
+    },
+    "customer-auto-apply": {
+      "label": "Auto apply coupon for matching customers",
+      "helper_text": "If enabled, when a customer authenticates on the checkout, this coupon will automatically apply if the above two customer restrictions are met.",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
   },
   "taxes": {
     "label": "Tax settings",
