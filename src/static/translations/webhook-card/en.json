@@ -1,4 +1,8 @@
 {
+  "status_successful": "OK",
+  "status_pending": "Pending",
+  "status_failed": "Failed",
+  "status_none": "No runs yet",
   "spinner": {
     "loading_busy": "Loading",
     "loading_error": "Unknown error",
