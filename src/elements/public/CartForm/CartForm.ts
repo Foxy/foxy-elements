@@ -255,6 +255,7 @@ export class CartForm extends Base<Data> {
         class="min-w-0"
         first=${ifDefined(this.__itemsHref)}
         alert
+        wide
         item="foxy-item-card"
         form="foxy-item-form"
         .related=${this.href ? [this.href] : []}

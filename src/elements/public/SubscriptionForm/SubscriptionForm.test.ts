@@ -655,7 +655,6 @@ describe('SubscriptionForm', () => {
       const control = items.querySelector('[infer="items"]')!;
 
       expect(control).to.have.property('localName', 'foxy-internal-async-list-control');
-      expect(control).to.have.attribute('limit', '5');
       expect(control).to.have.attribute('item', 'foxy-item-card');
       expect(control).to.have.attribute(
         'first',

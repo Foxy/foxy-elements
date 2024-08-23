@@ -254,6 +254,7 @@ export class Transaction extends Base<Data> {
           item="foxy-item-card"
           form="foxy-item-form"
           alert
+          wide
           .related=${[this.href]}
         >
         </foxy-internal-async-list-control>

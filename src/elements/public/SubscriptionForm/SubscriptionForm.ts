@@ -134,7 +134,6 @@ export class SubscriptionForm extends Base<Data> {
 
         <foxy-internal-async-list-control
           first=${ifDefined(itemsHref)}
-          limit="5"
           infer="items"
           item="foxy-item-card"
         >

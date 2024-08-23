@@ -1,14 +1,17 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
-import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
+import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
 
 /**
@@ -21,10 +24,11 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      customerAddresses: { type: String, attribute: 'customer-addresses' },
-      itemCategories: { type: String, attribute: 'item-categories' },
+      customerAddresses: { attribute: 'customer-addresses' },
+      itemCategories: { attribute: 'item-categories' },
       localeCodes: { attribute: 'locale-codes' },
-      coupons: { type: String },
+      coupons: {},
+      store: {},
     };
   }
 
@@ -50,145 +54,146 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
   /** @deprecated Link to the collection of coupons that can be used with this item. */
   coupons: string | null = null;
 
+  /** Link to `fx:store` this item belongs to. */
+  store: string | null = null;
+
   private __itemsLink = '';
 
   get headerSubtitleOptions(): Record<string, unknown> {
     return { context: this.data?.is_future_line_item ? 'future_line_item' : 'regular' };
   }
 
+  get readonlySelector(): BooleanSelector {
+    const alwaysMatch = [super.readonlySelector.toString()];
+    if (this.href) alwaysMatch.unshift('subscriptions');
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
+  }
+
+  get hiddenSelector(): BooleanSelector {
+    const alwaysMatch = [super.hiddenSelector.toString()];
+
+    if (!this.__storeLoader?.data?.features_multiship) alwaysMatch.unshift('general:shipto');
+    if (this.data && !this.data.subscription_frequency) alwaysMatch.unshift('subscriptions');
+    if (!this.form.discount_name) alwaysMatch.unshift('discount:discount-builder');
+    if (!this.href) {
+      alwaysMatch.unshift('discount-details', 'coupon-details', 'item-options', 'attributes');
+    }
+
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
+  }
+
   renderBody(): TemplateResult {
     return html`
       ${this.renderHeader()}
 
-      <foxy-internal-text-control infer="name"></foxy-internal-text-control>
+      <foxy-internal-summary-control infer="general">
+        <foxy-internal-text-control layout="summary-item" infer="name"></foxy-internal-text-control>
+        <foxy-internal-number-control layout="summary-item" infer="price" min="0">
+        </foxy-internal-number-control>
+        <foxy-internal-number-control layout="summary-item" infer="quantity" step="1" min="1">
+        </foxy-internal-number-control>
+        <foxy-internal-resource-picker-control
+          layout="summary-item"
+          first=${ifDefined(this?.itemCategories ?? undefined)}
+          infer="item-category-uri"
+          item="foxy-item-category-card"
+        >
+        </foxy-internal-resource-picker-control>
+        <foxy-internal-text-control layout="summary-item" infer="code"></foxy-internal-text-control>
+        <foxy-internal-text-control layout="summary-item" infer="parent-code">
+        </foxy-internal-text-control>
+        <foxy-internal-text-control layout="summary-item" infer="shipto">
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
-      <div class="grid grid-cols-2 gap-s">
-        <foxy-internal-number-control infer="price"></foxy-internal-number-control>
-        <foxy-internal-integer-control infer="quantity"></foxy-internal-integer-control>
-      </div>
+      <foxy-internal-summary-control infer="subscriptions">
+        <foxy-internal-frequency-control layout="summary-item" infer="subscription-frequency">
+        </foxy-internal-frequency-control>
+        <foxy-internal-date-control layout="summary-item" infer="subscription-start-date">
+        </foxy-internal-date-control>
+        <foxy-internal-date-control layout="summary-item" infer="subscription-end-date">
+        </foxy-internal-date-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-resource-picker-control
-        first=${ifDefined(this?.itemCategories ?? undefined)}
-        infer="item-category-uri"
-        item="foxy-item-category-card"
+      <foxy-internal-async-list-control
+        infer="item-options"
+        first=${ifDefined(this.data?._links['fx:item_options'].href)}
+        form="foxy-item-option-form"
+        item="foxy-item-option-card"
+        alert
+        .related=${this.__itemOptionRelatedUrls}
+        .props=${{ 'locale-codes': this.localeCodes ?? '' }}
       >
-      </foxy-internal-resource-picker-control>
+      </foxy-internal-async-list-control>
 
-      <foxy-internal-text-control infer="code"></foxy-internal-text-control>
-      <foxy-internal-text-control infer="parent-code"></foxy-internal-text-control>
+      <foxy-internal-summary-control infer="dimensions">
+        <foxy-internal-number-control layout="summary-item" infer="weight" min="0">
+        </foxy-internal-number-control>
+        <foxy-internal-number-control layout="summary-item" infer="length" min="0">
+        </foxy-internal-number-control>
+        <foxy-internal-number-control layout="summary-item" infer="width" min="0">
+        </foxy-internal-number-control>
+        <foxy-internal-number-control layout="summary-item" infer="height" min="0">
+        </foxy-internal-number-control>
+      </foxy-internal-summary-control>
 
-      <div class="grid grid-cols-2 gap-s">
-        <foxy-internal-integer-control infer="quantity-min"></foxy-internal-integer-control>
-        <foxy-internal-integer-control infer="quantity-max"></foxy-internal-integer-control>
-      </div>
+      <foxy-internal-summary-control infer="meta">
+        <foxy-internal-text-control layout="summary-item" infer="url"></foxy-internal-text-control>
+        <foxy-internal-text-control layout="summary-item" infer="image">
+        </foxy-internal-text-control>
+        <foxy-internal-number-control layout="summary-item" infer="quantity-max" step="1" min="1">
+        </foxy-internal-number-control>
+        <foxy-internal-number-control layout="summary-item" infer="quantity-min" step="1" min="1">
+        </foxy-internal-number-control>
+        <foxy-internal-date-control layout="summary-item" infer="expires" format="unix">
+        </foxy-internal-date-control>
+      </foxy-internal-summary-control>
 
-      <div>
-        <vaadin-details theme="reverse">
-          <foxy-i18n infer="" slot="summary" key="dimensions"></foxy-i18n>
-          <div class="grid grid-cols-2 gap-s pt-m">
-            <foxy-internal-number-control infer="weight"></foxy-internal-number-control>
-            <foxy-internal-number-control infer="width"></foxy-internal-number-control>
-            <foxy-internal-number-control infer="height"></foxy-internal-number-control>
-            <foxy-internal-number-control infer="length"></foxy-internal-number-control>
-          </div>
-        </vaadin-details>
+      <foxy-internal-summary-control infer="discount">
+        <foxy-internal-text-control layout="summary-item" infer="discount-name">
+        </foxy-internal-text-control>
+        <foxy-discount-builder
+          infer="discount-builder"
+          class=${classMap({ hidden: this.hiddenSelector.matches('discount-builder', true) })}
+          .parsedValue=${this.__discountBuilderParsedValue}
+          @change=${this.__handleDiscountBuilderChange}
+        >
+        </foxy-discount-builder>
+      </foxy-internal-summary-control>
 
-        <vaadin-details theme="reverse">
-          <foxy-i18n infer="" slot="summary" key="subscriptions"></foxy-i18n>
-          <div class="space-y-m pt-m">
-            <foxy-internal-frequency-control infer="subscription-frequency">
-            </foxy-internal-frequency-control>
+      <foxy-internal-async-list-control
+        infer="discount-details"
+        first=${ifDefined(this.data?._links['fx:discount_details'].href)}
+        item="foxy-discount-detail-card"
+      >
+      </foxy-internal-async-list-control>
 
-            <foxy-internal-date-control infer="subscription-start-date">
-            </foxy-internal-date-control>
+      <foxy-internal-async-list-control
+        infer="coupon-details"
+        first=${ifDefined(this.data?._links['fx:coupon_details'].href)}
+        item="foxy-coupon-detail-card"
+      >
+      </foxy-internal-async-list-control>
 
-            <foxy-internal-date-control infer="subscription-end-date"></foxy-internal-date-control>
-          </div>
-        </vaadin-details>
-      </div>
+      <foxy-internal-async-list-control
+        infer="attributes"
+        first=${ifDefined(this.data?._links['fx:attributes'].href)}
+        item="foxy-attribute-card"
+        form="foxy-attribute-form"
+        alert
+      >
+      </foxy-internal-async-list-control>
 
-      <foxy-internal-text-area-control infer="url"></foxy-internal-text-area-control>
-      <foxy-internal-text-area-control infer="image"></foxy-internal-text-area-control>
-
-      <vaadin-details theme="reverse">
-        <foxy-i18n infer="" slot="summary" key="discount"></foxy-i18n>
-        <div class="space-y-m pt-m">
-          <foxy-internal-text-control infer="discount-name"></foxy-internal-text-control>
-
-          <foxy-discount-builder
-            infer="discount-builder"
-            .parsedValue=${{
-              details: this.form.discount_details,
-              type: this.form.discount_type,
-              name: this.form.discount_name,
-            }}
-            @change=${(evt: CustomEvent) => {
-              const builder = evt.currentTarget as DiscountBuilder;
-              const value = builder.parsedValue;
-
-              this.edit({
-                discount_details: value.details,
-                discount_type: value.type,
-                discount_name: value.name,
-              });
-            }}
-          >
-          </foxy-discount-builder>
-        </div>
-      </vaadin-details>
-
-      <foxy-internal-text-control infer="shipto"></foxy-internal-text-control>
-      <foxy-internal-date-control infer="expires" format="unix"></foxy-internal-date-control>
-
-      ${this.data
-        ? html`
-            <foxy-internal-async-list-control
-              label=${this.t('item-options.title')}
-              infer="item-options"
-              first=${this.data._links['fx:item_options'].href}
-              limit="5"
-              form="foxy-item-option-form"
-              item="foxy-item-option-card"
-              alert
-              .related=${this.__itemOptionRelatedUrls}
-              .props=${{ 'locale-codes': this.localeCodes ?? '' }}
-            >
-            </foxy-internal-async-list-control>
-          `
-        : ''}
-      ${this.data
-        ? html`
-            <foxy-internal-async-list-control
-              label=${this.t('discount-details.title')}
-              infer="discount-details"
-              first=${this.data._links['fx:discount_details'].href}
-              limit="5"
-              item="foxy-discount-detail-card"
-            >
-            </foxy-internal-async-list-control>
-
-            <foxy-internal-async-list-control
-              label=${this.t('coupon-details.title')}
-              infer="coupon-details"
-              first=${this.data._links['fx:coupon_details'].href}
-              limit="5"
-              item="foxy-coupon-detail-card"
-            >
-            </foxy-internal-async-list-control>
-
-            <foxy-internal-async-list-control
-              label=${this.t('attributes.title')}
-              infer="attributes"
-              first=${this.data._links['fx:attributes'].href}
-              limit="5"
-              item="foxy-attribute-card"
-              form="foxy-attribute-form"
-              alert
-            >
-            </foxy-internal-async-list-control>
-          `
-        : ''}
       ${super.renderBody()}
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.store ?? void 0)}
+        id="storeLoader"
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
     `;
   }
 
@@ -226,6 +231,14 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
     return item;
   }
 
+  private get __discountBuilderParsedValue() {
+    return {
+      details: this.form.discount_details,
+      type: this.form.discount_type,
+      name: this.form.discount_name,
+    };
+  }
+
   private get __itemOptionRelatedUrls() {
     const links = (this.data?._links ?? {}) as Record<string, { href: string }>;
     const urls: string[] = [];
@@ -237,5 +250,21 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
     if (this.__itemsLink) urls.push(this.__itemsLink);
 
     return urls;
+  }
+
+  private get __storeLoader() {
+    type Loader = NucleonElement<Resource<Rels.Store>>;
+    return this.renderRoot.querySelector<Loader>('#storeLoader');
+  }
+
+  private __handleDiscountBuilderChange(evt: CustomEvent) {
+    const builder = evt.currentTarget as DiscountBuilder;
+    const value = builder.parsedValue;
+
+    this.edit({
+      discount_details: value.details,
+      discount_type: value.type,
+      discount_name: value.name,
+    });
   }
 }

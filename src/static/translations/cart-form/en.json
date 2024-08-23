@@ -588,443 +588,468 @@
       "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
       "undo_cancel": "Review",
       "undo_confirm": "Discard",
-      "header": {
-        "title_existing": "Item #{{ id }}",
-        "title_new": "New item",
-        "subtitle_future_line_item": "This item is part of a future subscription",
-        "subtitle_regular": "",
-        "copy-id": {
-          "failed_to_copy": "Failed to copy",
-          "click_to_copy": "Copy ID",
-          "copying": "Copying...",
-          "done": "Copied to clipboard"
+      "item-form": {
+        "header": {
+          "title_existing": "Item #{{ id }}",
+          "title_new": "New item",
+          "subtitle_future_line_item": "This item is part of a future subscription",
+          "subtitle_regular": "",
+          "copy-id": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy ID",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          },
+          "copy-json": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy source as JSON",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          }
         },
-        "copy-json": {
-          "failed_to_copy": "Failed to copy",
-          "click_to_copy": "Copy source as JSON",
-          "copying": "Copying...",
-          "done": "Copied to clipboard"
-        }
-      },
-      "dimensions": "Dimensions",
-      "subscriptions": "Subscriptions",
-      "discount": "Discount",
-      "name": {
-        "label": "Name",
-        "helper_text": "Public name of this item.",
-        "placeholder": "13' Laptop Case",
-        "v8n_required": "Name is required",
-        "v8n_too_long": "Name mustn't exceed 255 characters"
-      },
-      "price": {
-        "label": "Price",
-        "helper_text": "Base price before option modifiers.",
-        "placeholder": "25",
-        "v8n_required": "Price is required",
-        "v8n_negative": "Price can't be negative"
-      },
-      "quantity": {
-        "label": "Quantity",
-        "helper_text": "Number of items in the cart.",
-        "placeholder": "1 by default",
-        "v8n_less_than_one": "Quantity must be 1 or more"
-      },
-      "subscription-frequency": {
-        "label": "Subscription frequency",
-        "day": "Day",
-        "day_plural": "Days",
-        "week": "Week",
-        "week_plural": "Weeks",
-        "month": "Month",
-        "month_plural": "Months",
-        "year": "Year",
-        "year_plural": "Years",
-        "helper_text": "This determines how often this subscription will be processed. To modify this value for an existing subscription, you must modify the subscription directly."
-      },
-      "subscription-start-date": {
-        "label": "Subscription start",
-        "helper_text": "The original date this subscription began or will begin if set in the future. To modify this value for an existing subscription, you must modify the subscription directly.",
-        "placeholder": "01/01/2022"
-      },
-      "subscription-end-date": {
-        "label": "Subscription end",
-        "helper_text": "If set, the date this subscription will end. The subscription will not run on this day.",
-        "placeholder": "01/01/2022"
-      },
-      "discount-name": {
-        "label": "Discount name",
-        "helper_text": "The name of the line item discount if it is included on this item.",
-        "placeholder": "One-off 10% discount"
-      },
-      "discount-builder": {
-        "tier": "Tier",
-        "tier_by": "by",
-        "tier_if": "if",
-        "tier_allunits": "price of each item",
-        "tier_incremental": "price of additional items",
-        "tier_repeat": "price of next item",
-        "tier_single": "order total",
-        "tier_then": "then",
-        "quantity": "quantity",
-        "total": "total",
-        "reduce": "reduce",
-        "increase": "increase"
-      },
-      "expires": {
-        "label": "Expires",
-        "helper_text": "Date when this item will be removed from the cart (optional).",
-        "placeholder": "01/01/2022"
-      },
-      "image": {
-        "label": "Image",
-        "helper_text": "URL of the image to display for this item in the cart and checkout.",
-        "placeholder": "https://picsum.photos/256"
-      },
-      "url": {
-        "label": "URL",
-        "helper_text": "Full URL for the customer to view this item on the store website.",
-        "placeholder": "https://example.com/products/123"
-      },
-      "quantity-min": {
-        "label": "Min quantity",
-        "helper_text": "Minimum quantity per cart.",
-        "placeholder": "1"
-      },
-      "quantity-max": {
-        "label": "Max quantity",
-        "helper_text": "Maximum quantity per cart.",
-        "placeholder": "25"
-      },
-      "shipto": {
-        "label": "Shipping address",
-        "helper_text": "Used for multiship to assign this item to a specific shipment. This value will be the address name of the shipment.",
-        "placeholder": "Select address to ship this item to..."
-      },
-      "width": {
-        "label": "Width",
-        "helper_text": "This is currently a placeholder for future use.",
-        "placeholder": "16"
-      },
-      "height": {
-        "label": "Height",
-        "helper_text": "This is currently a placeholder for future use.",
-        "placeholder": "8"
-      },
-      "length": {
-        "label": "Width",
-        "helper_text": "This is currently a placeholder for future use.",
-        "placeholder": "32"
-      },
-      "weight": {
-        "label": "Weight",
-        "helper_text": "Per-item weight, used for shipping rate requests.",
-        "placeholder": "24"
-      },
-      "item-category-uri": {
-        "label": "Item category",
-        "dialog": {
-          "cancel": "Cancel",
-          "close": "Close",
-          "header": "Select an item category",
-          "selection": {
-            "label": "Item categories",
-            "helper_text": "Select an item category to use with this item.",
-            "search": "Search",
-            "clear": "Clear",
-            "pagination": {
-              "search_button_text": "Search",
-              "first": "First",
-              "last": "Last",
-              "next": "Next",
-              "pagination": "{{from}}-{{to}} out of {{total}}",
-              "previous": "Previous",
-              "card": {
-                "spinner": {
-                  "loading_busy": "Loading",
-                  "loading_empty": "No item categories found",
-                  "loading_error": "Unknown error"
+        "general": {
+          "label": "",
+          "helper_text": "",
+          "name": {
+            "label": "Name",
+            "helper_text": "",
+            "placeholder": "Required",
+            "v8n_required": "Name is required",
+            "v8n_too_long": "Name mustn't exceed 255 characters"
+          },
+          "price": {
+            "label": "Price",
+            "helper_text": "",
+            "placeholder": "Required",
+            "v8n_required": "Price is required",
+            "v8n_negative": "Price can't be negative"
+          },
+          "quantity": {
+            "label": "Quantity",
+            "helper_text": "",
+            "placeholder": "1",
+            "v8n_less_than_one": "Quantity must be 1 or more"
+          },
+          "item-category-uri": {
+            "label": "Item category",
+            "helper_text": "",
+            "placeholder": "Select",
+            "value": "{{ resource.name }}",
+            "dialog": {
+              "cancel": "Cancel",
+              "close": "Close",
+              "header": "Select an item category",
+              "selection": {
+                "label": "Item categories",
+                "helper_text": "Select an item category to use with this item.",
+                "search": "Search",
+                "clear": "Clear",
+                "pagination": {
+                  "search_button_text": "Search",
+                  "first": "First",
+                  "last": "Last",
+                  "next": "Next",
+                  "pagination": "{{from}}-{{to}} out of {{total}}",
+                  "previous": "Previous",
+                  "card": {
+                    "spinner": {
+                      "loading_busy": "Loading",
+                      "loading_empty": "No item categories found",
+                      "loading_error": "Unknown error"
+                    }
+                  }
                 }
               }
-            }
-          }
-        },
-        "card": {
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_empty": "Not assigned – click to select",
-            "loading_error": "Unknown error"
-          }
-        },
-        "helper_text": "Item category associated with this item."
-      },
-      "code": {
-        "label": "Code",
-        "helper_text": "Unique item code such as SKU or barcode.",
-        "placeholder": "MY-PRODUCT-001"
-      },
-      "parent-code": {
-        "label": "Parent code",
-        "helper_text": "Used if this should be a child product in a bundle.",
-        "placeholder": "MY-BUNDLE-001"
-      },
-      "discount-details": {
-        "title": "Discount details",
-        "pagination": {
-          "first": "First",
-          "last": "Last",
-          "next": "Next",
-          "pagination": "{{from}}-{{to}} out of {{total}}",
-          "previous": "Previous",
-          "card": {
-            "spinner": {
-              "loading_busy": "Loading",
-              "loading_empty": "No data",
-              "loading_error": "Unknown error"
-            }
-          }
-        }
-      },
-      "coupon-details": {
-        "title": "Coupon details",
-        "pagination": {
-          "first": "First",
-          "last": "Last",
-          "next": "Next",
-          "pagination": "{{from}}-{{to}} out of {{total}}",
-          "previous": "Previous",
-          "card": {
-            "spinner": {
-              "loading_busy": "Loading",
-              "loading_empty": "No data",
-              "loading_error": "Unknown error"
-            }
-          }
-        }
-      },
-      "attributes": {
-        "title": "Attributes",
-        "delete_header": "Remove attribute?",
-        "delete_message": "Please confirm that you'd like to remove this attribute from the item.",
-        "delete_confirm": "Remove",
-        "delete_cancel": "Cancel",
-        "dialog": {
-          "header_create": "Create attribute",
-          "header_update": "Update attribute",
-          "close": "Close",
-          "save": "Save",
-          "cancel": "Cancel",
-          "undo_header": "Unsaved changes",
-          "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-          "undo_cancel": "Review",
-          "undo_confirm": "Discard",
-          "attribute-form": {
-            "header": {
-              "title_existing": "Item attribute #{{ id }}",
-              "title_new": "New item attribute",
-              "subtitle_private": "Visible only to you",
-              "subtitle_restricted": "Visible to store admins",
-              "subtitle_public": "Visible to everyone",
-              "copy-id": {
-                "failed_to_copy": "Failed to copy",
-                "click_to_copy": "Copy ID",
-                "copying": "Copying...",
-                "done": "Copied to clipboard"
-              },
-              "copy-json": {
-                "failed_to_copy": "Failed to copy",
-                "click_to_copy": "Copy source as JSON",
-                "copying": "Copying...",
-                "done": "Copied to clipboard"
+            },
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "Not assigned – click to select",
+                "loading_error": "Unknown error"
               }
-            },
-            "name": {
-              "label": "Name",
-              "placeholder": "Required",
-              "helper_text": "Name of this attribute. It does not have to be unique.",
-              "v8n_required": "Please name this attribute.",
-              "v8n_too_long": "Please choose a name that is 500 characters long or less."
-            },
-            "value": {
-              "label": "Value",
-              "placeholder": "Required",
-              "helper_text": "Value of this attribute. Attribute values are automatically HTML-escaped.",
-              "v8n_required": "Please provide a value for this attribute.",
-              "v8n_too_long": "Unfortunately we can't store values that are more than 1000 characters long."
-            },
-            "visibility": {
-              "label": "Visibility",
-              "option_public": "Everyone",
-              "option_restricted": "Store admins",
-              "option_private": "Only me",
-              "helper_text": "Controls who can see this attribute. Public attributes can be shown to anyone, including customers. Private attributes are more suitable for configuration or technical details which are irrelevant to the public. Restricted attributes can only be viewed with the OAuth client that created them."
-            },
-            "timestamps": {
-              "date": "{{value, date}}",
-              "date_created": "Created on",
-              "date_modified": "Last updated on"
-            },
-            "delete": {
-              "delete": "Delete",
-              "cancel": "Cancel",
-              "delete_prompt": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
-            },
-            "undo": {
-              "caption": "Undo"
-            },
-            "submit": {
-              "caption": "Save changes"
-            },
-            "create": {
-              "caption": "Create"
-            },
-            "spinner": {
-              "refresh": "Refresh",
-              "loading_busy": "Loading",
-              "loading_error": "Unknown error"
-            }
-          }
-        },
-        "pagination": {
-          "create_button_text": "Add attribute +",
-          "card": {
-            "delete_button_text": "Delete",
-            "spinner": {
-              "loading_busy": "Loading",
-              "loading_empty": "No data",
-              "loading_error": "Unknown error"
             }
           },
-          "first": "First",
-          "last": "Last",
-          "next": "Next",
-          "pagination": "{{from}}-{{to}} out of {{total}}",
-          "previous": "Previous"
-        }
-      },
-      "item-options": {
-        "title": "Item options",
-        "delete_header": "Remove item option?",
-        "delete_message": "Please confirm that you'd like to remove this item option from the item.",
-        "delete_confirm": "Remove",
-        "delete_cancel": "Cancel",
-        "dialog": {
-          "header_create": "Create option",
-          "header_update": "Update option",
-          "close": "Close",
-          "save": "Save",
-          "cancel": "Cancel",
-          "undo_header": "Unsaved changes",
-          "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-          "undo_cancel": "Review",
-          "undo_confirm": "Discard",
-          "item-option-form": {
-            "header": {
-              "title_existing": "Item option #{{ id }}",
-              "title_new": "New item option",
-              "subtitle": "",
-              "copy-id": {
-                "failed_to_copy": "Failed to copy",
-                "click_to_copy": "Copy ID",
-                "copying": "Copying...",
-                "done": "Copied to clipboard"
-              },
-              "copy-json": {
-                "failed_to_copy": "Failed to copy",
-                "click_to_copy": "Copy source as JSON",
-                "copying": "Copying...",
-                "done": "Copied to clipboard"
+          "code": {
+            "label": "Code (SKU, barcode)",
+            "helper_text": "",
+            "placeholder": "Optional"
+          },
+          "parent-code": {
+            "label": "Parent code",
+            "helper_text": "",
+            "placeholder": "Optional"
+          },
+          "shipto": {
+            "label": "Shipment name",
+            "helper_text": "Used for multiship to assign this item to a specific shipment. This value will be the address name of the shipment.",
+            "placeholder": "Optional"
+          }
+        },
+        "subscriptions": {
+          "label": "Subscription",
+          "helper_text": "To modify these value for an existing subscription, you must modify the subscription directly.",
+          "subscription-frequency": {
+            "label": "Frequency",
+            "helper_text": "",
+            "select": "Select",
+            "day": "Day",
+            "day_plural": "Days",
+            "week": "Week",
+            "week_plural": "Weeks",
+            "month": "Month",
+            "month_plural": "Months",
+            "year": "Year",
+            "year_plural": "Years"
+          },
+          "subscription-start-date": {
+            "label": "Start date",
+            "helper_text": "",
+            "display_value": "{{ value, date }}",
+            "placeholder": "None"
+          },
+          "subscription-end-date": {
+            "label": "End date",
+            "helper_text": "",
+            "display_value": "{{ value, date }}",
+            "placeholder": "None"
+          }
+        },
+        "dimensions": {
+          "label": "Dimensions",
+          "helper_text": "",
+          "width": {
+            "label": "Width",
+            "helper_text": "",
+            "placeholder": "0"
+          },
+          "height": {
+            "label": "Height",
+            "helper_text": "",
+            "placeholder": "0"
+          },
+          "length": {
+            "label": "Length",
+            "helper_text": "",
+            "placeholder": "0"
+          },
+          "weight": {
+            "label": "Weight",
+            "helper_text": "",
+            "placeholder": "0"
+          }
+        },
+        "meta": {
+          "label": "Meta",
+          "helper_text": "",
+          "url": {
+            "label": "URL",
+            "helper_text": "Full URL for the customer to view this item on the store website.",
+            "placeholder": "None"
+          },
+          "image": {
+            "label": "Image",
+            "helper_text": "URL of the image to display for this item in the cart and checkout.",
+            "placeholder": "None"
+          },
+          "quantity-max": {
+            "label": "Max quantity",
+            "helper_text": "",
+            "placeholder": "Unlimited"
+          },
+          "quantity-min": {
+            "label": "Min quantity",
+            "helper_text": "",
+            "placeholder": "1"
+          },
+          "expires": {
+            "label": "Expires",
+            "helper_text": "Date when this item will be removed from the cart.",
+            "display_value": "{{ value, date }}",
+            "placeholder": "Optional"
+          }
+        },
+        "discount": {
+          "label": "Line item discount",
+          "helper_text": "",
+          "discount-name": {
+            "label": "Discount name",
+            "helper_text": "Enter a discount name to open a discount builder.",
+            "placeholder": "None"
+          },
+          "discount-builder": {
+            "tier": "Tier",
+            "tier_by": "by",
+            "tier_if": "if",
+            "tier_allunits": "price of each item",
+            "tier_incremental": "price of additional items",
+            "tier_repeat": "price of next item",
+            "tier_single": "order total",
+            "tier_then": "then",
+            "quantity": "quantity",
+            "total": "total",
+            "reduce": "reduce",
+            "increase": "increase"
+          }
+        },
+        "discount-details": {
+          "label": "Applied discounts",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No data",
+                "loading_error": "Unknown error"
               }
-            },
-            "name": {
-              "label": "Name",
-              "helper_text": "",
-              "placeholder": "Color",
-              "v8n_required": "Name is required",
-              "v8n_too_long": "Name mustn't exceed 100 characters"
-            },
-            "value": {
-              "label": "Value",
-              "helper_text": "",
-              "placeholder": "Red",
-              "v8n_required": "Value is required",
-              "v8n_too_long": "Value mustn't exceed 1024 characters"
-            },
-            "price-mod": {
-              "label": "Price",
-              "helper_text": "Same currency as item",
-              "placeholder": "10"
-            },
-            "weight-mod": {
-              "label": "Weight",
-              "helper_text": "Arbitrary units",
-              "placeholder": "5"
-            },
-            "timestamps": {
-              "date_created": "Created on",
-              "date_modified": "Last updated on",
-              "date": "{{value, date}}"
-            },
-            "spinner": {
-              "refresh": "Refresh",
-              "loading_busy": "Loading",
-              "loading_error": "Unknown error"
-            },
-            "delete": {
-              "delete": "Delete",
-              "cancel": "Cancel",
-              "delete_prompt": "Are you sure you'd like to remove this item option? You won't be able to bring it back."
-            },
-            "undo": {
-              "caption": "Undo"
-            },
-            "submit": {
-              "caption": "Save changes"
-            },
-            "create": {
-              "caption": "Create"
             }
           }
         },
-        "pagination": {
-          "card": {
-            "delete_button_text": "Delete",
-            "spinner": {
-              "loading_busy": "Loading",
-              "loading_empty": "No data",
-              "loading_error": "Unknown error"
+        "coupon-details": {
+          "label": "Applied coupons",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No data",
+                "loading_error": "Unknown error"
+              }
+            }
+          }
+        },
+        "attributes": {
+          "label": "Attributes",
+          "delete_header": "Remove attribute?",
+          "delete_message": "Please confirm that you'd like to remove this attribute from the item.",
+          "delete_confirm": "Remove",
+          "delete_cancel": "Cancel",
+          "dialog": {
+            "header_create": "Create attribute",
+            "header_update": "Update attribute",
+            "close": "Close",
+            "save": "Save",
+            "cancel": "Cancel",
+            "undo_header": "Unsaved changes",
+            "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+            "undo_cancel": "Review",
+            "undo_confirm": "Discard",
+            "attribute-form": {
+              "header": {
+                "title_existing": "Item attribute #{{ id }}",
+                "title_new": "New item attribute",
+                "subtitle_private": "Visible only to you",
+                "subtitle_restricted": "Visible to store admins",
+                "subtitle_public": "Visible to everyone",
+                "copy-id": {
+                  "failed_to_copy": "Failed to copy",
+                  "click_to_copy": "Copy ID",
+                  "copying": "Copying...",
+                  "done": "Copied to clipboard"
+                },
+                "copy-json": {
+                  "failed_to_copy": "Failed to copy",
+                  "click_to_copy": "Copy source as JSON",
+                  "copying": "Copying...",
+                  "done": "Copied to clipboard"
+                }
+              },
+              "name": {
+                "label": "Name",
+                "placeholder": "Required",
+                "helper_text": "Name of this attribute. It does not have to be unique.",
+                "v8n_required": "Please name this attribute.",
+                "v8n_too_long": "Please choose a name that is 500 characters long or less."
+              },
+              "value": {
+                "label": "Value",
+                "placeholder": "Required",
+                "helper_text": "Value of this attribute. Attribute values are automatically HTML-escaped.",
+                "v8n_required": "Please provide a value for this attribute.",
+                "v8n_too_long": "Unfortunately we can't store values that are more than 1000 characters long."
+              },
+              "visibility": {
+                "label": "Visibility",
+                "option_public": "Everyone",
+                "option_restricted": "Store admins",
+                "option_private": "Only me",
+                "helper_text": "Controls who can see this attribute. Public attributes can be shown to anyone, including customers. Private attributes are more suitable for configuration or technical details which are irrelevant to the public. Restricted attributes can only be viewed with the OAuth client that created them."
+              },
+              "timestamps": {
+                "date": "{{value, date}}",
+                "date_created": "Created on",
+                "date_modified": "Last updated on"
+              },
+              "delete": {
+                "delete": "Delete",
+                "cancel": "Cancel",
+                "delete_prompt": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
+              },
+              "undo": {
+                "caption": "Undo"
+              },
+              "submit": {
+                "caption": "Save changes"
+              },
+              "create": {
+                "caption": "Create"
+              },
+              "spinner": {
+                "refresh": "Refresh",
+                "loading_busy": "Loading",
+                "loading_error": "Unknown error"
+              }
             }
           },
-          "create_button_text": "Add option +",
-          "first": "First",
-          "last": "Last",
-          "next": "Next",
-          "pagination": "{{from}}-{{to}} out of {{total}}",
-          "previous": "Previous"
+          "pagination": {
+            "create_button_text": "Add attribute +",
+            "card": {
+              "delete_button_text": "Delete",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No data",
+                "loading_error": "Unknown error"
+              }
+            },
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous"
+          }
+        },
+        "item-options": {
+          "label": "Item options",
+          "delete_header": "Remove item option?",
+          "delete_message": "Please confirm that you'd like to remove this item option from the item.",
+          "delete_confirm": "Remove",
+          "delete_cancel": "Cancel",
+          "dialog": {
+            "header_create": "Create option",
+            "header_update": "Update option",
+            "close": "Close",
+            "save": "Save",
+            "cancel": "Cancel",
+            "undo_header": "Unsaved changes",
+            "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+            "undo_cancel": "Review",
+            "undo_confirm": "Discard",
+            "item-option-form": {
+              "header": {
+                "title_existing": "Item option #{{ id }}",
+                "title_new": "New item option",
+                "subtitle": "",
+                "copy-id": {
+                  "failed_to_copy": "Failed to copy",
+                  "click_to_copy": "Copy ID",
+                  "copying": "Copying...",
+                  "done": "Copied to clipboard"
+                },
+                "copy-json": {
+                  "failed_to_copy": "Failed to copy",
+                  "click_to_copy": "Copy source as JSON",
+                  "copying": "Copying...",
+                  "done": "Copied to clipboard"
+                }
+              },
+              "name": {
+                "label": "Name",
+                "helper_text": "",
+                "placeholder": "Color",
+                "v8n_required": "Name is required",
+                "v8n_too_long": "Name mustn't exceed 100 characters"
+              },
+              "value": {
+                "label": "Value",
+                "helper_text": "",
+                "placeholder": "Red",
+                "v8n_required": "Value is required",
+                "v8n_too_long": "Value mustn't exceed 1024 characters"
+              },
+              "price-mod": {
+                "label": "Price",
+                "helper_text": "Same currency as item",
+                "placeholder": "10"
+              },
+              "weight-mod": {
+                "label": "Weight",
+                "helper_text": "Arbitrary units",
+                "placeholder": "5"
+              },
+              "timestamps": {
+                "date_created": "Created on",
+                "date_modified": "Last updated on",
+                "date": "{{value, date}}"
+              },
+              "spinner": {
+                "refresh": "Refresh",
+                "loading_busy": "Loading",
+                "loading_error": "Unknown error"
+              },
+              "delete": {
+                "delete": "Delete",
+                "cancel": "Cancel",
+                "delete_prompt": "Are you sure you'd like to remove this item option? You won't be able to bring it back."
+              },
+              "undo": {
+                "caption": "Undo"
+              },
+              "submit": {
+                "caption": "Save changes"
+              },
+              "create": {
+                "caption": "Create"
+              }
+            }
+          },
+          "pagination": {
+            "card": {
+              "delete_button_text": "Delete",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No data",
+                "loading_error": "Unknown error"
+              }
+            },
+            "create_button_text": "Add option +",
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous"
+          }
+        },
+        "timestamps": {
+          "date_created": "Created on",
+          "date_modified": "Last updated on",
+          "date": "{{value, date}}"
+        },
+        "delete": {
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "delete_prompt": "Are you sure you'd like to remove this item? You won't be able to bring it back."
+        },
+        "undo": {
+          "caption": "Undo"
+        },
+        "submit": {
+          "caption": "Save changes"
+        },
+        "create": {
+          "caption": "Create"
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error"
         }
-      },
-      "timestamps": {
-        "date_created": "Created on",
-        "date_modified": "Last updated on",
-        "date": "{{value, date}}"
-      },
-      "delete": {
-        "delete": "Delete",
-        "cancel": "Cancel",
-        "delete_prompt": "Are you sure you'd like to remove this item? You won't be able to bring it back."
-      },
-      "undo": {
-        "caption": "Undo"
-      },
-      "submit": {
-        "caption": "Save changes"
-      },
-      "create": {
-        "caption": "Create"
-      },
-      "spinner": {
-        "refresh": "Refresh",
-        "loading_busy": "Loading",
-        "loading_error": "Unknown error"
       }
     }
   },
