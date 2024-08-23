@@ -136,6 +136,7 @@ export class SubscriptionForm extends Base<Data> {
           first=${ifDefined(itemsHref)}
           infer="items"
           item="foxy-item-card"
+          .itemProps=${{ 'locale-codes': this.localeCodes }}
         >
         </foxy-internal-async-list-control>
       </div>

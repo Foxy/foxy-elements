@@ -634,6 +634,7 @@ describe('SubscriptionForm', () => {
 
       const element = await fixture<Form>(html`
         <foxy-subscription-form
+          locale-codes="https://demo.api/hapi/property_helpers/7"
           href="https://demo.api/hapi/subscriptions/0"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
@@ -655,6 +656,7 @@ describe('SubscriptionForm', () => {
       const control = items.querySelector('[infer="items"]')!;
 
       expect(control).to.have.property('localName', 'foxy-internal-async-list-control');
+      expect(control).to.have.deep.property('itemProps', { 'locale-codes': element.localeCodes });
       expect(control).to.have.attribute('item', 'foxy-item-card');
       expect(control).to.have.attribute(
         'first',
