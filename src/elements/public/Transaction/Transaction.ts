@@ -28,6 +28,7 @@ export class Transaction extends Base<Data> {
       paymentGatewaysHelper: { attribute: 'payment-gateways-helper' },
       getSubscriptionPageHref: { attribute: false },
       getCustomerPageHref: { attribute: false },
+      localeCodes: { attribute: 'locale-codes' },
     };
   }
 
@@ -36,6 +37,9 @@ export class Transaction extends Base<Data> {
 
   /** URL of the `fx:payment_gateways` property helper resource. */
   paymentGatewaysHelper: string | null = null;
+
+  /** Link to the `fx:locale_codes` property helper for currency formatting. */
+  localeCodes: string | null = null;
 
   getSubscriptionPageHref: ((href: string) => string) | null = null;
 
@@ -256,6 +260,12 @@ export class Transaction extends Base<Data> {
           alert
           wide
           .related=${[this.href]}
+          .itemProps=${{ 'locale-codes': this.localeCodes }}
+          .formProps=${{
+            'item-categories': this.__storeLoader?.data?._links['fx:item_categories'].href,
+            'locale-codes': this.localeCodes,
+            'store': this.data?._links['fx:store'].href,
+          }}
         >
         </foxy-internal-async-list-control>
 

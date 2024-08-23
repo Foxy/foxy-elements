@@ -132,6 +132,13 @@ describe('Transaction', () => {
     });
   });
 
+  it('has a reactive property localeCodes', () => {
+    expect(new Transaction()).to.have.property('localeCodes', null);
+    expect(Transaction).to.have.deep.nested.property('properties.localeCodes', {
+      attribute: 'locale-codes',
+    });
+  });
+
   it('extends InternalForm', () => {
     expect(new Transaction()).to.be.instanceOf(InternalForm);
   });
@@ -651,6 +658,7 @@ describe('Transaction', () => {
     const router = createRouter();
     const element = await fixture<Transaction>(html`
       <foxy-transaction
+        locale-codes="https://demo.api/hapi/property_helpers/7"
         href="https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
@@ -670,6 +678,15 @@ describe('Transaction', () => {
 
     expect(control).to.have.property('form', 'foxy-item-form');
     expect(control).to.have.property('item', 'foxy-item-card');
+    expect(control).to.have.deep.property('itemProps', {
+      'locale-codes': 'https://demo.api/hapi/property_helpers/7',
+    });
+
+    expect(control).to.have.deep.property('formProps', {
+      'item-categories': 'https://demo.api/hapi/item_categories?store_id=0',
+      'locale-codes': 'https://demo.api/hapi/property_helpers/7',
+      'store': 'https://demo.api/hapi/stores/0',
+    });
   });
 
   it('renders transaction summary as control', async () => {
