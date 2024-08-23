@@ -215,7 +215,6 @@ export class CartForm extends Base<Data> {
   renderBody(): TemplateResult {
     const links = this.data?._links;
     const customer = this.__customer;
-    const customerAddresses = customer?._links['fx:customer_addresses'].href;
 
     return html`
       ${this.renderHeader()}
@@ -259,12 +258,11 @@ export class CartForm extends Base<Data> {
         item="foxy-item-card"
         form="foxy-item-form"
         .related=${this.href ? [this.href] : []}
-        .itemProps=${{ 'locale-codes': this.localeCodes ?? '' }}
+        .itemProps=${{ 'locale-codes': this.localeCodes }}
         .formProps=${{
-          'customer-addresses': customerAddresses ?? '',
-          'item-categories': this.itemCategories ?? '',
-          'locale-codes': this.localeCodes ?? '',
-          'coupons': this.coupons ?? '',
+          'item-categories': this.itemCategories,
+          'locale-codes': this.localeCodes,
+          'store': this.data?._links['fx:store'].href,
         }}
       >
       </foxy-internal-async-list-control>
