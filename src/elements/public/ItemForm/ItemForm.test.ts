@@ -385,7 +385,7 @@ describe('ItemForm', () => {
       'https://demo.api/hapi/items?cart_id=0',
     ]);
 
-    expect(control).to.have.deep.property('props', {
+    expect(control).to.have.deep.property('itemProps', {
       'locale-codes': 'https://demo.api/hapi/property_helpers/7',
     });
   });

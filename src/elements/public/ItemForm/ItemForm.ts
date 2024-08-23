@@ -122,7 +122,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
         item="foxy-item-option-card"
         alert
         .related=${this.__itemOptionRelatedUrls}
-        .props=${{ 'locale-codes': this.localeCodes ?? '' }}
+        .itemProps=${{ 'locale-codes': this.localeCodes ?? '' }}
       >
       </foxy-internal-async-list-control>
 
