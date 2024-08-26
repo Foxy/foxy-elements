@@ -607,11 +607,6 @@ describe('CartForm', () => {
     );
 
     expect(control).to.have.deep.nested.property(
-      'formProps.customer-addresses',
-      'https://demo.api/hapi/customer_addresses?customer_id=0'
-    );
-
-    expect(control).to.have.deep.nested.property(
       'formProps.item-categories',
       'https://demo.api/hapi/item_categories?store_id=0'
     );
@@ -622,8 +617,8 @@ describe('CartForm', () => {
     );
 
     expect(control).to.have.deep.nested.property(
-      'formProps.coupons',
-      'https://demo.api/hapi/coupons?store_id=0'
+      'formProps.store',
+      'https://demo.api/hapi/stores/0'
     );
   });
 

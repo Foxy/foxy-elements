@@ -1,10 +1,7 @@
-import '@vaadin/vaadin-details';
-
 import '../../internal/InternalResourcePickerControl/index';
 import '../../internal/InternalAsyncListControl/index';
 import '../../internal/InternalFrequencyControl/index';
-import '../../internal/InternalTextAreaControl/index';
-import '../../internal/InternalIntegerControl/index';
+import '../../internal/InternalSummaryControl/index';
 import '../../internal/InternalNumberControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalDateControl/index';
@@ -16,6 +13,7 @@ import '../ItemCategoryCard/index';
 import '../DiscountBuilder/index';
 import '../ItemOptionCard/index';
 import '../ItemOptionForm/index';
+import '../NucleonElement/index';
 import '../AttributeCard/index';
 import '../AttributeForm/index';
 

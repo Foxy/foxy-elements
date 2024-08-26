@@ -1,3 +1,5 @@
+import type { NotificationElement } from '@vaadin/vaadin-notification';
+import type { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import type { AttributeCard } from '../../public/AttributeCard/AttributeCard';
 import type { ButtonElement } from '@vaadin/vaadin-button';
 import type { ItemRenderer } from '../../public/CollectionPage/CollectionPage';
@@ -37,6 +39,16 @@ describe('InternalAsyncListControl', () => {
 
   it('imports and defines vaadin-button', () => {
     const element = customElements.get('vaadin-button');
+    expect(element).to.exist;
+  });
+
+  it('imports and defines vaadin-checkbox', () => {
+    const element = customElements.get('vaadin-checkbox');
+    expect(element).to.exist;
+  });
+
+  it('imports and defines vaadin-notification', () => {
+    const element = customElements.get('vaadin-notification');
     expect(element).to.exist;
   });
 
@@ -186,7 +198,12 @@ describe('InternalAsyncListControl', () => {
 
   it('has a reactive property "actions"', () => {
     expect(new Control()).to.have.deep.property('actions', []);
-    expect(Control).to.have.deep.nested.property('properties.actions', { type: Array });
+    expect(Control).to.have.deep.nested.property('properties.actions', { attribute: false });
+  });
+
+  it('has a reactive property "bulkActions"', () => {
+    expect(new Control()).to.have.deep.property('bulkActions', []);
+    expect(Control).to.have.deep.nested.property('properties.bulkActions', { attribute: false });
   });
 
   it('has a reactive property "filters"', () => {
@@ -1066,5 +1083,315 @@ describe('InternalAsyncListControl', () => {
     button.click();
 
     expect(showMethod).to.not.have.been.called;
+  });
+
+  it('renders Select button when "first" and non-empty .bulkActions are defined', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-async-list-control
+        first="https://demo.api/hapi/customer_attributes"
+        item="foxy-attribute-card"
+        form="foxy-attribute-form"
+      >
+      </foxy-internal-async-list-control>
+    `);
+
+    expect(await getByKey(control, 'select_button_text')).to.not.exist;
+
+    control.first = 'https://demo.api/hapi/customer_attributes';
+    await control.requestUpdate();
+    expect(await getByKey(control, 'select_button_text')).to.not.exist;
+
+    control.bulkActions = [];
+    await control.requestUpdate();
+    expect(await getByKey(control, 'select_button_text')).to.not.exist;
+
+    control.bulkActions = [{ name: 'foo', onClick: stub() }];
+    await control.requestUpdate();
+
+    const label = await getByKey(control, 'select_button_text');
+    const button = label?.closest('vaadin-button');
+
+    expect(label).to.exist;
+    expect(button).to.exist;
+    expect(label).to.have.property('localName', 'foxy-i18n');
+    expect(label).to.have.attribute('infer', 'pagination');
+  });
+
+  it('renders Cancel button when selection mode is enabled', async () => {
+    const router = createRouter();
+    const control = await fixture<Control>(html`
+      <foxy-internal-async-list-control
+        first="https://demo.api/hapi/customer_attributes"
+        item="foxy-attribute-card"
+        form="foxy-attribute-form"
+        .bulkActions=${[{ name: 'foo', onClick: stub() }]}
+        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+      >
+      </foxy-internal-async-list-control>
+    `);
+
+    const page = await getByTag<CollectionPage<any>>(control, 'foxy-collection-page');
+    await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+
+    expect(await getByKey(control, 'select_button_text')).to.exist;
+    expect(await getByKey(control, 'cancel_button_text')).to.not.exist;
+
+    (await getByKey(control, 'select_button_text'))?.closest('vaadin-button')?.click();
+    await control.requestUpdate();
+
+    expect(await getByKey(control, 'select_button_text')).to.not.exist;
+    expect(await getByKey(control, 'cancel_button_text')).to.exist;
+  });
+
+  it('renders bulk actions when selection mode is enabled and at least one item is selected', async () => {
+    const router = createRouter();
+    const control = await fixture<Control>(html`
+      <foxy-internal-async-list-control
+        first="https://demo.api/hapi/customer_attributes"
+        item="foxy-attribute-card"
+        form="foxy-attribute-form"
+        .bulkActions=${[{ name: 'foo', onClick: stub() }]}
+        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+      >
+      </foxy-internal-async-list-control>
+    `);
+
+    const page = await getByTag<CollectionPage<any>>(control, 'foxy-collection-page');
+    await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+    expect(await getByTestClass(control, 'bulk-action')).to.be.empty;
+
+    const label = await getByKey(control, 'select_button_text');
+    const button = label?.closest('vaadin-button');
+    button?.click();
+    await control.requestUpdate();
+    const anyCheckbox = await getByTag<CheckboxElement>(control, 'vaadin-checkbox');
+    expect(anyCheckbox).to.exist;
+    expect(await getByTestClass(control, 'bulk-action')).to.have.length(0);
+
+    anyCheckbox!.checked = true;
+    anyCheckbox!.dispatchEvent(new CustomEvent('change'));
+    await control.requestUpdate();
+
+    const bulkActions = await getByTestClass(control, 'bulk-action');
+    expect(bulkActions).to.have.length(1);
+
+    const firstBulkAction = bulkActions[0];
+    const firstBulkActionLabel = firstBulkAction.querySelector('foxy-i18n');
+    expect(firstBulkActionLabel).to.have.attribute('key', 'foo_bulk_action_caption_idle');
+    expect(firstBulkActionLabel).to.have.attribute('infer', 'pagination');
+    expect(firstBulkActionLabel).to.have.deep.property('options', { count: 1 });
+  });
+
+  it('renders collection items inside vaadin-checkbox elements when selection mode is enabled', async () => {
+    const router = createRouter();
+    const control = await fixture<Control>(html`
+      <foxy-internal-async-list-control
+        first="https://demo.api/hapi/customer_attributes"
+        item="foxy-attribute-card"
+        form="foxy-attribute-form"
+        .bulkActions=${[{ name: 'foo', onClick: stub() }]}
+        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+      >
+      </foxy-internal-async-list-control>
+    `);
+
+    const page = (await getByTag<CollectionPage<any>>(control, 'foxy-collection-page'))!;
+    await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+    expect(await getByTestClass(control, 'vaadin-checkbox')).to.be.empty;
+
+    const label = await getByKey(control, 'select_button_text');
+    const button = label?.closest('vaadin-button');
+    button?.click();
+    await control.requestUpdate();
+
+    const item = await fixture(
+      (page.item as ItemRenderer<any>)({
+        simplifyNsLoading: false,
+        readonlyControls: BooleanSelector.False,
+        disabledControls: BooleanSelector.False,
+        hiddenControls: BooleanSelector.False,
+        templates: {},
+        readonly: false,
+        disabled: false,
+        previous: null,
+        related: ['https://demo.api/virtual/stall?related'],
+        hidden: false,
+        parent: 'https://demo.api/virtual/stall?parent',
+        spread: spread,
+        props: {},
+        group: '',
+        html: html,
+        lang: '',
+        href: 'https://demo.api/virtual/stall?href',
+        data: await getTestData('./hapi/customer_attributes/0'),
+        next: null,
+        ns: '',
+      })
+    );
+
+    expect(item).to.have.property('localName', 'vaadin-checkbox');
+    expect(item).to.not.have.attribute('checked');
+
+    const card = item.querySelector('foxy-attribute-card')!;
+
+    expect(card).to.have.attribute('related', '["https://demo.api/virtual/stall?related"]');
+    expect(card).to.have.attribute('parent', 'https://demo.api/virtual/stall?parent');
+    expect(card).to.have.attribute('infer', '');
+    expect(card).to.have.attribute('href', 'https://demo.api/virtual/stall?href');
+  });
+
+  it('can run a bulk action on selected items', async () => {
+    const onClick = stub();
+    const router = createRouter();
+    const control = await fixture<Control>(html`
+      <foxy-internal-async-list-control
+        first="https://demo.api/hapi/customer_attributes"
+        item="foxy-attribute-card"
+        form="foxy-attribute-form"
+        .bulkActions=${[{ name: 'foo', onClick }]}
+        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+      >
+      </foxy-internal-async-list-control>
+    `);
+
+    const page = (await getByTag<CollectionPage<any>>(control, 'foxy-collection-page'))!;
+    await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+
+    const label = await getByKey(control, 'select_button_text');
+    const button = label?.closest('vaadin-button');
+    button?.click();
+    await control.requestUpdate();
+
+    const checkbox = control.renderRoot.querySelector<CheckboxElement>('vaadin-checkbox');
+    checkbox!.checked = true;
+    checkbox!.dispatchEvent(new CustomEvent('change'));
+    await control.requestUpdate();
+
+    const bulkActions = await getByTestClass(control, 'bulk-action');
+    const fooAction = bulkActions[0];
+    fooAction.click();
+
+    const customerAttribute0 = await getTestData('./hapi/customer_attributes/0');
+    expect(onClick).to.have.been.calledWithMatch([customerAttribute0]);
+  });
+
+  it('communicates bulk action state to the user (positive path, no errors)', async () => {
+    let next: (() => void) | null = null;
+    const onClick = () => new Promise<void>(resolve => (next = resolve));
+
+    const router = createRouter();
+    const control = await fixture<Control>(html`
+      <foxy-internal-async-list-control
+        first="https://demo.api/hapi/customer_attributes"
+        lang="es"
+        item="foxy-attribute-card"
+        form="foxy-attribute-form"
+        ns="test"
+        .bulkActions=${[{ name: 'foo', onClick }]}
+        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+      >
+      </foxy-internal-async-list-control>
+    `);
+
+    const page = (await getByTag<CollectionPage<any>>(control, 'foxy-collection-page'))!;
+    await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+
+    const label = await getByKey(control, 'select_button_text');
+    const button = label?.closest('vaadin-button');
+    button?.click();
+    await control.requestUpdate();
+
+    const checkbox = control.renderRoot.querySelector<CheckboxElement>('vaadin-checkbox');
+    checkbox!.checked = true;
+    checkbox!.dispatchEvent(new CustomEvent('change'));
+    await control.requestUpdate();
+
+    const bulkActions = await getByTestClass(control, 'bulk-action');
+    const fooAction = bulkActions[0];
+    fooAction.click();
+    await control.requestUpdate();
+
+    expect(await getByKey(control, 'foo_bulk_action_caption_idle')).to.not.exist;
+    expect(await getByKey(control, 'foo_bulk_action_caption_busy')).to.exist;
+    // @ts-expect-error it's too hard for TS to figure out that `next` is not null at this point
+    next?.();
+    await control.requestUpdate();
+    expect(await getByKey(control, 'foo_bulk_action_caption_idle')).to.not.exist;
+    expect(await getByKey(control, 'foo_bulk_action_caption_busy')).to.not.exist;
+    expect(await getByKey(control, 'cancel_button_text')).to.not.exist;
+    expect(await getByKey(control, 'select_button_text')).to.exist;
+    expect(await getByTestClass(control, 'bulk-action')).to.have.length(0);
+
+    const notification = await getByTag<NotificationElement>(control, 'vaadin-notification');
+    expect(notification).to.have.attribute('theme', 'success');
+    expect(notification).to.have.property('opened', true);
+
+    const notificationRoot = document.createElement('div');
+    notification?.renderer?.(notificationRoot);
+
+    const notificationText = notificationRoot.querySelector('foxy-i18n');
+    expect(notificationText).to.have.attribute('lang', 'es');
+    expect(notificationText).to.have.attribute('key', 'foo_bulk_action_notification_done');
+    expect(notificationText).to.have.attribute('ns', 'test pagination');
+  });
+
+  it('communicates bulk action state to the user (negative path, failure)', async () => {
+    let next: (() => void) | null = null;
+    const onClick = () => new Promise<void>((_, reject) => (next = reject));
+
+    const router = createRouter();
+    const control = await fixture<Control>(html`
+      <foxy-internal-async-list-control
+        first="https://demo.api/hapi/customer_attributes"
+        lang="es"
+        item="foxy-attribute-card"
+        form="foxy-attribute-form"
+        ns="test"
+        .bulkActions=${[{ name: 'foo', onClick }]}
+        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+      >
+      </foxy-internal-async-list-control>
+    `);
+
+    const page = (await getByTag<CollectionPage<any>>(control, 'foxy-collection-page'))!;
+    await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+
+    const label = await getByKey(control, 'select_button_text');
+    const button = label?.closest('vaadin-button');
+    button?.click();
+    await control.requestUpdate();
+
+    const checkbox = control.renderRoot.querySelector<CheckboxElement>('vaadin-checkbox');
+    checkbox!.checked = true;
+    checkbox!.dispatchEvent(new CustomEvent('change'));
+    await control.requestUpdate();
+
+    const bulkActions = await getByTestClass(control, 'bulk-action');
+    const fooAction = bulkActions[0];
+    fooAction.click();
+    await control.requestUpdate();
+
+    expect(await getByKey(control, 'foo_bulk_action_caption_idle')).to.not.exist;
+    expect(await getByKey(control, 'foo_bulk_action_caption_busy')).to.exist;
+    // @ts-expect-error it's too hard for TS to figure out that `next` is not null at this point
+    next?.();
+    await control.requestUpdate();
+    expect(await getByKey(control, 'foo_bulk_action_caption_idle')).to.exist;
+    expect(await getByKey(control, 'foo_bulk_action_caption_busy')).to.not.exist;
+    expect(await getByKey(control, 'cancel_button_text')).to.exist;
+    expect(await getByKey(control, 'select_button_text')).to.not.exist;
+    expect(await getByTestClass(control, 'bulk-action')).to.have.length(1);
+
+    const notification = await getByTag<NotificationElement>(control, 'vaadin-notification');
+    expect(notification).to.have.attribute('theme', 'error');
+    expect(notification).to.have.property('opened', true);
+
+    const notificationRoot = document.createElement('div');
+    notification?.renderer?.(notificationRoot);
+
+    const notificationText = notificationRoot.querySelector('foxy-i18n');
+    expect(notificationText).to.have.attribute('lang', 'es');
+    expect(notificationText).to.have.attribute('key', 'foo_bulk_action_notification_fail');
+    expect(notificationText).to.have.attribute('ns', 'test pagination');
   });
 });

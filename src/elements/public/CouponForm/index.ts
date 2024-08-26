@@ -1,9 +1,9 @@
 import '../../internal/InternalAsyncResourceLinkListControl/index';
-import '../../internal/InternalCheckboxGroupControl/index';
 import '../../internal/InternalBulkAddActionControl/index';
 import '../../internal/InternalEditableListControl/index';
 import '../../internal/InternalQueryBuilderControl/index';
-import '../../internal/InternalIntegerControl/index';
+import '../../internal/InternalSummaryControl/index';
+import '../../internal/InternalSwitchControl/index';
 import '../../internal/InternalNumberControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalDateControl/index';

@@ -1,4 +1,3 @@
-import type { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
 import type { InternalQueryBuilderControl } from '../../internal/InternalQueryBuilderControl/InternalQueryBuilderControl';
 import type { InternalEditableListControl } from '../../internal/InternalEditableListControl/InternalEditableListControl';
 import type { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
@@ -26,8 +25,12 @@ describe('CouponForm', () => {
     expect(customElements.get('foxy-internal-async-resource-link-list-control')).to.exist;
   });
 
-  it('imports and defines foxy-internal-checkbox-group-control', () => {
-    expect(customElements.get('foxy-internal-checkbox-group-control')).to.exist;
+  it('imports and defines foxy-internal-switch-control', () => {
+    expect(customElements.get('foxy-internal-switch-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-summary-control', () => {
+    expect(customElements.get('foxy-internal-summary-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-editable-list-control', () => {
@@ -36,10 +39,6 @@ describe('CouponForm', () => {
 
   it('imports and defines foxy-internal-query-builder-control', () => {
     expect(customElements.get('foxy-internal-query-builder-control')).to.exist;
-  });
-
-  it('imports and defines foxy-internal-integer-control', () => {
-    expect(customElements.get('foxy-internal-integer-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-number-control', () => {
@@ -274,18 +273,6 @@ describe('CouponForm', () => {
     expect(element.hiddenSelector.matches('attributes', true)).to.be.false;
   });
 
-  it('hides customer attribute restrictions and customer subscription restrictions if auto-apply is off', () => {
-    const element = new CouponForm();
-
-    expect(element.hiddenSelector.matches('customer-attribute-restrictions', true)).to.be.true;
-    expect(element.hiddenSelector.matches('customer-subscription-restrictions', true)).to.be.true;
-
-    element.edit({ customer_auto_apply: true });
-
-    expect(element.hiddenSelector.matches('customer-attribute-restrictions', true)).to.be.false;
-    expect(element.hiddenSelector.matches('customer-subscription-restrictions', true)).to.be.false;
-  });
-
   it('renders a form header', () => {
     const form = new CouponForm();
     const renderHeaderMethod = stub(form, 'renderHeader');
@@ -332,10 +319,23 @@ describe('CouponForm', () => {
     expect(action).to.have.deep.property('related', [element.data?._links['fx:coupon_codes'].href]);
   });
 
-  it('renders text control for name', async () => {
+  it('renders a General summary control', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
-    const control = element.renderRoot.querySelector('foxy-internal-text-control[infer=name]');
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer=general]'
+    );
+
     expect(control).to.exist;
+  });
+
+  it('renders text control for name inside of the General summary', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer=general] foxy-internal-text-control[infer=name]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
   it('renders rules control for rules', async () => {
@@ -490,51 +490,81 @@ describe('CouponForm', () => {
     expect(control).to.have.attribute('item', 'foxy-item-category-card');
   });
 
-  it('renders integer control for number of uses allowed', async () => {
+  it('renders a Usage summary control', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector('foxy-internal-summary-control[infer=uses]');
+
+    expect(control).to.exist;
+  });
+
+  it('renders number control for number of uses allowed inside of the Usage summary', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-integer-control[infer=number-of-uses-allowed]'
+      '[infer=uses] foxy-internal-number-control[infer=number-of-uses-allowed]'
     );
 
     expect(control).to.exist;
     expect(control).to.have.attribute('min', '0');
-    expect(control).to.have.attribute('show-controls');
+    expect(control).to.have.attribute('step', '1');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders integer control for number of uses allowed per customer', async () => {
+  it('renders number control for number of uses allowed per customer inside of the Usage summary', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-integer-control[infer=number-of-uses-allowed-per-customer]'
+      '[infer=uses] foxy-internal-number-control[infer=number-of-uses-allowed-per-customer]'
     );
 
     expect(control).to.exist;
     expect(control).to.have.attribute('min', '0');
-    expect(control).to.have.attribute('show-controls');
+    expect(control).to.have.attribute('step', '1');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders integer control for number of uses allowed per code', async () => {
+  it('renders number control for number of uses allowed per code inside of the Usage summary', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-integer-control[infer=number-of-uses-allowed-per-code]'
+      '[infer=uses] foxy-internal-number-control[infer=number-of-uses-allowed-per-code]'
     );
 
     expect(control).to.exist;
     expect(control).to.have.attribute('min', '0');
-    expect(control).to.have.attribute('show-controls');
+    expect(control).to.have.attribute('step', '1');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders date control for start date', async () => {
+  it('renders a Date Restrictions summary control', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-date-control[infer=start-date]'
+      'foxy-internal-summary-control[infer=timeframe]'
     );
 
     expect(control).to.exist;
   });
 
-  it('renders date control for end date', async () => {
+  it('renders date control for start date inside of the Date Restrictions summary', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
-    const control = element.renderRoot.querySelector('foxy-internal-date-control[infer=end-date]');
+    const control = element.renderRoot.querySelector(
+      '[infer=timeframe] foxy-internal-date-control[infer=start-date]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders date control for end date inside of the Date Restrictions summary', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer=timeframe] foxy-internal-date-control[infer=end-date]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a Taxes summary control', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector('foxy-internal-summary-control[infer=taxes]');
 
     expect(control).to.exist;
   });
@@ -542,64 +572,61 @@ describe('CouponForm', () => {
   it('renders number control for inclusive tax rate', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-number-control[infer=inclusive-tax-rate]'
+      '[infer=taxes] foxy-internal-number-control[infer=inclusive-tax-rate]'
     );
 
     expect(control).to.exist;
     expect(control).to.have.attribute('min', '0');
     expect(control).to.have.attribute('max', '1');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders checkbox group control for various options', async () => {
+  it('renders an Options summary control', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-checkbox-group-control[infer=options]'
-    ) as InternalCheckboxGroupControl;
+      'foxy-internal-summary-control[infer=options]'
+    );
 
     expect(control).to.exist;
-    expect(control).to.have.attribute('theme', 'vertical');
-    expect(control).to.have.deep.property('options', [
-      { value: 'multiple_codes_allowed', label: 'option_multiple_codes_allowed' },
-      { value: 'combinable', label: 'option_combinable' },
-      { value: 'exclude_category_discounts', label: 'option_exclude_category_discounts' },
-      { value: 'exclude_line_item_discounts', label: 'option_exclude_line_item_discounts' },
-      { value: 'is_taxable', label: 'option_is_taxable' },
-      { value: 'shared_codes_allowed', label: 'option_shared_codes_allowed' },
-      { value: 'customer_auto_apply', label: 'option_customer_auto_apply' },
-    ]);
-
-    expect(control.getValue()).to.be.empty;
-
-    const props = [
-      'multiple_codes_allowed',
-      'combinable',
-      'exclude_category_discounts',
-      'exclude_line_item_discounts',
-      'is_taxable',
-      'shared_codes_allowed',
-      'customer_auto_apply',
-    ] as const;
-
-    for (const currentProp of props) {
-      control.setValue([currentProp]);
-
-      for (const prop of props) {
-        expect(element).to.have.nested.property(`form.${prop}`, prop === currentProp);
-      }
-
-      element.undo();
-      element.edit({ [currentProp]: true });
-      expect(control.getValue()).to.deep.equal([currentProp]);
-    }
   });
 
-  it('renders editable list control for subscription restrictions', async () => {
+  const props = [
+    'multiple-codes-allowed',
+    'combinable',
+    'exclude-category-discounts',
+    'exclude-line-item-discounts',
+    'is-taxable',
+    'shared-codes-allowed',
+  ] as const;
+
+  for (const prop of props) {
+    it(`renders switch control for ${prop} inside of the Options summary`, async () => {
+      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+      const control = element.renderRoot.querySelector(
+        `[infer=options] foxy-internal-switch-control[infer="${prop}"]`
+      );
+
+      expect(control).to.exist;
+    });
+  }
+
+  it('renders a Customer Restrictions summary control', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-editable-list-control[infer=customer-subscription-restrictions]'
+      'foxy-internal-summary-control[infer="customer-restrictions"]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders editable list control for subscription restrictions inside of the Customer Restrictions summary', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer=customer-restrictions] foxy-internal-editable-list-control[infer=customer-subscription-restrictions]'
     ) as InternalEditableListControl;
 
     expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
 
     expect(control.getValue()).to.deep.equal([]);
     control.setValue([{ value: 'a' }, { value: 'b' }]);
@@ -609,11 +636,21 @@ describe('CouponForm', () => {
     expect(control.getValue()).to.deep.equal([{ value: 'foo' }, { value: 'bar' }]);
   });
 
-  it('renders query builder control for customer attribute restrictions', async () => {
+  it('renders query builder control for customer attribute restrictions inside of the Customer Restrictions summary', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-query-builder-control[infer=customer-attribute-restrictions]'
+      '[infer=customer-restrictions] foxy-internal-query-builder-control[infer=customer-attribute-restrictions]'
     ) as InternalQueryBuilderControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders switch control for auto-apply inside of the Customer Restrictions summary', async () => {
+    const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer=customer-restrictions] foxy-internal-switch-control[infer=customer-auto-apply]'
+    );
 
     expect(control).to.exist;
   });

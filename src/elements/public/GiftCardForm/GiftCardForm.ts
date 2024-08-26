@@ -1,8 +1,8 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
+import type { SwipeAction } from '../../internal/InternalAsyncListControl/types';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
-import type { Action } from '../../internal/InternalAsyncListControl/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
@@ -104,7 +104,7 @@ export class GiftCardForm extends Base<Data> {
     { label: 'date_modified', path: 'date_modified', type: Type.Date },
   ];
 
-  private __codesActions: Action<Resource<Rels.GiftCardCode>>[] = [
+  private __codesActions: SwipeAction<Resource<Rels.GiftCardCode>>[] = [
     {
       theme: 'contrast',
       state: 'idle',

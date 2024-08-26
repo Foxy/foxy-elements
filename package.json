@@ -105,7 +105,7 @@
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-multi-input": "^1.1.1",
     "rollup-plugin-terser": "^7.0.1",
-    "semantic-release": "^24.0.0",
+    "semantic-release": "^24.1.0",
     "sinon": "^9.0.2",
     "tailwindcss": "^2.0.4",
     "tslib": "2.1.0",
@@ -142,6 +142,17 @@
         "name": "beta",
         "prerelease": true
       }
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/npm",
+      [
+        "@semantic-release/github",
+        {
+          "successComment": false
+        }
+      ]
     ]
   },
   "publishConfig": {

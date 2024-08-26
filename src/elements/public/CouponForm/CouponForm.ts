@@ -1,9 +1,9 @@
 import type { TemplateResult, PropertyDeclarations } from 'lit-element';
 import type { Data, TransactionPageHrefGetter } from './types';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
+import type { SwipeAction } from '../../internal/InternalAsyncListControl/types';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
-import type { Action } from '../../internal/InternalAsyncListControl/types';
 import type { Option } from '../QueryBuilder/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 import type { Rels } from '@foxy.io/sdk/backend';
@@ -135,42 +135,6 @@ export class CouponForm extends Base<Data> {
     this.edit({ item_option_restrictions: rules });
   };
 
-  private readonly __optionsGetValue = () => {
-    const value: string[] = [];
-
-    if (this.form.multiple_codes_allowed) value.push('multiple_codes_allowed');
-    if (this.form.combinable) value.push('combinable');
-    if (this.form.exclude_category_discounts) value.push('exclude_category_discounts');
-    if (this.form.exclude_line_item_discounts) value.push('exclude_line_item_discounts');
-    if (this.form.is_taxable) value.push('is_taxable');
-    if (this.form.shared_codes_allowed) value.push('shared_codes_allowed');
-    if (this.form.customer_auto_apply) value.push('customer_auto_apply');
-
-    return value;
-  };
-
-  private readonly __optionsSetValue = (newValue: string[]) => {
-    this.edit({
-      multiple_codes_allowed: newValue.includes('multiple_codes_allowed'),
-      combinable: newValue.includes('combinable'),
-      exclude_category_discounts: newValue.includes('exclude_category_discounts'),
-      exclude_line_item_discounts: newValue.includes('exclude_line_item_discounts'),
-      is_taxable: newValue.includes('is_taxable'),
-      shared_codes_allowed: newValue.includes('shared_codes_allowed'),
-      customer_auto_apply: newValue.includes('customer_auto_apply'),
-    });
-  };
-
-  private readonly __optionsOptions = [
-    { value: 'multiple_codes_allowed', label: 'option_multiple_codes_allowed' },
-    { value: 'combinable', label: 'option_combinable' },
-    { value: 'exclude_category_discounts', label: 'option_exclude_category_discounts' },
-    { value: 'exclude_line_item_discounts', label: 'option_exclude_line_item_discounts' },
-    { value: 'is_taxable', label: 'option_is_taxable' },
-    { value: 'shared_codes_allowed', label: 'option_shared_codes_allowed' },
-    { value: 'customer_auto_apply', label: 'option_customer_auto_apply' },
-  ];
-
   private readonly __storeLoaderId = 'storeLoader';
 
   private readonly __codesFilters: Option[] = [
@@ -180,7 +144,7 @@ export class CouponForm extends Base<Data> {
     { label: 'date_modified', path: 'date_modified', type: Type.Date },
   ];
 
-  private __couponCodesActions: Action<Resource<Rels.CouponCode>>[] = [
+  private __couponCodesActions: SwipeAction<Resource<Rels.CouponCode>>[] = [
     {
       theme: 'contrast',
       state: 'idle',
@@ -210,10 +174,6 @@ export class CouponForm extends Base<Data> {
 
     if (!this.data) {
       alwaysMatch.push('coupon-codes', 'category-restrictions', 'attributes');
-    }
-
-    if (!this.form.customer_auto_apply) {
-      alwaysMatch.push('customer-attribute-restrictions', 'customer-subscription-restrictions');
     }
 
     return new BooleanSelector(alwaysMatch.join(' ').trim());
@@ -260,7 +220,9 @@ export class CouponForm extends Base<Data> {
     return html`
       ${this.renderHeader()}
 
-      <foxy-internal-text-control infer="name"></foxy-internal-text-control>
+      <foxy-internal-summary-control infer="general">
+        <foxy-internal-text-control layout="summary-item" infer="name"></foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
       <foxy-internal-coupon-form-rules-control infer="rules">
       </foxy-internal-coupon-form-rules-control>
@@ -278,15 +240,6 @@ export class CouponForm extends Base<Data> {
       >
       </foxy-internal-async-list-control>
 
-      <foxy-internal-query-builder-control
-        infer="item-option-restrictions"
-        disable-or
-        .operators=${this.__itemOptionRestrictionsOperators}
-        .getValue=${this.__itemOptionRestrictionsGetValue}
-        .setValue=${this.__itemOptionRestrictionsSetValue}
-      >
-      </foxy-internal-query-builder-control>
-
       <foxy-internal-editable-list-control
         infer="product-code-restrictions"
         .getValue=${this.__productCodeRestrictionsGetValue}
@@ -297,6 +250,33 @@ export class CouponForm extends Base<Data> {
         ]}
       >
       </foxy-internal-editable-list-control>
+
+      <foxy-internal-query-builder-control
+        infer="item-option-restrictions"
+        disable-or
+        .operators=${this.__itemOptionRestrictionsOperators}
+        .getValue=${this.__itemOptionRestrictionsGetValue}
+        .setValue=${this.__itemOptionRestrictionsSetValue}
+      >
+      </foxy-internal-query-builder-control>
+
+      <foxy-internal-summary-control infer="customer-restrictions">
+        <foxy-internal-query-builder-control
+          layout="summary-item"
+          infer="customer-attribute-restrictions"
+        >
+        </foxy-internal-query-builder-control>
+
+        <foxy-internal-editable-list-control
+          layout="summary-item"
+          infer="customer-subscription-restrictions"
+          .getValue=${this.__customerSubscriptionRestrictionsGetValue}
+          .setValue=${this.__customerSubscriptionRestrictionsSetValue}
+        >
+        </foxy-internal-editable-list-control>
+
+        <foxy-internal-switch-control infer="customer-auto-apply"></foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
       <foxy-internal-async-resource-link-list-control
         foreign-key-for-uri="item_category_uri"
@@ -312,51 +292,59 @@ export class CouponForm extends Base<Data> {
       >
       </foxy-internal-async-resource-link-list-control>
 
-      <div class="grid gap-l sm-grid-cols-3">
-        <foxy-internal-integer-control infer="number-of-uses-allowed" min="0" show-controls>
-        </foxy-internal-integer-control>
+      <foxy-internal-summary-control infer="uses">
+        <foxy-internal-number-control
+          layout="summary-item"
+          infer="number-of-uses-allowed"
+          step="1"
+          min="0"
+        >
+        </foxy-internal-number-control>
 
-        <foxy-internal-integer-control
+        <foxy-internal-number-control
+          layout="summary-item"
           infer="number-of-uses-allowed-per-customer"
+          step="1"
           min="0"
-          show-controls
         >
-        </foxy-internal-integer-control>
+        </foxy-internal-number-control>
 
-        <foxy-internal-integer-control
+        <foxy-internal-number-control
+          layout="summary-item"
           infer="number-of-uses-allowed-per-code"
+          step="1"
           min="0"
-          show-controls
         >
-        </foxy-internal-integer-control>
-      </div>
+        </foxy-internal-number-control>
+      </foxy-internal-summary-control>
 
-      <div class="grid gap-l sm-grid-cols-2">
-        <foxy-internal-date-control infer="start-date"></foxy-internal-date-control>
-        <foxy-internal-date-control infer="end-date"></foxy-internal-date-control>
-      </div>
+      <foxy-internal-summary-control infer="timeframe">
+        <foxy-internal-date-control layout="summary-item" infer="start-date">
+        </foxy-internal-date-control>
+        <foxy-internal-date-control layout="summary-item" infer="end-date">
+        </foxy-internal-date-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-number-control min="0" max="1" infer="inclusive-tax-rate">
-      </foxy-internal-number-control>
+      <foxy-internal-summary-control infer="taxes">
+        <foxy-internal-number-control
+          layout="summary-item"
+          infer="inclusive-tax-rate"
+          min="0"
+          max="1"
+        >
+        </foxy-internal-number-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-checkbox-group-control
-        infer="options"
-        theme="vertical"
-        .getValue=${this.__optionsGetValue}
-        .setValue=${this.__optionsSetValue}
-        .options=${this.__optionsOptions}
-      >
-      </foxy-internal-checkbox-group-control>
-
-      <foxy-internal-editable-list-control
-        infer="customer-subscription-restrictions"
-        .getValue=${this.__customerSubscriptionRestrictionsGetValue}
-        .setValue=${this.__customerSubscriptionRestrictionsSetValue}
-      >
-      </foxy-internal-editable-list-control>
-
-      <foxy-internal-query-builder-control infer="customer-attribute-restrictions">
-      </foxy-internal-query-builder-control>
+      <foxy-internal-summary-control infer="options">
+        <foxy-internal-switch-control infer="multiple-codes-allowed"></foxy-internal-switch-control>
+        <foxy-internal-switch-control infer="combinable"></foxy-internal-switch-control>
+        <foxy-internal-switch-control infer="exclude-category-discounts">
+        </foxy-internal-switch-control>
+        <foxy-internal-switch-control infer="exclude-line-item-discounts">
+        </foxy-internal-switch-control>
+        <foxy-internal-switch-control infer="is-taxable"></foxy-internal-switch-control>
+        <foxy-internal-switch-control infer="shared-codes-allowed"></foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
       <foxy-internal-async-list-control
         first=${ifDefined(this.data?._links['fx:attributes'].href)}

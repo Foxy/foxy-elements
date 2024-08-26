@@ -54,6 +54,13 @@ describe('WebhookForm', () => {
     expect(new WebhookForm()).to.have.property('ns', 'webhook-form');
   });
 
+  it('has a reactive property "resourceUri" that defaults to null', () => {
+    expect(new WebhookForm()).to.have.property('resourceUri', null);
+    expect(WebhookForm).to.have.deep.nested.property('properties.resourceUri', {
+      attribute: 'resource-uri',
+    });
+  });
+
   it('produces an v8n error if webhook name is missing', () => {
     const form = new WebhookForm();
     expect(WebhookForm.v8n.map(fn => fn({}, form))).to.include('name:v8n_required');
@@ -162,13 +169,34 @@ describe('WebhookForm', () => {
 
     element.data = webhook;
     await element.requestUpdate();
-
     const control = element.renderRoot.querySelector('[infer="statuses"]');
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalAsyncListControl);
-    expect(control).to.have.property('first', webhook._links['fx:statuses'].href);
     expect(control).to.have.property('item', 'foxy-webhook-status-card');
+    expect(control).to.have.property(
+      'first',
+      'https://demo.api/hapi/webhook_statuses?webhook_id=0&order=date_created+desc'
+    );
+  });
+
+  it('includes only resource-specific statuses when resource uri is set', async () => {
+    const webhook = await getTestData<Data>('./hapi/webhooks/0');
+    const element = await fixture<WebhookForm>(html`
+      <foxy-webhook-form resource-uri="https://demo.api/hapi/transactions/0"></foxy-webhook-form>
+    `);
+
+    element.data = webhook;
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector('[infer="statuses"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalAsyncListControl);
+    expect(control).to.have.property('item', 'foxy-webhook-status-card');
+    expect(control).to.have.property(
+      'first',
+      'https://demo.api/hapi/webhook_statuses?webhook_id=0&resource_id=0&order=date_created+desc'
+    );
   });
 
   it('renders webhook logs when an existing webhook is loaded', async () => {
@@ -177,13 +205,34 @@ describe('WebhookForm', () => {
 
     element.data = webhook;
     await element.requestUpdate();
-
     const control = element.renderRoot.querySelector('[infer="logs"]');
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalAsyncListControl);
-    expect(control).to.have.property('first', webhook._links['fx:logs'].href);
     expect(control).to.have.property('item', 'foxy-webhook-log-card');
+    expect(control).to.have.property(
+      'first',
+      'https://demo.api/hapi/webhook_logs?webhook_id=0&order=date_created+desc'
+    );
+  });
+
+  it('includes only resource-specific logs when resource uri is set', async () => {
+    const webhook = await getTestData<Data>('./hapi/webhooks/0');
+    const element = await fixture<WebhookForm>(html`
+      <foxy-webhook-form resource-uri="https://demo.api/hapi/transactions/0"></foxy-webhook-form>
+    `);
+
+    element.data = webhook;
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector('[infer="logs"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalAsyncListControl);
+    expect(control).to.have.property('item', 'foxy-webhook-log-card');
+    expect(control).to.have.property(
+      'first',
+      'https://demo.api/hapi/webhook_logs?webhook_id=0&resource_id=0&order=date_created+desc'
+    );
   });
 
   it('hides event resource selector when loaded', async () => {

@@ -113,169 +113,192 @@
             "done": "Copied to clipboard"
           }
         },
-        "dimensions": "Dimensions",
-        "subscriptions": "Subscriptions",
-        "discount": "Discount",
-        "name": {
-          "label": "Name",
-          "helper_text": "Public name of this item.",
-          "placeholder": "13' Laptop Case",
-          "v8n_required": "Name is required",
-          "v8n_too_long": "Name mustn't exceed 255 characters"
-        },
-        "price": {
-          "label": "Price",
-          "helper_text": "Base price before option modifiers.",
-          "placeholder": "25",
-          "v8n_required": "Price is required",
-          "v8n_negative": "Price can't be negative"
-        },
-        "quantity": {
-          "label": "Quantity",
-          "helper_text": "Number of items in the cart.",
-          "placeholder": "1 by default",
-          "v8n_less_than_one": "Quantity must be 1 or more"
-        },
-        "subscription-frequency": {
-          "label": "Subscription frequency",
-          "day": "Day",
-          "day_plural": "Days",
-          "week": "Week",
-          "week_plural": "Weeks",
-          "month": "Month",
-          "month_plural": "Months",
-          "year": "Year",
-          "year_plural": "Years",
-          "helper_text": "This determines how often this subscription will be processed. To modify this value for an existing subscription, you must modify the subscription directly."
-        },
-        "subscription-start-date": {
-          "label": "Subscription start",
-          "helper_text": "The original date this subscription began or will begin if set in the future. To modify this value for an existing subscription, you must modify the subscription directly.",
-          "placeholder": "01/01/2022"
-        },
-        "subscription-end-date": {
-          "label": "Subscription end",
-          "helper_text": "If set, the date this subscription will end. The subscription will not run on this day.",
-          "placeholder": "01/01/2022"
-        },
-        "discount-name": {
-          "label": "Discount name",
-          "helper_text": "The name of the line item discount if it is included on this item.",
-          "placeholder": "One-off 10% discount"
-        },
-        "discount-builder": {
-          "tier": "Tier",
-          "tier_by": "by",
-          "tier_if": "if",
-          "tier_allunits": "price of each item",
-          "tier_incremental": "price of additional items",
-          "tier_repeat": "price of next item",
-          "tier_single": "order total",
-          "tier_then": "then",
-          "quantity": "quantity",
-          "total": "total",
-          "reduce": "reduce",
-          "increase": "increase"
-        },
-        "expires": {
-          "label": "Expires",
-          "helper_text": "Date when this item will be removed from the cart (optional).",
-          "placeholder": "01/01/2022"
-        },
-        "image": {
-          "label": "Image",
-          "helper_text": "URL of the image to display for this item in the cart and checkout.",
-          "placeholder": "https://picsum.photos/256"
-        },
-        "url": {
-          "label": "URL",
-          "helper_text": "Full URL for the customer to view this item on the store website.",
-          "placeholder": "https://example.com/products/123"
-        },
-        "quantity-min": {
-          "label": "Min quantity",
-          "helper_text": "Minimum quantity per cart.",
-          "placeholder": "1"
-        },
-        "quantity-max": {
-          "label": "Max quantity",
-          "helper_text": "Maximum quantity per cart.",
-          "placeholder": "25"
-        },
-        "shipto": {
-          "label": "Shipping address",
-          "helper_text": "Used for multiship to assign this item to a specific shipment. This value will be the address name of the shipment.",
-          "placeholder": "Select address to ship this item to..."
-        },
-        "width": {
-          "label": "Width",
-          "helper_text": "This is currently a placeholder for future use.",
-          "placeholder": "16"
-        },
-        "height": {
-          "label": "Height",
-          "helper_text": "This is currently a placeholder for future use.",
-          "placeholder": "8"
-        },
-        "length": {
-          "label": "Width",
-          "helper_text": "This is currently a placeholder for future use.",
-          "placeholder": "32"
-        },
-        "weight": {
-          "label": "Weight",
-          "helper_text": "Per-item weight, used for shipping rate requests.",
-          "placeholder": "24"
-        },
-        "item-category-uri": {
-          "label": "Item category",
-          "dialog": {
-            "cancel": "Cancel",
-            "close": "Close",
-            "header": "Select an item category",
-            "selection": {
-              "label": "Item categories",
-              "helper_text": "Select an item category to use with this item.",
-              "search": "Search",
-              "clear": "Clear",
-              "pagination": {
-                "search_button_text": "Search",
-                "first": "First",
-                "last": "Last",
-                "next": "Next",
-                "pagination": "{{from}}-{{to}} out of {{total}}",
-                "previous": "Previous",
-                "card": {
-                  "spinner": {
-                    "loading_busy": "Loading",
-                    "loading_empty": "No item categories found",
-                    "loading_error": "Unknown error"
+        "general": {
+          "label": "",
+          "helper_text": "",
+          "name": {
+            "label": "Name",
+            "helper_text": "",
+            "placeholder": "Required",
+            "v8n_required": "Name is required",
+            "v8n_too_long": "Name mustn't exceed 255 characters"
+          },
+          "price": {
+            "label": "Price",
+            "helper_text": "",
+            "placeholder": "Required",
+            "v8n_required": "Price is required",
+            "v8n_negative": "Price can't be negative"
+          },
+          "quantity": {
+            "label": "Quantity",
+            "helper_text": "",
+            "placeholder": "1",
+            "v8n_less_than_one": "Quantity must be 1 or more"
+          },
+          "item-category-uri": {
+            "label": "Item category",
+            "helper_text": "",
+            "placeholder": "Select",
+            "value": "{{ resource.name }}",
+            "dialog": {
+              "cancel": "Cancel",
+              "close": "Close",
+              "header": "Select an item category",
+              "selection": {
+                "label": "Item categories",
+                "helper_text": "Select an item category to use with this item.",
+                "search": "Search",
+                "clear": "Clear",
+                "pagination": {
+                  "search_button_text": "Search",
+                  "first": "First",
+                  "last": "Last",
+                  "next": "Next",
+                  "pagination": "{{from}}-{{to}} out of {{total}}",
+                  "previous": "Previous",
+                  "card": {
+                    "spinner": {
+                      "loading_busy": "Loading",
+                      "loading_empty": "No item categories found",
+                      "loading_error": "Unknown error"
+                    }
                   }
                 }
               }
+            },
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "Not assigned – click to select",
+                "loading_error": "Unknown error"
+              }
             }
           },
-          "card": {
-            "spinner": {
-              "loading_busy": "Loading",
-              "loading_empty": "Not assigned – click to select",
-              "loading_error": "Unknown error"
-            }
+          "code": {
+            "label": "Code (SKU, barcode)",
+            "helper_text": "",
+            "placeholder": "Optional"
           },
-          "helper_text": "Item category associated with this item."
+          "parent-code": {
+            "label": "Parent code",
+            "helper_text": "",
+            "placeholder": "Optional"
+          },
+          "shipto": {
+            "label": "Shipment name",
+            "helper_text": "Used for multiship to assign this item to a specific shipment. This value will be the address name of the shipment.",
+            "placeholder": "Optional"
+          }
         },
-        "code": {
-          "label": "Code",
-          "helper_text": "Unique item code such as SKU or barcode.",
-          "placeholder": "MY-PRODUCT-001"
+        "subscriptions": {
+          "label": "Subscription",
+          "helper_text": "To modify these value for an existing subscription, you must modify the subscription directly.",
+          "subscription-frequency": {
+            "label": "Frequency",
+            "helper_text": "",
+            "select": "Select",
+            "day": "Day",
+            "day_plural": "Days",
+            "week": "Week",
+            "week_plural": "Weeks",
+            "month": "Month",
+            "month_plural": "Months",
+            "year": "Year",
+            "year_plural": "Years"
+          },
+          "subscription-start-date": {
+            "label": "Start date",
+            "helper_text": "",
+            "display_value": "{{ value, date }}",
+            "placeholder": "None"
+          },
+          "subscription-end-date": {
+            "label": "End date",
+            "helper_text": "",
+            "display_value": "{{ value, date }}",
+            "placeholder": "None"
+          }
         },
-        "parent-code": {
-          "label": "Parent code",
-          "helper_text": "Used if this should be a child product in a bundle.",
-          "placeholder": "MY-BUNDLE-001"
+        "dimensions": {
+          "label": "Dimensions",
+          "helper_text": "",
+          "width": {
+            "label": "Width",
+            "helper_text": "",
+            "placeholder": "0"
+          },
+          "height": {
+            "label": "Height",
+            "helper_text": "",
+            "placeholder": "0"
+          },
+          "length": {
+            "label": "Length",
+            "helper_text": "",
+            "placeholder": "0"
+          },
+          "weight": {
+            "label": "Weight",
+            "helper_text": "",
+            "placeholder": "0"
+          }
+        },
+        "meta": {
+          "label": "Meta",
+          "helper_text": "",
+          "url": {
+            "label": "URL",
+            "helper_text": "Full URL for the customer to view this item on the store website.",
+            "placeholder": "None"
+          },
+          "image": {
+            "label": "Image",
+            "helper_text": "URL of the image to display for this item in the cart and checkout.",
+            "placeholder": "None"
+          },
+          "quantity-max": {
+            "label": "Max quantity",
+            "helper_text": "",
+            "placeholder": "Unlimited"
+          },
+          "quantity-min": {
+            "label": "Min quantity",
+            "helper_text": "",
+            "placeholder": "1"
+          },
+          "expires": {
+            "label": "Expires",
+            "helper_text": "Date when this item will be removed from the cart.",
+            "display_value": "{{ value, date }}",
+            "placeholder": "Optional"
+          }
+        },
+        "discount": {
+          "label": "Line item discount",
+          "helper_text": "",
+          "discount-name": {
+            "label": "Discount name",
+            "helper_text": "Enter a discount name to open a discount builder.",
+            "placeholder": "None"
+          },
+          "discount-builder": {
+            "tier": "Tier",
+            "tier_by": "by",
+            "tier_if": "if",
+            "tier_allunits": "price of each item",
+            "tier_incremental": "price of additional items",
+            "tier_repeat": "price of next item",
+            "tier_single": "order total",
+            "tier_then": "then",
+            "quantity": "quantity",
+            "total": "total",
+            "reduce": "reduce",
+            "increase": "increase"
+          }
         },
         "discount-details": {
-          "title": "Discount details",
+          "label": "Applied discounts",
           "pagination": {
             "first": "First",
             "last": "Last",
@@ -292,7 +315,7 @@
           }
         },
         "coupon-details": {
-          "title": "Coupon details",
+          "label": "Applied coupons",
           "pagination": {
             "first": "First",
             "last": "Last",
@@ -309,7 +332,7 @@
           }
         },
         "attributes": {
-          "title": "Attributes",
+          "label": "Attributes",
           "delete_header": "Remove attribute?",
           "delete_message": "Please confirm that you'd like to remove this attribute from the item.",
           "delete_confirm": "Remove",
@@ -409,7 +432,7 @@
           }
         },
         "item-options": {
-          "title": "Item options",
+          "label": "Item options",
           "delete_header": "Remove item option?",
           "delete_message": "Please confirm that you'd like to remove this item option from the item.",
           "delete_confirm": "Remove",
@@ -729,6 +752,114 @@
           "loading_empty": "No attributes",
           "loading_error": "Unknown error"
         }
+      }
+    }
+  },
+  "webhooks": {
+    "label": "Webhooks",
+    "helper_text": "This list shows v2 webhooks only. Legacy v1 webhooks are available in Settings > Integrations and on admin.foxycart.com.",
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header_update": "Webhook",
+      "webhook-form": {
+        "header": {
+          "title_existing": "{{ name }}",
+          "subtitle_transaction": ""
+        },
+        "url": {
+          "label": "URL",
+          "helper_text": ""
+        },
+        "statuses": {
+          "label": "Runs",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "status_successful": "Successful",
+              "status_pending": "Pending",
+              "status_failed": "Failed",
+              "date": "{{ value, date }} at {{ value, time }}",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_error": "Unknown error",
+                "loading_empty": "No runs for this transaction yet"
+              }
+            }
+          }
+        },
+        "logs": {
+          "label": "Logs",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "date": "{{ value, date }} at {{ value, time }}",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_error": "Unknown error",
+                "loading_empty": "No runs for this transaction yet"
+              }
+            }
+          }
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error"
+        }
+      }
+    },
+    "pagination": {
+      "select_button_text": "Select",
+      "cancel_button_text": "Cancel",
+      "refeed_bulk_action_caption_idle": "Refeed ({{ count }})",
+      "refeed_bulk_action_caption_busy": "Refeeding...",
+      "refeed_bulk_action_notification_done": "Selected webhooks were sent successfully.",
+      "refeed_bulk_action_notification_fail": "Failed to refeed selected webhooks.",
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "status_successful": "OK",
+        "status_pending": "Pending",
+        "status_failed": "Failed",
+        "status_none": "No runs yet",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No webhooks",
+          "loading_error": "Unknown error"
+        }
+      }
+    }
+  },
+  "datafeed": {
+    "label": "Legacy XML datafeed",
+    "helper_text": "To resend this webhook, use the Resend datafeed button at the top of the page.",
+    "data-is-fed": {
+      "label": "Status",
+      "helper_text": "",
+      "checked": "Sent",
+      "unchecked": "Not sent"
+    },
+    "process-webhook": {
+      "idle": "Resend datafeed",
+      "busy": "Resending datafeed...",
+      "fail": "Failed to resend datafeed",
+      "confirm": {
+        "header": "Resend datafeed",
+        "message": "Are you sure you'd like to resend XML datafeed for this transaction?",
+        "confirm": "Yes",
+        "cancel": "No"
       }
     }
   },

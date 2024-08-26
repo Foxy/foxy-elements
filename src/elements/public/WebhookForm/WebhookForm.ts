@@ -1,10 +1,12 @@
+import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Data } from './types';
 
+import { BooleanSelector, getResourceId } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
 /**
@@ -14,6 +16,13 @@ import { html } from 'lit-html';
  * @since 1.17.0
  */
 export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')<Data> {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      resourceUri: { attribute: 'resource-uri' },
+    };
+  }
+
   static get v8n(): NucleonV8N<Data> {
     return [
       ({ name: v }) => !!v || 'name:v8n_required',
@@ -24,6 +33,12 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
       ({ encryption_key: v }) => !v || v.length <= 1000 || 'encryption-key:v8n_too_long',
     ];
   }
+
+  /**
+   * Optional URI of a transaction, customer or subscription. When provided,
+   * the form will display logs and statuses for that particular resource only.
+   */
+  resourceUri: string | null = null;
 
   private __encryptionKeyGeneratorOptions = { separator: '', length: 512 };
 
@@ -51,6 +66,29 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
   }
 
   renderBody(): TemplateResult {
+    const resourceId = this.resourceUri ? getResourceId(this.resourceUri) : null;
+
+    let statusesLink: string | undefined;
+    let logsLink: string | undefined;
+
+    try {
+      const url = new URL(this.data?._links['fx:statuses'].href ?? '');
+      if (resourceId !== null) url.searchParams.set('resource_id', String(resourceId));
+      url.searchParams.set('order', 'date_created desc');
+      statusesLink = url.toString();
+    } catch {
+      statusesLink = undefined;
+    }
+
+    try {
+      const url = new URL(this.data?._links['fx:logs'].href ?? '');
+      if (resourceId !== null) url.searchParams.set('resource_id', String(resourceId));
+      url.searchParams.set('order', 'date_created desc');
+      logsLink = url.toString();
+    } catch {
+      logsLink = undefined;
+    }
+
     return html`
       ${this.renderHeader()}
 
@@ -72,7 +110,7 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
       ${this.data
         ? html`
             <foxy-internal-async-list-control
-              first=${this.data._links['fx:statuses'].href}
+              first=${ifDefined(statusesLink)}
               infer="statuses"
               limit="10"
               item="foxy-webhook-status-card"
@@ -80,9 +118,9 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
             </foxy-internal-async-list-control>
 
             <foxy-internal-async-list-control
-              first=${this.data._links['fx:logs'].href}
+              first=${ifDefined(logsLink)}
               infer="logs"
-              limit="5"
+              limit="10"
               item="foxy-webhook-log-card"
             >
             </foxy-internal-async-list-control>

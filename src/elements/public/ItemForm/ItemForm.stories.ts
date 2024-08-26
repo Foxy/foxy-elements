@@ -12,34 +12,42 @@ const summary: Summary = {
   translatable: true,
   configurable: {
     inputs: [
-      'name',
-      'price',
-      'quantity',
-      'subscription-frequency',
-      'subscription-start-date',
-      'subscription-end-date',
-      'discount-name',
-      'discount-builder',
-      'expires',
-      'url',
-      'image',
-      'quantity-min',
-      'quantity-max',
-      'shipto',
-      'width',
-      'height',
-      'length',
-      'weight',
-      'item-category-uri',
-      'code',
-      'parent-code',
+      'general:name',
+      'general:price',
+      'general:quantity',
+      'general:item-category-uri',
+      'general:code',
+      'general:parent-code',
+      'general:shipto',
+      'subscriptions:subscription-frequency',
+      'subscriptions:subscription-start-date',
+      'subscriptions:subscription-end-date',
+      'item-options',
+      'dimensions:weight',
+      'dimensions:length',
+      'dimensions:width',
+      'dimensions:height',
+      'meta:url',
+      'meta:image',
+      'meta:quantity-max',
+      'meta:quantity-min',
+      'meta:expires',
+      'discount:discount-name',
+      'discount:discount-builder',
       'discount-details',
       'coupon-details',
       'attributes',
-      'item-options',
     ],
     buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
-    sections: ['timestamps', 'header'],
+    sections: [
+      'timestamps',
+      'header',
+      'general',
+      'subscriptions',
+      'dimensions',
+      'meta',
+      'discount',
+    ],
   },
 };
 
@@ -47,6 +55,7 @@ const ext = `
   customer-addresses="https://demo.api/hapi/customer_addresses"
   item-categories="https://demo.api/hapi/item_categories"
   locale-codes="https://demo.api/hapi/property_helpers/7"
+  store="https://demo.api/hapi/stores/0"
 `;
 
 export default getMeta(summary);
