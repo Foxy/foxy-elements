@@ -211,6 +211,7 @@ export class StoreShippingMethodForm extends Base<Data> {
         options-href=${ifDefined(shippingMethod?._links['fx:shipping_services'].href)}
         links-href=${ifDefined(this.data?._links['fx:store_shipping_services'].href)}
         infer="services"
+        limit="200"
         item="foxy-shipping-service-card"
       >
       </foxy-internal-async-resource-link-list-control>

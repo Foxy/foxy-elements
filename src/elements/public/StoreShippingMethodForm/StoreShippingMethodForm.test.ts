@@ -674,6 +674,7 @@ describe('StoreShippingMethodForm', () => {
     expect(control).to.have.attribute('own-key-for-uri', 'shipping_method_uri');
     expect(control).to.have.attribute('embed-key', 'fx:store_shipping_services');
     expect(control).to.have.attribute('infer', 'services');
+    expect(control).to.have.attribute('limit', '200');
     expect(control).to.have.attribute('item', 'foxy-shipping-service-card');
     expect(control).to.have.attribute(
       'options-href',
