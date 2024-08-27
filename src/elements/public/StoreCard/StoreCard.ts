@@ -4,6 +4,7 @@ import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
+import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
 
 const NS = 'store-card';
@@ -32,7 +33,18 @@ export class StoreCard extends Base<Data> {
       subtitle: data => {
         const defaultD = this.defaultDomain;
         const domain = data?.store_domain;
-        return html`${domain?.includes('.') || !defaultD ? domain : `${domain}.${defaultD}`}`;
+        return html`
+          <span
+            aria-label=${this.t(`status_${data.is_active ? 'active' : 'inactive'}`)}
+            style="width: 0.55em; height: 0.55em"
+            class=${classMap({
+              'inline-block flex-shrink-0 rounded-full': true,
+              'bg-success': data.is_active,
+              'border border-contrast-50': !data.is_active,
+            })}
+          ></span>
+          ${domain?.includes('.') || !defaultD ? domain : `${domain}.${defaultD}`}
+        `;
       },
     });
   }
