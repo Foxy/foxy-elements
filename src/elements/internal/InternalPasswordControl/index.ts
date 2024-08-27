@@ -1,5 +1,7 @@
 import '@vaadin/vaadin-text-field/vaadin-password-field';
 import '../InternalEditableControl/index';
+import './vaadinStyles';
+
 import { InternalPasswordControl as Control } from './InternalPasswordControl';
 
 customElements.define('foxy-internal-password-control', Control);

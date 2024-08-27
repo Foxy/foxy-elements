@@ -20,6 +20,7 @@ export class InternalPasswordControl extends InternalEditableControl {
       ...super.properties,
       generatorOptions: { type: Object, attribute: 'generator-options' },
       showGenerator: { type: Boolean, attribute: 'show-generator' },
+      layout: {},
     };
   }
 
@@ -28,6 +29,8 @@ export class InternalPasswordControl extends InternalEditableControl {
   /** If true, renders the password generator button. */
   showGenerator = false;
 
+  layout: 'standalone' | 'summary-item' | null = null;
+
   renderControl(): TemplateResult {
     return html`
       <vaadin-password-field
@@ -35,6 +38,7 @@ export class InternalPasswordControl extends InternalEditableControl {
         helper-text=${this.helperText}
         placeholder=${this.placeholder}
         label=${this.label}
+        theme=${ifDefined(this.layout ?? void 0)}
         class="w-full"
         ?disabled=${this.disabled}
         ?readonly=${this.readonly}
