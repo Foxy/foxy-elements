@@ -7,8 +7,9 @@ import { InternalAsyncResourceLinkListControl } from '../../internal/InternalAsy
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { StoreShippingMethodForm as Form } from './StoreShippingMethodForm';
 import { InternalResourcePickerControl } from '../../internal/InternalResourcePickerControl/InternalResourcePickerControl';
-import { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
 import { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
+import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
+import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
 import { InternalSourceControl } from '../../internal/InternalSourceControl/InternalSourceControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -36,9 +37,14 @@ describe('StoreShippingMethodForm', () => {
     expect(element).to.equal(InternalResourcePickerControl);
   });
 
-  it('imports and defines foxy-internal-checkbox-group-control', () => {
-    const element = customElements.get('foxy-internal-checkbox-group-control');
-    expect(element).to.equal(InternalCheckboxGroupControl);
+  it('imports and defines foxy-internal-summary-control', () => {
+    const element = customElements.get('foxy-internal-summary-control');
+    expect(element).to.equal(InternalSummaryControl);
+  });
+
+  it('imports and defines foxy-internal-switch-control', () => {
+    const element = customElements.get('foxy-internal-switch-control');
+    expect(element).to.equal(InternalSwitchControl);
   });
 
   it('imports and defines foxy-internal-source-control', () => {
@@ -244,7 +250,7 @@ describe('StoreShippingMethodForm', () => {
   it('hides everything except for shipping method uri, timestamps, create and delete buttons by default', () => {
     const form = new Form();
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint custom-code services undo submit delete timestamps'
+      'general:shipping-container-uri general:shipping-drop-type-uri destinations account endpoint custom-code services undo submit delete timestamps'
     );
   });
 
@@ -271,7 +277,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password custom-code services undo submit delete timestamps'
+      'general destinations account custom-code services undo submit delete timestamps'
     );
   });
 
@@ -298,7 +304,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint services undo submit delete timestamps'
+      'general destinations account endpoint services undo submit delete timestamps'
     );
   });
 
@@ -325,7 +331,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri authentication-key meter-number accountid password endpoint custom-code services undo submit delete timestamps'
+      'general account endpoint custom-code services undo submit delete timestamps'
     );
   });
 
@@ -379,7 +385,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'authentication-key meter-number accountid password endpoint custom-code services undo submit delete timestamps'
+      'account endpoint custom-code services undo submit delete timestamps'
     );
   });
 
@@ -435,7 +441,18 @@ describe('StoreShippingMethodForm', () => {
     expect(form.headerSubtitleOptions).to.deep.equal({ id: form.headerCopyIdValue });
   });
 
-  it('renders resource picker control for shipping method uri', async () => {
+  it('renders summary control for General section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
+
+    const control = element.renderRoot.querySelector('[infer="general"]') as InternalSummaryControl;
+    expect(control).to.be.instanceOf(InternalSummaryControl);
+  });
+
+  it('renders resource picker control for shipping method uri inside of the General section', async () => {
     const router = createRouter();
 
     const element = await fixture<Form>(html`
@@ -447,15 +464,16 @@ describe('StoreShippingMethodForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="shipping-method-uri"]'
+      '[infer="general"] [infer="shipping-method-uri"]'
     ) as InternalResourcePickerControl;
 
     expect(control).to.be.instanceOf(InternalResourcePickerControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.attribute('first', 'https://demo.api/hapi/shipping_methods');
     expect(control).to.have.attribute('item', 'foxy-shipping-method-card');
   });
 
-  it('renders resource picker control for shipping container uri', async () => {
+  it('renders resource picker control for shipping container uri inside of the General section', async () => {
     const router = createRouter();
 
     const element = await fixture<Form>(html`
@@ -475,10 +493,11 @@ describe('StoreShippingMethodForm', () => {
     await element.requestUpdate();
 
     const control = element.renderRoot.querySelector(
-      '[infer="shipping-container-uri"]'
+      '[infer="general"] [infer="shipping-container-uri"]'
     ) as InternalResourcePickerControl;
 
     expect(control).to.be.instanceOf(InternalResourcePickerControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.attribute('item', 'foxy-shipping-container-card');
     expect(control).to.have.attribute(
       'first',
@@ -486,7 +505,7 @@ describe('StoreShippingMethodForm', () => {
     );
   });
 
-  it('renders resource picker control for shipping drop type uri', async () => {
+  it('renders resource picker control for shipping drop type uri inside of the General section', async () => {
     const router = createRouter();
 
     const element = await fixture<Form>(html`
@@ -506,10 +525,11 @@ describe('StoreShippingMethodForm', () => {
     await element.requestUpdate();
 
     const control = element.renderRoot.querySelector(
-      '[infer="shipping-drop-type-uri"]'
+      '[infer="general"] [infer="shipping-drop-type-uri"]'
     ) as InternalResourcePickerControl;
 
     expect(control).to.be.instanceOf(InternalResourcePickerControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.attribute('item', 'foxy-shipping-drop-type-card');
     expect(control).to.have.attribute(
       'first',
@@ -517,7 +537,7 @@ describe('StoreShippingMethodForm', () => {
     );
   });
 
-  it('renders checkbox group control for destinations', async () => {
+  it('renders summary control for Destinations section', async () => {
     const router = createRouter();
 
     const element = await fixture<Form>(html`
@@ -527,60 +547,95 @@ describe('StoreShippingMethodForm', () => {
 
     const control = element.renderRoot.querySelector(
       '[infer="destinations"]'
-    ) as InternalCheckboxGroupControl;
+    ) as InternalSummaryControl;
 
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { value: 'domestic', label: 'domestic' },
-      { value: 'international', label: 'international' },
-    ]);
-
-    expect(control.getValue()).to.be.empty;
-
-    element.edit({ use_for_domestic: true });
-    expect(control.getValue()).to.deep.equal(['domestic']);
-
-    element.edit({ use_for_international: true });
-    expect(control.getValue()).to.deep.equal(['domestic', 'international']);
-
-    element.edit({ use_for_domestic: false });
-    expect(control.getValue()).to.deep.equal(['international']);
-
-    control.setValue([]);
-    expect(element).to.have.nested.property('form.use_for_domestic', false);
-    expect(element).to.have.nested.property('form.use_for_international', false);
-
-    control.setValue(['domestic']);
-    expect(element).to.have.nested.property('form.use_for_domestic', true);
-    expect(element).to.have.nested.property('form.use_for_international', false);
-
-    control.setValue(['domestic', 'international']);
-    expect(element).to.have.nested.property('form.use_for_domestic', true);
-    expect(element).to.have.nested.property('form.use_for_international', true);
+    expect(control).to.be.instanceOf(InternalSummaryControl);
   });
 
-  it('renders text control for authentication key', async () => {
+  it('renders a switch control for domestic destinations inside of the Destinations section', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
       </foxy-store-shipping-method-form>
     `);
 
-    expect(element.renderRoot.querySelector('[infer="authentication-key"]')).to.be.instanceOf(
-      InternalTextControl
-    );
+    expect(
+      element.renderRoot.querySelector('[infer="destinations"] [infer="use-for-domestic"]')
+    ).to.be.instanceOf(InternalSwitchControl);
   });
 
-  it('renders text control for meter number', async () => {
+  it('renders a switch control for international destinations inside of the Destinations section', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
       </foxy-store-shipping-method-form>
     `);
 
-    expect(element.renderRoot.querySelector('[infer="meter-number"]')).to.be.instanceOf(
-      InternalTextControl
+    expect(
+      element.renderRoot.querySelector('[infer="destinations"] [infer="use-for-international"]')
+    ).to.be.instanceOf(InternalSwitchControl);
+  });
+
+  it('renders summary control for Account section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
+
+    const control = element.renderRoot.querySelector('[infer="account"]') as InternalSummaryControl;
+    expect(control).to.be.instanceOf(InternalSummaryControl);
+  });
+
+  it('renders text control for authentication key inside of the Account section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="account"] [infer="authentication-key"]'
     );
+
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.be.instanceOf(InternalTextControl);
+  });
+
+  it('renders text control for meter number inside of the Account section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
+
+    const control = element.renderRoot.querySelector('[infer="account"] [infer="meter-number"]');
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.be.instanceOf(InternalTextControl);
+  });
+
+  it('renders text control for account id inside of the Account section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
+
+    const control = element.renderRoot.querySelector('[infer="account"] [infer="accountid"]');
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.be.instanceOf(InternalTextControl);
+  });
+
+  it('renders password control for password inside of the Account section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
+
+    const control = element.renderRoot.querySelector('[infer="account"] [infer="password"]');
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.be.instanceOf(InternalPasswordControl);
   });
 
   it('renders text control for endpoint for "CUSTOM-ENDPOINT-POST" shipping method', async () => {
@@ -601,41 +656,13 @@ describe('StoreShippingMethodForm', () => {
       </foxy-store-shipping-method-form>
     `);
 
-    expect(element.renderRoot.querySelector('[infer="endpoint"]')).to.not.exist;
-    expect(element.renderRoot.querySelector('[infer="accountid"]')).to.exist;
-
     element.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/0' });
     // @ts-expect-error type is not resolved for some reason
     await waitUntil(() => !!element.form._embedded?.['fx:shipping_method'], '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="endpoint"]') as InternalTextControl;
 
-    expect(element.renderRoot.querySelector('[infer="accountid"]')).to.not.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
     expect(control).to.have.attribute('property', 'accountid');
-  });
-
-  it('renders text control for account id', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
-      </foxy-store-shipping-method-form>
-    `);
-
-    expect(element.renderRoot.querySelector('[infer="accountid"]')).to.be.instanceOf(
-      InternalTextControl
-    );
-  });
-
-  it('renders password control for password', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
-      </foxy-store-shipping-method-form>
-    `);
-
-    expect(element.renderRoot.querySelector('[infer="password"]')).to.be.instanceOf(
-      InternalPasswordControl
-    );
   });
 
   it('renders source control for custom code', async () => {

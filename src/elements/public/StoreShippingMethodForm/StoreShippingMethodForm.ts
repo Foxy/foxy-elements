@@ -94,45 +94,20 @@ export class StoreShippingMethodForm extends Base<Data> {
     this.edit({ shipping_method_uri: newValue });
   };
 
-  private readonly __destinationsGetValue = () => {
-    const value: string[] = [];
-    if (this.form.use_for_domestic) value.push('domestic');
-    if (this.form.use_for_international) value.push('international');
-    return value;
-  };
-
-  private readonly __destinationsSetValue = (newValue: string[]) => {
-    this.edit({
-      use_for_domestic: newValue.includes('domestic'),
-      use_for_international: newValue.includes('international'),
-    });
-  };
-
-  private readonly __destinationsOptions = [
-    { value: 'domestic', label: 'domestic' },
-    { value: 'international', label: 'international' },
-  ];
-
   get hiddenSelector(): BooleanSelector {
     const hasData = !!this.data;
     const code = this.__shippingMethod?.code;
 
     // prettier-ignore
-    let hiddenControls = 'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint custom-code';
+    let hiddenControls = 'general:shipping-container-uri general:shipping-drop-type-uri destinations account endpoint custom-code';
 
     if (code) {
       const codeToHiddenControls: Record<string, string> = {
-        // prettier-ignore
-        'CUSTOM-ENDPOINT-POST': 'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password custom-code',
-        // prettier-ignore
-        'CUSTOM-CODE': 'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint',
-        // prettier-ignore
-        'CUSTOM': 'shipping-container-uri shipping-drop-type-uri authentication-key meter-number accountid password endpoint custom-code',
-        // prettier-ignore
+        'CUSTOM-ENDPOINT-POST': 'general destinations account custom-code',
+        'CUSTOM-CODE': 'general destinations account endpoint',
+        'CUSTOM': 'general account endpoint custom-code',
         'FedEx': 'endpoint custom-code',
-        // prettier-ignore
-        'USPS': 'authentication-key meter-number accountid password endpoint custom-code',
-        // prettier-ignore
+        'USPS': 'account endpoint custom-code',
         'UPS': 'endpoint custom-code',
       };
 
@@ -140,7 +115,7 @@ export class StoreShippingMethodForm extends Base<Data> {
     }
 
     if (!hasData || code?.startsWith('CUSTOM')) hiddenControls += ' services';
-    if (hasData) hiddenControls = `shipping-method-uri ${hiddenControls}`;
+    if (hasData) hiddenControls = `general:shipping-method-uri ${hiddenControls}`;
 
     return new BooleanSelector(`${hiddenControls} ${super.hiddenSelector}`.trim());
   }
@@ -159,47 +134,52 @@ export class StoreShippingMethodForm extends Base<Data> {
     return html`
       ${this.renderHeader()}
 
-      <foxy-internal-resource-picker-control
-        infer="shipping-method-uri"
-        first=${ifDefined(this.shippingMethods ?? this.form._links?.['fx:shipping_methods'].href)}
-        item="foxy-shipping-method-card"
-        .setValue=${this.__shippingMethodUriSetValue}
-      >
-      </foxy-internal-resource-picker-control>
+      <foxy-internal-summary-control infer="general">
+        <foxy-internal-resource-picker-control
+          layout="summary-item"
+          infer="shipping-method-uri"
+          first=${ifDefined(this.shippingMethods ?? this.form._links?.['fx:shipping_methods'].href)}
+          item="foxy-shipping-method-card"
+          .setValue=${this.__shippingMethodUriSetValue}
+        >
+        </foxy-internal-resource-picker-control>
 
-      <foxy-internal-resource-picker-control
-        infer="shipping-container-uri"
-        first=${ifDefined(shippingMethod?._links['fx:shipping_containers'].href)}
-        item="foxy-shipping-container-card"
-      >
-      </foxy-internal-resource-picker-control>
+        <foxy-internal-resource-picker-control
+          layout="summary-item"
+          infer="shipping-container-uri"
+          first=${ifDefined(shippingMethod?._links['fx:shipping_containers'].href)}
+          item="foxy-shipping-container-card"
+        >
+        </foxy-internal-resource-picker-control>
 
-      <foxy-internal-resource-picker-control
-        infer="shipping-drop-type-uri"
-        first=${ifDefined(shippingMethod?._links['fx:shipping_drop_types'].href)}
-        item="foxy-shipping-drop-type-card"
-      >
-      </foxy-internal-resource-picker-control>
+        <foxy-internal-resource-picker-control
+          layout="summary-item"
+          infer="shipping-drop-type-uri"
+          first=${ifDefined(shippingMethod?._links['fx:shipping_drop_types'].href)}
+          item="foxy-shipping-drop-type-card"
+        >
+        </foxy-internal-resource-picker-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-checkbox-group-control
-        infer="destinations"
-        .getValue=${this.__destinationsGetValue}
-        .setValue=${this.__destinationsSetValue}
-        .options=${this.__destinationsOptions}
-      >
-      </foxy-internal-checkbox-group-control>
+      <foxy-internal-summary-control infer="destinations">
+        <foxy-internal-switch-control infer="use-for-domestic"></foxy-internal-switch-control>
+        <foxy-internal-switch-control infer="use-for-international"></foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-text-control infer="authentication-key"></foxy-internal-text-control>
-      <foxy-internal-text-control infer="meter-number"></foxy-internal-text-control>
+      <foxy-internal-summary-control infer="account">
+        <foxy-internal-text-control layout="summary-item" infer="authentication-key">
+        </foxy-internal-text-control>
+        <foxy-internal-text-control layout="summary-item" infer="meter-number">
+        </foxy-internal-text-control>
+        <foxy-internal-text-control layout="summary-item" infer="accountid">
+        </foxy-internal-text-control>
+        <foxy-internal-password-control layout="summary-item" infer="password">
+        </foxy-internal-password-control>
+      </foxy-internal-summary-control>
 
-      ${shippingMethod?.code === 'CUSTOM-ENDPOINT-POST'
-        ? html`
-            <foxy-internal-text-control infer="endpoint" property="accountid">
-            </foxy-internal-text-control>
-          `
-        : html`<foxy-internal-text-control infer="accountid"></foxy-internal-text-control>`}
+      <foxy-internal-text-control infer="endpoint" property="accountid">
+      </foxy-internal-text-control>
 
-      <foxy-internal-password-control infer="password"></foxy-internal-password-control>
       <foxy-internal-source-control infer="custom-code"></foxy-internal-source-control>
 
       <foxy-internal-async-resource-link-list-control
