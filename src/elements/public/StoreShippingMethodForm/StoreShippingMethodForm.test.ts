@@ -358,7 +358,7 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'endpoint custom-code services undo submit delete timestamps'
+      'endpoint custom-code services account:accountid account:password account:authentication-key account:meter-number undo submit delete timestamps'
     );
   });
 
@@ -412,8 +412,59 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'endpoint custom-code services undo submit delete timestamps'
+      'endpoint custom-code services account:accountid account:password account:authentication-key account:meter-number undo submit delete timestamps'
     );
+  });
+
+  it('hides custom account fields by default when they are empty', async () => {
+    const form = new Form();
+
+    expect(form.hiddenSelector.matches('account:accountid', true)).to.be.true;
+    expect(form.hiddenSelector.matches('account:password', true)).to.be.true;
+    expect(form.hiddenSelector.matches('account:authentication-key', true)).to.be.true;
+    expect(form.hiddenSelector.matches('account:meter-number', true)).to.be.true;
+
+    const method = await getTestData<any>('./hapi/shipping_methods/0');
+
+    form.edit({
+      authentication_key: '123',
+      meter_number: '123',
+      accountid: '123',
+      password: '123',
+      _embedded: {
+        'fx:shipping_method': { ...method, code: 'FedEx' },
+      },
+    });
+
+    expect(form.hiddenSelector.matches('account:accountid', true)).to.be.false;
+    expect(form.hiddenSelector.matches('account:password', true)).to.be.false;
+    expect(form.hiddenSelector.matches('account:authentication-key', true)).to.be.false;
+    expect(form.hiddenSelector.matches('account:meter-number', true)).to.be.false;
+  });
+
+  it('hides custom account field when they are empty unless use-custom-account is checked', async () => {
+    const form = await fixture<Form>(html`
+      <foxy-store-shipping-method-form></foxy-store-shipping-method-form>
+    `);
+
+    const method = await getTestData<any>('./hapi/shipping_methods/0');
+    form.edit({ _embedded: { 'fx:shipping_method': { ...method, code: 'FedEx' } } });
+
+    expect(form.hiddenSelector.matches('account:accountid', true)).to.be.true;
+    expect(form.hiddenSelector.matches('account:password', true)).to.be.true;
+    expect(form.hiddenSelector.matches('account:authentication-key', true)).to.be.true;
+    expect(form.hiddenSelector.matches('account:meter-number', true)).to.be.true;
+
+    const checkbox = form.renderRoot.querySelector(
+      '[infer="use-custom-account"]'
+    ) as InternalSwitchControl;
+
+    checkbox.setValue(true);
+
+    expect(form.hiddenSelector.matches('account:accountid', true)).to.be.false;
+    expect(form.hiddenSelector.matches('account:password', true)).to.be.false;
+    expect(form.hiddenSelector.matches('account:authentication-key', true)).to.be.false;
+    expect(form.hiddenSelector.matches('account:meter-number', true)).to.be.false;
   });
 
   it('renders a form header', async () => {

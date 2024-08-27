@@ -160,6 +160,12 @@
   "account": {
     "label": "Account",
     "helper_text": "",
+    "use-custom-account": {
+      "label": "Use custom credentials",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
     "authentication-key": {
       "label": "Authentication Key",
       "placeholder": "N/A",

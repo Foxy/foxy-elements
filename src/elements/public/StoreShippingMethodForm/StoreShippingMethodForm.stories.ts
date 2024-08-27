@@ -19,6 +19,7 @@ const summary: Summary = {
       'general:shipping-drop-type-uri',
       'destinations:use-for-domestic',
       'destinations:use-for-international',
+      'account:use-custom-account',
       'account:authentication-key',
       'account:meter-number',
       'account:accountid',

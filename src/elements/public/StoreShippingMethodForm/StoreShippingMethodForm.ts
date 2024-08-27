@@ -38,6 +38,7 @@ export class StoreShippingMethodForm extends Base<Data> {
     return {
       ...super.properties,
       shippingMethods: { attribute: 'shipping-methods' },
+      __useCustomAccount: { attribute: false },
     };
   }
 
@@ -94,6 +95,31 @@ export class StoreShippingMethodForm extends Base<Data> {
     this.edit({ shipping_method_uri: newValue });
   };
 
+  private __useCustomAccount = false;
+
+  private readonly __useCustomAccountGetValue = () => {
+    return Boolean(
+      this.__useCustomAccount ||
+        this.form.authentication_key ||
+        this.form.meter_number ||
+        this.form.accountid ||
+        this.form.password
+    );
+  };
+
+  private readonly __useCustomAccountSetValue = (value: boolean) => {
+    if (!value) {
+      this.edit({
+        authentication_key: '',
+        meter_number: '',
+        accountid: '',
+        password: '',
+      });
+    }
+
+    this.__useCustomAccount = value;
+  };
+
   get hiddenSelector(): BooleanSelector {
     const hasData = !!this.data;
     const code = this.__shippingMethod?.code;
@@ -116,6 +142,9 @@ export class StoreShippingMethodForm extends Base<Data> {
 
     if (!hasData || code?.startsWith('CUSTOM')) hiddenControls += ' services';
     if (hasData) hiddenControls = `general:shipping-method-uri ${hiddenControls}`;
+
+    // prettier-ignore
+    if (!this.__useCustomAccountGetValue()) hiddenControls += ' account:accountid account:password account:authentication-key account:meter-number';
 
     return new BooleanSelector(`${hiddenControls} ${super.hiddenSelector}`.trim());
   }
@@ -167,6 +196,12 @@ export class StoreShippingMethodForm extends Base<Data> {
       </foxy-internal-summary-control>
 
       <foxy-internal-summary-control infer="account">
+        <foxy-internal-switch-control
+          infer="use-custom-account"
+          .getValue=${this.__useCustomAccountGetValue}
+          .setValue=${this.__useCustomAccountSetValue}
+        >
+        </foxy-internal-switch-control>
         <foxy-internal-text-control layout="summary-item" infer="authentication-key">
         </foxy-internal-text-control>
         <foxy-internal-text-control layout="summary-item" infer="meter-number">
@@ -211,6 +246,11 @@ export class StoreShippingMethodForm extends Base<Data> {
 
       ${super.renderBody()}
     `;
+  }
+
+  updated(changes: Map<keyof this, unknown>): void {
+    super.updated(changes);
+    if (changes.has('href')) this.__useCustomAccount = false;
   }
 
   private get __shippingMethodLoader() {
