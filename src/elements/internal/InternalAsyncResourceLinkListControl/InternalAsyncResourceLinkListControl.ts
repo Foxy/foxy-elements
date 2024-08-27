@@ -2,10 +2,10 @@ import type { CSSResultArray, PropertyDeclarations } from 'lit-element';
 import type { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import type { TemplateResult } from 'lit-html';
 import type { ItemRenderer } from '../../public/CollectionPage/types';
+import type { Collection } from './types';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { NucleonElement } from '../../public/NucleonElement/NucleonElement';
-import { getResourceId } from '@foxy.io/sdk/core';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
@@ -85,53 +85,31 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
     `;
 
     if (!ctx.href || ctx.href.startsWith('foxy://')) return wrap(render(ctx));
-    let linkHref: string | undefined;
-    const id = getResourceId(ctx.data?._links.self.href ?? '');
+    if (this.readonly) return wrap(render(ctx));
 
-    try {
-      const url = new URL(this.linksHref ?? '');
-      url.searchParams.set(this.foreignKeyForId ?? '', String(id ?? ''));
-      url.searchParams.set('limit', '1');
-      linkHref = url.toString();
-    } catch {
-      linkHref = undefined;
-    }
+    const foreignKeyForUri = this.foreignKeyForUri;
+    const linkResource = foreignKeyForUri
+      ? this.__allLinks?.find(link => link[foreignKeyForUri] === ctx.href)
+      : undefined;
 
-    const content = html`
-      <foxy-nucleon
-        infer=""
-        href=${ifDefined(linkHref)}
-        id="link-${id}"
-        @update=${() => this.requestUpdate()}
-      >
-        ${render(ctx)}
-      </foxy-nucleon>
-    `;
-
-    if (this.readonly) return wrap(content);
-
-    const nucleon = this.renderRoot.querySelector(`#link-${id}`) as NucleonElement<any> | null;
-    const checked = !!nucleon?.data?.returned_items;
-    const isDisabled = this.disabled || !nucleon?.in('idle') || this.__isFetching;
+    const isDisabled = this.disabled || !this.__allLinks || this.__isFetching;
 
     return wrap(html`
       <vaadin-checkbox
         class="block"
         ?disabled=${isDisabled}
-        ?checked=${checked}
+        ?checked=${!!linkResource}
         @change=${(evt: CustomEvent) => {
           const target = evt.currentTarget as CheckboxElement;
           if (target.checked) {
             this.__insertLink(ctx.data?._links.self.href ?? '');
           } else {
-            this.__deleteLink(
-              nucleon?.data?._embedded?.[this.embedKey ?? '']?.[0]?._links.self.href ?? ''
-            );
+            this.__deleteLink(linkResource?._links.self.href ?? '');
           }
         }}
       >
         <div class="transition-opacity ${isDisabled ? 'opacity-50' : 'opacity-100'}">
-          ${content}
+          ${render(ctx)}
         </div>
       </vaadin-checkbox>
     `);
@@ -150,11 +128,7 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
       firstHref = undefined;
     }
 
-    const nucleons = [
-      ...(this.renderRoot.querySelectorAll('foxy-nucleon') as NodeListOf<NucleonElement<any>>),
-    ];
-
-    const isStatusVisible = this.__isFetching || nucleons.some(n => !n.in('idle'));
+    const isStatusVisible = this.__isFetching || !this.__allLinks;
 
     return html`
       <div class="group">
@@ -203,6 +177,8 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
         >
           ${this._errorMessage}
         </div>
+
+        ${this.__renderLinkResourceLoaders()}
       </div>
     `;
   }
@@ -255,5 +231,53 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
     }
 
     this.__isFetching = false;
+  }
+
+  private __renderLinkResourceLoaders() {
+    const maxApiLimit = 200;
+    const firstPage = this.renderRoot.querySelector<NucleonElement<Collection>>('[data-link-page]');
+    const totalItems = Number(firstPage?.data?.total_items ?? maxApiLimit); // sometimes total_items is a string in hAPI
+    const links: string[] = [];
+
+    try {
+      for (let i = 0; i < Math.max(1, Math.ceil(totalItems / maxApiLimit)); i++) {
+        const url = new URL(this.linksHref ?? '');
+        url.searchParams.set('offset', String(i * maxApiLimit));
+        url.searchParams.set('limit', String(maxApiLimit));
+        links.push(url.toString());
+      }
+    } catch {
+      // Do nothing.
+    }
+
+    return links.map(
+      href => html`
+        <foxy-nucleon
+          class="hidden"
+          data-link-page
+          infer=""
+          href=${href}
+          @update=${() => this.requestUpdate()}
+        >
+        </foxy-nucleon>
+      `
+    );
+  }
+
+  private get __allLinks() {
+    const embedKey = this.embedKey;
+    if (!embedKey) return null;
+
+    type Loader = NucleonElement<Collection>;
+    const loaders = this.renderRoot.querySelectorAll<Loader>('[data-link-page]');
+    const allLinks: any[] = [];
+
+    for (const loader of loaders) {
+      const embedded = loader.data?._embedded?.[embedKey];
+      if (!embedded) return null;
+      allLinks.push(...embedded);
+    }
+
+    return allLinks;
   }
 }
