@@ -140,7 +140,7 @@ export class StoreShippingMethodForm extends Base<Data> {
       if (codeToHiddenControls[code]) hiddenControls = codeToHiddenControls[code];
     }
 
-    if (!hasData || code?.startsWith('CUSTOM')) hiddenControls += ' services';
+    if (!hasData || code?.startsWith('CUSTOM-')) hiddenControls += ' services';
     if (hasData) hiddenControls = `general:shipping-method-uri ${hiddenControls}`;
 
     // prettier-ignore
