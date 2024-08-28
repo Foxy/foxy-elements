@@ -5,8 +5,8 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.api/hapi/store_shipping_methods/0?zoom=shipping_method',
-  parent: 'https://demo.api/hapi/store_shipping_methods?zoom=shipping_method',
+  href: 'https://demo.api/hapi/store_shipping_methods/0',
+  parent: 'https://demo.api/hapi/store_shipping_methods',
   nucleon: true,
   localName: 'foxy-store-shipping-method-form',
   translatable: true,
@@ -41,7 +41,7 @@ export const Empty = getStory({ ...summary, ext });
 export const Error = getStory({ ...summary, ext });
 export const Busy = getStory({ ...summary, ext });
 
-CustomCode.args.href = `https://demo.api/hapi/store_shipping_methods/1?zoom=shipping_method`;
+CustomCode.args.href = `https://demo.api/hapi/store_shipping_methods/1`;
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
 Busy.args.href = 'https://demo.api/virtual/stall';

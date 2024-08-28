@@ -1,7 +1,6 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
-import type { UpdateEvent } from '../NucleonElement/UpdateEvent';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
@@ -12,8 +11,6 @@ import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
-
-type Embed = { 'fx:shipping_method': Resource<Rels.ShippingMethod> } | undefined;
 
 const NS = 'store-shipping-method-form';
 const Base = TranslatableMixin(InternalForm, NS);
@@ -50,38 +47,6 @@ export class StoreShippingMethodForm extends Base<Data> {
       ({ meter_number: v }) => !v || v.length <= 50 || 'meter-number:v8n_too_long',
       ({ authentication_key: v }) => !v || v.length <= 50 || 'authentication-key:v8n_too_long',
       ({ custom_code: v }) => !v || getKbSize(v) <= 64 || 'custom-code:v8n_too_long',
-
-      form => {
-        if ((form._embedded as Embed)?.['fx:shipping_method']?.code === 'CUSTOM-ENDPOINT-POST') {
-          return (form.accountid && isURL(form.accountid)) || 'endpoint:v8n_required';
-        } else {
-          return true;
-        }
-      },
-
-      form => {
-        const url = form.shipping_container_uri;
-        const code = (form._embedded as Embed)?.['fx:shipping_method']?.code;
-        const codes = ['USPS', 'FedEx', 'UPS'];
-
-        if (code && codes.includes(code)) {
-          return (url && isURL(url)) || 'shipping-container-uri:v8n_required';
-        } else {
-          return true;
-        }
-      },
-
-      form => {
-        const url = form.shipping_drop_type_uri;
-        const code = (form._embedded as Embed)?.['fx:shipping_method']?.code;
-        const codes = ['FedEx', 'UPS'];
-
-        if (code && codes.includes(code)) {
-          return (url && isURL(url)) || 'shipping-drop-type-uri:v8n_required';
-        } else {
-          return true;
-        }
-      },
     ];
   }
 
@@ -236,11 +201,7 @@ export class StoreShippingMethodForm extends Base<Data> {
         infer=""
         href=${ifDefined(this.form.shipping_method_uri || undefined)}
         id=${this.__shippingMethodLoaderId}
-        @update=${(evt: UpdateEvent) => {
-          const nucleon = evt.target as NucleonElement<Resource<Rels.ShippingMethod>>;
-          const embed = nucleon.data;
-          this.edit({ _embedded: embed ? { 'fx:shipping_method': embed } : {} });
-        }}
+        @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
 
@@ -253,14 +214,34 @@ export class StoreShippingMethodForm extends Base<Data> {
     if (changes.has('href')) this.__useCustomAccount = false;
   }
 
+  protected async _fetch<TResult = Data>(...args: Parameters<Window['fetch']>): Promise<TResult> {
+    try {
+      return await super._fetch(...args);
+    } catch (err) {
+      const errors: string[] = [];
+
+      try {
+        for (const error of (await (err as Response).json())._embedded['fx:errors']) {
+          if (error.message.startsWith('shipping_container_id must be')) {
+            errors.push('shipping-container-uri:v8n_required');
+          } else if (error.message.startsWith('shipping_drop_type_id must be')) {
+            errors.push('shipping-drop-type-uri:v8n_required');
+          }
+        }
+      } catch {
+        // no-op
+      }
+
+      throw errors.length > 0 ? errors : err;
+    }
+  }
+
   private get __shippingMethodLoader() {
     type Loader = NucleonElement<Resource<Rels.ShippingMethod>>;
     return this.renderRoot.querySelector<Loader>(`#${this.__shippingMethodLoaderId}`);
   }
 
   private get __shippingMethod() {
-    return (
-      this.__shippingMethodLoader?.data ?? (this.form._embedded as Embed)?.['fx:shipping_method']
-    );
+    return this.__shippingMethodLoader?.data;
   }
 }

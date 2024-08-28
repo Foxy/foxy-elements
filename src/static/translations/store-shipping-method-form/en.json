@@ -194,8 +194,7 @@
   "endpoint": {
     "label": "Endpoint URL",
     "placeholder": "https://example.com/rates",
-    "helper_text": "",
-    "v8n_required": "Please enter a valid endpoint URL."
+    "helper_text": ""
   },
   "custom-code": {
     "label": "Custom Code",
