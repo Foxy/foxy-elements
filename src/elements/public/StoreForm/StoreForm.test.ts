@@ -998,7 +998,7 @@ describe('StoreForm', () => {
     ]);
   });
 
-  it('renders a select control for region', async () => {
+  it('renders a select control for region when there are predefined regions', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-store-form
@@ -1009,10 +1009,6 @@ describe('StoreForm', () => {
     `);
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="region"]') as InternalSelectControl;
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalSelectControl);
 
     await new Form.API(element).fetch('https://demo.api/hapi/property_helpers/4', {
       method: 'PATCH',
@@ -1036,13 +1032,58 @@ describe('StoreForm', () => {
       }),
     });
 
+    let control: InternalTextControl | null = null;
     element.regions = 'https://demo.api/hapi/property_helpers/4';
-    await waitUntil(() => !!control.options.length, '', { timeout: 5000 });
 
+    await waitUntil(
+      () => {
+        control = element.renderRoot.querySelector('foxy-internal-select-control[infer="region"]');
+        return !!control;
+      },
+      '',
+      { timeout: 5000 }
+    );
+
+    expect(control).to.be.instanceOf(InternalSelectControl);
     expect(control).to.have.deep.property('options', [
       { value: 'SD', label: 'South Dakota' },
       { value: 'TN', label: 'Tennessee' },
     ]);
+  });
+
+  it('renders a text control for region when there are no predefined regions', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-form
+        href="https://demo.api/hapi/stores/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-store-form>
+    `);
+
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    await new Form.API(element).fetch('https://demo.api/hapi/property_helpers/4', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        values: {},
+      }),
+    });
+
+    let control: InternalTextControl | null = null;
+    element.regions = 'https://demo.api/hapi/property_helpers/4';
+
+    await waitUntil(
+      () => {
+        control = element.renderRoot.querySelector('foxy-internal-text-control[infer="region"]');
+        return !!control;
+      },
+      '',
+      { timeout: 5000 }
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
   });
 
   it('renders a text control for postal code', async () => {

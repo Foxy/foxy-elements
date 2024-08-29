@@ -448,8 +448,12 @@ export class StoreForm extends Base<Data> {
         <foxy-internal-select-control infer="country" .options=${countryOptions}>
         </foxy-internal-select-control>
 
-        <foxy-internal-select-control infer="region" .options=${regionOptions}>
-        </foxy-internal-select-control>
+        ${regionOptions.length > 0
+          ? html`
+              <foxy-internal-select-control infer="region" .options=${regionOptions}>
+              </foxy-internal-select-control>
+            `
+          : html`<foxy-internal-text-control infer="region"></foxy-internal-text-control>`}
 
         <foxy-internal-text-control infer="postal-code"></foxy-internal-text-control>
 
