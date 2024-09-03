@@ -37,7 +37,7 @@
       "label": "Domain",
       "placeholder": "my-store.foxycart.com",
       "helper_text": "",
-      "custom_domain_note": "To use a custom domain, you must purchase an SSL certificate through Foxy. This option is only for developers who have full control of their domain settings and may take a few days to fully process.",
+      "custom_domain_note": "To use a custom domain, you must order (at no cost) an SSL certificate through Foxy. This option is only for developers who have full control of their domain settings and may take a few days to fully process.",
       "v8n_required": "Please enter the domain of your store",
       "v8n_too_long": "Please use a domain that is 100 characters or less"
     },
