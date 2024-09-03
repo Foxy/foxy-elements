@@ -3,13 +3,11 @@ import type { FetchEvent } from '../NucleonElement/FetchEvent';
 import './index';
 
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
-import { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl/InternalAsyncComboBoxControl';
-import { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
 import { InternalEditableListControl } from '../../internal/InternalEditableListControl/InternalEditableListControl';
-import { InternalRadioGroupControl } from '../../internal/InternalRadioGroupControl/InternalRadioGroupControl';
 import { InternalFrequencyControl } from '../../internal/InternalFrequencyControl/InternalFrequencyControl';
 import { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
-import { InternalIntegerControl } from '../../internal/InternalIntegerControl/InternalIntegerControl';
+import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
+import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
 import { InternalNumberControl } from '../../internal/InternalNumberControl/InternalNumberControl';
 import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
@@ -17,13 +15,8 @@ import { StoreForm as Form } from './StoreForm';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
-import { getTestData } from '../../../testgen/getTestData';
 import { I18n } from '../I18n/I18n';
-import { getByKey } from '../../../testgen/getByKey';
-import { getByTag } from '../../../testgen/getByTag';
-import { getByTestId } from '../../../testgen/getByTestId';
 import { stub } from 'sinon';
-import { set } from 'lodash-es';
 
 describe('StoreForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -32,28 +25,9 @@ describe('StoreForm', () => {
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
-  it('imports and defines vaadin-button', () => {
-    expect(customElements.get('vaadin-button')).to.exist;
-  });
-
-  it('imports and defines foxy-internal-checkbox-group-control', () => {
-    const element = customElements.get('foxy-internal-checkbox-group-control');
-    expect(element).to.equal(InternalCheckboxGroupControl);
-  });
-
-  it('imports and defines foxy-internal-async-combo-box-control', () => {
-    const element = customElements.get('foxy-internal-async-combo-box-control');
-    expect(element).to.equal(InternalAsyncComboBoxControl);
-  });
-
   it('imports and defines foxy-internal-editable-list-control', () => {
     const element = customElements.get('foxy-internal-editable-list-control');
     expect(element).to.equal(InternalEditableListControl);
-  });
-
-  it('imports and defines foxy-internal-radio-group-control', () => {
-    const element = customElements.get('foxy-internal-radio-group-control');
-    expect(element).to.equal(InternalRadioGroupControl);
   });
 
   it('imports and defines foxy-internal-frequency-control', () => {
@@ -66,9 +40,14 @@ describe('StoreForm', () => {
     expect(element).to.equal(InternalPasswordControl);
   });
 
-  it('imports and defines foxy-internal-integer-control', () => {
-    const element = customElements.get('foxy-internal-integer-control');
-    expect(element).to.equal(InternalIntegerControl);
+  it('imports and defines foxy-internal-summary-control', () => {
+    const element = customElements.get('foxy-internal-summary-control');
+    expect(element).to.equal(InternalSummaryControl);
+  });
+
+  it('imports and defines foxy-internal-switch-control', () => {
+    const element = customElements.get('foxy-internal-switch-control');
+    expect(element).to.equal(InternalSwitchControl);
   });
 
   it('imports and defines foxy-internal-number-control', () => {
@@ -473,13 +452,13 @@ describe('StoreForm', () => {
     expect(form.errors).to.not.include('unified-order-entry-password:v8n_too_long');
   });
 
-  it('produces the custom-display-id-config-enabled:v8n_too_long error if custom display id config is longer than 100 characters', () => {
+  it('produces the custom-display-id-config-enabled:v8n_too_long error if custom display id config is longer than 500 characters', () => {
     const form = new Form();
 
-    form.edit({ custom_display_id_config: 'A'.repeat(101) });
+    form.edit({ custom_display_id_config: 'A'.repeat(501) });
     expect(form.errors).to.include('custom-display-id-config-enabled:v8n_too_long');
 
-    form.edit({ custom_display_id_config: 'A'.repeat(100) });
+    form.edit({ custom_display_id_config: 'A'.repeat(500) });
     expect(form.errors).to.not.include('custom-display-id-config-enabled:v8n_too_long');
   });
 
@@ -490,68 +469,54 @@ describe('StoreForm', () => {
     expect(renderHeaderMethod).to.have.been.called;
   });
 
-  it('renders a text control for store name', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="store-name"]');
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders a text control for logo url', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="logo-url"]');
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalTextControl);
-  });
-
-  it('renders a text control for store domain', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+  it('renders a summary control for Essentials section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer="store-domain"]'
+      'foxy-internal-summary-control[infer="essentials"]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders a text control for store name in the Essentials section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="essentials"] foxy-internal-text-control[infer="store-name"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a text control for logo url in the Essentials section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="essentials"] foxy-internal-text-control[infer="logo-url"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a text control for store domain in the Essentials section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="essentials"] foxy-internal-text-control[infer="store-domain"]'
     ) as InternalTextControl;
 
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
 
     element.edit({ use_remote_domain: false, store_domain: 'test' });
     await element.requestUpdate();
 
-    expect(control).to.have.attribute('helper-text', 'store-domain.helper_text');
+    expect(control).to.have.attribute('helper-text', 'essentials.store-domain.helper_text');
     expect(control).to.have.attribute('suffix', '.foxycart.com');
 
     element.edit({ use_remote_domain: true, store_domain: 'test.com' });
     await element.requestUpdate();
 
-    expect(control).to.have.attribute('helper-text', 'store-domain.custom_domain_note');
+    expect(control).to.have.attribute('helper-text', 'essentials.store-domain.custom_domain_note');
     expect(control).to.have.attribute('suffix', '');
 
     control.setValue('test');
@@ -563,40 +528,33 @@ describe('StoreForm', () => {
     expect(element).to.have.nested.property('form.store_domain', 'test.com');
   });
 
-  it('renders a text control for store url', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="store-url"]');
+  it('renders a text control for store url in the Essentials section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="essentials"] foxy-internal-text-control[infer="store-url"]'
+    );
 
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders an editable list control for store email', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+  it('renders a switch control for maintenance mode in the Essentials section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer="store-email"]'
+      '[infer="essentials"] foxy-internal-switch-control[infer="is-maintenance-mode"]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders an editable list control for store email in the Essentials section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="essentials"] foxy-internal-editable-list-control[infer="store-email"]'
     ) as InternalEditableListControl;
 
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalEditableListControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
 
     control.setValue([{ value: 'a@b.c' }, { value: 'd@e.f' }]);
     expect(element).to.have.nested.property('form.store_email', 'a@b.c,d@e.f');
@@ -608,21 +566,24 @@ describe('StoreForm', () => {
     ]);
   });
 
-  it('renders a select control for timezone', async () => {
+  it('renders a select control for timezone in the Essentials section', async () => {
     const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
+    const element = await fixture<Form>(
+      html`
+        <foxy-store-form
+          @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+        >
+        </foxy-store-form>
+      `
+    );
 
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="timezone"]') as InternalSelectControl;
+    const control = element.renderRoot.querySelector(
+      '[infer="essentials"] [infer="timezone"]'
+    ) as InternalSelectControl;
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
 
     await new Form.API(element).fetch('https://demo.api/hapi/property_helpers/2', {
       method: 'PATCH',
@@ -643,321 +604,34 @@ describe('StoreForm', () => {
     });
 
     element.timezones = 'https://demo.api/hapi/property_helpers/2';
+    await element.requestUpdate();
     await waitUntil(() => !!control.options.length, '', { timeout: 5000 });
 
     expect(control).to.have.deep.property('options', [
       {
         value: 'America/Los_Angeles',
-        label: '(GMT-08:00) Pacific Time (US and Canada)',
+        rawLabel: '(GMT-08:00) Pacific Time (US and Canada)',
       },
       {
         value: 'America/Denver',
-        label: '(GMT-07:00) Mountain Time (US and Canada)',
+        rawLabel: '(GMT-07:00) Mountain Time (US and Canada)',
       },
     ]);
   });
 
-  it('renders an async combo box control for store version', async () => {
+  it('renders a select control for country in the Essentials section', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
+      <foxy-store-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-store-form>
     `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(
-      '[infer="store-version-uri"]'
-    ) as InternalAsyncComboBoxControl;
-
-    element.data!.store_version_uri = '';
-    element.data = { ...element.data! };
-    await element.requestUpdate();
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalAsyncComboBoxControl);
-    expect(control).to.have.attribute('item-label-path', 'version');
-    expect(control).to.have.attribute('item-value-path', '_links.self.href');
-    expect(control).to.not.have.attribute('first');
-    expect(control).to.have.property('selectedItem', null);
-
-    element.storeVersions = 'https://demo.api/hapi/store_versions';
-    await element.requestUpdate();
-
-    expect(control).to.have.attribute('first', 'https://demo.api/hapi/store_versions');
-
-    element.edit({ store_version_uri: 'https://demo.api/hapi/store_versions/0' });
-    const storeVersion = await getTestData('./hapi/store_versions/0', router);
-    await element.requestUpdate();
-    await waitUntil(() => !!control.selectedItem, '', { timeout: 5000 });
-
-    expect(control).to.have.deep.property('selectedItem', storeVersion);
-  });
-
-  it('renders a text control for "from" email', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="from-email"]');
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalTextControl);
-
-    element.edit({ store_email: 'a@test.com,b@test.com' });
-    await element.requestUpdate();
-    expect(control).to.have.attribute('placeholder', 'a@test.com');
-
-    element.edit({ store_email: '' });
-    await element.requestUpdate();
-    expect(control).to.have.attribute('placeholder', 'from-email.placeholder');
-  });
-
-  it('renders a checkbox for the "bcc_on_receipt_email" flag', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector<InternalCheckboxGroupControl>(
-      '[infer="bcc-on-receipt-email"]'
-    );
-
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_checked', value: 'checked' },
-    ]);
-
-    element.edit({ bcc_on_receipt_email: false });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal([]);
-
-    element.edit({ bcc_on_receipt_email: true });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['checked']);
-  });
-
-  it('renders a checkbox for the "use_email_dns" flag', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(
-      '[infer="use-email-dns"]'
-    ) as InternalCheckboxGroupControl;
-
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_checked', value: 'checked' },
-    ]);
-
-    element.edit({ use_email_dns: false });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal([]);
-
-    element.edit({ use_email_dns: true });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['checked']);
-  });
-
-  it('renders a warning when "use_email_dns" is enabled', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    expect(await getByKey(element, 'use_email_dns_helper_text')).to.not.exist;
-
-    element.data = { ...element.data!, use_email_dns: false };
-    element.edit({ use_email_dns: true });
-    await element.requestUpdate();
 
     const control = element.renderRoot.querySelector(
-      '[infer="use-email-dns"]'
-    ) as InternalCheckboxGroupControl;
-
-    const warning = control.nextElementSibling as HTMLDivElement;
-    const warningText = await getByKey(warning, 'use_email_dns_helper_text');
-    const warningLink = await getByTag(warning, 'a');
-
-    expect(warningText).to.exist;
-    expect(warningText).to.have.attribute('infer', '');
-
-    expect(warningLink).to.exist;
-    expect(warningLink).to.include.text('How Emails Are Sent (SPF, DKIM, DMARC, etc.)');
-    expect(warningLink).to.have.attribute(
-      'href',
-      'https://wiki.foxycart.com/v/1.1/emails#how_emails_are_sent_spf_dkim_dmarc_etc'
-    );
-  });
-
-  it('hides the email dns warning when "use-email-dns" checkbox is hidden', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        hiddencontrols="use-email-dns"
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    expect(await getByKey(element, 'use_email_dns_helper_text')).to.not.exist;
-
-    element.data = { ...element.data!, use_email_dns: false };
-    element.edit({ use_email_dns: true });
-    await element.requestUpdate();
-    expect(await getByKey(element, 'use_email_dns_helper_text')).to.not.exist;
-  });
-
-  it('renders a checkbox for smtp_config', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(
-      '[infer="use-smtp-config"]'
-    ) as InternalCheckboxGroupControl;
-
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_checked', value: 'checked' },
-    ]);
-
-    element.edit({ smtp_config: '' });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal([]);
-
-    element.edit({
-      smtp_config: JSON.stringify({
-        username: '',
-        password: '',
-        security: '',
-        host: '',
-        port: '',
-      }),
-    });
-
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['checked']);
-  });
-
-  it('renders smtp config fields when "smtp_config" is not empty', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    element.data = { ...element.data!, smtp_config: '' };
-    await element.requestUpdate();
-
-    ['host', 'port', 'username', 'password', 'security'].forEach(prop => {
-      const control = element.renderRoot.querySelector(`[infer="smtp-config-${prop}"]`);
-      expect(control).to.not.exist;
-    });
-
-    element.edit({
-      smtp_config: JSON.stringify({
-        username: '',
-        password: '',
-        security: '',
-        host: '',
-        port: '',
-      }),
-    });
-
-    await element.requestUpdate();
-
-    const $ = (selector: string) => element.renderRoot.querySelector(selector);
-    const hostControl = $('[infer="smtp-config-host"]') as InternalTextControl;
-    const portControl = $('[infer="smtp-config-port"]') as InternalIntegerControl;
-    const usernameControl = $('[infer="smtp-config-username"]') as InternalTextControl;
-    const passwordControl = $('[infer="smtp-config-password"]') as InternalPasswordControl;
-    const securityControl = $('[infer="smtp-config-security"]') as InternalRadioGroupControl;
-
-    expect(hostControl).to.be.instanceOf(InternalTextControl);
-    hostControl.setValue('test.host');
-    expect(JSON.parse(element.form.smtp_config!)).to.have.property('host', 'test.host');
-    expect(hostControl.getValue()).to.equal('test.host');
-
-    expect(portControl).to.be.instanceOf(InternalIntegerControl);
-    portControl.setValue(1234);
-    expect(JSON.parse(element.form.smtp_config!)).to.have.property('port', 1234);
-    expect(portControl.getValue()).to.equal(1234);
-
-    expect(usernameControl).to.be.instanceOf(InternalTextControl);
-    usernameControl.setValue('test-user');
-    expect(JSON.parse(element.form.smtp_config!)).to.have.property('username', 'test-user');
-    expect(usernameControl.getValue()).to.equal('test-user');
-
-    expect(passwordControl).to.be.instanceOf(InternalPasswordControl);
-    passwordControl.setValue('testpw');
-    expect(JSON.parse(element.form.smtp_config!)).to.have.property('password', 'testpw');
-    expect(passwordControl.getValue()).to.equal('testpw');
-
-    expect(securityControl).to.be.instanceOf(InternalRadioGroupControl);
-    expect(securityControl).to.have.deep.property('options', [
-      { label: 'option_ssl', value: 'ssl' },
-      { label: 'option_tls', value: 'tls' },
-      { label: 'option_none', value: '' },
-    ]);
-
-    securityControl.setValue('ssl');
-    expect(JSON.parse(element.form.smtp_config!)).to.have.property('security', 'ssl');
-    expect(securityControl.getValue()).to.equal('ssl');
-  });
-
-  it('renders a select control for country', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="country"]') as InternalSelectControl;
+      '[infer="essentials"] [infer="country"]'
+    ) as InternalSelectControl;
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
 
     await new Form.API(element).fetch('https://demo.api/hapi/property_helpers/3', {
       method: 'PATCH',
@@ -990,25 +664,20 @@ describe('StoreForm', () => {
     });
 
     element.countries = 'https://demo.api/hapi/property_helpers/3';
+    await element.requestUpdate();
     await waitUntil(() => !!control.options.length, '', { timeout: 5000 });
 
     expect(control).to.have.deep.property('options', [
-      { value: 'GB', label: 'United Kingdom' },
-      { value: 'US', label: 'United States' },
+      { value: 'GB', rawLabel: 'United Kingdom' },
+      { value: 'US', rawLabel: 'United States' },
     ]);
   });
 
-  it('renders a select control for region when there are predefined regions', async () => {
+  it('renders a select control for region in the Essentials section when there are predefined regions', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
+      <foxy-store-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-store-form>
     `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
 
     await new Form.API(element).fetch('https://demo.api/hapi/property_helpers/4', {
       method: 'PATCH',
@@ -1034,6 +703,7 @@ describe('StoreForm', () => {
 
     let control: InternalTextControl | null = null;
     element.regions = 'https://demo.api/hapi/property_helpers/4';
+    await element.requestUpdate();
 
     await waitUntil(
       () => {
@@ -1045,23 +715,18 @@ describe('StoreForm', () => {
     );
 
     expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.deep.property('options', [
-      { value: 'SD', label: 'South Dakota' },
-      { value: 'TN', label: 'Tennessee' },
+      { value: 'SD', rawLabel: 'South Dakota' },
+      { value: 'TN', rawLabel: 'Tennessee' },
     ]);
   });
 
-  it('renders a text control for region when there are no predefined regions', async () => {
+  it('renders a text control for region in the Essentials section when there are no predefined regions', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
+      <foxy-store-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-store-form>
     `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
 
     await new Form.API(element).fetch('https://demo.api/hapi/property_helpers/4', {
       method: 'PATCH',
@@ -1072,10 +737,13 @@ describe('StoreForm', () => {
 
     let control: InternalTextControl | null = null;
     element.regions = 'https://demo.api/hapi/property_helpers/4';
+    await element.requestUpdate();
 
     await waitUntil(
       () => {
-        control = element.renderRoot.querySelector('foxy-internal-text-control[infer="region"]');
+        control = element.renderRoot.querySelector(
+          '[infer="essentials"] foxy-internal-text-control[infer="region"]'
+        );
         return !!control;
       },
       '',
@@ -1084,42 +752,409 @@ describe('StoreForm', () => {
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a text control for postal code', async () => {
+  it('renders a text control for postal code in the Essentials section', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
+      <foxy-store-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-store-form>
     `);
 
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="postal-code"]');
+    const control = element.renderRoot.querySelector('[infer="essentials"] [infer="postal-code"]');
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a select control for shipping address type', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(
-      '[infer="shipping-address-type"]'
-    ) as InternalSelectControl;
+  it('renders a select control for currency style in the Essentials section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector<InternalSelectControl>(
+      '[infer="essentials"] [infer="currency-style"]'
+    );
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.deep.property('options', [
+      { rawLabel: '12.34', value: '101' },
+      { rawLabel: 'USD 12.34', value: '001' },
+      { rawLabel: '$12.34', value: '000' },
+      { rawLabel: '12', value: '111' },
+      { rawLabel: 'USD 12', value: '011' },
+      { rawLabel: '$12', value: '010' },
+    ]);
+
+    control?.setValue('101');
+    expect(element).to.have.nested.property('form.hide_currency_symbol', true);
+    expect(element).to.have.nested.property('form.hide_decimal_characters', false);
+    expect(element).to.have.nested.property('form.use_international_currency_symbol', true);
+
+    control?.setValue('001');
+    expect(element).to.have.nested.property('form.hide_currency_symbol', false);
+    expect(element).to.have.nested.property('form.hide_decimal_characters', false);
+    expect(element).to.have.nested.property('form.use_international_currency_symbol', true);
+
+    control?.setValue('000');
+    expect(element).to.have.nested.property('form.hide_currency_symbol', false);
+    expect(element).to.have.nested.property('form.hide_decimal_characters', false);
+    expect(element).to.have.nested.property('form.use_international_currency_symbol', false);
+
+    control?.setValue('111');
+    expect(element).to.have.nested.property('form.hide_currency_symbol', true);
+    expect(element).to.have.nested.property('form.hide_decimal_characters', true);
+    expect(element).to.have.nested.property('form.use_international_currency_symbol', true);
+
+    control?.setValue('011');
+    expect(element).to.have.nested.property('form.hide_currency_symbol', false);
+    expect(element).to.have.nested.property('form.hide_decimal_characters', true);
+    expect(element).to.have.nested.property('form.use_international_currency_symbol', true);
+
+    control?.setValue('010');
+    expect(element).to.have.nested.property('form.hide_currency_symbol', false);
+    expect(element).to.have.nested.property('form.hide_decimal_characters', true);
+    expect(element).to.have.nested.property('form.use_international_currency_symbol', false);
+
+    element.edit({
+      hide_currency_symbol: true,
+      hide_decimal_characters: false,
+      use_international_currency_symbol: true,
+    });
+
+    expect(control?.getValue()).to.equal('101');
+
+    element.edit({
+      hide_currency_symbol: false,
+      hide_decimal_characters: false,
+      use_international_currency_symbol: true,
+    });
+
+    expect(control?.getValue()).to.equal('001');
+
+    element.edit({
+      hide_currency_symbol: false,
+      hide_decimal_characters: false,
+      use_international_currency_symbol: false,
+    });
+
+    expect(control?.getValue()).to.equal('000');
+
+    element.edit({
+      hide_currency_symbol: true,
+      hide_decimal_characters: true,
+      use_international_currency_symbol: true,
+    });
+
+    expect(control?.getValue()).to.equal('111');
+
+    element.edit({
+      hide_currency_symbol: false,
+      hide_decimal_characters: true,
+      use_international_currency_symbol: true,
+    });
+
+    expect(control?.getValue()).to.equal('011');
+
+    element.edit({
+      hide_currency_symbol: false,
+      hide_decimal_characters: true,
+      use_international_currency_symbol: false,
+    });
+
+    expect(control?.getValue()).to.equal('010');
+  });
+
+  it('renders a summary control for Legacy API section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="legacy-api"]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders a password control for the legacy api key inside of the Legacy API section (JSON keys)', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector<InternalPasswordControl>(
+      '[infer="legacy-api"] foxy-internal-password-control[infer="webhook-key-api-legacy"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('show-generator');
+    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
+
+    element.edit({ webhook_key: JSON.stringify({ api_legacy: 'test' }) });
+    expect(control?.getValue()).to.equal('test');
+
+    control?.setValue('foo');
+    expect(element).to.have.nested.property(
+      'form.webhook_key',
+      JSON.stringify({ api_legacy: 'foo' })
+    );
+  });
+
+  it('renders a password control for the legacy api key inside of the Legacy API section (string key)', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector<InternalPasswordControl>(
+      '[infer="legacy-api"] foxy-internal-password-control[infer="webhook-key-api-legacy"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('show-generator');
+    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
+
+    element.edit({ webhook_key: 'test' });
+    expect(control?.getValue()).to.equal('test');
+
+    control?.setValue('foo');
+    expect(element).to.have.nested.property(
+      'form.webhook_key',
+      JSON.stringify({ cart_signing: 'test', xml_datafeed: 'test', api_legacy: 'foo', sso: 'test' })
+    );
+  });
+
+  it('renders a summary control for Emails section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="emails"]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders a text control for "from" email in the Emails section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-store-form>
+    `);
+
+    const control = element.renderRoot.querySelector('[infer="emails"] [infer="from-email"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+
+    element.edit({ store_email: 'a@test.com,b@test.com' });
+    await element.requestUpdate();
+    expect(control).to.have.attribute('placeholder', 'a@test.com');
+
+    element.edit({ store_email: '' });
+    await element.requestUpdate();
+    expect(control).to.have.attribute('placeholder', 'emails.from-email.placeholder');
+  });
+
+  it('renders a switch control for "Use Email DNS" setting in the Emails section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector('[infer="emails"] [infer="use-email-dns"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control).to.have.attribute('helper-text-as-tooltip');
+  });
+
+  it('renders a switch control for "Use SMTP Config" setting in the Emails section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector('[infer="emails"] [infer="use-smtp-config"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control).to.have.attribute('helper-text-as-tooltip');
+  });
+
+  it('renders a text control for SMTP host in the Emails section when "Use SMTP Config" is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector<InternalTextControl>(
+        '[infer="emails"] [infer="smtp-config-host"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      smtp_config: JSON.stringify({
+        enabled: true,
+        host: 'test.com',
+        port: '123',
+        username: 'test',
+        password: 'test',
+        security: 'ssl',
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalTextControl>(
+      '[infer="emails"] [infer="smtp-config-host"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control?.getValue()).to.equal('test.com');
+
+    control?.setValue('foo.bar');
+    expect(JSON.parse(element.form.smtp_config!)).to.have.property('host', 'foo.bar');
+  });
+
+  it('renders a number control for SMTP port in the Emails section when "Use SMTP Config" is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector<InternalNumberControl>(
+        '[infer="emails"] [infer="smtp-config-port"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      smtp_config: JSON.stringify({
+        enabled: true,
+        host: 'test.com',
+        port: '123',
+        username: 'test',
+        password: 'test',
+        security: 'ssl',
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalNumberControl>(
+      '[infer="emails"] [infer="smtp-config-port"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('step', '1');
+    expect(control).to.have.attribute('min', '0');
+    expect(control?.getValue()).to.equal(123);
+
+    control?.setValue(456);
+    expect(JSON.parse(element.form.smtp_config!)).to.have.property('port', '456');
+  });
+
+  it('renders a text control for SMTP username in the Emails section when "Use SMTP Config" is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector<InternalTextControl>(
+        '[infer="emails"] [infer="smtp-config-username"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      smtp_config: JSON.stringify({
+        enabled: true,
+        host: 'test.com',
+        port: '123',
+        username: 'test',
+        password: 'test',
+        security: 'ssl',
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalTextControl>(
+      '[infer="emails"] [infer="smtp-config-username"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control?.getValue()).to.equal('test');
+
+    control?.setValue('foo');
+    expect(JSON.parse(element.form.smtp_config!)).to.have.property('username', 'foo');
+  });
+
+  it('renders a password control for SMTP password in the Emails section when "Use SMTP Config" is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector<InternalPasswordControl>(
+        '[infer="emails"] [infer="smtp-config-password"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      smtp_config: JSON.stringify({
+        enabled: true,
+        host: 'test.com',
+        port: '123',
+        username: 'test',
+        password: 'test',
+        security: 'ssl',
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalPasswordControl>(
+      '[infer="emails"] [infer="smtp-config-password"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalPasswordControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control?.getValue()).to.equal('test');
+
+    control?.setValue('foo');
+    expect(JSON.parse(element.form.smtp_config!)).to.have.property('password', 'foo');
+  });
+
+  it('renders a select control for SMTP security in the Emails section when "Use SMTP Config" is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector<InternalSelectControl>(
+        '[infer="emails"] [infer="smtp-config-security"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      smtp_config: JSON.stringify({
+        enabled: true,
+        host: 'test.com',
+        port: '123',
+        username: 'test',
+        password: 'test',
+        security: 'ssl',
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalSelectControl>(
+      '[infer="emails"] [infer="smtp-config-security"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control?.getValue()).to.equal('ssl');
+    expect(control).to.have.deep.property('options', [
+      { label: 'option_ssl', value: 'ssl' },
+      { label: 'option_tls', value: 'tls' },
+      { label: 'option_none', value: '' },
+    ]);
+
+    control?.setValue('tls');
+    expect(JSON.parse(element.form.smtp_config!)).to.have.property('security', 'tls');
+  });
+
+  it('renders a summary control for Shipping section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="shipping"]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders a select control for shipping address type in the Shipping section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}></foxy-store-form>
+    `);
 
     await new Form.API(element).fetch('https://demo.api/hapi/property_helpers/5', {
       method: 'PATCH',
@@ -1127,840 +1162,65 @@ describe('StoreForm', () => {
         values: {
           residential: 'Rate as Residential',
           commercial: 'Rate as Commercial',
+          determine_by_company: 'Rate based on Company field',
         },
       }),
     });
 
     element.shippingAddressTypes = 'https://demo.api/hapi/property_helpers/5';
-    await waitUntil(() => !!control.options.length, '', { timeout: 5000 });
-
-    expect(control).to.have.deep.property('options', [
-      { value: 'residential', label: 'Rate as Residential' },
-      { value: 'commercial', label: 'Rate as Commercial' },
-    ]);
-  });
-
-  it('renders a checkbox for the "features_multiship" flag', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(
-      '[infer="features-multiship"]'
-    ) as InternalCheckboxGroupControl;
-
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_checked', value: 'checked' },
-    ]);
-
-    element.edit({ features_multiship: false });
     await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal([]);
-
-    element.edit({ features_multiship: true });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['checked']);
-  });
-
-  it('renders a checkbox for the "require_signed_shipping_rates" flag', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(
-      '[infer="require-signed-shipping-rates"]'
-    ) as InternalCheckboxGroupControl;
-
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_checked', value: 'checked' },
-    ]);
-
-    element.edit({ require_signed_shipping_rates: false });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal([]);
-
-    element.edit({ require_signed_shipping_rates: true });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['checked']);
-  });
-
-  it('renders a warning when "require_signed_shipping_rates" is enabled', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    expect(await getByKey(element, 'require_signed_shipping_rates_helper_text')).to.not.exist;
-
-    element.data = { ...element.data!, require_signed_shipping_rates: false };
-    element.edit({ require_signed_shipping_rates: true });
-    await element.requestUpdate();
-
-    const control = element.renderRoot.querySelector(
-      '[infer="require-signed-shipping-rates"]'
-    ) as InternalCheckboxGroupControl;
-
-    const warning = control.nextElementSibling as HTMLDivElement;
-    const warningText = await getByKey(warning, 'require_signed_shipping_rates_helper_text');
-
-    expect(warningText).to.exist;
-    expect(warningText).to.have.attribute('infer', '');
-  });
-
-  it('renders a select control for language', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="language"]') as InternalSelectControl;
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalSelectControl);
-
-    await new Form.API(element).fetch('https://demo.api/hapi/property_helpers/6', {
-      method: 'PATCH',
-      body: JSON.stringify({
-        values: {
-          dutch: 'Dutch',
-          english: 'English',
-        },
-      }),
-    });
-
-    element.languages = 'https://demo.api/hapi/property_helpers/6';
-    await waitUntil(() => !!control.options.length, '', { timeout: 5000 });
-
-    expect(control).to.have.deep.property('options', [
-      { value: 'dutch', label: 'Dutch' },
-      { value: 'english', label: 'English' },
-    ]);
-  });
-
-  it('renders a select control for locale code', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(
-      '[infer="locale-code"]'
-    ) as InternalSelectControl;
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalSelectControl);
-
-    await new Form.API(element).fetch('https://demo.api/hapi/property_helpers/7', {
-      method: 'PATCH',
-      body: JSON.stringify({
-        values: {
-          en_AU: 'English locale for Australia (Currency: AUD:$)',
-          en_BW: 'English locale for Botswana (Currency: BWP:Pu)',
-        },
-      }),
-    });
-
-    element.localeCodes = 'https://demo.api/hapi/property_helpers/7';
-    await waitUntil(() => !!control.options.length, '', { timeout: 5000 });
-
-    expect(control).to.have.deep.property('options', [
-      { value: 'en_AU', label: 'English locale for Australia (Currency: AUD:$)' },
-      { value: 'en_BW', label: 'English locale for Botswana (Currency: BWP:Pu)' },
-    ]);
-  });
-
-  it('renders currency style selector', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-
-    const control = (await getByTestId(element, 'currency-style')) as HTMLDivElement;
-    const labels = control.querySelectorAll('label');
-    const inputs = control.querySelectorAll<HTMLInputElement>('label input');
-
-    expect(labels).to.have.length(6);
-
-    inputs.forEach(input => {
-      expect(input).to.have.attribute('name', 'currency-style');
-      expect(input).to.have.attribute('type', 'radio');
-      expect(input).to.not.have.attribute('disabled');
-      expect(input).to.not.have.attribute('readonly');
-    });
-
-    expect(labels[0]).to.include.text('12.34');
-    expect(labels[1]).to.include.text('USD 12.34');
-    expect(labels[2]).to.include.text('$12.34');
-    expect(labels[3]).to.include.text('12');
-    expect(labels[4]).to.include.text('USD 12');
-    expect(labels[5]).to.include.text('$12');
-
-    element.edit({ hide_currency_symbol: false });
-    element.edit({ use_international_currency_symbol: false });
-    element.edit({ hide_decimal_characters: false });
-    await element.requestUpdate();
-
-    expect(inputs[2]).to.have.attribute('checked');
-
-    element.edit({ hide_currency_symbol: true });
-    element.edit({ use_international_currency_symbol: false });
-    element.edit({ hide_decimal_characters: false });
-    await element.requestUpdate();
-
-    expect(inputs[0]).to.have.attribute('checked');
-
-    element.edit({ hide_currency_symbol: false });
-    element.edit({ use_international_currency_symbol: true });
-    element.edit({ hide_decimal_characters: false });
-    await element.requestUpdate();
-
-    expect(inputs[1]).to.have.attribute('checked');
-
-    element.edit({ hide_currency_symbol: false });
-    element.edit({ hide_decimal_characters: false });
-    element.edit({ use_international_currency_symbol: true });
-    await element.requestUpdate();
-
-    expect(inputs[1]).to.have.attribute('checked');
-
-    element.edit({ hide_currency_symbol: true });
-    element.edit({ hide_decimal_characters: false });
-    element.edit({ use_international_currency_symbol: true });
-    await element.requestUpdate();
-
-    expect(inputs[0]).to.have.attribute('checked');
-
-    element.edit({ hide_currency_symbol: false });
-    element.edit({ hide_decimal_characters: true });
-    element.edit({ use_international_currency_symbol: true });
-    await element.requestUpdate();
-
-    expect(inputs[4]).to.have.attribute('checked');
-
-    element.edit({ hide_currency_symbol: true });
-    element.edit({ hide_decimal_characters: true });
-    element.edit({ use_international_currency_symbol: true });
-    await element.requestUpdate();
-
-    expect(inputs[3]).to.have.attribute('checked');
-
-    element.edit({ hide_currency_symbol: true });
-    element.edit({ hide_decimal_characters: true });
-    element.edit({ use_international_currency_symbol: false });
-    await element.requestUpdate();
-
-    expect(inputs[3]).to.have.attribute('checked');
-  });
-
-  it('disables currency style selector if it matches disabled selector', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        disabledcontrols="currency-style"
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-
-    const control = (await getByTestId(element, 'currency-style')) as HTMLDivElement;
-    const inputs = control.querySelectorAll<HTMLInputElement>('label input');
-
-    inputs.forEach(input => expect(input).to.have.attribute('disabled'));
-  });
-
-  it('makes currency style selector readonly if it matches readonly selector', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        readonlycontrols="currency-style"
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-
-    const control = (await getByTestId(element, 'currency-style')) as HTMLDivElement;
-    const inputs = control.querySelectorAll<HTMLInputElement>('label input');
-
-    inputs.forEach(input => expect(input).to.have.attribute('readonly'));
-  });
-
-  it('hides currency style selector if it matches hidden selector', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        hiddencontrols="currency-style"
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    expect(await getByTestId(element, 'currency-style')).to.not.exist;
-  });
-
-  it('renders before and after slots/templates for currency style selector', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    stub(element, 'renderTemplateOrSlot').callsFake(name => html`<div data-slot=${name}></div>`);
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-
-    const control = (await getByTestId(element, 'currency-style')) as HTMLDivElement;
-    expect(control.firstElementChild).to.have.attribute('data-slot', 'currency-style:before');
-    expect(control.lastElementChild).to.have.attribute('data-slot', 'currency-style:after');
-  });
-
-  it('renders currency style label and helper text', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-
-    const control = (await getByTestId(element, 'currency-style')) as HTMLDivElement;
-    const label = await getByKey(control, 'currency_style_label');
-    const helperText = await getByKey(control, 'currency_style_helper_text');
-
-    expect(label).to.exist;
-    expect(label).to.have.attribute('infer', '');
-
-    expect(helperText).to.exist;
-    expect(helperText).to.have.attribute('infer', '');
-  });
-
-  it('renders a checkbox enabling custom transaction id display', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(
-      '[infer="custom-display-id-config-enabled"]'
-    ) as InternalCheckboxGroupControl;
-
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_checked', value: 'checked' },
-    ]);
-
-    element.edit({ custom_display_id_config: '' });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal([]);
-
-    element.edit({
-      custom_display_id_config: JSON.stringify({
-        enabled: true,
-        start: '0',
-        length: '0',
-        prefix: '',
-        suffix: '',
-        transaction_journal_entries: {
-          enabled: false,
-          transaction_separator: '',
-          log_detail_request_types: {
-            transaction_authcapture: { prefix: '' },
-            transaction_capture: { prefix: '' },
-            transaction_refund: { prefix: '' },
-            transaction_void: { prefix: '' },
-          },
-        },
-      }),
-    });
-
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['checked']);
-
-    control.setValue([]);
-    expect(JSON.parse(element.form.custom_display_id_config!)).to.have.property('enabled', false);
-
-    control.setValue(['checked']);
-    expect(JSON.parse(element.form.custom_display_id_config!)).to.have.property('enabled', true);
-  });
-
-  it('renders start, length, prefix, suffix controls if custom transaction id display is on', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    element.edit({ custom_display_id_config: '' });
-    await element.requestUpdate();
-
-    ['start', 'length', 'prefix', 'suffix'].forEach(field => {
-      const selector = `[infer="custom-display-id-config-${field}"]`;
-      const control = element.renderRoot.querySelector(selector);
-      expect(control).to.not.exist;
-    });
-
-    element.edit({
-      custom_display_id_config: JSON.stringify({
-        enabled: true,
-        start: '0',
-        length: '0',
-        prefix: '',
-        suffix: '',
-        transaction_journal_entries: {
-          enabled: false,
-          transaction_separator: '',
-          log_detail_request_types: {
-            transaction_authcapture: { prefix: '' },
-            transaction_capture: { prefix: '' },
-            transaction_refund: { prefix: '' },
-            transaction_void: { prefix: '' },
-          },
-        },
-      }),
-    });
-
-    await element.requestUpdate();
-
-    for (const field of ['start', 'length', 'prefix', 'suffix']) {
-      const control = element.renderRoot.querySelector(
-        `[infer="custom-display-id-config-${field}"]`
-      ) as InternalTextControl | InternalIntegerControl;
-
-      const config = JSON.parse(element.form.custom_display_id_config as string);
-
-      if (field === 'start' || field === 'length') {
-        config[field] = 123;
-        element.edit({ custom_display_id_config: JSON.stringify(config) });
-        await element.requestUpdate();
-
-        expect(control).to.be.instanceOf(InternalIntegerControl);
-        expect(control.getValue()).to.equal(123);
-
-        control.setValue(456);
-        const newConfig = JSON.parse(element.form.custom_display_id_config as string);
-        expect(newConfig).to.have.property(field, '456');
-      } else {
-        config[field] = 'foobar';
-        element.edit({ custom_display_id_config: JSON.stringify(config) });
-        await element.requestUpdate();
-
-        expect(control).to.be.instanceOf(InternalTextControl);
-        expect(control.getValue()).to.equal('foobar');
-
-        control.setValue('bazqux');
-        const newConfig = JSON.parse(element.form.custom_display_id_config as string);
-        expect(newConfig).to.have.property(field, 'bazqux');
-      }
-    }
-  });
-
-  it('renders examples if custom transaction id display is on', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    element.edit({ custom_display_id_config: '' });
-    expect(await getByTestId(element, 'custom-display-id-config-examples')).to.not.exist;
-
-    element.edit({
-      custom_display_id_config: JSON.stringify({
-        enabled: true,
-        start: '8',
-        length: '12',
-        prefix: 'FOO-',
-        suffix: '-BAR',
-        transaction_journal_entries: {
-          enabled: false,
-          transaction_separator: '',
-          log_detail_request_types: {
-            transaction_authcapture: { prefix: '' },
-            transaction_capture: { prefix: '' },
-            transaction_refund: { prefix: '' },
-            transaction_void: { prefix: '' },
-          },
-        },
-      }),
-    });
-
-    const examples = (await getByTestId(
-      element,
-      'custom-display-id-config-examples'
-    )) as HTMLTableElement;
-
-    expect(examples).to.exist;
-    expect(examples.rows).to.have.length(2);
-    expect(examples.rows[0].cells).to.have.length(2);
-    expect(examples.rows[1].cells).to.have.length(2);
-
-    const label1Selector = 'foxy-i18n[infer=""][key="custom-display-id-config-first-example"]';
-    expect(examples.rows[0].cells[0].querySelector(label1Selector)).to.exist;
-    expect(examples.rows[0].cells[1].textContent?.trim()).to.equal('FOO-0008-BAR');
-
-    const label2Selector = 'foxy-i18n[infer=""][key="custom-display-id-config-random-example"]';
-    expect(examples.rows[1].cells[0].querySelector(label2Selector)).to.exist;
-
-    const randomExample = examples.rows[1].cells[1].textContent?.trim();
-    const randomExamplePrefix = randomExample!.split('-')[0] as string;
-    const randomExampleId = randomExample!.split('-')[1] as string;
-    const randomExampleSuffix = randomExample!.split('-')[2] as string;
-
-    expect(randomExamplePrefix).to.equal('FOO');
-    expect(parseInt(randomExampleId)).to.be.greaterThanOrEqual(8);
-    expect(randomExampleId).to.have.length(4);
-    expect(randomExampleSuffix).to.equal('BAR');
-  });
-
-  it('renders a checkbox enabling custom transaction journal entry id display when custom transaction id display is on', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    let control = element.renderRoot.querySelector(
-      '[infer="custom-display-id-config-transaction-journal-entries-enabled"]'
-    ) as InternalCheckboxGroupControl;
-
-    expect(control).to.not.exist;
-
-    element.edit({
-      custom_display_id_config: JSON.stringify({
-        enabled: true,
-        start: '0',
-        length: '0',
-        prefix: '',
-        suffix: '',
-        transaction_journal_entries: {
-          enabled: false,
-          transaction_separator: '',
-          log_detail_request_types: {
-            transaction_authcapture: { prefix: '' },
-            transaction_capture: { prefix: '' },
-            transaction_refund: { prefix: '' },
-            transaction_void: { prefix: '' },
-          },
-        },
-      }),
-    });
-
-    await element.requestUpdate();
-    control = element.renderRoot.querySelector(
-      '[infer="custom-display-id-config-transaction-journal-entries-enabled"]'
-    ) as InternalCheckboxGroupControl;
-
-    expect(control?.getValue()).to.deep.equal([]);
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_checked', value: 'checked' },
-    ]);
-
-    element.edit({
-      custom_display_id_config: JSON.stringify({
-        enabled: true,
-        start: '0',
-        length: '0',
-        prefix: '',
-        suffix: '',
-        transaction_journal_entries: {
-          enabled: true,
-          transaction_separator: '',
-          log_detail_request_types: {
-            transaction_authcapture: { prefix: '' },
-            transaction_capture: { prefix: '' },
-            transaction_refund: { prefix: '' },
-            transaction_void: { prefix: '' },
-          },
-        },
-      }),
-    });
-
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['checked']);
-
-    control.setValue([]);
-    expect(JSON.parse(element.form.custom_display_id_config!)).to.have.nested.property(
-      'transaction_journal_entries.enabled',
-      false
+    const control = element.renderRoot.querySelector<InternalSelectControl>(
+      '[infer="shipping"] [infer="shipping-address-type"]'
     );
 
-    control.setValue(['checked']);
-    expect(JSON.parse(element.form.custom_display_id_config!)).to.have.nested.property(
-      'transaction_journal_entries.enabled',
-      true
+    await waitUntil(() => !!control?.options.length, '', { timeout: 5000 });
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.deep.property('options', [
+      { value: 'residential', rawLabel: 'Rate as Residential' },
+      { value: 'commercial', rawLabel: 'Rate as Commercial' },
+      { value: 'determine_by_company', rawLabel: 'Rate based on Company field' },
+    ]);
+  });
+
+  it('renders a switch control for Features Multiship flag in the Shipping section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="shipping"] [infer="features-multiship"]'
     );
-  });
-
-  it('renders prefix and separator settings if custom transaction journal id display is on', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    element.edit({ custom_display_id_config: '' });
-    await element.requestUpdate();
-
-    const paths = [
-      'transaction_separator',
-      'log_detail_request_types.transaction_authcapture.prefix',
-      'log_detail_request_types.transaction_capture.prefix',
-      'log_detail_request_types.transaction_void.prefix',
-      'log_detail_request_types.transaction_refund.prefix',
-    ];
-
-    paths.forEach(path => {
-      const field = path.replace(/\.|_/g, '-');
-      const selector = `[infer="custom-display-id-config-transaction-journal-entries-${field}"]`;
-      const control = element.renderRoot.querySelector(selector);
-      expect(control).to.not.exist;
-    });
-
-    element.edit({
-      custom_display_id_config: JSON.stringify({
-        enabled: true,
-        start: '0',
-        length: '0',
-        prefix: '',
-        suffix: '',
-        transaction_journal_entries: {
-          enabled: true,
-          transaction_separator: '',
-          log_detail_request_types: {
-            transaction_authcapture: { prefix: '' },
-            transaction_capture: { prefix: '' },
-            transaction_refund: { prefix: '' },
-            transaction_void: { prefix: '' },
-          },
-        },
-      }),
-    });
-
-    await element.requestUpdate();
-
-    for (const path of paths) {
-      const field = path.replace(/\.|_/g, '-');
-      const selector = `[infer="custom-display-id-config-transaction-journal-entries-${field}"]`;
-      const control = element.renderRoot.querySelector(selector) as InternalTextControl;
-
-      const topConfig = JSON.parse(element.form.custom_display_id_config as string);
-      const config = topConfig.transaction_journal_entries;
-
-      set(config, path, 'foobar');
-      element.edit({ custom_display_id_config: JSON.stringify(topConfig) });
-      await element.requestUpdate();
-
-      expect(control).to.be.instanceOf(InternalTextControl);
-      expect(control.getValue()).to.equal('foobar');
-
-      control.setValue('bazqux');
-      const newTopConfig = JSON.parse(element.form.custom_display_id_config as string);
-      const newConfig = newTopConfig.transaction_journal_entries;
-      expect(newConfig).to.have.nested.property(path, 'bazqux');
-    }
-  });
-
-  it('renders examples if custom transaction journal id display is on', async () => {
-    const testId = 'custom-display-id-config-transaction-journal-entries-examples';
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    element.edit({ custom_display_id_config: '' });
-    expect(await getByTestId(element, testId)).to.not.exist;
-
-    element.edit({
-      custom_display_id_config: JSON.stringify({
-        enabled: true,
-        start: '8',
-        length: '12',
-        prefix: 'FOO-',
-        suffix: '-BAR',
-        transaction_journal_entries: {
-          enabled: true,
-          transaction_separator: '|',
-          log_detail_request_types: {
-            transaction_authcapture: { prefix: 'AU-' },
-            transaction_capture: { prefix: 'CA-' },
-            transaction_refund: { prefix: 'RE-' },
-            transaction_void: { prefix: 'VO-' },
-          },
-        },
-      }),
-    });
-
-    const examples = (await getByTestId(element, testId)) as HTMLTableElement;
-
-    expect(examples).to.exist;
-    expect(examples.rows).to.have.length(4);
-    Array.from(examples.rows).forEach(row => expect(row).to.have.length(2));
-
-    const getLabelSelector = (type: string) => {
-      return `foxy-i18n[infer=""][key="custom-display-id-config-transaction-journal-entries-${type}-example"]`;
-    };
-
-    expect(examples.rows[0].cells[0].querySelector(getLabelSelector('authcapture'))).to.exist;
-    expect(examples.rows[1].cells[0].querySelector(getLabelSelector('capture'))).to.exist;
-    expect(examples.rows[2].cells[0].querySelector(getLabelSelector('void'))).to.exist;
-    expect(examples.rows[3].cells[0].querySelector(getLabelSelector('refund'))).to.exist;
-
-    const authcaptureExample = examples.rows[0].cells[1].textContent?.trim();
-    const captureExample = examples.rows[1].cells[1].textContent?.trim();
-    const voidExample = examples.rows[2].cells[1].textContent?.trim();
-    const refundExample = examples.rows[3].cells[1].textContent?.trim();
-
-    expect(authcaptureExample).to.match(/FOO-\d{4}-BAR\|AU-\d+/);
-    expect(captureExample).to.match(/FOO-\d{4}-BAR\|CA-\d+/);
-    expect(voidExample).to.match(/FOO-\d{4}-BAR\|VO-\d+/);
-    expect(refundExample).to.match(/FOO-\d{4}-BAR\|RE-\d+/);
-  });
-
-  it('hides custom transaction id display settings if targeted by hidden selector', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        hiddencontrols="custom-display-id-config"
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    element.edit({
-      custom_display_id_config: JSON.stringify({
-        enabled: true,
-        start: '8',
-        length: '12',
-        prefix: 'FOO-',
-        suffix: '-BAR',
-        transaction_journal_entries: {
-          enabled: true,
-          transaction_separator: '|',
-          log_detail_request_types: {
-            transaction_authcapture: { prefix: 'AU-' },
-            transaction_capture: { prefix: 'CA-' },
-            transaction_refund: { prefix: 'RE-' },
-            transaction_void: { prefix: 'VO-' },
-          },
-        },
-      }),
-    });
-
-    await element.requestUpdate();
-    const controls = element.renderRoot.querySelectorAll('[infer^="custom-display-id-config-"]');
-    expect(controls).to.be.empty;
-  });
-
-  it('renders a text control for receipt continue url', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="receipt-continue-url"]');
 
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control).to.have.attribute('helper-text-as-tooltip');
   });
 
-  it('renders a frequency control for app session time', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+  it('renders a switch control for Require Signed Shipping Rates flag in the Shipping section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer="app-session-time"]'
-    ) as InternalFrequencyControl;
+      '[infer="shipping"] [infer="require-signed-shipping-rates"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control).to.have.attribute('helper-text-as-tooltip');
+  });
+
+  it('renders a summary control for Cart section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector('foxy-internal-summary-control[infer="cart"]');
+    expect(control).to.exist;
+  });
+
+  it('renders a frequency control for App Session Time setting in the Cart section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector<InternalFrequencyControl>(
+      '[infer="cart"] [infer="app-session-time"]'
+    );
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalFrequencyControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.deep.property('options', [
       { value: 's', label: 'second' },
       { value: 'm', label: 'minute' },
@@ -1968,209 +1228,127 @@ describe('StoreForm', () => {
       { value: 'd', label: 'day' },
     ]);
 
-    element.edit({ app_session_time: 86400 });
-    expect(control.getValue()).to.equal('1d');
+    expect(control?.getValue()).to.equal('12h');
 
-    element.edit({ app_session_time: 3600 });
-    expect(control.getValue()).to.equal('1h');
+    element.edit({ app_session_time: 45 });
+    expect(control?.getValue()).to.equal('45s');
 
-    element.edit({ app_session_time: 60 });
-    expect(control.getValue()).to.equal('1m');
+    element.edit({ app_session_time: 45 * 60 });
+    expect(control?.getValue()).to.equal('45m');
 
-    element.edit({ app_session_time: 1 });
-    expect(control.getValue()).to.equal('1s');
+    element.edit({ app_session_time: 45 * 60 * 60 });
+    expect(control?.getValue()).to.equal('45h');
 
-    control.setValue('1d');
-    expect(element).to.have.nested.property('form.app_session_time', 86400);
+    element.edit({ app_session_time: 45 * 60 * 60 * 24 });
+    expect(control?.getValue()).to.equal('45d');
 
-    control.setValue('1h');
-    expect(element).to.have.nested.property('form.app_session_time', 3600);
+    control?.setValue('45s');
+    expect(element).to.have.nested.property('form.app_session_time', 45);
 
-    control.setValue('1m');
-    expect(element).to.have.nested.property('form.app_session_time', 60);
+    control?.setValue('45m');
+    expect(element).to.have.nested.property('form.app_session_time', 45 * 60);
 
-    control.setValue('1s');
-    expect(element).to.have.nested.property('form.app_session_time', 1);
+    control?.setValue('45h');
+    expect(element).to.have.nested.property('form.app_session_time', 45 * 60 * 60);
+
+    control?.setValue('45d');
+    expect(element).to.have.nested.property('form.app_session_time', 45 * 60 * 60 * 24);
   });
 
-  it('renders a checkbox for the "products_require_expires_property" flag', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+  it('renders a switch control for Products Require Expires Property flag in the Cart section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer="products-require-expires-property"]'
-    ) as InternalCheckboxGroupControl;
-
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_checked', value: 'checked' },
-    ]);
-
-    element.edit({ products_require_expires_property: false });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal([]);
-
-    element.edit({ products_require_expires_property: true });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['checked']);
-  });
-
-  it('renders a warning when "products_require_expires_property" is enabled', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    expect(await getByKey(element, 'products_require_expires_property_helper_text')).to.not.exist;
-
-    element.data = { ...element.data!, products_require_expires_property: false };
-    element.edit({ products_require_expires_property: true });
-    await element.requestUpdate();
-
-    const control = element.renderRoot.querySelector(
-      '[infer="products-require-expires-property"]'
-    ) as InternalCheckboxGroupControl;
-
-    const warning = control.nextElementSibling as HTMLDivElement;
-    const warningText = await getByKey(warning, 'products_require_expires_property_helper_text');
-
-    expect(warningText).to.exist;
-    expect(warningText).to.have.attribute('infer', '');
-  });
-
-  it('renders a checkbox for the "use_cart_validation" flag', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(
-      '[infer="use-cart-validation"]'
-    ) as InternalCheckboxGroupControl;
-
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_checked', value: 'checked' },
-    ]);
-
-    element.edit({ use_cart_validation: false });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal([]);
-
-    element.edit({ use_cart_validation: true });
-    await element.requestUpdate();
-    expect(control?.getValue()).to.deep.equal(['checked']);
-  });
-
-  it('renders a warning when "use_cart_validation" is enabled', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    expect(await getByKey(element, 'use_cart_validation_helper_text')).to.not.exist;
-
-    element.data = { ...element.data!, use_cart_validation: false };
-    element.edit({ use_cart_validation: true });
-    await element.requestUpdate();
-
-    const control = element.renderRoot.querySelector(
-      '[infer="use-cart-validation"]'
-    ) as InternalCheckboxGroupControl;
-
-    const warning = control.nextElementSibling as HTMLDivElement;
-    const warningText = await getByKey(warning, 'use_cart_validation_helper_text');
-    const warningLink = await getByTag(warning, 'a');
-
-    expect(warningText).to.exist;
-    expect(warningText).to.have.attribute('infer', '');
-
-    expect(warningLink).to.exist;
-    expect(warningLink).to.include.text(
-      'HMAC Product Verification: Locking Down your Add-To-Cart Links and Forms'
+      '[infer="cart"] [infer="products-require-expires-property"]'
     );
-    expect(warningLink).to.have.attribute(
-      'href',
-      'https://wiki.foxycart.com/v/2.0/hmac_validation'
-    );
-  });
-
-  it('renders a select control for checkout type', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector(
-      '[infer="checkout-type"]'
-    ) as InternalSelectControl;
 
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control).to.have.attribute('helper-text-as-tooltip');
+  });
 
-    await new Form.API(element).fetch('https://demo.api/hapi/property_helpers/8', {
-      method: 'PATCH',
-      body: JSON.stringify({
-        values: {
-          default_account: 'Default account',
-          default_guest: 'Default guest',
-        },
+  it('renders a switch control for Use Cart Validation flag in the Cart section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="cart"] [infer="use-cart-validation"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control).to.have.attribute('helper-text-as-tooltip');
+  });
+
+  it('renders a password control for the cart signing key in the Cart section (JSON keys)', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector<InternalPasswordControl>(
+      '[infer="cart"] foxy-internal-password-control[infer="webhook-key-cart-signing"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('show-generator');
+    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
+
+    element.edit({
+      webhook_key: JSON.stringify({
+        cart_signing: 'test',
+        xml_datafeed: 'test',
+        api_legacy: 'test',
+        sso: 'test',
       }),
     });
 
-    element.checkoutTypes = 'https://demo.api/hapi/property_helpers/8';
-    await waitUntil(() => !!control.options.length, '', { timeout: 5000 });
+    expect(control?.getValue()).to.equal('test');
 
-    expect(control).to.have.deep.property('options', [
-      { value: 'default_account', label: 'Default account' },
-      { value: 'default_guest', label: 'Default guest' },
-    ]);
+    control?.setValue('foo');
+    expect(element).to.have.nested.property(
+      'form.webhook_key',
+      JSON.stringify({ cart_signing: 'foo', xml_datafeed: 'test', api_legacy: 'test', sso: 'test' })
+    );
   });
 
-  it('renders a select control for customer password hash type', async () => {
+  it('renders a password control for the cart signing key in the Cart section (string key)', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector<InternalPasswordControl>(
+      '[infer="cart"] foxy-internal-password-control[infer="webhook-key-cart-signing"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('show-generator');
+    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
+
+    element.edit({ webhook_key: 'test' });
+    expect(control?.getValue()).to.equal('test');
+
+    control?.setValue('foo');
+    expect(element).to.have.nested.property(
+      'form.webhook_key',
+      JSON.stringify({ cart_signing: 'foo', xml_datafeed: 'test', api_legacy: 'test', sso: 'test' })
+    );
+  });
+
+  it('renders a summary control for Checkout section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="checkout"]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders a select control for customer password hash type in the Checkout section', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
+      <foxy-store-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}></foxy-store-form>
     `);
 
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
     const control = element.renderRoot.querySelector(
-      '[infer="customer-password-hash-type"]'
+      '[infer="checkout"] [infer="customer-password-hash-type"]'
     ) as InternalSelectControl;
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
 
     await new Form.API(element).fetch('https://demo.api/hapi/property_helpers/9', {
       method: 'PATCH',
@@ -2183,11 +1361,12 @@ describe('StoreForm', () => {
     });
 
     element.customerPasswordHashTypes = 'https://demo.api/hapi/property_helpers/9';
+    await element.requestUpdate();
     await waitUntil(() => !!control.options.length, '', { timeout: 5000 });
 
     expect(control).to.have.deep.property('options', [
-      { value: 'concrete5', label: 'Concrete5' },
-      { value: 'phpass', label: 'phpass' },
+      { value: 'concrete5', rawLabel: 'Concrete5' },
+      { value: 'phpass', rawLabel: 'phpass' },
     ]);
 
     control.setValue('concrete5');
@@ -2197,258 +1376,913 @@ describe('StoreForm', () => {
     expect(element).to.have.nested.property('form.customer_password_hash_config', 8);
   });
 
-  it('renders a text or a number control for customer password hash config', async () => {
+  it('renders a text or a number control for customer password hash config in the Checkout section', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
+      <foxy-store-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-store-form>
     `);
 
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
     element.edit({ customer_password_hash_config: 'foo' });
-
     await element.requestUpdate();
-    let control = element.renderRoot.querySelector('[infer="customer-password-hash-config"]');
+    let control = element.renderRoot.querySelector(
+      '[infer="checkout"] [infer="customer-password-hash-config"]'
+    );
+
     expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
 
     element.edit({ customer_password_hash_config: 8 });
     await element.requestUpdate();
-    control = element.renderRoot.querySelector('[infer="customer-password-hash-config"]');
+    control = element.renderRoot.querySelector(
+      '[infer="checkout"] [infer="customer-password-hash-config"]'
+    );
 
     expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a password control for unified order entry password', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
+  it('renders a password control for UOE password in the Checkout section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector<InternalPasswordControl>(
+      '[infer="checkout"] foxy-internal-password-control[infer="unified-order-entry-password"]'
+    );
 
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    const control = element.renderRoot.querySelector('[infer="unified-order-entry-password"]');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('show-generator');
+  });
+
+  it('renders a switch control for Use Single Sign-On flag in the Checkout section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="checkout"] [infer="use-single-sign-on"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+  });
+
+  it('renders a text control for SSO URL in the Checkout section when SSO is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    expect(
+      element.renderRoot.querySelector<InternalTextControl>(
+        '[infer="checkout"] [infer="single-sign-on-url"]'
+      )
+    ).to.not.exist;
+
+    element.edit({ use_single_sign_on: true });
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalTextControl>(
+      '[infer="checkout"] [infer="single-sign-on-url"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a password control for SSO key in the Checkout section when SSO is enabled (JSON keys)', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    expect(
+      element.renderRoot.querySelector<InternalPasswordControl>(
+        '[infer="checkout"] [infer="webhook-key-sso"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      use_single_sign_on: true,
+      webhook_key: JSON.stringify({
+        cart_signing: 'test',
+        xml_datafeed: 'test',
+        api_legacy: 'test',
+        sso: 'test',
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalPasswordControl>(
+      '[infer="checkout"] [infer="webhook-key-sso"]'
+    );
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalPasswordControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('show-generator');
+    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
+    expect(control?.getValue()).to.equal('test');
+
+    control?.setValue('foo');
+    expect(element).to.have.nested.property(
+      'form.webhook_key',
+      JSON.stringify({ cart_signing: 'test', xml_datafeed: 'test', api_legacy: 'test', sso: 'foo' })
+    );
   });
 
-  it('renders a text control for sso url', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
+  it('renders a password control for SSO key in the Checkout section when SSO is enabled (string key)', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    expect(
+      element.renderRoot.querySelector<InternalPasswordControl>(
+        '[infer="checkout"] [infer="webhook-key-sso"]'
+      )
+    ).to.not.exist;
 
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+    element.edit({ use_single_sign_on: true, webhook_key: 'test' });
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalPasswordControl>(
+      '[infer="checkout"] [infer="webhook-key-sso"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalPasswordControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('show-generator');
+    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
+    expect(control?.getValue()).to.equal('test');
+
+    control?.setValue('foo');
+    expect(element).to.have.nested.property(
+      'form.webhook_key',
+      JSON.stringify({ cart_signing: 'test', xml_datafeed: 'test', api_legacy: 'test', sso: 'foo' })
+    );
+  });
+
+  it('renders a summary control for Receipt section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer="single-sign-on-url"]'
-    ) as InternalTextControl;
+      'foxy-internal-summary-control[infer="receipt"]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders a text control for Receipt Continue URL setting in the Receipt section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector<InternalTextControl>(
+      '[infer="receipt"] [infer="receipt-continue-url"]'
+    );
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
-
-    element.edit({ use_single_sign_on: false, single_sign_on_url: 'https://example.com' });
-    expect(control.getValue()).to.equal('');
-
-    element.edit({ use_single_sign_on: true, single_sign_on_url: 'https://example.com' });
-    expect(control.getValue()).to.equal('https://example.com');
-
-    control.setValue('');
-    expect(element).to.have.nested.property('form.use_single_sign_on', false);
-    expect(element).to.have.nested.property('form.single_sign_on_url', '');
-
-    control.setValue('https://example.com');
-    expect(element).to.have.nested.property('form.use_single_sign_on', true);
-    expect(element).to.have.nested.property('form.single_sign_on_url', 'https://example.com');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a text control for webhook url', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+  it('renders a switch control for BCC on Receipt Email flag in the Receipt section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-url"]'
-    ) as InternalTextControl;
+      '[infer="receipt"] [infer="bcc-on-receipt-email"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+  });
+
+  it('renders a summary control for Custom Display ID Config section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="custom-display-id-config"]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders a switch control enabling custom Display ID in the Custom Display ID Config section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      '[infer="custom-display-id-config"] [infer="custom-display-id-config-enabled"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control?.getValue()).to.be.false;
+
+    element.edit({
+      custom_display_id_config: JSON.stringify({
+        enabled: true,
+        start: '0',
+        length: '0',
+        prefix: '',
+        suffix: '',
+        transaction_journal_entries: {
+          enabled: false,
+          transaction_separator: '',
+          log_detail_request_types: {
+            transaction_authcapture: { prefix: '' },
+            transaction_capture: { prefix: '' },
+            transaction_refund: { prefix: '' },
+            transaction_void: { prefix: '' },
+          },
+        },
+      }),
+    });
+
+    await element.requestUpdate();
+    expect(control?.getValue()).to.be.true;
+    control?.setValue(false);
+    expect(JSON.parse(element.form.custom_display_id_config!)).to.have.property('enabled', false);
+  });
+
+  it('renders a number control for custom Display ID start in the Custom Display ID Config section when Custom Display ID is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector<InternalNumberControl>(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-start"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      custom_display_id_config: JSON.stringify({
+        enabled: true,
+        start: '2',
+        length: '0',
+        prefix: '',
+        suffix: '',
+        transaction_journal_entries: {
+          enabled: false,
+          transaction_separator: '',
+          log_detail_request_types: {
+            transaction_authcapture: { prefix: '' },
+            transaction_capture: { prefix: '' },
+            transaction_refund: { prefix: '' },
+            transaction_void: { prefix: '' },
+          },
+        },
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalNumberControl>(
+      '[infer="custom-display-id-config"] [infer="custom-display-id-config-start"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('step', '1');
+    expect(control).to.have.attribute('min', '0');
+    expect(control?.getValue()).to.equal(2);
+
+    control?.setValue(1);
+    expect(JSON.parse(element.form.custom_display_id_config!).start).to.equal('1');
+  });
+
+  it('renders a number control for custom Display ID length in the Custom Display ID Config section when Custom Display ID is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector<InternalNumberControl>(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-length"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      custom_display_id_config: JSON.stringify({
+        enabled: true,
+        start: '0',
+        length: '2',
+        prefix: '',
+        suffix: '',
+        transaction_journal_entries: {
+          enabled: false,
+          transaction_separator: '',
+          log_detail_request_types: {
+            transaction_authcapture: { prefix: '' },
+            transaction_capture: { prefix: '' },
+            transaction_refund: { prefix: '' },
+            transaction_void: { prefix: '' },
+          },
+        },
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalNumberControl>(
+      '[infer="custom-display-id-config"] [infer="custom-display-id-config-length"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('step', '1');
+    expect(control).to.have.attribute('min', '0');
+    expect(control?.getValue()).to.equal(2);
+
+    control?.setValue(1);
+    expect(JSON.parse(element.form.custom_display_id_config!).length).to.equal('1');
+  });
+
+  it('renders a text control for custom Display ID prefix in the Custom Display ID Config section when Custom Display ID is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector<InternalTextControl>(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-prefix"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      custom_display_id_config: JSON.stringify({
+        enabled: true,
+        start: '0',
+        length: '0',
+        prefix: 'foo',
+        suffix: '',
+        transaction_journal_entries: {
+          enabled: false,
+          transaction_separator: '',
+          log_detail_request_types: {
+            transaction_authcapture: { prefix: '' },
+            transaction_capture: { prefix: '' },
+            transaction_refund: { prefix: '' },
+            transaction_void: { prefix: '' },
+          },
+        },
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalTextControl>(
+      '[infer="custom-display-id-config"] [infer="custom-display-id-config-prefix"]'
+    );
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control?.getValue()).to.equal('foo');
 
-    element.edit({ use_webhook: false, webhook_url: 'https://example.com' });
-    expect(control.getValue()).to.equal('');
-
-    element.edit({ use_webhook: true, webhook_url: 'https://example.com' });
-    expect(control.getValue()).to.equal('https://example.com');
-
-    control.setValue('');
-    expect(element).to.have.nested.property('form.use_webhook', false);
-    expect(element).to.have.nested.property('form.webhook_url', '');
-
-    control.setValue('https://example.com');
-    expect(element).to.have.nested.property('form.use_webhook', true);
-    expect(element).to.have.nested.property('form.webhook_url', 'https://example.com');
+    control?.setValue('bar');
+    expect(JSON.parse(element.form.custom_display_id_config!).prefix).to.equal('bar');
   });
 
-  it('renders password controls for secret keys when "webhook_key" is a string', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
+  it('renders a text control for custom Display ID suffix in the Custom Display ID Config section when Custom Display ID is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
 
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    element.edit({ webhook_key: 'ABCTEST' });
+    expect(
+      element.renderRoot.querySelector<InternalTextControl>(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-suffix"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      custom_display_id_config: JSON.stringify({
+        enabled: true,
+        start: '0',
+        length: '0',
+        prefix: '',
+        suffix: 'foo',
+        transaction_journal_entries: {
+          enabled: false,
+          transaction_separator: '',
+          log_detail_request_types: {
+            transaction_authcapture: { prefix: '' },
+            transaction_capture: { prefix: '' },
+            transaction_refund: { prefix: '' },
+            transaction_void: { prefix: '' },
+          },
+        },
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalTextControl>(
+      '[infer="custom-display-id-config"] [infer="custom-display-id-config-suffix"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control?.getValue()).to.equal('foo');
+
+    control?.setValue('bar');
+    expect(JSON.parse(element.form.custom_display_id_config!).suffix).to.equal('bar');
+  });
+
+  it('renders examples in the Custom Display ID Config section when Custom Display ID is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector<InternalTextControl>(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-first-example"]'
+      )
+    ).to.not.exist;
+
+    expect(
+      element.renderRoot.querySelector<InternalTextControl>(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-random-example"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      custom_display_id_config: JSON.stringify({
+        enabled: true,
+        start: '8',
+        length: '12',
+        prefix: 'FOO-',
+        suffix: '-BAR',
+        transaction_journal_entries: {
+          enabled: false,
+          transaction_separator: '',
+          log_detail_request_types: {
+            transaction_authcapture: { prefix: '' },
+            transaction_capture: { prefix: '' },
+            transaction_refund: { prefix: '' },
+            transaction_void: { prefix: '' },
+          },
+        },
+      }),
+    });
+
     await element.requestUpdate();
 
-    for (const key of ['cart_signing', 'xml_datafeed', 'api_legacy', 'sso']) {
-      const infer = `webhook-key-${key.replace('_', '-')}`;
-      const control = element.renderRoot.querySelector(
-        `[infer="${infer}"]`
-      ) as InternalPasswordControl;
+    const firstExample = element.renderRoot.querySelector(
+      '[infer="custom-display-id-config"] [key="custom-display-id-config-first-example"]'
+    );
 
-      expect(control).to.be.instanceOf(InternalPasswordControl);
-      expect(control.getValue()).to.equal('ABCTEST');
+    const randomExample = element.renderRoot.querySelector(
+      '[infer="custom-display-id-config"] [key="custom-display-id-config-random-example"]'
+    );
 
-      control.setValue('FOOBAR');
-      expect(JSON.parse(element.form.webhook_key!)).to.have.property(key, 'FOOBAR');
+    expect(firstExample).to.exist;
+    expect(firstExample).to.be.instanceOf(I18n);
+    expect(firstExample).to.have.attribute('infer', '');
+    expect(firstExample?.nextElementSibling?.textContent?.trim()).to.equal('FOO-0008-BAR');
 
-      element.edit({ webhook_key: 'ABCTEST' });
-    }
+    expect(randomExample).to.exist;
+    expect(randomExample).to.be.instanceOf(I18n);
+    expect(randomExample).to.have.attribute('infer', '');
+
+    const randomExampleText = randomExample?.nextElementSibling?.textContent?.trim();
+    const randomExamplePrefix = randomExampleText?.split('-')[0];
+    const randomExampleId = randomExampleText?.split('-')[1];
+    const randomExampleSuffix = randomExampleText?.split('-')[2];
+
+    expect(randomExamplePrefix).to.equal('FOO');
+    expect(parseInt(randomExampleId as string)).to.be.greaterThanOrEqual(8);
+    expect(randomExampleId).to.have.length(4);
+    expect(randomExampleSuffix).to.equal('BAR');
   });
 
-  it('renders password controls for secret keys when "webhook_key" is JSON', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
+  it('renders a switch control enabling custom Transaction Journal Display ID in the Custom Display ID Config section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-enabled"]'
+    );
 
-    const exampleKey: Record<string, string> = {
-      cart_signing: 'CRT_SGN_123',
-      xml_datafeed: 'XML_DFD_456',
-      api_legacy: 'API_LCY_789',
-      sso: 'SSO_123_456',
-    };
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control?.getValue()).to.be.false;
 
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    element.edit({ webhook_key: JSON.stringify(exampleKey) });
+    element.edit({
+      custom_display_id_config: JSON.stringify({
+        enabled: false,
+        start: '0',
+        length: '0',
+        prefix: '',
+        suffix: '',
+        transaction_journal_entries: {
+          enabled: true,
+          transaction_separator: '',
+          log_detail_request_types: {
+            transaction_authcapture: { prefix: '' },
+            transaction_capture: { prefix: '' },
+            transaction_refund: { prefix: '' },
+            transaction_void: { prefix: '' },
+          },
+        },
+      }),
+    });
+
+    await element.requestUpdate();
+    expect(control?.getValue()).to.be.true;
+    control?.setValue(false);
+    expect(JSON.parse(element.form.custom_display_id_config!).transaction_journal_entries.enabled)
+      .to.be.false;
+  });
+
+  it('renders a text control for authcapture prefix in the Custom Display ID Config section when Custom Transaction Journal Display ID is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector<InternalTextControl>(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-authcapture-prefix"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      custom_display_id_config: JSON.stringify({
+        enabled: false,
+        start: '0',
+        length: '0',
+        prefix: '',
+        suffix: '',
+        transaction_journal_entries: {
+          enabled: true,
+          transaction_separator: '',
+          log_detail_request_types: {
+            transaction_authcapture: { prefix: 'foo' },
+            transaction_capture: { prefix: '' },
+            transaction_refund: { prefix: '' },
+            transaction_void: { prefix: '' },
+          },
+        },
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalTextControl>(
+      '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-authcapture-prefix"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control?.getValue()).to.equal('foo');
+
+    control?.setValue('bar');
+    expect(
+      JSON.parse(element.form.custom_display_id_config!).transaction_journal_entries
+        .log_detail_request_types.transaction_authcapture.prefix
+    ).to.equal('bar');
+  });
+
+  it('renders a text control for capture prefix in the Custom Display ID Config section when Custom Transaction Journal Display ID is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector<InternalTextControl>(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-capture-prefix"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      custom_display_id_config: JSON.stringify({
+        enabled: false,
+        start: '0',
+        length: '0',
+        prefix: '',
+        suffix: '',
+        transaction_journal_entries: {
+          enabled: true,
+          transaction_separator: '',
+          log_detail_request_types: {
+            transaction_authcapture: { prefix: '' },
+            transaction_capture: { prefix: 'foo' },
+            transaction_refund: { prefix: '' },
+            transaction_void: { prefix: '' },
+          },
+        },
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalTextControl>(
+      '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-capture-prefix"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control?.getValue()).to.equal('foo');
+
+    control?.setValue('bar');
+    expect(
+      JSON.parse(element.form.custom_display_id_config!).transaction_journal_entries
+        .log_detail_request_types.transaction_capture.prefix
+    ).to.equal('bar');
+  });
+
+  it('renders a text control for void prefix in the Custom Display ID Config section when Custom Transaction Journal Display ID is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector<InternalTextControl>(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-void-prefix"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      custom_display_id_config: JSON.stringify({
+        enabled: false,
+        start: '0',
+        length: '0',
+        prefix: '',
+        suffix: '',
+        transaction_journal_entries: {
+          enabled: true,
+          transaction_separator: '',
+          log_detail_request_types: {
+            transaction_authcapture: { prefix: '' },
+            transaction_capture: { prefix: '' },
+            transaction_refund: { prefix: '' },
+            transaction_void: { prefix: 'foo' },
+          },
+        },
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalTextControl>(
+      '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-void-prefix"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control?.getValue()).to.equal('foo');
+
+    control?.setValue('bar');
+    expect(
+      JSON.parse(element.form.custom_display_id_config!).transaction_journal_entries
+        .log_detail_request_types.transaction_void.prefix
+    ).to.equal('bar');
+  });
+
+  it('renders a text control for refund prefix in the Custom Display ID Config section when Custom Transaction Journal Display ID is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector<InternalTextControl>(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-refund-prefix"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      custom_display_id_config: JSON.stringify({
+        enabled: false,
+        start: '0',
+        length: '0',
+        prefix: '',
+        suffix: '',
+        transaction_journal_entries: {
+          enabled: true,
+          transaction_separator: '',
+          log_detail_request_types: {
+            transaction_authcapture: { prefix: '' },
+            transaction_capture: { prefix: '' },
+            transaction_refund: { prefix: 'foo' },
+            transaction_void: { prefix: '' },
+          },
+        },
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalTextControl>(
+      '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-refund-prefix"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control?.getValue()).to.equal('foo');
+
+    control?.setValue('bar');
+    expect(
+      JSON.parse(element.form.custom_display_id_config!).transaction_journal_entries
+        .log_detail_request_types.transaction_refund.prefix
+    ).to.equal('bar');
+  });
+
+  it('renders a text control for transaction separator in the Custom Display ID Config section when Custom Transaction Journal Display ID is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector<InternalTextControl>(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-transaction-separator"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      custom_display_id_config: JSON.stringify({
+        enabled: false,
+        start: '0',
+        length: '0',
+        prefix: '',
+        suffix: '',
+        transaction_journal_entries: {
+          enabled: true,
+          transaction_separator: 'foo',
+          log_detail_request_types: {
+            transaction_authcapture: { prefix: '' },
+            transaction_capture: { prefix: '' },
+            transaction_refund: { prefix: '' },
+            transaction_void: { prefix: '' },
+          },
+        },
+      }),
+    });
+
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalTextControl>(
+      '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-transaction-separator"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control?.getValue()).to.equal('foo');
+
+    control?.setValue('bar');
+    expect(
+      JSON.parse(element.form.custom_display_id_config!).transaction_journal_entries
+        .transaction_separator
+    ).to.equal('bar');
+  });
+
+  it('renders examples in the Custom Display ID Config section when Custom Transaction Journal Display ID is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    expect(
+      element.renderRoot.querySelector(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-authcapture-example"]'
+      )
+    ).to.not.exist;
+
+    expect(
+      element.renderRoot.querySelector(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-capture-example"]'
+      )
+    ).to.not.exist;
+
+    expect(
+      element.renderRoot.querySelector(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-void-example"]'
+      )
+    ).to.not.exist;
+
+    expect(
+      element.renderRoot.querySelector(
+        '[infer="custom-display-id-config"] [infer="custom-display-id-config-transaction-journal-entries-refund-example"]'
+      )
+    ).to.not.exist;
+
+    element.edit({
+      custom_display_id_config: JSON.stringify({
+        enabled: true,
+        start: '8',
+        length: '12',
+        prefix: 'FOO-',
+        suffix: '-BAR',
+        transaction_journal_entries: {
+          enabled: true,
+          transaction_separator: '|',
+          log_detail_request_types: {
+            transaction_authcapture: { prefix: 'AU-' },
+            transaction_capture: { prefix: 'CA-' },
+            transaction_refund: { prefix: 'RE-' },
+            transaction_void: { prefix: 'VO-' },
+          },
+        },
+      }),
+    });
+
     await element.requestUpdate();
 
-    for (const key of ['cart_signing', 'xml_datafeed', 'api_legacy', 'sso']) {
-      const infer = `webhook-key-${key.replace('_', '-')}`;
-      const control = element.renderRoot.querySelector(
-        `[infer="${infer}"]`
-      ) as InternalPasswordControl;
+    const authcaptureExample = element.renderRoot.querySelector(
+      '[infer="custom-display-id-config"] [key="custom-display-id-config-transaction-journal-entries-authcapture-example"]'
+    );
 
-      expect(control).to.be.instanceOf(InternalPasswordControl);
-      expect(control.getValue()).to.equal(exampleKey[key]);
+    const captureExample = element.renderRoot.querySelector(
+      '[infer="custom-display-id-config"] [key="custom-display-id-config-transaction-journal-entries-capture-example"]'
+    );
 
-      control.setValue('FOOBAR');
-      expect(JSON.parse(element.form.webhook_key!)).to.have.property(key, 'FOOBAR');
+    const voidExample = element.renderRoot.querySelector(
+      '[infer="custom-display-id-config"] [key="custom-display-id-config-transaction-journal-entries-void-example"]'
+    );
 
-      element.edit({ webhook_key: JSON.stringify(exampleKey) });
-    }
+    const refundExample = element.renderRoot.querySelector(
+      '[infer="custom-display-id-config"] [key="custom-display-id-config-transaction-journal-entries-refund-example"]'
+    );
+
+    expect(authcaptureExample).to.exist;
+    expect(authcaptureExample).to.be.instanceOf(I18n);
+    expect(authcaptureExample).to.have.attribute('infer', '');
+    expect(authcaptureExample?.nextElementSibling?.textContent?.trim()).to.match(
+      /FOO-\d{4}-BAR\|AU-\d{3}/
+    );
+
+    expect(captureExample).to.exist;
+    expect(captureExample).to.be.instanceOf(I18n);
+    expect(captureExample).to.have.attribute('infer', '');
+    expect(captureExample?.nextElementSibling?.textContent?.trim()).to.match(
+      /FOO-\d{4}-BAR\|CA-\d{3}/
+    );
+
+    expect(voidExample).to.exist;
+    expect(voidExample).to.be.instanceOf(I18n);
+    expect(voidExample).to.have.attribute('infer', '');
+    expect(voidExample?.nextElementSibling?.textContent?.trim()).to.match(
+      /FOO-\d{4}-BAR\|VO-\d{3}/
+    );
+
+    expect(refundExample).to.exist;
+    expect(refundExample).to.be.instanceOf(I18n);
+    expect(refundExample).to.have.attribute('infer', '');
+    expect(refundExample?.nextElementSibling?.textContent?.trim()).to.match(
+      /FOO-\d{4}-BAR\|RE-\d{3}/
+    );
   });
 
-  it('renders maintenance mode switch', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
+  it('renders a summary control for XML Datafeed settings', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="xml-datafeed"]'
+    );
 
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    element.data = { ...element.data!, is_maintenance_mode: true };
+    expect(control).to.exist;
+  });
+
+  it('renders a switch for Use Webhook flag in the XML Datafeed section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="xml-datafeed"] [infer="use-webhook"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+  });
+
+  it('renders a text control for Webhook URL in the XML Datafeed section when Use Webhook is enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    expect(
+      element.renderRoot.querySelector<InternalTextControl>(
+        '[infer="xml-datafeed"] [infer="webhook-url"]'
+      )
+    ).to.not.exist;
+
+    element.edit({ use_webhook: true });
     await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalTextControl>(
+      '[infer="xml-datafeed"] [infer="webhook-url"]'
+    );
 
-    const wrapper = (await getByTestId(element, 'is-maintenance-mode'))!;
-    let label = (await getByKey(wrapper, 'maintenance_mode_on_explainer'))!;
-    const button = (await getByTag(wrapper, 'vaadin-button')) as HTMLElement;
-    let buttonLabel = button.querySelector('foxy-i18n[key="disable_maintenance_mode"]')!;
-
-    expect(wrapper).to.exist;
-    expect(label).to.exist;
-    expect(label).to.have.attribute('infer', '');
-    expect(button).to.exist;
-    expect(buttonLabel).to.exist;
-    expect(buttonLabel).to.have.attribute('infer', '');
-
-    button.click();
-    await waitUntil(() => element.in('idle'), '', { timeout: 5000 });
-    expect(element).to.have.nested.property('data.is_maintenance_mode', false);
-
-    label = (await getByKey(wrapper, 'maintenance_mode_off_explainer'))!;
-    buttonLabel = button.querySelector('foxy-i18n[key="enable_maintenance_mode"]')!;
-
-    expect(label).to.exist;
-    expect(label).to.have.attribute('infer', '');
-    expect(buttonLabel).to.exist;
-    expect(buttonLabel).to.have.attribute('infer', '');
-
-    button.click();
-    await waitUntil(() => element.in('idle'), '', { timeout: 5000 });
-    expect(element).to.have.nested.property('data.is_maintenance_mode', true);
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('hides maintenance mode switch if targeted by hidden selector', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        hiddencontrols="is-maintenance-mode"
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
+  it('renders a password control for XML Datafeed key in the XML Datafeed section when Use Webhook is enabled (JSON keys)', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    expect(
+      element.renderRoot.querySelector<InternalPasswordControl>(
+        '[infer="xml-datafeed"] [infer="webhook-key-xml-datafeed"]'
+      )
+    ).to.not.exist;
 
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-    expect(await getByTestId(element, 'is-maintenance-mode')).to.not.exist;
-  });
+    element.edit({
+      use_webhook: true,
+      webhook_key: JSON.stringify({
+        cart_signing: 'test',
+        xml_datafeed: 'test',
+        api_legacy: 'test',
+        sso: 'test',
+      }),
+    });
 
-  it('disables maintenance mode switch if targeted by disabled selector', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-form
-        href="https://demo.api/hapi/stores/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-store-form>
-    `);
-
-    await waitUntil(() => !!element.data, '', { timeout: 5000 });
-
-    const wrapper = (await getByTestId(element, 'is-maintenance-mode'))!;
-    const button = (await getByTag(wrapper, 'vaadin-button')) as HTMLElement;
-
-    expect(button).to.not.have.attribute('disabled');
-
-    element.setAttribute('disabledcontrols', 'is-maintenance-mode');
     await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalPasswordControl>(
+      '[infer="xml-datafeed"] [infer="webhook-key-xml-datafeed"]'
+    );
 
-    expect(button).to.have.attribute('disabled');
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalPasswordControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('show-generator');
+    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
+    expect(control?.getValue()).to.equal('test');
+
+    control?.setValue('foo');
+    expect(element).to.have.nested.property(
+      'form.webhook_key',
+      JSON.stringify({ cart_signing: 'test', xml_datafeed: 'foo', api_legacy: 'test', sso: 'test' })
+    );
+  });
+
+  it('renders a password control for XML Datafeed key in the XML Datafeed section when Use Webhook is enabled (string key)', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    expect(
+      element.renderRoot.querySelector<InternalPasswordControl>(
+        '[infer="xml-datafeed"] [infer="webhook-key-xml-datafeed"]'
+      )
+    ).to.not.exist;
+
+    element.edit({ use_webhook: true, webhook_key: 'test' });
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalPasswordControl>(
+      '[infer="xml-datafeed"] [infer="webhook-key-xml-datafeed"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalPasswordControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('show-generator');
+    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
+    expect(control?.getValue()).to.equal('test');
+
+    control?.setValue('foo');
+    expect(element).to.have.nested.property(
+      'form.webhook_key',
+      JSON.stringify({ cart_signing: 'test', xml_datafeed: 'foo', api_legacy: 'test', sso: 'test' })
+    );
   });
 });

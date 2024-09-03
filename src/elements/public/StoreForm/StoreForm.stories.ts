@@ -12,67 +12,93 @@ const summary: Summary = {
   translatable: true,
   configurable: {
     sections: ['timestamps', 'header'],
-    buttons: [
-      'is-maintenance-mode',
-      'create',
-      'delete',
-      'undo',
-      'submit',
-      'header:copy-id',
-      'header:copy-json',
-    ],
+    buttons: ['create', 'delete', 'undo', 'submit', 'header:copy-id', 'header:copy-json'],
     inputs: [
-      'store-name',
-      'logo-url',
-      'store-domain',
-      'store-url',
-      'store-email',
-      'timezone',
-      'store-version-uri',
-      'from-email',
-      'bcc-on-receipt-email',
-      'use-email-dns',
-      'use-smtp-config',
-      'smtp-config',
-      'smtp-config-host',
-      'smtp-config-port',
-      'smtp-config-username',
-      'smtp-config-password',
-      'smtp-config-security',
-      'country',
-      'region',
-      'postal-code',
-      'shipping-address-type',
-      'features-multiship',
-      'require-signed-shipping-rates',
-      'language',
-      'locale-code',
-      'currency-style',
+      'essentials',
+      'essentials:store-name',
+      'essentials:logo-url',
+      'essentials:store-domain',
+      'essentials:store-url',
+      'essentials:is-maintenance-mode',
+      'essentials:store-email',
+      'essentials:timezone',
+      'essentials:country',
+      'essentials:region',
+      'essentials:postal-code',
+      'essentials:currency-style',
+
+      'api-legacy',
+      'api-legacy:webhook-key-api-legacy',
+
+      'emails',
+      'emails:from-email',
+      'emails:use-email-dns',
+      'emails:use-smtp-config',
+      'emails:smtp-config-host',
+      'emails:smtp-config-port',
+      'emails:smtp-config-username',
+      'emails:smtp-config-password',
+      'emails:smtp-config-security',
+
+      'shipping',
+      'shipping:shipping-address-type',
+      'shipping:features-multiship',
+      'shipping:require-signed-shipping-rates',
+
+      'cart',
+      'cart:app-session-time',
+      'cart:products-require-expires-property',
+      'cart:use-cart-validation',
+      'cart:webhook-key-cart-signing',
+
+      'checkout',
+      'checkout:checkout-type',
+      'checkout:customer-password-hash-type',
+      'checkout:customer-password-hash-config',
+      'checkout:unified-order-entry-password',
+      'checkout:use-single-sign-on-url',
+      'checkout:single-sign-on-url',
+      'checkout:webhook-key-sso',
+
+      'receipt',
+      'receipt:receipt-continue-url',
+      'receipt:bcc-on-receipt-email',
+
       'custom-display-id-config',
-      'receipt-continue-url',
-      'app-session-time',
-      'products-require-expires-property',
-      'use-cart-validation',
-      'checkout-type',
-      'customer-password-hash-type',
-      'customer-password-hash-config',
-      'unified-order-entry-password',
-      'single-sign-on-url',
-      'webhook-url',
-      'webhook-key-cart-signing',
-      'webhook-key-xml-datafeed',
-      'webhook-key-api-legacy',
-      'webhook-key-sso',
+      'custom-display-id-config:custom-display-id-config-enabled',
+      'custom-display-id-config:custom-display-id-config-start',
+      'custom-display-id-config:custom-display-id-config-length',
+      'custom-display-id-config:custom-display-id-config-prefix',
+      'custom-display-id-config:custom-display-id-config-suffix',
+      'custom-display-id-config-transaction-journal-entries-enabled',
+      'custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-authcapture-prefix',
+      'custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-capture-prefix',
+      'custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-void-prefix',
+      'custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-refund-prefix',
+      'custom-display-id-config-transaction-journal-entries-transaction-separator',
+
+      'xml-datafeed',
+      'xml-datafeed:use-webhook',
+      'xml-datafeed:webhook-url',
+      'xml-datafeed:webhook-key-xml-datafeed',
     ],
   },
 };
 
 export default getMeta(summary);
 
-export const Playground = getStory({ ...summary, code: true });
-export const Empty = getStory(summary);
-export const Error = getStory(summary);
-export const Busy = getStory(summary);
+const ext = `
+  customer-password-hash-types="https://demo.api/hapi/property_helpers/9"
+  shipping-address-types="https://demo.api/hapi/property_helpers/5"
+  timezones="https://demo.api/hapi/property_helpers/2"
+  countries="https://demo.api/hapi/property_helpers/3"
+  regions="https://demo.api/hapi/property_helpers/4"
+`;
+
+export const Playground = getStory({ ...summary, ext, code: true });
+export const Empty = getStory({ ...summary, ext });
+export const Error = getStory({ ...summary, ext });
+export const Busy = getStory({ ...summary, ext });
 
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
