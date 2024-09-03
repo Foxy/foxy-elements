@@ -10,7 +10,7 @@ export class InternalSummaryControl extends InternalEditableControl {
       ...super.styles,
       css`
         ::slotted(*) {
-          background-color: var(--lumo-base-color);
+          background-color: var(--lumo-contrast-5pct);
           padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px);
         }
       `,
@@ -23,14 +23,13 @@ export class InternalSummaryControl extends InternalEditableControl {
 
   renderControl(): TemplateResult {
     return html`
-      <p class="mb-xs font-medium text-secondary text-s" ?hidden=${!this.label}>${this.label}</p>
-      <div
-        class="rounded overflow-hidden border border-transparent grid bg-contrast-10"
-        style="gap: 1px"
-      >
+      <div class="leading-s mb-s">
+        <p class="font-medium text-body text-l" ?hidden=${!this.label}>${this.label}</p>
+        <p class="text-s text-secondary" ?hidden=${!this.helperText}>${this.helperText}</p>
+      </div>
+      <div class="rounded overflow-hidden grid" style="gap: 1px">
         <slot></slot>
       </div>
-      <p class="mt-xs text-xs text-secondary" ?hidden=${!this.helperText}>${this.helperText}</p>
     `;
   }
 }

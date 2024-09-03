@@ -10,7 +10,7 @@ registerStyles(
 
     :host([theme~='summary-item']) .vaadin-text-field-container {
       display: grid;
-      grid-template-columns: auto 1fr;
+      grid-template-columns: auto auto;
       grid-template-rows: repeat(3, min-content);
       gap: 0 var(--lumo-space-m);
     }

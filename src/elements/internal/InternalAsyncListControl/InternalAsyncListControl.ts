@@ -307,8 +307,8 @@ export class InternalAsyncListControl extends InternalEditableControl {
             >
             </foxy-internal-confirm-dialog>
           `}
-      <div class="flex gap-m items-center justify-between mb-xs text-s font-medium">
-        <span class="text-secondary mr-auto">
+      <div class="flex gap-m items-center justify-between mb-s text-l font-medium">
+        <span class="text-body mr-auto">
           ${this.label && this.label !== 'label' ? this.label : ''}
         </span>
 
