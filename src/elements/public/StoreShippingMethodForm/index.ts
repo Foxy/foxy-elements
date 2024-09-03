@@ -1,8 +1,9 @@
 import '../../internal/InternalAsyncResourceLinkListControl/index';
 import '../../internal/InternalResourcePickerControl/index';
-import '../../internal/InternalCheckboxGroupControl/index';
 import '../../internal/InternalPasswordControl/index';
+import '../../internal/InternalSummaryControl/index';
 import '../../internal/InternalSourceControl/index';
+import '../../internal/InternalSwitchControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 

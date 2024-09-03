@@ -16,156 +16,185 @@
       "done": "Copied to clipboard"
     }
   },
-  "shipping-method-uri": {
-    "label": "Provider",
-    "dialog": {
-      "cancel": "Cancel",
-      "close": "Close",
-      "header": "Select a provider",
-      "selection": {
-        "label": "Providers",
-        "helper_text": "",
-        "pagination": {
-          "first": "First",
-          "last": "Last",
-          "next": "Next",
-          "pagination": "{{from}}-{{to}} out of {{total}}",
-          "previous": "Previous",
-          "card": {
-            "image_alt": "Shipping method logo",
-            "status_active": "Active",
-            "status_inactive": "Inactive",
-            "spinner": {
-              "loading_busy": "Loading",
-              "loading_empty": "No providers found",
-              "loading_error": "Unknown error"
+  "general": {
+    "label": "",
+    "helper_text": "",
+    "shipping-method-uri": {
+      "label": "Provider",
+      "helper_text": "",
+      "v8n_required": "Please select a provider.",
+      "value": "{{ resource.name }}",
+      "placeholder": "Select",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select a provider",
+        "selection": {
+          "label": "",
+          "helper_text": "",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "image_alt": "Shipping method logo",
+              "status_active": "Active",
+              "status_inactive": "Inactive",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No providers found",
+                "loading_error": "Unknown error"
+              }
             }
           }
         }
-      }
-    },
-    "card": {
-      "image_alt": "Shipping method logo",
-      "status_active": "Active",
-      "status_inactive": "Inactive",
-      "spinner": {
-        "loading_busy": "Loading",
-        "loading_empty": "Select a provider",
-        "loading_error": "Unknown error"
-      }
-    },
-    "helper_text": "",
-    "v8n_required": "Please select a provider."
-  },
-  "shipping-container-uri": {
-    "label": "Container",
-    "dialog": {
-      "cancel": "Cancel",
-      "close": "Close",
-      "header": "Select a container",
-      "selection": {
-        "label": "Containers",
-        "helper_text": "",
-        "pagination": {
-          "first": "First",
-          "last": "Last",
-          "next": "Next",
-          "pagination": "{{from}}-{{to}} out of {{total}}",
-          "previous": "Previous",
-          "card": {
-            "subtitle": "Code: {{ code }}",
-            "spinner": {
-              "loading_busy": "Loading",
-              "loading_empty": "No containers found",
-              "loading_error": "Unknown error"
-            }
-          }
+      },
+      "card": {
+        "image_alt": "Shipping method logo",
+        "status_active": "Active",
+        "status_inactive": "Inactive",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "Select a provider",
+          "loading_error": "Unknown error"
         }
       }
     },
-    "card": {
-      "subtitle": "Code: {{ code }}",
-      "spinner": {
-        "loading_busy": "Loading",
-        "loading_empty": "Select a container",
-        "loading_error": "Unknown error"
-      }
-    },
-    "helper_text": "",
-    "v8n_required": "Please select a shipping container."
-  },
-  "shipping-drop-type-uri": {
-    "label": "Drop type",
-    "dialog": {
-      "cancel": "Cancel",
-      "close": "Close",
-      "header": "Select a drop type",
-      "selection": {
-        "label": "Drop types",
-        "helper_text": "",
-        "pagination": {
-          "first": "First",
-          "last": "Last",
-          "next": "Next",
-          "pagination": "{{from}}-{{to}} out of {{total}}",
-          "previous": "Previous",
-          "card": {
-            "subtitle": "Code: {{ code }}",
-            "spinner": {
-              "loading_busy": "Loading",
-              "loading_empty": "No drop types found",
-              "loading_error": "Unknown error"
+    "shipping-container-uri": {
+      "label": "Container",
+      "helper_text": "",
+      "v8n_required": "Please select a shipping container.",
+      "value": "{{ resource.name }}",
+      "placeholder": "Select",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select a container",
+        "selection": {
+          "label": "",
+          "helper_text": "",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "subtitle": "Code: {{ code }}",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No containers found",
+                "loading_error": "Unknown error"
+              }
             }
           }
         }
+      },
+      "card": {
+        "subtitle": "Code: {{ code }}",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "Select a container",
+          "loading_error": "Unknown error"
+        }
       }
     },
-    "card": {
-      "subtitle": "Code: {{ code }}",
-      "spinner": {
-        "loading_busy": "Loading",
-        "loading_empty": "Select a drop type",
-        "loading_error": "Unknown error"
+    "shipping-drop-type-uri": {
+      "label": "Drop type",
+      "helper_text": "",
+      "v8n_required": "Please select a drop type.",
+      "value": "{{ resource.name }}",
+      "placeholder": "Select",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select a drop type",
+        "selection": {
+          "label": "",
+          "helper_text": "",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "subtitle": "Code: {{ code }}",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No drop types found",
+                "loading_error": "Unknown error"
+              }
+            }
+          }
+        }
+      },
+      "card": {
+        "subtitle": "Code: {{ code }}",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "Select a drop type",
+          "loading_error": "Unknown error"
+        }
       }
-    },
-    "helper_text": "",
-    "v8n_required": "Please select a drop type."
+    }
   },
   "destinations": {
     "label": "Destinations",
-    "domestic": "Domestic",
-    "international": "International",
-    "helper_text": "Select which shipping rate requests to apply this shipping method to."
+    "helper_text": "",
+    "use-for-domestic": {
+      "label": "Use for domestic destinations",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "use-for-international": {
+      "label": "Use for international destinations",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
   },
-  "authentication-key": {
-    "label": "Authentication Key",
-    "placeholder": "N/A",
-    "helper_text": "If using account specific rates, enter your shipping account authentication key here, if applicable.",
-    "v8n_too_long": "Authentication key must be 50 characters or less."
-  },
-  "meter-number": {
-    "label": "Meter Number",
-    "placeholder": "N/A",
-    "helper_text": "If using account specific rates, enter your shipping account meter number here, if applicable.",
-    "v8n_too_long": "Meter number must be 50 characters or less."
-  },
-  "accountid": {
-    "label": "Account ID",
-    "placeholder": "N/A",
-    "helper_text": "If using account specific rates, enter your shipping account id here.",
-    "v8n_too_long": "Account ID must be 50 characters or less."
+  "account": {
+    "label": "Account",
+    "helper_text": "",
+    "use-custom-account": {
+      "label": "Use custom credentials",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "authentication-key": {
+      "label": "Authentication Key",
+      "placeholder": "N/A",
+      "helper_text": "",
+      "v8n_too_long": "Authentication key must be 50 characters or less."
+    },
+    "meter-number": {
+      "label": "Meter Number",
+      "placeholder": "N/A",
+      "helper_text": "",
+      "v8n_too_long": "Meter number must be 50 characters or less."
+    },
+    "accountid": {
+      "label": "Account ID",
+      "placeholder": "N/A",
+      "helper_text": "",
+      "v8n_too_long": "Account ID must be 50 characters or less."
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "N/A",
+      "helper_text": "",
+      "v8n_too_long": "Password must be 50 characters or less."
+    }
   },
   "endpoint": {
     "label": "Endpoint URL",
     "placeholder": "https://example.com/rates",
-    "helper_text": "Enter a URL that we'll poll for shipping rates.",
-    "v8n_required": "Please enter a valid endpoint URL."
-  },
-  "password": {
-    "label": "Password",
-    "placeholder": "N/A",
-    "helper_text": "If using account specific rates, enter your shipping account password here.",
-    "v8n_too_long": "Password must be 50 characters or less."
+    "helper_text": ""
   },
   "custom-code": {
     "label": "Custom Code",

@@ -95,4 +95,25 @@ describe('StoreCard', () => {
 
     expect(await getByTestId(element, 'subtitle')).to.include.text('example.com');
   });
+
+  it('renders store activity status in the subtitle', async () => {
+    const router = createRouter();
+    const href = 'https://demo.api/hapi/stores/0';
+    const element = await fixture<StoreCard>(html`
+      <foxy-store-card href=${href} @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-card>
+    `);
+
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
+    element.data = { ...element.data!, is_active: true };
+    await element.requestUpdate();
+    const subtitle = await getByTestId(element, 'subtitle');
+    expect(subtitle?.querySelector('[aria-label="status_active"]')).to.exist;
+    expect(subtitle?.querySelector('[aria-label="status_inactive"]')).to.not.exist;
+
+    element.data = { ...element.data!, is_active: false };
+    await element.requestUpdate();
+    expect(subtitle?.querySelector('[aria-label="status_active"]')).to.not.exist;
+    expect(subtitle?.querySelector('[aria-label="status_inactive"]')).to.exist;
+  });
 });

@@ -1,5 +1,4 @@
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
-import type { Data } from './types';
 
 import './index';
 
@@ -7,8 +6,9 @@ import { InternalAsyncResourceLinkListControl } from '../../internal/InternalAsy
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { StoreShippingMethodForm as Form } from './StoreShippingMethodForm';
 import { InternalResourcePickerControl } from '../../internal/InternalResourcePickerControl/InternalResourcePickerControl';
-import { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
 import { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
+import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
+import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
 import { InternalSourceControl } from '../../internal/InternalSourceControl/InternalSourceControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -16,8 +16,6 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
 import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
-import { Resource } from '@foxy.io/sdk/core';
-import { Rels } from '@foxy.io/sdk/backend';
 
 describe('StoreShippingMethodForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -36,9 +34,14 @@ describe('StoreShippingMethodForm', () => {
     expect(element).to.equal(InternalResourcePickerControl);
   });
 
-  it('imports and defines foxy-internal-checkbox-group-control', () => {
-    const element = customElements.get('foxy-internal-checkbox-group-control');
-    expect(element).to.equal(InternalCheckboxGroupControl);
+  it('imports and defines foxy-internal-summary-control', () => {
+    const element = customElements.get('foxy-internal-summary-control');
+    expect(element).to.equal(InternalSummaryControl);
+  });
+
+  it('imports and defines foxy-internal-switch-control', () => {
+    const element = customElements.get('foxy-internal-switch-control');
+    expect(element).to.equal(InternalSwitchControl);
   });
 
   it('imports and defines foxy-internal-source-control', () => {
@@ -150,264 +153,262 @@ describe('StoreShippingMethodForm', () => {
     expect(form.errors).to.not.include('custom-code:v8n_too_long');
   });
 
-  it('produces the endpoint:v8n_required error for CUSTOM-ENDPOINT-POST method if accountid is empty', () => {
-    const form = new Form();
-    expect(form.errors).to.not.include('endpoint:v8n_required');
+  it('produces the shipping-container-uri:v8n_required error on 400 API response', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-store-shipping-method-form
+        @fetch=${(evt: FetchEvent) => {
+          if (evt.request.method === 'POST') {
+            evt.respondWith(
+              Promise.resolve(
+                new Response(
+                  JSON.stringify({
+                    _embedded: {
+                      'fx:errors': [{ message: 'shipping_container_id must be greater than 0' }],
+                    },
+                  }),
+                  { status: 400 }
+                )
+              )
+            );
+          } else {
+            router.handleEvent(evt);
+          }
+        }}
+      >
+      </foxy-store-shipping-method-form>
+    `);
 
-    form.edit({
-      _embedded: {
-        'fx:shipping_method': {
-          _links: {
-            'self': { href: 'https://demo.api/virtual/stall' },
-            'fx:property_helpers': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_containers': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_drop_types': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_methods': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_services': { href: 'https://demo.api/virtual/stall' },
-          },
-          name: 'Custom Shipping Code',
-          code: 'CUSTOM-ENDPOINT-POST',
-          date_created: null,
-          date_modified: null,
-        },
-      } as Data['_embedded'],
-    });
+    expect(form.errors).to.not.include('shipping-container-uri:v8n_required');
 
-    expect(form.errors).to.include('endpoint:v8n_required');
+    form.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/0' });
+    form.submit();
+    await waitUntil(() => form.in('idle'));
+    expect(form.errors).to.include('shipping-container-uri:v8n_required');
 
-    form.edit({ accountid: 'https://example.com' });
-    expect(form.errors).to.not.include('endpoint:v8n_required');
+    form.edit({ shipping_container_uri: 'https://demo.api/virtual/stall' });
+    expect(form.errors).to.not.include('shipping-container-uri:v8n_required');
   });
 
-  ['USPS', 'FedEx', 'UPS'].forEach(code => {
-    it(`produces the shipping-container-uri:v8n_required error for ${code} method if uri is empty`, () => {
-      const form = new Form();
-      expect(form.errors).to.not.include('shipping-container-uri:v8n_required');
+  it('produces the shipping-drop-type-uri:v8n_required error on 400 API response', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-store-shipping-method-form
+        @fetch=${(evt: FetchEvent) => {
+          if (evt.request.method === 'POST') {
+            evt.respondWith(
+              Promise.resolve(
+                new Response(
+                  JSON.stringify({
+                    _embedded: {
+                      'fx:errors': [{ message: 'shipping_drop_type_id must be greater than 0' }],
+                    },
+                  }),
+                  { status: 400 }
+                )
+              )
+            );
+          } else {
+            router.handleEvent(evt);
+          }
+        }}
+      >
+      </foxy-store-shipping-method-form>
+    `);
 
-      form.edit({
-        _embedded: {
-          'fx:shipping_method': {
-            _links: {
-              'self': { href: 'https://demo.api/virtual/stall' },
-              'fx:property_helpers': { href: 'https://demo.api/virtual/stall' },
-              'fx:shipping_containers': { href: 'https://demo.api/virtual/stall' },
-              'fx:shipping_drop_types': { href: 'https://demo.api/virtual/stall' },
-              'fx:shipping_methods': { href: 'https://demo.api/virtual/stall' },
-              'fx:shipping_services': { href: 'https://demo.api/virtual/stall' },
-            },
-            name: 'Test',
-            code: code,
-            date_created: null,
-            date_modified: null,
-          },
-        } as Data['_embedded'],
-      });
+    expect(form.errors).to.not.include('shipping-drop-type-uri:v8n_required');
 
-      expect(form.errors).to.include('shipping-container-uri:v8n_required');
+    form.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/0' });
+    form.submit();
+    await waitUntil(() => form.in('idle'));
+    expect(form.errors).to.include('shipping-drop-type-uri:v8n_required');
 
-      form.edit({ shipping_container_uri: 'https://demo.api/virtual/stall' });
-      expect(form.errors).to.not.include('shipping-container-uri:v8n_required');
-    });
+    form.edit({ shipping_drop_type_uri: 'https://demo.api/virtual/stall' });
+    expect(form.errors).to.not.include('shipping-drop-type-uri:v8n_required');
   });
 
-  ['FedEx', 'UPS'].forEach(code => {
-    it(`produces the shipping-drop-type-uri:v8n_required error for ${code} method if uri is empty`, () => {
-      const form = new Form();
-      expect(form.errors).to.not.include('shipping-drop-type-uri:v8n_required');
-
-      form.edit({
-        _embedded: {
-          'fx:shipping_method': {
-            _links: {
-              'self': { href: 'https://demo.api/virtual/stall' },
-              'fx:property_helpers': { href: 'https://demo.api/virtual/stall' },
-              'fx:shipping_containers': { href: 'https://demo.api/virtual/stall' },
-              'fx:shipping_drop_types': { href: 'https://demo.api/virtual/stall' },
-              'fx:shipping_methods': { href: 'https://demo.api/virtual/stall' },
-              'fx:shipping_services': { href: 'https://demo.api/virtual/stall' },
-            },
-            name: 'Test',
-            code: code,
-            date_created: null,
-            date_modified: null,
-          },
-        } as Data['_embedded'],
-      });
-
-      expect(form.errors).to.include('shipping-drop-type-uri:v8n_required');
-
-      form.edit({ shipping_drop_type_uri: 'https://demo.api/virtual/stall' });
-      expect(form.errors).to.not.include('shipping-drop-type-uri:v8n_required');
-    });
-  });
-
-  it('hides everything except for shipping method uri, timestamps, create and delete buttons by default', () => {
+  it('shows only relevant controls by default', () => {
     const form = new Form();
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint custom-code services undo submit delete timestamps'
+      'general:shipping-container-uri general:shipping-drop-type-uri destinations account endpoint custom-code services undo submit delete timestamps'
     );
   });
 
-  it('hides everything except for shipping method uri, endpoint, timestamps, create and delete buttons for CUSTOM-ENDPOINT-POST method', () => {
-    const form = new Form();
+  it('shows only relevant controls for CUSTOM-ENDPOINT-POST method', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
 
-    form.edit({
-      _embedded: {
-        'fx:shipping_method': {
-          _links: {
-            'self': { href: 'https://demo.api/virtual/stall' },
-            'fx:property_helpers': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_containers': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_drop_types': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_methods': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_services': { href: 'https://demo.api/virtual/stall' },
-          },
-          name: 'Custom Shipping Code',
-          code: 'CUSTOM-ENDPOINT-POST',
-          date_created: null,
-          date_modified: null,
-        },
-      } as Data['_embedded'],
+    form.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/6' });
+    await form.requestUpdate();
+    await waitUntil(() => {
+      const nucleons = form.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...nucleons].every(n => !!n.in('idle'));
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password custom-code services undo submit delete timestamps'
+      'general destinations account custom-code services undo submit delete timestamps'
     );
   });
 
-  it('hides everything except for shipping method uri, custom code, timestamps, create and delete buttons for CUSTOM-CODE method', () => {
-    const form = new Form();
+  it('shows only relevant controls for CUSTOM-CODE method', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
 
-    form.edit({
-      _embedded: {
-        'fx:shipping_method': {
-          _links: {
-            'self': { href: 'https://demo.api/virtual/stall' },
-            'fx:property_helpers': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_containers': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_drop_types': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_methods': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_services': { href: 'https://demo.api/virtual/stall' },
-          },
-          name: 'Custom Code',
-          code: 'CUSTOM-CODE',
-          date_created: null,
-          date_modified: null,
-        },
-      } as Data['_embedded'],
+    form.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/7' });
+    await form.requestUpdate();
+    await waitUntil(() => {
+      const nucleons = form.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...nucleons].every(n => !!n.in('idle'));
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri destinations authentication-key meter-number accountid password endpoint services undo submit delete timestamps'
+      'general destinations account endpoint services undo submit delete timestamps'
     );
   });
 
-  it('hides everything except for shipping method uri, destinations, services, timestamps, create and delete buttons for CUSTOM method', () => {
-    const form = new Form();
+  it('shows only relevant controls for CUSTOM method', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
 
-    form.edit({
-      _embedded: {
-        'fx:shipping_method': {
-          _links: {
-            'self': { href: 'https://demo.api/virtual/stall' },
-            'fx:property_helpers': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_containers': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_drop_types': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_methods': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_services': { href: 'https://demo.api/virtual/stall' },
-          },
-          name: 'Custom',
-          code: 'CUSTOM',
-          date_created: null,
-          date_modified: null,
-        },
-      } as Data['_embedded'],
+    form.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/3' });
+    await form.requestUpdate();
+    await waitUntil(() => {
+      const nucleons = form.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...nucleons].every(n => !!n.in('idle'));
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'shipping-container-uri shipping-drop-type-uri authentication-key meter-number accountid password endpoint custom-code services undo submit delete timestamps'
+      'general account endpoint custom-code services undo submit delete timestamps'
     );
   });
 
-  it('hides everything except for shipping method uri, shipping container uri, shipping drop type uri, destinations, authentication key, meter number, accountid, password, services, timestamps, create and delete buttons for FedEx method', () => {
-    const form = new Form();
+  it('shows only relevant controls for FedEx method', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
 
-    form.edit({
-      _embedded: {
-        'fx:shipping_method': {
-          _links: {
-            'self': { href: 'https://demo.api/virtual/stall' },
-            'fx:property_helpers': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_containers': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_drop_types': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_methods': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_services': { href: 'https://demo.api/virtual/stall' },
-          },
-          name: 'FedEx',
-          code: 'FedEx',
-          date_created: null,
-          date_modified: null,
-        },
-      } as Data['_embedded'],
+    form.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/1' });
+    await form.requestUpdate();
+    await waitUntil(() => {
+      const nucleons = form.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...nucleons].every(n => !!n.in('idle'));
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'endpoint custom-code services undo submit delete timestamps'
+      'endpoint custom-code services account:accountid account:password account:authentication-key account:meter-number undo submit delete timestamps'
     );
   });
 
-  it('hides everything except for shipping method uri, shipping container uri, shipping drop type uri, destinations, services, timestamps, create and delete buttons for USPS method', () => {
-    const form = new Form();
+  it('shows only relevant controls for USPS method', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
 
-    form.edit({
-      _embedded: {
-        'fx:shipping_method': {
-          _links: {
-            'self': { href: 'https://demo.api/virtual/stall' },
-            'fx:property_helpers': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_containers': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_drop_types': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_methods': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_services': { href: 'https://demo.api/virtual/stall' },
-          },
-          name: 'USPS',
-          code: 'USPS',
-          date_created: null,
-          date_modified: null,
-        },
-      } as Data['_embedded'],
+    form.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/0' });
+    await form.requestUpdate();
+    await waitUntil(() => {
+      const nucleons = form.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...nucleons].every(n => !!n.in('idle'));
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'authentication-key meter-number accountid password endpoint custom-code services undo submit delete timestamps'
+      'account endpoint custom-code services undo submit delete timestamps'
     );
   });
 
-  it('hides everything except for shipping method uri, shipping container uri, shipping drop type uri, destinations, authentication key, meter number, accountid, password, services, timestamps, create and delete buttons for UPS method', () => {
-    const form = new Form();
+  it('shows only relevant controls for UPS method', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
 
-    form.edit({
-      _embedded: {
-        'fx:shipping_method': {
-          _links: {
-            'self': { href: 'https://demo.api/virtual/stall' },
-            'fx:property_helpers': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_containers': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_drop_types': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_methods': { href: 'https://demo.api/virtual/stall' },
-            'fx:shipping_services': { href: 'https://demo.api/virtual/stall' },
-          },
-          name: 'UPS',
-          code: 'UPS',
-          date_created: null,
-          date_modified: null,
-        },
-      } as Data['_embedded'],
+    form.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/2' });
+    await form.requestUpdate();
+    await waitUntil(() => {
+      const nucleons = form.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...nucleons].every(n => !!n.in('idle'));
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'endpoint custom-code services undo submit delete timestamps'
+      'endpoint custom-code services account:accountid account:password account:authentication-key account:meter-number undo submit delete timestamps'
     );
+  });
+
+  it('hides custom account fields by default when they are empty', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
+
+    expect(form.hiddenSelector.matches('account:accountid', true)).to.be.true;
+    expect(form.hiddenSelector.matches('account:password', true)).to.be.true;
+    expect(form.hiddenSelector.matches('account:authentication-key', true)).to.be.true;
+    expect(form.hiddenSelector.matches('account:meter-number', true)).to.be.true;
+
+    form.edit({
+      shipping_method_uri: 'https://demo.api/hapi/shipping_methods/1',
+      authentication_key: '123',
+      meter_number: '123',
+      accountid: '123',
+      password: '123',
+    });
+
+    await form.requestUpdate();
+    await waitUntil(() => {
+      const nucleons = form.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...nucleons].every(n => !!n.in('idle'));
+    });
+
+    expect(form.hiddenSelector.matches('account:accountid', true)).to.be.false;
+    expect(form.hiddenSelector.matches('account:password', true)).to.be.false;
+    expect(form.hiddenSelector.matches('account:authentication-key', true)).to.be.false;
+    expect(form.hiddenSelector.matches('account:meter-number', true)).to.be.false;
+  });
+
+  it('hides custom account field when they are empty unless use-custom-account is checked', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
+
+    form.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/1' });
+    await form.requestUpdate();
+    await waitUntil(() => {
+      const nucleons = form.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...nucleons].every(n => !!n.in('idle'));
+    });
+
+    expect(form.hiddenSelector.matches('account:accountid', true)).to.be.true;
+    expect(form.hiddenSelector.matches('account:password', true)).to.be.true;
+    expect(form.hiddenSelector.matches('account:authentication-key', true)).to.be.true;
+    expect(form.hiddenSelector.matches('account:meter-number', true)).to.be.true;
+
+    const checkbox = form.renderRoot.querySelector(
+      '[infer="use-custom-account"]'
+    ) as InternalSwitchControl;
+
+    checkbox.setValue(true);
+
+    expect(form.hiddenSelector.matches('account:accountid', true)).to.be.false;
+    expect(form.hiddenSelector.matches('account:password', true)).to.be.false;
+    expect(form.hiddenSelector.matches('account:authentication-key', true)).to.be.false;
+    expect(form.hiddenSelector.matches('account:meter-number', true)).to.be.false;
   });
 
   it('renders a form header', async () => {
@@ -418,14 +419,25 @@ describe('StoreShippingMethodForm', () => {
   });
 
   it('uses custom header title options', async () => {
-    const form = new Form();
-    form.data = await getTestData('./hapi/store_shipping_methods/0?zoom=shipping_method');
-    type Embed = { 'fx:shipping_method': Resource<Rels.ShippingMethod> };
-    const shippingMethod = (form.data!._embedded as Embed)['fx:shipping_method'];
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-store-shipping-method-form
+        href="https://demo.api/hapi/store_shipping_methods/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-store-shipping-method-form>
+    `);
+
+    await waitUntil(() => {
+      if (!form.data) return false;
+      const nucleons = form.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...nucleons].every(n => !!n.in('idle'));
+    });
+
     expect(form.headerTitleOptions).to.deep.equal({
       ...form.data!,
       context: 'existing',
-      provider: shippingMethod.name,
+      provider: 'United States Postal Service',
     });
   });
 
@@ -435,7 +447,18 @@ describe('StoreShippingMethodForm', () => {
     expect(form.headerSubtitleOptions).to.deep.equal({ id: form.headerCopyIdValue });
   });
 
-  it('renders resource picker control for shipping method uri', async () => {
+  it('renders summary control for General section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
+
+    const control = element.renderRoot.querySelector('[infer="general"]') as InternalSummaryControl;
+    expect(control).to.be.instanceOf(InternalSummaryControl);
+  });
+
+  it('renders resource picker control for shipping method uri inside of the General section', async () => {
     const router = createRouter();
 
     const element = await fixture<Form>(html`
@@ -447,15 +470,16 @@ describe('StoreShippingMethodForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="shipping-method-uri"]'
+      '[infer="general"] [infer="shipping-method-uri"]'
     ) as InternalResourcePickerControl;
 
     expect(control).to.be.instanceOf(InternalResourcePickerControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.attribute('first', 'https://demo.api/hapi/shipping_methods');
     expect(control).to.have.attribute('item', 'foxy-shipping-method-card');
   });
 
-  it('renders resource picker control for shipping container uri', async () => {
+  it('renders resource picker control for shipping container uri inside of the General section', async () => {
     const router = createRouter();
 
     const element = await fixture<Form>(html`
@@ -466,19 +490,19 @@ describe('StoreShippingMethodForm', () => {
       </foxy-store-shipping-method-form>
     `);
 
-    element.edit({
-      _embedded: {
-        'fx:shipping_method': await getTestData('./hapi/shipping_methods/0', router),
-      },
+    element.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/0' });
+    await element.requestUpdate();
+    await waitUntil(() => {
+      const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...nucleons].every(n => !!n.in('idle'));
     });
 
-    await element.requestUpdate();
-
     const control = element.renderRoot.querySelector(
-      '[infer="shipping-container-uri"]'
+      '[infer="general"] [infer="shipping-container-uri"]'
     ) as InternalResourcePickerControl;
 
     expect(control).to.be.instanceOf(InternalResourcePickerControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.attribute('item', 'foxy-shipping-container-card');
     expect(control).to.have.attribute(
       'first',
@@ -486,7 +510,7 @@ describe('StoreShippingMethodForm', () => {
     );
   });
 
-  it('renders resource picker control for shipping drop type uri', async () => {
+  it('renders resource picker control for shipping drop type uri inside of the General section', async () => {
     const router = createRouter();
 
     const element = await fixture<Form>(html`
@@ -497,19 +521,19 @@ describe('StoreShippingMethodForm', () => {
       </foxy-store-shipping-method-form>
     `);
 
-    element.edit({
-      _embedded: {
-        'fx:shipping_method': await getTestData('./hapi/shipping_methods/0', router),
-      },
+    element.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/0' });
+    await element.requestUpdate();
+    await waitUntil(() => {
+      const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...nucleons].every(n => !!n.in('idle'));
     });
 
-    await element.requestUpdate();
-
     const control = element.renderRoot.querySelector(
-      '[infer="shipping-drop-type-uri"]'
+      '[infer="general"] [infer="shipping-drop-type-uri"]'
     ) as InternalResourcePickerControl;
 
     expect(control).to.be.instanceOf(InternalResourcePickerControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.attribute('item', 'foxy-shipping-drop-type-card');
     expect(control).to.have.attribute(
       'first',
@@ -517,7 +541,7 @@ describe('StoreShippingMethodForm', () => {
     );
   });
 
-  it('renders checkbox group control for destinations', async () => {
+  it('renders summary control for Destinations section', async () => {
     const router = createRouter();
 
     const element = await fixture<Form>(html`
@@ -527,60 +551,95 @@ describe('StoreShippingMethodForm', () => {
 
     const control = element.renderRoot.querySelector(
       '[infer="destinations"]'
-    ) as InternalCheckboxGroupControl;
+    ) as InternalSummaryControl;
 
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', [
-      { value: 'domestic', label: 'domestic' },
-      { value: 'international', label: 'international' },
-    ]);
-
-    expect(control.getValue()).to.be.empty;
-
-    element.edit({ use_for_domestic: true });
-    expect(control.getValue()).to.deep.equal(['domestic']);
-
-    element.edit({ use_for_international: true });
-    expect(control.getValue()).to.deep.equal(['domestic', 'international']);
-
-    element.edit({ use_for_domestic: false });
-    expect(control.getValue()).to.deep.equal(['international']);
-
-    control.setValue([]);
-    expect(element).to.have.nested.property('form.use_for_domestic', false);
-    expect(element).to.have.nested.property('form.use_for_international', false);
-
-    control.setValue(['domestic']);
-    expect(element).to.have.nested.property('form.use_for_domestic', true);
-    expect(element).to.have.nested.property('form.use_for_international', false);
-
-    control.setValue(['domestic', 'international']);
-    expect(element).to.have.nested.property('form.use_for_domestic', true);
-    expect(element).to.have.nested.property('form.use_for_international', true);
+    expect(control).to.be.instanceOf(InternalSummaryControl);
   });
 
-  it('renders text control for authentication key', async () => {
+  it('renders a switch control for domestic destinations inside of the Destinations section', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
       </foxy-store-shipping-method-form>
     `);
 
-    expect(element.renderRoot.querySelector('[infer="authentication-key"]')).to.be.instanceOf(
-      InternalTextControl
-    );
+    expect(
+      element.renderRoot.querySelector('[infer="destinations"] [infer="use-for-domestic"]')
+    ).to.be.instanceOf(InternalSwitchControl);
   });
 
-  it('renders text control for meter number', async () => {
+  it('renders a switch control for international destinations inside of the Destinations section', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
       </foxy-store-shipping-method-form>
     `);
 
-    expect(element.renderRoot.querySelector('[infer="meter-number"]')).to.be.instanceOf(
-      InternalTextControl
+    expect(
+      element.renderRoot.querySelector('[infer="destinations"] [infer="use-for-international"]')
+    ).to.be.instanceOf(InternalSwitchControl);
+  });
+
+  it('renders summary control for Account section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
+
+    const control = element.renderRoot.querySelector('[infer="account"]') as InternalSummaryControl;
+    expect(control).to.be.instanceOf(InternalSummaryControl);
+  });
+
+  it('renders text control for authentication key inside of the Account section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="account"] [infer="authentication-key"]'
     );
+
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.be.instanceOf(InternalTextControl);
+  });
+
+  it('renders text control for meter number inside of the Account section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
+
+    const control = element.renderRoot.querySelector('[infer="account"] [infer="meter-number"]');
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.be.instanceOf(InternalTextControl);
+  });
+
+  it('renders text control for account id inside of the Account section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
+
+    const control = element.renderRoot.querySelector('[infer="account"] [infer="accountid"]');
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.be.instanceOf(InternalTextControl);
+  });
+
+  it('renders password control for password inside of the Account section', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-store-shipping-method-form>
+    `);
+
+    const control = element.renderRoot.querySelector('[infer="account"] [infer="password"]');
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.be.instanceOf(InternalPasswordControl);
   });
 
   it('renders text control for endpoint for "CUSTOM-ENDPOINT-POST" shipping method', async () => {
@@ -601,41 +660,16 @@ describe('StoreShippingMethodForm', () => {
       </foxy-store-shipping-method-form>
     `);
 
-    expect(element.renderRoot.querySelector('[infer="endpoint"]')).to.not.exist;
-    expect(element.renderRoot.querySelector('[infer="accountid"]')).to.exist;
+    element.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/6' });
+    await waitUntil(() => {
+      const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...nucleons].every(n => !!n.in('idle'));
+    });
 
-    element.edit({ shipping_method_uri: 'https://demo.api/hapi/shipping_methods/0' });
-    // @ts-expect-error type is not resolved for some reason
-    await waitUntil(() => !!element.form._embedded?.['fx:shipping_method'], '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="endpoint"]') as InternalTextControl;
 
-    expect(element.renderRoot.querySelector('[infer="accountid"]')).to.not.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
     expect(control).to.have.attribute('property', 'accountid');
-  });
-
-  it('renders text control for account id', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
-      </foxy-store-shipping-method-form>
-    `);
-
-    expect(element.renderRoot.querySelector('[infer="accountid"]')).to.be.instanceOf(
-      InternalTextControl
-    );
-  });
-
-  it('renders password control for password', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-store-shipping-method-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
-      </foxy-store-shipping-method-form>
-    `);
-
-    expect(element.renderRoot.querySelector('[infer="password"]')).to.be.instanceOf(
-      InternalPasswordControl
-    );
   });
 
   it('renders source control for custom code', async () => {
@@ -674,6 +708,7 @@ describe('StoreShippingMethodForm', () => {
     expect(control).to.have.attribute('own-key-for-uri', 'shipping_method_uri');
     expect(control).to.have.attribute('embed-key', 'fx:store_shipping_services');
     expect(control).to.have.attribute('infer', 'services');
+    expect(control).to.have.attribute('limit', '200');
     expect(control).to.have.attribute('item', 'foxy-shipping-service-card');
     expect(control).to.have.attribute(
       'options-href',

@@ -5,24 +5,26 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.api/hapi/store_shipping_methods/0?zoom=shipping_method',
-  parent: 'https://demo.api/hapi/store_shipping_methods?zoom=shipping_method',
+  href: 'https://demo.api/hapi/store_shipping_methods/0',
+  parent: 'https://demo.api/hapi/store_shipping_methods',
   nucleon: true,
   localName: 'foxy-store-shipping-method-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps', 'header'],
+    sections: ['timestamps', 'header', 'general', 'destinations', 'account'],
     buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
     inputs: [
-      'shipping-method-uri',
-      'shipping-container-uri',
-      'shipping-drop-type-uri',
-      'destinations',
-      'authentication-key',
-      'meter-number',
+      'general:shipping-method-uri',
+      'general:shipping-container-uri',
+      'general:shipping-drop-type-uri',
+      'destinations:use-for-domestic',
+      'destinations:use-for-international',
+      'account:use-custom-account',
+      'account:authentication-key',
+      'account:meter-number',
+      'account:accountid',
+      'account:password',
       'endpoint',
-      'accountid',
-      'password',
       'custom-code',
       'services',
     ],
@@ -39,7 +41,7 @@ export const Empty = getStory({ ...summary, ext });
 export const Error = getStory({ ...summary, ext });
 export const Busy = getStory({ ...summary, ext });
 
-CustomCode.args.href = `https://demo.api/hapi/store_shipping_methods/1?zoom=shipping_method`;
+CustomCode.args.href = `https://demo.api/hapi/store_shipping_methods/1`;
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
 Busy.args.href = 'https://demo.api/virtual/stall';

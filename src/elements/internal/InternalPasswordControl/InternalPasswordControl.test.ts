@@ -76,6 +76,11 @@ describe('InternalTextControl', () => {
     expect(new Control()).to.have.property('showGenerator', false);
   });
 
+  it('has a reactive property "layout"', () => {
+    expect(Control).to.have.deep.nested.property('properties.layout', {});
+    expect(new Control()).to.have.property('layout', null);
+  });
+
   it('extends InternalEditableControl', () => {
     expect(new Control()).to.be.instanceOf(InternalEditableControl);
   });
@@ -138,6 +143,17 @@ describe('InternalTextControl', () => {
     await control.requestUpdate();
 
     expect(field).to.have.property('label', 'test label');
+  });
+
+  it('sets "theme" on vaadin-password-field from "layout" on itself', async () => {
+    const layout = html`<test-internal-password-control></test-internal-password-control>`;
+    const control = await fixture<TestControl>(layout);
+    const field = control.renderRoot.querySelector('vaadin-password-field')!;
+    expect(field).to.not.have.attribute('theme');
+
+    control.layout = 'summary-item';
+    await control.requestUpdate();
+    expect(field).to.have.attribute('theme', 'summary-item');
   });
 
   it('sets "disabled" on vaadin-password-field from "disabled" on itself', async () => {

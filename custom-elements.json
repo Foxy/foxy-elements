@@ -16812,13 +16812,11 @@
       "attributes": [
         {
           "name": "customer-addresses",
-          "type": "string",
           "deprecatedMessage": "Link to the collection of customer addresses that can be used with this item."
         },
         {
           "name": "item-categories",
-          "description": "Link to the collection of item categories that can be used with this item.",
-          "type": "string"
+          "description": "Link to the collection of item categories that can be used with this item."
         },
         {
           "name": "locale-codes",
@@ -16826,8 +16824,11 @@
         },
         {
           "name": "coupons",
-          "type": "string",
           "deprecatedMessage": "Link to the collection of coupons that can be used with this item."
+        },
+        {
+          "name": "store",
+          "description": "Link to `fx:store` this item belongs to."
         },
         {
           "name": "simplify-ns-loading",
@@ -16919,14 +16920,12 @@
         {
           "name": "customerAddresses",
           "attribute": "customer-addresses",
-          "type": "string",
           "deprecatedMessage": "Link to the collection of customer addresses that can be used with this item."
         },
         {
           "name": "itemCategories",
           "attribute": "item-categories",
-          "description": "Link to the collection of item categories that can be used with this item.",
-          "type": "string"
+          "description": "Link to the collection of item categories that can be used with this item."
         },
         {
           "name": "localeCodes",
@@ -16936,8 +16935,12 @@
         {
           "name": "coupons",
           "attribute": "coupons",
-          "type": "string",
           "deprecatedMessage": "Link to the collection of coupons that can be used with this item."
+        },
+        {
+          "name": "store",
+          "attribute": "store",
+          "description": "Link to `fx:store` this item belongs to."
         },
         {
           "name": "simplifyNsLoading",
@@ -21154,6 +21157,14 @@
       "description": "Form element for the `fx:payment_method` resource of Payments API.\n\n_Payments API is a client-side virtual API layer built on top of hAPI\nin an attempt to streamline access to stores' payment method settings\nthat is currently a bit quirky due to the legacy functionality. To use\nthis element with hAPI, wrap it into a foxy-payments-api node._",
       "attributes": [
         {
+          "name": "payment-preset",
+          "description": "URL of the linked `fx:payment_preset` resource from the virtual Payments API."
+        },
+        {
+          "name": "store",
+          "description": "URL of the linked `fx:store` resource."
+        },
+        {
           "name": "simplify-ns-loading",
           "type": "boolean",
           "default": "false"
@@ -21241,8 +21252,18 @@
       ],
       "properties": [
         {
+          "name": "paymentPreset",
+          "attribute": "payment-preset",
+          "description": "URL of the linked `fx:payment_preset` resource from the virtual Payments API."
+        },
+        {
           "name": "getImageSrc",
           "description": "A function that returns a URL of a payment method icon based on the given type."
+        },
+        {
+          "name": "store",
+          "attribute": "store",
+          "description": "URL of the linked `fx:store` resource."
         },
         {
           "name": "simplifyNsLoading",
@@ -24519,19 +24540,23 @@
         },
         {
           "name": "store-versions",
-          "description": "URL of the `fx:store_versions` property helper resource."
+          "description": "URL of the `fx:store_versions` property helper resource.",
+          "deprecatedMessage": "All elements in this library are designed to work with store version 2.0."
         },
         {
           "name": "checkout-types",
-          "description": "URL of the `fx:checkout_types` property helper resource."
+          "description": "URL of the `fx:checkout_types` property helper resource.",
+          "deprecatedMessage": "Checkout type is effectively controlled by the default template config."
         },
         {
           "name": "locale-codes",
-          "description": "URL of the `fx:locale_codes` property helper resource."
+          "description": "URL of the `fx:locale_codes` property helper resource.",
+          "deprecatedMessage": "Default locale code is effectively controlled by the active template set."
         },
         {
           "name": "languages",
-          "description": "URL of the `fx:languages` property helper resource."
+          "description": "URL of the `fx:languages` property helper resource.",
+          "deprecatedMessage": "Default language is effectively controlled by the active template set."
         },
         {
           "name": "timezones",
@@ -24645,22 +24670,26 @@
         {
           "name": "storeVersions",
           "attribute": "store-versions",
-          "description": "URL of the `fx:store_versions` property helper resource."
+          "description": "URL of the `fx:store_versions` property helper resource.",
+          "deprecatedMessage": "All elements in this library are designed to work with store version 2.0."
         },
         {
           "name": "checkoutTypes",
           "attribute": "checkout-types",
-          "description": "URL of the `fx:checkout_types` property helper resource."
+          "description": "URL of the `fx:checkout_types` property helper resource.",
+          "deprecatedMessage": "Checkout type is effectively controlled by the default template config."
         },
         {
           "name": "localeCodes",
           "attribute": "locale-codes",
-          "description": "URL of the `fx:locale_codes` property helper resource."
+          "description": "URL of the `fx:locale_codes` property helper resource.",
+          "deprecatedMessage": "Default locale code is effectively controlled by the active template set."
         },
         {
           "name": "languages",
           "attribute": "languages",
-          "description": "URL of the `fx:languages` property helper resource."
+          "description": "URL of the `fx:languages` property helper resource.",
+          "deprecatedMessage": "Default language is effectively controlled by the active template set."
         },
         {
           "name": "timezones",
@@ -28291,6 +28320,10 @@
           "description": "URL of the `fx:payment_gateways` property helper resource."
         },
         {
+          "name": "locale-codes",
+          "description": "Link to the `fx:locale_codes` property helper for currency formatting."
+        },
+        {
           "name": "simplify-ns-loading",
           "type": "boolean",
           "default": "false"
@@ -28386,6 +28419,11 @@
           "name": "paymentGatewaysHelper",
           "attribute": "payment-gateways-helper",
           "description": "URL of the `fx:payment_gateways` property helper resource."
+        },
+        {
+          "name": "localeCodes",
+          "attribute": "locale-codes",
+          "description": "Link to the `fx:locale_codes` property helper for currency formatting."
         },
         {
           "name": "getSubscriptionPageHref"
@@ -30293,6 +30331,10 @@
       "description": "Basic card displaying webhook (`fx:webhook`) info.",
       "attributes": [
         {
+          "name": "resource-uri",
+          "description": "Optional URI of a transaction, customer or subscription. When provided,\nthe form will display logs and statuses for that particular resource only."
+        },
+        {
           "name": "simplify-ns-loading",
           "type": "boolean",
           "default": "false"
@@ -30342,6 +30384,11 @@
         }
       ],
       "properties": [
+        {
+          "name": "resourceUri",
+          "attribute": "resource-uri",
+          "description": "Optional URI of a transaction, customer or subscription. When provided,\nthe form will display logs and statuses for that particular resource only."
+        },
         {
           "name": "simplifyNsLoading",
           "attribute": "simplify-ns-loading",
@@ -30464,6 +30511,10 @@
       "description": "Form element for creating or editing webhooks (`fx:webhook`).",
       "attributes": [
         {
+          "name": "resource-uri",
+          "description": "Optional URI of a transaction, customer or subscription. When provided,\nthe form will display logs and statuses for that particular resource only."
+        },
+        {
           "name": "simplify-ns-loading",
           "type": "boolean",
           "default": "false"
@@ -30550,6 +30601,11 @@
         }
       ],
       "properties": [
+        {
+          "name": "resourceUri",
+          "attribute": "resource-uri",
+          "description": "Optional URI of a transaction, customer or subscription. When provided,\nthe form will display logs and statuses for that particular resource only."
+        },
         {
           "name": "simplifyNsLoading",
           "attribute": "simplify-ns-loading",

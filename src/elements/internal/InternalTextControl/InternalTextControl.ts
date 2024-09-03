@@ -102,6 +102,8 @@ export class InternalTextControl extends InternalEditableControl {
         </div>
 
         <div class="flex-1 flex items-center gap-xs" style="min-width: 30%">
+          ${this.prefix ? html`<div>${this.prefix}</div>` : ''}
+
           <input
             placeholder=${this.placeholder}
             class=${classMap({
@@ -123,6 +125,8 @@ export class InternalTextControl extends InternalEditableControl {
               this._value = (evt.target as HTMLInputElement).value;
             }}
           />
+
+          ${this.suffix ? html`<div class="font-medium text-secondary">${this.suffix}</div>` : ''}
 
           <button
             aria-label=${this.t('clear')}
