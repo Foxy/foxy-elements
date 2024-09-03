@@ -349,4 +349,22 @@ describe('InternalTextControl', () => {
 
     submitMethod.restore();
   });
+
+  it('renders prefix text in summary item layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-text-control layout="summary-item" prefix="Test Prefix">
+      </test-internal-text-control>
+    `);
+
+    expect(control.renderRoot).to.include.text('Test Prefix');
+  });
+
+  it('renders suffix text in summary item layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-text-control layout="summary-item" suffix="Test Suffix">
+      </test-internal-text-control>
+    `);
+
+    expect(control.renderRoot).to.include.text('Test Suffix');
+  });
 });
