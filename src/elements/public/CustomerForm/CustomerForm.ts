@@ -129,7 +129,7 @@ export class CustomerForm extends Base<Data> {
 
   get headerTitleOptions(): Record<string, unknown> {
     const data = this.data;
-    if (!data || data.first_name.trim() || data.last_name.trim()) return super.headerTitleOptions;
+    if (!data || data.first_name?.trim() || data.last_name?.trim()) return super.headerTitleOptions;
     return { ...super.headerTitleOptions, context: 'no_name' };
   }
 
