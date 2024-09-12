@@ -33,7 +33,7 @@
     "start-date": {
       "label": "Start date",
       "helper_text": "",
-      "placeholder": "",
+      "placeholder": "Not set",
       "display_value": "{{ value, date }}",
       "week": "Week",
       "calendar": "Calendar",
@@ -44,7 +44,7 @@
     "end-date": {
       "label": "End date",
       "helper_text": "",
-      "placeholder": "",
+      "placeholder": "Not set",
       "display_value": "{{ value, date }}",
       "week": "Week",
       "calendar": "Calendar",
@@ -71,7 +71,7 @@
     "next-transaction-date": {
       "label": "Next payment date",
       "helper_text": "",
-      "placeholder": "",
+      "placeholder": "Not set",
       "display_value": "{{ value, date }}",
       "week": "Week",
       "calendar": "Calendar",

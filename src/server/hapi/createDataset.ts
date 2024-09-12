@@ -408,7 +408,7 @@ export const createDataset: () => Dataset = () => ({
       transaction_template_id: 0,
       next_transaction_date: '2021-06-19T10:58:39-0700',
       start_date: '2023-02-11T22:45:01-0700',
-      end_date: null,
+      end_date: '0000-00-00',
       frequency: '1m',
       error_message: '',
       past_due_amount: 0,

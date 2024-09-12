@@ -192,6 +192,19 @@ describe('InternalDateControl', () => {
     expect(field).to.have.property('value', '2020-01-01');
   });
 
+  it('supports special value of 0000-00-00', async () => {
+    const layout = html`<test-internal-date-control></test-internal-date-control>`;
+    const control = await fixture<TestControl>(layout);
+    const field = control.renderRoot.querySelector('vaadin-date-picker')!;
+
+    expect(field).to.have.property('value', '');
+
+    control.testValue = '0000-00-00';
+    await control.requestUpdate();
+
+    expect(field).to.have.property('value', '');
+  });
+
   it('sets long ISO "value" on vaadin-date-picker from "_value" on itself', async () => {
     const layout = html`<test-internal-date-control></test-internal-date-control>`;
     const control = await fixture<TestControl>(layout);
