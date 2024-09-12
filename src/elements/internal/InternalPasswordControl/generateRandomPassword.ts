@@ -1,4 +1,9 @@
-export type GeneratorOptions = { length?: number; charset?: string; separator?: string };
+export type GeneratorOptions = {
+  checkStrength?: (value: string) => boolean;
+  separator?: string;
+  charset?: string;
+  length?: number;
+};
 
 export function generateRandomPassword(opts?: GeneratorOptions): string {
   const separator = opts?.separator ?? '-';

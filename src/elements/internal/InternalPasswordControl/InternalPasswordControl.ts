@@ -74,7 +74,22 @@ export class InternalPasswordControl extends InternalEditableControl {
         })}
         slot="suffix"
         @click=${() => {
-          this._value = generateRandomPassword(this.generatorOptions ?? void 0);
+          let isStrong = false;
+          let newValue: string;
+          let attempts = 0;
+
+          do {
+            newValue = generateRandomPassword(this.generatorOptions ?? void 0);
+            isStrong = this.generatorOptions?.checkStrength?.(newValue) ?? true;
+            attempts++;
+          } while (!isStrong && attempts < 100);
+
+          if (isStrong) {
+            this._value = newValue;
+          } else {
+            throw new Error('Failed to generate a strong password.');
+          }
+
           const field = this.renderRoot.querySelector('vaadin-password-field');
           // @ts-expect-error: this is a private method but it's ok since the version is fixed
           field?._setPasswordVisible(true);

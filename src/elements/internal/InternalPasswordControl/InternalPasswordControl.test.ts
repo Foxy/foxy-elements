@@ -267,5 +267,15 @@ describe('InternalTextControl', () => {
 
     button.click();
     expect(control.testValue).to.match(/^[a-z0-9]{6}\|[a-z0-9]{6}$/);
+
+    control.generatorOptions = {
+      checkStrength: value => value === 'abc',
+      separator: '',
+      charset: 'abc',
+      length: 3,
+    };
+
+    button.click();
+    expect(control.testValue).to.equal('abc');
   });
 });
