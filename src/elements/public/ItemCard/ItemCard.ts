@@ -10,6 +10,7 @@ import { ConfigurableMixin } from '../../../mixins/configurable';
 import { parseFrequency } from '../../../utils/parse-frequency';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { decode } from 'html-entities';
 import { html } from 'lit-html';
 
 const NS = 'item-card';
@@ -139,7 +140,7 @@ export class ItemCard extends Base<Data> {
             <div class="min-w-0 flex-1 leading-s">
               <div class="flex items-center justify-between">
                 <div class="truncate text-m font-medium">
-                  ${this.data?.name || html`<foxy-i18n infer="" key="no_code"></foxy-i18n>`}
+                  ${decode(this.data?.name) || html`<foxy-i18n infer="" key="no_code"></foxy-i18n>`}
                 </div>
                 <span class="text-s text-tertiary whitespace-nowrap">
                   ${quantity} &times;

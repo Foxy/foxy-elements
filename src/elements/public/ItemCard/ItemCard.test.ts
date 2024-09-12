@@ -60,7 +60,7 @@ describe('ItemCard', () => {
     expect(element.renderRoot).to.include.text('Test Item Name');
   });
 
-  it('renders item name', async () => {
+  it('renders item name with html entities', async () => {
     const router = createRouter();
     const element = await fixture<ItemCard>(html`
       <foxy-item-card
@@ -72,11 +72,11 @@ describe('ItemCard', () => {
 
     await waitUntil(() => element.in({ idle: 'snapshot' }));
 
-    element.data!.name = 'Test Item Name';
+    element.data!.name = 'Hot &amp; Sweet';
     element.data = { ...element.data! };
     await element.requestUpdate();
 
-    expect(element.renderRoot).to.include.text('Test Item Name');
+    expect(element.renderRoot).to.include.text('Hot & Sweet');
   });
 
   it('renders price breakdown', async () => {
