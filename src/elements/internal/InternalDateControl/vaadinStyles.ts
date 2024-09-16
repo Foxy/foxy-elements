@@ -74,5 +74,13 @@ registerStyles(
     :host([theme~='summary-item'][readonly]) [part='value'] {
       margin-right: 0;
     }
+
+    :host([theme~='summary-item']) [part='clear-button'] {
+      transform: scale(1.5);
+    }
+
+    :host([has-value]) slot[name='suffix'] {
+      display: none;
+    }
   `
 );

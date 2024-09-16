@@ -2,6 +2,7 @@ import type { VanillaHCaptchaWebComponent } from 'vanilla-hcaptcha';
 import type { Data, Settings } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { ScopedElementsMap } from '@open-wc/scoped-elements';
+import type { GeneratorOptions } from '../../internal/InternalPasswordControl/generateRandomPassword';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 
@@ -83,6 +84,10 @@ export class CustomerForm extends Base<Data> {
   /** Full `fx:customer_portal_settings` resource from Customer API. If present, switches this element into the Customer API mode, enabling client verification. */
   settings: Settings | null = null;
 
+  private readonly __passwordGeneratorOptions: GeneratorOptions = {
+    checkStrength: value => passwordStrength(value).id >= 2,
+  };
+
   private readonly __isAnonymousGetValue = () => {
     return this.form?.is_anonymous === false ? 'false' : 'true';
   };
@@ -129,7 +134,7 @@ export class CustomerForm extends Base<Data> {
 
   get headerTitleOptions(): Record<string, unknown> {
     const data = this.data;
-    if (!data || data.first_name.trim() || data.last_name.trim()) return super.headerTitleOptions;
+    if (!data || data.first_name?.trim() || data.last_name?.trim()) return super.headerTitleOptions;
     return { ...super.headerTitleOptions, context: 'no_name' };
   }
 
@@ -188,6 +193,7 @@ export class CustomerForm extends Base<Data> {
         helper-text=${this.__passwordHelperText}
         infer="password"
         show-generator
+        .generatorOptions=${this.__passwordGeneratorOptions}
       >
       </foxy-internal-password-control>
 

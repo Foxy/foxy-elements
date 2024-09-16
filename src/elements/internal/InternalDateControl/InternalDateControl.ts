@@ -35,12 +35,16 @@ export class InternalDateControl extends InternalEditableControl {
   renderControl(): TemplateResult {
     let value: string;
 
-    if (this.format === 'unix') {
-      value = serializeDate(new Date(((this._value as number) ?? 0) * 1000));
-    } else if (this.format === 'iso-long') {
-      value = serializeDate(new Date(this._value as string));
+    if (this._value === '0000-00-00' || !this._value) {
+      value = '';
     } else {
-      value = this._value as string;
+      if (this.format === 'unix') {
+        value = serializeDate(new Date(((this._value as number) ?? 0) * 1000));
+      } else if (this.format === 'iso-long') {
+        value = serializeDate(new Date(this._value as string));
+      } else {
+        value = this._value as string;
+      }
     }
 
     return html`
@@ -56,6 +60,7 @@ export class InternalDateControl extends InternalEditableControl {
         .checkValidity=${this._checkValidity}
         .value=${value}
         .i18n=${this.__pickerI18n}
+        clear-button-visible
         @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
         @change=${(evt: CustomEvent) => {
           const field = evt.currentTarget as DatePickerElement;

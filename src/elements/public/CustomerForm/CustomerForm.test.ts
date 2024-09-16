@@ -230,6 +230,11 @@ describe('CustomerForm', () => {
 
     form.data = { ...data, first_name: '', last_name: '' };
     expect(form.headerTitleOptions).to.have.property('context', 'no_name');
+
+    // TODO: remove this when SDK types are fixed
+    // @ts-expect-error SDK types are incomplete
+    form.data = { ...data, first_name: null, last_name: null };
+    expect(form.headerTitleOptions).to.have.property('context', 'no_name');
   });
 
   it('uses custom form header subtitle key', async () => {
@@ -322,13 +327,17 @@ describe('CustomerForm', () => {
 
   it('renders a password field for password', async () => {
     const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-    const control = form.renderRoot.querySelector('[infer="password"]');
+    const control = form.renderRoot.querySelector<InternalPasswordControl>('[infer="password"]');
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalPasswordControl);
     expect(control).to.have.attribute('show-generator');
     expect(control).to.have.attribute('placeholder', 'password.placeholder');
     expect(control).to.have.attribute('helper-text', 'password.helper_text');
+    expect(control).to.have.property('generatorOptions');
+    expect(control).to.have.nested.property('generatorOptions.checkStrength');
+    expect(control?.generatorOptions?.checkStrength?.('123')).to.be.false;
+    expect(control?.generatorOptions?.checkStrength?.('mFveRh-RZ6ZHm-YlKlqX')).to.be.true;
 
     form.data = await getTestData<Data>('./hapi/customers/0');
     await form.requestUpdate();
