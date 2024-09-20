@@ -1,5 +1,6 @@
 import '../../internal/InternalSandbox/index';
 
+import '../NucleonElement/index';
 import '../Spinner/index';
 import '../I18n/index';
 
