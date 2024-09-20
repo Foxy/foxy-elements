@@ -29493,6 +29493,12 @@
       "description": "Card element representing a `fx:user` resource.",
       "attributes": [
         {
+          "name": "show-invitations",
+          "description": "When true, displays the number of unanswered invitations next to profile picture if there are some.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
           "name": "simplify-ns-loading",
           "type": "boolean",
           "default": "false"
@@ -29574,6 +29580,13 @@
         }
       ],
       "properties": [
+        {
+          "name": "showInvitations",
+          "attribute": "show-invitations",
+          "description": "When true, displays the number of unanswered invitations next to profile picture if there are some.",
+          "type": "boolean",
+          "default": "false"
+        },
         {
           "name": "simplifyNsLoading",
           "attribute": "simplify-ns-loading",
@@ -29837,6 +29850,594 @@
         }
       ],
       "properties": [
+        {
+          "name": "simplifyNsLoading",
+          "attribute": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
+        {
+          "name": "templates",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "virtualHost",
+          "attribute": "virtual-host",
+          "description": "Unique identifier for the virtual host used by the element to serve internal requests.\n\nCurrently only one endpoint is supported: `foxy://<virtualHost>/form/<path>`.\nThis endpoint supports POST, GET, PATCH and DELETE methods and functions like a hAPI server.\n\nFor example, `GET foxy://nucleon-123/form/subscriptions/allowNextDateModification/0` on a NucleonElement\nwith `fx:customer_portal_settings` will return the first item of the `subscriptions.allowNextDateModification` array.",
+          "default": "\"uniqueId('nucleon-')\""
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-user-invitation-card",
+      "path": "./src/elements/public/UserInvitationCard/index.ts",
+      "attributes": [
+        {
+          "name": "default-domain",
+          "description": "Default host domain for stores that don't use a custom domain name, e.g. `foxycart.com`."
+        },
+        {
+          "name": "layout",
+          "description": "Admin layout will display user info, user layout (default) will display store info."
+        },
+        {
+          "name": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "virtual-host",
+          "description": "Unique identifier for the virtual host used by the element to serve internal requests.\n\nCurrently only one endpoint is supported: `foxy://<virtualHost>/form/<path>`.\nThis endpoint supports POST, GET, PATCH and DELETE methods and functions like a hAPI server.\n\nFor example, `GET foxy://nucleon-123/form/subscriptions/allowNextDateModification/0` on a NucleonElement\nwith `fx:customer_portal_settings` will return the first item of the `subscriptions.allowNextDateModification` array.",
+          "default": "\"uniqueId('nucleon-')\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "defaultDomain",
+          "attribute": "default-domain",
+          "description": "Default host domain for stores that don't use a custom domain name, e.g. `foxycart.com`."
+        },
+        {
+          "name": "layout",
+          "attribute": "layout",
+          "description": "Admin layout will display user info, user layout (default) will display store info."
+        },
+        {
+          "name": "simplifyNsLoading",
+          "attribute": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "templates",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "virtualHost",
+          "attribute": "virtual-host",
+          "description": "Unique identifier for the virtual host used by the element to serve internal requests.\n\nCurrently only one endpoint is supported: `foxy://<virtualHost>/form/<path>`.\nThis endpoint supports POST, GET, PATCH and DELETE methods and functions like a hAPI server.\n\nFor example, `GET foxy://nucleon-123/form/subscriptions/allowNextDateModification/0` on a NucleonElement\nwith `fx:customer_portal_settings` will return the first item of the `subscriptions.allowNextDateModification` array.",
+          "default": "\"uniqueId('nucleon-')\""
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-user-invitation-form",
+      "path": "./src/elements/public/UserInvitationForm/index.ts",
+      "attributes": [
+        {
+          "name": "default-domain",
+          "description": "Default host domain for stores that don't use a custom domain name, e.g. `foxycart.com`."
+        },
+        {
+          "name": "layout",
+          "description": "Admin layout will display user info, user layout (default) will display store info."
+        },
+        {
+          "name": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "virtual-host",
+          "description": "Unique identifier for the virtual host used by the element to serve internal requests.\n\nCurrently only one endpoint is supported: `foxy://<virtualHost>/form/<path>`.\nThis endpoint supports POST, GET, PATCH and DELETE methods and functions like a hAPI server.\n\nFor example, `GET foxy://nucleon-123/form/subscriptions/allowNextDateModification/0` on a NucleonElement\nwith `fx:customer_portal_settings` will return the first item of the `subscriptions.allowNextDateModification` array.",
+          "default": "\"uniqueId('nucleon-')\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "defaultDomain",
+          "attribute": "default-domain",
+          "description": "Default host domain for stores that don't use a custom domain name, e.g. `foxycart.com`."
+        },
+        {
+          "name": "layout",
+          "attribute": "layout",
+          "description": "Admin layout will display user info, user layout (default) will display store info."
+        },
         {
           "name": "simplifyNsLoading",
           "attribute": "simplify-ns-loading",
