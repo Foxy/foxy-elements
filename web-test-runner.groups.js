@@ -664,6 +664,10 @@ export const groups = [
     files: './src/elements/public/UserForm/**/*.test.ts',
   },
   {
+    name: 'foxy-user-invitation-form',
+    files: './src/elements/public/UserInvitationForm/**/*.test.ts',
+  },
+  {
     name: 'foxy-users-table',
     files: './src/elements/public/UsersTable/**/*.test.ts',
   },

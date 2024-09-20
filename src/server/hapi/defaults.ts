@@ -1070,4 +1070,20 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+
+  user_invitations: (query, dataset) => ({
+    id: increment('user_invitations', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    user_id: parseInt(query.get('user_id') ?? '0'),
+    store_url: '',
+    store_name: '',
+    store_email: '',
+    store_domain: '',
+    first_name: '',
+    last_name: '',
+    email: '',
+    status: 'sent',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
 };

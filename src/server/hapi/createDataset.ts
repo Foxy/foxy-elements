@@ -1963,4 +1963,22 @@ export const createDataset: () => Dataset = () => ({
       date_modified: '2018-01-01T04:30:53-0700',
     },
   ],
+
+  user_invitations: [
+    {
+      id: 0,
+      store_id: 0,
+      user_id: 0,
+      store_url: 'https://example.com',
+      store_name: 'Example Store',
+      store_email: 'admin@example.com',
+      store_domain: 'example',
+      first_name: 'Sally',
+      last_name: 'Sims',
+      email: 'sally.sims@example.com',
+      status: 'sent',
+      date_created: '2022-12-01T10:07:05-0800',
+      date_modified: '2022-12-01T10:07:05-0800',
+    },
+  ],
 });

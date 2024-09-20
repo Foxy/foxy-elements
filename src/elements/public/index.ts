@@ -111,6 +111,7 @@ export { TransactionsTable } from './TransactionsTable/TransactionsTable';
 export { UpdatePaymentMethodForm } from './UpdatePaymentMethodForm/UpdatePaymentMethodForm';
 export { UserCard } from './UserCard/UserCard';
 export { UserForm } from './UserForm/UserForm';
+export { UserInvitationForm } from './UserInvitationForm/UserInvitationForm';
 export { UsersTable } from './UsersTable/UsersTable';
 export { WebhookCard } from './WebhookCard/WebhookCard';
 export { WebhookForm } from './WebhookForm/WebhookForm';
