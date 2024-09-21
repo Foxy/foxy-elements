@@ -22,6 +22,10 @@ async function waitForIdle(element: Control) {
 }
 
 describe('InternalResourcePickerControl', () => {
+  it('imports and defines vaadin-button element', () => {
+    expect(customElements.get('vaadin-button')).to.exist;
+  });
+
   it('imports and defines foxy-internal-editable-control element', () => {
     expect(customElements.get('foxy-internal-resource-picker-control')).to.exist;
   });
@@ -32,6 +36,10 @@ describe('InternalResourcePickerControl', () => {
 
   it('imports and defines foxy-internal-form element', () => {
     expect(customElements.get('foxy-internal-form')).to.exist;
+  });
+
+  it('imports and defines foxy-copy-to-clipboard element', () => {
+    expect(customElements.get('foxy-copy-to-clipboard')).to.exist;
   });
 
   it('imports and defines foxy-form-dialog element', () => {
@@ -63,9 +71,22 @@ describe('InternalResourcePickerControl', () => {
     expect(new Control().getDisplayValueOptions(resource)).to.deep.equal({ resource });
   });
 
+  it('has a reactive property "showCopyIdButton"', () => {
+    expect(new Control()).to.have.property('showCopyIdButton', false);
+    expect(Control).to.have.deep.nested.property('properties.showCopyIdButton', {
+      attribute: 'show-copy-id-button',
+      type: Boolean,
+    });
+  });
+
   it('has a reactive property "virtualHost"', () => {
     expect(Control).to.have.deep.nested.property('properties.virtualHost', {});
     expect(new Control()).to.have.property('virtualHost').that.is.a('string');
+  });
+
+  it('has a reactive property "getItemUrl"', () => {
+    expect(Control).to.have.deep.nested.property('properties.getItemUrl', { attribute: false });
+    expect(new Control()).to.have.property('getItemUrl', null);
   });
 
   it('has a reactive property "formProps"', () => {
@@ -419,6 +440,91 @@ describe('InternalResourcePickerControl', () => {
 
     expect(selectBtn).to.have.attribute('disabled');
     expect(clearBtn).to.have.attribute('hidden');
+  });
+
+  it('renders View link in standalone layout when value is set and getItemUrl is defined', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control
+        infer=""
+        first="https://demo.api/hapi/customers"
+        item="foxy-customer-card"
+        .getItemUrl=${(value: string) => value.replace('demo.api', 'example.com')}
+      >
+      </foxy-internal-resource-picker-control>
+    `);
+
+    let linkText = control.renderRoot.querySelector('[key="view"]');
+    expect(linkText).to.not.exist;
+
+    control.getValue = () => 'https://demo.api/hapi/customers/0';
+    await control.requestUpdate();
+    linkText = control.renderRoot.querySelector('[key="view"]');
+    expect(linkText).to.exist;
+    expect(linkText).to.have.attribute('infer', '');
+
+    const viewLink = linkText?.closest('a');
+    expect(viewLink).to.exist;
+    expect(viewLink).to.have.attribute('href', 'https://example.com/hapi/customers/0');
+  });
+
+  it('renders Copy ID button in standalone layout when value is set and showCopyIdButton is true', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control
+        infer=""
+        first="https://demo.api/hapi/customers"
+        item="foxy-customer-card"
+      >
+      </foxy-internal-resource-picker-control>
+    `);
+
+    const selector = 'foxy-copy-to-clipboard[infer="copy-id"]';
+    let copyBtn = control.renderRoot.querySelector(selector);
+    expect(copyBtn).to.not.exist;
+
+    control.getValue = () => 'https://demo.api/hapi/customers/0';
+    await control.requestUpdate();
+    copyBtn = control.renderRoot.querySelector(selector);
+    expect(copyBtn).to.not.exist;
+
+    control.showCopyIdButton = true;
+    await control.requestUpdate();
+    copyBtn = control.renderRoot.querySelector(selector);
+    expect(copyBtn).to.exist;
+    expect(copyBtn).to.have.attribute('layout', 'text');
+    expect(copyBtn).to.have.attribute('theme', 'contrast tertiary-inline');
+  });
+
+  it('renders Clear button in standalone layout when value is set', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control
+        infer=""
+        first="https://demo.api/hapi/customers"
+        item="foxy-customer-card"
+      >
+      </foxy-internal-resource-picker-control>
+    `);
+
+    let btnText = control.renderRoot.querySelector('foxy-i18n[key="clear"]');
+    expect(btnText).to.not.exist;
+
+    control.getValue = () => 'https://demo.api/hapi/customers/0';
+    await control.requestUpdate();
+    btnText = control.renderRoot.querySelector('foxy-i18n[key="clear"]');
+    expect(btnText).to.exist;
+    expect(btnText).to.have.attribute('infer', '');
+
+    const clearBtn = btnText?.closest('vaadin-button');
+    expect(clearBtn).to.exist;
+    expect(clearBtn).to.not.have.attribute('disabled');
+
+    const setValueStub = stub();
+    control.setValue = setValueStub;
+    clearBtn?.click();
+    expect(setValueStub).to.have.been.calledOnceWith('');
+
+    control.disabled = true;
+    await control.requestUpdate();
+    expect(clearBtn).to.have.attribute('disabled');
   });
 
   describe('InternalResourcePickerControlForm', () => {

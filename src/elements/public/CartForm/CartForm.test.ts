@@ -40,6 +40,7 @@ async function createElement(router = createRouter()) {
       regions="https://demo.api/hapi/property_helpers/4"
       coupons="https://demo.api/hapi/coupons?store_id=0"
       href="https://demo.api/hapi/carts/0?zoom=discounts"
+      .getCustomerPageUrl=${(id: string) => `/customer/${id}`}
       @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
     >
     </foxy-cart-form>
@@ -195,6 +196,13 @@ describe('CartForm', () => {
       'properties.paymentCardEmbedUrl.attribute',
       'payment-card-embed-url'
     );
+  });
+
+  it('has a reactive property "getCustomerPageUrl"', () => {
+    expect(new Form()).to.have.property('getCustomerPageUrl', null);
+    expect(Form).to.have.deep.nested.property('properties.getCustomerPageUrl', {
+      attribute: false,
+    });
   });
 
   it('has a reactive property "itemCategories"', () => {
@@ -534,20 +542,20 @@ describe('CartForm', () => {
     );
   });
 
-  it('renders resource picker control for customer uri inside General summary', async () => {
+  it('renders resource picker control for customer uri', async () => {
     const router = createRouter();
     const element = await createElement(router);
     await waitForIdle(element);
 
-    const control = element.renderRoot.querySelector<InternalResourcePickerControl>(
-      `[infer="general"] [infer="customer-uri"]`
-    );
+    const control =
+      element.renderRoot.querySelector<InternalResourcePickerControl>('[infer="customer-uri"]');
 
     expect(control).to.exist;
     expect(control?.localName).to.equal('foxy-internal-resource-picker-control');
-    expect(control?.getAttribute('layout')).to.equal('summary-item');
     expect(control?.getAttribute('item')).to.equal('foxy-customer-card');
     expect(control?.getAttribute('first')).to.equal('https://demo.api/hapi/customers?store_id=0');
+    expect(control).to.have.attribute('show-copy-id-button');
+    expect(control).to.have.property('getItemUrl', element.getCustomerPageUrl);
 
     expect(control).to.have.deep.property('filters', [
       { label: 'filter_email', path: 'email', type: Type.String },
