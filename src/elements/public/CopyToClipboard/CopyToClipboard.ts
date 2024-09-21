@@ -1,17 +1,13 @@
-import {
-  CSSResult,
-  LitElement,
-  PropertyDeclarations,
-  TemplateResult,
-  css,
-  html,
-} from 'lit-element';
+import type { CSSResult, PropertyDeclarations, TemplateResult } from 'lit-element';
 
+import { LitElement, css, html } from 'lit-element';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { InferrableMixin } from '../../../mixins/inferrable';
-import { TranslatableMixin } from '../../../mixins/translatable';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
-const Base = ConfigurableMixin(TranslatableMixin(InferrableMixin(LitElement), 'copy-to-clipboard'));
+const NS = 'copy-to-clipboard';
+const Base = ConfigurableMixin(TranslatableMixin(InferrableMixin(LitElement), NS));
 
 /**
  * A simple "click to copy" button that takes the size of the font
@@ -24,6 +20,8 @@ export class CopyToClipboard extends Base {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      layout: {},
+      theme: {},
       text: { type: String },
       icon: { type: String },
       __state: { attribute: false },
@@ -32,7 +30,7 @@ export class CopyToClipboard extends Base {
 
   static get styles(): CSSResult {
     return css`
-      button {
+      .icon-button {
         position: relative;
         appearance: none;
         background: none;
@@ -48,7 +46,7 @@ export class CopyToClipboard extends Base {
         align-items: center;
       }
 
-      button::before {
+      .icon-button::before {
         position: absolute;
         inset: 0;
         content: ' ';
@@ -59,22 +57,22 @@ export class CopyToClipboard extends Base {
         border-radius: var(--lumo-border-radius-s);
       }
 
-      button:focus {
+      .icon-button:focus {
         outline: none;
         box-shadow: 0 0 0 2px currentColor;
       }
 
-      button:disabled {
+      .icon-button:disabled {
         opacity: 0.5;
         cursor: default;
       }
 
       @media (hover: hover) {
-        button:not(:disabled):hover {
+        .icon-button:not(:disabled):hover {
           cursor: pointer;
         }
 
-        button:not(:disabled):hover::before {
+        .icon-button:not(:disabled):hover::before {
           opacity: 0.16;
         }
       }
@@ -86,6 +84,12 @@ export class CopyToClipboard extends Base {
     `;
   }
 
+  /** Icon or text UI. Icon UI by default. */
+  layout: 'text' | 'icon' | null = null;
+
+  /** VaadinButton theme for text layout. */
+  theme: string | null = null;
+
   /** Default icon. */
   icon: string | null = null;
 
@@ -95,6 +99,7 @@ export class CopyToClipboard extends Base {
   private __state: 'idle' | 'busy' | 'fail' | 'done' = 'idle';
 
   render(): TemplateResult {
+    const layout = this.layout === 'text' ? 'text' : 'icon';
     let label = '';
     let icon = '';
 
@@ -113,26 +118,48 @@ export class CopyToClipboard extends Base {
     }
 
     return html`
-      <button
-        id="trigger"
-        ?disabled=${this.disabled}
-        @click=${() => {
-          if (this.__state === 'idle') {
-            this.__state = 'busy';
-
-            navigator.clipboard
-              .writeText(this.text ?? '')
-              .then(() => (this.__state = 'done'))
-              .catch(() => (this.__state = 'fail'))
-              .then(() => setTimeout(() => (this.__state = 'idle'), 2000));
-          }
-        }}
-      >
-        <iron-icon icon=${icon}></iron-icon>
-      </button>
-      <vcf-tooltip for="trigger" position="bottom">
-        <span class="text-s"><foxy-i18n infer="" class="text-s" key=${label}></foxy-i18n></span>
-      </vcf-tooltip>
+      ${layout === 'icon'
+        ? html`
+            <button
+              id="trigger"
+              class="icon-button"
+              ?disabled=${this.disabled}
+              @click=${this.__copy}
+            >
+              <iron-icon icon=${icon}></iron-icon>
+            </button>
+            <vcf-tooltip
+              position="bottom"
+              style="--lumo-base-color: black"
+              theme="light"
+              for="trigger"
+            >
+              <span class="text-s" style="color: white">
+                <foxy-i18n infer="" key=${label}></foxy-i18n>
+              </span>
+            </vcf-tooltip>
+          `
+        : html`
+            <vaadin-button
+              theme=${ifDefined(this.theme ?? void 0)}
+              ?disabled=${this.disabled}
+              @click=${this.__copy}
+            >
+              <foxy-i18n infer="" key=${label}></foxy-i18n>
+            </vaadin-button>
+          `}
     `;
+  }
+
+  private __copy() {
+    if (this.__state === 'idle') {
+      this.__state = 'busy';
+
+      navigator.clipboard
+        .writeText(this.text ?? '')
+        .then(() => (this.__state = 'done'))
+        .catch(() => (this.__state = 'fail'))
+        .then(() => setTimeout(() => (this.__state = 'idle'), 2000));
+    }
   }
 }
