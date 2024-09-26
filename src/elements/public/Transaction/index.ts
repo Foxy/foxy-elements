@@ -9,6 +9,7 @@ import '../ShipmentCard/index';
 import '../PaymentCard/index';
 import '../WebhookCard/index';
 import '../WebhookForm/index';
+import '../AddressForm/index';
 import '../ItemCard/index';
 import '../ItemForm/index';
 import '../I18n/index';

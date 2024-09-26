@@ -51,6 +51,10 @@ describe('Transaction', () => {
     expect(customElements.get('foxy-payment-card')).to.exist;
   });
 
+  it('imports and defines foxy-address-form', () => {
+    expect(customElements.get('foxy-address-form')).to.exist;
+  });
+
   it('imports and defines foxy-item-form', () => {
     expect(customElements.get('foxy-item-form')).to.exist;
   });
