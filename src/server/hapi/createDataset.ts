@@ -844,6 +844,7 @@ export const createDataset: () => Dataset = () => ({
     number_of_uses_allowed: 100,
     number_of_uses_to_date: 31,
     number_of_uses_allowed_per_code: 0,
+    item_option_restrictions: { color: ['red', 'blue'], model: ['CT-*'] },
     coupon_discount_type: 'quantity_percentage',
     coupon_discount_details: 'repeat|6-10',
     customer_auto_apply: false,

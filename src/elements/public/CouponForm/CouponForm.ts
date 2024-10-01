@@ -11,9 +11,9 @@ import type { Rels } from '@foxy.io/sdk/backend';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ResponsiveMixin } from '../../../mixins/responsive';
 import { BooleanSelector } from '@foxy.io/sdk/core';
-import { Operator, Type } from '../QueryBuilder/types';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { Type } from '../QueryBuilder/types';
 import { html } from 'lit-html';
 
 const NS = 'coupon-form';
@@ -110,29 +110,6 @@ export class CouponForm extends Base<Data> {
         .filter((v, i, a) => !!v && a.indexOf(v) === i)
         .join(','),
     });
-  };
-
-  private readonly __itemOptionRestrictionsOperators = [Operator.In];
-
-  private readonly __itemOptionRestrictionsGetValue = () => {
-    const query = new URLSearchParams();
-    const rules = this.form.item_option_restrictions ?? {};
-
-    for (const key in rules) {
-      query.set(`${key}:in`, rules[key].join(','));
-    }
-
-    return query.toString();
-  };
-
-  private readonly __itemOptionRestrictionsSetValue = (newValue: string) => {
-    const rules = Object.fromEntries(
-      Array.from(new URLSearchParams(newValue).entries()).map(([key, value]) => {
-        return [key.replace(':in', ''), value.split(',').filter(v => !!v.trim())];
-      })
-    );
-
-    this.edit({ item_option_restrictions: rules });
   };
 
   private readonly __storeLoaderId = 'storeLoader';
@@ -251,14 +228,8 @@ export class CouponForm extends Base<Data> {
       >
       </foxy-internal-editable-list-control>
 
-      <foxy-internal-query-builder-control
-        infer="item-option-restrictions"
-        disable-or
-        .operators=${this.__itemOptionRestrictionsOperators}
-        .getValue=${this.__itemOptionRestrictionsGetValue}
-        .setValue=${this.__itemOptionRestrictionsSetValue}
-      >
-      </foxy-internal-query-builder-control>
+      <foxy-internal-array-map-control infer="item-option-restrictions">
+      </foxy-internal-array-map-control>
 
       <foxy-internal-summary-control infer="customer-restrictions">
         <foxy-internal-query-builder-control

@@ -8,10 +8,10 @@ import type { Rels } from '@foxy.io/sdk/backend';
 import './index';
 
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
-import { Operator, Type } from '../QueryBuilder/types';
 import { createRouter } from '../../../server/index';
 import { getTestData } from '../../../testgen/getTestData';
 import { CouponForm } from './CouponForm';
+import { Type } from '../QueryBuilder/types';
 import { stub } from 'sinon';
 
 describe('CouponForm', () => {
@@ -39,6 +39,10 @@ describe('CouponForm', () => {
 
   it('imports and defines foxy-internal-query-builder-control', () => {
     expect(customElements.get('foxy-internal-query-builder-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-array-map-control', () => {
+    expect(customElements.get('foxy-internal-array-map-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-number-control', () => {
@@ -407,24 +411,13 @@ describe('CouponForm', () => {
     ]);
   });
 
-  it('renders query builder control for item option restrictions', async () => {
+  it('renders array map control for item option restrictions', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-query-builder-control[infer=item-option-restrictions]'
+      'foxy-internal-array-map-control[infer=item-option-restrictions]'
     ) as InternalQueryBuilderControl;
 
     expect(control).to.exist;
-    expect(control).to.have.attribute('disable-or');
-    expect(control).to.have.deep.property('operators', [Operator.In]);
-
-    expect(control.getValue()).to.equal('');
-    control.setValue('foo:in=bar,baz');
-    expect(element).to.have.deep.nested.property('form.item_option_restrictions', {
-      foo: ['bar', 'baz'],
-    });
-
-    element.edit({ item_option_restrictions: { a: ['b', 'c'] } });
-    expect(control.getValue()).to.equal('a%3Ain=b%2Cc');
   });
 
   it('renders editable list control for product code restrictions', async () => {

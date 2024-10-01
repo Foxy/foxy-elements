@@ -2,6 +2,7 @@ import '../../internal/InternalAsyncResourceLinkListControl/index';
 import '../../internal/InternalBulkAddActionControl/index';
 import '../../internal/InternalEditableListControl/index';
 import '../../internal/InternalQueryBuilderControl/index';
+import '../../internal/InternalArrayMapControl/index';
 import '../../internal/InternalSummaryControl/index';
 import '../../internal/InternalSwitchControl/index';
 import '../../internal/InternalNumberControl/index';

@@ -1,5 +1,9 @@
 export const groups = [
   {
+    name: 'foxy-internal-array-map-control',
+    files: './src/elements/internal/InternalArrayMapControl/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-async-combo-box-control',
     files: './src/elements/internal/InternalAsyncComboBoxControl/**/*.test.ts',
   },
@@ -214,6 +218,10 @@ export const groups = [
   {
     name: 'foxy-access-recovery-form',
     files: './src/elements/public/AccessRecoveryForm/**/*.test.ts',
+  },
+  {
+    name: 'foxy-activate-store-form',
+    files: './src/elements/public/ActivateStoreForm/**/*.test.ts',
   },
   {
     name: 'foxy-address-card',

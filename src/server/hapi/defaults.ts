@@ -520,6 +520,7 @@ export const defaults: Defaults = {
     number_of_uses_allowed: 0,
     number_of_uses_to_date: 0,
     number_of_uses_allowed_per_code: 0,
+    item_option_restrictions: {},
     coupon_discount_type: 'quantity_amount',
     coupon_discount_details: '',
     combinable: false,
