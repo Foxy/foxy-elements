@@ -4,7 +4,7 @@ import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { SwipeAction } from '../../internal/InternalAsyncListControl/types';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
-import type { Option } from '../QueryBuilder/types';
+import type { Option, ParsedValue } from '../QueryBuilder/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 import type { Rels } from '@foxy.io/sdk/backend';
 
@@ -15,6 +15,8 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { Type } from '../QueryBuilder/types';
 import { html } from 'lit-html';
+import { parse } from '../QueryBuilder/utils/parse';
+import { stringify } from '../QueryBuilder/utils/stringify';
 
 const NS = 'coupon-form';
 const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
@@ -65,6 +67,63 @@ export class CouponForm extends Base<Data> {
   }
 
   getTransactionPageHref: TransactionPageHrefGetter | null = null;
+
+  private readonly __customerAttributeRestrictionsGetValue = () => {
+    const params = new URLSearchParams(
+      stringify(
+        parse(this.form.customer_attribute_restrictions ?? '')
+          .filter(value => Array.isArray(value) || typeof value.name === 'string')
+          .map(value => {
+            if (Array.isArray(value)) {
+              return value
+                .filter(({ name }) => typeof name === 'string')
+                .map(({ name, operator, value }) => {
+                  const output: ParsedValue = { path: name as string, operator, value };
+                  return output;
+                });
+            }
+
+            const output: ParsedValue = {
+              operator: value.operator,
+              value: value.value,
+              path: value.name as string,
+            };
+
+            return output;
+          })
+      )
+    );
+
+    params.delete('zoom');
+    return params.toString();
+  };
+
+  private readonly __customerAttributeRestrictionsSetValue = (newValue: string) => {
+    const params = new URLSearchParams(
+      stringify(
+        parse(newValue).map(value => {
+          if (Array.isArray(value)) {
+            return value.map(({ path, operator, value }) => {
+              const output: ParsedValue = { name: path, path: 'attributes', operator, value };
+              return output;
+            });
+          } else {
+            const output: ParsedValue = {
+              operator: value.operator,
+              value: value.value,
+              path: 'attributes',
+              name: value.path,
+            };
+
+            return output;
+          }
+        })
+      )
+    );
+
+    params.delete('zoom');
+    this.edit({ customer_attribute_restrictions: params.toString() });
+  };
 
   private readonly __customerSubscriptionRestrictionsGetValue = () => {
     const items = this.form.customer_subscription_restrictions
@@ -235,6 +294,8 @@ export class CouponForm extends Base<Data> {
         <foxy-internal-query-builder-control
           layout="summary-item"
           infer="customer-attribute-restrictions"
+          .getValue=${this.__customerAttributeRestrictionsGetValue}
+          .setValue=${this.__customerAttributeRestrictionsSetValue}
         >
         </foxy-internal-query-builder-control>
 

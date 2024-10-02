@@ -637,6 +637,32 @@ describe('CouponForm', () => {
 
     expect(control).to.exist;
     expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control.getValue()).to.equal('');
+
+    const cases = [
+      ['attributes:name[color]', 'red'],
+      ['attributes:name[color]:in', 'red,blue'],
+      ['attributes:name[color]:in', 'red,blue|attributes:name[color]=orange'],
+    ];
+
+    const results = [
+      ['color', 'red'],
+      ['color:in', 'red,blue'],
+      ['color:in', 'red,blue|color=orange'],
+    ];
+
+    cases.forEach((c, i) => {
+      element.edit({ customer_attribute_restrictions: new URLSearchParams([c]).toString() });
+      expect(control.getValue()).to.equal(new URLSearchParams([results[i]]).toString());
+    });
+
+    results.forEach((r, i) => {
+      control.setValue(new URLSearchParams([r]).toString());
+      expect(element).to.have.nested.property(
+        'form.customer_attribute_restrictions',
+        new URLSearchParams([cases[i]]).toString()
+      );
+    });
   });
 
   it('renders switch control for auto-apply inside of the Customer Restrictions summary', async () => {
