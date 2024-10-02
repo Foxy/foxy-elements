@@ -11,10 +11,16 @@ function stringifyGroup(parsedValue: ParsedValue): string {
 function stringify(newValue: (ParsedValue | ParsedValue[])[]): string {
   const toQuery = (rules: string[], rule: ParsedValue | ParsedValue[]) => {
     if (Array.isArray(rule)) {
-      const alternatives = [rule[0].value, rule.slice(1).map(or => stringifyGroup(or))];
-      const orValue = alternatives.join('|');
+      let key = rule[0].path;
+      if (rule[0].name) key += `:name[${rule[0].name}]`;
+      if (rule[0].operator) key += `:${rule[0].operator}`;
 
-      rules.push(`${rule[0].path}=${encodeURIComponent(orValue)}`);
+      const alternatives = [
+        rule[0].value,
+        ...rule.slice(1).map(or => decodeURIComponent(stringifyGroup(or))),
+      ];
+
+      rules.push(`${key}=${encodeURIComponent(alternatives.join('|'))}`);
     } else if (rule.path !== 'zoom') {
       rules.push(stringifyGroup(rule));
     }
