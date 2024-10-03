@@ -69,60 +69,50 @@ export class CouponForm extends Base<Data> {
   getTransactionPageHref: TransactionPageHrefGetter | null = null;
 
   private readonly __customerAttributeRestrictionsGetValue = () => {
-    const params = new URLSearchParams(
-      stringify(
-        parse(this.form.customer_attribute_restrictions ?? '')
-          .filter(value => Array.isArray(value) || typeof value.name === 'string')
-          .map(value => {
-            if (Array.isArray(value)) {
-              return value
-                .filter(({ name }) => typeof name === 'string')
-                .map(({ name, operator, value }) => {
-                  const output: ParsedValue = { path: name as string, operator, value };
-                  return output;
-                });
-            }
+    const simplifiedValue = parse(this.form.customer_attribute_restrictions ?? '')
+      .filter(value => Array.isArray(value) || typeof value.name === 'string')
+      .map(value => {
+        if (Array.isArray(value)) {
+          return value
+            .filter(({ name }) => typeof name === 'string')
+            .map(({ name, operator, value }) => {
+              const output: ParsedValue = { path: name as string, operator, value };
+              return output;
+            });
+        }
 
-            const output: ParsedValue = {
-              operator: value.operator,
-              value: value.value,
-              path: value.name as string,
-            };
+        const output: ParsedValue = {
+          operator: value.operator,
+          value: value.value,
+          path: value.name as string,
+        };
 
-            return output;
-          })
-      )
-    );
+        return output;
+      });
 
-    params.delete('zoom');
-    return params.toString();
+    return stringify(simplifiedValue, true);
   };
 
   private readonly __customerAttributeRestrictionsSetValue = (newValue: string) => {
-    const params = new URLSearchParams(
-      stringify(
-        parse(newValue).map(value => {
-          if (Array.isArray(value)) {
-            return value.map(({ path, operator, value }) => {
-              const output: ParsedValue = { name: path, path: 'attributes', operator, value };
-              return output;
-            });
-          } else {
-            const output: ParsedValue = {
-              operator: value.operator,
-              value: value.value,
-              path: 'attributes',
-              name: value.path,
-            };
+    const augmentedValue = parse(newValue).map(value => {
+      if (Array.isArray(value)) {
+        return value.map(({ path, operator, value }) => {
+          const output: ParsedValue = { name: path, path: 'attributes', operator, value };
+          return output;
+        });
+      } else {
+        const output: ParsedValue = {
+          operator: value.operator,
+          value: value.value,
+          path: 'attributes',
+          name: value.path,
+        };
 
-            return output;
-          }
-        })
-      )
-    );
+        return output;
+      }
+    });
 
-    params.delete('zoom');
-    this.edit({ customer_attribute_restrictions: params.toString() });
+    this.edit({ customer_attribute_restrictions: stringify(augmentedValue, true) });
   };
 
   private readonly __customerSubscriptionRestrictionsGetValue = () => {
@@ -294,6 +284,7 @@ export class CouponForm extends Base<Data> {
         <foxy-internal-query-builder-control
           layout="summary-item"
           infer="customer-attribute-restrictions"
+          disable-zoom
           .getValue=${this.__customerAttributeRestrictionsGetValue}
           .setValue=${this.__customerAttributeRestrictionsSetValue}
         >
