@@ -8,7 +8,7 @@ function stringifyGroup(parsedValue: ParsedValue): string {
   return result === '=' ? '' : result;
 }
 
-function stringify(newValue: (ParsedValue | ParsedValue[])[]): string {
+function stringify(newValue: (ParsedValue | ParsedValue[])[], disableZoom = false): string {
   const toQuery = (rules: string[], rule: ParsedValue | ParsedValue[]) => {
     if (Array.isArray(rule)) {
       let key = rule[0].path;
@@ -20,7 +20,7 @@ function stringify(newValue: (ParsedValue | ParsedValue[])[]): string {
         ...rule.slice(1).map(or => decodeURIComponent(stringifyGroup(or))),
       ];
 
-      rules.push(`${key}=${encodeURIComponent(alternatives.join('|'))}`);
+      rules.push(`${encodeURIComponent(key)}=${encodeURIComponent(alternatives.join('|'))}`);
     } else if (rule.path !== 'zoom') {
       rules.push(stringifyGroup(rule));
     }
@@ -29,9 +29,12 @@ function stringify(newValue: (ParsedValue | ParsedValue[])[]): string {
   };
 
   const query = newValue.reduce(toQuery, [] as string[]);
-  const zoom = getZoomedRels(newValue).join(',');
 
-  if (zoom) query.push(`zoom=${encodeURIComponent(zoom)}`);
+  if (!disableZoom) {
+    const zoom = getZoomedRels(newValue).join(',');
+    if (zoom) query.push(`zoom=${encodeURIComponent(zoom)}`);
+  }
+
   return query.join('&');
 }
 

@@ -11,15 +11,18 @@ export class InternalQueryBuilderControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      operators: { type: Array },
+      disableZoom: { type: Boolean, attribute: 'disable-zoom' },
       disableOr: { type: Boolean, attribute: 'disable-or' },
+      operators: { type: Array },
       layout: {},
     };
   }
 
-  operators: Operator[] = Object.values(Operator);
+  disableZoom = false;
 
   disableOr = false;
+
+  operators: Operator[] = Object.values(Operator);
 
   layout: 'standalone' | 'summary-item' | null = null;
 
@@ -36,6 +39,7 @@ export class InternalQueryBuilderControl extends InternalEditableControl {
           : ''}
         .operators=${this.operators}
         .value=${this._value}
+        ?disable-zoom=${this.disableZoom}
         ?disable-or=${this.disableOr}
         @change=${(evt: CustomEvent) => {
           const queryBuilder = evt.currentTarget as QueryBuilder;

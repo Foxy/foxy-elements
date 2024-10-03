@@ -32,6 +32,14 @@ describe('InternalQueryBuilderControl', () => {
     });
   });
 
+  it('has a reactive property "disableZoom"', () => {
+    expect(new Control()).to.have.property('disableZoom', false);
+    expect(Control).to.have.deep.nested.property('properties.disableZoom', {
+      type: Boolean,
+      attribute: 'disable-zoom',
+    });
+  });
+
   it('has a reactive property "layout"', () => {
     expect(new Control()).to.have.property('layout', null);
     expect(Control).to.have.deep.nested.property('properties.layout', {});
@@ -95,7 +103,6 @@ describe('InternalQueryBuilderControl', () => {
     const control = await fixture<Control>(html`
       <foxy-internal-query-builder-control
         .operators=${[Operator.GreaterThan, Operator.GreaterThanOrEqual]}
-        .disableOr=${true}
         .getValue=${() => value}
         .setValue=${(newValue: string) => (value = newValue)}
       >
@@ -107,11 +114,20 @@ describe('InternalQueryBuilderControl', () => {
     expect(builder).to.exist;
     expect(builder).to.have.attribute('infer', 'query-builder');
     expect(builder).to.have.property('operators', control.operators);
-    expect(builder).to.have.property('disableOr', control.disableOr);
     expect(builder).to.have.property('value', value);
 
     builder.value = 'bar=baz';
     builder.dispatchEvent(new CustomEvent('change'));
     expect(value).to.equal('bar=baz');
+
+    expect(builder).to.have.property('disableOr', false);
+    expect(builder).to.have.property('disableZoom', false);
+
+    builder.disableOr = true;
+    builder.disableZoom = true;
+    await control.requestUpdate();
+
+    expect(builder).to.have.property('disableOr', true);
+    expect(builder).to.have.property('disableZoom', true);
   });
 });
