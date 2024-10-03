@@ -290,6 +290,7 @@ export class CouponForm extends Base<Data> {
           layout="summary-item"
           infer="customer-attribute-restrictions"
           disable-zoom
+          disable-or
           .operators=${this.__customerAttributeRestrictionsOperators}
           .getValue=${this.__customerAttributeRestrictionsGetValue}
           .setValue=${this.__customerAttributeRestrictionsSetValue}
