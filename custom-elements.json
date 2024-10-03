@@ -22059,16 +22059,22 @@
       "description": "UI component for creating Foxy hAPI filters visually. Compatible with\nBackend API, Customer API or any other API using the same format as described\nin our [docs](https://api.foxy.io/docs/cheat-sheet).",
       "attributes": [
         {
-          "name": "operators",
-          "description": "List of operators available in the builder UI.",
-          "type": "array",
-          "default": "\"Object.values(Operator)\""
+          "name": "disable-zoom",
+          "description": "If true, doesn't add `zoom` query parameter for complex paths.",
+          "type": "boolean",
+          "default": "false"
         },
         {
           "name": "disable-or",
           "description": "If true, hides the UI for the \"OR\" operator in queries.",
           "type": "boolean",
           "default": "false"
+        },
+        {
+          "name": "operators",
+          "description": "List of operators available in the builder UI.",
+          "type": "array",
+          "default": "\"Object.values(Operator)\""
         },
         {
           "name": "options",
@@ -22153,11 +22159,11 @@
           "default": "\"Type\""
         },
         {
-          "name": "operators",
-          "attribute": "operators",
-          "description": "List of operators available in the builder UI.",
-          "type": "array",
-          "default": "\"Object.values(Operator)\""
+          "name": "disableZoom",
+          "attribute": "disable-zoom",
+          "description": "If true, doesn't add `zoom` query parameter for complex paths.",
+          "type": "boolean",
+          "default": "false"
         },
         {
           "name": "disableOr",
@@ -22165,6 +22171,13 @@
           "description": "If true, hides the UI for the \"OR\" operator in queries.",
           "type": "boolean",
           "default": "false"
+        },
+        {
+          "name": "operators",
+          "attribute": "operators",
+          "description": "List of operators available in the builder UI.",
+          "type": "array",
+          "default": "\"Object.values(Operator)\""
         },
         {
           "name": "options",

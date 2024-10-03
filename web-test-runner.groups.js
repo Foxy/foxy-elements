@@ -8,10 +8,6 @@ export const groups = [
     files: './src/elements/internal/InternalAsyncComboBoxControl/**/*.test.ts',
   },
   {
-    name: 'foxy-internal-async-details-control',
-    files: './src/elements/internal/InternalAsyncDetailsControl/**/*.test.ts',
-  },
-  {
     name: 'foxy-internal-async-list-control',
     files: './src/elements/internal/InternalAsyncListControl/**/*.test.ts',
   },
@@ -218,10 +214,6 @@ export const groups = [
   {
     name: 'foxy-access-recovery-form',
     files: './src/elements/public/AccessRecoveryForm/**/*.test.ts',
-  },
-  {
-    name: 'foxy-activate-store-form',
-    files: './src/elements/public/ActivateStoreForm/**/*.test.ts',
   },
   {
     name: 'foxy-address-card',
