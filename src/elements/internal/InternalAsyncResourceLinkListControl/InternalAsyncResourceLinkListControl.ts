@@ -132,20 +132,17 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
 
     return html`
       <div class="group">
-        <div
-          class=${classMap({
-            'flex justify-between transition-colors mb-xs font-medium text-s': true,
-            'text-secondary': !this.disabled && !this.readonly,
-            'text-disabled': this.disabled,
-          })}
-        >
-          <span>${this.label}</span>
-          <foxy-i18n
-            class="transition-opacity ${isStatusVisible ? 'opacity-100' : 'opacity-0'}"
-            infer=""
-            key=${this.__isFetching ? 'status_saving' : 'status_loading'}
-          >
-          </foxy-i18n>
+        <div class="mb-s" ?hidden=${!this.label && !this.helperText}>
+          <div class="flex justify-between font-medium text-l" ?hidden=${!this.label}>
+            <span>${this.label}</span>
+            <foxy-i18n
+              class="transition-opacity ${isStatusVisible ? 'opacity-100' : 'opacity-0'}"
+              infer=""
+              key=${this.__isFetching ? 'status_saving' : 'status_loading'}
+            >
+            </foxy-i18n>
+          </div>
+          <div class="text-secondary text-s" ?hidden=${!this.helperText}>${this.helperText}</div>
         </div>
 
         <foxy-pagination first=${ifDefined(firstHref)} infer="pagination">
@@ -153,7 +150,7 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
             infer="card"
             class=${classMap({
               'block transition-colors divide-y rounded overflow-hidden': true,
-              'divide-contrast-10 ring-1 ring-inset ring-contrast-10': true,
+              'bg-contrast-5 divide-contrast-10': true,
             })}
             .item=${this.__renderItem}
           >
@@ -161,18 +158,7 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
         </foxy-pagination>
 
         <div
-          class=${classMap({
-            'transition-colors mt-xs text-xs': true,
-            'text-secondary': !this.disabled && !this.readonly,
-            'text-disabled': this.disabled,
-          })}
-          ?hidden=${!this.helperText}
-        >
-          ${this.helperText}
-        </div>
-
-        <div
-          class="mt-xs text-xs leading-xs text-error"
+          class="mt-s text-s leading-xs text-error"
           ?hidden=${!this._errorMessage || this.disabled || this.readonly}
         >
           ${this._errorMessage}

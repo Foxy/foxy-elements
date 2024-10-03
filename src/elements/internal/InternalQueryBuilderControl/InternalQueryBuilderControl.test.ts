@@ -40,11 +40,6 @@ describe('InternalQueryBuilderControl', () => {
     });
   });
 
-  it('has a reactive property "layout"', () => {
-    expect(new Control()).to.have.property('layout', null);
-    expect(Control).to.have.deep.nested.property('properties.layout', {});
-  });
-
   it('extends foxy-internal-editable-control', () => {
     expect(new Control()).to.be.instanceOf(customElements.get('foxy-internal-editable-control'));
   });

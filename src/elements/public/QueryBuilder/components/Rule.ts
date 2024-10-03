@@ -135,7 +135,7 @@ export function Rule(params: RuleParams): TemplateResult {
             'text-secondary hover-bg-contrast-5 hover-text-error': !disabled,
             'cursor-default text-disabled': disabled,
             'focus-outline-none focus-ring-2 ring-primary-50': true,
-            'opacity-0': !parsedValue.path,
+            'opacity-0 pointer-events-none': !parsedValue.path,
           })}
           ?disabled=${disabled || readonly || !parsedValue.path}
           @click=${onDelete}
@@ -155,9 +155,10 @@ export function Rule(params: RuleParams): TemplateResult {
             'text-success hover-bg-contrast-5': !disabled,
             'cursor-default text-disabled': disabled,
             'focus-outline-none focus-ring-2 ring-primary-50': true,
-            'opacity-0': !parsedValue.path || !!isNested || params.disableOr,
+            'opacity-0 pointer-events-none': !parsedValue.path || !!isNested || params.disableOr,
           })}
-          ?disabled=${disabled || readonly || !parsedValue.path}
+          ?disabled=${disabled || readonly || !parsedValue.path || !!isNested || params.disableOr}
+          ?hidden=${params.disableOr}
           @click=${onConvert}
         >
           <iron-icon

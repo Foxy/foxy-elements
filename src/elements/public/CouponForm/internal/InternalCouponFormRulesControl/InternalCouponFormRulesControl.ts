@@ -17,18 +17,13 @@ export class InternalCouponFormRulesControl extends InternalEditableControl {
 
     return html`
       <section>
-        <p class="leading-xs flex items-center justify-between space-x-m text-s mb-xs">
-          <span
-            class=${classMap({
-              'transition-colors font-medium flex-1': true,
-              'text-secondary': !this.disabled,
-              'text-disabled': this.disabled,
-            })}
-          >
-            ${this.label}
-          </span>
-          <span class="min-w-0">${this.__renderPreset()}</span>
-        </p>
+        <div class="mb-s" ?hidden=${!this.label && !helperText && !description}>
+          <p class="flex items-center justify-between space-x-m">
+            <span class="font-medium flex-1 text-l">${this.label}</span>
+            <span class="min-w-0">${this.__renderPreset()}</span>
+          </p>
+          <p class="text-s text-secondary">${helperText}</p>
+        </div>
 
         <foxy-discount-builder
           infer="discount-builder"
@@ -46,22 +41,9 @@ export class InternalCouponFormRulesControl extends InternalEditableControl {
         >
         </foxy-discount-builder>
 
-        ${helperText || description
-          ? html`
-              <p
-                class=${classMap({
-                  'text-xs mt-xs leading-xs transition-colors': true,
-                  'text-secondary': !this.disabled && !this.readonly,
-                  'text-disabled': this.disabled,
-                  'text-body': this.readonly,
-                })}
-              >
-                ${description || helperText}
-              </p>
-            `
-          : ''}
+        ${description ? html`<p class="text-s text-secondary mt-s">${description}</p>` : ''}
         ${errorMessage && !this.disabled && !this.readonly
-          ? html`<p class="mt-xs text-xs leading-xs text-error">${this._errorMessage}</p>`
+          ? html`<p class="mt-s text-s leading-xs text-error">${this._errorMessage}</p>`
           : ''}
       </section>
     `;
