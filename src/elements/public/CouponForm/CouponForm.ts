@@ -1,19 +1,19 @@
 import type { TemplateResult, PropertyDeclarations } from 'lit-element';
 import type { Data, TransactionPageHrefGetter } from './types';
+import type { Option, ParsedValue } from '../QueryBuilder/types';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { SwipeAction } from '../../internal/InternalAsyncListControl/types';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
-import type { Option, ParsedValue } from '../QueryBuilder/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 import type { Rels } from '@foxy.io/sdk/backend';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ResponsiveMixin } from '../../../mixins/responsive';
 import { BooleanSelector } from '@foxy.io/sdk/core';
+import { Type, Operator } from '../QueryBuilder/types';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { Type } from '../QueryBuilder/types';
 import { html } from 'lit-html';
 import { parse } from '../QueryBuilder/utils/parse';
 import { stringify } from '../QueryBuilder/utils/stringify';
@@ -67,6 +67,11 @@ export class CouponForm extends Base<Data> {
   }
 
   getTransactionPageHref: TransactionPageHrefGetter | null = null;
+
+  private readonly __customerAttributeRestrictionsOperators: Operator[] = [
+    Operator.Not,
+    Operator.In,
+  ];
 
   private readonly __customerAttributeRestrictionsGetValue = () => {
     const simplifiedValue = parse(this.form.customer_attribute_restrictions ?? '')
@@ -285,6 +290,7 @@ export class CouponForm extends Base<Data> {
           layout="summary-item"
           infer="customer-attribute-restrictions"
           disable-zoom
+          .operators=${this.__customerAttributeRestrictionsOperators}
           .getValue=${this.__customerAttributeRestrictionsGetValue}
           .setValue=${this.__customerAttributeRestrictionsSetValue}
         >

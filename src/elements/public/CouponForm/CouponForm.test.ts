@@ -638,6 +638,7 @@ describe('CouponForm', () => {
     expect(control).to.exist;
     expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.attribute('disable-zoom');
+    expect(control).to.have.deep.property('operators', ['not', 'in']);
     expect(control.getValue()).to.equal('');
 
     const cases = [
