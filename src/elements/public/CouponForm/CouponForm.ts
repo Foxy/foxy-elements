@@ -285,26 +285,24 @@ export class CouponForm extends Base<Data> {
       <foxy-internal-array-map-control infer="item-option-restrictions">
       </foxy-internal-array-map-control>
 
-      <foxy-internal-summary-control infer="customer-restrictions">
-        <foxy-internal-query-builder-control
-          layout="summary-item"
-          infer="customer-attribute-restrictions"
-          disable-zoom
-          disable-or
-          .operators=${this.__customerAttributeRestrictionsOperators}
-          .getValue=${this.__customerAttributeRestrictionsGetValue}
-          .setValue=${this.__customerAttributeRestrictionsSetValue}
-        >
-        </foxy-internal-query-builder-control>
+      <foxy-internal-query-builder-control
+        infer="customer-attribute-restrictions"
+        disable-zoom
+        disable-or
+        .operators=${this.__customerAttributeRestrictionsOperators}
+        .getValue=${this.__customerAttributeRestrictionsGetValue}
+        .setValue=${this.__customerAttributeRestrictionsSetValue}
+      >
+      </foxy-internal-query-builder-control>
 
-        <foxy-internal-editable-list-control
-          layout="summary-item"
-          infer="customer-subscription-restrictions"
-          .getValue=${this.__customerSubscriptionRestrictionsGetValue}
-          .setValue=${this.__customerSubscriptionRestrictionsSetValue}
-        >
-        </foxy-internal-editable-list-control>
+      <foxy-internal-editable-list-control
+        infer="customer-subscription-restrictions"
+        .getValue=${this.__customerSubscriptionRestrictionsGetValue}
+        .setValue=${this.__customerSubscriptionRestrictionsSetValue}
+      >
+      </foxy-internal-editable-list-control>
 
+      <foxy-internal-summary-control infer="auto-apply">
         <foxy-internal-switch-control infer="customer-auto-apply"></foxy-internal-switch-control>
       </foxy-internal-summary-control>
 

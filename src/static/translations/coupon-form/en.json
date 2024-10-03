@@ -560,46 +560,46 @@
     },
     "helper_text": "Limit which categories this coupon applies to. All changes are saved automatically."
   },
-  "customer-restrictions": {
-    "label": "Customer restrictions",
+  "customer-attribute-restrictions": {
+    "label": "Customer attribute restrictions",
+    "helper_text": "This restricts the usage of the coupon based on an attribute name and value. When defined, the coupon will only apply if the customer has the specified attribute name and value. Wildcards are allowed.",
+    "v8n_too_long": "Unfortunately we are unable to store that many customer attribute restrictions at the moment. Please reduce the number of rules in this section until this message disappears.",
+    "query-builder": {
+      "add_or_clause": "Add OR clause",
+      "add_value": "Add value",
+      "code": "Code",
+      "delete": "Delete",
+      "field": "Attribute name",
+      "is_defined_false": "Not defined",
+      "is_defined_true": "Defined",
+      "operator_equal": "Equal",
+      "operator_greaterthan": "Greater than",
+      "operator_greaterthanorequal": "Greater than or equal",
+      "operator_in": "One of",
+      "operator_isdefined": "Is defined",
+      "operator_lessthan": "Less than",
+      "operator_lessthanorequal": "Less than or equal",
+      "operator_not": "Not equal",
+      "or": "Or",
+      "query_builder_group": "Group of rules",
+      "query_builder_rule": "Rule",
+      "type": "Type",
+      "type_any": "Field of unknown type",
+      "type_here": "Type here...",
+      "value": "Attribute value"
+    }
+  },
+  "customer-subscription-restrictions": {
+    "label": "Customer subscription restrictions",
+    "placeholder": "Enter a product code and hit Enter",
+    "helper_text": "This restricts the usage of the coupon based on product codes in the current customer's active subscriptions. When defined, the coupon will only apply if the customer has an active subscription with a matching product code. Wildcards are allowed.",
+    "caption": "Add this code",
+    "delete": "Delete this code",
+    "v8n_too_long": "Unfortunately we are unable to store that many subscription restrictions at the moment. Please reduce the number of rules in this section until this message disappears."
+  },
+  "auto-apply": {
+    "label": "Auto-apply",
     "helper_text": "",
-    "customer-attribute-restrictions": {
-      "label": "Customer attribute restrictions",
-      "helper_text": "This restricts the usage of the coupon based on an attribute name and value. When defined, the coupon will only apply if the customer has the specified attribute name and value. Wildcards are allowed.",
-      "v8n_too_long": "Unfortunately we are unable to store that many customer attribute restrictions at the moment. Please reduce the number of rules in this section until this message disappears.",
-      "query-builder": {
-        "add_or_clause": "Add OR clause",
-        "add_value": "Add value",
-        "code": "Code",
-        "delete": "Delete",
-        "field": "Attribute name",
-        "is_defined_false": "Not defined",
-        "is_defined_true": "Defined",
-        "operator_equal": "Equal",
-        "operator_greaterthan": "Greater than",
-        "operator_greaterthanorequal": "Greater than or equal",
-        "operator_in": "One of",
-        "operator_isdefined": "Is defined",
-        "operator_lessthan": "Less than",
-        "operator_lessthanorequal": "Less than or equal",
-        "operator_not": "Not equal",
-        "or": "Or",
-        "query_builder_group": "Group of rules",
-        "query_builder_rule": "Rule",
-        "type": "Type",
-        "type_any": "Field of unknown type",
-        "type_here": "Type here...",
-        "value": "Attribute value"
-      }
-    },
-    "customer-subscription-restrictions": {
-      "label": "Customer subscription restrictions",
-      "placeholder": "Enter a product code and hit Enter",
-      "helper_text": "This restricts the usage of the coupon based on product codes in the current customer's active subscriptions. When defined, the coupon will only apply if the customer has an active subscription with a matching product code. Wildcards are allowed.",
-      "caption": "Add this code",
-      "delete": "Delete this code",
-      "v8n_too_long": "Unfortunately we are unable to store that many subscription restrictions at the moment. Please reduce the number of rules in this section until this message disappears."
-    },
     "customer-auto-apply": {
       "label": "Auto apply coupon for matching customers",
       "helper_text": "If enabled, when a customer authenticates on the checkout, this coupon will automatically apply if the above two customer restrictions are met.",
