@@ -19,6 +19,7 @@ export class UserInvitationForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      getStorePageHref: { attribute: false },
       defaultDomain: { attribute: 'default-domain' },
       layout: {},
     };
@@ -55,6 +56,9 @@ export class UserInvitationForm extends Base<Data> {
     return [({ email: v }) => !!v || 'email:v8n_required'];
   }
 
+  /** When provided, displays a link to Store Dashboard in user layout. */
+  getStorePageHref: ((storeHref: string) => string) | null = null;
+
   /** Default host domain for stores that don't use a custom domain name, e.g. `foxycart.com`. */
   defaultDomain: string | null = null;
 
@@ -75,12 +79,22 @@ export class UserInvitationForm extends Base<Data> {
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = ['timestamps', 'submit', 'undo', super.hiddenSelector.toString()];
     const status = this.data?.status;
+    const layout = this.layout ?? 'user';
 
     if (status !== 'accepted' && status !== 'sent') alwaysMatch.unshift('revoke');
-    if (status !== 'rejected') alwaysMatch.unshift('delete');
     if (status !== 'accepted') alwaysMatch.unshift('leave');
-    if (status !== 'revoked') alwaysMatch.unshift('invite-again');
-    if (status !== 'sent') alwaysMatch.unshift('resend', 'accept', 'reject');
+    if (status !== 'sent') alwaysMatch.unshift('accept', 'reject');
+
+    if (
+      (status !== 'rejected' || layout !== 'user') &&
+      (status !== 'expired' || layout !== 'admin')
+    ) {
+      alwaysMatch.unshift('delete');
+    }
+
+    if (status !== 'sent' && status !== 'revoked' && (status !== 'expired' || layout !== 'admin')) {
+      alwaysMatch.unshift('resend');
+    }
 
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
@@ -157,6 +171,7 @@ export class UserInvitationForm extends Base<Data> {
   private __renderAdminSnapshotState({ first_name, last_name }: Data) {
     const hasName = first_name?.trim() || last_name?.trim();
     const nameOptions = { first_name, last_name, context: hasName ? '' : 'empty' };
+    const status = this.data?.status;
     const hidden = this.hiddenSelector;
 
     return html`
@@ -184,27 +199,25 @@ export class UserInvitationForm extends Base<Data> {
               style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
               class=${classMap({
                 'border rounded': true,
-                'border-contrast text-contrast': this.data?.status === 'revoked',
-                'border-success text-success': this.data?.status === 'accepted',
-                'border-primary text-primary': this.data?.status === 'sent',
-                'border-error text-error': this.data?.status === 'rejected',
+                'border-contrast text-contrast': status === 'revoked' || status === 'expired',
+                'border-success text-success': status === 'accepted',
+                'border-primary text-primary': status === 'sent',
+                'border-error text-error': status === 'rejected',
               })}
             >
               <p class="font-medium flex items-center gap-s">
-                ${this.data?.status === 'revoked'
+                ${status === 'revoked'
                   ? svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25em; height: 1.25em"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm3 10.5a.75.75 0 0 0 0-1.5H9a.75.75 0 0 0 0 1.5h6Z" clip-rule="evenodd" /></svg>`
-                  : this.data?.status === 'sent'
+                  : status === 'sent'
                   ? svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25em; height: 1.25em"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 0 0 0-1.5h-3.75V6Z" clip-rule="evenodd" /></svg>`
-                  : this.data?.status === 'rejected'
+                  : status === 'rejected'
                   ? svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25em; height: 1.25em"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.72 6.97a.75.75 0 1 0-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06L12 13.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L13.06 12l1.72-1.72a.75.75 0 1 0-1.06-1.06L12 10.94l-1.72-1.72Z" clip-rule="evenodd" /></svg>`
-                  : this.data?.status === 'accepted'
+                  : status === 'accepted'
                   ? svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25em; height: 1.25em"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd" /></svg>`
+                  : status === 'expired'
+                  ? svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1.25em; height: 1.25em"><path d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v.75c0 1.036.84 1.875 1.875 1.875h17.25c1.035 0 1.875-.84 1.875-1.875v-.75C22.5 3.839 21.66 3 20.625 3H3.375Z" /><path fill-rule="evenodd" d="m3.087 9 .54 9.176A3 3 0 0 0 6.62 21h10.757a3 3 0 0 0 2.995-2.824L20.913 9H3.087Zm6.133 2.845a.75.75 0 0 1 1.06 0l1.72 1.72 1.72-1.72a.75.75 0 1 1 1.06 1.06l-1.72 1.72 1.72 1.72a.75.75 0 1 1-1.06 1.06L12 15.685l-1.72 1.72a.75.75 0 1 1-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>`
                   : ''}
-                <foxy-i18n
-                  infer=""
-                  key="admin_status_title"
-                  .options=${{ context: this.data?.status }}
-                >
+                <foxy-i18n infer="" key="admin_status_title" .options=${{ context: status }}>
                 </foxy-i18n>
               </p>
 
@@ -212,36 +225,34 @@ export class UserInvitationForm extends Base<Data> {
                 class="text-body"
                 style="padding-left: calc((1.25 * var(--lumo-font-size-m)) + var(--lumo-space-s))"
               >
-                <foxy-i18n
-                  infer=""
-                  key="admin_status_text"
-                  .options=${{ context: this.data?.status }}
-                >
+                <foxy-i18n infer="" key="admin_status_text" .options=${{ context: status }}>
                 </foxy-i18n>
               </p>
             </div>
 
-            <foxy-internal-user-invitation-form-sync-action status="sent" infer="invite-again">
-            </foxy-internal-user-invitation-form-sync-action>
-
             <div
               class="flex gap-m"
-              ?hidden=${hidden.matches('revoke', true) && hidden.matches('resend', true)}
+              ?hidden=${hidden.matches('revoke', true) &&
+              hidden.matches('resend', true) &&
+              hidden.matches('delete', true)}
             >
-              <foxy-internal-user-invitation-form-sync-action
-                status="revoked"
+              <foxy-internal-user-invitation-form-async-action
+                infer="revoke"
                 class="flex-1"
                 theme="error"
-                infer="revoke"
+                href=${ifDefined(this.data?._links['fx:revoke']?.href)}
               >
-              </foxy-internal-user-invitation-form-sync-action>
+              </foxy-internal-user-invitation-form-async-action>
 
               <foxy-internal-user-invitation-form-async-action
                 infer="resend"
                 class="flex-1"
-                href=${ifDefined(this.data?._links['fx:resend'].href)}
+                href=${ifDefined(this.data?._links['fx:resend']?.href)}
               >
               </foxy-internal-user-invitation-form-async-action>
+
+              <foxy-internal-delete-control infer="delete" class="flex-1">
+              </foxy-internal-delete-control>
             </div>
           </div>
         </div>
@@ -255,7 +266,6 @@ export class UserInvitationForm extends Base<Data> {
       'text-primary': status === 'sent',
       'text-success': status === 'accepted',
       'text-error': status === 'rejected',
-      'text-body': status === 'revoked',
     };
 
     return html`
@@ -284,6 +294,18 @@ export class UserInvitationForm extends Base<Data> {
         </foxy-internal-text-control>
         <foxy-internal-text-control layout="summary-item" infer="store-email">
         </foxy-internal-text-control>
+        ${status === 'accepted' && this.getStorePageHref && this.data
+          ? html`
+              <div ?hidden=${status !== 'accepted' || !this.getStorePageHref}>
+                <a
+                  class="text-primary font-medium cursor-pointer rounded transition-opacity hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
+                  href=${this.getStorePageHref(this.data._links['fx:store'].href)}
+                >
+                  <foxy-i18n infer="" key="store_link"></foxy-i18n>
+                </a>
+              </div>
+            `
+          : ''}
       </foxy-internal-summary-control>
 
       <foxy-i18n
@@ -294,31 +316,31 @@ export class UserInvitationForm extends Base<Data> {
       >
       </foxy-i18n>
 
-      <foxy-internal-user-invitation-form-sync-action
-        status="revoked"
+      <foxy-internal-user-invitation-form-async-action
         theme="error"
         class="flex-1"
         infer="leave"
+        href=${ifDefined(this.data?._links['fx:revoke']?.href)}
       >
-      </foxy-internal-user-invitation-form-sync-action>
+      </foxy-internal-user-invitation-form-async-action>
 
       <div
         class="grid grid-cols-2 gap-m"
         ?hidden=${hidden.matches('reject', true) && hidden.matches('accept', true)}
       >
-        <foxy-internal-user-invitation-form-sync-action
-          status="rejected"
+        <foxy-internal-user-invitation-form-async-action
           theme="error primary"
           infer="reject"
+          href=${ifDefined(this.data?._links['fx:reject']?.href)}
         >
-        </foxy-internal-user-invitation-form-sync-action>
+        </foxy-internal-user-invitation-form-async-action>
 
-        <foxy-internal-user-invitation-form-sync-action
-          status="accepted"
+        <foxy-internal-user-invitation-form-async-action
           theme="success primary"
           infer="accept"
+          href=${ifDefined(this.data?._links['fx:accept']?.href)}
         >
-        </foxy-internal-user-invitation-form-sync-action>
+        </foxy-internal-user-invitation-form-async-action>
       </div>
 
       <foxy-internal-delete-control infer="delete"></foxy-internal-delete-control>

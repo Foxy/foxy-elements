@@ -6,39 +6,38 @@
   "admin_status_title_sent": "Invitation sent",
   "admin_status_title_rejected": "Invitation rejected",
   "admin_status_title_accepted": "This user is a store admin",
-  "admin_status_text_revoked": "This user may have been an admin in the past but has no access to this store at the moment. We will keep this record for historical purposes.",
-  "admin_status_text_sent": "We've sent an email to this user asking them to join this store. Once they accept, they will be granted full admin access.",
+  "admin_status_title_expired": "Invitation expired",
+  "admin_status_text_revoked": "This user may have been an admin in the past but has no access to this store at the moment. We will keep this record for historical purposes. To restore this user's access, resend the invitation using the button below.",
+  "admin_status_text_sent": "We've sent an email to this user asking them to join this store. Once they accept, they will be granted full admin access. If they don't accept within 2 weeks, this invitation will expire.",
   "admin_status_text_rejected": "If this was a mistake, ask the user to delete this invitation in profile settings. You will be able to invite them again after that.",
   "admin_status_text_accepted": "They have full access to this store, including the ability to add and remove users.",
-  "user_status_title_revoked": "You no longer have access to {{ store_name }}",
-  "user_status_text_revoked": "If you'd like to join this store again, please ask the store owner to reactivate your access in settings.",
-  "user_status_title_sent": "You've been invited to join {{ store_name }} as administrator",
-  "user_status_text_sent": "Accepting this invitation will grant you full access to this store. Rejecting it will prevent this store from inviting you again.",
+  "admin_status_text_expired": "This invitation has expired. You can resend this invitation using the button below.",
   "user_status_title_rejected": "You've rejected an invitation to join {{ store_name }} as administrator",
-  "user_status_text_rejected": "This store won't be able to contact you again. If you changed your mind, delete this invitation and ask the store owner to invite you again.",
   "user_status_title_accepted": "You're a store administrator at {{ store_name }}",
+  "user_status_title_revoked": "You no longer have access to {{ store_name }}",
+  "user_status_title_sent": "You've been invited to join {{ store_name }} as administrator",
+  "user_status_title_expired": "This invitation to join {{ store_name }} as administrator has expired",
+  "user_status_text_rejected": "This store won't be able to contact you again. If you changed your mind, delete this invitation and ask the store owner to invite you again.",
   "user_status_text_accepted": "If you'd like to leave this store, you can do so by pressing the button below. Please note that if you'd like to join again, the store owner will need to invite you.",
+  "user_status_text_revoked": "If you'd like to join this store again, please ask the store owner to reactivate your access in settings.",
+  "user_status_text_sent": "Accepting this invitation will grant you full access to this store. Rejecting it will prevent this store from inviting you again.",
+  "user_status_text_expired": "To join this store, please ask the store owner to delete this invitation and invite you again.",
   "full_name": "{{ first_name }} {{ last_name }}",
   "full_name_empty": "Unknown User",
   "leave": {
-    "caption": "Leave this store"
+    "idle": "Leave this store",
+    "busy": "Leaving...",
+    "fail": "Failed to leave"
   },
   "revoke": {
-    "caption": "Revoke access"
-  },
-  "invite-again": {
-    "caption": "Invite again"
+    "idle": "Revoke access",
+    "busy": "Revoking...",
+    "fail": "Failed to revoke"
   },
   "resend": {
-    "idle": "Resend email",
+    "idle": "Resend invitation",
     "busy": "Resending...",
-    "fail": "Failed to resend",
-    "confirm": {
-      "header": "Resend email",
-      "message": "Please confirm that you'd like to resend the invitation email to this user.",
-      "confirm": "Resend",
-      "cancel": "Cancel"
-    }
+    "fail": "Failed to resend"
   },
   "error": {
     "invitation_exists": "This user has already been invited to this store.",
@@ -47,6 +46,7 @@
   "store": {
     "label": "",
     "helper_text": "",
+    "store_link": "Open store dashboard",
     "store-domain": {
       "label": "Store domain",
       "placeholder": "Unknown",
@@ -70,10 +70,14 @@
     "v8n_required": "Please enter an email address."
   },
   "accept": {
-    "caption": "Accept"
+    "idle": "Accept",
+    "busy": "Accepting...",
+    "fail": "Failed to accept"
   },
   "reject": {
-    "caption": "Reject"
+    "idle": "Reject",
+    "busy": "Rejecting...",
+    "fail": "Failed to reject"
   },
   "create": {
     "caption": "Send invitation"
@@ -81,7 +85,7 @@
   "delete": {
     "delete": "Delete",
     "cancel": "Cancel",
-    "delete_prompt": "Deleting an invitation allows the store owner to invite you again. Would you like to proceed?"
+    "delete_prompt": "This invitation will be permanently deleted. Would you like to proceed?"
   },
   "unavailable": {
     "loading_empty": "Creating an invitation is not available in this context."

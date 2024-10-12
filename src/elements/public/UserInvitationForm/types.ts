@@ -14,6 +14,9 @@ export interface UserInvitation extends Graph {
     'fx:user': Rels.User;
     'fx:store': Rels.Store;
     'fx:resend': { curie: 'fx:resend' };
+    'fx:accept': { curie: 'fx:accept' };
+    'fx:reject': { curie: 'fx:reject' };
+    'fx:revoke': { curie: 'fx:revoke' };
   };
   props: {
     store_url: string;
@@ -23,7 +26,7 @@ export interface UserInvitation extends Graph {
     first_name: string | null;
     last_name: string | null;
     email: string;
-    status: 'sent' | 'accepted' | 'rejected' | 'revoked';
+    status: 'sent' | 'accepted' | 'rejected' | 'revoked' | 'expired';
     date_created: string;
     date_modified: string;
   };

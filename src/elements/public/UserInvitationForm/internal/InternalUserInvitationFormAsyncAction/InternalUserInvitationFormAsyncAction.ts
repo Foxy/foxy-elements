@@ -47,7 +47,7 @@ export class InternalUserInvitationFormAsyncAction extends InternalControl {
       const response = await api.fetch(this.href ?? '', { method: 'POST' });
 
       this.__state = response.ok ? 'idle' : 'fail';
-      if (response.ok) this.dispatchEvent(new CustomEvent('done'));
+      if (response.ok) this.nucleon?.refresh();
     } catch {
       this.__state = 'fail';
     }

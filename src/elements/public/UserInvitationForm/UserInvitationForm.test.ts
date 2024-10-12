@@ -17,6 +17,10 @@ describe('UserInvitationForm', () => {
     expect(customElements.get('foxy-internal-summary-control')).to.exist;
   });
 
+  it('imports and defines foxy-internal-delete-control', () => {
+    expect(customElements.get('foxy-internal-delete-control')).to.exist;
+  });
+
   it('imports and defines foxy-internal-text-control', () => {
     expect(customElements.get('foxy-internal-text-control')).to.exist;
   });
@@ -29,10 +33,6 @@ describe('UserInvitationForm', () => {
     expect(customElements.get('foxy-internal-user-invitation-form-async-action')).to.exist;
   });
 
-  it('imports and defines foxy-internal-user-invitation-form-sync-action', () => {
-    expect(customElements.get('foxy-internal-user-invitation-form-sync-action')).to.exist;
-  });
-
   it('defines itself as foxy-user-invitation-form', () => {
     expect(customElements.get('foxy-user-invitation-form')).to.equal(Form);
   });
@@ -40,6 +40,11 @@ describe('UserInvitationForm', () => {
   it('has a default i18next namespace of "user-invitation-form"', () => {
     expect(Form.defaultNS).to.equal('user-invitation-form');
     expect(new Form().ns).to.equal('user-invitation-form');
+  });
+
+  it('has a reactive property "getStorePageHref"', () => {
+    expect(new Form()).to.have.property('getStorePageHref', null);
+    expect(Form).to.have.deep.nested.property('properties.getStorePageHref', { attribute: false });
   });
 
   it('has a reactive property "defaultDomain"', () => {
@@ -77,7 +82,7 @@ describe('UserInvitationForm', () => {
     expect(form.hiddenSelector.matches('undo', true)).to.be.true;
   });
 
-  it('hides Delete button when status is not "rejected"', async () => {
+  it('hides Delete button when status is not "rejected" or "expired" (in admin layout)', async () => {
     const form = new Form();
     expect(form.hiddenSelector.matches('delete', true)).to.be.true;
 
@@ -88,6 +93,13 @@ describe('UserInvitationForm', () => {
 
     data.status = 'rejected';
     form.data = { ...data };
+    expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+
+    data.status = 'expired';
+    form.data = { ...data };
+    expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+
+    form.layout = 'admin';
     expect(form.hiddenSelector.matches('delete', true)).to.be.false;
   });
 
@@ -123,18 +135,29 @@ describe('UserInvitationForm', () => {
     expect(form.hiddenSelector.matches('revoke', true)).to.be.true;
   });
 
-  it('hides Invite Again button when status is not "revoked"', async () => {
+  it('hides Resend button when status is not "revoked" or "sent" or "expired" (in admin layout)', async () => {
     const form = new Form();
-    expect(form.hiddenSelector.matches('invite-again', true)).to.be.true;
+    expect(form.hiddenSelector.matches('resend', true)).to.be.true;
 
     const data = await getTestData<Data>('./hapi/user_invitations/0');
-    data.status = 'sent';
+    data.status = 'accepted';
     form.data = { ...data };
-    expect(form.hiddenSelector.matches('invite-again', true)).to.be.true;
+    expect(form.hiddenSelector.matches('resend', true)).to.be.true;
 
     data.status = 'revoked';
     form.data = { ...data };
-    expect(form.hiddenSelector.matches('invite-again', true)).to.be.false;
+    expect(form.hiddenSelector.matches('resend', true)).to.be.false;
+
+    data.status = 'sent';
+    form.data = { ...data };
+    expect(form.hiddenSelector.matches('resend', true)).to.be.false;
+
+    data.status = 'expired';
+    form.data = { ...data };
+    expect(form.hiddenSelector.matches('resend', true)).to.be.true;
+
+    form.layout = 'admin';
+    expect(form.hiddenSelector.matches('resend', true)).to.be.false;
   });
 
   it('hides Resend, Accept and Reject buttons when status is not "sent"', async () => {
@@ -358,7 +381,7 @@ describe('UserInvitationForm', () => {
     }
   });
 
-  it('renders sync action for inviting user again in snapshot admin layout', async () => {
+  it('renders async action for revoking access in snapshot admin layout', async () => {
     const router = createRouter();
     const form = await fixture<Form>(html`
       <foxy-user-invitation-form
@@ -371,31 +394,11 @@ describe('UserInvitationForm', () => {
 
     await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
     const action = form.renderRoot.querySelector(
-      'foxy-internal-user-invitation-form-sync-action[infer="invite-again"]'
+      'foxy-internal-user-invitation-form-async-action[infer="revoke"]'
     );
 
     expect(action).to.exist;
-    expect(action).to.have.attribute('status', 'sent');
-  });
-
-  it('renders sync action for revoking access in snapshot admin layout', async () => {
-    const router = createRouter();
-    const form = await fixture<Form>(html`
-      <foxy-user-invitation-form
-        layout="admin"
-        href="https://demo.api/hapi/user_invitations/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-user-invitation-form>
-    `);
-
-    await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
-    const action = form.renderRoot.querySelector(
-      'foxy-internal-user-invitation-form-sync-action[infer="revoke"]'
-    );
-
-    expect(action).to.exist;
-    expect(action).to.have.attribute('status', 'revoked');
+    expect(action).to.have.attribute('href', form.data!._links['fx:revoke'].href);
     expect(action).to.have.attribute('theme', 'error');
   });
 
@@ -492,7 +495,7 @@ describe('UserInvitationForm', () => {
     expect(storeUrl).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders sync action for leaving the store in snapshot user layout', async () => {
+  it('renders async action for leaving the store in snapshot user layout', async () => {
     const router = createRouter();
     const form = await fixture<Form>(html`
       <foxy-user-invitation-form
@@ -505,15 +508,15 @@ describe('UserInvitationForm', () => {
 
     await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
     const action = form.renderRoot.querySelector(
-      'foxy-internal-user-invitation-form-sync-action[infer="leave"]'
+      'foxy-internal-user-invitation-form-async-action[infer="leave"]'
     );
 
     expect(action).to.exist;
-    expect(action).to.have.attribute('status', 'revoked');
+    expect(action).to.have.attribute('href', form.data!._links['fx:revoke'].href);
     expect(action).to.have.attribute('theme', 'error');
   });
 
-  it('renders sync action for rejecting the invitation in snapshot user layout', async () => {
+  it('renders async action for rejecting the invitation in snapshot user layout', async () => {
     const router = createRouter();
     const form = await fixture<Form>(html`
       <foxy-user-invitation-form
@@ -526,15 +529,15 @@ describe('UserInvitationForm', () => {
 
     await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
     const action = form.renderRoot.querySelector(
-      'foxy-internal-user-invitation-form-sync-action[infer="reject"]'
+      'foxy-internal-user-invitation-form-async-action[infer="reject"]'
     );
 
     expect(action).to.exist;
-    expect(action).to.have.attribute('status', 'rejected');
+    expect(action).to.have.attribute('href', form.data!._links['fx:reject'].href);
     expect(action).to.have.attribute('theme', 'error primary');
   });
 
-  it('renders sync action for accepting the invitation in snapshot user layout', async () => {
+  it('renders async action for accepting the invitation in snapshot user layout', async () => {
     const router = createRouter();
     const form = await fixture<Form>(html`
       <foxy-user-invitation-form
@@ -547,11 +550,11 @@ describe('UserInvitationForm', () => {
 
     await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
     const action = form.renderRoot.querySelector(
-      'foxy-internal-user-invitation-form-sync-action[infer="accept"]'
+      'foxy-internal-user-invitation-form-async-action[infer="accept"]'
     );
 
     expect(action).to.exist;
-    expect(action).to.have.attribute('status', 'accepted');
+    expect(action).to.have.attribute('href', form.data!._links['fx:accept'].href);
     expect(action).to.have.attribute('theme', 'success primary');
   });
 
@@ -570,5 +573,31 @@ describe('UserInvitationForm', () => {
     const button = form.renderRoot.querySelector('foxy-internal-delete-control');
     expect(button).to.exist;
     expect(button).to.have.attribute('infer', 'delete');
+  });
+
+  it('renders store dashboard link in user layout when getStorePageHref is set', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-user-invitation-form
+        href="https://demo.api/hapi/user_invitations/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-user-invitation-form>
+    `);
+
+    await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
+    expect(form.renderRoot.querySelector('[infer="store"] [key="store_link"]')).to.not.exist;
+
+    form.getStorePageHref = (href: string) => `https://example.com?href=${href}`;
+    await form.requestUpdate();
+    const caption = form.renderRoot.querySelector('[infer="store"] [key="store_link"]');
+    expect(caption).to.exist;
+
+    const link = caption?.closest('a');
+    expect(link).to.exist;
+    expect(link).to.have.attribute(
+      'href',
+      'https://example.com?href=https://demo.api/hapi/stores/0'
+    );
   });
 });

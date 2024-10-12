@@ -549,6 +549,9 @@ export const links: Links = {
   }),
 
   user_invitations: ({ user_id }) => ({
+    'fx:reject': { href: 'https://demo.api/virtual/empty?status=200' },
+    'fx:accept': { href: 'https://demo.api/virtual/empty?status=200' },
+    'fx:revoke': { href: 'https://demo.api/virtual/empty?status=200' },
     'fx:resend': { href: 'https://demo.api/virtual/empty?status=200' },
     'fx:store': { href: `./stores/${user_id}` },
     'fx:user': { href: `./users/${user_id}` },
