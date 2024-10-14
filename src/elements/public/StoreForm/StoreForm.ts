@@ -1,3 +1,4 @@
+import type { VanillaHCaptchaWebComponent } from 'vanilla-hcaptcha';
 import type { PropertyDeclarations } from 'lit-element';
 import type { Resource, Graph } from '@foxy.io/sdk/core';
 import type { TemplateResult } from 'lit-html';
@@ -36,6 +37,7 @@ export class StoreForm extends Base<Data> {
       ...super.properties,
       customerPasswordHashTypes: { attribute: 'customer-password-hash-types' },
       shippingAddressTypes: { attribute: 'shipping-address-types' },
+      hCaptchaSiteKey: { attribute: 'h-captcha-site-key' },
       storeVersions: { attribute: 'store-versions' },
       checkoutTypes: { attribute: 'checkout-types' },
       localeCodes: { attribute: 'locale-codes' },
@@ -105,6 +107,9 @@ export class StoreForm extends Base<Data> {
 
   /** URL of the `fx:shipping_address_types` property helper resource. */
   shippingAddressTypes: string | null = null;
+
+  /** hCaptcha site key for signup verification. If provided, requires users to complete a captcha before creating a store. */
+  hCaptchaSiteKey: string | null = null;
 
   /**
    * URL of the `fx:store_versions` property helper resource.
@@ -325,6 +330,8 @@ export class StoreForm extends Base<Data> {
   private readonly __webhookKeySsoSetValue = (newValue: string) => {
     this.__setWebhookKey('sso', newValue);
   };
+
+  private __hCaptchaToken: string | null = null;
 
   get headerSubtitleOptions(): Record<string, unknown> {
     return { context: this.data?.is_active ? 'active' : 'inactive' };
@@ -850,12 +857,63 @@ export class StoreForm extends Base<Data> {
           : ''}
       </foxy-internal-summary-control>
 
+      ${this.href || !this.hCaptchaSiteKey
+        ? ''
+        : html`
+            <div class="text-xs text-tertiary">
+              <foxy-i18n infer="hcaptcha" key="disclaimer"></foxy-i18n>
+              <br />
+              <a
+                target="_blank"
+                class="transition-colors hover-text-body rounded-s focus-outline-none focus-ring-2 focus-ring-primary-50"
+                href="https://www.hcaptcha.com/privacy"
+                rel="noopener noreferrer"
+              >
+                <foxy-i18n class="underline" infer="hcaptcha" key="privacy_policy"></foxy-i18n>
+              </a>
+              <span>&bull;</span>
+              <a
+                target="_blank"
+                class="transition-colors hover-text-body rounded-s focus-outline-none focus-ring-2 focus-ring-primary-50"
+                href="https://www.hcaptcha.com/terms"
+                rel="noopener noreferrer"
+              >
+                <foxy-i18n class="underline" infer="hcaptcha" key="terms_of_service"></foxy-i18n>
+              </a>
+              <h-captcha
+                site-key=${this.hCaptchaSiteKey}
+                class="hidden"
+                size="invisible"
+                hl=${this.lang}
+                @verified=${({ token }: Record<'token' | 'eKey', string>) => {
+                  this.__hCaptchaToken = token;
+                  super.submit();
+                }}
+              >
+              </h-captcha>
+            </div>
+          `}
       ${super.renderBody()}
       ${customerPasswordHashTypesLoader.render(this.customerPasswordHashTypes)}
       ${shippingAddressTypesLoader.render(this.shippingAddressTypes)}
       ${timezonesLoader.render(this.timezones)} ${countriesLoader.render(this.countries)}
       ${regionsLoader.render(regionsUrl)}
     `;
+  }
+
+  submit(): void {
+    if (!this.href && this.hCaptchaSiteKey) {
+      this.__hCaptcha?.reset();
+      this.__hCaptcha?.execute();
+    } else {
+      super.submit();
+    }
+  }
+
+  protected async _fetch<TResult = Data>(...args: Parameters<Window['fetch']>): Promise<TResult> {
+    const request = new StoreForm.API.WHATWGRequest(...args);
+    if (this.__hCaptchaToken) request.headers.set('h-captcha-code', this.__hCaptchaToken);
+    return super._fetch(request);
   }
 
   private get __displayIdExamples() {
@@ -912,6 +970,10 @@ export class StoreForm extends Base<Data> {
         void: `${randomExampleId}${transactionJournalEntriesConfig.transaction_separator}${transactionJournalEntriesConfig.log_detail_request_types.transaction_void.prefix}${randomEntryId}`,
       };
     }
+  }
+
+  private get __hCaptcha() {
+    return this.renderRoot.querySelector<VanillaHCaptchaWebComponent>('h-captcha');
   }
 
   private __getWebhookKey() {

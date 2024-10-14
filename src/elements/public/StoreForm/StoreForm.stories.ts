@@ -90,6 +90,7 @@ export default getMeta(summary);
 const ext = `
   customer-password-hash-types="https://demo.api/hapi/property_helpers/9"
   shipping-address-types="https://demo.api/hapi/property_helpers/5"
+  h-captcha-site-key="10000000-ffff-ffff-ffff-000000000001"
   timezones="https://demo.api/hapi/property_helpers/2"
   countries="https://demo.api/hapi/property_helpers/3"
   regions="https://demo.api/hapi/property_helpers/4"

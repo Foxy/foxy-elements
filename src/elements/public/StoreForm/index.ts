@@ -1,3 +1,5 @@
+import 'vanilla-hcaptcha';
+
 import '../../internal/InternalEditableListControl/index';
 import '../../internal/InternalFrequencyControl/index';
 import '../../internal/InternalPasswordControl/index';

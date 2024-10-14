@@ -2,7 +2,7 @@ import type { FetchEvent } from '../NucleonElement/FetchEvent';
 
 import './index';
 
-import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import { expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
 import { InternalEditableListControl } from '../../internal/InternalEditableListControl/InternalEditableListControl';
 import { InternalFrequencyControl } from '../../internal/InternalFrequencyControl/InternalFrequencyControl';
 import { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
@@ -17,6 +17,7 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
 import { I18n } from '../I18n/I18n';
 import { stub } from 'sinon';
+import { VanillaHCaptchaWebComponent } from 'vanilla-hcaptcha';
 
 describe('StoreForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -80,6 +81,11 @@ describe('StoreForm', () => {
     expect(element).to.equal(I18n);
   });
 
+  it('imports and defines h-captcha', () => {
+    const element = customElements.get('h-captcha');
+    expect(element).to.exist;
+  });
+
   it('imports and defines itself as foxy-store-form', () => {
     const element = customElements.get('foxy-store-form');
     expect(element).to.equal(Form);
@@ -111,6 +117,16 @@ describe('StoreForm', () => {
     expect(Form).to.have.nested.property(
       'properties.shippingAddressTypes.attribute',
       'shipping-address-types'
+    );
+  });
+
+  it('has a reactive property "hCaptchaSiteKey"', () => {
+    expect(new Form()).to.have.property('hCaptchaSiteKey', null);
+    expect(Form).to.have.nested.property('properties.hCaptchaSiteKey');
+    expect(Form).to.not.have.nested.property('properties.hCaptchaSiteKey.type');
+    expect(Form).to.have.nested.property(
+      'properties.hCaptchaSiteKey.attribute',
+      'h-captcha-site-key'
     );
   });
 
@@ -2284,5 +2300,104 @@ describe('StoreForm', () => {
       'form.webhook_key',
       JSON.stringify({ cart_signing: 'test', xml_datafeed: 'foo', api_legacy: 'test', sso: 'test' })
     );
+  });
+
+  it('renders a hCaptcha element when hCaptchaSiteKey is set', async () => {
+    const form = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    let control = form.renderRoot.querySelector('h-captcha');
+
+    expect(control).to.not.exist;
+    expect(form.renderRoot.querySelector('[infer="hcaptcha"][key="disclaimer]')).to.not.exist;
+    expect(form.renderRoot.querySelector('[infer="hcaptcha"][key="terms_of_service]')).to.not.exist;
+    expect(form.renderRoot.querySelector('[infer="hcaptcha"][key="privacy_policy]')).to.not.exist;
+
+    form.hCaptchaSiteKey = '10000000-ffff-ffff-ffff-000000000001';
+    form.lang = 'en-AU';
+    await form.requestUpdate();
+    control = form.renderRoot.querySelector('h-captcha');
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('site-key', '10000000-ffff-ffff-ffff-000000000001');
+    expect(control).to.have.attribute('size', 'invisible');
+    expect(control).to.have.attribute('hl', 'en-AU');
+
+    const disclaimer = form.renderRoot.querySelector('[infer="hcaptcha"][key="disclaimer"]');
+    const terms = form.renderRoot.querySelector('[infer="hcaptcha"][key="terms_of_service"]');
+    const termsLink = terms?.closest('a');
+    const privacy = form.renderRoot.querySelector('[infer="hcaptcha"][key="privacy_policy"]');
+    const privacyLink = privacy?.closest('a');
+
+    expect(disclaimer).to.exist;
+    expect(terms).to.exist;
+    expect(privacy).to.exist;
+
+    expect(termsLink).to.have.attribute('href', 'https://www.hcaptcha.com/terms');
+    expect(termsLink).to.have.attribute('target', '_blank');
+    expect(termsLink).to.have.attribute('rel', 'noopener noreferrer');
+
+    expect(privacyLink).to.have.attribute('href', 'https://www.hcaptcha.com/privacy');
+    expect(privacyLink).to.have.attribute('target', '_blank');
+    expect(privacyLink).to.have.attribute('rel', 'noopener noreferrer');
+  });
+
+  it('includes hCaptcha token on submission when hCaptchaSiteKey is set', async () => {
+    const VerifiedEvent = class extends CustomEvent<unknown> {
+      token = '456';
+
+      eKey = '789';
+    };
+
+    const form = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    form.hCaptchaSiteKey = '10000000-ffff-ffff-ffff-000000000001';
+    form.edit({
+      store_name: 'Test Store',
+      store_domain: 'teststore',
+      store_email: 'test@example.com',
+      store_url: 'https://example.com',
+      postal_code: '012345',
+      country: 'US',
+      region: 'TX',
+    });
+
+    await form.requestUpdate();
+
+    const captcha = form.renderRoot.querySelector('h-captcha') as VanillaHCaptchaWebComponent;
+    stub(captcha, 'reset').resolves();
+    stub(captcha, 'execute').callsFake(() => {
+      captcha.dispatchEvent(new VerifiedEvent('verified'));
+    });
+
+    const whenFetchIsFired = oneEvent(form, 'fetch');
+    form.submit();
+    const evt = (await whenFetchIsFired) as unknown as FetchEvent;
+    evt.preventDefault();
+
+    const headers = evt.request.headers;
+    expect(headers.get('h-captcha-code')).to.equal('456');
+  });
+
+  it('submits without hCaptcha token when hCaptchaSiteKey is not set', async () => {
+    const form = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+
+    form.edit({
+      store_name: 'Test Store',
+      store_domain: 'teststore',
+      store_email: 'test@example.com',
+      store_url: 'https://example.com',
+      postal_code: '012345',
+      country: 'US',
+      region: 'TX',
+    });
+
+    await form.requestUpdate();
+
+    const whenFetchIsFired = oneEvent(form, 'fetch');
+    form.submit();
+    const evt = (await whenFetchIsFired) as unknown as FetchEvent;
+    evt.preventDefault();
+
+    const headers = evt.request.headers;
+    expect(headers.get('h-captcha-code')).to.be.null;
   });
 });
