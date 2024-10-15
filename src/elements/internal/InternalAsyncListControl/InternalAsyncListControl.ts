@@ -307,7 +307,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
             >
             </foxy-internal-confirm-dialog>
           `}
-      <div class="flex gap-m items-center justify-between mb-s text-l font-medium">
+      <div class="flex gap-m items-center justify-between text-l font-medium">
         <span class="text-body mr-auto">
           ${this.label && this.label !== 'label' ? this.label : ''}
         </span>
@@ -436,13 +436,20 @@ export class InternalAsyncListControl extends InternalEditableControl {
             `}
       </div>
 
+      <div
+        class="text-secondary text-s"
+        ?hidden=${!this.helperText || this.helperText === 'helper_text'}
+      >
+        ${this.helperText}
+      </div>
+
       <foxy-pagination first=${ifDefined(first)} infer="pagination">
         <foxy-collection-page
           class=${classMap({
-            'block divide-y divide-contrast-5 rounded overflow-hidden': true,
-            'ring-1 ring-inset ring-contrast-10':
-              this.__isSelecting || (!this.form && !this.getPageHref),
-            'bg-contrast-5': !this.__isSelecting && (!!this.form || !!this.getPageHref),
+            'block divide-y divide-contrast-5 bg-contrast-5 rounded overflow-hidden': true,
+            'mt-s':
+              (!!this.label && this.label !== 'label') ||
+              (!!this.helperText && this.helperText !== 'helper_text'),
           })}
           infer="card"
           .related=${this.related}
@@ -453,18 +460,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
       </foxy-pagination>
 
       <div
-        class=${classMap({
-          'transition-colors mt-xs text-xs': true,
-          'text-secondary group-hover-text-body': !this.disabled && !this.readonly,
-          'text-disabled': this.disabled,
-        })}
-        ?hidden=${!this.helperText || this.helperText === 'helper_text'}
-      >
-        ${this.helperText}
-      </div>
-
-      <div
-        class="mt-xs text-xs leading-xs text-error"
+        class="mt-s text-s leading-xs text-error"
         ?hidden=${!this._errorMessage || this.disabled || this.readonly || this.__isSelecting}
       >
         ${this._errorMessage}

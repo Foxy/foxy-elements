@@ -20,6 +20,10 @@ describe('GiftCardCodeForm', () => {
     expect(customElements.get('foxy-internal-async-list-control')).to.exist;
   });
 
+  it('imports and defines foxy-internal-summary-control', () => {
+    expect(customElements.get('foxy-internal-summary-control')).to.exist;
+  });
+
   it('imports and defines foxy-internal-number-control', () => {
     expect(customElements.get('foxy-internal-number-control')).to.exist;
   });
@@ -42,10 +46,6 @@ describe('GiftCardCodeForm', () => {
 
   it('imports and defines foxy-customer-card', () => {
     expect(customElements.get('foxy-customer-card')).to.exist;
-  });
-
-  it('imports and defines foxy-internal-gift-card-code-form-item-control', () => {
-    expect(customElements.get('foxy-internal-gift-card-code-form-item-control')).to.exist;
   });
 
   it('imports and defines itself as foxy-gift-card-code-form', () => {
@@ -111,6 +111,11 @@ describe('GiftCardCodeForm', () => {
     expect(element.hiddenSelector.matches('logs', true)).to.be.false;
   });
 
+  it('always keeps cart-item readonly', () => {
+    const element = new GiftCardCodeForm();
+    expect(element.readonlySelector.matches('cart-item', true)).to.be.true;
+  });
+
   it('renders a form header', () => {
     const form = new GiftCardCodeForm();
     const renderHeaderMethod = stub(form, 'renderHeader');
@@ -118,31 +123,51 @@ describe('GiftCardCodeForm', () => {
     expect(renderHeaderMethod).to.have.been.called;
   });
 
-  it('renders a text control for code', async () => {
+  it('renders a summary control for settings', async () => {
     const element = await fixture<GiftCardCodeForm>(
       html`<foxy-gift-card-code-form></foxy-gift-card-code-form>`
     );
-    const control = element.renderRoot.querySelector('foxy-internal-text-control[infer="code"]');
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="settings"]'
+    );
+
     expect(control).to.exist;
   });
 
-  it('renders a number control for current balance', async () => {
+  it('renders a text control for code inside of the settings summary', async () => {
     const element = await fixture<GiftCardCodeForm>(
       html`<foxy-gift-card-code-form></foxy-gift-card-code-form>`
     );
+
     const control = element.renderRoot.querySelector(
-      'foxy-internal-number-control[infer="current-balance"]'
+      '[infer="settings"] foxy-internal-text-control[infer="code"]'
     );
+
     expect(control).to.exist;
   });
 
-  it('renders a date control for end date', async () => {
+  it('renders a number control for current balance inside of the settings summary', async () => {
     const element = await fixture<GiftCardCodeForm>(
       html`<foxy-gift-card-code-form></foxy-gift-card-code-form>`
     );
+
     const control = element.renderRoot.querySelector(
-      'foxy-internal-date-control[infer="end-date"]'
+      '[infer="settings"] foxy-internal-number-control[infer="current-balance"]'
     );
+
+    expect(control).to.exist;
+  });
+
+  it('renders a date control for end date inside of the settings summary', async () => {
+    const element = await fixture<GiftCardCodeForm>(
+      html`<foxy-gift-card-code-form></foxy-gift-card-code-form>`
+    );
+
+    const control = element.renderRoot.querySelector(
+      '[infer="settings"] foxy-internal-date-control[infer="end-date"]'
+    );
+
     expect(control).to.exist;
   });
 
@@ -198,14 +223,26 @@ describe('GiftCardCodeForm', () => {
     expect(control.getValue()).to.equal('https://demo.api/hapi/customers/2');
   });
 
-  it('renders a custom control for associated cart item', async () => {
+  it('renders a resource picker control for associated cart item', async () => {
+    const router = createRouter();
     const element = await fixture<GiftCardCodeForm>(
-      html`<foxy-gift-card-code-form></foxy-gift-card-code-form>`
+      html`
+        <foxy-gift-card-code-form
+          href="https://demo.api/hapi/gift_card_codes/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-gift-card-code-form>
+      `
     );
-    const control = element.renderRoot.querySelector(
-      'foxy-internal-gift-card-code-form-item-control[infer="cart-item"]'
+
+    await waitUntil(() => !!element.data);
+    const control = element.renderRoot.querySelector<InternalResourcePickerControl>(
+      'foxy-internal-resource-picker-control[infer="cart-item"]'
     );
+
     expect(control).to.exist;
+    expect(control).to.have.attribute('item', 'foxy-item-card');
+    expect(control?.getValue()).to.equal('https://demo.api/hapi/items/0?zoom=item_options');
   });
 
   it('renders a list control for logs', async () => {

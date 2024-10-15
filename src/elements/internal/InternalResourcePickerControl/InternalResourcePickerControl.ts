@@ -192,7 +192,7 @@ export class InternalResourcePickerControl extends InternalEditableControl {
       <div class="block group">
         <div
           class=${classMap({
-            'flex items-center gap-m transition-colors mb-s font-medium text-l': true,
+            'flex items-center gap-m transition-colors font-medium text-l': true,
             'text-disabled': this.disabled,
           })}
         >
@@ -231,12 +231,15 @@ export class InternalResourcePickerControl extends InternalEditableControl {
               `}
         </div>
 
+        <div class="text-secondary text-s" ?hidden=${!this.helperText}>${this.helperText}</div>
+
         <button
           class=${classMap({
             'block w-full bg-contrast-5 rounded text-left transition-colors': true,
             'focus-outline-none focus-ring-2 focus-ring-primary-50': true,
             'cursor-pointer hover-bg-contrast-10': !this.disabled && !this.readonly,
             'cursor-default': this.disabled || this.readonly,
+            'mt-s': !!this.label || !!this.helperText,
           })}
           style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
           ?disabled=${this.disabled || this.readonly}
@@ -273,18 +276,6 @@ export class InternalResourcePickerControl extends InternalEditableControl {
             })}
           </div>
         </button>
-
-        <div
-          class=${classMap({
-            'transition-colors mt-xs text-xs': true,
-            'text-secondary group-hover-text-body': !this.disabled && !this.readonly,
-            'text-secondary': this.readonly,
-            'text-disabled': this.disabled,
-          })}
-          ?hidden=${!this.helperText}
-        >
-          ${this.helperText}
-        </div>
 
         <div
           class="mt-xs text-xs leading-xs text-error"

@@ -77,6 +77,11 @@ export class GiftCardCodeForm extends Base<Data> {
 
   private readonly __storeLoaderId = 'storeLoader';
 
+  get readonlySelector(): BooleanSelector {
+    const alwaysMatch = [super.readonlySelector.toString(), 'cart-item'];
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
+  }
+
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = [super.hiddenSelector.toString()];
     if (!this.href) alwaysMatch.push('customer', 'cart-item', 'logs');
@@ -84,12 +89,28 @@ export class GiftCardCodeForm extends Base<Data> {
   }
 
   renderBody(): TemplateResult {
+    let href: string | undefined;
+
+    try {
+      const url = new URL(
+        this.data?._links?.['fx:provisioned_by_transaction_detail_id'].href ?? ''
+      );
+      url.searchParams.set('zoom', 'item_options');
+      href = url.toString();
+    } catch {
+      href = undefined;
+    }
+
     return html`
       ${this.renderHeader()}
 
-      <foxy-internal-text-control infer="code"></foxy-internal-text-control>
-      <foxy-internal-number-control infer="current-balance"></foxy-internal-number-control>
-      <foxy-internal-date-control infer="end-date"></foxy-internal-date-control>
+      <foxy-internal-summary-control infer="settings">
+        <foxy-internal-text-control layout="summary-item" infer="code"></foxy-internal-text-control>
+        <foxy-internal-number-control layout="summary-item" infer="current-balance">
+        </foxy-internal-number-control>
+        <foxy-internal-date-control layout="summary-item" infer="end-date">
+        </foxy-internal-date-control>
+      </foxy-internal-summary-control>
 
       <foxy-internal-resource-picker-control
         infer="customer"
@@ -101,8 +122,12 @@ export class GiftCardCodeForm extends Base<Data> {
       >
       </foxy-internal-resource-picker-control>
 
-      <foxy-internal-gift-card-code-form-item-control infer="cart-item">
-      </foxy-internal-gift-card-code-form-item-control>
+      <foxy-internal-resource-picker-control
+        infer="cart-item"
+        item="foxy-item-card"
+        .getValue=${() => href}
+      >
+      </foxy-internal-resource-picker-control>
 
       <foxy-internal-async-list-control
         infer="logs"
