@@ -11,6 +11,10 @@ describe('foxy-coupon-code-form', () => {
     expect(customElements.get('foxy-internal-async-list-control')).to.exist;
   });
 
+  it('imports and defines foxy-internal-summary-control', () => {
+    expect(customElements.get('foxy-internal-summary-control')).to.exist;
+  });
+
   it('imports and defines foxy-internal-text-control', () => {
     expect(customElements.get('foxy-internal-text-control')).to.exist;
   });
@@ -83,12 +87,29 @@ describe('foxy-coupon-code-form', () => {
     expect(renderHeaderMethod).to.have.been.called;
   });
 
-  it('renders a text control for code', async () => {
+  it('renders a general summary control', async () => {
     const element = await fixture<CouponCodeForm>(
       html`<foxy-coupon-code-form></foxy-coupon-code-form>`
     );
-    const control = element.renderRoot.querySelector('foxy-internal-text-control[infer="code"]');
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="general"]'
+    );
+
     expect(control).to.exist;
+  });
+
+  it('renders a text control for code in the general summary', async () => {
+    const element = await fixture<CouponCodeForm>(
+      html`<foxy-coupon-code-form></foxy-coupon-code-form>`
+    );
+
+    const control = element.renderRoot.querySelector(
+      '[infer="general"] foxy-internal-text-control[infer="code"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
   it('renders a list of transactions', async () => {

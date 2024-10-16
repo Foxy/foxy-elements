@@ -13,7 +13,7 @@ const summary: Summary = {
   configurable: {
     sections: ['timestamps', 'header'],
     buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
-    inputs: ['code'],
+    inputs: ['general', 'general:code'],
   },
 };
 

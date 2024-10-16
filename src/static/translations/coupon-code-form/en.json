@@ -16,13 +16,17 @@
       "done": "Copied to clipboard"
     }
   },
-  "code": {
-    "label": "Code",
-    "placeholder": "Required",
-    "helper_text": "The string value of this coupon code which your customer will add to their cart to use this coupon.",
-    "v8n_required": "Please enter a coupon code",
-    "v8n_too_long": "Coupon code must be 50 characters or less",
-    "v8n_has_spaces": "Please remove spaces from the coupon code"
+  "general": {
+    "label": "",
+    "helper_text": "",
+    "code": {
+      "label": "Code",
+      "placeholder": "Required",
+      "helper_text": "",
+      "v8n_required": "Please enter a coupon code",
+      "v8n_too_long": "Coupon code must be 50 characters or less",
+      "v8n_has_spaces": "Please remove spaces from the coupon code"
+    }
   },
   "transactions": {
     "label": "Transactions",
