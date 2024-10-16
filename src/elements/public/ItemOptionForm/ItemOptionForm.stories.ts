@@ -11,7 +11,14 @@ const summary: Summary = {
   localName: 'foxy-item-option-form',
   translatable: true,
   configurable: {
-    inputs: ['name', 'value', 'price-mod', 'weight-mod'],
+    inputs: [
+      'general',
+      'general:name',
+      'general:value',
+      'mods',
+      'mods:price-mod',
+      'mods:weight-mod',
+    ],
     buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
     sections: ['timestamps', 'header'],
   },

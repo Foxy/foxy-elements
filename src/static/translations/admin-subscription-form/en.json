@@ -704,29 +704,37 @@
                         "done": "Copied to clipboard"
                       }
                     },
-                    "name": {
-                      "label": "Name",
+                    "general": {
+                      "label": "",
                       "helper_text": "",
-                      "placeholder": "Color",
-                      "v8n_required": "Name is required",
-                      "v8n_too_long": "Name mustn't exceed 100 characters"
+                      "name": {
+                        "label": "Name",
+                        "helper_text": "",
+                        "placeholder": "Required",
+                        "v8n_required": "Name is required",
+                        "v8n_too_long": "Name mustn't exceed 100 characters"
+                      },
+                      "value": {
+                        "label": "Value",
+                        "helper_text": "",
+                        "placeholder": "Required",
+                        "v8n_required": "Value is required",
+                        "v8n_too_long": "Value mustn't exceed 1024 characters"
+                      }
                     },
-                    "value": {
-                      "label": "Value",
+                    "mods": {
+                      "label": "",
                       "helper_text": "",
-                      "placeholder": "Red",
-                      "v8n_required": "Value is required",
-                      "v8n_too_long": "Value mustn't exceed 1024 characters"
-                    },
-                    "price-mod": {
-                      "label": "Price",
-                      "helper_text": "Same currency as item",
-                      "placeholder": "10"
-                    },
-                    "weight-mod": {
-                      "label": "Weight",
-                      "helper_text": "Arbitrary units",
-                      "placeholder": "5"
+                      "price-mod": {
+                        "label": "Price (item currency)",
+                        "helper_text": "",
+                        "placeholder": "0"
+                      },
+                      "weight-mod": {
+                        "label": "Weight (arbitrary units)",
+                        "helper_text": "",
+                        "placeholder": "0"
+                      }
                     },
                     "timestamps": {
                       "date_created": "Created on",
