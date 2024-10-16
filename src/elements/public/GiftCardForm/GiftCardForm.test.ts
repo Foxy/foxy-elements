@@ -1,6 +1,9 @@
 import type { InternalEditableListControl } from '../../internal/InternalEditableListControl/InternalEditableListControl';
 import type { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
 import type { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
+import type { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
+import type { InternalNumberControl } from '../../internal/InternalNumberControl/InternalNumberControl';
+import type { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
@@ -42,8 +45,20 @@ describe('GiftCardForm', () => {
     expect(customElements.get('foxy-internal-frequency-control')).to.exist;
   });
 
+  it('imports and defines foxy-internal-summary-control', () => {
+    expect(customElements.get('foxy-internal-summary-control')).to.exist;
+  });
+
   it('imports and defines foxy-internal-select-control', () => {
     expect(customElements.get('foxy-internal-select-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-switch-control', () => {
+    expect(customElements.get('foxy-internal-switch-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-number-control', () => {
+    expect(customElements.get('foxy-internal-number-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-text-control', () => {
@@ -252,24 +267,38 @@ describe('GiftCardForm', () => {
     ]);
   });
 
-  it('renders text control for name', async () => {
+  it('renders general summary', async () => {
     const element = await fixture<GiftCardForm>(html`<foxy-gift-card-form></foxy-gift-card-form>`);
-    const control = element.renderRoot.querySelector('foxy-internal-text-control[infer=name]');
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="general"]'
+    );
+
     expect(control).to.exist;
   });
 
-  it('renders select control for currencies', async () => {
+  it('renders text control for name in the general summary', async () => {
     const element = await fixture<GiftCardForm>(html`<foxy-gift-card-form></foxy-gift-card-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-select-control[infer=currency]'
+      '[infer="general"] foxy-internal-text-control[infer=name]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders select control for currencies in the general summary', async () => {
+    const element = await fixture<GiftCardForm>(html`<foxy-gift-card-form></foxy-gift-card-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="general"]  foxy-internal-select-control[infer=currency]'
     ) as InternalSelectControl;
 
     expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.attribute('property', 'currency_code');
     expect(control).to.have.deep.property(
       'options',
       currencies.map(value => ({
-        label: `currency.code_${value}`,
+        label: `general.currency.code_${value}`,
         value,
       }))
     );
@@ -280,23 +309,113 @@ describe('GiftCardForm', () => {
     expect(control.getValue()).to.equal('usd');
   });
 
-  it('renders frequency control for expiration period', async () => {
+  it('renders frequency control for expiration period in the general summary', async () => {
     const element = await fixture<GiftCardForm>(html`<foxy-gift-card-form></foxy-gift-card-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-frequency-control[infer=expires]'
+      '[infer="general"] foxy-internal-frequency-control[infer=expires]'
     );
 
     expect(control).to.exist;
     expect(control).to.have.attribute('property', 'expires_after');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders provisioning control', async () => {
+  it('renders provisioning summary', async () => {
     const element = await fixture<GiftCardForm>(html`<foxy-gift-card-form></foxy-gift-card-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-gift-card-form-provisioning-control[infer="provisioning"]'
+      'foxy-internal-summary-control[infer="provisioning"]'
     );
 
     expect(control).to.exist;
+  });
+
+  it('renders switch control for autoprovisioning in the provisioning summary', async () => {
+    const element = await fixture<GiftCardForm>(html`<foxy-gift-card-form></foxy-gift-card-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="provisioning"] foxy-internal-switch-control[infer="toggle"]'
+    ) as InternalSwitchControl;
+
+    expect(control).to.exist;
+    expect(control.getValue()).to.be.false;
+
+    control.setValue(true);
+    expect(control.getValue()).to.be.true;
+    expect(element).to.have.deep.nested.property(
+      'form.provisioning_config.allow_autoprovisioning',
+      true
+    );
+  });
+
+  it('renders text control for SKU in the provisioning summary', async () => {
+    const element = await fixture<GiftCardForm>(html`<foxy-gift-card-form></foxy-gift-card-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="provisioning"] foxy-internal-text-control[infer="sku"]'
+    ) as InternalTextControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders number control for minimum balance in the provisioning summary', async () => {
+    const element = await fixture<GiftCardForm>(html`<foxy-gift-card-form></foxy-gift-card-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="provisioning"] foxy-internal-number-control[infer="min-balance"]'
+    ) as InternalNumberControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('min', '0');
+    expect(control).to.not.have.attribute('suffix');
+
+    element.edit({ currency_code: 'usd' });
+    await element.requestUpdate();
+    expect(control).to.have.attribute('suffix', 'USD');
+
+    control.setValue(10);
+    expect(element).to.have.deep.nested.property(
+      'form.provisioning_config.initial_balance_min',
+      10
+    );
+
+    element.edit({
+      provisioning_config: {
+        allow_autoprovisioning: true,
+        initial_balance_max: 0,
+        initial_balance_min: 20,
+      },
+    });
+    expect(control.getValue()).to.equal(20);
+  });
+
+  it('renders number control for maximum balance in the provisioning summary', async () => {
+    const element = await fixture<GiftCardForm>(html`<foxy-gift-card-form></foxy-gift-card-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="provisioning"] foxy-internal-number-control[infer="max-balance"]'
+    ) as InternalNumberControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('min', '0');
+    expect(control).to.not.have.attribute('suffix');
+
+    element.edit({ currency_code: 'usd' });
+    await element.requestUpdate();
+    expect(control).to.have.attribute('suffix', 'USD');
+
+    control.setValue(10);
+    expect(element).to.have.deep.nested.property(
+      'form.provisioning_config.initial_balance_max',
+      10
+    );
+
+    element.edit({
+      provisioning_config: {
+        allow_autoprovisioning: true,
+        initial_balance_min: 0,
+        initial_balance_max: 20,
+      },
+    });
+    expect(control.getValue()).to.equal(20);
   });
 
   it('renders async list control for codes', async () => {

@@ -3,7 +3,10 @@ import '../../internal/InternalBulkAddActionControl/index';
 import '../../internal/InternalEditableListControl/index';
 import '../../internal/InternalAsyncListControl/index';
 import '../../internal/InternalFrequencyControl/index';
+import '../../internal/InternalSummaryControl/index';
 import '../../internal/InternalSelectControl/index';
+import '../../internal/InternalSwitchControl/index';
+import '../../internal/InternalNumberControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 
@@ -15,8 +18,6 @@ import '../GiftCardCodeForm/index';
 import '../NucleonElement/index';
 import '../AttributeCard/index';
 import '../AttributeForm/index';
-
-import './internal/InternalGiftCardFormProvisioningControl/index';
 
 import { GiftCardForm } from './GiftCardForm';
 

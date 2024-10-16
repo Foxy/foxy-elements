@@ -69,6 +69,56 @@ export class GiftCardForm extends Base<Data> {
     return `https://api.foxycart.com/customers/${id}`;
   };
 
+  private readonly __provisioningMaxBalanceValueGetter = () => {
+    return this.form.provisioning_config?.initial_balance_max;
+  };
+
+  private readonly __provisioningMaxBalanceValueSetter = (newMax: number) => {
+    const newMin = this.form.provisioning_config?.initial_balance_min ?? newMax;
+
+    this.edit({
+      provisioning_config: {
+        allow_autoprovisioning: true,
+        initial_balance_min: newMin > newMax ? newMax : newMin,
+        initial_balance_max: newMax,
+      },
+    });
+  };
+
+  private readonly __provisioningMinBalanceValueGetter = () => {
+    return this.form.provisioning_config?.initial_balance_min;
+  };
+
+  private readonly __provisioningMinBalanceValueSetter = (newMin: number) => {
+    const newMax = this.form.provisioning_config?.initial_balance_max ?? newMin;
+
+    this.edit({
+      provisioning_config: {
+        allow_autoprovisioning: true,
+        initial_balance_min: newMin,
+        initial_balance_max: newMax < newMin ? newMin : newMax,
+      },
+    });
+  };
+
+  private readonly __provisioningToggleValueGetter = () => {
+    return !!this.form.provisioning_config?.allow_autoprovisioning;
+  };
+
+  private readonly __provisioningToggleValueSetter = (newValue: boolean) => {
+    if (newValue) {
+      this.edit({
+        provisioning_config: {
+          allow_autoprovisioning: true,
+          initial_balance_min: this.form.provisioning_config?.initial_balance_min ?? 0,
+          initial_balance_max: this.form.provisioning_config?.initial_balance_max ?? 0,
+        },
+      });
+    } else {
+      this.edit({ provisioning_config: null });
+    }
+  };
+
   private readonly __productCodeRestrictionsGetValue = () => {
     return this.form.product_code_restrictions
       ?.split(',')
@@ -136,6 +186,10 @@ export class GiftCardForm extends Base<Data> {
       alwaysMatch.push('codes', 'category-restrictions', 'attributes');
     }
 
+    if (!this.form.provisioning_config?.allow_autoprovisioning) {
+      alwaysMatch.push('provisioning:sku', 'provisioning:min-balance', 'provisioning:max-balance');
+    }
+
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
@@ -180,27 +234,60 @@ export class GiftCardForm extends Base<Data> {
     return html`
       ${this.renderHeader()}
 
-      <div class="grid grid-cols-1 sm-grid-cols-3 md-grid-cols-4 gap-m">
-        <foxy-internal-text-control infer="name" class="md-col-span-2">
+      <foxy-internal-summary-control infer="general">
+        <foxy-internal-text-control layout="summary-item" infer="name">
         </foxy-internal-text-control>
 
         <foxy-internal-select-control
           property="currency_code"
+          layout="summary-item"
           infer="currency"
           .getValue=${this.__currencyCodeGetValue}
           .options=${currencies.map(value => ({
-            label: this.t(`currency.code_${value}`),
+            label: this.t(`general.currency.code_${value}`),
             value,
           }))}
         >
         </foxy-internal-select-control>
 
-        <foxy-internal-frequency-control property="expires_after" infer="expires">
+        <foxy-internal-frequency-control
+          property="expires_after"
+          layout="summary-item"
+          infer="expires"
+        >
         </foxy-internal-frequency-control>
-      </div>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-gift-card-form-provisioning-control infer="provisioning">
-      </foxy-internal-gift-card-form-provisioning-control>
+      <foxy-internal-summary-control infer="provisioning">
+        <foxy-internal-switch-control
+          infer="toggle"
+          .getValue=${this.__provisioningToggleValueGetter}
+          .setValue=${this.__provisioningToggleValueSetter}
+        >
+        </foxy-internal-switch-control>
+
+        <foxy-internal-text-control layout="summary-item" infer="sku"></foxy-internal-text-control>
+
+        <foxy-internal-number-control
+          layout="summary-item"
+          suffix=${ifDefined(this.form.currency_code?.toUpperCase())}
+          infer="min-balance"
+          min="0"
+          .getValue=${this.__provisioningMinBalanceValueGetter}
+          .setValue=${this.__provisioningMinBalanceValueSetter}
+        >
+        </foxy-internal-number-control>
+
+        <foxy-internal-number-control
+          layout="summary-item"
+          suffix=${ifDefined(this.form.currency_code?.toUpperCase())}
+          infer="max-balance"
+          min="0"
+          .getValue=${this.__provisioningMaxBalanceValueGetter}
+          .setValue=${this.__provisioningMaxBalanceValueSetter}
+        >
+        </foxy-internal-number-control>
+      </foxy-internal-summary-control>
 
       <foxy-internal-async-list-control
         first=${codesUrl}
