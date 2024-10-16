@@ -295,32 +295,27 @@ export class Transaction extends Base<Data> {
       >
       </foxy-internal-async-list-control>
 
-      <div
-        class="grid gap-m sm-grid-cols-2"
-        ?hidden=${hidden.matches('custom-fields', true) && hidden.matches('attributes', true)}
+      <foxy-internal-async-list-control
+        infer="custom-fields"
+        class="min-w-0"
+        first=${ifDefined(this.data?._links['fx:custom_fields'].href)}
+        limit="5"
+        form="foxy-custom-field-form"
+        item="foxy-custom-field-card"
+        alert
       >
-        <foxy-internal-async-list-control
-          infer="custom-fields"
-          class="min-w-0"
-          first=${ifDefined(this.data?._links['fx:custom_fields'].href)}
-          limit="5"
-          form="foxy-custom-field-form"
-          item="foxy-custom-field-card"
-          alert
-        >
-        </foxy-internal-async-list-control>
+      </foxy-internal-async-list-control>
 
-        <foxy-internal-async-list-control
-          infer="attributes"
-          class="min-w-0"
-          first=${ifDefined(this.data?._links['fx:attributes'].href)}
-          limit="5"
-          form="foxy-attribute-form"
-          item="foxy-attribute-card"
-          alert
-        >
-        </foxy-internal-async-list-control>
-      </div>
+      <foxy-internal-async-list-control
+        infer="attributes"
+        class="min-w-0"
+        first=${ifDefined(this.data?._links['fx:attributes'].href)}
+        limit="5"
+        form="foxy-attribute-form"
+        item="foxy-attribute-card"
+        alert
+      >
+      </foxy-internal-async-list-control>
 
       <foxy-internal-async-list-control
         infer="shipments"

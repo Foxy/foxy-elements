@@ -27,15 +27,13 @@ export class InternalTransactionCustomerControl extends InternalControl {
     const customerPageHref = customerHref ? host?.getCustomerPageHref?.(customerHref) : void 0;
 
     return html`
-      <foxy-i18n infer="" class="block text-s font-medium leading-xs mb-xs" key="label">
-      </foxy-i18n>
+      <foxy-i18n infer="" class="block text-l font-medium leading-xs mb-s" key="label"> </foxy-i18n>
 
       <foxy-swipe-actions>
         <a
           class=${classMap({
-            'block ring-inset rounded transition-colors': true,
-            'ring-1 ring-contrast-10': !customerPageHref,
-            'cursor-pointer bg-contrast-5 hover-bg-contrast-10': !!customerPageHref,
+            'block ring-inset rounded transition-colors bg-contrast-5': true,
+            'cursor-pointer hover-bg-contrast-10': !!customerPageHref,
             'focus-outline-none focus-ring-2 focus-ring-primary-50': !!customerPageHref,
           })}
           style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
