@@ -8,10 +8,10 @@ import type { Rels } from '@foxy.io/sdk/backend';
 import './index';
 
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
-import { Operator, Type } from '../QueryBuilder/types';
 import { createRouter } from '../../../server/index';
 import { getTestData } from '../../../testgen/getTestData';
 import { CouponForm } from './CouponForm';
+import { Type } from '../QueryBuilder/types';
 import { stub } from 'sinon';
 
 describe('CouponForm', () => {
@@ -39,6 +39,10 @@ describe('CouponForm', () => {
 
   it('imports and defines foxy-internal-query-builder-control', () => {
     expect(customElements.get('foxy-internal-query-builder-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-array-map-control', () => {
+    expect(customElements.get('foxy-internal-array-map-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-number-control', () => {
@@ -407,24 +411,13 @@ describe('CouponForm', () => {
     ]);
   });
 
-  it('renders query builder control for item option restrictions', async () => {
+  it('renders array map control for item option restrictions', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-query-builder-control[infer=item-option-restrictions]'
+      'foxy-internal-array-map-control[infer=item-option-restrictions]'
     ) as InternalQueryBuilderControl;
 
     expect(control).to.exist;
-    expect(control).to.have.attribute('disable-or');
-    expect(control).to.have.deep.property('operators', [Operator.In]);
-
-    expect(control.getValue()).to.equal('');
-    control.setValue('foo:in=bar,baz');
-    expect(element).to.have.deep.nested.property('form.item_option_restrictions', {
-      foo: ['bar', 'baz'],
-    });
-
-    element.edit({ item_option_restrictions: { a: ['b', 'c'] } });
-    expect(control.getValue()).to.equal('a%3Ain=b%2Cc');
   });
 
   it('renders editable list control for product code restrictions', async () => {
@@ -610,24 +603,22 @@ describe('CouponForm', () => {
     });
   }
 
-  it('renders a Customer Restrictions summary control', async () => {
+  it('renders an Auto-Apply summary control', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-summary-control[infer="customer-restrictions"]'
+      'foxy-internal-summary-control[infer="auto-apply"]'
     );
 
     expect(control).to.exist;
   });
 
-  it('renders editable list control for subscription restrictions inside of the Customer Restrictions summary', async () => {
+  it('renders editable list control for subscription restrictions', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer=customer-restrictions] foxy-internal-editable-list-control[infer=customer-subscription-restrictions]'
+      'foxy-internal-editable-list-control[infer=customer-subscription-restrictions]'
     ) as InternalEditableListControl;
 
     expect(control).to.exist;
-    expect(control).to.have.attribute('layout', 'summary-item');
-
     expect(control.getValue()).to.deep.equal([]);
     control.setValue([{ value: 'a' }, { value: 'b' }]);
     expect(element).to.have.deep.nested.property('form.customer_subscription_restrictions', 'a,b');
@@ -636,20 +627,48 @@ describe('CouponForm', () => {
     expect(control.getValue()).to.deep.equal([{ value: 'foo' }, { value: 'bar' }]);
   });
 
-  it('renders query builder control for customer attribute restrictions inside of the Customer Restrictions summary', async () => {
+  it('renders query builder control for customer attribute restrictions', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer=customer-restrictions] foxy-internal-query-builder-control[infer=customer-attribute-restrictions]'
+      'foxy-internal-query-builder-control[infer=customer-attribute-restrictions]'
     ) as InternalQueryBuilderControl;
 
     expect(control).to.exist;
-    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('disable-zoom');
+    expect(control).to.have.attribute('disable-or');
+    expect(control).to.have.deep.property('operators', ['not', 'in']);
+    expect(control.getValue()).to.equal('');
+
+    const cases = [
+      ['attributes:name[color]', 'red'],
+      ['attributes:name[color]:in', 'red,blue'],
+      ['attributes:name[color]:in', 'red,blue|attributes:name[color]=orange'],
+    ];
+
+    const results = [
+      ['color', 'red'],
+      ['color:in', 'red,blue'],
+      ['color:in', 'red,blue|color=orange'],
+    ];
+
+    cases.forEach((c, i) => {
+      element.edit({ customer_attribute_restrictions: new URLSearchParams([c]).toString() });
+      expect(control.getValue()).to.equal(new URLSearchParams([results[i]]).toString());
+    });
+
+    results.forEach((r, i) => {
+      control.setValue(new URLSearchParams([r]).toString());
+      expect(element).to.have.nested.property(
+        'form.customer_attribute_restrictions',
+        new URLSearchParams([cases[i]]).toString()
+      );
+    });
   });
 
-  it('renders switch control for auto-apply inside of the Customer Restrictions summary', async () => {
+  it('renders switch control for auto-apply inside of the Auto Apply summary', async () => {
     const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer=customer-restrictions] foxy-internal-switch-control[infer=customer-auto-apply]'
+      '[infer=auto-apply] foxy-internal-switch-control[infer=customer-auto-apply]'
     );
 
     expect(control).to.exist;

@@ -163,6 +163,7 @@ export const links: Links = {
     'fx:cart_templates': { href: `./cart_templates?store_id=${id}` },
     'fx:email_templates': { href: `./email_templates?store_id=${id}` },
     'fx:item_categories': { href: `./item_categories?store_id=${id}` },
+    'fx:user_invitations': { href: `./user_invitations?store_id=${id}` },
     'fx:fraud_protections': { href: `./fraud_protections?store_id=${id}` },
     'fx:receipt_templates': { href: `./receipt_templates?store_id=${id}` },
     'fx:checkout_templates': { href: `./checkout_templates?store_id=${id}` },
@@ -228,6 +229,7 @@ export const links: Links = {
     'fx:stores': { href: `./stores?user_id=${id}` },
     'fx:attributes': { href: `./user_attributes?user_id=${id}` },
     'fx:default_store': { href: `./stores/${default_store_id}` },
+    'fx:user_invitations': { href: `./user_invitations?user_id=${id}` },
   }),
 
   template_configs: ({ store_id, id }) => ({
@@ -544,5 +546,14 @@ export const links: Links = {
 
   native_integrations: ({ store_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
+  }),
+
+  user_invitations: ({ user_id }) => ({
+    'fx:reject': { href: 'https://demo.api/virtual/empty?status=200' },
+    'fx:accept': { href: 'https://demo.api/virtual/empty?status=200' },
+    'fx:revoke': { href: 'https://demo.api/virtual/empty?status=200' },
+    'fx:resend': { href: 'https://demo.api/virtual/empty?status=200' },
+    'fx:store': { href: `./stores/${user_id}` },
+    'fx:user': { href: `./users/${user_id}` },
   }),
 };

@@ -1,0 +1,19 @@
+{
+  "status_admin_accepted": "{{ email }} • Store admin",
+  "status_admin_rejected": "{{ email }} • Invitation rejected",
+  "status_admin_revoked": "{{ email }} • Access revoked",
+  "status_admin_sent": "{{ email }} • Invited",
+  "status_admin_expired": "{{ email }} • Expired",
+  "status_user_accepted": "{{ domain }} • Accepted",
+  "status_user_rejected": "{{ domain }} • Rejected",
+  "status_user_revoked": "{{ domain }} • Revoked",
+  "status_user_sent": "{{ domain }} • Pending",
+  "status_user_expired": "{{ domain }} • Expired",
+  "full_name": "{{ first_name }} {{ last_name }}",
+  "full_name_empty": "Unknown user",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Unknown error"
+  }
+}

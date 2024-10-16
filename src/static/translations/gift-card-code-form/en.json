@@ -16,34 +16,39 @@
       "done": "Copied to clipboard"
     }
   },
-  "code": {
-    "label": "Code",
-    "placeholder": "Required",
-    "helper_text": "The string value of this gift card code which your customer will add to their cart to use this gift card.",
-    "v8n_required": "Please enter a code",
-    "v8n_too_long": "Please enter a code with no more than 50 characters",
-    "v8n_has_spaces": "Please enter a code without spaces"
-  },
-  "current-balance": {
-    "label": "Current balance",
-    "placeholder": "Required",
-    "helper_text": "The current balance of this gift card.",
-    "v8n_required": "Please enter a current balance"
-  },
-  "end-date": {
-    "label": "End date",
-    "placeholder": "Optional",
-    "helper_text": "The date when this gift card will expire."
+  "settings": {
+    "label": "",
+    "helper_text": "",
+    "code": {
+      "label": "Code",
+      "placeholder": "Required",
+      "helper_text": "",
+      "v8n_required": "Please enter a code",
+      "v8n_too_long": "Please enter a code with no more than 50 characters",
+      "v8n_has_spaces": "Please enter a code without spaces"
+    },
+    "current-balance": {
+      "label": "Current balance",
+      "placeholder": "Required",
+      "helper_text": "",
+      "v8n_required": "Please enter a current balance"
+    },
+    "end-date": {
+      "label": "Expires on",
+      "placeholder": "Optional",
+      "helper_text": ""
+    }
   },
   "customer": {
     "label": "Customer",
+    "helper_text": "",
     "dialog": {
       "cancel": "Cancel",
       "close": "Close",
       "header": "Select a customer",
       "selection": {
         "label": "Customers",
-        "helper_text": "Select a customer to assign this gift card code to them. You won't be able to clear this selection once saved but you will able able to reassign it to another customer.",
+        "helper_text": "",
         "search": "Search",
         "clear": "Clear",
         "pagination": {
@@ -118,11 +123,11 @@
         "loading_empty": "Not assigned – click to select",
         "loading_error": "Unknown error"
       }
-    },
-    "helper_text": "Select a customer to assign this gift card code to them. You won't be able to clear this selection once saved but you will able able to reassign it to another customer."
+    }
   },
   "cart-item": {
     "label": "Cart item",
+    "helper_text": "",
     "card": {
       "daily": "Daily",
       "daily_plural": "Every {{count}} days",

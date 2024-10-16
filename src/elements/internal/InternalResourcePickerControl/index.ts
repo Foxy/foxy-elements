@@ -1,7 +1,10 @@
+import '@vaadin/vaadin-button';
+
 import '../InternalAsyncListControl/index';
 import '../InternalEditableControl/index';
 import '../InternalForm/index';
 
+import '../../public/CopyToClipboard/index';
 import '../../public/NucleonElement/index';
 import '../../public/FormDialog/index';
 import '../../public/I18n/index';

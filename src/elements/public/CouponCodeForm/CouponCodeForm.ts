@@ -56,7 +56,10 @@ export class CouponCodeForm extends Base<Data> {
     return html`
       ${this.renderHeader()}
 
-      <foxy-internal-text-control infer="code"></foxy-internal-text-control>
+      <foxy-internal-summary-control infer="general">
+        <foxy-internal-text-control layout="summary-item" infer="code"></foxy-internal-text-control>
+      </foxy-internal-summary-control>
+
       <foxy-internal-async-list-control
         first=${ifDefined(transactions)}
         infer="transactions"

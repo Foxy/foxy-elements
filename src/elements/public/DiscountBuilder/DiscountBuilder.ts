@@ -282,11 +282,7 @@ export class DiscountBuilder extends Base {
       <div
         data-testclass="rules:tier"
         aria-label=${this.t('tier')}
-        class=${classMap({
-          'flex items-start justify-between rounded': true,
-          'border border-contrast-10': true,
-          'border-dashed': !params.tier,
-        })}
+        class="flex items-start justify-between rounded bg-contrast-5"
       >
         <div
           class=${classMap({

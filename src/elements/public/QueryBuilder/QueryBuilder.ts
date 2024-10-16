@@ -37,6 +37,7 @@ class QueryBuilder extends Base {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      disableZoom: { type: Boolean, attribute: 'disable-zoom' },
       disableOr: { type: Boolean, attribute: 'disable-or' },
       operators: { type: Array },
       options: { type: Array },
@@ -48,11 +49,14 @@ class QueryBuilder extends Base {
     return [super.styles, styles];
   }
 
-  /** List of operators available in the builder UI. */
-  operators: Operator[] = Object.values(Operator);
+  /** If true, doesn't add `zoom` query parameter for complex paths. */
+  disableZoom = false;
 
   /** If true, hides the UI for the "OR" operator in queries. */
   disableOr = false;
+
+  /** List of operators available in the builder UI. */
+  operators: Operator[] = Object.values(Operator);
 
   /** Autocomplete suggestions. */
   options: Option[] | null = null;
@@ -79,7 +83,7 @@ class QueryBuilder extends Base {
       options: this.options ?? [],
       t: this.t.bind(this),
       onChange: newValue => {
-        this.value = stringify([...newValue, ...hiddenValues]);
+        this.value = stringify([...newValue, ...hiddenValues], this.disableZoom);
         this.dispatchEvent(new QueryBuilder.ChangeEvent('change'));
       },
     });

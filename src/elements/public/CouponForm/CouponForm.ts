@@ -1,20 +1,22 @@
 import type { TemplateResult, PropertyDeclarations } from 'lit-element';
 import type { Data, TransactionPageHrefGetter } from './types';
+import type { Option, ParsedValue } from '../QueryBuilder/types';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { SwipeAction } from '../../internal/InternalAsyncListControl/types';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
-import type { Option } from '../QueryBuilder/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 import type { Rels } from '@foxy.io/sdk/backend';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ResponsiveMixin } from '../../../mixins/responsive';
 import { BooleanSelector } from '@foxy.io/sdk/core';
-import { Operator, Type } from '../QueryBuilder/types';
+import { Type, Operator } from '../QueryBuilder/types';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
+import { parse } from '../QueryBuilder/utils/parse';
+import { stringify } from '../QueryBuilder/utils/stringify';
 
 const NS = 'coupon-form';
 const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
@@ -66,6 +68,58 @@ export class CouponForm extends Base<Data> {
 
   getTransactionPageHref: TransactionPageHrefGetter | null = null;
 
+  private readonly __customerAttributeRestrictionsOperators: Operator[] = [
+    Operator.Not,
+    Operator.In,
+  ];
+
+  private readonly __customerAttributeRestrictionsGetValue = () => {
+    const simplifiedValue = parse(this.form.customer_attribute_restrictions ?? '')
+      .filter(value => Array.isArray(value) || typeof value.name === 'string')
+      .map(value => {
+        if (Array.isArray(value)) {
+          return value
+            .filter(({ name }) => typeof name === 'string')
+            .map(({ name, operator, value }) => {
+              const output: ParsedValue = { path: name as string, operator, value };
+              return output;
+            });
+        }
+
+        const output: ParsedValue = {
+          operator: value.operator,
+          value: value.value,
+          path: value.name as string,
+        };
+
+        return output;
+      });
+
+    return stringify(simplifiedValue, true);
+  };
+
+  private readonly __customerAttributeRestrictionsSetValue = (newValue: string) => {
+    const augmentedValue = parse(newValue).map(value => {
+      if (Array.isArray(value)) {
+        return value.map(({ path, operator, value }) => {
+          const output: ParsedValue = { name: path, path: 'attributes', operator, value };
+          return output;
+        });
+      } else {
+        const output: ParsedValue = {
+          operator: value.operator,
+          value: value.value,
+          path: 'attributes',
+          name: value.path,
+        };
+
+        return output;
+      }
+    });
+
+    this.edit({ customer_attribute_restrictions: stringify(augmentedValue, true) });
+  };
+
   private readonly __customerSubscriptionRestrictionsGetValue = () => {
     const items = this.form.customer_subscription_restrictions
       ?.split(',')
@@ -110,29 +164,6 @@ export class CouponForm extends Base<Data> {
         .filter((v, i, a) => !!v && a.indexOf(v) === i)
         .join(','),
     });
-  };
-
-  private readonly __itemOptionRestrictionsOperators = [Operator.In];
-
-  private readonly __itemOptionRestrictionsGetValue = () => {
-    const query = new URLSearchParams();
-    const rules = this.form.item_option_restrictions ?? {};
-
-    for (const key in rules) {
-      query.set(`${key}:in`, rules[key].join(','));
-    }
-
-    return query.toString();
-  };
-
-  private readonly __itemOptionRestrictionsSetValue = (newValue: string) => {
-    const rules = Object.fromEntries(
-      Array.from(new URLSearchParams(newValue).entries()).map(([key, value]) => {
-        return [key.replace(':in', ''), value.split(',').filter(v => !!v.trim())];
-      })
-    );
-
-    this.edit({ item_option_restrictions: rules });
   };
 
   private readonly __storeLoaderId = 'storeLoader';
@@ -251,30 +282,27 @@ export class CouponForm extends Base<Data> {
       >
       </foxy-internal-editable-list-control>
 
+      <foxy-internal-array-map-control infer="item-option-restrictions">
+      </foxy-internal-array-map-control>
+
       <foxy-internal-query-builder-control
-        infer="item-option-restrictions"
+        infer="customer-attribute-restrictions"
+        disable-zoom
         disable-or
-        .operators=${this.__itemOptionRestrictionsOperators}
-        .getValue=${this.__itemOptionRestrictionsGetValue}
-        .setValue=${this.__itemOptionRestrictionsSetValue}
+        .operators=${this.__customerAttributeRestrictionsOperators}
+        .getValue=${this.__customerAttributeRestrictionsGetValue}
+        .setValue=${this.__customerAttributeRestrictionsSetValue}
       >
       </foxy-internal-query-builder-control>
 
-      <foxy-internal-summary-control infer="customer-restrictions">
-        <foxy-internal-query-builder-control
-          layout="summary-item"
-          infer="customer-attribute-restrictions"
-        >
-        </foxy-internal-query-builder-control>
+      <foxy-internal-editable-list-control
+        infer="customer-subscription-restrictions"
+        .getValue=${this.__customerSubscriptionRestrictionsGetValue}
+        .setValue=${this.__customerSubscriptionRestrictionsSetValue}
+      >
+      </foxy-internal-editable-list-control>
 
-        <foxy-internal-editable-list-control
-          layout="summary-item"
-          infer="customer-subscription-restrictions"
-          .getValue=${this.__customerSubscriptionRestrictionsGetValue}
-          .setValue=${this.__customerSubscriptionRestrictionsSetValue}
-        >
-        </foxy-internal-editable-list-control>
-
+      <foxy-internal-summary-control infer="auto-apply">
         <foxy-internal-switch-control infer="customer-auto-apply"></foxy-internal-switch-control>
       </foxy-internal-summary-control>
 

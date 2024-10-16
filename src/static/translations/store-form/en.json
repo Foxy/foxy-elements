@@ -353,6 +353,11 @@
       "helper_text": ""
     }
   },
+  "hcaptcha": {
+    "disclaimer": "We use hCaptcha to protect this page from spam and abuse.",
+    "privacy_policy": "Privacy Policy",
+    "terms_of_service": "Terms of Service"
+  },
   "timestamps": {
     "date_created": "Created on",
     "date_modified": "Last updated on",

@@ -1,7 +1,9 @@
 import { Operator, ParsedValue } from '../types';
 
 function parseGroup(search: string): ParsedValue {
-  const [fullPath, value] = search.split('=').map(decodeURIComponent);
+  const separatorIndex = search.indexOf('=');
+  const fullPath = decodeURIComponent(search.substring(0, separatorIndex));
+  const value = decodeURIComponent(search.substring(separatorIndex + 1));
 
   const operators = Object.values(Operator) as Operator[];
   const operator = operators.find(operator => fullPath.endsWith(`:${operator}`)) ?? null;

@@ -30,9 +30,9 @@ const summary: Summary = {
       'options:exclude-line-item-discounts',
       'options:is-taxable',
       'options:shared-codes-allowed',
-      'customer-restrictions:customer-auto-apply',
-      'customer-restrictions:customer-subscription-restrictions',
-      'customer-restrictions:customer-attribute-restrictions',
+      'customer-subscription-restrictions',
+      'customer-attribute-restrictions',
+      'auto-apply:customer-auto-apply',
       'attributes',
     ],
     sections: [
@@ -43,7 +43,7 @@ const summary: Summary = {
       'timeframe',
       'options',
       'taxes',
-      'customer-restrictions',
+      'auto-apply',
     ],
     buttons: [
       'import',

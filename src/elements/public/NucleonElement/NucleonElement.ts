@@ -441,7 +441,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
 
       let result: UpdateResult | undefined = undefined;
 
-      if (state.matches('idle')) {
+      if (state.matches('idle') && state.context.errors.length === 0) {
         if (state.history?.matches({ busy: 'deleting' })) {
           result = UpdateResult.ResourceDeleted;
         } else if (state.history?.matches({ busy: 'creating' })) {

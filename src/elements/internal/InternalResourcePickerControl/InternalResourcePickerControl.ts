@@ -7,6 +7,7 @@ import type { FormDialog } from '../../public/FormDialog/FormDialog';
 import type { Option } from '../../public/QueryBuilder/types';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
+import { getResourceId } from '@foxy.io/sdk/core';
 import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html, svg } from 'lit-html';
@@ -23,7 +24,9 @@ export class InternalResourcePickerControl extends InternalEditableControl {
     return {
       ...super.properties,
       getDisplayValueOptions: { attribute: false },
+      showCopyIdButton: { type: Boolean, attribute: 'show-copy-id-button' },
       virtualHost: {},
+      getItemUrl: { attribute: false },
       formProps: { type: Object },
       filters: { type: Array },
       layout: {},
@@ -35,7 +38,11 @@ export class InternalResourcePickerControl extends InternalEditableControl {
 
   getDisplayValueOptions: DisplayValueOptionsCb = resource => ({ resource });
 
+  showCopyIdButton = false;
+
   virtualHost = uniqueId('internal-resource-picker-control-');
+
+  getItemUrl: ((href: string) => string) | null = null;
 
   formProps: Record<string, unknown> = {};
 
@@ -91,6 +98,11 @@ export class InternalResourcePickerControl extends InternalEditableControl {
   updated(changes: Map<keyof this, unknown>): void {
     super.updated(changes);
     if (changes.has('item')) this.__getItemRenderer.cache.clear?.();
+  }
+
+  private __clear(): void {
+    this._value = '';
+    this.dispatchEvent(new CustomEvent('clear'));
   }
 
   private __renderSummaryItemLayout() {
@@ -155,10 +167,7 @@ export class InternalResourcePickerControl extends InternalEditableControl {
             style="width: 1em; height: 1em;"
             ?disabled=${this.disabled}
             ?hidden=${this.readonly || !this._value}
-            @click=${() => {
-              this._value = '';
-              this.dispatchEvent(new CustomEvent('clear'));
-            }}
+            @click=${this.__clear}
           >
             ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1em; height: 1em; transform: scale(1.25); margin-right: -0.16em"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" /></svg>`}
           </button>
@@ -176,28 +185,61 @@ export class InternalResourcePickerControl extends InternalEditableControl {
   }
 
   private __renderStandaloneLayout() {
+    const selectionUrl = typeof this._value === 'string' ? this.getItemUrl?.(this._value) : void 0;
+    const selectionId = typeof this._value === 'string' ? getResourceId(this._value) : void 0;
+
     return html`
       <div class="block group">
         <div
           class=${classMap({
-            'transition-colors mb-xs font-medium text-s': true,
-            'text-secondary group-hover-text-body': !this.disabled && !this.readonly,
-            'text-secondary': this.readonly,
+            'flex items-center gap-m transition-colors font-medium text-l': true,
             'text-disabled': this.disabled,
           })}
         >
-          ${this.label}
+          <span class="mr-auto">${this.label}</span>
+          ${selectionUrl
+            ? html`
+                <a
+                  class="text-body rounded transition-opacity hover-opacity-90 focus-outline-none focus-ring-2 focus-ring-primary-50"
+                  href=${selectionUrl}
+                >
+                  <foxy-i18n infer="" key="view"></foxy-i18n>
+                </a>
+              `
+            : ''}
+          ${this.showCopyIdButton && selectionId !== null
+            ? html`
+                <foxy-copy-to-clipboard
+                  layout="text"
+                  theme="contrast tertiary-inline"
+                  infer="copy-id"
+                  text=${selectionId}
+                >
+                </foxy-copy-to-clipboard>
+              `
+            : ''}
+          ${this.readonly || !this._value
+            ? ''
+            : html`
+                <vaadin-button
+                  theme="error tertiary-inline"
+                  ?disabled=${this.disabled}
+                  @click=${this.__clear}
+                >
+                  <foxy-i18n infer="" key="clear"></foxy-i18n>
+                </vaadin-button>
+              `}
         </div>
+
+        <div class="text-secondary text-s" ?hidden=${!this.helperText}>${this.helperText}</div>
 
         <button
           class=${classMap({
-            'block w-full rounded text-left transition-colors': true,
-            'border border-dashed': true,
-            'border-transparent': !this.readonly,
-            'cursor-pointer bg-contrast-5 hover-bg-contrast-10': !this.disabled && !this.readonly,
-            'cursor-default bg-contrast-5': this.disabled,
-            'cursor-default border-contrast-30': this.readonly,
+            'block w-full bg-contrast-5 rounded text-left transition-colors': true,
             'focus-outline-none focus-ring-2 focus-ring-primary-50': true,
+            'cursor-pointer hover-bg-contrast-10': !this.disabled && !this.readonly,
+            'cursor-default': this.disabled || this.readonly,
+            'mt-s': !!this.label || !!this.helperText,
           })}
           style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
           ?disabled=${this.disabled || this.readonly}
@@ -234,18 +276,6 @@ export class InternalResourcePickerControl extends InternalEditableControl {
             })}
           </div>
         </button>
-
-        <div
-          class=${classMap({
-            'transition-colors mt-xs text-xs': true,
-            'text-secondary group-hover-text-body': !this.disabled && !this.readonly,
-            'text-secondary': this.readonly,
-            'text-disabled': this.disabled,
-          })}
-          ?hidden=${!this.helperText}
-        >
-          ${this.helperText}
-        </div>
 
         <div
           class="mt-xs text-xs leading-xs text-error"

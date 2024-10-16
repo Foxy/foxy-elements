@@ -32,6 +32,14 @@ describe('QueryBuilder', () => {
     );
   });
 
+  it('has a reactive property "disableZoom"', () => {
+    expect(new QueryBuilder()).to.have.property('disableZoom', false);
+    expect(QueryBuilder).to.have.deep.nested.property('properties.disableZoom', {
+      type: Boolean,
+      attribute: 'disable-zoom',
+    });
+  });
+
   it('has a reactive property "disableOr"', () => {
     expect(new QueryBuilder()).to.have.property('disableOr', false);
     expect(QueryBuilder).to.have.deep.nested.property('properties.disableOr', {
@@ -1011,5 +1019,21 @@ describe('QueryBuilder', () => {
     element.disableOr = true;
     await element.requestUpdate();
     expect(or).to.have.class('opacity-0');
+  });
+
+  it('does not add zoom query param when .disableZoom=true', async () => {
+    const element = await fixture<QueryBuilder>(html`<foxy-query-builder></foxy-query-builder>`);
+    const root = element.renderRoot;
+    const path = root.querySelector('[aria-label="query_builder_rule"] input') as HTMLInputElement;
+
+    path.value = 'one:two:three';
+    path.dispatchEvent(new InputEvent('input'));
+    await element.requestUpdate();
+    expect(root.querySelectorAll(`[aria-label="query_builder_rule"]`)).to.have.length(2);
+    expect(element).to.have.value('one%3Atwo%3Athree=&zoom=one%2Ctwo');
+
+    element.disableZoom = true;
+    path.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.value('one%3Atwo%3Athree=');
   });
 });

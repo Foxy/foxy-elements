@@ -12,9 +12,15 @@ const summary: Summary = {
   translatable: true,
   configurable: {
     inputs: [
-      'name',
-      'currency',
-      'expires',
+      'general',
+      'general:name',
+      'general:currency',
+      'general:expires',
+      'provisioning',
+      'provisioning:toggle',
+      'provisioning:min-balance',
+      'provisioning:max-balance',
+      'provisioning:sku',
       'codes',
       'product-restrictions',
       'category-restrictions',

@@ -844,6 +844,7 @@ export const createDataset: () => Dataset = () => ({
     number_of_uses_allowed: 100,
     number_of_uses_to_date: 31,
     number_of_uses_allowed_per_code: 0,
+    item_option_restrictions: { color: ['red', 'blue'], model: ['CT-*'] },
     coupon_discount_type: 'quantity_percentage',
     coupon_discount_details: 'repeat|6-10',
     customer_auto_apply: false,
@@ -1961,6 +1962,24 @@ export const createDataset: () => Dataset = () => ({
         '{"service":"json","encryption_key":"1T6478TKJ9S5BHB73K0NTGDZ824X3HZ2","title":"My JSON Webhook","version":1,"url":"https:\\/\\/www.example.com\\/webhook.php","events":["transaction\\/created"]}',
       date_created: '2018-01-01T04:30:53-0700',
       date_modified: '2018-01-01T04:30:53-0700',
+    },
+  ],
+
+  user_invitations: [
+    {
+      id: 0,
+      store_id: 0,
+      user_id: 0,
+      store_url: 'https://example.com',
+      store_name: 'Example Store',
+      store_email: 'admin@example.com',
+      store_domain: 'example',
+      first_name: 'Sally',
+      last_name: 'Sims',
+      email: 'sally.sims@example.com',
+      status: 'sent',
+      date_created: '2022-12-01T10:07:05-0800',
+      date_modified: '2022-12-01T10:07:05-0800',
     },
   ],
 });

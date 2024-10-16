@@ -1,11 +1,11 @@
 export const groups = [
   {
-    name: 'foxy-internal-async-combo-box-control',
-    files: './src/elements/internal/InternalAsyncComboBoxControl/**/*.test.ts',
+    name: 'foxy-internal-array-map-control',
+    files: './src/elements/internal/InternalArrayMapControl/**/*.test.ts',
   },
   {
-    name: 'foxy-internal-async-details-control',
-    files: './src/elements/internal/InternalAsyncDetailsControl/**/*.test.ts',
+    name: 'foxy-internal-async-combo-box-control',
+    files: './src/elements/internal/InternalAsyncComboBoxControl/**/*.test.ts',
   },
   {
     name: 'foxy-internal-async-list-control',
@@ -662,6 +662,14 @@ export const groups = [
   {
     name: 'foxy-user-form',
     files: './src/elements/public/UserForm/**/*.test.ts',
+  },
+  {
+    name: 'foxy-user-invitation-card',
+    files: './src/elements/public/UserInvitationCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-user-invitation-form',
+    files: './src/elements/public/UserInvitationForm/**/*.test.ts',
   },
   {
     name: 'foxy-users-table',
