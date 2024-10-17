@@ -1,5 +1,5 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
-import type { HALJSONResource, NucleonV8N } from '../../public/NucleonElement/types';
+import type { HALJSONResource } from '../../public/NucleonElement/types';
 
 import { InternalForm } from '../InternalForm/InternalForm';
 import { spread } from '@open-wc/lit-helpers';
@@ -13,10 +13,6 @@ export class InternalResourcePickerControlForm extends InternalForm<Data> {
       ...super.properties,
       selectionProps: { attribute: false },
     };
-  }
-
-  static get v8n(): NucleonV8N<Data> {
-    return [({ selection: v }) => (v === undefined ? 'silent:selection_required' : true)];
   }
 
   selectionProps: Record<PropertyKey, unknown> = {};

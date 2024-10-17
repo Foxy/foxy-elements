@@ -537,14 +537,6 @@ describe('InternalResourcePickerControl', () => {
       expect(new Form()).to.have.deep.property('selectionProps', {});
     });
 
-    it('produces v8n error "silent:selection_required" if selection is undefined', () => {
-      const form = new Form();
-      expect(form.errors).to.include('silent:selection_required');
-
-      form.edit({ selection: 'https://demo.api/hapi/customers/0' });
-      expect(form.errors).to.not.include('silent:selection_required');
-    });
-
     it('renders an async list control for selection', async () => {
       const form = await fixture<Form>(
         html`
