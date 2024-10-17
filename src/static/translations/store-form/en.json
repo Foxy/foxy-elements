@@ -258,7 +258,7 @@
       "v8n_too_long": "Please use a URL that is 300 characters or less"
     },
     "bcc-on-receipt-email": {
-      "label": "Send a copy of each receipt to the store email",
+      "label": "Send a copy of each receipt to the store email(s)",
       "helper_text": "",
       "checked": "Yes",
       "unchecked": "No"
