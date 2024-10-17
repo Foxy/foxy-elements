@@ -1164,7 +1164,6 @@ describe('Customer', () => {
 
           const cards = list!.querySelectorAll('[data-testclass="attributes:list:card"]');
 
-          console.log(listData, cards);
           for (let index = 0; index < cards.length; ++index) {
             const wrapper = cards[index];
             const card = wrapper.firstElementChild as AttributeCard;
