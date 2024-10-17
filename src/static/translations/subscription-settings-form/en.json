@@ -36,6 +36,12 @@
       "checked": "Yes",
       "unchecked": "No"
     },
+    "send-email-receipts-for-automated-billing": {
+      "label": "Send email receipts for automated billing",
+      "helper_text": "Unchecking this option will cause any email receipts related to automated billing renewals to not be sent. This setting will not impact the email receipt sent for the initial purchase of a subscription.",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
     "prevent-customer-cancel-with-past-due": {
       "label": "Prevent modification or cancellation if past due is present",
       "helper_text": "If enabled, if the customer has a past due amount and wishes to cancel their subscription using a sub_token through the cart interface, they will be prevented from doing so until they first pay their past due amount.",
@@ -70,12 +76,6 @@
   "emails-group": {
     "label": "Emails",
     "helper_text": "",
-    "send-email-receipts-for-automated-billing": {
-      "label": "Send email receipts for automated billing",
-      "helper_text": "When subscriptions run automatically to bill your customers, turning this setting off will prevent the normal receipt emails from being sent for their automated payment.",
-      "checked": "Yes",
-      "unchecked": "No"
-    },
     "reminder-email-schedule": {
       "label": "Failed subscription payment email schedule",
       "placeholder": "Add period in days, e.g. 14",

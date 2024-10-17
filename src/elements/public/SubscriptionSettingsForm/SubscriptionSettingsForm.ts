@@ -145,6 +145,12 @@ export class SubscriptionSettingsForm extends Base<Data> {
         </foxy-internal-switch-control>
 
         <foxy-internal-switch-control
+          infer="send-email-receipts-for-automated-billing"
+          helper-text-as-tooltip
+        >
+        </foxy-internal-switch-control>
+
+        <foxy-internal-switch-control
           infer="prevent-customer-cancel-with-past-due"
           helper-text-as-tooltip
         >
@@ -178,12 +184,6 @@ export class SubscriptionSettingsForm extends Base<Data> {
       </foxy-internal-summary-control>
 
       <foxy-internal-summary-control infer="emails-group">
-        <foxy-internal-switch-control
-          infer="send-email-receipts-for-automated-billing"
-          helper-text-as-tooltip
-        >
-        </foxy-internal-switch-control>
-
         <foxy-internal-editable-list-control
           layout="summary-item"
           infer="reminder-email-schedule"
