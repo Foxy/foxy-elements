@@ -51,16 +51,12 @@ export class InternalSourceControl extends InternalEditableControl {
 
   renderControl(): TemplateResult {
     let lineNumbersClass: string;
-    let helperTextClass: string;
     let containerClass: string;
     let textAreaClass: string;
-    let labelClass: string;
 
     if (this.disabled) {
       lineNumbersClass = 'bg-contrast-5 text-disabled';
-      helperTextClass = 'text-disabled';
       textAreaClass = 'text-disabled';
-      labelClass = 'text-disabled';
 
       if (this.readonly) {
         lineNumbersClass += ' border-dashed border-contrast-20';
@@ -71,29 +67,21 @@ export class InternalSourceControl extends InternalEditableControl {
       }
     } else if (this.readonly) {
       lineNumbersClass = 'border-dashed border-contrast-30 bg-transparent text-secondary';
-      helperTextClass = 'text-secondary';
       containerClass = 'border-dashed border-contrast-30';
       textAreaClass = 'text-secondary';
-      labelClass = 'text-secondary';
       if (this.__focused) containerClass += ' ring-2 ring-primary-50';
     } else if (this.__focused) {
       lineNumbersClass = 'border-transparent bg-contrast-10 text-tertiary';
-      helperTextClass = 'text-secondary';
       containerClass = 'border-primary-50 ring-1 ring-primary-50';
       textAreaClass = 'text-body';
-      labelClass = 'text-primary';
     } else if (this.__hovered) {
       lineNumbersClass = 'border-transparent bg-contrast-20 text-tertiary';
-      helperTextClass = 'text-body';
       containerClass = 'border-contrast-20';
       textAreaClass = 'text-body';
-      labelClass = 'text-body';
     } else {
       lineNumbersClass = 'border-transparent bg-contrast-10 text-tertiary';
-      helperTextClass = 'text-secondary';
       containerClass = 'border-contrast-10';
       textAreaClass = 'text-body';
-      labelClass = 'text-secondary';
     }
 
     return html`
@@ -102,11 +90,11 @@ export class InternalSourceControl extends InternalEditableControl {
         @mouseenter=${() => (this.__hovered = true)}
         @mouseleave=${() => (this.__hovered = false)}
       >
-        <div
-          class="mb-xs transition-colors leading-none text-s font-medium ${labelClass}"
-          part="label"
-        >
-          ${this.label}
+        <div class="mb-s leading-s" ?hidden=${!this.label && !this.helperText}>
+          <div class="transition-colors text-l font-medium" part="label">${this.label}</div>
+          <div class="transition-colors text-s text-secondary" part="helper-text">
+            ${this.helperText}
+          </div>
         </div>
 
         <div
@@ -149,15 +137,7 @@ export class InternalSourceControl extends InternalEditableControl {
         </div>
 
         <div
-          class="mt-xs transition-colors leading-xs text-xs ${helperTextClass}"
-          part="helper-text"
-          ?hidden=${!this.helperText}
-        >
-          ${this.helperText}
-        </div>
-
-        <div
-          class="mt-xs text-xs leading-xs text-error"
+          class="mt-s text-s leading-xs text-error"
           ?hidden=${!this.__isErrorVisible || !this._errorMessage || this.disabled || this.readonly}
         >
           ${this._errorMessage}

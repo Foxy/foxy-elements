@@ -14,7 +14,7 @@ import { get } from 'lodash-es';
 export class InternalTimestampsControl extends InternalControl {
   renderControl(): TemplateResult {
     return html`
-      <p class="font-lumo text-xs leading-s text-secondary">
+      <p class="font-lumo text-s leading-s text-secondary">
         <foxy-i18n infer="" key="date_created"></foxy-i18n>
         <foxy-i18n
           .options=${{ value: get(this, 'nucleon.data.date_created') }}
