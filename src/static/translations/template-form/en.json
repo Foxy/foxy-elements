@@ -1,23 +1,71 @@
 {
-  "cache": "Sync",
-  "cancel": "Cancel",
-  "caption": "Create",
-  "date": "{{value, date}}",
-  "date_created": "Created on",
-  "date_modified": "Last updated on",
-  "default": "Default",
-  "delete": "Delete",
-  "delete_prompt": "This resource will be permanently removed. Are you sure?",
-  "description": "Description",
-  "template": "Template",
-  "template_clipboard": "Upload source code",
-  "template_default": "Use default template",
-  "template_url": "Pull from public URL",
-  "url": "URL",
-  "url_source_label": "Cached source",
-  "url_source_placeholder": "Template markup will appear here once cached",
-  "clipboard_source_label": "Source",
-  "clipboard_source_placeholder": "Enter your template markup here",
+  "header": {
+    "title": "{{ description }}",
+    "title_new": "New template",
+    "subtitle": "",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
+  "error": {
+    "failed_to_cache": "Failed to download the custom template from the remote source. Please check the URL and try again."
+  },
+  "general": {
+    "label": "",
+    "helper_text": "",
+    "description": {
+      "label": "Description",
+      "placeholder": "Required",
+      "helper_text": ""
+    }
+  },
+  "source": {
+    "label": "",
+    "helper_text": "",
+    "content-url": {
+      "label": "Template URL",
+      "placeholder": "None (use inline above)",
+      "helper_text": "Enter a URL to load a custom template from a remote source."
+    },
+    "cache": {
+      "idle": "Cache now",
+      "busy": "Caching...",
+      "fail": "Failed to cache"
+    }
+  },
+  "content": {
+    "label": "Custom template",
+    "placeholder": "None (use default)",
+    "helper_text": ""
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "This action is irreversible. Are you sure you want to delete this template?"
+  },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
+  "create": {
+    "caption": "Create"
+  },
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
