@@ -1,34 +1,106 @@
 {
-  "cache": "Sync",
-  "cancel": "Cancel",
-  "confirm": "Confirm",
-  "caption": "Create",
-  "date": "{{value, date}}",
-  "date_created": "Created on",
-  "date_modified": "Last updated on",
-  "default": "Default",
-  "delete": "Delete",
-  "delete_prompt": "This resource will be permanently removed. Are you sure?",
-  "description": "Description",
-  "html_template": "HTML template",
-  "template_clipboard": "Upload source code",
-  "template_default": "Use default template",
-  "template_url": "Pull from public URL",
-  "text_template": "Text template",
-  "url": "URL",
-  "url_source_label": "Cached source",
-  "url_source_placeholder": "Template markup will appear here once cached",
-  "clipboard_source_label": "Source",
-  "clipboard_source_placeholder": "Enter your template markup here",
-  "subject": {
-    "label": "Subject",
-    "placeholder": "",
+  "header": {
+    "title": "{{ description }}",
+    "title_new": "New email template",
+    "subtitle": "",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
+  "error": {
+    "failed_to_cache": "Failed to download the custom templates from the remote sources. Please check the URLs and try again."
+  },
+  "general": {
+    "label": "",
+    "helper_text": "",
+    "description": {
+      "label": "Description",
+      "placeholder": "Required",
+      "helper_text": ""
+    },
+    "toggle": {
+      "label": "Send this email",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "subject": {
+      "label": "Subject",
+      "placeholder": "None – don't send",
+      "default_value": "New Message",
+      "helper_text": ""
+    },
+    "template-language": {
+      "label": "Template language",
+      "placeholder": "Default (Nunjucks)",
+      "helper_text": ""
+    }
+  },
+  "html-source": {
+    "label": "",
+    "helper_text": "",
+    "content-html-url": {
+      "label": "HTML template URL",
+      "placeholder": "None (use inline above)",
+      "helper_text": "Enter a URL to load a custom HTML template from a remote source."
+    },
+    "cache": {
+      "idle": "Sync now",
+      "busy": "Caching...",
+      "fail": "Failed to cache"
+    }
+  },
+  "text-source": {
+    "label": "",
+    "helper_text": "",
+    "content-text-url": {
+      "label": "Text template URL",
+      "placeholder": "None (use inline above)",
+      "helper_text": "Enter a URL to load a custom text template from a remote source."
+    },
+    "cache": {
+      "idle": "Sync now",
+      "busy": "Caching...",
+      "fail": "Failed to cache"
+    }
+  },
+  "content-html": {
+    "label": "Custom HTML template",
+    "placeholder": "None (use default)",
     "helper_text": ""
   },
-  "template-language": {
-    "label": "Language",
-    "placeholder": "Default (Nunjucks)",
+  "content-text": {
+    "label": "Custom text template",
+    "placeholder": "None (use default)",
     "helper_text": ""
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "This action is irreversible. Are you sure you want to delete this email template?"
+  },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
+  "create": {
+    "caption": "Create"
   },
   "spinner": {
     "refresh": "Refresh",
