@@ -718,5 +718,8 @@ describe('StoreShippingMethodForm', () => {
       'links-href',
       'https://demo.api/hapi/store_shipping_services?shipping_method_id=0'
     );
+
+    await waitUntil(() => !!control.ownUri, undefined, { timeout: 5000 });
+    expect(control.ownUri).to.equal('https://demo.api/hapi/shipping_methods/0');
   });
 });

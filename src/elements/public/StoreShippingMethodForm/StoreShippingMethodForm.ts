@@ -186,7 +186,7 @@ export class StoreShippingMethodForm extends Base<Data> {
         foreign-key-for-uri="shipping_service_uri"
         foreign-key-for-id="shipping_service_id"
         own-key-for-uri="shipping_method_uri"
-        own-uri=${ifDefined(this.data?._links.self.href)}
+        own-uri=${ifDefined(shippingMethod?._links.self.href)}
         embed-key="fx:store_shipping_services"
         options-href=${ifDefined(shippingMethod?._links['fx:shipping_services'].href)}
         links-href=${ifDefined(this.data?._links['fx:store_shipping_services'].href)}
