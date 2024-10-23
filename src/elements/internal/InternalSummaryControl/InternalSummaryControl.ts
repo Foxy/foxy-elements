@@ -23,7 +23,7 @@ export class InternalSummaryControl extends InternalEditableControl {
 
   renderControl(): TemplateResult {
     return html`
-      <div class="leading-s mb-s">
+      <div class="leading-s mb-s" ?hidden=${!this.label && !this.helperText}>
         <p class="font-medium text-body text-l" ?hidden=${!this.label}>${this.label}</p>
         <p class="text-s text-secondary" ?hidden=${!this.helperText}>${this.helperText}</p>
       </div>
