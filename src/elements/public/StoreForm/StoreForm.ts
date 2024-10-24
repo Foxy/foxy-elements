@@ -21,6 +21,7 @@ import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
 import cloneDeep from 'lodash-es/cloneDeep';
+import slugify from '@sindresorhus/slugify';
 
 const NS = 'store-form';
 const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
@@ -190,6 +191,18 @@ export class StoreForm extends Base<Data> {
     { value: 'h', label: 'hour' },
     { value: 'd', label: 'day' },
   ];
+
+  private readonly __storeNameSetValue = (newValue: string) => {
+    const previousSuggestedDomain = slugify(this.form.store_name ?? '');
+    const currentStoreDomain = this.form.store_domain ?? '';
+    const newSuggestedDomain = slugify(newValue);
+
+    if (previousSuggestedDomain === currentStoreDomain) {
+      this.edit({ store_domain: newSuggestedDomain });
+    }
+
+    this.edit({ store_name: newValue });
+  };
 
   private readonly __getStoreEmailValue = (): Item[] => {
     const emails = this.form.store_email ?? '';
@@ -400,7 +413,11 @@ export class StoreForm extends Base<Data> {
       ${this.renderHeader()}
 
       <foxy-internal-summary-control infer="essentials">
-        <foxy-internal-text-control layout="summary-item" infer="store-name">
+        <foxy-internal-text-control
+          layout="summary-item"
+          infer="store-name"
+          .setValue=${this.__storeNameSetValue}
+        >
         </foxy-internal-text-control>
 
         <foxy-internal-text-control layout="summary-item" infer="logo-url">

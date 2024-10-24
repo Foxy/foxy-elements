@@ -18,6 +18,7 @@ import { createRouter } from '../../../server/index';
 import { I18n } from '../I18n/I18n';
 import { stub } from 'sinon';
 import { VanillaHCaptchaWebComponent } from 'vanilla-hcaptcha';
+import { getTestData } from '../../../testgen/getTestData';
 
 describe('StoreForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -502,6 +503,21 @@ describe('StoreForm', () => {
 
     expect(control).to.exist;
     expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('generates a store domain based on the store name unless a custom one is provided', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector<InternalTextControl>(
+      '[infer="essentials"] foxy-internal-text-control[infer="store-name"]'
+    );
+
+    control?.setValue('My Test Store');
+    expect(element).to.have.nested.property('form.store_domain', 'my-test-store');
+
+    element.data = await getTestData('./hapi/stores/0');
+    element.data = { ...element.data!, store_domain: 'test' };
+    control?.setValue('My Test Store');
+    expect(element).to.have.nested.property('form.store_domain', 'test');
   });
 
   it('renders a text control for logo url in the Essentials section', async () => {
