@@ -36,6 +36,7 @@ export class StoreForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      reportingStoreDomainExists: { attribute: 'reporting-store-domain-exists' },
       customerPasswordHashTypes: { attribute: 'customer-password-hash-types' },
       shippingAddressTypes: { attribute: 'shipping-address-types' },
       hCaptchaSiteKey: { attribute: 'h-captcha-site-key' },
@@ -53,8 +54,31 @@ export class StoreForm extends Base<Data> {
     return [
       ({ store_name: v }) => !!v || 'store-name:v8n_required',
       ({ store_name: v }) => (v && v.length <= 50) || 'store-name:v8n_too_long',
-      ({ store_domain: v }) => !!v || 'store-domain:v8n_required',
-      ({ store_domain: v }) => (v && v.length <= 100) || 'store-domain:v8n_too_long',
+      ({ store_domain: storeDomain, use_remote_domain: useRemoteDomain }) => {
+        if (!storeDomain) return 'store-domain:v8n_required';
+        if (storeDomain.length > 100) return 'store-domain:v8n_too_long';
+
+        const [tld, ...slds] = storeDomain.split('.').reverse();
+
+        if (
+          useRemoteDomain &&
+          slds.length > 1 &&
+          slds.every(s => /^(?!-)[a-z0-9-]{1,63}(?<!-)$/.test(s)) &&
+          /^[a-z]{2,63}$/.test(tld)
+        ) {
+          return true;
+        }
+
+        if (
+          !useRemoteDomain &&
+          slds.length === 0 &&
+          /^(?!-)[a-z0-9-]{1,63}(?<!-)$/.test(storeDomain)
+        ) {
+          return true;
+        }
+
+        return 'store-domain:v8n_invalid';
+      },
       ({ store_url: v }) => !!v || 'store-url:v8n_required',
       ({ store_url: v }) => (v && v.length <= 300) || 'store-url:v8n_too_long',
       ({ receipt_continue_url: v }) => !v || v.length <= 300 || 'receipt-continue-url:v8n_too_long',
@@ -102,6 +126,9 @@ export class StoreForm extends Base<Data> {
       },
     ];
   }
+
+  /** URL of the `fx:reporting_store_domain_exists` endpoint. */
+  reportingStoreDomainExists: string | null = null;
 
   /** URL of the `fx:customer_password_hash_types` property helper resource. */
   customerPasswordHashTypes: string | null = null;
@@ -192,6 +219,20 @@ export class StoreForm extends Base<Data> {
     { value: 'd', label: 'day' },
   ];
 
+  private readonly __checkStoreDomainAvailability = async (value: string) => {
+    if (this.reportingStoreDomainExists) {
+      if (value === this.data?.store_domain) return true;
+
+      const url = new URL(this.reportingStoreDomainExists);
+      url.searchParams.set('store_domain', value);
+
+      const response = await new StoreForm.API(this).fetch(url.toString());
+      return response.ok || 'store-domain:v8n_unavailable';
+    } else {
+      throw new Error('reportingStoreDomainExists is not set.');
+    }
+  };
+
   private readonly __storeNameSetValue = (newValue: string) => {
     const previousSuggestedDomain = slugify(this.form.store_name ?? '');
     const currentStoreDomain = this.form.store_domain ?? '';
@@ -255,11 +296,15 @@ export class StoreForm extends Base<Data> {
   };
 
   private readonly __setStoreDomainValue = (newValue: string) => {
-    if (newValue.endsWith('.foxycart.com')) {
-      const domain = newValue.substring(0, newValue.length - 13);
-      this.edit({ store_domain: domain, use_remote_domain: domain.includes('.') });
+    if (this.data) {
+      if (newValue.endsWith('.foxycart.com')) {
+        const domain = newValue.substring(0, newValue.length - 13);
+        this.edit({ store_domain: domain, use_remote_domain: false });
+      } else {
+        this.edit({ store_domain: newValue, use_remote_domain: newValue.includes('.') });
+      }
     } else {
-      this.edit({ store_domain: newValue, use_remote_domain: newValue.includes('.') });
+      this.edit({ store_domain: newValue.split('.')[0] ?? '', use_remote_domain: false });
     }
   };
 
@@ -429,6 +474,9 @@ export class StoreForm extends Base<Data> {
           suffix=${storeDomainSuffix}
           infer="store-domain"
           .setValue=${this.__setStoreDomainValue}
+          .checkValidityAsync=${this.reportingStoreDomainExists
+            ? this.__checkStoreDomainAvailability
+            : null}
         >
         </foxy-internal-text-control>
 
@@ -929,9 +977,32 @@ export class StoreForm extends Base<Data> {
   }
 
   protected async _fetch<TResult = Data>(...args: Parameters<Window['fetch']>): Promise<TResult> {
-    const request = new StoreForm.API.WHATWGRequest(...args);
-    if (this.__hCaptchaToken) request.headers.set('h-captcha-code', this.__hCaptchaToken);
-    return super._fetch(request);
+    try {
+      const request = new StoreForm.API.WHATWGRequest(...args);
+      if (this.__hCaptchaToken) request.headers.set('h-captcha-code', this.__hCaptchaToken);
+      return await super._fetch(request);
+    } catch (err) {
+      let errorText;
+
+      try {
+        errorText = await (err as Response).text();
+      } catch {
+        throw err;
+      }
+
+      if (
+        errorText.includes('store_domain is invalid because it has a reserved format') ||
+        errorText.includes('store_domain can not end with')
+      ) {
+        throw ['error:store_domain_reserved'];
+      }
+
+      if (errorText.includes('store_domain is already in use')) {
+        throw ['error:store_domain_exists'];
+      }
+
+      throw err;
+    }
   }
 
   private get __displayIdExamples() {

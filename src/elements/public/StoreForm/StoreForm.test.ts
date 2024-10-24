@@ -101,6 +101,13 @@ describe('StoreForm', () => {
     expect(new Form()).to.have.property('ns', 'store-form');
   });
 
+  it('has a reactive property "reportingStoreDomainExists"', () => {
+    expect(new Form()).to.have.property('reportingStoreDomainExists', null);
+    expect(Form).to.have.deep.nested.property('properties.reportingStoreDomainExists', {
+      attribute: 'reporting-store-domain-exists',
+    });
+  });
+
   it('has a reactive property "customerPasswordHashTypes"', () => {
     expect(new Form()).to.have.property('customerPasswordHashTypes', null);
     expect(Form).to.have.nested.property('properties.customerPasswordHashTypes');
@@ -531,7 +538,11 @@ describe('StoreForm', () => {
   });
 
   it('renders a text control for store domain in the Essentials section', async () => {
-    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-store-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}></foxy-store-form>
+    `);
+
     const control = element.renderRoot.querySelector(
       '[infer="essentials"] foxy-internal-text-control[infer="store-domain"]'
     ) as InternalTextControl;
@@ -556,8 +567,26 @@ describe('StoreForm', () => {
     expect(element).to.have.nested.property('form.store_domain', 'test');
 
     control.setValue('test.com');
+    expect(element).to.have.nested.property('form.use_remote_domain', false);
+    expect(element).to.have.nested.property('form.store_domain', 'test');
+
+    element.data = await getTestData('./hapi/stores/0');
+    control.setValue('test.com');
     expect(element).to.have.nested.property('form.use_remote_domain', true);
     expect(element).to.have.nested.property('form.store_domain', 'test.com');
+
+    expect(control).to.have.property('checkValidityAsync', null);
+    element.reportingStoreDomainExists = 'https://demo.api/virtual/empty?status=200';
+    element.edit({ store_domain: 'domain-one' });
+    await element.requestUpdate();
+    expect(await control.checkValidityAsync?.('domain-one')).to.be.true;
+
+    element.reportingStoreDomainExists = 'https://demo.api/virtual/empty?status=400';
+    element.edit({ store_domain: 'domain-two' });
+    await element.requestUpdate();
+    expect(await control.checkValidityAsync?.('domain-two')).to.equal(
+      'store-domain:v8n_unavailable'
+    );
   });
 
   it('renders a text control for store url in the Essentials section', async () => {
@@ -2420,5 +2449,65 @@ describe('StoreForm', () => {
 
     const headers = evt.request.headers;
     expect(headers.get('h-captcha-code')).to.be.null;
+  });
+
+  it('produces error:store_domain_reserved when trying to use a reserved domain', async () => {
+    const element = await fixture<Form>(html`
+      <foxy-store-form
+        @fetch=${(evt: FetchEvent) => {
+          const message = 'store_domain is invalid because it has a reserved format';
+          const body = JSON.stringify({ _embedded: { 'fx:errors': [{ message }] } });
+          evt.respondWith(Promise.resolve(new Response(body, { status: 500 })));
+        }}
+      >
+      </foxy-store-form>
+    `);
+
+    expect(element.errors).to.not.include('error:store_domain_reserved');
+
+    element.href = 'https://demo.api/hapi/stores/0';
+    await waitUntil(() => element.in('idle'));
+
+    expect(element.errors).to.include('error:store_domain_reserved');
+  });
+
+  it('produces error:store_domain_reserved when trying to use an internal domain', async () => {
+    const element = await fixture<Form>(html`
+      <foxy-store-form
+        @fetch=${(evt: FetchEvent) => {
+          const message = 'store_domain can not end with "-internal"';
+          const body = JSON.stringify({ _embedded: { 'fx:errors': [{ message }] } });
+          evt.respondWith(Promise.resolve(new Response(body, { status: 500 })));
+        }}
+      >
+      </foxy-store-form>
+    `);
+
+    expect(element.errors).to.not.include('error:store_domain_reserved');
+
+    element.href = 'https://demo.api/hapi/stores/0';
+    await waitUntil(() => element.in('idle'));
+
+    expect(element.errors).to.include('error:store_domain_reserved');
+  });
+
+  it('produces error:store_domain_exists when trying to use the domain of another store', async () => {
+    const element = await fixture<Form>(html`
+      <foxy-store-form
+        @fetch=${(evt: FetchEvent) => {
+          const message = 'store_domain is already in use';
+          const body = JSON.stringify({ _embedded: { 'fx:errors': [{ message }] } });
+          evt.respondWith(Promise.resolve(new Response(body, { status: 500 })));
+        }}
+      >
+      </foxy-store-form>
+    `);
+
+    expect(element.errors).to.not.include('error:store_domain_exists');
+
+    element.href = 'https://demo.api/hapi/stores/0';
+    await waitUntil(() => element.in('idle'));
+
+    expect(element.errors).to.include('error:store_domain_exists');
   });
 });

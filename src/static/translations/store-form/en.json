@@ -17,6 +17,10 @@
       "done": "Copied to clipboard"
     }
   },
+  "error": {
+    "store_domain_reserved": "Selected domain is reserved for internal use. Please choose another domain.",
+    "store_domain_exists": "Selected domain is already in use by another store. Please choose another domain."
+  },
   "essentials": {
     "label": "Essentials",
     "helper_text": "",
@@ -39,6 +43,8 @@
       "helper_text": "",
       "custom_domain_note": "To use a custom domain, you must order (at no cost) an SSL certificate through Foxy. This option is only for developers who have full control of their domain settings and may take a few days to fully process.",
       "v8n_required": "Please enter the domain of your store",
+      "v8n_invalid": "Please enter a valid domain. For internationalized domain names, please use punycode.",
+      "v8n_unavailable": "Selected domain is already in use by another store. Please choose another domain.",
       "v8n_too_long": "Please use a domain that is 100 characters or less"
     },
     "store-url": {
