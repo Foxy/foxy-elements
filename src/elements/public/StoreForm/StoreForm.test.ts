@@ -2302,6 +2302,11 @@ describe('StoreForm', () => {
     );
   });
 
+  it('renders default slot', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    expect(element.renderRoot.querySelector('slot:not([name])')).to.exist;
+  });
+
   it('renders a hCaptcha element when hCaptchaSiteKey is set', async () => {
     const form = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     let control = form.renderRoot.querySelector('h-captcha');

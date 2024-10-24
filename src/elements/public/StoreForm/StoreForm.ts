@@ -857,6 +857,7 @@ export class StoreForm extends Base<Data> {
           : ''}
       </foxy-internal-summary-control>
 
+      ${this.renderTemplateOrSlot()}
       ${this.href || !this.hCaptchaSiteKey
         ? ''
         : html`
