@@ -26,20 +26,20 @@
     "helper_text": "",
     "store-name": {
       "label": "Name",
-      "placeholder": "My Store",
+      "placeholder": "Required",
       "helper_text": "",
       "v8n_required": "Please enter the name of your store",
       "v8n_too_long": "Please reduce the name of your store to 50 characters or less"
     },
     "logo-url": {
       "label": "Logo URL",
-      "placeholder": "https://example.com/logo.png",
+      "placeholder": "Optional",
       "helper_text": "",
       "v8n_too_long": "Please shorten this link to 200 characters of less"
     },
     "store-domain": {
       "label": "Domain",
-      "placeholder": "my-store.foxycart.com",
+      "placeholder": "Required",
       "helper_text": "",
       "custom_domain_note": "To use a custom domain, you must order (at no cost) an SSL certificate through Foxy. This option is only for developers who have full control of their domain settings and may take a few days to fully process.",
       "v8n_required": "Please enter the domain of your store",
@@ -49,7 +49,7 @@
     },
     "store-url": {
       "label": "Website",
-      "placeholder": "https://my.store.example.com",
+      "placeholder": "Required",
       "helper_text": "",
       "v8n_required": "Please enter the URL of your online store",
       "v8n_too_long": "Please use a URL that is 300 characters or less"
