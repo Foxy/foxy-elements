@@ -88,6 +88,7 @@ const summary: Summary = {
 export default getMeta(summary);
 
 const ext = `
+  reporting-store-domain-exists="https://demo.api/virtual/empty?status=200"
   customer-password-hash-types="https://demo.api/hapi/property_helpers/9"
   shipping-address-types="https://demo.api/hapi/property_helpers/5"
   h-captcha-site-key="10000000-ffff-ffff-ffff-000000000001"

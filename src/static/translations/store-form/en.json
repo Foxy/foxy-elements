@@ -17,33 +17,39 @@
       "done": "Copied to clipboard"
     }
   },
+  "error": {
+    "store_domain_reserved": "Selected domain is reserved for internal use. Please choose another domain.",
+    "store_domain_exists": "Selected domain is already in use by another store. Please choose another domain."
+  },
   "essentials": {
     "label": "Essentials",
     "helper_text": "",
     "store-name": {
       "label": "Name",
-      "placeholder": "My Store",
+      "placeholder": "Required",
       "helper_text": "",
       "v8n_required": "Please enter the name of your store",
       "v8n_too_long": "Please reduce the name of your store to 50 characters or less"
     },
     "logo-url": {
       "label": "Logo URL",
-      "placeholder": "https://example.com/logo.png",
+      "placeholder": "Optional",
       "helper_text": "",
       "v8n_too_long": "Please shorten this link to 200 characters of less"
     },
     "store-domain": {
       "label": "Domain",
-      "placeholder": "my-store.foxycart.com",
+      "placeholder": "Required",
       "helper_text": "",
       "custom_domain_note": "To use a custom domain, you must order (at no cost) an SSL certificate through Foxy. This option is only for developers who have full control of their domain settings and may take a few days to fully process.",
       "v8n_required": "Please enter the domain of your store",
+      "v8n_invalid": "Please enter a valid domain. For internationalized domain names, please use punycode.",
+      "v8n_unavailable": "Selected domain is already in use by another store. Please choose another domain.",
       "v8n_too_long": "Please use a domain that is 100 characters or less"
     },
     "store-url": {
       "label": "Website",
-      "placeholder": "https://my.store.example.com",
+      "placeholder": "Required",
       "helper_text": "",
       "v8n_required": "Please enter the URL of your online store",
       "v8n_too_long": "Please use a URL that is 300 characters or less"
@@ -258,7 +264,7 @@
       "v8n_too_long": "Please use a URL that is 300 characters or less"
     },
     "bcc-on-receipt-email": {
-      "label": "Send a copy of each receipt to the store email",
+      "label": "Send a copy of each receipt to the store email(s)",
       "helper_text": "",
       "checked": "Yes",
       "unchecked": "No"

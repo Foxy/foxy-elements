@@ -62,7 +62,6 @@ export class InternalCartFormCreateSessionAction extends InternalControl {
   }
 
   private async __reloadSessionHref(href: string | null) {
-    console.log('RELOAD SESSION HREF', href);
     if (this.__loader?.href === href) return;
 
     const nucleon = this.nucleon as CartForm | null;

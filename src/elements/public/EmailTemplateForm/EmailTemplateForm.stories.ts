@@ -11,9 +11,20 @@ const summary: Summary = {
   localName: 'foxy-email-template-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps'],
-    buttons: ['delete', 'create'],
-    inputs: ['description', 'template-language', 'content'],
+    sections: ['timestamps', 'header', 'general', 'html-source', 'text-source'],
+    buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
+    inputs: [
+      'general:description',
+      'general:template-language',
+      'general:toggle',
+      'general:subject',
+      'content-html',
+      'html-source:content-html-url',
+      'html-source:cache',
+      'content-text',
+      'text-source:content-text-url',
+      'text-source:cache',
+    ],
   },
 };
 

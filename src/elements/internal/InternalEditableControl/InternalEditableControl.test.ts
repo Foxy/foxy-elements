@@ -1,7 +1,7 @@
 import '../../public/NucleonElement/index';
 import '../../public/AddressForm/index';
 
-import { expect, fixture, oneEvent } from '@open-wc/testing';
+import { expect, fixture, oneEvent, waitUntil } from '@open-wc/testing';
 import { html } from 'lit-html';
 import { getTestData } from '../../../testgen/getTestData';
 import { InternalEditableControl } from './index';
@@ -21,6 +21,13 @@ describe('InternalEditableControl', () => {
 
   it('extends InternalControl', () => {
     expect(new InternalEditableControl()).to.be.instanceOf(InternalControl);
+  });
+
+  it('has a reactive property "checkValidityAsync" (Function)', () => {
+    expect(new InternalEditableControl()).to.have.property('checkValidityAsync', null);
+    expect(InternalEditableControl).to.have.deep.nested.property('properties.checkValidityAsync', {
+      attribute: false,
+    });
   });
 
   it('has a reactive property "placeholder" (String)', () => {
@@ -239,5 +246,26 @@ describe('InternalEditableControl', () => {
 
     expect(control).to.have.property('_error', undefined);
     expect(control._checkValidity()).to.equal(true);
+  });
+
+  it('returns an async error if checkValidityAsync is set and there are no sync errors', async () => {
+    const wrapper = await fixture<AddressForm>(html`
+      <foxy-address-form>
+        <foxy-internal-editable-control infer="address-name"></foxy-internal-editable-control>
+      </foxy-address-form>
+    `);
+
+    const control = wrapper.firstElementChild as InternalEditableControl;
+    // @ts-expect-error accessing protected member for testing purposes
+    control._value = 'foo';
+    expect(control).to.have.property('_error', undefined);
+
+    control.checkValidityAsync = async () => 'address-name:v8n_async_error';
+    // @ts-expect-error accessing protected member for testing purposes
+    control._value = 'bar';
+    // @ts-expect-error accessing protected member for testing purposes
+    await waitUntil(() => control._error === 'address-name:v8n_async_error', undefined, {
+      timeout: 5000,
+    });
   });
 });

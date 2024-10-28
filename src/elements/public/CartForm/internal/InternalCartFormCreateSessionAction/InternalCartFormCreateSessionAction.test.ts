@@ -100,7 +100,6 @@ describe('CartForm', () => {
               const link = { cart_link: 'https://example.com/cart' };
               evt.respondWith(Promise.resolve(new Response(JSON.stringify(link))));
             } else {
-              console.log('FETCH HANDLER', evt);
               router.handleEvent(evt);
             }
           }}

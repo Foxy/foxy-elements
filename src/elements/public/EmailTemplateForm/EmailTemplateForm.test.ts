@@ -1,966 +1,394 @@
+import type { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { Data } from './types';
+
 import './index';
 
-import { expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
-
-import { ButtonElement } from '@vaadin/vaadin-button';
-import { Choice } from '../../private';
-import { ChoiceChangeEvent } from '../../private/events';
-import { Data } from './types';
-import { EmailTemplateForm } from './EmailTemplateForm';
-import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { I18n } from '../I18n/I18n';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
-import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { TextFieldElement } from '@vaadin/vaadin-text-field';
-import { getByKey } from '../../../testgen/getByKey';
-import { getByName } from '../../../testgen/getByName';
-import { getByTestId } from '../../../testgen/getByTestId';
+import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import { EmailTemplateForm as Form } from './EmailTemplateForm';
+import { createRouter } from '../../../server/index';
 import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html';
-import { createRouter } from '../../../server/index';
-import { InternalSourceControl } from '../../internal/InternalSourceControl/InternalSourceControl';
 
 describe('EmailTemplateForm', () => {
-  it('extends NucleonElement', () => {
-    expect(new EmailTemplateForm()).to.be.instanceOf(NucleonElement);
+  it('imports and defines foxy-internal-summary-control', () => {
+    expect(customElements.get('foxy-internal-summary-control')).to.exist;
   });
 
-  it('registers as foxy-email-template-form', () => {
-    expect(customElements.get('foxy-email-template-form')).to.equal(EmailTemplateForm);
+  it('imports and defines foxy-internal-source-control', () => {
+    expect(customElements.get('foxy-internal-source-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-select-control', () => {
+    expect(customElements.get('foxy-internal-select-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-switch-control', () => {
+    expect(customElements.get('foxy-internal-switch-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-text-control', () => {
+    expect(customElements.get('foxy-internal-text-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-form', () => {
+    expect(customElements.get('foxy-internal-form')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-email-template-form-async-action', () => {
+    expect(customElements.get('foxy-internal-email-template-form-async-action')).to.exist;
+  });
+
+  it('defines itself as foxy-email-template-form', () => {
+    expect(customElements.get('foxy-email-template-form')).to.equal(Form);
+  });
+
+  it('extends foxy-internal-form', () => {
+    expect(new Form()).to.be.instanceOf(customElements.get('foxy-internal-form'));
   });
 
   it('has a default i18next namespace of "email-template-form"', () => {
-    expect(new EmailTemplateForm()).to.have.property('ns', 'email-template-form');
+    expect(new Form().ns).to.equal('email-template-form');
+    expect(Form.defaultNS).to.equal('email-template-form');
   });
 
-  describe('description', () => {
-    it('has i18n label key "description"', async () => {
-      const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      const control = await getByTestId<TextFieldElement>(element, 'description');
-
-      expect(control).to.have.property('label', 'description');
-    });
-
-    it('has value of form.description', async () => {
-      const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-
-      element.edit({ description: 'Test template' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'description');
-      expect(control).to.have.property('value', 'Test template');
-    });
-
-    it('writes to form.description on input', async () => {
-      const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      const control = await getByTestId<TextFieldElement>(element, 'description');
-
-      control!.value = 'Test template';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.description', 'Test template');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/email_templates/0');
-      const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      const control = await getByTestId<TextFieldElement>(element, 'description');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ description: 'Test template', content_html: '', content_text: '' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "description:before" slot by default', async () => {
-      const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByName(element, 'description:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "description:before" slot with template "description:before" if available', async () => {
-      const description = 'description:before';
-      const value = `<p>Value of the "${description}" template.</p>`;
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form>
-          <template slot=${description}>${unsafeHTML(value)}</template>
-        </foxy-email-template-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, description);
-      const sandbox = (await getByTestId<InternalSandbox>(element, description))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "description:after" slot by default', async () => {
-      const element = await fixture<EmailTemplateForm>(
-        html`<foxy-email-template-form></foxy-email-template-form>`
-      );
-
-      const slot = await getByName<HTMLSlotElement>(element, 'description:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "description:after" slot with template "description:after" if available', async () => {
-      const description = 'description:after';
-      const value = `<p>Value of the "${description}" template.</p>`;
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form>
-          <template slot=${description}>${unsafeHTML(value)}</template>
-        </foxy-email-template-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, description);
-      const sandbox = (await getByTestId<InternalSandbox>(element, description))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByTestId(element, 'description')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-email-template-form readonly></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByTestId(element, 'description')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes description', async () => {
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form readonlycontrols="description"></foxy-email-template-form>
-      `);
-
-      expect(await getByTestId(element, 'description')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByTestId(element, 'description')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-email-template-form href=${href}></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByTestId(element, 'description')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-email-template-form href=${href}></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByTestId(element, 'description')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-email-template-form disabled></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByTestId(element, 'description')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes description', async () => {
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form disabledcontrols="description"></foxy-email-template-form>
-      `);
-
-      expect(await getByTestId(element, 'description')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByTestId(element, 'description')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-email-template-form hidden></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByTestId(element, 'description')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes description', async () => {
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form hiddencontrols="description"></foxy-email-template-form>
-      `);
-
-      expect(await getByTestId(element, 'description')).to.not.exist;
-    });
+  it('makes content-html control read-only when content_html_url and subject are set', () => {
+    const form = new Form();
+    expect(form.readonlySelector.matches('content-html', true)).to.be.false;
+    form.edit({ content_html_url: 'foo', subject: 'bar' });
+    expect(form.readonlySelector.matches('content-html', true)).to.be.true;
   });
 
-  describe('content', () => {
-    ['html', 'text'].forEach(type => {
-      describe(`${type} content`, () => {
-        it('has i18n label key "template"', async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-
-          expect(await getByKey(control, `${type}_template`)).to.exist;
-        });
-
-        it('renders a choice element with content types', async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-
-          expect(choice).to.be.instanceOf(Choice);
-          expect(choice).to.have.deep.property('items', ['default', 'url', 'clipboard']);
-        });
-
-        it('pre-selects default content type by default', async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-
-          expect(choice).to.have.property('value', 'default');
-        });
-
-        it('pre-selects url content type if content_url is set', async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          element.edit({ [`content_${type}_url`]: 'https://example.com' });
-
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-          expect(choice).to.have.property('value', 'url');
-        });
-
-        it('pre-selects clipboard content type if content is set', async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          element.edit({ [`content_${type}`]: 'Test Template' });
-
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-          expect(choice).to.have.property('value', 'clipboard');
-        });
-
-        it('clears content and content_url on choice change', async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-
-          element.edit({
-            [`content_${type}`]: 'Test Template',
-            [`content_${type}_url`]: 'https://example.com',
-          });
-
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-          choice.dispatchEvent(new ChoiceChangeEvent('url'));
-          await element.requestUpdate();
-
-          expect(choice).to.have.property('value', 'url');
-          expect(element.form).to.have.property(`content_${type}`, '');
-          expect(element.form).to.have.property(`content_${type}_url`, '');
-        });
-
-        ['default', 'url', 'clipboard'].forEach(contentType => {
-          it(`renders title for choice "${contentType}"`, async () => {
-            const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-            const element = await fixture<EmailTemplateForm>(layout);
-            const control = (await getByTestId(element, 'content')) as HTMLElement;
-            const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-            const wrapper = choice.querySelector(`[slot="${contentType}-label"]`) as HTMLElement;
-
-            expect(await getByKey(wrapper, `template_${contentType}`)).to.exist;
-          });
-        });
-
-        it('shows url field for url content type', async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          element.edit({ [`content_${type}_url`]: 'https://example.com' });
-
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-          const wrapper = choice.querySelector('[slot="url"]');
-          expect(wrapper).to.not.have.attribute('hidden');
-        });
-
-        it(`sets value of form.content_${type}_url to the text field`, async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          element.edit({ [`content_${type}_url`]: 'https://example.com' });
-
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-          const wrapper = choice.querySelector('[slot="url"]') as HTMLElement;
-          const field = await getByTestId(wrapper, `content-${type}-url`);
-
-          expect(field).to.have.value('https://example.com');
-        });
-
-        it(`content url field writes to form.content_${type}_url on input`, async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          element.edit({ [`content_${type}_url`]: 'https://example.com' });
-
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-          const wrapper = choice.querySelector('[slot="url"]') as HTMLElement;
-          const field = (await getByTestId(wrapper, `content-${type}-url`)) as TextFieldElement;
-
-          field.value = 'https://example.com/foo';
-          field.dispatchEvent(new CustomEvent('input'));
-
-          expect(element.form).to.have.property(`content_${type}_url`, 'https://example.com/foo');
-        });
-
-        it(`${type} content url field submits valid form on Enter`, async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const submit = stub(element, 'submit');
-
-          element.edit({
-            description: 'Test',
-            content_html_url: 'https://example.com',
-            content_html: '',
-            content_text_url: 'https://example.com',
-            content_text: '',
-          });
-
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-          const wrapper = choice.querySelector('[slot="url"]') as HTMLElement;
-          const field = (await getByTestId(wrapper, `content-${type}-url`)) as TextFieldElement;
-          field.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-          expect(submit).to.have.been.called;
-        });
-
-        it('shows Cache button next to the content url field', async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          element.edit({ [`content_${type}_url`]: 'https://example.com' });
-
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-          const wrapper = choice.querySelector('[slot="url"]') as HTMLElement;
-          const button = (await getByTestId(wrapper, `content-${type}-cache`)) as ButtonElement;
-
-          expect(button).to.exist;
-          expect(button.firstElementChild).to.have.property('key', 'cache');
-          expect(button.firstElementChild).to.be.instanceOf(I18n);
-        });
-
-        it('POSTs to fx:cache once Cache button is clicked', async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          element.data = await getTestData('./hapi/email_templates/0');
-
-          const whenFetchEventFired = oneEvent(element, 'fetch') as unknown as Promise<FetchEvent>;
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-          const wrapper = choice.querySelector('[slot="url"]') as HTMLElement;
-          const button = (await getByTestId(wrapper, `content-${type}-cache`)) as ButtonElement;
-          button.click();
-
-          const event = await whenFetchEventFired;
-          expect(event).to.have.nested.property(
-            'request.url',
-            element.data?._links['fx:cache'].href
-          );
-          expect(event).to.have.nested.property('request.method', 'POST');
-        });
-
-        it('shows source control for clipboard content type', async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          element.edit({ [`content_${type}`]: 'Test Template' });
-
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-          const field = choice.querySelector('[slot="clipboard"]');
-
-          expect(field).to.have.attribute('placeholder', 'clipboard_source_placeholder');
-          expect(field).to.have.attribute('label', 'clipboard_source_label');
-          expect(field).to.have.attribute('property', `content_${type}`);
-          expect(field).to.have.attribute('infer', 'content');
-
-          expect(field).to.not.have.attribute('hidden');
-          expect(field).to.be.instanceOf(InternalSourceControl);
-        });
-
-        it('shows source control for url content type', async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-
-          element.edit({
-            [`content_${type}_url`]: 'https://example.com/template',
-            [`content_${type}`]: 'Test Template',
-          });
-
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-          const group = choice.querySelector('[slot="url"]');
-          const field = group?.querySelector('foxy-internal-source-control');
-
-          expect(field).to.have.attribute('placeholder', 'url_source_placeholder');
-          expect(field).to.have.attribute('label', 'url_source_label');
-          expect(field).to.have.attribute('property', `content_${type}`);
-          expect(field).to.have.attribute('infer', 'content');
-
-          expect(field).to.not.have.attribute('hidden');
-          expect(field).to.be.instanceOf(InternalSourceControl);
-        });
-
-        it('is editable by default', async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = await getByTestId(control, `content-${type}-type`);
-          const urlField = await getByTestId(control, `content-${type}-url`);
-
-          expect(choice).not.to.have.attribute('readonly');
-          expect(urlField).not.to.have.attribute('readonly');
-        });
-
-        it('is readonly when element is readonly', async () => {
-          const layout = html`<foxy-email-template-form readonly></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = await getByTestId(control, `content-${type}-type`);
-          const urlField = await getByTestId(control, `content-${type}-url`);
-
-          expect(choice).to.have.attribute('readonly');
-          expect(urlField).to.have.attribute('readonly');
-        });
-
-        it('is readonly when readonlycontrols includes content', async () => {
-          const layout = html`<foxy-email-template-form
-            readonlycontrols="content"
-          ></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = await getByTestId(control, `content-${type}-type`);
-          const urlField = await getByTestId(control, `content-${type}-url`);
-
-          expect(choice).to.have.attribute('readonly');
-          expect(urlField).to.have.attribute('readonly');
-        });
-
-        it('is enabled by default', async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = await getByTestId(control, `content-${type}-type`);
-          const urlField = await getByTestId(control, `content-${type}-url`);
-          const cacheButton = await getByTestId(control, `content-${type}-cache`);
-
-          expect(choice).not.to.have.attribute('disabled');
-          expect(urlField).not.to.have.attribute('disabled');
-          expect(cacheButton).not.to.have.attribute('disabled');
-        });
-
-        it('is disabled when form is loading', async () => {
-          const href = 'https://demo.api/virtual/stall';
-          const layout = html`<foxy-email-template-form href=${href}></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = await getByTestId(control, `content-${type}-type`);
-          const urlField = await getByTestId(control, `content-${type}-url`);
-          const cacheButton = await getByTestId(control, `content-${type}-cache`);
-
-          expect(choice).to.have.attribute('disabled');
-          expect(urlField).to.have.attribute('disabled');
-          expect(cacheButton).to.have.attribute('disabled');
-        });
-
-        it('is disabled when form has failed to load data', async () => {
-          const href = 'https://demo.api/virtual/empty?status=404';
-          const layout = html`<foxy-email-template-form href=${href}></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = await getByTestId(control, `content-${type}-type`);
-          const urlField = await getByTestId(control, `content-${type}-url`);
-          const cacheButton = await getByTestId(control, `content-${type}-cache`);
-
-          expect(choice).to.have.attribute('disabled');
-          expect(urlField).to.have.attribute('disabled');
-          expect(cacheButton).to.have.attribute('disabled');
-        });
-
-        it('is disabled when element is disabled', async () => {
-          const layout = html`<foxy-email-template-form disabled></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = await getByTestId(control, `content-${type}-type`);
-          const urlField = await getByTestId(control, `content-${type}-url`);
-          const cacheButton = await getByTestId(control, `content-${type}-cache`);
-
-          expect(choice).to.have.attribute('disabled');
-          expect(urlField).to.have.attribute('disabled');
-          expect(cacheButton).to.have.attribute('disabled');
-        });
-
-        it('is disabled when disabledcontrols includes content', async () => {
-          const layout = html`<foxy-email-template-form
-            disabledcontrols="content"
-          ></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = await getByTestId(control, `content-${type}-type`);
-          const urlField = await getByTestId(control, `content-${type}-url`);
-          const cacheButton = await getByTestId(control, `content-${type}-cache`);
-
-          expect(choice).to.have.attribute('disabled');
-          expect(urlField).to.have.attribute('disabled');
-          expect(cacheButton).to.have.attribute('disabled');
-        });
-
-        it('is visible by default', async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-
-          expect(control).to.exist;
-        });
-
-        it('is hidden when form is hidden', async () => {
-          const layout = html`<foxy-email-template-form hidden></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-
-          expect(control).to.not.exist;
-        });
-
-        it('is hidden when hiddencontrols includes content', async () => {
-          const layout = html`<foxy-email-template-form
-            hiddencontrols="content"
-          ></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-
-          expect(control).to.not.exist;
-        });
-      });
-    });
+  it('makes content-text control read-only when content_text_url and subject are set', () => {
+    const form = new Form();
+    expect(form.readonlySelector.matches('content-text', true)).to.be.false;
+    form.edit({ content_text_url: 'foo', subject: 'bar' });
+    expect(form.readonlySelector.matches('content-text', true)).to.be.true;
   });
 
-  describe('timestamps', () => {
-    it('once form data is loaded, renders a property table with created and modified dates', async () => {
-      const data = await getTestData<Data>('./hapi/email_templates/0');
-      const layout = html`<foxy-email-template-form .data=${data}></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      const control = await getByTestId(element, 'timestamps');
-      const items = [
-        { name: 'date_modified', value: 'date' },
-        { name: 'date_created', value: 'date' },
-      ];
+  it('makes Cache buttons disabled when content_html_url or content_text_url are not set in data or when form is dirty', async () => {
+    const form = new Form();
+    expect(form.disabledSelector.matches('html-source:cache', true)).to.be.true;
+    expect(form.disabledSelector.matches('text-source:cache', true)).to.be.true;
 
-      expect(control).to.have.deep.property('items', items);
-    });
+    const data = await getTestData<Data>('./hapi/email_templates/0');
+    data.subject = 'baz';
 
-    it('once form data is loaded, renders "timestamps:before" slot', async () => {
-      const data = await getTestData<Data>('./hapi/email_templates/0');
-      const layout = html`<foxy-email-template-form .data=${data}></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'timestamps:before');
+    data.content_html_url = '';
+    data.content_text_url = '';
+    form.data = { ...data };
+    expect(form.disabledSelector.matches('html-source:cache', true)).to.be.true;
+    expect(form.disabledSelector.matches('text-source:cache', true)).to.be.true;
 
-      expect(slot).to.have.property('localName', 'slot');
-    });
+    data.content_html_url = 'foo';
+    data.content_text_url = 'bar';
+    form.data = { ...data };
+    expect(form.disabledSelector.matches('html-source:cache', true)).to.be.false;
+    expect(form.disabledSelector.matches('text-source:cache', true)).to.be.false;
 
-    it('once form data is loaded, replaces "timestamps:before" slot with template "timestamps:before" if available', async () => {
-      const data = await getTestData<Data>('./hapi/email_templates/0');
-      const name = 'timestamps:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form .data=${data}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-email-template-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('once form data is loaded, renders "timestamps:after" slot', async () => {
-      const data = await getTestData<Data>('./hapi/email_templates/0');
-      const layout = html`<foxy-email-template-form .data=${data}></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'timestamps:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('once form data is loaded, replaces "timestamps:after" slot with template "timestamps:after" if available', async () => {
-      const data = await getTestData<Data>('./hapi/email_templates/0');
-      const name = 'timestamps:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form .data=${data}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-email-template-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
+    form.edit({ subject: 'qux' });
+    expect(form.disabledSelector.matches('html-source:cache', true)).to.be.true;
+    expect(form.disabledSelector.matches('text-source:cache', true)).to.be.true;
   });
 
-  describe('create', () => {
-    it('if data is empty, renders create button', async () => {
-      const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByTestId(element, 'create')).to.exist;
-    });
+  it('disables template controls when subject is not set', () => {
+    const form = new Form();
+    expect(form.disabledSelector.matches('general:template-language', true)).to.be.true;
+    expect(form.disabledSelector.matches('html-source', true)).to.be.true;
+    expect(form.disabledSelector.matches('text-source', true)).to.be.true;
+    expect(form.disabledSelector.matches('content-html', true)).to.be.true;
+    expect(form.disabledSelector.matches('content-text', true)).to.be.true;
 
-    it('renders with i18n key "create" for caption', async () => {
-      const layout = html`<foxy-email-template-form lang="es"></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      const control = await getByTestId(element, 'create');
-      const caption = control?.firstElementChild;
-
-      expect(caption).to.have.property('localName', 'foxy-i18n');
-      expect(caption).to.have.attribute('lang', 'es');
-      expect(caption).to.have.attribute('key', 'create');
-      expect(caption).to.have.attribute('ns', 'email-template-form');
-    });
-
-    it('renders disabled if form is disabled', async () => {
-      const layout = html`<foxy-email-template-form disabled></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if form is invalid', async () => {
-      const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if form is sending changes', async () => {
-      const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-
-      element.edit({ description: 'Foo' });
-      element.submit();
-
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if disabledcontrols includes "create"', async () => {
-      const layout = html`<foxy-email-template-form
-        disabledcontrols="create"
-      ></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('submits valid form on click', async () => {
-      const element = await fixture<EmailTemplateForm>(
-        html`<foxy-email-template-form></foxy-email-template-form>`
-      );
-      const submit = stub(element, 'submit');
-      element.edit({ description: 'Foo' });
-
-      const control = await getByTestId<ButtonElement>(element, 'create');
-      control!.dispatchEvent(new CustomEvent('click'));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it("doesn't render if form is hidden", async () => {
-      const layout = html`<foxy-email-template-form hidden></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByTestId(element, 'create')).to.not.exist;
-    });
-
-    it('doesn\'t render if hiddencontrols includes "create"', async () => {
-      const layout = html`<foxy-email-template-form
-        hiddencontrols="create"
-      ></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByTestId(element, 'create')).to.not.exist;
-    });
-
-    it('renders with "create:before" slot by default', async () => {
-      const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'create:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "create:before" slot with template "create:before" if available and rendered', async () => {
-      const name = 'create:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-email-template-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders with "create:after" slot by default', async () => {
-      const element = await fixture<EmailTemplateForm>(
-        html`<foxy-email-template-form></foxy-email-template-form>`
-      );
-      const slot = await getByName<HTMLSlotElement>(element, 'create:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "create:after" slot with template "create:after" if available and rendered', async () => {
-      const name = 'create:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-email-template-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
+    form.edit({ subject: 'foo' });
+    expect(form.disabledSelector.matches('general:template-language', true)).to.be.false;
+    expect(form.disabledSelector.matches('html-source', true)).to.be.false;
+    expect(form.disabledSelector.matches('text-source', true)).to.be.false;
+    expect(form.disabledSelector.matches('content-html', true)).to.be.false;
+    expect(form.disabledSelector.matches('content-text', true)).to.be.false;
   });
 
-  describe('delete', () => {
-    it('renders delete button once resource is loaded', async () => {
-      const href = './hapi/email_templates/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-email-template-form
-        .data=${data}
-        disabled
-      ></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
+  it('hides Cache HTML button when content_html_url is not set in data', async () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('html-source:cache', true)).to.be.true;
 
-      expect(await getByTestId(element, 'delete')).to.exist;
-    });
+    const data = await getTestData<Data>('./hapi/email_templates/0');
+    data.subject = 'foo';
 
-    it('renders with i18n key "delete" for caption', async () => {
-      const data = await getTestData('./hapi/email_templates/0');
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form .data=${data} lang="es"></foxy-email-template-form>
-      `);
+    data.content_html_url = '';
+    form.data = { ...data };
+    expect(form.hiddenSelector.matches('html-source:cache', true)).to.be.true;
 
-      const control = await getByTestId(element, 'delete');
-      const caption = control?.firstElementChild;
+    data.content_html_url = 'foo';
+    form.data = { ...data };
+    expect(form.hiddenSelector.matches('html-source:cache', true)).to.be.false;
+  });
 
-      expect(caption).to.have.property('localName', 'foxy-i18n');
-      expect(caption).to.have.attribute('lang', 'es');
-      expect(caption).to.have.attribute('key', 'delete');
-      expect(caption).to.have.attribute('ns', 'email-template-form');
-    });
+  it('hides Cache Text button when content_text_url is not set in data', async () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('text-source:cache', true)).to.be.true;
 
-    it('renders disabled if form is disabled', async () => {
-      const data = await getTestData('./hapi/email_templates/0');
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form .data=${data} disabled></foxy-email-template-form>
-      `);
+    const data = await getTestData<Data>('./hapi/email_templates/0');
+    data.subject = 'foo';
 
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
+    data.content_text_url = '';
+    form.data = { ...data };
+    expect(form.hiddenSelector.matches('text-source:cache', true)).to.be.true;
 
-    it('renders disabled if form is sending changes', async () => {
-      const data = await getTestData('./hapi/email_templates/0');
-      const layout = html`<foxy-email-template-form .data=${data}></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
+    data.content_text_url = 'foo';
+    form.data = { ...data };
+    expect(form.hiddenSelector.matches('text-source:cache', true)).to.be.false;
+  });
 
-      element.edit({ description: 'Foo' });
-      element.submit();
+  it('hides template controls when subject is not set both in data and form edits', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('general:template-language', true)).to.be.true;
+    expect(form.hiddenSelector.matches('general:subject', true)).to.be.true;
+    expect(form.hiddenSelector.matches('html-source', true)).to.be.true;
+    expect(form.hiddenSelector.matches('text-source', true)).to.be.true;
+    expect(form.hiddenSelector.matches('content-html', true)).to.be.true;
+    expect(form.hiddenSelector.matches('content-text', true)).to.be.true;
 
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
+    form.edit({ subject: 'foo' });
+    expect(form.hiddenSelector.matches('general:template-language', true)).to.be.false;
+    expect(form.hiddenSelector.matches('general:subject', true)).to.be.false;
+    expect(form.hiddenSelector.matches('html-source', true)).to.be.false;
+    expect(form.hiddenSelector.matches('text-source', true)).to.be.false;
+    expect(form.hiddenSelector.matches('content-html', true)).to.be.false;
+    expect(form.hiddenSelector.matches('content-text', true)).to.be.false;
+  });
 
-    it('renders disabled if disabledcontrols includes "delete"', async () => {
-      const element = await fixture<EmailTemplateForm>(html`
+  it('renders a form header', () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('renders General summary', async () => {
+    const form = await fixture<Form>(html`<foxy-email-template-form></foxy-email-template-form>`);
+    const control = form.renderRoot.querySelector('[infer="general"]');
+    expect(control?.localName).to.equal('foxy-internal-summary-control');
+  });
+
+  it('renders a text control for Description in General summary', async () => {
+    const form = await fixture<Form>(html`<foxy-email-template-form></foxy-email-template-form>`);
+    const control = form.renderRoot.querySelector(
+      '[infer="general"] foxy-internal-text-control[infer="description"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a switch control for On/Off Toggle in General summary', async () => {
+    const form = await fixture<Form>(html`<foxy-email-template-form></foxy-email-template-form>`);
+    const control = form.renderRoot.querySelector<InternalSwitchControl>(
+      '[infer="general"] foxy-internal-switch-control[infer="toggle"]'
+    );
+
+    expect(control).to.exist;
+    form.edit({ subject: '' });
+    expect(control?.getValue()).to.be.false;
+
+    control?.setValue(true);
+    expect(control?.getValue()).to.be.true;
+    expect(form.form.subject).to.equal('general.subject.default_value');
+  });
+
+  it('renders a text control for Subject in General summary', async () => {
+    const form = await fixture<Form>(html`<foxy-email-template-form></foxy-email-template-form>`);
+    const control = form.renderRoot.querySelector(
+      '[infer="general"] foxy-internal-text-control[infer="subject"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a select control for Template Language in General summary', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-email-template-form
+        href="https://demo.api/hapi/email_templates/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-email-template-form>
+    `);
+
+    await waitUntil(() => !!form.data, '', { timeout: 5000 });
+    await form.requestUpdate();
+
+    const control = form.renderRoot.querySelector<HTMLSelectElement>(
+      '[infer="general"] foxy-internal-select-control[infer="template-language"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.deep.property('options', [
+      { rawLabel: 'Nunjucks', value: 'nunjucks' },
+      { rawLabel: 'Handlebars', value: 'handlebars' },
+      { rawLabel: 'Pug', value: 'pug' },
+      { rawLabel: 'Twig', value: 'twig' },
+      { rawLabel: 'EJS', value: 'ejs' },
+    ]);
+  });
+
+  it('renders a default slot', async () => {
+    const form = await fixture<Form>(html` <foxy-email-template-form></foxy-email-template-form> `);
+    expect(form.renderRoot.querySelector('slot:not([name])')).to.exist;
+  });
+
+  it('renders a source control for HTML Content', async () => {
+    const form = await fixture<Form>(html`<foxy-email-template-form></foxy-email-template-form>`);
+    const control = form.renderRoot.querySelector('[infer="content-html"]');
+    expect(control?.localName).to.equal('foxy-internal-source-control');
+  });
+
+  it('renders a summary control for HTML Source', async () => {
+    const form = await fixture<Form>(html`<foxy-email-template-form></foxy-email-template-form>`);
+    const control = form.renderRoot.querySelector('[infer="html-source"]');
+    expect(control?.localName).to.equal('foxy-internal-summary-control');
+  });
+
+  it('renders a text control for HTML Content URL in HTML Source summary', async () => {
+    const form = await fixture<Form>(html`<foxy-email-template-form></foxy-email-template-form>`);
+    const control = form.renderRoot.querySelector(
+      '[infer="html-source"] foxy-internal-text-control[infer="content-html-url"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders an async action control for caching HTML Content in HTML Source summary', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-email-template-form
+        href="https://demo.api/hapi/email_templates/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-email-template-form>
+    `);
+
+    await waitUntil(() => !!form.data, '', { timeout: 5000 });
+    await form.requestUpdate();
+    const control = form.renderRoot.querySelector(
+      '[infer="html-source"] foxy-internal-email-template-form-async-action[infer="cache"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('theme', 'tertiary-inline');
+    expect(control).to.have.attribute('href', form.data!._links['fx:cache'].href);
+  });
+
+  it('renders a source control for Text Content', async () => {
+    const form = await fixture<Form>(html`<foxy-email-template-form></foxy-email-template-form>`);
+    const control = form.renderRoot.querySelector('[infer="content-text"]');
+    expect(control?.localName).to.equal('foxy-internal-source-control');
+  });
+
+  it('renders a summary control for Text Source', async () => {
+    const form = await fixture<Form>(html`<foxy-email-template-form></foxy-email-template-form>`);
+    const control = form.renderRoot.querySelector('[infer="text-source"]');
+    expect(control?.localName).to.equal('foxy-internal-summary-control');
+  });
+
+  it('renders a text control for Text Content URL in Text Source summary', async () => {
+    const form = await fixture<Form>(html`<foxy-email-template-form></foxy-email-template-form>`);
+    const control = form.renderRoot.querySelector(
+      '[infer="text-source"] foxy-internal-text-control[infer="content-text-url"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders an async action control for caching Text Content in Text Source summary', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-email-template-form
+        href="https://demo.api/hapi/email_templates/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-email-template-form>
+    `);
+
+    await waitUntil(() => !!form.data, '', { timeout: 5000 });
+    await form.requestUpdate();
+    const control = form.renderRoot.querySelector(
+      '[infer="text-source"] foxy-internal-email-template-form-async-action[infer="cache"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('theme', 'tertiary-inline');
+    expect(control).to.have.attribute('href', form.data!._links['fx:cache'].href);
+  });
+
+  it('caches content on POST', async () => {
+    const requests: Request[] = [];
+    const router = createRouter();
+    const form = await fixture<Form>(
+      html`
         <foxy-email-template-form
-          .data=${await getTestData<Data>('./hapi/email_templates/0')}
-          disabledcontrols="delete"
+          parent="https://demo.api/hapi/email_templates"
+          @fetch=${(evt: FetchEvent) => {
+            if (evt.defaultPrevented) return;
+            requests.push(evt.request);
+            router.handleEvent(evt);
+          }}
         >
         </foxy-email-template-form>
-      `);
+      `
+    );
 
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
+    form.edit({
+      content_html_url: 'https://example.com',
+      content_text_url: 'https://example.com',
+      subject: 'Test',
     });
 
-    it('shows deletion confirmation dialog on click', async () => {
-      const data = await getTestData('./hapi/email_templates/0');
-      const layout = html`<foxy-email-template-form .data=${data}></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      const control = await getByTestId<ButtonElement>(element, 'delete');
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const showMethod = stub(confirm!, 'show');
+    requests.length = 0;
+    form.submit();
+    await waitUntil(() => requests.length >= 3, '', { timeout: 5000 });
+    const cacheRequest = requests.find(
+      req => req.method === 'POST' && req.url === form.data?._links['fx:cache'].href
+    );
 
-      control!.dispatchEvent(new CustomEvent('click'));
-
-      expect(showMethod).to.have.been.called;
-    });
-
-    it('deletes resource if deletion is confirmed', async () => {
-      const data = await getTestData('./hapi/email_templates/0');
-      const layout = html`<foxy-email-template-form .data=${data}></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const deleteMethod = stub(element, 'delete');
-
-      confirm!.dispatchEvent(new InternalConfirmDialog.HideEvent(false));
-
-      expect(deleteMethod).to.have.been.called;
-    });
-
-    it('keeps resource if deletion is cancelled', async () => {
-      const data = await getTestData('./hapi/email_templates/0');
-      const layout = html`<foxy-email-template-form .data=${data}></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const deleteMethod = stub(element, 'delete');
-
-      confirm!.dispatchEvent(new InternalConfirmDialog.HideEvent(true));
-
-      expect(deleteMethod).not.to.have.been.called;
-    });
-
-    it("doesn't render if form is hidden", async () => {
-      const data = await getTestData('./hapi/email_templates/0');
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form .data=${data} hidden></foxy-email-template-form>
-      `);
-
-      expect(await getByTestId(element, 'delete')).to.not.exist;
-    });
-
-    it('doesn\'t render if hiddencontrols includes "delete"', async () => {
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form
-          .data=${await getTestData<Data>('./hapi/email_templates/0')}
-          hiddencontrols="delete"
-        >
-        </foxy-email-template-form>
-      `);
-
-      expect(await getByTestId(element, 'delete')).to.not.exist;
-    });
-
-    it('renders with "delete:before" slot by default', async () => {
-      const data = await getTestData('./hapi/email_templates/0');
-      const layout = html`<foxy-email-template-form .data=${data}></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'delete:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "delete:before" slot with template "delete:before" if available and rendered', async () => {
-      const href = './hapi/email_templates/0';
-      const name = 'delete:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form .data=${await getTestData<Data>(href)}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-email-template-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders with "delete:after" slot by default', async () => {
-      const data = await getTestData('./hapi/email_templates/0');
-      const layout = html`<foxy-email-template-form .data=${data}></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'delete:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "delete:after" slot with template "delete:after" if available and rendered', async () => {
-      const href = './hapi/email_templates/0';
-      const name = 'delete:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form .data=${await getTestData<Data>(href)}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-email-template-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
+    expect(cacheRequest).to.exist;
   });
 
-  describe('spinner', () => {
-    it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const router = createRouter();
-      const element = await fixture<EmailTemplateForm>(html`
+  it('caches content on PATCH', async () => {
+    const requests: Request[] = [];
+    const router = createRouter();
+    const form = await fixture<Form>(
+      html`
         <foxy-email-template-form
-          href="https://demo.api/virtual/stall"
-          lang="es"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+          href="https://demo.api/hapi/email_templates/0"
+          @fetch=${(evt: FetchEvent) => {
+            if (evt.defaultPrevented) return;
+            requests.push(evt.request);
+            router.handleEvent(evt);
+          }}
         >
         </foxy-email-template-form>
-      `);
+      `
+    );
 
-      const spinnerWrapper = await getByTestId(element, 'spinner');
-      const spinner = spinnerWrapper!.firstElementChild;
+    await waitUntil(() => !!form.data, '', { timeout: 5000 });
 
-      expect(spinnerWrapper).not.to.have.class('opacity-0');
-      expect(spinner).to.have.attribute('state', 'busy');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'email-template-form spinner');
+    form.edit({
+      content_html_url: 'https://example.com',
+      content_text_url: 'https://example.com',
+      subject: 'Test',
     });
 
-    it('renders foxy-spinner in "error" state if loading data fails', async () => {
-      const href = './hapi/not-found';
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form href=${href} lang="es"></foxy-email-template-form>
-      `);
+    requests.length = 0;
+    form.submit();
+    await waitUntil(() => requests.length >= 3, '', { timeout: 5000 });
+    const cacheRequest = requests.find(
+      req => req.method === 'POST' && req.url === form.data?._links['fx:cache'].href
+    );
 
-      const spinnerWrapper = await getByTestId(element, 'spinner');
-      const spinner = spinnerWrapper!.firstElementChild;
-
-      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
-
-      expect(spinnerWrapper).not.to.have.class('opacity-0');
-      expect(spinner).to.have.attribute('state', 'error');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'email-template-form spinner');
-    });
-
-    it('hides spinner once loaded', async () => {
-      const data = await getTestData('./hapi/email_templates/0');
-      const layout = html`<foxy-email-template-form .data=${data}></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      const spinnerWrapper = await getByTestId(element, 'spinner');
-
-      expect(spinnerWrapper).to.have.class('opacity-0');
-    });
+    expect(cacheRequest).to.exist;
   });
 });

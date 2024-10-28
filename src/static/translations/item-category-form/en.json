@@ -118,7 +118,7 @@
       "label": "Default weight unit",
       "placeholder": "Select...",
       "option_kgs": "KG",
-      "option_lbs": "LG",
+      "option_lbs": "LBS",
       "helper_text": "",
       "v8n_required": "Please select a unit"
     },
