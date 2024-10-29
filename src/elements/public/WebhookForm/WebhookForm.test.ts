@@ -203,6 +203,7 @@ describe('WebhookForm', () => {
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalAsyncListControl);
+    expect(control).to.have.attribute('hide-delete-button');
     expect(control).to.have.property('item', 'foxy-webhook-status-card');
     expect(control).to.have.property('getPageHref', getPageHref);
     expect(control).to.have.property(
@@ -247,6 +248,7 @@ describe('WebhookForm', () => {
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalAsyncListControl);
+    expect(control).to.have.attribute('hide-delete-button');
     expect(control).to.have.property('item', 'foxy-webhook-log-card');
     expect(control).to.have.property('getPageHref', getPageHref);
     expect(control).to.have.property(

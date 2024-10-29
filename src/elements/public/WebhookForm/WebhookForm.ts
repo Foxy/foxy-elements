@@ -133,6 +133,7 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
         infer="statuses"
         limit="10"
         item="foxy-webhook-status-card"
+        hide-delete-button
         .getPageHref=${this.getStatusPageHref}
         .itemProps=${this.resourceUri ? { layout: 'resource' } : {}}
       >
@@ -143,6 +144,7 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
         infer="logs"
         limit="10"
         item="foxy-webhook-log-card"
+        hide-delete-button
         .getPageHref=${this.getLogPageHref}
         .itemProps=${this.resourceUri ? { layout: 'resource' } : {}}
       >
