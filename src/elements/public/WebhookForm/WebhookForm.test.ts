@@ -209,6 +209,11 @@ describe('WebhookForm', () => {
       'first',
       'https://demo.api/hapi/webhook_statuses?webhook_id=0&order=date_created+desc'
     );
+
+    expect(control).to.have.deep.property('itemProps', {});
+    element.resourceUri = 'https://demo.api/hapi/transactions/0';
+    await element.requestUpdate();
+    expect(control).to.have.deep.property('itemProps', { layout: 'resource' });
   });
 
   it('includes only resource-specific statuses when resource uri is set', async () => {
@@ -248,6 +253,11 @@ describe('WebhookForm', () => {
       'first',
       'https://demo.api/hapi/webhook_logs?webhook_id=0&order=date_created+desc'
     );
+
+    expect(control).to.have.deep.property('itemProps', {});
+    element.resourceUri = 'https://demo.api/hapi/transactions/0';
+    await element.requestUpdate();
+    expect(control).to.have.deep.property('itemProps', { layout: 'resource' });
   });
 
   it('includes only resource-specific logs when resource uri is set', async () => {

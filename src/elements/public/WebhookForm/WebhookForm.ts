@@ -134,6 +134,7 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
         limit="10"
         item="foxy-webhook-status-card"
         .getPageHref=${this.getStatusPageHref}
+        .itemProps=${this.resourceUri ? { layout: 'resource' } : {}}
       >
       </foxy-internal-async-list-control>
 
@@ -143,6 +144,7 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
         limit="10"
         item="foxy-webhook-log-card"
         .getPageHref=${this.getLogPageHref}
+        .itemProps=${this.resourceUri ? { layout: 'resource' } : {}}
       >
       </foxy-internal-async-list-control>
 
