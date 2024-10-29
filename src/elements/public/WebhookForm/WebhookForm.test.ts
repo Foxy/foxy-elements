@@ -59,6 +59,20 @@ describe('WebhookForm', () => {
     expect(new WebhookForm()).to.have.property('ns', 'webhook-form');
   });
 
+  it('has a reactive property "getStatusPageHref" that defaults to null', () => {
+    expect(new WebhookForm()).to.have.property('getStatusPageHref', null);
+    expect(WebhookForm).to.have.deep.nested.property('properties.getStatusPageHref', {
+      attribute: false,
+    });
+  });
+
+  it('has a reactive property "getLogPageHref" that defaults to null', () => {
+    expect(new WebhookForm()).to.have.property('getLogPageHref', null);
+    expect(WebhookForm).to.have.deep.nested.property('properties.getLogPageHref', {
+      attribute: false,
+    });
+  });
+
   it('has a reactive property "resourceUri" that defaults to null', () => {
     expect(new WebhookForm()).to.have.property('resourceUri', null);
     expect(WebhookForm).to.have.deep.nested.property('properties.resourceUri', {
@@ -180,7 +194,9 @@ describe('WebhookForm', () => {
   it('renders webhook statuses when an existing webhook is loaded', async () => {
     const webhook = await getTestData<Data>('./hapi/webhooks/0');
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
+    const getPageHref = stub();
 
+    element.getStatusPageHref = getPageHref;
     element.data = webhook;
     await element.requestUpdate();
     const control = element.renderRoot.querySelector('[infer="statuses"]');
@@ -188,6 +204,7 @@ describe('WebhookForm', () => {
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalAsyncListControl);
     expect(control).to.have.property('item', 'foxy-webhook-status-card');
+    expect(control).to.have.property('getPageHref', getPageHref);
     expect(control).to.have.property(
       'first',
       'https://demo.api/hapi/webhook_statuses?webhook_id=0&order=date_created+desc'
@@ -216,7 +233,9 @@ describe('WebhookForm', () => {
   it('renders webhook logs when an existing webhook is loaded', async () => {
     const webhook = await getTestData<Data>('./hapi/webhooks/0');
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
+    const getPageHref = stub();
 
+    element.getLogPageHref = getPageHref;
     element.data = webhook;
     await element.requestUpdate();
     const control = element.renderRoot.querySelector('[infer="logs"]');
@@ -224,6 +243,7 @@ describe('WebhookForm', () => {
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalAsyncListControl);
     expect(control).to.have.property('item', 'foxy-webhook-log-card');
+    expect(control).to.have.property('getPageHref', getPageHref);
     expect(control).to.have.property(
       'first',
       'https://demo.api/hapi/webhook_logs?webhook_id=0&order=date_created+desc'

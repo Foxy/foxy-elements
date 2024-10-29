@@ -1,7 +1,7 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
-import type { Data } from './types';
+import type { Data, WebhookLog } from './types';
 
 import { BooleanSelector, getResourceId } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -19,6 +19,8 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      getStatusPageHref: { attribute: false },
+      getLogPageHref: { attribute: false },
       resourceUri: { attribute: 'resource-uri' },
     };
   }
@@ -33,6 +35,12 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
       ({ encryption_key: v }) => !v || v.length <= 1000 || 'encryption-key:v8n_too_long',
     ];
   }
+
+  /** If set, renders Statuses list items as <a> tags. */
+  getStatusPageHref: ((statusHref: string, status: WebhookLog) => string | null) | null = null;
+
+  /** If set, renders Logs list items as <a> tags. */
+  getLogPageHref: ((logHref: string, log: WebhookLog) => string | null) | null = null;
 
   /**
    * Optional URI of a transaction, customer or subscription. When provided,
@@ -125,6 +133,7 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
         infer="statuses"
         limit="10"
         item="foxy-webhook-status-card"
+        .getPageHref=${this.getStatusPageHref}
       >
       </foxy-internal-async-list-control>
 
@@ -133,6 +142,7 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
         infer="logs"
         limit="10"
         item="foxy-webhook-log-card"
+        .getPageHref=${this.getLogPageHref}
       >
       </foxy-internal-async-list-control>
 
