@@ -22,6 +22,11 @@ describe('WebhookStatusCard', () => {
     expect(new WebhookStatusCard()).to.have.property('ns', 'webhook-status-card');
   });
 
+  it('has a reactive property "layout"', async () => {
+    expect(WebhookStatusCard).to.have.deep.nested.property('properties.layout', {});
+    expect(new WebhookStatusCard()).to.have.property('layout', null);
+  });
+
   it('renders status record date when loaded', async () => {
     const whStatus = await getTestData<Data>('./hapi/webhook_statuses/0');
     const layout = html`<foxy-webhook-status-card></foxy-webhook-status-card>`;
@@ -52,5 +57,19 @@ describe('WebhookStatusCard', () => {
       expect(label).to.exist;
       expect(label).to.have.property('infer', '');
     });
+  });
+
+  it('renders resource type and id when loaded in default layout', async () => {
+    const webhookStatus = await getTestData<Data>('./hapi/webhook_statuses/0');
+    const layout = html`<foxy-webhook-status-card></foxy-webhook-status-card>`;
+    const card = await fixture<WebhookStatusCard>(layout);
+
+    card.data = { ...webhookStatus, resource_id: 123, resource_type: 'customer' };
+    await card.requestUpdate();
+    expect(card.renderRoot).to.include.text('customer #123');
+
+    card.layout = 'resource';
+    await card.requestUpdate();
+    expect(card.renderRoot).not.to.include.text('customer #123');
   });
 });
