@@ -16,7 +16,7 @@
   "cart_type_default": "Sidecart",
   "cart_type_default_explainer": "Default cart appearance in version 2.0",
   "cart_type_fullpage": "Full page",
-  "cart_type_fullpage_explainer": "Send all customers to a full page cart while still including minicart functionality",
+  "cart_type_fullpage_explainer": "Send all customers to a full page cart while still including mini-cart functionality",
   "checked_by_default": "Checked by default",
   "checkout_type": "Accounts",
   "checkout_type_account_only": "Allow customer accounts only",
