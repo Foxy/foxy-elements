@@ -21,38 +21,43 @@
       "done": "Copied to clipboard"
     }
   },
-  "name": {
-    "label": "Name",
-    "placeholder": "My JSON Webhook",
-    "helper_text": "The name of this webhook.",
-    "v8n_required": "Webhook name is required",
-    "v8n_too_long": "Webhook name cannot exceed 255 characters"
+  "general": {
+    "label": "",
+    "helper_text": "",
+    "name": {
+      "label": "Name",
+      "placeholder": "Required",
+      "helper_text": "",
+      "v8n_required": "Webhook name is required",
+      "v8n_too_long": "Webhook name cannot exceed 255 characters"
+    },
+    "encryption-key": {
+      "label": "Encryption key",
+      "placeholder": "Required",
+      "helper_text": "",
+      "v8n_required": "Encryption key is required. Use the ✨ button to generate a new key.",
+      "v8n_too_long": "Encryption key cannot exceed 1000 characters"
+    },
+    "event-resource": {
+      "label": "Resource",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "event_resource_subscription": "Subscription",
+      "event_resource_transaction": "Transaction",
+      "event_resource_customer": "Customer"
+    }
   },
   "url": {
-    "label": "URL",
-    "placeholder": "https://example.com/webhook",
-    "helper_text": "The endpoint where we will send the webhook data.",
+    "label": "Endpoint",
+    "placeholder": "Example: https://example.com/webhook",
+    "helper_text": "",
     "v8n_too_long": "URL cannot exceed 1000 characters"
   },
   "query": {
     "label": "Query",
-    "placeholder": "zoom=items,items:options,customer",
-    "helper_text": "The webhook payload mirrors the API, and you can include more or less data according to your needs using zoom and other modifiers.",
+    "placeholder": "Example: zoom=items,items:options,customer",
+    "helper_text": "",
     "v8n_too_long": "Query cannot exceed 1000 characters"
-  },
-  "encryption-key": {
-    "label": "Encryption key",
-    "placeholder": "HNL978XVXXCM66DM5N2T78D5MT66BC6D",
-    "helper_text": "The JSON webhooks are encrypted in certain situations. This key is also used to generate a signature to verify the integrity of the payload.",
-    "v8n_required": "Encryption key is required. Use the ✨ button to generate a new key.",
-    "v8n_too_long": "Encryption key cannot exceed 1000 characters"
-  },
-  "event-resource": {
-    "label": "Resource",
-    "helper_text": "Changes in selected resource type will trigger this webhook. Resource type cannot be changed after the webhook has been created.",
-    "event_resource_subscription": "Subscription",
-    "event_resource_transaction": "Transaction",
-    "event_resource_customer": "Customer"
   },
   "statuses": {
     "label": "Runs",

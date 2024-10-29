@@ -50,7 +50,13 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch: string[] = [super.hiddenSelector.toString()];
-    if (this.data) alwaysMatch.unshift('event-resource');
+
+    if (this.data) {
+      alwaysMatch.unshift('general:event-resource');
+    } else {
+      alwaysMatch.unshift('logs', 'statuses');
+    }
+
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
@@ -92,40 +98,44 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
     return html`
       ${this.renderHeader()}
 
-      <foxy-internal-text-control infer="name"></foxy-internal-text-control>
+      <foxy-internal-summary-control infer="general">
+        <foxy-internal-text-control layout="summary-item" infer="name"></foxy-internal-text-control>
 
-      <foxy-internal-radio-group-control infer="event-resource" .options=${this.__eventResources}>
-      </foxy-internal-radio-group-control>
+        <foxy-internal-select-control
+          layout="summary-item"
+          infer="event-resource"
+          .options=${this.__eventResources}
+        >
+        </foxy-internal-select-control>
 
-      <foxy-internal-text-control infer="query"></foxy-internal-text-control>
-      <foxy-internal-text-control infer="url"></foxy-internal-text-control>
+        <foxy-internal-password-control
+          layout="summary-item"
+          infer="encryption-key"
+          show-generator
+          .generatorOptions=${this.__encryptionKeyGeneratorOptions}
+        >
+        </foxy-internal-password-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-password-control
-        infer="encryption-key"
-        show-generator
-        .generatorOptions=${this.__encryptionKeyGeneratorOptions}
+      <foxy-internal-source-control infer="query"></foxy-internal-source-control>
+      <foxy-internal-source-control infer="url"></foxy-internal-source-control>
+
+      <foxy-internal-async-list-control
+        first=${ifDefined(statusesLink)}
+        infer="statuses"
+        limit="10"
+        item="foxy-webhook-status-card"
       >
-      </foxy-internal-password-control>
+      </foxy-internal-async-list-control>
 
-      ${this.data
-        ? html`
-            <foxy-internal-async-list-control
-              first=${ifDefined(statusesLink)}
-              infer="statuses"
-              limit="10"
-              item="foxy-webhook-status-card"
-            >
-            </foxy-internal-async-list-control>
+      <foxy-internal-async-list-control
+        first=${ifDefined(logsLink)}
+        infer="logs"
+        limit="10"
+        item="foxy-webhook-log-card"
+      >
+      </foxy-internal-async-list-control>
 
-            <foxy-internal-async-list-control
-              first=${ifDefined(logsLink)}
-              infer="logs"
-              limit="10"
-              item="foxy-webhook-log-card"
-            >
-            </foxy-internal-async-list-control>
-          `
-        : ''}
       ${super.renderBody()}
     `;
   }
