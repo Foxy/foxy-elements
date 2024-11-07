@@ -1,17 +1,19 @@
 import { TemplateResult, html } from 'lit-html';
 
-import { ConfigurableMixin } from '../../../mixins/configurable';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { ConfigurableMixin } from '../../../../../mixins/configurable';
+import { NucleonElement } from '../../../NucleonElement/NucleonElement';
 import { PropertyDeclarations } from 'lit-element';
 import { Rels } from '@foxy.io/sdk/backend';
 import { Resource } from '@foxy.io/sdk/core';
-import { ThemeableMixin } from '../../../mixins/themeable';
-import { TranslatableMixin } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
+import { ThemeableMixin } from '../../../../../mixins/themeable';
+import { TranslatableMixin } from '../../../../../mixins/translatable';
+import { classMap } from '../../../../../utils/class-map';
 
 const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement)));
 
-export class CountryCard extends Base<Resource<Rels.Regions>> {
+export class InternalTemplateConfigFormFilterValuesControlItem extends Base<
+  Resource<Rels.Regions>
+> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -34,15 +36,12 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
     return html`
       <div
         class=${classMap({
-          'border border-contrast-10 rounded text-s': true,
+          'border border-contrast-5 rounded-s font-medium overflow-hidden': true,
           'text-disabled': this.disabled,
         })}
       >
-        <div
-          data-testid="country"
-          class="h-m flex justify-between items-center border-b border-contrast-10"
-        >
-          <div class="ml-m">
+        <div data-testid="country" class="h-m flex justify-between items-center bg-contrast-5">
+          <div style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)">
             <span>${this.name || this.code}</span>
             ${this.name ? html`<span class="text-secondary">${this.code}</span>` : ''}
           </div>
@@ -65,16 +64,13 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
           </button>
         </div>
 
-        <div data-testid="regions" class="flex flex-wrap p-xs">
+        <div data-testid="regions" class="flex flex-wrap p-xs text-s">
           ${this.regions.map(region => {
             const name = this.data?.values[region]?.default;
             const code = region;
 
             return html`
-              <div
-                class="flex items-center border border-contrast-10 h-s m-xs"
-                style="border-radius: var(--lumo-size-s)"
-              >
+              <div class="flex items-center rounded-s border border-contrast-10 h-s m-xs">
                 <span class="mx-s">
                   <span>${name || code}</span>
                   ${name ? html`<span class="text-secondary">${code}</span>` : ''}
@@ -83,9 +79,9 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
                 <button
                   aria-label=${this.t('delete')}
                   class=${classMap({
-                    'items-center justify-center rounded-full transition-colors': true,
+                    'items-center justify-center rounded-s transition-colors': true,
                     'hover-bg-error-10 hover-text-error': !this.disabled,
-                    'focus-outline-none focus-ring-2 ring-inset ring-error-50': !this.disabled,
+                    'focus-outline-none focus-ring-2 ring-inset ring-primary-50': !this.disabled,
                     'cursor-default': this.disabled,
                     'flex': !this.readonly,
                     'hidden': this.readonly,
@@ -105,10 +101,8 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
 
           <div
             data-testid="new-region"
-            style="border-radius: var(--lumo-size-s)"
             class=${classMap({
-              'h-s m-xs items-center transition-colors border border-contrast-10': true,
-              'hover-border-contrast-40': !this.disabled,
+              'h-s m-xs items-center transition-colors border border-contrast-10 rounded-s': true,
               'focus-within-ring-1 ring-primary-50 focus-within-border-primary-50': !this.disabled,
               'flex': !this.readonly,
               'hidden': this.readonly,
@@ -116,7 +110,7 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
           >
             <input
               placeholder=${this.t('add_region')}
-              class="bg-transparent appearance-none h-s text-s px-s focus-outline-none"
+              class="bg-transparent appearance-none h-s text-s px-s font-medium focus-outline-none"
               style="width: 8rem"
               list="list"
               .value=${this.__newRegion}
@@ -135,11 +129,11 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
               style="width: calc(var(--lumo-size-s) - 2px); height: calc(var(--lumo-size-s) - 2px)"
               class=${classMap({
                 'flex-shrink-0': true,
-                'flex items-center justify-center rounded-full transition-colors': true,
-                'bg-contrast-5 text-disabled cursor-default': !this.__newRegion,
-                'bg-success-10 text-success cursor-pointer': !!this.__newRegion,
+                'flex items-center justify-center rounded-s transition-colors': true,
+                'text-transparent cursor-default': !this.__newRegion,
+                'bg-contrast-5 text-body cursor-pointer': !!this.__newRegion,
                 'hover-bg-success hover-text-success-contrast': !!this.__newRegion,
-                'focus-outline-none focus-ring-2 ring-inset ring-success-50': !!this.__newRegion,
+                'focus-outline-none focus-ring-2 ring-inset ring-primary-50': !!this.__newRegion,
               })}
               ?disabled=${this.disabled || !this.__newRegion}
               @click=${this.__addRegion}

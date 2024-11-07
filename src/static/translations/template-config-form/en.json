@@ -1,112 +1,524 @@
 {
-  "add_country": "Add country",
-  "add_field": "Add field",
-  "add_region": "Add region",
-  "address1": "Address Line 1",
-  "address2": "Address Line 2",
-  "allow": "Allow",
-  "allowlist": "Allow specific locations",
-  "billing": "Billing",
-  "block": "Block",
-  "blocklist": "Block specific locations",
-  "cart_controls": "Quantity",
-  "cart_type": "Cart display",
-  "cart_type_custom": "Custom",
-  "cart_type_custom_explainer": "Build your own JSONP cart with included config",
-  "cart_type_default": "Sidecart",
-  "cart_type_default_explainer": "Default cart appearance in version 2.0",
-  "cart_type_fullpage": "Full page",
-  "cart_type_fullpage_explainer": "Send all customers to a full page cart while still including mini-cart functionality",
-  "checked_by_default": "Checked by default",
-  "checkout_type": "Accounts",
-  "checkout_type_account_only": "Allow customer accounts only",
-  "checkout_type_default_account": "Allow both, default to customer",
-  "checkout_type_default_guest": "Allow both, default to guest",
-  "checkout_type_guest_only": "Allow guests only",
-  "checkout_type_helper_text": "If you select Allow guests only, your store will not be able to use subscriptions.",
-  "city": "City",
-  "close": "Close",
-  "close_icon": "Close icon",
-  "company": "Company",
-  "consent": "Consent",
-  "copy": "Copy",
-  "country": "Country",
-  "coupon_entry": "Coupon code",
-  "caption": "Create",
-  "custom_config": "Custom config",
-  "custom_config_helper_text": "If you have any custom values you'd like to make available to your twig template, you can add them here as a valid JSON string.",
-  "custom_fields": "Custom fields",
-  "custom_fields_helper_text": "If you have information you'd like to collect from the customer on the checkout page, you can add custom form fields here which will be added to the checkout form. We recommend you follow the same HTML container structure used on other checkout fields for consistency. You can use Twig syntax here.",
-  "custom_footer": "Custom footer",
-  "custom_footer_helper_text": "Any JS snippets or conversion scripts you need to add to the footer can be put here and will be inserted before the </body> tag. You can use Twig syntax here. For conversion scripts you only want to display once on the receipt page, use {% if first_receipt_display %} {# conversion script content here #} {% endif %}.",
-  "custom_header": "Custom header",
-  "custom_header_helper_text": "Any CSS or JS you need to add to the header can be put here and will be inserted before the </head> tag of your templates. Keep in mind all script file references must be through https or run through the Foxy caching system. Twig syntax is not available in the header.",
-  "default": "Default",
-  "delete": "Delete",
-  "delete_prompt": "This resource will be permanently removed. Are you sure?",
-  "disabled": "Disabled",
-  "display_sdta": "Display a Secure Data Transfer agreement to EU customers",
-  "display_sdta_explainer": "If you have customers in the European Union, enable this feature so they can opt in to sending their data to our secure servers in the United States.",
-  "display_tos_link": "Display a link to Terms & Conditions",
-  "display_tos_link_explainer": "Include a checkbox to ask your customers to agree to your Terms of Service.",
-  "enable_postcode_lookup": "Offer city and state suggestions based on postcode",
-  "enabled": "Enabled",
-  "error": "Error",
-  "field_plural": "Fields",
-  "first_name": "First name",
-  "foxycomplete": "Location autocomplete",
-  "foxycomplete_combobox": "Combo Box",
-  "foxycomplete_combobox_explainer": "Expand to browse options, type to search",
-  "foxycomplete_disabled": "Disabled",
-  "foxycomplete_disabled_explainer": "Let customers pick an option from a list",
-  "foxycomplete_search": "Search",
-  "foxycomplete_search_explainer": "Display a «search as you type» field",
-  "ga_account_id": "Account ID",
-  "ga_account_id_explainer": "You can find the ID in the Admin section of your Analytics in Tracking info > Tracking code.",
-  "ga_include_on_site": "Include via loader.js",
-  "ga_include_on_site_explainer": "Enable Google Analytics on any page where the loader.js file is included.",
-  "ga_deprecation_notice": "Google has ended support for this integration in July 2023. Please use the newer Google Tag integration below.",
-  "gt_account_id": "Tag ID",
-  "gt_account_id_explainer": "Tag ID prefixed with G- or AW-. Values prefixed with GT- are not fully supported at this time.",
-  "gt_send_to": "Ads send to",
-  "gt_send_to_explainer": "Optional. Setting this value will trigger the conversion event to be tracked on the receipt.",
-  "gt_usage_notice": "Enabling the Google Tag for your store requires some additional configuration on your store and within your tag administration to make the data logged through this functionality useful.",
-  "gt_docs_link": "See our docs for more info",
-  "hidden": "Hidden",
-  "hidden_fields": "Hidden fields",
-  "last_name": "Last name",
-  "location_plural": "Locations",
-  "location_url": "Location (URL)",
-  "newsletter_subscribe": "Allow users to sign up for your newsletter",
-  "newsletter_subscribe_explainer": "This includes a checkbox on your checkout to allow customers to choose to sign up to your newsletter, available in the transaction reports, the API and webhooks.",
-  "open_icon": "Open icon",
-  "optional": "Optional",
-  "phone": "Phone",
-  "postal_code": "Postal code",
-  "product_category": "Product category",
-  "product_code": "Product code",
-  "product_options": "Product options",
-  "product_weight": "Product weight",
-  "region": "Region",
-  "require_consent": "Require consent to proceed",
-  "required": "Required",
-  "same_as_shipping": "Same as shipping",
-  "shipping": "Shipping",
-  "show_country_flags": "Show country flags",
-  "sio_account_id": "Write Key",
-  "sio_account_id_explainer": "You can find the write key in your project set up guide or in the source’s settings.",
-  "skip_csc_for_saved": "Skip CSC for saved cards",
-  "skip_csc_for_sso": "Skip CSC for single sign-on",
-  "sub_enddate": "Subscription end date",
-  "sub_frequency": "Subscription frequency",
-  "sub_nextdate": "Subscription next date",
-  "sub_startdate": "Subscription start date",
-  "supported_cards": "Cards",
-  "supported_cards_disclaimer": "Applies only to payment gateways where the customer enters their payment card information directly on the Foxy checkout. Exceptions: Adyen Embedded, Amazon Pay, Apple Pay, Klarna, Square and Stripe.",
-  "tax_id": "Tax ID",
-  "troubleshooting": "Troubleshooting",
-  "troubleshooting_debug": "Log debug messages in the browser console",
-  "troubleshooting_debug_explainer": "Enable this option to trigger console.log() calls for our JS, which can assist with troubleshooting your store.",
+  "header": {
+    "title_new": "New template config",
+    "title_existing": "Template config #{{ id }}",
+    "subtitle": "",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
+  "cart-group-one": {
+    "label": "Cart display",
+    "helper_text": "",
+    "cart-type": {
+      "label": "Appearance",
+      "helper_text": "",
+      "placeholder": "Select",
+      "option_default": "Sidecart (default)",
+      "option_custom": "Custom",
+      "option_fullpage": "Full Page"
+    },
+    "cart-display-config-usage": {
+      "label": "Use default layout",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
+  },
+  "cart-group-two": {
+    "label": "",
+    "helper_text": "",
+    "cart-display-config-show-product-weight": {
+      "label": "Show item weight",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "cart-display-config-show-product-category": {
+      "label": "Show item category",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "cart-display-config-show-product-code": {
+      "label": "Show item code",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "cart-display-config-show-product-options": {
+      "label": "Show item options",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
+  },
+  "cart-group-three": {
+    "label": "",
+    "helper_text": "",
+    "cart-display-config-show-sub-frequency": {
+      "label": "Show subscription frequency",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "cart-display-config-show-sub-startdate": {
+      "label": "Show subscription start date",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "cart-display-config-show-sub-nextdate": {
+      "label": "Show subscription next date",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "cart-display-config-show-sub-enddate": {
+      "label": "Show subscription end date",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
+  },
+  "cart-group-four": {
+    "label": "",
+    "helper_text": "",
+    "cart-display-config-hidden-product-options": {
+      "label": "Hidden custom item options",
+      "helper_text": "",
+      "placeholder": "Enter option name and click + to add"
+    }
+  },
+  "country-and-region-group-one": {
+    "label": "Country and region",
+    "helper_text": "",
+    "foxycomplete-usage": {
+      "label": "Use autocomplete for country and region fields",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "foxycomplete-show-combobox": {
+      "label": "Autocomplete style",
+      "helper_text": "",
+      "option_combobox": "Combobox",
+      "option_search": "Search",
+      "placeholder": "Select"
+    },
+    "foxycomplete-combobox-open": {
+      "label": "Autocomplete combobox open icon",
+      "helper_text": "",
+      "placeholder": "None"
+    },
+    "foxycomplete-combobox-close": {
+      "label": "Autocomplete combobox close icon",
+      "helper_text": "",
+      "placeholder": "None"
+    },
+    "foxycomplete-show-flags": {
+      "label": "Show flag icons for countries",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "postal-code-lookup": {
+      "label": "Validate the city and region using the postal code",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "location-filtering-usage": {
+      "label": "Countries and regions filtering",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_none": "Allow all",
+      "option_shipping": "Shipping only",
+      "option_billing": "Billing only",
+      "option_both": "Shipping and billing together",
+      "option_independent": "Shipping and billing independently",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
+  },
+  "country-and-region-group-two": {
+    "label": "",
+    "helper_text": "",
+    "location-filtering-filter-type": {
+      "label": "Filter type",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_blocklist": "Disallow only listed below",
+      "option_allowlist": "Allow only listed below"
+    },
+    "location-filtering-filter-values": {
+      "add_country": "Enter country code and click + to add",
+      "add_region": "Add region",
+      "create": "Add",
+      "delete": "Remove"
+    }
+  },
+  "country-and-region-group-three": {
+    "label": "",
+    "helper_text": "",
+    "location-filtering-shipping-filter-type": {
+      "label": "Shipping filter type",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_blocklist": "Disallow only listed below",
+      "option_allowlist": "Allow only listed below"
+    },
+    "location-filtering-shipping-filter-values": {
+      "add_country": "Enter country code and click + to add",
+      "add_region": "Add region",
+      "create": "Add",
+      "delete": "Remove"
+    }
+  },
+  "country-and-region-group-four": {
+    "label": "",
+    "helper_text": "",
+    "location-filtering-billing-filter-type": {
+      "label": "Billing filter type",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_blocklist": "Disallow only listed below",
+      "option_allowlist": "Allow only listed below"
+    },
+    "location-filtering-billing-filter-values": {
+      "add_country": "Enter country code and click + to add",
+      "add_region": "Add region",
+      "create": "Add",
+      "delete": "Remove"
+    }
+  },
+  "supported-cards-group": {
+    "label": "Supported cards",
+    "helper_text": "",
+    "disclaimer": "Applies only when the customer enters their card details directly on the Foxy checkout. Exceptions: Adyen Embedded, Amazon Pay, Apple Pay, Klarna, Square and Stripe."
+  },
+  "csc-requirements-group": {
+    "label": "Card security code",
+    "helper_text": "",
+    "csc-requirements": {
+      "label": "Require CSC/CVC/CVV for",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_all_cards": "All new and saved cards",
+      "option_sso_only": "New cards and SSO customers only",
+      "option_new_cards_only": "New cards only"
+    }
+  },
+  "customer-accounts": {
+    "label": "Customer accounts",
+    "helper_text": "",
+    "checkout-type-account": {
+      "label": "Allowed account types",
+      "helper_text": "If you allow only guest accounts, your store will not be able to use subscriptions.",
+      "placeholder": "Select...",
+      "option_guest": "Only guest",
+      "option_account": "Only registered",
+      "option_both": "Guest and registered"
+    },
+    "checkout-type-default": {
+      "label": "Default behaviour",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_default_guest": "Checkout as guest",
+      "option_default_account": "Ask to log in or sign up"
+    }
+  },
+  "consent-group-one": {
+    "label": "Consent",
+    "helper_text": "",
+    "tos-checkbox-settings-usage": {
+      "label": "Terms of Service checkbox",
+      "helper_text": "This displays a checkbox on your checkout to require customers to agree to your terms of service.",
+      "placeholder": "Select...",
+      "option_none": "None",
+      "option_optional": "Optional",
+      "option_required": "Required"
+    },
+    "tos-checkbox-settings-url": {
+      "label": "Terms of Service URL",
+      "helper_text": "",
+      "placeholder": "Required"
+    },
+    "tos-checkbox-settings-initial-state": {
+      "label": "Initial state",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_checked": "Checked",
+      "option_unchecked": "Unchecked"
+    },
+    "tos-checkbox-settings-is-hidden": {
+      "label": "Add a hidden custom field with checkbox value",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
+  },
+  "consent-group-two": {
+    "label": "",
+    "helper_text": "",
+    "eu-secure-data-transfer-consent-usage": {
+      "label": "Secure Data Transfer agreement checkbox",
+      "helper_text": "For EU customers, enable this feature to let them consent to send their data to our secure servers in the US.",
+      "checked": "Visible",
+      "unchecked": "Hidden"
+    }
+  },
+  "consent-group-three": {
+    "label": "",
+    "helper_text": "",
+    "newsletter-subscribe-usage": {
+      "label": "Subscribe to Newsletter checkbox",
+      "helper_text": "This includes a checkbox on your checkout to allow customers to choose to sign up to your newsletter, available in the transaction reports, the API and webhooks. To automate adding subscribers to a web service, you'll need to look at our integrations.",
+      "checked": "Visible",
+      "unchecked": "Hidden"
+    }
+  },
+  "checkout-fields-group-one": {
+    "label": "Checkout form settings",
+    "helper_text": "",
+    "custom-checkout-field-requirements-cart-controls": {
+      "label": "Show cart controls",
+      "helper_text": "Allows customers to change the quantity and remove items from the cart on checkout.",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
+  },
+  "checkout-fields-group-two": {
+    "label": "",
+    "helper_text": "",
+    "custom-checkout-field-requirements-billing-address-one": {
+      "label": "Address 1",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_optional": "Optional",
+      "option_required": "Required",
+      "option_default": "Default",
+      "option_hidden": "Hidden"
+    },
+    "custom-checkout-field-requirements-billing-address-two": {
+      "label": "Address 2",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_optional": "Optional",
+      "option_required": "Required",
+      "option_default": "Default",
+      "option_hidden": "Hidden"
+    },
+    "custom-checkout-field-requirements-billing-city": {
+      "label": "City",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_optional": "Optional",
+      "option_required": "Required",
+      "option_default": "Default",
+      "option_hidden": "Hidden"
+    },
+    "custom-checkout-field-requirements-billing-region": {
+      "label": "Region",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_optional": "Optional",
+      "option_required": "Required",
+      "option_default": "Default",
+      "option_hidden": "Hidden"
+    },
+    "custom-checkout-field-requirements-billing-postal-code": {
+      "label": "Postal code",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_optional": "Optional",
+      "option_required": "Required",
+      "option_default": "Default",
+      "option_hidden": "Hidden"
+    },
+    "custom-checkout-field-requirements-billing-country": {
+      "label": "Country",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_optional": "Optional",
+      "option_required": "Required",
+      "option_default": "Default",
+      "option_hidden": "Hidden"
+    }
+  },
+  "checkout-fields-group-three": {
+    "label": "",
+    "helper_text": "",
+    "custom-checkout-field-requirements-coupon-entry": {
+      "label": "Coupon code",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_enabled": "Optional",
+      "option_disabled": "Hidden"
+    },
+    "custom-checkout-field-requirements-billing-first-name": {
+      "label": "First name",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_optional": "Optional",
+      "option_required": "Required",
+      "option_default": "Default",
+      "option_hidden": "Hidden"
+    },
+    "custom-checkout-field-requirements-billing-last-name": {
+      "label": "Last name",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_optional": "Optional",
+      "option_required": "Required",
+      "option_default": "Default",
+      "option_hidden": "Hidden"
+    },
+    "custom-checkout-field-requirements-billing-company": {
+      "label": "Company",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_optional": "Optional",
+      "option_required": "Required",
+      "option_default": "Default",
+      "option_hidden": "Hidden"
+    },
+    "custom-checkout-field-requirements-billing-tax-id": {
+      "label": "Tax ID",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_optional": "Optional",
+      "option_required": "Required",
+      "option_default": "Default",
+      "option_hidden": "Hidden"
+    },
+    "custom-checkout-field-requirements-billing-phone": {
+      "label": "Phone",
+      "helper_text": "",
+      "placeholder": "Select...",
+      "option_optional": "Optional",
+      "option_required": "Required",
+      "option_default": "Default",
+      "option_hidden": "Hidden"
+    }
+  },
+  "analytics-config": {
+    "label": "3rd-party analytics",
+    "helper_text": "",
+    "analytics-config-usage": {
+      "label": "Use 3rd-party analytics",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
+  },
+  "analytics-config-google-analytics": {
+    "label": "Google Analytics",
+    "helper_text": "",
+    "deprecation_notice": "Google has ended support for this integration in July 2023. Please use the newer Google Tag Manager integration below.",
+    "analytics-config-google-analytics-usage": {
+      "label": "Enable Google Analytics",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "analytics-config-google-analytics-account-id": {
+      "label": "Account ID",
+      "helper_text": "",
+      "placeholder": "Enter ID"
+    },
+    "analytics-config-google-analytics-include-on-site": {
+      "label": "Include on website",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
+  },
+  "analytics-config-google-tag": {
+    "label": "Google Tag Manager",
+    "helper_text": "",
+    "usage_notice": "Enabling the Google Tag Manager requires some additional configuration on your store and within your tag administration to make the data logged through this functionality useful.",
+    "docs_link": "See our docs for more info",
+    "analytics-config-google-tag-usage": {
+      "label": "Enable Google Tag Manager",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "analytics-config-google-tag-account-id": {
+      "label": "Tag ID",
+      "helper_text": "Tags prefixed with GT- and not fully supported at this time.",
+      "placeholder": "Required"
+    },
+    "analytics-config-google-tag-send-to": {
+      "label": "Ads send to",
+      "helper_text": "Triggers conversion event on the web receipt.",
+      "placeholder": "Optional"
+    }
+  },
+  "debug": {
+    "label": "Troubleshooting",
+    "helper_text": "",
+    "debug-usage": {
+      "label": "Log debug messages to the browser's console",
+      "helper_text": "Enable this option to trigger console.log() calls for our JS, which can assist with troubleshooting your store.",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
+  },
+  "custom-config": {
+    "label": "Custom config",
+    "helper_text": "Place here any custom values you'd like to make available to your Twig template. Only valid JSON is supported.",
+    "placeholder": "{ \"key\": \"value\" }"
+  },
+  "custom-script-values-header": {
+    "label": "Custom header",
+    "helper_text": "We will inject this HTML before the </head> tag of your templates. All script file references must use HTTPS. Twig syntax is not available here.",
+    "placeholder": "<style>h1 { color: red }</style>"
+  },
+  "custom-script-values-checkout-fields": {
+    "label": "Custom checkout fields",
+    "helper_text": "We will inject this HTML into the checkout form. Use this field to collect extra info from your customers before payment. You can use Twig syntax here.",
+    "placeholder": "<label>Comment: <input name=\"comment\"></label>"
+  },
+  "custom-script-values-multiship-checkout-fields": {
+    "label": "Custom checkout fields for multiship",
+    "helper_text": "We will inject this HTML in the checkout form under each one of the shipping addresses. Use this field to collect extra info from your customers before payment. You can use Twig syntax here.",
+    "placeholder": "<label>Comment: <input name=\"comment\"></label>"
+  },
+  "custom-script-values-footer": {
+    "label": "Custom footer",
+    "helper_text": "We will inject this HTML before the </body> tag. You can use Twig syntax here. For conversion scripts you only want to display once on the receipt page, use {% if first_receipt_display %} {# conversion script content here #} {% endif %}.",
+    "placeholder": "<script src=\"https://example.com/code.js\"></script>"
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "This action is irreversible. Are you sure you want to delete this template config?"
+  },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
+  "create": {
+    "caption": "Create"
+  },
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",

@@ -1,1349 +1,806 @@
-import * as logos from '../PaymentMethodCard/logos';
+import type { Data, TemplateConfigJSON } from './types';
+import type { PropertyDeclarations } from 'lit-element';
+import type { TemplateResult } from 'lit-html';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
-import { CheckboxChangeEvent, ChoiceChangeEvent } from '../../private/events';
-import { Data, TemplateConfigJSON } from './types';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { TemplateResult, html } from 'lit-html';
-
-import { Checkbox } from '../../private/Checkbox/Checkbox';
-import { Choice } from '../../private/Choice/Choice';
-import { ConfigurableMixin } from '../../../mixins/configurable';
-import { CountriesList } from './CountriesList';
-import { Group } from '../../private/Group/Group';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { PropertyDeclarations } from 'lit-element';
-import { ResponsiveMixin } from '../../../mixins/responsive';
-import { TextFieldElement } from '@vaadin/vaadin-text-field/vaadin-text-field';
-import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
-import { getDefaultJSON } from './defaults';
-import { live } from 'lit-html/directives/live';
 import { BooleanSelector } from '@foxy.io/sdk/core';
+import { ResponsiveMixin } from '../../../mixins/responsive';
+import { getDefaultJSON } from './defaults';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { html, svg } from 'lit-html';
 
 const NS = 'template-config-form';
-const Base = ScopedElementsMixin(
-  ResponsiveMixin(ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement, NS))))
-);
+const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 
 /**
  * Form element for creating or editing template configs (`fx:template_config`).
- *
  *
  * @element foxy-template-config-form
  * @since 1.14.0
  */
 export class TemplateConfigForm extends Base<Data> {
-  static get scopedElements(): ScopedElementsMap {
-    return {
-      'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'iron-icon': customElements.get('iron-icon'),
-      'foxy-internal-source-control': customElements.get('foxy-internal-source-control'),
-      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
-      'foxy-spinner': customElements.get('foxy-spinner'),
-      'foxy-i18n': customElements.get('foxy-i18n'),
-      'x-countries-list': CountriesList,
-      'x-checkbox': Checkbox,
-      'x-choice': Choice,
-      'x-group': Group,
-    };
-  }
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      __addHiddenFieldInputValue: { attribute: false },
-      countries: { type: String },
-      regions: { type: String },
+      countries: {},
+      regions: {},
+      store: {},
     };
   }
 
   /** URI of the `fx:countries` hAPI resource. */
-  countries = '';
+  countries: string | null = null;
 
   /** URI of the `fx:regions` hAPI resource. */
-  regions = '';
+  regions: string | null = null;
 
-  private __addHiddenFieldInputValue = '';
+  /** URI of the `fx:store` hAPI resource related to this template config. If this property is `null`, a link relationship will be used when available. */
+  store: string | null = null;
 
-  render(): TemplateResult {
-    const hidden = this.hiddenSelector;
-    const json: TemplateConfigJSON = this.form.json ? JSON.parse(this.form.json) : getDefaultJSON();
+  private readonly __customCheckoutFieldCouponEntryRequirementsOptions = JSON.stringify([
+    { label: 'option_enabled', value: 'enabled' },
+    { label: 'option_disabled', value: 'disabled' },
+  ]);
 
-    return html`
-      <div class="relative" aria-busy=${this.in('busy')} aria-live="polite">
-        <div class="space-y-l">
-          ${hidden.matches('cart-type', true) ? '' : this.__renderCartType(json)}
-          ${hidden.matches('foxycomplete', true) ? '' : this.__renderFoxycomplete(json)}
-          ${hidden.matches('locations', true) ? '' : this.__renderLocations(json)}
-          ${hidden.matches('hidden-fields', true) ? '' : this.__renderHiddenFields(json)}
-          ${hidden.matches('cards', true) ? '' : this.__renderCards(json)}
-          ${hidden.matches('checkout-type', true) ? '' : this.__renderCheckoutType(json)}
-          ${hidden.matches('consent', true) ? '' : this.__renderConsent(json)}
-          ${hidden.matches('fields', true) ? '' : this.__renderFields(json)}
-          ${hidden.matches('google-analytics', true) ? '' : this.__renderGoogleAnalytics(json)}
-          ${hidden.matches('google-tag', true) ? '' : this.__renderGoogleTag(json)}
-          ${hidden.matches('troubleshooting', true) ? '' : this.__renderTroubleshooting(json)}
+  private readonly __customCheckoutFieldRequirementsOptions = JSON.stringify([
+    { label: 'option_default', value: 'default' },
+    { label: 'option_optional', value: 'optional' },
+    { label: 'option_required', value: 'required' },
+    { label: 'option_hidden', value: 'hidden' },
+  ]);
 
-          <foxy-internal-source-control
-            data-testid="custom-config"
-            helper-text=${this.t('custom_config_helper_text')}
-            placeholder='{ "key": "value" }'
-            label=${this.t('custom_config')}
-            infer="custom-config"
-            .getValue=${() => {
-              if (typeof json.custom_config === 'string') return json.custom_config;
-              return JSON.stringify(json.custom_config, null, 2);
-            }}
-            .setValue=${(newValue: string) => {
-              try {
-                json.custom_config = JSON.parse(newValue);
-              } catch {
-                json.custom_config = newValue;
-              }
+  private readonly __tosCheckboxSettingsInitialStateOptions = JSON.stringify([
+    { label: 'option_checked', value: 'checked' },
+    { label: 'option_unchecked', value: 'unchecked' },
+  ]);
 
-              this.edit({ json: JSON.stringify(json) });
-            }}
-          >
-          </foxy-internal-source-control>
+  private readonly __locationFilteringFilterTypeOptions = JSON.stringify([
+    { label: 'option_blocklist', value: 'blacklist' },
+    { label: 'option_allowlist', value: 'whitelist' },
+  ]);
 
-          <foxy-internal-source-control
-            data-testid="header"
-            placeholder="<style>h1 { color: red }</style>"
-            helper-text=${this.t('custom_header_helper_text')}
-            label=${this.t('custom_header')}
-            infer="header"
-            .getValue=${() => json.custom_script_values.header}
-            .setValue=${(newValue: string) => {
-              json.custom_script_values.header = newValue;
-              this.edit({ json: JSON.stringify(json) });
-            }}
-          >
-          </foxy-internal-source-control>
+  private readonly __foxycompleteShowComboboxOptions = JSON.stringify([
+    { label: 'option_combobox', value: 'combobox' },
+    { label: 'option_search', value: 'search' },
+  ]);
 
-          <foxy-internal-source-control
-            data-testid="custom-fields"
-            placeholder='<label>Comment: <input name="comment"></label>'
-            helper-text=${this.t('custom_fields_helper_text')}
-            label=${this.t('custom_fields')}
-            infer="custom-fields"
-            .getValue=${() => json.custom_script_values.checkout_fields}
-            .setValue=${(newValue: string) => {
-              json.custom_script_values.checkout_fields = newValue;
-              this.edit({ json: JSON.stringify(json) });
-            }}
-          >
-          </foxy-internal-source-control>
+  private readonly __tosCheckboxSettingsUsageOptions = JSON.stringify([
+    { label: 'option_none', value: 'none' },
+    { label: 'option_optional', value: 'optional' },
+    { label: 'option_required', value: 'required' },
+  ]);
 
-          <foxy-internal-source-control
-            data-testid="footer"
-            placeholder='<script src="https://example.com/code.js"></script>'
-            helper-text=${this.t('custom_footer_helper_text')}
-            label=${this.t('custom_footer')}
-            infer="footer"
-            .getValue=${() => json.custom_script_values.footer}
-            .setValue=${(newValue: string) => {
-              json.custom_script_values.footer = newValue;
-              this.edit({ json: JSON.stringify(json) });
-            }}
-          >
-          </foxy-internal-source-control>
-        </div>
+  private readonly __locationFilteringUsageOptions = JSON.stringify([
+    { label: 'option_none', value: 'none' },
+    { label: 'option_shipping', value: 'shipping' },
+    { label: 'option_billing', value: 'billing' },
+    { label: 'option_both', value: 'both' },
+    { label: 'option_independent', value: 'independent' },
+  ]);
 
-        <div
-          class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex': true,
-            'opacity-0 pointer-events-none': this.in('idle'),
-          })}
-        >
-          <foxy-spinner
-            layout="vertical"
-            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-            state=${this.in('fail') ? 'error' : 'busy'}
-            lang=${this.lang}
-            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
-          >
-          </foxy-spinner>
-        </div>
-      </div>
-    `;
-  }
+  private readonly __cscRequirementsValueOptions = JSON.stringify([
+    { label: 'option_all_cards', value: 'all_cards' },
+    { label: 'option_sso_only', value: 'sso_only' },
+    { label: 'option_new_cards_only', value: 'new_cards_only' },
+  ]);
+
+  private readonly __checkoutTypeDefaultOptions = JSON.stringify([
+    { label: 'option_default_account', value: 'default_account' },
+    { label: 'option_default_guest', value: 'default_guest' },
+  ]);
+
+  private readonly __checkoutTypeAccountOptions = JSON.stringify([
+    { label: 'option_account', value: 'account_only' },
+    { label: 'option_guest', value: 'guest_only' },
+    { label: 'option_both', value: 'default_guest' },
+  ]);
+
+  private readonly __cartTypeOptions = JSON.stringify([
+    { label: 'option_default', value: 'default' },
+    { label: 'option_fullpage', value: 'fullpage' },
+    { label: 'option_custom', value: 'custom' },
+  ]);
+
+  private readonly __locationFilteringFilterValuesSetValue = (
+    newValue: Record<string, '*' | string[]>
+  ) => {
+    const formJson = this.__formJson;
+    const newConfig = {
+      ...formJson.location_filtering,
+      shipping_filter_values: newValue,
+      billing_filter_values: newValue,
+    };
+
+    this.edit({ json: JSON.stringify({ ...formJson, location_filtering: newConfig }) });
+  };
+
+  private readonly __locationFilteringFilterTypeSetValue = (value: string) => {
+    const formJson = this.__formJson;
+    const newValue = {
+      ...formJson.location_filtering,
+      shipping_filter_type: value,
+      billing_filter_type: value,
+    };
+
+    this.edit({ json: JSON.stringify({ ...formJson, location_filtering: newValue }) });
+  };
+
+  private readonly __foxycompleteShowComboboxGetValue = () => {
+    return this.__formJson.foxycomplete.show_combobox ? 'combobox' : 'search';
+  };
+
+  private readonly __foxycompleteShowComboboxSetValue = (value: string) => {
+    const newValue = value === 'combobox';
+    const foxycomplete = { ...this.__formJson.foxycomplete, show_combobox: newValue };
+    this.edit({ json: JSON.stringify({ ...this.__formJson, foxycomplete }) });
+  };
+
+  private readonly __checkoutTypeAccountGetValue = () => {
+    const formJson = this.__formJson;
+    return formJson.checkout_type.includes('default') ? 'default_guest' : formJson.checkout_type;
+  };
+
+  private readonly __customConfigGetValue = () => {
+    const formJson = this.__formJson;
+    if (typeof formJson.custom_config === 'string') return formJson.custom_config;
+    return JSON.stringify(formJson.custom_config, null, 2);
+  };
+
+  private readonly __customConfigSetValue = (newValue: string) => {
+    const formJson = this.__formJson;
+
+    try {
+      formJson.custom_config = JSON.parse(newValue);
+    } catch {
+      formJson.custom_config = newValue;
+    }
+
+    this.edit({ json: JSON.stringify(formJson) });
+  };
+
+  private readonly __defaultJSON = JSON.stringify(getDefaultJSON());
 
   get hiddenSelector(): BooleanSelector {
     const alwaysHidden = [super.hiddenSelector.toString()];
-    const json: TemplateConfigJSON = this.data?.json ? JSON.parse(this.data.json) : null;
 
-    if (!json || json.analytics_config.google_analytics.usage === 'none') {
-      alwaysHidden.push('google-analytics');
+    const dataJson = this.__dataJson;
+    const formJson = this.__formJson;
+
+    const locationFilteringUsage = formJson.location_filtering.usage;
+    const checkoutType = formJson.checkout_type;
+
+    if (formJson.cart_display_config.usage !== 'required') {
+      alwaysHidden.unshift('cart-group-two', 'cart-group-three', 'cart-group-four');
+    }
+
+    if (formJson.foxycomplete.usage !== 'required') {
+      alwaysHidden.unshift(
+        'country-and-region-group-one:foxycomplete-show-combobox',
+        'country-and-region-group-one:foxycomplete-combobox-open',
+        'country-and-region-group-one:foxycomplete-combobox-close',
+        'country-and-region-group-one:foxycomplete-show-flags'
+      );
+    }
+
+    if (formJson.foxycomplete.show_combobox === false) {
+      alwaysHidden.unshift(
+        'country-and-region-group-one:foxycomplete-combobox-open',
+        'country-and-region-group-one:foxycomplete-combobox-close'
+      );
+    }
+
+    if (locationFilteringUsage !== 'both') {
+      alwaysHidden.unshift('country-and-region-group-two');
+    }
+
+    if (locationFilteringUsage !== 'shipping' && locationFilteringUsage !== 'independent') {
+      alwaysHidden.unshift('country-and-region-group-three');
+    }
+
+    if (locationFilteringUsage !== 'billing' && locationFilteringUsage !== 'independent') {
+      alwaysHidden.unshift('country-and-region-group-four');
+    }
+
+    if (checkoutType !== 'default_account' && checkoutType !== 'default_guest') {
+      alwaysHidden.unshift('customer-accounts:checkout-type-default');
+    }
+
+    if (formJson.tos_checkbox_settings.usage === 'none') {
+      alwaysHidden.unshift(
+        'consent-group-one:tos-checkbox-settings-url',
+        'consent-group-one:tos-checkbox-settings-initial-state',
+        'consent-group-one:tos-checkbox-settings-is-hidden'
+      );
+    }
+
+    if (formJson.analytics_config.usage !== 'required') {
+      alwaysHidden.unshift('analytics-config-google-analytics', 'analytics-config-google-tag');
+    }
+
+    if (dataJson?.analytics_config.google_analytics.usage !== 'required') {
+      alwaysHidden.unshift('analytics-config-google-analytics');
+    }
+
+    if (formJson.analytics_config.google_analytics.usage !== 'required') {
+      alwaysHidden.unshift(
+        'analytics-config-google-analytics:analytics-config-google-analytics-account-id',
+        'analytics-config-google-analytics:analytics-config-google-analytics-include-on-site'
+      );
+    }
+
+    if (formJson.analytics_config.google_tag.usage !== 'required') {
+      alwaysHidden.unshift('analytics-config-google-tag:analytics-config-google-tag-account-id');
+      alwaysHidden.unshift('analytics-config-google-tag:analytics-config-google-tag-send-to');
+    }
+
+    if (this.__storeLoader?.data?.features_multiship !== true) {
+      alwaysHidden.unshift('custom-script-values-multiship-checkout-fields');
     }
 
     return new BooleanSelector(alwaysHidden.join(' ').trim());
   }
 
-  private __renderCartType(json: TemplateConfigJSON) {
-    const { lang, ns } = this;
-    const items = ['default', 'fullpage', 'custom'];
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('cart-type', true);
+  renderBody(): TemplateResult {
+    const customCheckoutFieldRequirementsControls = [
+      [
+        'billing_address1',
+        'billing_address2',
+        'billing_city',
+        'billing_region',
+        'billing_postal_code',
+        'billing_country',
+      ],
+      [
+        'billing_first_name',
+        'billing_last_name',
+        'billing_company',
+        'billing_tax_id',
+        'billing_phone',
+        'coupon_entry',
+      ],
+    ];
+
+    const cartDisplayConfigFields = [
+      ['show_product_weight', 'show_product_category', 'show_product_code', 'show_product_options'],
+      ['show_sub_frequency', 'show_sub_startdate', 'show_sub_nextdate', 'show_sub_enddate'],
+    ];
 
     return html`
-      <div data-testid="cart-type">
-        ${this.renderTemplateOrSlot('cart-type:before')}
+      ${this.renderHeader()}
 
-        <x-group frame>
-          <foxy-i18n
-            class=${isDisabled ? 'text-disabled' : ''}
-            slot="header"
-            lang=${lang}
-            key="cart_type"
-            ns=${ns}
-          >
-          </foxy-i18n>
+      <foxy-internal-summary-control infer="cart-group-one">
+        <foxy-internal-select-control
+          json-template=${this.__defaultJSON}
+          json-path="cart_type"
+          property="json"
+          options=${this.__cartTypeOptions}
+          layout="summary-item"
+          infer="cart-type"
+        >
+        </foxy-internal-select-control>
 
-          <x-choice
-            data-testid="cart-type-choice"
-            .value=${json.cart_type}
-            .items=${items}
-            ?disabled=${isDisabled}
-            ?readonly=${this.readonlySelector.matches('cart-type', true)}
-            @change=${(evt: ChoiceChangeEvent) => {
-              this.edit({ json: JSON.stringify({ ...json, cart_type: evt.detail }) });
-            }}
-          >
-            ${items.map(item => {
-              return html`
-                <div slot="${item}-label" class="grid leading-s py-s">
-                  <foxy-i18n lang=${lang} key="cart_type_${item}" ns=${ns}></foxy-i18n>
-                  <foxy-i18n
-                    class="text-xs ${isDisabled ? 'text-disabled' : 'text-secondary'}"
-                    lang=${lang}
-                    key="cart_type_${item}_explainer"
-                    ns=${ns}
-                  >
-                  </foxy-i18n>
-                </div>
-              `;
-            })}
-          </x-choice>
-        </x-group>
+        <foxy-internal-switch-control
+          json-template=${this.__defaultJSON}
+          false-alias="none"
+          true-alias="required"
+          json-path="cart_display_config.usage"
+          property="json"
+          infer="cart-display-config-usage"
+          invert
+        >
+        </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
-        ${this.renderTemplateOrSlot('cart-type:after')}
-      </div>
-    `;
-  }
-
-  private __renderFoxycomplete(json: TemplateConfigJSON) {
-    const { lang, ns } = this;
-
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('foxycomplete', true);
-    const isReadonly = this.readonlySelector.matches('foxycomplete', true);
-    const config = json.foxycomplete;
-    const items = ['combobox', 'search', 'disabled'];
-
-    const value =
-      config.usage === 'none' ? 'disabled' : config.show_combobox ? 'combobox' : 'search';
-
-    const flagsCheckbox = html`
-      <x-checkbox
-        data-testid="foxycomplete-flags-check"
-        ?disabled=${isDisabled}
-        ?readonly=${isReadonly}
-        ?checked=${config.show_flags}
-        @change=${(evt: CheckboxChangeEvent) => {
-          config.show_flags = evt.detail;
-          this.edit({ json: JSON.stringify(json) });
-        }}
+      <div
+        class="grid sm-grid-cols-2 gap-m"
+        ?hidden=${cartDisplayConfigFields.every((group, index) => {
+          return group.every(prop => {
+            const suffix = index === 0 ? 'two' : 'three';
+            const sel = `cart-group-${suffix}:cart-display-config-${prop.replace(/_/g, '-')}`;
+            return this.hiddenSelector.matches(sel, true);
+          });
+        })}
       >
-        <foxy-i18n lang=${lang} key="show_country_flags" ns=${ns}></foxy-i18n>
-      </x-checkbox>
-    `;
-
-    return html`
-      <div data-testid="foxycomplete">
-        ${this.renderTemplateOrSlot('foxycomplete:before')}
-
-        <x-group frame>
-          <foxy-i18n
-            class=${isDisabled ? 'text-disabled' : ''}
-            slot="header"
-            lang=${lang}
-            key="foxycomplete"
-            ns=${ns}
-          >
-          </foxy-i18n>
-
-          <x-choice
-            data-testid="foxycomplete-choice"
-            .value=${value}
-            .items=${items}
-            ?disabled=${isDisabled}
-            ?readonly=${isReadonly}
-            @change=${(evt: Event) => {
-              if (!(evt instanceof ChoiceChangeEvent)) return;
-              config.usage = evt.detail === 'disabled' ? 'none' : 'required';
-              config.show_combobox = evt.detail === 'combobox';
-              this.edit({ json: JSON.stringify(json) });
-            }}
-          >
-            ${items.map(item => {
-              return html`
-                <div slot="${item}-label" class="grid leading-s py-s">
-                  <foxy-i18n lang=${lang} key="foxycomplete_${item}" ns=${ns}></foxy-i18n>
-                  <foxy-i18n
-                    class="text-xs ${isDisabled ? 'text-disabled' : 'text-secondary'}"
-                    lang=${lang}
-                    key="foxycomplete_${item}_explainer"
-                    ns=${ns}
-                  >
-                  </foxy-i18n>
-                </div>
-              `;
-            })}
-
-            <div slot="combobox" class="space-y-m pb-s" ?hidden=${value !== 'combobox'}>
-              <div class="grid grid-cols-2 gap-m" style="max-width: 16rem">
-                ${['open', 'close'].map(action => {
-                  const field = action === 'open' ? 'combobox_open' : 'combobox_close';
-
-                  return html`
-                    <vaadin-text-field
-                      data-testid="foxycomplete-${action}-icon"
-                      style="--lumo-border-radius: var(--lumo-border-radius-s)"
-                      label=${this.t(`${action}_icon`)}
-                      .value=${config[field]}
-                      ?disabled=${isDisabled}
-                      ?readonly=${isReadonly}
-                      @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
-                      @input=${(evt: CustomEvent) => {
-                        config[field] = (evt.currentTarget as TextFieldElement).value;
-                        this.edit({ json: JSON.stringify(json) });
-                      }}
-                    >
-                    </vaadin-text-field>
-                  `;
-                })}
-              </div>
-
-              ${flagsCheckbox}
-            </div>
-
-            <div slot="search" class="pb-s" ?hidden=${value !== 'search'}>${flagsCheckbox}</div>
-          </x-choice>
-
-          <div class="border-t border-contrast-10 p-m">
-            <x-checkbox
-              data-testid="foxycomplete-lookup-check"
-              ?disabled=${isDisabled}
-              ?readonly=${isReadonly}
-              ?checked=${json.postal_code_lookup.usage === 'enabled'}
-              @change=${(evt: CheckboxChangeEvent) => {
-                json.postal_code_lookup.usage = evt.detail ? 'enabled' : 'none';
-                this.edit({ json: JSON.stringify(json) });
-              }}
-            >
-              <foxy-i18n lang=${lang} key="enable_postcode_lookup" ns=${ns}></foxy-i18n>
-            </x-checkbox>
-          </div>
-        </x-group>
-
-        ${this.renderTemplateOrSlot('foxycomplete:after')}
-      </div>
-    `;
-  }
-
-  private __renderLocations(json: TemplateConfigJSON) {
-    const { lang, ns } = this;
-    const config = json.location_filtering;
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('locations', true);
-    const isReadonly = this.readonlySelector.matches('locations', true);
-
-    const shippingChoice = config.shipping_filter_type === 'blacklist' ? 'block' : 'allow';
-    const billingChoice =
-      config.usage === 'both'
-        ? 'copy'
-        : config.billing_filter_type === 'blacklist'
-        ? 'block'
-        : 'allow';
-
-    const normalize = () => {
-      if (config.usage === 'both') {
-        config.billing_filter_type = config.shipping_filter_type;
-        config.billing_filter_values = config.shipping_filter_values;
-      } else {
-        const hasBillingFilters = Object.keys(config.billing_filter_values).length > 0;
-        const hasShippingFilters = Object.keys(config.shipping_filter_values).length > 0;
-
-        if (!hasBillingFilters && !hasShippingFilters) {
-          config.usage = 'none';
-        } else if (hasBillingFilters && !hasShippingFilters) {
-          config.usage = 'billing';
-        } else if (hasShippingFilters && !hasBillingFilters) {
-          config.usage = 'shipping';
-        } else {
-          config.usage = 'independent';
-        }
-      }
-    };
-
-    return html`
-      <div data-testid="locations">
-        ${this.renderTemplateOrSlot('locations:before')}
-
-        <x-group frame>
-          <foxy-i18n
-            class=${isDisabled ? 'text-disabled' : ''}
-            slot="header"
-            lang=${lang}
-            key="location_plural"
-            ns=${ns}
-          >
-          </foxy-i18n>
-
-          <div class="grid sm-grid-cols-2 bg-contrast-10" style="gap: 1px">
-            <x-group class="bg-base pt-m">
-              <foxy-i18n
-                class=${isDisabled ? 'text-disabled' : 'text-tertiary'}
-                slot="header"
-                lang=${lang}
-                key="shipping"
-                ns=${ns}
-              >
-              </foxy-i18n>
-
-              <x-choice
-                data-testid="locations-shipping-choice"
-                .items=${['allow', 'block']}
-                .value=${shippingChoice}
-                ?disabled=${isDisabled}
-                ?readonly=${isReadonly}
-                @change=${(evt: ChoiceChangeEvent) => {
-                  if (config.usage !== 'both') config.usage = 'independent';
-                  config.shipping_filter_type = evt.detail === 'block' ? 'blacklist' : 'whitelist';
-                  normalize();
-                  this.edit({ json: JSON.stringify(json) });
-                }}
-              >
-                <foxy-i18n slot="allow-label" lang=${lang} key="allowlist" ns=${ns}></foxy-i18n>
-                <foxy-i18n slot="block-label" lang=${lang} key="blocklist" ns=${ns}></foxy-i18n>
-
-                <x-countries-list
-                  data-testid="locations-shipping-list"
-                  countries=${JSON.stringify(config.shipping_filter_values)}
-                  regions=${this.regions}
-                  class="mb-m"
-                  href=${this.countries}
-                  slot=${shippingChoice}
-                  lang=${lang}
-                  ns=${ns}
-                  ?disabled=${isDisabled}
-                  ?readonly=${isReadonly}
-                  @update:countries=${(evt: CustomEvent) => {
-                    config.shipping_filter_values = (evt.currentTarget as CountriesList).countries;
-                    normalize();
-                    this.edit({ json: JSON.stringify(json) });
-                  }}
-                >
-                </x-countries-list>
-              </x-choice>
-            </x-group>
-
-            <x-group class="bg-base pt-m">
-              <foxy-i18n
-                class=${isDisabled ? 'text-disabled' : 'text-tertiary'}
-                slot="header"
-                lang=${lang}
-                key="billing"
-                ns=${ns}
-              >
-              </foxy-i18n>
-
-              <x-choice
-                data-testid="locations-billing-choice"
-                .items=${['allow', 'block', 'copy']}
-                .value=${billingChoice}
-                ?disabled=${isDisabled}
-                ?readonly=${isReadonly}
-                @change=${(evt: ChoiceChangeEvent) => {
-                  if (evt.detail === 'copy') {
-                    config.usage = 'both';
-                  } else {
-                    config.usage = 'independent';
-                    config.billing_filter_type = evt.detail === 'block' ? 'blacklist' : 'whitelist';
-                  }
-
-                  normalize();
-                  this.edit({ json: JSON.stringify(json) });
-                }}
-              >
-                <foxy-i18n slot="allow-label" lang=${lang} key="allowlist" ns=${ns}></foxy-i18n>
-                <foxy-i18n slot="block-label" lang=${lang} key="blocklist" ns=${ns}></foxy-i18n>
-                <foxy-i18n slot="copy-label" lang=${lang} key="same_as_shipping" ns=${ns}>
-                </foxy-i18n>
-
-                <x-countries-list
-                  data-testid="locations-billing-list"
-                  countries=${JSON.stringify(config.billing_filter_values)}
-                  regions=${this.regions}
-                  class="mb-m"
-                  href=${this.countries}
-                  slot=${billingChoice}
-                  lang=${lang}
-                  ns=${ns}
-                  ?disabled=${isDisabled}
-                  ?readonly=${isReadonly}
-                  ?hidden=${billingChoice === 'copy'}
-                  @update:countries=${(evt: CustomEvent) => {
-                    config.billing_filter_values = (evt.currentTarget as CountriesList).countries;
-                    normalize();
-                    this.edit({ json: JSON.stringify(json) });
-                  }}
-                >
-                </x-countries-list>
-              </x-choice>
-            </x-group>
-          </div>
-        </x-group>
-
-        ${this.renderTemplateOrSlot('locations:after')}
-      </div>
-    `;
-  }
-
-  private __renderHiddenFields(json: TemplateConfigJSON) {
-    const { lang, ns } = this;
-    const suggestions = [] as string[];
-    const fields = [] as string[];
-    const config = json.cart_display_config;
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('hidden-fields', true);
-    const isReadonly = this.readonlySelector.matches('hidden-fields', true);
-
-    type FieldName = keyof Omit<
-      TemplateConfigJSON['cart_display_config'],
-      'hidden_product_options' | 'usage'
-    >;
-
-    for (const key in config) {
-      if (!key.startsWith('show_')) continue;
-      const field = key.substring(5);
-      suggestions.push(field);
-      if (config.usage === 'required' && !config[key as FieldName]) fields.push(field);
-    }
-
-    if (config.usage === 'required') {
-      fields.push(...config.hidden_product_options);
-    }
-
-    const addField = () => {
-      config.usage = 'required';
-
-      if (suggestions.includes(this.__addHiddenFieldInputValue)) {
-        config[`show_${this.__addHiddenFieldInputValue}` as FieldName] = false;
-      } else if (!config.hidden_product_options.includes(this.__addHiddenFieldInputValue)) {
-        config.hidden_product_options.push(this.__addHiddenFieldInputValue);
-      }
-
-      this.edit({ json: JSON.stringify(json) });
-      this.__addHiddenFieldInputValue = '';
-    };
-
-    const radius = 'calc(var(--lumo-border-radius-l) / 1.2)';
-    const inputRadius = fields.length === 0 ? [radius] : ['0', '0', radius, radius];
-    const isAddButtonDisabled = isDisabled || !this.__addHiddenFieldInputValue;
-
-    return html`
-      <div data-testid="hidden-fields">
-        ${this.renderTemplateOrSlot('hidden-fields:before')}
-
-        <x-group frame>
-          <foxy-i18n
-            class=${isDisabled ? 'text-disabled' : ''}
-            slot="header"
-            lang=${lang}
-            key="hidden_fields"
-            ns=${ns}
-          >
-          </foxy-i18n>
-
-          <div class="divide-y divide-contrast-10" data-testid="hidden-fields-list">
-            ${fields.map(field => {
-              return html`
-                <div
-                  class=${classMap({
-                    'h-m ml-m pr-xs flex items-center justify-between': true,
-                    'text-secondary': isReadonly,
-                    'text-disabled': isDisabled,
-                  })}
-                >
-                  ${suggestions.includes(field)
-                    ? html`<foxy-i18n lang=${lang} key=${field} ns=${ns}></foxy-i18n>`
-                    : html`<span>${field}</span>`}
-
-                  <button
-                    aria-label=${this.t('delete')}
-                    class=${classMap({
-                      'w-xs h-xs rounded-full transition-colors': true,
-                      'hover-bg-error-10 hover-text-error': !isDisabled,
-                      'focus-outline-none focus-ring-2 ring-inset ring-error-50': !isDisabled,
-                      'cursor-default': isDisabled,
-                      'flex': !isReadonly,
-                      'hidden': isReadonly,
-                    })}
-                    ?disabled=${isDisabled}
-                    @click=${() => {
-                      if (typeof config[`show_${field}` as FieldName] === 'boolean') {
-                        config[`show_${field}` as FieldName] = true;
-                      } else {
-                        config.hidden_product_options = config.hidden_product_options.filter(
-                          option => option !== field
-                        );
-                      }
-
-                      this.edit({ json: JSON.stringify(json) });
-                    }}
-                  >
-                    <iron-icon icon="icons:close" class="icon-inline text-m m-auto"></iron-icon>
-                  </button>
-                </div>
-              `;
-            })}
-          </div>
-
-          <div
-            data-testid="hidden-fields-new"
-            style="border-radius: ${inputRadius.join(' ')}"
-            class=${classMap({
-              'h-m flex items-center ring-inset ring-primary-50 focus-within-ring-2': true,
-              'border-t border-contrast-10': fields.length > 0,
-              'flex': !isReadonly,
-              'hidden': isReadonly,
-            })}
-          >
-            <input
-              placeholder=${this.t('add_field')}
-              class="w-full bg-transparent appearance-none h-m px-m focus-outline-none"
-              list="hidden-fields-list"
-              .value=${live(this.__addHiddenFieldInputValue)}
-              ?disabled=${isDisabled}
-              ?readonly=${isReadonly}
-              @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && addField()}
-              @input=${(evt: InputEvent) => {
-                this.__addHiddenFieldInputValue = (evt.currentTarget as HTMLInputElement).value;
-              }}
-            />
-
-            <datalist id="hidden-fields-list">
-              ${suggestions
-                .filter(suggestion => !fields.includes(suggestion))
-                .map(
-                  suggestion => html`<option value=${suggestion}>${this.t(suggestion)}</option>`
-                )}
-            </datalist>
-
-            <button
-              aria-label=${this.t('add_field')}
-              class=${classMap({
-                'w-xs h-xs mr-xs flex-shrink-0 ring-inset ring-success-50': true,
-                'flex items-center justify-center rounded-full transition-colors': true,
-                'bg-contrast-5 text-disabled cursor-default': isAddButtonDisabled,
-                'bg-success-10 text-success cursor-pointer': !isAddButtonDisabled,
-                'hover-bg-success hover-text-success-contrast': !isAddButtonDisabled,
-                'focus-outline-none focus-ring-2': !isAddButtonDisabled,
-              })}
-              ?disabled=${isAddButtonDisabled}
-              @click=${addField}
-            >
-              <iron-icon icon="icons:add" class="icon-inline text-m"></iron-icon>
-            </button>
-          </div>
-        </x-group>
-
-        ${this.renderTemplateOrSlot('hidden-fields:after')}
-      </div>
-    `;
-  }
-
-  private __renderCards(json: TemplateConfigJSON) {
-    const { lang, ns } = this;
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('cards', true);
-    const isReadonly = this.readonlySelector.matches('cards', true);
-    const config = json.supported_payment_cards as string[];
-
-    let skipForSaved: boolean;
-    let skipForSSO: boolean;
-
-    if (json.csc_requirements === 'all_cards') {
-      skipForSaved = false;
-      skipForSSO = false;
-    } else if (json.csc_requirements === 'sso_only') {
-      skipForSaved = true;
-      skipForSSO = false;
-    } else {
-      skipForSaved = true;
-      skipForSSO = true;
-    }
-
-    const typeToName: Record<string, string> = {
-      amex: 'American Express',
-      diners: 'Diners Club',
-      discover: 'Discover',
-      jcb: 'JCB',
-      maestro: 'Maestro',
-      mastercard: 'Mastercard',
-      unionpay: 'UnionPay',
-      visa: 'Visa',
-    };
-
-    return html`
-      <div data-testid="cards">
-        ${this.renderTemplateOrSlot('cards:before')}
-
-        <div class="space-y-xs">
-          <x-group frame>
-            <foxy-i18n
-              class=${isDisabled ? 'text-disabled' : ''}
-              slot="header"
-              lang=${lang}
-              key="supported_cards"
-              ns=${ns}
-            >
-            </foxy-i18n>
-
-            <div class="flex flex-wrap m-xs p-s">
-              ${Object.entries(logos).map(([type, logo]) => {
-                if (!typeToName[type]) return;
-                const isChecked = config.includes(type);
-
+        ${cartDisplayConfigFields.map((group, index) => {
+          const suffix = index === 0 ? 'two' : 'three';
+          return html`
+            <foxy-internal-summary-control infer="cart-group-${suffix}">
+              ${group.map(prop => {
                 return html`
-                  <div
-                    class=${classMap({
-                      'm-xs rounded': true,
-                      'opacity-50 cursor-default': isDisabled,
-                      'cursor-pointer ring-primary-50 focus-within-ring-2': !isDisabled,
-                    })}
+                  <foxy-internal-switch-control
+                    json-template=${this.__defaultJSON}
+                    json-path="cart_display_config.${prop}"
+                    property="json"
+                    infer="cart-display-config-${prop.replace(/_/g, '-')}"
                   >
-                    <label
-                      class=${classMap({
-                        'overflow-hidden transition-colors flex rounded-s border': true,
-                        'border-primary bg-primary-10 text-primary': isChecked && !isReadonly,
-                        'border-contrast bg-contrast-5 text-secondary': isChecked && isReadonly,
-                        'hover-text-body': isChecked && !isDisabled && !isReadonly,
-                        'border-contrast-10': !isChecked,
-                        'hover-border-primary': !isChecked && !isDisabled && !isReadonly,
-                        'hover-text-primary': !isChecked && !isDisabled && !isReadonly,
-                      })}
-                    >
-                      <div class="h-s">${logo}</div>
-
-                      <div class="text-s font-medium mx-s my-auto leading-none">
-                        ${typeToName[type]}
-                      </div>
-
-                      <input
-                        type="checkbox"
-                        class="sr-only"
-                        ?disabled=${isDisabled}
-                        ?readonly=${isReadonly}
-                        ?checked=${isChecked}
-                        @change=${(evt: Event) => {
-                          if (isReadonly) return evt.preventDefault();
-                          evt.stopPropagation();
-
-                          if ((evt.currentTarget as HTMLInputElement).checked) {
-                            config.push(type);
-                          } else {
-                            config.splice(config.indexOf(type), 1);
-                          }
-
-                          this.edit({ json: JSON.stringify(json) });
-                        }}
-                      />
-                    </label>
-                  </div>
+                  </foxy-internal-switch-control>
                 `;
               })}
-            </div>
-
-            <div class="flex flex-wrap p-s border-t border-contrast-10">
-              <x-checkbox
-                data-testid="cards-saved-check"
-                class="m-s"
-                ?disabled=${isDisabled || json.csc_requirements === 'new_cards_only'}
-                ?readonly=${isReadonly}
-                ?checked=${skipForSaved}
-                @change=${(evt: CheckboxChangeEvent) => {
-                  json.csc_requirements = evt.detail ? 'sso_only' : 'all_cards';
-                  this.edit({ json: JSON.stringify(json) });
-                }}
-              >
-                <foxy-i18n class="leading-s block" lang=${lang} key="skip_csc_for_saved" ns=${ns}>
-                </foxy-i18n>
-              </x-checkbox>
-
-              <x-checkbox
-                data-testid="cards-sso-check"
-                class="m-s"
-                ?disabled=${isDisabled}
-                ?readonly=${isReadonly}
-                ?checked=${skipForSSO}
-                @change=${(evt: CheckboxChangeEvent) => {
-                  json.csc_requirements = evt.detail
-                    ? 'new_cards_only'
-                    : skipForSaved
-                    ? 'sso_only'
-                    : 'all_cards';
-
-                  this.edit({ json: JSON.stringify(json) });
-                }}
-              >
-                <foxy-i18n class="leading-s block" lang=${lang} key="skip_csc_for_sso" ns=${ns}>
-                </foxy-i18n>
-              </x-checkbox>
-            </div>
-          </x-group>
-
-          <foxy-i18n
-            class="text-xs leading-s block ${isDisabled ? 'text-disabled' : 'text-secondary'}"
-            lang=${lang}
-            key="supported_cards_disclaimer"
-            ns=${ns}
-          >
-          </foxy-i18n>
-        </div>
-
-        ${this.renderTemplateOrSlot('cards:after')}
+            </foxy-internal-summary-control>
+          `;
+        })}
       </div>
-    `;
-  }
 
-  private __renderCheckoutType(json: TemplateConfigJSON) {
-    const { lang, ns } = this;
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('checkout-type', true);
-    const isReadonly = this.readonlySelector.matches('checkout-type', true);
+      <foxy-internal-summary-control infer="cart-group-four">
+        <foxy-internal-editable-list-control
+          json-template=${this.__defaultJSON}
+          json-path="cart_display_config.hidden_product_options"
+          property="json"
+          layout="summary-item"
+          infer="cart-display-config-hidden-product-options"
+          simple-value
+        >
+        </foxy-internal-editable-list-control>
+      </foxy-internal-summary-control>
 
-    return html`
-      <div data-testid="checkout-type">
-        ${this.renderTemplateOrSlot('checkout-type:before')}
+      <foxy-internal-summary-control infer="country-and-region-group-one">
+        <foxy-internal-switch-control
+          json-template=${this.__defaultJSON}
+          false-alias="none"
+          true-alias="required"
+          json-path="foxycomplete.usage"
+          property="json"
+          infer="foxycomplete-usage"
+        >
+        </foxy-internal-switch-control>
 
-        <div class="space-y-xs">
-          <x-group frame>
-            <foxy-i18n
-              class=${isDisabled ? 'text-disabled' : ''}
-              slot="header"
-              lang=${lang}
-              key="checkout_type"
-              ns=${ns}
-            >
-            </foxy-i18n>
+        <foxy-internal-select-control
+          options=${this.__foxycompleteShowComboboxOptions}
+          layout="summary-item"
+          infer="foxycomplete-show-combobox"
+          .getValue=${this.__foxycompleteShowComboboxGetValue}
+          .setValue=${this.__foxycompleteShowComboboxSetValue}
+        >
+        </foxy-internal-select-control>
 
-            <x-choice
-              data-testid="checkout-type-choice"
-              ?disabled=${isDisabled}
-              ?readonly=${isReadonly}
-              .items=${['default_account', 'default_guest', 'guest_only', 'account_only']}
-              .value=${json.checkout_type}
-              .getText=${(item: string) => this.t(`checkout_type_${item}`)}
-              @change=${(evt: ChoiceChangeEvent) => {
-                json.checkout_type = evt.detail as TemplateConfigJSON['checkout_type'];
-                this.edit({ json: JSON.stringify(json) });
-              }}
-            >
-            </x-choice>
-          </x-group>
+        <foxy-internal-text-control
+          json-template=${this.__defaultJSON}
+          json-path="foxycomplete.combobox_open"
+          property="json"
+          layout="summary-item"
+          infer="foxycomplete-combobox-open"
+        >
+        </foxy-internal-text-control>
 
-          <foxy-i18n
-            class="text-xs leading-s block ${isDisabled ? 'text-disabled' : 'text-secondary'}"
-            lang=${lang}
-            key="checkout_type_helper_text"
-            ns=${ns}
-          >
-          </foxy-i18n>
-        </div>
+        <foxy-internal-text-control
+          json-template=${this.__defaultJSON}
+          json-path="foxycomplete.combobox_close"
+          property="json"
+          layout="summary-item"
+          infer="foxycomplete-combobox-close"
+        >
+        </foxy-internal-text-control>
 
-        ${this.renderTemplateOrSlot('checkout-type:after')}
-      </div>
-    `;
-  }
+        <foxy-internal-switch-control
+          json-template=${this.__defaultJSON}
+          json-path="foxycomplete.show_flags"
+          property="json"
+          infer="foxycomplete-show-flags"
+        >
+        </foxy-internal-switch-control>
 
-  private __renderConsent(json: TemplateConfigJSON) {
-    const { lang, ns } = this;
-    const tosConfig = json.tos_checkbox_settings;
-    const mailConfig = json.newsletter_subscribe;
-    const sdtaConfig = json.eu_secure_data_transfer_consent;
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('consent', true);
-    const isReadonly = this.readonlySelector.matches('consent', true);
-    const dividerStyle = 'margin-left: calc(1.125rem + (var(--lumo-space-m) * 2))';
+        <foxy-internal-switch-control
+          json-template=${this.__defaultJSON}
+          false-alias="none"
+          true-alias="enabled"
+          json-path="postal_code_lookup"
+          property="json"
+          infer="postal-code-lookup"
+        >
+        </foxy-internal-switch-control>
 
-    return html`
-      <div data-testid="consent">
-        ${this.renderTemplateOrSlot('consent:before')}
+        <foxy-internal-select-control
+          json-template=${this.__defaultJSON}
+          json-path="location_filtering.usage"
+          property="json"
+          options=${this.__locationFilteringUsageOptions}
+          layout="summary-item"
+          infer="location-filtering-usage"
+        >
+        </foxy-internal-select-control>
+      </foxy-internal-summary-control>
 
-        <x-group frame>
-          <foxy-i18n
-            class=${isDisabled ? 'text-disabled' : ''}
-            slot="header"
-            lang=${lang}
-            key="consent"
-            ns=${ns}
-          >
-          </foxy-i18n>
+      <foxy-internal-summary-control infer="country-and-region-group-two">
+        <foxy-internal-select-control
+          json-template=${this.__defaultJSON}
+          json-path="location_filtering.shipping_filter_type"
+          property="json"
+          options=${this.__locationFilteringFilterTypeOptions}
+          layout="summary-item"
+          infer="location-filtering-filter-type"
+          .setValue=${this.__locationFilteringFilterTypeSetValue}
+        >
+        </foxy-internal-select-control>
 
-          <x-checkbox
-            data-testid="consent-tos-check"
-            ?disabled=${isDisabled}
-            ?readonly=${isReadonly}
-            ?checked=${tosConfig.usage === 'required' || tosConfig.usage === 'optional'}
-            class="m-m"
-            @change=${(evt: CheckboxChangeEvent) => {
-              tosConfig.initial_state = evt.detail ? tosConfig.initial_state : 'unchecked';
-              tosConfig.is_hidden = false;
-              tosConfig.usage = evt.detail ? 'required' : 'none';
-              tosConfig.url = evt.detail ? tosConfig.url : '';
+        <foxy-internal-template-config-form-filter-values-control
+          json-template=${this.__defaultJSON}
+          json-path="location_filtering.shipping_filter_values"
+          countries=${ifDefined(this.countries ?? void 0)}
+          property="json"
+          regions=${ifDefined(this.regions ?? void 0)}
+          infer="location-filtering-filter-values"
+          .setValue=${this.__locationFilteringFilterValuesSetValue}
+        >
+        </foxy-internal-template-config-form-filter-values-control>
+      </foxy-internal-summary-control>
 
-              this.edit({ json: JSON.stringify(json) });
-            }}
-          >
-            <div class="flex flex-col">
-              <foxy-i18n lang=${lang} key="display_tos_link" ns=${ns}></foxy-i18n>
-              <foxy-i18n
-                class="text-xs leading-s ${isDisabled ? 'text-disabled' : 'text-secondary'}"
-                lang=${lang}
-                key="display_tos_link_explainer"
-                ns=${ns}
-              >
-              </foxy-i18n>
-            </div>
+      <foxy-internal-summary-control infer="country-and-region-group-three">
+        <foxy-internal-select-control
+          json-template=${this.__defaultJSON}
+          json-path="location_filtering.shipping_filter_type"
+          property="json"
+          options=${this.__locationFilteringFilterTypeOptions}
+          layout="summary-item"
+          infer="location-filtering-shipping-filter-type"
+        >
+        </foxy-internal-select-control>
 
-            <div slot="content" ?hidden=${tosConfig.usage === 'none'}>
-              <vaadin-text-field
-                data-testid="consent-tos-field"
-                label=${this.t('location_url')}
-                class="w-full mt-m"
-                placeholder="https://example.com/path/to/tos"
-                clear-button-visible
-                ?disabled=${isDisabled}
-                ?readonly=${isReadonly}
-                .value=${tosConfig.url}
-                @input=${(evt: CustomEvent) => {
-                  tosConfig.url = (evt.currentTarget as TextFieldElement).value;
-                  this.edit({ json: JSON.stringify(json) });
-                }}
-              >
-              </vaadin-text-field>
+        <foxy-internal-template-config-form-filter-values-control
+          json-template=${this.__defaultJSON}
+          json-path="location_filtering.shipping_filter_values"
+          countries=${ifDefined(this.countries ?? void 0)}
+          property="json"
+          regions=${ifDefined(this.regions ?? void 0)}
+          infer="location-filtering-shipping-filter-values"
+        >
+        </foxy-internal-template-config-form-filter-values-control>
+      </foxy-internal-summary-control>
 
-              <div class="flex flex-wrap -mx-s -mb-s mt-s">
-                <x-checkbox
-                  data-testid="consent-tos-require-check"
-                  class="m-s"
-                  ?disabled=${isDisabled}
-                  ?readonly=${isReadonly}
-                  ?checked=${tosConfig.usage === 'required'}
-                  @change=${(evt: CheckboxChangeEvent) => {
-                    tosConfig.usage = evt.detail ? 'required' : 'optional';
-                    this.edit({ json: JSON.stringify(json) });
-                  }}
-                >
-                  <foxy-i18n class="leading-s block" lang=${lang} key="require_consent" ns=${ns}>
-                  </foxy-i18n>
-                </x-checkbox>
+      <foxy-internal-summary-control infer="country-and-region-group-four">
+        <foxy-internal-select-control
+          json-template=${this.__defaultJSON}
+          json-path="location_filtering.billing_filter_type"
+          property="json"
+          options=${this.__locationFilteringFilterTypeOptions}
+          layout="summary-item"
+          infer="location-filtering-billing-filter-type"
+        >
+        </foxy-internal-select-control>
 
-                <x-checkbox
-                  data-testid="consent-tos-state-check"
-                  class="m-s"
-                  ?disabled=${isDisabled}
-                  ?readonly=${isReadonly}
-                  ?checked=${tosConfig.initial_state === 'checked'}
-                  @change=${(evt: CheckboxChangeEvent) => {
-                    tosConfig.initial_state = evt.detail ? 'checked' : 'unchecked';
-                    this.edit({ json: JSON.stringify(json) });
-                  }}
-                >
-                  <foxy-i18n class="leading-s block" lang=${lang} key="checked_by_default" ns=${ns}>
-                  </foxy-i18n>
-                </x-checkbox>
-              </div>
-            </div>
-          </x-checkbox>
+        <foxy-internal-template-config-form-filter-values-control
+          json-template=${this.__defaultJSON}
+          json-path="location_filtering.billing_filter_values"
+          countries=${ifDefined(this.countries ?? void 0)}
+          property="json"
+          regions=${ifDefined(this.regions ?? void 0)}
+          infer="location-filtering-billing-filter-values"
+        >
+        </foxy-internal-template-config-form-filter-values-control>
+      </foxy-internal-summary-control>
 
-          <div style=${dividerStyle} class="border-b border-contrast-10"></div>
+      <foxy-internal-summary-control infer="customer-accounts">
+        <foxy-internal-select-control
+          json-template=${this.__defaultJSON}
+          json-path="checkout_type"
+          property="json"
+          options=${this.__checkoutTypeAccountOptions}
+          layout="summary-item"
+          infer="checkout-type-account"
+          .getValue=${this.__checkoutTypeAccountGetValue}
+        >
+        </foxy-internal-select-control>
 
-          <x-checkbox
-            data-testid="consent-mail-check"
-            ?disabled=${isDisabled}
-            ?readonly=${isReadonly}
-            ?checked=${mailConfig.usage === 'required'}
-            class="m-m"
-            @change=${(evt: CheckboxChangeEvent) => {
-              mailConfig.usage = evt.detail ? 'required' : 'none';
-              this.edit({ json: JSON.stringify(json) });
-            }}
-          >
-            <div class="flex flex-col">
-              <foxy-i18n lang=${lang} key="newsletter_subscribe" ns=${ns}></foxy-i18n>
-              <foxy-i18n
-                class="text-xs leading-s ${isDisabled ? 'text-disabled' : 'text-secondary'}"
-                lang=${lang}
-                key="newsletter_subscribe_explainer"
-                ns=${ns}
-              >
-              </foxy-i18n>
-            </div>
-          </x-checkbox>
+        <foxy-internal-select-control
+          json-template=${this.__defaultJSON}
+          json-path="checkout_type"
+          property="json"
+          options=${this.__checkoutTypeDefaultOptions}
+          layout="summary-item"
+          infer="checkout-type-default"
+        >
+        </foxy-internal-select-control>
+      </foxy-internal-summary-control>
 
-          <div style=${dividerStyle} class="border-b border-contrast-10"></div>
+      <foxy-internal-summary-control infer="consent-group-one">
+        <foxy-internal-select-control
+          json-template=${this.__defaultJSON}
+          json-path="tos_checkbox_settings.usage"
+          property="json"
+          options=${this.__tosCheckboxSettingsUsageOptions}
+          layout="summary-item"
+          infer="tos-checkbox-settings-usage"
+        >
+        </foxy-internal-select-control>
 
-          <x-checkbox
-            data-testid="consent-sdta-check"
-            ?disabled=${isDisabled}
-            ?readonly=${isReadonly}
-            ?checked=${sdtaConfig.usage === 'required'}
-            class="m-m"
-            @change=${(evt: CheckboxChangeEvent) => {
-              sdtaConfig.usage = evt.detail ? 'required' : 'none';
-              this.edit({ json: JSON.stringify(json) });
-            }}
-          >
-            <div class="flex flex-col">
-              <foxy-i18n lang=${lang} key="display_sdta" ns=${ns}></foxy-i18n>
-              <foxy-i18n
-                class="text-xs leading-s ${isDisabled ? 'text-disabled' : 'text-secondary'}"
-                lang=${lang}
-                key="display_sdta_explainer"
-                ns=${ns}
-              >
-              </foxy-i18n>
-            </div>
-          </x-checkbox>
-        </x-group>
+        <foxy-internal-text-control
+          json-template=${this.__defaultJSON}
+          json-path="tos_checkbox_settings.url"
+          property="json"
+          layout="summary-item"
+          infer="tos-checkbox-settings-url"
+        >
+        </foxy-internal-text-control>
 
-        ${this.renderTemplateOrSlot('consent:after')}
-      </div>
-    `;
-  }
+        <foxy-internal-select-control
+          json-template=${this.__defaultJSON}
+          json-path="tos_checkbox_settings.initial_state"
+          property="json"
+          options=${this.__tosCheckboxSettingsInitialStateOptions}
+          layout="summary-item"
+          infer="tos-checkbox-settings-initial-state"
+        >
+        </foxy-internal-select-control>
 
-  private __renderFields(json: TemplateConfigJSON) {
-    const { lang, ns } = this;
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('fields', true);
-    const isReadonly = this.readonlySelector.matches('fields', true);
-    const config = json.custom_checkout_field_requirements;
-    const options = {
-      cart_controls: ['enabled', 'disabled'],
-      coupon_entry: ['enabled', 'disabled'],
-      billing_first_name: ['default', 'optional', 'required', 'hidden'],
-      billing_last_name: ['default', 'optional', 'required', 'hidden'],
-      billing_company: ['default', 'optional', 'required', 'hidden'],
-      billing_tax_id: ['default', 'optional', 'required', 'hidden'],
-      billing_phone: ['default', 'optional', 'required', 'hidden'],
-      billing_address1: ['default', 'optional', 'required', 'hidden'],
-      billing_address2: ['default', 'optional', 'required', 'hidden'],
-      billing_city: ['default', 'optional', 'required', 'hidden'],
-      billing_region: ['default', 'optional', 'required', 'hidden'],
-      billing_postal_code: ['default', 'optional', 'required', 'hidden'],
-      billing_country: ['default', 'optional', 'required', 'hidden'],
-    };
+        <foxy-internal-switch-control
+          json-template=${this.__defaultJSON}
+          json-path="tos_checkbox_settings.is_hidden"
+          property="json"
+          infer="tos-checkbox-settings-is-hidden"
+        >
+        </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
-    return html`
-      <div data-testid="fields">
-        ${this.renderTemplateOrSlot('fields:before')}
+      <foxy-internal-summary-control infer="consent-group-two">
+        <foxy-internal-switch-control
+          json-template=${this.__defaultJSON}
+          false-alias="none"
+          true-alias="required"
+          json-path="eu_secure_data_transfer_consent.usage"
+          property="json"
+          infer="eu-secure-data-transfer-consent-usage"
+        >
+        </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
-        <x-group frame>
-          <foxy-i18n
-            class=${isDisabled ? 'text-disabled' : ''}
-            slot="header"
-            lang=${lang}
-            key="field_plural"
-            ns=${ns}
-          >
-          </foxy-i18n>
+      <foxy-internal-summary-control infer="consent-group-three">
+        <foxy-internal-switch-control
+          json-template=${this.__defaultJSON}
+          false-alias="none"
+          true-alias="required"
+          json-path="newsletter_subscribe.usage"
+          property="json"
+          infer="newsletter-subscribe-usage"
+        >
+        </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
-          <div class="bg-contrast-10 grid grid-cols-1 sm-grid-cols-2" style="gap: 1px">
-            ${Object.entries(options).map(([property, values]) => {
-              return html`
-                <label
-                  class=${classMap({
-                    'flex items-center pl-m bg-base': true,
-                    'text-secondary': isReadonly,
-                    'text-disabled': isDisabled,
-                  })}
-                >
-                  <foxy-i18n
-                    class="flex-1"
-                    lang=${lang}
-                    key=${property.replace('billing_', '')}
-                    ns=${ns}
+      <foxy-internal-summary-control infer="supported-cards-group">
+        <foxy-internal-template-config-form-supported-cards-control
+          json-template=${this.__defaultJSON}
+          json-path="supported_payment_cards"
+          property="json"
+          infer="supported-payment-cards"
+        >
+        </foxy-internal-template-config-form-supported-cards-control>
+
+        <p class="flex items-start gap-s">
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="flex-shrink-0 text-primary" style="width: 1.25em"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>`}
+          <foxy-i18n infer="" key="disclaimer"></foxy-i18n>
+        </p>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="csc-requirements-group">
+        <foxy-internal-select-control
+          json-template=${this.__defaultJSON}
+          json-path="csc_requirements"
+          property="json"
+          options=${this.__cscRequirementsValueOptions}
+          layout="summary-item"
+          infer="csc-requirements"
+        >
+        </foxy-internal-select-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="checkout-fields-group-one">
+        <foxy-internal-switch-control
+          json-template=${this.__defaultJSON}
+          false-alias="disabled"
+          true-alias="enabled"
+          json-path="custom_checkout_field_requirements.cart_controls"
+          property="json"
+          infer="custom-checkout-field-requirements-cart-controls"
+        >
+        </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
+
+      <div
+        class="grid sm-grid-cols-2 gap-m"
+        ?hidden=${customCheckoutFieldRequirementsControls.every((group, index) => {
+          return group.every(prop => {
+            const suffix = index === 0 ? 'two' : 'three';
+            const infer = prop.replace(/_/g, '-').replace('1', '-one').replace('2', '-two');
+            const sel = `checkout-fields-group-${suffix}:custom-checkout-field-requirements-${infer}`;
+            return this.hiddenSelector.matches(sel, true);
+          });
+        })}
+      >
+        ${customCheckoutFieldRequirementsControls.map((group, index) => {
+          const suffix = index === 0 ? 'two' : 'three';
+          return html`
+            <foxy-internal-summary-control infer="checkout-fields-group-${suffix}">
+              ${group.map(prop => {
+                const infer = prop.replace(/_/g, '-').replace('1', '-one').replace('2', '-two');
+                const path = `custom_checkout_field_requirements.${prop}`;
+                return html`
+                  <foxy-internal-select-control
+                    json-template=${this.__defaultJSON}
+                    json-path=${path}
+                    property="json"
+                    options=${prop === 'coupon_entry'
+                      ? this.__customCheckoutFieldCouponEntryRequirementsOptions
+                      : this.__customCheckoutFieldRequirementsOptions}
+                    layout="summary-item"
+                    infer="custom-checkout-field-requirements-${infer}"
                   >
-                  </foxy-i18n>
-
-                  <div
-                    class=${classMap({
-                      'flex items-center text-right font-medium h-s px-s m-xs': isReadonly,
-                      'hidden': !isReadonly,
-                    })}
-                  >
-                    ${this.t(
-                      values.find(
-                        value => (config as Record<string, string>)[property] === value
-                      ) as string
-                    )}
-                  </div>
-
-                  <div
-                    class=${classMap({
-                      'px-s m-xs flex items-center rounded leading-none': true,
-                      'ring-primary-50 ring-inset focus-within-ring-2': !isDisabled,
-                      'hover-text-primary': !isDisabled,
-                      'cursor-pointer': !isDisabled,
-                      'cursor-default': isDisabled,
-                      'flex': !isReadonly,
-                      'hidden': isReadonly,
-                    })}
-                  >
-                    <select
-                      data-testid="fields-${property}"
-                      class=${classMap({
-                        'h-s mr-xs text-right appearance-none bg-transparent font-medium': true,
-                        'focus-outline-none cursor-pointer': !isDisabled,
-                        'cursor-default': isDisabled,
-                      })}
-                      ?disabled=${isDisabled}
-                      ?readonly=${isReadonly}
-                      @change=${(evt: Event) => {
-                        const select = evt.currentTarget as HTMLSelectElement;
-                        const value = select.options[select.options.selectedIndex].value;
-                        (config as Record<string, string>)[property] = value;
-                        this.edit({ json: JSON.stringify(json) });
-                      }}
-                    >
-                      ${values.map(value => {
-                        return html`
-                          <option
-                            value=${value}
-                            ?selected=${(config as Record<string, string>)[property] === value}
-                          >
-                            ${this.t(value)}
-                          </option>
-                        `;
-                      })}
-                    </select>
-
-                    <iron-icon
-                      class="pointer-events-none icon-inline text-xl"
-                      icon="icons:expand-more"
-                    >
-                    </iron-icon>
-                  </div>
-                </label>
-              `;
-            })}
-
-            <div class="bg-base hidden sm-block"></div>
-          </div>
-        </x-group>
-
-        ${this.renderTemplateOrSlot('fields:after')}
+                  </foxy-internal-select-control>
+                `;
+              })}
+            </foxy-internal-summary-control>
+          `;
+        })}
       </div>
+
+      <foxy-internal-summary-control infer="analytics-config">
+        <foxy-internal-switch-control
+          json-template=${this.__defaultJSON}
+          false-alias="none"
+          true-alias="required"
+          json-path="analytics_config.usage"
+          property="json"
+          infer="analytics-config-usage"
+        >
+        </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="analytics-config-google-analytics">
+        <foxy-internal-switch-control
+          json-template=${this.__defaultJSON}
+          false-alias="none"
+          true-alias="required"
+          json-path="analytics_config.google_analytics.usage"
+          property="json"
+          infer="analytics-config-google-analytics-usage"
+        >
+        </foxy-internal-switch-control>
+
+        <foxy-internal-text-control
+          json-template=${this.__defaultJSON}
+          json-path="analytics_config.google_analytics.account_id"
+          property="json"
+          layout="summary-item"
+          infer="analytics-config-google-analytics-account-id"
+        >
+        </foxy-internal-text-control>
+
+        <foxy-internal-switch-control
+          json-template=${this.__defaultJSON}
+          json-path="analytics_config.google_analytics.include_on_site"
+          property="json"
+          infer="analytics-config-google-analytics-include-on-site"
+        >
+        </foxy-internal-switch-control>
+
+        <p class="flex items-start gap-s bg-error-10 text-error">
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="flex-shrink-0 text-error" style="width: 1.25em"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>`}
+          <foxy-i18n infer="" key="deprecation_notice"></foxy-i18n>
+        </p>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="analytics-config-google-tag">
+        <foxy-internal-switch-control
+          json-template=${this.__defaultJSON}
+          false-alias="none"
+          true-alias="required"
+          json-path="analytics_config.google_tag.usage"
+          property="json"
+          infer="analytics-config-google-tag-usage"
+        >
+        </foxy-internal-switch-control>
+
+        <foxy-internal-text-control
+          json-template=${this.__defaultJSON}
+          json-path="analytics_config.google_tag.account_id"
+          property="json"
+          layout="summary-item"
+          infer="analytics-config-google-tag-account-id"
+        >
+        </foxy-internal-text-control>
+
+        <foxy-internal-text-control
+          json-template=${this.__defaultJSON}
+          json-path="analytics_config.google_tag.send_to"
+          property="json"
+          layout="summary-item"
+          infer="analytics-config-google-tag-send-to"
+        >
+        </foxy-internal-text-control>
+
+        <p class="flex items-start gap-s">
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="flex-shrink-0 text-primary" style="width: 1.25em"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>`}
+          <span>
+            <foxy-i18n infer="" key="usage_notice"></foxy-i18n>
+            <br />
+            <a
+              target="_blank"
+              class="cursor-pointer group text-primary rounded-s font-medium focus-outline-none focus-ring-2 focus-ring-primary-50"
+              href="https://wiki.foxycart.com/v/2.0/analytics#google_tag_ga4_google_ads"
+              rel="nofollow noreferrer noopener"
+            >
+              <foxy-i18n class="transition-opacity group-hover-opacity-80" infer="" key="docs_link">
+              </foxy-i18n>
+            </a>
+          </span>
+        </p>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="debug">
+        <foxy-internal-switch-control
+          json-template=${this.__defaultJSON}
+          false-alias="none"
+          true-alias="required"
+          json-path="debug.usage"
+          property="json"
+          infer="debug-usage"
+        >
+        </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-source-control
+        infer="custom-config"
+        .getValue=${this.__customConfigGetValue}
+        .setValue=${this.__customConfigSetValue}
+      >
+      </foxy-internal-source-control>
+
+      <foxy-internal-source-control
+        json-template=${this.__defaultJSON}
+        json-path="custom_script_values.header"
+        property="json"
+        infer="custom-script-values-header"
+      >
+      </foxy-internal-source-control>
+
+      <foxy-internal-source-control
+        json-template=${this.__defaultJSON}
+        json-path="custom_script_values.checkout_fields"
+        property="json"
+        infer="custom-script-values-checkout-fields"
+      >
+      </foxy-internal-source-control>
+
+      <foxy-internal-source-control
+        json-template=${this.__defaultJSON}
+        json-path="custom_script_values.multiship_checkout_fields"
+        property="json"
+        infer="custom-script-values-multiship-checkout-fields"
+      >
+      </foxy-internal-source-control>
+
+      <foxy-internal-source-control
+        json-template=${this.__defaultJSON}
+        json-path="custom_script_values.footer"
+        property="json"
+        infer="custom-script-values-footer"
+      >
+      </foxy-internal-source-control>
+
+      ${super.renderBody()}
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.store ?? this.data?._links['fx:store'].href)}
+        id="storeLoader"
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
     `;
   }
 
-  private __renderGoogleAnalytics(json: TemplateConfigJSON) {
-    const { lang, ns } = this;
-    const config = json.analytics_config;
-    const gtConfig = config.google_tag;
-    const gaConfig = config.google_analytics;
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('google-analytics', true);
-    const isReadonly = this.readonlySelector.matches('google-analytics', true);
-
-    return html`
-      <div data-testid="google-analytics">
-        ${this.renderTemplateOrSlot('google-analytics:before')}
-
-        <x-group frame>
-          <span class=${isDisabled ? 'text-disabled' : ''} slot="header">Google Analytics</span>
-
-          <foxy-i18n
-            class="block bg-error-10 text-error font-medium rounded-t p-m"
-            infer=""
-            key="ga_deprecation_notice"
-          >
-          </foxy-i18n>
-
-          <div class="p-m space-y-m">
-            <vaadin-text-field
-              data-testid="google-analytics-field"
-              style="--lumo-border-radius: var(--lumo-border-radius-s)"
-              class="w-full"
-              label=${this.t('ga_account_id')}
-              placeholder="UA-1234567-1"
-              helper-text=${this.t('ga_account_id_explainer')}
-              .value=${live(gaConfig.account_id)}
-              ?disabled=${isDisabled}
-              ?readonly=${isReadonly}
-              clear-button-visible
-              @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
-              @input=${(evt: InputEvent) => {
-                gaConfig.account_id = (evt.currentTarget as TextFieldElement).value;
-                gaConfig.usage = gaConfig.account_id ? 'required' : 'none';
-                config.usage = gaConfig.account_id || gtConfig.account_id ? 'required' : 'none';
-                this.edit({ json: JSON.stringify(json) });
-              }}
-            >
-            </vaadin-text-field>
-
-            <x-checkbox
-              data-testid="google-analytics-check"
-              ?disabled=${isDisabled}
-              ?readonly=${isReadonly}
-              ?checked=${gaConfig.include_on_site}
-              @change=${(evt: CheckboxChangeEvent) => {
-                gaConfig.include_on_site = evt.detail;
-                this.edit({ json: JSON.stringify(json) });
-              }}
-            >
-              <div class="flex flex-col">
-                <foxy-i18n lang=${lang} key="ga_include_on_site" ns=${ns}></foxy-i18n>
-                <foxy-i18n
-                  class="text-xs leading-s ${isDisabled ? 'text-disabled' : 'text-secondary'}"
-                  lang=${lang}
-                  key="ga_include_on_site_explainer"
-                  ns=${ns}
-                >
-                </foxy-i18n>
-              </div>
-            </x-checkbox>
-          </div>
-        </x-group>
-
-        ${this.renderTemplateOrSlot('google-analytics:after')}
-      </div>
-    `;
+  private get __storeLoader() {
+    type Loader = NucleonElement<Resource<Rels.Store>>;
+    return this.renderRoot.querySelector<Loader>('#storeLoader');
   }
 
-  private __renderGoogleTag(json: TemplateConfigJSON) {
-    const config = json.analytics_config;
-    const gtConfig = config.google_tag;
-    const gaConfig = config.google_analytics;
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('google-tag', true);
-    const isReadonly = this.readonlySelector.matches('google-tag', true);
-
-    return html`
-      <div data-testid="google-tag">
-        ${this.renderTemplateOrSlot('google-tag:before')}
-
-        <x-group frame>
-          <span class=${isDisabled ? 'text-disabled' : ''} slot="header">Google Tag</span>
-
-          <div class="p-m space-y-m">
-            <vaadin-text-field
-              data-testid="google-tag-account-id"
-              style="--lumo-border-radius: var(--lumo-border-radius-s)"
-              class="w-full"
-              label=${this.t('gt_account_id')}
-              placeholder="G-123456789"
-              helper-text=${this.t('gt_account_id_explainer')}
-              .value=${live(gtConfig.account_id)}
-              ?disabled=${isDisabled}
-              ?readonly=${isReadonly}
-              clear-button-visible
-              @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
-              @input=${(evt: InputEvent) => {
-                gtConfig.account_id = (evt.currentTarget as TextFieldElement).value;
-                gtConfig.usage = gtConfig.account_id ? 'required' : 'none';
-                config.usage = gtConfig.account_id || gaConfig.account_id ? 'required' : 'none';
-                this.edit({ json: JSON.stringify(json) });
-              }}
-            >
-            </vaadin-text-field>
-
-            <vaadin-text-field
-              data-testid="google-tag-send-to"
-              style="--lumo-border-radius: var(--lumo-border-radius-s)"
-              class="w-full"
-              label=${this.t('gt_send_to')}
-              placeholder="AW-123456789/sABDCLqU3K2BEJb8cxDE"
-              helper-text=${this.t('gt_send_to_explainer')}
-              .value=${live(gtConfig.send_to)}
-              ?disabled=${isDisabled}
-              ?readonly=${isReadonly}
-              clear-button-visible
-              @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
-              @input=${(evt: InputEvent) => {
-                gtConfig.send_to = (evt.currentTarget as TextFieldElement).value;
-                gtConfig.usage = gtConfig.account_id ? 'required' : 'none';
-                config.usage = gtConfig.account_id || gaConfig.account_id ? 'required' : 'none';
-                this.edit({ json: JSON.stringify(json) });
-              }}
-            >
-            </vaadin-text-field>
-
-            <p class="text-xs text-secondary">
-              <foxy-i18n infer="" key="gt_usage_notice"></foxy-i18n>
-              <a
-                target="_blank"
-                class="cursor-pointer group text-primary rounded-s font-medium focus-outline-none focus-ring-2 focus-ring-primary-50"
-                href="https://wiki.foxycart.com/v/2.0/analytics#google_tag_ga4_google_ads"
-                rel="nofollow noreferrer noopener"
-              >
-                <foxy-i18n
-                  class="transition-opacity group-hover-opacity-80"
-                  infer=""
-                  key="gt_docs_link"
-                >
-                </foxy-i18n>
-              </a>
-            </p>
-          </div>
-        </x-group>
-
-        ${this.renderTemplateOrSlot('google-tag:after')}
-      </div>
-    `;
+  private get __formJson(): TemplateConfigJSON {
+    return this.form.json ? JSON.parse(this.form.json) : getDefaultJSON();
   }
 
-  private __renderTroubleshooting(json: TemplateConfigJSON) {
-    const { lang, ns } = this;
-    const config = json.debug;
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('troubleshooting', true);
-    const isReadonly = this.readonlySelector.matches('troubleshooting', true);
-
-    return html`
-      <div data-testid="troubleshooting">
-        ${this.renderTemplateOrSlot('troubleshooting:before')}
-
-        <x-group frame>
-          <foxy-i18n
-            class=${isDisabled ? 'text-disabled' : ''}
-            slot="header"
-            lang=${lang}
-            key="troubleshooting"
-            ns=${ns}
-          >
-          </foxy-i18n>
-
-          <div class="p-m space-y-m">
-            <x-checkbox
-              data-testid="troubleshooting-check"
-              ?disabled=${isDisabled}
-              ?readonly=${isReadonly}
-              ?checked=${config.usage === 'required'}
-              @change=${(evt: CheckboxChangeEvent) => {
-                config.usage = evt.detail ? 'required' : 'none';
-                this.edit({ json: JSON.stringify(json) });
-              }}
-            >
-              <div class="flex flex-col">
-                <foxy-i18n lang=${lang} key="troubleshooting_debug" ns=${ns}></foxy-i18n>
-                <foxy-i18n
-                  class="text-xs leading-s ${isDisabled ? 'text-disabled' : 'text-secondary'}"
-                  lang=${lang}
-                  key="troubleshooting_debug_explainer"
-                  ns=${ns}
-                >
-                </foxy-i18n>
-              </div>
-            </x-checkbox>
-          </div>
-        </x-group>
-
-        ${this.renderTemplateOrSlot('troubleshooting:after')}
-      </div>
-    `;
+  private get __dataJson(): TemplateConfigJSON | null {
+    return this.data?.json ? JSON.parse(this.data.json) : null;
   }
 }
