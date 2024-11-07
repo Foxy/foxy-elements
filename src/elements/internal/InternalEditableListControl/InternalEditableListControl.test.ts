@@ -24,6 +24,14 @@ describe('InternalEditableListControl', () => {
     expect(new Control()).to.have.deep.property('inputParams', {});
   });
 
+  it('has a reactive property "simpleValue"', () => {
+    expect(new Control()).to.have.property('simpleValue', false);
+    expect(Control).to.have.deep.nested.property('properties.simpleValue', {
+      attribute: 'simple-value',
+      type: Boolean,
+    });
+  });
+
   it('has a reactive property "layout"', () => {
     expect(Control).to.have.deep.nested.property('properties.layout', {});
     expect(new Control()).to.have.property('layout', null);
@@ -322,5 +330,24 @@ describe('InternalEditableListControl', () => {
 
     control = await fixture<Control>(html`<x-test-control></x-test-control>`);
     expect(control.renderRoot).to.include.text('Test error message');
+  });
+
+  it('when simpleValue is true, supports using array of strings as model', async () => {
+    let value: string[] = ['foo', 'bar'];
+
+    const control = await fixture<Control>(html`
+      <foxy-internal-editable-list-control
+        .getValue=${() => value}
+        .setValue=${(newValue: string[]) => (value = newValue)}
+        simple-value
+      >
+      </foxy-internal-editable-list-control>
+    `);
+
+    expect(control).to.have.deep.property('_value', [{ value: 'foo' }, { value: 'bar' }]);
+
+    // @ts-expect-error using protected property for testing purposes
+    control._value = [{ value: 'baz' }];
+    expect(value).to.deep.equal(['baz']);
   });
 });
