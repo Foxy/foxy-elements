@@ -33,6 +33,20 @@ describe('InternalSwitchControl', () => {
     });
   });
 
+  it('has a reactive property "falseAlias"', () => {
+    expect(Control).to.have.deep.nested.property('properties.falseAlias', {
+      attribute: 'false-alias',
+    });
+    expect(new Control()).to.have.property('falseAlias', null);
+  });
+
+  it('has a reactive property "trueAlias"', () => {
+    expect(Control).to.have.deep.nested.property('properties.trueAlias', {
+      attribute: 'true-alias',
+    });
+    expect(new Control()).to.have.property('trueAlias', null);
+  });
+
   it('has a reactive property "invert"', () => {
     expect(Control).to.have.deep.nested.property('properties.invert', { type: Boolean });
     expect(new Control()).to.have.property('invert', false);
@@ -170,5 +184,49 @@ describe('InternalSwitchControl', () => {
     control.helperTextAsToolip = false;
     await control.requestUpdate();
     expect(control.renderRoot.querySelector('vcf-tooltip')).to.not.exist;
+  });
+
+  it('when falseAlias is set, uses the alias instead of false', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-switch-control></foxy-internal-switch-control>
+    `);
+
+    control.getValue = () => 'no';
+    expect(control).to.have.property('_value', true);
+
+    control.falseAlias = 'no';
+    expect(control).to.have.property('_value', false);
+
+    control.setValue = stub();
+    // @ts-expect-error using protected method for testing purposes
+    control._value = false;
+    expect(control.setValue).to.have.been.calledOnceWith('no');
+
+    control.setValue = stub();
+    // @ts-expect-error using protected method for testing purposes
+    control._value = true;
+    expect(control.setValue).to.have.been.calledOnceWith(true);
+  });
+
+  it('when trueAlias is set, uses the alias instead of true', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-switch-control></foxy-internal-switch-control>
+    `);
+
+    control.getValue = () => 'yes';
+    expect(control).to.have.property('_value', true);
+
+    control.trueAlias = 'yes';
+    expect(control).to.have.property('_value', true);
+
+    control.setValue = stub();
+    // @ts-expect-error using protected method for testing purposes
+    control._value = true;
+    expect(control.setValue).to.have.been.calledOnceWith('yes');
+
+    control.setValue = stub();
+    // @ts-expect-error using protected method for testing purposes
+    control._value = false;
+    expect(control.setValue).to.have.been.calledOnceWith(false);
   });
 });
