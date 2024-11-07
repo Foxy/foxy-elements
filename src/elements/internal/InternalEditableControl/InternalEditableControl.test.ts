@@ -30,6 +30,13 @@ describe('InternalEditableControl', () => {
     });
   });
 
+  it('has a reactive property "jsonTemplate" (String)', () => {
+    expect(new InternalEditableControl()).to.have.property('jsonTemplate', null);
+    expect(InternalEditableControl).to.have.deep.nested.property('properties.jsonTemplate', {
+      attribute: 'json-template',
+    });
+  });
+
   it('has a reactive property "placeholder" (String)', () => {
     expect(InternalEditableControl).to.have.nested.property('properties.placeholder.type', String);
   });
@@ -40,6 +47,13 @@ describe('InternalEditableControl', () => {
 
   it('has a reactive property "v8nPrefix" (String)', () => {
     expect(InternalEditableControl).to.have.nested.property('properties.v8nPrefix.type', String);
+  });
+
+  it('has a reactive property "jsonPath" (String)', () => {
+    expect(new InternalEditableControl()).to.have.property('jsonPath', null);
+    expect(InternalEditableControl).to.have.deep.nested.property('properties.jsonPath', {
+      attribute: 'json-path',
+    });
   });
 
   it('has a reactive property "property" (String)', () => {
@@ -164,6 +178,36 @@ describe('InternalEditableControl', () => {
     expect(wrapper.firstElementChild).to.have.property('_value', testData.address_name);
   });
 
+  it('supports retrieving values from serialized json', async () => {
+    const testData = await getTestData<any>('./hapi/customer_addresses/0');
+    testData.address_name = JSON.stringify({ foo: { bar: 'baz' } });
+
+    const wrapper = await fixture(html`
+      <foxy-nucleon .data=${testData}>
+        <foxy-internal-editable-control json-path="foo.bar" property="address_name" infer="bar">
+        </foxy-internal-editable-control>
+      </foxy-nucleon>
+    `);
+
+    expect(wrapper.firstElementChild).to.have.property('_value', 'baz');
+  });
+
+  it('supports default values for serialized json', async () => {
+    const testData = await getTestData<any>('./hapi/customer_addresses/0');
+    const wrapper = await fixture(html`
+      <foxy-nucleon .data=${testData}>
+        <foxy-internal-editable-control
+          json-template=${JSON.stringify({ foo: { bar: 'baz' } })}
+          json-path="foo.bar"
+          infer="some-unknown-property"
+        >
+        </foxy-internal-editable-control>
+      </foxy-nucleon>
+    `);
+
+    expect(wrapper.firstElementChild).to.have.property('_value', 'baz');
+  });
+
   it('sends updates to the parent NucleonElement on value change', async () => {
     const testData = await getTestData<any>('./hapi/customer_addresses/0');
     const wrapper = await fixture(html`
@@ -197,6 +241,44 @@ describe('InternalEditableControl', () => {
 
     expect(wrapper.firstElementChild).to.have.property('_value', testData.address_name);
     expect(wrapper).to.have.nested.property('form.address_name', testData.address_name);
+  });
+
+  it('supports setting values in serialized json', async () => {
+    const testData = await getTestData<any>('./hapi/customer_addresses/0');
+    testData.address_name = JSON.stringify({ foo: { bar: 'baz' } });
+
+    const wrapper = await fixture(html`
+      <foxy-nucleon .data=${testData}>
+        <foxy-internal-editable-control json-path="foo.bar" property="address_name" infer="bar">
+        </foxy-internal-editable-control>
+      </foxy-nucleon>
+    `);
+
+    (wrapper.firstElementChild as InternalEditableControl)!.setValue('qux');
+    expect(wrapper).to.have.nested.property(
+      'form.address_name',
+      JSON.stringify({ foo: { bar: 'qux' } })
+    );
+  });
+
+  it('supports setting values in serialized json with default values', async () => {
+    const testData = await getTestData<any>('./hapi/customer_addresses/0');
+    const wrapper = await fixture(html`
+      <foxy-nucleon .data=${testData}>
+        <foxy-internal-editable-control
+          json-template=${JSON.stringify({ foo: { bar: 'baz' } })}
+          json-path="foo.bar"
+          infer="some-unknown-property"
+        >
+        </foxy-internal-editable-control>
+      </foxy-nucleon>
+    `);
+
+    (wrapper.firstElementChild as InternalEditableControl)!.setValue('qux');
+    expect(wrapper).to.have.nested.property(
+      'form.some_unknown_property',
+      JSON.stringify({ foo: { bar: 'qux' } })
+    );
   });
 
   it("has a protected shortcut for the first v8n error in a a nucleon form it's associated with", async () => {
