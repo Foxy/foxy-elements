@@ -14,7 +14,10 @@ const summary: Summary = {
 
 export default getMeta(summary);
 
+const ext = `layout="resource"`;
+
 export const Playground = getStory({ ...summary, code: true });
+export const ResourceView = getStory({ ...summary, ext });
 export const Empty = getStory(summary);
 export const Error = getStory(summary);
 export const Busy = getStory(summary);

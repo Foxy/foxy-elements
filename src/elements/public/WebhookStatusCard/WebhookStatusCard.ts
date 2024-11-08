@@ -1,3 +1,4 @@
+import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
 
@@ -16,31 +17,39 @@ const Base = TranslatableMixin(InternalCard, NS);
  * @since 1.17.0
  */
 export class WebhookStatusCard extends Base<Data> {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      layout: {},
+    };
+  }
+
+  /** When set to "resource", doesn't render resource type and ID. */
+  layout: null | 'resource' = null;
+
   renderBody(): TemplateResult {
-    const status = this.data?.status;
+    const { resource_type: type, date_created: date, resource_id: id, status } = this.data ?? {};
 
     return html`
-      <p class="flex flex-col leading-xs">
-        <foxy-i18n
-          .options=${{ value: this.data?.date_created }}
-          class="font-medium"
-          infer=""
-          key="date"
-        >
-        </foxy-i18n>
-
-        <foxy-i18n
+      <div class="leading-none space-y-xs">
+        <p class="flex justify-between items-center">
+          <foxy-i18n .options=${{ value: date }} class="font-medium" infer="" key="date">
+          </foxy-i18n>
+          ${this.layout === 'resource'
+            ? ''
+            : html`<span class="text-xs text-tertiary capitalize">${type} #${id}</span>`}
+        </p>
+        <p
           class=${classMap({
             'text-secondary': status === 'pending',
             'text-success': status === 'successful',
             'text-error': status === 'failed',
             'text-s': true,
           })}
-          infer=""
-          key="status_${status}"
         >
-        </foxy-i18n>
-      </p>
+          <foxy-i18n infer="" key="status_${status}"></foxy-i18n>
+        </p>
+      </div>
     `;
   }
 }

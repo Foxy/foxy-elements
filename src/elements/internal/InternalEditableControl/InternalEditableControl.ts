@@ -3,6 +3,7 @@ import type { PropertyDeclarations } from 'lit-element';
 import { InternalControl } from '../InternalControl/InternalControl';
 
 import debounce from 'lodash-es/debounce';
+import { get, set } from 'lodash-es';
 
 /**
  * An internal base class for controls that have editing functionality, e.g. a text field.
@@ -18,9 +19,11 @@ export class InternalEditableControl extends InternalControl {
     return {
       ...super.properties,
       checkValidityAsync: { attribute: false },
+      jsonTemplate: { attribute: 'json-template' },
       placeholder: { type: String, noAccessor: true },
       helperText: { type: String, attribute: 'helper-text', noAccessor: true },
       v8nPrefix: { type: String, attribute: 'v8n-prefix', noAccessor: true },
+      jsonPath: { attribute: 'json-path' },
       getValue: { attribute: false },
       setValue: { attribute: false },
       property: { type: String, noAccessor: true },
@@ -31,9 +34,25 @@ export class InternalEditableControl extends InternalControl {
 
   checkValidityAsync: ((value: unknown) => Promise<true | string>) | null = null;
 
-  getValue = (): unknown => this.nucleon?.form[this.property];
+  jsonTemplate: string | null = null;
 
-  setValue = (newValue: unknown): void => this.nucleon?.edit({ [this.property]: newValue });
+  jsonPath: string | null = null;
+
+  getValue = (): unknown => {
+    const value = get(this.nucleon?.form, this.property);
+    if (this.jsonPath) return get(JSON.parse(value ?? this.jsonTemplate), this.jsonPath);
+    return value;
+  };
+
+  setValue = (newValue: unknown): void => {
+    if (this.jsonPath) {
+      const json = JSON.parse(this.nucleon?.form[this.property] ?? this.jsonTemplate);
+      set(json, this.jsonPath, newValue);
+      this.nucleon?.edit({ [this.property]: JSON.stringify(json) });
+    } else {
+      this.nucleon?.edit({ [this.property]: newValue });
+    }
+  };
 
   private __debouncedCheckValidityAsync = debounce(async (newValue: unknown) => {
     const validOrError = await this.checkValidityAsync?.(newValue);

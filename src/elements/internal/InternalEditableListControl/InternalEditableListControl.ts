@@ -13,6 +13,7 @@ export class InternalEditableListControl extends InternalEditableControl {
     return {
       ...super.properties,
       inputParams: { attribute: false },
+      simpleValue: { type: Boolean, attribute: 'simple-value' },
       options: { type: Array },
       layout: {},
       units: { type: Array },
@@ -47,6 +48,8 @@ export class InternalEditableListControl extends InternalEditableControl {
   }
 
   inputParams: Record<string, unknown> = {};
+
+  simpleValue = false;
 
   options: Option[] = [];
 
@@ -335,10 +338,16 @@ export class InternalEditableListControl extends InternalEditableControl {
   }
 
   protected get _value(): Item[] {
-    return (super._value ?? []) as Item[];
+    const value = super._value;
+    if (this.simpleValue) return ((value as string[]) ?? []).map(value => ({ value }));
+    return (value ?? []) as Item[];
   }
 
   protected set _value(newValue: Item[]) {
-    super._value = newValue;
+    if (this.simpleValue) {
+      super._value = newValue.map(({ value }) => value);
+    } else {
+      super._value = newValue;
+    }
   }
 }

@@ -7,11 +7,17 @@ export class InternalSwitchControl extends InternalEditableControl {
     return {
       ...super.properties,
       helperTextAsToolip: { type: Boolean, attribute: 'helper-text-as-tooltip' },
+      falseAlias: { attribute: 'false-alias' },
+      trueAlias: { attribute: 'true-alias' },
       invert: { type: Boolean },
     };
   }
 
   helperTextAsToolip = false;
+
+  falseAlias: string | null = null;
+
+  trueAlias: string | null = null;
 
   invert = false;
 
@@ -93,5 +99,18 @@ export class InternalSwitchControl extends InternalEditableControl {
           : ''}
       </div>
     `;
+  }
+
+  protected get _value(): boolean {
+    const originalValue = super._value;
+    if (this.trueAlias && originalValue === this.trueAlias) return true;
+    if (this.falseAlias && originalValue === this.falseAlias) return false;
+    return !!originalValue;
+  }
+
+  protected set _value(value: boolean) {
+    if (this.trueAlias && value === true) super._value = this.trueAlias;
+    else if (this.falseAlias && value === false) super._value = this.falseAlias;
+    else super._value = value;
   }
 }

@@ -11,15 +11,18 @@ const summary: Summary = {
   localName: 'foxy-webhook-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps', 'header'],
-    inputs: ['name', 'url', 'query', 'encryption-key', 'event-resource'],
+    sections: ['timestamps', 'header', 'general'],
+    inputs: ['general:name', 'url', 'query', 'general:encryption-key', 'general:event-resource'],
     buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
   },
 };
 
 export default getMeta(summary);
 
+const ext = `resource-uri="https://demo.api/hapi/transactions/0"`;
+
 export const Playground = getStory({ ...summary, code: true });
+export const ResourceView = getStory({ ...summary, ext });
 export const Empty = getStory(summary);
 export const Error = getStory(summary);
 export const Busy = getStory(summary);

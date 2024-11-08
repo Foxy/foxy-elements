@@ -24243,6 +24243,9 @@
       ],
       "events": [
         {
+          "name": "input"
+        },
+        {
           "name": "update",
           "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
         },
@@ -24608,6 +24611,10 @@
       "description": "Form element for store settings (`fx:store`).",
       "attributes": [
         {
+          "name": "reporting-store-domain-exists",
+          "description": "URL of the `fx:reporting_store_domain_exists` endpoint."
+        },
+        {
           "name": "customer-password-hash-types",
           "description": "URL of the `fx:customer_password_hash_types` property helper resource."
         },
@@ -24738,6 +24745,11 @@
         }
       ],
       "properties": [
+        {
+          "name": "reportingStoreDomainExists",
+          "attribute": "reporting-store-domain-exists",
+          "description": "URL of the `fx:reporting_store_domain_exists` endpoint."
+        },
         {
           "name": "customerPasswordHashTypes",
           "attribute": "customer-password-hash-types",
@@ -27275,15 +27287,30 @@
       "attributes": [
         {
           "name": "countries",
-          "description": "URI of the `fx:countries` hAPI resource.",
-          "type": "string",
-          "default": "\"\""
+          "description": "URI of the `fx:countries` hAPI resource."
         },
         {
           "name": "regions",
-          "description": "URI of the `fx:regions` hAPI resource.",
+          "description": "URI of the `fx:regions` hAPI resource."
+        },
+        {
+          "name": "store",
+          "description": "URI of the `fx:store` hAPI resource related to this template config. If this property is `null`, a link relationship will be used when available."
+        },
+        {
+          "name": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
           "type": "string",
-          "default": "\"\""
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "mode",
@@ -27316,16 +27343,6 @@
         {
           "name": "hiddencontrols",
           "default": "\"False\""
-        },
-        {
-          "name": "simplify-ns-loading",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
         },
         {
           "name": "lang",
@@ -27370,16 +27387,71 @@
         {
           "name": "countries",
           "attribute": "countries",
-          "description": "URI of the `fx:countries` hAPI resource.",
-          "type": "string",
-          "default": "\"\""
+          "description": "URI of the `fx:countries` hAPI resource."
         },
         {
           "name": "regions",
           "attribute": "regions",
-          "description": "URI of the `fx:regions` hAPI resource.",
+          "description": "URI of the `fx:regions` hAPI resource."
+        },
+        {
+          "name": "store",
+          "attribute": "store",
+          "description": "URI of the `fx:store` hAPI resource related to this template config. If this property is `null`, a link relationship will be used when available."
+        },
+        {
+          "name": "simplifyNsLoading",
+          "attribute": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
           "type": "string",
-          "default": "\"\""
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
         },
         {
           "name": "templates",
@@ -27435,23 +27507,6 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
-        },
-        {
-          "name": "simplifyNsLoading",
-          "attribute": "simplify-ns-loading",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "ns",
-          "attribute": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
-        },
-        {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "UpdateEvent",
@@ -31248,6 +31303,14 @@
       ],
       "properties": [
         {
+          "name": "getStatusPageHref",
+          "description": "If set, renders Statuses list items as <a> tags."
+        },
+        {
+          "name": "getLogPageHref",
+          "description": "If set, renders Logs list items as <a> tags."
+        },
+        {
           "name": "resourceUri",
           "attribute": "resource-uri",
           "description": "Optional URI of a transaction, customer or subscription. When provided,\nthe form will display logs and statuses for that particular resource only."
@@ -31462,6 +31525,10 @@
       "description": "Basic card displaying webhook log (`fx:webhook_log`) info.",
       "attributes": [
         {
+          "name": "layout",
+          "description": "When set to \"resource\", doesn't render resource type and ID."
+        },
+        {
           "name": "simplify-ns-loading",
           "type": "boolean",
           "default": "false"
@@ -31511,6 +31578,11 @@
         }
       ],
       "properties": [
+        {
+          "name": "layout",
+          "attribute": "layout",
+          "description": "When set to \"resource\", doesn't render resource type and ID."
+        },
         {
           "name": "simplifyNsLoading",
           "attribute": "simplify-ns-loading",
@@ -31633,6 +31705,10 @@
       "description": "Basic card displaying webhook status (`fx:webhook_status`) info.",
       "attributes": [
         {
+          "name": "layout",
+          "description": "When set to \"resource\", doesn't render resource type and ID."
+        },
+        {
           "name": "simplify-ns-loading",
           "type": "boolean",
           "default": "false"
@@ -31682,6 +31758,11 @@
         }
       ],
       "properties": [
+        {
+          "name": "layout",
+          "attribute": "layout",
+          "description": "When set to \"resource\", doesn't render resource type and ID."
+        },
         {
           "name": "simplifyNsLoading",
           "attribute": "simplify-ns-loading",

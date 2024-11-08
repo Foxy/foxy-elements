@@ -22,6 +22,11 @@ describe('WebhookLogCard', () => {
     expect(new WebhookLogCard()).to.have.property('ns', 'webhook-log-card');
   });
 
+  it('has a reactive property "layout"', async () => {
+    expect(WebhookLogCard).to.have.deep.nested.property('properties.layout', {});
+    expect(new WebhookLogCard()).to.have.property('layout', null);
+  });
+
   it('renders log date when loaded', async () => {
     const webhookLog = await getTestData<Data>('./hapi/webhook_logs/0');
     const layout = html`<foxy-webhook-log-card></foxy-webhook-log-card>`;
@@ -57,5 +62,19 @@ describe('WebhookLogCard', () => {
     await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text(webhookLog.response_body as string);
+  });
+
+  it('renders resource type and id when loaded in default layout', async () => {
+    const webhookLog = await getTestData<Data>('./hapi/webhook_logs/0');
+    const layout = html`<foxy-webhook-log-card></foxy-webhook-log-card>`;
+    const card = await fixture<WebhookLogCard>(layout);
+
+    card.data = { ...webhookLog, resource_id: 123, resource_type: 'customer' };
+    await card.requestUpdate();
+    expect(card.renderRoot).to.include.text('customer #123');
+
+    card.layout = 'resource';
+    await card.requestUpdate();
+    expect(card.renderRoot).not.to.include.text('customer #123');
   });
 });
