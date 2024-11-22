@@ -62,7 +62,7 @@
       "title": "Setup needed",
       "message": "This element isn't configured to display any data yet. Please consult our docs for setup instructions.",
       "action": "See docs",
-      "href": "https://docs.foxy.io"
+      "href": "https://foxy.io/help"
     }
   }
 }
