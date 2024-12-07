@@ -1,0 +1,545 @@
+{
+  "item": {
+    "label": "New item",
+    "helper_text": "",
+    "basics-group": {
+      "label": "",
+      "helper_text": "",
+      "name": {
+        "label": "Name",
+        "placeholder": "Required",
+        "helper_text": ""
+      },
+      "item-category-uri": {
+        "label": "Category",
+        "helper_text": "",
+        "placeholder": "DEFAULT",
+        "value": "{{ resource.name }}",
+        "dialog": {
+          "cancel": "Cancel",
+          "close": "Close",
+          "header": "Select an item category",
+          "selection": {
+            "label": "",
+            "helper_text": "",
+            "search": "Search",
+            "clear": "Clear",
+            "pagination": {
+              "search_button_text": "Search",
+              "first": "First",
+              "last": "Last",
+              "next": "Next",
+              "pagination": "{{from}}-{{to}} out of {{total}}",
+              "previous": "Previous",
+              "card": {
+                "spinner": {
+                  "loading_busy": "Loading",
+                  "loading_empty": "No item categories found",
+                  "loading_error": "Unknown error"
+                }
+              }
+            }
+          }
+        },
+        "card": {
+          "spinner": {
+            "loading_busy": "Loading",
+            "loading_empty": "Not assigned – click to select",
+            "loading_error": "Unknown error"
+          }
+        }
+      }
+    },
+    "price-group": {
+      "label": "",
+      "helper_text": "",
+      "price": {
+        "label": "Price",
+        "placeholder": "0",
+        "helper_text": ""
+      },
+      "price-default": {
+        "label": "Default price",
+        "placeholder": "0",
+        "helper_text": ""
+      },
+      "price-configurable": {
+        "label": "Allow custom amount",
+        "helper_text": "For donations or pay-what-you-want items.",
+        "checked": "Yes",
+        "unchecked": "No"
+      }
+    },
+    "code-group": {
+      "label": "",
+      "helper_text": "",
+      "code": {
+        "label": "SKU",
+        "placeholder": "Optional",
+        "helper_text": ""
+      },
+      "parent-code": {
+        "label": "Parent SKU",
+        "placeholder": "Optional",
+        "helper_text": "For child items in a bundle."
+      }
+    },
+    "appearance-group": {
+      "label": "Appearance",
+      "helper_text": "",
+      "image": {
+        "label": "Image URL",
+        "placeholder": "Optional",
+        "helper_text": ""
+      },
+      "url": {
+        "label": "Product URL",
+        "placeholder": "Optional",
+        "helper_text": ""
+      }
+    },
+    "subscriptions-group": {
+      "label": "Subscription",
+      "helper_text": "",
+      "sub-enabled": {
+        "label": "This product is a subscription",
+        "helper_text": "",
+        "checked": "Yes",
+        "unchecked": "No"
+      },
+      "sub-frequency": {
+        "label": "Frequency",
+        "helper_text": "",
+        "placeholder": "0",
+        "select": "Select",
+        "day": "Day",
+        "day_plural": "Days",
+        "week": "Week",
+        "week_plural": "Weeks",
+        "month": "Month",
+        "month_plural": "Months",
+        "year": "Year",
+        "year_plural": "Years"
+      },
+      "sub-startdate-format": {
+        "label": "Start",
+        "helper_text": "",
+        "placeholder": "Select",
+        "option_none": "Immediately",
+        "option_yyyymmdd": "On a specific date",
+        "option_dd": "On a specific day of the month",
+        "option_duration": "After a period of time"
+      },
+      "sub-startdate-yyyymmdd": {
+        "label": "Start date",
+        "helper_text": "",
+        "display_value": "{{ value, date }}",
+        "placeholder": "Required"
+      },
+      "sub-startdate-dd": {
+        "label": "Start day of the month",
+        "helper_text": "",
+        "placeholder": "Required"
+      },
+      "sub-startdate-duration": {
+        "label": "Start after",
+        "helper_text": "",
+        "placeholder": "0",
+        "select": "Select",
+        "day": "Day",
+        "day_plural": "Days",
+        "week": "Week",
+        "week_plural": "Weeks",
+        "month": "Month",
+        "month_plural": "Months",
+        "year": "Year",
+        "year_plural": "Years"
+      },
+      "sub-enddate-format": {
+        "label": "End",
+        "helper_text": "",
+        "placeholder": "Select",
+        "option_none": "When cancelled",
+        "option_yyyymmdd": "On a specific date",
+        "option_duration": "After a period of time"
+      },
+      "sub-enddate-yyyymmdd": {
+        "label": "End date",
+        "helper_text": "",
+        "display_value": "{{ value, date }}",
+        "placeholder": "Required"
+      },
+      "sub-enddate-duration": {
+        "label": "End after",
+        "helper_text": "",
+        "placeholder": "0",
+        "select": "Select",
+        "day": "Day",
+        "day_plural": "Days",
+        "week": "Week",
+        "week_plural": "Weeks",
+        "month": "Month",
+        "month_plural": "Months",
+        "year": "Year",
+        "year_plural": "Years"
+      }
+    },
+    "discount-group": {
+      "label": "Discount",
+      "helper_text": "",
+      "discount-name": {
+        "label": "Name",
+        "helper_text": "",
+        "placeholder": "None"
+      },
+      "discount-builder": {
+        "tier": "Tier",
+        "tier_by": "by",
+        "tier_if": "if",
+        "tier_allunits": "price of each item",
+        "tier_incremental": "price of additional items",
+        "tier_repeat": "price of next item",
+        "tier_single": "order total",
+        "tier_then": "then",
+        "quantity": "quantity",
+        "total": "total",
+        "reduce": "reduce",
+        "increase": "increase"
+      }
+    },
+    "expires-group": {
+      "label": "Expiration",
+      "helper_text": "",
+      "expires-format": {
+        "label": "Expiration",
+        "helper_text": "",
+        "placeholder": "Select",
+        "option_none": "Doesn't expire",
+        "option_minutes": "After a number of minutes",
+        "option_timestamp": "On a specific date"
+      },
+      "expires-value-timestamp": {
+        "label": "Expiration date",
+        "helper_text": "",
+        "display_value": "{{ value, date }}",
+        "placeholder": "Required"
+      },
+      "expires-value-minutes": {
+        "label": "Expires after",
+        "helper_text": "",
+        "placeholder": "0"
+      }
+    },
+    "quantity-group": {
+      "label": "Quantity",
+      "helper_text": "",
+      "quantity": {
+        "label": "Quantity",
+        "placeholder": "1",
+        "helper_text": ""
+      },
+      "quantity-min": {
+        "label": "Minimum quantity",
+        "placeholder": "1",
+        "helper_text": ""
+      },
+      "quantity-max": {
+        "label": "Maximum quantity",
+        "placeholder": "None",
+        "helper_text": ""
+      }
+    },
+    "dimensions-group": {
+      "label": "Dimensions",
+      "helper_text": "",
+      "width": {
+        "label": "Width",
+        "helper_text": "",
+        "placeholder": "0"
+      },
+      "height": {
+        "label": "Height",
+        "helper_text": "",
+        "placeholder": "0"
+      },
+      "length": {
+        "label": "Length",
+        "helper_text": "",
+        "placeholder": "0"
+      },
+      "weight": {
+        "label": "Weight",
+        "helper_text": "",
+        "placeholder": "0"
+      }
+    },
+    "custom-options": {
+      "label": "Custom options",
+      "delete_header": "Remove custom option?",
+      "delete_message": "Please confirm that you'd like to remove this custom option from the product.",
+      "delete_confirm": "Remove",
+      "delete_cancel": "Cancel",
+      "dialog": {
+        "header_create": "Add option",
+        "header_update": "Update option",
+        "close": "Close",
+        "save": "Save",
+        "cancel": "Cancel",
+        "undo_header": "Unsaved changes",
+        "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+        "undo_cancel": "Review",
+        "undo_confirm": "Discard",
+        "internal-experimental-add-to-cart-builder-custom-option-form": {
+          "error": {
+            "option_exists": "Option with this name and value already exists.",
+            "option_exists_configurable": "Only one option with this name can exist when its value is configurable."
+          },
+          "basics-group": {
+            "label": "",
+            "helper_text": "",
+            "name": {
+              "label": "Name",
+              "placeholder": "Required",
+              "helper_text": ""
+            },
+            "value": {
+              "label": "Value",
+              "placeholder": "Required",
+              "helper_text": ""
+            },
+            "default-value": {
+              "label": "Default value",
+              "placeholder": "Optional",
+              "helper_text": ""
+            },
+            "value-configurable": {
+              "label": "Let users enter a custom value",
+              "helper_text": "",
+              "checked": "Yes",
+              "unchecked": "No"
+            }
+          },
+          "price-group": {
+            "label": "",
+            "helper_text": "",
+            "price": {
+              "label": "Price modifier",
+              "placeholder": "0",
+              "helper_text": ""
+            },
+            "replace-price": {
+              "label": "Replace item price with this value",
+              "helper_text": "",
+              "checked": "Yes",
+              "unchecked": "No"
+            }
+          },
+          "weight-group": {
+            "label": "",
+            "helper_text": "",
+            "weight": {
+              "label": "Weight modifier",
+              "placeholder": "0",
+              "helper_text": ""
+            },
+            "replace-weight": {
+              "label": "Replace item weight with this value",
+              "helper_text": "",
+              "checked": "Yes",
+              "unchecked": "No"
+            }
+          },
+          "code-group": {
+            "label": "",
+            "helper_text": "",
+            "code": {
+              "label": "Code modifier",
+              "placeholder": "None",
+              "helper_text": ""
+            },
+            "replace-code": {
+              "label": "Replace item code with this value",
+              "helper_text": "",
+              "checked": "Yes",
+              "unchecked": "No"
+            }
+          },
+          "category-group": {
+            "label": "",
+            "helper_text": "",
+            "item-category-uri": {
+              "label": "Change item category to",
+              "helper_text": "",
+              "placeholder": "Don't change",
+              "value": "{{ resource.code }}",
+              "dialog": {
+                "cancel": "Cancel",
+                "close": "Close",
+                "header": "Select an item category",
+                "selection": {
+                  "label": "",
+                  "helper_text": "",
+                  "search": "Search",
+                  "clear": "Clear",
+                  "pagination": {
+                    "search_button_text": "Search",
+                    "first": "First",
+                    "last": "Last",
+                    "next": "Next",
+                    "pagination": "{{from}}-{{to}} out of {{total}}",
+                    "previous": "Previous",
+                    "card": {
+                      "spinner": {
+                        "loading_busy": "Loading",
+                        "loading_empty": "No item categories found",
+                        "loading_error": "Unknown error"
+                      }
+                    }
+                  }
+                }
+              },
+              "card": {
+                "spinner": {
+                  "loading_busy": "Loading",
+                  "loading_empty": "Not assigned – click to select",
+                  "loading_error": "Unknown error"
+                }
+              }
+            }
+          },
+          "delete": {
+            "delete": "Delete",
+            "cancel": "Cancel",
+            "delete_prompt": "Are you sure you'd like to remove this custom option? You won't be able to bring it back."
+          },
+          "undo": {
+            "caption": "Undo"
+          },
+          "submit": {
+            "caption": "Save changes"
+          },
+          "create": {
+            "caption": "Create"
+          },
+          "spinner": {
+            "refresh": "Refresh",
+            "loading_busy": "Loading",
+            "loading_error": "Unknown error"
+          }
+        }
+      },
+      "pagination": {
+        "card": {
+          "delete_button_text": "Delete",
+          "spinner": {
+            "loading_busy": "Loading",
+            "loading_empty": "No options",
+            "loading_error": "Unknown error"
+          }
+        },
+        "create_button_text": "Add option +",
+        "first": "First",
+        "last": "Last",
+        "next": "Next",
+        "pagination": "{{from}}-{{to}} out of {{total}}",
+        "previous": "Previous"
+      }
+    },
+    "delete": {
+      "caption": "Remove from bundle"
+    }
+  },
+  "add-product": {
+    "caption": "Add another item"
+  },
+  "cart-settings-group": {
+    "label": "",
+    "helper_text": "",
+    "template-set-uri": {
+      "label": "Template set",
+      "helper_text": "",
+      "value": "{{ resource.code }}",
+      "value_busy": "Loading...",
+      "value_fail": "Failed to load",
+      "placeholder": "DEFAULT",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select an template set",
+        "selection": {
+          "label": "Template sets",
+          "helper_text": "",
+          "pagination": {
+            "search_button_text": "Search",
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No template sets found",
+                "loading_error": "Unknown error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "empty": {
+      "label": "Before adding new items",
+      "helper_text": "",
+      "placeholder": "Select",
+      "option_false": "Do nothing",
+      "option_true": "Clear the current cart",
+      "option_reset": "Create a new cart"
+    },
+    "cart": {
+      "label": "Skip the cart and go straight to checkout",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
+  },
+  "link": {
+    "label": "",
+    "helper_text": "",
+    "direct_link": "Direct link",
+    "empty": "Modify the item parameters to see the add-to-cart link.",
+    "copy-to-clipboard": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy to clipboard",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
+  "preview": {
+    "label": "",
+    "helper_text": "",
+    "edits_tip": "You are free to edit this code and add styles to match your website. When editing, make sure to keep the names and values of the form elements intact, and preserve all Foxy URLs in the snippet.",
+    "edits_docs": "Learn more...",
+    "price_label": "Price:",
+    "quantity_label": "Quantity:",
+    "shipto_label": "Ship to:",
+    "submit_caption": "Add to cart",
+    "unavailable": {
+      "loading_empty": "Add name and price to every item to see the preview and the add-to-cart code."
+    },
+    "spinner": {
+      "loading_busy": "Signing",
+      "loading_error": "Failed to sign"
+    },
+    "copy-to-clipboard": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy to clipboard",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
+  "spinner": {
+    "refresh": "Refresh",
+    "loading_busy": "Loading",
+    "loading_error": "Unknown error"
+  }
+}

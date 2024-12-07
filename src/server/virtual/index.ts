@@ -50,5 +50,14 @@ export function createRouter(): Router {
     return new Response(JSON.stringify(body));
   });
 
+  router.post('/:prefix/encode', async ({ request }) => {
+    const html = await request.text();
+    const result = html
+      .replace(/value="--OPEN--"/g, 'data-bak="--OPEN--"')
+      .replace(/(value|name|href)="/g, '$1="demo-signature|')
+      .replace(/data-bak="--OPEN--"/g, 'value="--OPEN--"');
+    return new Response(JSON.stringify({ result }));
+  });
+
   return router;
 }

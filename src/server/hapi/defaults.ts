@@ -1087,4 +1087,14 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+
+  experimental_add_to_cart_snippets: (query, dataset) => ({
+    id: increment('experimental_add_to_cart_snippets', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    template_set_uri: null,
+    coupons: [],
+    empty: null,
+    cart: null,
+    custom_options: [],
+  }),
 };

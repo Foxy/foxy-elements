@@ -392,6 +392,10 @@ export const groups = [
     files: './src/elements/public/ErrorEntryCard/**/*.test.ts',
   },
   {
+    name: 'foxy-experimental-add-to-cart-builder',
+    files: './src/elements/public/ExperimentalAddToCartBuilder/**/*.test.ts',
+  },
+  {
     name: 'foxy-filter-attribute-card',
     files: './src/elements/public/FilterAttributeCard/**/*.test.ts',
   },

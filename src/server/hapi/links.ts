@@ -556,4 +556,8 @@ export const links: Links = {
     'fx:store': { href: `./stores/${user_id}` },
     'fx:user': { href: `./users/${user_id}` },
   }),
+
+  experimental_add_to_cart_snippets: ({ store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+  }),
 };
