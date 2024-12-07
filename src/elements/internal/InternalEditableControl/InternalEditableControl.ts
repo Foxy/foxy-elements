@@ -45,12 +45,28 @@ export class InternalEditableControl extends InternalControl {
   };
 
   setValue = (newValue: unknown): void => {
-    if (this.jsonPath) {
-      const json = JSON.parse(this.nucleon?.form[this.property] ?? this.jsonTemplate);
-      set(json, this.jsonPath, newValue);
-      this.nucleon?.edit({ [this.property]: JSON.stringify(json) });
+    const [formProperty, ...nestedPath] = this.property.split('.');
+
+    if (nestedPath.length) {
+      const nestedForm = this.nucleon?.form[formProperty] ?? {};
+
+      if (this.jsonPath) {
+        const json = JSON.parse(this.nucleon?.form[formProperty] ?? this.jsonTemplate);
+        set(json, this.jsonPath, newValue);
+        set(nestedForm, nestedPath, JSON.stringify(json));
+      } else {
+        set(nestedForm, nestedPath, newValue);
+      }
+
+      this.nucleon?.edit({ [formProperty]: nestedForm });
     } else {
-      this.nucleon?.edit({ [this.property]: newValue });
+      if (this.jsonPath) {
+        const json = JSON.parse(this.nucleon?.form[formProperty] ?? this.jsonTemplate);
+        set(json, this.jsonPath, newValue);
+        this.nucleon?.edit({ [formProperty]: JSON.stringify(json) });
+      } else {
+        this.nucleon?.edit({ [formProperty]: newValue });
+      }
     }
   };
 
