@@ -17,7 +17,7 @@ export class InternalSummaryControl extends InternalEditableControl {
     return [
       ...super.styles,
       css`
-        ::slotted(*) {
+        :host(:not([layout='section'])) slot::slotted(*) {
           background-color: var(--lumo-contrast-5pct);
           padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px);
         }
@@ -33,7 +33,7 @@ export class InternalSummaryControl extends InternalEditableControl {
     ];
   }
 
-  layout: null | 'details' = null;
+  layout: null | 'section' | 'details' = null;
 
   open = false;
 
@@ -60,13 +60,13 @@ export class InternalSummaryControl extends InternalEditableControl {
               ?hidden=${!this.label && !this.helperText}
             >
               <p
-                class="font-medium text-body text-l flex items-center justify-between gap-s"
+                class="font-medium uppercase text-s tracking-wider flex items-center justify-between gap-s"
                 ?hidden=${!this.label}
               >
                 <span>${this.label}</span>
                 <span
                   class="flex items-center justify-center transition-colors text-tertiary group-hover-text-body"
-                  style="transform: translateX(0.2em)"
+                  style="transform: scale(1.35)"
                 >
                   ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1.2em; height: 1.2em"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>`}
                 </span>
