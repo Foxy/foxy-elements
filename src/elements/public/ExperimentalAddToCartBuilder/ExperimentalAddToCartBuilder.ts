@@ -7,6 +7,7 @@ import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ResponsiveMixin } from '../../../mixins/responsive';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { decode, encode } from 'html-entities';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { previewCSS } from './preview.css';
@@ -94,14 +95,22 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
 
   private __openState: boolean[] = [];
 
+  get hiddenSelector(): BooleanSelector {
+    const alwaysMatch = [super.hiddenSelector.toString()];
+    alwaysMatch.unshift('header:copy-id', 'header:copy-json', 'undo');
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
+  }
+
   renderBody(): TemplateResult {
     const addToCartCode = this.__getAddToCartCode();
     const storeUrl = this.data?._links['fx:store'].href ?? this.store ?? void 0;
     const store = this.__storeLoader?.data;
 
     return html`
+      ${this.renderHeader()}
+
       <div class="grid gap-m items-start sm-grid-cols-2 md-grid-cols-3 h-full overflow-auto">
-        <div class="space-y-m">
+        <foxy-internal-summary-control layout="section" class="space-y-s" infer="items">
           ${this.form.items?.map((product, index) => {
             return html`
               <foxy-internal-summary-control
@@ -111,8 +120,12 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
                 ?open=${ifDefined(this.__openState[index])}
                 @toggle=${(evt: CustomEvent) => {
                   const details = evt.currentTarget as InternalSummaryControl;
-                  this.__openState[index] = details.open;
-                  this.__openState = [...this.__openState];
+                  if (details.open) {
+                    this.__openState = this.__openState.map((_, i) => i === index);
+                  } else {
+                    this.__openState[index] = details.open;
+                    this.__openState = [...this.__openState];
+                  }
                 }}
               >
                 <foxy-internal-experimental-add-to-cart-builder-item-control
@@ -121,6 +134,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
                   store=${ifDefined(storeUrl)}
                   index=${index}
                   infer=""
+                  .defaultItemCategory=${this.__defaultItemCategory}
                   @remove=${() => {
                     const newProducts = this.form.items?.filter((_, i) => i !== index);
                     this.edit({ items: newProducts });
@@ -134,9 +148,10 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
 
           <vaadin-button
             class="w-full"
+            theme="success"
             ?disabled=${this.disabled}
             @click=${() => {
-              const newItem = { name: '', price: 0, custom_options: [] };
+              const newItem = { name: '', price: 0, custom_options: [], sub_frequency: '1m' };
               const existingItems = this.form.items ?? [];
               this.edit({ items: [...existingItems, newItem] });
               this.__openState = [...new Array(existingItems.length).fill(false), true];
@@ -144,7 +159,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
           >
             <foxy-i18n infer="add-product" key="caption"></foxy-i18n>
           </vaadin-button>
-        </div>
+        </foxy-internal-summary-control>
 
         <div class="space-y-m md-col-span-2 sticky top-0">
           ${addToCartCode
@@ -283,7 +298,10 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
                 </foxy-internal-summary-control>
               `}
 
-          <foxy-internal-summary-control infer="cart-settings-group">
+          <foxy-internal-summary-control infer="cart-settings-group-one">
+            <foxy-internal-text-control layout="summary-item" infer="coupon">
+            </foxy-internal-text-control>
+
             <foxy-internal-resource-picker-control
               layout="summary-item"
               first=${ifDefined(this.__storeLoader?.data?._links['fx:template_sets'].href)}
@@ -311,6 +329,16 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
             >
             </foxy-internal-switch-control>
           </foxy-internal-summary-control>
+
+          ${this.form.cart !== 'checkout'
+            ? html`
+                <foxy-internal-summary-control infer="cart-settings-group-two">
+                  <foxy-internal-text-control layout="summary-item" infer="redirect">
+                  </foxy-internal-text-control>
+                </foxy-internal-summary-control>
+              `
+            : ''}
+          ${super.renderBody()}
         </div>
       </div>
 
@@ -319,6 +347,15 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
         infer=""
         href=${ifDefined(this.__defaultTemplateSetHref)}
         id="defaultTemplateSetLoader"
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__defaultItemCategoryHref)}
+        id="defaultItemCategoryLoader"
         @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
@@ -405,6 +442,16 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
     }
   }
 
+  private get __defaultItemCategoryHref() {
+    try {
+      const url = new URL(this.__storeLoader?.data?._links['fx:item_categories'].href ?? '');
+      url.searchParams.set('code', 'DEFAULT');
+      return url.toString();
+    } catch {
+      return undefined;
+    }
+  }
+
   private get __resolvedCurrencyCode() {
     type Loader = NucleonElement<Resource<Rels.LocaleCodes>>;
 
@@ -425,6 +472,13 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       $<TemplateSetLoader>('#templateSetLoader')?.data ??
       $<TemplateSetsLoader>('#defaultTemplateSetLoader')?.data?._embedded['fx:template_sets'][0]
     );
+  }
+
+  private get __defaultItemCategory() {
+    type Loader = NucleonElement<Resource<Rels.ItemCategories>>;
+    return this.renderRoot.querySelector<Loader>('#defaultItemCategoryLoader')?.data?._embedded[
+      'fx:item_categories'
+    ][0];
   }
 
   private get __resolvedCartUrl() {
@@ -581,17 +635,17 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
         }
       }
 
-      if (product.quantity_min || product.quantity_max) {
+      const resolvedMinQty = Math.max(1, product.quantity_min ?? 1);
+      const resolvedMaxQty = Math.max(resolvedMinQty, product.quantity_max ?? Infinity);
+
+      if (resolvedMinQty !== resolvedMaxQty && product.expires_format !== 'minutes') {
         output += `${newline()}<label>`;
         level++;
         output += `${newline()}<span>${encode(this.t('preview.quantity_label'))}</span>`;
         output += `${newline()}<input type="number" name="${encode(`${prefix}quantity`)}"`;
+        output += ` min="${encode(String(resolvedMinQty))}"`;
 
-        if (product.expires_format !== 'minutes') {
-          if (product.quantity_min) output += ` min="${encode(String(product.quantity_min))}"`;
-          if (product.quantity_max) output += ` max="${encode(String(product.quantity_max))}"`;
-        }
-
+        if (resolvedMaxQty !== Infinity) output += ` max="${encode(String(resolvedMaxQty))}"`;
         if (store.use_cart_validation) {
           output += ` value="--OPEN--" data-replace="${encode(String(product.quantity ?? 1))}">`;
         } else {
@@ -605,11 +659,11 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       }
 
       if (product.expires_format !== 'minutes') {
-        if (product.quantity_min) {
-          addHiddenInput(`${prefix}quantity_min`, product.quantity_min.toFixed(0));
+        if (resolvedMinQty !== 1) {
+          addHiddenInput(`${prefix}quantity_min`, resolvedMinQty.toFixed(0));
         }
-        if (product.quantity_max) {
-          addHiddenInput(`${prefix}quantity_max`, product.quantity_max.toFixed(0));
+        if (resolvedMinQty !== Infinity) {
+          addHiddenInput(`${prefix}quantity_max`, resolvedMinQty.toFixed(0));
         }
       }
 
@@ -637,7 +691,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
         if (!acc[option.name]) acc[option.name] = [];
         acc[option.name].push(option);
         return acc;
-      }, {} as Record<string, Data['items'][number]['custom_options']>);
+      }, {} as Record<string, Required<Data>['items'][number]['custom_options']>);
 
       for (const optionName in groupedCustomOptions) {
         const group = groupedCustomOptions[optionName];
@@ -838,7 +892,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
   }
 
   private __getOptionModifiers(
-    option: Data['items'][number]['custom_options'][number],
+    option: Required<Data>['items'][number]['custom_options'][number],
     optionItemCategory: Resource<Rels.ItemCategory> | null,
     currencyCode: string
   ) {

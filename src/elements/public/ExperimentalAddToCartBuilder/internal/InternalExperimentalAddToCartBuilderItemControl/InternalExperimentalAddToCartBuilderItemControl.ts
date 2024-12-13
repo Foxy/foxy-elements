@@ -14,12 +14,15 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      defaultItemCategory: { type: Object, attribute: 'default-item-category' },
       itemCategories: { attribute: 'item-categories' },
       currencyCode: { attribute: 'currency-code' },
       index: { type: Number },
       store: {},
     };
   }
+
+  defaultItemCategory: Resource<Rels.ItemCategory> | null = null;
 
   itemCategories: string | null = null;
 
@@ -28,7 +31,7 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
   index = 0;
 
   renderControl(): TemplateResult {
-    const itemCategory = this.__itemCategoryLoader?.data;
+    const itemCategory = this.__resolvedItemCategory;
     const nucleon = this.nucleon as ExperimentalAddToCartBuilder | null;
     const index = this.index;
     const item = nucleon?.form.items?.[index];
@@ -86,7 +89,7 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
           </foxy-internal-text-control>
         </foxy-internal-summary-control>
 
-        <foxy-internal-summary-control infer="appearance-group" layout="details">
+        <foxy-internal-summary-control infer="appearance-group">
           <foxy-internal-text-control
             property="items.${index}.image"
             layout="summary-item"
@@ -106,7 +109,7 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
             : ''}
         </foxy-internal-summary-control>
 
-        <foxy-internal-summary-control infer="subscriptions-group" layout="details">
+        <foxy-internal-summary-control infer="subscriptions-group">
           <foxy-internal-switch-control
             property="items.${index}.sub_enabled"
             layout="summary-item"
@@ -120,6 +123,7 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
                   property="items.${index}.sub_frequency"
                   layout="summary-item"
                   infer="sub-frequency"
+                  allow-twice-a-month
                 >
                 </foxy-internal-frequency-control>
 
@@ -203,67 +207,6 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
             : ''}
         </foxy-internal-summary-control>
 
-        <foxy-internal-summary-control infer="discount-group" layout="details">
-          <foxy-internal-text-control
-            property="items.${index}.discount_name"
-            layout="summary-item"
-            infer="discount-name"
-          >
-          </foxy-internal-text-control>
-
-          ${item?.discount_name
-            ? html`
-                <foxy-discount-builder
-                  infer="discount-builder"
-                  .parsedValue=${{
-                    details: item?.discount_details ?? '',
-                    type: item?.discount_type ?? 'discount_amount_percentage',
-                    name: item?.discount_name ?? '',
-                  }}
-                  @change=${(evt: CustomEvent) =>
-                    this.__handleDiscountBuilderChange(evt, item, index)}
-                >
-                </foxy-discount-builder>
-              `
-            : ''}
-        </foxy-internal-summary-control>
-
-        <foxy-internal-summary-control infer="expires-group" layout="details">
-          <foxy-internal-select-control
-            property="items.${index}.expires_format"
-            layout="summary-item"
-            infer="expires-format"
-            .options=${[
-              { label: 'option_none', value: 'none' },
-              { label: 'option_minutes', value: 'minutes' },
-              { label: 'option_timestamp', value: 'timestamp' },
-            ]}
-          >
-          </foxy-internal-select-control>
-
-          ${item?.expires_format === 'minutes'
-            ? html`
-                <foxy-internal-number-control
-                  property="items.${index}.expires_value"
-                  layout="summary-item"
-                  suffix="min"
-                  infer="expires-value-minutes"
-                >
-                </foxy-internal-number-control>
-              `
-            : item?.expires_format === 'timestamp'
-            ? html`
-                <foxy-internal-date-control
-                  property="items.${index}.expires_value"
-                  layout="summary-item"
-                  format="unix"
-                  infer="expires-value-timestamp"
-                >
-                </foxy-internal-date-control>
-              `
-            : ''}
-        </foxy-internal-summary-control>
-
         <foxy-internal-summary-control infer="quantity-group" layout="details">
           <foxy-internal-number-control
             property="items.${index}.quantity"
@@ -297,7 +240,65 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
               `}
         </foxy-internal-summary-control>
 
-        <foxy-internal-summary-control infer="dimensions-group" layout="details">
+        <foxy-internal-summary-control infer="advanced-group" layout="details">
+          <foxy-internal-text-control
+            property="items.${index}.discount_name"
+            layout="summary-item"
+            infer="discount-name"
+          >
+          </foxy-internal-text-control>
+
+          ${item?.discount_name
+            ? html`
+                <foxy-discount-builder
+                  infer="discount-builder"
+                  .parsedValue=${{
+                    details: item?.discount_details ?? '',
+                    type: item?.discount_type ?? 'discount_amount_percentage',
+                    name: item?.discount_name ?? '',
+                  }}
+                  @change=${(evt: CustomEvent) => {
+                    this.__handleDiscountBuilderChange(evt, item, index);
+                  }}
+                >
+                </foxy-discount-builder>
+              `
+            : ''}
+
+          <foxy-internal-select-control
+            property="items.${index}.expires_format"
+            layout="summary-item"
+            infer="expires-format"
+            .options=${[
+              { label: 'option_none', value: 'none' },
+              { label: 'option_minutes', value: 'minutes' },
+              { label: 'option_timestamp', value: 'timestamp' },
+            ]}
+          >
+          </foxy-internal-select-control>
+
+          ${item?.expires_format === 'minutes'
+            ? html`
+                <foxy-internal-number-control
+                  property="items.${index}.expires_value"
+                  layout="summary-item"
+                  suffix="min"
+                  infer="expires-value-minutes"
+                >
+                </foxy-internal-number-control>
+              `
+            : item?.expires_format === 'timestamp'
+            ? html`
+                <foxy-internal-date-control
+                  property="items.${index}.expires_value"
+                  layout="summary-item"
+                  format="unix"
+                  infer="expires-value-timestamp"
+                >
+                </foxy-internal-date-control>
+              `
+            : ''}
+
           <foxy-internal-number-control
             placeholder=${ifDefined(itemCategory?.default_weight)}
             property="items.${index}.weight"
@@ -376,6 +377,10 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
     `;
   }
 
+  private get __resolvedItemCategory() {
+    return this.__itemCategoryLoader?.data ?? this.defaultItemCategory;
+  }
+
   private get __itemCategoryLoader() {
     type Loader = NucleonElement<Resource<Rels.ItemCategory>>;
     return this.renderRoot.querySelector<Loader>('#itemCategoryLoader');
@@ -383,7 +388,7 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
 
   private __handleDiscountBuilderChange(
     evt: CustomEvent,
-    item: Data['items'][number],
+    item: Required<Data>['items'][number],
     index: number
   ) {
     const builder = evt.currentTarget as DiscountBuilder;
