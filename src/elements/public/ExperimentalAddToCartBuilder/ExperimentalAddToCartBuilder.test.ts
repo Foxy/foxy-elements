@@ -542,7 +542,7 @@ describe('ExperimentalAddToCartBuilder', () => {
             <span>preview.quantity_label</span>
             <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
           </label>
-          <button type="submit">preview.submit_caption</button>
+          <button type="submit">preview.submit_caption_cart</button>
         </form>
       `,
     },
@@ -599,7 +599,7 @@ describe('ExperimentalAddToCartBuilder', () => {
           <input type="hidden" name="width" value="30.000">
           <input type="hidden" name="height" value="40.000">
           <input type="hidden" name="weight" value="10.000">
-          <button type="submit">preview.submit_caption</button>
+          <button type="submit">preview.submit_caption_cart</button>
         </form>
       `,
     },
@@ -629,7 +629,7 @@ describe('ExperimentalAddToCartBuilder', () => {
             <span>preview.quantity_label</span>
             <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
           </label>
-          <button type="submit">preview.submit_caption</button>
+          <button type="submit">preview.submit_caption_cart</button>
         </form>
       `,
     },
@@ -662,7 +662,7 @@ describe('ExperimentalAddToCartBuilder', () => {
             <span>preview.quantity_label</span>
             <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
           </label>
-          <button type="submit">preview.submit_caption</button>
+          <button type="submit">preview.submit_caption_cart</button>
         </form>
       `,
     },
@@ -695,7 +695,7 @@ describe('ExperimentalAddToCartBuilder', () => {
             <span>preview.quantity_label</span>
             <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
           </label>
-          <button type="submit">preview.submit_caption</button>
+          <button type="submit">preview.submit_caption_cart</button>
         </form>
       `,
     },
@@ -722,7 +722,7 @@ describe('ExperimentalAddToCartBuilder', () => {
             <span>preview.quantity_label</span>
             <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
           </label>
-          <button type="submit">preview.submit_caption</button>
+          <button type="submit">preview.submit_caption_cart</button>
         </form>
       `,
     },
@@ -745,7 +745,7 @@ describe('ExperimentalAddToCartBuilder', () => {
           <input type="hidden" name="name" value="Test5">
           <input type="hidden" name="price" value="40AUD">
           <input type="hidden" name="expires" value="15">
-          <button type="submit">preview.submit_caption</button>
+          <button type="submit">preview.submit_caption_cart</button>
         </form>
       `,
     },
@@ -813,7 +813,7 @@ describe('ExperimentalAddToCartBuilder', () => {
               <option value="Option2Value11{p+5AUD|w:10|y:CATEGORY_1|c+FOOBAR}">Option2Value11</option>
             </select>
           </label>
-          <button type="submit">preview.submit_caption</button>
+          <button type="submit">preview.submit_caption_cart</button>
         </form>
       `,
     },
@@ -841,7 +841,7 @@ describe('ExperimentalAddToCartBuilder', () => {
             <span>preview.quantity_label</span>
             <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
           </label>
-          <button type="submit">preview.submit_caption</button>
+          <button type="submit">preview.submit_caption_checkout</button>
         </form>
       `,
     },
@@ -874,7 +874,7 @@ describe('ExperimentalAddToCartBuilder', () => {
               <input type="number" name="2:quantity" min="1" value="--OPEN--" data-replace="1">
             </label>
           </fieldset>
-          <button type="submit">preview.submit_caption</button>
+          <button type="submit">preview.submit_caption_cart</button>
         </form>
       `,
     },
@@ -942,7 +942,7 @@ describe('ExperimentalAddToCartBuilder', () => {
               </select>
             </label>
           </fieldset>
-          <button type="submit">preview.submit_caption</button>
+          <button type="submit">preview.submit_caption_cart</button>
         </form>
       `,
     },

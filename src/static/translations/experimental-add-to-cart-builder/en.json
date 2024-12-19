@@ -101,7 +101,7 @@
           "label": "",
           "helper_text": "",
           "sub-enabled": {
-            "label": "Enable subscription",
+            "label": "Create subscription",
             "helper_text": "",
             "checked": "Yes",
             "unchecked": "No"
@@ -504,8 +504,8 @@
       "label": "After adding items",
       "helper_text": "",
       "placeholder": "Select",
-      "option_add": "Do nothing",
-      "option_checkout": "Open checkout",
+      "option_add": "Display the cart",
+      "option_checkout": "Go to checkout",
       "option_redirect": "Redirect to a page"
     },
     "redirect": {
@@ -540,7 +540,8 @@
     "price_label": "Price:",
     "quantity_label": "Quantity:",
     "shipto_label": "Ship to:",
-    "submit_caption": "Add to cart",
+    "submit_caption_cart": "Add to cart",
+    "submit_caption_checkout": "Purchase",
     "unavailable": {
       "loading_busy": "Loading preview..."
     },

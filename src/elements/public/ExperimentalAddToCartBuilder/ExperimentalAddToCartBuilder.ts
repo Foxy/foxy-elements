@@ -760,7 +760,8 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       }
     }
 
-    const encodedSubmitCaption = encode(this.t('preview.submit_caption'));
+    const submitCaptionSuffix = this.form.cart === 'checkout' ? 'checkout' : 'cart';
+    const encodedSubmitCaption = encode(this.t(`preview.submit_caption_${submitCaptionSuffix}`));
     output += `${newline()}<button type="submit">${encodedSubmitCaption}</button>`;
     level--;
     output += `${newline()}</form>`;
