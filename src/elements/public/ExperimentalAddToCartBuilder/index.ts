@@ -1,9 +1,11 @@
 import '@vaadin/vaadin-button';
 
 import '../../internal/InternalResourcePickerControl/index';
+import '../../internal/InternalEditableListControl/index';
 import '../../internal/InternalSummaryControl/index';
 import '../../internal/InternalSwitchControl/index';
 import '../../internal/InternalSelectControl/index';
+import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 
 import '../TemplateSetCard/index';

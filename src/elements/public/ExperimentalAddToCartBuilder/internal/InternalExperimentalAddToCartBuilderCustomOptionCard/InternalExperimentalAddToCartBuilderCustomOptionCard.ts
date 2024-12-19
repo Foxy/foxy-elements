@@ -8,8 +8,8 @@ export class InternalExperimentalAddToCartBuilderCustomOptionCard extends Intern
   renderBody(): TemplateResult {
     return html`
       <div class="flex justify-between items-center h-xs">
-        <span class="font-medium">${this.data?.name}</span>
-        <span class="text-secondary">${this.data?.value}</span>
+        <span class="font-medium">${this.data?.name}&ZeroWidthSpace;</span>
+        <span class="text-secondary">${this.data?.value}&ZeroWidthSpace;</span>
       </div>
     `;
   }

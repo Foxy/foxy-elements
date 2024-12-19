@@ -13,7 +13,7 @@ export interface ExperimentalAddToCartSnippet extends Graph {
     redirect?: string;
     coupon?: string;
     empty?: 'false' | 'true' | 'reset';
-    cart?: 'add' | 'checkout';
+    cart?: 'add' | 'checkout' | 'redirect';
     items?: {
       name: string;
       item_category_uri?: string;
@@ -28,12 +28,13 @@ export interface ExperimentalAddToCartSnippet extends Graph {
       sub_startdate_format?: 'none' | 'yyyymmdd' | 'dd' | 'duration';
       sub_startdate?: string | number;
       sub_enddate_format?: 'none' | 'yyyymmdd' | 'duration';
-      sub_enddate?: string;
+      sub_enddate?: string | number;
       discount_details?: string;
       discount_type?: string;
       discount_name?: string;
       expires_format?: 'minutes' | 'timestamp' | 'none';
       expires_value?: number;
+      hide_quantity?: boolean;
       quantity?: number;
       quantity_max?: number;
       quantity_min?: number;

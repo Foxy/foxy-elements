@@ -58,6 +58,18 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
 
   private readonly __signingSeparator = `--${Date.now()}${(Math.random() * 100000).toFixed(0)}--`;
 
+  private readonly __emptyOptions = [
+    { label: 'option_false', value: 'false' },
+    { label: 'option_true', value: 'true' },
+    { label: 'option_reset', value: 'reset' },
+  ];
+
+  private readonly __cartOptions = [
+    { label: 'option_add', value: 'add' },
+    { label: 'option_checkout', value: 'checkout' },
+    { label: 'option_redirect', value: 'redirect' },
+  ];
+
   private readonly __signAsync = debounce(async (html: string, encodeHelper: string) => {
     if (html === this.__previousUnsignedCode && this.__previousSignedCode) return;
 
@@ -107,8 +119,6 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
     const store = this.__storeLoader?.data;
 
     return html`
-      ${this.renderHeader()}
-
       <div class="grid gap-m items-start sm-grid-cols-2 md-grid-cols-3 h-full overflow-auto">
         <foxy-internal-summary-control layout="section" class="space-y-s" infer="items">
           ${this.form.items?.map((product, index) => {
@@ -116,16 +126,12 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
               <foxy-internal-summary-control
                 layout="details"
                 label=${ifDefined(product.name.trim() || void 0)}
-                infer="item"
+                infer="item-group"
                 ?open=${ifDefined(this.__openState[index])}
                 @toggle=${(evt: CustomEvent) => {
                   const details = evt.currentTarget as InternalSummaryControl;
-                  if (details.open) {
-                    this.__openState = this.__openState.map((_, i) => i === index);
-                  } else {
-                    this.__openState[index] = details.open;
-                    this.__openState = [...this.__openState];
-                  }
+                  this.__openState[index] = details.open;
+                  this.__openState = [...this.__openState];
                 }}
               >
                 <foxy-internal-experimental-add-to-cart-builder-item-control
@@ -133,7 +139,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
                   currency-code=${ifDefined(this.__resolvedCurrencyCode ?? void 0)}
                   store=${ifDefined(storeUrl)}
                   index=${index}
-                  infer=""
+                  infer="item"
                   .defaultItemCategory=${this.__defaultItemCategory}
                   @remove=${() => {
                     const newProducts = this.form.items?.filter((_, i) => i !== index);
@@ -239,69 +245,71 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
                 </foxy-internal-summary-control>
 
                 <foxy-internal-summary-control infer="link">
-                  <div
-                    class="flex items-center leading-s min-w-0 relative"
-                    style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
-                  >
-                    <foxy-i18n infer="" key="direct_link"></foxy-i18n>
-
-                    <a
-                      target="_blank"
-                      style="max-width: 30rem"
-                      href=${addToCartCode.linkHref}
-                      class=${classMap({
-                        'font-medium truncate ml-auto min-w-0 rounded-s': true,
-                        'transition-all filter': true,
-                        'hover-underline': true,
-                        'focus-outline-none focus-ring-2 focus-ring-primary-50': true,
-                        'blur-sm': this.__signingState !== 'idle',
-                      })}
-                    >
-                      ${addToCartCode.linkHref}
-                    </a>
-
-                    <div
-                      style="top: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px); right: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
-                      class=${classMap({
-                        'absolute right-0 bg-base rounded-s transition-opacity': true,
-                        'opacity-0 pointer-events-none': this.__signingState !== 'busy',
-                      })}
-                    >
-                      <div class="bg-contrast-10 rounded-s">
-                        <foxy-spinner
-                          infer="spinner"
-                          state=${this.__signingState === 'fail' ? 'error' : 'busy'}
-                          class="-mx-xs"
-                          style="transform: scale(0.8)"
+                  ${addToCartCode.linkHref
+                    ? html`
+                        <div
+                          class="flex items-center leading-s min-w-0 relative"
+                          style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
                         >
-                        </foxy-spinner>
-                      </div>
-                    </div>
-
-                    <foxy-copy-to-clipboard
-                      infer="copy-to-clipboard"
-                      text=${addToCartCode.linkHref}
-                      class=${classMap({
-                        'flex-shrink-0 text-m transition-opacity': true,
-                        'opacity-0 pointer-events-none': this.__signingState === 'busy',
-                      })}
-                    >
-                    </foxy-copy-to-clipboard>
-                  </div>
+                          <foxy-i18n infer="" key="direct_link"></foxy-i18n>
+                          <a
+                            target="_blank"
+                            style="max-width: 30rem"
+                            href=${addToCartCode.linkHref}
+                            class=${classMap({
+                              'font-medium truncate ml-auto min-w-0 rounded-s': true,
+                              'transition-all filter': true,
+                              'hover-underline': true,
+                              'focus-outline-none focus-ring-2 focus-ring-primary-50': true,
+                              'blur-sm': this.__signingState !== 'idle',
+                            })}
+                          >
+                            ${addToCartCode.linkHref}
+                          </a>
+                          <div
+                            style="top: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px); right: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+                            class=${classMap({
+                              'absolute right-0 bg-base rounded-s transition-opacity': true,
+                              'opacity-0 pointer-events-none': this.__signingState !== 'busy',
+                            })}
+                          >
+                            <div class="bg-contrast-10 rounded-s">
+                              <foxy-spinner
+                                infer="spinner"
+                                state=${this.__signingState === 'fail' ? 'error' : 'busy'}
+                                class="-mx-xs"
+                                style="transform: scale(0.8)"
+                              >
+                              </foxy-spinner>
+                            </div>
+                          </div>
+                          <foxy-copy-to-clipboard
+                            infer="copy-to-clipboard"
+                            text=${addToCartCode.linkHref}
+                            class=${classMap({
+                              'flex-shrink-0 text-m transition-opacity': true,
+                              'opacity-0 pointer-events-none': this.__signingState === 'busy',
+                            })}
+                          >
+                          </foxy-copy-to-clipboard>
+                        </div>
+                      `
+                    : html`
+                        <p class="text-disabled">
+                          <foxy-i18n infer="" key="unavailable"></foxy-i18n>
+                        </p>
+                      `}
                 </foxy-internal-summary-control>
               `
             : html`
                 <foxy-internal-summary-control infer="preview">
                   <div class="flex items-center justify-center p-xl">
-                    <foxy-spinner infer="unavailable" state="empty"></foxy-spinner>
+                    <foxy-spinner infer="unavailable"></foxy-spinner>
                   </div>
                 </foxy-internal-summary-control>
               `}
 
-          <foxy-internal-summary-control infer="cart-settings-group-one">
-            <foxy-internal-text-control layout="summary-item" infer="coupon">
-            </foxy-internal-text-control>
-
+          <foxy-internal-summary-control infer="cart-settings">
             <foxy-internal-resource-picker-control
               layout="summary-item"
               first=${ifDefined(this.__storeLoader?.data?._links['fx:template_sets'].href)}
@@ -313,32 +321,27 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
             <foxy-internal-select-control
               layout="summary-item"
               infer="empty"
-              .options=${[
-                { label: 'option_false', value: 'false' },
-                { label: 'option_true', value: 'true' },
-                { label: 'option_reset', value: 'reset' },
-              ]}
+              .options=${this.__emptyOptions}
             >
             </foxy-internal-select-control>
 
-            <foxy-internal-switch-control
-              false-alias="add"
-              true-alias="checkout"
+            <foxy-internal-select-control
               layout="summary-item"
               infer="cart"
+              .options=${this.__cartOptions}
             >
-            </foxy-internal-switch-control>
-          </foxy-internal-summary-control>
+            </foxy-internal-select-control>
 
-          ${this.form.cart !== 'checkout'
-            ? html`
-                <foxy-internal-summary-control infer="cart-settings-group-two">
+            ${this.form.cart === 'redirect'
+              ? html`
                   <foxy-internal-text-control layout="summary-item" infer="redirect">
                   </foxy-internal-text-control>
-                </foxy-internal-summary-control>
-              `
-            : ''}
-          ${super.renderBody()}
+                `
+              : ''}
+
+            <foxy-internal-text-control layout="summary-item" infer="coupon">
+            </foxy-internal-text-control>
+          </foxy-internal-summary-control>
         </div>
       </div>
 
@@ -363,7 +366,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       <foxy-nucleon
         class="hidden"
         infer=""
-        href=${ifDefined(this.localeCodes)}
+        href=${ifDefined(this.localeCodes ?? void 0)}
         id="localeCodesHelperLoader"
         @update=${() => this.requestUpdate()}
       >
@@ -392,7 +395,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
           <foxy-nucleon
             class="hidden"
             infer=""
-            href=${ifDefined(product.item_category_uri)}
+            href=${ifDefined(product.item_category_uri ?? void 0)}
             id="itemCategoryLoaderProduct${index}"
             @update=${() => this.requestUpdate()}
           >
@@ -403,7 +406,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
               <foxy-nucleon
                 class="hidden"
                 infer=""
-                href=${ifDefined(option.item_category_uri)}
+                href=${ifDefined(option.item_category_uri ?? void 0)}
                 id="itemCategoryLoaderProduct${index}Option${i}"
                 @update=${() => this.requestUpdate()}
               >
@@ -419,7 +422,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
     super.updated(changes);
 
     if (this.in('idle') && !this.form.items?.length) {
-      this.edit({ items: [{ name: '', price: 0, custom_options: [] }] });
+      this.edit({ items: [{ name: '', price: 0, sub_frequency: '1m', custom_options: [] }] });
       this.__openState = [true];
     }
 
@@ -429,7 +432,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
   }
 
   submit(): void {
-    // Do nothing – in this version of the element, this form is not meant to be submitted.
+    // Do nothing – this form is not meant to be submitted.
   }
 
   private get __defaultTemplateSetHref() {
@@ -515,6 +518,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
 
     if (!this.defaultDomain || !templateSet || !store || !currencyCode || !cartUrl) return '';
 
+    let hasAtLeastOneFieldset = false;
     let output = `<form action="${encode(cartUrl)}" method="post" target="_blank">`;
     let level = 1;
 
@@ -526,8 +530,10 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
     };
 
     if (templateSet.code !== 'DEFAULT') addHiddenInput('template_set', templateSet.code);
-    if (this.form.empty) addHiddenInput('empty', this.form.empty);
+    if (this.form.empty && this.form.empty !== 'false') addHiddenInput('empty', this.form.empty);
     if (this.form.cart === 'checkout') addHiddenInput('cart', 'checkout');
+    if (this.form.redirect) addHiddenInput('redirect', this.form.redirect);
+    if (this.form.coupon) addHiddenInput('coupon', this.form.coupon);
 
     const items = this.form.items ?? [];
     const hasMoreThanOneProduct = items.length > 1;
@@ -537,39 +543,47 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       const itemCategory = itemCategoryLoader?.data;
       const product = items[productIndex];
 
-      if (!product.name || !product.price) return '';
       if (product.item_category_uri && !itemCategory) return '';
 
-      const hasConfigurableQuantity = product.quantity_min !== product.quantity_max;
-      const hasConfigurablePrice = product.price_configurable;
-      const hasConfigurableOptions = product.custom_options.some(
+      const resolvedMinQty = Math.max(1, product.quantity_min ?? 1);
+      const resolvedMaxQty = Math.max(resolvedMinQty, product.quantity_max ?? Infinity);
+      const varyQty =
+        resolvedMinQty !== resolvedMaxQty &&
+        product.expires_format !== 'minutes' &&
+        !product.hide_quantity;
+
+      const varyPrice = product.price_configurable;
+      const varyptions = product.custom_options.some(
         (v, i, a) => v.value_configurable || a.findIndex(vv => vv.name === v.name) !== i
       );
 
-      const useFieldset =
-        hasMoreThanOneProduct &&
-        (hasConfigurablePrice || hasConfigurableQuantity || hasConfigurableOptions);
+      const resolvedName =
+        product.name.trim() || this.t('items.item-group.item.basics-group.name.placeholder');
 
-      if (useFieldset) {
+      const needsFieldset =
+        hasAtLeastOneFieldset || (hasMoreThanOneProduct && (varyPrice || varyQty || varyptions));
+
+      if (needsFieldset) {
+        hasAtLeastOneFieldset = true;
         output += `${newline()}<fieldset>`;
         level++;
-        output += `${newline()}<legend>${encode(product.name)}</legend>`;
+        output += `${newline()}<legend>${encode(resolvedName)}</legend>`;
       }
 
       const prefix = productIndex === 0 ? '' : `${productIndex + 1}:`;
-      addHiddenInput(`${prefix}name`, product.name);
+      addHiddenInput(`${prefix}name`, resolvedName);
       const price = `${product.price}${currencyCode}`;
 
       if (product.price_configurable) {
-        const encodedPrice = encode(price);
+        const encodedNoCurrencyPrice = encode(product.price.toFixed(2));
         output += `${newline()}<label>`;
         level++;
         output += `${newline()}<span>${encode(this.t('preview.price_label'))}</span>`;
 
         if (store.use_cart_validation) {
-          output += `${newline()}<input required name="${prefix}price" value="--OPEN--" data-replace="${encodedPrice}">`;
+          output += `${newline()}<input required name="${prefix}price" value="--OPEN--" data-replace="${encodedNoCurrencyPrice}">`;
         } else {
-          output += `${newline()}<input required name="${prefix}price" value="${encodedPrice}">`;
+          output += `${newline()}<input required name="${prefix}price" value="${encodedNoCurrencyPrice}">`;
         }
 
         level--;
@@ -614,7 +628,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
               const day = date.getDate().toString().padStart(2, '0');
               addHiddenInput(`${prefix}sub_enddate`, `${year}${month}${day}`);
             } else {
-              addHiddenInput(`${prefix}sub_enddate`, product.sub_enddate);
+              addHiddenInput(`${prefix}sub_enddate`, String(product.sub_enddate));
             }
           }
         }
@@ -629,16 +643,13 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
 
       if (product.expires_value) {
         if (product.expires_format === 'timestamp') {
-          addHiddenInput(`${prefix}expires`, (product.expires_value / 1000).toFixed(0));
+          addHiddenInput(`${prefix}expires`, product.expires_value.toFixed(0));
         } else {
           addHiddenInput(`${prefix}expires`, product.expires_value.toFixed(0));
         }
       }
 
-      const resolvedMinQty = Math.max(1, product.quantity_min ?? 1);
-      const resolvedMaxQty = Math.max(resolvedMinQty, product.quantity_max ?? Infinity);
-
-      if (resolvedMinQty !== resolvedMaxQty && product.expires_format !== 'minutes') {
+      if (varyQty) {
         output += `${newline()}<label>`;
         level++;
         output += `${newline()}<span>${encode(this.t('preview.quantity_label'))}</span>`;
@@ -662,8 +673,8 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
         if (resolvedMinQty !== 1) {
           addHiddenInput(`${prefix}quantity_min`, resolvedMinQty.toFixed(0));
         }
-        if (resolvedMinQty !== Infinity) {
-          addHiddenInput(`${prefix}quantity_max`, resolvedMinQty.toFixed(0));
+        if (resolvedMaxQty !== Infinity) {
+          addHiddenInput(`${prefix}quantity_max`, resolvedMaxQty.toFixed(0));
         }
       }
 
@@ -743,7 +754,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
         }
       }
 
-      if (useFieldset) {
+      if (needsFieldset) {
         level--;
         output += `${newline()}</fieldset>`;
       }
@@ -768,8 +779,12 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
     const url = new URL(cartUrl);
 
     if (templateSet.code !== 'DEFAULT') url.searchParams.set('template_set', templateSet.code);
-    if (this.form.empty) url.searchParams.set('empty', this.form.empty);
     if (this.form.cart === 'checkout') url.searchParams.set('cart', 'checkout');
+    if (this.form.redirect) url.searchParams.set('redirect', this.form.redirect);
+    if (this.form.coupon) url.searchParams.set('coupon', this.form.coupon);
+    if (this.form.empty && this.form.empty !== 'false') {
+      url.searchParams.set('empty', this.form.empty);
+    }
 
     for (let index = 0; index < (this.form.items?.length ?? 0); ++index) {
       const product = this.form.items![index];
@@ -777,6 +792,10 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       const itemCategory = this.__getItemCategoryLoader(index)?.data;
 
       if (product.item_category_uri && !itemCategory) return '';
+      if (product.price_configurable) return '';
+      if (new Set(product.custom_options.map(v => v.name)).size < product.custom_options.length) {
+        return '';
+      }
 
       if (itemCategory && itemCategory.code !== 'DEFAULT') {
         url.searchParams.set(`${prefix}category`, itemCategory.code);
@@ -817,7 +836,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
               const day = date.getDate().toString().padStart(2, '0');
               url.searchParams.set(`${prefix}sub_enddate`, `${year}${month}${day}`);
             } else {
-              url.searchParams.set(`${prefix}sub_enddate`, product.sub_enddate);
+              url.searchParams.set(`${prefix}sub_enddate`, String(product.sub_enddate));
             }
           }
         }
@@ -832,7 +851,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
 
       if (product.expires_value) {
         if (product.expires_format === 'timestamp') {
-          url.searchParams.set(`${prefix}expires`, (product.expires_value / 1000).toFixed(0));
+          url.searchParams.set(`${prefix}expires`, product.expires_value.toFixed(0));
         } else {
           url.searchParams.set(`${prefix}expires`, product.expires_value.toFixed(0));
         }
@@ -856,11 +875,14 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       if (product.width) url.searchParams.set(`${prefix}width`, product.width.toFixed(3));
       if (product.height) url.searchParams.set(`${prefix}height`, product.height.toFixed(3));
 
-      product.custom_options.forEach((option, optionIndex) => {
+      for (let optionIndex = 0; optionIndex < product.custom_options.length; ++optionIndex) {
+        const option = product.custom_options[optionIndex];
+        if (option.value_configurable) return '';
+
         const itemCategory = this.__getItemCategoryLoader(index, optionIndex)?.data;
         const modifiers = this.__getOptionModifiers(option, itemCategory ?? null, currencyCode);
         url.searchParams.set(`${prefix}${option.name}`, `${option.value ?? ''}${modifiers}`);
-      });
+      }
     }
 
     return url.toString();
@@ -872,21 +894,28 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
 
     const formHTML = this.__getAddToCartFormHTML();
     const linkHref = this.__getAddToCartLinkHref();
-    if (!formHTML || !linkHref) return null;
+    if (!formHTML && !linkHref) return null;
 
-    const linkHTML = `<a href="${encode(linkHref)}">Add to cart</a>`;
-    const unsignedCode = `${formHTML}${this.__signingSeparator}${linkHTML}`;
+    let unsignedCode: string;
+
+    if (linkHref) {
+      const linkHTML = `<a href="${encode(linkHref)}">Add to cart</a>`;
+      unsignedCode = `${formHTML}${this.__signingSeparator}${linkHTML}`;
+    } else {
+      unsignedCode = formHTML;
+    }
 
     if (unsignedCode === this.__previousUnsignedCode && this.__previousSignedCode) {
-      const signedCode = this.__previousSignedCode.split(this.__signingSeparator);
+      const [formHTML, linkHTML] = this.__previousSignedCode.split(this.__signingSeparator);
       return {
-        formHTML: signedCode[0],
-        linkHref: decode(signedCode[1].substring(9, signedCode[1].length - 17)),
+        linkHref: linkHTML ? decode(linkHTML.substring(9, linkHTML.length - 17)) : '',
+        formHTML,
       };
     }
 
     this.__previousUnsignedCode = unsignedCode;
     this.__previousSignedCode = '';
+
     if (store.use_cart_validation) this.__signAsync(unsignedCode, this.encodeHelper);
     return { formHTML, linkHref };
   }

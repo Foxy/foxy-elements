@@ -26,7 +26,7 @@ export class InternalExperimentalAddToCartBuilderCustomOptionForm extends Base<D
 
   defaultWeightUnit: string | null = null;
 
-  existingOptions: Data[] = [];
+  existingOptions: Omit<Data, '_links'>[] = [];
 
   itemCategories: string | null = null;
 
@@ -34,17 +34,25 @@ export class InternalExperimentalAddToCartBuilderCustomOptionForm extends Base<D
 
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = [super.readonlySelector.toString()];
-    if (this.data) alwaysMatch.unshift('basics-group');
+    if (this.href) alwaysMatch.unshift('basics-group');
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
   get disabledSelector(): BooleanSelector {
     const alwaysMatch = [super.disabledSelector.toString()];
 
-    if (!this.data) {
-      if (this.existingOptions.some(o => o.name === this.form.name)) {
-        alwaysMatch.unshift('basics-group:value-configurable');
-      }
+    if (!this.href && this.existingOptions.some(o => o.name === this.form.name)) {
+      alwaysMatch.unshift('basics-group:value-configurable');
+    }
+
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
+  }
+
+  get hiddenSelector(): BooleanSelector {
+    const alwaysMatch = [super.hiddenSelector.toString()];
+
+    if (this.form.value_configurable) {
+      alwaysMatch.unshift('price-group', 'weight-group', 'code-group', 'category-group');
     }
 
     return new BooleanSelector(alwaysMatch.join(' ').trim());
@@ -65,54 +73,50 @@ export class InternalExperimentalAddToCartBuilderCustomOptionForm extends Base<D
         <foxy-internal-switch-control infer="value-configurable"></foxy-internal-switch-control>
       </foxy-internal-summary-control>
 
-      ${this.form.value_configurable
-        ? ''
-        : html`
-            <foxy-internal-summary-control infer="price-group">
-              <foxy-internal-number-control
-                layout="summary-item"
-                suffix=${ifDefined(this.currencyCode ?? void 0)}
-                infer="price"
-              >
-              </foxy-internal-number-control>
-              <foxy-internal-switch-control infer="replace-price"></foxy-internal-switch-control>
-            </foxy-internal-summary-control>
+      <foxy-internal-summary-control infer="price-group">
+        <foxy-internal-number-control
+          layout="summary-item"
+          suffix=${ifDefined(this.currencyCode ?? void 0)}
+          infer="price"
+        >
+        </foxy-internal-number-control>
+        <foxy-internal-switch-control infer="replace-price"></foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
-            <foxy-internal-summary-control infer="weight-group">
-              <foxy-internal-number-control
-                layout="summary-item"
-                suffix=${ifDefined(this.__resolvedDefaultWeightUnit ?? void 0)}
-                infer="weight"
-              >
-              </foxy-internal-number-control>
-              <foxy-internal-switch-control infer="replace-weight"></foxy-internal-switch-control>
-            </foxy-internal-summary-control>
+      <foxy-internal-summary-control infer="weight-group">
+        <foxy-internal-number-control
+          layout="summary-item"
+          suffix=${ifDefined(this.__resolvedDefaultWeightUnit ?? void 0)}
+          infer="weight"
+        >
+        </foxy-internal-number-control>
+        <foxy-internal-switch-control infer="replace-weight"></foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
-            <foxy-internal-summary-control infer="code-group">
-              <foxy-internal-text-control layout="summary-item" infer="code">
-              </foxy-internal-text-control>
-              <foxy-internal-switch-control infer="replace-code"></foxy-internal-switch-control>
-            </foxy-internal-summary-control>
+      <foxy-internal-summary-control infer="code-group">
+        <foxy-internal-text-control layout="summary-item" infer="code">
+        </foxy-internal-text-control>
+        <foxy-internal-switch-control infer="replace-code"></foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
-            <foxy-internal-summary-control infer="category-group">
-              <foxy-internal-resource-picker-control
-                layout="summary-item"
-                first=${ifDefined(this.itemCategories ?? undefined)}
-                infer="item-category-uri"
-                item="foxy-item-category-card"
-              >
-              </foxy-internal-resource-picker-control>
-            </foxy-internal-summary-control>
+      <foxy-internal-summary-control infer="category-group">
+        <foxy-internal-resource-picker-control
+          layout="summary-item"
+          first=${ifDefined(this.itemCategories ?? undefined)}
+          infer="item-category-uri"
+          item="foxy-item-category-card"
+        >
+        </foxy-internal-resource-picker-control>
+      </foxy-internal-summary-control>
 
-            <foxy-nucleon
-              infer=""
-              class="hidden"
-              href=${ifDefined(this.form.item_category_uri ?? void 0)}
-              id="itemCategoryLoader"
-              @update=${() => this.requestUpdate()}
-            >
-            </foxy-nucleon>
-          `}
+      <foxy-nucleon
+        infer=""
+        class="hidden"
+        href=${ifDefined(this.form.item_category_uri ?? void 0)}
+        id="itemCategoryLoader"
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
     `;
   }
 

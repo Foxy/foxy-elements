@@ -18,7 +18,6 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
       itemCategories: { attribute: 'item-categories' },
       currencyCode: { attribute: 'currency-code' },
       index: { type: Number },
-      store: {},
     };
   }
 
@@ -32,6 +31,7 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
 
   renderControl(): TemplateResult {
     const itemCategory = this.__resolvedItemCategory;
+    const itemDeliveryType = itemCategory?.item_delivery_type;
     const nucleon = this.nucleon as ExperimentalAddToCartBuilder | null;
     const index = this.index;
     const item = nucleon?.form.items?.[index];
@@ -89,25 +89,21 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
           </foxy-internal-text-control>
         </foxy-internal-summary-control>
 
-        <foxy-internal-summary-control infer="appearance-group">
-          <foxy-internal-text-control
-            property="items.${index}.image"
-            layout="summary-item"
-            infer="image"
-          >
-          </foxy-internal-text-control>
-
-          ${item?.image
-            ? html`
-                <foxy-internal-text-control
-                  property="items.${index}.url"
+        ${itemDeliveryType === 'notshipped' || itemDeliveryType === 'downloaded'
+          ? ''
+          : html`
+              <foxy-internal-summary-control infer="appearance-group">
+                <foxy-internal-number-control
+                  placeholder=${ifDefined(itemCategory?.default_weight)}
+                  property="items.${index}.weight"
                   layout="summary-item"
-                  infer="url"
+                  suffix=${ifDefined(itemCategory?.default_weight_unit)}
+                  infer="weight"
+                  min="0"
                 >
-                </foxy-internal-text-control>
-              `
-            : ''}
-        </foxy-internal-summary-control>
+                </foxy-internal-number-control>
+              </foxy-internal-summary-control>
+            `}
 
         <foxy-internal-summary-control infer="subscriptions-group">
           <foxy-internal-switch-control
@@ -238,6 +234,12 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
                 >
                 </foxy-internal-number-control>
               `}
+
+          <foxy-internal-switch-control
+            property="items.${index}.hide_quantity"
+            infer="hide-quantity"
+          >
+          </foxy-internal-switch-control>
         </foxy-internal-summary-control>
 
         <foxy-internal-summary-control infer="advanced-group" layout="details">
@@ -254,7 +256,7 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
                   infer="discount-builder"
                   .parsedValue=${{
                     details: item?.discount_details ?? '',
-                    type: item?.discount_type ?? 'discount_amount_percentage',
+                    type: item?.discount_type ?? 'amount_percentage',
                     name: item?.discount_name ?? '',
                   }}
                   @change=${(evt: CustomEvent) => {
@@ -262,6 +264,24 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
                   }}
                 >
                 </foxy-discount-builder>
+              `
+            : ''}
+
+          <foxy-internal-text-control
+            property="items.${index}.image"
+            layout="summary-item"
+            infer="image"
+          >
+          </foxy-internal-text-control>
+
+          ${item?.image
+            ? html`
+                <foxy-internal-text-control
+                  property="items.${index}.url"
+                  layout="summary-item"
+                  infer="url"
+                >
+                </foxy-internal-text-control>
               `
             : ''}
 
@@ -298,43 +318,36 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
                 </foxy-internal-date-control>
               `
             : ''}
+          ${itemDeliveryType === 'notshipped' || itemDeliveryType === 'downloaded'
+            ? ''
+            : html`
+                <foxy-internal-number-control
+                  property="items.${index}.length"
+                  layout="summary-item"
+                  suffix=${ifDefined(itemCategory?.default_length_unit)}
+                  infer="length"
+                  min="0"
+                >
+                </foxy-internal-number-control>
 
-          <foxy-internal-number-control
-            placeholder=${ifDefined(itemCategory?.default_weight)}
-            property="items.${index}.weight"
-            layout="summary-item"
-            suffix=${ifDefined(itemCategory?.default_weight_unit)}
-            infer="weight"
-            min="0"
-          >
-          </foxy-internal-number-control>
+                <foxy-internal-number-control
+                  property="items.${index}.width"
+                  layout="summary-item"
+                  suffix=${ifDefined(itemCategory?.default_length_unit)}
+                  infer="width"
+                  min="0"
+                >
+                </foxy-internal-number-control>
 
-          <foxy-internal-number-control
-            property="items.${index}.length"
-            layout="summary-item"
-            suffix=${ifDefined(itemCategory?.default_length_unit)}
-            infer="length"
-            min="0"
-          >
-          </foxy-internal-number-control>
-
-          <foxy-internal-number-control
-            property="items.${index}.width"
-            layout="summary-item"
-            suffix=${ifDefined(itemCategory?.default_length_unit)}
-            infer="width"
-            min="0"
-          >
-          </foxy-internal-number-control>
-
-          <foxy-internal-number-control
-            property="items.${index}.height"
-            layout="summary-item"
-            suffix=${ifDefined(itemCategory?.default_length_unit)}
-            infer="height"
-            min="0"
-          >
-          </foxy-internal-number-control>
+                <foxy-internal-number-control
+                  property="items.${index}.height"
+                  layout="summary-item"
+                  suffix=${ifDefined(itemCategory?.default_length_unit)}
+                  infer="height"
+                  min="0"
+                >
+                </foxy-internal-number-control>
+              `}
         </foxy-internal-summary-control>
 
         <foxy-internal-async-list-control
@@ -352,7 +365,7 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
         >
         </foxy-internal-async-list-control>
 
-        ${nucleon?.form.items?.length === 1
+        ${(nucleon?.form.items?.length ?? 0) <= 1
           ? html``
           : html`
               <vaadin-button
