@@ -11,14 +11,18 @@ import { BooleanSelector } from '@foxy.io/sdk/core';
 import { decode, encode } from 'html-entities';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { previewCSS } from './preview.css';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { html, svg } from 'lit-element';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../utils/class-map';
 
 import debounce from 'lodash-es/debounce';
+import hljsxml from 'highlight.js/lib/languages/xml.js';
+import hljs from 'highlight.js/lib/core.js';
 
 const NS = 'experimental-add-to-cart-builder';
 const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
+hljs.registerLanguage('xml', hljsxml);
 
 /**
  * WARNING: this element is marked as experimental and is subject to change in future releases.
@@ -199,7 +203,11 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
                         'blur-sm': this.__signingState !== 'idle',
                       })}
                     >
-                      <code class="whitespace-pre">${addToCartCode.formHTML}</code>
+                      <code class="whitespace-pre"
+                        >${unsafeHTML(
+                          hljs.highlight(addToCartCode.formHTML, { language: 'xml' }).value
+                        )}</code
+                      >
                     </div>
 
                     <div
