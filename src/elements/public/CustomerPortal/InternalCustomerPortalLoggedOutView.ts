@@ -341,6 +341,7 @@ export class InternalCustomerPortalLoggedOutView extends Base<Data> {
   private readonly __renderSignUpForm = () => {
     const scope = 'sign-up:form';
     const hidden = [
+      'header',
       'tax-id',
       'is-anonymous',
       'password-old',

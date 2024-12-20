@@ -45,6 +45,7 @@ export { DownloadableForm } from './DownloadableForm/index';
 export { EmailTemplateCard } from './EmailTemplateCard/index';
 export { EmailTemplateForm } from './EmailTemplateForm/index';
 export { ErrorEntryCard } from './ErrorEntryCard/index';
+export { ExperimentalAddToCartBuilder } from './ExperimentalAddToCartBuilder/index';
 export { FilterAttributeCard } from './FilterAttributeCard/index';
 export { FilterAttributeForm } from './FilterAttributeForm/index';
 export { FormDialog } from './FormDialog/index';

@@ -19,8 +19,10 @@ export class API extends CoreAPI<any> {
         new Promise<Response>((resolve, reject) => {
           const request = typeof args[0] === 'string' ? new API.WHATWGRequest(...args) : args[0];
 
-          request.headers.set('Content-Type', 'application/json');
           request.headers.set('FOXY-API-VERSION', '1');
+          if (!request.headers.has('Content-Type')) {
+            request.headers.set('Content-Type', 'application/json');
+          }
 
           const event = new FetchEvent('fetch', {
             cancelable: true,

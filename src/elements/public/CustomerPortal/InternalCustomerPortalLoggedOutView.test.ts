@@ -725,7 +725,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
         expect(form).to.have.attribute('disabledcontrols', 'abc:def');
         expect(form).to.have.attribute(
           'hiddencontrols',
-          'tax-id is-anonymous password-old forgot-password timestamps delete qux'
+          'header tax-id is-anonymous password-old forgot-password timestamps delete qux'
         );
         expect(form).to.have.attribute('parent', 'foxy://customer-api/signup');
         expect(form).to.have.attribute('group', 'test');

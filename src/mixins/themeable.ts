@@ -158,6 +158,26 @@ export const ThemeableMixin = <TBase extends Base>(
               .snap-start {
                 scroll-snap-align: start;
               }
+
+              .hljs-tag {
+                color: var(--lumo-tertiary-text-color);
+                font-weight: 500;
+              }
+
+              .hljs-name {
+                color: var(--lumo-primary-text-color);
+                font-weight: 500;
+              }
+
+              .hljs-attr {
+                color: var(--lumo-secondary-text-color);
+                font-weight: 500;
+              }
+
+              .hljs-string {
+                color: var(--lumo-success-text-color);
+                font-weight: 500;
+              }
             }
           }
         `,
