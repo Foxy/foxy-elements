@@ -33,6 +33,7 @@
     "option_onesource": "ONESOURCE",
     "option_webflow": "Webflow",
     "option_zapier": "Zapier",
+    "option_custom_tax": "Custom Tax Endpoint",
     "helper_text": "Changing service provider is not possible after creation.",
     "v8n_required": "Please select a provider."
   },
@@ -273,9 +274,6 @@
     "label": "URL",
     "placeholder": "",
     "helper_text": "The URL of your custom tax service."
-  },
-  "custom-tax-warning": {
-    "warning_text": "It is currently not possible to configure this integration in this new admin app. Please use the legacy app at admin.foxycart.com to make changes."
   },
   "timestamps": {
     "date_created": "Created on",

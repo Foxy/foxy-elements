@@ -314,7 +314,6 @@ describe('NativeIntegrationForm', () => {
     expect(element.readonlySelector.matches('zapier-events', true)).to.be.true;
     expect(element.readonlySelector.matches('zapier-url', true)).to.be.true;
     expect(element.readonlySelector.matches('apple-pay-merchant-id', true)).to.be.true;
-    expect(element.readonlySelector.matches('custom-tax-url', true)).to.be.true;
   });
 
   it('produces error:already_configured when trying to add another config for an already configured integration', async () => {
@@ -393,6 +392,7 @@ describe('NativeIntegrationForm', () => {
       { value: 'avalara', label: 'option_avalara' },
       { value: 'onesource', label: 'option_onesource' },
       { value: 'taxjar', label: 'option_taxjar' },
+      { value: 'custom_tax', label: 'option_custom_tax' },
     ]);
 
     control.setValue('taxjar');
@@ -1336,20 +1336,5 @@ describe('NativeIntegrationForm', () => {
 
     expect(control).to.be.instanceOf(InternalTextControl);
     expect(control.getValue()).to.equal('https://example.com');
-  });
-
-  it('renders a readonly content warning for custom tax', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'custom_tax';
-    data.config = JSON.stringify(defaults.customTax);
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
-    `);
-
-    const warning = element.renderRoot.querySelector('[key="warning_text"]');
-
-    expect(warning).to.be.instanceOf(I18n);
-    expect(warning).to.have.attribute('infer', 'custom-tax-warning');
   });
 });

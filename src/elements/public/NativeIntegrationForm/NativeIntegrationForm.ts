@@ -156,6 +156,7 @@ export class NativeIntegrationForm extends Base<Data> {
     { value: 'avalara', label: 'option_avalara' },
     { value: 'onesource', label: 'option_onesource' },
     { value: 'taxjar', label: 'option_taxjar' },
+    { value: 'custom_tax', label: 'option_custom_tax' },
   ];
 
   private readonly __avalaraConfigOptions: Option[] = [
@@ -263,13 +264,7 @@ export class NativeIntegrationForm extends Base<Data> {
     const match = [super.readonlySelector.toString()];
 
     if (this.href) {
-      match.push(
-        'apple-pay-merchant-id',
-        'custom-tax-url',
-        'zapier-events',
-        'zapier-url',
-        'provider'
-      );
+      match.push('apple-pay-merchant-id', 'zapier-events', 'zapier-url', 'provider');
     }
 
     return new BooleanSelector(match.join(' ').trim());
@@ -722,10 +717,6 @@ export class NativeIntegrationForm extends Base<Data> {
         .setValue=${this.__createConfigSetterFor('url')}
       >
       </foxy-internal-text-control>
-
-      <p class="text-xs text-secondary leading-xs">
-        <foxy-i18n infer="custom-tax-warning" key="warning_text"></foxy-i18n>
-      </p>
     `;
   }
 }
