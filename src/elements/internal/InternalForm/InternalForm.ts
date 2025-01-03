@@ -183,8 +183,8 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
         <div
           class=${classMap({
             'space-y-m': true,
-            'transition-opacity': true,
-            'opacity-0 pointer-events-none': isSpinnerVisible,
+            'transition-all filter': true,
+            'opacity-30 blur-sm pointer-events-none': isSpinnerVisible,
           })}
         >
           ${this.__generalErrors.map(err => this.__renderGeneralError(err))}
