@@ -1,21 +1,21 @@
-export const webhookLegacyXml = {
+export const webhookLegacyXml = JSON.stringify({
   service: 'legacy_xml',
   version: 1,
   events: ['transaction/created'],
   title: '',
   url: '',
-};
+});
 
-export const webhookJson = {
+export const webhookJson = JSON.stringify({
   encryption_key: '',
   service: 'json',
   version: 1,
   events: [],
   title: '',
   url: '',
-};
+});
 
-export const onesource = {
+export const onesource = JSON.stringify({
   part_number_product_option: '',
   product_order_priority: '',
   calling_system_number: '',
@@ -25,17 +25,17 @@ export const onesource = {
   service_url: '',
   host_system: '',
   from_city: '',
-};
+});
 
-export const customTax = {
+export const customTax = JSON.stringify({
   url: '',
-};
+});
 
-export const applePay = {
+export const applePay = JSON.stringify({
   merchantID: '',
-};
+});
 
-export const avalara = {
+export const avalara = JSON.stringify({
   category_to_product_tax_code_mappings: {},
   enable_colorado_delivery_fee: false,
   address_validation_countries: [],
@@ -46,9 +46,9 @@ export const avalara = {
   use_ava_tax: false,
   key: '',
   id: '',
-};
+});
 
-export const webflow = {
+export const webflow = JSON.stringify({
   inventory_field_name: '',
   inventory_field_id: '',
   collection_name: '',
@@ -61,16 +61,16 @@ export const webflow = {
   site_id: '',
   events: ['transaction/created'],
   auth: '',
-};
+});
 
-export const zapier = {
+export const zapier = JSON.stringify({
   service: 'zapier',
   events: [],
   url: '',
-};
+});
 
-export const taxjar = {
+export const taxjar = JSON.stringify({
   category_to_product_tax_code_mappings: {},
   create_invoice: false,
   api_token: '',
-};
+});
