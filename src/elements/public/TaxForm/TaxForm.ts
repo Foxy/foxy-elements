@@ -1,35 +1,22 @@
-import { Checkbox, Dropdown, Metadata } from '../../private/index';
-import { CheckboxChangeEvent, DropdownChangeEvent } from '../../private/events';
-import { Data } from './types';
-import { Nucleon, Resource } from '@foxy.io/sdk/core';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { TemplateResult, html } from 'lit-html';
+import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
+import type { NucleonV8N } from '../NucleonElement/types';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
+import type { Data } from './types';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
-import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
-import { ConfigurableMixin } from '../../../mixins/configurable';
-import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { IntegerFieldElement } from '@vaadin/vaadin-text-field/vaadin-integer-field';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { NucleonV8N } from '../NucleonElement/types';
-import { PropertyDeclarations } from 'lit-element';
-import { Rels } from '@foxy.io/sdk/backend';
-import { TextFieldElement } from '@vaadin/vaadin-text-field';
-import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
+import { BooleanSelector } from '@foxy.io/sdk/core';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { interpret } from 'xstate';
+import { html } from 'lit-html';
+
+const NS = 'tax-form';
+const Base = TranslatableMixin(InternalForm, NS);
 
 // prettier-ignore
 const defaultLiveRateCountries: (string | undefined)[] = ['US', 'CA', 'AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GB', 'GR', 'HR', 'HU', 'IE', 'IM', 'IT', 'LT', 'LU', 'LV', 'MC', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK'];
 const taxJarLiveRateCountries = [...defaultLiveRateCountries, 'AU'];
-
-const NS = 'tax-form';
-const Base = ConfigurableMixin(
-  ThemeableMixin(ScopedElementsMixin(TranslatableMixin(NucleonElement, NS)))
-);
 
 /**
  * Form element for creating or editing taxes (`fx:tax`).
@@ -38,717 +25,328 @@ const Base = ConfigurableMixin(
  * @since 1.13.0
  */
 export class TaxForm extends Base<Data> {
-  static get scopedElements(): ScopedElementsMap {
-    return {
-      'vaadin-number-field': customElements.get('vaadin-number-field'),
-      'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'vaadin-combo-box': customElements.get('vaadin-combo-box'),
-      'vaadin-button': customElements.get('vaadin-button'),
-      'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
-      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
-      'foxy-spinner': customElements.get('foxy-spinner'),
-      'foxy-i18n': customElements.get('foxy-i18n'),
-      'x-metadata': Metadata,
-      'x-checkbox': Checkbox,
-      'x-dropdown': Dropdown,
-    };
-  }
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      countries: { type: String, noAccessor: true },
-      regions: { type: String, noAccessor: true },
+      nativeIntegrations: { attribute: 'native-integrations' },
+      countries: {},
+      regions: {},
     };
   }
 
   static get v8n(): NucleonV8N<Data> {
     return [
-      ({ name: v }) => !!v || 'name_required',
-      ({ name: v }) => !v || v.length <= 30 || 'name_too_long',
-      ({ country: c, type: t }) => t !== 'country' || !!c || 'country_required',
-      ({ country: c, type: t }) => t !== 'region' || !!c || 'country_required',
-      ({ country: c, use_origin_rates: r }) => !r || !!c || 'country_required',
-      ({ country: v }) => !v || !!v.match(/[A-Z]{2}/) || 'country_invalid',
-      ({ region: v, type: t }) => t != 'region' || !!v || 'region_required',
-      ({ region: v }) => !v || v.length <= 20 || 'region_too_long',
-      ({ city: v }) => !v || v.length <= 50 || 'city_too_long',
-      ({ city: c, type: t }) => t != 'local' || !!c || 'city_required',
-      ({ rate: v }) => !v || v <= 100 || 'rate_invalid',
+      ({ name: v }) => !!v || 'name:v8n_required',
+      ({ name: v }) => !v || v.length <= 30 || 'name:v8n_too_long',
+      ({ country: c, type: t }) => t !== 'country' || !!c || 'country:v8n_required',
+      ({ country: c, type: t }) => t !== 'region' || !!c || 'country:v8n_required',
+      ({ country: c, use_origin_rates: r }) => !r || !!c || 'country:v8n_required',
+      ({ region: v, type: t }) => t != 'region' || !!v || 'region:v8n_required',
+      ({ region: v }) => !v || v.length <= 20 || 'region:v8n_too_long',
+      ({ city: v }) => !v || v.length <= 50 || 'city:v8n_too_long',
+      ({ city: c, type: t }) => t != 'local' || !!c || 'city:v8n_required',
+      ({ rate: v }) => v === void 0 || v > 0 || 'rate:v8n_invalid',
     ];
   }
 
-  private __previousCountry: string | undefined = undefined;
+  /** URL of the `fx:native_integrations` collection for the store. */
+  nativeIntegrations: string | null = null;
 
-  private __countries = '';
+  /** URL of the `fx:countries` property helper resource. */
+  countries: string | null = null;
 
-  private __regions = '';
+  /** URL of the `fx:regions` property helper resource. */
+  regions: string | null = null;
 
-  private __countriesService = interpret(
-    Nucleon.machine.withConfig({
-      services: {
-        sendGet: async () => {
-          const response = await new TaxForm.API(this).fetch(this.countries);
-          if (!response.ok) throw new Error(await response.text());
-          return await response.json();
-        },
-      },
-    })
-  );
+  private __serviceProviderGetValue = () => {
+    return this.form.service_provider || (this.form.is_live ? 'default' : 'none');
+  };
 
-  private __regionsService = interpret(
-    Nucleon.machine.withConfig({
-      services: {
-        sendGet: async () => {
-          const url = new URL(this.regions);
-          url.searchParams.set('country_code', this.form.country ?? 'US');
-          const response = await new TaxForm.API(this).fetch(url.toString());
-          if (!response.ok) throw new Error(await response.text());
-          return await response.json();
-        },
-      },
-    })
-  );
+  private __serviceProviderSetValue = (newValue: string) => {
+    const newProvider = ['none', 'default'].includes(newValue) ? '' : newValue;
 
-  /** URI of the `fx:countries` hAPI resource. */
-  get countries(): string {
-    return this.__countries;
+    this.edit({
+      service_provider: newProvider as Data['service_provider'],
+      use_origin_rates: false,
+      is_live: newValue !== 'none',
+    });
+
+    this.edit({
+      exempt_all_customer_tax_ids: this.__isExemptAllCustomerTaxIdsHidden,
+      apply_to_shipping: this.__isApplyToShippingHidden,
+    });
+  };
+
+  private __countrySetValue = (newValue: string) => {
+    this.edit({ country: newValue, region: '', city: '' });
+    this.edit({ apply_to_shipping: this.__isApplyToShippingHidden });
+  };
+
+  private __regionSetValue = (newValue: string) => {
+    this.edit({ region: newValue, city: '' });
+  };
+
+  private __typeSetValue = (newValue: Data['type']) => {
+    this.edit({
+      type: newValue,
+      country: '',
+      region: '',
+      city: '',
+      // @ts-expect-error SDK types are not up to date.
+      service_provider: newValue === 'custom_tax_endpoint' ? 'custom_tax' : '',
+      apply_to_shipping: false,
+      use_origin_rates: false,
+      exempt_all_customer_tax_ids: false,
+      is_live: false,
+      rate: 0,
+    });
+  };
+
+  private readonly __typeOptions = JSON.stringify([
+    { label: 'option_custom_tax_endpoint', value: 'custom_tax_endpoint' },
+    { label: 'option_global', value: 'global' },
+    { label: 'option_union', value: 'union' },
+    { label: 'option_country', value: 'country' },
+    { label: 'option_region', value: 'region' },
+    { label: 'option_local', value: 'local' },
+  ]);
+
+  get readonlySelector(): BooleanSelector {
+    const alwaysMatch = [super.readonlySelector.toString()];
+    alwaysMatch.unshift('native-integrations');
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
-  set countries(value: string) {
-    this.__countries = value;
+  get hiddenSelector(): BooleanSelector {
+    const alwaysMatch = [super.hiddenSelector.toString()];
 
-    if (value) {
-      this.__countriesService.send({ type: 'FETCH' });
-    } else {
-      this.__countriesService.send({ type: 'SET_DATA', data: null });
+    if (this.__nativeIntegrationsUrl === void 0) alwaysMatch.unshift('native-integrations');
+    if (this.__isCountryHidden) alwaysMatch.unshift('group-three:country');
+    if (this.__isRegionHidden) {
+      alwaysMatch.unshift('group-three:region-select', 'group-three:region-input');
     }
-  }
 
-  /** URI of the `fx:regions` hAPI resource. */
-  get regions(): string {
-    return this.__regions;
-  }
-
-  set regions(value: string) {
-    this.__regions = value;
-
-    if (value) {
-      this.__regionsService.send({ type: 'FETCH' });
-    } else {
-      this.__regionsService.send({ type: 'SET_DATA', data: null });
+    if (this.__isCityHidden) alwaysMatch.unshift('group-three:city');
+    if (this.__isProviderHidden) alwaysMatch.unshift('group-one:service-provider');
+    if (this.__isRateHidden) alwaysMatch.unshift('group-one:rate');
+    if (this.__isApplyToShippingHidden) alwaysMatch.unshift('group-two:apply-to-shipping');
+    if (this.__isUseOriginRatesHidden) alwaysMatch.unshift('group-two:use-origin-rates');
+    if (this.__isExemptAllCustomerTaxIdsHidden) {
+      alwaysMatch.unshift('group-two:exempt-all-customer-tax-ids');
     }
+
+    const regions = Object.values(this.__regionsLoader?.data?.values ?? {});
+    alwaysMatch.unshift(`group-three:region-${regions.length ? 'input' : 'select'}`);
+
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
-  connectedCallback(): void {
-    super.connectedCallback();
+  renderBody(): TemplateResult {
+    const countries = Object.values(this.__countriesLoader?.data?.values ?? {});
+    const countryOptions = countries.map(c => ({ rawLabel: c.default, value: c.cc2 }));
 
-    this.__countriesService.onTransition(({ changed }) => changed && this.requestUpdate());
-    this.__countriesService.onChange(() => this.requestUpdate());
-    this.__countriesService.start();
+    const regions = Object.values(this.__regionsLoader?.data?.values ?? {});
+    const regionOptions = regions.map(r => ({ rawLabel: r.default, value: r.code }));
 
-    this.__regionsService.onTransition(({ changed }) => changed && this.requestUpdate());
-    this.__regionsService.onChange(() => this.requestUpdate());
-    this.__regionsService.start();
-  }
-
-  render(): TemplateResult {
     return html`
-      <div class="relative space-y-m">
-        ${this.__isNameHidden ? null : this.__renderName()}
-        ${this.__isTypeHidden ? null : this.__renderType()}
-        ${this.__isCountryHidden ? null : this.__renderCountry()}
-        ${this.__isRegionHidden ? null : this.__renderRegion()}
-        ${this.__isCityHidden ? null : this.__renderCity()}
-        ${this.__isProviderHidden ? null : this.__renderProvider()}
-        ${this.__isRateHidden ? null : this.__renderRate()}
-        ${this.__isApplyToShippingHidden ? null : this.__renderApplyToShipping()}
-        ${this.__isUseOriginRatesHidden ? null : this.__renderUseOriginRates()}
-        ${this.__isExemptAllCustomerTaxIdsHidden ? null : this.__renderExemptAllCustomerTaxIds()}
-        ${this.__isTimestampsHidden ? null : this.__renderTimestamps()}
-        ${this.__isCreateHidden ? null : this.__renderCreate()}
-        ${this.__isDeleteHidden ? null : this.__renderDelete()}
+      ${this.renderHeader()}
 
-        <div
-          data-testid="spinner"
-          class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex': true,
-            'opacity-0 pointer-events-none': this.in('idle'),
-          })}
+      <foxy-internal-summary-control infer="group-one">
+        <foxy-internal-text-control layout="summary-item" infer="name"></foxy-internal-text-control>
+
+        <foxy-internal-select-control
+          options=${this.__typeOptions}
+          layout="summary-item"
+          infer="type"
+          .setValue=${this.__typeSetValue}
         >
-          <foxy-spinner
-            layout="vertical"
-            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-            state=${this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty'}
-            lang=${this.lang}
-            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
-          >
-          </foxy-spinner>
-        </div>
-      </div>
+        </foxy-internal-select-control>
+
+        <foxy-internal-select-control
+          options=${JSON.stringify(this.__serviceProviderOptions)}
+          layout="summary-item"
+          infer="service-provider"
+          .getValue=${this.__serviceProviderGetValue}
+          .setValue=${this.__serviceProviderSetValue}
+        >
+        </foxy-internal-select-control>
+
+        <foxy-internal-number-control layout="summary-item" suffix="%" infer="rate" min="0">
+        </foxy-internal-number-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-async-list-control
+        infer="native-integrations"
+        first=${ifDefined(this.__nativeIntegrationsUrl)}
+        item="foxy-native-integration-card"
+      >
+      </foxy-internal-async-list-control>
+
+      <foxy-internal-summary-control infer="group-two">
+        <foxy-internal-switch-control infer="exempt-all-customer-tax-ids">
+        </foxy-internal-switch-control>
+        <foxy-internal-switch-control infer="apply-to-shipping"></foxy-internal-switch-control>
+        <foxy-internal-switch-control infer="use-origin-rates"></foxy-internal-switch-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="group-three">
+        <foxy-internal-select-control
+          options=${JSON.stringify(countryOptions)}
+          layout="summary-item"
+          infer="country"
+          .setValue=${this.__countrySetValue}
+        >
+        </foxy-internal-select-control>
+
+        <foxy-internal-select-control
+          property="region"
+          options=${JSON.stringify(regionOptions)}
+          layout="summary-item"
+          infer="region-select"
+          .setValue=${this.__regionSetValue}
+        >
+        </foxy-internal-select-control>
+
+        <foxy-internal-text-control
+          property="region"
+          layout="summary-item"
+          infer="region-input"
+          .setValue=${this.__regionSetValue}
+        >
+        </foxy-internal-text-control>
+
+        <foxy-internal-text-control layout="summary-item" infer="city"></foxy-internal-text-control>
+      </foxy-internal-summary-control>
+
+      ${super.renderBody()}
+
+      <foxy-nucleon
+        infer=""
+        class="hidden"
+        href=${ifDefined(this.countries ?? void 0)}
+        id="countriesLoader"
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        infer=""
+        class="hidden"
+        href=${ifDefined(this.__regionsUrl)}
+        id="regionsLoader"
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
     `;
   }
 
-  updated(changes: Map<keyof this, unknown>): void {
-    super.updated(changes);
+  private get __serviceProviderOptions() {
+    const options = [
+      { label: 'option_none', value: 'none' },
+      { label: 'option_avalara', value: 'avalara' },
+      { label: 'option_onesource', value: 'onesource' },
+    ];
 
-    if (this.form.country !== this.__previousCountry) {
-      this.__previousCountry = this.form.country;
-      this.__regionsService.send({ type: 'FETCH' });
+    if (
+      this.form.type === 'union' ||
+      !this.form.country ||
+      defaultLiveRateCountries.includes(this.form.country)
+    ) {
+      options.unshift({ label: 'option_default', value: 'default' });
     }
 
-    // vaadin's combo box doesn't seem to validate on its own
-    this.renderRoot.querySelectorAll('vaadin-combo-box').forEach(e => e.validate());
+    if (
+      this.form.type === 'union' ||
+      !this.form.country ||
+      taxJarLiveRateCountries.includes(this.form.country)
+    ) {
+      options.push({ label: 'option_taxjar', value: 'taxjar' });
+    }
+
+    return options;
   }
 
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-
-    this.__countriesService.stop();
-    this.__regionsService.stop();
+  private get __nativeIntegrationsUrl() {
+    try {
+      const url = new URL(this.nativeIntegrations ?? '');
+      const provider = this.form.service_provider;
+      if (provider) {
+        url.searchParams.set('provider', provider);
+        return url.toString();
+      }
+    } catch {
+      // do nothing
+    }
   }
 
-  private get __isNameHidden(): boolean {
-    return this.hiddenSelector.matches('name', true);
+  private get __regionsUrl() {
+    try {
+      const regionsURL = new URL(this.regions ?? '');
+      const country = this.form.country;
+      if (country) regionsURL.searchParams.set('country_code', country);
+      return regionsURL.toString();
+    } catch {
+      // do nothing
+    }
   }
 
-  private get __isTypeHidden(): boolean {
-    return this.hiddenSelector.matches('type', true);
+  private get __countriesLoader() {
+    type Loader = NucleonElement<Resource<Rels.Countries>>;
+    return this.renderRoot.querySelector<Loader>('#countriesLoader');
   }
 
-  private get __isCountryHidden(): boolean {
-    if (this.hiddenSelector.matches('country', true)) return true;
-    if (this.form.type === 'union') return !this.form.use_origin_rates;
-    return !(['country', 'region', 'local'] as unknown[]).includes(this.form.type);
+  private get __regionsLoader() {
+    type Loader = NucleonElement<Resource<Rels.Regions>>;
+    return this.renderRoot.querySelector<Loader>('#regionsLoader');
   }
 
-  private get __isRegionHidden(): boolean {
-    if (this.hiddenSelector.matches('region', true)) return true;
-    return this.form.type !== 'local' && this.form.type !== 'region';
+  private get __isExemptAllCustomerTaxIdsHidden() {
+    const type = this.form.type as string | undefined;
+    if (type === 'custom_tax_endpoint') return true;
+    if (type === 'country' || type === 'region' || type === 'local') return !!this.form.is_live;
+
+    const provider = this.form.service_provider as string | undefined;
+    return !provider || provider === 'onesource' || provider === 'avalara' || provider === 'taxjar';
   }
 
-  private get __isCityHidden(): boolean {
-    if (this.hiddenSelector.matches('city', true)) return true;
-    return this.form.type !== 'local';
-  }
+  private get __isApplyToShippingHidden() {
+    const type = this.form.type as string | undefined;
 
-  private get __isProviderHidden(): boolean {
-    if (this.hiddenSelector.matches('provider', true)) return true;
-    return !this.form.type || this.form.type === 'global' || this.form.type === 'local';
-  }
+    if (!type || type === 'custom_tax_endpoint') return true;
+    if (type === 'union') return false;
+    if (type === 'country' && this.form.is_live) return true;
+    if (type === 'region' && this.form.is_live) return true;
 
-  private get __isRateHidden(): boolean {
-    if (this.hiddenSelector.matches('rate', true)) return true;
-    return !this.form.type || this.form.is_live === true;
-  }
-
-  private get __isApplyToShippingHidden(): boolean {
-    if (this.hiddenSelector.matches('apply-to-shipping', true)) return true;
-    if (this.form.type === undefined) return true;
     return !!this.form.is_live && defaultLiveRateCountries.includes(this.form.country);
   }
 
-  private get __isUseOriginRatesHidden(): boolean {
-    if (this.hiddenSelector.matches('use-origin-rates', true)) return true;
+  private get __isUseOriginRatesHidden() {
     return this.form.type !== 'union' || !this.form.is_live || !!this.form.service_provider;
   }
 
-  private get __isExemptAllCustomerTaxIdsHidden(): boolean {
-    if (this.hiddenSelector.matches('exempt-all-customer-tax-ids', true)) return true;
-    const provider = this.form.service_provider as string | undefined;
-    return provider === undefined || provider === 'onesource' || provider === 'avalara';
+  private get __isProviderHidden() {
+    const type = this.form.type as string;
+    return !type || type === 'global' || type === 'local' || type === 'custom_tax_endpoint';
   }
 
-  private get __isTimestampsHidden(): boolean {
-    if (this.hiddenSelector.matches('timestamps', true)) return true;
-    return !this.data;
-  }
-
-  private get __isCreateHidden(): boolean {
-    if (this.hiddenSelector.matches('create', true)) return true;
-    return !!this.data;
-  }
-
-  private get __isDeleteHidden(): boolean {
-    if (this.hiddenSelector.matches('delete', true)) return true;
-    return !this.data;
-  }
-
-  private __getErrorMessage(prefix: string) {
-    const error = this.errors.find(err => err.startsWith(prefix));
-    return error ? this.t(error.replace(prefix, 'v8n')).toString() : '';
-  }
-
-  private __getValidator(prefix: string) {
-    return () => !this.errors.some(err => err.startsWith(prefix));
-  }
-
-  private __renderName(): TemplateResult {
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('name:before')}
-
-        <vaadin-text-field
-          data-testid="name"
-          class="w-full"
-          label=${this.t('name')}
-          value=${ifDefined(this.form.name)}
-          .checkValidity=${this.__getValidator('name')}
-          .errorMessage=${this.__getErrorMessage('name')}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('name', true)}
-          ?readonly=${this.readonlySelector.matches('name', true)}
-          required
-          @keydown=${this.__submitOnEnter}
-          @input=${(evt: CustomEvent) => {
-            const newName = (evt.currentTarget as TextFieldElement).value;
-            this.edit({ name: newName });
-          }}
-        >
-        </vaadin-text-field>
-
-        ${this.renderTemplateOrSlot('name:after')}
-      </div>
-    `;
-  }
-
-  private __renderType(): TemplateResult {
-    if (!this.form.type) this.edit({ type: 'global' });
-
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('type:before')}
-
-        <x-dropdown
-          data-testid="type"
-          label=${this.t('type')}
-          value=${ifDefined(this.form.type)}
-          class="w-full"
-          .items=${['global', 'union', 'country', 'region', 'local']}
-          .getText=${(value: string) => this.t(`tax_${value}`)}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('type', true)}
-          ?readonly=${this.readonlySelector.matches('type', true)}
-          @change=${(evt: DropdownChangeEvent) => {
-            this.edit({
-              type: evt.detail as Data['type'],
-              country: '',
-              region: '',
-              city: '',
-              service_provider: '',
-              apply_to_shipping: false,
-              use_origin_rates: false,
-              exempt_all_customer_tax_ids: false,
-              is_live: false,
-              rate: 0,
-            });
-          }}
-        >
-        </x-dropdown>
-
-        ${this.renderTemplateOrSlot('type:after')}
-      </div>
-    `;
-  }
-
-  private __renderCountry(): TemplateResult {
-    const isLoadingItems = !!this.__countriesService.state?.matches('busy');
-    const isLoadingData = this.in('busy');
-    const isLoading = isLoadingItems || isLoadingData;
-    const isFail = this.in('fail');
-    const json = this.__countriesService.state?.context.data as
-      | Resource<Rels.Countries>
-      | undefined
-      | null;
-
-    const items = Object.values(json?.values ?? {});
-
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('country:before')}
-
-        <vaadin-combo-box
-          item-value-path="cc2"
-          item-label-path="default"
-          item-id-path="cc2"
-          data-testid="country"
-          label="${this.t('country')}${isLoadingItems ? ` • ${this.t('loading_busy')}` : ''}"
-          value=${ifDefined(isLoadingItems ? undefined : this.form.country)}
-          class="w-full"
-          .checkValidity=${this.__getValidator('country')}
-          .errorMessage=${this.__getErrorMessage('country')}
-          .items=${items}
-          ?allow-custom-value=${items.length === 0}
-          ?disabled=${isFail || isLoading || this.disabledSelector.matches('country', true)}
-          ?readonly=${this.readonlySelector.matches('country', true)}
-          required
-          @change=${(evt: CustomEvent) => {
-            this.edit({
-              country: (evt.currentTarget as ComboBoxElement).value,
-              region: '',
-              city: '',
-              is_live: false,
-              service_provider: '',
-            });
-
-            if (this.__isApplyToShippingHidden) this.edit({ apply_to_shipping: false });
-            this.__regionsService.send({ type: 'FETCH' });
-          }}
-        >
-        </vaadin-combo-box>
-
-        ${this.renderTemplateOrSlot('country:after')}
-      </div>
-    `;
-  }
-
-  private __renderRegion(): TemplateResult {
-    const isLoadingItems = !!this.__regionsService.state?.matches('busy');
-    const isLoadingData = this.in('busy');
-    const isLoading = isLoadingItems || isLoadingData;
-    const isFail = this.in('fail');
-    const json = this.__regionsService.state?.context.data as
-      | Resource<Rels.Regions>
-      | undefined
-      | null;
-
-    const items = Object.values(json?.values ?? {});
-
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('region:before')}
-
-        <vaadin-combo-box
-          item-value-path="code"
-          item-label-path="default"
-          item-id-path="code"
-          data-testid="region"
-          label="${this.t('region')}${isLoadingItems ? ` • ${this.t('loading_busy')}` : ''}"
-          value=${ifDefined(isLoadingItems ? undefined : this.form.region)}
-          class="w-full"
-          .checkValidity=${this.__getValidator('region')}
-          .errorMessage=${this.__getErrorMessage('region')}
-          .items=${items}
-          ?allow-custom-value=${items.length === 0}
-          ?disabled=${isFail || isLoading || this.disabledSelector.matches('region', true)}
-          ?readonly=${this.readonlySelector.matches('region', true)}
-          required
-          @change=${(evt: CustomEvent) => {
-            const newRegion = (evt.currentTarget as ComboBoxElement).value;
-            this.edit({ region: newRegion, city: '' });
-          }}
-        >
-        </vaadin-combo-box>
-
-        ${this.renderTemplateOrSlot('region:after')}
-      </div>
-    `;
-  }
-
-  private __renderCity(): TemplateResult {
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('city:before')}
-
-        <vaadin-text-field
-          data-testid="city"
-          class="w-full"
-          label=${this.t('city')}
-          value=${ifDefined(this.form.city)}
-          .checkValidity=${this.__getValidator('city')}
-          .errorMessage=${this.__getErrorMessage('city')}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('city', true)}
-          ?readonly=${this.readonlySelector.matches('city', true)}
-          required
-          @keydown=${this.__submitOnEnter}
-          @input=${(evt: CustomEvent) => {
-            const newCity = (evt.currentTarget as TextFieldElement).value;
-            this.edit({ city: newCity });
-          }}
-        >
-        </vaadin-text-field>
-
-        ${this.renderTemplateOrSlot('city:after')}
-      </div>
-    `;
-  }
-
-  private __renderProvider(): TemplateResult {
-    const items = [
-      { label: this.t('tax_rate_provider_none'), value: 'none' },
-      { label: 'Avalara AvaTax 15', value: 'avalara' },
-      { label: 'Thomson Reuters ONESOURCE', value: 'onesource' },
-    ];
-
-    if (this.form.type === 'union' || defaultLiveRateCountries.includes(this.form.country)) {
-      items.push({ label: this.t('tax_rate_provider_default'), value: 'default' });
+  private get __isCountryHidden() {
+    if (this.form.type === 'union') {
+      return (!this.form.service_provider || this.form.is_live) && !this.form.use_origin_rates;
+    } else {
+      return !(['country', 'region', 'local'] as unknown[]).includes(this.form.type);
     }
-
-    if (taxJarLiveRateCountries.includes(this.form.country)) {
-      items.push({ label: 'TaxJar', value: 'taxjar' });
-    }
-
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('provider:before')}
-
-        <x-dropdown
-          data-testid="provider"
-          label=${this.t('tax_rate_provider')}
-          value=${this.form.service_provider || (this.form.is_live ? 'default' : 'none')}
-          class="w-full"
-          .items=${items.map(item => item.value)}
-          .getText=${(value: string) => items.find(item => item.value === value)?.label}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('provider', true)}
-          ?readonly=${this.readonlySelector.matches('provider', true)}
-          @change=${(evt: DropdownChangeEvent) => {
-            const newValue = evt.detail as string;
-            const newProvider = ['none', 'default'].includes(newValue) ? '' : newValue;
-
-            this.edit({
-              service_provider: newProvider as Data['service_provider'],
-              is_live: newValue !== 'none',
-            });
-
-            if (this.__isExemptAllCustomerTaxIdsHidden) {
-              this.edit({ exempt_all_customer_tax_ids: false });
-            }
-
-            if (this.__isApplyToShippingHidden) this.edit({ apply_to_shipping: false });
-            if (this.__isUseOriginRatesHidden) this.edit({ use_origin_rates: false });
-          }}
-        >
-        </x-dropdown>
-
-        ${this.renderTemplateOrSlot('provider:after')}
-      </div>
-    `;
   }
 
-  private __renderRate(): TemplateResult {
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('rate:before')}
-
-        <vaadin-number-field
-          data-testid="rate"
-          class="w-full"
-          label=${this.t('tax_rate')}
-          value=${ifDefined(this.form.rate)}
-          min="0"
-          .checkValidity=${this.__getValidator('rate')}
-          .errorMessage=${this.__getErrorMessage('rate')}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('rate', true)}
-          ?readonly=${this.readonlySelector.matches('rate', true)}
-          required
-          @keydown=${this.__submitOnEnter}
-          @change=${(evt: CustomEvent) => {
-            const newRate = parseFloat((evt.currentTarget as IntegerFieldElement).value);
-            if (!isNaN(newRate)) this.edit({ rate: newRate });
-          }}
-        >
-        </vaadin-number-field>
-
-        ${this.renderTemplateOrSlot('rate:after')}
-      </div>
-    `;
+  private get __isRegionHidden() {
+    return this.form.type !== 'local' && this.form.type !== 'region';
   }
 
-  private __renderApplyToShipping(): TemplateResult {
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('apply-to-shipping:before')}
-
-        <x-checkbox
-          data-testid="apply-to-shipping"
-          class="leading-s"
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('apply-to-shipping', true)}
-          ?readonly=${this.readonlySelector.matches('apply-to-shipping', true)}
-          ?checked=${!!this.form.apply_to_shipping}
-          @change=${(evt: CheckboxChangeEvent) => this.edit({ apply_to_shipping: evt.detail })}
-        >
-          <foxy-i18n
-            class="block text-m text-body"
-            lang=${this.lang}
-            key="tax_apply_to_shipping"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-
-          <foxy-i18n
-            class="block text-s text-secondary"
-            lang=${this.lang}
-            key="tax_apply_to_shipping_explainer"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-        </x-checkbox>
-
-        ${this.renderTemplateOrSlot('apply-to-shipping:after')}
-      </div>
-    `;
+  private get __isCityHidden() {
+    return this.form.type !== 'local';
   }
 
-  private __renderUseOriginRates(): TemplateResult {
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('use-origin-rates:before')}
-
-        <x-checkbox
-          data-testid="use-origin-rates"
-          class="leading-s"
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('use-origin-rates', true)}
-          ?readonly=${this.readonlySelector.matches('use-origin-rates', true)}
-          ?checked=${!!this.form.use_origin_rates}
-          @change=${(evt: CheckboxChangeEvent) => this.edit({ use_origin_rates: evt.detail })}
-        >
-          <foxy-i18n
-            class="block text-m text-body"
-            lang=${this.lang}
-            key="tax_use_origin_rates"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-
-          <foxy-i18n
-            class="block text-s text-secondary"
-            lang=${this.lang}
-            key="tax_use_origin_rates_explainer"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-        </x-checkbox>
-
-        ${this.renderTemplateOrSlot('use-origin-rates:after')}
-      </div>
-    `;
-  }
-
-  private __renderExemptAllCustomerTaxIds(): TemplateResult {
-    const scope = 'exempt-all-customer-tax-ids';
-
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot(`${scope}:before`)}
-
-        <x-checkbox
-          data-testid="${scope}"
-          class="leading-s"
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches(scope, true)}
-          ?readonly=${this.readonlySelector.matches(scope, true)}
-          ?checked=${!!this.form.exempt_all_customer_tax_ids}
-          @change=${(evt: CheckboxChangeEvent) => {
-            this.edit({ exempt_all_customer_tax_ids: evt.detail });
-          }}
-        >
-          <foxy-i18n
-            class="block text-m text-body"
-            lang=${this.lang}
-            key="tax_exempt_all_customer_tax_ids"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-
-          <foxy-i18n
-            class="block text-s text-secondary"
-            lang=${this.lang}
-            key="tax_exempt_all_customer_tax_ids_explainer"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-        </x-checkbox>
-
-        ${this.renderTemplateOrSlot(`${scope}:after`)}
-      </div>
-    `;
-  }
-
-  private __renderTimestamps(): TemplateResult {
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('timestamps:before')}
-
-        <x-metadata
-          data-testid="timestamps"
-          .items=${(['date_modified', 'date_created'] as const).map(field => ({
-            name: this.t(field),
-            value: this.data?.[field]
-              ? this.t('date', { value: new Date(this.data[field] as string) })
-              : '',
-          }))}
-        >
-        </x-metadata>
-
-        ${this.renderTemplateOrSlot('timestamps:after')}
-      </div>
-    `;
-  }
-
-  private __renderCreate(): TemplateResult {
-    const isCleanTemplateInvalid = this.in({ idle: { template: { clean: 'invalid' } } });
-    const isDirtyTemplateInvalid = this.in({ idle: { template: { dirty: 'invalid' } } });
-    const isCleanSnapshotInvalid = this.in({ idle: { snapshot: { clean: 'invalid' } } });
-    const isDirtySnapshotInvalid = this.in({ idle: { snapshot: { dirty: 'invalid' } } });
-    const isTemplateInvalid = isCleanTemplateInvalid || isDirtyTemplateInvalid;
-    const isSnaphotInvalid = isCleanSnapshotInvalid || isDirtySnapshotInvalid;
-    const isInvalid = isTemplateInvalid || isSnaphotInvalid;
-    const isIdle = this.in('idle');
-
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('create:before')}
-
-        <vaadin-button
-          data-testid="create"
-          class="w-full"
-          theme="primary success"
-          ?disabled=${!isIdle || isInvalid || this.disabledSelector.matches('create', true)}
-          @click=${this.submit}
-        >
-          <foxy-i18n ns=${this.ns} key="create" lang=${this.lang}></foxy-i18n>
-        </vaadin-button>
-
-        ${this.renderTemplateOrSlot('create:after')}
-      </div>
-    `;
-  }
-
-  private __renderDelete(): TemplateResult {
-    return html`
-      <div>
-        <foxy-internal-confirm-dialog
-          data-testid="confirm"
-          message="delete_prompt"
-          confirm="delete"
-          cancel="cancel"
-          header="delete"
-          theme="primary error"
-          lang=${this.lang}
-          ns=${this.ns}
-          id="confirm"
-          @hide=${(evt: DialogHideEvent) => !evt.detail.cancelled && this.delete()}
-        >
-        </foxy-internal-confirm-dialog>
-
-        ${this.renderTemplateOrSlot('delete:before')}
-
-        <vaadin-button
-          data-testid="delete"
-          theme="error"
-          class="w-full"
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('delete', true)}
-          @click=${(evt: CustomEvent) => {
-            const confirm = this.renderRoot.querySelector('#confirm') as InternalConfirmDialog;
-            confirm.show(evt.currentTarget as ButtonElement);
-          }}
-        >
-          <foxy-i18n ns=${this.ns} key="delete" lang=${this.lang}></foxy-i18n>
-        </vaadin-button>
-
-        ${this.renderTemplateOrSlot('delete:after')}
-      </div>
-    `;
-  }
-
-  private __submitOnEnter(evt: KeyboardEvent) {
-    if (evt.key === 'Enter') this.submit();
+  private get __isRateHidden() {
+    const type = this.form.type as string;
+    return !type || type === 'custom_tax_endpoint' || this.form.is_live === true;
   }
 }

@@ -1,2324 +1,653 @@
+import type { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { Data } from './types';
+
 import './index';
 
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
-
-import { ButtonElement } from '@vaadin/vaadin-button';
-import { Checkbox } from '../../private/Checkbox/Checkbox';
-import { CheckboxChangeEvent } from '../../private/Checkbox/CheckboxChangeEvent';
-import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
-import { Data } from './types';
-import { DropdownChangeEvent } from '../../private/Dropdown/DropdownChangeEvent';
-import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
-import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { TaxForm } from './TaxForm';
-import { TextFieldElement } from '@vaadin/vaadin-text-field';
-import { getByKey } from '../../../testgen/getByKey';
-import { getByName } from '../../../testgen/getByName';
-import { getByTestId } from '../../../testgen/getByTestId';
-import { getTestData } from '../../../testgen/getTestData';
-import { stub } from 'sinon';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { TaxForm as Form } from './TaxForm';
 import { createRouter } from '../../../server/index';
+import { stub } from 'sinon';
+
+async function waitForIdle(element: Form) {
+  await waitUntil(
+    () => {
+      const loaders = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...loaders].every(loader => loader.in('idle'));
+    },
+    '',
+    { timeout: 5000 }
+  );
+}
 
 describe('TaxForm', () => {
-  it('extends NucleonElement', () => {
-    expect(new TaxForm()).to.be.instanceOf(NucleonElement);
+  it('imports and defines dependencies', () => {
+    expect(customElements.get('foxy-internal-async-list-control')).to.exist;
+    expect(customElements.get('foxy-internal-summary-control')).to.exist;
+    expect(customElements.get('foxy-internal-select-control')).to.exist;
+    expect(customElements.get('foxy-internal-switch-control')).to.exist;
+    expect(customElements.get('foxy-internal-number-control')).to.exist;
+    expect(customElements.get('foxy-internal-text-control')).to.exist;
+    expect(customElements.get('foxy-internal-form')).to.exist;
+    expect(customElements.get('foxy-native-integration-card')).to.exist;
+    expect(customElements.get('foxy-nucleon')).to.exist;
   });
 
-  it('registers as foxy-tax-form', () => {
-    expect(customElements.get('foxy-tax-form')).to.equal(TaxForm);
+  it('imports and defines itself as foxy-tax-form', () => {
+    expect(customElements.get('foxy-tax-form')).to.equal(Form);
   });
 
   it('has a default i18next namespace of "tax-form"', () => {
-    expect(new TaxForm()).to.have.property('ns', 'tax-form');
+    expect(Form.defaultNS).to.equal('tax-form');
   });
 
-  it('has an empty fx:countries URI by default', () => {
-    expect(new TaxForm()).to.have.property('countries', '');
+  it('extends foxy-internal-form', () => {
+    expect(new Form()).to.be.an.instanceOf(customElements.get('foxy-internal-form'));
   });
 
-  it('has an empty fx:regions URI by default', () => {
-    expect(new TaxForm()).to.have.property('regions', '');
-  });
-
-  describe('name', () => {
-    it('has i18n label key "name"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const control = await getByTestId<TextFieldElement>(element, 'name');
-
-      expect(control).to.have.property('label', 'name');
-    });
-
-    it('has value of form.name', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ name: 'Test Tax' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'name');
-      expect(control).to.have.property('value', 'Test Tax');
-    });
-
-    it('writes to form.name on input', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const control = await getByTestId<TextFieldElement>(element, 'name');
-
-      control!.value = 'Test Tax';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.name', 'Test Tax');
-    });
-
-    it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./hapi/taxes/0');
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const control = await getByTestId<TextFieldElement>(element, 'name');
-      const submit = stub(element, 'submit');
-
-      element.data = validData;
-      element.edit({ name: 'Test Tax' });
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "name:before" slot by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByName(element, 'name:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "name:before" slot with template "name:before" if available', async () => {
-      const name = 'name:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "name:after" slot by default', async () => {
-      const element = await fixture<TaxForm>(html`<foxy-tax-form></foxy-tax-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'name:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "name:after" slot with template "name:after" if available', async () => {
-      const name = 'name:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'name')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-tax-form readonly></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'name')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes name', async () => {
-      const layout = html`<foxy-tax-form readonlycontrols="name"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'name')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'name')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is loading', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-tax-form href=${href}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-tax-form href=${href}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-tax-form disabled></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'name')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes name', async () => {
-      const layout = html`<foxy-tax-form disabledcontrols="name"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'name')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'name')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-tax-form hidden></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'name')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes name', async () => {
-      const layout = html`<foxy-tax-form hiddencontrols="name"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'name')).to.not.exist;
+  it('has a reactive property "nativeIntegrations"', () => {
+    expect(new Form()).to.have.property('nativeIntegrations', null);
+    expect(Form.properties).to.have.deep.property('nativeIntegrations', {
+      attribute: 'native-integrations',
     });
   });
 
-  describe('type', () => {
-    it('has i18n label key "type"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const control = await getByTestId<TextFieldElement>(element, 'type');
-      expect(control).to.have.property('label', 'type');
+  it('has a reactive property "countries"', () => {
+    expect(new Form()).to.have.property('countries', null);
+    expect(Form.properties).to.have.deep.property('countries', {});
+  });
+
+  it('has a reactive property "regions"', () => {
+    expect(new Form()).to.have.property('regions', null);
+    expect(Form.properties).to.have.deep.property('regions', {});
+  });
+
+  it('produces "name:v8n_required" error when name is missing', () => {
+    const form = new Form();
+    expect(form.errors).to.include('name:v8n_required');
+    form.edit({ name: 'Test' });
+    expect(form.errors).to.not.include('name:v8n_required');
+  });
+
+  it('produces "name:v8n_too_long" error when name is too long', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('name:v8n_too_long');
+    form.edit({ name: 'a'.repeat(31) });
+    expect(form.errors).to.include('name:v8n_too_long');
+  });
+
+  it('produces "country:v8n_required" error when country is missing for country-level tax', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('country:v8n_required');
+    form.edit({ type: 'country' });
+    expect(form.errors).to.include('country:v8n_required');
+    form.edit({ country: 'US' });
+    expect(form.errors).to.not.include('country:v8n_required');
+  });
+
+  it('produces "country:v8n_required" error when country is missing for region-level tax', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('country:v8n_required');
+    form.edit({ type: 'region' });
+    expect(form.errors).to.include('country:v8n_required');
+    form.edit({ country: 'US' });
+    expect(form.errors).to.not.include('country:v8n_required');
+  });
+
+  it('produces "country:v8n_required" error when origin rates are enabled and country is missing', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('country:v8n_required');
+    form.edit({ use_origin_rates: true });
+    expect(form.errors).to.include('country:v8n_required');
+    form.edit({ country: 'US' });
+    expect(form.errors).to.not.include('country:v8n_required');
+  });
+
+  it('produces "region:v8n_required" error when region is missing', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('region:v8n_required');
+    form.edit({ type: 'region' });
+    expect(form.errors).to.include('region:v8n_required');
+    form.edit({ region: 'CA' });
+    expect(form.errors).to.not.include('region:v8n_required');
+  });
+
+  it('produces "region:v8n_too_long" error when region is too long', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('region:v8n_too_long');
+    form.edit({ region: 'a'.repeat(21) });
+    expect(form.errors).to.include('region:v8n_too_long');
+  });
+
+  it('produces "city:v8n_too_long" error when city is too long', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('city:v8n_too_long');
+    form.edit({ city: 'a'.repeat(51) });
+    expect(form.errors).to.include('city:v8n_too_long');
+  });
+
+  it('produces "city:v8n_required" error when city is missing for local tax', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('city:v8n_required');
+    form.edit({ type: 'local' });
+    expect(form.errors).to.include('city:v8n_required');
+    form.edit({ city: 'San Francisco' });
+    expect(form.errors).to.not.include('city:v8n_required');
+  });
+
+  it('produces "rate:v8n_invalid" error when rate is zero or less', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('rate:v8n_invalid');
+    form.edit({ rate: 0 });
+    expect(form.errors).to.include('rate:v8n_invalid');
+    form.edit({ rate: -1 });
+    expect(form.errors).to.include('rate:v8n_invalid');
+    form.edit({ rate: 1 });
+    expect(form.errors).to.not.include('rate:v8n_invalid');
+  });
+
+  it('always makes native integrations list readonly', () => {
+    const form = new Form();
+    expect(form.readonlySelector.matches('native-integrations', true)).to.be.true;
+  });
+
+  it('conditionally hides native integrations list', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('native-integrations', true)).to.be.true;
+    form.nativeIntegrations = 'https://demo.api/hapi/native_integrations';
+    form.edit({ type: 'union', service_provider: 'avalara' });
+    expect(form.hiddenSelector.matches('native-integrations', true)).to.be.false;
+  });
+
+  it('conditionally hides country select', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('group-three:country', true)).to.be.true;
+    form.edit({ type: 'union', service_provider: 'avalara' });
+    expect(form.hiddenSelector.matches('group-three:country', true)).to.be.false;
+    form.edit({ type: 'country' });
+    expect(form.hiddenSelector.matches('group-three:country', true)).to.be.false;
+    form.edit({ type: 'region' });
+    expect(form.hiddenSelector.matches('group-three:country', true)).to.be.false;
+    form.edit({ type: 'local' });
+    expect(form.hiddenSelector.matches('group-three:country', true)).to.be.false;
+  });
+
+  it('conditionally hides region input', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('group-three:region-input', true)).to.be.true;
+    form.edit({ type: 'region' });
+    expect(form.hiddenSelector.matches('group-three:region-input', true)).to.be.false;
+    form.edit({ type: 'local' });
+    expect(form.hiddenSelector.matches('group-three:region-input', true)).to.be.false;
+  });
+
+  it('conditionally hides region select', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-tax-form
+        regions="https://demo.api/hapi/property_helpers/4"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-tax-form>
+    `);
+
+    await waitForIdle(form);
+
+    expect(form.hiddenSelector.matches('group-three:region-select', true)).to.be.true;
+    form.edit({ type: 'region' });
+    expect(form.hiddenSelector.matches('group-three:region-select', true)).to.be.false;
+    form.edit({ type: 'local' });
+    expect(form.hiddenSelector.matches('group-three:region-select', true)).to.be.false;
+  });
+
+  it('conditionally hides city input', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('group-three:city', true)).to.be.true;
+    form.edit({ type: 'local' });
+    expect(form.hiddenSelector.matches('group-three:city', true)).to.be.false;
+  });
+
+  it('conditionally hides service provider select', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.true;
+    form.edit({ type: 'union' });
+    expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.false;
+    form.edit({ type: 'country' });
+    expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.false;
+    form.edit({ type: 'region' });
+    expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.false;
+    form.edit({ type: 'local' });
+    expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.true;
+    form.edit({ type: 'custom_tax_endpoint' as Data['type'] });
+    expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.true;
+  });
+
+  it('conditionally hides rate input', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('group-one:rate', true)).to.be.true;
+    form.edit({ type: 'union' });
+    expect(form.hiddenSelector.matches('group-one:rate', true)).to.be.false;
+    form.edit({ type: 'country' });
+    expect(form.hiddenSelector.matches('group-one:rate', true)).to.be.false;
+    form.edit({ type: 'region' });
+    expect(form.hiddenSelector.matches('group-one:rate', true)).to.be.false;
+    form.edit({ type: 'local' });
+    expect(form.hiddenSelector.matches('group-one:rate', true)).to.be.false;
+    form.edit({ type: 'custom_tax_endpoint' as Data['type'] });
+    expect(form.hiddenSelector.matches('group-one:rate', true)).to.be.true;
+    form.edit({ type: 'local', is_live: true });
+    expect(form.hiddenSelector.matches('group-one:rate', true)).to.be.true;
+  });
+
+  it('conditionally hides apply to shipping switch', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('group-two:apply-to-shipping', true)).to.be.true;
+    form.edit({ type: 'union' });
+    expect(form.hiddenSelector.matches('group-two:apply-to-shipping', true)).to.be.false;
+    form.edit({ type: 'country', is_live: true });
+    expect(form.hiddenSelector.matches('group-two:apply-to-shipping', true)).to.be.true;
+    form.edit({ type: 'region', is_live: true });
+    expect(form.hiddenSelector.matches('group-two:apply-to-shipping', true)).to.be.true;
+    form.edit({ type: 'local' });
+    expect(form.hiddenSelector.matches('group-two:apply-to-shipping', true)).to.be.false;
+    form.edit({ type: 'custom_tax_endpoint' as Data['type'] });
+    expect(form.hiddenSelector.matches('group-two:apply-to-shipping', true)).to.be.true;
+  });
+
+  it('conditionally hides use origin rates switch', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('group-two:use-origin-rates', true)).to.be.true;
+    form.edit({ type: 'union' });
+    expect(form.hiddenSelector.matches('group-two:use-origin-rates', true)).to.be.true;
+    form.edit({ type: 'union', is_live: true });
+    expect(form.hiddenSelector.matches('group-two:use-origin-rates', true)).to.be.false;
+    form.edit({ type: 'union', service_provider: 'avalara' });
+    expect(form.hiddenSelector.matches('group-two:use-origin-rates', true)).to.be.true;
+    form.edit({ type: 'union', service_provider: 'taxjar' as Data['service_provider'] });
+    expect(form.hiddenSelector.matches('group-two:use-origin-rates', true)).to.be.true;
+    form.edit({ type: 'country' });
+    expect(form.hiddenSelector.matches('group-two:use-origin-rates', true)).to.be.true;
+    form.edit({ type: 'region' });
+    expect(form.hiddenSelector.matches('group-two:use-origin-rates', true)).to.be.true;
+    form.edit({ type: 'local' });
+    expect(form.hiddenSelector.matches('group-two:use-origin-rates', true)).to.be.true;
+    form.edit({ type: 'custom_tax_endpoint' as Data['type'] });
+    expect(form.hiddenSelector.matches('group-two:use-origin-rates', true)).to.be.true;
+  });
+
+  it('conditionally hides exempt all customer tax ids switch', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
+    form.edit({ type: 'union' });
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
+    form.edit({ type: 'country' });
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.false;
+    form.edit({ type: 'region' });
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.false;
+    form.edit({ type: 'local' });
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.false;
+    form.edit({ type: 'custom_tax_endpoint' as Data['type'] });
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
+  });
+
+  it('renders a form header', () => {
+    const form = new Form();
+    const renderHeaderMethod = stub(form, 'renderHeader');
+    form.render();
+    expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('renders a text control for name in group one', async () => {
+    const form = await fixture<Form>(html`<foxy-tax-form></foxy-tax-form>`);
+    const control = form.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="group-one"] foxy-internal-text-control[infer="name"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a select control for type in group one', async () => {
+    const form = await fixture<Form>(html`<foxy-tax-form></foxy-tax-form>`);
+    const control = form.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="group-one"] foxy-internal-select-control[infer="type"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute(
+      'options',
+      JSON.stringify([
+        { label: 'option_custom_tax_endpoint', value: 'custom_tax_endpoint' },
+        { label: 'option_global', value: 'global' },
+        { label: 'option_union', value: 'union' },
+        { label: 'option_country', value: 'country' },
+        { label: 'option_region', value: 'region' },
+        { label: 'option_local', value: 'local' },
+      ])
+    );
+  });
+
+  it('resets some form values on type change', async () => {
+    const form = await fixture<Form>(html`<foxy-tax-form></foxy-tax-form>`);
+    const control = form.renderRoot.querySelector<InternalSelectControl>(
+      'foxy-internal-summary-control[infer="group-one"] foxy-internal-select-control[infer="type"]'
+    );
+
+    form.edit({
+      type: 'global',
+      country: 'US',
+      region: 'TX',
+      city: 'Test',
+      service_provider: 'avalara',
+      apply_to_shipping: true,
+      use_origin_rates: true,
+      exempt_all_customer_tax_ids: true,
+      is_live: true,
+      rate: 123,
     });
 
-    it('has value of form.type', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
+    control?.setValue('local');
 
-      element.edit({ type: 'union' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'type');
-      expect(control).to.have.property('value', 'union');
-    });
-
-    it('writes to form.type on change', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const control = await getByTestId<TextFieldElement>(element, 'type');
-
-      control!.value = 'union';
-      control!.dispatchEvent(new DropdownChangeEvent('union'));
-
-      expect(element).to.have.nested.property('form.type', 'union');
-    });
-
-    it('renders "type:before" slot by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByName(element, 'type:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "type:before" slot with template "type:before" if available', async () => {
-      const type = 'type:before';
-      const value = `<p>Value of the "${type}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${type}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, type);
-      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "type:after" slot by default', async () => {
-      const element = await fixture<TaxForm>(html`<foxy-tax-form></foxy-tax-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'type:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "type:after" slot with template "type:after" if available', async () => {
-      const type = 'type:after';
-      const value = `<p>Value of the "${type}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${type}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, type);
-      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'type')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-tax-form readonly></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'type')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes type', async () => {
-      const layout = html`<foxy-tax-form readonlycontrols="type"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'type')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'type')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({
-        name: 'Test Tax',
-        type: 'global',
-        rate: 12.34,
-      });
-
-      element.submit();
-
-      expect(await getByTestId(element, 'type')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-tax-form disabled></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'type')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes type', async () => {
-      const layout = html`<foxy-tax-form disabledcontrols="type"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'type')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'type')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-tax-form hidden></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'type')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes type', async () => {
-      const layout = html`<foxy-tax-form hiddencontrols="type"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'type')).to.not.exist;
+    expect(form.form).to.deep.equal({
+      type: 'local',
+      country: '',
+      region: '',
+      city: '',
+      service_provider: '',
+      apply_to_shipping: false,
+      use_origin_rates: false,
+      exempt_all_customer_tax_ids: false,
+      is_live: false,
+      rate: 0,
     });
   });
 
-  describe('country', () => {
-    it('has i18n label key "country"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
+  it('renders a select control for service provider in group one', async () => {
+    const form = await fixture<Form>(html`<foxy-tax-form></foxy-tax-form>`);
+    const control = form.renderRoot.querySelector<InternalSelectControl>(
+      'foxy-internal-summary-control[infer="group-one"] foxy-internal-select-control[infer="service-provider"]'
+    );
 
-      element.edit({ type: 'country' });
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute(
+      'options',
+      JSON.stringify([
+        { label: 'option_default', value: 'default' },
+        { label: 'option_none', value: 'none' },
+        { label: 'option_avalara', value: 'avalara' },
+        { label: 'option_onesource', value: 'onesource' },
+        { label: 'option_taxjar', value: 'taxjar' },
+      ])
+    );
 
-      const control = await getByTestId<TextFieldElement>(element, 'country');
-      expect(control).to.have.property('label', 'country');
+    expect(control?.getValue()).to.equal('none');
+
+    form.edit({ is_live: true });
+    expect(control?.getValue()).to.equal('default');
+
+    form.edit({ service_provider: 'avalara' });
+    expect(control?.getValue()).to.equal('avalara');
+  });
+
+  it('conditionally hides some options for service provider', async () => {
+    const form = await fixture<Form>(html`<foxy-tax-form></foxy-tax-form>`);
+    const control = form.renderRoot.querySelector<InternalSelectControl>(
+      'foxy-internal-summary-control[infer="group-one"] foxy-internal-select-control[infer="service-provider"]'
+    );
+
+    form.edit({ type: 'union' });
+    await form.requestUpdate();
+    expect(control?.options).to.deep.equal([
+      { label: 'option_default', value: 'default' },
+      { label: 'option_none', value: 'none' },
+      { label: 'option_avalara', value: 'avalara' },
+      { label: 'option_onesource', value: 'onesource' },
+      { label: 'option_taxjar', value: 'taxjar' },
+    ]);
+
+    form.edit({ type: 'country', country: 'AZ' });
+    await form.requestUpdate();
+    expect(control?.options).to.deep.equal([
+      { label: 'option_none', value: 'none' },
+      { label: 'option_avalara', value: 'avalara' },
+      { label: 'option_onesource', value: 'onesource' },
+    ]);
+  });
+
+  it('resets some form values on service provider change', async () => {
+    const form = await fixture<Form>(html`<foxy-tax-form></foxy-tax-form>`);
+    const control = form.renderRoot.querySelector<InternalSelectControl>(
+      'foxy-internal-summary-control[infer="group-one"] foxy-internal-select-control[infer="service-provider"]'
+    );
+
+    form.edit({
+      type: 'local',
+      service_provider: 'avalara',
+      use_origin_rates: true,
+      is_live: true,
+      exempt_all_customer_tax_ids: true,
+      apply_to_shipping: true,
     });
 
-    it('has value of form.country', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'country', country: 'AL' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'country');
-      expect(control).to.have.property('value', 'AL');
-    });
-
-    it('writes to form.country on input', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'country' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'country');
-
-      control!.value = 'AL';
-      control!.dispatchEvent(new CustomEvent('change'));
-
-      expect(element).to.have.nested.property('form.country', 'AL');
-    });
-
-    it('loads countries for a country', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const handleFetch = (evt: Event) => {
-        if (!(evt instanceof FetchEvent)) return;
-        if (evt.request.url !== 'test://countries') return;
-        const countries = JSON.stringify({ values: { AB: { cc2: 'AB', default: 'Foo' } } });
-        evt.respondWith(Promise.resolve(new Response(countries)));
-      };
-
-      element.edit({ type: 'country', country: 'BY' });
-      element.addEventListener('fetch', handleFetch);
-      element.countries = 'test://countries';
-
-      const control = await getByTestId<ComboBoxElement>(element, 'country');
-      await waitUntil(() => control!.items!.length > 0, undefined, { timeout: 5000 });
-      element.removeEventListener('fetch', handleFetch);
-
-      expect(control).to.have.deep.property('items', [{ cc2: 'AB', default: 'Foo' }]);
-    });
-
-    it('renders "country:before" slot by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'country' });
-
-      expect(await getByName(element, 'country:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "country:before" slot with template "country:before" if available', async () => {
-      const country = 'country:before';
-      const value = `<p>Value of the "${country}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${country}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      element.edit({ type: 'country' });
-
-      const slot = await getByName<HTMLSlotElement>(element, country);
-      const sandbox = (await getByTestId<InternalSandbox>(element, country))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "country:after" slot by default', async () => {
-      const element = await fixture<TaxForm>(html`<foxy-tax-form></foxy-tax-form>`);
-
-      element.edit({ type: 'country' });
-
-      const slot = await getByName<HTMLSlotElement>(element, 'country:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "country:after" slot with template "country:after" if available', async () => {
-      const country = 'country:after';
-      const value = `<p>Value of the "${country}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${country}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      element.edit({ type: 'country' });
-
-      const slot = await getByName<HTMLSlotElement>(element, country);
-      const sandbox = (await getByTestId<InternalSandbox>(element, country))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'country' });
-
-      expect(await getByTestId(element, 'country')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-tax-form readonly></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'country' });
-
-      expect(await getByTestId(element, 'country')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes country', async () => {
-      const layout = html`<foxy-tax-form readonlycontrols="country"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'country' });
-
-      expect(await getByTestId(element, 'country')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'country' });
-
-      expect(await getByTestId(element, 'country')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({
-        name: 'Test Tax',
-        type: 'country',
-        country: 'US',
-        rate: 12.34,
-      });
-
-      element.submit();
-
-      expect(await getByTestId(element, 'country')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-tax-form disabled></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'country' });
-
-      expect(await getByTestId(element, 'country')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes country', async () => {
-      const layout = html`<foxy-tax-form disabledcontrols="country"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'country' });
-
-      expect(await getByTestId(element, 'country')).to.have.attribute('disabled');
-    });
-
-    it('is hidden by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'country')).to.not.exist;
-    });
-
-    it('is visible when tax type is "country"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'country' });
-
-      expect(await getByTestId(element, 'country')).to.exist;
-    });
-
-    it('is visible when tax type is "region"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'region' });
-
-      expect(await getByTestId(element, 'country')).to.exist;
-    });
-
-    it('is visible when tax type is "local"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local' });
-
-      expect(await getByTestId(element, 'country')).to.exist;
-    });
-
-    it('is visible when tax type is "union" and origin rates are used', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local', use_origin_rates: true });
-
-      expect(await getByTestId(element, 'country')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-tax-form hidden></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'country' });
-
-      expect(await getByTestId(element, 'country')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes country', async () => {
-      const layout = html`<foxy-tax-form hiddencontrols="country"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'country' });
-
-      expect(await getByTestId(element, 'country')).to.not.exist;
+    control?.setValue('none');
+
+    expect(form.form).to.deep.equal({
+      type: 'local',
+      service_provider: '',
+      use_origin_rates: false,
+      is_live: false,
+      exempt_all_customer_tax_ids: false,
+      apply_to_shipping: false,
     });
   });
 
-  describe('region', () => {
-    it('has i18n label key "region"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
+  it('renders a number control for rate in group one', async () => {
+    const form = await fixture<Form>(html`<foxy-tax-form></foxy-tax-form>`);
+    const control = form.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="group-one"] foxy-internal-number-control[infer="rate"]'
+    );
 
-      element.edit({ type: 'region' });
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('suffix', '%');
+    expect(control).to.have.attribute('min', '0');
+  });
 
-      const control = await getByTestId<TextFieldElement>(element, 'region');
-      expect(control).to.have.property('label', 'region');
-    });
-
-    it('has value of form.region', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'region', region: 'AL' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'region');
-      expect(control).to.have.property('value', 'AL');
-    });
-
-    it('writes to form.region on input', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'region' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'region');
-
-      control!.value = 'AL';
-      control!.dispatchEvent(new CustomEvent('change'));
-
-      expect(element).to.have.nested.property('form.region', 'AL');
-    });
-
-    it('loads regions for a country', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const handleFetch = (evt: Event) => {
-        if (!(evt instanceof FetchEvent)) return;
-        if (evt.request.url !== 'test://regions?country_code=BY') return;
-        const regions = JSON.stringify({ values: { AB: { code: 'AB', default: 'Foo' } } });
-        evt.respondWith(Promise.resolve(new Response(regions)));
-      };
-
-      element.edit({ type: 'region', country: 'BY' });
-      element.addEventListener('fetch', handleFetch);
-      element.regions = 'test://regions';
-
-      const control = await getByTestId<ComboBoxElement>(element, 'region');
-      await waitUntil(() => control!.items!.length > 0, undefined, { timeout: 5000 });
-      element.removeEventListener('fetch', handleFetch);
-
-      expect(control).to.have.deep.property('items', [{ code: 'AB', default: 'Foo' }]);
-    });
-
-    it('renders "region:before" slot by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'region' });
-
-      expect(await getByName(element, 'region:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "region:before" slot with template "region:before" if available', async () => {
-      const region = 'region:before';
-      const value = `<p>Value of the "${region}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${region}>${unsafeHTML(value)}</template>
+  it('renders an async list control for native integrations', async () => {
+    const form = await fixture<Form>(
+      html`
+        <foxy-tax-form native-integrations="https://demo.api/hapi/native_integrations?store_id=0">
         </foxy-tax-form>
-      `);
+      `
+    );
 
-      element.edit({ type: 'region' });
+    form.edit({ type: 'union', service_provider: 'avalara' });
+    await form.requestUpdate();
+    const control = form.renderRoot.querySelector(
+      'foxy-internal-async-list-control[infer="native-integrations"]'
+    );
 
-      const slot = await getByName<HTMLSlotElement>(element, region);
-      const sandbox = (await getByTestId<InternalSandbox>(element, region))!.renderRoot;
+    expect(control).to.exist;
+    expect(control).to.have.attribute('item', 'foxy-native-integration-card');
+    expect(control).to.have.attribute(
+      'first',
+      'https://demo.api/hapi/native_integrations?store_id=0&provider=avalara'
+    );
+  });
 
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
+  it('renders a switch control for apply to shipping in group two', async () => {
+    const form = await fixture<Form>(html`<foxy-tax-form></foxy-tax-form>`);
+    const control = form.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="group-two"] foxy-internal-switch-control[infer="apply-to-shipping"]'
+    );
 
-    it('renders "region:after" slot by default', async () => {
-      const element = await fixture<TaxForm>(html`<foxy-tax-form></foxy-tax-form>`);
+    expect(control).to.exist;
+  });
 
-      element.edit({ type: 'region' });
+  it('renders a switch control for use origin rates in group two', async () => {
+    const form = await fixture<Form>(html`<foxy-tax-form></foxy-tax-form>`);
+    const control = form.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="group-two"] foxy-internal-switch-control[infer="use-origin-rates"]'
+    );
 
-      const slot = await getByName<HTMLSlotElement>(element, 'region:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
+    expect(control).to.exist;
+  });
 
-    it('replaces "region:after" slot with template "region:after" if available', async () => {
-      const region = 'region:after';
-      const value = `<p>Value of the "${region}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${region}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
+  it('renders a switch control for exempt all customer tax ids in group two', async () => {
+    const form = await fixture<Form>(html`<foxy-tax-form></foxy-tax-form>`);
+    const control = form.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="group-two"] foxy-internal-switch-control[infer="exempt-all-customer-tax-ids"]'
+    );
 
-      element.edit({ type: 'region' });
+    expect(control).to.exist;
+  });
 
-      const slot = await getByName<HTMLSlotElement>(element, region);
-      const sandbox = (await getByTestId<InternalSandbox>(element, region))!.renderRoot;
+  it('renders a select control for country in group three', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-tax-form
+        countries="https://demo.api/hapi/property_helpers/3"
+        regions="https://demo.api/hapi/property_helpers/4"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-tax-form>
+    `);
 
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
+    await waitForIdle(form);
+    const control = form.renderRoot.querySelector<InternalSelectControl>(
+      'foxy-internal-summary-control[infer="group-three"] foxy-internal-select-control[infer="country"]'
+    );
 
-    it('is editable by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute(
+      'options',
+      JSON.stringify([
+        { rawLabel: 'United Kingdom', value: 'GB' },
+        { rawLabel: 'United States', value: 'US' },
+        { rawLabel: 'United States Minor Outlying Islands', value: 'UM' },
+      ])
+    );
+  });
 
-      element.edit({ type: 'region' });
+  it('resets some form values on country change', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-tax-form
+        countries="https://demo.api/hapi/property_helpers/3"
+        regions="https://demo.api/hapi/property_helpers/4"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-tax-form>
+    `);
 
-      expect(await getByTestId(element, 'region')).not.to.have.attribute('readonly');
-    });
+    await waitForIdle(form);
+    const control = form.renderRoot.querySelector<InternalSelectControl>(
+      'foxy-internal-summary-control[infer="group-three"] foxy-internal-select-control[infer="country"]'
+    );
 
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-tax-form readonly></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
+    form.edit({ type: 'country', region: 'TX', city: 'Test' });
+    control?.setValue('US');
 
-      element.edit({ type: 'region' });
-
-      expect(await getByTestId(element, 'region')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes region', async () => {
-      const layout = html`<foxy-tax-form readonlycontrols="region"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'region' });
-
-      expect(await getByTestId(element, 'region')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'region' });
-
-      expect(await getByTestId(element, 'region')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({
-        name: 'Test Tax',
-        type: 'region',
-        country: 'US',
-        region: 'AL',
-        rate: 12.34,
-      });
-
-      element.submit();
-
-      expect(await getByTestId(element, 'region')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-tax-form disabled></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'region' });
-
-      expect(await getByTestId(element, 'region')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes region', async () => {
-      const layout = html`<foxy-tax-form disabledcontrols="region"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'region' });
-
-      expect(await getByTestId(element, 'region')).to.have.attribute('disabled');
-    });
-
-    it('is hidden by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'region')).to.not.exist;
-    });
-
-    it('is visible when tax type is "region"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'region' });
-
-      expect(await getByTestId(element, 'region')).to.exist;
-    });
-
-    it('is visible when tax type is "local"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local' });
-
-      expect(await getByTestId(element, 'region')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-tax-form hidden></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'region' });
-
-      expect(await getByTestId(element, 'region')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes region', async () => {
-      const layout = html`<foxy-tax-form hiddencontrols="region"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'region' });
-
-      expect(await getByTestId(element, 'region')).to.not.exist;
+    expect(form.form).to.deep.equal({
+      type: 'country',
+      country: 'US',
+      region: '',
+      city: '',
+      apply_to_shipping: false,
     });
   });
 
-  describe('city', () => {
-    it('has i18n label key "city"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
+  it('renders a select control for region in group three', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-tax-form
+        countries="https://demo.api/hapi/property_helpers/3"
+        regions="https://demo.api/hapi/property_helpers/4"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-tax-form>
+    `);
 
-      element.edit({ type: 'local' });
+    await waitForIdle(form);
+    const control = form.renderRoot.querySelector<InternalSelectControl>(
+      'foxy-internal-summary-control[infer="group-three"] foxy-internal-select-control[infer="region-select"]'
+    );
 
-      const control = await getByTestId<TextFieldElement>(element, 'city');
-      expect(control).to.have.property('label', 'city');
-    });
-
-    it('has value of form.city', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local', city: 'Nullville' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'city');
-      expect(control).to.have.property('value', 'Nullville');
-    });
-
-    it('writes to form.city on input', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'city');
-
-      control!.value = 'Nullville';
-      control!.dispatchEvent(new CustomEvent('input'));
-
-      expect(element).to.have.nested.property('form.city', 'Nullville');
-    });
-
-    it('submits valid form on enter', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const submit = stub(element, 'submit');
-
-      element.edit({
-        name: 'Test Tax',
-        type: 'local',
-        country: 'US',
-        region: 'AL',
-        city: 'Nullville',
-        rate: 12.34,
-      });
-
-      const control = await getByTestId<TextFieldElement>(element, 'city');
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "city:before" slot by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local' });
-
-      expect(await getByName(element, 'city:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "city:before" slot with template "city:before" if available', async () => {
-      const city = 'city:before';
-      const value = `<p>Value of the "${city}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${city}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      element.edit({ type: 'local' });
-
-      const slot = await getByName<HTMLSlotElement>(element, city);
-      const sandbox = (await getByTestId<InternalSandbox>(element, city))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "city:after" slot by default', async () => {
-      const element = await fixture<TaxForm>(html`<foxy-tax-form></foxy-tax-form>`);
-
-      element.edit({ type: 'local' });
-
-      const slot = await getByName<HTMLSlotElement>(element, 'city:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "city:after" slot with template "city:after" if available', async () => {
-      const city = 'city:after';
-      const value = `<p>Value of the "${city}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${city}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      element.edit({ type: 'local' });
-
-      const slot = await getByName<HTMLSlotElement>(element, city);
-      const sandbox = (await getByTestId<InternalSandbox>(element, city))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local' });
-
-      expect(await getByTestId(element, 'city')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-tax-form readonly></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local' });
-
-      expect(await getByTestId(element, 'city')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes city', async () => {
-      const layout = html`<foxy-tax-form readonlycontrols="city"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local' });
-
-      expect(await getByTestId(element, 'city')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local' });
-
-      expect(await getByTestId(element, 'city')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({
-        name: 'Test Tax',
-        type: 'local',
-        country: 'US',
-        region: 'AL',
-        city: 'Nullville',
-        rate: 12.34,
-      });
-
-      element.submit();
-
-      expect(await getByTestId(element, 'city')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-tax-form disabled></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local' });
-
-      expect(await getByTestId(element, 'city')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes city', async () => {
-      const layout = html`<foxy-tax-form disabledcontrols="city"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local' });
-
-      expect(await getByTestId(element, 'city')).to.have.attribute('disabled');
-    });
-
-    it('is hidden by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'city')).to.not.exist;
-    });
-
-    it('is visible when tax type is "local"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local' });
-
-      expect(await getByTestId(element, 'city')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-tax-form hidden></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local' });
-
-      expect(await getByTestId(element, 'city')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes city', async () => {
-      const layout = html`<foxy-tax-form hiddencontrols="city"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'local' });
-
-      expect(await getByTestId(element, 'city')).to.not.exist;
-    });
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute(
+      'options',
+      JSON.stringify([
+        { rawLabel: 'South Dakota', value: 'SD' },
+        { rawLabel: 'Tennessee', value: 'TN' },
+        { rawLabel: 'Texas', value: 'TX' },
+      ])
+    );
   });
 
-  describe('provider', () => {
-    it('has i18n label key "tax_rate_provider"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
+  it('resets some form values on region change in region select', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-tax-form
+        countries="https://demo.api/hapi/property_helpers/3"
+        regions="https://demo.api/hapi/property_helpers/4"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-tax-form>
+    `);
 
-      element.edit({ type: 'union' });
+    await waitForIdle(form);
+    const control = form.renderRoot.querySelector<InternalSelectControl>(
+      'foxy-internal-summary-control[infer="group-three"] foxy-internal-select-control[infer="region-select"]'
+    );
 
-      const control = await getByTestId<TextFieldElement>(element, 'provider');
-      expect(control).to.have.property('label', 'tax_rate_provider');
-    });
-
-    it('has value of form.service_provider', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ service_provider: 'avalara', type: 'union' });
-
-      const control = await getByTestId<TextFieldElement>(element, 'provider');
-      expect(control).to.have.property('value', 'avalara');
-    });
-
-    it('writes to form.service_provider on change', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union' });
-      const control = await getByTestId<TextFieldElement>(element, 'provider');
-
-      control!.value = 'avalara';
-      control!.dispatchEvent(new DropdownChangeEvent('avalara'));
-
-      expect(element).to.have.nested.property('form.service_provider', 'avalara');
-    });
-
-    it('renders "provider:before" slot by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union' });
-
-      expect(await getByName(element, 'provider:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "provider:before" slot with template "provider:before" if available', async () => {
-      const provider = 'provider:before';
-      const value = `<p>Value of the "${provider}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${provider}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      element.edit({ type: 'union' });
-
-      const slot = await getByName<HTMLSlotElement>(element, provider);
-      const sandbox = (await getByTestId<InternalSandbox>(element, provider))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "provider:after" slot by default', async () => {
-      const element = await fixture<TaxForm>(html`<foxy-tax-form></foxy-tax-form>`);
-      element.edit({ type: 'union' });
-
-      const slot = await getByName<HTMLSlotElement>(element, 'provider:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "provider:after" slot with template "provider:after" if available', async () => {
-      const provider = 'provider:after';
-      const value = `<p>Value of the "${provider}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${provider}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      element.edit({ type: 'union' });
-
-      const slot = await getByName<HTMLSlotElement>(element, provider);
-      const sandbox = (await getByTestId<InternalSandbox>(element, provider))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union' });
-
-      expect(await getByTestId(element, 'provider')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-tax-form readonly></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union' });
-
-      expect(await getByTestId(element, 'provider')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes provider', async () => {
-      const layout = html`<foxy-tax-form readonlycontrols="provider"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union' });
-
-      expect(await getByTestId(element, 'provider')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union' });
-
-      expect(await getByTestId(element, 'provider')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({
-        name: 'Test Tax',
-        type: 'union',
-        service_provider: 'avalara',
-        rate: 12.34,
-      });
-
-      element.submit();
-
-      expect(await getByTestId(element, 'provider')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-tax-form disabled></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union' });
-
-      expect(await getByTestId(element, 'provider')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes provider', async () => {
-      const layout = html`<foxy-tax-form disabledcontrols="provider"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union' });
-
-      expect(await getByTestId(element, 'provider')).to.have.attribute('disabled');
-    });
-
-    it('is hidden by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'provider')).to.not.exist;
-    });
-
-    it('is visible when tax type is "union"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union' });
-
-      expect(await getByTestId(element, 'provider')).to.exist;
-    });
-
-    it('is visible when tax type is "country"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'country' });
-
-      expect(await getByTestId(element, 'provider')).to.exist;
-    });
-
-    it('is visible when tax type is "region"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'region' });
-
-      expect(await getByTestId(element, 'provider')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-tax-form hidden></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union' });
-
-      expect(await getByTestId(element, 'provider')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes provider', async () => {
-      const layout = html`<foxy-tax-form hiddencontrols="provider"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union' });
-
-      expect(await getByTestId(element, 'provider')).to.not.exist;
-    });
+    form.edit({ type: 'region', city: 'Test' });
+    control?.setValue('TX');
+    expect(form.form).to.deep.equal({ type: 'region', region: 'TX', city: '' });
   });
 
-  describe('rate', () => {
-    it('has i18n label key "tax_rate"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const control = await getByTestId<TextFieldElement>(element, 'rate');
-      expect(control).to.have.property('label', 'tax_rate');
-    });
+  it('renders a text control for region input in group three', async () => {
+    const form = await fixture<Form>(html`<foxy-tax-form></foxy-tax-form>`);
+    const control = form.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="group-three"] foxy-internal-text-control[infer="region-input"]'
+    );
 
-    it('has value of form.rate', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ rate: 12.34 });
-
-      const control = await getByTestId<TextFieldElement>(element, 'rate');
-      expect(control).to.have.property('value', '12.34');
-    });
-
-    it('writes to form.rate on change', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const control = await getByTestId<TextFieldElement>(element, 'rate');
-
-      control!.value = '12.34';
-      control!.dispatchEvent(new CustomEvent('change'));
-
-      expect(element).to.have.nested.property('form.rate', 12.34);
-    });
-
-    it('submits valid form on enter', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const submit = stub(element, 'submit');
-
-      element.edit({
-        name: 'Test Tax',
-        type: 'global',
-        rate: 12.34,
-      });
-
-      const control = await getByTestId<TextFieldElement>(element, 'rate');
-      control!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it('renders "rate:before" slot by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByName(element, 'rate:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "rate:before" slot with template "rate:before" if available', async () => {
-      const rate = 'rate:before';
-      const value = `<p>Value of the "${rate}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${rate}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, rate);
-      const sandbox = (await getByTestId<InternalSandbox>(element, rate))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "rate:after" slot by default', async () => {
-      const element = await fixture<TaxForm>(html`<foxy-tax-form></foxy-tax-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'rate:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "rate:after" slot with template "rate:after" if available', async () => {
-      const rate = 'rate:after';
-      const value = `<p>Value of the "${rate}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${rate}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, rate);
-      const sandbox = (await getByTestId<InternalSandbox>(element, rate))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is editable by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'rate')).not.to.have.attribute('readonly');
-    });
-
-    it('is readonly when element is readonly', async () => {
-      const layout = html`<foxy-tax-form readonly></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'rate')).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes rate', async () => {
-      const layout = html`<foxy-tax-form readonlycontrols="rate"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'rate')).to.have.attribute('readonly');
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'rate')).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({
-        name: 'Test Tax',
-        type: 'global',
-        rate: 12.34,
-      });
-
-      element.submit();
-
-      expect(await getByTestId(element, 'rate')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-tax-form disabled></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'rate')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes rate', async () => {
-      const layout = html`<foxy-tax-form disabledcontrols="rate"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'rate')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'rate')).to.exist;
-    });
-
-    it('is hidden when live tax rates are used', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ is_live: true });
-
-      expect(await getByTestId(element, 'rate')).to.not.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-tax-form hidden></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'rate')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes rate', async () => {
-      const layout = html`<foxy-tax-form hiddencontrols="rate"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'rate')).to.not.exist;
-    });
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  describe('apply-to-shipping', () => {
-    it('has i18n label with key "tax_apply_to_shipping"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
+  it('resets some form values on region change in region input', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-tax-form
+        countries="https://demo.api/hapi/property_helpers/3"
+        regions="https://demo.api/hapi/property_helpers/4"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-tax-form>
+    `);
 
-      element.edit({ type: 'global' });
-      expect(await getByKey(element, 'tax_apply_to_shipping')).to.exist;
-    });
+    await waitForIdle(form);
+    const control = form.renderRoot.querySelector<InternalSelectControl>(
+      'foxy-internal-summary-control[infer="group-three"] foxy-internal-text-control[infer="region-input"]'
+    );
 
-    it('has i18n explainer with key "tax_apply_to_shipping_explainer"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'global' });
-      expect(await getByKey(element, 'tax_apply_to_shipping_explainer')).to.exist;
-    });
-
-    it('has value of form.apply_to_shipping', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'global', apply_to_shipping: true });
-
-      const control = await getByTestId<TextFieldElement>(element, 'apply-to-shipping');
-      expect(control).to.have.property('checked', true);
-    });
-
-    it('writes to form.apply_to_shipping on change', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'global' });
-
-      const control = await getByTestId<Checkbox>(element, 'apply-to-shipping');
-      control!.checked = true;
-      control!.dispatchEvent(new CheckboxChangeEvent(true));
-
-      expect(element).to.have.nested.property('form.apply_to_shipping', true);
-    });
-
-    it('renders "apply-to-shipping:before" slot by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'global' });
-
-      const slot = await getByName(element, 'apply-to-shipping:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "apply-to-shipping:before" slot with template "apply-to-shipping:before" if available', async () => {
-      const name = 'apply-to-shipping:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      element.edit({ type: 'global' });
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "apply-to-shipping:after" slot by default', async () => {
-      const element = await fixture<TaxForm>(html`<foxy-tax-form></foxy-tax-form>`);
-      element.edit({ type: 'global' });
-
-      const slot = await getByName<HTMLSlotElement>(element, 'apply-to-shipping:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "apply-to-shipping:after" slot with template "apply-to-shipping:after" if available', async () => {
-      const name = 'apply-to-shipping:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      element.edit({ type: 'global' });
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'global' });
-
-      const control = await getByTestId(element, 'apply-to-shipping');
-      expect(control).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({
-        name: 'Test Tax',
-        type: 'global',
-        rate: 12.34,
-      });
-
-      element.submit();
-
-      expect(await getByTestId(element, 'apply-to-shipping')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-tax-form disabled></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'global' });
-
-      expect(await getByTestId(element, 'apply-to-shipping')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes apply-to-shipping', async () => {
-      const layout = html`<foxy-tax-form disabledcontrols="apply-to-shipping"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'global' });
-
-      expect(await getByTestId(element, 'apply-to-shipping')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      expect(await getByTestId(element, 'apply-to-shipping')).to.exist;
-    });
-
-    // prettier-ignore
-    ['US', 'CA', 'AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GB', 'GR', 'HR', 'HU', 'IE', 'IM', 'IT', 'LT', 'LU', 'LV', 'MC', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK'].forEach(country => {
-      it(`is hidden in ${country} when live tax rates are enabled`, async () => {
-        const layout = html`<foxy-tax-form></foxy-tax-form>`;
-        const element = await fixture<TaxForm>(layout);
-    
-        element.edit({ type: 'country', is_live: true, country })
-    
-        expect(await getByTestId(element, 'apply-to-shipping')).to.not.exist;
-      });
-    })
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-tax-form hidden></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'global' });
-
-      expect(await getByTestId(element, 'apply-to-shipping')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes apply-to-shipping', async () => {
-      const layout = html`<foxy-tax-form hiddencontrols="apply-to-shipping"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'global' });
-
-      expect(await getByTestId(element, 'apply-to-shipping')).to.not.exist;
-    });
+    form.edit({ type: 'region', city: 'Test' });
+    control?.setValue('TX');
+    expect(form.form).to.deep.equal({ type: 'region', region: 'TX', city: '' });
   });
 
-  describe('use-origin-rates', () => {
-    it('has i18n label with key "tax_use_origin_rates"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union', is_live: true, service_provider: '' });
-      expect(await getByKey(element, 'tax_use_origin_rates')).to.exist;
-    });
-
-    it('has i18n explainer with key "tax_use_origin_rates_explainer"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union', is_live: true, service_provider: '' });
-      expect(await getByKey(element, 'tax_use_origin_rates_explainer')).to.exist;
-    });
-
-    it('has value of form.use_origin_rates', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union', is_live: true, service_provider: '', use_origin_rates: true });
-
-      const control = await getByTestId<Checkbox>(element, 'use-origin-rates');
-      expect(control).to.have.property('checked', true);
-    });
-
-    it('writes to form.use_origin_rates on change', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union', is_live: true, service_provider: '' });
-
-      const control = await getByTestId<Checkbox>(element, 'use-origin-rates');
-      control!.checked = true;
-      control!.dispatchEvent(new CheckboxChangeEvent(true));
-
-      expect(element).to.have.nested.property('form.use_origin_rates', true);
-    });
-
-    it('renders "use-origin-rates:before" slot by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union', is_live: true, service_provider: '' });
-
-      const slot = await getByName(element, 'use-origin-rates:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "use-origin-rates:before" slot with template "use-origin-rates:before" if available', async () => {
-      const name = 'use-origin-rates:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      element.edit({ type: 'union', is_live: true, service_provider: '' });
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "use-origin-rates:after" slot by default', async () => {
-      const element = await fixture<TaxForm>(html`<foxy-tax-form></foxy-tax-form>`);
-      element.edit({ type: 'union', is_live: true, service_provider: '' });
-
-      const slot = await getByName<HTMLSlotElement>(element, 'use-origin-rates:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "use-origin-rates:after" slot with template "use-origin-rates:after" if available', async () => {
-      const name = 'use-origin-rates:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      element.edit({ type: 'union', is_live: true, service_provider: '' });
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union', is_live: true, service_provider: '' });
-
-      const control = await getByTestId(element, 'use-origin-rates');
-      expect(control).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({
-        is_live: true,
-        service_provider: '',
-        name: 'Test Tax',
-        type: 'union',
-        rate: 12.34,
-      });
-
-      element.submit();
-
-      expect(await getByTestId(element, 'use-origin-rates')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-tax-form disabled></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union', is_live: true, service_provider: '' });
-
-      expect(await getByTestId(element, 'use-origin-rates')).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes use-origin-rates', async () => {
-      const layout = html`<foxy-tax-form disabledcontrols="use-origin-rates"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union', is_live: true, service_provider: '' });
-
-      expect(await getByTestId(element, 'use-origin-rates')).to.have.attribute('disabled');
-    });
-
-    it('is hidden by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      expect(await getByTestId(element, 'use-origin-rates')).to.not.exist;
-    });
-
-    it('is visible when tax type is "union"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union', is_live: true, service_provider: '' });
-      expect(await getByTestId(element, 'use-origin-rates')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-tax-form hidden></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union', is_live: true, service_provider: '' });
-
-      expect(await getByTestId(element, 'use-origin-rates')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes use-origin-rates', async () => {
-      const layout = html`<foxy-tax-form hiddencontrols="use-origin-rates"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ type: 'union', is_live: true, service_provider: '' });
-
-      expect(await getByTestId(element, 'use-origin-rates')).to.not.exist;
-    });
-  });
-
-  describe('exempt-all-customer-tax-ids', () => {
-    it('has i18n label with key "tax_exempt_all_customer_tax_ids"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ service_provider: '' });
-      expect(await getByKey(element, 'tax_exempt_all_customer_tax_ids')).to.exist;
-    });
-
-    it('has i18n explainer with key "tax_exempt_all_customer_tax_ids_explainer"', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ service_provider: '' });
-      expect(await getByKey(element, 'tax_exempt_all_customer_tax_ids_explainer')).to.exist;
-    });
-
-    it('has value of form.exempt_all_customer_tax_ids', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ service_provider: '', exempt_all_customer_tax_ids: true });
-
-      const control = await getByTestId<Checkbox>(element, 'exempt-all-customer-tax-ids');
-      expect(control).to.have.property('checked', true);
-    });
-
-    it('writes to form.exempt_all_customer_tax_ids on change', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ service_provider: '' });
-
-      const control = await getByTestId<Checkbox>(element, 'exempt-all-customer-tax-ids');
-      control!.checked = true;
-      control!.dispatchEvent(new CheckboxChangeEvent(true));
-
-      expect(element).to.have.nested.property('form.exempt_all_customer_tax_ids', true);
-    });
-
-    it('renders "exempt-all-customer-tax-ids:before" slot by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      element.edit({ service_provider: '' });
-
-      const slot = await getByName(element, 'exempt-all-customer-tax-ids:before');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "exempt-all-customer-tax-ids:before" slot with template "exempt-all-customer-tax-ids:before" if available', async () => {
-      const name = 'exempt-all-customer-tax-ids:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      element.edit({ service_provider: '' });
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "exempt-all-customer-tax-ids:after" slot by default', async () => {
-      const element = await fixture<TaxForm>(html`<foxy-tax-form></foxy-tax-form>`);
-      element.edit({ service_provider: '' });
-
-      const slot = await getByName<HTMLSlotElement>(element, 'exempt-all-customer-tax-ids:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "exempt-all-customer-tax-ids:after" slot with template "exempt-all-customer-tax-ids:after" if available', async () => {
-      const name = 'exempt-all-customer-tax-ids:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      element.edit({ service_provider: '' });
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('is enabled by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      element.edit({ service_provider: '' });
-
-      const control = await getByTestId(element, 'exempt-all-customer-tax-ids');
-      expect(control).not.to.have.attribute('disabled');
-    });
-
-    it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({
-        service_provider: '',
-        name: 'Test Tax',
-        type: 'global',
-        rate: 12.34,
-      });
-
-      element.submit();
-
-      expect(await getByTestId(element, 'exempt-all-customer-tax-ids')).to.have.attribute(
-        'disabled'
-      );
-    });
-
-    it('is disabled when element is disabled', async () => {
-      const layout = html`<foxy-tax-form disabled></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      element.edit({ service_provider: '' });
-
-      expect(await getByTestId(element, 'exempt-all-customer-tax-ids')).to.have.attribute(
-        'disabled'
-      );
-    });
-
-    it('is disabled when disabledcontrols includes exempt-all-customer-tax-ids', async () => {
-      const layout = html`
-        <foxy-tax-form disabledcontrols="exempt-all-customer-tax-ids"> </foxy-tax-form>
-      `;
-
-      const element = await fixture<TaxForm>(layout);
-      element.edit({ service_provider: '' });
-
-      expect(await getByTestId(element, 'exempt-all-customer-tax-ids')).to.have.attribute(
-        'disabled'
-      );
-    });
-
-    it('is hidden by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      expect(await getByTestId(element, 'exempt-all-customer-tax-ids')).to.not.exist;
-    });
-
-    it('is visible when using the default tax service', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ service_provider: '' });
-      expect(await getByTestId(element, 'exempt-all-customer-tax-ids')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-tax-form hidden></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      expect(await getByTestId(element, 'exempt-all-customer-tax-ids')).to.not.exist;
-    });
-
-    it('is hidden when hiddencontrols includes exempt-all-customer-tax-ids', async () => {
-      const layout = html`
-        <foxy-tax-form hiddencontrols="exempt-all-customer-tax-ids"> </foxy-tax-form>
-      `;
-
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'exempt-all-customer-tax-ids')).to.not.exist;
-    });
-  });
-
-  describe('timestamps', () => {
-    it('once form data is loaded, renders a property table with created and modified dates', async () => {
-      const data = await getTestData<Data>('./hapi/taxes/0');
-      const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const control = await getByTestId(element, 'timestamps');
-      const items = [
-        { name: 'date_modified', value: 'date' },
-        { name: 'date_created', value: 'date' },
-      ];
-
-      expect(control).to.have.deep.property('items', items);
-    });
-
-    it('once form data is loaded, renders "timestamps:before" slot', async () => {
-      const data = await getTestData<Data>('./hapi/taxes/0');
-      const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'timestamps:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('once form data is loaded, replaces "timestamps:before" slot with template "timestamps:before" if available', async () => {
-      const data = await getTestData<Data>('./hapi/taxes/0');
-      const name = 'timestamps:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form .data=${data}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('once form data is loaded, renders "timestamps:after" slot', async () => {
-      const data = await getTestData<Data>('./hapi/taxes/0');
-      const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'timestamps:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('once form data is loaded, replaces "timestamps:after" slot with template "timestamps:after" if available', async () => {
-      const data = await getTestData<Data>('./hapi/taxes/0');
-      const name = 'timestamps:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form .data=${data}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-  });
-
-  describe('create', () => {
-    it('if data is empty, renders create button', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'create')).to.exist;
-    });
-
-    it('renders with i18n key "create" for caption', async () => {
-      const layout = html`<foxy-tax-form lang="es"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const control = await getByTestId(element, 'create');
-      const caption = control?.firstElementChild;
-
-      expect(caption).to.have.property('localName', 'foxy-i18n');
-      expect(caption).to.have.attribute('lang', 'es');
-      expect(caption).to.have.attribute('key', 'create');
-      expect(caption).to.have.attribute('ns', 'tax-form');
-    });
-
-    it('renders disabled if form is disabled', async () => {
-      const layout = html`<foxy-tax-form disabled></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if form is invalid', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if form is sending changes', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ name: 'Foo' });
-      element.submit();
-
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if disabledcontrols includes "create"', async () => {
-      const layout = html`<foxy-tax-form disabledcontrols="create"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'create')).to.have.attribute('disabled');
-    });
-
-    it('submits valid form on click', async () => {
-      const element = await fixture<TaxForm>(html`<foxy-tax-form></foxy-tax-form>`);
-      const submit = stub(element, 'submit');
-      element.edit({ name: 'Foo', type: 'global', rate: 12.34 });
-
-      const control = await getByTestId<ButtonElement>(element, 'create');
-      control!.dispatchEvent(new CustomEvent('click'));
-
-      expect(submit).to.have.been.called;
-    });
-
-    it("doesn't render if form is hidden", async () => {
-      const layout = html`<foxy-tax-form hidden></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'create')).to.not.exist;
-    });
-
-    it('doesn\'t render if hiddencontrols includes "create"', async () => {
-      const layout = html`<foxy-tax-form hiddencontrols="create"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      expect(await getByTestId(element, 'create')).to.not.exist;
-    });
-
-    it('renders with "create:before" slot by default', async () => {
-      const layout = html`<foxy-tax-form></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'create:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "create:before" slot with template "create:before" if available and rendered', async () => {
-      const name = 'create:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders with "create:after" slot by default', async () => {
-      const element = await fixture<TaxForm>(html`<foxy-tax-form></foxy-tax-form>`);
-      const slot = await getByName<HTMLSlotElement>(element, 'create:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "create:after" slot with template "create:after" if available and rendered', async () => {
-      const name = 'create:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-  });
-
-  describe('delete', () => {
-    it('renders delete button once resource is loaded', async () => {
-      const href = './hapi/taxes/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-tax-form .data=${data} disabled></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      expect(await getByTestId(element, 'delete')).to.exist;
-    });
-
-    it('renders with i18n key "delete" for caption', async () => {
-      const data = await getTestData('./hapi/taxes/0');
-      const layout = html`<foxy-tax-form .data=${data} lang="es"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const control = await getByTestId(element, 'delete');
-      const caption = control?.firstElementChild;
-
-      expect(caption).to.have.property('localName', 'foxy-i18n');
-      expect(caption).to.have.attribute('lang', 'es');
-      expect(caption).to.have.attribute('key', 'delete');
-      expect(caption).to.have.attribute('ns', 'tax-form');
-    });
-
-    it('renders disabled if form is disabled', async () => {
-      const data = await getTestData('./hapi/taxes/0');
-      const layout = html`<foxy-tax-form .data=${data} disabled></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if form is sending changes', async () => {
-      const data = await getTestData('./hapi/taxes/0');
-      const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      element.edit({ name: 'Foo' });
-      element.submit();
-
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if disabledcontrols includes "delete"', async () => {
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form .data=${await getTestData<Data>('./hapi/taxes/0')} disabledcontrols="delete">
-        </foxy-tax-form>
-      `);
-
-      expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
-    });
-
-    it('shows deletion confirmation dialog on click', async () => {
-      const data = await getTestData('./hapi/taxes/0');
-      const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const control = await getByTestId<ButtonElement>(element, 'delete');
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const showMethod = stub(confirm!, 'show');
-
-      control!.dispatchEvent(new CustomEvent('click'));
-
-      expect(showMethod).to.have.been.called;
-    });
-
-    it('deletes resource if deletion is confirmed', async () => {
-      const data = await getTestData('./hapi/taxes/0');
-      const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const deleteMethod = stub(element, 'delete');
-
-      confirm!.dispatchEvent(new InternalConfirmDialog.HideEvent(false));
-
-      expect(deleteMethod).to.have.been.called;
-    });
-
-    it('keeps resource if deletion is cancelled', async () => {
-      const data = await getTestData('./hapi/taxes/0');
-      const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
-      const deleteMethod = stub(element, 'delete');
-
-      confirm!.dispatchEvent(new InternalConfirmDialog.HideEvent(true));
-
-      expect(deleteMethod).not.to.have.been.called;
-    });
-
-    it("doesn't render if form is hidden", async () => {
-      const data = await getTestData('./hapi/taxes/0');
-      const layout = html`<foxy-tax-form .data=${data} hidden></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-
-      expect(await getByTestId(element, 'delete')).to.not.exist;
-    });
-
-    it('doesn\'t render if hiddencontrols includes "delete"', async () => {
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form .data=${await getTestData<Data>('./hapi/taxes/0')} hiddencontrols="delete">
-        </foxy-tax-form>
-      `);
-
-      expect(await getByTestId(element, 'delete')).to.not.exist;
-    });
-
-    it('renders with "delete:before" slot by default', async () => {
-      const data = await getTestData('./hapi/taxes/0');
-      const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'delete:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "delete:before" slot with template "delete:before" if available and rendered', async () => {
-      const href = './hapi/taxes/0';
-      const name = 'delete:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form .data=${await getTestData<Data>(href)}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders with "delete:after" slot by default', async () => {
-      const data = await getTestData('./hapi/taxes/0');
-      const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const slot = await getByName<HTMLSlotElement>(element, 'delete:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "delete:after" slot with template "delete:after" if available and rendered', async () => {
-      const href = './hapi/taxes/0';
-      const name = 'delete:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<TaxForm>(html`
-        <foxy-tax-form .data=${await getTestData<Data>(href)}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-tax-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-  });
-
-  describe('spinner', () => {
-    it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const router = createRouter();
-      const layout = html`
-        <foxy-tax-form
-          href="https://demo.api/virtual/stall"
-          lang="es"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-tax-form>
-      `;
-
-      const element = await fixture<TaxForm>(layout);
-      const spinnerWrapper = await getByTestId(element, 'spinner');
-      const spinner = spinnerWrapper!.firstElementChild;
-
-      expect(spinnerWrapper).not.to.have.class('opacity-0');
-      expect(spinner).to.have.attribute('state', 'busy');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'tax-form spinner');
-    });
-
-    it('renders foxy-spinner in "error" state if loading data fails', async () => {
-      const href = './hapi/not-found';
-      const layout = html`<foxy-tax-form href=${href} lang="es"></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const spinnerWrapper = await getByTestId(element, 'spinner');
-      const spinner = spinnerWrapper!.firstElementChild;
-
-      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
-
-      expect(spinnerWrapper).not.to.have.class('opacity-0');
-      expect(spinner).to.have.attribute('state', 'error');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'tax-form spinner');
-    });
-
-    it('hides spinner once loaded', async () => {
-      const data = await getTestData('./hapi/taxes/0');
-      const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
-      const element = await fixture<TaxForm>(layout);
-      const spinnerWrapper = await getByTestId(element, 'spinner');
-
-      expect(spinnerWrapper).to.have.class('opacity-0');
-    });
+  it('renders a text control for city in group three', async () => {
+    const form = await fixture<Form>(html`<foxy-tax-form></foxy-tax-form>`);
+    const control = form.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="group-three"] foxy-internal-text-control[infer="city"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 });

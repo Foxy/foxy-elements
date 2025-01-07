@@ -11,24 +11,37 @@ const summary: Summary = {
   localName: 'foxy-tax-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps'],
-    buttons: [
-      'exempt-all-customer-tax-ids',
-      'use-origin-rates',
-      'apply-to-shipping',
-      'create',
-      'delete',
+    sections: ['timestamps', 'header', 'general', 'group-one', 'group-two', 'group-three'],
+    buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
+    inputs: [
+      'group-one:name',
+      'group-one:type',
+      'group-one:service-provider',
+      'group-one:rate',
+      'group-two:apply-to-shipping',
+      'group-two:exempt-all-customer-tax-ids',
+      'group-two:use-origin-rates',
+      'group-three:country',
+      'group-three:region-select',
+      'group-three:region-input',
+      'group-three:city',
+      'native-integrations',
     ],
-    inputs: ['name', 'type', 'country', 'region', 'city', 'provider', 'rate'],
   },
 };
 
 export default getMeta(summary);
 
-export const Playground = getStory({ ...summary, code: true });
-export const Empty = getStory(summary);
-export const Error = getStory(summary);
-export const Busy = getStory(summary);
+const ext = `
+  native-integrations="https://demo.api/hapi/native_integrations"
+  countries="https://demo.api/hapi/property_helpers/3"
+  regions="https://demo.api/hapi/property_helpers/4"
+`;
+
+export const Playground = getStory({ ...summary, ext, code: true });
+export const Empty = getStory({ ...summary, ext });
+export const Error = getStory({ ...summary, ext });
+export const Busy = getStory({ ...summary, ext });
 
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
