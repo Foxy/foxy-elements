@@ -25,6 +25,7 @@ export class TaxCard extends TranslatableMixin(TwoLineCard, 'tax-card')<Data> {
     if (type === 'country') return country;
     if (type === 'region') return `${country}, ${region}`;
     if (type === 'local') return `${country}, ${region}, ${city}`;
+    if (type === 'custom_tax') return this.t('tax_custom_tax');
   }
 
   private getRateLabel({ is_live, rate }: Data) {
@@ -34,6 +35,7 @@ export class TaxCard extends TranslatableMixin(TwoLineCard, 'tax-card')<Data> {
     if (provider === 'onesource') return 'Thomson Reuters ONESOURCE';
     if (provider === 'avalara') return 'Avalara AvaTax 15';
     if (provider === 'taxjar') return 'TaxJar';
+    if (provider === 'custom_tax_endpoint') return this.t('tax_rate_provider_custom');
 
     return this.t('tax_rate_provider_default');
   }

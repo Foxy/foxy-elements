@@ -1,8 +1,10 @@
 {
   "percent": "{{fraction, percent}}",
-  "tax_global": "Global tax",
-  "tax_rate_provider_default": "Default (Thomson Reuters; others)",
-  "tax_union": "European Union tax",
+  "tax_global": "Global",
+  "tax_rate_provider_default": "Default",
+  "tax_union": "European Union",
+  "tax_custom_tax": "Live",
+  "tax_rate_provider_custom": "Custom Tax Endpoint",
   "spinner": {
     "loading_busy": "Loading",
     "loading_empty": "No data",
