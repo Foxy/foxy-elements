@@ -20,8 +20,14 @@ export class API extends CoreAPI<any> {
           const request = typeof args[0] === 'string' ? new API.WHATWGRequest(...args) : args[0];
 
           request.headers.set('FOXY-API-VERSION', '1');
-          if (!request.headers.has('Content-Type')) {
-            request.headers.set('Content-Type', 'application/json');
+
+          // WHATWGRequest adds text/plain content type by default.
+          // Our default is application/json so we need to override it.
+          if (['POST', 'PATCH', 'PUT'].includes(request.method)) {
+            const s = typeof args[0] === 'string' ? args[1]?.headers : args[0].headers;
+            if (new API.WHATWGHeaders(s).get('Content-Type') === null) {
+              request.headers.set('Content-Type', 'application/json');
+            }
           }
 
           const event = new FetchEvent('fetch', {
