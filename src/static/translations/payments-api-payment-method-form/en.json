@@ -51,6 +51,12 @@
       "unchecked": "No",
       "helper_text": ""
     },
+    "use-auth-only": {
+      "label": "Authorize only (no capture)",
+      "helper_text": "If your business requires that you do not capture funds immediately, check this box and your order will do an authorization only (\"auth-only\") and will not capture the funds automatically (\"auth-capture\"). You will have to capture the funds manually through your gateway's web interface.",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
     "description": {
       "label": "Description",
       "placeholder": "Defaults to the gateway name",

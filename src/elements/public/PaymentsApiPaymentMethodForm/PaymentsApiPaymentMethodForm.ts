@@ -340,6 +340,12 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
         <foxy-internal-text-control layout="summary-item" infer="description">
         </foxy-internal-text-control>
 
+        ${this.form.helper?.supports_auth_only
+          ? html`
+              <foxy-internal-switch-control infer="use-auth-only" helper-text-as-tooltip>
+              </foxy-internal-switch-control>
+            `
+          : ''}
         ${this.form.helper?.supports_3d_secure
           ? html`
               <foxy-internal-select-control
