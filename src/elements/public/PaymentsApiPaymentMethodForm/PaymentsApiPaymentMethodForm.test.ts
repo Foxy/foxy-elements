@@ -6,6 +6,7 @@ import './index';
 
 import { PaymentsApiPaymentMethodForm as Form } from './PaymentsApiPaymentMethodForm';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
 import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
 import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
 import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
@@ -28,6 +29,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
   it('imports and defines vaadin-button', () => {
     expect(customElements.get('vaadin-button')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-password-control', () => {
+    const element = customElements.get('foxy-internal-password-control');
+    expect(element).to.equal(InternalPasswordControl);
   });
 
   it('imports and defines foxy-internal-switch-control', () => {
@@ -621,7 +627,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     }
   });
 
-  it('renders a text control for live and test 3rd-party key if applicable', async () => {
+  it('renders a password control for live and test 3rd-party key if applicable', async () => {
     const router = createRouter();
 
     const wrapper = await fixture(html`
@@ -664,7 +670,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
       const field = tabPanel.querySelector(`[infer="${prefix}third-party-key"]`);
 
       expect(field).to.exist;
-      expect(field).to.be.instanceOf(InternalTextControl);
+      expect(field).to.be.instanceOf(InternalPasswordControl);
       expect(field).to.have.attribute('placeholder', 'default_additional_field_placeholder');
       expect(field).to.have.attribute('helper-text', '');
       expect(field).to.have.attribute('layout', 'summary-item');
@@ -684,7 +690,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     }
   });
 
-  it('renders a text control for live and test account key if applicable', async () => {
+  it('renders a password control for live and test account key if applicable', async () => {
     const router = createRouter();
 
     const wrapper = await fixture(html`
@@ -721,7 +727,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
       const field = tabPanel.querySelector(`[infer="${prefix}account-key"]`);
 
       expect(field).to.exist;
-      expect(field).to.be.instanceOf(InternalTextControl);
+      expect(field).to.be.instanceOf(InternalPasswordControl);
       expect(field).to.have.attribute('placeholder', 'default_additional_field_placeholder');
       expect(field).to.have.attribute('helper-text', '');
       expect(field).to.have.attribute('layout', 'summary-item');

@@ -1,5 +1,6 @@
 import '@vaadin/vaadin-button';
 
+import '../../internal/InternalPasswordControl/index';
 import '../../internal/InternalSummaryControl/index';
 import '../../internal/InternalSwitchControl/index';
 import '../../internal/InternalSelectControl/index';
