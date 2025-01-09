@@ -53,7 +53,7 @@ export class AdminSubscriptionForm extends Base<Data> {
       </foxy-internal-admin-subscription-form-error>
 
       <foxy-internal-summary-control infer="general">
-        <foxy-internal-date-control layout="summary-item" format="iso-long" infer="start-date">
+        <foxy-internal-date-control layout="summary-item" infer="start-date">
         </foxy-internal-date-control>
         <foxy-internal-frequency-control
           layout="summary-item"
@@ -61,13 +61,9 @@ export class AdminSubscriptionForm extends Base<Data> {
           allow-twice-a-month
         >
         </foxy-internal-frequency-control>
-        <foxy-internal-date-control
-          layout="summary-item"
-          format="iso-long"
-          infer="next-transaction-date"
-        >
+        <foxy-internal-date-control layout="summary-item" infer="next-transaction-date">
         </foxy-internal-date-control>
-        <foxy-internal-date-control layout="summary-item" format="iso-long" infer="end-date">
+        <foxy-internal-date-control layout="summary-item" infer="end-date">
         </foxy-internal-date-control>
       </foxy-internal-summary-control>
 
