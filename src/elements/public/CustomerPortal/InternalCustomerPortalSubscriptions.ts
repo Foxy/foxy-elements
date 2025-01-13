@@ -62,7 +62,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
   };
 
   private readonly __renderFormHeaderActionsEnd: Renderer<SubscriptionForm> = (html, host) => {
-    const hasEndDate = !!host.data?.end_date;
+    const hasEndDate = !!host.data?.end_date && host.data.end_date !== '0000-00-00';
     let cancelLink = '';
 
     if (!hasEndDate && host.in({ idle: 'snapshot' })) {
