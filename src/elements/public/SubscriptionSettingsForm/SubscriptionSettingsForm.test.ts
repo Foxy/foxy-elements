@@ -441,7 +441,7 @@ describe('SubscriptionSettingsForm', () => {
 
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
     const control = element.renderRoot.querySelector<InternalSwitchControl>(
-      '[infer="emails-group"] [infer="send-email-receipts-for-automated-billing"]'
+      '[infer="past-due-amount-group"] [infer="send-email-receipts-for-automated-billing"]'
     );
 
     expect(control).to.be.instanceOf(InternalSwitchControl);
