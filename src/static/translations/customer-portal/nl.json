@@ -1,4 +1,22 @@
 {
+  "password-reset": {
+    "title": "Wachtwoord resetten",
+    "subtitle": "Werk nu uw wachtwoord bij om uw account veilig te houden.",
+    "submit": "Doorgaan",
+    "password": {
+      "label": "Nieuw wachtwoord",
+      "placeholder": "Vereist",
+      "helper_text": "Klik op ✨ om een ​​veilig willekeurig wachtwoord voor dit account te genereren.",
+      "v8n_too_long": "Gebruik een wachtwoord dat niet langer is dan 50 tekens.",
+      "v8n_too_weak": "Gebruik een sterker wachtwoord. Maak dit wachtwoord sterker door het minstens 8 tekens lang te maken en een paar hoofdletters en kleine letters, cijfers en speciale tekens op te nemen.",
+      "v8n_required": "Vul alstublieft dit veld in."
+    },
+    "spinner": {
+      "refresh": "Vernieuwen",
+      "loading_busy": "Bezig met laden",
+      "loading_error": "Onbekende fout"
+    }
+  },
   "access-recovery-form": {
     "back": "Ga terug",
     "email": "E-mail",

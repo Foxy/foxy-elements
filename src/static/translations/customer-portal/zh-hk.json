@@ -1,4 +1,22 @@
 {
+  "password-reset": {
+    "title": "重置密码",
+    "subtitle": "请立即更新您的密码以确保帐户安全。",
+    "submit": "继续",
+    "password": {
+      "label": "新密码",
+      "placeholder": "必需的",
+      "helper_text": "点击 ✨ 为此帐户生成一个安全的随机密码。",
+      "v8n_too_long": "请使用不超过 50 个字符的密码。",
+      "v8n_too_weak": "请使用更强的密码。为了使此密码更强，请使其至少 8 个字符长，并包含一些大写和小写字母、数字和特殊字符。",
+      "v8n_required": "请填写此字段。"
+    },
+    "spinner": {
+      "refresh": "刷新",
+      "loading_busy": "加载中",
+      "loading_error": "未知错误"
+    }
+  },
   "access-recovery-form": {
     "back": "回去",
     "email": "电子邮件",

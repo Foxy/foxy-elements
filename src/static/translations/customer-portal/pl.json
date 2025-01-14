@@ -1,4 +1,22 @@
 {
+  "password-reset": {
+    "title": "Resetowanie hasła",
+    "subtitle": "Proszę zaktualizować swoje hasło, aby zabezpieczyć konto.",
+    "submit": "Kontynuuj",
+    "password": {
+      "label": "Nowe hasło",
+      "placeholder": "Wymagany",
+      "helper_text": "Kliknij ✨, aby wygenerować bezpieczne losowe hasło dla tego konta.",
+      "v8n_too_long": "Proszę używać hasła nie dłuższego niż 50 znaków.",
+      "v8n_too_weak": "Proszę użyć silniejszego hasła. Aby wzmocnić to hasło, powinno mieć co najmniej 8 znaków i zawierać kilka wielkich i małych liter, cyfr oraz znaków specjalnych.",
+      "v8n_required": "Proszę wypełnić to pole."
+    },
+    "spinner": {
+      "refresh": "Odświeżać",
+      "loading_busy": "Ładowanie",
+      "loading_error": "Nieznany błąd"
+    }
+  },
   "access-recovery-form": {
     "back": "Wróć",
     "email": "E-mail",

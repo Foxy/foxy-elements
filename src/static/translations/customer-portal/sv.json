@@ -1,4 +1,22 @@
 {
+  "password-reset": {
+    "title": "Återställ lösenord",
+    "subtitle": "Uppdatera ditt lösenord nu för att hålla ditt konto säkert.",
+    "submit": "Fortsätt",
+    "password": {
+      "label": "Nytt lösenord",
+      "placeholder": "Nödvändig",
+      "helper_text": "Klicka på ✨ för att generera ett säkert slumpmässigt lösenord för detta konto.",
+      "v8n_too_long": "Använd ett lösenord som inte är längre än 50 tecken.",
+      "v8n_too_weak": "Använd ett starkare lösenord. För att göra detta lösenord starkare, gör det minst 8 tecken långt och inkludera några stora och små bokstäver, siffror och specialtecken.",
+      "v8n_required": "Var vänlig fyll i det här fältet."
+    },
+    "spinner": {
+      "refresh": "Uppdatera",
+      "loading_busy": "Läser in",
+      "loading_error": "Okänt fel"
+    }
+  },
   "access-recovery-form": {
     "back": "Gå tillbaka",
     "email": "E-post",

@@ -1,4 +1,22 @@
 {
+  "password-reset": {
+    "title": "Restablecimiento de contraseña",
+    "subtitle": "Por favor, actualice su contraseña ahora para mantener su cuenta segura.",
+    "submit": "Continuar",
+    "password": {
+      "label": "Nueva contraseña",
+      "placeholder": "Requerido",
+      "helper_text": "Haga clic en ✨ para generar una contraseña segura aleatoria para esta cuenta.",
+      "v8n_too_long": "Por favor, use una contraseña que no tenga más de 50 caracteres.",
+      "v8n_too_weak": "Por favor, use una contraseña más segura. Para hacer esta contraseña más segura, hágala de al menos 8 caracteres e incluya algunas letras mayúsculas y minúsculas, números y caracteres especiales.",
+      "v8n_required": "Por favor, rellene este campo."
+    },
+    "spinner": {
+      "refresh": "Actualizar",
+      "loading_busy": "Cargando",
+      "loading_error": "Error desconocido"
+    }
+  },
   "access-recovery-form": {
     "back": "Volver",
     "email": "Correo electrónico",

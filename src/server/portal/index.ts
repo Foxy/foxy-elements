@@ -74,6 +74,7 @@ export function createRouter(): Router {
 
     if (customer) {
       body = JSON.stringify({
+        force_password_reset: false,
         session_token: `${customer.id}-${Date.now() + 2419200 * 1000}`,
         expires_in: 2419200,
         jwt: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Et9HFtf9R3GEMA0IICOfFMVXY7kkTX1wr4qCyhIf58U',

@@ -247,7 +247,12 @@ export class InternalCustomerPortalLoggedOutView extends Base<Data> {
           id="sign-in-form"
           ns="${this.ns} ${customElements.get('foxy-sign-in-form')?.defaultNS ?? ''}"
           .templates=${this.getNestedTemplates('sign-in:form')}
-          @update=${() => this.requestUpdate()}
+          @update=${(evt: CustomEvent) => {
+            const target = evt.currentTarget as SignInForm;
+            const password = target.form.credential?.password ?? null;
+            this.dispatchEvent(new CustomEvent('password', { detail: password }));
+            this.requestUpdate();
+          }}
         >
         </foxy-sign-in-form>
 

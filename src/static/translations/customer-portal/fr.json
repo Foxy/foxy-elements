@@ -1,4 +1,22 @@
 {
+  "password-reset": {
+    "title": "Réinitialisation du mot de passe",
+    "subtitle": "Veuillez mettre à jour votre mot de passe maintenant pour sécuriser votre compte.",
+    "submit": "Continuer",
+    "password": {
+      "label": "Nouveau mot de passe",
+      "placeholder": "Requis",
+      "helper_text": "Cliquez sur ✨ pour générer un mot de passe aléatoire sécurisé pour ce compte.",
+      "v8n_too_long": "Veuillez utiliser un mot de passe ne dépassant pas 50 caractères.",
+      "v8n_too_weak": "Veuillez utiliser un mot de passe plus fort. Pour renforcer ce mot de passe, faites-le d'au moins 8 caractères et incluez quelques lettres majuscules et minuscules, des chiffres et des caractères spéciaux.",
+      "v8n_required": "Merci de remplir ce champ."
+    },
+    "spinner": {
+      "refresh": "Rafraîchir",
+      "loading_busy": "Chargement",
+      "loading_error": "Erreur inconnue"
+    }
+  },
   "access-recovery-form": {
     "back": "Retourner",
     "email": "E-mail",
