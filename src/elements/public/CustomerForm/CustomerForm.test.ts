@@ -231,8 +231,6 @@ describe('CustomerForm', () => {
     form.data = { ...data, first_name: '', last_name: '' };
     expect(form.headerTitleOptions).to.have.property('context', 'no_name');
 
-    // TODO: remove this when SDK types are fixed
-    // @ts-expect-error SDK types are incomplete
     form.data = { ...data, first_name: null, last_name: null };
     expect(form.headerTitleOptions).to.have.property('context', 'no_name');
   });
