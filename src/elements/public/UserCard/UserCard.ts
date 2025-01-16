@@ -1,8 +1,8 @@
 import type { PropertyDeclarations } from 'lit-element';
-import type { UserInvitations } from '../UserInvitationForm/types';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
 import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -77,15 +77,13 @@ export class UserCard extends Base<Data> {
   }
 
   private get __invitationsLoader() {
-    type Loader = NucleonElement<Resource<UserInvitations>>;
+    type Loader = NucleonElement<Resource<Rels.UserInvitations>>;
     return this.renderRoot.querySelector<Loader>('#invitationsLoader');
   }
 
   private get __invitationsHref() {
     try {
       if (!this.showInvitations) return;
-      // TODO remove this when SDK has types for invitations.
-      // @ts-expect-error SDK does not have types for invitations yet.
       const url = new URL(this.data?._links['fx:user_invitations'].href ?? '');
       url.searchParams.set('status', 'sent');
       url.searchParams.set('limit', '1');

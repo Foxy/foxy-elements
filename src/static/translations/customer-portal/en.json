@@ -1,4 +1,22 @@
 {
+  "password-reset": {
+    "title": "Password reset",
+    "subtitle": "Please update your password now to keep your account secure.",
+    "submit": "Continue",
+    "password": {
+      "label": "New password",
+      "placeholder": "Required",
+      "helper_text": "Click ✨ to generate a secure random password for this account.",
+      "v8n_too_long": "Please use a password that is no longer than 50 characters.",
+      "v8n_too_weak": "Please use a stronger password. To make this password stronger, make it at least 8 characters long and include a few upper and lower case letters, numbers, and special characters.",
+      "v8n_required": "Please fill out this field."
+    },
+    "spinner": {
+      "refresh": "Refresh",
+      "loading_busy": "Loading",
+      "loading_error": "Unknown error"
+    }
+  },
   "access-recovery-form": {
     "back": "Go back",
     "email": "Email",

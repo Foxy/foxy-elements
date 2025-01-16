@@ -51,8 +51,6 @@ export class Transaction extends Base<Data> {
       onClick: async (selection: Resource<Rels.Webhook>[]) => {
         if (!this.data) return;
 
-        // TODO remove ts-expect-error when SDK has the types
-        // @ts-expect-error SDK types are incomplete
         const url = this.data._links['fx:send_webhooks'].href;
         const api = new Transaction.API(this);
         const response = await api.fetch(url, {
@@ -213,9 +211,7 @@ export class Transaction extends Base<Data> {
     if (this.data) {
       try {
         const shipmentsUrl = new URL(this.data._links['fx:shipments'].href);
-        // TODO: Remove the ts-expect-error comment when SDK has the types
-        // @ts-expect-error SDK doesn't have the types
-        const webhooksUrl = new URL(this.__storeLoader?.data._links['fx:webhooks'].href ?? '');
+        const webhooksUrl = new URL(this.__storeLoader?.data?._links['fx:webhooks'].href ?? '');
         const itemsUrl = new URL(this.data._links['fx:items'].href);
 
         shipmentsUrl.searchParams.set('zoom', 'items:item_category');

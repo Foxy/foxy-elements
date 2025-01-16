@@ -2,6 +2,7 @@ import '@polymer/iron-icons/editor-icons';
 import '@vaadin/vaadin-button';
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';
+import '../../internal/InternalPasswordControl/index';
 import '../../internal/InternalSandbox/index';
 import '../../internal/InternalForm/index';
 import '../AccessRecoveryForm/index';
@@ -15,6 +16,7 @@ import '../CustomerForm/index';
 import '../SignInForm/index';
 import '../FormDialog/index';
 import '../Spinner/index';
+import '../I18n/index';
 import '../Customer/index';
 
 import { CustomerPortal } from './CustomerPortal';
@@ -23,6 +25,7 @@ import { InternalCustomerPortalLoggedInView } from './InternalCustomerPortalLogg
 import { InternalCustomerPortalLoggedOutView } from './InternalCustomerPortalLoggedOutView';
 import { InternalCustomerPortalSubscriptions } from './InternalCustomerPortalSubscriptions';
 import { InternalCustomerPortalTransactions } from './InternalCustomerPortalTransactions';
+import { InternalCustomerPortalPasswordResetView } from './InternalCustomerPortalPasswordResetView';
 
 customElements.define(
   'foxy-internal-customer-portal-logged-in-view',
@@ -32,6 +35,11 @@ customElements.define(
 customElements.define(
   'foxy-internal-customer-portal-logged-out-view',
   InternalCustomerPortalLoggedOutView
+);
+
+customElements.define(
+  'foxy-internal-customer-portal-password-reset-view',
+  InternalCustomerPortalPasswordResetView
 );
 
 customElements.define(

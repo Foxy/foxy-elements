@@ -1,12 +1,13 @@
-import '../../internal/InternalConfirmDialog/index';
-import '../../internal/InternalSandbox/index';
-import '../Spinner/index';
-import '../I18n/index';
-import '@vaadin/vaadin-text-field/vaadin-number-field';
-import '@vaadin/vaadin-text-field/vaadin-text-field';
-import '@vaadin/vaadin-combo-box';
-import '@vaadin/vaadin-button';
-import '@vaadin/vaadin-select';
+import '../../internal/InternalAsyncListControl/index';
+import '../../internal/InternalSummaryControl/index';
+import '../../internal/InternalSelectControl/index';
+import '../../internal/InternalSwitchControl/index';
+import '../../internal/InternalNumberControl/index';
+import '../../internal/InternalTextControl/index';
+import '../../internal/InternalForm/index';
+
+import '../NativeIntegrationCard/index';
+import '../NucleonElement/index';
 
 import { TaxForm } from './TaxForm';
 

@@ -4,39 +4,38 @@ import './index';
 
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { NativeIntegrationForm as Form } from './NativeIntegrationForm';
-import { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
 import { InternalEditableListControl } from '../../internal/InternalEditableListControl/InternalEditableListControl';
-import { InternalRadioGroupControl } from '../../internal/InternalRadioGroupControl/InternalRadioGroupControl';
+import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
 import { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
-import { InternalTextAreaControl } from '../../internal/InternalTextAreaControl/InternalTextAreaControl';
+import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { createRouter } from '../../../server';
 import { getTestData } from '../../../testgen/getTestData';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { I18n } from '../I18n';
-
-import * as defaults from './defaults';
+import { I18n } from '../I18n/I18n';
 import { stub } from 'sinon';
 
-describe('NativeIntegrationForm', () => {
-  it('imports and defines foxy-internal-checkbox-group-control element', () => {
-    expect(customElements.get('foxy-internal-checkbox-group-control')).to.exist;
-  });
+import * as defaults from './defaults';
 
+describe('NativeIntegrationForm', () => {
   it('imports and defines foxy-internal-editable-list-control element', () => {
     expect(customElements.get('foxy-internal-editable-list-control')).to.exist;
-  });
-
-  it('imports and defines foxy-internal-radio-group-control element', () => {
-    expect(customElements.get('foxy-internal-radio-group-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-password-control element', () => {
     expect(customElements.get('foxy-internal-password-control')).to.exist;
   });
 
-  it('imports and defines foxy-internal-text-area-control element', () => {
-    expect(customElements.get('foxy-internal-text-area-control')).to.exist;
+  it('imports and defines foxy-internal-summary-control element', () => {
+    expect(customElements.get('foxy-internal-summary-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-select-control element', () => {
+    expect(customElements.get('foxy-internal-select-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-switch-control element', () => {
+    expect(customElements.get('foxy-internal-switch-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-text-control element', () => {
@@ -302,19 +301,15 @@ describe('NativeIntegrationForm', () => {
       }
     });
 
-    expect(element.readonlySelector.matches('provider', true)).to.be.false;
-    expect(element.readonlySelector.matches('zapier-events', true)).to.be.false;
-    expect(element.readonlySelector.matches('zapier-url', true)).to.be.false;
-    expect(element.readonlySelector.matches('apple-pay-merchant-id', true)).to.be.false;
-    expect(element.readonlySelector.matches('custom-tax-url', true)).to.be.false;
+    expect(element.readonlySelector.matches('zapier-group-one', true)).to.be.false;
+    expect(element.readonlySelector.matches('provider-group-one', true)).to.be.false;
+    expect(element.readonlySelector.matches('apple-pay-group-one', true)).to.be.false;
 
     element.href = 'https://demo.api/hapi/native_integrations/0';
 
-    expect(element.readonlySelector.matches('provider', true)).to.be.true;
-    expect(element.readonlySelector.matches('zapier-events', true)).to.be.true;
-    expect(element.readonlySelector.matches('zapier-url', true)).to.be.true;
-    expect(element.readonlySelector.matches('apple-pay-merchant-id', true)).to.be.true;
-    expect(element.readonlySelector.matches('custom-tax-url', true)).to.be.true;
+    expect(element.readonlySelector.matches('zapier-group-one', true)).to.be.true;
+    expect(element.readonlySelector.matches('provider-group-one', true)).to.be.true;
+    expect(element.readonlySelector.matches('apple-pay-group-one', true)).to.be.true;
   });
 
   it('produces error:already_configured when trying to add another config for an already configured integration', async () => {
@@ -360,7 +355,7 @@ describe('NativeIntegrationForm', () => {
     });
   });
 
-  it('does not render provider name for webhooks when href is defined', async () => {
+  it('does not render provider group when href is defined', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`
       <foxy-native-integration-form
@@ -371,124 +366,138 @@ describe('NativeIntegrationForm', () => {
     `);
 
     await waitUntil(() => element.in('idle'));
-    element.edit({ provider: 'webhook', config: JSON.stringify(defaults.webhookJson) });
+    element.edit({ provider: 'webhook', config: defaults.webhookJson });
     await element.requestUpdate();
 
-    const control = element.renderRoot.querySelector('[infer="provider"]');
+    const control = element.renderRoot.querySelector('[infer="provider-group-one"]');
     expect(control).to.not.exist;
   });
 
-  it('renders provider selector when href is not defined', async () => {
+  it('renders provider group when href is not defined', async () => {
     const element = await fixture<Form>(
       html`<foxy-native-integration-form></foxy-native-integration-form>`
     );
 
     const control = element.renderRoot.querySelector(
-      '[infer="provider"]'
-    ) as InternalRadioGroupControl;
+      'foxy-internal-summary-control[infer="provider-group-one"]'
+    );
 
-    expect(control).to.be.instanceOf(InternalRadioGroupControl);
+    expect(control).to.exist;
+  });
+
+  it('renders provider selector in provider group when href is not defined', async () => {
+    const element = await fixture<Form>(
+      html`<foxy-native-integration-form></foxy-native-integration-form>`
+    );
+
+    const control = element.renderRoot.querySelector(
+      '[infer="provider-group-one"] [infer="provider"]'
+    ) as InternalSelectControl;
+
+    expect(control).to.be.instanceOf(InternalSelectControl);
     expect(control.getValue()).to.equal('avalara');
     expect(control).to.have.deep.property('options', [
       { value: 'avalara', label: 'option_avalara' },
       { value: 'onesource', label: 'option_onesource' },
       { value: 'taxjar', label: 'option_taxjar' },
+      { value: 'custom_tax', label: 'option_custom_tax' },
     ]);
 
     control.setValue('taxjar');
 
     expect(element).to.have.nested.property('form.provider', 'taxjar');
-    expect(element).to.have.nested.property('form.config', JSON.stringify(defaults.taxjar));
+    expect(element).to.have.nested.property('form.config', defaults.taxjar);
     expect(control.getValue()).to.equal('taxjar');
   });
 
-  it('renders a text control for avalara service url', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'avalara';
-    data.config = JSON.stringify({ ...defaults.avalara, service_url: 'https://example.com' });
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
-    `);
-
-    const control = element.renderRoot.querySelector(
-      '[infer="avalara-service-url"]'
-    ) as InternalTextControl;
-
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('https://example.com');
-
-    control.setValue('https://foo.example.com/abc');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('service_url', 'https://foo.example.com/abc');
-  });
-
-  it('renders a text control for avalara id', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'avalara';
-    data.config = JSON.stringify({ ...defaults.avalara, id: 'abc' });
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
-    `);
-
-    const control = element.renderRoot.querySelector('[infer="avalara-id"]') as InternalTextControl;
-
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('id', 'def');
-  });
-
-  it('renders a password control for avalara key', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'avalara';
-    data.config = JSON.stringify({ ...defaults.avalara, key: 'abc' });
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
-    `);
-
-    const control = element.renderRoot.querySelector(
-      '[infer="avalara-key"]'
-    ) as InternalPasswordControl;
-
-    expect(control).to.be.instanceOf(InternalPasswordControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('key', 'def');
-  });
-
-  it('renders a text control for avalara company code', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'avalara';
-    data.config = JSON.stringify({ ...defaults.avalara, company_code: 'abc' });
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
-    `);
-
-    const control = element.renderRoot.querySelector(
-      '[infer="avalara-company-code"]'
-    ) as InternalTextControl;
-
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('company_code', 'def');
-  });
-
-  it('renders an editable list control for avalara tax code mappings', async () => {
+  it('renders a text control for avalara service url in avalara group one', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'avalara';
     data.config = JSON.stringify({
-      ...defaults.avalara,
+      ...JSON.parse(defaults.avalara),
+      service_url: 'https://example.com',
+    });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="avalara-group-one"] foxy-internal-text-control[infer="avalara-service-url"]'
+    ) as InternalTextControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.avalara);
+    expect(control).to.have.attribute('json-path', 'service_url');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a text control for avalara id in avalara group one', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'avalara';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.avalara), id: 'abc' });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="avalara-group-one"] foxy-internal-text-control[infer="avalara-id"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.avalara);
+    expect(control).to.have.attribute('json-path', 'id');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a password control for avalara key in avalara group one', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'avalara';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.avalara), key: 'abc' });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="avalara-group-one"] foxy-internal-password-control[infer="avalara-key"]'
+    ) as InternalPasswordControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.avalara);
+    expect(control).to.have.attribute('json-path', 'key');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a text control for avalara company code in avalara group one', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'avalara';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.avalara), company_code: 'abc' });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="avalara-group-one"] [infer="avalara-company-code"]'
+    ) as InternalTextControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.avalara);
+    expect(control).to.have.attribute('json-path', 'company_code');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders an editable list control for avalara tax code mappings in avalara group two', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'avalara';
+    data.config = JSON.stringify({
+      ...JSON.parse(defaults.avalara),
       category_to_product_tax_code_mappings: { foo: 'bar', bar: 'qux' },
     });
 
@@ -497,7 +506,174 @@ describe('NativeIntegrationForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="avalara-category-to-product-tax-code-mappings"]'
+      'foxy-internal-summary-control[infer="avalara-group-two"] foxy-internal-editable-list-control[infer="avalara-category-to-product-tax-code-mappings"]'
+    ) as InternalEditableListControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control.getValue()).to.deep.equal([{ value: 'foo:bar' }, { value: 'bar:qux' }]);
+
+    control.setValue([{ value: 'a:b' }]);
+    const config = JSON.parse(element.form.config as string);
+    expect(config).to.have.deep.property('category_to_product_tax_code_mappings', { a: 'b' });
+  });
+
+  it('renders a switch control for avalara use_ava_tax in avalara group three', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'avalara';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.avalara), use_ava_tax: true });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="avalara-group-three"] foxy-internal-switch-control[infer="avalara-use-ava-tax"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.avalara);
+    expect(control).to.have.attribute('json-path', 'use_ava_tax');
+    expect(control).to.have.attribute('property', 'config');
+  });
+
+  it('renders a switch control for avalara use_address_validation in avalara group three', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'avalara';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.avalara), use_address_validation: true });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="avalara-group-three"] foxy-internal-switch-control[infer="avalara-use-address-validation"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.avalara);
+    expect(control).to.have.attribute('json-path', 'use_address_validation');
+    expect(control).to.have.attribute('property', 'config');
+  });
+
+  it('renders an editable list control for avalara address validation countries if address validation is on', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'avalara';
+    data.config = JSON.stringify({
+      ...JSON.parse(defaults.avalara),
+      use_address_validation: true,
+    });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="avalara-group-three"] foxy-internal-editable-list-control[infer="avalara-address-validation-countries"]'
+    ) as InternalEditableListControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('json-template', defaults.avalara);
+    expect(control).to.have.attribute('json-path', 'address_validation_countries');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.deep.property('options', [{ value: 'US' }, { value: 'CA' }]);
+  });
+
+  it('renders a switch control for avalara create_invoice in avalara group three', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'avalara';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.avalara), create_invoice: true });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="avalara-group-three"] foxy-internal-switch-control[infer="avalara-create-invoice"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.avalara);
+    expect(control).to.have.attribute('json-path', 'create_invoice');
+    expect(control).to.have.attribute('property', 'config');
+  });
+
+  it('renders a switch control for avalara enable_colorado_delivery_fee in avalara group three', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'avalara';
+    data.config = JSON.stringify({
+      ...JSON.parse(defaults.avalara),
+      enable_colorado_delivery_fee: true,
+    });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="avalara-group-three"] foxy-internal-switch-control[infer="avalara-enable-colorado-delivery-fee"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.avalara);
+    expect(control).to.have.attribute('json-path', 'enable_colorado_delivery_fee');
+    expect(control).to.have.attribute('property', 'config');
+  });
+
+  it('renders a password control for taxjar api token inside taxjar group one', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'taxjar';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.taxjar), api_token: 'abc' });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="taxjar-group-one"] foxy-internal-password-control[infer="taxjar-api-token"]'
+    ) as InternalPasswordControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.taxjar);
+    expect(control).to.have.attribute('json-path', 'api_token');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a switch control for taxjar create_invoice in taxjar group one', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'taxjar';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.taxjar), create_invoice: true });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="taxjar-group-one"] foxy-internal-switch-control[infer="taxjar-create-invoice"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.taxjar);
+    expect(control).to.have.attribute('json-path', 'create_invoice');
+    expect(control).to.have.attribute('property', 'config');
+  });
+
+  it('renders an editable list control for taxjar product code mappings in taxjar group two', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'taxjar';
+    data.config = JSON.stringify({
+      ...JSON.parse(defaults.taxjar),
+      category_to_product_tax_code_mappings: { foo: 'bar', bar: 'qux' },
+    });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="taxjar-group-two"] foxy-internal-editable-list-control[infer="taxjar-category-to-product-tax-code-mappings"]'
     ) as InternalEditableListControl;
 
     expect(control).to.be.instanceOf(InternalEditableListControl);
@@ -508,122 +684,12 @@ describe('NativeIntegrationForm', () => {
     expect(config).to.have.deep.property('category_to_product_tax_code_mappings', { a: 'b' });
   });
 
-  it('renders a checkbox group control for avalara options', async () => {
+  it('renders a text control for onesource service url in onesource group one', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'avalara';
-    data.config = JSON.stringify(defaults.avalara);
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
-    `);
-
-    const control = element.renderRoot.querySelector(
-      '[infer="avalara-options"]'
-    ) as InternalCheckboxGroupControl;
-
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control.getValue()).to.deep.equal([]);
-    expect(control).to.have.deep.property('options', [
-      {
-        value: 'use_ava_tax',
-        label: 'option_use_ava_tax',
-      },
-      {
-        value: 'enable_colorado_delivery_fee',
-        label: 'option_enable_colorado_delivery_fee',
-      },
-      {
-        value: 'create_invoice',
-        label: 'option_create_invoice',
-      },
-      {
-        value: 'use_address_validation',
-        label: 'option_use_address_validation',
-      },
-    ]);
-
-    let config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('enable_colorado_delivery_fee', false);
-    expect(config).to.have.property('use_address_validation', false);
-    expect(config).to.have.property('create_invoice', false);
-    expect(config).to.have.property('use_ava_tax', false);
-
-    control.setValue(['enable_colorado_delivery_fee']);
-    config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('enable_colorado_delivery_fee', true);
-
-    control.setValue(['use_address_validation']);
-    config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('use_address_validation', true);
-
-    control.setValue(['create_invoice']);
-    config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('create_invoice', true);
-
-    control.setValue(['use_ava_tax']);
-    config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('use_ava_tax', true);
-  });
-
-  it('renders a checkbox group control for address validation countries if address validation is on', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'avalara';
-    data.config = JSON.stringify({ ...defaults.avalara, use_address_validation: true });
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
-    `);
-
-    const control = element.renderRoot.querySelector(
-      '[infer="avalara-address-validation-countries"]'
-    ) as InternalCheckboxGroupControl;
-
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control.getValue()).to.deep.equal([]);
-    expect(control).to.have.deep.property('options', [
-      { value: 'US', label: 'option_US' },
-      { value: 'CA', label: 'option_CA' },
-    ]);
-
-    let config = JSON.parse(element.form.config as string);
-    expect(config).to.have.deep.property('address_validation_countries', []);
-
-    control.setValue(['US']);
-    config = JSON.parse(element.form.config as string);
-    expect(config).to.have.deep.property('address_validation_countries', ['US']);
-
-    control.setValue(['CA']);
-    config = JSON.parse(element.form.config as string);
-    expect(config).to.have.deep.property('address_validation_countries', ['CA']);
-  });
-
-  it('renders a password control for taxjar api token', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'taxjar';
-    data.config = JSON.stringify({ ...defaults.taxjar, api_token: 'abc' });
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
-    `);
-
-    const control = element.renderRoot.querySelector(
-      '[infer="taxjar-api-token"]'
-    ) as InternalPasswordControl;
-
-    expect(control).to.be.instanceOf(InternalPasswordControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('api_token', 'def');
-  });
-
-  it('renders an editable list control for taxjar product code mappings', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'taxjar';
+    data.provider = 'onesource';
     data.config = JSON.stringify({
-      ...defaults.taxjar,
-      category_to_product_tax_code_mappings: { foo: 'bar', bar: 'qux' },
+      ...JSON.parse(defaults.onesource),
+      service_url: 'https://example.com',
     });
 
     const element = await fixture<Form>(html`
@@ -631,202 +697,186 @@ describe('NativeIntegrationForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="taxjar-category-to-product-tax-code-mappings"]'
-    ) as InternalEditableListControl;
-
-    expect(control).to.be.instanceOf(InternalEditableListControl);
-    expect(control.getValue()).to.deep.equal([{ value: 'foo:bar' }, { value: 'bar:qux' }]);
-
-    control.setValue([{ value: 'a:b' }]);
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.deep.property('category_to_product_tax_code_mappings', { a: 'b' });
-  });
-
-  it('renders a checkbox group control for taxjar options', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'taxjar';
-    data.config = JSON.stringify(defaults.taxjar);
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
-    `);
-    const control = element.renderRoot.querySelector(
-      '[infer="taxjar-options"]'
-    ) as InternalCheckboxGroupControl;
-
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control.getValue()).to.deep.equal([]);
-    expect(control).to.have.deep.property('options', [
-      {
-        value: 'create_invoice',
-        label: 'option_create_invoice',
-      },
-    ]);
-
-    let config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('create_invoice', false);
-
-    control.setValue(['create_invoice']);
-    config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('create_invoice', true);
-  });
-
-  it('renders a text control for onesource service url', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'onesource';
-    data.config = JSON.stringify({ ...defaults.onesource, service_url: 'https://example.com' });
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
-    `);
-
-    const control = element.renderRoot.querySelector(
-      '[infer="onesource-service-url"]'
+      '[infer="onesource-group-one"] foxy-internal-text-control[infer="onesource-service-url"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('https://example.com');
-
-    control.setValue('https://foo.example.com/abc');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('service_url', 'https://foo.example.com/abc');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.onesource);
+    expect(control).to.have.attribute('json-path', 'service_url');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a text control for onesource external company id', async () => {
+  it('renders a text control for onesource external company id in onesource group one', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'onesource';
-    data.config = JSON.stringify({ ...defaults.onesource, external_company_id: 'abc' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.onesource), external_company_id: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
+
     const control = element.renderRoot.querySelector(
-      '[infer="onesource-external-company-id"]'
+      '[infer="onesource-group-one"] foxy-internal-text-control[infer="onesource-external-company-id"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('external_company_id', 'def');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.onesource);
+    expect(control).to.have.attribute('json-path', 'external_company_id');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a text control for onesource calling system number', async () => {
+  it('renders a text control for onesource from city in onesource group one', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'onesource';
-    data.config = JSON.stringify({ ...defaults.onesource, calling_system_number: 'abc' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.onesource), from_city: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
+
     const control = element.renderRoot.querySelector(
-      '[infer="onesource-calling-system-number"]'
+      '[infer="onesource-group-one"] foxy-internal-text-control[infer="onesource-from-city"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('calling_system_number', 'def');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.onesource);
+    expect(control).to.have.attribute('json-path', 'from_city');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a text control for onesource from city', async () => {
+  it('renders a text control for onesource calling system number in onesource group two', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'onesource';
-    data.config = JSON.stringify({ ...defaults.onesource, from_city: 'abc' });
+    data.config = JSON.stringify({
+      ...JSON.parse(defaults.onesource),
+      calling_system_number: 'abc',
+    });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
+
     const control = element.renderRoot.querySelector(
-      '[infer="onesource-from-city"]'
+      '[infer="onesource-group-two"] foxy-internal-text-control[infer="onesource-calling-system-number"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('from_city', 'def');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.onesource);
+    expect(control).to.have.attribute('json-path', 'calling_system_number');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a text control for onesource host system', async () => {
+  it('renders a text control for onesource host system in onesource group two', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'onesource';
-    data.config = JSON.stringify({ ...defaults.onesource, host_system: 'abc' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.onesource), host_system: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
+
     const control = element.renderRoot.querySelector(
-      '[infer="onesource-host-system"]'
+      '[infer="onesource-group-two"] foxy-internal-text-control[infer="onesource-host-system"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('host_system', 'def');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.onesource);
+    expect(control).to.have.attribute('json-path', 'host_system');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a radio group control for onesource company role', async () => {
+  it('renders a select control for onesource company role in onesource group three', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'onesource';
-    data.config = JSON.stringify(defaults.onesource);
+    data.config = defaults.onesource;
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
-    const control = element.renderRoot.querySelector(
-      '[infer="onesource-company-role"]'
-    ) as InternalRadioGroupControl;
 
-    expect(control).to.be.instanceOf(InternalRadioGroupControl);
-    expect(control.getValue()).to.equal('B');
+    const control = element.renderRoot.querySelector(
+      '[infer="onesource-group-three"] foxy-internal-select-control[infer="onesource-company-role"]'
+    ) as InternalSelectControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.onesource);
+    expect(control).to.have.attribute('json-path', 'company_role');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.deep.property('options', [
       { value: 'B', label: 'option_buyer' },
       { value: 'M', label: 'option_middleman' },
       { value: 'S', label: 'option_seller' },
     ]);
-
-    control.setValue('S');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('company_role', 'S');
   });
 
-  it('renders a text control for onesource part number product option', async () => {
+  it('renders a select control for onesource audit settings in onesource group three', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'onesource';
-    data.config = JSON.stringify({ ...defaults.onesource, part_number_product_option: 'abc' });
+    data.config = defaults.onesource;
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
+
     const control = element.renderRoot.querySelector(
-      '[infer="onesource-part-number-product-option"]'
+      '[infer="onesource-group-three"] foxy-internal-select-control[infer="onesource-audit-settings"]'
+    ) as InternalSelectControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.onesource);
+    expect(control).to.have.attribute('json-path', 'audit_settings');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.deep.property('options', [
+      { value: 'capture_only', label: 'option_capture_only' },
+      { value: 'auth_and_capture', label: 'option_auth_and_capture' },
+      { value: 'never', label: 'option_never' },
+    ]);
+  });
+
+  it('renders a text control for onesource part number product option in onesource group four', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'onesource';
+    data.config = JSON.stringify({
+      ...JSON.parse(defaults.onesource),
+      part_number_product_option: 'abc',
+    });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="onesource-group-four"] foxy-internal-text-control[infer="onesource-part-number-product-option"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('part_number_product_option', 'def');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.onesource);
+    expect(control).to.have.attribute('json-path', 'part_number_product_option');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders an editable list control for onesource product order priority', async () => {
+  it('renders an editable list control for onesource product order priority in onesource group five', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'onesource';
-    data.config = JSON.stringify({ ...defaults.onesource, product_order_priority: 'foo,bar' });
+    data.config = JSON.stringify({
+      ...JSON.parse(defaults.onesource),
+      product_order_priority: 'foo,bar',
+    });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
+
     const control = element.renderRoot.querySelector(
-      '[infer="onesource-product-order-priority"]'
+      '[infer="onesource-group-five"] foxy-internal-editable-list-control[infer="onesource-product-order-priority"]'
     ) as InternalEditableListControl;
 
     expect(control).to.be.instanceOf(InternalEditableListControl);
@@ -837,35 +887,10 @@ describe('NativeIntegrationForm', () => {
     expect(config).to.have.property('product_order_priority', 'a,b');
   });
 
-  it('renders a radio group control for onesource audit settings', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'onesource';
-    data.config = JSON.stringify(defaults.onesource);
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
-    `);
-    const control = element.renderRoot.querySelector(
-      '[infer="onesource-audit-settings"]'
-    ) as InternalRadioGroupControl;
-
-    expect(control).to.be.instanceOf(InternalRadioGroupControl);
-    expect(control.getValue()).to.equal('never');
-    expect(control).to.have.deep.property('options', [
-      { value: 'capture_only', label: 'option_capture_only' },
-      { value: 'auth_and_capture', label: 'option_auth_and_capture' },
-      { value: 'never', label: 'option_never' },
-    ]);
-
-    control.setValue('auth_and_capture');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('audit_settings', 'auth_and_capture');
-  });
-
   it('renders a deprecation warning for json and legacy_xml webhooks', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'webhook';
-    data.config = JSON.stringify(defaults.webhookJson);
+    data.config = defaults.webhookJson;
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
@@ -875,7 +900,7 @@ describe('NativeIntegrationForm', () => {
     expect(warning).to.be.instanceOf(I18n);
     expect(warning).to.have.attribute('infer', 'webhook-warning');
 
-    data.config = JSON.stringify(defaults.webhookLegacyXml);
+    data.config = defaults.webhookLegacyXml;
     element.data = { ...data };
     await element.requestUpdate();
 
@@ -884,7 +909,7 @@ describe('NativeIntegrationForm', () => {
     expect(warning).to.have.attribute('infer', 'webhook-warning');
 
     data.provider = 'avalara';
-    data.config = JSON.stringify(defaults.avalara);
+    data.config = defaults.avalara;
     element.data = { ...data };
     await element.requestUpdate();
 
@@ -892,393 +917,424 @@ describe('NativeIntegrationForm', () => {
     expect(warning).to.not.exist;
   });
 
-  it('renders a text control for webhook json title', async () => {
+  it('renders a text control for webhook json title in webhook json group one', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookJson, title: 'abc' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.webhookJson), title: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-json-title"]'
+      'foxy-internal-summary-control[infer="webhook-json-group-one"] foxy-internal-text-control[infer="webhook-json-title"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('title', 'def');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webhookJson);
+    expect(control).to.have.attribute('json-path', 'title');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a text area control for webhook json url', async () => {
+  it('renders a text control for webhook json url in webhook json group one', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookJson, url: 'https://example.com' });
+    data.config = JSON.stringify({
+      ...JSON.parse(defaults.webhookJson),
+      url: 'https://example.com',
+    });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-json-url"]'
-    ) as InternalTextAreaControl;
+      'foxy-internal-summary-control[infer="webhook-json-group-one"] foxy-internal-text-control[infer="webhook-json-url"]'
+    ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextAreaControl);
-    expect(control.getValue()).to.equal('https://example.com');
-
-    control.setValue('https://foo.example.com/abc');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('url', 'https://foo.example.com/abc');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webhookJson);
+    expect(control).to.have.attribute('json-path', 'url');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a radio group control for json webhook service', async () => {
+  it('renders a select control for webhook service in webhook json group one', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'webhook';
-    data.config = JSON.stringify(defaults.webhookJson);
+    data.config = defaults.webhookJson;
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-service"]'
-    ) as InternalRadioGroupControl;
+      'foxy-internal-summary-control[infer="webhook-json-group-one"] foxy-internal-select-control[infer="webhook-service"]'
+    ) as InternalSelectControl;
 
-    expect(control).to.be.instanceOf(InternalRadioGroupControl);
-    expect(control.getValue()).to.equal('json');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webhookJson);
+    expect(control).to.have.attribute('json-path', 'service');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.deep.property('options', [
       { value: 'json', label: 'option_json' },
       { value: 'legacy_xml', label: 'option_legacy_xml' },
     ]);
-
-    control.setValue('legacy_xml');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('service', 'legacy_xml');
   });
 
-  it('renders a checkbox group control for webhook json events', async () => {
+  it('renders a password control for webhook json encryption key in webhook json group one', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'webhook';
-    data.config = JSON.stringify(defaults.webhookJson);
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
-    `);
-
-    const control = element.renderRoot.querySelector(
-      '[infer="webhook-json-events"]'
-    ) as InternalCheckboxGroupControl;
-
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control.getValue()).to.deep.equal([]);
-    expect(control).to.have.deep.property('options', [
-      { value: 'transaction/created', label: 'option_transaction_created' },
-      { value: 'subscription/cancelled', label: 'option_subscription_cancelled' },
-    ]);
-
-    control.setValue(['transaction/created']);
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.deep.property('events', ['transaction/created']);
-  });
-
-  it('renders a password control for webhook json encryption key', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookJson, encryption_key: 'abc' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.webhookJson), encryption_key: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-json-encryption-key"]'
+      'foxy-internal-summary-control[infer="webhook-json-group-one"] foxy-internal-password-control[infer="webhook-json-encryption-key"]'
     ) as InternalPasswordControl;
 
-    expect(control).to.be.instanceOf(InternalPasswordControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('encryption_key', 'def');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webhookJson);
+    expect(control).to.have.attribute('json-path', 'encryption_key');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a text control for legacy xml webhook title', async () => {
+  it('renders a switch control that toggles transaction/created event in webhook json group two', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookLegacyXml, title: 'abc' });
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
-    `);
-
-    const control = element.renderRoot.querySelector(
-      '[infer="webhook-legacy-xml-title"]'
-    ) as InternalTextControl;
-
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('title', 'def');
-  });
-
-  it('renders a text area control for legacy xml webhook url', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookLegacyXml, url: 'https://example.com' });
+    data.config = JSON.stringify({
+      ...JSON.parse(defaults.webhookJson),
+      events: ['transaction/created'],
+    });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-legacy-xml-url"]'
-    ) as InternalTextAreaControl;
+      'foxy-internal-summary-control[infer="webhook-json-group-two"] foxy-internal-switch-control[infer="webhook-json-events-transaction-created"]'
+    ) as InternalSwitchControl;
 
-    expect(control).to.be.instanceOf(InternalTextAreaControl);
-    expect(control.getValue()).to.equal('https://example.com');
+    expect(control).to.exist;
+    control.setValue(false);
+    expect(control.getValue()).to.be.false;
+    expect(JSON.parse(element.form.config as string)).to.have.deep.property('events', []);
 
-    control.setValue('https://foo.example.com/abc');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('url', 'https://foo.example.com/abc');
+    control.setValue(true);
+    expect(control.getValue()).to.be.true;
+    expect(JSON.parse(element.form.config as string)).to.have.deep.property('events', [
+      'transaction/created',
+    ]);
   });
 
-  it('renders a radio group control for legacy xml webhook service', async () => {
+  it('renders a switch control that toggles subscription/cancelled event in webhook json group two', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'webhook';
-    data.config = JSON.stringify(defaults.webhookLegacyXml);
+    data.config = JSON.stringify({
+      ...JSON.parse(defaults.webhookJson),
+      events: ['subscription/cancelled'],
+    });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="webhook-json-group-two"] foxy-internal-switch-control[infer="webhook-json-events-subscription-cancelled"]'
+    ) as InternalSwitchControl;
+
+    expect(control).to.exist;
+    control.setValue(false);
+    expect(control.getValue()).to.be.false;
+    expect(JSON.parse(element.form.config as string)).to.have.deep.property('events', []);
+
+    control.setValue(true);
+    expect(control.getValue()).to.be.true;
+    expect(JSON.parse(element.form.config as string)).to.have.deep.property('events', [
+      'subscription/cancelled',
+    ]);
+  });
+
+  it('renders a text control for legacy xml webhook title in webhook legacy xml group one', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'webhook';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.webhookLegacyXml), title: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-service"]'
-    ) as InternalRadioGroupControl;
+      'foxy-internal-summary-control[infer="webhook-legacy-xml-group-one"] foxy-internal-text-control[infer="webhook-legacy-xml-title"]'
+    ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalRadioGroupControl);
-    expect(control.getValue()).to.equal('legacy_xml');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webhookLegacyXml);
+    expect(control).to.have.attribute('json-path', 'title');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a text control for legacy xml webhook url in webhook legacy xml group one', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'webhook';
+    data.config = JSON.stringify({
+      ...JSON.parse(defaults.webhookLegacyXml),
+      url: 'https://example.com',
+    });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="webhook-legacy-xml-group-one"] foxy-internal-text-control[infer="webhook-legacy-xml-url"]'
+    ) as InternalTextControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webhookLegacyXml);
+    expect(control).to.have.attribute('json-path', 'url');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a select control for webhook service in webhook legacy xml group one', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'webhook';
+    data.config = defaults.webhookLegacyXml;
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="webhook-legacy-xml-group-one"] foxy-internal-select-control[infer="webhook-service"]'
+    ) as InternalSelectControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webhookLegacyXml);
+    expect(control).to.have.attribute('json-path', 'service');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.deep.property('options', [
       { value: 'json', label: 'option_json' },
       { value: 'legacy_xml', label: 'option_legacy_xml' },
     ]);
-
-    control.setValue('json');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('service', 'json');
   });
 
-  it('renders a text control for webflow site id', async () => {
+  it('renders a text control for webflow site id in webflow group one', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'webflow';
-    data.config = JSON.stringify({ ...defaults.webflow, site_id: 'abc' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.webflow), site_id: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webflow-site-id"]'
+      'foxy-internal-summary-control[infer="webflow-group-one"] foxy-internal-text-control[infer="webflow-site-id"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('site_id', 'def');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webflow);
+    expect(control).to.have.attribute('json-path', 'site_id');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a text control for webflow site name', async () => {
+  it('renders a text control for webflow site name in webflow group one', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'webflow';
-    data.config = JSON.stringify({ ...defaults.webflow, site_name: 'abc' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.webflow), site_name: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webflow-site-name"]'
+      'foxy-internal-summary-control[infer="webflow-group-one"] foxy-internal-text-control[infer="webflow-site-name"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('site_name', 'def');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webflow);
+    expect(control).to.have.attribute('json-path', 'site_name');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a text control for webflow collection id', async () => {
+  it('renders a text control for webflow collection id in webflow group two', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'webflow';
-    data.config = JSON.stringify({ ...defaults.webflow, collection_id: 'abc' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.webflow), collection_id: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webflow-collection-id"]'
+      'foxy-internal-summary-control[infer="webflow-group-two"] foxy-internal-text-control[infer="webflow-collection-id"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('collection_id', 'def');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webflow);
+    expect(control).to.have.attribute('json-path', 'collection_id');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a text control for webflow collection name', async () => {
+  it('renders a text control for webflow collection name in webflow group two', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'webflow';
-    data.config = JSON.stringify({ ...defaults.webflow, collection_name: 'abc' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.webflow), collection_name: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webflow-collection-name"]'
+      'foxy-internal-summary-control[infer="webflow-group-two"] foxy-internal-text-control[infer="webflow-collection-name"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('collection_name', 'def');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webflow);
+    expect(control).to.have.attribute('json-path', 'collection_name');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a text control for webflow sku field id', async () => {
+  it('renders a text control for webflow sku field id in webflow group three', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'webflow';
-    data.config = JSON.stringify({ ...defaults.webflow, sku_field_id: 'abc' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.webflow), sku_field_id: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webflow-sku-field-id"]'
+      'foxy-internal-summary-control[infer="webflow-group-three"] foxy-internal-text-control[infer="webflow-sku-field-id"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('sku_field_id', 'def');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webflow);
+    expect(control).to.have.attribute('json-path', 'sku_field_id');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a text control for webflow sku field name', async () => {
+  it('renders a text control for webflow sku field name in webflow group three', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'webflow';
-    data.config = JSON.stringify({ ...defaults.webflow, sku_field_name: 'abc' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.webflow), sku_field_name: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webflow-sku-field-name"]'
+      'foxy-internal-summary-control[infer="webflow-group-three"] foxy-internal-text-control[infer="webflow-sku-field-name"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('sku_field_name', 'def');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webflow);
+    expect(control).to.have.attribute('json-path', 'sku_field_name');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a text control for webflow inventory field id', async () => {
+  it('renders a text control for webflow inventory field id in webflow group four', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'webflow';
-    data.config = JSON.stringify({ ...defaults.webflow, inventory_field_id: 'abc' });
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
-    `);
-    const control = element.renderRoot.querySelector(
-      '[infer="webflow-inventory-field-id"]'
-    ) as InternalTextControl;
-
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('inventory_field_id', 'def');
-  });
-
-  it('renders a text control for webflow inventory field name', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webflow';
-    data.config = JSON.stringify({ ...defaults.webflow, inventory_field_name: 'abc' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.webflow), inventory_field_id: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webflow-inventory-field-name"]'
+      'foxy-internal-summary-control[infer="webflow-group-four"] foxy-internal-text-control[infer="webflow-inventory-field-id"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
-
-    control.setValue('def');
-
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.property('inventory_field_name', 'def');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webflow);
+    expect(control).to.have.attribute('json-path', 'inventory_field_id');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders a readonly list control for zapier events', async () => {
+  it('renders a text control for webflow inventory field name in webflow group four', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'webflow';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.webflow), inventory_field_name: 'abc' });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="webflow-group-four"] foxy-internal-text-control[infer="webflow-inventory-field-name"]'
+    ) as InternalTextControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.webflow);
+    expect(control).to.have.attribute('json-path', 'inventory_field_name');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a readonly list control for zapier events in zapier group one', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'zapier';
-    data.config = JSON.stringify({ ...defaults.zapier, events: ['abc'] });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.zapier), events: ['abc'] });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="zapier-events"]'
+      'foxy-internal-summary-control[infer="zapier-group-one"] foxy-internal-editable-list-control[infer="zapier-events"]'
     ) as InternalEditableListControl;
 
-    expect(control).to.be.instanceOf(InternalEditableListControl);
-    expect(control.getValue()).to.deep.equal(['abc']);
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.zapier);
+    expect(control).to.have.attribute('json-path', 'events');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('simple-value');
   });
 
-  it('renders a readonly text area control for zapier url', async () => {
+  it('renders a readonly text control for zapier url in zapier group one', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'zapier';
-    data.config = JSON.stringify({ ...defaults.zapier, url: 'https://hooks.zapier.com/abc' });
+    data.config = JSON.stringify({
+      ...JSON.parse(defaults.zapier),
+      url: 'https://hooks.zapier.com/abc',
+    });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="zapier-url"]'
-    ) as InternalTextAreaControl;
+      'foxy-internal-summary-control[infer="zapier-group-one"] foxy-internal-text-control[infer="zapier-url"]'
+    ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextAreaControl);
-    expect(control.getValue()).to.equal('https://hooks.zapier.com/abc');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.zapier);
+    expect(control).to.have.attribute('json-path', 'url');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
   it('renders a readonly content warning for zapier', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'zapier';
-    data.config = JSON.stringify(defaults.zapier);
+    data.config = defaults.zapier;
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
@@ -1289,27 +1345,30 @@ describe('NativeIntegrationForm', () => {
     expect(warning).to.have.attribute('infer', 'zapier-warning');
   });
 
-  it('renders a readonly text control for apple pay merchant ID', async () => {
+  it('renders a readonly text control for apple pay merchant ID in apple pay group one', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'apple_pay';
-    data.config = JSON.stringify({ ...defaults.applePay, merchantID: 'abc' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.applePay), merchantID: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="apple-pay-merchant-id"]'
+      'foxy-internal-summary-control[infer="apple-pay-group-one"] foxy-internal-text-control[infer="apple-pay-merchant-id"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.applePay);
+    expect(control).to.have.attribute('json-path', 'merchantID');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
   it('renders a readonly content warning for apple pay', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'apple_pay';
-    data.config = JSON.stringify(defaults.applePay);
+    data.config = defaults.applePay;
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
@@ -1321,35 +1380,23 @@ describe('NativeIntegrationForm', () => {
     expect(warning).to.have.attribute('infer', 'apple-pay-warning');
   });
 
-  it('renders a readonly text control for custom tax url', async () => {
+  it('renders a readonly text control for custom tax url in custom tax group one', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'custom_tax';
-    data.config = JSON.stringify({ ...defaults.customTax, url: 'https://example.com' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.customTax), url: 'https://example.com' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="custom-tax-url"]'
+      'foxy-internal-summary-control[infer="custom-tax-group-one"] foxy-internal-text-control[infer="custom-tax-url"]'
     ) as InternalTextControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('https://example.com');
-  });
-
-  it('renders a readonly content warning for custom tax', async () => {
-    const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'custom_tax';
-    data.config = JSON.stringify(defaults.customTax);
-
-    const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
-    `);
-
-    const warning = element.renderRoot.querySelector('[key="warning_text"]');
-
-    expect(warning).to.be.instanceOf(I18n);
-    expect(warning).to.have.attribute('infer', 'custom-tax-warning');
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.customTax);
+    expect(control).to.have.attribute('json-path', 'url');
+    expect(control).to.have.attribute('property', 'config');
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 });

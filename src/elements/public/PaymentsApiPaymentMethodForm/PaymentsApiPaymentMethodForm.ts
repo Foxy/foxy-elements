@@ -340,6 +340,12 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
         <foxy-internal-text-control layout="summary-item" infer="description">
         </foxy-internal-text-control>
 
+        ${this.form.helper?.supports_auth_only
+          ? html`
+              <foxy-internal-switch-control infer="use-auth-only" helper-text-as-tooltip>
+              </foxy-internal-switch-control>
+            `
+          : ''}
         ${this.form.helper?.supports_3d_secure
           ? html`
               <foxy-internal-select-control
@@ -413,26 +419,26 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
               : ''}
             ${this.form.helper?.third_party_key_description
               ? html`
-                  <foxy-internal-text-control
+                  <foxy-internal-password-control
                     placeholder=${this.t('default_additional_field_placeholder')}
                     helper-text=""
                     layout="summary-item"
                     label=${this.form.helper.third_party_key_description}
                     infer="${prefix}third-party-key"
                   >
-                  </foxy-internal-text-control>
+                  </foxy-internal-password-control>
                 `
               : ''}
             ${this.form.helper?.key_description
               ? html`
-                  <foxy-internal-text-control
+                  <foxy-internal-password-control
                     placeholder=${this.t('default_additional_field_placeholder')}
                     layout="summary-item"
                     helper-text=""
                     label=${this.form.helper.key_description}
                     infer="${prefix}account-key"
                   >
-                  </foxy-internal-text-control>
+                  </foxy-internal-password-control>
                 `
               : ''}
             ${blocks.map(block => this.__renderBlock(block))}

@@ -36,7 +36,7 @@ describe('NativeIntegrationCard', () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'avalara';
-    data.config = JSON.stringify(defaults.avalara);
+    data.config = defaults.avalara;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -53,7 +53,7 @@ describe('NativeIntegrationCard', () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'taxjar';
-    data.config = JSON.stringify(defaults.taxjar);
+    data.config = defaults.taxjar;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -70,7 +70,7 @@ describe('NativeIntegrationCard', () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'onesource';
-    data.config = JSON.stringify(defaults.onesource);
+    data.config = defaults.onesource;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -87,7 +87,7 @@ describe('NativeIntegrationCard', () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'zapier';
-    data.config = JSON.stringify(defaults.zapier);
+    data.config = defaults.zapier;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -104,7 +104,7 @@ describe('NativeIntegrationCard', () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'webflow';
-    data.config = JSON.stringify(defaults.webflow);
+    data.config = defaults.webflow;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -121,7 +121,7 @@ describe('NativeIntegrationCard', () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookJson, title: 'ABC' });
+    data.config = JSON.stringify({ ...JSON.parse(defaults.webhookJson), title: 'ABC' });
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -138,7 +138,7 @@ describe('NativeIntegrationCard', () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'apple_pay';
-    data.config = JSON.stringify(defaults.applePay);
+    data.config = defaults.applePay;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -154,7 +154,7 @@ describe('NativeIntegrationCard', () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'custom_tax';
-    data.config = JSON.stringify(defaults.customTax);
+    data.config = defaults.customTax;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -170,7 +170,7 @@ describe('NativeIntegrationCard', () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'avalara';
-    data.config = JSON.stringify(defaults.avalara);
+    data.config = defaults.avalara;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -180,14 +180,14 @@ describe('NativeIntegrationCard', () => {
 
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
-    expect(text).to.have.deep.property('options', defaults.avalara);
+    expect(text).to.have.deep.property('options', JSON.parse(defaults.avalara));
   });
 
   it('renders line 2 text for taxjar when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'taxjar';
-    data.config = JSON.stringify(defaults.taxjar);
+    data.config = defaults.taxjar;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -197,14 +197,14 @@ describe('NativeIntegrationCard', () => {
 
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
-    expect(text).to.have.deep.property('options', defaults.taxjar);
+    expect(text).to.have.deep.property('options', JSON.parse(defaults.taxjar));
   });
 
   it('renders line 2 text for onesource when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'onesource';
-    data.config = JSON.stringify(defaults.onesource);
+    data.config = defaults.onesource;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -214,14 +214,14 @@ describe('NativeIntegrationCard', () => {
 
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
-    expect(text).to.have.deep.property('options', defaults.onesource);
+    expect(text).to.have.deep.property('options', JSON.parse(defaults.onesource));
   });
 
   it('renders line 2 text for zapier when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'zapier';
-    data.config = JSON.stringify(defaults.zapier);
+    data.config = defaults.zapier;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -230,14 +230,14 @@ describe('NativeIntegrationCard', () => {
 
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
-    expect(text).to.have.deep.property('options', defaults.zapier);
+    expect(text).to.have.deep.property('options', JSON.parse(defaults.zapier));
   });
 
   it('renders line 2 text for webflow when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'webflow';
-    data.config = JSON.stringify(defaults.webflow);
+    data.config = defaults.webflow;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -246,14 +246,14 @@ describe('NativeIntegrationCard', () => {
 
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
-    expect(text).to.have.deep.property('options', defaults.webflow);
+    expect(text).to.have.deep.property('options', JSON.parse(defaults.webflow));
   });
 
   it('renders line 2 text for webhook when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'webhook';
-    data.config = JSON.stringify(defaults.webhookJson);
+    data.config = defaults.webhookJson;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -262,14 +262,14 @@ describe('NativeIntegrationCard', () => {
 
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
-    expect(text).to.have.deep.property('options', defaults.webhookJson);
+    expect(text).to.have.deep.property('options', JSON.parse(defaults.webhookJson));
   });
 
   it('renders line 2 text for apple pay when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'apple_pay';
-    data.config = JSON.stringify(defaults.applePay);
+    data.config = defaults.applePay;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -278,14 +278,14 @@ describe('NativeIntegrationCard', () => {
 
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
-    expect(text).to.have.deep.property('options', defaults.applePay);
+    expect(text).to.have.deep.property('options', JSON.parse(defaults.applePay));
   });
 
   it('renders line 2 text for custom tax when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'custom_tax';
-    data.config = JSON.stringify(defaults.customTax);
+    data.config = defaults.customTax;
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -294,6 +294,6 @@ describe('NativeIntegrationCard', () => {
 
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
-    expect(text).to.have.deep.property('options', defaults.customTax);
+    expect(text).to.have.deep.property('options', JSON.parse(defaults.customTax));
   });
 });

@@ -6,6 +6,7 @@ import './index';
 
 import { PaymentsApiPaymentMethodForm as Form } from './PaymentsApiPaymentMethodForm';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
 import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
 import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
 import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
@@ -28,6 +29,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
   it('imports and defines vaadin-button', () => {
     expect(customElements.get('vaadin-button')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-password-control', () => {
+    const element = customElements.get('foxy-internal-password-control');
+    expect(element).to.equal(InternalPasswordControl);
   });
 
   it('imports and defines foxy-internal-switch-control', () => {
@@ -621,7 +627,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     }
   });
 
-  it('renders a text control for live and test 3rd-party key if applicable', async () => {
+  it('renders a password control for live and test 3rd-party key if applicable', async () => {
     const router = createRouter();
 
     const wrapper = await fixture(html`
@@ -664,7 +670,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
       const field = tabPanel.querySelector(`[infer="${prefix}third-party-key"]`);
 
       expect(field).to.exist;
-      expect(field).to.be.instanceOf(InternalTextControl);
+      expect(field).to.be.instanceOf(InternalPasswordControl);
       expect(field).to.have.attribute('placeholder', 'default_additional_field_placeholder');
       expect(field).to.have.attribute('helper-text', '');
       expect(field).to.have.attribute('layout', 'summary-item');
@@ -684,7 +690,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     }
   });
 
-  it('renders a text control for live and test account key if applicable', async () => {
+  it('renders a password control for live and test account key if applicable', async () => {
     const router = createRouter();
 
     const wrapper = await fixture(html`
@@ -721,7 +727,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
       const field = tabPanel.querySelector(`[infer="${prefix}account-key"]`);
 
       expect(field).to.exist;
-      expect(field).to.be.instanceOf(InternalTextControl);
+      expect(field).to.be.instanceOf(InternalPasswordControl);
       expect(field).to.have.attribute('placeholder', 'default_additional_field_placeholder');
       expect(field).to.have.attribute('helper-text', '');
       expect(field).to.have.attribute('layout', 'summary-item');
@@ -1296,6 +1302,50 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
     expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a switch control for auth-only transactions if applicable', async () => {
+    const router = createRouter();
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
+            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    element.data!.helper.supports_auth_only = 0;
+    element.data = { ...element.data! };
+    await element.requestUpdate();
+
+    expect(element.renderRoot.querySelector('[infer="use-auth-only"]')).to.not.exist;
+
+    element.data!.helper.supports_auth_only = 1;
+    element.data = { ...element.data! };
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector(
+      '[infer="use-auth-only"]'
+    ) as InternalSwitchControl;
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
   });
 
   it('renders a select control for toggling 3DS on and off if supported', async () => {

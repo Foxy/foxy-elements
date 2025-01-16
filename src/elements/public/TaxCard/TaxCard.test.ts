@@ -65,6 +65,16 @@ describe('TaxCard', () => {
     expect(subtitle).to.include.text('tax_union');
   });
 
+  it('renders tax_custom_tax key for custom tax endpoint taxes in the subtitle', async () => {
+    const data = await getTestData<Data>('./hapi/taxes/0');
+    data.type = 'custom_tax' as Data['type'];
+
+    const element = await fixture<TaxCard>(html`<foxy-tax-card .data=${data}></foxy-tax-card>`);
+    const subtitle = await getByTestId(element, 'subtitle');
+
+    expect(subtitle).to.include.text('tax_custom_tax');
+  });
+
   it('renders country code for country-wide taxes in the subtitle', async () => {
     const data = await getTestData<Data>('./hapi/taxes/0');
 
@@ -153,6 +163,18 @@ describe('TaxCard', () => {
     const subtitle = await getByTestId(element, 'subtitle');
 
     expect(subtitle).to.include.text('TaxJar');
+  });
+
+  it('renders custom label for taxes using custom_tax_endpoint provider in the subtitle', async () => {
+    const data = await getTestData<Data>('./hapi/taxes/0');
+
+    data.is_live = true;
+    data.service_provider = 'custom_tax_endpoint' as Data['service_provider'];
+
+    const element = await fixture<TaxCard>(html`<foxy-tax-card .data=${data}></foxy-tax-card>`);
+    const subtitle = await getByTestId(element, 'subtitle');
+
+    expect(subtitle).to.include.text('tax_rate_provider_custom');
   });
 
   it('renders tax_rate_provider_default key for taxes using default provider in the subtitle', async () => {

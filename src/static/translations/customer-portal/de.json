@@ -1,4 +1,22 @@
 {
+  "password-reset": {
+    "title": "Passwort zurücksetzen",
+    "subtitle": "Bitte aktualisieren Sie jetzt Ihr Passwort, um Ihr Konto zu sichern.",
+    "submit": "Weiter",
+    "password": {
+      "label": "Neues Passwort",
+      "placeholder": "Erforderlich",
+      "helper_text": "Klicken Sie auf ✨, um ein sicheres Zufallspasswort für dieses Konto zu generieren.",
+      "v8n_too_long": "Bitte verwenden Sie ein Passwort, das nicht länger als 50 Zeichen ist.",
+      "v8n_too_weak": "Bitte verwenden Sie ein stärkeres Passwort. Um dieses Passwort stärker zu machen, sollte es mindestens 8 Zeichen lang sein und einige Groß- und Kleinbuchstaben, Zahlen und Sonderzeichen enthalten.",
+      "v8n_required": "Bitte füllen Sie dieses Feld aus."
+    },
+    "spinner": {
+      "refresh": "Aktualisierung",
+      "loading_busy": "Wird geladen",
+      "loading_error": "Unbekannter Fehler"
+    }
+  },
   "access-recovery-form": {
     "back": "Zurückkehren",
     "email": "Email",

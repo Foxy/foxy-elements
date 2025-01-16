@@ -1,36 +1,165 @@
 {
-  "cancel": "Cancel",
-  "city": "City",
-  "country": "Country",
-  "caption": "Create",
-  "date": "{{value, date}}",
-  "date_created": "Created on",
-  "date_modified": "Last updated on",
-  "default": "Default",
-  "delete": "Delete",
-  "delete_prompt": "This resource will be permanently removed. Are you sure?",
-  "error": "Error",
-  "loading_busy": "Loading",
-  "name": "Name",
-  "region": "Region",
-  "tax_apply_to_shipping": "Apply to shipping",
-  "tax_apply_to_shipping_explainer": "Check to apply this tax to the shipping costs.",
-  "tax_country": "Country tax",
-  "tax_exempt_all_customer_tax_ids": "Exempt all customers with Tax ID",
-  "tax_exempt_all_customer_tax_ids_explainer": "Check to skip tax collection for customers with Tax ID on file.",
-  "tax_global": "Global tax",
-  "tax_local": "Local tax",
-  "tax_rate": "Rate (%)",
-  "tax_rate_provider": "Rate provider",
-  "tax_rate_provider_default": "Default (Thomson Reuters; others)",
-  "tax_rate_provider_none": "None (custom rate)",
-  "tax_region": "Regional tax",
-  "tax_union": "European Union tax",
-  "tax_use_origin_rates": "Use origin tax rates",
-  "tax_use_origin_rates_explainer": "Check to use the tax rate of your country regardless of where customers are located.",
-  "type": "Type",
-  "v8n_required": "Required",
-  "v8n_too_long": "Too long",
+  "header": {
+    "title_existing": "Tax #{{ id }}",
+    "title_new": "New tax",
+    "subtitle": "",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
+  "group-one": {
+    "label": "",
+    "helper_text": "",
+    "name": {
+      "label": "Name",
+      "helper_text": "",
+      "placeholder": "Required",
+      "v8n_required": "Please enter a name for this tax.",
+      "v8n_too_long": "Please choose a name that is 30 characters or less."
+    },
+    "type": {
+      "label": "Type",
+      "helper_text": "",
+      "placeholder": "Select",
+      "option_global": "Global",
+      "option_union": "European Union",
+      "option_country": "Country",
+      "option_region": "Regional",
+      "option_local": "Local",
+      "option_custom_tax_endpoint": "Custom tax endpoint"
+    },
+    "service-provider": {
+      "label": "Live rate provider",
+      "helper_text": "",
+      "placeholder": "Select",
+      "option_avalara": "Avalara AvaTax 15",
+      "option_custom_tax": "Custom Tax Endpoint",
+      "option_taxjar": "TaxJar",
+      "option_onesource": "Thomson Reuters ONESOURCE",
+      "option_none": "None",
+      "option_default": "Default"
+    },
+    "rate": {
+      "label": "Fixed rate",
+      "helper_text": "",
+      "placeholder": "Required",
+      "v8n_invalid": "Please enter a non-zero, positive rate."
+    }
+  },
+  "group-two": {
+    "label": "",
+    "helper_text": "",
+    "apply-to-shipping": {
+      "label": "Apply to shipping and handling",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "exempt-all-customer-tax-ids": {
+      "label": "Exempt all customers with Tax ID",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "use-origin-rates": {
+      "label": "Use the origin country tax rates",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
+  },
+  "group-three": {
+    "label": "",
+    "helper_text": "",
+    "country": {
+      "label": "Country",
+      "helper_text": "",
+      "placeholder": "Select",
+      "v8n_required": "Please select a country."
+    },
+    "region-select": {
+      "label": "Region",
+      "helper_text": "",
+      "placeholder": "Select",
+      "v8n_required": "Please select a region."
+    },
+    "region-input": {
+      "label": "Region",
+      "helper_text": "",
+      "placeholder": "Required",
+      "v8n_required": "Please enter a region.",
+      "v8n_too_long": "Please shorten this value to 20 characters or less. We suggest using a region code if available."
+    },
+    "city": {
+      "label": "City",
+      "helper_text": "",
+      "placeholder": "Required",
+      "v8n_required": "Please enter a city.",
+      "v8n_too_long": "Please shorten this value to 50 characters or less."
+    }
+  },
+  "native-integrations": {
+    "label": "",
+    "pagination": {
+      "card": {
+        "image_alt": "Native integration logo",
+        "title_avalara": "Avalara",
+        "title_taxjar": "TaxJar",
+        "title_onesource": "ONESOURCE",
+        "title_webflow": "Webflow",
+        "title_zapier": "Zapier",
+        "title_webhook": "{{ title }}",
+        "title_apple_pay": "Apple Pay",
+        "title_custom_tax": "Custom Tax Endpoint",
+        "subtitle_avalara": "Account #{{ id }} • {{ service_url }}",
+        "subtitle_taxjar": "SmartCalcs API token ends in ****{{ api_token }}",
+        "subtitle_onesource": "{{ service_url }}",
+        "subtitle_webflow": "{{ site_name }} • ID {{ site_id }}",
+        "subtitle_zapier": "{{ url }}",
+        "subtitle_webhook": "{{ url }}",
+        "subtitle_apple_pay": "Merchant #{{ merchantID }}",
+        "subtitle_custom_tax": "{{ url }}",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "Please configure a rate provider on the Integrations page",
+          "loading_error": "Unknown error"
+        }
+      },
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous"
+    }
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this tax? You won't be able to bring it back."
+  },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
+  "create": {
+    "caption": "Create"
+  },
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",

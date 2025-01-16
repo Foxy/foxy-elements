@@ -1,12 +1,16 @@
-import type { TemplateResult } from 'lit-html';
+import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { Resource } from '@foxy.io/sdk/core';
 import type { Option } from '../../internal/InternalRadioGroupControl/types';
 import type { Data } from './types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { html, svg } from 'lit-html';
 
 import * as defaults from './defaults';
@@ -22,6 +26,13 @@ const Base = TranslatableMixin(InternalForm, NS);
  * @since 1.25.0
  */
 export class NativeIntegrationForm extends Base<Data> {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      store: {},
+    };
+  }
+
   static get v8n(): NucleonV8N<Data> {
     const parse = memoize(JSON.parse);
     const isURL = memoize((value: string) => {
@@ -135,6 +146,8 @@ export class NativeIntegrationForm extends Base<Data> {
     ];
   }
 
+  store: string | null = null;
+
   private readonly __createConfigGetterFor = memoize((key: string) => {
     return () => this.__config?.[key];
   });
@@ -156,59 +169,10 @@ export class NativeIntegrationForm extends Base<Data> {
     { value: 'avalara', label: 'option_avalara' },
     { value: 'onesource', label: 'option_onesource' },
     { value: 'taxjar', label: 'option_taxjar' },
+    { value: 'custom_tax', label: 'option_custom_tax' },
   ];
 
-  private readonly __avalaraConfigOptions: Option[] = [
-    {
-      value: 'use_ava_tax',
-      label: 'option_use_ava_tax',
-    },
-    {
-      value: 'enable_colorado_delivery_fee',
-      label: 'option_enable_colorado_delivery_fee',
-    },
-    {
-      value: 'create_invoice',
-      label: 'option_create_invoice',
-    },
-    {
-      value: 'use_address_validation',
-      label: 'option_use_address_validation',
-    },
-  ];
-
-  private readonly __taxjarConfigOptions: Option[] = [
-    {
-      value: 'create_invoice',
-      label: 'option_create_invoice',
-    },
-  ];
-
-  private readonly __configOptionsGetValue = () => {
-    const config = this.__config;
-    const value: string[] = [];
-
-    if (config?.enable_colorado_delivery_fee) value.push('enable_colorado_delivery_fee');
-    if (config?.use_address_validation) value.push('use_address_validation');
-    if (config?.create_invoice) value.push('create_invoice');
-    if (config?.use_ava_tax) value.push('use_ava_tax');
-
-    return value;
-  };
-
-  private readonly __configOptionsSetValue = (value: string[]) => {
-    this.__config = {
-      enable_colorado_delivery_fee: value.includes('enable_colorado_delivery_fee'),
-      use_address_validation: value.includes('use_address_validation'),
-      create_invoice: value.includes('create_invoice'),
-      use_ava_tax: value.includes('use_ava_tax'),
-    };
-  };
-
-  private readonly __avalaraAddressValidationCountriesOptions = [
-    { value: 'US', label: 'option_US' },
-    { value: 'CA', label: 'option_CA' },
-  ];
+  private readonly __avalaraAddressValidationCountriesOptions = [{ value: 'US' }, { value: 'CA' }];
 
   private readonly __codeMappingsGetValue = () => {
     const mappings = this.__config?.category_to_product_tax_code_mappings ?? {};
@@ -263,13 +227,7 @@ export class NativeIntegrationForm extends Base<Data> {
     const match = [super.readonlySelector.toString()];
 
     if (this.href) {
-      match.push(
-        'apple-pay-merchant-id',
-        'custom-tax-url',
-        'zapier-events',
-        'zapier-url',
-        'provider'
-      );
+      match.push('apple-pay-group-one', 'zapier-group-one', 'provider-group-one');
     }
 
     return new BooleanSelector(match.join(' ').trim());
@@ -290,13 +248,16 @@ export class NativeIntegrationForm extends Base<Data> {
       ${this.href
         ? ''
         : html`
-            <foxy-internal-radio-group-control
-              infer="provider"
-              .getValue=${this.__providerGetValue}
-              .setValue=${this.__providerSetValue}
-              .options=${this.__templateProviderOptions}
-            >
-            </foxy-internal-radio-group-control>
+            <foxy-internal-summary-control infer="provider-group-one">
+              <foxy-internal-select-control
+                layout="summary-item"
+                infer="provider"
+                .getValue=${this.__providerGetValue}
+                .setValue=${this.__providerSetValue}
+                .options=${this.__templateProviderOptions}
+              >
+              </foxy-internal-select-control>
+            </foxy-internal-summary-control>
           `}
       ${provider === 'avalara'
         ? this.__renderAvalaraConfig()
@@ -316,6 +277,15 @@ export class NativeIntegrationForm extends Base<Data> {
         ? this.__renderCustomTaxConfig()
         : ''}
       ${super.renderBody()}
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.store ?? void 0)}
+        id="storeLoader"
+        @fetch=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
     `;
   }
 
@@ -350,7 +320,7 @@ export class NativeIntegrationForm extends Base<Data> {
   private set __config(value: any) {
     const config = this.__config;
     const provider = this.form.provider ?? 'avalara';
-    const defaultConfig = (() => {
+    const serializedDefaultConfig = (() => {
       if (provider === 'avalara') return defaults.avalara;
       if (provider === 'taxjar') return defaults.taxjar;
       if (provider === 'onesource') return defaults.onesource;
@@ -362,161 +332,248 @@ export class NativeIntegrationForm extends Base<Data> {
       }
     })();
 
+    const defaultConfig = serializedDefaultConfig ? JSON.parse(serializedDefaultConfig) : {};
     const newConfig = JSON.stringify({ ...defaultConfig, ...config, ...value });
     this.edit({ provider, config: newConfig });
   }
 
   private __renderAvalaraConfig() {
+    const isActive = this.__storeLoader?.data?.is_active;
+    const serviceUrlPlaceholder =
+      typeof isActive === 'boolean'
+        ? this.t(
+            `avalara-group-one.avalara-service-url.placeholder_${isActive ? 'active' : 'inactive'}`
+          )
+        : void 0;
+
     return html`
-      <foxy-internal-text-control
-        infer="avalara-service-url"
-        .getValue=${this.__createConfigGetterFor('service_url')}
-        .setValue=${this.__createConfigSetterFor('service_url')}
-      >
-      </foxy-internal-text-control>
+      <foxy-internal-summary-control infer="avalara-group-one">
+        <foxy-internal-text-control
+          json-template=${defaults.avalara}
+          placeholder=${ifDefined(serviceUrlPlaceholder)}
+          json-path="service_url"
+          property="config"
+          layout="summary-item"
+          infer="avalara-service-url"
+        >
+        </foxy-internal-text-control>
 
-      <foxy-internal-text-control
-        infer="avalara-id"
-        .getValue=${this.__createConfigGetterFor('id')}
-        .setValue=${this.__createConfigSetterFor('id')}
-      >
-      </foxy-internal-text-control>
+        <foxy-internal-text-control
+          json-template=${defaults.avalara}
+          json-path="id"
+          property="config"
+          layout="summary-item"
+          infer="avalara-id"
+        >
+        </foxy-internal-text-control>
 
-      <foxy-internal-password-control
-        infer="avalara-key"
-        .getValue=${this.__createConfigGetterFor('key')}
-        .setValue=${this.__createConfigSetterFor('key')}
-      >
-      </foxy-internal-password-control>
+        <foxy-internal-password-control
+          json-template=${defaults.avalara}
+          json-path="key"
+          property="config"
+          layout="summary-item"
+          infer="avalara-key"
+        >
+        </foxy-internal-password-control>
 
-      <foxy-internal-text-control
-        infer="avalara-company-code"
-        .getValue=${this.__createConfigGetterFor('company_code')}
-        .setValue=${this.__createConfigSetterFor('company_code')}
-      >
-      </foxy-internal-text-control>
+        <foxy-internal-text-control
+          json-template=${defaults.avalara}
+          json-path="company_code"
+          property="config"
+          layout="summary-item"
+          infer="avalara-company-code"
+        >
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-editable-list-control
-        infer="avalara-category-to-product-tax-code-mappings"
-        .getValue=${this.__codeMappingsGetValue}
-        .setValue=${this.__codeMappingsSetValue}
-      >
-      </foxy-internal-editable-list-control>
+      <foxy-internal-summary-control infer="avalara-group-two">
+        <foxy-internal-editable-list-control
+          layout="summary-item"
+          infer="avalara-category-to-product-tax-code-mappings"
+          .getValue=${this.__codeMappingsGetValue}
+          .setValue=${this.__codeMappingsSetValue}
+        >
+        </foxy-internal-editable-list-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-checkbox-group-control
-        infer="avalara-options"
-        .getValue=${this.__configOptionsGetValue}
-        .setValue=${this.__configOptionsSetValue}
-        .options=${this.__avalaraConfigOptions}
-      >
-      </foxy-internal-checkbox-group-control>
+      <foxy-internal-summary-control infer="avalara-group-three">
+        <foxy-internal-switch-control
+          json-template=${defaults.avalara}
+          json-path="use_ava_tax"
+          property="config"
+          infer="avalara-use-ava-tax"
+        >
+        </foxy-internal-switch-control>
 
-      ${this.__config?.use_address_validation
-        ? html`
-            <foxy-internal-checkbox-group-control
-              infer="avalara-address-validation-countries"
-              .getValue=${this.__createConfigGetterFor('address_validation_countries')}
-              .setValue=${this.__createConfigSetterFor('address_validation_countries')}
-              .options=${this.__avalaraAddressValidationCountriesOptions}
-            >
-            </foxy-internal-checkbox-group-control>
-          `
-        : ''}
+        <foxy-internal-switch-control
+          json-template=${defaults.avalara}
+          json-path="use_address_validation"
+          property="config"
+          infer="avalara-use-address-validation"
+        >
+        </foxy-internal-switch-control>
+
+        ${this.__config?.use_address_validation
+          ? html`
+              <foxy-internal-editable-list-control
+                json-template=${defaults.avalara}
+                json-path="address_validation_countries"
+                property="config"
+                layout="summary-item"
+                infer="avalara-address-validation-countries"
+                .options=${this.__avalaraAddressValidationCountriesOptions}
+              >
+              </foxy-internal-editable-list-control>
+            `
+          : ''}
+
+        <foxy-internal-switch-control
+          json-template=${defaults.avalara}
+          json-path="create_invoice"
+          property="config"
+          infer="avalara-create-invoice"
+        >
+        </foxy-internal-switch-control>
+
+        <foxy-internal-switch-control
+          json-template=${defaults.avalara}
+          json-path="enable_colorado_delivery_fee"
+          property="config"
+          infer="avalara-enable-colorado-delivery-fee"
+        >
+        </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
     `;
   }
 
   private __renderTaxJarConfig() {
     return html`
-      <foxy-internal-password-control
-        infer="taxjar-api-token"
-        .getValue=${this.__createConfigGetterFor('api_token')}
-        .setValue=${this.__createConfigSetterFor('api_token')}
-      >
-      </foxy-internal-password-control>
+      <foxy-internal-summary-control infer="taxjar-group-one">
+        <foxy-internal-password-control
+          json-template=${defaults.taxjar}
+          json-path="api_token"
+          property="config"
+          layout="summary-item"
+          infer="taxjar-api-token"
+        >
+        </foxy-internal-password-control>
 
-      <foxy-internal-editable-list-control
-        infer="taxjar-category-to-product-tax-code-mappings"
-        .getValue=${this.__codeMappingsGetValue}
-        .setValue=${this.__codeMappingsSetValue}
-      >
-      </foxy-internal-editable-list-control>
+        <foxy-internal-switch-control
+          json-template=${defaults.taxjar}
+          json-path="create_invoice"
+          property="config"
+          infer="taxjar-create-invoice"
+        >
+        </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-checkbox-group-control
-        infer="taxjar-options"
-        .getValue=${this.__configOptionsGetValue}
-        .setValue=${this.__configOptionsSetValue}
-        .options=${this.__taxjarConfigOptions}
-      >
-      </foxy-internal-checkbox-group-control>
+      <foxy-internal-summary-control infer="taxjar-group-two">
+        <foxy-internal-editable-list-control
+          layout="summary-item"
+          infer="taxjar-category-to-product-tax-code-mappings"
+          .getValue=${this.__codeMappingsGetValue}
+          .setValue=${this.__codeMappingsSetValue}
+        >
+        </foxy-internal-editable-list-control>
+      </foxy-internal-summary-control>
     `;
   }
 
   private __renderOneSourceConfig() {
     return html`
-      <foxy-internal-text-control
-        infer="onesource-service-url"
-        .getValue=${this.__createConfigGetterFor('service_url')}
-        .setValue=${this.__createConfigSetterFor('service_url')}
-      >
-      </foxy-internal-text-control>
+      <foxy-internal-summary-control infer="onesource-group-one">
+        <foxy-internal-text-control
+          json-template=${defaults.onesource}
+          json-path="service_url"
+          property="config"
+          layout="summary-item"
+          infer="onesource-service-url"
+        >
+        </foxy-internal-text-control>
 
-      <foxy-internal-text-control
-        infer="onesource-external-company-id"
-        .getValue=${this.__createConfigGetterFor('external_company_id')}
-        .setValue=${this.__createConfigSetterFor('external_company_id')}
-      >
-      </foxy-internal-text-control>
+        <foxy-internal-text-control
+          json-template=${defaults.onesource}
+          json-path="external_company_id"
+          property="config"
+          layout="summary-item"
+          infer="onesource-external-company-id"
+        >
+        </foxy-internal-text-control>
 
-      <foxy-internal-text-control
-        infer="onesource-calling-system-number"
-        .getValue=${this.__createConfigGetterFor('calling_system_number')}
-        .setValue=${this.__createConfigSetterFor('calling_system_number')}
-      >
-      </foxy-internal-text-control>
+        <foxy-internal-text-control
+          json-template=${defaults.onesource}
+          json-path="from_city"
+          property="config"
+          layout="summary-item"
+          infer="onesource-from-city"
+        >
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-text-control
-        infer="onesource-from-city"
-        .getValue=${this.__createConfigGetterFor('from_city')}
-        .setValue=${this.__createConfigSetterFor('from_city')}
-      >
-      </foxy-internal-text-control>
+      <foxy-internal-summary-control infer="onesource-group-two">
+        <foxy-internal-text-control
+          json-template=${defaults.onesource}
+          json-path="calling_system_number"
+          property="config"
+          layout="summary-item"
+          infer="onesource-calling-system-number"
+        >
+        </foxy-internal-text-control>
 
-      <foxy-internal-text-control
-        infer="onesource-host-system"
-        .getValue=${this.__createConfigGetterFor('host_system')}
-        .setValue=${this.__createConfigSetterFor('host_system')}
-      >
-      </foxy-internal-text-control>
+        <foxy-internal-text-control
+          json-template=${defaults.onesource}
+          json-path="host_system"
+          property="config"
+          layout="summary-item"
+          infer="onesource-host-system"
+        >
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-radio-group-control
-        infer="onesource-company-role"
-        .getValue=${this.__createConfigGetterFor('company_role')}
-        .setValue=${this.__createConfigSetterFor('company_role')}
-        .options=${this.__onesourceCompanyRoleOptions}
-      >
-      </foxy-internal-radio-group-control>
+      <foxy-internal-summary-control infer="onesource-group-three">
+        <foxy-internal-select-control
+          json-template=${defaults.onesource}
+          json-path="audit_settings"
+          property="config"
+          layout="summary-item"
+          infer="onesource-audit-settings"
+          .options=${this.__onesourceAuditSettingsOptions}
+        >
+        </foxy-internal-select-control>
 
-      <foxy-internal-text-control
-        infer="onesource-part-number-product-option"
-        .getValue=${this.__createConfigGetterFor('part_number_product_option')}
-        .setValue=${this.__createConfigSetterFor('part_number_product_option')}
-      >
-      </foxy-internal-text-control>
+        <foxy-internal-select-control
+          json-template=${defaults.onesource}
+          json-path="company_role"
+          property="config"
+          layout="summary-item"
+          infer="onesource-company-role"
+          .options=${this.__onesourceCompanyRoleOptions}
+        >
+        </foxy-internal-select-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-editable-list-control
-        infer="onesource-product-order-priority"
-        .getValue=${this.__onesourceProductOrderPriorityGetValue}
-        .setValue=${this.__onesourceProductOrderPrioritySetValue}
-      >
-      </foxy-internal-editable-list-control>
+      <foxy-internal-summary-control infer="onesource-group-four">
+        <foxy-internal-text-control
+          json-template=${defaults.onesource}
+          json-path="part_number_product_option"
+          property="config"
+          layout="summary-item"
+          infer="onesource-part-number-product-option"
+          .getValue=${this.__createConfigGetterFor('part_number_product_option')}
+          .setValue=${this.__createConfigSetterFor('part_number_product_option')}
+        >
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-radio-group-control
-        infer="onesource-audit-settings"
-        .getValue=${this.__createConfigGetterFor('audit_settings')}
-        .setValue=${this.__createConfigSetterFor('audit_settings')}
-        .options=${this.__onesourceAuditSettingsOptions}
-      >
-      </foxy-internal-radio-group-control>
+      <foxy-internal-summary-control infer="onesource-group-five">
+        <foxy-internal-editable-list-control
+          layout="summary-item"
+          infer="onesource-product-order-priority"
+          .getValue=${this.__onesourceProductOrderPriorityGetValue}
+          .setValue=${this.__onesourceProductOrderPrioritySetValue}
+        >
+        </foxy-internal-editable-list-control>
+      </foxy-internal-summary-control>
     `;
   }
 
@@ -550,182 +607,250 @@ export class NativeIntegrationForm extends Base<Data> {
 
   private __renderWebhookJsonConfig() {
     return html`
-      <foxy-internal-text-control
-        infer="webhook-json-title"
-        .getValue=${this.__createConfigGetterFor('title')}
-        .setValue=${this.__createConfigSetterFor('title')}
-      >
-      </foxy-internal-text-control>
+      <foxy-internal-summary-control infer="webhook-json-group-one">
+        <foxy-internal-text-control
+          json-template=${defaults.webhookJson}
+          json-path="title"
+          property="config"
+          layout="summary-item"
+          infer="webhook-json-title"
+        >
+        </foxy-internal-text-control>
 
-      <foxy-internal-text-area-control
-        infer="webhook-json-url"
-        .getValue=${this.__createConfigGetterFor('url')}
-        .setValue=${this.__createConfigSetterFor('url')}
-      >
-      </foxy-internal-text-area-control>
+        <foxy-internal-text-control
+          json-template=${defaults.webhookJson}
+          json-path="url"
+          property="config"
+          layout="summary-item"
+          infer="webhook-json-url"
+        >
+        </foxy-internal-text-control>
 
-      <foxy-internal-radio-group-control
-        infer="webhook-service"
-        .getValue=${this.__createConfigGetterFor('service')}
-        .setValue=${this.__createConfigSetterFor('service')}
-        .options=${this.__webhookServiceOptions}
-      >
-      </foxy-internal-radio-group-control>
+        <foxy-internal-select-control
+          json-template=${defaults.webhookJson}
+          json-path="service"
+          property="config"
+          layout="summary-item"
+          infer="webhook-service"
+          .options=${this.__webhookServiceOptions}
+        >
+        </foxy-internal-select-control>
 
-      <foxy-internal-checkbox-group-control
-        infer="webhook-json-events"
-        .getValue=${this.__createConfigGetterFor('events')}
-        .setValue=${this.__createConfigSetterFor('events')}
-        .options=${this.__webhookJsonEventsOptions}
-      >
-      </foxy-internal-checkbox-group-control>
+        <foxy-internal-password-control
+          json-template=${defaults.webhookJson}
+          json-path="encryption_key"
+          property="config"
+          layout="summary-item"
+          infer="webhook-json-encryption-key"
+        >
+        </foxy-internal-password-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-password-control
-        infer="webhook-json-encryption-key"
-        .getValue=${this.__createConfigGetterFor('encryption_key')}
-        .setValue=${this.__createConfigSetterFor('encryption_key')}
-      >
-      </foxy-internal-password-control>
+      <foxy-internal-summary-control infer="webhook-json-group-two">
+        ${this.__webhookJsonEventsOptions.map(option => {
+          return html`
+            <foxy-internal-switch-control
+              infer=${`webhook-json-events-${option.value.replace(/\//g, '-')}`}
+              .getValue=${() => this.__config?.events?.includes(option.value)}
+              .setValue=${(value: boolean) => {
+                const events = this.__config?.events ?? [];
+                this.__config = {
+                  events: value
+                    ? [...events, option.value]
+                    : events.filter((v: string) => v !== option.value),
+                };
+              }}
+            >
+            </foxy-internal-switch-control>
+          `;
+        })}
+      </foxy-internal-summary-control>
     `;
   }
 
   private __renderWebhookLegacyXmlConfig() {
     return html`
-      <foxy-internal-text-control
-        infer="webhook-legacy-xml-title"
-        .getValue=${this.__createConfigGetterFor('title')}
-        .setValue=${this.__createConfigSetterFor('title')}
-      >
-      </foxy-internal-text-control>
+      <foxy-internal-summary-control infer="webhook-legacy-xml-group-one">
+        <foxy-internal-text-control
+          json-template=${defaults.webhookLegacyXml}
+          json-path="title"
+          property="config"
+          layout="summary-item"
+          infer="webhook-legacy-xml-title"
+        >
+        </foxy-internal-text-control>
 
-      <foxy-internal-text-area-control
-        infer="webhook-legacy-xml-url"
-        .getValue=${this.__createConfigGetterFor('url')}
-        .setValue=${this.__createConfigSetterFor('url')}
-      >
-      </foxy-internal-text-area-control>
+        <foxy-internal-text-control
+          json-template=${defaults.webhookLegacyXml}
+          json-path="url"
+          property="config"
+          layout="summary-item"
+          infer="webhook-legacy-xml-url"
+        >
+        </foxy-internal-text-control>
 
-      <foxy-internal-radio-group-control
-        infer="webhook-service"
-        .getValue=${this.__createConfigGetterFor('service')}
-        .setValue=${this.__createConfigSetterFor('service')}
-        .options=${this.__webhookServiceOptions}
-      >
-      </foxy-internal-radio-group-control>
+        <foxy-internal-select-control
+          json-template=${defaults.webhookLegacyXml}
+          json-path="service"
+          property="config"
+          layout="summary-item"
+          infer="webhook-service"
+          .options=${this.__webhookServiceOptions}
+        >
+        </foxy-internal-select-control>
+      </foxy-internal-summary-control>
     `;
   }
 
   private __renderWebflowConfig() {
     return html`
-      <div class="grid grid-cols-2 gap-m">
+      <foxy-internal-summary-control infer="webflow-group-one">
         <foxy-internal-text-control
+          json-template=${defaults.webflow}
+          json-path="site_id"
+          property="config"
+          layout="summary-item"
           infer="webflow-site-id"
-          .getValue=${this.__createConfigGetterFor('site_id')}
-          .setValue=${this.__createConfigSetterFor('site_id')}
         >
         </foxy-internal-text-control>
 
         <foxy-internal-text-control
+          json-template=${defaults.webflow}
+          json-path="site_name"
+          property="config"
+          layout="summary-item"
           infer="webflow-site-name"
-          .getValue=${this.__createConfigGetterFor('site_name')}
-          .setValue=${this.__createConfigSetterFor('site_name')}
         >
         </foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
+      <foxy-internal-summary-control infer="webflow-group-two">
         <foxy-internal-text-control
+          json-template=${defaults.webflow}
+          json-path="collection_id"
+          property="config"
+          layout="summary-item"
           infer="webflow-collection-id"
-          .getValue=${this.__createConfigGetterFor('collection_id')}
-          .setValue=${this.__createConfigSetterFor('collection_id')}
         >
         </foxy-internal-text-control>
 
         <foxy-internal-text-control
+          json-template=${defaults.webflow}
+          json-path="collection_name"
+          property="config"
+          layout="summary-item"
           infer="webflow-collection-name"
-          .getValue=${this.__createConfigGetterFor('collection_name')}
-          .setValue=${this.__createConfigSetterFor('collection_name')}
         >
         </foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
+      <foxy-internal-summary-control infer="webflow-group-three">
         <foxy-internal-text-control
+          json-template=${defaults.webflow}
+          json-path="sku_field_id"
+          property="config"
+          layout="summary-item"
           infer="webflow-sku-field-id"
-          .getValue=${this.__createConfigGetterFor('sku_field_id')}
-          .setValue=${this.__createConfigSetterFor('sku_field_id')}
         >
         </foxy-internal-text-control>
 
         <foxy-internal-text-control
+          json-template=${defaults.webflow}
+          json-path="sku_field_name"
+          property="config"
+          layout="summary-item"
           infer="webflow-sku-field-name"
-          .getValue=${this.__createConfigGetterFor('sku_field_name')}
-          .setValue=${this.__createConfigSetterFor('sku_field_name')}
         >
         </foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
+      <foxy-internal-summary-control infer="webflow-group-four">
         <foxy-internal-text-control
+          json-template=${defaults.webflow}
+          json-path="inventory_field_id"
+          property="config"
+          layout="summary-item"
           infer="webflow-inventory-field-id"
-          .getValue=${this.__createConfigGetterFor('inventory_field_id')}
-          .setValue=${this.__createConfigSetterFor('inventory_field_id')}
         >
         </foxy-internal-text-control>
 
         <foxy-internal-text-control
+          json-template=${defaults.webflow}
+          json-path="inventory_field_name"
+          property="config"
+          layout="summary-item"
           infer="webflow-inventory-field-name"
-          .getValue=${this.__createConfigGetterFor('inventory_field_name')}
-          .setValue=${this.__createConfigSetterFor('inventory_field_name')}
         >
         </foxy-internal-text-control>
-      </div>
+      </foxy-internal-summary-control>
     `;
   }
 
   private __renderZapierConfig() {
     return html`
-      <foxy-internal-editable-list-control
-        infer="zapier-events"
-        .getValue=${this.__createConfigGetterFor('events')}
-        .setValue=${this.__createConfigSetterFor('events')}
-      >
-      </foxy-internal-editable-list-control>
+      <foxy-internal-summary-control infer="zapier-group-one">
+        <foxy-internal-text-control
+          json-template=${defaults.zapier}
+          json-path="url"
+          property="config"
+          layout="summary-item"
+          infer="zapier-url"
+        >
+        </foxy-internal-text-control>
 
-      <foxy-internal-text-area-control
-        infer="zapier-url"
-        .getValue=${this.__createConfigGetterFor('url')}
-        .setValue=${this.__createConfigSetterFor('url')}
-      >
-      </foxy-internal-text-area-control>
+        <foxy-internal-editable-list-control
+          json-template=${defaults.zapier}
+          json-path="events"
+          property="config"
+          layout="summary-item"
+          infer="zapier-events"
+          simple-value
+        >
+        </foxy-internal-editable-list-control>
 
-      <p class="text-xs text-secondary leading-xs">
-        <foxy-i18n infer="zapier-warning" key="warning_text"></foxy-i18n>
-      </p>
+        <p class="text-secondary leading-xs">
+          <foxy-i18n infer="zapier-warning" key="warning_text"></foxy-i18n>
+        </p>
+      </foxy-internal-summary-control>
     `;
   }
 
   private __renderApplePayConfig() {
     return html`
-      <foxy-internal-text-control
-        infer="apple-pay-merchant-id"
-        .getValue=${this.__createConfigGetterFor('merchantID')}
-        .setValue=${this.__createConfigSetterFor('merchantID')}
-      >
-      </foxy-internal-text-control>
+      <foxy-internal-summary-control infer="apple-pay-group-one">
+        <foxy-internal-text-control
+          json-template=${defaults.applePay}
+          json-path="merchantID"
+          property="config"
+          layout="summary-item"
+          infer="apple-pay-merchant-id"
+        >
+        </foxy-internal-text-control>
 
-      <p class="text-xs text-secondary leading-xs">
-        <foxy-i18n infer="apple-pay-warning" key="warning_text"></foxy-i18n>
-      </p>
+        <p class="text-secondary leading-xs">
+          <foxy-i18n infer="apple-pay-warning" key="warning_text"></foxy-i18n>
+        </p>
+      </foxy-internal-summary-control>
     `;
   }
 
   private __renderCustomTaxConfig() {
     return html`
-      <foxy-internal-text-control
-        infer="custom-tax-url"
-        .getValue=${this.__createConfigGetterFor('url')}
-        .setValue=${this.__createConfigSetterFor('url')}
-      >
-      </foxy-internal-text-control>
-
-      <p class="text-xs text-secondary leading-xs">
-        <foxy-i18n infer="custom-tax-warning" key="warning_text"></foxy-i18n>
-      </p>
+      <foxy-internal-summary-control infer="custom-tax-group-one">
+        <foxy-internal-text-control
+          json-template=${defaults.customTax}
+          json-path="url"
+          property="config"
+          layout="summary-item"
+          infer="custom-tax-url"
+        >
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
     `;
+  }
+
+  private get __storeLoader() {
+    type Loader = NucleonElement<Resource<Rels.Store>>;
+    return this.renderRoot.querySelector<Loader>('#storeLoader');
   }
 }

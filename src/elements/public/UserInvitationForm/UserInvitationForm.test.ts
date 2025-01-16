@@ -589,6 +589,7 @@ describe('UserInvitationForm', () => {
     expect(form.renderRoot.querySelector('[infer="store"] [key="store_link"]')).to.not.exist;
 
     form.getStorePageHref = (href: string) => `https://example.com?href=${href}`;
+    form.data = { ...form.data!, status: 'accepted' };
     await form.requestUpdate();
     const caption = form.renderRoot.querySelector('[infer="store"] [key="store_link"]');
     expect(caption).to.exist;
