@@ -12,6 +12,7 @@ export class InternalTransactionActionsControl extends InternalControl {
         ${this.nucleon?.data?._links['fx:refund'] ? this.__renderRefundAction() : ''}
         ${this.nucleon?.data?._links['fx:send_emails'] ? this.__renderSendEmailsAction() : ''}
         ${this.nucleon?.data?._links['fx:subscription'] ? this.__renderSubscriptionAction() : ''}
+        ${this.nucleon?.data?._links['fx:receipt'] ? this.__renderReceiptAction() : ''}
       </div>
     `;
   }
@@ -73,6 +74,20 @@ export class InternalTransactionActionsControl extends InternalControl {
         href=${ifDefined(subPageHref)}
       >
         <foxy-i18n infer="subscription" key="caption"></foxy-i18n>
+      </a>
+    `;
+  }
+
+  private __renderReceiptAction() {
+    const host = this.nucleon as Transaction | null;
+
+    return html`
+      <a
+        target="_blank"
+        class="rounded text-m font-medium text-primary cursor-pointer transition-opacity hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
+        href=${ifDefined(host?.data?._links['fx:receipt']?.href)}
+      >
+        <foxy-i18n infer="receipt" key="caption"></foxy-i18n>
       </a>
     `;
   }

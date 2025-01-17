@@ -232,5 +232,44 @@ describe('Transaction', () => {
       expect(link).to.exist;
       expect(link).to.have.property('href', 'https://example.com/test');
     });
+
+    it('renders View Receipt action if transaction has fx:receipt link', async () => {
+      const router = createRouter();
+      const wrapper = await fixture<Transaction>(html`
+        <foxy-nucleon
+          href="https://demo.api/hapi/transactions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+          <foxy-internal-transaction-actions-control infer="actions">
+          </foxy-internal-transaction-actions-control>
+        </foxy-nucleon>
+      `);
+
+      await waitUntil(() => wrapper.in({ idle: 'snapshot' }));
+      const control = wrapper.firstElementChild as InternalTransactionActionsControl;
+
+      unset(wrapper, 'data._links["fx:receipt"]');
+      wrapper.data = { ...wrapper.data! };
+      await wrapper.requestUpdate();
+      await control.requestUpdate();
+
+      expect(control.renderRoot.querySelector('[infer="receipt"]')).to.not.exist;
+
+      set(wrapper, 'data._links["fx:receipt"]', { href: 'https://example.com/receipt' });
+      wrapper.data = { ...wrapper.data! };
+      await wrapper.requestUpdate();
+      await control.requestUpdate();
+
+      const action = control.renderRoot.querySelector('[infer="receipt"]');
+
+      expect(action).to.exist;
+      expect(action).to.have.property('localName', 'foxy-i18n');
+      expect(action).to.have.property('key', 'caption');
+
+      const link = action?.closest('a');
+      expect(link).to.exist;
+      expect(link).to.have.attribute('href', 'https://example.com/receipt');
+      expect(link).to.have.attribute('target', '_blank');
+    });
   });
 });

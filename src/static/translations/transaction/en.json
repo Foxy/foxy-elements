@@ -1710,6 +1710,9 @@
     },
     "subscription": {
       "caption": "Go to subscription"
+    },
+    "receipt": {
+      "caption": "View receipt"
     }
   },
   "spinner": {
