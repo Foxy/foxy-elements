@@ -25,6 +25,11 @@ describe('InternalSummaryControl', () => {
     expect(new Control()).to.have.property('layout', null);
   });
 
+  it('has a reactive property "count" that defaults to null', () => {
+    expect(Control).to.have.deep.nested.property('properties.count', { type: Number });
+    expect(new Control()).to.have.property('count', null);
+  });
+
   it('has a reactive property "open" that defaults to false', () => {
     expect(Control).to.have.deep.nested.property('properties.open', { type: Boolean });
     expect(new Control()).to.have.property('open', false);
@@ -46,6 +51,19 @@ describe('InternalSummaryControl', () => {
 
     expect(control.renderRoot).to.not.include.text('label');
     expect(control.renderRoot).to.include.text('Foo bar');
+  });
+
+  it('renders count in label if .count is set and layout is "details"', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-summary-control layout="details" label="Test"></foxy-internal-summary-control>
+    `);
+
+    expect(control.renderRoot).to.include.text('Test');
+    expect(control.renderRoot).to.not.include.text('Test (123)');
+
+    control.count = 123;
+    await control.requestUpdate();
+    expect(control.renderRoot).to.include.text('Test (123)');
   });
 
   it('renders helper text in default layout', async () => {
