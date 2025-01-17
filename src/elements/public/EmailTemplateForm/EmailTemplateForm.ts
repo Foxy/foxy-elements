@@ -1,4 +1,4 @@
-import type { TemplateResult } from 'lit-element';
+import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -17,6 +17,16 @@ const Base = TranslatableMixin(InternalForm, NS);
  * @since 1.14.0
  */
 export class EmailTemplateForm extends Base<Data> {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      defaultSubject: { attribute: 'default-subject' },
+    };
+  }
+
+  /** Default email subject. Use this instead of i18next key when you need to use handlebars syntax. */
+  defaultSubject: string | null = null;
+
   private readonly __templateLanguageOptions = [
     { rawLabel: 'Nunjucks', value: 'nunjucks' },
     { rawLabel: 'Handlebars', value: 'handlebars' },
@@ -28,7 +38,11 @@ export class EmailTemplateForm extends Base<Data> {
   private readonly __toggleGetValue = () => !!this.form.subject;
 
   private readonly __toggleSetValue = (newValue: boolean) => {
-    this.edit({ subject: newValue ? this.t('general.subject.default_value') : '' });
+    if (newValue) {
+      this.edit({ subject: this.defaultSubject ?? this.t('general.subject.default_value') });
+    } else {
+      this.edit({ subject: '' });
+    }
   };
 
   get readonlySelector(): BooleanSelector {

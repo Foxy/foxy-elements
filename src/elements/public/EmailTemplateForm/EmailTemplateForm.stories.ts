@@ -30,10 +30,12 @@ const summary: Summary = {
 
 export default getMeta(summary);
 
-export const Playground = getStory({ ...summary, code: true });
-export const Empty = getStory(summary);
-export const Error = getStory(summary);
-export const Busy = getStory(summary);
+const ext = `default-subject="Receipt ({{ order_id }})"`;
+
+export const Playground = getStory({ ...summary, ext, code: true });
+export const Empty = getStory({ ...summary, ext });
+export const Error = getStory({ ...summary, ext });
+export const Busy = getStory({ ...summary, ext });
 
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
