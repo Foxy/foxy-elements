@@ -48,6 +48,14 @@ describe('GiftCardCodeForm', () => {
     expect(customElements.get('foxy-customer-card')).to.exist;
   });
 
+  it('imports and defines foxy-item-card', () => {
+    expect(customElements.get('foxy-item-card')).to.exist;
+  });
+
+  it('imports and defines foxy-nucleon', () => {
+    expect(customElements.get('foxy-nucleon')).to.exist;
+  });
+
   it('imports and defines itself as foxy-gift-card-code-form', () => {
     expect(customElements.get('foxy-gift-card-code-form')).to.equal(GiftCardCodeForm);
   });
