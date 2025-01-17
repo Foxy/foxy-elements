@@ -36,6 +36,7 @@
     "end-date": {
       "label": "Expires on",
       "placeholder": "Optional",
+      "display_value": "{{ value, date }}",
       "helper_text": ""
     }
   },

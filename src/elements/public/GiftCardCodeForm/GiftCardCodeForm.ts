@@ -108,7 +108,7 @@ export class GiftCardCodeForm extends Base<Data> {
         <foxy-internal-text-control layout="summary-item" infer="code"></foxy-internal-text-control>
         <foxy-internal-number-control layout="summary-item" infer="current-balance">
         </foxy-internal-number-control>
-        <foxy-internal-date-control layout="summary-item" infer="end-date">
+        <foxy-internal-date-control layout="summary-item" format="iso-long" infer="end-date">
         </foxy-internal-date-control>
       </foxy-internal-summary-control>
 

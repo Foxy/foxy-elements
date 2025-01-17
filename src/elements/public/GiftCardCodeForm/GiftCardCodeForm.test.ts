@@ -177,6 +177,7 @@ describe('GiftCardCodeForm', () => {
     );
 
     expect(control).to.exist;
+    expect(control).to.have.attribute('format', 'iso-long');
   });
 
   it('renders a resource picker control for associated customer', async () => {
