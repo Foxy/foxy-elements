@@ -82,8 +82,9 @@ describe('UserInvitationForm', () => {
     expect(form.hiddenSelector.matches('undo', true)).to.be.true;
   });
 
-  it('hides Delete button when status is not "rejected" or "expired" (in admin layout)', async () => {
+  it('hides Delete button when status is not "revoked" or "expired" (in admin layout)', async () => {
     const form = new Form();
+    form.layout = 'admin';
     expect(form.hiddenSelector.matches('delete', true)).to.be.true;
 
     const data = await getTestData<Data>('./hapi/user_invitations/0');
@@ -93,14 +94,19 @@ describe('UserInvitationForm', () => {
 
     data.status = 'rejected';
     form.data = { ...data };
-    expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+    expect(form.hiddenSelector.matches('delete', true)).to.be.true;
 
     data.status = 'expired';
     form.data = { ...data };
-    expect(form.hiddenSelector.matches('delete', true)).to.be.true;
-
-    form.layout = 'admin';
     expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+
+    data.status = 'revoked';
+    form.data = { ...data };
+    expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+
+    data.status = 'accepted';
+    form.data = { ...data };
+    expect(form.hiddenSelector.matches('delete', true)).to.be.true;
   });
 
   it('hides Leave button when status is not "accepted"', async () => {
@@ -135,18 +141,19 @@ describe('UserInvitationForm', () => {
     expect(form.hiddenSelector.matches('revoke', true)).to.be.true;
   });
 
-  it('hides Resend button when status is not "revoked" or "sent" or "expired" (in admin layout)', async () => {
+  it('hides Resend button when status is not "sent" (in admin layout)', async () => {
     const form = new Form();
     expect(form.hiddenSelector.matches('resend', true)).to.be.true;
 
     const data = await getTestData<Data>('./hapi/user_invitations/0');
     data.status = 'accepted';
+    form.layout = 'admin';
     form.data = { ...data };
     expect(form.hiddenSelector.matches('resend', true)).to.be.true;
 
     data.status = 'revoked';
     form.data = { ...data };
-    expect(form.hiddenSelector.matches('resend', true)).to.be.false;
+    expect(form.hiddenSelector.matches('resend', true)).to.be.true;
 
     data.status = 'sent';
     form.data = { ...data };
@@ -155,27 +162,21 @@ describe('UserInvitationForm', () => {
     data.status = 'expired';
     form.data = { ...data };
     expect(form.hiddenSelector.matches('resend', true)).to.be.true;
-
-    form.layout = 'admin';
-    expect(form.hiddenSelector.matches('resend', true)).to.be.false;
   });
 
-  it('hides Resend, Accept and Reject buttons when status is not "sent"', async () => {
+  it('hides Accept and Reject buttons when status is not "sent"', async () => {
     const form = new Form();
-    expect(form.hiddenSelector.matches('resend', true)).to.be.true;
     expect(form.hiddenSelector.matches('accept', true)).to.be.true;
     expect(form.hiddenSelector.matches('reject', true)).to.be.true;
 
     const data = await getTestData<Data>('./hapi/user_invitations/0');
     data.status = 'accepted';
     form.data = { ...data };
-    expect(form.hiddenSelector.matches('resend', true)).to.be.true;
     expect(form.hiddenSelector.matches('accept', true)).to.be.true;
     expect(form.hiddenSelector.matches('reject', true)).to.be.true;
 
     data.status = 'sent';
     form.data = { ...data };
-    expect(form.hiddenSelector.matches('resend', true)).to.be.false;
     expect(form.hiddenSelector.matches('accept', true)).to.be.false;
     expect(form.hiddenSelector.matches('reject', true)).to.be.false;
   });
