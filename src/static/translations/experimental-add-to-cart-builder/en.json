@@ -278,6 +278,9 @@
         },
         "custom-options": {
           "label": "Custom options",
+          "helper_text": "",
+          "total_items": "{{ count }} option",
+          "total_items_plural": "{{ count }} options",
           "delete_header": "Remove custom option?",
           "delete_message": "Please confirm that you'd like to remove this custom option from the product.",
           "delete_confirm": "Remove",
@@ -444,7 +447,7 @@
             "first": "First",
             "last": "Last",
             "next": "Next",
-            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "pagination": "{{from}}-{{to}}",
             "previous": "Previous"
           }
         },

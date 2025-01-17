@@ -872,6 +872,7 @@ describe('ExperimentalAddToCartBuilder', () => {
       );
 
       expect(control).to.exist;
+      expect(control).to.have.attribute('layout', 'details');
       expect(control).to.have.attribute(
         'first',
         `foxy://${element.nucleon?.virtualHost}/form/items/0/custom_options`
