@@ -3,6 +3,8 @@ import '@vaadin/vaadin-checkbox';
 import '@vaadin/vaadin-overlay';
 import '@vaadin/vaadin-button';
 
+import '../../internal/InternalSummaryControl/index';
+
 import '../../public/CollectionPage/index';
 import '../../public/SwipeActions/index';
 import '../../public/FormDialog/index';

@@ -1,3 +1,4 @@
+import type { InternalSummaryControl } from '../InternalSummaryControl/InternalSummaryControl';
 import type { NotificationElement } from '@vaadin/vaadin-notification';
 import type { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import type { AttributeCard } from '../../public/AttributeCard/AttributeCard';
@@ -20,6 +21,7 @@ import { SwipeActions } from '../../public/SwipeActions/SwipeActions';
 import { getTestData } from '../../../testgen/getTestData';
 import { FormDialog } from '../../public/FormDialog/FormDialog';
 import { Pagination } from '../../public/Pagination/Pagination';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { getByTag } from '../../../testgen/getByTag';
 import { getByKey } from '../../../testgen/getByKey';
 import { spread } from '@open-wc/lit-helpers';
@@ -29,6 +31,15 @@ import { stub } from 'sinon';
 import { getByTestClass } from '../../../testgen/getByTestClass';
 import { createRouter } from '../../../server/hapi';
 import { Type } from '../../public/QueryBuilder/types';
+
+customElements.define(
+  'x-test-control-with-error-message',
+  class extends Control {
+    protected get _errorMessage() {
+      return 'Test error message';
+    }
+  }
+);
 
 describe('InternalAsyncListControl', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -150,6 +161,11 @@ describe('InternalAsyncListControl', () => {
     expect(Control).to.have.deep.nested.property('properties.related', { type: Array });
   });
 
+  it('has a reactive property "layout"', () => {
+    expect(new Control()).to.have.property('layout', null);
+    expect(Control).to.have.deep.nested.property('properties.layout', {});
+  });
+
   it('has a reactive property "first"', () => {
     expect(new Control()).to.have.property('first', null);
     expect(Control).to.have.deep.nested.property('properties.first', {});
@@ -189,6 +205,19 @@ describe('InternalAsyncListControl', () => {
   it('has a reactive property "wide"', () => {
     expect(new Control()).to.have.property('wide', false);
     expect(Control).to.have.deep.nested.property('properties.wide', { type: Boolean });
+  });
+
+  it('has a reactive property "open"', () => {
+    expect(new Control()).to.have.property('open', false);
+    expect(Control).to.have.deep.nested.property('properties.open', { type: Boolean });
+  });
+
+  it('has a reactive property "hideWhenEmpty"', () => {
+    expect(new Control()).to.have.property('hideWhenEmpty', false);
+    expect(Control).to.have.deep.nested.property('properties.hideWhenEmpty', {
+      type: Boolean,
+      attribute: 'hide-when-empty',
+    });
   });
 
   it('has a reactive property "alert"', () => {
@@ -275,7 +304,7 @@ describe('InternalAsyncListControl', () => {
     expect(dialog).to.have.attribute('infer', '');
   });
 
-  it("renders a translated label if it's defined", async () => {
+  it("renders a translated label in default layout if it's defined", async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-async-list-control></foxy-internal-async-list-control>
     `);
@@ -288,553 +317,7 @@ describe('InternalAsyncListControl', () => {
     expect(control.renderRoot).to.include.text('Test label');
   });
 
-  it('renders a pagination element for collection items', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    const pagination = await getByTag(control, 'foxy-pagination');
-
-    expect(pagination).to.exist;
-    expect(pagination).to.not.have.attribute('first');
-    expect(pagination).to.have.attribute('infer', 'pagination');
-
-    control.first = 'https://demo.api/virtual/stall';
-    control.limit = 5;
-    await control.requestUpdate();
-
-    expect(pagination).to.have.attribute('first', 'https://demo.api/virtual/stall?limit=5');
-  });
-
-  it('renders a collection page under pagination', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    const pagination = await getByTag(control, 'foxy-pagination');
-    const page = pagination?.querySelector('foxy-collection-page');
-
-    expect(page).to.exist;
-    expect(page).to.have.attribute('infer', 'card');
-    expect(page).to.have.deep.property('related', []);
-    expect(page).to.have.deep.property('props', {});
-
-    control.related = ['https://demo.api/virtual/stall'];
-    await control.requestUpdate();
-    expect(page).to.have.deep.property('related', ['https://demo.api/virtual/stall']);
-
-    control.itemProps = { foo: 'bar' };
-    await control.requestUpdate();
-    expect(page).to.have.deep.property('props', { foo: 'bar' });
-  });
-
-  it('can render collection page items as simple list items using local name', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    control.item = 'foxy-attribute-card';
-    const pagination = await getByTag(control, 'foxy-pagination');
-    const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
-
-    const item = await fixture(
-      (page.item as ItemRenderer<any>)({
-        simplifyNsLoading: false,
-        readonlyControls: BooleanSelector.False,
-        disabledControls: BooleanSelector.False,
-        hiddenControls: BooleanSelector.False,
-        templates: {},
-        readonly: false,
-        disabled: false,
-        previous: null,
-        related: ['https://demo.api/virtual/stall?related'],
-        hidden: false,
-        parent: 'https://demo.api/virtual/stall?parent',
-        spread: spread,
-        props: {},
-        group: '',
-        html: html,
-        lang: '',
-        href: 'https://demo.api/virtual/stall?href',
-        data: null,
-        next: null,
-        ns: '',
-      })
-    );
-
-    expect(item).to.have.property('localName', 'foxy-attribute-card');
-    expect(item).to.have.attribute('related', '["https://demo.api/virtual/stall?related"]');
-    expect(item).to.have.attribute('parent', 'https://demo.api/virtual/stall?parent');
-    expect(item).to.have.attribute('infer', '');
-    expect(item).to.have.attribute('href', 'https://demo.api/virtual/stall?href');
-  });
-
-  it('can render collection page items as simple list items using render function', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    control.item = () => html`<div data-testclass="item"></div>`;
-    const pagination = await getByTag(control, 'foxy-pagination');
-    const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
-
-    const item = await fixture(
-      (page.item as ItemRenderer<any>)({
-        simplifyNsLoading: false,
-        readonlyControls: BooleanSelector.False,
-        disabledControls: BooleanSelector.False,
-        hiddenControls: BooleanSelector.False,
-        templates: {},
-        readonly: false,
-        disabled: false,
-        previous: null,
-        related: ['https://demo.api/virtual/stall?related'],
-        hidden: false,
-        parent: 'https://demo.api/virtual/stall?parent',
-        spread: spread,
-        props: {},
-        group: '',
-        html: html,
-        lang: '',
-        href: 'https://demo.api/virtual/stall?href',
-        data: null,
-        next: null,
-        ns: '',
-      })
-    );
-
-    expect(item).to.include.html('<div data-testclass="item"></div>');
-  });
-
-  it('can render collection page items as links using local name', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    control.getPageHref = href => `https://demo.api/virtual/stall?href=${encodeURIComponent(href)}`;
-    control.item = 'foxy-attribute-card';
-    const pagination = await getByTag(control, 'foxy-pagination');
-    const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
-
-    const item = await fixture(
-      (page.item as ItemRenderer<any>)({
-        simplifyNsLoading: false,
-        readonlyControls: BooleanSelector.False,
-        disabledControls: BooleanSelector.False,
-        hiddenControls: BooleanSelector.False,
-        templates: {},
-        readonly: false,
-        disabled: false,
-        previous: null,
-        related: ['https://demo.api/virtual/stall?related'],
-        hidden: false,
-        parent: 'https://demo.api/virtual/stall?parent',
-        spread: spread,
-        props: {},
-        group: '',
-        html: html,
-        lang: '',
-        href: 'https://demo.api/virtual/stall?href',
-        data: await getTestData('./hapi/customer_attributes/0'),
-        next: null,
-        ns: '',
-      })
-    );
-
-    const card = item.querySelector('foxy-attribute-card')!;
-    const a = card.closest('a')!;
-
-    expect(card).to.have.attribute('related', '["https://demo.api/virtual/stall?related"]');
-    expect(card).to.have.attribute('parent', 'https://demo.api/virtual/stall?parent');
-    expect(card).to.have.attribute('infer', '');
-    expect(card).to.have.attribute('href', 'https://demo.api/virtual/stall?href');
-
-    expect(a).to.have.attribute(
-      'href',
-      `https://demo.api/virtual/stall?href=${encodeURIComponent(
-        'https://demo.api/virtual/stall?href'
-      )}`
-    );
-  });
-
-  it('can render collection page items as links using render function', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    control.getPageHref = href => `https://demo.api/virtual/stall?href=${encodeURIComponent(href)}`;
-    control.item = () => html`<div data-testclass="item"></div>`;
-    const pagination = await getByTag(control, 'foxy-pagination');
-    const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
-
-    const item = await fixture(
-      (page.item as ItemRenderer<any>)({
-        simplifyNsLoading: false,
-        readonlyControls: BooleanSelector.False,
-        disabledControls: BooleanSelector.False,
-        hiddenControls: BooleanSelector.False,
-        templates: {},
-        readonly: false,
-        disabled: false,
-        previous: null,
-        related: ['https://demo.api/virtual/stall?related'],
-        hidden: false,
-        parent: 'https://demo.api/virtual/stall?parent',
-        spread: spread,
-        props: {},
-        group: '',
-        html: html,
-        lang: '',
-        href: 'https://demo.api/virtual/stall?href',
-        data: await getTestData('./hapi/customer_attributes/0'),
-        next: null,
-        ns: '',
-      })
-    );
-
-    const a = item.querySelector('a')!;
-
-    expect(a).to.include.html('<div data-testclass="item"></div>');
-    expect(a).to.have.attribute(
-      'href',
-      `https://demo.api/virtual/stall?href=${encodeURIComponent(
-        'https://demo.api/virtual/stall?href'
-      )}`
-    );
-  });
-
-  it('can render collection page items as buttons opening a dialog using local name', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    control.item = 'foxy-attribute-card';
-    control.form = 'foxy-attribute-form';
-
-    const pagination = await getByTag(control, 'foxy-pagination');
-    const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
-    const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
-
-    const item = await fixture(
-      (page.item as ItemRenderer<any>)({
-        simplifyNsLoading: false,
-        readonlyControls: BooleanSelector.False,
-        disabledControls: BooleanSelector.False,
-        hiddenControls: BooleanSelector.False,
-        templates: {},
-        readonly: false,
-        disabled: false,
-        previous: null,
-        related: ['https://demo.api/virtual/stall?related'],
-        hidden: false,
-        parent: 'https://demo.api/virtual/stall?parent',
-        spread: spread,
-        props: {},
-        group: '',
-        html: html,
-        lang: '',
-        href: 'https://demo.api/virtual/stall?href',
-        data: await getTestData('./hapi/customer_attributes/0'),
-        next: null,
-        ns: '',
-      })
-    );
-
-    const card = item.querySelector('foxy-attribute-card')!;
-    const button = card.closest('button')!;
-    const showMethod = stub(dialog, 'show');
-
-    expect(card).to.have.attribute('related', '["https://demo.api/virtual/stall?related"]');
-    expect(card).to.have.attribute('parent', 'https://demo.api/virtual/stall?parent');
-    expect(card).to.have.attribute('infer', '');
-    expect(card).to.have.attribute('href', 'https://demo.api/virtual/stall?href');
-
-    button.click();
-
-    expect(showMethod).to.have.been.called;
-    expect(dialog).to.have.property('header', 'header_update');
-    expect(dialog).to.have.property('href', 'https://demo.api/virtual/stall?href');
-  });
-
-  it('can render collection page items as buttons opening a dialog using render function', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    control.item = () => html`<div data-testclass="item"></div>`;
-    control.form = 'foxy-attribute-form';
-
-    const pagination = await getByTag(control, 'foxy-pagination');
-    const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
-    const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
-
-    const item = await fixture(
-      (page.item as ItemRenderer<any>)({
-        simplifyNsLoading: false,
-        readonlyControls: BooleanSelector.False,
-        disabledControls: BooleanSelector.False,
-        hiddenControls: BooleanSelector.False,
-        templates: {},
-        readonly: false,
-        disabled: false,
-        previous: null,
-        related: ['https://demo.api/virtual/stall?related'],
-        hidden: false,
-        parent: 'https://demo.api/virtual/stall?parent',
-        spread: spread,
-        props: {},
-        group: '',
-        html: html,
-        lang: '',
-        href: 'https://demo.api/virtual/stall?href',
-        data: await getTestData('./hapi/customer_attributes/0'),
-        next: null,
-        ns: '',
-      })
-    );
-
-    const button = item.querySelector('button')!;
-    expect(button).to.include.html('<div data-testclass="item"></div>');
-
-    const showMethod = stub(dialog, 'show');
-    button.click();
-
-    expect(showMethod).to.have.been.called;
-    expect(dialog).to.have.property('header', 'header_update');
-    expect(dialog).to.have.property('href', 'https://demo.api/virtual/stall?href');
-  });
-
-  it('renders Delete button for collection page items', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    control.item = 'foxy-attribute-card';
-    control.form = 'foxy-attribute-form';
-
-    const pagination = await getByTag(control, 'foxy-pagination');
-    const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
-
-    const swipeActions = await fixture(
-      (page.item as ItemRenderer<any>)({
-        simplifyNsLoading: false,
-        readonlyControls: BooleanSelector.False,
-        disabledControls: BooleanSelector.False,
-        hiddenControls: BooleanSelector.False,
-        templates: {},
-        readonly: false,
-        disabled: false,
-        previous: null,
-        related: ['https://demo.api/virtual/stall?related'],
-        hidden: false,
-        parent: 'https://demo.api/virtual/stall?parent',
-        spread: spread,
-        props: {},
-        group: '',
-        html: html,
-        lang: '',
-        href: 'https://demo.api/virtual/stall?href',
-        data: await getTestData('./hapi/customer_attributes/0'),
-        next: null,
-        ns: '',
-      })
-    );
-
-    const card = swipeActions.querySelector('foxy-attribute-card') as AttributeCard;
-    const label = swipeActions.querySelector('[key="delete_button_text"]')!;
-    const button = label.closest('vaadin-button')!;
-    const confirm = (await getByTag(
-      control,
-      'foxy-internal-confirm-dialog'
-    )) as InternalConfirmDialog;
-
-    expect(swipeActions).to.have.property('localName', 'foxy-swipe-actions');
-    expect(label).to.have.property('localName', 'foxy-i18n');
-    expect(label).to.have.attribute('infer', '');
-    expect(button).to.have.attribute('slot', 'action');
-
-    const confirmShowMethod = stub(confirm, 'show');
-    button.click();
-
-    expect(confirmShowMethod).to.have.been.called;
-
-    const cardDeleteMethod = stub(card, 'delete');
-    confirm.dispatchEvent(new DialogHideEvent());
-
-    expect(cardDeleteMethod).to.have.been.called;
-  });
-
-  it('hides delete button for collection page items if hideDeleteButton is true', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    control.item = 'foxy-attribute-card';
-    control.form = 'foxy-attribute-form';
-    control.hideDeleteButton = true;
-
-    const pagination = await getByTag(control, 'foxy-pagination');
-    const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
-
-    const swipeActions = await fixture(
-      (page.item as ItemRenderer<any>)({
-        simplifyNsLoading: false,
-        readonlyControls: BooleanSelector.False,
-        disabledControls: BooleanSelector.False,
-        hiddenControls: BooleanSelector.False,
-        templates: {},
-        readonly: false,
-        disabled: false,
-        previous: null,
-        related: ['https://demo.api/virtual/stall?related'],
-        hidden: false,
-        parent: 'https://demo.api/virtual/stall?parent',
-        spread: spread,
-        props: {},
-        group: '',
-        html: html,
-        lang: '',
-        href: 'https://demo.api/virtual/stall?href',
-        data: await getTestData('./hapi/customer_attributes/0'),
-        next: null,
-        ns: '',
-      })
-    );
-
-    const selector = 'vaadin-button foxy-i18n[key="delete_button_text"]';
-    expect(swipeActions.querySelector(selector)).to.not.exist;
-  });
-
-  it('hides delete button for collection page items when readonly', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    control.item = 'foxy-attribute-card';
-    control.form = 'foxy-attribute-form';
-    control.readonly = true;
-
-    const pagination = await getByTag(control, 'foxy-pagination');
-    const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
-
-    const swipeActions = await fixture(
-      (page.item as ItemRenderer<any>)({
-        simplifyNsLoading: false,
-        readonlyControls: BooleanSelector.False,
-        disabledControls: BooleanSelector.False,
-        hiddenControls: BooleanSelector.False,
-        templates: {},
-        readonly: false,
-        disabled: false,
-        previous: null,
-        related: ['https://demo.api/virtual/stall?related'],
-        hidden: false,
-        parent: 'https://demo.api/virtual/stall?parent',
-        spread: spread,
-        props: {},
-        group: '',
-        html: html,
-        lang: '',
-        href: 'https://demo.api/virtual/stall?href',
-        data: await getTestData('./hapi/customer_attributes/0'),
-        next: null,
-        ns: '',
-      })
-    );
-
-    const selector = 'vaadin-button foxy-i18n[key="delete_button_text"]';
-    expect(swipeActions.querySelector(selector)).to.not.exist;
-  });
-
-  it('renders Create button when .form is defined', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    control.item = 'foxy-attribute-card';
-    control.form = 'foxy-attribute-form';
-
-    const label = (await getByKey(control, 'create_button_text'))!;
-    const button = label.closest('vaadin-button')!;
-    const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
-
-    expect(label).to.have.property('localName', 'foxy-i18n');
-    expect(label).to.have.attribute('infer', 'pagination');
-
-    const dialogShowMethod = stub(dialog, 'show');
-    button.click();
-
-    expect(dialogShowMethod).to.have.been.called;
-    expect(dialog).to.have.property('header', 'header_create');
-    expect(dialog).to.have.property('href', '');
-  });
-
-  it('renders Create link when .createPageHref is defined', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    control.item = 'foxy-attribute-card';
-    control.createPageHref = 'https://example.com';
-
-    const label = (await getByKey(control, 'create_button_text'))!;
-    const a = label.closest('a')!;
-
-    expect(label).to.have.property('localName', 'foxy-i18n');
-    expect(label).to.have.attribute('infer', '');
-    expect(a).to.have.attribute('href', 'https://example.com');
-  });
-
-  it("hides Create link/button if there's no form", async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    control.item = 'foxy-attribute-card';
-    await control.requestUpdate();
-
-    const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
-    const aSelector = 'a foxy-i18n[key="create_button_text"]';
-
-    expect(control.querySelector(buttonSelector)).to.not.exist;
-    expect(control.querySelector(aSelector)).to.not.exist;
-  });
-
-  it('hides Create link/button if control is readonly', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    control.item = 'foxy-attribute-card';
-    control.form = 'foxy-attribute-form';
-    control.readonly = true;
-    await control.requestUpdate();
-
-    const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
-    const aSelector = 'a foxy-i18n[key="create_button_text"]';
-
-    expect(control.querySelector(buttonSelector)).to.not.exist;
-    expect(control.querySelector(aSelector)).to.not.exist;
-  });
-
-  it('hides Create link/button if hideCreateButton is true', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    control.item = 'foxy-attribute-card';
-    control.form = 'foxy-attribute-form';
-    control.hideCreateButton = true;
-    await control.requestUpdate();
-
-    const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
-    const aSelector = 'a foxy-i18n[key="create_button_text"]';
-
-    expect(control.querySelector(buttonSelector)).to.not.exist;
-    expect(control.querySelector(aSelector)).to.not.exist;
-  });
-
-  it('renders helper text', async () => {
+  it('renders helper text in default layout', async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-async-list-control></foxy-internal-async-list-control>
     `);
@@ -848,550 +331,1198 @@ describe('InternalAsyncListControl', () => {
     expect(control.renderRoot).to.include.text('Test helper text');
   });
 
-  it('render error text if available', async () => {
-    let control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
-    `);
-
-    expect(control.renderRoot).to.not.include.text('Test error message');
-
-    customElements.define(
-      'x-test-control',
-      class extends Control {
-        protected get _errorMessage() {
-          return 'Test error message';
-        }
-      }
-    );
-
-    control = await fixture<Control>(html`<x-test-control></x-test-control>`);
-    expect(control.renderRoot).to.include.text('Test error message');
-  });
-
-  it('renders actions if configured', async () => {
+  it('renders a summary control in details layout', async () => {
     const router = createRouter();
     const control = await fixture<Control>(html`
       <foxy-internal-async-list-control
+        layout="details"
         first="https://demo.api/hapi/transactions"
-        limit="1"
-        form="foxy-test"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-internal-async-list-control>
     `);
 
-    await waitUntil(
-      () => !!control.renderRoot.querySelector<CollectionPage<any>>('foxy-collection-page')?.data
-    );
+    const summary = control.renderRoot.querySelector(
+      'foxy-internal-summary-control'
+    ) as InternalSummaryControl;
 
-    let actions = await getByTestClass<ButtonElement>(control, 'action');
-    expect(actions).to.be.empty;
-
-    control.actions = [
-      { text: 'action_1', theme: 'primary', state: 'idle', onClick: stub() },
-      { text: 'action_2', theme: 'secondary', state: 'busy', onClick: stub() },
-    ];
-
+    const collectionPage = summary.querySelector('foxy-collection-page') as CollectionPage<any>;
+    await waitUntil(() => !!collectionPage.data, undefined, { timeout: 5000 });
     await control.requestUpdate();
-    actions = await getByTestClass<ButtonElement>(control, 'action');
 
-    expect(actions).to.have.length(2);
+    expect(summary).to.exist;
+    expect(summary).to.have.attribute('layout', 'details');
+    expect(summary).to.have.attribute('count', '2');
+    expect(summary).to.not.have.attribute('open');
 
-    expect(actions[0].closest('foxy-swipe-actions')).to.exist;
-    expect(actions[1].closest('foxy-swipe-actions')).to.exist;
-    expect(actions[0].closest('foxy-swipe-actions')).to.equal(
-      actions[1].closest('foxy-swipe-actions')
-    );
+    control.open = true;
+    await control.requestUpdate();
+    expect(summary).to.have.attribute('open');
+    expect(summary).to.not.have.attribute('count');
 
-    expect(actions[0]).to.have.attribute('theme', 'primary');
-    expect(actions[1]).to.have.attribute('theme', 'secondary');
-
-    actions[0].click();
-    expect(control.actions[0].onClick).to.have.been.calledOnce;
-    expect(control.actions[1].onClick).to.not.have.been.called;
-
-    actions[1].click();
-    expect(control.actions[0].onClick).to.have.been.calledOnce;
-    expect(control.actions[1].onClick).to.have.been.calledOnce;
-
-    const action0Text = actions[0].querySelector('foxy-i18n');
-    expect(action0Text).to.have.attribute('infer', '');
-    expect(action0Text).to.have.attribute('key', 'action_1');
-
-    const action1Text = actions[1].querySelector('foxy-i18n');
-    expect(action1Text).to.have.attribute('infer', '');
-    expect(action1Text).to.have.attribute('key', 'action_2');
-
-    const action0Spinner = actions[0].querySelector('foxy-spinner');
-    expect(action0Spinner).to.have.attribute('infer', 'spinner');
-    expect(action0Spinner).to.have.attribute('state', 'idle');
-
-    const action1Spinner = actions[1].querySelector('foxy-spinner');
-    expect(action1Spinner).to.have.attribute('infer', 'spinner');
-    expect(action1Spinner).to.have.attribute('state', 'busy');
+    summary.open = false;
+    summary.dispatchEvent(new CustomEvent('toggle'));
+    await control.requestUpdate();
+    expect(control).to.have.property('open', false);
+    expect(summary).to.have.attribute('count', '2');
   });
 
-  it('renders filters if configured', async () => {
+  it('visually hides itself when collection has 0 items and hideWhenEmpty is true', async () => {
+    const router = createRouter();
     const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control></foxy-internal-async-list-control>
+      <foxy-internal-async-list-control
+        first="https://demo.api/hapi/transactions?some_key_that_doesnt_exist=foo"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-internal-async-list-control>
     `);
 
-    expect(await getByKey(control, 'search_button_text')).to.not.exist;
+    const collectionPage = control.renderRoot.querySelector(
+      'foxy-collection-page'
+    ) as CollectionPage<any>;
 
-    control.filters = [
-      {
-        label: 'filter_1',
-        type: Type.Boolean,
-        path: 'foo',
-      },
-    ];
-
+    await waitUntil(() => !!collectionPage.data, undefined, { timeout: 5000 });
     await control.requestUpdate();
+    const wrapper = control.shadowRoot?.firstElementChild;
+    expect(wrapper).to.not.have.attribute('class', 'hidden');
 
-    const buttonLabel = await getByKey(control, 'search_button_text');
-    const button = buttonLabel?.closest('vaadin-button');
-    const overlay = control.renderRoot.querySelector(
-      'foxy-internal-async-list-control-filter-overlay'
-    );
+    control.hideWhenEmpty = true;
+    await control.requestUpdate();
+    expect(wrapper).to.have.attribute('class', 'hidden');
 
-    expect(buttonLabel).to.exist;
-    expect(buttonLabel).to.have.attribute('infer', 'pagination');
+    control.first = 'https://demo.api/hapi/transactions';
+    await control.requestUpdate();
+    await waitUntil(() => !!collectionPage.data, undefined, { timeout: 5000 });
+    await control.requestUpdate();
+    expect(wrapper).to.not.have.attribute('class', 'hidden');
+  });
 
-    expect(button).to.exist;
-    expect(button).to.not.have.attribute('disabled');
+  [undefined, 'details'].forEach(layout => {
+    const layoutLabel = layout ?? 'default';
 
-    expect(overlay).to.exist;
-    expect(overlay).to.have.property('positionTarget', button);
-    expect(overlay).to.have.deep.property('model', {
-      options: control.filters,
-      value: '',
-      lang: control.lang,
-      ns: control.ns,
+    it(`renders a pagination element for collection items in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
+
+      const pagination = await getByTag(control, 'foxy-pagination');
+
+      expect(pagination).to.exist;
+      expect(pagination).to.not.have.attribute('first');
+      expect(pagination).to.have.attribute('infer', 'pagination');
+
+      control.first = 'https://demo.api/virtual/stall';
+      control.limit = 5;
+      await control.requestUpdate();
+
+      expect(pagination).to.have.attribute('first', 'https://demo.api/virtual/stall?limit=5');
     });
 
-    expect(overlay).to.not.have.attribute('opened');
+    it(`renders a collection page under pagination in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
 
-    button?.click();
-    await control.requestUpdate();
-    expect(overlay).to.have.attribute('opened');
+      const pagination = await getByTag(control, 'foxy-pagination');
+      const page = pagination?.querySelector('foxy-collection-page');
 
-    overlay?.dispatchEvent(new CustomEvent('vaadin-overlay-close'));
-    await control.requestUpdate();
-    expect(overlay).to.not.have.attribute('opened');
+      expect(page).to.exist;
+      expect(page).to.have.attribute('infer', 'card');
+      expect(page).to.have.deep.property('related', []);
+      expect(page).to.have.deep.property('props', {});
 
-    overlay?.dispatchEvent(new CustomEvent('search', { detail: 'foo=bar' }));
-    await control.requestUpdate();
-    expect(overlay).to.have.deep.property('model', {
-      options: control.filters,
-      value: 'foo=bar',
-      lang: control.lang,
-      ns: control.ns,
+      control.related = ['https://demo.api/virtual/stall'];
+      await control.requestUpdate();
+      expect(page).to.have.deep.property('related', ['https://demo.api/virtual/stall']);
+
+      control.itemProps = { foo: 'bar' };
+      await control.requestUpdate();
+      expect(page).to.have.deep.property('props', { foo: 'bar' });
     });
-  });
 
-  it('emits "itemclick" event when collection page item is clicked', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control item="foxy-attribute-card" form="foxy-attribute-form">
-      </foxy-internal-async-list-control>
-    `);
+    it(`can render collection page items as simple list items using local name in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
 
-    const pagination = await getByTag(control, 'foxy-pagination');
-    const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
-    const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
+      control.item = 'foxy-attribute-card';
+      const pagination = await getByTag(control, 'foxy-pagination');
+      const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
 
-    const item = await fixture(
-      (page.item as ItemRenderer<any>)({
-        simplifyNsLoading: false,
-        readonlyControls: BooleanSelector.False,
-        disabledControls: BooleanSelector.False,
-        hiddenControls: BooleanSelector.False,
-        templates: {},
-        readonly: false,
-        disabled: false,
-        previous: null,
-        related: ['https://demo.api/virtual/stall?related'],
-        hidden: false,
-        parent: 'https://demo.api/virtual/stall?parent',
-        spread: spread,
-        props: {},
-        group: '',
-        html: html,
-        lang: '',
-        href: 'https://demo.api/virtual/stall?href',
-        data: await getTestData('./hapi/customer_attributes/0'),
-        next: null,
-        ns: '',
-      })
-    );
+      const wrapper = await fixture(
+        (page.item as ItemRenderer<any>)({
+          simplifyNsLoading: false,
+          readonlyControls: BooleanSelector.False,
+          disabledControls: BooleanSelector.False,
+          hiddenControls: BooleanSelector.False,
+          templates: {},
+          readonly: false,
+          disabled: false,
+          previous: null,
+          related: ['https://demo.api/virtual/stall?related'],
+          hidden: false,
+          parent: 'https://demo.api/virtual/stall?parent',
+          spread: spread,
+          props: {},
+          group: '',
+          html: html,
+          lang: '',
+          href: 'https://demo.api/virtual/stall?href',
+          data: null,
+          next: null,
+          ns: '',
+        })
+      );
 
-    const card = item.querySelector('foxy-attribute-card')!;
-    const button = card.closest('button')!;
-    const showMethod = stub(dialog, 'show');
+      const item = wrapper.firstElementChild;
 
-    const whenGotItemClickEvent = oneEvent(control, 'itemclick');
-    button.click();
-    const itemClickEvent = await whenGotItemClickEvent;
+      expect(item).to.have.property('localName', 'foxy-attribute-card');
+      expect(item).to.have.attribute('related', '["https://demo.api/virtual/stall?related"]');
+      expect(item).to.have.attribute('parent', 'https://demo.api/virtual/stall?parent');
+      expect(item).to.have.attribute('infer', '');
+      expect(item).to.have.attribute('href', 'https://demo.api/virtual/stall?href');
+    });
 
-    expect(itemClickEvent).to.be.instanceOf(CustomEvent);
-    expect(itemClickEvent).to.have.property('cancelable', true);
-    expect(itemClickEvent).to.have.property('composed', true);
-    expect(itemClickEvent).to.have.property('bubbles', true);
-    expect(itemClickEvent).to.have.property('detail', 'https://demo.api/virtual/stall?href');
-    expect(showMethod).to.have.been.called;
-  });
+    it(`can render collection page items as simple list items using render function in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
 
-  it('does not show dialog when "itemclick" event is canceled', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control item="foxy-attribute-card" form="foxy-attribute-form">
-      </foxy-internal-async-list-control>
-    `);
+      control.item = () => html`<div data-testclass="item"></div>`;
+      const pagination = await getByTag(control, 'foxy-pagination');
+      const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
 
-    const pagination = await getByTag(control, 'foxy-pagination');
-    const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
-    const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
+      const item = await fixture(
+        (page.item as ItemRenderer<any>)({
+          simplifyNsLoading: false,
+          readonlyControls: BooleanSelector.False,
+          disabledControls: BooleanSelector.False,
+          hiddenControls: BooleanSelector.False,
+          templates: {},
+          readonly: false,
+          disabled: false,
+          previous: null,
+          related: ['https://demo.api/virtual/stall?related'],
+          hidden: false,
+          parent: 'https://demo.api/virtual/stall?parent',
+          spread: spread,
+          props: {},
+          group: '',
+          html: html,
+          lang: '',
+          href: 'https://demo.api/virtual/stall?href',
+          data: null,
+          next: null,
+          ns: '',
+        })
+      );
 
-    const item = await fixture(
-      (page.item as ItemRenderer<any>)({
-        simplifyNsLoading: false,
-        readonlyControls: BooleanSelector.False,
-        disabledControls: BooleanSelector.False,
-        hiddenControls: BooleanSelector.False,
-        templates: {},
-        readonly: false,
-        disabled: false,
-        previous: null,
-        related: ['https://demo.api/virtual/stall?related'],
-        hidden: false,
-        parent: 'https://demo.api/virtual/stall?parent',
-        spread: spread,
-        props: {},
-        group: '',
-        html: html,
-        lang: '',
-        href: 'https://demo.api/virtual/stall?href',
-        data: await getTestData('./hapi/customer_attributes/0'),
-        next: null,
-        ns: '',
-      })
-    );
+      expect(item).to.include.html('<div data-testclass="item"></div>');
+    });
 
-    const card = item.querySelector('foxy-attribute-card')!;
-    const button = card.closest('button')!;
-    const showMethod = stub(dialog, 'show');
+    it(`can render collection page items as links using local name in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
 
-    control.addEventListener('itemclick', evt => evt.preventDefault());
-    button.click();
+      control.getPageHref = href =>
+        `https://demo.api/virtual/stall?href=${encodeURIComponent(href)}`;
+      control.item = 'foxy-attribute-card';
+      const pagination = await getByTag(control, 'foxy-pagination');
+      const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
 
-    expect(showMethod).to.not.have.been.called;
-  });
+      const item = await fixture(
+        (page.item as ItemRenderer<any>)({
+          simplifyNsLoading: false,
+          readonlyControls: BooleanSelector.False,
+          disabledControls: BooleanSelector.False,
+          hiddenControls: BooleanSelector.False,
+          templates: {},
+          readonly: false,
+          disabled: false,
+          previous: null,
+          related: ['https://demo.api/virtual/stall?related'],
+          hidden: false,
+          parent: 'https://demo.api/virtual/stall?parent',
+          spread: spread,
+          props: {},
+          group: '',
+          html: html,
+          lang: '',
+          href: 'https://demo.api/virtual/stall?href',
+          data: await getTestData('./hapi/customer_attributes/0'),
+          next: null,
+          ns: '',
+        })
+      );
 
-  it('renders Select button when "first" and non-empty .bulkActions are defined', async () => {
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control
-        first="https://demo.api/hapi/customer_attributes"
-        item="foxy-attribute-card"
-        form="foxy-attribute-form"
-      >
-      </foxy-internal-async-list-control>
-    `);
+      const card = item.querySelector('foxy-attribute-card')!;
+      const a = card.closest('a')!;
 
-    expect(await getByKey(control, 'select_button_text')).to.not.exist;
+      expect(card).to.have.attribute('related', '["https://demo.api/virtual/stall?related"]');
+      expect(card).to.have.attribute('parent', 'https://demo.api/virtual/stall?parent');
+      expect(card).to.have.attribute('infer', '');
+      expect(card).to.have.attribute('href', 'https://demo.api/virtual/stall?href');
 
-    control.first = 'https://demo.api/hapi/customer_attributes';
-    await control.requestUpdate();
-    expect(await getByKey(control, 'select_button_text')).to.not.exist;
+      expect(a).to.have.attribute(
+        'href',
+        `https://demo.api/virtual/stall?href=${encodeURIComponent(
+          'https://demo.api/virtual/stall?href'
+        )}`
+      );
+    });
 
-    control.bulkActions = [];
-    await control.requestUpdate();
-    expect(await getByKey(control, 'select_button_text')).to.not.exist;
+    it(`can render collection page items as links using render function in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
 
-    control.bulkActions = [{ name: 'foo', onClick: stub() }];
-    await control.requestUpdate();
+      control.getPageHref = href =>
+        `https://demo.api/virtual/stall?href=${encodeURIComponent(href)}`;
+      control.item = () => html`<div data-testclass="item"></div>`;
+      const pagination = await getByTag(control, 'foxy-pagination');
+      const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
 
-    const label = await getByKey(control, 'select_button_text');
-    const button = label?.closest('vaadin-button');
+      const item = await fixture(
+        (page.item as ItemRenderer<any>)({
+          simplifyNsLoading: false,
+          readonlyControls: BooleanSelector.False,
+          disabledControls: BooleanSelector.False,
+          hiddenControls: BooleanSelector.False,
+          templates: {},
+          readonly: false,
+          disabled: false,
+          previous: null,
+          related: ['https://demo.api/virtual/stall?related'],
+          hidden: false,
+          parent: 'https://demo.api/virtual/stall?parent',
+          spread: spread,
+          props: {},
+          group: '',
+          html: html,
+          lang: '',
+          href: 'https://demo.api/virtual/stall?href',
+          data: await getTestData('./hapi/customer_attributes/0'),
+          next: null,
+          ns: '',
+        })
+      );
 
-    expect(label).to.exist;
-    expect(button).to.exist;
-    expect(label).to.have.property('localName', 'foxy-i18n');
-    expect(label).to.have.attribute('infer', 'pagination');
-  });
+      const a = item.querySelector('a')!;
 
-  it('renders Cancel button when selection mode is enabled', async () => {
-    const router = createRouter();
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control
-        first="https://demo.api/hapi/customer_attributes"
-        item="foxy-attribute-card"
-        form="foxy-attribute-form"
-        .bulkActions=${[{ name: 'foo', onClick: stub() }]}
-        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
-      >
-      </foxy-internal-async-list-control>
-    `);
+      expect(a).to.include.html('<div data-testclass="item"></div>');
+      expect(a).to.have.attribute(
+        'href',
+        `https://demo.api/virtual/stall?href=${encodeURIComponent(
+          'https://demo.api/virtual/stall?href'
+        )}`
+      );
+    });
 
-    const page = await getByTag<CollectionPage<any>>(control, 'foxy-collection-page');
-    await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+    it(`can render collection page items as buttons opening a dialog using local name in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
 
-    expect(await getByKey(control, 'select_button_text')).to.exist;
-    expect(await getByKey(control, 'cancel_button_text')).to.not.exist;
+      control.item = 'foxy-attribute-card';
+      control.form = 'foxy-attribute-form';
 
-    (await getByKey(control, 'select_button_text'))?.closest('vaadin-button')?.click();
-    await control.requestUpdate();
+      const pagination = await getByTag(control, 'foxy-pagination');
+      const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
+      const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
 
-    expect(await getByKey(control, 'select_button_text')).to.not.exist;
-    expect(await getByKey(control, 'cancel_button_text')).to.exist;
-  });
+      const item = await fixture(
+        (page.item as ItemRenderer<any>)({
+          simplifyNsLoading: false,
+          readonlyControls: BooleanSelector.False,
+          disabledControls: BooleanSelector.False,
+          hiddenControls: BooleanSelector.False,
+          templates: {},
+          readonly: false,
+          disabled: false,
+          previous: null,
+          related: ['https://demo.api/virtual/stall?related'],
+          hidden: false,
+          parent: 'https://demo.api/virtual/stall?parent',
+          spread: spread,
+          props: {},
+          group: '',
+          html: html,
+          lang: '',
+          href: 'https://demo.api/virtual/stall?href',
+          data: await getTestData('./hapi/customer_attributes/0'),
+          next: null,
+          ns: '',
+        })
+      );
 
-  it('renders bulk actions when selection mode is enabled and at least one item is selected', async () => {
-    const router = createRouter();
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control
-        first="https://demo.api/hapi/customer_attributes"
-        item="foxy-attribute-card"
-        form="foxy-attribute-form"
-        .bulkActions=${[{ name: 'foo', onClick: stub() }]}
-        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
-      >
-      </foxy-internal-async-list-control>
-    `);
+      const card = item.querySelector('foxy-attribute-card')!;
+      const button = card.closest('button')!;
+      const showMethod = stub(dialog, 'show');
 
-    const page = await getByTag<CollectionPage<any>>(control, 'foxy-collection-page');
-    await waitUntil(() => !!page?.data, '', { timeout: 5000 });
-    expect(await getByTestClass(control, 'bulk-action')).to.be.empty;
+      expect(card).to.have.attribute('related', '["https://demo.api/virtual/stall?related"]');
+      expect(card).to.have.attribute('parent', 'https://demo.api/virtual/stall?parent');
+      expect(card).to.have.attribute('infer', '');
+      expect(card).to.have.attribute('href', 'https://demo.api/virtual/stall?href');
 
-    const label = await getByKey(control, 'select_button_text');
-    const button = label?.closest('vaadin-button');
-    button?.click();
-    await control.requestUpdate();
-    const anyCheckbox = await getByTag<CheckboxElement>(control, 'vaadin-checkbox');
-    expect(anyCheckbox).to.exist;
-    expect(await getByTestClass(control, 'bulk-action')).to.have.length(0);
+      button.click();
 
-    anyCheckbox!.checked = true;
-    anyCheckbox!.dispatchEvent(new CustomEvent('change'));
-    await control.requestUpdate();
+      expect(showMethod).to.have.been.called;
+      expect(dialog).to.have.property('header', 'header_update');
+      expect(dialog).to.have.property('href', 'https://demo.api/virtual/stall?href');
+    });
 
-    const bulkActions = await getByTestClass(control, 'bulk-action');
-    expect(bulkActions).to.have.length(1);
+    it(`can render collection page items as buttons opening a dialog using render function  in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control
+          layout=${ifDefined(layout)}
+        ></foxy-internal-async-list-control>
+      `);
 
-    const firstBulkAction = bulkActions[0];
-    const firstBulkActionLabel = firstBulkAction.querySelector('foxy-i18n');
-    expect(firstBulkActionLabel).to.have.attribute('key', 'foo_bulk_action_caption_idle');
-    expect(firstBulkActionLabel).to.have.attribute('infer', 'pagination');
-    expect(firstBulkActionLabel).to.have.deep.property('options', { count: 1 });
-  });
+      control.item = () => html`<div data-testclass="item"></div>`;
+      control.form = 'foxy-attribute-form';
 
-  it('renders collection items inside vaadin-checkbox elements when selection mode is enabled', async () => {
-    const router = createRouter();
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control
-        first="https://demo.api/hapi/customer_attributes"
-        item="foxy-attribute-card"
-        form="foxy-attribute-form"
-        .bulkActions=${[{ name: 'foo', onClick: stub() }]}
-        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
-      >
-      </foxy-internal-async-list-control>
-    `);
+      const pagination = await getByTag(control, 'foxy-pagination');
+      const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
+      const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
 
-    const page = (await getByTag<CollectionPage<any>>(control, 'foxy-collection-page'))!;
-    await waitUntil(() => !!page?.data, '', { timeout: 5000 });
-    expect(await getByTestClass(control, 'vaadin-checkbox')).to.be.empty;
+      const item = await fixture(
+        (page.item as ItemRenderer<any>)({
+          simplifyNsLoading: false,
+          readonlyControls: BooleanSelector.False,
+          disabledControls: BooleanSelector.False,
+          hiddenControls: BooleanSelector.False,
+          templates: {},
+          readonly: false,
+          disabled: false,
+          previous: null,
+          related: ['https://demo.api/virtual/stall?related'],
+          hidden: false,
+          parent: 'https://demo.api/virtual/stall?parent',
+          spread: spread,
+          props: {},
+          group: '',
+          html: html,
+          lang: '',
+          href: 'https://demo.api/virtual/stall?href',
+          data: await getTestData('./hapi/customer_attributes/0'),
+          next: null,
+          ns: '',
+        })
+      );
 
-    const label = await getByKey(control, 'select_button_text');
-    const button = label?.closest('vaadin-button');
-    button?.click();
-    await control.requestUpdate();
+      const button = item.querySelector('button')!;
+      expect(button).to.include.html('<div data-testclass="item"></div>');
 
-    const item = await fixture(
-      (page.item as ItemRenderer<any>)({
-        simplifyNsLoading: false,
-        readonlyControls: BooleanSelector.False,
-        disabledControls: BooleanSelector.False,
-        hiddenControls: BooleanSelector.False,
-        templates: {},
-        readonly: false,
-        disabled: false,
-        previous: null,
-        related: ['https://demo.api/virtual/stall?related'],
-        hidden: false,
-        parent: 'https://demo.api/virtual/stall?parent',
-        spread: spread,
-        props: {},
-        group: '',
-        html: html,
-        lang: '',
-        href: 'https://demo.api/virtual/stall?href',
-        data: await getTestData('./hapi/customer_attributes/0'),
-        next: null,
-        ns: '',
-      })
-    );
+      const showMethod = stub(dialog, 'show');
+      button.click();
 
-    expect(item).to.have.property('localName', 'vaadin-checkbox');
-    expect(item).to.not.have.attribute('checked');
+      expect(showMethod).to.have.been.called;
+      expect(dialog).to.have.property('header', 'header_update');
+      expect(dialog).to.have.property('href', 'https://demo.api/virtual/stall?href');
+    });
 
-    const card = item.querySelector('foxy-attribute-card')!;
+    it(`renders Delete button for collection page items in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
 
-    expect(card).to.have.attribute('related', '["https://demo.api/virtual/stall?related"]');
-    expect(card).to.have.attribute('parent', 'https://demo.api/virtual/stall?parent');
-    expect(card).to.have.attribute('infer', '');
-    expect(card).to.have.attribute('href', 'https://demo.api/virtual/stall?href');
-  });
+      control.item = 'foxy-attribute-card';
+      control.form = 'foxy-attribute-form';
 
-  it('can run a bulk action on selected items', async () => {
-    const onClick = stub();
-    const router = createRouter();
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control
-        first="https://demo.api/hapi/customer_attributes"
-        item="foxy-attribute-card"
-        form="foxy-attribute-form"
-        .bulkActions=${[{ name: 'foo', onClick }]}
-        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
-      >
-      </foxy-internal-async-list-control>
-    `);
+      const pagination = await getByTag(control, 'foxy-pagination');
+      const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
 
-    const page = (await getByTag<CollectionPage<any>>(control, 'foxy-collection-page'))!;
-    await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+      const swipeActions = await fixture(
+        (page.item as ItemRenderer<any>)({
+          simplifyNsLoading: false,
+          readonlyControls: BooleanSelector.False,
+          disabledControls: BooleanSelector.False,
+          hiddenControls: BooleanSelector.False,
+          templates: {},
+          readonly: false,
+          disabled: false,
+          previous: null,
+          related: ['https://demo.api/virtual/stall?related'],
+          hidden: false,
+          parent: 'https://demo.api/virtual/stall?parent',
+          spread: spread,
+          props: {},
+          group: '',
+          html: html,
+          lang: '',
+          href: 'https://demo.api/virtual/stall?href',
+          data: await getTestData('./hapi/customer_attributes/0'),
+          next: null,
+          ns: '',
+        })
+      );
 
-    const label = await getByKey(control, 'select_button_text');
-    const button = label?.closest('vaadin-button');
-    button?.click();
-    await control.requestUpdate();
+      const card = swipeActions.querySelector('foxy-attribute-card') as AttributeCard;
+      const label = swipeActions.querySelector('[key="delete_button_text"]')!;
+      const button = label.closest('vaadin-button')!;
+      const confirm = (await getByTag(
+        control,
+        'foxy-internal-confirm-dialog'
+      )) as InternalConfirmDialog;
 
-    const checkbox = control.renderRoot.querySelector<CheckboxElement>('vaadin-checkbox');
-    checkbox!.checked = true;
-    checkbox!.dispatchEvent(new CustomEvent('change'));
-    await control.requestUpdate();
+      expect(swipeActions).to.have.property('localName', 'foxy-swipe-actions');
+      expect(label).to.have.property('localName', 'foxy-i18n');
+      expect(label).to.have.attribute('infer', '');
+      expect(button).to.have.attribute('slot', 'action');
 
-    const bulkActions = await getByTestClass(control, 'bulk-action');
-    const fooAction = bulkActions[0];
-    fooAction.click();
+      const confirmShowMethod = stub(confirm, 'show');
+      button.click();
 
-    const customerAttribute0 = await getTestData('./hapi/customer_attributes/0');
-    expect(onClick).to.have.been.calledWithMatch([customerAttribute0]);
-  });
+      expect(confirmShowMethod).to.have.been.called;
 
-  it('communicates bulk action state to the user (positive path, no errors)', async () => {
-    let next: (() => void) | null = null;
-    const onClick = () => new Promise<void>(resolve => (next = resolve));
+      const cardDeleteMethod = stub(card, 'delete');
+      confirm.dispatchEvent(new DialogHideEvent());
 
-    const router = createRouter();
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control
-        first="https://demo.api/hapi/customer_attributes"
-        lang="es"
-        item="foxy-attribute-card"
-        form="foxy-attribute-form"
-        ns="test"
-        .bulkActions=${[{ name: 'foo', onClick }]}
-        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
-      >
-      </foxy-internal-async-list-control>
-    `);
+      expect(cardDeleteMethod).to.have.been.called;
+    });
 
-    const page = (await getByTag<CollectionPage<any>>(control, 'foxy-collection-page'))!;
-    await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+    it(`hides Delete button for collection page items if hideDeleteButton is true in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
 
-    const label = await getByKey(control, 'select_button_text');
-    const button = label?.closest('vaadin-button');
-    button?.click();
-    await control.requestUpdate();
+      control.item = 'foxy-attribute-card';
+      control.form = 'foxy-attribute-form';
+      control.hideDeleteButton = true;
 
-    const checkbox = control.renderRoot.querySelector<CheckboxElement>('vaadin-checkbox');
-    checkbox!.checked = true;
-    checkbox!.dispatchEvent(new CustomEvent('change'));
-    await control.requestUpdate();
+      const pagination = await getByTag(control, 'foxy-pagination');
+      const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
 
-    const bulkActions = await getByTestClass(control, 'bulk-action');
-    const fooAction = bulkActions[0];
-    fooAction.click();
-    await control.requestUpdate();
+      const swipeActions = await fixture(
+        (page.item as ItemRenderer<any>)({
+          simplifyNsLoading: false,
+          readonlyControls: BooleanSelector.False,
+          disabledControls: BooleanSelector.False,
+          hiddenControls: BooleanSelector.False,
+          templates: {},
+          readonly: false,
+          disabled: false,
+          previous: null,
+          related: ['https://demo.api/virtual/stall?related'],
+          hidden: false,
+          parent: 'https://demo.api/virtual/stall?parent',
+          spread: spread,
+          props: {},
+          group: '',
+          html: html,
+          lang: '',
+          href: 'https://demo.api/virtual/stall?href',
+          data: await getTestData('./hapi/customer_attributes/0'),
+          next: null,
+          ns: '',
+        })
+      );
 
-    expect(await getByKey(control, 'foo_bulk_action_caption_idle')).to.not.exist;
-    expect(await getByKey(control, 'foo_bulk_action_caption_busy')).to.exist;
-    // @ts-expect-error it's too hard for TS to figure out that `next` is not null at this point
-    next?.();
-    await control.requestUpdate();
-    expect(await getByKey(control, 'foo_bulk_action_caption_idle')).to.not.exist;
-    expect(await getByKey(control, 'foo_bulk_action_caption_busy')).to.not.exist;
-    expect(await getByKey(control, 'cancel_button_text')).to.not.exist;
-    expect(await getByKey(control, 'select_button_text')).to.exist;
-    expect(await getByTestClass(control, 'bulk-action')).to.have.length(0);
+      const selector = 'vaadin-button foxy-i18n[key="delete_button_text"]';
+      expect(swipeActions.querySelector(selector)).to.not.exist;
+    });
 
-    const notification = await getByTag<NotificationElement>(control, 'vaadin-notification');
-    expect(notification).to.have.attribute('theme', 'success');
-    expect(notification).to.have.property('opened', true);
+    it(`hides Delete button for collection page items when readonly in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
 
-    const notificationRoot = document.createElement('div');
-    notification?.renderer?.(notificationRoot);
+      control.item = 'foxy-attribute-card';
+      control.form = 'foxy-attribute-form';
+      control.readonly = true;
 
-    const notificationText = notificationRoot.querySelector('foxy-i18n');
-    expect(notificationText).to.have.attribute('lang', 'es');
-    expect(notificationText).to.have.attribute('key', 'foo_bulk_action_notification_done');
-    expect(notificationText).to.have.attribute('ns', 'test pagination');
-  });
+      const pagination = await getByTag(control, 'foxy-pagination');
+      const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
 
-  it('communicates bulk action state to the user (negative path, failure)', async () => {
-    let next: (() => void) | null = null;
-    const onClick = () => new Promise<void>((_, reject) => (next = reject));
+      const swipeActions = await fixture(
+        (page.item as ItemRenderer<any>)({
+          simplifyNsLoading: false,
+          readonlyControls: BooleanSelector.False,
+          disabledControls: BooleanSelector.False,
+          hiddenControls: BooleanSelector.False,
+          templates: {},
+          readonly: false,
+          disabled: false,
+          previous: null,
+          related: ['https://demo.api/virtual/stall?related'],
+          hidden: false,
+          parent: 'https://demo.api/virtual/stall?parent',
+          spread: spread,
+          props: {},
+          group: '',
+          html: html,
+          lang: '',
+          href: 'https://demo.api/virtual/stall?href',
+          data: await getTestData('./hapi/customer_attributes/0'),
+          next: null,
+          ns: '',
+        })
+      );
 
-    const router = createRouter();
-    const control = await fixture<Control>(html`
-      <foxy-internal-async-list-control
-        first="https://demo.api/hapi/customer_attributes"
-        lang="es"
-        item="foxy-attribute-card"
-        form="foxy-attribute-form"
-        ns="test"
-        .bulkActions=${[{ name: 'foo', onClick }]}
-        @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
-      >
-      </foxy-internal-async-list-control>
-    `);
+      const selector = 'vaadin-button foxy-i18n[key="delete_button_text"]';
+      expect(swipeActions.querySelector(selector)).to.not.exist;
+    });
 
-    const page = (await getByTag<CollectionPage<any>>(control, 'foxy-collection-page'))!;
-    await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+    it(`renders Create button when .form is defined in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
 
-    const label = await getByKey(control, 'select_button_text');
-    const button = label?.closest('vaadin-button');
-    button?.click();
-    await control.requestUpdate();
+      control.item = 'foxy-attribute-card';
+      control.form = 'foxy-attribute-form';
 
-    const checkbox = control.renderRoot.querySelector<CheckboxElement>('vaadin-checkbox');
-    checkbox!.checked = true;
-    checkbox!.dispatchEvent(new CustomEvent('change'));
-    await control.requestUpdate();
+      const label = (await getByKey(control, 'create_button_text'))!;
+      const button = label.closest('vaadin-button')!;
+      const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
 
-    const bulkActions = await getByTestClass(control, 'bulk-action');
-    const fooAction = bulkActions[0];
-    fooAction.click();
-    await control.requestUpdate();
+      expect(label).to.have.property('localName', 'foxy-i18n');
+      expect(label).to.have.attribute('infer', 'pagination');
 
-    expect(await getByKey(control, 'foo_bulk_action_caption_idle')).to.not.exist;
-    expect(await getByKey(control, 'foo_bulk_action_caption_busy')).to.exist;
-    // @ts-expect-error it's too hard for TS to figure out that `next` is not null at this point
-    next?.();
-    await control.requestUpdate();
-    expect(await getByKey(control, 'foo_bulk_action_caption_idle')).to.exist;
-    expect(await getByKey(control, 'foo_bulk_action_caption_busy')).to.not.exist;
-    expect(await getByKey(control, 'cancel_button_text')).to.exist;
-    expect(await getByKey(control, 'select_button_text')).to.not.exist;
-    expect(await getByTestClass(control, 'bulk-action')).to.have.length(1);
+      const dialogShowMethod = stub(dialog, 'show');
+      button.click();
 
-    const notification = await getByTag<NotificationElement>(control, 'vaadin-notification');
-    expect(notification).to.have.attribute('theme', 'error');
-    expect(notification).to.have.property('opened', true);
+      expect(dialogShowMethod).to.have.been.called;
+      expect(dialog).to.have.property('header', 'header_create');
+      expect(dialog).to.have.property('href', '');
+    });
 
-    const notificationRoot = document.createElement('div');
-    notification?.renderer?.(notificationRoot);
+    it(`renders Create link when .createPageHref is defined in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
 
-    const notificationText = notificationRoot.querySelector('foxy-i18n');
-    expect(notificationText).to.have.attribute('lang', 'es');
-    expect(notificationText).to.have.attribute('key', 'foo_bulk_action_notification_fail');
-    expect(notificationText).to.have.attribute('ns', 'test pagination');
+      control.item = 'foxy-attribute-card';
+      control.createPageHref = 'https://example.com';
+
+      const label = (await getByKey(control, 'create_button_text'))!;
+      const a = label.closest('a')!;
+
+      expect(label).to.have.property('localName', 'foxy-i18n');
+      expect(label).to.have.attribute('infer', '');
+      expect(a).to.have.attribute('href', 'https://example.com');
+    });
+
+    it(`hides Create link/button if there's no form in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
+
+      control.item = 'foxy-attribute-card';
+      await control.requestUpdate();
+
+      const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
+      const aSelector = 'a foxy-i18n[key="create_button_text"]';
+
+      expect(control.querySelector(buttonSelector)).to.not.exist;
+      expect(control.querySelector(aSelector)).to.not.exist;
+    });
+
+    it(`hides Create link/button if control is readonly in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
+
+      control.item = 'foxy-attribute-card';
+      control.form = 'foxy-attribute-form';
+      control.readonly = true;
+      await control.requestUpdate();
+
+      const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
+      const aSelector = 'a foxy-i18n[key="create_button_text"]';
+
+      expect(control.querySelector(buttonSelector)).to.not.exist;
+      expect(control.querySelector(aSelector)).to.not.exist;
+    });
+
+    it(`hides Create link/button if hideCreateButton is true in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
+
+      control.item = 'foxy-attribute-card';
+      control.form = 'foxy-attribute-form';
+      control.hideCreateButton = true;
+      await control.requestUpdate();
+
+      const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
+      const aSelector = 'a foxy-i18n[key="create_button_text"]';
+
+      expect(control.querySelector(buttonSelector)).to.not.exist;
+      expect(control.querySelector(aSelector)).to.not.exist;
+    });
+
+    it(`renders error text if available in ${layoutLabel} layout`, async () => {
+      let control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
+
+      expect(control.renderRoot).to.not.include.text('Test error message');
+
+      control = await fixture<Control>(
+        html`<x-test-control-with-error-message></x-test-control-with-error-message>`
+      );
+      expect(control.renderRoot).to.include.text('Test error message');
+    });
+
+    it(`renders actions if configured in ${layoutLabel} layout`, async () => {
+      const router = createRouter();
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control
+          layout=${ifDefined(layout)}
+          first="https://demo.api/hapi/transactions"
+          limit="1"
+          form="foxy-test"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-internal-async-list-control>
+      `);
+
+      await waitUntil(
+        () => !!control.renderRoot.querySelector<CollectionPage<any>>('foxy-collection-page')?.data
+      );
+
+      let actions = await getByTestClass<ButtonElement>(control, 'action');
+      expect(actions).to.be.empty;
+
+      control.actions = [
+        { text: 'action_1', theme: 'primary', state: 'idle', onClick: stub() },
+        { text: 'action_2', theme: 'secondary', state: 'busy', onClick: stub() },
+      ];
+
+      await control.requestUpdate();
+      actions = await getByTestClass<ButtonElement>(control, 'action');
+
+      expect(actions).to.have.length(2);
+
+      expect(actions[0].closest('foxy-swipe-actions')).to.exist;
+      expect(actions[1].closest('foxy-swipe-actions')).to.exist;
+      expect(actions[0].closest('foxy-swipe-actions')).to.equal(
+        actions[1].closest('foxy-swipe-actions')
+      );
+
+      expect(actions[0]).to.have.attribute('theme', 'primary');
+      expect(actions[1]).to.have.attribute('theme', 'secondary');
+
+      actions[0].click();
+      expect(control.actions[0].onClick).to.have.been.calledOnce;
+      expect(control.actions[1].onClick).to.not.have.been.called;
+
+      actions[1].click();
+      expect(control.actions[0].onClick).to.have.been.calledOnce;
+      expect(control.actions[1].onClick).to.have.been.calledOnce;
+
+      const action0Text = actions[0].querySelector('foxy-i18n');
+      expect(action0Text).to.have.attribute('infer', '');
+      expect(action0Text).to.have.attribute('key', 'action_1');
+
+      const action1Text = actions[1].querySelector('foxy-i18n');
+      expect(action1Text).to.have.attribute('infer', '');
+      expect(action1Text).to.have.attribute('key', 'action_2');
+
+      const action0Spinner = actions[0].querySelector('foxy-spinner');
+      expect(action0Spinner).to.have.attribute('infer', 'spinner');
+      expect(action0Spinner).to.have.attribute('state', 'idle');
+
+      const action1Spinner = actions[1].querySelector('foxy-spinner');
+      expect(action1Spinner).to.have.attribute('infer', 'spinner');
+      expect(action1Spinner).to.have.attribute('state', 'busy');
+    });
+
+    it(`renders filters if configured in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control layout=${ifDefined(layout)}>
+        </foxy-internal-async-list-control>
+      `);
+
+      expect(await getByKey(control, 'search_button_text')).to.not.exist;
+
+      control.filters = [
+        {
+          label: 'filter_1',
+          type: Type.Boolean,
+          path: 'foo',
+        },
+      ];
+
+      await control.requestUpdate();
+
+      const buttonLabel = await getByKey(control, 'search_button_text');
+      const button = buttonLabel?.closest('vaadin-button');
+      const overlay = control.renderRoot.querySelector(
+        'foxy-internal-async-list-control-filter-overlay'
+      );
+
+      expect(buttonLabel).to.exist;
+      expect(buttonLabel).to.have.attribute('infer', 'pagination');
+
+      expect(button).to.exist;
+      expect(button).to.not.have.attribute('disabled');
+
+      expect(overlay).to.exist;
+      expect(overlay).to.have.property('positionTarget', button);
+      expect(overlay).to.have.deep.property('model', {
+        options: control.filters,
+        value: '',
+        lang: control.lang,
+        ns: control.ns,
+      });
+
+      expect(overlay).to.not.have.attribute('opened');
+
+      button?.click();
+      await control.requestUpdate();
+      expect(overlay).to.have.attribute('opened');
+
+      overlay?.dispatchEvent(new CustomEvent('vaadin-overlay-close'));
+      await control.requestUpdate();
+      expect(overlay).to.not.have.attribute('opened');
+
+      overlay?.dispatchEvent(new CustomEvent('search', { detail: 'foo=bar' }));
+      await control.requestUpdate();
+      expect(overlay).to.have.deep.property('model', {
+        options: control.filters,
+        value: 'foo=bar',
+        lang: control.lang,
+        ns: control.ns,
+      });
+    });
+
+    it(`emits "itemclick" event when collection page item is clicked in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control
+          layout=${ifDefined(layout)}
+          item="foxy-attribute-card"
+          form="foxy-attribute-form"
+        >
+        </foxy-internal-async-list-control>
+      `);
+
+      const pagination = await getByTag(control, 'foxy-pagination');
+      const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
+      const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
+
+      const item = await fixture(
+        (page.item as ItemRenderer<any>)({
+          simplifyNsLoading: false,
+          readonlyControls: BooleanSelector.False,
+          disabledControls: BooleanSelector.False,
+          hiddenControls: BooleanSelector.False,
+          templates: {},
+          readonly: false,
+          disabled: false,
+          previous: null,
+          related: ['https://demo.api/virtual/stall?related'],
+          hidden: false,
+          parent: 'https://demo.api/virtual/stall?parent',
+          spread: spread,
+          props: {},
+          group: '',
+          html: html,
+          lang: '',
+          href: 'https://demo.api/virtual/stall?href',
+          data: await getTestData('./hapi/customer_attributes/0'),
+          next: null,
+          ns: '',
+        })
+      );
+
+      const card = item.querySelector('foxy-attribute-card')!;
+      const button = card.closest('button')!;
+      const showMethod = stub(dialog, 'show');
+
+      const whenGotItemClickEvent = oneEvent(control, 'itemclick');
+      button.click();
+      const itemClickEvent = await whenGotItemClickEvent;
+
+      expect(itemClickEvent).to.be.instanceOf(CustomEvent);
+      expect(itemClickEvent).to.have.property('cancelable', true);
+      expect(itemClickEvent).to.have.property('composed', true);
+      expect(itemClickEvent).to.have.property('bubbles', true);
+      expect(itemClickEvent).to.have.property('detail', 'https://demo.api/virtual/stall?href');
+      expect(showMethod).to.have.been.called;
+    });
+
+    it(`does not show dialog when "itemclick" event is canceled in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control
+          layout=${ifDefined(layout)}
+          item="foxy-attribute-card"
+          form="foxy-attribute-form"
+        >
+        </foxy-internal-async-list-control>
+      `);
+
+      const pagination = await getByTag(control, 'foxy-pagination');
+      const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
+      const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
+
+      const item = await fixture(
+        (page.item as ItemRenderer<any>)({
+          simplifyNsLoading: false,
+          readonlyControls: BooleanSelector.False,
+          disabledControls: BooleanSelector.False,
+          hiddenControls: BooleanSelector.False,
+          templates: {},
+          readonly: false,
+          disabled: false,
+          previous: null,
+          related: ['https://demo.api/virtual/stall?related'],
+          hidden: false,
+          parent: 'https://demo.api/virtual/stall?parent',
+          spread: spread,
+          props: {},
+          group: '',
+          html: html,
+          lang: '',
+          href: 'https://demo.api/virtual/stall?href',
+          data: await getTestData('./hapi/customer_attributes/0'),
+          next: null,
+          ns: '',
+        })
+      );
+
+      const card = item.querySelector('foxy-attribute-card')!;
+      const button = card.closest('button')!;
+      const showMethod = stub(dialog, 'show');
+
+      control.addEventListener('itemclick', evt => evt.preventDefault());
+      button.click();
+
+      expect(showMethod).to.not.have.been.called;
+    });
+
+    it(`renders Select button when "first" and non-empty .bulkActions are defined in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control
+          layout=${ifDefined(layout)}
+          first="https://demo.api/hapi/customer_attributes"
+          item="foxy-attribute-card"
+          form="foxy-attribute-form"
+        >
+        </foxy-internal-async-list-control>
+      `);
+
+      expect(await getByKey(control, 'select_button_text')).to.not.exist;
+
+      control.first = 'https://demo.api/hapi/customer_attributes';
+      await control.requestUpdate();
+      expect(await getByKey(control, 'select_button_text')).to.not.exist;
+
+      control.bulkActions = [];
+      await control.requestUpdate();
+      expect(await getByKey(control, 'select_button_text')).to.not.exist;
+
+      control.bulkActions = [{ name: 'foo', onClick: stub() }];
+      await control.requestUpdate();
+
+      const label = await getByKey(control, 'select_button_text');
+      const button = label?.closest('vaadin-button');
+
+      expect(label).to.exist;
+      expect(button).to.exist;
+      expect(label).to.have.property('localName', 'foxy-i18n');
+      expect(label).to.have.attribute('infer', 'pagination');
+    });
+
+    it(`renders Cancel button when selection mode is enabled in ${layoutLabel} layout`, async () => {
+      const router = createRouter();
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control
+          layout=${ifDefined(layout)}
+          first="https://demo.api/hapi/customer_attributes"
+          item="foxy-attribute-card"
+          form="foxy-attribute-form"
+          .bulkActions=${[{ name: 'foo', onClick: stub() }]}
+          @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+        >
+        </foxy-internal-async-list-control>
+      `);
+
+      const page = await getByTag<CollectionPage<any>>(control, 'foxy-collection-page');
+      await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+
+      expect(await getByKey(control, 'select_button_text')).to.exist;
+      expect(await getByKey(control, 'cancel_button_text')).to.not.exist;
+
+      (await getByKey(control, 'select_button_text'))?.closest('vaadin-button')?.click();
+      await control.requestUpdate();
+
+      expect(await getByKey(control, 'select_button_text')).to.not.exist;
+      expect(await getByKey(control, 'cancel_button_text')).to.exist;
+    });
+
+    it(`renders bulk actions when selection mode is enabled and at least one item is selected in ${layoutLabel} layout`, async () => {
+      const router = createRouter();
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control
+          layout=${ifDefined(layout)}
+          first="https://demo.api/hapi/customer_attributes"
+          item="foxy-attribute-card"
+          form="foxy-attribute-form"
+          .bulkActions=${[{ name: 'foo', onClick: stub() }]}
+          @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+        >
+        </foxy-internal-async-list-control>
+      `);
+
+      const page = await getByTag<CollectionPage<any>>(control, 'foxy-collection-page');
+      await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+      expect(await getByTestClass(control, 'bulk-action')).to.be.empty;
+
+      const label = await getByKey(control, 'select_button_text');
+      const button = label?.closest('vaadin-button');
+      button?.click();
+      await control.requestUpdate();
+      const anyCheckbox = await getByTag<CheckboxElement>(control, 'vaadin-checkbox');
+      expect(anyCheckbox).to.exist;
+      expect(await getByTestClass(control, 'bulk-action')).to.have.length(0);
+
+      anyCheckbox!.checked = true;
+      anyCheckbox!.dispatchEvent(new CustomEvent('change'));
+      await control.requestUpdate();
+
+      const bulkActions = await getByTestClass(control, 'bulk-action');
+      expect(bulkActions).to.have.length(1);
+
+      const firstBulkAction = bulkActions[0];
+      const firstBulkActionLabel = firstBulkAction.querySelector('foxy-i18n');
+      expect(firstBulkActionLabel).to.have.attribute('key', 'foo_bulk_action_caption_idle');
+      expect(firstBulkActionLabel).to.have.attribute('infer', 'pagination');
+      expect(firstBulkActionLabel).to.have.deep.property('options', { count: 1 });
+    });
+
+    it(`renders collection items inside vaadin-checkbox elements when selection mode is enabled in ${layoutLabel} layout`, async () => {
+      const router = createRouter();
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control
+          layout=${ifDefined(layout)}
+          first="https://demo.api/hapi/customer_attributes"
+          item="foxy-attribute-card"
+          form="foxy-attribute-form"
+          .bulkActions=${[{ name: 'foo', onClick: stub() }]}
+          @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+        >
+        </foxy-internal-async-list-control>
+      `);
+
+      const page = (await getByTag<CollectionPage<any>>(control, 'foxy-collection-page'))!;
+      await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+      expect(await getByTestClass(control, 'vaadin-checkbox')).to.be.empty;
+
+      const label = await getByKey(control, 'select_button_text');
+      const button = label?.closest('vaadin-button');
+      button?.click();
+      await control.requestUpdate();
+
+      const item = await fixture(
+        (page.item as ItemRenderer<any>)({
+          simplifyNsLoading: false,
+          readonlyControls: BooleanSelector.False,
+          disabledControls: BooleanSelector.False,
+          hiddenControls: BooleanSelector.False,
+          templates: {},
+          readonly: false,
+          disabled: false,
+          previous: null,
+          related: ['https://demo.api/virtual/stall?related'],
+          hidden: false,
+          parent: 'https://demo.api/virtual/stall?parent',
+          spread: spread,
+          props: {},
+          group: '',
+          html: html,
+          lang: '',
+          href: 'https://demo.api/virtual/stall?href',
+          data: await getTestData('./hapi/customer_attributes/0'),
+          next: null,
+          ns: '',
+        })
+      );
+
+      expect(item).to.have.property('localName', 'vaadin-checkbox');
+      expect(item).to.not.have.attribute('checked');
+
+      const card = item.querySelector('foxy-attribute-card')!;
+
+      expect(card).to.have.attribute('related', '["https://demo.api/virtual/stall?related"]');
+      expect(card).to.have.attribute('parent', 'https://demo.api/virtual/stall?parent');
+      expect(card).to.have.attribute('infer', '');
+      expect(card).to.have.attribute('href', 'https://demo.api/virtual/stall?href');
+    });
+
+    it(`can run a bulk action on selected items in ${layoutLabel} layout`, async () => {
+      const onClick = stub();
+      const router = createRouter();
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control
+          layout=${ifDefined(layout)}
+          first="https://demo.api/hapi/customer_attributes"
+          item="foxy-attribute-card"
+          form="foxy-attribute-form"
+          .bulkActions=${[{ name: 'foo', onClick }]}
+          @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+        >
+        </foxy-internal-async-list-control>
+      `);
+
+      const page = (await getByTag<CollectionPage<any>>(control, 'foxy-collection-page'))!;
+      await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+
+      const label = await getByKey(control, 'select_button_text');
+      const button = label?.closest('vaadin-button');
+      button?.click();
+      await control.requestUpdate();
+
+      const checkbox = control.renderRoot.querySelector<CheckboxElement>('vaadin-checkbox');
+      checkbox!.checked = true;
+      checkbox!.dispatchEvent(new CustomEvent('change'));
+      await control.requestUpdate();
+
+      const bulkActions = await getByTestClass(control, 'bulk-action');
+      const fooAction = bulkActions[0];
+      fooAction.click();
+
+      const customerAttribute0 = await getTestData('./hapi/customer_attributes/0');
+      expect(onClick).to.have.been.calledWithMatch([customerAttribute0]);
+    });
+
+    it(`communicates bulk action state to the user (positive path, no errors) in ${layoutLabel} layout`, async () => {
+      let next: (() => void) | null = null;
+      const onClick = () => new Promise<void>(resolve => (next = resolve));
+
+      const router = createRouter();
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control
+          layout=${ifDefined(layout)}
+          first="https://demo.api/hapi/customer_attributes"
+          lang="es"
+          item="foxy-attribute-card"
+          form="foxy-attribute-form"
+          ns="test"
+          .bulkActions=${[{ name: 'foo', onClick }]}
+          @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+        >
+        </foxy-internal-async-list-control>
+      `);
+
+      const page = (await getByTag<CollectionPage<any>>(control, 'foxy-collection-page'))!;
+      await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+
+      const label = await getByKey(control, 'select_button_text');
+      const button = label?.closest('vaadin-button');
+      button?.click();
+      await control.requestUpdate();
+
+      const checkbox = control.renderRoot.querySelector<CheckboxElement>('vaadin-checkbox');
+      checkbox!.checked = true;
+      checkbox!.dispatchEvent(new CustomEvent('change'));
+      await control.requestUpdate();
+
+      const bulkActions = await getByTestClass(control, 'bulk-action');
+      const fooAction = bulkActions[0];
+      fooAction.click();
+      await control.requestUpdate();
+
+      expect(await getByKey(control, 'foo_bulk_action_caption_idle')).to.not.exist;
+      expect(await getByKey(control, 'foo_bulk_action_caption_busy')).to.exist;
+      // @ts-expect-error it's too hard for TS to figure out that `next` is not null at this point
+      next?.();
+      await control.requestUpdate();
+      expect(await getByKey(control, 'foo_bulk_action_caption_idle')).to.not.exist;
+      expect(await getByKey(control, 'foo_bulk_action_caption_busy')).to.not.exist;
+      expect(await getByKey(control, 'cancel_button_text')).to.not.exist;
+      expect(await getByKey(control, 'select_button_text')).to.exist;
+      expect(await getByTestClass(control, 'bulk-action')).to.have.length(0);
+
+      const notification = await getByTag<NotificationElement>(control, 'vaadin-notification');
+      expect(notification).to.have.attribute('theme', 'success');
+      expect(notification).to.have.property('opened', true);
+
+      const notificationRoot = document.createElement('div');
+      notification?.renderer?.(notificationRoot);
+
+      const notificationText = notificationRoot.querySelector('foxy-i18n');
+      expect(notificationText).to.have.attribute('lang', 'es');
+      expect(notificationText).to.have.attribute('key', 'foo_bulk_action_notification_done');
+      expect(notificationText).to.have.attribute('ns', 'test pagination');
+    });
+
+    it(`communicates bulk action state to the user (negative path, failure) in ${layoutLabel} layout`, async () => {
+      let next: (() => void) | null = null;
+      const onClick = () => new Promise<void>((_, reject) => (next = reject));
+
+      const router = createRouter();
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control
+          layout=${ifDefined(layout)}
+          first="https://demo.api/hapi/customer_attributes"
+          lang="es"
+          item="foxy-attribute-card"
+          form="foxy-attribute-form"
+          ns="test"
+          .bulkActions=${[{ name: 'foo', onClick }]}
+          @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+        >
+        </foxy-internal-async-list-control>
+      `);
+
+      const page = (await getByTag<CollectionPage<any>>(control, 'foxy-collection-page'))!;
+      await waitUntil(() => !!page?.data, '', { timeout: 5000 });
+
+      const label = await getByKey(control, 'select_button_text');
+      const button = label?.closest('vaadin-button');
+      button?.click();
+      await control.requestUpdate();
+
+      const checkbox = control.renderRoot.querySelector<CheckboxElement>('vaadin-checkbox');
+      checkbox!.checked = true;
+      checkbox!.dispatchEvent(new CustomEvent('change'));
+      await control.requestUpdate();
+
+      const bulkActions = await getByTestClass(control, 'bulk-action');
+      const fooAction = bulkActions[0];
+      fooAction.click();
+      await control.requestUpdate();
+
+      expect(await getByKey(control, 'foo_bulk_action_caption_idle')).to.not.exist;
+      expect(await getByKey(control, 'foo_bulk_action_caption_busy')).to.exist;
+      // @ts-expect-error it's too hard for TS to figure out that `next` is not null at this point
+      next?.();
+      await control.requestUpdate();
+      expect(await getByKey(control, 'foo_bulk_action_caption_idle')).to.exist;
+      expect(await getByKey(control, 'foo_bulk_action_caption_busy')).to.not.exist;
+      expect(await getByKey(control, 'cancel_button_text')).to.exist;
+      expect(await getByKey(control, 'select_button_text')).to.not.exist;
+      expect(await getByTestClass(control, 'bulk-action')).to.have.length(1);
+
+      const notification = await getByTag<NotificationElement>(control, 'vaadin-notification');
+      expect(notification).to.have.attribute('theme', 'error');
+      expect(notification).to.have.property('opened', true);
+
+      const notificationRoot = document.createElement('div');
+      notification?.renderer?.(notificationRoot);
+
+      const notificationText = notificationRoot.querySelector('foxy-i18n');
+      expect(notificationText).to.have.attribute('lang', 'es');
+      expect(notificationText).to.have.attribute('key', 'foo_bulk_action_notification_fail');
+      expect(notificationText).to.have.attribute('ns', 'test pagination');
+    });
   });
 });
