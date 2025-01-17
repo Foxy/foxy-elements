@@ -46,8 +46,14 @@ export class InternalUserInvitationFormAsyncAction extends InternalControl {
       const api = new NucleonElement.API(this);
       const response = await api.fetch(this.href ?? '', { method: 'POST' });
 
-      this.__state = response.ok ? 'idle' : 'fail';
-      if (response.ok) this.nucleon?.refresh();
+      if (response.ok) {
+        // if we refresh right away, sometimes we get an old response from cache
+        await new Promise<void>(resolve => setTimeout(resolve, 1000));
+        this.nucleon?.refresh();
+        this.__state = 'idle';
+      } else {
+        this.__state = 'fail';
+      }
     } catch {
       this.__state = 'fail';
     }
