@@ -192,11 +192,11 @@ export class InternalResourcePickerControl extends InternalEditableControl {
       <div class="block group">
         <div
           class=${classMap({
-            'flex items-center gap-m transition-colors font-medium text-l': true,
+            'flex items-center gap-s transition-colors font-medium': true,
             'text-disabled': this.disabled,
           })}
         >
-          <span class="mr-auto">${this.label}</span>
+          <span class="mr-auto text-l">${this.label}</span>
           ${selectionUrl
             ? html`
                 <a
