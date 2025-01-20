@@ -680,7 +680,7 @@ describe('ItemCategoryForm', () => {
     expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.deep.property('options', [
       { label: 'option_per_order', value: 'per_order' },
-      { label: 'option_per_shipment', value: 'per_shipment' },
+      { label: 'option_per_item', value: 'per_item' },
     ]);
   });
 
