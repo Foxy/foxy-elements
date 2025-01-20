@@ -123,10 +123,12 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
           .generatorOptions=${this.__encryptionKeyGeneratorOptions}
         >
         </foxy-internal-password-control>
-      </foxy-internal-summary-control>
 
-      <foxy-internal-source-control infer="query"></foxy-internal-source-control>
-      <foxy-internal-source-control infer="url"></foxy-internal-source-control>
+        <foxy-internal-text-control layout="summary-item" infer="query">
+        </foxy-internal-text-control>
+
+        <foxy-internal-text-control layout="summary-item" infer="url"></foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
       <foxy-internal-async-list-control
         first=${ifDefined(statusesLink)}

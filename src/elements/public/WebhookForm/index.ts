@@ -2,7 +2,6 @@ import '../../internal/InternalAsyncListControl/index';
 import '../../internal/InternalPasswordControl/index';
 import '../../internal/InternalSummaryControl/index';
 import '../../internal/InternalSelectControl/index';
-import '../../internal/InternalSourceControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 
