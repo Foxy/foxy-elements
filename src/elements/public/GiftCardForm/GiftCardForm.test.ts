@@ -128,6 +128,13 @@ describe('GiftCardForm', () => {
     );
   });
 
+  it('has a reactive property "codesFilter"', () => {
+    expect(new GiftCardForm()).to.have.property('codesFilter', null);
+    expect(GiftCardForm).to.have.deep.nested.property('properties.codesFilter', {
+      attribute: 'codes-filter',
+    });
+  });
+
   it('extends foxy-internal-form', () => {
     expect(new GiftCardForm()).to.be.instanceOf(customElements.get('foxy-internal-form'));
   });
@@ -429,7 +436,11 @@ describe('GiftCardForm', () => {
     const writeTextMethod = stub(navigator.clipboard, 'writeText').resolves();
 
     const element = await fixture<GiftCardForm>(html`
-      <foxy-gift-card-form .data=${await getTestData('./hapi/gift_cards/0')}> </foxy-gift-card-form>
+      <foxy-gift-card-form
+        codes-filter="code=abc123"
+        .data=${await getTestData('./hapi/gift_cards/0')}
+      >
+      </foxy-gift-card-form>
     `);
 
     const control = element.renderRoot.querySelector(
@@ -442,6 +453,7 @@ describe('GiftCardForm', () => {
       'https://demo.api/hapi/gift_card_codes?gift_card_id=0&order=date_created+desc'
     );
 
+    expect(control).to.have.attribute('filter', 'code=abc123');
     expect(control).to.have.attribute('limit', '5');
     expect(control).to.have.attribute('item', 'foxy-gift-card-code-card');
     expect(control).to.have.attribute('form', 'foxy-gift-card-code-form');

@@ -33,6 +33,7 @@ export class GiftCardForm extends Base<Data> {
       ...super.properties,
       getTransactionPageHref: { attribute: false },
       getCustomerHref: { attribute: false },
+      codesFilter: { attribute: 'codes-filter' },
     };
   }
 
@@ -73,6 +74,9 @@ export class GiftCardForm extends Base<Data> {
   getCustomerHref: (id: number | string) => string = id => {
     return `https://api.foxycart.com/customers/${id}`;
   };
+
+  /** When set, will apply as default filter in Codes section. */
+  codesFilter: string | null = null;
 
   private readonly __provisioningMaxBalanceValueGetter = () => {
     return this.form.provisioning_config?.initial_balance_max;
@@ -295,6 +299,7 @@ export class GiftCardForm extends Base<Data> {
       </foxy-internal-summary-control>
 
       <foxy-internal-async-list-control
+        filter=${ifDefined(this.codesFilter ?? void 0)}
         first=${codesUrl}
         limit="5"
         infer="codes"
