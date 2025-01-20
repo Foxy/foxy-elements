@@ -42,7 +42,7 @@ export class InternalResourcePickerControl extends InternalEditableControl {
 
   virtualHost = uniqueId('internal-resource-picker-control-');
 
-  getItemUrl: ((href: string) => string) | null = null;
+  getItemUrl: ((href: string, data: unknown | null) => string) | null = null;
 
   formProps: Record<string, unknown> = {};
 
@@ -185,8 +185,12 @@ export class InternalResourcePickerControl extends InternalEditableControl {
   }
 
   private __renderStandaloneLayout() {
-    const selectionUrl = typeof this._value === 'string' ? this.getItemUrl?.(this._value) : void 0;
+    const valueLoader = this.__valueLoader;
     const selectionId = typeof this._value === 'string' ? getResourceId(this._value) : void 0;
+    const selectionUrl =
+      typeof this._value === 'string'
+        ? this.getItemUrl?.(this._value, valueLoader?.data ?? null)
+        : void 0;
 
     return html`
       <div class="block group">
@@ -252,28 +256,36 @@ export class InternalResourcePickerControl extends InternalEditableControl {
           }}
         >
           <div class=${classMap({ 'transition-opacity': true, 'opacity-50': this.disabled })}>
-            ${this.__getItemRenderer(this.item)({
-              html,
-              data: null,
-              href: (this._value as string | undefined) || '',
-              related: [],
-              parent: '',
-              props: {},
-              spread: spread,
-              simplifyNsLoading: this.simplifyNsLoading,
-              disabled: this.disabled,
-              disabledControls: this.disabledControls,
-              readonly: this.readonly,
-              readonlyControls: this.readonlyControls,
-              hidden: this.hidden,
-              hiddenControls: this.hiddenControls,
-              templates: this.templates,
-              previous: null,
-              next: null,
-              group: this.nucleon?.group ?? '',
-              lang: this.lang,
-              ns: this.ns,
-            })}
+            <foxy-nucleon
+              class="block"
+              infer=""
+              href=${ifDefined(this._value || void 0)}
+              id="valueLoader"
+              @update=${() => this.requestUpdate()}
+            >
+              ${this.__getItemRenderer(this.item)({
+                html,
+                data: valueLoader?.data ?? null,
+                href: (this._value as string | undefined) || '',
+                related: [],
+                parent: '',
+                props: {},
+                spread: spread,
+                simplifyNsLoading: this.simplifyNsLoading,
+                disabled: this.disabled,
+                disabledControls: this.disabledControls,
+                readonly: this.readonly,
+                readonlyControls: this.readonlyControls,
+                hidden: this.hidden,
+                hiddenControls: this.hiddenControls,
+                templates: this.templates,
+                previous: null,
+                next: null,
+                group: this.nucleon?.group ?? '',
+                lang: this.lang,
+                ns: this.ns,
+              })}
+            </foxy-nucleon>
           </div>
         </button>
 
@@ -320,5 +332,10 @@ export class InternalResourcePickerControl extends InternalEditableControl {
         message: 'Resource selected.',
       })
     );
+  }
+
+  private get __valueLoader() {
+    type Loader = NucleonElement<any>;
+    return this.renderRoot.querySelector<Loader>('#valueLoader');
   }
 }
