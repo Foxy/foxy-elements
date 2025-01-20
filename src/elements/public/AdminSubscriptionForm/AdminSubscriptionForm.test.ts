@@ -193,6 +193,7 @@ describe('AdminSubscriptionForm', () => {
 
     expect(control?.localName).to.equal('foxy-internal-date-control');
     expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('format', 'iso-long');
   });
 
   it('renders frequency control inside of the general summary control', async () => {
@@ -232,6 +233,7 @@ describe('AdminSubscriptionForm', () => {
 
     expect(control?.localName).to.equal('foxy-internal-date-control');
     expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('format', 'iso-long');
   });
 
   it('renders date control for end date inside of the general summary control', async () => {
@@ -251,6 +253,7 @@ describe('AdminSubscriptionForm', () => {
 
     expect(control?.localName).to.equal('foxy-internal-date-control');
     expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('format', 'iso-long');
   });
 
   it('renders summary control with overdue information', async () => {
