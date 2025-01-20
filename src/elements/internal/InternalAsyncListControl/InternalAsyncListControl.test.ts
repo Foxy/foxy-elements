@@ -240,6 +240,11 @@ describe('InternalAsyncListControl', () => {
     expect(Control).to.have.deep.nested.property('properties.filters', { type: Array });
   });
 
+  it('has a reactive property "filter"', () => {
+    expect(new Control()).to.have.deep.property('filter', null);
+    expect(Control).to.have.deep.nested.property('properties.filter', {});
+  });
+
   it('renders a form dialog if "form" is specified', async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-async-list-control></foxy-internal-async-list-control>
@@ -1099,6 +1104,28 @@ describe('InternalAsyncListControl', () => {
       expect(overlay).to.have.deep.property('model', {
         options: control.filters,
         value: 'foo=bar',
+        lang: control.lang,
+        ns: control.ns,
+      });
+    });
+
+    it(`sets default filter if configured in ${layoutLabel} layout`, async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control
+          layout=${ifDefined(layout)}
+          filter="foo=bar&baz=qux"
+          .filters=${[{ label: 'filter_1', type: Type.Boolean, path: 'foo' }]}
+        >
+        </foxy-internal-async-list-control>
+      `);
+
+      const overlay = control.renderRoot.querySelector(
+        'foxy-internal-async-list-control-filter-overlay'
+      );
+
+      expect(overlay).to.have.deep.property('model', {
+        options: control.filters,
+        value: 'foo=bar&baz=qux',
         lang: control.lang,
         ns: control.ns,
       });

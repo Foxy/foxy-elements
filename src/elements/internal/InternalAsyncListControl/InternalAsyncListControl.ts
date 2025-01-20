@@ -42,7 +42,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
       actions: { attribute: false },
       bulkActions: { attribute: false },
       filters: { type: Array },
-      __filter: { attribute: false },
+      filter: {},
       __selection: { attribute: false },
       __totalItems: { attribute: false },
       __isSelecting: { attribute: false },
@@ -114,6 +114,8 @@ export class InternalAsyncListControl extends InternalEditableControl {
 
   /** If set, renders list items as <a> tags. */
   getPageHref: ((itemHref: string, item: unknown) => string | null) | null = null;
+
+  filter: string | null = null;
 
   private __deletionConfimationCallback: (() => void) | null = null;
 
@@ -275,8 +277,6 @@ export class InternalAsyncListControl extends InternalEditableControl {
       </foxy-swipe-actions>
     `;
   };
-
-  private __filter = '';
 
   render(): TemplateResult {
     const hidden = this.hideWhenEmpty && !this.__totalItems;
@@ -447,14 +447,14 @@ export class InternalAsyncListControl extends InternalEditableControl {
               .positionTarget=${this.renderRoot.querySelector('#filters')}
               .model=${{
                 options: this.filters,
-                value: this.__filter,
+                value: this.filter ?? '',
                 lang: this.lang,
                 ns: this.ns,
               }}
               ?opened=${this.__isFilterVisible}
               @vaadin-overlay-close=${() => (this.__isFilterVisible = false)}
               @search=${(evt: CustomEvent<string | undefined>) => {
-                this.__filter = evt.detail ?? '';
+                this.filter = evt.detail ?? '';
               }}
             >
             </foxy-internal-async-list-control-filter-overlay>
@@ -466,6 +466,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
               @click=${() => (this.__isFilterVisible = !this.__isFilterVisible)}
             >
               <foxy-i18n infer="pagination" key="search_button_text"></foxy-i18n>
+              ${this.filter ? html`<span>(${this.filter.split('&').length})</span>` : ''}
             </vaadin-button>
           `
         : '',
@@ -576,7 +577,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
 
     try {
       const url = new URL(this.first ?? '');
-      const filter = new URLSearchParams(this.__filter);
+      const filter = new URLSearchParams(this.filter ?? '');
 
       url.searchParams.set('limit', String(this.limit));
       filter.forEach((value, key) => url.searchParams.set(key, value));
