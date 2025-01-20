@@ -110,6 +110,13 @@ describe('GiftCardForm', () => {
     expect(new GiftCardForm()).to.have.property('ns', 'gift-card-form');
   });
 
+  it('has a reactive property "getTransactionPageHref"', () => {
+    expect(new GiftCardForm()).to.have.property('getTransactionPageHref', null);
+    expect(GiftCardForm).to.have.deep.nested.property('properties.getTransactionPageHref', {
+      attribute: false,
+    });
+  });
+
   it('has a reactive property "getCustomerHref"', () => {
     expect(GiftCardForm).to.have.deep.nested.property('properties.getCustomerHref', {
       attribute: false,
@@ -440,6 +447,7 @@ describe('GiftCardForm', () => {
     expect(control).to.have.attribute('form', 'foxy-gift-card-code-form');
     expect(control).to.have.attribute('alert');
     expect(control).to.have.deep.property('formProps', {
+      '.getTransactionPageHref': element.getTransactionPageHref,
       '.getCustomerHref': element.getCustomerHref,
     });
 

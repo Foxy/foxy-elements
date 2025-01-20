@@ -1,4 +1,5 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { TransactionPageHrefGetter } from '../GiftCardCodeForm/types';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { SwipeAction } from '../../internal/InternalAsyncListControl/types';
 import type { NucleonV8N } from '../NucleonElement/types';
@@ -30,6 +31,7 @@ export class GiftCardForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      getTransactionPageHref: { attribute: false },
       getCustomerHref: { attribute: false },
     };
   }
@@ -63,6 +65,9 @@ export class GiftCardForm extends Base<Data> {
       },
     ];
   }
+
+  /** When set, the Cart Item section in Gift Card Code form will display a link to transaction. */
+  getTransactionPageHref: TransactionPageHrefGetter | null = null;
 
   /** Returns a `fx:customer` Resource URL for a Customer ID. */
   getCustomerHref: (id: number | string) => string = id => {
@@ -296,9 +301,12 @@ export class GiftCardForm extends Base<Data> {
         item="foxy-gift-card-code-card"
         form="foxy-gift-card-code-form"
         alert
-        .formProps=${{ '.getCustomerHref': this.getCustomerHref }}
         .actions=${this.__codesActions}
         .filters=${this.__codesFilters}
+        .formProps=${{
+          '.getTransactionPageHref': this.getTransactionPageHref,
+          '.getCustomerHref': this.getCustomerHref,
+        }}
       >
       </foxy-internal-async-list-control>
 
