@@ -29,7 +29,7 @@
                 "search": "Search",
                 "clear": "Clear",
                 "pagination": {
-                  "search_button_text": "Search",
+                  "search_button_text": "Filters",
                   "first": "First",
                   "last": "Last",
                   "next": "Next",
@@ -388,7 +388,7 @@
                       "search": "Search",
                       "clear": "Clear",
                       "pagination": {
-                        "search_button_text": "Search",
+                        "search_button_text": "Filters",
                         "first": "First",
                         "last": "Last",
                         "next": "Next",
@@ -478,7 +478,7 @@
           "label": "Template sets",
           "helper_text": "",
           "pagination": {
-            "search_button_text": "Search",
+            "search_button_text": "Filters",
             "first": "First",
             "last": "Last",
             "next": "Next",
