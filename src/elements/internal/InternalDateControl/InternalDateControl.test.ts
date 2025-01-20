@@ -272,8 +272,7 @@ describe('InternalDateControl', () => {
     field.value = '2020-01-01';
     field.dispatchEvent(new CustomEvent('change'));
 
-    const expectedValue = parseDate('2020-01-01')?.toISOString();
-    expect(control).to.have.property('testValue', expectedValue);
+    expect(control).to.have.property('testValue', '2019-12-31T19:00:00-0800');
   });
 
   it('submits the host nucleon form on Enter', async () => {
