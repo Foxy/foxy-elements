@@ -129,6 +129,7 @@
   "cart-item": {
     "label": "Cart item",
     "helper_text": "",
+    "view": "View transaction",
     "card": {
       "daily": "Daily",
       "daily_plural": "Every {{count}} days",
