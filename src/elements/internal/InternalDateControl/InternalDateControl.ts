@@ -68,8 +68,7 @@ export class InternalDateControl extends InternalEditableControl {
           if (this.format === 'unix') {
             this._value = Math.floor((parseDate(field.value)?.getTime() ?? 0) / 1000);
           } else if (this.format === 'iso-long') {
-            const parsedDate = parseDate(field.value);
-            this._value = parsedDate ? this.__toApiDate(parsedDate) : null;
+            this._value = parseDate(field.value)?.toISOString() ?? null;
           } else {
             this._value = field.value;
           }
@@ -97,24 +96,5 @@ export class InternalDateControl extends InternalEditableControl {
         return this.t('display_value', { value: new Date(d.year, d.month, d.day) });
       },
     };
-  }
-
-  private __toApiDate(date: Date): string {
-    return date
-      .toLocaleString('en-US', {
-        timeZone: 'America/Los_Angeles',
-        timeZoneName: 'longOffset',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-      })
-      .replace(
-        /(\d+)\/(\d+)\/(\d+),\s(\d+):(\d+):(\d+) GMT([+-])(\d+):(\d+)/,
-        '$3-$1-$2T$4:$5:$6$7$8$9'
-      );
   }
 }
