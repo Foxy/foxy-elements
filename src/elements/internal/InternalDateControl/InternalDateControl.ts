@@ -43,7 +43,7 @@ export class InternalDateControl extends InternalEditableControl {
       } else if (this.format === 'iso-long') {
         value = serializeDate(new Date(this._value as string));
       } else {
-        value = this._value as string;
+        value = ((this._value as string | null) ?? '').substring(0, 10);
       }
     }
 
