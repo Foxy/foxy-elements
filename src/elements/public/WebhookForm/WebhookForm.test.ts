@@ -5,7 +5,6 @@ import type { Data } from './types';
 import { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
 import { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
 import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
-import { InternalSourceControl } from '../../internal/InternalSourceControl/InternalSourceControl';
 import { expect, fixture, html } from '@open-wc/testing';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
@@ -24,10 +23,6 @@ describe('WebhookForm', () => {
 
   it('imports and defines foxy-internal-select-control element', () => {
     expect(customElements.get('foxy-internal-select-control')).to.exist;
-  });
-
-  it('imports and defines foxy-internal-source-control element', () => {
-    expect(customElements.get('foxy-internal-source-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-text-control element', () => {
@@ -164,20 +159,22 @@ describe('WebhookForm', () => {
     expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders webhook query as source control', async () => {
+  it('renders webhook query as text control inside of the General summary', async () => {
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
-    const control = element.renderRoot.querySelector('[infer="query"]');
+    const control = element.renderRoot.querySelector('[infer="general"] [infer="query"]');
 
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalSourceControl);
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders webhook url as source control', async () => {
+  it('renders webhook url as text control inside of the General summary', async () => {
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
-    const control = element.renderRoot.querySelector('[infer="url"]');
+    const control = element.renderRoot.querySelector('[infer="general"] [infer="url"]');
 
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalSourceControl);
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
   });
 
   it('renders webhook encryption key as password control inside of the General summary', async () => {

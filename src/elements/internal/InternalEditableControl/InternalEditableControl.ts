@@ -100,8 +100,9 @@ export class InternalEditableControl extends InternalControl {
   }
 
   set placeholder(newValue: string) {
-    this.requestUpdate('placeholder', this.__placeholder);
+    const oldValue = this.__placeholder;
     this.__placeholder = newValue;
+    this.requestUpdate('placeholder', oldValue);
   }
 
   /**
@@ -114,8 +115,9 @@ export class InternalEditableControl extends InternalControl {
   }
 
   set helperText(newValue: string) {
-    this.requestUpdate('helperText', this.__helperText);
+    const oldValue = this.__helperText;
     this.__helperText = newValue;
+    this.requestUpdate('helperText', oldValue);
   }
 
   /**
@@ -130,8 +132,9 @@ export class InternalEditableControl extends InternalControl {
   }
 
   set v8nPrefix(newValue: string) {
-    this.requestUpdate('v8nPrefix', this.__v8nPrefix);
+    const oldValue = this.__v8nPrefix;
     this.__v8nPrefix = newValue;
+    this.requestUpdate('v8nPrefix', oldValue);
   }
 
   /**
@@ -146,8 +149,9 @@ export class InternalEditableControl extends InternalControl {
   }
 
   set property(newValue: string) {
-    this.requestUpdate('property', this.__property);
+    const oldValue = this.__property;
     this.__property = newValue;
+    this.requestUpdate('property', oldValue);
   }
 
   /**
@@ -159,38 +163,44 @@ export class InternalEditableControl extends InternalControl {
   }
 
   set label(newValue: string) {
-    this.requestUpdate('label', this.__label);
+    const oldValue = this.__label;
     this.__label = newValue;
+    this.requestUpdate('label', oldValue);
   }
 
   /** Restores the default placeholder translation. */
   resetPlaceholder(): void {
-    this.requestUpdate('placeholder', this.__placeholder);
+    const oldValue = this.__placeholder;
     this.__placeholder = null;
+    this.requestUpdate('placeholder', oldValue);
   }
 
   /** Restores the default helper text translation. */
   resetHelperText(): void {
-    this.requestUpdate('helperText', this.__helperText);
+    const oldValue = this.__helperText;
     this.__helperText = null;
+    this.requestUpdate('helperText', oldValue);
   }
 
   /** Restores the default v8n prefix for errors. */
   resetV8nPrefix(): void {
-    this.requestUpdate('v8nPrefix', this.__v8nPrefix);
+    const oldValue = this.__v8nPrefix;
     this.__v8nPrefix = null;
+    this.requestUpdate('v8nPrefix', oldValue);
   }
 
   /** Restores the default property name. */
   resetProperty(): void {
-    this.requestUpdate('property', this.__property);
+    const oldValue = this.__property;
     this.__property = null;
+    this.requestUpdate('property', oldValue);
   }
 
   /** Restores the default label translation. */
   resetLabel(): void {
-    this.requestUpdate('label', this.__label);
+    const oldValue = this.__label;
     this.__label = null;
+    this.requestUpdate('label', oldValue);
   }
 
   reportValidity(): void {

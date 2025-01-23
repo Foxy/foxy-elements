@@ -135,7 +135,7 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
 
   private static __shippingFlatRateTypeOptions = [
     { label: 'option_per_order', value: 'per_order' },
-    { label: 'option_per_shipment', value: 'per_shipment' },
+    { label: 'option_per_item', value: 'per_item' },
   ];
 
   private static __defaultWeightUnitOptions = [

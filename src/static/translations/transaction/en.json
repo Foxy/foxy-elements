@@ -151,7 +151,7 @@
                 "search": "Search",
                 "clear": "Clear",
                 "pagination": {
-                  "search_button_text": "Search",
+                  "search_button_text": "Filters",
                   "first": "First",
                   "last": "Last",
                   "next": "Next",
@@ -1710,6 +1710,9 @@
     },
     "subscription": {
       "caption": "Go to subscription"
+    },
+    "receipt": {
+      "caption": "View receipt"
     }
   },
   "spinner": {

@@ -9,6 +9,7 @@ export class InternalSummaryControl extends InternalEditableControl {
     return {
       ...super.properties,
       layout: {},
+      count: { type: Number },
       open: { type: Boolean },
     };
   }
@@ -35,6 +36,8 @@ export class InternalSummaryControl extends InternalEditableControl {
 
   layout: null | 'section' | 'details' = null;
 
+  count: number | null = null;
+
   open = false;
 
   renderLightDom(): void {
@@ -50,7 +53,7 @@ export class InternalSummaryControl extends InternalEditableControl {
           @toggle=${(evt: Event) => {
             const details = evt.currentTarget as HTMLDetailsElement;
             this.open = details.open;
-            if (!evt.composed) this.dispatchEvent(new CustomEvent('toggle'));
+            if (!evt.composed && !evt.bubbles) this.dispatchEvent(new CustomEvent('toggle'));
           }}
         >
           <summary class="select-none cursor-pointer focus-outline-none group">
@@ -63,7 +66,9 @@ export class InternalSummaryControl extends InternalEditableControl {
                 class="font-medium uppercase text-s tracking-wider flex items-center justify-between gap-s"
                 ?hidden=${!this.label}
               >
-                <span>${this.label}</span>
+                <span>
+                  ${this.label}${typeof this.count === 'number' ? ` (${this.count})` : ''}
+                </span>
                 <span
                   class="flex items-center justify-center transition-colors text-tertiary group-hover-text-body"
                   style="transform: scale(1.35)"

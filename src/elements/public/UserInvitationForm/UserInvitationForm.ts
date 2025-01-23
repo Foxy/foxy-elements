@@ -87,12 +87,13 @@ export class UserInvitationForm extends Base<Data> {
 
     if (
       (status !== 'rejected' || layout !== 'user') &&
-      (status !== 'expired' || layout !== 'admin')
+      (status !== 'expired' || layout !== 'admin') &&
+      (status !== 'revoked' || layout !== 'admin')
     ) {
       alwaysMatch.unshift('delete');
     }
 
-    if (status !== 'sent' && status !== 'revoked' && (status !== 'expired' || layout !== 'admin')) {
+    if (status !== 'sent' || layout !== 'admin') {
       alwaysMatch.unshift('resend');
     }
 

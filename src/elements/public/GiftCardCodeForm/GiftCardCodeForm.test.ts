@@ -5,6 +5,7 @@ import './index';
 
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { GiftCardCodeForm } from './GiftCardCodeForm';
+import { getResourceId } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server';
 import { getTestData } from '../../../testgen/getTestData';
@@ -48,6 +49,14 @@ describe('GiftCardCodeForm', () => {
     expect(customElements.get('foxy-customer-card')).to.exist;
   });
 
+  it('imports and defines foxy-item-card', () => {
+    expect(customElements.get('foxy-item-card')).to.exist;
+  });
+
+  it('imports and defines foxy-nucleon', () => {
+    expect(customElements.get('foxy-nucleon')).to.exist;
+  });
+
   it('imports and defines itself as foxy-gift-card-code-form', () => {
     expect(customElements.get('foxy-gift-card-code-form')).to.equal(GiftCardCodeForm);
   });
@@ -58,6 +67,13 @@ describe('GiftCardCodeForm', () => {
 
   it('has a default i18next namespace of gift-card-code-form', () => {
     expect(new GiftCardCodeForm()).to.have.property('ns', 'gift-card-code-form');
+  });
+
+  it('has a reactive property "getTransactionPageHref"', () => {
+    expect(new GiftCardCodeForm()).to.have.property('getTransactionPageHref', null);
+    expect(GiftCardCodeForm).to.have.deep.nested.property('properties.getTransactionPageHref', {
+      attribute: false,
+    });
   });
 
   it('has a reactive property "getCustomerHref"', () => {
@@ -169,6 +185,7 @@ describe('GiftCardCodeForm', () => {
     );
 
     expect(control).to.exist;
+    expect(control).to.have.attribute('format', 'iso-long');
   });
 
   it('renders a resource picker control for associated customer', async () => {
@@ -225,10 +242,15 @@ describe('GiftCardCodeForm', () => {
 
   it('renders a resource picker control for associated cart item', async () => {
     const router = createRouter();
+    const getTransactionPageHref = (href: string) => {
+      return `https://example.com/transactions/${getResourceId(href)}`;
+    };
+
     const element = await fixture<GiftCardCodeForm>(
       html`
         <foxy-gift-card-code-form
           href="https://demo.api/hapi/gift_card_codes/0"
+          .getTransactionPageHref=${getTransactionPageHref}
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
         </foxy-gift-card-code-form>
@@ -243,6 +265,9 @@ describe('GiftCardCodeForm', () => {
     expect(control).to.exist;
     expect(control).to.have.attribute('item', 'foxy-item-card');
     expect(control?.getValue()).to.equal('https://demo.api/hapi/items/0?zoom=item_options');
+    expect(
+      control?.getItemUrl?.('https://demo.api/hapi/items/0', await getTestData('./hapi/items/0'))
+    ).to.equal('https://example.com/transactions/0');
   });
 
   it('renders a list control for logs', async () => {

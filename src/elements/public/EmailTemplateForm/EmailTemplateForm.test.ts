@@ -43,6 +43,13 @@ describe('EmailTemplateForm', () => {
     expect(customElements.get('foxy-email-template-form')).to.equal(Form);
   });
 
+  it('has a reactive property "defaultSubject"', () => {
+    expect(new Form()).to.have.property('defaultSubject', null);
+    expect(Form.properties).to.have.deep.property('defaultSubject', {
+      attribute: 'default-subject',
+    });
+  });
+
   it('extends foxy-internal-form', () => {
     expect(new Form()).to.be.instanceOf(customElements.get('foxy-internal-form'));
   });
@@ -193,6 +200,15 @@ describe('EmailTemplateForm', () => {
     control?.setValue(true);
     expect(control?.getValue()).to.be.true;
     expect(form.form.subject).to.equal('general.subject.default_value');
+
+    control?.setValue(false);
+    expect(control?.getValue()).to.be.false;
+    expect(form.form.subject).to.equal('');
+
+    form.defaultSubject = 'Receipt ({{ order_id }})';
+    control?.setValue(true);
+    expect(control?.getValue()).to.be.true;
+    expect(form.form.subject).to.equal('Receipt ({{ order_id }})');
   });
 
   it('renders a text control for Subject in General summary', async () => {

@@ -403,6 +403,7 @@
           "end-date": {
             "label": "Expires on",
             "placeholder": "Optional",
+            "display_value": "{{ value, date }}",
             "helper_text": ""
           }
         },
@@ -419,7 +420,7 @@
               "search": "Search",
               "clear": "Clear",
               "pagination": {
-                "search_button_text": "Search",
+                "search_button_text": "Filters",
                 "first": "First",
                 "last": "Last",
                 "next": "Next",
@@ -495,6 +496,7 @@
         "cart-item": {
           "label": "Cart item",
           "helper_text": "",
+          "view": "View transaction",
           "card": {
             "daily": "Daily",
             "daily_plural": "Every {{count}} days",
@@ -568,7 +570,7 @@
     },
     "pagination": {
       "create_button_text": "Add code +",
-      "search_button_text": "Search codes",
+      "search_button_text": "Filters",
       "card": {
         "delete_button_text": "Delete",
         "copy_button_text": "Copy code",

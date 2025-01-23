@@ -45,19 +45,19 @@
       "event_resource_subscription": "Subscription",
       "event_resource_transaction": "Transaction",
       "event_resource_customer": "Customer"
+    },
+    "url": {
+      "label": "Endpoint",
+      "placeholder": "Example: https://example.com/webhook",
+      "helper_text": "",
+      "v8n_too_long": "URL cannot exceed 1000 characters"
+    },
+    "query": {
+      "label": "Query",
+      "placeholder": "Example: zoom=items,items:options,customer",
+      "helper_text": "",
+      "v8n_too_long": "Query cannot exceed 1000 characters"
     }
-  },
-  "url": {
-    "label": "Endpoint",
-    "placeholder": "Example: https://example.com/webhook",
-    "helper_text": "",
-    "v8n_too_long": "URL cannot exceed 1000 characters"
-  },
-  "query": {
-    "label": "Query",
-    "placeholder": "Example: zoom=items,items:options,customer",
-    "helper_text": "",
-    "v8n_too_long": "Query cannot exceed 1000 characters"
   },
   "statuses": {
     "label": "Runs",

@@ -351,6 +351,7 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
         </foxy-internal-summary-control>
 
         <foxy-internal-async-list-control
+          layout="details"
           first="foxy://${nucleon?.virtualHost}/form/items/${index}/custom_options"
           infer="custom-options"
           form="foxy-internal-experimental-add-to-cart-builder-custom-option-form"

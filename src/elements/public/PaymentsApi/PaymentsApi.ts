@@ -172,7 +172,7 @@ export class PaymentsApi extends LitElement {
       paymentGatewaysUrl,
 
       getPaymentMethodSetHostedPaymentGatewayUrl: createGetter(
-        paymentMethodSetHostedPaymentGatewaysUrl
+        paymentMethodSetHostedPaymentGatewayBaseUrl
       ),
 
       getHostedPaymentGatewayUrl: createGetter(hostedPaymentGatewayBaseUrl),

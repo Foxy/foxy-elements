@@ -1,5 +1,5 @@
 import type { PropertyDeclarations } from 'lit-element';
-import type { Data } from './types';
+import type { Data, TransactionPageHrefGetter } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { NucleonV8N } from '../NucleonElement/types';
@@ -26,6 +26,7 @@ export class GiftCardCodeForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      getTransactionPageHref: { attribute: false },
       getCustomerHref: { attribute: false },
     };
   }
@@ -39,9 +40,25 @@ export class GiftCardCodeForm extends Base<Data> {
     ];
   }
 
+  /** When set, the Cart Item section will display a link to transaction. */
+  getTransactionPageHref: TransactionPageHrefGetter | null = null;
+
   /** Returns a `fx:customer` Resource URL for a Customer ID. */
   getCustomerHref: (id: number | string) => string = id => {
     return `https://api.foxycart.com/customers/${id}`;
+  };
+
+  private readonly __cartItemGetItemUrl = (_: string, data: Resource<Rels.Item> | null) => {
+    let itemUrl: string | undefined | null = null;
+
+    try {
+      const transactionUrl = data?._links['fx:transaction'].href;
+      if (transactionUrl) itemUrl = this.getTransactionPageHref?.(transactionUrl);
+    } catch (err) {
+      console.log(err);
+    }
+
+    return itemUrl ?? null;
   };
 
   private readonly __customerGetValue = () => {
@@ -108,7 +125,7 @@ export class GiftCardCodeForm extends Base<Data> {
         <foxy-internal-text-control layout="summary-item" infer="code"></foxy-internal-text-control>
         <foxy-internal-number-control layout="summary-item" infer="current-balance">
         </foxy-internal-number-control>
-        <foxy-internal-date-control layout="summary-item" infer="end-date">
+        <foxy-internal-date-control layout="summary-item" format="iso-long" infer="end-date">
         </foxy-internal-date-control>
       </foxy-internal-summary-control>
 
@@ -125,6 +142,7 @@ export class GiftCardCodeForm extends Base<Data> {
       <foxy-internal-resource-picker-control
         infer="cart-item"
         item="foxy-item-card"
+        .getItemUrl=${this.__cartItemGetItemUrl}
         .getValue=${() => href}
       >
       </foxy-internal-resource-picker-control>

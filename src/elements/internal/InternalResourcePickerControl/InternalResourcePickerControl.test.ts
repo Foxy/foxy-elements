@@ -9,6 +9,7 @@ import { FormDialog } from '../../public/FormDialog/FormDialog';
 import { Type } from '../../public/QueryBuilder/types';
 import { stub } from 'sinon';
 import { createRouter } from '../../../server';
+import { getTestData } from '../../../testgen/getTestData';
 
 async function waitForIdle(element: Control) {
   await waitUntil(
@@ -443,12 +444,15 @@ describe('InternalResourcePickerControl', () => {
   });
 
   it('renders View link in standalone layout when value is set and getItemUrl is defined', async () => {
+    const getItemUrl = stub().returns('https://example.com/hapi/customers/0');
+    const router = createRouter();
     const control = await fixture<Control>(html`
       <foxy-internal-resource-picker-control
         infer=""
         first="https://demo.api/hapi/customers"
         item="foxy-customer-card"
-        .getItemUrl=${(value: string) => value.replace('demo.api', 'example.com')}
+        .getItemUrl=${getItemUrl}
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-internal-resource-picker-control>
     `);
@@ -458,6 +462,9 @@ describe('InternalResourcePickerControl', () => {
 
     control.getValue = () => 'https://demo.api/hapi/customers/0';
     await control.requestUpdate();
+    await waitForIdle(control);
+    await control.requestUpdate();
+
     linkText = control.renderRoot.querySelector('[key="view"]');
     expect(linkText).to.exist;
     expect(linkText).to.have.attribute('infer', '');
@@ -465,6 +472,11 @@ describe('InternalResourcePickerControl', () => {
     const viewLink = linkText?.closest('a');
     expect(viewLink).to.exist;
     expect(viewLink).to.have.attribute('href', 'https://example.com/hapi/customers/0');
+
+    const customer = await getTestData('./hapi/customers/0', router);
+    getItemUrl.resetHistory();
+    await control.requestUpdate();
+    expect(getItemUrl).to.have.been.calledWith('https://demo.api/hapi/customers/0', customer);
   });
 
   it('renders Copy ID button in standalone layout when value is set and showCopyIdButton is true', async () => {

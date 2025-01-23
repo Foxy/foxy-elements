@@ -29,7 +29,7 @@
                 "search": "Search",
                 "clear": "Clear",
                 "pagination": {
-                  "search_button_text": "Search",
+                  "search_button_text": "Filters",
                   "first": "First",
                   "last": "Last",
                   "next": "Next",
@@ -278,6 +278,9 @@
         },
         "custom-options": {
           "label": "Custom options",
+          "helper_text": "",
+          "total_items": "{{ count }} option",
+          "total_items_plural": "{{ count }} options",
           "delete_header": "Remove custom option?",
           "delete_message": "Please confirm that you'd like to remove this custom option from the product.",
           "delete_confirm": "Remove",
@@ -385,7 +388,7 @@
                       "search": "Search",
                       "clear": "Clear",
                       "pagination": {
-                        "search_button_text": "Search",
+                        "search_button_text": "Filters",
                         "first": "First",
                         "last": "Last",
                         "next": "Next",
@@ -444,7 +447,7 @@
             "first": "First",
             "last": "Last",
             "next": "Next",
-            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "pagination": "{{from}}-{{to}}",
             "previous": "Previous"
           }
         },
@@ -475,7 +478,7 @@
           "label": "Template sets",
           "helper_text": "",
           "pagination": {
-            "search_button_text": "Search",
+            "search_button_text": "Filters",
             "first": "First",
             "last": "Last",
             "next": "Next",

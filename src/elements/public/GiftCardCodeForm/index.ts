@@ -7,7 +7,9 @@ import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 
 import '../GiftCardCodeLogCard/index';
+import '../NucleonElement/index';
 import '../CustomerCard/index';
+import '../ItemCard/index';
 
 import { GiftCardCodeForm } from './GiftCardCodeForm';
 

@@ -97,7 +97,7 @@
       "label": "Flat rate applies",
       "placeholder": "Select...",
       "option_per_order": "Per order",
-      "option_per_shipment": "Per shipment",
+      "option_per_item": "Per item",
       "helper_text": "",
       "v8n_required": "Please select a value"
     },
@@ -205,7 +205,7 @@
           "label": "Email templates",
           "helper_text": "",
           "pagination": {
-            "search_button_text": "Search",
+            "search_button_text": "Filters",
             "first": "First",
             "last": "Last",
             "next": "Next",
