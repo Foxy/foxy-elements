@@ -45,7 +45,17 @@ export class TaxForm extends Base<Data> {
       ({ region: v }) => !v || v.length <= 20 || 'region:v8n_too_long',
       ({ city: v }) => !v || v.length <= 50 || 'city:v8n_too_long',
       ({ city: c, type: t }) => t != 'local' || !!c || 'city:v8n_required',
-      ({ rate: v }) => v === void 0 || v > 0 || 'rate:v8n_invalid',
+      ({ rate: v, type, is_live }) => {
+        return (
+          v === void 0 ||
+          v > 0 ||
+          // @ts-expect-error SDK types are not up to date.
+          type === 'custom_tax_endpoint' ||
+          type === void 0 ||
+          is_live ||
+          'rate:v8n_invalid'
+        );
+      },
     ];
   }
 
