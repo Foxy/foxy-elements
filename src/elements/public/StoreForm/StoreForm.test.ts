@@ -476,16 +476,6 @@ describe('StoreForm', () => {
     expect(form.errors).to.not.include('unified-order-entry-password:v8n_too_long');
   });
 
-  it('produces the custom-display-id-config-enabled:v8n_too_long error if custom display id config is longer than 500 characters', () => {
-    const form = new Form();
-
-    form.edit({ custom_display_id_config: 'A'.repeat(501) });
-    expect(form.errors).to.include('custom-display-id-config-enabled:v8n_too_long');
-
-    form.edit({ custom_display_id_config: 'A'.repeat(500) });
-    expect(form.errors).to.not.include('custom-display-id-config-enabled:v8n_too_long');
-  });
-
   it('renders a form header', () => {
     const form = new Form();
     const renderHeaderMethod = stub(form, 'renderHeader');
@@ -1617,7 +1607,7 @@ describe('StoreForm', () => {
     expect(control?.getValue()).to.be.false;
 
     element.edit({
-      custom_display_id_config: JSON.stringify({
+      custom_display_id_config: {
         enabled: true,
         start: '0',
         length: '0',
@@ -1633,13 +1623,13 @@ describe('StoreForm', () => {
             transaction_void: { prefix: '' },
           },
         },
-      }),
+      },
     });
 
     await element.requestUpdate();
     expect(control?.getValue()).to.be.true;
     control?.setValue(false);
-    expect(JSON.parse(element.form.custom_display_id_config!)).to.have.property('enabled', false);
+    expect(element.form.custom_display_id_config!).to.have.property('enabled', false);
   });
 
   it('renders a number control for custom Display ID start in the Custom Display ID Config section when Custom Display ID is enabled', async () => {
@@ -1652,7 +1642,7 @@ describe('StoreForm', () => {
     ).to.not.exist;
 
     element.edit({
-      custom_display_id_config: JSON.stringify({
+      custom_display_id_config: {
         enabled: true,
         start: '2',
         length: '0',
@@ -1668,7 +1658,7 @@ describe('StoreForm', () => {
             transaction_void: { prefix: '' },
           },
         },
-      }),
+      },
     });
 
     await element.requestUpdate();
@@ -1684,7 +1674,7 @@ describe('StoreForm', () => {
     expect(control?.getValue()).to.equal(2);
 
     control?.setValue(1);
-    expect(JSON.parse(element.form.custom_display_id_config!).start).to.equal('1');
+    expect(element.form.custom_display_id_config!.start).to.equal('1');
   });
 
   it('renders a number control for custom Display ID length in the Custom Display ID Config section when Custom Display ID is enabled', async () => {
@@ -1697,7 +1687,7 @@ describe('StoreForm', () => {
     ).to.not.exist;
 
     element.edit({
-      custom_display_id_config: JSON.stringify({
+      custom_display_id_config: {
         enabled: true,
         start: '0',
         length: '2',
@@ -1713,7 +1703,7 @@ describe('StoreForm', () => {
             transaction_void: { prefix: '' },
           },
         },
-      }),
+      },
     });
 
     await element.requestUpdate();
@@ -1729,7 +1719,7 @@ describe('StoreForm', () => {
     expect(control?.getValue()).to.equal(2);
 
     control?.setValue(1);
-    expect(JSON.parse(element.form.custom_display_id_config!).length).to.equal('1');
+    expect(element.form.custom_display_id_config!.length).to.equal('1');
   });
 
   it('renders a text control for custom Display ID prefix in the Custom Display ID Config section when Custom Display ID is enabled', async () => {
@@ -1742,7 +1732,7 @@ describe('StoreForm', () => {
     ).to.not.exist;
 
     element.edit({
-      custom_display_id_config: JSON.stringify({
+      custom_display_id_config: {
         enabled: true,
         start: '0',
         length: '0',
@@ -1758,7 +1748,7 @@ describe('StoreForm', () => {
             transaction_void: { prefix: '' },
           },
         },
-      }),
+      },
     });
 
     await element.requestUpdate();
@@ -1772,7 +1762,7 @@ describe('StoreForm', () => {
     expect(control?.getValue()).to.equal('foo');
 
     control?.setValue('bar');
-    expect(JSON.parse(element.form.custom_display_id_config!).prefix).to.equal('bar');
+    expect(element.form.custom_display_id_config!.prefix).to.equal('bar');
   });
 
   it('renders a text control for custom Display ID suffix in the Custom Display ID Config section when Custom Display ID is enabled', async () => {
@@ -1785,7 +1775,7 @@ describe('StoreForm', () => {
     ).to.not.exist;
 
     element.edit({
-      custom_display_id_config: JSON.stringify({
+      custom_display_id_config: {
         enabled: true,
         start: '0',
         length: '0',
@@ -1801,7 +1791,7 @@ describe('StoreForm', () => {
             transaction_void: { prefix: '' },
           },
         },
-      }),
+      },
     });
 
     await element.requestUpdate();
@@ -1815,7 +1805,7 @@ describe('StoreForm', () => {
     expect(control?.getValue()).to.equal('foo');
 
     control?.setValue('bar');
-    expect(JSON.parse(element.form.custom_display_id_config!).suffix).to.equal('bar');
+    expect(element.form.custom_display_id_config!.suffix).to.equal('bar');
   });
 
   it('renders examples in the Custom Display ID Config section when Custom Display ID is enabled', async () => {
@@ -1834,7 +1824,7 @@ describe('StoreForm', () => {
     ).to.not.exist;
 
     element.edit({
-      custom_display_id_config: JSON.stringify({
+      custom_display_id_config: {
         enabled: true,
         start: '8',
         length: '12',
@@ -1850,7 +1840,7 @@ describe('StoreForm', () => {
             transaction_void: { prefix: '' },
           },
         },
-      }),
+      },
     });
 
     await element.requestUpdate();
@@ -1894,7 +1884,7 @@ describe('StoreForm', () => {
     expect(control?.getValue()).to.be.false;
 
     element.edit({
-      custom_display_id_config: JSON.stringify({
+      custom_display_id_config: {
         enabled: false,
         start: '0',
         length: '0',
@@ -1910,14 +1900,13 @@ describe('StoreForm', () => {
             transaction_void: { prefix: '' },
           },
         },
-      }),
+      },
     });
 
     await element.requestUpdate();
     expect(control?.getValue()).to.be.true;
     control?.setValue(false);
-    expect(JSON.parse(element.form.custom_display_id_config!).transaction_journal_entries.enabled)
-      .to.be.false;
+    expect(element.form.custom_display_id_config!.transaction_journal_entries.enabled).to.be.false;
   });
 
   it('renders a text control for authcapture prefix in the Custom Display ID Config section when Custom Transaction Journal Display ID is enabled', async () => {
@@ -1930,7 +1919,7 @@ describe('StoreForm', () => {
     ).to.not.exist;
 
     element.edit({
-      custom_display_id_config: JSON.stringify({
+      custom_display_id_config: {
         enabled: false,
         start: '0',
         length: '0',
@@ -1946,7 +1935,7 @@ describe('StoreForm', () => {
             transaction_void: { prefix: '' },
           },
         },
-      }),
+      },
     });
 
     await element.requestUpdate();
@@ -1961,8 +1950,8 @@ describe('StoreForm', () => {
 
     control?.setValue('bar');
     expect(
-      JSON.parse(element.form.custom_display_id_config!).transaction_journal_entries
-        .log_detail_request_types.transaction_authcapture.prefix
+      element.form.custom_display_id_config!.transaction_journal_entries.log_detail_request_types
+        .transaction_authcapture.prefix
     ).to.equal('bar');
   });
 
@@ -1976,7 +1965,7 @@ describe('StoreForm', () => {
     ).to.not.exist;
 
     element.edit({
-      custom_display_id_config: JSON.stringify({
+      custom_display_id_config: {
         enabled: false,
         start: '0',
         length: '0',
@@ -1992,7 +1981,7 @@ describe('StoreForm', () => {
             transaction_void: { prefix: '' },
           },
         },
-      }),
+      },
     });
 
     await element.requestUpdate();
@@ -2007,8 +1996,8 @@ describe('StoreForm', () => {
 
     control?.setValue('bar');
     expect(
-      JSON.parse(element.form.custom_display_id_config!).transaction_journal_entries
-        .log_detail_request_types.transaction_capture.prefix
+      element.form.custom_display_id_config!.transaction_journal_entries.log_detail_request_types
+        .transaction_capture.prefix
     ).to.equal('bar');
   });
 
@@ -2022,7 +2011,7 @@ describe('StoreForm', () => {
     ).to.not.exist;
 
     element.edit({
-      custom_display_id_config: JSON.stringify({
+      custom_display_id_config: {
         enabled: false,
         start: '0',
         length: '0',
@@ -2038,7 +2027,7 @@ describe('StoreForm', () => {
             transaction_void: { prefix: 'foo' },
           },
         },
-      }),
+      },
     });
 
     await element.requestUpdate();
@@ -2053,8 +2042,8 @@ describe('StoreForm', () => {
 
     control?.setValue('bar');
     expect(
-      JSON.parse(element.form.custom_display_id_config!).transaction_journal_entries
-        .log_detail_request_types.transaction_void.prefix
+      element.form.custom_display_id_config!.transaction_journal_entries.log_detail_request_types
+        .transaction_void.prefix
     ).to.equal('bar');
   });
 
@@ -2068,7 +2057,7 @@ describe('StoreForm', () => {
     ).to.not.exist;
 
     element.edit({
-      custom_display_id_config: JSON.stringify({
+      custom_display_id_config: {
         enabled: false,
         start: '0',
         length: '0',
@@ -2084,7 +2073,7 @@ describe('StoreForm', () => {
             transaction_void: { prefix: '' },
           },
         },
-      }),
+      },
     });
 
     await element.requestUpdate();
@@ -2099,8 +2088,8 @@ describe('StoreForm', () => {
 
     control?.setValue('bar');
     expect(
-      JSON.parse(element.form.custom_display_id_config!).transaction_journal_entries
-        .log_detail_request_types.transaction_refund.prefix
+      element.form.custom_display_id_config!.transaction_journal_entries.log_detail_request_types
+        .transaction_refund.prefix
     ).to.equal('bar');
   });
 
@@ -2114,7 +2103,7 @@ describe('StoreForm', () => {
     ).to.not.exist;
 
     element.edit({
-      custom_display_id_config: JSON.stringify({
+      custom_display_id_config: {
         enabled: false,
         start: '0',
         length: '0',
@@ -2130,7 +2119,7 @@ describe('StoreForm', () => {
             transaction_void: { prefix: '' },
           },
         },
-      }),
+      },
     });
 
     await element.requestUpdate();
@@ -2145,8 +2134,7 @@ describe('StoreForm', () => {
 
     control?.setValue('bar');
     expect(
-      JSON.parse(element.form.custom_display_id_config!).transaction_journal_entries
-        .transaction_separator
+      element.form.custom_display_id_config!.transaction_journal_entries.transaction_separator
     ).to.equal('bar');
   });
 
@@ -2178,7 +2166,7 @@ describe('StoreForm', () => {
     ).to.not.exist;
 
     element.edit({
-      custom_display_id_config: JSON.stringify({
+      custom_display_id_config: {
         enabled: true,
         start: '8',
         length: '12',
@@ -2194,7 +2182,7 @@ describe('StoreForm', () => {
             transaction_void: { prefix: 'VO-' },
           },
         },
-      }),
+      },
     });
 
     await element.requestUpdate();

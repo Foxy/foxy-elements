@@ -20,7 +20,6 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
-import cloneDeep from 'lodash-es/cloneDeep';
 import slugify from '@sindresorhus/slugify';
 
 const NS = 'store-form';
@@ -119,10 +118,6 @@ export class StoreForm extends Base<Data> {
 
       ({ unified_order_entry_password: v }) => {
         return !v || String(v).length <= 100 || 'unified-order-entry-password:v8n_too_long';
-      },
-
-      ({ custom_display_id_config: v }) => {
-        return !v || String(v).length <= 500 || 'custom-display-id-config-enabled:v8n_too_long';
       },
     ];
   }
@@ -1103,15 +1098,7 @@ export class StoreForm extends Base<Data> {
       },
     };
 
-    let config: ParsedCustomDisplayIdConfig;
-
-    try {
-      config = JSON.parse(this.form.custom_display_id_config ?? '');
-    } catch {
-      config = cloneDeep(defaultConfig);
-    }
-
-    return config;
+    return this.form.custom_display_id_config ?? defaultConfig;
   }
 
   private __setCustomDisplayIdConfig<TKey extends keyof ParsedCustomDisplayIdConfig>(
@@ -1120,7 +1107,7 @@ export class StoreForm extends Base<Data> {
   ) {
     const currentConfig = this.__getCustomDisplayIdConfig();
     currentConfig[key] = value;
-    this.edit({ custom_display_id_config: JSON.stringify(currentConfig) });
+    this.edit({ custom_display_id_config: currentConfig });
   }
 
   private __getTransactionJournalEntriesConfig() {
