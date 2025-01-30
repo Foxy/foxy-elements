@@ -1,6 +1,8 @@
 import { Dataset, Document, Links } from './types';
 import { HandleResult, HandlerContext, Router } from 'service-worker-router';
 
+import merge from 'lodash-es/merge';
+
 async function addEmbeds(router: Router, result: Document, zoom: string[][]) {
   await Promise.all(
     zoom.map(async rels => {
@@ -24,7 +26,11 @@ async function addEmbeds(router: Router, result: Document, zoom: string[][]) {
             return addEmbeds(router, nestedResult, [rels.slice(1)]);
           }) ?? []
         );
-        embeds[curieForTopRel] = response._embedded[curieForTopRel] ?? [];
+
+        embeds[curieForTopRel] = merge(
+          embeds[curieForTopRel] ?? [],
+          response._embedded[curieForTopRel] ?? []
+        );
       } else {
         await addEmbeds(router, response, [rels.slice(1)]);
         embeds[curieForTopRel] = response;
