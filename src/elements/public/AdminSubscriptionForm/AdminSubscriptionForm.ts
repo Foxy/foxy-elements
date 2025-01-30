@@ -1,3 +1,4 @@
+import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
 
@@ -5,8 +6,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { html } from 'lit-html';
-import { PropertyDeclarations } from 'lit-element';
+import { html, svg } from 'lit-html';
 
 const NS = 'admin-subscription-form';
 const Base = TranslatableMixin(InternalForm, NS);
@@ -97,20 +97,26 @@ export class AdminSubscriptionForm extends Base<Data> {
         >
         </foxy-internal-admin-subscription-form-link-control>
 
-        <p class="text-s text-secondary">
-          <foxy-i18n infer="" key="uoe_hint_text"></foxy-i18n>
-          ${this.uoeSettingsPage
-            ? html`
-                <a
-                  target="_blank"
-                  class="inline-block rounded font-medium text-body transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
-                  href=${this.uoeSettingsPage}
-                >
-                  <foxy-i18n infer="" key="uoe_link_text"></foxy-i18n>
-                </a>
-              `
-            : ''}
-        </p>
+        <div
+          class="flex items-start leading-xs text-xs text-secondary"
+          style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+        >
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="flex-shrink-0" style="width: 1.25em"><path fill-rule="evenodd" d="M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0ZM9 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM6.75 8a.75.75 0 0 0 0 1.5h.75v1.75a.75.75 0 0 0 1.5 0v-2.5A.75.75 0 0 0 8.25 8h-1.5Z" clip-rule="evenodd" /></svg>`}
+          <p>
+            <foxy-i18n infer="" key="uoe_hint_text"></foxy-i18n>
+            ${this.uoeSettingsPage
+              ? html`
+                  <a
+                    target="_blank"
+                    class="inline-block rounded font-medium text-body cursor-pointer hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50"
+                    href=${this.uoeSettingsPage}
+                  >
+                    <foxy-i18n infer="" key="uoe_link_text"></foxy-i18n>
+                  </a>
+                `
+              : ''}
+          </p>
+        </div>
       </foxy-internal-summary-control>
 
       ${this.renderTemplateOrSlot()}

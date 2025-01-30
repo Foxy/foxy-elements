@@ -98,7 +98,7 @@
       "helper_text": "Loads the subscription into the cart. This is useful for changing the products that make up the subscription by loading the subscription and then proceeding to your website.",
       "copy-to-clipboard": {
         "failed_to_copy": "Failed to copy",
-        "click_to_copy": "Copy link",
+        "click_to_copy": "Copy URL",
         "copying": "Copying...",
         "done": "Copied to clipboard"
       }
@@ -108,7 +108,7 @@
       "helper_text": "Loads the subscription into the cart and redirects to checkout. This link is useful for paying past due amounts, modifying address/payment information or transferring to another email address.",
       "copy-to-clipboard": {
         "failed_to_copy": "Failed to copy",
-        "click_to_copy": "Copy link",
+        "click_to_copy": "Copy URL",
         "copying": "Copying...",
         "done": "Copied to clipboard"
       }
@@ -118,7 +118,7 @@
       "helper_text": "Sets the subscription to cancel at the end of the current paid period based on the next transaction date.",
       "copy-to-clipboard": {
         "failed_to_copy": "Failed to copy",
-        "click_to_copy": "Copy link",
+        "click_to_copy": "Copy URL",
         "copying": "Copying...",
         "done": "Copied to clipboard"
       }
@@ -128,7 +128,7 @@
       "helper_text": "Sets the subscription to cancel the following day.",
       "copy-to-clipboard": {
         "failed_to_copy": "Failed to copy",
-        "click_to_copy": "Copy link",
+        "click_to_copy": "Copy URL",
         "copying": "Copying...",
         "done": "Copied to clipboard"
       }

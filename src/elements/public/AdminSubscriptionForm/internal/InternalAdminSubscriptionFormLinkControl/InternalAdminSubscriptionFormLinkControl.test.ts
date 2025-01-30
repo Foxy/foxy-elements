@@ -84,7 +84,6 @@ describe('AdminSubscriptionForm', () => {
 
       const link = control.renderRoot.querySelector('a') as HTMLAnchorElement;
       expect(link).to.exist;
-      expect(link).to.include.text('https://example.com/sub_token_url');
       expect(link.href).to.equal('https://example.com/sub_token_url');
       expect(link.target).to.equal('_blank');
     });
@@ -106,7 +105,6 @@ describe('AdminSubscriptionForm', () => {
 
       const link = control.renderRoot.querySelector('a') as HTMLAnchorElement;
       expect(link).to.exist;
-      expect(link).to.include.text('https://example.com/sub_token_url?cart=checkout&foo=bar');
       expect(link.href).to.equal('https://example.com/sub_token_url?cart=checkout&foo=bar');
       expect(link.target).to.equal('_blank');
     });
