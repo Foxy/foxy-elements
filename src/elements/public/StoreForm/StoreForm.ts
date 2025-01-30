@@ -21,6 +21,7 @@ import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
 import slugify from '@sindresorhus/slugify';
+import merge from 'lodash-es/merge';
 
 const NS = 'store-form';
 const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
@@ -1098,7 +1099,7 @@ export class StoreForm extends Base<Data> {
       },
     };
 
-    return this.form.custom_display_id_config ?? defaultConfig;
+    return merge(defaultConfig, this.form.custom_display_id_config || void 0);
   }
 
   private __setCustomDisplayIdConfig<TKey extends keyof ParsedCustomDisplayIdConfig>(
