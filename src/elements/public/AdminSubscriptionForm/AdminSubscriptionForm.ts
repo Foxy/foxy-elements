@@ -75,8 +75,6 @@ export class AdminSubscriptionForm extends Base<Data> {
         </foxy-internal-number-control>
       </foxy-internal-summary-control>
 
-      ${this.renderTemplateOrSlot()}
-
       <foxy-internal-summary-control infer="self-service-links">
         <foxy-internal-admin-subscription-form-link-control infer="load-in-cart">
         </foxy-internal-admin-subscription-form-link-control>
@@ -114,6 +112,8 @@ export class AdminSubscriptionForm extends Base<Data> {
             : ''}
         </p>
       </foxy-internal-summary-control>
+
+      ${this.renderTemplateOrSlot()}
 
       <foxy-internal-async-list-control
         infer="attributes"
