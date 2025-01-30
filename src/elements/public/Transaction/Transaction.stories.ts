@@ -5,7 +5,7 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card',
+  href: 'https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,gift_card_code_logs:gift_card,gift_card_code_logs:gift_card_code',
   parent: 'https://demo.api/hapi/transactions',
   nucleon: true,
   localName: 'foxy-transaction',
