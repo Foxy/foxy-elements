@@ -22,7 +22,13 @@ export class InternalAdminSubscriptionFormLinkControl extends ResponsiveMixin(In
 
     try {
       const url = new URL(form?.data?._links['fx:sub_token_url'].href ?? '');
-      if (this.search) url.search = this.search;
+
+      if (this.search) {
+        const originalParams = new URLSearchParams(url.search);
+        url.search = this.search;
+        originalParams.forEach((value, key) => url.searchParams.set(key, value));
+      }
+
       href = url.toString();
     } catch {
       href = undefined;
@@ -41,6 +47,7 @@ export class InternalAdminSubscriptionFormLinkControl extends ResponsiveMixin(In
           <a
             target="_blank"
             class="min-w-0 flex-1 truncate font-medium rounded cursor-pointer hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50"
+            style="max-width: 25rem"
             href=${href}
           >
             ${href}

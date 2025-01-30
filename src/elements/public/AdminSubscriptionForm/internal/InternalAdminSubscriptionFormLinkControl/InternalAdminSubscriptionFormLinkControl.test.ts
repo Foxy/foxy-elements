@@ -91,7 +91,7 @@ describe('AdminSubscriptionForm', () => {
 
     it('adds search to sub_token link when set', async () => {
       const data = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
-      data._links['fx:sub_token_url'].href = 'https://example.com/sub_token_url';
+      data._links['fx:sub_token_url'].href = 'https://example.com/sub_token_url?foo=bar';
 
       const nucleon = await fixture<NucleonElement<Data>>(html`
         <foxy-nucleon .data=${data}>
@@ -106,8 +106,8 @@ describe('AdminSubscriptionForm', () => {
 
       const link = control.renderRoot.querySelector('a') as HTMLAnchorElement;
       expect(link).to.exist;
-      expect(link).to.include.text('https://example.com/sub_token_url?cart=checkout');
-      expect(link.href).to.equal('https://example.com/sub_token_url?cart=checkout');
+      expect(link).to.include.text('https://example.com/sub_token_url?cart=checkout&foo=bar');
+      expect(link.href).to.equal('https://example.com/sub_token_url?cart=checkout&foo=bar');
       expect(link.target).to.equal('_blank');
     });
 
