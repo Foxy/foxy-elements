@@ -90,6 +90,52 @@
       "clear": "Clear"
     }
   },
+  "self-service-links": {
+    "label": "Self-service links",
+    "helper_text": "",
+    "load-in-cart": {
+      "label": "Load in cart",
+      "helper_text": "Loads the subscription into the cart. This is useful for changing the products that make up the subscription by loading the subscription and then proceeding to your website.",
+      "copy-to-clipboard": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy link",
+        "copying": "Copying...",
+        "done": "Copied to clipboard"
+      }
+    },
+    "load-on-checkout": {
+      "label": "Load on checkout",
+      "helper_text": "Loads the subscription into the cart and redirects to checkout. This link is useful for paying past due amounts, modifying address/payment information or transferring to another email address.",
+      "copy-to-clipboard": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy link",
+        "copying": "Copying...",
+        "done": "Copied to clipboard"
+      }
+    },
+    "cancel-at-end-of-billing-period": {
+      "label": "Cancel at the end of the billing period",
+      "helper_text": "Sets the subscription to cancel at the end of the current paid period based on the next transaction date.",
+      "copy-to-clipboard": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy link",
+        "copying": "Copying...",
+        "done": "Copied to clipboard"
+      }
+    },
+    "cancel-next-day": {
+      "label": "Cancel the next day",
+      "helper_text": "Sets the subscription to cancel the following day.",
+      "copy-to-clipboard": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy link",
+        "copying": "Copying...",
+        "done": "Copied to clipboard"
+      }
+    },
+    "uoe_hint_text": "If you're making changes on behalf of the customer, you can use the Unified Order Entry password to log in as the customer on the checkout.",
+    "uoe_link_text": "Go to settings >"
+  },
   "attributes": {
     "label": "Attributes",
     "delete_confirm": "Delete",

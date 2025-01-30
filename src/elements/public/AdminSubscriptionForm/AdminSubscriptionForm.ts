@@ -22,19 +22,6 @@ export class AdminSubscriptionForm extends Base<Data> {
     return { context: this.data?.is_active ? 'active' : 'inactive' };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  renderHeaderActions(data: Data): TemplateResult {
-    return html`
-      <foxy-internal-admin-subscription-form-load-in-cart-action infer="view-action">
-      </foxy-internal-admin-subscription-form-load-in-cart-action>
-      <foxy-internal-admin-subscription-form-load-in-cart-action
-        action="cancel"
-        infer="cancel-action"
-      >
-      </foxy-internal-admin-subscription-form-load-in-cart-action>
-    `;
-  }
-
   renderBody(): TemplateResult {
     let transactionsHref: string | undefined;
 
@@ -78,6 +65,40 @@ export class AdminSubscriptionForm extends Base<Data> {
       </foxy-internal-summary-control>
 
       ${this.renderTemplateOrSlot()}
+
+      <foxy-internal-summary-control infer="self-service-links">
+        <foxy-internal-admin-subscription-form-link-control infer="load-in-cart">
+        </foxy-internal-admin-subscription-form-link-control>
+
+        <foxy-internal-admin-subscription-form-link-control
+          search="cart=checkout"
+          infer="load-on-checkout"
+        >
+        </foxy-internal-admin-subscription-form-link-control>
+
+        <foxy-internal-admin-subscription-form-link-control
+          search="sub_cancel=next_transaction_date"
+          infer="cancel-at-end-of-billing-period"
+        >
+        </foxy-internal-admin-subscription-form-link-control>
+
+        <foxy-internal-admin-subscription-form-link-control
+          search="sub_cancel=true"
+          infer="cancel-next-day"
+        >
+        </foxy-internal-admin-subscription-form-link-control>
+
+        <p class="text-s text-secondary">
+          <foxy-i18n infer="" key="uoe_hint_text"></foxy-i18n>
+          <a
+            target="_blank"
+            class="inline-block rounded font-medium text-body transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
+            href="https://admin.foxycart.com"
+          >
+            <foxy-i18n infer="" key="uoe_link_text"></foxy-i18n>
+          </a>
+        </p>
+      </foxy-internal-summary-control>
 
       <foxy-internal-async-list-control
         infer="attributes"
