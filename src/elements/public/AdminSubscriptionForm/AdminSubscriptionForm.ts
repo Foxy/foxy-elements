@@ -6,11 +6,22 @@ import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
+import { PropertyDeclarations } from 'lit-element';
 
 const NS = 'admin-subscription-form';
 const Base = TranslatableMixin(InternalForm, NS);
 
 export class AdminSubscriptionForm extends Base<Data> {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      uoeSettingsPage: { attribute: 'uoe-settings-page' },
+    };
+  }
+
+  /** URL of the UOE settings page in the admin. If set, displays a link to that page in the self-service links section. */
+  uoeSettingsPage: string | null = null;
+
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = ['delete', super.hiddenSelector.toString()];
     if (!this.data?.error_message) alwaysMatch.unshift('error-message');
@@ -90,13 +101,17 @@ export class AdminSubscriptionForm extends Base<Data> {
 
         <p class="text-s text-secondary">
           <foxy-i18n infer="" key="uoe_hint_text"></foxy-i18n>
-          <a
-            target="_blank"
-            class="inline-block rounded font-medium text-body transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
-            href="https://admin.foxycart.com"
-          >
-            <foxy-i18n infer="" key="uoe_link_text"></foxy-i18n>
-          </a>
+          ${this.uoeSettingsPage
+            ? html`
+                <a
+                  target="_blank"
+                  class="inline-block rounded font-medium text-body transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
+                  href=${this.uoeSettingsPage}
+                >
+                  <foxy-i18n infer="" key="uoe_link_text"></foxy-i18n>
+                </a>
+              `
+            : ''}
         </p>
       </foxy-internal-summary-control>
 

@@ -73,6 +73,13 @@ describe('AdminSubscriptionForm', () => {
     expect(new Form()).to.have.property('ns', 'admin-subscription-form');
   });
 
+  it('has a reactive property "uoeSettingsPage" that defaults to null', () => {
+    expect(new Form()).to.have.property('uoeSettingsPage', null);
+    expect(Form.properties).to.have.deep.property('uoeSettingsPage', {
+      attribute: 'uoe-settings-page',
+    });
+  });
+
   it('always hides built-in Delete button because subscriptions cannot be deleted', () => {
     expect(new Form().hiddenSelector.matches('delete', true)).to.be.true;
   });
@@ -358,6 +365,22 @@ describe('AdminSubscriptionForm', () => {
 
     expect(control?.localName).to.equal('foxy-internal-admin-subscription-form-link-control');
     expect(control).to.have.attribute('search', 'sub_cancel=true');
+  });
+
+  it('renders link to UOE settings page when uoeSettingsPage is set', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-admin-subscription-form
+        uoe-settings-page="https://example.com"
+        href="https://demo.api/hapi/subscriptions/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-admin-subscription-form>
+    `);
+
+    await waitUntil(() => !!form.data, '', { timeout: 5000 });
+    const summary = form.renderRoot.querySelector('[infer="self-service-links"]');
+    expect(summary?.querySelector('a')).to.have.attribute('href', 'https://example.com');
   });
 
   it('renders async list control for attributes', async () => {
