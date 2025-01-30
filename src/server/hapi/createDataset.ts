@@ -993,35 +993,6 @@ export const createDataset: () => Dataset = () => ({
     },
   ],
 
-  applied_gift_card_codes: [
-    {
-      id: 0,
-      store_id: 0,
-      gift_card_id: 0,
-      gift_card_code_id: 0,
-      transaction_id: 0,
-      external_id: null,
-      balance_adjustment: -40.3,
-      user_id: null,
-      source: null,
-      date_created: '2021-11-15T19:30:33-0800',
-      date_modified: '2021-11-15T19:30:35-0800',
-    },
-    {
-      id: 1,
-      store_id: 0,
-      gift_card_id: 0,
-      gift_card_code_id: 0,
-      transaction_id: null,
-      external_id: null,
-      balance_adjustment: 20,
-      user_id: 0,
-      source: null,
-      date_created: '2021-10-08T12:30:33-0800',
-      date_modified: '2021-10-08T12:30:35-0800',
-    },
-  ],
-
   gift_card_item_categories: [],
 
   reports: [
