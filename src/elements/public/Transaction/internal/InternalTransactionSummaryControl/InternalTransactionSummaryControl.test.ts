@@ -231,7 +231,7 @@ describe('Transaction', () => {
               customer_id: 0,
               coupon_code_id: 0,
               transaction_id: 0,
-              code: 'Test1',
+              code: 'CODE1',
               amount: -1,
               name: 'Test1',
               display: '-1.00',
@@ -248,7 +248,7 @@ describe('Transaction', () => {
               customer_id: 0,
               coupon_code_id: 0,
               transaction_id: 0,
-              code: 'Test2',
+              code: 'CODE2',
               amount: -2,
               name: 'Test2',
               display: '-2.00',
@@ -283,7 +283,7 @@ describe('Transaction', () => {
       await waitUntil(() => !!control.__store);
 
       expect(label1).to.exist;
-      expect(label1).to.include.text('Test1');
+      expect(label1).to.include.text('Test1 • CODE1');
 
       expect(value1).to.exist;
       expect(value1).to.have.property('key', 'price');
@@ -298,7 +298,7 @@ describe('Transaction', () => {
       const value2 = label2.nextElementSibling!.firstElementChild;
 
       expect(label2).to.exist;
-      expect(label2).to.include.text('Test2');
+      expect(label2).to.include.text('Test2 • CODE2');
 
       expect(value2).to.exist;
       expect(value2).to.have.property('key', 'price');

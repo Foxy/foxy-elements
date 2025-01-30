@@ -70,10 +70,10 @@ export class InternalTransactionSummaryControl extends InternalControl {
             }
           })
         }
-        ${data?._embedded?.['fx:discounts']?.map(discount => {
+        ${data?._embedded?.['fx:discounts']?.map(({ name, code: c, amount }) => {
           return html`
-            <span data-testclass="discount">${discount.name}&colon;</span>
-            <span>${this.__renderPrice(discount.amount, true)}</span>
+            <span data-testclass="discount">${name}${c ? html` &bull; ${c}` : ''}&colon;</span>
+            <span>${this.__renderPrice(amount, true)}</span>
           `;
         })}
 
