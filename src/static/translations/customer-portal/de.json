@@ -1047,6 +1047,8 @@
             "description": "Beschreibung",
             "price": "{{amount, price}}",
             "time": "{{value, date}}",
+            "test": "Test",
+            "hidden_hint": "Diese Transaktion ist archiviert",
             "status_capturing": "Erfassen",
             "status_captured": "Gefangen",
             "status_approved": "Genehmigt",

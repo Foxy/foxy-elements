@@ -1047,6 +1047,8 @@
             "description": "Beskrivning",
             "price": "{{amount, price}}",
             "time": "{{value, date}}",
+            "test": "Test",
+            "hidden_hint": "Denna transaktion är arkiverad",
             "status_capturing": "Fångande",
             "status_captured": "Fångad",
             "status_approved": "Godkänd",

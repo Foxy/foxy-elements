@@ -57,6 +57,26 @@ describe('TransactionCard', () => {
       expect(total).to.have.deep.property('options', { amount, currencyDisplay });
     });
 
+    it('renders a special label for test transactions once loaded', async () => {
+      const element = await fixture<TransactionCard>(html`
+        <foxy-transaction-card
+          href="https://demo.api/hapi/transactions/0?zoom=items"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-transaction-card>
+      `);
+
+      await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
+
+      element.data = { ...element.data!, is_test: false };
+      await element.requestUpdate();
+      expect(element.renderRoot.querySelector('foxy-i18n[key="test"')).to.not.exist;
+
+      element.data = { ...element.data!, is_test: true };
+      await element.requestUpdate();
+      expect(element.renderRoot.querySelector('foxy-i18n[key="test"')).to.exist;
+    });
+
     it('renders "total:before" slot by default', async () => {
       const layout = html`<foxy-transaction-card></foxy-transaction-card>`;
       const element = await fixture<TransactionCard>(layout);
@@ -139,6 +159,31 @@ describe('TransactionCard', () => {
 
       expect(time).to.have.attribute('options', timeOptions);
       expect(tooltip).to.exist;
+    });
+
+    it('renders a special label for hidden transactions once loaded', async () => {
+      const element = await fixture<TransactionCard>(html`
+        <foxy-transaction-card
+          href="https://demo.api/hapi/transactions/0?zoom=items"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-transaction-card>
+      `);
+
+      await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
+      element.data = { ...element.data!, hide_transaction: false };
+      await element.requestUpdate();
+
+      expect(element.renderRoot.querySelector('vcf-tooltip[for="hidden"]')).to.not.exist;
+      expect(element.renderRoot.querySelector('iron-icon#hidden')).to.not.exist;
+      expect(element.renderRoot.querySelector('foxy-i18n[key="hidden_hint"')).to.not.exist;
+
+      element.data = { ...element.data!, hide_transaction: true };
+      await element.requestUpdate();
+
+      expect(element.renderRoot.querySelector('vcf-tooltip[for="hidden"]')).to.exist;
+      expect(element.renderRoot.querySelector('iron-icon#hidden')).to.exist;
+      expect(element.renderRoot.querySelector('foxy-i18n[key="hidden_hint"')).to.exist;
     });
 
     it('renders "status:before" slot by default', async () => {

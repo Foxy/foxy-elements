@@ -252,6 +252,8 @@
         "description": "Description",
         "price": "{{amount, price}}",
         "time": "{{value, date}}",
+        "test": "Test",
+        "hidden_hint": "This transaction is archived",
         "status_capturing": "Capturing",
         "status_captured": "Captured",
         "status_approved": "Approved",
