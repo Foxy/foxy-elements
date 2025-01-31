@@ -115,6 +115,10 @@ export const ThemeableMixin = <TBase extends Base>(
             display: none !important;
           }
 
+          option {
+            color: var(--lumo-body-text-color);
+          }
+
           @tailwind components;
 
           @tailwind utilities;
