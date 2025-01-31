@@ -312,6 +312,10 @@
           "alert_status_pending_fraud_review": "The payment gateway flagged this transaction as potentially fraudulent. Please log in to your gateway’s dashboard and look for this transaction to review.",
           "alert_status_rejected": "The payment gateway refused to process this transaction based on its internal policy. You may be able to get more information about this error by logging in to your gateway’s dashboard and looking for this transaction.",
           "alert_status_declined": "The payment method used for this transaction was declined. This could be due to insufficient funds, an expired card, or a different reason. You may be able to get more information about this error in your gateway’s dashboard.",
+          "badges": {
+            "test": "Test",
+            "archived": "Archived"
+          },
           "copy-id": {
             "failed_to_copy": "Failed to copy",
             "click_to_copy": "Copy ID",

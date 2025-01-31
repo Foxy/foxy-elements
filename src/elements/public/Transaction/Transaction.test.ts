@@ -588,6 +588,42 @@ describe('Transaction', () => {
     expect(element.headerSubtitleOptions).to.have.property('context', 'integration_placed_order');
   });
 
+  it('renders "test" badge in subtitle if transaction is a test transaction', async () => {
+    const router = createRouter();
+    const element = await fixture<Transaction>(html`
+      <foxy-transaction
+        href="https://demo.api/hapi/transactions/1?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-transaction>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    element.data = { ...element.data!, is_test: true };
+    expect(element.headerSubtitleBadges).to.deep.include({ key: 'test' });
+
+    element.data = { ...element.data!, is_test: false };
+    expect(element.headerSubtitleBadges).to.not.deep.include({ key: 'test' });
+  });
+
+  it('renders "archived" badge in subtitle if transaction is archived', async () => {
+    const router = createRouter();
+    const element = await fixture<Transaction>(html`
+      <foxy-transaction
+        href="https://demo.api/hapi/transactions/1?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-transaction>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    element.data = { ...element.data!, hide_transaction: true };
+    expect(element.headerSubtitleBadges).to.deep.include({ key: 'archived' });
+
+    element.data = { ...element.data!, hide_transaction: false };
+    expect(element.headerSubtitleBadges).to.not.deep.include({ key: 'archived' });
+  });
+
   it('uses display_id as ID copied by Copy ID button', async () => {
     const router = createRouter();
     const element = await fixture<Transaction>(html`
