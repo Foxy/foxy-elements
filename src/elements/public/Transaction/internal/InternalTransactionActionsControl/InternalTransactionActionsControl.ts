@@ -5,6 +5,8 @@ import { Transaction } from '../../Transaction';
 
 export class InternalTransactionActionsControl extends InternalControl {
   renderControl(): TemplateResult {
+    const host = this.nucleon as Transaction | null;
+
     return html`
       <div class="flex flex-wrap gap-x-m gap-y-xs">
         ${this.nucleon?.data?._links['fx:capture'] ? this.__renderCaptureAction() : ''}
@@ -13,6 +15,21 @@ export class InternalTransactionActionsControl extends InternalControl {
         ${this.nucleon?.data?._links['fx:send_emails'] ? this.__renderSendEmailsAction() : ''}
         ${this.nucleon?.data?._links['fx:subscription'] ? this.__renderSubscriptionAction() : ''}
         ${this.nucleon?.data?._links['fx:receipt'] ? this.__renderReceiptAction() : ''}
+
+        <vaadin-button
+          theme="tertiary-inline"
+          ?disabled=${this.disabledSelector.matches('archive', true)}
+          @click=${() => {
+            host?.edit({ hide_transaction: !host?.form.hide_transaction });
+            host?.submit();
+          }}
+        >
+          <foxy-i18n
+            infer="archive"
+            key="caption_${host?.form.hide_transaction ? 'unarchive' : 'archive'}"
+          >
+          </foxy-i18n>
+        </vaadin-button>
       </div>
     `;
   }

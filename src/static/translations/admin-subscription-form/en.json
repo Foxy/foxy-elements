@@ -2004,6 +2004,10 @@
           },
           "receipt": {
             "caption": "View receipt"
+          },
+          "archive": {
+            "caption_archive": "Archive",
+            "caption_unarchive": "Unarchive"
           }
         },
         "spinner": {
