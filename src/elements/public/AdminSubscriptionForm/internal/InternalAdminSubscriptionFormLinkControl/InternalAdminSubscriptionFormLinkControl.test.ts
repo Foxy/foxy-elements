@@ -67,48 +67,6 @@ describe('AdminSubscriptionForm', () => {
       expect(helperText).to.exist;
     });
 
-    it('renders sub_token link from parent form by default', async () => {
-      const data = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
-      data._links['fx:sub_token_url'].href = 'https://example.com/sub_token_url';
-
-      const nucleon = await fixture<NucleonElement<Data>>(html`
-        <foxy-nucleon .data=${data}>
-          <foxy-internal-admin-subscription-form-link-control infer="">
-          </foxy-internal-admin-subscription-form-link-control>
-        </foxy-nucleon>
-      `);
-
-      const control = nucleon.firstElementChild as Control;
-      control.inferProperties();
-      await control.requestUpdate();
-
-      const link = control.renderRoot.querySelector('a') as HTMLAnchorElement;
-      expect(link).to.exist;
-      expect(link.href).to.equal('https://example.com/sub_token_url');
-      expect(link.target).to.equal('_blank');
-    });
-
-    it('adds search to sub_token link when set', async () => {
-      const data = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
-      data._links['fx:sub_token_url'].href = 'https://example.com/sub_token_url?foo=bar';
-
-      const nucleon = await fixture<NucleonElement<Data>>(html`
-        <foxy-nucleon .data=${data}>
-          <foxy-internal-admin-subscription-form-link-control search="cart=checkout" infer="">
-          </foxy-internal-admin-subscription-form-link-control>
-        </foxy-nucleon>
-      `);
-
-      const control = nucleon.firstElementChild as Control;
-      control.inferProperties();
-      await control.requestUpdate();
-
-      const link = control.renderRoot.querySelector('a') as HTMLAnchorElement;
-      expect(link).to.exist;
-      expect(link.href).to.equal('https://example.com/sub_token_url?cart=checkout&foo=bar');
-      expect(link.target).to.equal('_blank');
-    });
-
     it('renders copy to clipboard button with link url', async () => {
       const data = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
       data._links['fx:sub_token_url'].href = 'https://example.com/sub_token_url';

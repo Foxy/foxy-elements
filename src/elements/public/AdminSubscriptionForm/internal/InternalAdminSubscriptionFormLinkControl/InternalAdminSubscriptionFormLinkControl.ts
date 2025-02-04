@@ -35,20 +35,12 @@ export class InternalAdminSubscriptionFormLinkControl extends ResponsiveMixin(In
     }
 
     return html`
-      <div class="leading-xs flex items-center gap-s">
-        <a
-          target="_blank"
-          class="truncate min-w-0 font-medium rounded cursor-pointer text-primary hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50"
-          href=${href}
-        >
-          <foxy-i18n infer="" key="label"></foxy-i18n>
-        </a>
-
-        <span> &bull; </span>
-
+      <div class="leading-xs flex items-center gap-xs">
+        <foxy-i18n class="truncate min-w-0" infer="" key="label"></foxy-i18n>
+        <span class="text-tertiary"> &bull; </span>
         <foxy-copy-to-clipboard
-          layout="text"
-          theme="tertiary-inline contrast"
+          layout="complete"
+          theme="tertiary-inline"
           infer="copy-to-clipboard"
           text=${href}
         >
