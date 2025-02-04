@@ -15,8 +15,8 @@ export default {
 };
 
 export const Playground = (args: Record<string, unknown>): TemplateResult => html`
-  <div class="flex items-center gap-2 text-m mb-4" style="color: var(--lumo-secondary-text-color)">
-    <span>${args.text}</span>
+  <div class="flex items-center gap-2 text-xl mb-2">
+    <span>Layout: icon (default)</span>
     <foxy-copy-to-clipboard
       icon=${args.icon as string}
       text=${args.text as string}
@@ -27,12 +27,11 @@ export const Playground = (args: Record<string, unknown>): TemplateResult => htm
     </foxy-copy-to-clipboard>
   </div>
 
-  <div
-    class="flex items-center gap-2 text-xl font-medium mb-4"
-    style="color: var(--lumo-body-text-color)"
-  >
-    <span>${args.text}</span>
+  <div class="flex items-center gap-2 text-xl mb-2">
+    <span>Layout: text</span>
     <foxy-copy-to-clipboard
+      layout="text"
+      theme="tertiary-inline"
       icon=${args.icon as string}
       text=${args.text as string}
       lang=${args.lang as string}
@@ -42,14 +41,13 @@ export const Playground = (args: Record<string, unknown>): TemplateResult => htm
     </foxy-copy-to-clipboard>
   </div>
 
-  <div
-    class="flex items-start gap-2 text-2xl font-medium"
-    style="color: var(--lumo-primary-text-color)"
-  >
-    <span>${new Array(16).fill(args.text).join(' ')}</span>
+  <div class="flex items-center gap-2 text-xl mb-2">
+    <span>Layout: complete (text + icon)</span>
     <foxy-copy-to-clipboard
+      layout="complete"
+      theme="tertiary-inline"
       icon=${args.icon as string}
-      text=${new Array(16).fill(args.text).join(' ')}
+      text=${args.text as string}
       lang=${args.lang as string}
       ns=${args.ns as string}
       ?disabled=${args.disabled as boolean}
