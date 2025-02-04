@@ -1005,18 +1005,17 @@ export class StoreForm extends Base<Data> {
     const config = this.__getCustomDisplayIdConfig();
     const startAsInt = parseInt(config.start || '0');
     const lengthAsInt = parseInt(config.length || '0');
-    const numericLength = lengthAsInt - config.prefix.length - config.suffix.length;
     const randomExampleNumericId = Math.min(
-      startAsInt + Math.floor(Math.random() * Math.pow(10, numericLength)),
-      Math.pow(10, numericLength) - 1
+      startAsInt + Math.floor(Math.random() * Math.pow(10, lengthAsInt)),
+      Math.pow(10, lengthAsInt) - 1
     );
 
-    if (config.start && config.length && startAsInt / 10 <= numericLength) {
+    if (config.start && config.length && startAsInt / 10 <= lengthAsInt) {
       return {
-        first: `${config.prefix}${startAsInt.toString().padStart(numericLength, '0')}${
+        first: `${config.prefix}${startAsInt.toString().padStart(lengthAsInt, '0')}${
           config.suffix
         }`,
-        random: `${config.prefix}${randomExampleNumericId.toString().padStart(numericLength, '0')}${
+        random: `${config.prefix}${randomExampleNumericId.toString().padStart(lengthAsInt, '0')}${
           config.suffix
         }`,
       };
@@ -1028,17 +1027,14 @@ export class StoreForm extends Base<Data> {
     const transactionJournalEntriesConfig = customDisplayIdConfig.transaction_journal_entries;
     const startAsInt = parseInt(customDisplayIdConfig.start || '0');
     const lengthAsInt = parseInt(customDisplayIdConfig.length || '0');
-    const numericLength =
-      lengthAsInt - customDisplayIdConfig.prefix.length - customDisplayIdConfig.suffix.length;
-
     const randomExampleNumericId = Math.min(
-      startAsInt + Math.floor(Math.random() * Math.pow(10, numericLength)),
-      Math.pow(10, numericLength) - 1
+      startAsInt + Math.floor(Math.random() * Math.pow(10, lengthAsInt)),
+      Math.pow(10, lengthAsInt) - 1
     );
 
     const randomExampleId = `${customDisplayIdConfig.prefix}${randomExampleNumericId
       .toString()
-      .padStart(numericLength, '0')}${customDisplayIdConfig.suffix}`;
+      .padStart(lengthAsInt, '0')}${customDisplayIdConfig.suffix}`;
 
     const randomNumericEntryId = Math.floor(Math.random() * 1000);
     const randomEntryId = String(randomNumericEntryId).padStart(3, '0');
@@ -1046,7 +1042,7 @@ export class StoreForm extends Base<Data> {
     if (
       customDisplayIdConfig.start &&
       customDisplayIdConfig.length &&
-      startAsInt / 10 <= numericLength
+      startAsInt / 10 <= lengthAsInt
     ) {
       return {
         authcapture: `${randomExampleId}${transactionJournalEntriesConfig.transaction_separator}${transactionJournalEntriesConfig.log_detail_request_types.transaction_authcapture.prefix}${randomEntryId}`,

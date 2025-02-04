@@ -1856,7 +1856,7 @@ describe('StoreForm', () => {
     expect(firstExample).to.exist;
     expect(firstExample).to.be.instanceOf(I18n);
     expect(firstExample).to.have.attribute('infer', '');
-    expect(firstExample?.nextElementSibling?.textContent?.trim()).to.equal('FOO-0008-BAR');
+    expect(firstExample?.nextElementSibling?.textContent?.trim()).to.equal('FOO-000000000008-BAR');
 
     expect(randomExample).to.exist;
     expect(randomExample).to.be.instanceOf(I18n);
@@ -1869,7 +1869,7 @@ describe('StoreForm', () => {
 
     expect(randomExamplePrefix).to.equal('FOO');
     expect(parseInt(randomExampleId as string)).to.be.greaterThanOrEqual(8);
-    expect(randomExampleId).to.have.length(4);
+    expect(randomExampleId).to.have.length(12);
     expect(randomExampleSuffix).to.equal('BAR');
   });
 
@@ -2207,28 +2207,28 @@ describe('StoreForm', () => {
     expect(authcaptureExample).to.be.instanceOf(I18n);
     expect(authcaptureExample).to.have.attribute('infer', '');
     expect(authcaptureExample?.nextElementSibling?.textContent?.trim()).to.match(
-      /FOO-\d{4}-BAR\|AU-\d{3}/
+      /FOO-\d{12}-BAR\|AU-\d{3}/
     );
 
     expect(captureExample).to.exist;
     expect(captureExample).to.be.instanceOf(I18n);
     expect(captureExample).to.have.attribute('infer', '');
     expect(captureExample?.nextElementSibling?.textContent?.trim()).to.match(
-      /FOO-\d{4}-BAR\|CA-\d{3}/
+      /FOO-\d{12}-BAR\|CA-\d{3}/
     );
 
     expect(voidExample).to.exist;
     expect(voidExample).to.be.instanceOf(I18n);
     expect(voidExample).to.have.attribute('infer', '');
     expect(voidExample?.nextElementSibling?.textContent?.trim()).to.match(
-      /FOO-\d{4}-BAR\|VO-\d{3}/
+      /FOO-\d{12}-BAR\|VO-\d{3}/
     );
 
     expect(refundExample).to.exist;
     expect(refundExample).to.be.instanceOf(I18n);
     expect(refundExample).to.have.attribute('infer', '');
     expect(refundExample?.nextElementSibling?.textContent?.trim()).to.match(
-      /FOO-\d{4}-BAR\|RE-\d{3}/
+      /FOO-\d{12}-BAR\|RE-\d{3}/
     );
   });
 
