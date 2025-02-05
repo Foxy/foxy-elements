@@ -244,6 +244,10 @@ try {
   registerStyles(
     'vaadin-button',
     css`
+      #button {
+        cursor: pointer;
+      }
+
       :host([theme~='primary']) {
         font-weight: 500;
       }
