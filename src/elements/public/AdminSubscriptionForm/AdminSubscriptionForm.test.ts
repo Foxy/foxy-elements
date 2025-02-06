@@ -3,7 +3,7 @@ import type { Data } from './types';
 
 import { html, expect, fixture, waitUntil } from '@open-wc/testing';
 import { AdminSubscriptionForm as Form } from './AdminSubscriptionForm';
-
+import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
 import { createRouter } from '../../../server/index';
 import { getTestData } from '../../../testgen/getTestData';
 
@@ -104,18 +104,14 @@ describe('AdminSubscriptionForm', () => {
     expect(form.hiddenSelector.matches('cancel-action', true)).to.be.false;
   });
 
-  it('uses custom subtitle options based on the subscription status', async () => {
-    const form = new Form();
-    expect(form.headerSubtitleOptions).to.deep.equal({ context: 'inactive' });
-
+  it('uses custom subtitle key based on the subscription status', async () => {
     const testData = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
-    testData.is_active = true;
-    form.data = testData;
-    expect(form.headerSubtitleOptions).to.deep.equal({ context: 'active' });
+    const status = getSubscriptionStatus(testData);
 
-    testData.is_active = false;
+    const form = new Form();
     form.data = testData;
-    expect(form.headerSubtitleOptions).to.deep.equal({ context: 'inactive' });
+
+    expect(form.headerSubtitleKey).to.equal(`subtitle_${status}`);
   });
 
   it('renders error message control', async () => {

@@ -2,6 +2,7 @@ import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
 
+import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
@@ -29,8 +30,9 @@ export class AdminSubscriptionForm extends Base<Data> {
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
-  get headerSubtitleOptions(): Record<string, unknown> {
-    return { context: this.data?.is_active ? 'active' : 'inactive' };
+  get headerSubtitleKey(): string {
+    const status = getSubscriptionStatus(this.data);
+    return status ? `subtitle_${status}` : super.headerSubtitleKey;
   }
 
   renderBody(): TemplateResult {

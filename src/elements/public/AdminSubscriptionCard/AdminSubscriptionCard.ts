@@ -5,6 +5,7 @@ import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
 
+import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { parseFrequency } from '../../../utils/parse-frequency';
@@ -52,7 +53,6 @@ export class AdminSubscriptionCard extends Base<Data> {
   private readonly __storeLoaderId = 'storeLoader';
 
   renderBody(): TemplateResult {
-    const isFailed = !!this.data?.first_failed_transaction_date;
     const customer = this.__customer;
     const cart = this.__transactionTemplate;
 
@@ -60,8 +60,7 @@ export class AdminSubscriptionCard extends Base<Data> {
     const priceOptions = this.__priceOptions;
     const summaryOptions = this.__summaryOptions;
     const summaryKey = this.__summaryKey;
-    const statusKey = this.__statusKey;
-    const statusOptions = this.__statusOptions;
+    const status = getSubscriptionStatus(this.data);
 
     return html`
       <foxy-nucleon
@@ -141,9 +140,9 @@ export class AdminSubscriptionCard extends Base<Data> {
           </span>
         </div>
 
-        <div class="truncate text-s ${isFailed ? 'text-error' : 'text-secondary'}">
-          ${statusOptions && statusKey
-            ? html`<foxy-i18n infer="" key=${statusKey} .options=${statusOptions}></foxy-i18n>`
+        <div class="truncate text-s ${status === 'failed' ? 'text-error' : 'text-secondary'}">
+          ${this.data && status
+            ? html`<foxy-i18n infer="" key="status_${status}" .options=${this.data}></foxy-i18n>`
             : html`&ZeroWidthSpace;`}
         </div>
 
@@ -315,18 +314,6 @@ export class AdminSubscriptionCard extends Base<Data> {
     if (items) return items.isApproximateCount ? 'summary_approximate' : 'summary';
   }
 
-  private get __statusOptions() {
-    const data = this.data;
-
-    if (data === null) return;
-    if (data.first_failed_transaction_date) return { date: data.first_failed_transaction_date };
-    if (data.end_date) return { date: data.end_date };
-    if (data.is_active === false) return {};
-    if (new Date(data.start_date) > new Date()) return { date: data.start_date };
-
-    return { date: data.next_transaction_date };
-  }
-
   private get __currencyCode() {
     const cart = this.__transactionTemplate;
 
@@ -359,22 +346,6 @@ export class AdminSubscriptionCard extends Base<Data> {
       amount: `${totalOrder} ${currencyCode}`,
       currencyDisplay,
     };
-  }
-
-  private get __statusKey() {
-    const data = this.data;
-
-    if (data === null) return;
-    if (data.first_failed_transaction_date) return 'subscription_failed';
-    if (data.end_date) {
-      const hasEnded = new Date(data.end_date).getTime() > Date.now();
-      return hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
-    }
-
-    if (data.is_active === false) return 'subscription_inactive';
-    if (new Date(data.start_date) > new Date()) return 'subscription_will_be_active';
-
-    return 'subscription_active';
   }
 
   private get __priceKey() {

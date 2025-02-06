@@ -7,6 +7,7 @@ import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { Rels } from '@foxy.io/sdk/backend';
 
 import { Choice, Group, Skeleton } from '../../private/index';
+import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector, Resource } from '@foxy.io/sdk/core';
@@ -382,28 +383,9 @@ export class SubscriptionForm extends Base<Data> {
     }
   }
 
-  get headerSubtitleOptions(): Record<string, unknown> {
-    let context: string;
-    let date: string | null = null;
-
-    if (this.data?.first_failed_transaction_date) {
-      context = 'failed';
-      date = this.data.first_failed_transaction_date;
-    } else if (this.data?.end_date) {
-      const hasEnded = new Date(this.data.end_date).getTime() > Date.now();
-      context = hasEnded ? 'will_be_cancelled' : 'cancelled';
-      date = this.data.end_date;
-    } else if (!this.data?.is_active) {
-      context = 'inactive';
-    } else if (new Date(this.data.start_date) > new Date()) {
-      context = 'will_be_active';
-      date = this.data.start_date;
-    } else {
-      context = 'active';
-      date = this.data.next_transaction_date;
-    }
-
-    return { date, context };
+  get headerSubtitleKey(): string {
+    const status = getSubscriptionStatus(this.data);
+    return status ? `subtitle_${status}` : super.headerSubtitleKey;
   }
 
   renderBody(): TemplateResult {

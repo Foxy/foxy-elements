@@ -35,6 +35,7 @@ import { Choice } from '../../private/Choice/Choice';
 import { links } from '../../../server/hapi/links';
 import { I18n } from '../I18n/I18n';
 import { stub } from 'sinon';
+import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
 
 const fromDefaults = (key: string, overrides: Record<PropertyKey, unknown>) => {
   return { ...defaults[key](new URLSearchParams(), {}), ...overrides };
@@ -379,108 +380,14 @@ describe('SubscriptionForm', () => {
       });
     });
 
-    it('once loaded, renders a special status for failed subscriptions in subtitle', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const date = new Date().toISOString();
-      const data = { ...(await getTestData<Data>(href)), first_failed_transaction_date: date };
-      const element = await fixture<Form>(html`
-        <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
-      `);
+    it('uses custom subtitle key based on the subscription status', async () => {
+      const testData = await getTestData<Data>('./hapi/subscriptions/0');
+      const status = getSubscriptionStatus(testData);
 
-      await waitUntil(() => !!element.headerSubtitleOptions.context, '', { timeout: 10000 });
-      expect(element.headerSubtitleOptions).to.deep.equal({ context: 'failed', date });
-    });
+      const form = new Form();
+      form.data = testData;
 
-    it('once loaded, renders a special status for subscriptions that are about to end in subtitle', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-
-      data.first_failed_transaction_date = null;
-      data.end_date = new Date(Date.now() + 86400000).toISOString();
-
-      const element = await fixture<Form>(html`
-        <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
-      `);
-
-      await waitUntil(() => !!element.headerSubtitleOptions.context, '', { timeout: 10000 });
-      expect(element.headerSubtitleOptions).to.deep.equal({
-        context: 'will_be_cancelled',
-        date: data.end_date,
-      });
-    });
-
-    it('once loaded, renders a special status for subscriptions that have ended in subtitle', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-
-      data.first_failed_transaction_date = null;
-      data.end_date = new Date(2020, 0, 1).toISOString();
-
-      const element = await fixture<Form>(html`
-        <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
-      `);
-
-      await waitUntil(() => !!element.headerSubtitleOptions.context, '', { timeout: 10000 });
-      expect(element.headerSubtitleOptions).to.deep.equal({
-        context: 'cancelled',
-        date: data.end_date,
-      });
-    });
-
-    it('once loaded, renders a special status for active subscriptions in subtitle', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-
-      data.first_failed_transaction_date = null;
-      data.end_date = null;
-
-      const element = await fixture<Form>(html`
-        <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
-      `);
-
-      await waitUntil(() => !!element.headerSubtitleOptions.context, '', { timeout: 10000 });
-      expect(element.headerSubtitleOptions).to.deep.equal({
-        context: 'active',
-        date: data.next_transaction_date,
-      });
-    });
-
-    it('once loaded, renders a special status for subscriptions with future start date in subtitle', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-
-      data.first_failed_transaction_date = null;
-      data.start_date = new Date(Date.now() + 3600000).toISOString();
-      data.end_date = null;
-
-      const element = await fixture<Form>(html`
-        <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
-      `);
-
-      await waitUntil(() => !!element.headerSubtitleOptions.context, '', { timeout: 10000 });
-      expect(element.headerSubtitleOptions).to.deep.equal({
-        context: 'will_be_active',
-        date: data.start_date,
-      });
-    });
-
-    it('once loaded, renders a special status for inactive subscriptions in subtitle', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-
-      data.first_failed_transaction_date = null;
-      data.is_active = false;
-      data.end_date = null;
-
-      const element = await fixture<Form>(html`
-        <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
-      `);
-
-      await waitUntil(() => !!element.headerSubtitleOptions.context, '', { timeout: 10000 });
-      expect(element.headerSubtitleOptions).to.deep.equal({
-        context: 'inactive',
-        date: null,
-      });
+      expect(form.headerSubtitleKey).to.equal(`subtitle_${status}`);
     });
   });
 

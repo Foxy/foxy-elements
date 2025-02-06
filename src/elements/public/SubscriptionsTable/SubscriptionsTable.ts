@@ -3,6 +3,8 @@ import { Data } from './types';
 import { Table } from '../Table/Table';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { parseFrequency } from '../../../utils/parse-frequency';
+import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
+import { classMap } from '../../../utils/class-map';
 
 export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-table')<Data> {
   static priceColumn: Column<Data> = {
@@ -50,38 +52,24 @@ export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-
   static statusColumn: Column<Data> = {
     hideBelow: 'sm',
     cell: ({ ns, lang, data, html }) => {
-      let color = 'bg-contrast-5 text-secondary';
-      let date: string;
-      let key: string;
-
-      if (data.first_failed_transaction_date) {
-        color = 'bg-error-10 text-error';
-        date = data.first_failed_transaction_date;
-        key = 'subscription_failed';
-      } else if (data.end_date) {
-        date = data.end_date;
-        const hasEnded = new Date(data.end_date).getTime() > Date.now();
-        key = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
-      } else if (!data.is_active) {
-        date = '';
-        key = 'subscription_inactive';
-      } else if (new Date(data.start_date) > new Date()) {
-        date = data.start_date;
-        key = 'subscription_will_be_active';
-      } else {
-        color = 'bg-success-10 text-success';
-        date = data.next_transaction_date;
-        key = 'subscription_active';
-      }
+      const status = getSubscriptionStatus(data);
+      const isRed = status === 'failed';
+      const isGreen = status === 'next_payment' || !!status?.startsWith('will_end');
+      const isNormal = !isGreen && !isRed;
 
       return html`
         <foxy-i18n
           data-testclass="i18n statuses"
-          class="px-s py-xs text-m font-medium block whitespace-normal rounded ${color}"
+          class=${classMap({
+            'px-s py-xs text-m font-medium inline-block whitespace-normal rounded': true,
+            'text-secondary bg-contrast-5': isNormal,
+            'text-success bg-success-10': isGreen,
+            'text-error bg-error-10': isRed,
+          })}
           lang=${lang}
-          key=${key}
+          key="status_${status}"
           ns=${ns}
-          .options=${{ date }}
+          .options=${data}
         >
         </foxy-i18n>
       `;

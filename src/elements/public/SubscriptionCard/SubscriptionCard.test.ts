@@ -11,6 +11,7 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { getByKey } from '../../../testgen/getByKey';
+import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
 
 describe('SubscriptionCard', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -47,111 +48,17 @@ describe('SubscriptionCard', () => {
     expect(control).to.have.attribute('ns', 'subscription-card');
   });
 
-  it('once loaded, renders a special status for failed subscriptions', async () => {
-    const href = './hapi/subscriptions/0?zoom=transaction_template:items';
-    const date = new Date().toISOString();
-    const data = { ...(await getTestData<Data>(href)), first_failed_transaction_date: date };
-    const layout = html`<foxy-subscription-card lang="es" .data=${data}></foxy-subscription-card>`;
-    const element = await fixture<SubscriptionCard>(layout);
-    const control = await getByTestId(element, 'status');
-
-    expect(control).to.have.property('localName', 'foxy-i18n');
-    expect(control).to.have.attribute('options', JSON.stringify({ date }));
-    expect(control).to.have.attribute('lang', 'es');
-    expect(control).to.have.attribute('key', 'subscription_failed');
-    expect(control).to.have.attribute('ns', 'subscription-card');
-  });
-
-  it('once loaded, renders a special status for subscriptions that are about to end', async () => {
+  it('once loaded, renders subscription status', async () => {
     const href = './hapi/subscriptions/0?zoom=transaction_template:items';
     const data = await getTestData<Data>(href);
-
-    data.first_failed_transaction_date = null;
-    data.end_date = new Date(Date.now() + 86400000).toISOString();
-
     const layout = html`<foxy-subscription-card lang="es" .data=${data}></foxy-subscription-card>`;
     const element = await fixture<SubscriptionCard>(layout);
     const control = await getByTestId(element, 'status');
 
     expect(control).to.have.property('localName', 'foxy-i18n');
-    expect(control).to.have.attribute('options', JSON.stringify({ date: data.end_date }));
+    expect(control).to.have.deep.property('options', data);
     expect(control).to.have.attribute('lang', 'es');
-    expect(control).to.have.attribute('key', 'subscription_will_be_cancelled');
-    expect(control).to.have.attribute('ns', 'subscription-card');
-  });
-
-  it('once loaded, renders a special status for subscriptions that have ended', async () => {
-    const href = './hapi/subscriptions/0?zoom=transaction_template:items';
-    const data = await getTestData<Data>(href);
-
-    data.first_failed_transaction_date = null;
-    data.end_date = new Date(2020, 0, 1).toISOString();
-
-    const layout = html`<foxy-subscription-card lang="es" .data=${data}></foxy-subscription-card>`;
-    const element = await fixture<SubscriptionCard>(layout);
-    const control = await getByTestId(element, 'status');
-
-    expect(control).to.have.property('localName', 'foxy-i18n');
-    expect(control).to.have.attribute('options', JSON.stringify({ date: data.end_date }));
-    expect(control).to.have.attribute('lang', 'es');
-    expect(control).to.have.attribute('key', 'subscription_cancelled');
-    expect(control).to.have.attribute('ns', 'subscription-card');
-  });
-
-  it('once loaded, renders a special status for active subscriptions', async () => {
-    const href = './hapi/subscriptions/0?zoom=transaction_template:items';
-    const data = await getTestData<Data>(href);
-
-    data.first_failed_transaction_date = null;
-    data.end_date = null;
-
-    const layout = html`<foxy-subscription-card lang="es" .data=${data}></foxy-subscription-card>`;
-    const element = await fixture<SubscriptionCard>(layout);
-    const control = await getByTestId(element, 'status');
-    const options = { date: data.next_transaction_date };
-
-    expect(control).to.have.property('localName', 'foxy-i18n');
-    expect(control).to.have.attribute('options', JSON.stringify(options));
-    expect(control).to.have.attribute('lang', 'es');
-    expect(control).to.have.attribute('key', 'subscription_active');
-    expect(control).to.have.attribute('ns', 'subscription-card');
-  });
-
-  it('once loaded, renders a special status for subscriptions that start soon', async () => {
-    const href = './hapi/subscriptions/0?zoom=transaction_template:items';
-    const data = await getTestData<Data>(href);
-
-    data.first_failed_transaction_date = null;
-    data.start_date = new Date(Date.now() + 3600000).toISOString();
-    data.end_date = null;
-
-    const layout = html`<foxy-subscription-card lang="es" .data=${data}></foxy-subscription-card>`;
-    const element = await fixture<SubscriptionCard>(layout);
-    const control = await getByTestId(element, 'status');
-    const options = { date: data.start_date };
-
-    expect(control).to.have.property('localName', 'foxy-i18n');
-    expect(control).to.have.attribute('options', JSON.stringify(options));
-    expect(control).to.have.attribute('lang', 'es');
-    expect(control).to.have.attribute('key', 'subscription_will_be_active');
-    expect(control).to.have.attribute('ns', 'subscription-card');
-  });
-
-  it('once loaded, renders a special status for inactive subscriptions', async () => {
-    const href = './hapi/subscriptions/0?zoom=transaction_template:items';
-    const data = await getTestData<Data>(href);
-
-    data.first_failed_transaction_date = null;
-    data.is_active = false;
-    data.end_date = null;
-
-    const layout = html`<foxy-subscription-card lang="es" .data=${data}></foxy-subscription-card>`;
-    const element = await fixture<SubscriptionCard>(layout);
-    const control = await getByTestId(element, 'status');
-
-    expect(control).to.have.property('localName', 'foxy-i18n');
-    expect(control).to.have.attribute('lang', 'es');
-    expect(control).to.have.attribute('key', 'subscription_inactive');
+    expect(control).to.have.attribute('key', `status_${getSubscriptionStatus(data)}`);
     expect(control).to.have.attribute('ns', 'subscription-card');
   });
 

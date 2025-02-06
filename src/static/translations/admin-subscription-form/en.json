@@ -2,8 +2,13 @@
   "header": {
     "title_existing": "Subscription #{{ id }}",
     "title_new": "",
-    "subtitle_inactive": "Inactive",
-    "subtitle_active": "Active",
+    "subtitle_failed_and_ended": "Ended on {{ end_date, date }} (failed on {{ first_failed_transaction_date, date }})",
+    "subtitle_failed": "Failed on {{ first_failed_transaction_date, date }}",
+    "subtitle_will_start": "Starts on {{ start_date, date }}",
+    "subtitle_will_end_after_payment": "Next payment on {{ next_transaction_date, date }}, ending {{ end_date, date }}",
+    "subtitle_will_end": "Ends on {{ end_date, date }}",
+    "subtitle_ended": "Ended on {{ end_date, date }}",
+    "subtitle_next_payment": "Next payment on {{ next_transaction_date, date }}",
     "subtitle": "",
     "copy-id": {
       "failed_to_copy": "Failed to copy",
