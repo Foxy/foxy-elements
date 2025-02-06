@@ -56,7 +56,7 @@ export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')
 
     const isActive = this.data?.is_active;
     const statuses = this.__statusesLoader?.data?._embedded['fx:webhook_statuses'];
-    const status = isActive ? (statuses ? statuses?.[0].status ?? 'none' : 'loading') : 'inactive';
+    const status = isActive ? (statuses ? statuses?.[0]?.status ?? 'none' : 'loading') : 'inactive';
     const isFailed = status === 'failed';
     const isSuccessful = status === 'successful';
 
