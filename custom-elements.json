@@ -651,6 +651,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -1077,6 +1082,10 @@
       "path": "./src/elements/public/AdminSubscriptionForm/index.ts",
       "attributes": [
         {
+          "name": "uoe-settings-page",
+          "description": "URL of the UOE settings page in the admin. If set, displays a link to that page in the self-service links section."
+        },
+        {
           "name": "simplify-ns-loading",
           "type": "boolean",
           "default": "false"
@@ -1164,6 +1173,11 @@
       ],
       "properties": [
         {
+          "name": "uoeSettingsPage",
+          "attribute": "uoe-settings-page",
+          "description": "URL of the UOE settings page in the admin. If set, displays a link to that page in the self-service links section."
+        },
+        {
           "name": "simplifyNsLoading",
           "attribute": "simplify-ns-loading",
           "type": "boolean",
@@ -1211,6 +1225,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -2032,6 +2051,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -2838,6 +2862,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -3916,6 +3945,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -4381,6 +4415,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -5783,6 +5822,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -6077,6 +6121,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -6636,6 +6685,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -7188,6 +7242,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -8216,6 +8275,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -8540,6 +8604,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -8846,6 +8915,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -9149,6 +9223,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -10112,6 +10191,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -11911,6 +11995,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -12329,6 +12418,10 @@
       "description": "Form element for creating or editing email templates (`fx:email_template`).",
       "attributes": [
         {
+          "name": "default-subject",
+          "description": "Default email subject. Use this instead of i18next key when you need to use handlebars syntax."
+        },
+        {
           "name": "simplify-ns-loading",
           "type": "boolean",
           "default": "false"
@@ -12416,6 +12509,11 @@
       ],
       "properties": [
         {
+          "name": "defaultSubject",
+          "attribute": "default-subject",
+          "description": "Default email subject. Use this instead of i18next key when you need to use handlebars syntax."
+        },
+        {
           "name": "simplifyNsLoading",
           "attribute": "simplify-ns-loading",
           "type": "boolean",
@@ -12463,6 +12561,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -12975,6 +13078,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -13508,6 +13616,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -14191,6 +14304,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -14863,6 +14981,10 @@
       ],
       "properties": [
         {
+          "name": "getTransactionPageHref",
+          "description": "When set, the Cart Item section will display a link to transaction."
+        },
+        {
           "name": "getCustomerHref",
           "description": "Returns a `fx:customer` Resource URL for a Customer ID.",
           "default": "\"id => {\\n    return `https://api.foxycart.com/customers/${id}`;\\n  }\""
@@ -14915,6 +15037,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -15384,6 +15511,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -15544,6 +15676,10 @@
       "description": "Form element for creating or editing gift cards (`fx:gift_card`).",
       "attributes": [
         {
+          "name": "codes-filter",
+          "description": "When set, will apply as default filter in Codes section."
+        },
+        {
           "name": "simplify-ns-loading",
           "type": "boolean",
           "default": "false"
@@ -15631,9 +15767,18 @@
       ],
       "properties": [
         {
+          "name": "getTransactionPageHref",
+          "description": "When set, the Cart Item section in Gift Card Code form will display a link to transaction."
+        },
+        {
           "name": "getCustomerHref",
           "description": "Returns a `fx:customer` Resource URL for a Customer ID.",
           "default": "\"id => {\\n    return `https://api.foxycart.com/customers/${id}`;\\n  }\""
+        },
+        {
+          "name": "codesFilter",
+          "attribute": "codes-filter",
+          "description": "When set, will apply as default filter in Codes section."
         },
         {
           "name": "simplifyNsLoading",
@@ -15683,6 +15828,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -16526,6 +16676,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -17365,6 +17520,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -17704,6 +17864,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -18265,6 +18430,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -19310,6 +19480,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -20158,6 +20333,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -21456,6 +21636,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -22036,6 +22221,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -22596,6 +22786,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -25511,6 +25706,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -25814,6 +26014,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -26410,6 +26615,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -26704,6 +26914,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -27830,6 +28045,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -28153,6 +28373,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -28447,6 +28672,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -29039,6 +29269,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -29366,6 +29601,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -30220,6 +30460,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -30787,6 +31032,11 @@
           "type": "Record<string, unknown>"
         },
         {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
+        },
+        {
           "name": "headerCopyIdValue",
           "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
           "type": "string | number"
@@ -31290,6 +31540,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
@@ -32067,6 +32322,11 @@
           "name": "headerSubtitleOptions",
           "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
           "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "{ key: string; }[]"
         },
         {
           "name": "headerCopyIdValue",
