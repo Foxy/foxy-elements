@@ -1,5 +1,7 @@
 {
   "status_successful": "OK",
+  "status_inactive": "Inactive",
+  "status_loading": "Loading",
   "status_pending": "Pending",
   "status_failed": "Failed",
   "status_none": "No runs yet",

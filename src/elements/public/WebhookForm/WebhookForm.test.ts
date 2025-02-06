@@ -5,6 +5,7 @@ import type { Data } from './types';
 import { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
 import { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
 import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
+import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
 import { expect, fixture, html } from '@open-wc/testing';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
@@ -23,6 +24,10 @@ describe('WebhookForm', () => {
 
   it('imports and defines foxy-internal-select-control element', () => {
     expect(customElements.get('foxy-internal-select-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-switch-control element', () => {
+    expect(customElements.get('foxy-internal-switch-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-text-control element', () => {
@@ -129,24 +134,20 @@ describe('WebhookForm', () => {
     expect(form.headerSubtitleOptions).to.have.property('context', form.data?.event_resource);
   });
 
-  it('renders a General summary', async () => {
-    const form = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
-    const control = form.renderRoot.querySelector('foxy-internal-summary-control[infer="general"]');
-    expect(control).to.exist;
-  });
-
-  it('renders webhook name as text control inside of the General summary', async () => {
+  it('renders webhook name as text control inside of group one', async () => {
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
-    const control = element.renderRoot.querySelector('[infer="general"] [infer="name"]');
+    const control = element.renderRoot.querySelector('[infer="group-one"] [infer="name"]');
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
     expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders webhook event resource type as select control inside of the General summary', async () => {
+  it('renders webhook event resource type as select control inside of group two', async () => {
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
-    const control = element.renderRoot.querySelector('[infer="general"] [infer="event-resource"]');
+    const control = element.renderRoot.querySelector(
+      '[infer="group-two"] [infer="event-resource"]'
+    );
     const options = [
       { value: 'subscription', label: 'event_resource_subscription' },
       { value: 'transaction', label: 'event_resource_transaction' },
@@ -159,33 +160,43 @@ describe('WebhookForm', () => {
     expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders webhook query as text control inside of the General summary', async () => {
+  it('renders webhook query as text control inside of group two', async () => {
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
-    const control = element.renderRoot.querySelector('[infer="general"] [infer="query"]');
+    const control = element.renderRoot.querySelector('[infer="group-two"] [infer="query"]');
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
     expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders webhook url as text control inside of the General summary', async () => {
+  it('renders webhook url as text control inside of group two', async () => {
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
-    const control = element.renderRoot.querySelector('[infer="general"] [infer="url"]');
+    const control = element.renderRoot.querySelector('[infer="group-two"] [infer="url"]');
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
     expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders webhook encryption key as password control inside of the General summary', async () => {
+  it('renders webhook encryption key as password control inside of group two', async () => {
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
-    const control = element.renderRoot.querySelector('[infer="general"] [infer="encryption-key"]');
+    const control = element.renderRoot.querySelector(
+      '[infer="group-two"] [infer="encryption-key"]'
+    );
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalPasswordControl);
     expect(control).to.have.attribute('show-generator');
     expect(control).to.have.deep.property('generatorOptions', { separator: '', length: 512 });
     expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders webhook is active switch inside of group three', async () => {
+    const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
+    const control = element.renderRoot.querySelector('[infer="group-three"] [infer="is-active"]');
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
   });
 
   it('renders webhook statuses when an existing webhook is loaded', async () => {
@@ -281,10 +292,10 @@ describe('WebhookForm', () => {
   it('hides event resource selector when loaded', async () => {
     const webhook = await getTestData<Data>('./hapi/webhooks/0');
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
-    expect(element.hiddenSelector.matches('general:event-resource', true)).to.be.false;
+    expect(element.hiddenSelector.matches('group-two:event-resource', true)).to.be.false;
 
     element.data = webhook;
-    expect(element.hiddenSelector.matches('general:event-resource', true)).to.be.true;
+    expect(element.hiddenSelector.matches('group-two:event-resource', true)).to.be.true;
   });
 
   it('hides logs and statuses in empty state', async () => {

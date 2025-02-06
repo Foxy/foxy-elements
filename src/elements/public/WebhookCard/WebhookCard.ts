@@ -32,25 +32,33 @@ export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')
    */
   resourceUri: string | null = null;
 
+  get isBodyReady(): boolean {
+    return !!this.__statusesLoader?.data && super.isBodyReady;
+  }
+
   renderBody(): TemplateResult {
-    let statusesLink: string | undefined = undefined;
+    const resourceId = getResourceId(this.resourceUri ?? '');
+    let statusesLink: string | undefined = this.data?._links['fx:statuses'].href;
 
-    try {
-      const resourceId = getResourceId(this.resourceUri ?? '');
-      const url = new URL(this.data?._links['fx:statuses'].href ?? '');
+    if (resourceId !== null) {
+      try {
+        const url = new URL(statusesLink ?? '');
 
-      if (resourceId !== null) {
         url.searchParams.set('resource_id', String(resourceId));
         url.searchParams.set('order', 'date_created desc');
         url.searchParams.set('limit', '1');
+
         statusesLink = url.toString();
+      } catch {
+        // ignore
       }
-    } catch {
-      // ignore
     }
 
-    const statusesLoader = this.__statusesLoader;
-    const lastStatus = statusesLoader?.data?._embedded['fx:webhook_statuses'][0];
+    const isActive = this.data?.is_active;
+    const statuses = this.__statusesLoader?.data?._embedded['fx:webhook_statuses'];
+    const status = isActive ? (statuses ? statuses?.[0].status ?? 'none' : 'loading') : 'inactive';
+    const isFailed = status === 'failed';
+    const isSuccessful = status === 'successful';
 
     return html`
       <div class="grid grid-cols-1 leading-s -my-xs">
@@ -60,14 +68,13 @@ export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')
           </span>
           <foxy-i18n
             class=${classMap({
-              'text-tertiary': !lastStatus || lastStatus.status === 'pending',
-              'text-success': lastStatus?.status === 'successful',
-              'text-error': lastStatus?.status === 'failed',
-              'hidden': !statusesLoader?.data,
+              'text-tertiary': !isSuccessful && !isFailed,
+              'text-success': isSuccessful,
+              'text-error': isFailed,
               'text-s': true,
             })}
             infer=""
-            key="status_${lastStatus?.status ?? 'none'}"
+            key="status_${status}"
           >
           </foxy-i18n>
         </p>

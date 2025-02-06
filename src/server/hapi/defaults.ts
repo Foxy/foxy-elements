@@ -735,6 +735,7 @@ export const defaults: Defaults = {
     query: '',
     encryption_key: '',
     event_resource: 'transaction',
+    is_active: false,
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),

@@ -1125,6 +1125,7 @@ export const createDataset: () => Dataset = () => ({
       query: 'zoom=items',
       encryption_key: 'HNL978XVXXCM66DM5N2T78D5MT66BC6D',
       event_resource: 'transaction',
+      is_active: true,
       date_created: '2020-10-28T07:03:19-0700',
       date_modified: '2020-10-28T08:45:46-0700',
     },

@@ -843,13 +843,15 @@
       "previous": "Previous",
       "card": {
         "status_successful": "OK",
+        "status_inactive": "Inactive",
+        "status_loading": "Loading",
         "status_pending": "Pending",
         "status_failed": "Failed",
         "status_none": "No runs yet",
         "spinner": {
           "loading_busy": "Loading",
-          "loading_empty": "No webhooks",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_empty": "No webhooks"
         }
       }
     }

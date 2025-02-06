@@ -109,13 +109,8 @@ describe('WebhookCard', () => {
       </foxy-webhook-card>
     `);
 
-    let status: HTMLElement | null = null;
-
-    await waitUntil(() => {
-      status = card.renderRoot.querySelector('foxy-i18n[key^="status_"]') as HTMLElement;
-      return !status.classList.contains('hidden');
-    });
-
+    await waitUntil(() => card.isBodyReady);
+    const status = card.renderRoot.querySelector('foxy-i18n[key^="status_"]') as HTMLElement;
     expect(status).to.have.attribute('infer', '');
 
     const statusUri = 'https://demo.api/hapi/webhook_statuses/0';
@@ -131,5 +126,11 @@ describe('WebhookCard', () => {
     await card.requestUpdate();
 
     expect(status).to.have.attribute('key', 'status_pending');
+
+    const webhookResource = await getTestData<Data>('./hapi/webhooks/0', router);
+    card.data = { ...webhookResource, is_active: false };
+    await card.requestUpdate();
+
+    expect(status).to.have.attribute('key', 'status_inactive');
   });
 });
