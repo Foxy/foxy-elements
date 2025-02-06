@@ -57,18 +57,23 @@ export class InternalTransactionSummaryControl extends InternalControl {
               `;
             })}
         ${
-          // @ts-expect-error SDK doesn't support name mismatch between `fx:applied_gift_card_codes` and `fx:gift_card_logs`
-          data?._embedded?.['fx:applied_gift_card_codes']?.map(code => {
-            return html`
-              <span>${code._embedded['fx:gift_card'].name}&colon;</span>
-              <span>${this.__renderPrice(code.balance_adjustment ?? 0, true)}</span>
-            `;
+          // @ts-expect-error SDK doesn't support name mismatch between `fx:applied_gift_card_codes` and `fx:gift_card_code_logs`
+          data?._embedded?.['fx:gift_card_code_logs']?.map(log => {
+            const name = log._embedded?.['fx:gift_card']?.name;
+            const code = log._embedded?.['fx:gift_card_code']?.code;
+
+            if (name && code) {
+              return html`
+                <span data-testclass="gift-card-code">${name} &bull; ${code}&colon;</span>
+                <span>${this.__renderPrice(log.balance_adjustment ?? 0, true)}</span>
+              `;
+            }
           })
         }
-        ${data?._embedded?.['fx:discounts']?.map(discount => {
+        ${data?._embedded?.['fx:discounts']?.map(({ name, code: c, amount }) => {
           return html`
-            <span data-testclass="discount">${discount.name}&colon;</span>
-            <span>${this.__renderPrice(discount.amount, true)}</span>
+            <span data-testclass="discount">${name}${c ? html` &bull; ${c}` : ''}&colon;</span>
+            <span>${this.__renderPrice(amount, true)}</span>
           `;
         })}
 

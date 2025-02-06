@@ -66,6 +66,11 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
     return this.data ?? {};
   }
 
+  /** Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible. */
+  get headerSubtitleBadges(): { key: string }[] {
+    return [];
+  }
+
   /** ID that will be written to clipboard when Copy ID button in header is clicked. */
   get headerCopyIdValue(): string | number {
     return this.data ? getResourceId(this.data._links.self.href) ?? '' : '';
@@ -131,13 +136,24 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
           </span>
           ${data
             ? html`
-                <foxy-i18n
-                  infer="header"
-                  class="text-m text-secondary"
-                  key=${this.headerSubtitleKey}
-                  .options=${this.headerSubtitleOptions}
-                >
-                </foxy-i18n>
+                <div class="flex items-center gap-s text-secondary leading-s">
+                  ${this.headerSubtitleBadges.map(badge => {
+                    return html`
+                      <foxy-i18n
+                        class="border border-contrast-60 font-medium uppercase tracking-wider block rounded-s px-xs text-xs"
+                        infer="header badges"
+                        key=${badge.key}
+                      >
+                      </foxy-i18n>
+                    `;
+                  })}
+                  <foxy-i18n
+                    infer="header"
+                    key=${this.headerSubtitleKey}
+                    .options=${this.headerSubtitleOptions}
+                  >
+                  </foxy-i18n>
+                </div>
                 ${actions ? html`<div class="mt-xs flex gap-m">${actions}</div>` : ''}
               `
             : ''}

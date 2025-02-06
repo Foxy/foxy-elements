@@ -1,3 +1,4 @@
+import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
 
@@ -5,12 +6,22 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { html } from 'lit-html';
+import { html, svg } from 'lit-html';
 
 const NS = 'admin-subscription-form';
 const Base = TranslatableMixin(InternalForm, NS);
 
 export class AdminSubscriptionForm extends Base<Data> {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      uoeSettingsPage: { attribute: 'uoe-settings-page' },
+    };
+  }
+
+  /** URL of the UOE settings page in the admin. If set, displays a link to that page in the self-service links section. */
+  uoeSettingsPage: string | null = null;
+
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = ['delete', super.hiddenSelector.toString()];
     if (!this.data?.error_message) alwaysMatch.unshift('error-message');
@@ -20,19 +31,6 @@ export class AdminSubscriptionForm extends Base<Data> {
 
   get headerSubtitleOptions(): Record<string, unknown> {
     return { context: this.data?.is_active ? 'active' : 'inactive' };
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  renderHeaderActions(data: Data): TemplateResult {
-    return html`
-      <foxy-internal-admin-subscription-form-load-in-cart-action infer="view-action">
-      </foxy-internal-admin-subscription-form-load-in-cart-action>
-      <foxy-internal-admin-subscription-form-load-in-cart-action
-        action="cancel"
-        infer="cancel-action"
-      >
-      </foxy-internal-admin-subscription-form-load-in-cart-action>
-    `;
   }
 
   renderBody(): TemplateResult {
@@ -75,6 +73,50 @@ export class AdminSubscriptionForm extends Base<Data> {
           min="0"
         >
         </foxy-internal-number-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="self-service-links">
+        <foxy-internal-admin-subscription-form-link-control infer="load-in-cart">
+        </foxy-internal-admin-subscription-form-link-control>
+
+        <foxy-internal-admin-subscription-form-link-control
+          search="cart=checkout"
+          infer="load-on-checkout"
+        >
+        </foxy-internal-admin-subscription-form-link-control>
+
+        <foxy-internal-admin-subscription-form-link-control
+          search="sub_cancel=next_transaction_date"
+          infer="cancel-at-end-of-billing-period"
+        >
+        </foxy-internal-admin-subscription-form-link-control>
+
+        <foxy-internal-admin-subscription-form-link-control
+          search="sub_cancel=true"
+          infer="cancel-next-day"
+        >
+        </foxy-internal-admin-subscription-form-link-control>
+
+        <div
+          class="flex items-start leading-xs text-xs text-secondary"
+          style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+        >
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="flex-shrink-0" style="width: 1.25em"><path fill-rule="evenodd" d="M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0ZM9 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM6.75 8a.75.75 0 0 0 0 1.5h.75v1.75a.75.75 0 0 0 1.5 0v-2.5A.75.75 0 0 0 8.25 8h-1.5Z" clip-rule="evenodd" /></svg>`}
+          <p>
+            <foxy-i18n infer="" key="uoe_hint_text"></foxy-i18n>
+            ${this.uoeSettingsPage
+              ? html`
+                  <a
+                    target="_blank"
+                    class="inline-block rounded font-medium text-body cursor-pointer hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50"
+                    href=${this.uoeSettingsPage}
+                  >
+                    <foxy-i18n infer="" key="uoe_link_text"></foxy-i18n>
+                  </a>
+                `
+              : ''}
+          </p>
+        </div>
       </foxy-internal-summary-control>
 
       ${this.renderTemplateOrSlot()}

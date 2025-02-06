@@ -1047,6 +1047,8 @@
             "description": "描述",
             "price": "{{amount, price}}",
             "time": "{{value, date}}",
+            "test": "Test",
+            "hidden_hint": "此交易已归档",
             "status_capturing": "捕捉",
             "status_captured": "被捕获",
             "status_approved": "得到正式认可的",

@@ -11,6 +11,7 @@ import { stub } from 'sinon';
 
 import unset from 'lodash-es/unset';
 import set from 'lodash-es/set';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 
 describe('Transaction', () => {
   describe('InternalTransactionActionsControl', () => {
@@ -270,6 +271,87 @@ describe('Transaction', () => {
       expect(link).to.exist;
       expect(link).to.have.attribute('href', 'https://example.com/receipt');
       expect(link).to.have.attribute('target', '_blank');
+    });
+
+    it('renders Archive button if transaction is not hidden', async () => {
+      const router = createRouter();
+      const wrapper = await fixture<Transaction>(html`
+        <foxy-nucleon
+          href="https://demo.api/hapi/transactions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+          <foxy-internal-transaction-actions-control infer="actions">
+          </foxy-internal-transaction-actions-control>
+        </foxy-nucleon>
+      `);
+
+      await waitUntil(() => wrapper.in({ idle: 'snapshot' }));
+      const control = wrapper.firstElementChild as InternalTransactionActionsControl;
+
+      wrapper.data = { ...wrapper.data!, hide_transaction: false };
+      await wrapper.requestUpdate();
+      await control.requestUpdate();
+
+      const label = control.renderRoot.querySelector('foxy-i18n[infer="archive"]');
+      expect(label).to.exist;
+      expect(label).to.have.attribute('key', 'caption_archive');
+
+      const editMethod = stub(wrapper, 'edit');
+      const submitMethod = stub(wrapper, 'submit');
+      const button = label?.closest('vaadin-button');
+      button?.dispatchEvent(new CustomEvent('click'));
+      expect(editMethod).to.have.been.calledOnceWith({ hide_transaction: true });
+      expect(submitMethod).to.have.been.calledOnce;
+    });
+
+    it('renders Unarchive button if transaction is hidden', async () => {
+      const router = createRouter();
+      const wrapper = await fixture<Transaction>(html`
+        <foxy-nucleon
+          href="https://demo.api/hapi/transactions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+          <foxy-internal-transaction-actions-control infer="actions">
+          </foxy-internal-transaction-actions-control>
+        </foxy-nucleon>
+      `);
+
+      await waitUntil(() => wrapper.in({ idle: 'snapshot' }));
+      const control = wrapper.firstElementChild as InternalTransactionActionsControl;
+
+      wrapper.data = { ...wrapper.data!, hide_transaction: true };
+      await wrapper.requestUpdate();
+      await control.requestUpdate();
+
+      const label = control.renderRoot.querySelector('foxy-i18n[infer="archive"]');
+      expect(label).to.exist;
+      expect(label).to.have.attribute('key', 'caption_unarchive');
+
+      const editMethod = stub(wrapper, 'edit');
+      const submitMethod = stub(wrapper, 'submit');
+      const button = label?.closest('vaadin-button');
+      button?.dispatchEvent(new CustomEvent('click'));
+      expect(editMethod).to.have.been.calledOnceWith({ hide_transaction: false });
+      expect(submitMethod).to.have.been.calledOnce;
+    });
+
+    it('conditionally disables Archive button', async () => {
+      const control = (await fixture(html`
+        <foxy-internal-transaction-actions-control></foxy-internal-transaction-actions-control>
+      `)) as InternalTransactionActionsControl;
+
+      const label = control.renderRoot.querySelector('foxy-i18n[infer="archive"]');
+      const button = label?.closest('vaadin-button');
+      expect(button).to.not.have.attribute('disabled');
+
+      control.disabled = true;
+      await control.requestUpdate();
+      expect(button).to.have.attribute('disabled');
+
+      control.disabled = false;
+      control.disabledControls = new BooleanSelector('archive');
+      await control.requestUpdate();
+      expect(button).to.have.attribute('disabled');
     });
   });
 });

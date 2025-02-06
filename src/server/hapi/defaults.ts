@@ -651,20 +651,6 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  applied_gift_card_codes: (query, dataset) => ({
-    id: increment('applied_gift_card_codes', dataset),
-    store_id: parseInt(query.get('store_id') ?? '0'),
-    gift_card_id: parseInt(query.get('gift_card_id') ?? '0'),
-    gift_card_code_id: parseInt(query.get('gift_card_code_id') ?? '0'),
-    transaction_id: null,
-    external_id: null,
-    balance_adjustment: 0,
-    user_id: null,
-    source: null,
-    date_created: new Date().toISOString(),
-    date_modified: new Date().toISOString(),
-  }),
-
   gift_card_item_categories: (query, dataset) => ({
     id: increment('gift_card_item_categories', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),

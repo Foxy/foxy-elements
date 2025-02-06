@@ -139,6 +139,7 @@ describe('TaxForm', () => {
   it('produces "rate:v8n_invalid" error when rate is zero or less', () => {
     const form = new Form();
     expect(form.errors).to.not.include('rate:v8n_invalid');
+    form.edit({ type: 'country' });
     form.edit({ rate: 0 });
     expect(form.errors).to.include('rate:v8n_invalid');
     form.edit({ rate: -1 });

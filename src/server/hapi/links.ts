@@ -127,7 +127,12 @@ export const links: Links = {
     'fx:transaction_logs': { href: `./transaction_logs?transaction_id=${id}` },
     'fx:billing_addresses': { href: `./customer_addresses?id=0` },
     'fx:native_integrations': { href: `./native_integrations?transaction_id=${id}` },
-    'fx:applied_gift_card_codes': { href: `./applied_gift_card_codes?transaction_id=${id}` },
+    'fx:applied_gift_card_codes': { href: `./gift_card_code_logs?transaction_id=${id}` },
+
+    // This link does not exist in the real API. It is added here because zooming
+    // on `fx:applied_gift_card_codes` includes `fx:gift_card_code_logs` and the demo
+    // server can't replicate this behavior.
+    'fx:gift_card_code_logs': { href: `./gift_card_code_logs?transaction_id=${id}` },
   }),
 
   customers: document => ({
@@ -293,15 +298,6 @@ export const links: Links = {
   }),
 
   gift_card_code_logs: ({ transaction_id, gift_card_id, gift_card_code_id, store_id }) => ({
-    'fx:store': { href: `./stores/${store_id}` },
-    'fx:gift_card': { href: `./gift_cards/${gift_card_id}` },
-    'fx:gift_card_code': { href: `./gift_card_codes/${gift_card_code_id}` },
-    ...(typeof transaction_id === 'number'
-      ? { 'fx:transaction': { href: `./transactions/${transaction_id}` } }
-      : null),
-  }),
-
-  applied_gift_card_codes: ({ transaction_id, gift_card_id, gift_card_code_id, store_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:gift_card': { href: `./gift_cards/${gift_card_id}` },
     'fx:gift_card_code': { href: `./gift_card_codes/${gift_card_code_id}` },

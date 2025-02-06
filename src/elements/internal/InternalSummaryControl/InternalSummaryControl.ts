@@ -18,6 +18,10 @@ export class InternalSummaryControl extends InternalEditableControl {
     return [
       ...super.styles,
       css`
+        ::slotted(*) {
+          min-width: 100%;
+        }
+
         :host(:not([layout='section'])) slot::slotted(*) {
           background-color: var(--lumo-contrast-5pct);
           padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px);

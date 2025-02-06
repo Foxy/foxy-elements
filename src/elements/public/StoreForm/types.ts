@@ -6,7 +6,10 @@ import type {
   StoreWebhookKeyJson,
 } from '@foxy.io/sdk/dist/types/backend/Rels';
 
-export type Data = Resource<Rels.Store>;
+export type Data = Omit<Resource<Rels.Store>, 'custom_display_id_config'> & {
+  custom_display_id_config: StoreCustomDisplayIdConfigJson;
+};
+
 export type ParsedWebhookKey = StoreWebhookKeyJson;
 export type ParsedSmtpConfig = StoreSmtpConfigJson;
 export type ParsedCustomDisplayIdConfig = StoreCustomDisplayIdConfigJson;

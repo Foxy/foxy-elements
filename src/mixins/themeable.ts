@@ -115,6 +115,10 @@ export const ThemeableMixin = <TBase extends Base>(
             display: none !important;
           }
 
+          option {
+            color: var(--lumo-body-text-color);
+          }
+
           @tailwind components;
 
           @tailwind utilities;
@@ -240,6 +244,10 @@ try {
   registerStyles(
     'vaadin-button',
     css`
+      #button {
+        cursor: pointer;
+      }
+
       :host([theme~='primary']) {
         font-weight: 500;
       }

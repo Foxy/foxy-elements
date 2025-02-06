@@ -88,25 +88,45 @@ describe('InternalForm', () => {
   });
 
   it('when loaded, renders a configurable subtitle in the optional header', async () => {
+    customElements.define(
+      'test-internal-form',
+      class extends InternalForm<any> {
+        get headerSubtitleKey() {
+          return 'foo';
+        }
+
+        get headerSubtitleOptions() {
+          return { baz: 'qux' };
+        }
+
+        get headerSubtitleBadges() {
+          return [{ key: 'abc' }, { key: 'def' }];
+        }
+      }
+    );
+
     const root = document.createElement('div');
     const element = await fixture<InternalForm<any>>(
-      html`<foxy-internal-form></foxy-internal-form>`
+      html`<test-internal-form></test-internal-form>`
     );
 
     render(element.renderHeader(), root);
 
-    let subtitle = root.querySelector(
-      `foxy-i18n[infer="header"][key="${element.headerSubtitleKey}"]`
-    );
-
+    let subtitle = root.querySelector(`foxy-i18n[infer="header"][key="foo"]`);
     expect(subtitle).to.not.exist;
 
     element.data = await getTestData<any>('./hapi/customers/0');
     render(element.renderHeader(), root);
 
-    subtitle = root.querySelector(`foxy-i18n[infer="header"][key="${element.headerSubtitleKey}"]`);
+    subtitle = root.querySelector(`foxy-i18n[infer="header"][key="foo"]`);
     expect(subtitle).to.exist;
-    expect(subtitle).to.have.deep.property('options', element.headerSubtitleOptions);
+    expect(subtitle).to.have.deep.property('options', { baz: 'qux' });
+
+    const abcBadge = root.querySelector(`foxy-i18n[infer="header badges"][key="abc"]`);
+    expect(abcBadge).to.exist;
+
+    const defBadge = root.querySelector(`foxy-i18n[infer="header badges"][key="def"]`);
+    expect(defBadge).to.exist;
   });
 
   it('when loaded, renders a Copy ID button in the optional header', async () => {

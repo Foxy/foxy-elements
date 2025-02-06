@@ -277,8 +277,7 @@
       "label": "Customize Transaction ID",
       "helper_text": "",
       "checked": "Yes",
-      "unchecked": "No",
-      "v8n_too_long": "This configuration must fit within 500 characters when JSON-encoded"
+      "unchecked": "No"
     },
     "custom-display-id-config-length": {
       "label": "Total length",

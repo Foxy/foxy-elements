@@ -189,6 +189,13 @@ export class Transaction extends Base<Data> {
     };
   }
 
+  get headerSubtitleBadges(): { key: string }[] {
+    const badges = super.headerSubtitleBadges;
+    if (this.data?.is_test) badges.push({ key: 'test' });
+    if (this.data?.hide_transaction) badges.push({ key: 'archived' });
+    return badges;
+  }
+
   get headerCopyIdValue(): string {
     return this.data?.display_id?.toString() ?? '';
   }

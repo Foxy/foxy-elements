@@ -95,6 +95,16 @@ class TransactionCard extends Base<Data> {
               <foxy-i18n .options=${options} infer="" key="price"></foxy-i18n>
             `
           : ''}
+        ${data?.is_test
+          ? html`
+              <foxy-i18n
+                infer=""
+                class="inline-block text-xs font-medium uppercase bg-contrast-5 text-tertiary rounded-s p-xs leading-none tracking-wider"
+                key="test"
+              >
+              </foxy-i18n>
+            `
+          : ''}
       `;
     } else {
       content = html`&ZeroWidthSpace;`;
@@ -150,6 +160,19 @@ class TransactionCard extends Base<Data> {
         ${this.renderTemplateOrSlot('status:before')}
 
         <div class="text-tertiary text-s flex items-center space-x-xs">
+          ${this.data?.hide_transaction
+            ? html`
+                <vcf-tooltip for="hidden" theme="light" position="top">
+                  <foxy-i18n infer="" key="hidden_hint"></foxy-i18n>
+                </vcf-tooltip>
+                <iron-icon
+                  class="icon-inline cursor-default"
+                  icon="icons:visibility-off"
+                  id="hidden"
+                >
+                </iron-icon>
+              `
+            : ''}
           ${source
             ? html`
                 <vcf-tooltip for="source" theme="light" position="top">

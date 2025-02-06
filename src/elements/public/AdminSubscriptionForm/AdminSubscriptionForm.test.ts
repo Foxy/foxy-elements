@@ -52,9 +52,8 @@ describe('AdminSubscriptionForm', () => {
     expect(customElements.get('foxy-transaction')).to.exist;
   });
 
-  it('imports and defines foxy-internal-admin-subscription-form-load-in-cart-action', () => {
-    expect(customElements.get('foxy-internal-admin-subscription-form-load-in-cart-action')).to
-      .exist;
+  it('imports and defines foxy-internal-admin-subscription-form-link-control', () => {
+    expect(customElements.get('foxy-internal-admin-subscription-form-link-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-admin-subscription-form-error', () => {
@@ -72,6 +71,13 @@ describe('AdminSubscriptionForm', () => {
   it('has a default i18next namespace "admin-subscription-form"', () => {
     expect(Form).to.have.property('defaultNS', 'admin-subscription-form');
     expect(new Form()).to.have.property('ns', 'admin-subscription-form');
+  });
+
+  it('has a reactive property "uoeSettingsPage" that defaults to null', () => {
+    expect(new Form()).to.have.property('uoeSettingsPage', null);
+    expect(Form.properties).to.have.deep.property('uoeSettingsPage', {
+      attribute: 'uoe-settings-page',
+    });
   });
 
   it('always hides built-in Delete button because subscriptions cannot be deleted', () => {
@@ -110,39 +116,6 @@ describe('AdminSubscriptionForm', () => {
     testData.is_active = false;
     form.data = testData;
     expect(form.headerSubtitleOptions).to.deep.equal({ context: 'inactive' });
-  });
-
-  it('renders load in cart action for viewing the subscription in cart', async () => {
-    const router = createRouter();
-    const form = await fixture<Form>(html`
-      <foxy-admin-subscription-form
-        href="https://demo.api/hapi/subscriptions/0?zoom=transaction_template"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-admin-subscription-form>
-    `);
-
-    await waitUntil(() => !!form.data, '', { timeout: 5000 });
-    await form.requestUpdate();
-    const action = form.renderRoot.querySelector('[infer="view-action"]');
-    expect(action?.localName).to.equal('foxy-internal-admin-subscription-form-load-in-cart-action');
-  });
-
-  it('renders load in cart action for cancelling the subscription', async () => {
-    const router = createRouter();
-    const form = await fixture<Form>(html`
-      <foxy-admin-subscription-form
-        href="https://demo.api/hapi/subscriptions/0?zoom=transaction_template"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-admin-subscription-form>
-    `);
-
-    await waitUntil(() => !!form.data, '', { timeout: 5000 });
-    await form.requestUpdate();
-    const action = form.renderRoot.querySelector('[infer="cancel-action"]');
-    expect(action?.localName).to.equal('foxy-internal-admin-subscription-form-load-in-cart-action');
-    expect(action?.getAttribute('action')).to.equal('cancel');
   });
 
   it('renders error message control', async () => {
@@ -305,6 +278,109 @@ describe('AdminSubscriptionForm', () => {
 
     const slot = form.renderRoot.querySelector('slot:not([name])');
     expect(slot).to.exist;
+  });
+
+  it('renders summary control with self-service links', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-admin-subscription-form
+        href="https://demo.api/hapi/subscriptions/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-admin-subscription-form>
+    `);
+
+    await waitUntil(() => !!form.data, '', { timeout: 5000 });
+    const control = form.renderRoot.querySelector('[infer="self-service-links"]');
+    expect(control?.localName).to.equal('foxy-internal-summary-control');
+  });
+
+  it('renders internal link control for loading subscription in cart inside of the self-service links summary control', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-admin-subscription-form
+        href="https://demo.api/hapi/subscriptions/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-admin-subscription-form>
+    `);
+
+    await waitUntil(() => !!form.data, '', { timeout: 5000 });
+    const summary = form.renderRoot.querySelector('[infer="self-service-links"]');
+    const control = summary?.querySelector('[infer="load-in-cart"]');
+
+    expect(control?.localName).to.equal('foxy-internal-admin-subscription-form-link-control');
+    expect(control).to.not.have.attribute('search');
+  });
+
+  it('renders internal link control for loading subscription on checkout inside of the self-service links summary control', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-admin-subscription-form
+        href="https://demo.api/hapi/subscriptions/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-admin-subscription-form>
+    `);
+
+    await waitUntil(() => !!form.data, '', { timeout: 5000 });
+    const summary = form.renderRoot.querySelector('[infer="self-service-links"]');
+    const control = summary?.querySelector('[infer="load-on-checkout"]');
+
+    expect(control?.localName).to.equal('foxy-internal-admin-subscription-form-link-control');
+    expect(control).to.have.attribute('search', 'cart=checkout');
+  });
+
+  it('renders internal link control for canceling subscription at the end of the billing period inside of the self-service links summary control', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-admin-subscription-form
+        href="https://demo.api/hapi/subscriptions/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-admin-subscription-form>
+    `);
+
+    await waitUntil(() => !!form.data, '', { timeout: 5000 });
+    const summary = form.renderRoot.querySelector('[infer="self-service-links"]');
+    const control = summary?.querySelector('[infer="cancel-at-end-of-billing-period"]');
+
+    expect(control?.localName).to.equal('foxy-internal-admin-subscription-form-link-control');
+    expect(control).to.have.attribute('search', 'sub_cancel=next_transaction_date');
+  });
+
+  it('renders internal link control for canceling subscription on the next day inside of the self-service links summary control', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-admin-subscription-form
+        href="https://demo.api/hapi/subscriptions/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-admin-subscription-form>
+    `);
+
+    await waitUntil(() => !!form.data, '', { timeout: 5000 });
+    const summary = form.renderRoot.querySelector('[infer="self-service-links"]');
+    const control = summary?.querySelector('[infer="cancel-next-day"]');
+
+    expect(control?.localName).to.equal('foxy-internal-admin-subscription-form-link-control');
+    expect(control).to.have.attribute('search', 'sub_cancel=true');
+  });
+
+  it('renders link to UOE settings page when uoeSettingsPage is set', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-admin-subscription-form
+        uoe-settings-page="https://example.com"
+        href="https://demo.api/hapi/subscriptions/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-admin-subscription-form>
+    `);
+
+    await waitUntil(() => !!form.data, '', { timeout: 5000 });
+    const summary = form.renderRoot.querySelector('[infer="self-service-links"]');
+    expect(summary?.querySelector('a')).to.have.attribute('href', 'https://example.com');
   });
 
   it('renders async list control for attributes', async () => {

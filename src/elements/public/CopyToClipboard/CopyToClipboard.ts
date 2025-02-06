@@ -85,7 +85,7 @@ export class CopyToClipboard extends Base {
   }
 
   /** Icon or text UI. Icon UI by default. */
-  layout: 'text' | 'icon' | null = null;
+  layout: 'complete' | 'text' | 'icon' | null = null;
 
   /** VaadinButton theme for text layout. */
   theme: string | null = null;
@@ -99,7 +99,7 @@ export class CopyToClipboard extends Base {
   private __state: 'idle' | 'busy' | 'fail' | 'done' = 'idle';
 
   render(): TemplateResult {
-    const layout = this.layout === 'text' ? 'text' : 'icon';
+    const layout = this.layout ?? 'icon';
     let label = '';
     let icon = '';
 
@@ -146,6 +146,15 @@ export class CopyToClipboard extends Base {
               @click=${this.__copy}
             >
               <foxy-i18n infer="" key=${label}></foxy-i18n>
+              ${layout === 'complete'
+                ? html`
+                    <iron-icon
+                      style="--lumo-icon-size-m: 1em; transform: translateY(-0.1em)"
+                      icon=${icon}
+                    >
+                    </iron-icon>
+                  `
+                : ''}
             </vaadin-button>
           `}
     `;

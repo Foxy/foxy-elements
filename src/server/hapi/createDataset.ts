@@ -630,7 +630,23 @@ export const createDataset: () => Dataset = () => ({
       shipping_address_type: 'residential',
       require_signed_shipping_rates: false,
       unified_order_entry_password: '',
-      custom_display_id_config: '',
+      custom_display_id_config: {
+        enabled: false,
+        start: '0',
+        length: '0',
+        prefix: '',
+        suffix: '',
+        transaction_journal_entries: {
+          enabled: false,
+          transaction_separator: '',
+          log_detail_request_types: {
+            transaction_authcapture: { prefix: '' },
+            transaction_capture: { prefix: '' },
+            transaction_refund: { prefix: '' },
+            transaction_void: { prefix: '' },
+          },
+        },
+      },
       affiliate_id: 0,
       is_maintenance_mode: false,
       is_active: true,
@@ -949,35 +965,6 @@ export const createDataset: () => Dataset = () => ({
   })),
 
   gift_card_code_logs: [
-    {
-      id: 0,
-      store_id: 0,
-      gift_card_id: 0,
-      gift_card_code_id: 0,
-      transaction_id: 0,
-      external_id: null,
-      balance_adjustment: -40.3,
-      user_id: null,
-      source: null,
-      date_created: '2021-11-15T19:30:33-0800',
-      date_modified: '2021-11-15T19:30:35-0800',
-    },
-    {
-      id: 1,
-      store_id: 0,
-      gift_card_id: 0,
-      gift_card_code_id: 0,
-      transaction_id: null,
-      external_id: null,
-      balance_adjustment: 20,
-      user_id: 0,
-      source: null,
-      date_created: '2021-10-08T12:30:33-0800',
-      date_modified: '2021-10-08T12:30:35-0800',
-    },
-  ],
-
-  applied_gift_card_codes: [
     {
       id: 0,
       store_id: 0,
