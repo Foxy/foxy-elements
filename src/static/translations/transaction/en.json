@@ -792,6 +792,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "card": {
+              "status_initializing": "Initializing",
               "status_successful": "Successful",
               "status_pending": "Pending",
               "status_failed": "Failed",

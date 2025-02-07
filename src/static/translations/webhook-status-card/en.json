@@ -1,4 +1,5 @@
 {
+  "status_initializing": "Initializing",
   "status_successful": "Successful",
   "status_pending": "Pending",
   "status_failed": "Failed",
