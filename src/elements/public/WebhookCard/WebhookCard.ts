@@ -37,21 +37,19 @@ export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')
   }
 
   renderBody(): TemplateResult {
-    const resourceId = getResourceId(this.resourceUri ?? '');
-    let statusesLink: string | undefined = this.data?._links['fx:statuses'].href;
+    let statusesLink: string | undefined;
 
-    if (resourceId !== null) {
-      try {
-        const url = new URL(statusesLink ?? '');
+    try {
+      const url = new URL(this.data?._links['fx:statuses'].href ?? '');
+      url.searchParams.set('order', 'date_created desc');
+      url.searchParams.set('limit', '1');
 
-        url.searchParams.set('resource_id', String(resourceId));
-        url.searchParams.set('order', 'date_created desc');
-        url.searchParams.set('limit', '1');
+      const resourceId = getResourceId(this.resourceUri ?? '');
+      if (resourceId !== null) url.searchParams.set('resource_id', String(resourceId));
 
-        statusesLink = url.toString();
-      } catch {
-        // ignore
-      }
+      statusesLink = url.toString();
+    } catch {
+      statusesLink = undefined;
     }
 
     const isActive = this.data?.is_active;
