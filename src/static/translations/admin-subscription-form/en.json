@@ -1134,10 +1134,14 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "card": {
-              "status_successful": "OK",
-              "status_pending": "Pending",
-              "status_failed": "Failed",
+              "status_initializing": "Last run: {{ date_created, date }} at {{ date_created, time }} • Initializing",
+              "status_successful": "Last run: {{ date_created, date }} at {{ date_created, time }} • Successful",
+              "status_loading": "Loading...",
+              "status_pending": "Last run: {{ date_created, date }} at {{ date_created, time }} • Pending",
+              "status_failed": "Last run: {{ date_created, date }} at {{ date_created, time }} • Failed",
               "status_none": "No runs yet",
+              "is_active_false": "Inactive",
+              "is_active_true": "Active",
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No webhooks",

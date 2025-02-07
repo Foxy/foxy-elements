@@ -52,11 +52,10 @@ export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')
       statusesLink = undefined;
     }
 
-    const isActive = this.data?.is_active;
-    const statuses = this.__statusesLoader?.data?._embedded['fx:webhook_statuses'];
-    const status = isActive ? (statuses ? statuses?.[0]?.status ?? 'none' : 'loading') : 'inactive';
-    const isFailed = status === 'failed';
-    const isSuccessful = status === 'successful';
+    const recentStatuses = this.__statusesLoader?.data?._embedded['fx:webhook_statuses'];
+    const lastStatus = recentStatuses?.[0];
+    const cardStatus = recentStatuses ? lastStatus?.status ?? 'none' : 'loading';
+    const isActive = !!this.data?.is_active;
 
     return html`
       <div class="grid grid-cols-1 leading-s -my-xs">
@@ -64,28 +63,30 @@ export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')
           <span class="text-m truncate text-body font-medium">
             ${this.data?.name}&ZeroWidthSpace;
           </span>
-          <foxy-i18n
-            class=${classMap({
-              'text-tertiary': !isSuccessful && !isFailed,
-              'text-success': isSuccessful,
-              'text-error': isFailed,
-              'text-s': true,
-            })}
-            infer=""
-            key="status_${status}"
-          >
-          </foxy-i18n>
+          <span class="text-s text-tertiary">
+            <foxy-i18n
+              class=${classMap({ 'text-success': isActive })}
+              infer=""
+              key="is_active_${isActive}"
+            >
+            </foxy-i18n>
+          </span>
         </p>
 
         <p class="text-s truncate text-secondary">${this.data?.url}&ZeroWidthSpace;</p>
 
-        ${this.resourceUri === null
-          ? html`
-              <p class="text-s truncate text-tertiary">
-                ${this.data?.format} &bull; ${this.data?.event_resource}&ZeroWidthSpace;
-              </p>
-            `
-          : ''}
+        <p class="text-s truncate text-tertiary">
+          ${this.resourceUri
+            ? ''
+            : html`<span class="capitalize">${this.data?.event_resource}</span> &bull;`}
+          <foxy-i18n
+            class=${classMap({ 'text-error': isActive && cardStatus === 'failed' })}
+            infer=""
+            key="status_${cardStatus}"
+            .options=${lastStatus}
+          >
+          </foxy-i18n>
+        </p>
       </div>
 
       <foxy-nucleon
