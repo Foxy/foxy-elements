@@ -10,7 +10,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { html } from 'lit-html';
+import { html, svg } from 'lit-html';
 
 const NS = 'store-shipping-method-form';
 const Base = TranslatableMixin(InternalForm, NS);
@@ -99,7 +99,7 @@ export class StoreShippingMethodForm extends Base<Data> {
         'CUSTOM': 'general account endpoint custom-code',
         'FedEx': 'endpoint custom-code',
         'USPS': 'account endpoint custom-code',
-        'UPS': 'endpoint custom-code',
+        'UPS': 'endpoint custom-code account:accountid account:password account:authentication-key',
       };
 
       if (codeToHiddenControls[code]) hiddenControls = codeToHiddenControls[code];
@@ -175,6 +175,27 @@ export class StoreShippingMethodForm extends Base<Data> {
         </foxy-internal-text-control>
         <foxy-internal-password-control layout="summary-item" infer="password">
         </foxy-internal-password-control>
+        ${this.__useCustomAccountGetValue() && this.__shippingMethod?.code === 'UPS'
+          ? html`
+              <div
+                class="flex items-start"
+                style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+              >
+                ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="flex-shrink-0 text-primary" style="width: 1.25em"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>`}
+                <p>
+                  <foxy-i18n infer="" key="ups_use_legacy_admin_message"></foxy-i18n>
+                  <br />
+                  <a
+                    target="_blank"
+                    class="mt-xs inline-block rounded font-medium text-primary transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
+                    href="https://admin.foxycart.com"
+                  >
+                    admin.foxycart.com
+                  </a>
+                </p>
+              </div>
+            `
+          : ''}
       </foxy-internal-summary-control>
 
       <foxy-internal-text-control infer="endpoint" property="accountid">

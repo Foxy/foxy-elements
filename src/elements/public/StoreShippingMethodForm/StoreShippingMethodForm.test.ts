@@ -344,8 +344,21 @@ describe('StoreShippingMethodForm', () => {
     });
 
     expect(form.hiddenSelector.toString()).to.equal(
-      'endpoint custom-code services account:accountid account:password account:authentication-key account:meter-number undo submit delete timestamps'
+      'endpoint custom-code account:accountid account:password account:authentication-key account:meter-number services undo submit delete timestamps'
     );
+
+    form.edit({ meter_number: '123' });
+    await form.requestUpdate();
+
+    expect(form.hiddenSelector.toString()).to.equal(
+      'endpoint custom-code account:accountid account:password account:authentication-key services undo submit delete timestamps'
+    );
+
+    expect(
+      form.renderRoot.querySelector(
+        '[infer="account"] foxy-i18n[key="ups_use_legacy_admin_message"]'
+      )
+    ).to.exist;
   });
 
   it('hides custom account fields by default when they are empty', async () => {

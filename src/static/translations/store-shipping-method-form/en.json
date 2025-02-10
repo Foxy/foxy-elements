@@ -160,8 +160,9 @@
   "account": {
     "label": "Account",
     "helper_text": "",
+    "ups_use_legacy_admin_message": "Connecting to a UPS account is currently restricted from this admin. Please utilise the Integrations page in our legacy administration to connect to your UPS account.",
     "use-custom-account": {
-      "label": "Use custom credentials",
+      "label": "Use my own account",
       "helper_text": "",
       "checked": "Yes",
       "unchecked": "No"
@@ -173,10 +174,10 @@
       "v8n_too_long": "Authentication key must be 50 characters or less."
     },
     "meter-number": {
-      "label": "Meter Number",
+      "label": "Account Number",
       "placeholder": "N/A",
       "helper_text": "",
-      "v8n_too_long": "Meter number must be 50 characters or less."
+      "v8n_too_long": "Account number must be 50 characters or less."
     },
     "accountid": {
       "label": "Account ID",
