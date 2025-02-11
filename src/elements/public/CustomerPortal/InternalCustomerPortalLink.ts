@@ -21,8 +21,8 @@ export class InternalCustomerPortalLink extends ThemeableMixin(LitElement) {
 
   render(): TemplateResult {
     const actionClass = classMap({
-      'flex-auto font-medium tracking-wide text-s rounded-s transition-colors': true,
-      'hover-text-primary hover-cursor-pointer': !this.disabled,
+      'flex-auto leading-m font-medium tracking-wide text-m rounded-s transition-colors': true,
+      'text-primary hover-underline hover-cursor-pointer': !this.disabled,
       'focus-outline-none focus-ring-2 ring-primary-50 ring-offset-2': !this.disabled,
       'text-disabled cursor-default': this.disabled,
     });

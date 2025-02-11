@@ -100,12 +100,12 @@ export class SubscriptionForm extends Base<Data> {
 
   private readonly __renderItemsActions = () => {
     return html`
-      <div class="flex" data-testid="items:actions">
+      <div class="flex items-center gap-s text-m" data-testid="items:actions">
         ${this.renderTemplateOrSlot('items:actions:before')}
 
         <foxy-i18n
           data-testid="items:actions-label"
-          class="flex-1 text-s font-medium text-secondary"
+          class="flex-1 text-l font-medium text-body leading-m"
           lang=${this.lang}
           key="item_plural"
           ns=${this.ns}
@@ -339,7 +339,7 @@ export class SubscriptionForm extends Base<Data> {
       <div data-testid="customer" class="sm-col-span-2">
         ${this.renderTemplateOrSlot('customer:before')}
 
-        <foxy-i18n infer="customer" class="block text-s font-medium leading-xs mb-xs" key="label">
+        <foxy-i18n infer="customer" class="block text-l font-medium leading-xs mb-s" key="label">
         </foxy-i18n>
 
         <a
