@@ -1,5 +1,9 @@
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/customer';
+
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { createRouter } from '../../../server/index';
+import { getTestData } from '../../../testgen/getTestData';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { ItemCard } from './index';
 import { Data } from './types';
@@ -20,6 +24,11 @@ describe('ItemCard', () => {
   it('has a default i18n namespace "item-card"', () => {
     expect(ItemCard).to.have.property('defaultNS', 'item-card');
     expect(new ItemCard()).to.have.property('ns', 'item-card');
+  });
+
+  it('has a reactive property "settings"', () => {
+    expect(new ItemCard()).to.have.property('settings', null);
+    expect(ItemCard.properties).to.have.deep.property('settings', { type: Object });
   });
 
   it('renders item image', async () => {
@@ -114,6 +123,103 @@ describe('ItemCard', () => {
     });
   });
 
+  it('renders item code', async () => {
+    const router = createRouter();
+    const element = await fixture<ItemCard>(html`
+      <foxy-item-card
+        href="https://demo.api/hapi/items/0?zoom=item_options"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-item-card>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    element.data!.code = 'FOOBAR123';
+    element.data = { ...element.data! };
+    await element.requestUpdate();
+
+    expect(element.renderRoot).to.include.text('FOOBAR123');
+  });
+
+  it('hides item code if cart display config in settings prohibits code display', async () => {
+    type Settings = Resource<Rels.CustomerPortalSettings>;
+    const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+    settings.cart_display_config.show_product_code = false;
+
+    const router = createRouter();
+    const element = await fixture<ItemCard>(html`
+      <foxy-item-card
+        href="https://demo.api/hapi/items/0?zoom=item_options"
+        .settings=${settings}
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-item-card>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    element.data!.code = 'FOOBAR123';
+    element.data = { ...element.data! };
+    await element.requestUpdate();
+
+    expect(element.renderRoot).to.not.include.text('FOOBAR123');
+  });
+
+  it('renders item frequency', async () => {
+    const router = createRouter();
+    const element = await fixture<ItemCard>(html`
+      <foxy-item-card
+        href="https://demo.api/hapi/items/0?zoom=item_options"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-item-card>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    element.data!.subscription_frequency = '2w';
+    element.data = { ...element.data! };
+    await element.requestUpdate();
+
+    const frequency = element.renderRoot.querySelector('foxy-i18n[key="subinfo_recurring"]');
+
+    expect(frequency).to.exist;
+    expect(frequency).to.have.property('infer', '');
+    expect(frequency).to.have.deep.property('options', {
+      amount: '158.99 USD',
+      count: 2,
+      currencyDisplay: 'code',
+      startDate: '2015-04-15',
+      units: 'weekly',
+    });
+  });
+
+  it('hides item frequency if cart display config in settings prohibits frequency display', async () => {
+    type Settings = Resource<Rels.CustomerPortalSettings>;
+    const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+    settings.cart_display_config.show_sub_frequency = false;
+
+    const router = createRouter();
+    const element = await fixture<ItemCard>(html`
+      <foxy-item-card
+        href="https://demo.api/hapi/items/0?zoom=item_options"
+        .settings=${settings}
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-item-card>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    element.data!.subscription_frequency = '2w';
+    element.data = { ...element.data! };
+    await element.requestUpdate();
+
+    const frequency = element.renderRoot.querySelector('foxy-i18n[key="subinfo_recurring"]');
+    expect(frequency).to.not.exist;
+  });
+
   it('when resource has item options embedded in it, renders them also', async () => {
     const router = createRouter();
     const element = await fixture<ItemCard>(html`
@@ -134,6 +240,52 @@ describe('ItemCard', () => {
     for (let i = 0; i < options.length; ++i) {
       const domOption = options[i];
       const apiOption = data._embedded['fx:item_options'][i];
+
+      expect(domOption).to.include.text(apiOption.name);
+      expect(domOption).to.include.text(apiOption.value);
+
+      if (apiOption.price_mod) {
+        const domPriceMod = domOption.querySelector('foxy-i18n[key="price"]');
+
+        expect(domPriceMod).to.have.property('infer', '');
+        expect(domPriceMod).to.have.deep.property('options', {
+          amount: `${apiOption.price_mod} USD`,
+          currencyDisplay: 'code',
+          signDisplay: 'exceptZero',
+        });
+      }
+    }
+  });
+
+  it("filters out hidden item options when it's specified in settings", async () => {
+    const router = createRouter();
+    const element = await fixture<ItemCard>(html`
+      <foxy-item-card
+        href="https://demo.api/hapi/items/0?zoom=item_options"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-item-card>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    const data = element.data as Data;
+    expect(data._embedded['fx:item_options']).to.not.be.empty;
+
+    type Settings = Resource<Rels.CustomerPortalSettings>;
+    const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+    settings.cart_display_config.hidden_product_options = [
+      data._embedded['fx:item_options'][0].name,
+    ];
+
+    element.settings = settings;
+    await element.requestUpdate();
+
+    const options = element.renderRoot.querySelectorAll('[data-testclass="option"]');
+    expect(options).to.have.length(data._embedded['fx:item_options'].length - 1);
+
+    for (let i = 0; i < options.length - 1; ++i) {
+      const domOption = options[i];
+      const apiOption = data._embedded['fx:item_options'][i + 1];
 
       expect(domOption).to.include.text(apiOption.name);
       expect(domOption).to.include.text(apiOption.value);
