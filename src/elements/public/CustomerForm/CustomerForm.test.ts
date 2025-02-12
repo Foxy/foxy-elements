@@ -22,6 +22,17 @@ const portalSettings = {
     allow_next_date_modification: false,
   },
   session_lifespan_in_minutes: 40320,
+  cart_display_config: {
+    show_product_weight: true,
+    show_product_category: true,
+    show_product_code: true,
+    show_product_options: true,
+    show_sub_frequency: true,
+    show_sub_startdate: true,
+    show_sub_nextdate: true,
+    show_sub_enddate: true,
+    hidden_product_options: [],
+  },
   tos_checkbox_settings: {
     usage: 'optional' as const,
     url: 'https://foxy.io/terms-of-service/',
