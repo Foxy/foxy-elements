@@ -194,6 +194,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
       >
         <foxy-subscription-card
           hiddencontrols="email"
+          settings=${JSON.stringify(this.settings)}
           parent=${ctx.parent}
           group=${ctx.group}
           lang=${ctx.lang}

@@ -189,6 +189,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
           expect(card).to.have.attribute('lang', 'es');
           expect(card).to.have.attribute('href', subscription._links.self.href);
 
+          expect(card).to.have.deep.property('settings', settings);
           expect(card).to.have.property('templates');
           expect(card.templates).to.have.key('default');
         }
