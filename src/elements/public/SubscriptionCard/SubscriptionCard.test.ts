@@ -1,3 +1,6 @@
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/customer';
+
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 
 import { Data } from './types';
@@ -26,6 +29,11 @@ describe('SubscriptionCard', () => {
 
   it('extends NucleonElement', () => {
     expect(document.createElement('foxy-subscription-card')).to.be.instanceOf(NucleonElement);
+  });
+
+  it('has a reactive property "settings"', () => {
+    expect(new SubscriptionCard()).to.have.property('settings', null);
+    expect(SubscriptionCard.properties).to.have.deep.property('settings', { type: Object });
   });
 
   it('once loaded, renders subscription summary', async () => {
@@ -99,6 +107,34 @@ describe('SubscriptionCard', () => {
     expect(control).to.have.attribute('options', JSON.stringify(options));
     expect(control).to.have.attribute('lang', 'es');
     expect(control).to.have.attribute('key', 'price_twice_a_month');
+    expect(control).to.have.attribute('ns', 'subscription-card');
+  });
+
+  it('once loaded, renders subscription price without frequency if specified in cart display settings in customer mode', async () => {
+    type Settings = Resource<Rels.CustomerPortalSettings>;
+    const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+    settings.cart_display_config.show_sub_frequency = false;
+
+    const href = './hapi/subscriptions/0?zoom=transaction_template:items';
+    const data = await getTestData<Data>(href);
+
+    data._embedded['fx:transaction_template'].total_order = 25;
+    data._embedded['fx:transaction_template'].currency_code = 'eur';
+    data.frequency = '3w';
+
+    const layout = html`
+      <foxy-subscription-card lang="es" .data=${data} .settings=${settings}>
+      </foxy-subscription-card>
+    `;
+
+    const element = await fixture<SubscriptionCard>(layout);
+    const control = await getByTestId(element, 'price');
+    const options = { count: 3, units: 'weekly', amount: '25 eur' };
+
+    expect(control).to.have.property('localName', 'foxy-i18n');
+    expect(control).to.have.attribute('options', JSON.stringify(options));
+    expect(control).to.have.attribute('lang', 'es');
+    expect(control).to.have.attribute('key', 'price');
     expect(control).to.have.attribute('ns', 'subscription-card');
   });
 

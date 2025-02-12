@@ -1,14 +1,20 @@
+import type { PropertyDeclarations } from 'lit-element';
+import type { Data, Settings } from './types';
+
 import { TemplateResult, html } from 'lit-html';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data } from './types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { ResponsiveMixin } from '../../../mixins/responsive';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import { parseFrequency } from '../../../utils/parse-frequency';
-import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
+
+import {
+  getExtendedSubscriptionStatus,
+  getSubscriptionStatus,
+} from '../../../utils/get-subscription-status';
 
 const NS = 'subscription-card';
 const Base = ConfigurableMixin(
@@ -22,10 +28,22 @@ const Base = ConfigurableMixin(
  * @since 1.4.0
  */
 export class SubscriptionCard extends Base<Data> {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      settings: { type: Object },
+    };
+  }
+
+  settings: Settings | null = null;
+
   render(): TemplateResult {
-    const status = getSubscriptionStatus(this.data);
+    const status = this.settings
+      ? getExtendedSubscriptionStatus(this.data, this.settings)
+      : getSubscriptionStatus(this.data);
+
     const isRed = status === 'failed';
-    const isGreen = status === 'next_payment' || !!status?.startsWith('will_end');
+    const isGreen = status?.startsWith('next_payment') || !!status?.startsWith('will_end');
     const isNormal = !isGreen && !isRed;
 
     return html`
@@ -93,7 +111,11 @@ export class SubscriptionCard extends Base<Data> {
                 options=${JSON.stringify(this.__getPriceOptions())}
                 class="text-xxs sm-text-l font-tnum tracking-wide sm-tracking-normal uppercase sm-normal-case font-medium text-secondary sm-text-body sm-block"
                 lang=${this.lang}
-                key="price_${this.data?.frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
+                key="price${
+                  this.settings?.cart_display_config.show_sub_frequency ?? true
+                    ? `_${this.data?.frequency === '.5m' ? 'twice_a_month' : 'recurring'}`
+                    : ''
+                }"
                 ns=${this.ns}
               >
               </foxy-i18n>
