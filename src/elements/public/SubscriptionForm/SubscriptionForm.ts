@@ -7,7 +7,6 @@ import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { Rels } from '@foxy.io/sdk/backend';
 
 import { Choice, Group, Skeleton } from '../../private/index';
-import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector, Resource } from '@foxy.io/sdk/core';
@@ -18,6 +17,11 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
+
+import {
+  getExtendedSubscriptionStatus,
+  getSubscriptionStatus,
+} from '../../../utils/get-subscription-status';
 
 import {
   getNextTransactionDateConstraints,
@@ -137,7 +141,7 @@ export class SubscriptionForm extends Base<Data> {
           first=${ifDefined(itemsHref)}
           infer="items"
           item="foxy-item-card"
-          .itemProps=${{ 'locale-codes': this.localeCodes }}
+          .itemProps=${{ 'locale-codes': this.localeCodes, '.settings': this.settings }}
         >
         </foxy-internal-async-list-control>
       </div>
@@ -371,11 +375,13 @@ export class SubscriptionForm extends Base<Data> {
       const total = transactionTemplate?.total_order;
       const amount = `${total} ${this.__currencyCode}`;
       const currencyDisplay = this.__currencyDisplay;
-      const context = this.__currencyCode
-        ? this.data.frequency === '.5m'
-          ? 'twice_a_month'
-          : 'recurring'
-        : 'existing';
+      const showSubFrequency = this.settings?.cart_display_config.show_sub_frequency ?? true;
+      const context =
+        this.__currencyCode && showSubFrequency
+          ? this.data.frequency === '.5m'
+            ? 'twice_a_month'
+            : 'recurring'
+          : 'existing';
 
       return { ...frequency, amount, currencyDisplay, context };
     } else {
@@ -384,7 +390,10 @@ export class SubscriptionForm extends Base<Data> {
   }
 
   get headerSubtitleKey(): string {
-    const status = getSubscriptionStatus(this.data);
+    const status = this.settings
+      ? getExtendedSubscriptionStatus(this.data, this.settings)
+      : getSubscriptionStatus(this.data);
+
     return status ? `subtitle_${status}` : super.headerSubtitleKey;
   }
 
@@ -572,6 +581,7 @@ export class SubscriptionForm extends Base<Data> {
     if (this.data === null) return false;
     if (this.data.end_date && new Date(this.data.end_date).getTime() <= Date.now()) return false;
     if (this.data.is_active === false) return false;
+    if (this.settings?.cart_display_config.show_sub_nextdate === false) return false;
     if (this.settings === null) return true;
 
     const rules = this.settings.subscriptions.allow_next_date_modification;
@@ -580,6 +590,7 @@ export class SubscriptionForm extends Base<Data> {
 
   private get __isStartDateVisible() {
     if (this.hiddenSelector.matches('start-date', true)) return false;
+    if (this.settings?.cart_display_config.show_sub_startdate === false) return false;
     return this.__isNextTransactionDateVisible;
   }
 
@@ -615,6 +626,7 @@ export class SubscriptionForm extends Base<Data> {
     if (this.data === null) return false;
     if (this.data.end_date && new Date(this.data.end_date).getTime() <= Date.now()) return false;
     if (this.data.is_active === false) return false;
+    if (this.settings?.cart_display_config.show_sub_frequency === false) return false;
     if (this.settings === null) return true;
 
     const allowedFrequencies = getAllowedFrequencies({

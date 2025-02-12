@@ -1,6 +1,7 @@
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
 import type { Resource } from '@foxy.io/sdk/core';
-import type { Rels } from '@foxy.io/sdk/backend';
+import type { Rels as BackendRels } from '@foxy.io/sdk/backend';
+import type { Rels as CustomerRels } from '@foxy.io/sdk/customer';
 import type { Data } from './types';
 
 import './index';
@@ -148,7 +149,7 @@ describe('SubscriptionForm', () => {
   });
 
   it('has a reactive property "getTransactionPageHref"', () => {
-    type Data = Resource<Rels.Transaction>;
+    type Data = Resource<BackendRels.Transaction>;
     const data = { _links: { 'fx:receipt': { href: 'test' } } } as unknown as Data;
     const definition = { attribute: false };
     expect(Form).to.have.deep.nested.property('properties.getTransactionPageHref', definition);
@@ -380,6 +381,42 @@ describe('SubscriptionForm', () => {
       });
     });
 
+    it('once loaded, renders only price in title if settings disable frequency display', async () => {
+      type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+      const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+      settings.cart_display_config.show_sub_frequency = false;
+
+      const router = createBaseRouter({
+        defaults,
+        dataset: {
+          subscriptions: [fromDefaults('subscriptions', { id: 0, frequency: '.5m' })],
+          stores: [fromDefaults('stores', { id: 0, use_international_currency_symbol: false })],
+          carts: [fromDefaults('carts', { id: 0, total_order: 25.99, currency_code: 'EUR' })],
+        },
+        links,
+      });
+
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          href="https://demo.api/hapi/subscriptions/0"
+          lang="es"
+          .settings=${settings}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `);
+
+      await waitUntil(() => !!element.headerTitleOptions.context, '', { timeout: 10000 });
+
+      expect(element.headerTitleOptions).to.deep.equal({
+        currencyDisplay: 'symbol',
+        context: 'existing',
+        amount: '25.99 EUR',
+        units: 'monthly',
+        count: 0.5,
+      });
+    });
+
     it('uses custom subtitle key based on the subscription status', async () => {
       const testData = await getTestData<Data>('./hapi/subscriptions/0');
       const status = getSubscriptionStatus(testData);
@@ -529,6 +566,7 @@ describe('SubscriptionForm', () => {
 
   describe('items', () => {
     it('once loaded, renders subscription items', async () => {
+      const settings = await getTestData('./portal/customer_portal_settings');
       const router = createBaseRouter({
         defaults,
         dataset: {
@@ -541,6 +579,7 @@ describe('SubscriptionForm', () => {
 
       const element = await fixture<Form>(html`
         <foxy-subscription-form
+          settings=${JSON.stringify(settings)}
           locale-codes="https://demo.api/hapi/property_helpers/7"
           href="https://demo.api/hapi/subscriptions/0"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
@@ -563,7 +602,11 @@ describe('SubscriptionForm', () => {
       const control = items.querySelector('[infer="items"]')!;
 
       expect(control).to.have.property('localName', 'foxy-internal-async-list-control');
-      expect(control).to.have.deep.property('itemProps', { 'locale-codes': element.localeCodes });
+      expect(control).to.have.deep.property('itemProps', {
+        'locale-codes': 'https://demo.api/hapi/property_helpers/7',
+        '.settings': settings,
+      });
+
       expect(control).to.have.attribute('item', 'foxy-item-card');
       expect(control).to.have.attribute(
         'first',
@@ -696,25 +739,37 @@ describe('SubscriptionForm', () => {
     });
 
     it('is hidden when settings are present but the form is still loading data', async () => {
+      const settings = await getTestData('./portal/customer_portal_settings');
       const element = await fixture<Form>(html`
-        <foxy-subscription-form href="/" .settings=${{}}></foxy-subscription-form>
+        <foxy-subscription-form href="/" .settings=${settings}></foxy-subscription-form>
       `);
 
       expect(await getByTestId(element, 'frequency')).not.to.exist;
     });
 
     it('is hidden if settings prohibit frequency modification', async () => {
+      type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+      const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+      settings.subscriptions.allow_frequency_modification = [];
+      settings.subscriptions.allow_next_date_modification = true;
+
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const element = await fixture<Form>(html`
-        <foxy-subscription-form
-          .data=${await getTestData(href)}
-          .settings=${{
-            subscriptions: {
-              allow_frequency_modification: [],
-              allow_next_date_modification: false,
-            },
-          }}
-        >
+        <foxy-subscription-form .data=${await getTestData(href)} .settings=${settings}>
+        </foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'frequency')).not.to.exist;
+    });
+
+    it('is hidden if settings prohibit frequency display', async () => {
+      type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+      const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+      settings.cart_display_config.show_sub_frequency = false;
+
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${await getTestData(href)} .settings=${settings}>
         </foxy-subscription-form>
       `);
 
@@ -829,18 +884,15 @@ describe('SubscriptionForm', () => {
     });
 
     it('when visible, renders radio list if settings have up to 4 frequency options', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+      const settings = await getTestData<Settings>('./portal/customer_portal_settings');
       const values = ['1y', '1m', '.5m', '1w'];
+      settings.subscriptions.allow_next_date_modification = [];
+      settings.subscriptions.allow_frequency_modification = [{ jsonata_query: '*', values }];
+
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const element = await fixture<Form>(html`
-        <foxy-subscription-form
-          .data=${await getTestData<Data>(href)}
-          .settings=${{
-            subscriptions: {
-              allow_frequency_modification: [{ jsonata_query: '*', values }],
-              allow_next_date_modification: [],
-            },
-          }}
-        >
+        <foxy-subscription-form .data=${await getTestData<Data>(href)} .settings=${settings}>
         </foxy-subscription-form>
       `);
 
@@ -862,18 +914,15 @@ describe('SubscriptionForm', () => {
     });
 
     it('when visible, renders dropdown if settings have 5+ frequency options', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+      const settings = await getTestData<Settings>('./portal/customer_portal_settings');
       const values = ['2y', '1y', '4m', '2w', '5d'];
+      settings.subscriptions.allow_next_date_modification = [];
+      settings.subscriptions.allow_frequency_modification = [{ jsonata_query: '*', values }];
+
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const element = await fixture<Form>(html`
-        <foxy-subscription-form
-          .data=${await getTestData<Data>(href)}
-          .settings=${{
-            subscriptions: {
-              allow_frequency_modification: [{ jsonata_query: '*', values }],
-              allow_next_date_modification: [],
-            },
-          }}
-        >
+        <foxy-subscription-form .data=${await getTestData<Data>(href)} .settings=${settings}>
         </foxy-subscription-form>
       `);
 
@@ -903,17 +952,17 @@ describe('SubscriptionForm', () => {
     });
 
     it('binds dropdown value to form.frequency', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+      const settings = await getTestData<Settings>('./portal/customer_portal_settings');
       const values = ['2y', '1y', '4m', '2w', '5d'];
+      settings.subscriptions.allow_next_date_modification = [];
+      settings.subscriptions.allow_frequency_modification = [{ jsonata_query: '*', values }];
+
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const element = await fixture<Form>(html`
         <foxy-subscription-form
           .data=${{ ...(await getTestData<Data>(href)), frequency: '4m' }}
-          .settings=${{
-            subscriptions: {
-              allow_frequency_modification: [{ jsonata_query: '*', values }],
-              allow_next_date_modification: [],
-            },
-          }}
+          .settings=${settings}
         >
         </foxy-subscription-form>
       `);
@@ -933,14 +982,13 @@ describe('SubscriptionForm', () => {
       ['1y', '1m', '.5m', '1w', '1d'],
     ].forEach(values => {
       const target = values.length > 4 ? 'dropdown' : 'radio list';
-      const settings = {
-        subscriptions: {
-          allow_frequency_modification: [{ jsonata_query: '*', values }],
-          allow_next_date_modification: [],
-        },
-      };
 
       it(`${target} is disabled if form is disabled`, async () => {
+        type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+        const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+        settings.subscriptions.allow_frequency_modification = [{ jsonata_query: '*', values }];
+        settings.subscriptions.allow_next_date_modification = [];
+
         const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
         const element = await fixture<Form>(html`
           <foxy-subscription-form
@@ -955,6 +1003,11 @@ describe('SubscriptionForm', () => {
       });
 
       it(`${target} is disabled if disabledcontrols includes "frequency"`, async () => {
+        type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+        const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+        settings.subscriptions.allow_frequency_modification = [{ jsonata_query: '*', values }];
+        settings.subscriptions.allow_next_date_modification = [];
+
         const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
         const element = await fixture<Form>(html`
           <foxy-subscription-form
@@ -969,6 +1022,11 @@ describe('SubscriptionForm', () => {
       });
 
       it(`${target} is readonly if form is readonly`, async () => {
+        type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+        const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+        settings.subscriptions.allow_frequency_modification = [{ jsonata_query: '*', values }];
+        settings.subscriptions.allow_next_date_modification = [];
+
         const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
         const element = await fixture<Form>(html`
           <foxy-subscription-form
@@ -983,6 +1041,11 @@ describe('SubscriptionForm', () => {
       });
 
       it(`${target} is readonly if readonlycontrols includes "frequency"`, async () => {
+        type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+        const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+        settings.subscriptions.allow_frequency_modification = [{ jsonata_query: '*', values }];
+        settings.subscriptions.allow_next_date_modification = [];
+
         const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
         const element = await fixture<Form>(html`
           <foxy-subscription-form
@@ -1019,25 +1082,38 @@ describe('SubscriptionForm', () => {
     });
 
     it('is hidden when settings are present but the form is still loading data', async () => {
+      type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+      const settings = await getTestData<Settings>('./portal/customer_portal_settings');
       const element = await fixture<Form>(html`
-        <foxy-subscription-form href="/" .settings=${{}}></foxy-subscription-form>
+        <foxy-subscription-form href="/" .settings=${settings}></foxy-subscription-form>
       `);
 
       expect(await getByTestId(element, 'start-date')).not.to.exist;
     });
 
     it('is hidden if settings prohibit next date modification', async () => {
+      type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+      const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+      settings.subscriptions.allow_frequency_modification = [];
+      settings.subscriptions.allow_next_date_modification = false;
+
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const element = await fixture<Form>(html`
-        <foxy-subscription-form
-          .data=${await getTestData(href)}
-          .settings=${{
-            subscriptions: {
-              allow_frequency_modification: [],
-              allow_next_date_modification: false,
-            },
-          }}
-        >
+        <foxy-subscription-form .data=${await getTestData(href)} .settings=${settings}>
+        </foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'start-date')).not.to.exist;
+    });
+
+    it('is hidden if settings prohibit start date display', async () => {
+      type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+      const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+      settings.cart_display_config.show_sub_startdate = false;
+
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${await getTestData(href)} .settings=${settings}>
         </foxy-subscription-form>
       `);
 
@@ -1251,25 +1327,38 @@ describe('SubscriptionForm', () => {
     });
 
     it('is hidden when settings are present but the form is still loading data', async () => {
+      type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+      const settings = await getTestData<Settings>('./portal/customer_portal_settings');
       const element = await fixture<Form>(html`
-        <foxy-subscription-form href="/" .settings=${{}}></foxy-subscription-form>
+        <foxy-subscription-form href="/" .settings=${settings}></foxy-subscription-form>
       `);
 
       expect(await getByTestId(element, 'next-transaction-date')).not.to.exist;
     });
 
     it('is hidden if settings prohibit next date modification', async () => {
+      type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+      const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+      settings.subscriptions.allow_frequency_modification = [];
+      settings.subscriptions.allow_next_date_modification = false;
+
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const element = await fixture<Form>(html`
-        <foxy-subscription-form
-          .data=${await getTestData(href)}
-          .settings=${{
-            subscriptions: {
-              allow_frequency_modification: [],
-              allow_next_date_modification: false,
-            },
-          }}
-        >
+        <foxy-subscription-form .data=${await getTestData(href)} .settings=${settings}>
+        </foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'next-transaction-date')).not.to.exist;
+    });
+
+    it('is hidden if settings prohibit next date display', async () => {
+      type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+      const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+      settings.cart_display_config.show_sub_nextdate = false;
+
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${await getTestData(href)} .settings=${settings}>
         </foxy-subscription-form>
       `);
 
@@ -1449,17 +1538,14 @@ describe('SubscriptionForm', () => {
     });
 
     it('disables dates matching rules in the settings, if provided', async () => {
+      type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+      const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+      settings.subscriptions.allow_frequency_modification = [];
+      settings.subscriptions.allow_next_date_modification = [{ jsonata_query: '*', min: '1y' }];
+
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const element = await fixture<Form>(html`
-        <foxy-subscription-form
-          .data=${await getTestData<Data>(href)}
-          .settings=${{
-            subscriptions: {
-              allow_frequency_modification: [],
-              allow_next_date_modification: [{ jsonata_query: '*', min: '1y' }],
-            },
-          }}
-        >
+        <foxy-subscription-form .data=${await getTestData<Data>(href)} .settings=${settings}>
         </foxy-subscription-form>
       `);
 
@@ -1503,8 +1589,10 @@ describe('SubscriptionForm', () => {
     });
 
     it('is hidden when settings are present', async () => {
+      type Settings = Resource<CustomerRels.CustomerPortalSettings>;
+      const settings = await getTestData<Settings>('./portal/customer_portal_settings');
       const element = await fixture<Form>(html`
-        <foxy-subscription-form href="/" .settings=${{}}></foxy-subscription-form>
+        <foxy-subscription-form href="/" .settings=${settings}></foxy-subscription-form>
       `);
 
       expect(await getByTestId(element, 'end-date')).not.to.exist;

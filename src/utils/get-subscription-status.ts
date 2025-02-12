@@ -1,5 +1,5 @@
 import type { Resource } from '@foxy.io/sdk/core';
-import type { Rels } from '@foxy.io/sdk/backend';
+import type { Rels } from '@foxy.io/sdk/customer';
 
 type Data = Pick<
   Resource<Rels.Subscription>,
@@ -19,6 +19,16 @@ type Status =
   | 'failed'
   | 'failed_and_ended'
   | 'inactive';
+
+type ExtendedStatus =
+  | Status
+  | 'will_start_no_startdate'
+  | 'will_end_no_enddate'
+  | 'will_end_after_payment_no_nextdate'
+  | 'will_end_after_payment_no_enddate'
+  | 'ended_no_enddate'
+  | 'next_payment_no_nextdate'
+  | 'failed_and_ended_no_enddate';
 
 export function getSubscriptionStatus(data: Data | null): Status | null {
   if (data === null) return null;
@@ -45,4 +55,29 @@ export function getSubscriptionStatus(data: Data | null): Status | null {
   if (isActive) return end ? 'ended' : 'next_payment';
 
   return start <= now && end && end <= now ? 'ended' : 'inactive';
+}
+
+export function getExtendedSubscriptionStatus(
+  data: Data | null,
+  settings: Resource<Rels.CustomerPortalSettings>
+): ExtendedStatus | null {
+  const status = getSubscriptionStatus(data);
+  const config = settings.cart_display_config;
+
+  const showStartDate = config?.show_sub_startdate ?? true;
+  const showNextDate = config?.show_sub_nextdate ?? true;
+  const showEndDate = config?.show_sub_enddate ?? true;
+
+  if (status === 'failed_and_ended' && !showEndDate) return `${status}_no_enddate` as const;
+  if (status === 'next_payment' && !showNextDate) return `${status}_no_nextdate` as const;
+  if (status === 'will_start' && !showStartDate) return `${status}_no_startdate` as const;
+  if (status === 'will_end' && !showEndDate) return `${status}_no_enddate` as const;
+  if (status === 'ended' && !showEndDate) return `${status}_no_enddate` as const;
+  if (status === 'will_end_after_payment') {
+    if (!showEndDate && !showNextDate) return `next_payment_no_nextdate`;
+    if (!showNextDate) return `${status}_no_nextdate` as const;
+    if (!showEndDate) return `${status}_no_enddate` as const;
+  }
+
+  return status;
 }
