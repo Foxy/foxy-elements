@@ -619,7 +619,7 @@ export const createDataset: () => Dataset = () => ({
       use_webhook: false,
       webhook_url: '',
       webhook_key: '',
-      use_cart_validation: true,
+      use_cart_validation: false,
       use_single_sign_on: false,
       single_sign_on_url: '',
       customer_password_hash_type: 'phpass',
