@@ -392,107 +392,122 @@ describe('StoreForm', () => {
     expect(form.errors).to.include('webhook-url:v8n_too_long');
   });
 
-  it('produces the webhook-key:v8n_required error if legacy webhook is enabled and key is empty', () => {
+  it('produces the webhook-key:v8n_required error if key is empty', () => {
     const form = new Form();
     expect(form.errors).to.not.include('webhook-key:v8n_required');
 
-    form.edit({ use_webhook: true, webhook_key: '' });
+    form.edit({ webhook_key: '' });
     expect(form.errors).to.include('webhook-key:v8n_required');
-  });
 
-  it('produces the webhook-key:v8n_required error if hmac for carts is enabled and key is empty', () => {
-    const form = new Form();
+    form.edit({ webhook_key: 'abc' });
     expect(form.errors).to.not.include('webhook-key:v8n_required');
-
-    form.edit({ use_cart_validation: true, webhook_key: '' });
-    expect(form.errors).to.include('webhook-key:v8n_required');
   });
 
-  it('produces the webhook-key:v8n_too_long error if legacy webhook is enabled and the key exceeds 500 characters', () => {
+  it('produces the webhook-key:v8n_too_long error if legacy webhook is enabled and the key exceeds 100 characters', () => {
     const form = new Form();
 
     form.edit({ use_webhook: false, webhook_key: '' });
     expect(form.errors).to.not.include('webhook-key:v8n_too_long');
 
-    form.edit({ use_webhook: false, webhook_key: 'A'.repeat(500) });
+    form.edit({ use_webhook: false, webhook_key: 'A'.repeat(100) });
     expect(form.errors).to.not.include('webhook-key:v8n_too_long');
 
-    form.edit({ use_webhook: false, webhook_key: 'A'.repeat(501) });
+    form.edit({ use_webhook: false, webhook_key: 'A'.repeat(101) });
     expect(form.errors).to.include('webhook-key:v8n_too_long');
 
     form.edit({ use_webhook: true, webhook_key: '' });
     expect(form.errors).to.not.include('webhook-key:v8n_too_long');
 
-    form.edit({ use_webhook: true, webhook_key: 'A'.repeat(500) });
+    form.edit({ use_webhook: true, webhook_key: 'A'.repeat(100) });
     expect(form.errors).to.not.include('webhook-key:v8n_too_long');
 
     form.edit({ use_webhook: true, webhook_key: 'A'.repeat(501) });
     expect(form.errors).to.include('webhook-key:v8n_too_long');
   });
 
-  [
-    'use-webhook:v8n_webhook_key_required',
-    'webhook-key-xml-datafeed:v8n_required',
-    'webhook-key:v8n_required',
-  ].forEach(code => {
-    it(`produces the ${code} error when XML datafeed is enabled but webhook key is empty`, () => {
-      const form = new Form();
-      expect(form.errors).to.not.include(code);
+  it(`produces the use-webhook:v8n_webhook_key_required error when XML datafeed is enabled but webhook key is empty`, () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('use-webhook:v8n_webhook_key_required');
 
-      form.edit({ use_webhook: true, webhook_key: '' });
-      expect(form.errors).to.include(code);
+    form.edit({ use_webhook: true, webhook_key: '' });
+    expect(form.errors).to.include('use-webhook:v8n_webhook_key_required');
 
-      form.edit({ webhook_key: 'abc' });
-      expect(form.errors).to.not.include(code);
+    form.edit({ webhook_key: 'abc' });
+    expect(form.errors).to.not.include('use-webhook:v8n_webhook_key_required');
 
-      const props = { cart_signing: '', xml_datafeed: '', api_legacy: '', sso: '' };
-      form.edit({ webhook_key: JSON.stringify(props) });
-      expect(form.errors).to.include(code);
+    const props = { cart_signing: '', xml_datafeed: '', api_legacy: '', sso: '' };
+    form.edit({ webhook_key: JSON.stringify(props) });
+    expect(form.errors).to.include('use-webhook:v8n_webhook_key_required');
 
-      form.edit({ webhook_key: JSON.stringify({ ...props, xml_datafeed: 'abc' }) });
-      expect(form.errors).to.not.include(code);
-    });
+    form.edit({ webhook_key: JSON.stringify({ ...props, xml_datafeed: 'abc' }) });
+    expect(form.errors).to.not.include('use-webhook:v8n_webhook_key_required');
   });
 
-  [
-    'use-cart-validation:v8n_webhook_key_required',
-    'webhook-key-cart-signing:v8n_required',
-    'webhook-key:v8n_required',
-  ].forEach(code => {
-    it(`produces the ${code} error when cart signing is enabled but webhook key is empty`, () => {
-      const form = new Form();
-      expect(form.errors).to.not.include(code);
+  it(`produces the use-cart-validation:v8n_webhook_key_required error when XML datafeed is enabled but webhook key is empty`, () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('use-cart-validation:v8n_webhook_key_required');
 
-      form.edit({ use_cart_validation: true, webhook_key: '' });
-      expect(form.errors).to.include(code);
+    form.edit({ use_cart_validation: true, webhook_key: '' });
+    expect(form.errors).to.include('use-cart-validation:v8n_webhook_key_required');
 
-      form.edit({ webhook_key: 'abc' });
-      expect(form.errors).to.not.include(code);
+    form.edit({ webhook_key: 'abc' });
+    expect(form.errors).to.not.include('use-cart-validation:v8n_webhook_key_required');
 
-      const props = { cart_signing: '', xml_datafeed: '', api_legacy: '', sso: '' };
-      form.edit({ webhook_key: JSON.stringify(props) });
-      expect(form.errors).to.include(code);
+    const props = { cart_signing: '', xml_datafeed: '', api_legacy: '', sso: '' };
+    form.edit({ webhook_key: JSON.stringify(props) });
+    expect(form.errors).to.include('use-cart-validation:v8n_webhook_key_required');
 
-      form.edit({ webhook_key: JSON.stringify({ ...props, cart_signing: 'abc' }) });
-      expect(form.errors).to.not.include(code);
-    });
+    form.edit({ webhook_key: JSON.stringify({ ...props, cart_signing: 'abc' }) });
+    expect(form.errors).to.not.include('use-cart-validation:v8n_webhook_key_required');
+  });
+
+  it(`produces the use-single-sign-on:v8n_webhook_key_required error when XML datafeed is enabled but webhook key is empty`, () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('use-single-sign-on:v8n_webhook_key_required');
+
+    form.edit({ use_single_sign_on: true, webhook_key: '' });
+    expect(form.errors).to.include('use-single-sign-on:v8n_webhook_key_required');
+
+    form.edit({ webhook_key: 'abc' });
+    expect(form.errors).to.not.include('use-single-sign-on:v8n_webhook_key_required');
+
+    const props = { cart_signing: '', xml_datafeed: '', api_legacy: '', sso: '' };
+    form.edit({ webhook_key: JSON.stringify(props) });
+    expect(form.errors).to.include('use-single-sign-on:v8n_webhook_key_required');
+
+    form.edit({ webhook_key: JSON.stringify({ ...props, sso: 'abc' }) });
+    expect(form.errors).to.not.include('use-single-sign-on:v8n_webhook_key_required');
   });
 
   (['xml_datafeed', 'cart_signing', 'api_legacy', 'sso'] as const).forEach(prop => {
-    const code = `webhook-key-${prop.replace(/_/g, '-')}:v8n_too_long`;
-    it(`produces the ${code} error when ${prop} in webhook_key JSON is more than 100 characters long`, () => {
+    const requiredCode = `webhook-key-${prop.replace(/_/g, '-')}:v8n_required`;
+    const tooLongCode = `webhook-key-${prop.replace(/_/g, '-')}:v8n_too_long`;
+
+    it(`produces the ${requiredCode} error when ${prop} in webhook_key JSON is empty`, () => {
       const form = new Form();
-      expect(form.errors).to.not.include(code);
+      expect(form.errors).to.not.include(requiredCode);
 
       const props = { cart_signing: '', xml_datafeed: '', api_legacy: '', sso: '' };
       form.edit({ webhook_key: JSON.stringify(props) });
-      expect(form.errors).to.not.include(code);
+      expect(form.errors).to.include(requiredCode);
+
+      form.edit({ webhook_key: JSON.stringify({ ...props, [prop]: 'abc' }) });
+      expect(form.errors).to.not.include(requiredCode);
+    });
+
+    it(`produces the ${tooLongCode} error when ${prop} in webhook_key JSON is more than 100 characters long`, () => {
+      const form = new Form();
+      expect(form.errors).to.not.include(tooLongCode);
+
+      const props = { cart_signing: '', xml_datafeed: '', api_legacy: '', sso: '' };
+      form.edit({ webhook_key: JSON.stringify(props) });
+      expect(form.errors).to.not.include(tooLongCode);
 
       form.edit({ webhook_key: JSON.stringify({ ...props, [prop]: 'a'.repeat(100) }) });
-      expect(form.errors).to.not.include(code);
+      expect(form.errors).to.not.include(tooLongCode);
 
       form.edit({ webhook_key: JSON.stringify({ ...props, [prop]: 'a'.repeat(101) }) });
-      expect(form.errors).to.include(code);
+      expect(form.errors).to.include(tooLongCode);
     });
   });
 

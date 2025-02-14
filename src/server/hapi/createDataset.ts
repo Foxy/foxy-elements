@@ -618,7 +618,7 @@ export const createDataset: () => Dataset = () => ({
       checkout_type: 'default_account',
       use_webhook: false,
       webhook_url: '',
-      webhook_key: '',
+      webhook_key: 'A'.repeat(32),
       use_cart_validation: false,
       use_single_sign_on: false,
       single_sign_on_url: '',

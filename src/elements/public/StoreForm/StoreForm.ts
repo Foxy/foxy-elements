@@ -47,6 +47,7 @@ export class StoreForm extends Base<Data> {
       reportingStoreDomainExists: { attribute: 'reporting-store-domain-exists' },
       customerPasswordHashTypes: { attribute: 'customer-password-hash-types' },
       shippingAddressTypes: { attribute: 'shipping-address-types' },
+      storeSecretsPageUrl: { attribute: 'store-secrets-page-url' },
       hCaptchaSiteKey: { attribute: 'h-captcha-site-key' },
       storeVersions: { attribute: 'store-versions' },
       checkoutTypes: { attribute: 'checkout-types' },
@@ -110,35 +111,41 @@ export class StoreForm extends Base<Data> {
       ({ webhook_key: v }, host) => {
         // TODO remove the line below when API limit is corrected to match the legacy admin
         if (host.data?.webhook_key === v) return true;
-        return !v || v.length <= 500 || 'webhook-key:v8n_too_long';
+        return !v || v.length <= 100 || 'webhook-key:v8n_too_long';
       },
 
-      ...[
-        'use-webhook:v8n_webhook_key_required',
-        'webhook-key-xml-datafeed:v8n_required',
-        'webhook-key:v8n_required',
-      ].map(code => ({ webhook_key: v, use_webhook: on }: Partial<Data>) => {
+      ({ webhook_key: v, use_webhook: on }: Partial<Data>) => {
         const parsedV = parseWebhookKey(v ?? '');
+        const code = 'use-webhook:v8n_webhook_key_required';
         return !on || !!(parsedV ? parsedV.xml_datafeed : v) || code;
-      }),
+      },
 
-      ...[
-        'use-cart-validation:v8n_webhook_key_required',
-        'webhook-key-cart-signing:v8n_required',
-        'webhook-key:v8n_required',
-      ].map(code => ({ webhook_key: v, use_cart_validation: on }: Partial<Data>) => {
+      ({ webhook_key: v, use_cart_validation: on }: Partial<Data>) => {
         const parsedV = parseWebhookKey(v ?? '');
+        const code = 'use-cart-validation:v8n_webhook_key_required';
         return !on || !!(parsedV ? parsedV.cart_signing : v) || code;
-      }),
+      },
 
-      ...(['xml_datafeed', 'cart_signing', 'api_legacy', 'sso'] as const).map(
-        prop =>
+      ({ webhook_key: v, use_single_sign_on: on }: Partial<Data>) => {
+        const parsedV = parseWebhookKey(v ?? '');
+        const code = 'use-single-sign-on:v8n_webhook_key_required';
+        return !on || !!(parsedV ? parsedV.sso : v) || code;
+      },
+
+      ...(['xml_datafeed', 'cart_signing', 'api_legacy', 'sso'] as const)
+        .map(prop => [
+          ({ webhook_key: v }: Partial<Data>) => {
+            const parsedV = parseWebhookKey(v ?? '');
+            const code = `webhook-key-${prop.replace(/_/g, '-')}:v8n_required`;
+            return !parsedV || !!parsedV[prop] || code;
+          },
           ({ webhook_key: v }: Partial<Data>) => {
             const parsedV = parseWebhookKey(v ?? '');
             const code = `webhook-key-${prop.replace(/_/g, '-')}:v8n_too_long`;
             return !parsedV || parsedV[prop].length <= 100 || code;
-          }
-      ),
+          },
+        ])
+        .flat(),
 
       ({ single_sign_on_url: v, use_single_sign_on: on }) => {
         return !on || !!v || 'single-sign-on-url:v8n_required';
@@ -166,6 +173,9 @@ export class StoreForm extends Base<Data> {
 
   /** URL of the `fx:shipping_address_types` property helper resource. */
   shippingAddressTypes: string | null = null;
+
+  /** URL of the Store Secrets settings page if you are using this form on multiple pages. */
+  storeSecretsPageUrl: string | null = null;
 
   /** hCaptcha site key for signup verification. If provided, requires users to complete a captcha before creating a store. */
   hCaptchaSiteKey: string | null = null;
@@ -479,6 +489,12 @@ export class StoreForm extends Base<Data> {
     const displayIdExamples = this.__displayIdExamples;
     const journalIdExamples = this.__journalIdExamples;
 
+    const rawWebhookKey = this.data?.webhook_key ?? '';
+    const parsedWebhookKey = parseWebhookKey(rawWebhookKey);
+    const cartSigningKey = parsedWebhookKey?.cart_signing ?? rawWebhookKey;
+    const xmlDatafeedKey = parsedWebhookKey?.xml_datafeed ?? rawWebhookKey;
+    const ssoKey = parsedWebhookKey?.sso ?? rawWebhookKey;
+
     return html`
       ${this.renderHeader()}
 
@@ -565,7 +581,7 @@ export class StoreForm extends Base<Data> {
         </foxy-internal-select-control>
       </foxy-internal-summary-control>
 
-      <foxy-internal-summary-control infer="store-secrets">
+      <foxy-internal-summary-control infer="store-secrets" id="store-secrets">
         <foxy-internal-switch-control
           infer="use-single-secret"
           .getValue=${this.__useSingleWebhookKeyGetValue}
@@ -727,6 +743,10 @@ export class StoreForm extends Base<Data> {
 
         <foxy-internal-switch-control infer="use-cart-validation" helper-text-as-tooltip>
         </foxy-internal-switch-control>
+
+        ${cartSigningKey && this.form.use_cart_validation
+          ? this.__renderReadonlyWebhookKey('webhook-key-cart-signing', cartSigningKey)
+          : ''}
       </foxy-internal-summary-control>
 
       <foxy-internal-summary-control infer="checkout">
@@ -776,6 +796,7 @@ export class StoreForm extends Base<Data> {
           ? html`
               <foxy-internal-text-control layout="summary-item" infer="single-sign-on-url">
               </foxy-internal-text-control>
+              ${ssoKey ? this.__renderReadonlyWebhookKey('webhook-key-sso', ssoKey) : ''}
             `
           : ''}
       </foxy-internal-summary-control>
@@ -964,6 +985,9 @@ export class StoreForm extends Base<Data> {
           ? html`
               <foxy-internal-text-control layout="summary-item" infer="webhook-url">
               </foxy-internal-text-control>
+              ${xmlDatafeedKey
+                ? this.__renderReadonlyWebhookKey('webhook-key-xml-datafeed', xmlDatafeedKey)
+                : ''}
             `
           : ''}
       </foxy-internal-summary-control>
@@ -1204,5 +1228,34 @@ export class StoreForm extends Base<Data> {
         </foxy-nucleon>
       `,
     };
+  }
+
+  private __renderReadonlyWebhookKey(scope: string, key: string) {
+    return html`
+      <div class="leading-xs">
+        <div class="flex items-center gap-s">
+          <p class="flex-1">
+            <foxy-i18n infer=${scope} key="label"></foxy-i18n>
+          </p>
+          <p class="text-tertiary">${'*'.repeat(8)}${key.substr(-4)}</p>
+          <foxy-copy-to-clipboard
+            layout="complete"
+            infer="${scope} copy-to-clipboard"
+            theme="contrast tertiary-inline"
+            text=${key}
+          >
+          </foxy-copy-to-clipboard>
+        </div>
+        <p class="text-xs text-secondary">
+          <foxy-i18n infer=${scope} key="helper_text"></foxy-i18n>
+          <a
+            class="text-body font-medium rounded-s hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50"
+            href=${this.storeSecretsPageUrl ?? '#store-secrets'}
+          >
+            <foxy-i18n infer=${scope} key="link_text"></foxy-i18n>
+          </a>
+        </p>
+      </div>
+    `;
   }
 }

@@ -114,32 +114,34 @@
       "placeholder": "None",
       "helper_text": "",
       "v8n_required": "Please create a universal store secret.",
-      "v8n_too_long": "Please shorten this value to 500 characters or less."
+      "v8n_too_long": "Please shorten this value to 100 characters or less."
     },
     "webhook-key-api-legacy": {
       "label": "Legacy API key",
       "placeholder": "None",
       "helper_text": "",
+      "v8n_required": "Please create a legacy API key.",
       "v8n_too_long": "Please shorten this value to 100 characters or less."
     },
     "webhook-key-xml-datafeed": {
       "label": "Legacy XML datafeed encryption key",
       "placeholder": "None",
       "helper_text": "",
-      "v8n_required": "This key is required because the legacy XML datafeed is enabled.",
+      "v8n_required": "Please create a legacy XML datafeed encryption key.",
       "v8n_too_long": "Please shorten this value to 100 characters or less."
     },
     "webhook-key-sso": {
       "label": "SSO secret",
       "placeholder": "None",
       "helper_text": "",
+      "v8n_required": "Please create an SSO secret.",
       "v8n_too_long": "Please shorten this value to 100 characters or less."
     },
     "webhook-key-cart-signing": {
       "label": "Cart signing key",
       "placeholder": "None",
       "helper_text": "",
-      "v8n_required": "This key is required because cart signing is enabled.",
+      "v8n_required": "Please create a cart signing key.",
       "v8n_too_long": "Please shorten this value to 100 characters or less."
     }
   },
@@ -243,6 +245,17 @@
       "helper_text": "All products added to the cart for your store will need to contain the expires property to ensure stale products can't be purchased.",
       "checked": "Yes",
       "unchecked": "No"
+    },
+    "webhook-key-cart-signing": {
+      "label": "Cart signing key",
+      "helper_text": "You can edit this key in ",
+      "link_text": "Store Secrets settings",
+      "copy-to-clipboard": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy",
+        "copying": "Copying...",
+        "done": "Copied"
+      }
     }
   },
   "checkout": {
@@ -269,7 +282,8 @@
       "label": "Enable SSO",
       "helper_text": "When enabled, Foxy will redirect customers to your SSO endpoint prior to hitting the checkout page. You can use this to validate items or to log customers in via your own auth provider.",
       "checked": "Yes",
-      "unchecked": "No"
+      "unchecked": "No",
+      "v8n_webhook_key_required": "Please create an SSO secret or a universal store secret to enable this feature."
     },
     "single-sign-on-url": {
       "label": "SSO endpoint",
@@ -277,6 +291,17 @@
       "helper_text": "",
       "v8n_required": "Please enter your SSO endpoint URL",
       "v8n_too_long": "Please shorten this URL to 300 characters or less"
+    },
+    "webhook-key-sso": {
+      "label": "SSO secret",
+      "helper_text": "You can edit this secret in ",
+      "link_text": "Store Secrets settings",
+      "copy-to-clipboard": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy",
+        "copying": "Copying...",
+        "done": "Copied"
+      }
     }
   },
   "receipt": {
@@ -378,6 +403,17 @@
       "helper_text": "",
       "v8n_too_long": "Please shorten this URL to 300 characters or less.",
       "v8n_required": "Please enter a URL."
+    },
+    "webhook-key-xml-datafeed": {
+      "label": "Encryption key",
+      "helper_text": "You can edit this key in ",
+      "link_text": "Store Secrets settings",
+      "copy-to-clipboard": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy",
+        "copying": "Copying...",
+        "done": "Copied"
+      }
     }
   },
   "hcaptcha": {
