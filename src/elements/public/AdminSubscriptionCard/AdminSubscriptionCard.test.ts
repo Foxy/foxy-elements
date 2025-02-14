@@ -12,6 +12,7 @@ import { getTestData } from '../../../testgen/getTestData';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { getByKey } from '../../../testgen/getByKey';
 import { parseFrequency } from '../../../utils/parse-frequency';
+import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
 
 describe('AdminSubscriptionCard', () => {
   it('imports and registers foxy-i18n element', () => {
@@ -488,7 +489,7 @@ describe('AdminSubscriptionCard', () => {
     expect(price?.options.amount.split(' ')[1]).to.equal('PKR');
   });
 
-  it('renders a special status in line 2 for failed subscriptions', async () => {
+  it('renders subscription status in line 2', async () => {
     const router = createRouter();
     const href = 'https://demo.api/hapi/subscriptions/0';
     const data = await getTestData<Resource<Rels.Subscription>>(href, router);
@@ -501,150 +502,13 @@ describe('AdminSubscriptionCard', () => {
       </foxy-admin-subscription-card>
     `);
 
-    data.first_failed_transaction_date = new Date(2022, 1, 1).toISOString();
-    data.start_date = new Date(2020, 1, 1).toISOString();
-    data.is_active = true;
-    data.end_date = null;
     element.data = data;
-
     await waitUntil(() => element.isBodyReady, '', { timeout: 5000 });
-    const price = await getByKey(element, 'subscription_failed');
+    const status = await getByKey(element, `status_${getSubscriptionStatus(data)}`);
 
-    expect(price).to.exist;
-    expect(price).to.have.attribute('infer', '');
-    expect(price).to.have.nested.property('options.date', data.first_failed_transaction_date);
-  });
-
-  it('renders a special status in line 2 for active subscriptions with an end date in the future', async () => {
-    const router = createRouter();
-    const href = 'https://demo.api/hapi/subscriptions/0';
-    const data = await getTestData<Resource<Rels.Subscription>>(href, router);
-
-    const element = await fixture<Card>(html`
-      <foxy-admin-subscription-card
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-admin-subscription-card>
-    `);
-
-    data.first_failed_transaction_date = null;
-    data.start_date = new Date(2020, 1, 1).toISOString();
-    data.is_active = true;
-    data.end_date = new Date(Date.now() + 2.628e9).toISOString();
-    element.data = data;
-
-    await waitUntil(() => element.isBodyReady, '', { timeout: 5000 });
-    const price = await getByKey(element, 'subscription_will_be_cancelled');
-
-    expect(price).to.exist;
-    expect(price).to.have.attribute('infer', '');
-    expect(price).to.have.nested.property('options.date', data.end_date);
-  });
-
-  it('renders a special status in line 2 for subscriptions that have ended', async () => {
-    const router = createRouter();
-    const href = 'https://demo.api/hapi/subscriptions/0';
-    const data = await getTestData<Resource<Rels.Subscription>>(href, router);
-
-    const element = await fixture<Card>(html`
-      <foxy-admin-subscription-card
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-admin-subscription-card>
-    `);
-
-    data.first_failed_transaction_date = null;
-    data.start_date = new Date(2020, 1, 1).toISOString();
-    data.is_active = true;
-    data.end_date = new Date(2022, 1, 1).toISOString();
-    element.data = data;
-
-    await waitUntil(() => element.isBodyReady, '', { timeout: 5000 });
-    const price = await getByKey(element, 'subscription_cancelled');
-
-    expect(price).to.exist;
-    expect(price).to.have.attribute('infer', '');
-    expect(price).to.have.nested.property('options.date', data.end_date);
-  });
-
-  it('renders a special status in line 2 for inactive subscriptions', async () => {
-    const router = createRouter();
-    const href = 'https://demo.api/hapi/subscriptions/0';
-    const data = await getTestData<Resource<Rels.Subscription>>(href, router);
-
-    const element = await fixture<Card>(html`
-      <foxy-admin-subscription-card
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-admin-subscription-card>
-    `);
-
-    data.first_failed_transaction_date = null;
-    data.start_date = new Date(2020, 1, 1).toISOString();
-    data.is_active = false;
-    data.end_date = null;
-    element.data = data;
-
-    await waitUntil(() => element.isBodyReady, '', { timeout: 5000 });
-    const price = await getByKey(element, 'subscription_inactive');
-
-    expect(price).to.exist;
-    expect(price).to.have.attribute('infer', '');
-  });
-
-  it('renders a special status in line 2 for active subscriptions', async () => {
-    const router = createRouter();
-    const href = 'https://demo.api/hapi/subscriptions/0';
-    const data = await getTestData<Resource<Rels.Subscription>>(href, router);
-
-    const element = await fixture<Card>(html`
-      <foxy-admin-subscription-card
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-admin-subscription-card>
-    `);
-
-    data.first_failed_transaction_date = null;
-    data.start_date = new Date(2020, 1, 1).toISOString();
-    data.is_active = true;
-    data.end_date = null;
-    element.data = data;
-
-    await waitUntil(() => element.isBodyReady, '', { timeout: 5000 });
-    const price = await getByKey(element, 'subscription_active');
-
-    expect(price).to.exist;
-    expect(price).to.have.attribute('infer', '');
-  });
-
-  it('renders a special status in line 2 for subscriptions that start soon', async () => {
-    const router = createRouter();
-    const href = 'https://demo.api/hapi/subscriptions/0';
-    const data = await getTestData<Resource<Rels.Subscription>>(href, router);
-
-    const element = await fixture<Card>(html`
-      <foxy-admin-subscription-card
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-admin-subscription-card>
-    `);
-
-    data.first_failed_transaction_date = null;
-    data.start_date = new Date(Date.now() + 3600000).toISOString();
-    data.is_active = true;
-    data.end_date = null;
-    element.data = data;
-
-    await waitUntil(() => element.isBodyReady, '', { timeout: 5000 });
-    const price = await getByKey(element, 'subscription_will_be_active');
-
-    expect(price).to.exist;
-    expect(price).to.have.attribute('infer', '');
+    expect(status).to.exist;
+    expect(status).to.have.attribute('infer', '');
+    expect(status).to.have.deep.property('options', data);
   });
 
   it('renders customer email in line 3 from embedded fx:transaction_template', async () => {

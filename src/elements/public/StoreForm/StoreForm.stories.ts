@@ -27,8 +27,13 @@ const summary: Summary = {
       'essentials:postal-code',
       'essentials:currency-style',
 
-      'api-legacy',
-      'api-legacy:webhook-key-api-legacy',
+      'store-secrets',
+      'store-secrets:use-single-secret',
+      'store-secrets:webhook-key',
+      'store-secrets:webhook-key-api-legacy',
+      'store-secrets:webhook-key-xml-datafeed',
+      'store-secrets:webhook-key-cart-signing',
+      'store-secrets:webhook-key-sso',
 
       'emails',
       'emails:from-email',
@@ -49,7 +54,6 @@ const summary: Summary = {
       'cart:app-session-time',
       'cart:products-require-expires-property',
       'cart:use-cart-validation',
-      'cart:webhook-key-cart-signing',
 
       'checkout',
       'checkout:checkout-type',
@@ -58,7 +62,6 @@ const summary: Summary = {
       'checkout:unified-order-entry-password',
       'checkout:use-single-sign-on-url',
       'checkout:single-sign-on-url',
-      'checkout:webhook-key-sso',
 
       'receipt',
       'receipt:receipt-continue-url',
@@ -80,7 +83,6 @@ const summary: Summary = {
       'xml-datafeed',
       'xml-datafeed:use-webhook',
       'xml-datafeed:webhook-url',
-      'xml-datafeed:webhook-key-xml-datafeed',
     ],
   },
 };

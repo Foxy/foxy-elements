@@ -21,7 +21,7 @@
       "done": "Copied to clipboard"
     }
   },
-  "general": {
+  "group-one": {
     "label": "",
     "helper_text": "",
     "name": {
@@ -30,7 +30,11 @@
       "helper_text": "",
       "v8n_required": "Webhook name is required",
       "v8n_too_long": "Webhook name cannot exceed 255 characters"
-    },
+    }
+  },
+  "group-two": {
+    "label": "",
+    "helper_text": "",
     "encryption-key": {
       "label": "Encryption key",
       "placeholder": "Required",
@@ -59,6 +63,16 @@
       "v8n_too_long": "Query cannot exceed 1000 characters"
     }
   },
+  "group-three": {
+    "label": "",
+    "helper_text": "",
+    "is-active": {
+      "label": "Enable this webhook",
+      "helper_text": "Webhooks are disabled automatically when there are too many consecutive failed runs.",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
+  },
   "statuses": {
     "label": "Runs",
     "pagination": {
@@ -68,6 +82,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "card": {
+        "status_initializing": "Initializing",
         "status_successful": "Successful",
         "status_pending": "Pending",
         "status_failed": "Failed",

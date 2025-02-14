@@ -60,7 +60,7 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
     const alwaysMatch: string[] = [super.hiddenSelector.toString()];
 
     if (this.data) {
-      alwaysMatch.unshift('general:event-resource');
+      alwaysMatch.unshift('group-two:event-resource');
     } else {
       alwaysMatch.unshift('logs', 'statuses');
     }
@@ -106,15 +106,22 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
     return html`
       ${this.renderHeader()}
 
-      <foxy-internal-summary-control infer="general">
+      <foxy-internal-summary-control infer="group-one">
         <foxy-internal-text-control layout="summary-item" infer="name"></foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
+      <foxy-internal-summary-control infer="group-two">
         <foxy-internal-select-control
           layout="summary-item"
           infer="event-resource"
           .options=${this.__eventResources}
         >
         </foxy-internal-select-control>
+
+        <foxy-internal-text-control layout="summary-item" infer="query">
+        </foxy-internal-text-control>
+
+        <foxy-internal-text-control layout="summary-item" infer="url"></foxy-internal-text-control>
 
         <foxy-internal-password-control
           layout="summary-item"
@@ -123,11 +130,10 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
           .generatorOptions=${this.__encryptionKeyGeneratorOptions}
         >
         </foxy-internal-password-control>
+      </foxy-internal-summary-control>
 
-        <foxy-internal-text-control layout="summary-item" infer="query">
-        </foxy-internal-text-control>
-
-        <foxy-internal-text-control layout="summary-item" infer="url"></foxy-internal-text-control>
+      <foxy-internal-summary-control infer="group-three">
+        <foxy-internal-switch-control infer="is-active"></foxy-internal-switch-control>
       </foxy-internal-summary-control>
 
       <foxy-internal-async-list-control

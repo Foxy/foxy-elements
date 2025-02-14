@@ -25,11 +25,11 @@ export class Group extends LitElement {
   public frame = false;
 
   public render(): TemplateResult {
-    const frameClass = 'border border-contrast-10 overflow-hidden';
+    const frameClass = 'bg-contrast-5 overflow-hidden';
 
     return html`
       <section class="space-y-s font-lumo antialiased">
-        <h3 class=${`text-s font-medium text-secondary leading-none ${this.frame ? '' : 'pl-m'}`}>
+        <h3 class=${`text-l font-medium text-body leading-none ${this.frame ? '' : 'pl-m'}`}>
           <slot name="header"></slot>
         </h3>
 

@@ -41,6 +41,17 @@ export function createRouter(): Router {
         date_modified: '2021-09-01T00:00:00Z',
         date_created: '2021-09-01T00:00:00Z',
         sso: true,
+        cart_display_config: {
+          show_product_weight: true,
+          show_product_category: true,
+          show_product_code: true,
+          show_product_options: true,
+          show_sub_frequency: true,
+          show_sub_startdate: true,
+          show_sub_nextdate: true,
+          show_sub_enddate: true,
+          hidden_product_options: [],
+        },
         tos_checkbox_settings: {
           usage: 'optional' as const,
           url: 'https://foxy.io/terms-of-service/',

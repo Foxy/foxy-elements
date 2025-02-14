@@ -5,6 +5,7 @@ import { SubscriptionsTable } from './SubscriptionsTable';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
 import { parseFrequency } from '../../../utils/parse-frequency';
+import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
 
 type Refs = {
   frequencies: HTMLSpanElement[];
@@ -70,29 +71,11 @@ describe('SubscriptionsTable', () => {
           }
 
           {
-            let date: string;
-            let key: string;
-
-            if (subscription.first_failed_transaction_date) {
-              date = subscription.first_failed_transaction_date;
-              key = 'subscription_failed';
-            } else if (subscription.end_date) {
-              date = subscription.end_date;
-              const hasEnded = new Date(subscription.end_date).getTime() > Date.now();
-              key = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
-            } else if (!subscription.is_active) {
-              date = '';
-              key = 'subscription_inactive';
-            } else if (new Date(subscription.start_date) > new Date()) {
-              date = subscription.start_date;
-              key = 'subscription_will_be_active';
-            } else {
-              date = subscription.next_transaction_date;
-              key = 'subscription_active';
-            }
-
-            expect(statusRef).to.have.deep.property('options', { date });
-            expect(statusRef).to.have.attribute('key', key);
+            expect(statusRef).to.have.deep.property('options', subscription);
+            expect(statusRef).to.have.attribute(
+              'key',
+              `status_${getSubscriptionStatus(subscription)}`
+            );
           }
         });
       },

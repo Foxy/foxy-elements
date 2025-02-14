@@ -357,6 +357,19 @@ describe('StoreForm', () => {
     expect(form.errors).to.not.include('logo-url:v8n_too_long');
   });
 
+  it('produces the webhook-url:v8n_required error if legacy webhook is enabled and the url is empty', () => {
+    const form = new Form();
+
+    form.edit({ use_webhook: false, webhook_url: '' });
+    expect(form.errors).to.not.include('webhook-url:v8n_required');
+
+    form.edit({ use_webhook: true, webhook_url: '' });
+    expect(form.errors).to.include('webhook-url:v8n_required');
+
+    form.edit({ use_webhook: true, webhook_url: 'A'.repeat(300) });
+    expect(form.errors).to.not.include('webhook-url:v8n_required');
+  });
+
   it('produces the webhook-url:v8n_too_long error if legacy webhook is enabled and the url exceeds 300 characters', () => {
     const form = new Form();
 
@@ -379,46 +392,123 @@ describe('StoreForm', () => {
     expect(form.errors).to.include('webhook-url:v8n_too_long');
   });
 
-  it('produces the webhook-key:v8n_required error if legacy webhook is enabled and key is empty', () => {
+  it('produces the webhook-key:v8n_required error if key is empty', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('webhook-key:v8n_required');
+
+    form.edit({ webhook_key: '' });
+    expect(form.errors).to.include('webhook-key:v8n_required');
+
+    form.edit({ webhook_key: 'abc' });
+    expect(form.errors).to.not.include('webhook-key:v8n_required');
+  });
+
+  it('produces the webhook-key:v8n_too_long error if legacy webhook is enabled and the key exceeds 100 characters', () => {
     const form = new Form();
 
     form.edit({ use_webhook: false, webhook_key: '' });
-    expect(form.errors).to.not.include('webhook-key:v8n_required');
+    expect(form.errors).to.not.include('webhook-key:v8n_too_long');
+
+    form.edit({ use_webhook: false, webhook_key: 'A'.repeat(100) });
+    expect(form.errors).to.not.include('webhook-key:v8n_too_long');
+
+    form.edit({ use_webhook: false, webhook_key: 'A'.repeat(101) });
+    expect(form.errors).to.include('webhook-key:v8n_too_long');
 
     form.edit({ use_webhook: true, webhook_key: '' });
-    expect(form.errors).to.include('webhook-key:v8n_required');
+    expect(form.errors).to.not.include('webhook-key:v8n_too_long');
+
+    form.edit({ use_webhook: true, webhook_key: 'A'.repeat(100) });
+    expect(form.errors).to.not.include('webhook-key:v8n_too_long');
+
+    form.edit({ use_webhook: true, webhook_key: 'A'.repeat(501) });
+    expect(form.errors).to.include('webhook-key:v8n_too_long');
   });
 
-  it('produces the webhook-key:v8n_required error if hmac for carts is enabled and key is empty', () => {
+  it(`produces the use-webhook:v8n_webhook_key_required error when XML datafeed is enabled but webhook key is empty`, () => {
     const form = new Form();
+    expect(form.errors).to.not.include('use-webhook:v8n_webhook_key_required');
 
-    form.edit({ use_cart_validation: false, webhook_key: '' });
-    expect(form.errors).to.not.include('webhook-key:v8n_required');
+    form.edit({ use_webhook: true, webhook_key: '' });
+    expect(form.errors).to.include('use-webhook:v8n_webhook_key_required');
+
+    form.edit({ webhook_key: 'abc' });
+    expect(form.errors).to.not.include('use-webhook:v8n_webhook_key_required');
+
+    const props = { cart_signing: '', xml_datafeed: '', api_legacy: '', sso: '' };
+    form.edit({ webhook_key: JSON.stringify(props) });
+    expect(form.errors).to.include('use-webhook:v8n_webhook_key_required');
+
+    form.edit({ webhook_key: JSON.stringify({ ...props, xml_datafeed: 'abc' }) });
+    expect(form.errors).to.not.include('use-webhook:v8n_webhook_key_required');
+  });
+
+  it(`produces the use-cart-validation:v8n_webhook_key_required error when XML datafeed is enabled but webhook key is empty`, () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('use-cart-validation:v8n_webhook_key_required');
 
     form.edit({ use_cart_validation: true, webhook_key: '' });
-    expect(form.errors).to.include('webhook-key:v8n_required');
+    expect(form.errors).to.include('use-cart-validation:v8n_webhook_key_required');
+
+    form.edit({ webhook_key: 'abc' });
+    expect(form.errors).to.not.include('use-cart-validation:v8n_webhook_key_required');
+
+    const props = { cart_signing: '', xml_datafeed: '', api_legacy: '', sso: '' };
+    form.edit({ webhook_key: JSON.stringify(props) });
+    expect(form.errors).to.include('use-cart-validation:v8n_webhook_key_required');
+
+    form.edit({ webhook_key: JSON.stringify({ ...props, cart_signing: 'abc' }) });
+    expect(form.errors).to.not.include('use-cart-validation:v8n_webhook_key_required');
   });
 
-  it('produces the webhook-key:v8n_too_long error if legacy webhook is enabled and the key exceeds 200 characters', () => {
+  it(`produces the use-single-sign-on:v8n_webhook_key_required error when XML datafeed is enabled but webhook key is empty`, () => {
     const form = new Form();
+    expect(form.errors).to.not.include('use-single-sign-on:v8n_webhook_key_required');
 
-    form.edit({ use_webhook: false, webhook_key: '' });
-    expect(form.errors).to.not.include('webhook-key:v8n_too_long');
+    form.edit({ use_single_sign_on: true, webhook_key: '' });
+    expect(form.errors).to.include('use-single-sign-on:v8n_webhook_key_required');
 
-    form.edit({ use_webhook: false, webhook_key: 'A'.repeat(200) });
-    expect(form.errors).to.not.include('webhook-key:v8n_too_long');
+    form.edit({ webhook_key: 'abc' });
+    expect(form.errors).to.not.include('use-single-sign-on:v8n_webhook_key_required');
 
-    form.edit({ use_webhook: false, webhook_key: 'A'.repeat(201) });
-    expect(form.errors).to.not.include('webhook-key:v8n_too_long');
+    const props = { cart_signing: '', xml_datafeed: '', api_legacy: '', sso: '' };
+    form.edit({ webhook_key: JSON.stringify(props) });
+    expect(form.errors).to.include('use-single-sign-on:v8n_webhook_key_required');
 
-    form.edit({ use_webhook: true, webhook_key: '' });
-    expect(form.errors).to.not.include('webhook-key:v8n_too_long');
+    form.edit({ webhook_key: JSON.stringify({ ...props, sso: 'abc' }) });
+    expect(form.errors).to.not.include('use-single-sign-on:v8n_webhook_key_required');
+  });
 
-    form.edit({ use_webhook: true, webhook_key: 'A'.repeat(200) });
-    expect(form.errors).to.not.include('webhook-key:v8n_too_long');
+  (['xml_datafeed', 'cart_signing', 'api_legacy', 'sso'] as const).forEach(prop => {
+    const requiredCode = `webhook-key-${prop.replace(/_/g, '-')}:v8n_required`;
+    const tooLongCode = `webhook-key-${prop.replace(/_/g, '-')}:v8n_too_long`;
 
-    form.edit({ use_webhook: true, webhook_key: 'A'.repeat(201) });
-    expect(form.errors).to.include('webhook-key:v8n_too_long');
+    it(`produces the ${requiredCode} error when ${prop} in webhook_key JSON is empty`, () => {
+      const form = new Form();
+      expect(form.errors).to.not.include(requiredCode);
+
+      const props = { cart_signing: '', xml_datafeed: '', api_legacy: '', sso: '' };
+      form.edit({ webhook_key: JSON.stringify(props) });
+      expect(form.errors).to.include(requiredCode);
+
+      form.edit({ webhook_key: JSON.stringify({ ...props, [prop]: 'abc' }) });
+      expect(form.errors).to.not.include(requiredCode);
+    });
+
+    it(`produces the ${tooLongCode} error when ${prop} in webhook_key JSON is more than 100 characters long`, () => {
+      const form = new Form();
+      expect(form.errors).to.not.include(tooLongCode);
+
+      const props = { cart_signing: '', xml_datafeed: '', api_legacy: '', sso: '' };
+      form.edit({ webhook_key: JSON.stringify(props) });
+      expect(form.errors).to.not.include(tooLongCode);
+
+      form.edit({ webhook_key: JSON.stringify({ ...props, [prop]: 'a'.repeat(100) }) });
+      expect(form.errors).to.not.include(tooLongCode);
+
+      form.edit({ webhook_key: JSON.stringify({ ...props, [prop]: 'a'.repeat(101) }) });
+      expect(form.errors).to.include(tooLongCode);
+    });
   });
 
   it('produces the single-sign-on-url:v8n_required error if sso is enabled and url is empty', () => {
@@ -916,55 +1006,79 @@ describe('StoreForm', () => {
     expect(control?.getValue()).to.equal('010');
   });
 
-  it('renders a summary control for Legacy API section', async () => {
+  it('renders a summary control for Store Secrets section', async () => {
     const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-summary-control[infer="legacy-api"]'
+      'foxy-internal-summary-control[infer="store-secrets"]'
     );
 
     expect(control).to.exist;
   });
 
-  it('renders a password control for the legacy api key inside of the Legacy API section (JSON keys)', async () => {
+  it('renders a switch control for toggling between string and json webhook key inside of the Store Secrets section', async () => {
     const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
-    const control = element.renderRoot.querySelector<InternalPasswordControl>(
-      '[infer="legacy-api"] foxy-internal-password-control[infer="webhook-key-api-legacy"]'
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      '[infer="store-secrets"] foxy-internal-switch-control[infer="use-single-secret"]'
     );
 
     expect(control).to.exist;
-    expect(control).to.have.attribute('layout', 'summary-item');
-    expect(control).to.have.attribute('show-generator');
-    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
 
-    element.edit({ webhook_key: JSON.stringify({ api_legacy: 'test' }) });
-    expect(control?.getValue()).to.equal('test');
+    control?.setValue(true);
+    expect(control?.getValue()).to.be.true;
+    expect(element).to.have.nested.property('form.webhook_key', '');
 
-    control?.setValue('foo');
+    control?.setValue(false);
+    expect(control?.getValue()).to.be.false;
     expect(element).to.have.nested.property(
       'form.webhook_key',
-      JSON.stringify({ api_legacy: 'foo' })
+      JSON.stringify({
+        cart_signing: '',
+        xml_datafeed: '',
+        api_legacy: '',
+        sso: '',
+      })
     );
   });
 
-  it('renders a password control for the legacy api key inside of the Legacy API section (string key)', async () => {
+  it('renders a password control for the universal api key inside of the Store Secrets section (string key)', async () => {
     const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector<InternalPasswordControl>(
-      '[infer="legacy-api"] foxy-internal-password-control[infer="webhook-key-api-legacy"]'
+      '[infer="store-secrets"] foxy-internal-password-control[infer="webhook-key"]'
     );
 
     expect(control).to.exist;
     expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.attribute('show-generator');
-    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
+    expect(control).to.have.deep.property('generatorOptions', { length: 90, separator: '' });
+  });
 
-    element.edit({ webhook_key: 'test' });
-    expect(control?.getValue()).to.equal('test');
+  ['cart_signing', 'xml_datafeed', 'api_legacy', 'sso'].forEach(key => {
+    const scope = key.replace('_', '-');
+    const name = key.replace('_', ' ');
 
-    control?.setValue('foo');
-    expect(element).to.have.nested.property(
-      'form.webhook_key',
-      JSON.stringify({ cart_signing: 'test', xml_datafeed: 'test', api_legacy: 'foo', sso: 'test' })
-    );
+    it(`renders a password control for the ${name} key inside of the Store Secrets section (JSON keys)`, async () => {
+      const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+      element.edit({
+        webhook_key: JSON.stringify({
+          cart_signing: '',
+          xml_datafeed: '',
+          api_legacy: '',
+          sso: '',
+        }),
+      });
+
+      await element.requestUpdate();
+      const control = element.renderRoot.querySelector<InternalPasswordControl>(
+        `[infer="store-secrets"] foxy-internal-password-control[infer="webhook-key-${scope}"]`
+      );
+
+      expect(control).to.exist;
+      expect(control).to.have.attribute('layout', 'summary-item');
+      expect(control).to.have.attribute('show-generator');
+      expect(control).to.have.deep.property('generatorOptions', { length: 90, separator: '' });
+      expect(control).to.have.attribute('property', 'webhook_key');
+      expect(control).to.have.attribute('json-path', key);
+    });
   });
 
   it('renders a summary control for Emails section', async () => {
@@ -1328,56 +1442,6 @@ describe('StoreForm', () => {
     expect(control).to.have.attribute('helper-text-as-tooltip');
   });
 
-  it('renders a password control for the cart signing key in the Cart section (JSON keys)', async () => {
-    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
-    const control = element.renderRoot.querySelector<InternalPasswordControl>(
-      '[infer="cart"] foxy-internal-password-control[infer="webhook-key-cart-signing"]'
-    );
-
-    expect(control).to.exist;
-    expect(control).to.have.attribute('layout', 'summary-item');
-    expect(control).to.have.attribute('show-generator');
-    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
-
-    element.edit({
-      webhook_key: JSON.stringify({
-        cart_signing: 'test',
-        xml_datafeed: 'test',
-        api_legacy: 'test',
-        sso: 'test',
-      }),
-    });
-
-    expect(control?.getValue()).to.equal('test');
-
-    control?.setValue('foo');
-    expect(element).to.have.nested.property(
-      'form.webhook_key',
-      JSON.stringify({ cart_signing: 'foo', xml_datafeed: 'test', api_legacy: 'test', sso: 'test' })
-    );
-  });
-
-  it('renders a password control for the cart signing key in the Cart section (string key)', async () => {
-    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
-    const control = element.renderRoot.querySelector<InternalPasswordControl>(
-      '[infer="cart"] foxy-internal-password-control[infer="webhook-key-cart-signing"]'
-    );
-
-    expect(control).to.exist;
-    expect(control).to.have.attribute('layout', 'summary-item');
-    expect(control).to.have.attribute('show-generator');
-    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
-
-    element.edit({ webhook_key: 'test' });
-    expect(control?.getValue()).to.equal('test');
-
-    control?.setValue('foo');
-    expect(element).to.have.nested.property(
-      'form.webhook_key',
-      JSON.stringify({ cart_signing: 'foo', xml_datafeed: 'test', api_legacy: 'test', sso: 'test' })
-    );
-  });
-
   it('renders a summary control for Checkout section', async () => {
     const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector(
@@ -1490,71 +1554,6 @@ describe('StoreForm', () => {
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
     expect(control).to.have.attribute('layout', 'summary-item');
-  });
-
-  it('renders a password control for SSO key in the Checkout section when SSO is enabled (JSON keys)', async () => {
-    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
-    expect(
-      element.renderRoot.querySelector<InternalPasswordControl>(
-        '[infer="checkout"] [infer="webhook-key-sso"]'
-      )
-    ).to.not.exist;
-
-    element.edit({
-      use_single_sign_on: true,
-      webhook_key: JSON.stringify({
-        cart_signing: 'test',
-        xml_datafeed: 'test',
-        api_legacy: 'test',
-        sso: 'test',
-      }),
-    });
-
-    await element.requestUpdate();
-    const control = element.renderRoot.querySelector<InternalPasswordControl>(
-      '[infer="checkout"] [infer="webhook-key-sso"]'
-    );
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalPasswordControl);
-    expect(control).to.have.attribute('layout', 'summary-item');
-    expect(control).to.have.attribute('show-generator');
-    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
-    expect(control?.getValue()).to.equal('test');
-
-    control?.setValue('foo');
-    expect(element).to.have.nested.property(
-      'form.webhook_key',
-      JSON.stringify({ cart_signing: 'test', xml_datafeed: 'test', api_legacy: 'test', sso: 'foo' })
-    );
-  });
-
-  it('renders a password control for SSO key in the Checkout section when SSO is enabled (string key)', async () => {
-    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
-    expect(
-      element.renderRoot.querySelector<InternalPasswordControl>(
-        '[infer="checkout"] [infer="webhook-key-sso"]'
-      )
-    ).to.not.exist;
-
-    element.edit({ use_single_sign_on: true, webhook_key: 'test' });
-    await element.requestUpdate();
-    const control = element.renderRoot.querySelector<InternalPasswordControl>(
-      '[infer="checkout"] [infer="webhook-key-sso"]'
-    );
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalPasswordControl);
-    expect(control).to.have.attribute('layout', 'summary-item');
-    expect(control).to.have.attribute('show-generator');
-    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
-    expect(control?.getValue()).to.equal('test');
-
-    control?.setValue('foo');
-    expect(element).to.have.nested.property(
-      'form.webhook_key',
-      JSON.stringify({ cart_signing: 'test', xml_datafeed: 'test', api_legacy: 'test', sso: 'foo' })
-    );
   });
 
   it('renders a summary control for Receipt section', async () => {
@@ -2268,71 +2267,6 @@ describe('StoreForm', () => {
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
     expect(control).to.have.attribute('layout', 'summary-item');
-  });
-
-  it('renders a password control for XML Datafeed key in the XML Datafeed section when Use Webhook is enabled (JSON keys)', async () => {
-    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
-    expect(
-      element.renderRoot.querySelector<InternalPasswordControl>(
-        '[infer="xml-datafeed"] [infer="webhook-key-xml-datafeed"]'
-      )
-    ).to.not.exist;
-
-    element.edit({
-      use_webhook: true,
-      webhook_key: JSON.stringify({
-        cart_signing: 'test',
-        xml_datafeed: 'test',
-        api_legacy: 'test',
-        sso: 'test',
-      }),
-    });
-
-    await element.requestUpdate();
-    const control = element.renderRoot.querySelector<InternalPasswordControl>(
-      '[infer="xml-datafeed"] [infer="webhook-key-xml-datafeed"]'
-    );
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalPasswordControl);
-    expect(control).to.have.attribute('layout', 'summary-item');
-    expect(control).to.have.attribute('show-generator');
-    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
-    expect(control?.getValue()).to.equal('test');
-
-    control?.setValue('foo');
-    expect(element).to.have.nested.property(
-      'form.webhook_key',
-      JSON.stringify({ cart_signing: 'test', xml_datafeed: 'foo', api_legacy: 'test', sso: 'test' })
-    );
-  });
-
-  it('renders a password control for XML Datafeed key in the XML Datafeed section when Use Webhook is enabled (string key)', async () => {
-    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
-    expect(
-      element.renderRoot.querySelector<InternalPasswordControl>(
-        '[infer="xml-datafeed"] [infer="webhook-key-xml-datafeed"]'
-      )
-    ).to.not.exist;
-
-    element.edit({ use_webhook: true, webhook_key: 'test' });
-    await element.requestUpdate();
-    const control = element.renderRoot.querySelector<InternalPasswordControl>(
-      '[infer="xml-datafeed"] [infer="webhook-key-xml-datafeed"]'
-    );
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalPasswordControl);
-    expect(control).to.have.attribute('layout', 'summary-item');
-    expect(control).to.have.attribute('show-generator');
-    expect(control).to.have.deep.property('generatorOptions', { length: 32, separator: '' });
-    expect(control?.getValue()).to.equal('test');
-
-    control?.setValue('foo');
-    expect(element).to.have.nested.property(
-      'form.webhook_key',
-      JSON.stringify({ cart_signing: 'test', xml_datafeed: 'foo', api_legacy: 'test', sso: 'test' })
-    );
   });
 
   it('renders default slot', async () => {

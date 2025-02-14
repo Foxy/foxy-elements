@@ -52,17 +52,6 @@ describe('WebhookCard', () => {
     expect(card.renderRoot).to.include.text(webhook.name);
   });
 
-  it('renders webhook format when loaded', async () => {
-    const webhook = await getTestData<Data>('./hapi/webhooks/0');
-    const layout = html`<foxy-webhook-card></foxy-webhook-card>`;
-    const card = await fixture<WebhookCard>(layout);
-
-    card.data = webhook;
-    await card.requestUpdate();
-
-    expect(card.renderRoot).to.include.text(webhook.format);
-  });
-
   it('renders webhook url when loaded', async () => {
     const webhook = await getTestData<Data>('./hapi/webhooks/0');
     const layout = html`<foxy-webhook-card></foxy-webhook-card>`;
@@ -85,7 +74,7 @@ describe('WebhookCard', () => {
     expect(card.renderRoot).to.include.text(webhook.event_resource);
   });
 
-  it('hides webhook format and event resource type when resourceUri is set', async () => {
+  it('hides webhook event resource type when resourceUri is set', async () => {
     const webhook = await getTestData<Data>('./hapi/webhooks/0');
     const card = await fixture<WebhookCard>(html`
       <foxy-webhook-card resource-uri="https://demo.api/hapi/transactions/0"> </foxy-webhook-card>
@@ -93,8 +82,6 @@ describe('WebhookCard', () => {
 
     card.data = webhook;
     await card.requestUpdate();
-
-    expect(card.renderRoot).not.to.include.text(webhook.format);
     expect(card.renderRoot).not.to.include.text(webhook.event_resource);
   });
 
@@ -109,13 +96,8 @@ describe('WebhookCard', () => {
       </foxy-webhook-card>
     `);
 
-    let status: HTMLElement | null = null;
-
-    await waitUntil(() => {
-      status = card.renderRoot.querySelector('foxy-i18n[key^="status_"]') as HTMLElement;
-      return !status.classList.contains('hidden');
-    });
-
+    await waitUntil(() => card.isBodyReady);
+    const status = card.renderRoot.querySelector('foxy-i18n[key^="status_"]') as HTMLElement;
     expect(status).to.have.attribute('infer', '');
 
     const statusUri = 'https://demo.api/hapi/webhook_statuses/0';
@@ -125,11 +107,13 @@ describe('WebhookCard', () => {
     await card.requestUpdate();
 
     expect(status).to.have.attribute('key', 'status_successful');
+    expect(status).to.have.deep.property('options', statusResource);
 
     statusResource.status = 'pending';
     WebhookCard.Rumour('').share({ source: statusUri, data: statusResource });
     await card.requestUpdate();
 
     expect(status).to.have.attribute('key', 'status_pending');
+    expect(status).to.have.deep.property('options', statusResource);
   });
 });

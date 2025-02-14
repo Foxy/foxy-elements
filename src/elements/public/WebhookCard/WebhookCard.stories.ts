@@ -12,9 +12,12 @@ const summary: Summary = {
   translatable: true,
 };
 
+const ext = `resource-uri="https://demo.api/hapi/transactions/0"`;
+
 export default getMeta(summary);
 
 export const Playground = getStory({ ...summary, code: true });
+export const ResourceView = getStory({ ...summary, ext });
 export const Empty = getStory(summary);
 export const Error = getStory(summary);
 export const Busy = getStory(summary);

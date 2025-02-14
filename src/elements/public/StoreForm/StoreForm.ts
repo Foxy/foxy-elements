@@ -26,6 +26,14 @@ import merge from 'lodash-es/merge';
 const NS = 'store-form';
 const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 
+function parseWebhookKey(webhookKey: string): ParsedWebhookKey | null {
+  try {
+    return JSON.parse(webhookKey);
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Form element for store settings (`fx:store`).
  *
@@ -39,6 +47,7 @@ export class StoreForm extends Base<Data> {
       reportingStoreDomainExists: { attribute: 'reporting-store-domain-exists' },
       customerPasswordHashTypes: { attribute: 'customer-password-hash-types' },
       shippingAddressTypes: { attribute: 'shipping-address-types' },
+      storeSecretsPageUrl: { attribute: 'store-secrets-page-url' },
       hCaptchaSiteKey: { attribute: 'h-captcha-site-key' },
       storeVersions: { attribute: 'store-versions' },
       checkoutTypes: { attribute: 'checkout-types' },
@@ -50,7 +59,7 @@ export class StoreForm extends Base<Data> {
     };
   }
 
-  static get v8n(): NucleonV8N<Data> {
+  static get v8n(): NucleonV8N<Data, StoreForm> {
     return [
       ({ store_name: v }) => !!v || 'store-name:v8n_required',
       ({ store_name: v }) => (v && v.length <= 50) || 'store-name:v8n_too_long',
@@ -93,17 +102,50 @@ export class StoreForm extends Base<Data> {
       ({ country: v }) => !!v || 'country:v8n_required',
       ({ logo_url: v }) => !v || v.length <= 200 || 'logo-url:v8n_too_long',
 
+      ({ webhook_url: v, use_webhook }) => !use_webhook || !!v || 'webhook-url:v8n_required',
       ({ webhook_url: v, use_webhook }) => {
         return !use_webhook || !v || v.length <= 300 || 'webhook-url:v8n_too_long';
       },
 
-      ({ webhook_key: v, use_webhook: on, use_cart_validation: hmac }) => {
-        return (!on && !hmac) || !!v || 'webhook-key:v8n_required';
+      ({ webhook_key: v }) => v === void 0 || v.length > 0 || 'webhook-key:v8n_required',
+      ({ webhook_key: v }, host) => {
+        // TODO remove the line below when API limit is corrected to match the legacy admin
+        if (host.data?.webhook_key === v) return true;
+        return !v || v.length <= 100 || 'webhook-key:v8n_too_long';
       },
 
-      ({ webhook_key: v, use_webhook: on, use_cart_validation: hmac }) => {
-        return (!on && !hmac) || !v || v.length <= 200 || 'webhook-key:v8n_too_long';
+      ({ webhook_key: v, use_webhook: on }: Partial<Data>) => {
+        const parsedV = parseWebhookKey(v ?? '');
+        const code = 'use-webhook:v8n_webhook_key_required';
+        return !on || !!(parsedV ? parsedV.xml_datafeed : v) || code;
       },
+
+      ({ webhook_key: v, use_cart_validation: on }: Partial<Data>) => {
+        const parsedV = parseWebhookKey(v ?? '');
+        const code = 'use-cart-validation:v8n_webhook_key_required';
+        return !on || !!(parsedV ? parsedV.cart_signing : v) || code;
+      },
+
+      ({ webhook_key: v, use_single_sign_on: on }: Partial<Data>) => {
+        const parsedV = parseWebhookKey(v ?? '');
+        const code = 'use-single-sign-on:v8n_webhook_key_required';
+        return !on || !!(parsedV ? parsedV.sso : v) || code;
+      },
+
+      ...(['xml_datafeed', 'cart_signing', 'api_legacy', 'sso'] as const)
+        .map(prop => [
+          ({ webhook_key: v }: Partial<Data>) => {
+            const parsedV = parseWebhookKey(v ?? '');
+            const code = `webhook-key-${prop.replace(/_/g, '-')}:v8n_required`;
+            return !parsedV || !!parsedV[prop] || code;
+          },
+          ({ webhook_key: v }: Partial<Data>) => {
+            const parsedV = parseWebhookKey(v ?? '');
+            const code = `webhook-key-${prop.replace(/_/g, '-')}:v8n_too_long`;
+            return !parsedV || parsedV[prop].length <= 100 || code;
+          },
+        ])
+        .flat(),
 
       ({ single_sign_on_url: v, use_single_sign_on: on }) => {
         return !on || !!v || 'single-sign-on-url:v8n_required';
@@ -131,6 +173,9 @@ export class StoreForm extends Base<Data> {
 
   /** URL of the `fx:shipping_address_types` property helper resource. */
   shippingAddressTypes: string | null = null;
+
+  /** URL of the Store Secrets settings page if you are using this form on multiple pages. */
+  storeSecretsPageUrl: string | null = null;
 
   /** hCaptcha site key for signup verification. If provided, requires users to complete a captcha before creating a store. */
   hCaptchaSiteKey: string | null = null;
@@ -351,38 +396,32 @@ export class StoreForm extends Base<Data> {
     { label: 'option_none', value: '' },
   ];
 
-  private readonly __webhookKeyGeneratorOptions = { length: 32, separator: '' };
+  private readonly __singleWebhookKeyGeneratorOptions = { length: 90, separator: '' };
 
-  private readonly __webhookKeyApiLegacyGetValue = () => {
-    return this.__getWebhookKey().api_legacy;
+  private readonly __jsonWebhookKeyGeneratorOptions = { length: 90, separator: '' };
+
+  private readonly __useSingleWebhookKeyGetValue = () => {
+    try {
+      JSON.parse(this.form.webhook_key ?? '');
+      return false;
+    } catch {
+      return true;
+    }
   };
 
-  private readonly __webhookKeyApiLegacySetValue = (newValue: string) => {
-    this.__setWebhookKey('api_legacy', newValue);
-  };
+  private readonly __useSingleWebhookKeySetValue = (newValue: boolean) => {
+    if (newValue) {
+      this.edit({ webhook_key: '' });
+    } else {
+      const parsedKey: ParsedWebhookKey = {
+        cart_signing: '',
+        xml_datafeed: '',
+        api_legacy: '',
+        sso: '',
+      };
 
-  private readonly __webhookKeyCartSigningGetValue = () => {
-    return this.__getWebhookKey().cart_signing;
-  };
-
-  private readonly __webhookKeyCartSigningSetValue = (newValue: string) => {
-    this.__setWebhookKey('cart_signing', newValue);
-  };
-
-  private readonly __webhookKeyXmlDatafeedGetValue = () => {
-    return this.__getWebhookKey().xml_datafeed;
-  };
-
-  private readonly __webhookKeyXmlDatafeedSetValue = (newValue: string) => {
-    this.__setWebhookKey('xml_datafeed', newValue);
-  };
-
-  private readonly __webhookKeySsoGetValue = () => {
-    return this.__getWebhookKey().sso;
-  };
-
-  private readonly __webhookKeySsoSetValue = (newValue: string) => {
-    this.__setWebhookKey('sso', newValue);
+      this.edit({ webhook_key: JSON.stringify(parsedKey) });
+    }
   };
 
   private __hCaptchaToken: string | null = null;
@@ -449,6 +488,12 @@ export class StoreForm extends Base<Data> {
     const logDetailRequestTypes = transactionJournalEntriesConfig.log_detail_request_types;
     const displayIdExamples = this.__displayIdExamples;
     const journalIdExamples = this.__journalIdExamples;
+
+    const rawWebhookKey = this.data?.webhook_key ?? '';
+    const parsedWebhookKey = parseWebhookKey(rawWebhookKey);
+    const cartSigningKey = parsedWebhookKey?.cart_signing ?? rawWebhookKey;
+    const xmlDatafeedKey = parsedWebhookKey?.xml_datafeed ?? rawWebhookKey;
+    const ssoKey = parsedWebhookKey?.sso ?? rawWebhookKey;
 
     return html`
       ${this.renderHeader()}
@@ -536,16 +581,65 @@ export class StoreForm extends Base<Data> {
         </foxy-internal-select-control>
       </foxy-internal-summary-control>
 
-      <foxy-internal-summary-control infer="legacy-api">
-        <foxy-internal-password-control
-          layout="summary-item"
-          infer="webhook-key-api-legacy"
-          show-generator
-          .generatorOptions=${this.__webhookKeyGeneratorOptions}
-          .getValue=${this.__webhookKeyApiLegacyGetValue}
-          .setValue=${this.__webhookKeyApiLegacySetValue}
+      <foxy-internal-summary-control infer="store-secrets" id="store-secrets">
+        <foxy-internal-switch-control
+          infer="use-single-secret"
+          .getValue=${this.__useSingleWebhookKeyGetValue}
+          .setValue=${this.__useSingleWebhookKeySetValue}
         >
-        </foxy-internal-password-control>
+        </foxy-internal-switch-control>
+
+        ${this.__useSingleWebhookKeyGetValue()
+          ? html`
+              <foxy-internal-password-control
+                layout="summary-item"
+                infer="webhook-key"
+                show-generator
+                .generatorOptions=${this.__singleWebhookKeyGeneratorOptions}
+              >
+              </foxy-internal-password-control>
+            `
+          : html`
+              <foxy-internal-password-control
+                json-path="api_legacy"
+                property="webhook_key"
+                layout="summary-item"
+                infer="webhook-key-api-legacy"
+                show-generator
+                .generatorOptions=${this.__jsonWebhookKeyGeneratorOptions}
+              >
+              </foxy-internal-password-control>
+
+              <foxy-internal-password-control
+                json-path="cart_signing"
+                property="webhook_key"
+                layout="summary-item"
+                infer="webhook-key-cart-signing"
+                show-generator
+                .generatorOptions=${this.__jsonWebhookKeyGeneratorOptions}
+              >
+              </foxy-internal-password-control>
+
+              <foxy-internal-password-control
+                json-path="sso"
+                property="webhook_key"
+                layout="summary-item"
+                infer="webhook-key-sso"
+                show-generator
+                .generatorOptions=${this.__jsonWebhookKeyGeneratorOptions}
+              >
+              </foxy-internal-password-control>
+
+              <foxy-internal-password-control
+                json-path="xml_datafeed"
+                property="webhook_key"
+                layout="summary-item"
+                infer="webhook-key-xml-datafeed"
+                show-generator
+                .generatorOptions=${this.__jsonWebhookKeyGeneratorOptions}
+              >
+              </foxy-internal-password-control>
+            `}
       </foxy-internal-summary-control>
 
       <foxy-internal-summary-control infer="emails">
@@ -650,15 +744,9 @@ export class StoreForm extends Base<Data> {
         <foxy-internal-switch-control infer="use-cart-validation" helper-text-as-tooltip>
         </foxy-internal-switch-control>
 
-        <foxy-internal-password-control
-          layout="summary-item"
-          infer="webhook-key-cart-signing"
-          show-generator
-          .generatorOptions=${this.__webhookKeyGeneratorOptions}
-          .getValue=${this.__webhookKeyCartSigningGetValue}
-          .setValue=${this.__webhookKeyCartSigningSetValue}
-        >
-        </foxy-internal-password-control>
+        ${cartSigningKey && this.form.use_cart_validation
+          ? this.__renderReadonlyWebhookKey('webhook-key-cart-signing', cartSigningKey)
+          : ''}
       </foxy-internal-summary-control>
 
       <foxy-internal-summary-control infer="checkout">
@@ -708,15 +796,7 @@ export class StoreForm extends Base<Data> {
           ? html`
               <foxy-internal-text-control layout="summary-item" infer="single-sign-on-url">
               </foxy-internal-text-control>
-              <foxy-internal-password-control
-                layout="summary-item"
-                infer="webhook-key-sso"
-                show-generator
-                .generatorOptions=${this.__webhookKeyGeneratorOptions}
-                .getValue=${this.__webhookKeySsoGetValue}
-                .setValue=${this.__webhookKeySsoSetValue}
-              >
-              </foxy-internal-password-control>
+              ${ssoKey ? this.__renderReadonlyWebhookKey('webhook-key-sso', ssoKey) : ''}
             `
           : ''}
       </foxy-internal-summary-control>
@@ -905,15 +985,9 @@ export class StoreForm extends Base<Data> {
           ? html`
               <foxy-internal-text-control layout="summary-item" infer="webhook-url">
               </foxy-internal-text-control>
-              <foxy-internal-password-control
-                layout="summary-item"
-                infer="webhook-key-xml-datafeed"
-                show-generator
-                .generatorOptions=${this.__webhookKeyGeneratorOptions}
-                .getValue=${this.__webhookKeyXmlDatafeedGetValue}
-                .setValue=${this.__webhookKeyXmlDatafeedSetValue}
-              >
-              </foxy-internal-password-control>
+              ${xmlDatafeedKey
+                ? this.__renderReadonlyWebhookKey('webhook-key-xml-datafeed', xmlDatafeedKey)
+                : ''}
             `
           : ''}
       </foxy-internal-summary-control>
@@ -1057,25 +1131,6 @@ export class StoreForm extends Base<Data> {
     return this.renderRoot.querySelector<VanillaHCaptchaWebComponent>('h-captcha');
   }
 
-  private __getWebhookKey() {
-    let parsedKey: ParsedWebhookKey;
-
-    try {
-      parsedKey = JSON.parse(this.form.webhook_key ?? '');
-    } catch {
-      const v = this.form.webhook_key ?? '';
-      parsedKey = { cart_signing: v, xml_datafeed: v, api_legacy: v, sso: v };
-    }
-
-    return parsedKey;
-  }
-
-  private __setWebhookKey(key: keyof ParsedWebhookKey, value: string) {
-    const parsedKey = this.__getWebhookKey();
-    parsedKey[key] = value;
-    this.edit({ webhook_key: JSON.stringify(parsedKey) });
-  }
-
   private __getCustomDisplayIdConfig() {
     const defaultConfig: ParsedCustomDisplayIdConfig = {
       enabled: false,
@@ -1173,5 +1228,34 @@ export class StoreForm extends Base<Data> {
         </foxy-nucleon>
       `,
     };
+  }
+
+  private __renderReadonlyWebhookKey(scope: string, key: string) {
+    return html`
+      <div class="leading-xs">
+        <div class="flex items-center gap-s">
+          <p class="flex-1">
+            <foxy-i18n infer=${scope} key="label"></foxy-i18n>
+          </p>
+          <p class="text-tertiary">${'*'.repeat(8)}${key.substr(-4)}</p>
+          <foxy-copy-to-clipboard
+            layout="complete"
+            infer="${scope} copy-to-clipboard"
+            theme="contrast tertiary-inline"
+            text=${key}
+          >
+          </foxy-copy-to-clipboard>
+        </div>
+        <p class="text-xs text-secondary">
+          <foxy-i18n infer=${scope} key="helper_text"></foxy-i18n>
+          <a
+            class="text-body font-medium rounded-s hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50"
+            href=${this.storeSecretsPageUrl ?? '#store-secrets'}
+          >
+            <foxy-i18n infer=${scope} key="link_text"></foxy-i18n>
+          </a>
+        </p>
+      </div>
+    `;
   }
 }

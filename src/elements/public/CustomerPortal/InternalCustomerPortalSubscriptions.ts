@@ -51,7 +51,6 @@ export class InternalCustomerPortalSubscriptions extends Base {
       <foxy-internal-customer-portal-link
         data-testid="header:actions:update"
         href=${billingLink}
-        icon="icons:credit-card"
         ?disabled=${hasEnded || !host.in('idle')}
       >
         <foxy-i18n lang=${host.lang} key="update_billing" ns=${host.ns}></foxy-i18n>
@@ -78,7 +77,6 @@ export class InternalCustomerPortalSubscriptions extends Base {
       <foxy-internal-customer-portal-link
         data-testid="header:actions:end"
         href=${cancelLink}
-        icon="icons:block"
         ?disabled=${hasEndDate || !host.in('idle')}
       >
         <foxy-i18n lang=${host.lang} key="end_subscription" ns=${host.ns}></foxy-i18n>
@@ -96,10 +94,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
       <style>
         main {
           display: flex;
-          justify-content: space-between;
-          padding-top: var(--lumo-space-xs);
-          margin-top: var(--lumo-space-s);
-          border-top: 1px solid var(--lumo-contrast-10pct);
+          gap: var(--lumo-space-m);
           color: var(--lumo-secondary-color);
         }
       </style>
@@ -199,6 +194,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
       >
         <foxy-subscription-card
           hiddencontrols="email"
+          settings=${JSON.stringify(this.settings)}
           parent=${ctx.parent}
           group=${ctx.group}
           lang=${ctx.lang}
@@ -261,6 +257,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         lang=${this.lang}
         ns=${this.ns}
         id="subscription-dialog"
+        alert
         .form=${this.__renderForm}
         .templates=${this.getNestedTemplates('list:form')}
       >

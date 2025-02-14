@@ -10,6 +10,7 @@ import '../../internal/InternalSelectControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 
+import '../CopyToClipboard/index';
 import '../NucleonElement/index';
 import '../I18n/index';
 

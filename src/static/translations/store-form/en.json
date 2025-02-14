@@ -100,13 +100,49 @@
       "helper_text": ""
     }
   },
-  "legacy-api": {
-    "label": "Legacy API",
+  "store-secrets": {
+    "label": "Store secrets",
     "helper_text": "",
-    "webhook-key-api-legacy": {
-      "label": "API key",
+    "use-single-secret": {
+      "label": "Use a universal store secret",
+      "helper_text": "When enabled, we will use the same secret for cart signing, legacy API, XML datafeed and SSO. Note that changing this setting will invalidate all existing secrets.",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "webhook-key": {
+      "label": "Universal store secret",
       "placeholder": "None",
-      "helper_text": ""
+      "helper_text": "",
+      "v8n_required": "Please create a universal store secret.",
+      "v8n_too_long": "Please shorten this value to 100 characters or less."
+    },
+    "webhook-key-api-legacy": {
+      "label": "Legacy API key",
+      "placeholder": "None",
+      "helper_text": "",
+      "v8n_required": "Please create a legacy API key.",
+      "v8n_too_long": "Please shorten this value to 100 characters or less."
+    },
+    "webhook-key-xml-datafeed": {
+      "label": "Legacy XML datafeed encryption key",
+      "placeholder": "None",
+      "helper_text": "",
+      "v8n_required": "Please create a legacy XML datafeed encryption key.",
+      "v8n_too_long": "Please shorten this value to 100 characters or less."
+    },
+    "webhook-key-sso": {
+      "label": "SSO secret",
+      "placeholder": "None",
+      "helper_text": "",
+      "v8n_required": "Please create an SSO secret.",
+      "v8n_too_long": "Please shorten this value to 100 characters or less."
+    },
+    "webhook-key-cart-signing": {
+      "label": "Cart signing key",
+      "placeholder": "None",
+      "helper_text": "",
+      "v8n_required": "Please create a cart signing key.",
+      "v8n_too_long": "Please shorten this value to 100 characters or less."
     }
   },
   "emails": {
@@ -197,22 +233,29 @@
       "day": "Day",
       "day_plural": "Days"
     },
-    "webhook-key-cart-signing": {
-      "label": "HMAC encryption key",
-      "placeholder": "None",
-      "helper_text": ""
-    },
     "use-cart-validation": {
       "label": "Prevent product link and form tampering",
       "helper_text": "Enabling this option will require all cart links and forms to pass HMAC-based verification before products can be added to the cart. You will need to sign your HTML to use this feature.",
       "checked": "Yes",
-      "unchecked": "No"
+      "unchecked": "No",
+      "v8n_webhook_key_required": "Please create a cart signing key or a universal store secret to enable this feature."
     },
     "products-require-expires-property": {
       "label": "My products have limited availability",
       "helper_text": "All products added to the cart for your store will need to contain the expires property to ensure stale products can't be purchased.",
       "checked": "Yes",
       "unchecked": "No"
+    },
+    "webhook-key-cart-signing": {
+      "label": "Cart signing key",
+      "helper_text": "You can edit this key in ",
+      "link_text": "Store Secrets settings",
+      "copy-to-clipboard": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy",
+        "copying": "Copying...",
+        "done": "Copied"
+      }
     }
   },
   "checkout": {
@@ -239,7 +282,8 @@
       "label": "Enable SSO",
       "helper_text": "When enabled, Foxy will redirect customers to your SSO endpoint prior to hitting the checkout page. You can use this to validate items or to log customers in via your own auth provider.",
       "checked": "Yes",
-      "unchecked": "No"
+      "unchecked": "No",
+      "v8n_webhook_key_required": "Please create an SSO secret or a universal store secret to enable this feature."
     },
     "single-sign-on-url": {
       "label": "SSO endpoint",
@@ -250,8 +294,14 @@
     },
     "webhook-key-sso": {
       "label": "SSO secret",
-      "placeholder": "None",
-      "helper_text": ""
+      "helper_text": "You can edit this secret in ",
+      "link_text": "Store Secrets settings",
+      "copy-to-clipboard": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy",
+        "copying": "Copying...",
+        "done": "Copied"
+      }
     }
   },
   "receipt": {
@@ -344,18 +394,26 @@
       "label": "Enable datafeed",
       "helper_text": "This is a deprecated webhook that should only be used for third-party integrations that still require it. For any new integrations where you need to trigger a webhook for each transaction on your store, we strongly recommend using the JSON webhooks.",
       "checked": "Yes",
-      "unchecked": "No"
+      "unchecked": "No",
+      "v8n_webhook_key_required": "Please create a legacy XML datafeed encryption key or a universal store secret to enable this feature."
     },
     "webhook-url": {
       "label": "Webhook URL",
       "placeholder": "https://example.com/my-xml-datafeed",
       "helper_text": "",
-      "v8n_too_long": "Please shorten this URL to 300 characters or less"
+      "v8n_too_long": "Please shorten this URL to 300 characters or less.",
+      "v8n_required": "Please enter a URL."
     },
     "webhook-key-xml-datafeed": {
       "label": "Encryption key",
-      "placeholder": "None",
-      "helper_text": ""
+      "helper_text": "You can edit this key in ",
+      "link_text": "Store Secrets settings",
+      "copy-to-clipboard": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy",
+        "copying": "Copying...",
+        "done": "Copied"
+      }
     }
   },
   "hcaptcha": {

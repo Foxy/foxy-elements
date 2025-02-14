@@ -89,4 +89,17 @@ export class InternalCustomerPortalPasswordResetView extends TranslatableMixin(I
     this.edit({ password_old: this.passwordOld ?? '' });
     super.submit();
   }
+
+  protected async _fetch<TResult = Data>(...args: Parameters<Window['fetch']>): Promise<TResult> {
+    const request = new Request(...args);
+    if (request.method !== 'PATCH') return super._fetch<TResult>(...args);
+
+    const body = await request.json();
+    const data = await super._fetch<Data>(...args);
+
+    data.password_old = body.password_old;
+    data.password = body.password;
+
+    return data as unknown as TResult;
+  }
 }

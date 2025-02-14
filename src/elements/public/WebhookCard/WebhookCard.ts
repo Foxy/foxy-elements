@@ -32,25 +32,30 @@ export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')
    */
   resourceUri: string | null = null;
 
+  get isBodyReady(): boolean {
+    return !!this.__statusesLoader?.data && super.isBodyReady;
+  }
+
   renderBody(): TemplateResult {
-    let statusesLink: string | undefined = undefined;
+    let statusesLink: string | undefined;
 
     try {
-      const resourceId = getResourceId(this.resourceUri ?? '');
       const url = new URL(this.data?._links['fx:statuses'].href ?? '');
+      url.searchParams.set('order', 'date_created desc');
+      url.searchParams.set('limit', '1');
 
-      if (resourceId !== null) {
-        url.searchParams.set('resource_id', String(resourceId));
-        url.searchParams.set('order', 'date_created desc');
-        url.searchParams.set('limit', '1');
-        statusesLink = url.toString();
-      }
+      const resourceId = getResourceId(this.resourceUri ?? '');
+      if (resourceId !== null) url.searchParams.set('resource_id', String(resourceId));
+
+      statusesLink = url.toString();
     } catch {
-      // ignore
+      statusesLink = undefined;
     }
 
-    const statusesLoader = this.__statusesLoader;
-    const lastStatus = statusesLoader?.data?._embedded['fx:webhook_statuses'][0];
+    const recentStatuses = this.__statusesLoader?.data?._embedded['fx:webhook_statuses'];
+    const lastStatus = recentStatuses?.[0];
+    const cardStatus = recentStatuses ? lastStatus?.status ?? 'none' : 'loading';
+    const isActive = !!this.data?.is_active;
 
     return html`
       <div class="grid grid-cols-1 leading-s -my-xs">
@@ -58,29 +63,30 @@ export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')
           <span class="text-m truncate text-body font-medium">
             ${this.data?.name}&ZeroWidthSpace;
           </span>
-          <foxy-i18n
-            class=${classMap({
-              'text-tertiary': !lastStatus || lastStatus.status === 'pending',
-              'text-success': lastStatus?.status === 'successful',
-              'text-error': lastStatus?.status === 'failed',
-              'hidden': !statusesLoader?.data,
-              'text-s': true,
-            })}
-            infer=""
-            key="status_${lastStatus?.status ?? 'none'}"
-          >
-          </foxy-i18n>
+          <span class="text-s text-tertiary">
+            <foxy-i18n
+              class=${classMap({ 'text-success': isActive })}
+              infer=""
+              key="is_active_${isActive}"
+            >
+            </foxy-i18n>
+          </span>
         </p>
 
         <p class="text-s truncate text-secondary">${this.data?.url}&ZeroWidthSpace;</p>
 
-        ${this.resourceUri === null
-          ? html`
-              <p class="text-s truncate text-tertiary">
-                ${this.data?.format} &bull; ${this.data?.event_resource}&ZeroWidthSpace;
-              </p>
-            `
-          : ''}
+        <p class="text-s truncate text-tertiary">
+          ${this.resourceUri
+            ? ''
+            : html`<span class="capitalize">${this.data?.event_resource}</span> &bull;`}
+          <foxy-i18n
+            class=${classMap({ 'text-error': isActive && cardStatus === 'failed' })}
+            infer=""
+            key="status_${cardStatus}"
+            .options=${lastStatus}
+          >
+          </foxy-i18n>
+        </p>
       </div>
 
       <foxy-nucleon
