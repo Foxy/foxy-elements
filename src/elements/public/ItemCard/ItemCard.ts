@@ -373,8 +373,11 @@ export class ItemCard extends Base<Data> {
   }
 
   private get __filteredOptions() {
+    const config = this.settings?.cart_display_config;
+    if (config?.show_product_options === false) return [];
+
     const allOptions = this.data?._embedded?.['fx:item_options'];
-    const hiddenOptions = this.settings?.cart_display_config?.hidden_product_options ?? [];
+    const hiddenOptions = config?.hidden_product_options ?? [];
     return allOptions?.filter(option => !hiddenOptions.includes(option.name));
   }
 }

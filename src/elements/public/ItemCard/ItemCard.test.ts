@@ -302,4 +302,27 @@ describe('ItemCard', () => {
       }
     }
   });
+
+  it('hides all item options when settings prohibit item option display', async () => {
+    type Settings = Resource<Rels.CustomerPortalSettings>;
+    const settings = await getTestData<Settings>('./portal/customer_portal_settings');
+    settings.cart_display_config.show_product_options = false;
+
+    const router = createRouter();
+    const element = await fixture<ItemCard>(html`
+      <foxy-item-card
+        href="https://demo.api/hapi/items/0?zoom=item_options"
+        .settings=${settings}
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-item-card>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    const data = element.data as Data;
+    const options = element.renderRoot.querySelectorAll('[data-testclass="option"]');
+
+    expect(data._embedded['fx:item_options']).to.not.be.empty;
+    expect(options).to.have.length(0);
+  });
 });
