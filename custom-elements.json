@@ -16845,6 +16845,10 @@
           "type": "string"
         },
         {
+          "name": "settings",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -16930,6 +16934,11 @@
           "name": "localeCodes",
           "attribute": "locale-codes",
           "type": "string"
+        },
+        {
+          "name": "settings",
+          "attribute": "settings",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -25475,6 +25484,10 @@
           "description": "URL of the `fx:shipping_address_types` property helper resource."
         },
         {
+          "name": "store-secrets-page-url",
+          "description": "URL of the Store Secrets settings page if you are using this form on multiple pages."
+        },
+        {
           "name": "h-captcha-site-key",
           "description": "hCaptcha site key for signup verification. If provided, requires users to complete a captcha before creating a store."
         },
@@ -25611,6 +25624,11 @@
           "name": "shippingAddressTypes",
           "attribute": "shipping-address-types",
           "description": "URL of the `fx:shipping_address_types` property helper resource."
+        },
+        {
+          "name": "storeSecretsPageUrl",
+          "attribute": "store-secrets-page-url",
+          "description": "URL of the Store Secrets settings page if you are using this form on multiple pages."
         },
         {
           "name": "hCaptchaSiteKey",
@@ -26181,6 +26199,10 @@
       "description": "Card element displaying subscription summary.",
       "attributes": [
         {
+          "name": "settings",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -26262,6 +26284,11 @@
         }
       ],
       "properties": [
+        {
+          "name": "settings",
+          "attribute": "settings",
+          "type": "object"
+        },
         {
           "name": "templates",
           "default": "{}"
