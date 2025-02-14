@@ -396,9 +396,9 @@ export class StoreForm extends Base<Data> {
     { label: 'option_none', value: '' },
   ];
 
-  private readonly __singleWebhookKeyGeneratorOptions = { length: 128, separator: '' };
+  private readonly __singleWebhookKeyGeneratorOptions = { length: 90, separator: '' };
 
-  private readonly __jsonWebhookKeyGeneratorOptions = { length: 64, separator: '' };
+  private readonly __jsonWebhookKeyGeneratorOptions = { length: 90, separator: '' };
 
   private readonly __useSingleWebhookKeyGetValue = () => {
     try {

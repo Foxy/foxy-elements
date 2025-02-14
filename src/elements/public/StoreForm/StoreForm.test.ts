@@ -1049,7 +1049,7 @@ describe('StoreForm', () => {
     expect(control).to.exist;
     expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.attribute('show-generator');
-    expect(control).to.have.deep.property('generatorOptions', { length: 128, separator: '' });
+    expect(control).to.have.deep.property('generatorOptions', { length: 90, separator: '' });
   });
 
   ['cart_signing', 'xml_datafeed', 'api_legacy', 'sso'].forEach(key => {
@@ -1075,7 +1075,7 @@ describe('StoreForm', () => {
       expect(control).to.exist;
       expect(control).to.have.attribute('layout', 'summary-item');
       expect(control).to.have.attribute('show-generator');
-      expect(control).to.have.deep.property('generatorOptions', { length: 64, separator: '' });
+      expect(control).to.have.deep.property('generatorOptions', { length: 90, separator: '' });
       expect(control).to.have.attribute('property', 'webhook_key');
       expect(control).to.have.attribute('json-path', key);
     });
