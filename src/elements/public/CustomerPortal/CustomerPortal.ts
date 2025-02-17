@@ -69,7 +69,7 @@ export class CustomerPortal extends TranslatableMixin(
     }
 
     return this.api.storage.getItem(API.SESSION)
-      ? !this.skipPasswordReset && this.api.usesTemporaryPassword
+      ? !this.skipPasswordReset && this.api.usesTemporaryPassword && this.#temporaryPassword
         ? html`
             <foxy-internal-customer-portal-password-reset-view
               password-old=${ifDefined(this.#temporaryPassword ?? void 0)}
