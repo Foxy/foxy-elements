@@ -1,6 +1,6 @@
 import './index';
 
-import { expect, fixture, html } from '@open-wc/testing';
+import { expect, fixture, html, oneEvent } from '@open-wc/testing';
 
 import { API } from '@foxy.io/sdk/customer';
 import { CustomerApi } from '../CustomerApi';
@@ -9,6 +9,7 @@ import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
 import { InternalCustomerPortalLoggedInView } from './InternalCustomerPortalLoggedInView';
 import { InternalCustomerPortalLoggedOutView } from './InternalCustomerPortalLoggedOutView';
 import { InternalCustomerPortalPasswordResetView } from './InternalCustomerPortalPasswordResetView';
+import { UpdateEvent } from '../NucleonElement/UpdateEvent';
 
 describe('CustomerPortal', () => {
   before(() => localStorage.clear());
@@ -150,27 +151,73 @@ describe('CustomerPortal', () => {
   });
 
   it('renders foxy-internal-customer-portal-password-reset-view when logged in with temporary password', async () => {
-    localStorage.setItem(
-      API.SESSION,
-      JSON.stringify({
-        force_password_reset: true,
-        session_token: `dasjhf348tuhrgskjfhw48ourowi4rshajdhf`,
-        expires_in: 2419200,
-        jwt: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Et9HFtf9R3GEMA0IICOfFMVXY7kkTX1wr4qCyhIf58U',
-      })
-    );
-
     const layout = html`
       <foxy-customer-portal base="https://demo.api/portal/"></foxy-customer-portal>
     `;
 
     const element = await fixture<CustomerPortal>(layout);
+    const loggedOutView = element.renderRoot.children[0] as InternalCustomerPortalLoggedOutView;
+
+    loggedOutView.dispatchEvent(new CustomEvent('password', { detail: 'password' }));
+    element.api.storage.setItem(
+      API.SESSION,
+      JSON.stringify({
+        force_password_reset: true,
+        session_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
+        expires_in: 2419200,
+        jwt: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Et9HFtf9R3GEMA0IICOfFMVXY7kkTX1wr4qCyhIf58U',
+      })
+    );
+
+    await element.requestUpdate();
     const view = element.renderRoot.firstElementChild as InternalCustomerPortalPasswordResetView;
 
     expect(view).to.be.instanceOf(InternalCustomerPortalPasswordResetView);
     expect(view).to.have.property('localName', 'foxy-internal-customer-portal-password-reset-view');
     expect(view).to.have.attribute('href', 'https://demo.api/portal/');
     expect(view).to.have.attribute('infer', 'password-reset');
+
+    const passwordResetEvent = oneEvent(element, 'passwordreset');
+    view.dispatchEvent(
+      new UpdateEvent('update', { detail: { result: UpdateEvent.UpdateResult.ResourceUpdated } })
+    );
+
+    expect(await passwordResetEvent).to.be.instanceOf(CustomEvent);
+    expect(await passwordResetEvent).to.have.nested.property('detail.result', 'completed');
+
+    localStorage.clear();
+  });
+
+  it('skips password reset when requested by foxy-internal-customer-portal-password-reset-view', async () => {
+    const layout = html`
+      <foxy-customer-portal base="https://demo.api/portal/"></foxy-customer-portal>
+    `;
+
+    const element = await fixture<CustomerPortal>(layout);
+    const loggedOutView = element.renderRoot.children[0] as InternalCustomerPortalLoggedOutView;
+
+    loggedOutView.dispatchEvent(new CustomEvent('password', { detail: 'password' }));
+    element.api.storage.setItem(
+      API.SESSION,
+      JSON.stringify({
+        force_password_reset: true,
+        session_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
+        expires_in: 2419200,
+        jwt: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Et9HFtf9R3GEMA0IICOfFMVXY7kkTX1wr4qCyhIf58U',
+      })
+    );
+
+    await element.requestUpdate();
+    const resetView = element.renderRoot.children[0] as InternalCustomerPortalPasswordResetView;
+    const passwordResetEvent = oneEvent(element, 'passwordreset');
+
+    resetView.dispatchEvent(new CustomEvent('skip'));
+    await element.requestUpdate();
+    const view = element.renderRoot.children[0] as InternalCustomerPortalLoggedInView;
+
+    expect(view).to.be.instanceOf(InternalCustomerPortalLoggedInView);
+    expect(await passwordResetEvent).to.be.instanceOf(CustomEvent);
+    expect(await passwordResetEvent).to.have.nested.property('detail.result', 'skipped');
 
     localStorage.clear();
   });

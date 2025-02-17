@@ -3,6 +3,7 @@
     "title": "Réinitialisation du mot de passe",
     "subtitle": "Veuillez mettre à jour votre mot de passe maintenant pour sécuriser votre compte.",
     "submit": "Continuer",
+    "skip": "Pas maintenant",
     "password": {
       "label": "Nouveau mot de passe",
       "placeholder": "Requis",

@@ -81,6 +81,15 @@ export class InternalCustomerPortalPasswordResetView extends TranslatableMixin(I
         >
           <foxy-i18n infer="" key="submit"></foxy-i18n>
         </vaadin-button>
+
+        <vaadin-button
+          class="w-full mt-s"
+          theme="tertiary"
+          ?disabled=${this.disabled || !this.in('idle')}
+          @click=${() => this.dispatchEvent(new CustomEvent('skip'))}
+        >
+          <foxy-i18n infer="" key="skip"></foxy-i18n>
+        </vaadin-button>
       </div>
     `;
   }

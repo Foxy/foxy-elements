@@ -3,6 +3,7 @@
     "title": "Passwort zurücksetzen",
     "subtitle": "Bitte aktualisieren Sie jetzt Ihr Passwort, um Ihr Konto zu sichern.",
     "submit": "Weiter",
+    "skip": "Nicht jetzt",
     "password": {
       "label": "Neues Passwort",
       "placeholder": "Erforderlich",

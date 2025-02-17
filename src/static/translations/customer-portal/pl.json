@@ -3,6 +3,7 @@
     "title": "Resetowanie hasła",
     "subtitle": "Proszę zaktualizować swoje hasło, aby zabezpieczyć konto.",
     "submit": "Kontynuuj",
+    "skip": "Nie teraz",
     "password": {
       "label": "Nowe hasło",
       "placeholder": "Wymagany",

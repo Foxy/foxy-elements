@@ -3,6 +3,7 @@
     "title": "重置密码",
     "subtitle": "请立即更新您的密码以确保帐户安全。",
     "submit": "继续",
+    "skip": "暂时不",
     "password": {
       "label": "新密码",
       "placeholder": "必需的",
