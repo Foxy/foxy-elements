@@ -10,6 +10,8 @@ import { LitElement } from 'lit-element';
 import { cookieStorage } from './cookieStorage';
 
 describe('CustomerApi', () => {
+  beforeEach(() => localStorage.clear());
+
   it('extends LitElement', () => {
     expect(new CustomerApi()).to.be.instanceOf(LitElement);
   });
@@ -172,12 +174,23 @@ describe('CustomerApi', () => {
     expect(resolveCallback).to.have.been.called;
   });
 
-  it('handles a POST request to the virtual foxy://customer-api/session endpoint', async () => {
+  it('handles a POST request to the virtual foxy://customer-api/session endpoint (no password reset)', async () => {
     const element = await fixture<CustomerApi>(html`
       <foxy-customer-api><div></div></foxy-customer-api>
     `);
 
-    const apiSignInMethod = stub(element.api, 'signIn');
+    const apiSignInMethod = stub(element.api, 'signIn').callsFake(async () => {
+      element.api.storage.setItem(
+        API.SESSION,
+        JSON.stringify({
+          force_password_reset: false,
+          session_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
+          expires_in: 2419200,
+          jwt: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Et9HFtf9R3GEMA0IICOfFMVXY7kkTX1wr4qCyhIf58U',
+        })
+      );
+    });
+
     const resolveCallback = spy();
     const credential = { email: 'justice.witts@example.com', password: 'Fo0BarBAZ!1' };
     const child = element.firstElementChild as HTMLDivElement;
@@ -194,11 +207,53 @@ describe('CustomerApi', () => {
 
     child.dispatchEvent(event);
 
-    await oneEvent(element, 'signin');
+    const signInEvent = await oneEvent(element, 'signin');
     await nextFrame();
 
     expect(apiSignInMethod).to.have.been.calledWith(credential);
     expect(resolveCallback).to.have.been.called;
+    expect(signInEvent).to.have.deep.nested.property('detail.forcePasswordReset', false);
+  });
+
+  it('handles a POST request to the virtual foxy://customer-api/session endpoint (with password reset)', async () => {
+    const element = await fixture<CustomerApi>(html`
+      <foxy-customer-api><div></div></foxy-customer-api>
+    `);
+
+    const apiSignInMethod = stub(element.api, 'signIn').callsFake(async () => {
+      element.api.storage.setItem(
+        API.SESSION,
+        JSON.stringify({
+          force_password_reset: true,
+          session_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
+          expires_in: 2419200,
+          jwt: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Et9HFtf9R3GEMA0IICOfFMVXY7kkTX1wr4qCyhIf58U',
+        })
+      );
+    });
+
+    const resolveCallback = spy();
+    const credential = { email: 'justice.witts@example.com', password: 'Fo0BarBAZ!1' };
+    const child = element.firstElementChild as HTMLDivElement;
+    const event = new FetchEvent('fetch', {
+      cancelable: true,
+      bubbles: true,
+      reject: spy(),
+      resolve: resolveCallback,
+      request: new Request('foxy://customer-api/session', {
+        method: 'POST',
+        body: JSON.stringify({ type: 'password', credential }),
+      }),
+    });
+
+    child.dispatchEvent(event);
+
+    const signInEvent = await oneEvent(element, 'signin');
+    await nextFrame();
+
+    expect(apiSignInMethod).to.have.been.calledWith(credential);
+    expect(resolveCallback).to.have.been.called;
+    expect(signInEvent).to.have.deep.nested.property('detail.forcePasswordReset', true);
   });
 
   it('handles a POST request to the virtual foxy://customer-api/recover endpoint', async () => {
