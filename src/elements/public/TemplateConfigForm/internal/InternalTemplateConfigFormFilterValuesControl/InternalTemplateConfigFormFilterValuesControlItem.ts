@@ -33,6 +33,9 @@ export class InternalTemplateConfigFormFilterValuesControlItem extends Base<
   private __newRegion = '';
 
   render(): TemplateResult {
+    const options = Object.values(this.data?.values ?? {});
+    const filteredOptions = options.filter(region => !this.regions.includes(region.code));
+
     return html`
       <div
         class=${classMap({
@@ -43,7 +46,6 @@ export class InternalTemplateConfigFormFilterValuesControlItem extends Base<
         <div data-testid="country" class="h-m flex justify-between items-center bg-contrast-5">
           <div style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)">
             <span>${this.name || this.code}</span>
-            ${this.name ? html`<span class="text-secondary">${this.code}</span>` : ''}
           </div>
 
           <button
@@ -71,10 +73,7 @@ export class InternalTemplateConfigFormFilterValuesControlItem extends Base<
 
             return html`
               <div class="flex items-center rounded-s border border-contrast-10 h-s m-xs">
-                <span class="mx-s">
-                  <span>${name || code}</span>
-                  ${name ? html`<span class="text-secondary">${code}</span>` : ''}
-                </span>
+                <span class="mx-s">${name || code}</span>
 
                 <button
                   aria-label=${this.t('delete')}
@@ -98,55 +97,78 @@ export class InternalTemplateConfigFormFilterValuesControlItem extends Base<
               </div>
             `;
           })}
+          ${filteredOptions.length === 0 && options.length !== 0
+            ? ''
+            : html`
+                <div
+                  data-testid="new-region"
+                  class=${classMap({
+                    'h-s m-xs items-center transition-colors border border-contrast-10 rounded-s':
+                      true,
+                    'focus-within-ring-1 ring-primary-50 focus-within-border-primary-50':
+                      !this.disabled,
+                    'flex': !this.readonly,
+                    'hidden': this.readonly,
+                  })}
+                >
+                  ${options.length === 0
+                    ? html`
+                        <input
+                          placeholder=${this.t('add_region')}
+                          class="bg-transparent appearance-none h-s text-s px-s font-medium focus-outline-none"
+                          style="width: 8rem"
+                          .value=${this.__newRegion}
+                          ?disabled=${this.disabled}
+                          ?readonly=${this.readonly}
+                          @keydown=${(evt: KeyboardEvent) => {
+                            if (evt.key === 'Enter' && this.__newRegion) this.__addRegion();
+                          }}
+                          @input=${(evt: InputEvent) => {
+                            const target = evt.currentTarget as HTMLInputElement;
+                            this.__newRegion = target.value;
+                          }}
+                        />
 
-          <div
-            data-testid="new-region"
-            class=${classMap({
-              'h-s m-xs items-center transition-colors border border-contrast-10 rounded-s': true,
-              'focus-within-ring-1 ring-primary-50 focus-within-border-primary-50': !this.disabled,
-              'flex': !this.readonly,
-              'hidden': this.readonly,
-            })}
-          >
-            <input
-              placeholder=${this.t('add_region')}
-              class="bg-transparent appearance-none h-s text-s px-s font-medium focus-outline-none"
-              style="width: 8rem"
-              list="list"
-              .value=${this.__newRegion}
-              ?disabled=${this.disabled}
-              ?readonly=${this.readonly}
-              @keydown=${(evt: KeyboardEvent) => {
-                if (evt.key === 'Enter' && this.__newRegion) this.__addRegion();
-              }}
-              @input=${(evt: InputEvent) => {
-                const target = evt.currentTarget as HTMLInputElement;
-                this.__newRegion = target.value;
-              }}
-            />
-
-            <button
-              style="width: calc(var(--lumo-size-s) - 2px); height: calc(var(--lumo-size-s) - 2px)"
-              class=${classMap({
-                'flex-shrink-0': true,
-                'flex items-center justify-center rounded-s transition-colors': true,
-                'text-transparent cursor-default': !this.__newRegion,
-                'bg-contrast-5 text-body cursor-pointer': !!this.__newRegion,
-                'hover-bg-success hover-text-success-contrast': !!this.__newRegion,
-                'focus-outline-none focus-ring-2 ring-inset ring-primary-50': !!this.__newRegion,
-              })}
-              ?disabled=${this.disabled || !this.__newRegion}
-              @click=${this.__addRegion}
-            >
-              <iron-icon icon="icons:add" class="icon-inline text-m"></iron-icon>
-            </button>
-          </div>
-
-          <datalist id="list">
-            ${Object.values(this.data?.values ?? {}).map(region => {
-              return html`<option value=${region.code}>${region.default}</option>`;
-            })}
-          </datalist>
+                        <button
+                          style="width: calc(var(--lumo-size-s) - 2px); height: calc(var(--lumo-size-s) - 2px)"
+                          class=${classMap({
+                            'flex-shrink-0': true,
+                            'flex items-center justify-center rounded-s transition-colors': true,
+                            'text-transparent cursor-default': !this.__newRegion,
+                            'bg-contrast-5 text-body cursor-pointer': !!this.__newRegion,
+                            'hover-bg-success hover-text-success-contrast': !!this.__newRegion,
+                            'focus-outline-none focus-ring-2 ring-inset ring-primary-50':
+                              !!this.__newRegion,
+                          })}
+                          ?disabled=${this.disabled || !this.__newRegion}
+                          @click=${this.__addRegion}
+                        >
+                          <iron-icon icon="icons:add" class="icon-inline text-m"></iron-icon>
+                        </button>
+                      `
+                    : html`
+                        <select
+                          class=${classMap({
+                            'appearance-none bg-transparent h-s text-s px-s font-medium': true,
+                            'transition-colors rounded-s focus-outline-none': true,
+                            'cursor-pointer hover-bg-contrast-5': !this.disabled,
+                          })}
+                          ?disabled=${this.disabled}
+                          @change=${(evt: Event) => {
+                            const target = evt.currentTarget as HTMLSelectElement;
+                            this.__newRegion = target.value;
+                            this.__addRegion();
+                            target.value = '';
+                          }}
+                        >
+                          <option value="" disabled selected>${this.t('add_region')}</option>
+                          ${filteredOptions.map(
+                            region => html`<option value=${region.code}>${region.default}</option>`
+                          )}
+                        </select>
+                      `}
+                </div>
+              `}
         </div>
       </div>
     `;

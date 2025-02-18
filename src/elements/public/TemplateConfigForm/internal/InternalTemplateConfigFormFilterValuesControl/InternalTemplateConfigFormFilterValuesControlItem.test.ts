@@ -48,7 +48,7 @@ describe('TemplateConfigForm', () => {
       expect(country).to.include.text('US');
     });
 
-    it('displays both country name and code if available', async () => {
+    it('displays country name if available', async () => {
       const layout = html`
         <foxy-internal-template-config-form-filter-values-control-item
           code="US"
@@ -61,7 +61,6 @@ describe('TemplateConfigForm', () => {
       const country = await getByTestId(element, 'country');
 
       expect(country).to.include.text('United States');
-      expect(country).to.include.text('US');
     });
 
     it('emits "delete" event when Delete Country button is clicked', async () => {
@@ -92,7 +91,7 @@ describe('TemplateConfigForm', () => {
       });
     });
 
-    it('renders regions as codes + names when available', async () => {
+    it('renders regions as names when available', async () => {
       const regions = ['AL', 'TX', 'WA'] as const;
       const element = await fixture<Item>(
         html`
@@ -106,7 +105,6 @@ describe('TemplateConfigForm', () => {
 
       const wrapper = (await getByTestId(element, 'regions')) as HTMLElement;
       regions.forEach((code, index) => {
-        expect(wrapper.children[index]).to.include.text(code);
         expect(wrapper.children[index]).to.include.text(sampleData.values[code].default);
       });
     });
@@ -166,8 +164,8 @@ describe('TemplateConfigForm', () => {
       expect(element).to.have.deep.property('regions', ['AL', 'WA', 'TX']);
     });
 
-    it('renders a datalist with suggestions', async () => {
-      const regions = ['AL', 'TX', 'WA'] as const;
+    it('renders a select field with options', async () => {
+      const regions = ['AL'] as const;
       const element = await fixture<Item>(
         html`
           <foxy-internal-template-config-form-filter-values-control-item
@@ -178,20 +176,13 @@ describe('TemplateConfigForm', () => {
         `
       );
 
-      const wrapper = (await getByTestId(element, 'new-region')) as HTMLElement;
-      const input = wrapper.querySelector('input') as HTMLInputElement;
-      const datalist = element.renderRoot.querySelector('datalist') as HTMLDataListElement;
+      const select = element.renderRoot.querySelector('select') as HTMLSelectElement;
 
-      expect(input.list).to.equal(datalist);
+      expect(select.options[1]).to.have.property('value', 'TX');
+      expect(select.options[1]).to.include.text('Texas');
 
-      expect(datalist.options[0]).to.have.property('value', 'AL');
-      expect(datalist.options[0]).to.include.text('Alabama');
-
-      expect(datalist.options[1]).to.have.property('value', 'TX');
-      expect(datalist.options[1]).to.include.text('Texas');
-
-      expect(datalist.options[2]).to.have.property('value', 'WA');
-      expect(datalist.options[2]).to.include.text('Washington');
+      expect(select.options[2]).to.have.property('value', 'WA');
+      expect(select.options[2]).to.include.text('Washington');
     });
 
     it('is enabled by default', async () => {

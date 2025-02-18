@@ -138,7 +138,7 @@ describe('TemplateConfigForm', () => {
       expect(value).to.deep.equal({ US: ['WA', 'TX'], CA: '*' });
     });
 
-    it('renders a datalist with suggestions', async () => {
+    it('renders a select field with options', async () => {
       const router = createRouter();
       const element = await fixture<Control>(html`
         <foxy-internal-template-config-form-filter-values-control
@@ -158,20 +158,16 @@ describe('TemplateConfigForm', () => {
         { timeout: 5000 }
       );
 
-      const wrapper = (await getByTestId(element, 'new-country')) as HTMLElement;
-      const input = wrapper.querySelector('input') as HTMLInputElement;
-      const datalist = element.renderRoot.querySelector('datalist') as HTMLDataListElement;
+      const select = element.renderRoot.querySelector('select') as HTMLSelectElement;
 
-      expect(input.list).to.equal(datalist);
+      expect(select.options[1]).to.have.property('value', 'GB');
+      expect(select.options[1]).to.include.text('United Kingdom');
 
-      expect(datalist.options[0]).to.have.property('value', 'GB');
-      expect(datalist.options[0]).to.include.text('United Kingdom');
+      expect(select.options[2]).to.have.property('value', 'US');
+      expect(select.options[2]).to.include.text('United States');
 
-      expect(datalist.options[1]).to.have.property('value', 'US');
-      expect(datalist.options[1]).to.include.text('United States');
-
-      expect(datalist.options[2]).to.have.property('value', 'UM');
-      expect(datalist.options[2]).to.include.text('United States Minor Outlying Islands');
+      expect(select.options[3]).to.have.property('value', 'UM');
+      expect(select.options[3]).to.include.text('United States Minor Outlying Islands');
     });
 
     it('is enabled by default', async () => {
