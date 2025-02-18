@@ -387,7 +387,7 @@ export class TemplateConfigForm extends Base<Data> {
           json-template=${this.__defaultJSON}
           false-alias="none"
           true-alias="enabled"
-          json-path="postal_code_lookup"
+          json-path="postal_code_lookup.usage"
           property="json"
           infer="postal-code-lookup"
         >

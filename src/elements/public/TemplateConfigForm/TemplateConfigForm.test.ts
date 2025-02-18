@@ -560,7 +560,7 @@ describe('TemplateConfigForm', () => {
     expect(control).to.have.attribute('json-template', JSON.stringify(getDefaultJSON()));
     expect(control).to.have.attribute('false-alias', 'none');
     expect(control).to.have.attribute('true-alias', 'enabled');
-    expect(control).to.have.attribute('json-path', 'postal_code_lookup');
+    expect(control).to.have.attribute('json-path', 'postal_code_lookup.usage');
     expect(control).to.have.attribute('property', 'json');
   });
 
