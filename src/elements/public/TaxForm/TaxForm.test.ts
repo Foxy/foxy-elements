@@ -212,21 +212,23 @@ describe('TaxForm', () => {
   it('conditionally hides service provider select', () => {
     const form = new Form();
     expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.true;
-    form.edit({ type: 'union' });
-    expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.false;
-    form.edit({ type: 'country' });
-    expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.false;
-    form.edit({ type: 'region' });
-    expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.false;
-    form.edit({ type: 'local' });
+    form.edit({ type: 'global', is_live: true });
     expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.true;
-    form.edit({ type: 'custom_tax_endpoint' as Data['type'] });
+    form.edit({ type: 'union', is_live: true });
+    expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.false;
+    form.edit({ type: 'country', is_live: true });
+    expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.false;
+    form.edit({ type: 'region', is_live: true });
+    expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.false;
+    form.edit({ type: 'local', is_live: true });
+    expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.false;
+    form.edit({ type: 'custom_tax_endpoint' as Data['type'], is_live: true });
     expect(form.hiddenSelector.matches('group-one:service-provider', true)).to.be.true;
   });
 
   it('conditionally hides rate input', () => {
     const form = new Form();
-    expect(form.hiddenSelector.matches('group-one:rate', true)).to.be.true;
+    expect(form.hiddenSelector.matches('group-one:rate', true)).to.be.false;
     form.edit({ type: 'union' });
     expect(form.hiddenSelector.matches('group-one:rate', true)).to.be.false;
     form.edit({ type: 'country' });
@@ -239,6 +241,23 @@ describe('TaxForm', () => {
     expect(form.hiddenSelector.matches('group-one:rate', true)).to.be.true;
     form.edit({ type: 'local', is_live: true });
     expect(form.hiddenSelector.matches('group-one:rate', true)).to.be.true;
+  });
+
+  it('conditionally hides Live Rates input', () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('group-one:is-live', true)).to.be.false;
+    form.edit({ type: 'global' });
+    expect(form.hiddenSelector.matches('group-one:is-live', true)).to.be.true;
+    form.edit({ type: 'union' });
+    expect(form.hiddenSelector.matches('group-one:is-live', true)).to.be.false;
+    form.edit({ type: 'country' });
+    expect(form.hiddenSelector.matches('group-one:is-live', true)).to.be.false;
+    form.edit({ type: 'region' });
+    expect(form.hiddenSelector.matches('group-one:is-live', true)).to.be.false;
+    form.edit({ type: 'local' });
+    expect(form.hiddenSelector.matches('group-one:is-live', true)).to.be.false;
+    form.edit({ type: 'custom_tax_endpoint' as Data['type'] });
+    expect(form.hiddenSelector.matches('group-one:is-live', true)).to.be.true;
   });
 
   it('conditionally hides apply to shipping switch', () => {
@@ -377,20 +396,11 @@ describe('TaxForm', () => {
       'options',
       JSON.stringify([
         { label: 'option_default', value: 'default' },
-        { label: 'option_none', value: 'none' },
         { label: 'option_avalara', value: 'avalara' },
         { label: 'option_onesource', value: 'onesource' },
         { label: 'option_taxjar', value: 'taxjar' },
       ])
     );
-
-    expect(control?.getValue()).to.equal('none');
-
-    form.edit({ is_live: true });
-    expect(control?.getValue()).to.equal('default');
-
-    form.edit({ service_provider: 'avalara' });
-    expect(control?.getValue()).to.equal('avalara');
   });
 
   it('conditionally hides some options for service provider', async () => {
@@ -403,7 +413,6 @@ describe('TaxForm', () => {
     await form.requestUpdate();
     expect(control?.options).to.deep.equal([
       { label: 'option_default', value: 'default' },
-      { label: 'option_none', value: 'none' },
       { label: 'option_avalara', value: 'avalara' },
       { label: 'option_onesource', value: 'onesource' },
       { label: 'option_taxjar', value: 'taxjar' },
@@ -412,37 +421,9 @@ describe('TaxForm', () => {
     form.edit({ type: 'country', country: 'AZ' });
     await form.requestUpdate();
     expect(control?.options).to.deep.equal([
-      { label: 'option_none', value: 'none' },
       { label: 'option_avalara', value: 'avalara' },
       { label: 'option_onesource', value: 'onesource' },
     ]);
-  });
-
-  it('resets some form values on service provider change', async () => {
-    const form = await fixture<Form>(html`<foxy-tax-form></foxy-tax-form>`);
-    const control = form.renderRoot.querySelector<InternalSelectControl>(
-      'foxy-internal-summary-control[infer="group-one"] foxy-internal-select-control[infer="service-provider"]'
-    );
-
-    form.edit({
-      type: 'local',
-      service_provider: 'avalara',
-      use_origin_rates: true,
-      is_live: true,
-      exempt_all_customer_tax_ids: true,
-      apply_to_shipping: true,
-    });
-
-    control?.setValue('none');
-
-    expect(form.form).to.deep.equal({
-      type: 'local',
-      service_provider: '',
-      use_origin_rates: false,
-      is_live: false,
-      exempt_all_customer_tax_ids: false,
-      apply_to_shipping: false,
-    });
   });
 
   it('renders a number control for rate in group one', async () => {
