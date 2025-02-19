@@ -252,7 +252,7 @@ export class TaxForm extends Base<Data> {
       !this.form.country ||
       defaultLiveRateCountries.includes(this.form.country)
     ) {
-      options.unshift({ label: 'option_default', value: 'default' });
+      options.unshift({ label: 'option_default', value: '' });
     }
 
     if (

@@ -395,7 +395,7 @@ describe('TaxForm', () => {
     expect(control).to.have.attribute(
       'options',
       JSON.stringify([
-        { label: 'option_default', value: 'default' },
+        { label: 'option_default', value: '' },
         { label: 'option_avalara', value: 'avalara' },
         { label: 'option_onesource', value: 'onesource' },
         { label: 'option_taxjar', value: 'taxjar' },
@@ -412,7 +412,7 @@ describe('TaxForm', () => {
     form.edit({ type: 'union' });
     await form.requestUpdate();
     expect(control?.options).to.deep.equal([
-      { label: 'option_default', value: 'default' },
+      { label: 'option_default', value: '' },
       { label: 'option_avalara', value: 'avalara' },
       { label: 'option_onesource', value: 'onesource' },
       { label: 'option_taxjar', value: 'taxjar' },
