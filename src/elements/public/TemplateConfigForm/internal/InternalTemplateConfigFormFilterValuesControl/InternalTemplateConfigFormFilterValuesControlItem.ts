@@ -1,28 +1,23 @@
-import { TemplateResult, html } from 'lit-html';
+import type { PropertyDeclarations } from 'lit-element';
+import type { TemplateResult } from 'lit-html';
 
-import { ConfigurableMixin } from '../../../../../mixins/configurable';
-import { NucleonElement } from '../../../NucleonElement/NucleonElement';
-import { PropertyDeclarations } from 'lit-element';
-import { Rels } from '@foxy.io/sdk/backend';
-import { Resource } from '@foxy.io/sdk/core';
-import { ThemeableMixin } from '../../../../../mixins/themeable';
-import { TranslatableMixin } from '../../../../../mixins/translatable';
+import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
 import { classMap } from '../../../../../utils/class-map';
+import { html } from 'lit-html';
 
-const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement)));
-
-export class InternalTemplateConfigFormFilterValuesControlItem extends Base<
-  Resource<Rels.Regions>
-> {
+export class InternalTemplateConfigFormFilterValuesControlItem extends InternalControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       __newRegion: { attribute: false },
+      options: { type: Object },
       regions: { type: Array },
       name: { type: String },
       code: { type: String },
     };
   }
+
+  options: Record<string, { n: string; c: string }> = {};
 
   regions: string[] = [];
 
@@ -33,8 +28,8 @@ export class InternalTemplateConfigFormFilterValuesControlItem extends Base<
   private __newRegion = '';
 
   render(): TemplateResult {
-    const options = Object.values(this.data?.values ?? {});
-    const filteredOptions = options.filter(region => !this.regions.includes(region.code));
+    const options = Object.values(this.options);
+    const filteredOptions = options.filter(region => !this.regions.includes(region.c));
 
     return html`
       <div
@@ -66,87 +61,52 @@ export class InternalTemplateConfigFormFilterValuesControlItem extends Base<
           </button>
         </div>
 
-        <div data-testid="regions" class="flex flex-wrap p-xs text-s">
-          ${this.regions.map(region => {
-            const name = this.data?.values[region]?.default;
-            const code = region;
+        ${options.length === 0
+          ? ''
+          : html`
+              <div data-testid="regions" class="flex flex-wrap p-xs text-s">
+                ${this.regions.map(region => {
+                  return html`
+                    <div class="flex items-center rounded-s border border-contrast-10 h-s m-xs">
+                      <span class="mx-s">${this.options[region]?.n || region}</span>
 
-            return html`
-              <div class="flex items-center rounded-s border border-contrast-10 h-s m-xs">
-                <span class="mx-s">${name || code}</span>
-
-                <button
-                  aria-label=${this.t('delete')}
-                  class=${classMap({
-                    'items-center justify-center rounded-s transition-colors': true,
-                    'hover-bg-error-10 hover-text-error': !this.disabled,
-                    'focus-outline-none focus-ring-2 ring-inset ring-primary-50': !this.disabled,
-                    'cursor-default': this.disabled,
-                    'flex': !this.readonly,
-                    'hidden': this.readonly,
-                  })}
-                  style="width: calc(var(--lumo-size-s) - 2px); height: calc(var(--lumo-size-s) - 2px)"
-                  ?disabled=${this.disabled}
-                  @click=${() => {
-                    this.regions = this.regions.filter(value => value !== region);
-                    this.dispatchEvent(new CustomEvent('update:regions'));
-                  }}
-                >
-                  <iron-icon icon="icons:close" class="icon-inline text-m"></iron-icon>
-                </button>
-              </div>
-            `;
-          })}
-          ${filteredOptions.length === 0 && options.length !== 0
-            ? ''
-            : html`
-                <div
-                  data-testid="new-region"
-                  class=${classMap({
-                    'h-s m-xs items-center transition-colors border border-contrast-10 rounded-s':
-                      true,
-                    'focus-within-ring-1 ring-primary-50 focus-within-border-primary-50':
-                      !this.disabled,
-                    'flex': !this.readonly,
-                    'hidden': this.readonly,
-                  })}
-                >
-                  ${options.length === 0
-                    ? html`
-                        <input
-                          placeholder=${this.t('add_region')}
-                          class="bg-transparent appearance-none h-s text-s px-s font-medium focus-outline-none"
-                          style="width: 8rem"
-                          .value=${this.__newRegion}
-                          ?disabled=${this.disabled}
-                          ?readonly=${this.readonly}
-                          @keydown=${(evt: KeyboardEvent) => {
-                            if (evt.key === 'Enter' && this.__newRegion) this.__addRegion();
-                          }}
-                          @input=${(evt: InputEvent) => {
-                            const target = evt.currentTarget as HTMLInputElement;
-                            this.__newRegion = target.value;
-                          }}
-                        />
-
-                        <button
-                          style="width: calc(var(--lumo-size-s) - 2px); height: calc(var(--lumo-size-s) - 2px)"
-                          class=${classMap({
-                            'flex-shrink-0': true,
-                            'flex items-center justify-center rounded-s transition-colors': true,
-                            'text-transparent cursor-default': !this.__newRegion,
-                            'bg-contrast-5 text-body cursor-pointer': !!this.__newRegion,
-                            'hover-bg-success hover-text-success-contrast': !!this.__newRegion,
-                            'focus-outline-none focus-ring-2 ring-inset ring-primary-50':
-                              !!this.__newRegion,
-                          })}
-                          ?disabled=${this.disabled || !this.__newRegion}
-                          @click=${this.__addRegion}
-                        >
-                          <iron-icon icon="icons:add" class="icon-inline text-m"></iron-icon>
-                        </button>
-                      `
-                    : html`
+                      <button
+                        aria-label=${this.t('delete')}
+                        class=${classMap({
+                          'items-center justify-center rounded-s transition-colors': true,
+                          'hover-bg-error-10 hover-text-error': !this.disabled,
+                          'focus-outline-none focus-ring-2 ring-inset ring-primary-50':
+                            !this.disabled,
+                          'cursor-default': this.disabled,
+                          'flex': !this.readonly,
+                          'hidden': this.readonly,
+                        })}
+                        style="width: calc(var(--lumo-size-s) - 2px); height: calc(var(--lumo-size-s) - 2px)"
+                        ?disabled=${this.disabled}
+                        @click=${() => {
+                          this.regions = this.regions.filter(value => value !== region);
+                          this.dispatchEvent(new CustomEvent('update:regions'));
+                        }}
+                      >
+                        <iron-icon icon="icons:close" class="icon-inline text-m"></iron-icon>
+                      </button>
+                    </div>
+                  `;
+                })}
+                ${filteredOptions.length === 0
+                  ? ''
+                  : html`
+                      <div
+                        data-testid="new-region"
+                        class=${classMap({
+                          'h-s m-xs items-center transition-colors border border-contrast-10 rounded-s':
+                            true,
+                          'focus-within-ring-1 ring-primary-50 focus-within-border-primary-50':
+                            !this.disabled,
+                          'flex': !this.readonly,
+                          'hidden': this.readonly,
+                        })}
+                      >
                         <select
                           class=${classMap({
                             'appearance-none bg-transparent h-s text-s px-s font-medium': true,
@@ -163,13 +123,13 @@ export class InternalTemplateConfigFormFilterValuesControlItem extends Base<
                         >
                           <option value="" disabled selected>${this.t('add_region')}</option>
                           ${filteredOptions.map(
-                            region => html`<option value=${region.code}>${region.default}</option>`
+                            region => html`<option value=${region.c}>${region.n}</option>`
                           )}
                         </select>
-                      `}
-                </div>
-              `}
-        </div>
+                      </div>
+                    `}
+              </div>
+            `}
       </div>
     `;
   }

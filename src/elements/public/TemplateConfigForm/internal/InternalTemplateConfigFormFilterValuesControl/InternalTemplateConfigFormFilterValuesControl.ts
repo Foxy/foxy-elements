@@ -1,3 +1,4 @@
+import type { InternalTemplateConfigFormFilterValuesControlItem } from './InternalTemplateConfigFormFilterValuesControlItem';
 import type { PropertyDeclarations } from 'lit-element';
 import type { NucleonElement } from '../../../NucleonElement/NucleonElement';
 import type { Resource } from '@foxy.io/sdk/core';
@@ -7,7 +8,6 @@ import { InternalEditableControl } from '../../../../internal/InternalEditableCo
 import { TemplateResult, html } from 'lit-html';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../../../utils/class-map';
-import { InternalTemplateConfigFormFilterValuesControlItem } from './InternalTemplateConfigFormFilterValuesControlItem';
 
 export class InternalTemplateConfigFormFilterValuesControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
@@ -15,13 +15,10 @@ export class InternalTemplateConfigFormFilterValuesControl extends InternalEdita
       ...super.properties,
       __newCountry: { attribute: false },
       countries: {},
-      regions: {},
     };
   }
 
   countries: string | null = null;
-
-  regions: string | null = null;
 
   private __newCountry = '';
 
@@ -32,23 +29,18 @@ export class InternalTemplateConfigFormFilterValuesControl extends InternalEdita
     return html`
       <div class="space-y-s" data-testid="countries">
         ${Object.entries(this._value).map(([country, regions]) => {
-          let regionsLink: string;
-
-          try {
-            const url = new URL(this.regions ?? '');
-            url.searchParams.set('country_code', country);
-            regionsLink = url.toString();
-          } catch {
-            regionsLink = '';
-          }
+          const option = options.find(o => o.cc2 === country);
 
           return html`
             <foxy-internal-template-config-form-filter-values-control-item
               regions=${JSON.stringify(regions === '*' ? [] : regions)}
+              options=${
+                // @ts-expect-error SDK types are not up-to-date
+                JSON.stringify(Array.isArray(option?.regions) ? {} : option?.regions ?? {})
+              }
               infer=""
               code=${country}
-              name=${ifDefined(options.find(o => o.cc2 === country)?.default)}
-              href=${regionsLink}
+              name=${ifDefined(option?.default)}
               ?disabled=${this.disabled}
               ?readonly=${this.readonly}
               @update:regions=${(evt: CustomEvent) => {
@@ -82,64 +74,26 @@ export class InternalTemplateConfigFormFilterValuesControl extends InternalEdita
                   'hidden': this.readonly,
                 })}
               >
-                ${options.length === 0
-                  ? html`
-                      <input
-                        placeholder=${this.t('add_country')}
-                        class="w-full bg-transparent font-medium appearance-none h-m focus-outline-none"
-                        style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
-                        .value=${this.__newCountry}
-                        ?disabled=${this.disabled}
-                        ?readonly=${this.readonly}
-                        @keydown=${(evt: KeyboardEvent) => {
-                          if (evt.key === 'Enter' && this.__newCountry) this.__addCountry();
-                        }}
-                        @input=${(evt: InputEvent) => {
-                          const target = evt.currentTarget as HTMLInputElement;
-                          this.__newCountry = target.value;
-                        }}
-                      />
-
-                      <button
-                        aria-label=${this.t('create')}
-                        class=${classMap({
-                          'mr-xs flex-shrink-0': true,
-                          'flex items-center justify-center rounded-s transition-colors': true,
-                          'text-transparent cursor-default': !this.__newCountry,
-                          'bg-contrast-5 text-body cursor-pointer': !!this.__newCountry,
-                          'hover-bg-success hover-text-success-contrast': !!this.__newCountry,
-                          'focus-outline-none focus-ring-2 ring-inset ring-primary-50':
-                            !!this.__newCountry,
-                        })}
-                        style="width: calc(var(--lumo-size-s) - 2px); height: calc(var(--lumo-size-s) - 2px)"
-                        ?disabled=${!this.__newCountry || this.disabled}
-                        @click=${this.__addCountry}
-                      >
-                        <iron-icon icon="icons:add" class="icon-inline text-m"></iron-icon>
-                      </button>
-                    `
-                  : html`
-                      <select
-                        class=${classMap({
-                          'appearance-none bg-transparent h-m text-m px-s flex-1 font-medium': true,
-                          'transition-colors rounded-s focus-outline-none': true,
-                          'cursor-pointer hover-bg-contrast-5': !this.disabled,
-                          'text-disabled': this.disabled,
-                        })}
-                        ?disabled=${this.disabled}
-                        @change=${(evt: Event) => {
-                          const target = evt.currentTarget as HTMLSelectElement;
-                          this.__newCountry = target.value;
-                          this.__addCountry();
-                          target.value = '';
-                        }}
-                      >
-                        <option value="" disabled selected>${this.t('add_country')}</option>
-                        ${filteredOptions.map(
-                          option => html`<option value=${option.cc2}>${option.default}</option>`
-                        )}
-                      </select>
-                    `}
+                <select
+                  class=${classMap({
+                    'appearance-none bg-transparent h-m text-m px-s flex-1 font-medium': true,
+                    'transition-colors rounded-s focus-outline-none': true,
+                    'cursor-pointer hover-bg-contrast-5': !this.disabled,
+                    'text-disabled': this.disabled,
+                  })}
+                  ?disabled=${this.disabled}
+                  @change=${(evt: Event) => {
+                    const target = evt.currentTarget as HTMLSelectElement;
+                    this.__newCountry = target.value;
+                    this.__addCountry();
+                    target.value = '';
+                  }}
+                >
+                  <option value="" disabled selected>${this.t('add_country')}</option>
+                  ${filteredOptions.map(
+                    option => html`<option value=${option.cc2}>${option.default}</option>`
+                  )}
+                </select>
               </div>
             `}
       </div>

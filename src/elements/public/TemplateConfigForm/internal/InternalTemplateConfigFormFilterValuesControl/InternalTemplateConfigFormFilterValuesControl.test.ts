@@ -11,6 +11,17 @@ import { createRouter } from '../../../../../server';
 import { getByTestId } from '../../../../../testgen/getByTestId';
 import { html } from 'lit-html';
 
+async function waitForIdle(element: Control) {
+  await waitUntil(
+    () => {
+      const loaders = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...loaders].every(loader => loader.in('idle'));
+    },
+    '',
+    { timeout: 5000 }
+  );
+}
+
 describe('TemplateConfigForm', () => {
   describe('InternalTemplateConfigFormFilterValuesControl', () => {
     it('extends InternalEditableControl', () => {
@@ -25,37 +36,36 @@ describe('TemplateConfigForm', () => {
       expect(new Control()).to.have.empty.property('countries');
     });
 
-    it('has an empty regions URL by default', () => {
-      expect(new Control()).to.have.empty.property('regions');
-    });
-
     it('renders countries as InternalTemplateConfigFormFilterValuesControlItem elements', async () => {
+      const router = createRouter();
       const element = await fixture<Control>(html`
         <foxy-internal-template-config-form-filter-values-control
           countries="https://demo.api/hapi/property_helpers/3"
-          regions="https://demo.api/hapi/property_helpers/4"
           .getValue=${() => ({ US: ['WA', 'TX'], CA: '*' })}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
         </foxy-internal-template-config-form-filter-values-control>
       `);
 
+      await waitForIdle(element);
       const wrapper = (await getByTestId(element, 'countries')) as HTMLElement;
 
-      expect(wrapper.children[0]).to.have.attribute('regions', JSON.stringify(['WA', 'TX']));
-      expect(wrapper.children[0]).to.have.attribute('infer', '');
       expect(wrapper.children[0]).to.have.attribute('code', 'US');
+      expect(wrapper.children[0]).to.have.attribute('infer', '');
+      expect(wrapper.children[0]).to.have.attribute('regions', JSON.stringify(['WA', 'TX']));
       expect(wrapper.children[0]).to.have.attribute(
-        'href',
-        'https://demo.api/hapi/property_helpers/4?country_code=US'
+        'options',
+        JSON.stringify({
+          SD: { n: 'South Dakota', c: 'SD', alt: [], boost: 1, active: true },
+          TN: { n: 'Tennessee', c: 'TN', alt: [], boost: 1, active: true },
+          TX: { n: 'Texas', c: 'TX', alt: [], boost: 1, active: true },
+        })
       );
 
-      expect(wrapper.children[1]).to.have.attribute('regions', JSON.stringify([]));
-      expect(wrapper.children[1]).to.have.attribute('infer', '');
       expect(wrapper.children[1]).to.have.attribute('code', 'CA');
-      expect(wrapper.children[1]).to.have.attribute(
-        'href',
-        'https://demo.api/hapi/property_helpers/4?country_code=CA'
-      );
+      expect(wrapper.children[1]).to.have.attribute('infer', '');
+      expect(wrapper.children[1]).to.have.attribute('regions', JSON.stringify([]));
+      expect(wrapper.children[1]).to.have.attribute('options', JSON.stringify({}));
     });
 
     it('can delete a country', async () => {
@@ -95,49 +105,6 @@ describe('TemplateConfigForm', () => {
       expect(value).to.deep.equal({ US: ['WA', 'TX'], CA: ['QC'] });
     });
 
-    it('can add a country with enter-to-submit', async () => {
-      let value: Record<string, string[] | '*'> = { US: ['WA', 'TX'] };
-
-      const element = await fixture<Control>(html`
-        <foxy-internal-template-config-form-filter-values-control
-          .getValue=${() => value}
-          .setValue=${(newValue: Record<string, string[] | '*'>) => (value = newValue)}
-        >
-        </foxy-internal-template-config-form-filter-values-control>
-      `);
-
-      const wrapper = (await getByTestId(element, 'new-country')) as HTMLElement;
-      const input = wrapper.querySelector('input') as HTMLInputElement;
-
-      input.value = 'CA';
-      input.dispatchEvent(new InputEvent('input'));
-      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-      expect(value).to.deep.equal({ US: ['WA', 'TX'], CA: '*' });
-    });
-
-    it('can add a country with click-to-submit', async () => {
-      let value: Record<string, string[] | '*'> = { US: ['WA', 'TX'] };
-
-      const element = await fixture<Control>(html`
-        <foxy-internal-template-config-form-filter-values-control
-          .getValue=${() => value}
-          .setValue=${(newValue: Record<string, string[] | '*'>) => (value = newValue)}
-        >
-        </foxy-internal-template-config-form-filter-values-control>
-      `);
-
-      const wrapper = (await getByTestId(element, 'new-country')) as HTMLElement;
-      const input = wrapper.querySelector('input') as HTMLInputElement;
-      const button = wrapper.querySelector('button') as HTMLButtonElement;
-
-      input.value = 'CA';
-      input.dispatchEvent(new InputEvent('input'));
-      button.dispatchEvent(new Event('click'));
-
-      expect(value).to.deep.equal({ US: ['WA', 'TX'], CA: '*' });
-    });
-
     it('renders a select field with options', async () => {
       const router = createRouter();
       const element = await fixture<Control>(html`
@@ -175,7 +142,7 @@ describe('TemplateConfigForm', () => {
         html`<foxy-internal-template-config-form-filter-values-control></foxy-internal-template-config-form-filter-values-control>`
       );
 
-      element.querySelectorAll('input, [data-testid="countries"] > *').forEach(control => {
+      element.querySelectorAll('select, [data-testid="countries"] > *').forEach(control => {
         expect(control).to.not.have.attribute('disabled');
       });
     });
@@ -188,41 +155,9 @@ describe('TemplateConfigForm', () => {
         `
       );
 
-      element.querySelectorAll('input, [data-testid="countries"] > *').forEach(control => {
+      element.querySelectorAll('select, [data-testid="countries"] > *').forEach(control => {
         expect(control).to.have.attribute('disabled');
       });
-    });
-
-    it('disables Add Country button when New Country input is empty', async () => {
-      const element = await fixture<Control>(
-        html`<foxy-internal-template-config-form-filter-values-control></foxy-internal-template-config-form-filter-values-control>`
-      );
-
-      const wrapper = (await getByTestId(element, 'new-country')) as HTMLElement;
-      const input = wrapper.querySelector('input') as HTMLInputElement;
-      const button = wrapper.querySelector('button') as HTMLButtonElement;
-
-      input.value = '';
-      input.dispatchEvent(new InputEvent('input'));
-
-      await element.requestUpdate();
-      expect(button).to.have.attribute('disabled');
-    });
-
-    it('enables Add Country button when New Country input has value', async () => {
-      const element = await fixture<Control>(
-        html`<foxy-internal-template-config-form-filter-values-control></foxy-internal-template-config-form-filter-values-control>`
-      );
-
-      const wrapper = (await getByTestId(element, 'new-country')) as HTMLElement;
-      const input = wrapper.querySelector('input') as HTMLInputElement;
-      const button = wrapper.querySelector('button') as HTMLButtonElement;
-
-      input.value = 'US';
-      input.dispatchEvent(new InputEvent('input'));
-
-      await element.requestUpdate();
-      expect(button).to.not.have.attribute('disabled');
     });
 
     it('is editable by default', async () => {
@@ -230,7 +165,7 @@ describe('TemplateConfigForm', () => {
         html`<foxy-internal-template-config-form-filter-values-control></foxy-internal-template-config-form-filter-values-control>`
       );
 
-      element.querySelectorAll('input, [data-testid="countries"] > *').forEach(input => {
+      element.querySelectorAll('select, [data-testid="countries"] > *').forEach(input => {
         expect(input).to.not.have.attribute('readonly');
       });
     });
@@ -240,7 +175,7 @@ describe('TemplateConfigForm', () => {
         html`<foxy-internal-template-config-form-filter-values-control></foxy-internal-template-config-form-filter-values-control>`
       );
 
-      element.querySelectorAll('input, [data-testid="countries"] > *').forEach(input => {
+      element.querySelectorAll('select, [data-testid="countries"] > *').forEach(input => {
         expect(input).to.have.attribute('readonly');
       });
     });
