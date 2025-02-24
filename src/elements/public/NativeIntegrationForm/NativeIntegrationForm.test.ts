@@ -411,7 +411,7 @@ describe('NativeIntegrationForm', () => {
     ) as InternalSelectControl;
 
     expect(control).to.be.instanceOf(InternalSelectControl);
-    expect(control.getValue()).to.equal('avalara');
+    expect(control.getValue()).to.be.undefined;
     expect(control).to.have.deep.property('options', [
       { value: 'avalara', label: 'option_avalara' },
       { value: 'onesource', label: 'option_onesource' },

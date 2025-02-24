@@ -153,9 +153,7 @@ export class NativeIntegrationForm extends Base<Data> {
     return (value: unknown) => (this.__config = { [key]: value });
   });
 
-  private readonly __providerGetValue = () => {
-    return this.form.provider ?? 'avalara';
-  };
+  private readonly __providerGetValue = () => this.form.provider;
 
   private readonly __providerSetValue = (value: string) => {
     this.edit({ provider: value, config: '{}' });
@@ -220,7 +218,7 @@ export class NativeIntegrationForm extends Base<Data> {
   }
 
   renderBody(): TemplateResult {
-    const provider = this.form.provider ?? 'avalara';
+    const provider = this.form.provider;
 
     return html`
       ${this.renderHeader()}
