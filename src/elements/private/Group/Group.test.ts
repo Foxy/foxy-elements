@@ -17,7 +17,7 @@ async function testHeader(element: Group) {
 
 async function testFrame(element: Group) {
   await element.requestUpdate();
-  const selector = '.rounded.border.border-contrast-10';
+  const selector = '.bg-contrast-5.overflow-hidden';
   const frame = element.shadowRoot!.querySelector(selector);
   expect(frame).to.be.visible;
 }
