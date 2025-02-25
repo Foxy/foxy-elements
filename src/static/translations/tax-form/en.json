@@ -37,16 +37,21 @@
       "option_local": "Local",
       "option_custom_tax_endpoint": "Custom tax endpoint"
     },
+    "is-live": {
+      "label": "Calculate tax automatically",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
     "service-provider": {
-      "label": "Live rate provider",
+      "label": "Service provider",
       "helper_text": "",
       "placeholder": "Select",
       "option_avalara": "Avalara AvaTax 15",
       "option_custom_tax": "Custom Tax Endpoint",
       "option_taxjar": "TaxJar",
       "option_onesource": "Thomson Reuters ONESOURCE",
-      "option_none": "None",
-      "option_default": "Default"
+      "option_default": "Foxy Default (Thomson Reuters; others)"
     },
     "rate": {
       "label": "Fixed rate",

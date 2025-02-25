@@ -32,10 +32,10 @@ export class TemplateConfigForm extends Base<Data> {
     };
   }
 
-  /** URI of the `fx:countries` hAPI resource. */
+  /** URI of the `fx:countries` hAPI resource with `?include_regions=true`. */
   countries: string | null = null;
 
-  /** URI of the `fx:regions` hAPI resource. */
+  /** @deprecated URI of the `fx:regions` hAPI resource. */
   regions: string | null = null;
 
   /** URI of the `fx:store` hAPI resource related to this template config. If this property is `null`, a link relationship will be used when available. */
@@ -387,7 +387,7 @@ export class TemplateConfigForm extends Base<Data> {
           json-template=${this.__defaultJSON}
           false-alias="none"
           true-alias="enabled"
-          json-path="postal_code_lookup"
+          json-path="postal_code_lookup.usage"
           property="json"
           infer="postal-code-lookup"
         >
@@ -421,7 +421,6 @@ export class TemplateConfigForm extends Base<Data> {
           json-path="location_filtering.shipping_filter_values"
           countries=${ifDefined(this.countries ?? void 0)}
           property="json"
-          regions=${ifDefined(this.regions ?? void 0)}
           infer="location-filtering-filter-values"
           .setValue=${this.__locationFilteringFilterValuesSetValue}
         >
@@ -444,7 +443,6 @@ export class TemplateConfigForm extends Base<Data> {
           json-path="location_filtering.shipping_filter_values"
           countries=${ifDefined(this.countries ?? void 0)}
           property="json"
-          regions=${ifDefined(this.regions ?? void 0)}
           infer="location-filtering-shipping-filter-values"
         >
         </foxy-internal-template-config-form-filter-values-control>
@@ -466,7 +464,6 @@ export class TemplateConfigForm extends Base<Data> {
           json-path="location_filtering.billing_filter_values"
           countries=${ifDefined(this.countries ?? void 0)}
           property="json"
-          regions=${ifDefined(this.regions ?? void 0)}
           infer="location-filtering-billing-filter-values"
         >
         </foxy-internal-template-config-form-filter-values-control>

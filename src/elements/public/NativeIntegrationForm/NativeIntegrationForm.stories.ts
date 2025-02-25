@@ -43,15 +43,15 @@ const summary: Summary = {
       'avalara-group-one:avalara-id',
       'avalara-group-one:avalara-key',
       'avalara-group-one:avalara-company-code',
-      'avalara-group-two:avalara-category-to-product-tax-code-mappings',
-      'avalara-group-three:avalara-use-ava-tax',
-      'avalara-group-three:avalara-enable-colorado-delivery-fee',
-      'avalara-group-three:avalara-create-invoice',
-      'avalara-group-three:avalara-use-address-validation',
-      'avalara-group-three:avalara-address-validation-countries',
+      'avalara-group-two:avalara-use-ava-tax',
+      'avalara-group-two:avalara-enable-colorado-delivery-fee',
+      'avalara-group-two:avalara-create-invoice',
+      'avalara-group-two:avalara-use-address-validation',
+      'avalara-group-two:avalara-address-validation-countries',
+      'avalara-category-to-product-tax-code-mappings',
       'taxjar-group-one:taxjar-api-token',
       'taxjar-group-one:taxjar-create-invoice',
-      'taxjar-group-two:taxjar-category-to-product-tax-code-mappings',
+      'taxjar-category-to-product-tax-code-mappings',
       'onesource-group-one:onesource-service-url',
       'onesource-group-one:onesource-external-company-id',
       'onesource-group-one:onesource-from-city',
@@ -88,7 +88,10 @@ const summary: Summary = {
 
 export default getMeta(summary);
 
-const ext = `store="https://demo.api/hapi/stores/0"`;
+const ext = `
+  item-category-base="https://demo.api/hapi/item_categories/"
+  store="https://demo.api/hapi/stores/0"
+`;
 
 export const Playground = getStory({ ...summary, ext, code: true });
 export const Legacy = getStory({ ...summary, ext });

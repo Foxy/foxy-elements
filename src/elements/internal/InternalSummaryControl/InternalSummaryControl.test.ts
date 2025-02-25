@@ -20,6 +20,14 @@ describe('InternalSummaryControl', () => {
     expect(new Control()).to.be.instanceOf(customElements.get('foxy-internal-editable-control'));
   });
 
+  it('has a reactive property "unsafeHelperText" that defaults to false', () => {
+    expect(new Control()).to.have.property('unsafeHelperText', false);
+    expect(Control).to.have.deep.nested.property('properties.unsafeHelperText', {
+      attribute: 'unsafe-helper-text',
+      type: Boolean,
+    });
+  });
+
   it('has a reactive property "layout" that defaults to null', () => {
     expect(Control).to.have.deep.nested.property('properties.layout', {});
     expect(new Control()).to.have.property('layout', null);
@@ -80,6 +88,15 @@ describe('InternalSummaryControl', () => {
     expect(control.renderRoot).to.include.text('Test helper text');
   });
 
+  it('renders unsafe helper text in default layout if "unsafeHelperText" is true', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-summary-control helper-text="Test <span>unsafe</span>" unsafe-helper-text>
+      </foxy-internal-summary-control>
+    `);
+
+    expect(control.renderRoot).to.include.html('Test <span>unsafe</span>');
+  });
+
   it('renders default slot in default layout', async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-summary-control></foxy-internal-summary-control>
@@ -133,6 +150,20 @@ describe('InternalSummaryControl', () => {
 
     expect(summary).to.not.include.text('helper_text');
     expect(summary).to.include.text('Test helper text');
+  });
+
+  it('renders unsafe helper text inside of the details summary in details layout if "unsafeHelperText" is true', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-summary-control
+        helper-text="Test <span>unsafe</span>"
+        layout="details"
+        unsafe-helper-text
+      >
+      </foxy-internal-summary-control>
+    `);
+
+    const summary = control.renderRoot.querySelector('summary');
+    expect(summary).to.include.html('Test <span>unsafe</span>');
   });
 
   it('renders default slot inside of the details content in details layout', async () => {

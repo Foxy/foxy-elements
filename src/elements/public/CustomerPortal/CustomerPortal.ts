@@ -12,6 +12,10 @@ export class CustomerPortal extends TranslatableMixin(
   ThemeableMixin(CustomerApi),
   'customer-portal'
 ) {
+  static readonly PasswordResetEvent = class extends CustomEvent<{
+    result: 'skipped' | 'completed';
+  }> {};
+
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -65,19 +69,14 @@ export class CustomerPortal extends TranslatableMixin(
     }
 
     return this.api.storage.getItem(API.SESSION)
-      ? !this.skipPasswordReset && this.api.usesTemporaryPassword
+      ? !this.skipPasswordReset && this.api.usesTemporaryPassword && this.#temporaryPassword
         ? html`
             <foxy-internal-customer-portal-password-reset-view
               password-old=${ifDefined(this.#temporaryPassword ?? void 0)}
               infer="password-reset"
               href=${this.base}
-              @update=${(evt: UpdateEvent) => {
-                if (evt.detail?.result === UpdateEvent.UpdateResult.ResourceUpdated) {
-                  this.api.usesTemporaryPassword = false;
-                  this.#temporaryPassword = null;
-                  this.requestUpdate();
-                }
-              }}
+              @update=${this.__handlePasswordResetUpdate}
+              @skip=${this.__handlePasswordResetSkip}
             >
             </foxy-internal-customer-portal-password-reset-view>
           `
@@ -111,5 +110,28 @@ export class CustomerPortal extends TranslatableMixin(
     if (isLoggedIn && (this.skipPasswordReset || !this.api.usesTemporaryPassword)) {
       this.#temporaryPassword = null;
     }
+  }
+
+  private __handlePasswordResetUpdate(evt: UpdateEvent) {
+    if (evt.detail?.result === UpdateEvent.UpdateResult.ResourceUpdated) {
+      this.api.usesTemporaryPassword = false;
+      this.#temporaryPassword = null;
+      this.requestUpdate();
+      this.dispatchEvent(
+        new CustomerPortal.PasswordResetEvent('passwordreset', {
+          detail: { result: 'completed' },
+        })
+      );
+    }
+  }
+
+  private __handlePasswordResetSkip() {
+    this.#temporaryPassword = null;
+    this.requestUpdate();
+    this.dispatchEvent(
+      new CustomerPortal.PasswordResetEvent('passwordreset', {
+        detail: { result: 'skipped' },
+      })
+    );
   }
 }

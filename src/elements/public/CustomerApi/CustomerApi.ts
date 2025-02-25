@@ -1,3 +1,5 @@
+import type { StoredSession } from '@foxy.io/sdk/dist/types/customer/types';
+
 import { LitElement, PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
 import { API } from '@foxy.io/sdk/customer';
@@ -19,7 +21,7 @@ import { InferrableMixin } from '../../../mixins/inferrable';
 export class CustomerApi extends ConfigurableMixin(InferrableMixin(LitElement)) {
   static readonly SignOutEvent = class extends CustomEvent<void> {};
 
-  static readonly SignInEvent = class extends CustomEvent<void> {};
+  static readonly SignInEvent = class extends CustomEvent<{ forcePasswordReset: boolean }> {};
 
   static readonly SignUpEvent = class extends CustomEvent<void> {};
 
@@ -152,7 +154,10 @@ export class CustomerApi extends ConfigurableMixin(InferrableMixin(LitElement)) 
     try {
       await this.api.signIn(payload.credential);
 
-      this.dispatchEvent(new CustomerApi.SignInEvent('signin'));
+      const session = JSON.parse(this.api.storage.getItem(API.SESSION) as string) as StoredSession;
+      const detail = { forcePasswordReset: !!session.force_password_reset };
+
+      this.dispatchEvent(new CustomerApi.SignInEvent('signin', { detail }));
       this.requestUpdate();
 
       status = 200;

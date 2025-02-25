@@ -3,6 +3,7 @@
     "title": "Restablecimiento de contraseña",
     "subtitle": "Por favor, actualice su contraseña ahora para mantener su cuenta segura.",
     "submit": "Continuar",
+    "skip": "No ahora",
     "password": {
       "label": "Nueva contraseña",
       "placeholder": "Requerido",

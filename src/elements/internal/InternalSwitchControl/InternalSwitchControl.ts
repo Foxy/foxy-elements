@@ -29,8 +29,14 @@ export class InternalSwitchControl extends InternalEditableControl {
           <label class="text-m text-body" for="input">${this.label}</label>
           ${this.helperTextAsToolip
             ? ''
-            : html`<p class="text-xs text-secondary">${this.helperText}</p>`}
-          <p class="text-xs text-error" ?hidden=${this.disabled || this.readonly}>
+            : html`<p class="text-xs text-secondary" style="max-width: 32rem">
+                ${this.helperText}
+              </p>`}
+          <p
+            class="text-xs text-error"
+            style="max-width: 32rem"
+            ?hidden=${this.disabled || this.readonly}
+          >
             ${this._errorMessage}
           </p>
         </div>

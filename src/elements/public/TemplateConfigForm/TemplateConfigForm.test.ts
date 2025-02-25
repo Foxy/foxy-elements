@@ -74,7 +74,7 @@ describe('TemplateConfigForm', () => {
     expect(new Form().countries).to.be.null;
   });
 
-  it('has a reacitve property "regions"', () => {
+  it('has a reacitve property "regions" (deprecated)', () => {
     expect(Form.properties).to.have.deep.property('regions', {});
     expect(new Form().regions).to.be.null;
   });
@@ -560,7 +560,7 @@ describe('TemplateConfigForm', () => {
     expect(control).to.have.attribute('json-template', JSON.stringify(getDefaultJSON()));
     expect(control).to.have.attribute('false-alias', 'none');
     expect(control).to.have.attribute('true-alias', 'enabled');
-    expect(control).to.have.attribute('json-path', 'postal_code_lookup');
+    expect(control).to.have.attribute('json-path', 'postal_code_lookup.usage');
     expect(control).to.have.attribute('property', 'json');
   });
 
@@ -609,10 +609,7 @@ describe('TemplateConfigForm', () => {
 
   it('renders filter values control for shipping and billing filter values in country and region settings group two', async () => {
     const layout = html`
-      <foxy-template-config-form
-        countries="https://demo.api/hapi/property_helpers/3"
-        regions="https://demo.api/hapi/property_helpers/4"
-      >
+      <foxy-template-config-form countries="https://demo.api/hapi/property_helpers/3">
       </foxy-template-config-form>
     `;
 
@@ -626,7 +623,6 @@ describe('TemplateConfigForm', () => {
     expect(control).to.have.attribute('json-path', 'location_filtering.shipping_filter_values');
     expect(control).to.have.attribute('countries', 'https://demo.api/hapi/property_helpers/3');
     expect(control).to.have.attribute('property', 'json');
-    expect(control).to.have.attribute('regions', 'https://demo.api/hapi/property_helpers/4');
 
     const testValue = { US: ['CA', 'NY'], CA: '*' };
     control?.setValue(testValue);
@@ -658,10 +654,7 @@ describe('TemplateConfigForm', () => {
 
   it('renders filter values control for shipping filter values in country and region settings group three', async () => {
     const layout = html`
-      <foxy-template-config-form
-        countries="https://demo.api/hapi/property_helpers/3"
-        regions="https://demo.api/hapi/property_helpers/4"
-      >
+      <foxy-template-config-form countries="https://demo.api/hapi/property_helpers/3">
       </foxy-template-config-form>
     `;
 
@@ -675,7 +668,6 @@ describe('TemplateConfigForm', () => {
     expect(control).to.have.attribute('json-path', 'location_filtering.shipping_filter_values');
     expect(control).to.have.attribute('countries', 'https://demo.api/hapi/property_helpers/3');
     expect(control).to.have.attribute('property', 'json');
-    expect(control).to.have.attribute('regions', 'https://demo.api/hapi/property_helpers/4');
   });
 
   it('renders select control for billing filter type in country and region settings group four', async () => {
@@ -700,10 +692,7 @@ describe('TemplateConfigForm', () => {
 
   it('renders filter values control for billing filter values in country and region settings group four', async () => {
     const layout = html`
-      <foxy-template-config-form
-        countries="https://demo.api/hapi/property_helpers/3"
-        regions="https://demo.api/hapi/property_helpers/4"
-      >
+      <foxy-template-config-form countries="https://demo.api/hapi/property_helpers/3">
       </foxy-template-config-form>
     `;
 
@@ -717,7 +706,6 @@ describe('TemplateConfigForm', () => {
     expect(control).to.have.attribute('json-path', 'location_filtering.billing_filter_values');
     expect(control).to.have.attribute('countries', 'https://demo.api/hapi/property_helpers/3');
     expect(control).to.have.attribute('property', 'json');
-    expect(control).to.have.attribute('regions', 'https://demo.api/hapi/property_helpers/4');
   });
 
   it('renders group for customer account settings', async () => {

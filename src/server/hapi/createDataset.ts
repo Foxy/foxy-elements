@@ -1596,6 +1596,29 @@ export const createDataset: () => Dataset = () => ({
           alternate_values: ['USA', 'United States of America', 'America'],
           boost: 4.5,
           has_regions: true,
+          regions: {
+            SD: {
+              n: 'South Dakota',
+              c: 'SD',
+              alt: [],
+              boost: 1,
+              active: true,
+            },
+            TN: {
+              n: 'Tennessee',
+              c: 'TN',
+              alt: [],
+              boost: 1,
+              active: true,
+            },
+            TX: {
+              n: 'Texas',
+              c: 'TX',
+              alt: [],
+              boost: 1,
+              active: true,
+            },
+          },
           regions_required: true,
           regions_type: 'state',
           active: true,
@@ -1938,7 +1961,7 @@ export const createDataset: () => Dataset = () => ({
       store_id: 0,
       provider: 'avalara',
       config:
-        '{"service_url":"https://development.avalara.net/","id":"12345678","key":"ASDFJASDFKJASDFKJ","company_code":"CompanyCode","use_ava_tax":true,"create_invoice":true,"use_address_validation":false,"address_validation_countries":[],"category_to_product_tax_code_mappings":{"1005":"PS081258","955":"qweasz2","956":"","2425":""}}',
+        '{"service_url":"https://development.avalara.net/","id":"12345678","key":"ASDFJASDFKJASDFKJ","company_code":"CompanyCode","use_ava_tax":true,"create_invoice":true,"use_address_validation":false,"address_validation_countries":[],"category_to_product_tax_code_mappings":{"0":"PS081258","1":"PS987344", "2":""}}',
       date_created: '2016-03-24T11:02:40-0700',
       date_modified: '2016-03-31T12:15:41-0700',
     },

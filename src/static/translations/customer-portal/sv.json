@@ -3,6 +3,7 @@
     "title": "Återställ lösenord",
     "subtitle": "Uppdatera ditt lösenord nu för att hålla ditt konto säkert.",
     "submit": "Fortsätt",
+    "skip": "Inte nu",
     "password": {
       "label": "Nytt lösenord",
       "placeholder": "Nödvändig",

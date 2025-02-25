@@ -161,8 +161,8 @@
       "option_allowlist": "Allow only listed below"
     },
     "location-filtering-filter-values": {
-      "add_country": "Enter country code and click + to add",
-      "add_region": "Add region",
+      "add_country": "Add country...",
+      "add_region": "Add region...",
       "create": "Add",
       "delete": "Remove"
     }
@@ -178,8 +178,8 @@
       "option_allowlist": "Allow only listed below"
     },
     "location-filtering-shipping-filter-values": {
-      "add_country": "Enter country code and click + to add",
-      "add_region": "Add region",
+      "add_country": "Add country...",
+      "add_region": "Add region...",
       "create": "Add",
       "delete": "Remove"
     }
@@ -195,8 +195,8 @@
       "option_allowlist": "Allow only listed below"
     },
     "location-filtering-billing-filter-values": {
-      "add_country": "Enter country code and click + to add",
-      "add_region": "Add region",
+      "add_country": "Add country...",
+      "add_region": "Add region...",
       "create": "Add",
       "delete": "Remove"
     }

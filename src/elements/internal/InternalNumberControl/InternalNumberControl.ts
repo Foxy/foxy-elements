@@ -101,28 +101,12 @@ export class InternalNumberControl extends InternalEditableControl {
   }
 
   private __renderSummaryItemLayout() {
-    const sharedTextStyles = {
-      'text-disabled': this.disabled,
-      'text-tertiary': !this.readonly && !this.disabled,
-      'font-medium': !this.readonly,
-    };
     return html`
-      <div class="flex items-start gap-m leading-xs">
-        <div>
-          <label class="text-m text-body" for="input">${this.label}</label>
-          <p class="text-xs text-secondary">${this.helperText}</p>
-          <p
-            class="text-xs text-error"
-            ?hidden=${!this.__isErrorVisible || this.disabled || this.readonly}
-          >
-            ${this._errorMessage}
-          </p>
-        </div>
+      <div class="leading-xs">
+        <div class="flex items-center gap-xs">
+          <label class="text-m text-body flex-1 whitespace-nowrap" for="input">${this.label}</label>
 
-        <div class="flex-1 flex items-center gap-xs">
-          <span class=${classMap({ 'text-secondary': this.readonly, ...sharedTextStyles })}>
-            ${this.prefix}
-          </span>
+          ${this.prefix ? html`<div>${this.prefix}</div>` : ''}
 
           <input
             placeholder=${this.placeholder}
@@ -151,9 +135,7 @@ export class InternalNumberControl extends InternalEditableControl {
             }}
           />
 
-          <span class=${classMap({ 'text-secondary': this.readonly, ...sharedTextStyles })}>
-            ${this.suffix}
-          </span>
+          ${this.suffix ? html`<div class="font-medium text-secondary">${this.suffix}</div>` : ''}
 
           <button
             aria-label=${this.t('clear')}
@@ -173,6 +155,16 @@ export class InternalNumberControl extends InternalEditableControl {
           >
             ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1em; height: 1em; transform: scale(1.25); margin-right: -0.16em"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" /></svg>`}
           </button>
+        </div>
+
+        <div style="max-width: 32rem">
+          <p class="text-xs text-secondary">${this.helperText}</p>
+          <p
+            class="text-xs text-error"
+            ?hidden=${!this.__isErrorVisible || this.disabled || this.readonly}
+          >
+            ${this._errorMessage}
+          </p>
         </div>
       </div>
     `;

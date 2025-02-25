@@ -164,16 +164,10 @@ export class InternalFrequencyControl extends InternalEditableControl {
         : this.options.find(v => v.value === units);
 
     return html`
-      <div class="flex items-start gap-m leading-xs">
-        <div>
-          <label class="text-m text-body" for="input">${this.label}</label>
-          <p class="text-xs text-secondary">${this.helperText}</p>
-          <p class="text-xs text-error" ?hidden=${this.disabled || this.readonly}>
-            ${this._errorMessage}
-          </p>
-        </div>
+      <div class="leading-xs">
+        <div class="flex items-center gap-xs">
+          <label class="text-m text-body flex-1 whitespace-nowrap" for="input">${this.label}</label>
 
-        <div class="flex-1 flex items-center gap-xs">
           <input
             placeholder=${this.placeholder}
             inputmode="numeric"
@@ -263,6 +257,13 @@ export class InternalFrequencyControl extends InternalEditableControl {
               )}
             </select>
           </div>
+        </div>
+
+        <div style="max-width: 32rem">
+          <p class="text-xs text-secondary">${this.helperText}</p>
+          <p class="text-xs text-error" ?hidden=${this.disabled || this.readonly}>
+            ${this._errorMessage}
+          </p>
         </div>
       </div>
     `;

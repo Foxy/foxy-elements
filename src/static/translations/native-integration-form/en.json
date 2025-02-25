@@ -76,16 +76,6 @@
   "avalara-group-two": {
     "label": "",
     "helper_text": "",
-    "avalara-category-to-product-tax-code-mappings": {
-      "label": "Category to product tax code mappings",
-      "helper_text": "Replace Foxy category codes with AvaTax tax codes when sending data to Avalara. If left empty, the category code will be sent to AvaTax instead.",
-      "placeholder": "foxy_category_code:avatax_tax_code",
-      "v8n_required": "Please add at least one tax code mapping."
-    }
-  },
-  "avalara-group-three": {
-    "label": "",
-    "helper_text": "",
     "avalara-use-ava-tax": {
       "label": "Use for live taxes",
       "helper_text": "",
@@ -116,6 +106,48 @@
       "helper_text": ""
     }
   },
+  "avalara-category-to-product-tax-code-mappings": {
+    "existing-mappings": {
+      "label": "Category to tax code mappings",
+      "helper_text": "Use the fields below to replace category codes with <a href=\"https://taxcode.avatax.avalara.com/\">AvaTax tax codes</a> when sending data to Avalara. We will send category code as tax code if no mapping is present in the list below.",
+      "placeholder": "No tax code",
+      "status_busy": "Loading category...",
+      "status_fail": "Failed to load category",
+      "clear": "Clear",
+      "delete": "Delete"
+    },
+    "new-mapping": {
+      "label": "New mapping:",
+      "helper_text": "",
+      "placeholder": "Select category...",
+      "value": "{{ resource.code }}",
+      "value_busy": "Loading...",
+      "value_fail": "Failed to load",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select category",
+        "selection": {
+          "label": "",
+          "helper_text": "",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No categories found",
+                "loading_error": "Unknown error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "taxjar-group-one": {
     "label": "",
     "helper_text": "",
@@ -132,13 +164,46 @@
       "helper_text": ""
     }
   },
-  "taxjar-group-two": {
-    "label": "",
-    "helper_text": "",
-    "taxjar-category-to-product-tax-code-mappings": {
-      "label": "Category to product tax code mappings",
-      "helper_text": "Replace Foxy category codes with TaxJar tax codes when sending data to TaxJar. If left empty, the category code will be sent to TaxJar instead.",
-      "placeholder": "foxy_category_code:taxjar_tax_code"
+  "taxjar-category-to-product-tax-code-mappings": {
+    "existing-mappings": {
+      "label": "Category to tax code mappings",
+      "helper_text": "Replace category codes with <a href=\"https://app.taxjar.com/products\">TaxJar tax codes</a> when sending data to TaxJar. We will not send tax codes for categories that are not present in the list below.",
+      "placeholder": "No tax code",
+      "status_busy": "Loading category name...",
+      "status_fail": "Failed to load category name",
+      "clear": "Clear",
+      "delete": "Delete"
+    },
+    "new-mapping": {
+      "label": "New mapping:",
+      "helper_text": "",
+      "placeholder": "Select category...",
+      "value": "{{ resource.code }}",
+      "value_busy": "Loading...",
+      "value_fail": "Failed to load",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select category",
+        "selection": {
+          "label": "",
+          "helper_text": "",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No categories found",
+                "loading_error": "Unknown error"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "onesource-group-one": {

@@ -2,12 +2,14 @@ import type { CSSResultArray, PropertyDeclarations } from 'lit-element';
 import { svg, TemplateResult } from 'lit-html';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { html, css } from 'lit-element';
 
 export class InternalSummaryControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      unsafeHelperText: { type: Boolean, attribute: 'unsafe-helper-text' },
       layout: {},
       count: { type: Number },
       open: { type: Boolean },
@@ -34,9 +36,26 @@ export class InternalSummaryControl extends InternalEditableControl {
         details[open] summary > div {
           border-radius: var(--lumo-border-radius) var(--lumo-border-radius) 0 0;
         }
+
+        .with-unsafe a {
+          text-decoration: underline;
+          transition: color 0.1s ease-in-out;
+        }
+
+        .with-unsafe a:hover {
+          color: var(--lumo-primary-text-color);
+        }
+
+        .with-unsafe a:focus {
+          outline: none;
+          box-shadow: 0 0 0 2px var(--lumo-primary-color-50pct);
+          border-radius: var(--lumo-border-radius-s);
+        }
       `,
     ];
   }
+
+  unsafeHelperText = false;
 
   layout: null | 'section' | 'details' = null;
 
@@ -80,7 +99,9 @@ export class InternalSummaryControl extends InternalEditableControl {
                   ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1.2em; height: 1.2em"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>`}
                 </span>
               </p>
-              <p class="text-s text-secondary" ?hidden=${!this.helperText}>${this.helperText}</p>
+              <p class="text-s text-secondary with-unsafe" ?hidden=${!this.helperText}>
+                ${this.unsafeHelperText ? unsafeHTML(this.helperText) : this.helperText}
+              </p>
             </div>
           </summary>
           <div class="overflow-hidden grid" style="gap: 1px">
@@ -93,7 +114,9 @@ export class InternalSummaryControl extends InternalEditableControl {
     return html`
       <div class="leading-s mb-s" ?hidden=${!this.label && !this.helperText}>
         <p class="font-medium text-body text-l" ?hidden=${!this.label}>${this.label}</p>
-        <p class="text-s text-secondary" ?hidden=${!this.helperText}>${this.helperText}</p>
+        <p class="text-s text-secondary with-unsafe" ?hidden=${!this.helperText}>
+          ${this.unsafeHelperText ? unsafeHTML(this.helperText) : this.helperText}
+        </p>
       </div>
       <div class="rounded overflow-hidden grid" style="gap: 1px">
         <slot></slot>

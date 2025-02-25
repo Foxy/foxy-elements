@@ -89,19 +89,10 @@ export class InternalTextControl extends InternalEditableControl {
 
   private __renderSummaryItemLayout() {
     return html`
-      <div class="flex items-start gap-m leading-xs">
-        <div>
-          <label class="text-m text-body" for="input">${this.label}</label>
-          <p class="text-xs text-secondary">${this.helperText}</p>
-          <p
-            class="text-xs text-error"
-            ?hidden=${!this.__isErrorVisible || this.disabled || this.readonly}
-          >
-            ${this._errorMessage}
-          </p>
-        </div>
+      <div class="leading-xs">
+        <div class="flex items-center gap-xs">
+          <label class="text-m text-body flex-1 whitespace-nowrap" for="input">${this.label}</label>
 
-        <div class="flex-1 flex items-center gap-xs" style="min-width: 30%">
           ${this.prefix ? html`<div>${this.prefix}</div>` : ''}
 
           <input
@@ -131,7 +122,7 @@ export class InternalTextControl extends InternalEditableControl {
           <button
             aria-label=${this.t('clear')}
             class=${classMap({
-              'rounded-full transition-colors': true,
+              'flex-shrink-0 rounded-full transition-colors': true,
               'focus-outline-none focus-ring-2 focus-ring-primary-50': true,
               'cursor-pointer text-tertiary hover-text-body': !this.disabled,
               'cursor-default text-disabled': this.disabled,
@@ -146,6 +137,16 @@ export class InternalTextControl extends InternalEditableControl {
           >
             ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1em; height: 1em; transform: scale(1.25); margin-right: -0.16em"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" /></svg>`}
           </button>
+        </div>
+
+        <div style="max-width: 32rem">
+          <p class="text-xs text-secondary">${this.helperText}</p>
+          <p
+            class="text-xs text-error"
+            ?hidden=${!this.__isErrorVisible || this.disabled || this.readonly}
+          >
+            ${this._errorMessage}
+          </p>
         </div>
       </div>
     `;

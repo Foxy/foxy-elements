@@ -3,6 +3,7 @@
     "title": "Password reset",
     "subtitle": "Please update your password now to keep your account secure.",
     "submit": "Continue",
+    "skip": "Not now",
     "password": {
       "label": "New password",
       "placeholder": "Required",

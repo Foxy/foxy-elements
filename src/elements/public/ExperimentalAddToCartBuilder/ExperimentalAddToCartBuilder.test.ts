@@ -540,7 +540,7 @@ describe('ExperimentalAddToCartBuilder', () => {
           <input type="hidden" name="price" value="15AUD">
           <label>
             <span>preview.quantity_label</span>
-            <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
+            <input type="number" name="quantity" min="1" value="1">
           </label>
           <button type="submit">preview.submit_caption_cart</button>
         </form>
@@ -580,7 +580,7 @@ describe('ExperimentalAddToCartBuilder', () => {
           <input type="hidden" name="name" value="Test1">
           <label>
             <span>preview.price_label</span>
-            <input required name="price" value="--OPEN--" data-replace="25.00">
+            <input required name="price" value="25.00">
           </label>
           <input type="hidden" name="category" value="CATEGORY_1">
           <input type="hidden" name="code" value="CODETEST1">
@@ -591,7 +591,7 @@ describe('ExperimentalAddToCartBuilder', () => {
           <input type="hidden" name="discount_quantity_amount" value="TestDiscount{allunits|1-10|2-20}">
           <label>
             <span>preview.quantity_label</span>
-            <input type="number" name="quantity" min="2" max="10" value="--OPEN--" data-replace="3">
+            <input type="number" name="quantity" min="2" max="10" value="3">
           </label>
           <input type="hidden" name="quantity_min" value="2">
           <input type="hidden" name="quantity_max" value="10">
@@ -627,7 +627,7 @@ describe('ExperimentalAddToCartBuilder', () => {
           <input type="hidden" name="sub_startdate" value="12">
           <label>
             <span>preview.quantity_label</span>
-            <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
+            <input type="number" name="quantity" min="1" value="1">
           </label>
           <button type="submit">preview.submit_caption_cart</button>
         </form>
@@ -660,7 +660,7 @@ describe('ExperimentalAddToCartBuilder', () => {
           <input type="hidden" name="sub_enddate" value="2y">
           <label>
             <span>preview.quantity_label</span>
-            <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
+            <input type="number" name="quantity" min="1" value="1">
           </label>
           <button type="submit">preview.submit_caption_cart</button>
         </form>
@@ -693,7 +693,7 @@ describe('ExperimentalAddToCartBuilder', () => {
           <input type="hidden" name="sub_enddate" value="20650512">
           <label>
             <span>preview.quantity_label</span>
-            <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
+            <input type="number" name="quantity" min="1" value="1">
           </label>
           <button type="submit">preview.submit_caption_cart</button>
         </form>
@@ -720,7 +720,7 @@ describe('ExperimentalAddToCartBuilder', () => {
           <input type="hidden" name="expires" value="2687914800">
           <label>
             <span>preview.quantity_label</span>
-            <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
+            <input type="number" name="quantity" min="1" value="1">
           </label>
           <button type="submit">preview.submit_caption_cart</button>
         </form>
@@ -791,11 +791,11 @@ describe('ExperimentalAddToCartBuilder', () => {
           <input type="hidden" name="price" value="45AUD">
           <label>
             <span>preview.quantity_label</span>
-            <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
+            <input type="number" name="quantity" min="1" value="1">
           </label>
           <label>
             <span>Option1:</span>
-            <input name="Option1" value="--OPEN--" data-replace="Option1DefaultValue">
+            <input name="Option1" value="Option1DefaultValue">
           </label>
           <label>
             <span>Option2:</span>
@@ -839,7 +839,7 @@ describe('ExperimentalAddToCartBuilder', () => {
           <input type="hidden" name="price" value="50CAD">
           <label>
             <span>preview.quantity_label</span>
-            <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
+            <input type="number" name="quantity" min="1" value="1">
           </label>
           <button type="submit">preview.submit_caption_checkout</button>
         </form>
@@ -862,7 +862,7 @@ describe('ExperimentalAddToCartBuilder', () => {
             <input type="hidden" name="price" value="55AUD">
             <label>
               <span>preview.quantity_label</span>
-              <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
+              <input type="number" name="quantity" min="1" value="1">
             </label>
           </fieldset>
           <fieldset>
@@ -871,7 +871,7 @@ describe('ExperimentalAddToCartBuilder', () => {
             <input type="hidden" name="2:price" value="60AUD">
             <label>
               <span>preview.quantity_label</span>
-              <input type="number" name="2:quantity" min="1" value="--OPEN--" data-replace="1">
+              <input type="number" name="2:quantity" min="1" value="1">
             </label>
           </fieldset>
           <button type="submit">preview.submit_caption_cart</button>
@@ -916,11 +916,11 @@ describe('ExperimentalAddToCartBuilder', () => {
             <input type="hidden" name="sub_enddate" value="2y">
             <label>
               <span>preview.quantity_label</span>
-              <input type="number" name="quantity" min="1" value="--OPEN--" data-replace="1">
+              <input type="number" name="quantity" min="1" value="1">
             </label>
             <label>
               <span>Option1:</span>
-              <input name="Option1" value="--OPEN--" data-replace="Option1DefaultValue">
+              <input name="Option1" value="Option1DefaultValue">
             </label>
           </fieldset>
           <fieldset>
@@ -931,7 +931,7 @@ describe('ExperimentalAddToCartBuilder', () => {
             <input type="hidden" name="2:url" value="https://example.com">
             <label>
               <span>preview.quantity_label</span>
-              <input type="number" name="2:quantity" min="1" value="--OPEN--" data-replace="1">
+              <input type="number" name="2:quantity" min="1" value="1">
             </label>
             <label>
               <span>Option2:</span>

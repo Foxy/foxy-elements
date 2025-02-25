@@ -3,6 +3,7 @@
     "title": "Wachtwoord resetten",
     "subtitle": "Werk nu uw wachtwoord bij om uw account veilig te houden.",
     "submit": "Doorgaan",
+    "skip": "Niet nu",
     "password": {
       "label": "Nieuw wachtwoord",
       "placeholder": "Vereist",

@@ -8,6 +8,8 @@ import '../../internal/InternalForm/index';
 
 import '../NucleonElement/index';
 
+import './internal/InternalNativeIntegrationFormCodeMapControl/index';
+
 import { NativeIntegrationForm } from './NativeIntegrationForm';
 
 customElements.define('foxy-native-integration-form', NativeIntegrationForm);

@@ -1,4 +1,5 @@
 import '../../../../internal/InternalEditableControl/index';
+import '../../../../internal/InternalControl/index';
 import '../../../NucleonElement/index';
 
 import { InternalTemplateConfigFormFilterValuesControlItem } from './InternalTemplateConfigFormFilterValuesControlItem';

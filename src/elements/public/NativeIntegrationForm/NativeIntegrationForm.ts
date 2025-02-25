@@ -29,6 +29,7 @@ export class NativeIntegrationForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      itemCategoryBase: { attribute: 'item-category-base' },
       store: {},
     };
   }
@@ -57,12 +58,6 @@ export class NativeIntegrationForm extends Base<Data> {
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
         return p !== 'avalara' || !!parse(c).company_code || 'avalara-company-code:v8n_required';
-      },
-      ({ provider: p = 'avalara', config: c = '{}' }) => {
-        if (p !== 'avalara') return true;
-        const mappings = parse(c).category_to_product_tax_code_mappings;
-        const err = 'avalara-category-to-product-tax-code-mappings:v8n_required';
-        return (mappings && Object.entries(mappings).length > 0) || err;
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
         return p !== 'taxjar' || !!parse(c).api_token || 'taxjar-api-token:v8n_required';
@@ -146,6 +141,8 @@ export class NativeIntegrationForm extends Base<Data> {
     ];
   }
 
+  itemCategoryBase: string | null = null;
+
   store: string | null = null;
 
   private readonly __createConfigGetterFor = memoize((key: string) => {
@@ -156,9 +153,7 @@ export class NativeIntegrationForm extends Base<Data> {
     return (value: unknown) => (this.__config = { [key]: value });
   });
 
-  private readonly __providerGetValue = () => {
-    return this.form.provider ?? 'avalara';
-  };
+  private readonly __providerGetValue = () => this.form.provider;
 
   private readonly __providerSetValue = (value: string) => {
     this.edit({ provider: value, config: '{}' });
@@ -173,24 +168,6 @@ export class NativeIntegrationForm extends Base<Data> {
   ];
 
   private readonly __avalaraAddressValidationCountriesOptions = [{ value: 'US' }, { value: 'CA' }];
-
-  private readonly __codeMappingsGetValue = () => {
-    const mappings = this.__config?.category_to_product_tax_code_mappings ?? {};
-    return Object.entries(mappings).map(([foxyCategory, vndTaxCode]) => {
-      return { value: `${foxyCategory}:${vndTaxCode}` };
-    });
-  };
-
-  private readonly __codeMappingsSetValue = (value: Item[]) => {
-    const mappings: Record<string, string> = {};
-
-    for (const { value: mapping } of value) {
-      const [foxyCategory, vndTaxCode] = mapping.split(':');
-      if (foxyCategory && vndTaxCode) mappings[foxyCategory] = vndTaxCode;
-    }
-
-    this.__config = { category_to_product_tax_code_mappings: mappings };
-  };
 
   private readonly __onesourceCompanyRoleOptions = [
     { value: 'B', label: 'option_buyer' },
@@ -241,7 +218,7 @@ export class NativeIntegrationForm extends Base<Data> {
   }
 
   renderBody(): TemplateResult {
-    const provider = this.form.provider ?? 'avalara';
+    const provider = this.form.provider;
 
     return html`
       ${this.renderHeader()}
@@ -283,7 +260,7 @@ export class NativeIntegrationForm extends Base<Data> {
         infer=""
         href=${ifDefined(this.store ?? void 0)}
         id="storeLoader"
-        @fetch=${() => this.requestUpdate()}
+        @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
     `;
@@ -339,6 +316,7 @@ export class NativeIntegrationForm extends Base<Data> {
 
   private __renderAvalaraConfig() {
     const isActive = this.__storeLoader?.data?.is_active;
+    const itemCategories = this.__storeLoader?.data?._links['fx:item_categories'].href;
     const serviceUrlPlaceholder =
       typeof isActive === 'boolean'
         ? this.t(
@@ -387,16 +365,6 @@ export class NativeIntegrationForm extends Base<Data> {
       </foxy-internal-summary-control>
 
       <foxy-internal-summary-control infer="avalara-group-two">
-        <foxy-internal-editable-list-control
-          layout="summary-item"
-          infer="avalara-category-to-product-tax-code-mappings"
-          .getValue=${this.__codeMappingsGetValue}
-          .setValue=${this.__codeMappingsSetValue}
-        >
-        </foxy-internal-editable-list-control>
-      </foxy-internal-summary-control>
-
-      <foxy-internal-summary-control infer="avalara-group-three">
         <foxy-internal-switch-control
           json-template=${defaults.avalara}
           json-path="use_ava_tax"
@@ -443,10 +411,23 @@ export class NativeIntegrationForm extends Base<Data> {
         >
         </foxy-internal-switch-control>
       </foxy-internal-summary-control>
+
+      <foxy-internal-native-integration-form-code-map-control
+        item-category-base=${ifDefined(this.itemCategoryBase ?? void 0)}
+        item-categories=${ifDefined(itemCategories)}
+        json-template=${defaults.avalara}
+        json-path="category_to_product_tax_code_mappings"
+        property="config"
+        layout="summary-item"
+        infer="avalara-category-to-product-tax-code-mappings"
+      >
+      </foxy-internal-native-integration-form-code-map-control>
     `;
   }
 
   private __renderTaxJarConfig() {
+    const itemCategories = this.__storeLoader?.data?._links['fx:item_categories'].href;
+
     return html`
       <foxy-internal-summary-control infer="taxjar-group-one">
         <foxy-internal-password-control
@@ -467,15 +448,15 @@ export class NativeIntegrationForm extends Base<Data> {
         </foxy-internal-switch-control>
       </foxy-internal-summary-control>
 
-      <foxy-internal-summary-control infer="taxjar-group-two">
-        <foxy-internal-editable-list-control
-          layout="summary-item"
-          infer="taxjar-category-to-product-tax-code-mappings"
-          .getValue=${this.__codeMappingsGetValue}
-          .setValue=${this.__codeMappingsSetValue}
-        >
-        </foxy-internal-editable-list-control>
-      </foxy-internal-summary-control>
+      <foxy-internal-native-integration-form-code-map-control
+        item-category-base=${ifDefined(this.itemCategoryBase ?? void 0)}
+        item-categories=${ifDefined(itemCategories)}
+        json-template=${defaults.taxjar}
+        json-path="category_to_product_tax_code_mappings"
+        property="config"
+        infer="taxjar-category-to-product-tax-code-mappings"
+      >
+      </foxy-internal-native-integration-form-code-map-control>
     `;
   }
 
