@@ -1,3 +1,8 @@
+import type { InternalNativeIntegrationFormCodeMapControl } from './internal/InternalNativeIntegrationFormCodeMapControl/InternalNativeIntegrationFormCodeMapControl';
+import type { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
+import type { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
+import type { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { Data } from './types';
 
 import './index';
@@ -6,9 +11,6 @@ import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { NativeIntegrationForm as Form } from './NativeIntegrationForm';
 import { InternalEditableListControl } from '../../internal/InternalEditableListControl/InternalEditableListControl';
 import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
-import { InternalPasswordControl } from '../../internal/InternalPasswordControl/InternalPasswordControl';
-import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
-import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { createRouter } from '../../../server';
 import { getTestData } from '../../../testgen/getTestData';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
@@ -16,6 +18,17 @@ import { I18n } from '../I18n/I18n';
 import { stub } from 'sinon';
 
 import * as defaults from './defaults';
+
+async function waitForIdle(element: Form) {
+  await waitUntil(
+    () => {
+      const loaders = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...loaders].every(loader => loader.in('idle'));
+    },
+    '',
+    { timeout: 5000 }
+  );
+}
 
 describe('NativeIntegrationForm', () => {
   it('imports and defines foxy-internal-editable-list-control element', () => {
@@ -46,6 +59,10 @@ describe('NativeIntegrationForm', () => {
     expect(customElements.get('foxy-internal-form')).to.exist;
   });
 
+  it('imports and defines foxy-internal-native-integration-form-code-map-control element', () => {
+    expect(customElements.get('foxy-internal-native-integration-form-code-map-control')).to.exist;
+  });
+
   it('defines itself as foxy-native-integration-form element', () => {
     expect(customElements.get('foxy-native-integration-form')).to.equal(Form);
   });
@@ -57,6 +74,14 @@ describe('NativeIntegrationForm', () => {
   it('has a default i18n namespace "native-integration-form"', () => {
     expect(Form).to.have.property('defaultNS', 'native-integration-form');
     expect(new Form()).to.have.property('ns', 'native-integration-form');
+  });
+
+  it('has a reactive property itemCategoryBase', () => {
+    const element = new Form();
+    expect(element).to.have.property('itemCategoryBase').that.equals(null);
+    expect(Form.properties).to.have.deep.property('itemCategoryBase', {
+      attribute: 'item-category-base',
+    });
   });
 
   it('produces avalara-service-url:v8n_required error if service url for avalara is missing', () => {
@@ -99,15 +124,6 @@ describe('NativeIntegrationForm', () => {
     expect(element.errors).to.include('avalara-company-code:v8n_required');
     element.edit({ config: JSON.stringify({ company_code: 'abc' }) });
     expect(element.errors).to.not.include('avalara-company-code:v8n_required');
-  });
-
-  it('produces avalara-category-to-product-tax-code-mappings:v8n_required error if there are no mappings for avalara', () => {
-    const element = new Form();
-    const error = 'avalara-category-to-product-tax-code-mappings:v8n_required';
-    element.edit({ provider: 'avalara' });
-    expect(element.errors).to.include(error);
-    element.edit({ config: JSON.stringify({ category_to_product_tax_code_mappings: { a: 'b' } }) });
-    expect(element.errors).to.not.include(error);
   });
 
   it('produces taxjar-api-token:v8n_required error if api token for taxjar is missing', () => {
@@ -395,7 +411,7 @@ describe('NativeIntegrationForm', () => {
     ) as InternalSelectControl;
 
     expect(control).to.be.instanceOf(InternalSelectControl);
-    expect(control.getValue()).to.equal('avalara');
+    expect(control.getValue()).to.be.undefined;
     expect(control).to.have.deep.property('options', [
       { value: 'avalara', label: 'option_avalara' },
       { value: 'onesource', label: 'option_onesource' },
@@ -493,8 +509,10 @@ describe('NativeIntegrationForm', () => {
     expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders an editable list control for avalara tax code mappings in avalara group two', async () => {
+  it('renders an internal control for avalara tax code mappings', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
+    const router = createRouter();
+
     data.provider = 'avalara';
     data.config = JSON.stringify({
       ...JSON.parse(defaults.avalara),
@@ -502,23 +520,38 @@ describe('NativeIntegrationForm', () => {
     });
 
     const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+      <foxy-native-integration-form
+        item-category-base="https://demo.api/hapi/item_categories/"
+        store="https://demo.api/hapi/stores/0"
+        .data=${data}
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-native-integration-form>
     `);
 
+    await waitForIdle(element);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-summary-control[infer="avalara-group-two"] foxy-internal-editable-list-control[infer="avalara-category-to-product-tax-code-mappings"]'
-    ) as InternalEditableListControl;
+      'foxy-internal-native-integration-form-code-map-control[infer="avalara-category-to-product-tax-code-mappings"]'
+    ) as InternalNativeIntegrationFormCodeMapControl;
 
     expect(control).to.exist;
-    expect(control).to.have.attribute('layout', 'summary-item');
-    expect(control.getValue()).to.deep.equal([{ value: 'foo:bar' }, { value: 'bar:qux' }]);
 
-    control.setValue([{ value: 'a:b' }]);
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.deep.property('category_to_product_tax_code_mappings', { a: 'b' });
+    expect(control).to.have.attribute(
+      'item-category-base',
+      'https://demo.api/hapi/item_categories/'
+    );
+
+    expect(control).to.have.attribute(
+      'item-categories',
+      'https://demo.api/hapi/item_categories?store_id=0'
+    );
+
+    expect(control).to.have.attribute('json-template', defaults.avalara);
+    expect(control).to.have.attribute('json-path', 'category_to_product_tax_code_mappings');
+    expect(control).to.have.attribute('property', 'config');
   });
 
-  it('renders a switch control for avalara use_ava_tax in avalara group three', async () => {
+  it('renders a switch control for avalara use_ava_tax in avalara group two', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'avalara';
     data.config = JSON.stringify({ ...JSON.parse(defaults.avalara), use_ava_tax: true });
@@ -528,7 +561,7 @@ describe('NativeIntegrationForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(
-      'foxy-internal-summary-control[infer="avalara-group-three"] foxy-internal-switch-control[infer="avalara-use-ava-tax"]'
+      'foxy-internal-summary-control[infer="avalara-group-two"] foxy-internal-switch-control[infer="avalara-use-ava-tax"]'
     );
 
     expect(control).to.exist;
@@ -537,7 +570,7 @@ describe('NativeIntegrationForm', () => {
     expect(control).to.have.attribute('property', 'config');
   });
 
-  it('renders a switch control for avalara use_address_validation in avalara group three', async () => {
+  it('renders a switch control for avalara use_address_validation in avalara group two', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'avalara';
     data.config = JSON.stringify({ ...JSON.parse(defaults.avalara), use_address_validation: true });
@@ -547,7 +580,7 @@ describe('NativeIntegrationForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(
-      'foxy-internal-summary-control[infer="avalara-group-three"] foxy-internal-switch-control[infer="avalara-use-address-validation"]'
+      'foxy-internal-summary-control[infer="avalara-group-two"] foxy-internal-switch-control[infer="avalara-use-address-validation"]'
     );
 
     expect(control).to.exist;
@@ -569,7 +602,7 @@ describe('NativeIntegrationForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(
-      'foxy-internal-summary-control[infer="avalara-group-three"] foxy-internal-editable-list-control[infer="avalara-address-validation-countries"]'
+      'foxy-internal-summary-control[infer="avalara-group-two"] foxy-internal-editable-list-control[infer="avalara-address-validation-countries"]'
     ) as InternalEditableListControl;
 
     expect(control).to.exist;
@@ -580,7 +613,7 @@ describe('NativeIntegrationForm', () => {
     expect(control).to.have.deep.property('options', [{ value: 'US' }, { value: 'CA' }]);
   });
 
-  it('renders a switch control for avalara create_invoice in avalara group three', async () => {
+  it('renders a switch control for avalara create_invoice in avalara group two', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'avalara';
     data.config = JSON.stringify({ ...JSON.parse(defaults.avalara), create_invoice: true });
@@ -590,7 +623,7 @@ describe('NativeIntegrationForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(
-      'foxy-internal-summary-control[infer="avalara-group-three"] foxy-internal-switch-control[infer="avalara-create-invoice"]'
+      'foxy-internal-summary-control[infer="avalara-group-two"] foxy-internal-switch-control[infer="avalara-create-invoice"]'
     );
 
     expect(control).to.exist;
@@ -599,7 +632,7 @@ describe('NativeIntegrationForm', () => {
     expect(control).to.have.attribute('property', 'config');
   });
 
-  it('renders a switch control for avalara enable_colorado_delivery_fee in avalara group three', async () => {
+  it('renders a switch control for avalara enable_colorado_delivery_fee in avalara group two', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'avalara';
     data.config = JSON.stringify({
@@ -612,7 +645,7 @@ describe('NativeIntegrationForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(
-      'foxy-internal-summary-control[infer="avalara-group-three"] foxy-internal-switch-control[infer="avalara-enable-colorado-delivery-fee"]'
+      'foxy-internal-summary-control[infer="avalara-group-two"] foxy-internal-switch-control[infer="avalara-enable-colorado-delivery-fee"]'
     );
 
     expect(control).to.exist;
@@ -660,8 +693,10 @@ describe('NativeIntegrationForm', () => {
     expect(control).to.have.attribute('property', 'config');
   });
 
-  it('renders an editable list control for taxjar product code mappings in taxjar group two', async () => {
+  it('renders an internal control for taxjar tax code mappings', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
+    const router = createRouter();
+
     data.provider = 'taxjar';
     data.config = JSON.stringify({
       ...JSON.parse(defaults.taxjar),
@@ -669,19 +704,35 @@ describe('NativeIntegrationForm', () => {
     });
 
     const element = await fixture<Form>(html`
-      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+      <foxy-native-integration-form
+        item-category-base="https://demo.api/hapi/item_categories/"
+        store="https://demo.api/hapi/stores/0"
+        .data=${data}
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-native-integration-form>
     `);
 
+    await waitForIdle(element);
     const control = element.renderRoot.querySelector(
-      '[infer="taxjar-group-two"] foxy-internal-editable-list-control[infer="taxjar-category-to-product-tax-code-mappings"]'
-    ) as InternalEditableListControl;
+      'foxy-internal-native-integration-form-code-map-control[infer="taxjar-category-to-product-tax-code-mappings"]'
+    ) as InternalNativeIntegrationFormCodeMapControl;
 
-    expect(control).to.be.instanceOf(InternalEditableListControl);
-    expect(control.getValue()).to.deep.equal([{ value: 'foo:bar' }, { value: 'bar:qux' }]);
+    expect(control).to.exist;
 
-    control.setValue([{ value: 'a:b' }]);
-    const config = JSON.parse(element.form.config as string);
-    expect(config).to.have.deep.property('category_to_product_tax_code_mappings', { a: 'b' });
+    expect(control).to.have.attribute(
+      'item-category-base',
+      'https://demo.api/hapi/item_categories/'
+    );
+
+    expect(control).to.have.attribute(
+      'item-categories',
+      'https://demo.api/hapi/item_categories?store_id=0'
+    );
+
+    expect(control).to.have.attribute('json-template', defaults.taxjar);
+    expect(control).to.have.attribute('json-path', 'category_to_product_tax_code_mappings');
+    expect(control).to.have.attribute('property', 'config');
   });
 
   it('renders a text control for onesource service url in onesource group one', async () => {

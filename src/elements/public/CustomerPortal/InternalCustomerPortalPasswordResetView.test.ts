@@ -3,7 +3,7 @@ import type { InternalPasswordControl } from '../../internal/InternalPasswordCon
 import './index';
 
 import { InternalCustomerPortalPasswordResetView as View } from './InternalCustomerPortalPasswordResetView';
-import { expect, fixture, html } from '@open-wc/testing';
+import { expect, fixture, html, oneEvent } from '@open-wc/testing';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { stub } from 'sinon';
 
@@ -98,5 +98,19 @@ describe('InternalCustomerPortalPasswordResetView', () => {
     view.disabled = true;
     await view.requestUpdate();
     expect(button).to.have.attribute('disabled');
+  });
+
+  it('renders skip button', async () => {
+    const view = await fixture<View>(html`
+      <foxy-internal-customer-portal-password-reset-view></foxy-internal-customer-portal-password-reset-view>
+    `);
+
+    const label = view.renderRoot.querySelector('foxy-i18n[infer=""][key="skip"]')!;
+    const button = label.closest('vaadin-button')!;
+    expect(button).to.exist;
+
+    const skipEvent = oneEvent(view, 'skip');
+    button.click();
+    expect(await skipEvent).to.be.instanceOf(CustomEvent);
   });
 });

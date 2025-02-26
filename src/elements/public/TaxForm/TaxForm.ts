@@ -68,25 +68,6 @@ export class TaxForm extends Base<Data> {
   /** URL of the `fx:regions` property helper resource. */
   regions: string | null = null;
 
-  private __serviceProviderGetValue = () => {
-    return this.form.service_provider || (this.form.is_live ? 'default' : 'none');
-  };
-
-  private __serviceProviderSetValue = (newValue: string) => {
-    const newProvider = ['none', 'default'].includes(newValue) ? '' : newValue;
-
-    this.edit({
-      service_provider: newProvider as Data['service_provider'],
-      use_origin_rates: false,
-      is_live: newValue !== 'none',
-    });
-
-    this.edit({
-      exempt_all_customer_tax_ids: this.__isExemptAllCustomerTaxIdsHidden,
-      apply_to_shipping: this.__isApplyToShippingHidden,
-    });
-  };
-
   private __countrySetValue = (newValue: string) => {
     this.edit({ country: newValue, region: '', city: '' });
     this.edit({ apply_to_shipping: this.__isApplyToShippingHidden });
@@ -129,6 +110,18 @@ export class TaxForm extends Base<Data> {
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = [super.hiddenSelector.toString()];
+    const type = this.form.type as string | undefined;
+
+    if (type === 'global' || type === 'custom_tax_endpoint') {
+      alwaysMatch.unshift('group-one:is-live', 'group-one:service-provider');
+      if (type === 'custom_tax_endpoint') alwaysMatch.unshift('group-one:rate');
+    } else {
+      if (this.form.is_live) {
+        alwaysMatch.unshift('group-one:rate');
+      } else {
+        alwaysMatch.unshift('group-one:service-provider');
+      }
+    }
 
     if (this.__nativeIntegrationsUrl === void 0) alwaysMatch.unshift('native-integrations');
     if (this.__isCountryHidden) alwaysMatch.unshift('group-three:country');
@@ -137,8 +130,6 @@ export class TaxForm extends Base<Data> {
     }
 
     if (this.__isCityHidden) alwaysMatch.unshift('group-three:city');
-    if (this.__isProviderHidden) alwaysMatch.unshift('group-one:service-provider');
-    if (this.__isRateHidden) alwaysMatch.unshift('group-one:rate');
     if (this.__isApplyToShippingHidden) alwaysMatch.unshift('group-two:apply-to-shipping');
     if (this.__isUseOriginRatesHidden) alwaysMatch.unshift('group-two:use-origin-rates');
     if (this.__isExemptAllCustomerTaxIdsHidden) {
@@ -172,12 +163,12 @@ export class TaxForm extends Base<Data> {
         >
         </foxy-internal-select-control>
 
+        <foxy-internal-switch-control infer="is-live"></foxy-internal-switch-control>
+
         <foxy-internal-select-control
           options=${JSON.stringify(this.__serviceProviderOptions)}
           layout="summary-item"
           infer="service-provider"
-          .getValue=${this.__serviceProviderGetValue}
-          .setValue=${this.__serviceProviderSetValue}
         >
         </foxy-internal-select-control>
 
@@ -252,7 +243,6 @@ export class TaxForm extends Base<Data> {
 
   private get __serviceProviderOptions() {
     const options = [
-      { label: 'option_none', value: 'none' },
       { label: 'option_avalara', value: 'avalara' },
       { label: 'option_onesource', value: 'onesource' },
     ];
@@ -262,7 +252,7 @@ export class TaxForm extends Base<Data> {
       !this.form.country ||
       defaultLiveRateCountries.includes(this.form.country)
     ) {
-      options.unshift({ label: 'option_default', value: 'default' });
+      options.unshift({ label: 'option_default', value: '' });
     }
 
     if (
@@ -334,11 +324,6 @@ export class TaxForm extends Base<Data> {
     return this.form.type !== 'union' || !this.form.is_live || !!this.form.service_provider;
   }
 
-  private get __isProviderHidden() {
-    const type = this.form.type as string;
-    return !type || type === 'global' || type === 'local' || type === 'custom_tax_endpoint';
-  }
-
   private get __isCountryHidden() {
     if (this.form.type === 'union') {
       return (!this.form.service_provider || this.form.is_live) && !this.form.use_origin_rates;
@@ -353,10 +338,5 @@ export class TaxForm extends Base<Data> {
 
   private get __isCityHidden() {
     return this.form.type !== 'local';
-  }
-
-  private get __isRateHidden() {
-    const type = this.form.type as string;
-    return !type || type === 'custom_tax_endpoint' || this.form.is_live === true;
   }
 }
