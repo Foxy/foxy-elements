@@ -19,8 +19,8 @@ describe('Transaction', () => {
       expect(customElements.get('foxy-internal-control')).to.exist;
     });
 
-    it('imports and defines foxy-internal-transaction-post-action-control', () => {
-      expect(customElements.get('foxy-internal-transaction-post-action-control')).to.exist;
+    it('imports and defines foxy-internal-post-action-control', () => {
+      expect(customElements.get('foxy-internal-post-action-control')).to.exist;
     });
 
     it('imports and defines itself as foxy-internal-transaction-actions-control', () => {
@@ -63,12 +63,12 @@ describe('Transaction', () => {
       const action = control.renderRoot.querySelector('[infer="capture"]');
 
       expect(action).to.exist;
-      expect(action).to.have.property('localName', 'foxy-internal-transaction-post-action-control');
-      expect(action).to.have.property('theme', 'success');
+      expect(action).to.have.property('localName', 'foxy-internal-post-action-control');
+      expect(action).to.have.property('theme', 'tertiary-inline success');
       expect(action).to.have.property('href', 'test');
 
       const refreshMethod = stub(wrapper, 'refresh');
-      action?.dispatchEvent(new CustomEvent('done'));
+      action?.dispatchEvent(new CustomEvent('success'));
 
       expect(refreshMethod).to.have.been.calledOnce;
       refreshMethod.restore();
@@ -104,12 +104,12 @@ describe('Transaction', () => {
       const action = control.renderRoot.querySelector('[infer="void"]');
 
       expect(action).to.exist;
-      expect(action).to.have.property('localName', 'foxy-internal-transaction-post-action-control');
-      expect(action).to.have.property('theme', 'error');
+      expect(action).to.have.property('localName', 'foxy-internal-post-action-control');
+      expect(action).to.have.property('theme', 'tertiary-inline error');
       expect(action).to.have.property('href', 'test');
 
       const refreshMethod = stub(wrapper, 'refresh');
-      action?.dispatchEvent(new CustomEvent('done'));
+      action?.dispatchEvent(new CustomEvent('success'));
 
       expect(refreshMethod).to.have.been.calledOnce;
       refreshMethod.restore();
@@ -145,11 +145,11 @@ describe('Transaction', () => {
       const action = control.renderRoot.querySelector('[infer="refund"]');
 
       expect(action).to.exist;
-      expect(action).to.have.property('localName', 'foxy-internal-transaction-post-action-control');
+      expect(action).to.have.property('localName', 'foxy-internal-post-action-control');
       expect(action).to.have.property('href', 'test');
 
       const refreshMethod = stub(wrapper, 'refresh');
-      action?.dispatchEvent(new CustomEvent('done'));
+      action?.dispatchEvent(new CustomEvent('success'));
 
       expect(refreshMethod).to.have.been.calledOnce;
       refreshMethod.restore();
@@ -185,11 +185,11 @@ describe('Transaction', () => {
       const action = control.renderRoot.querySelector('[infer="send-emails"]');
 
       expect(action).to.exist;
-      expect(action).to.have.property('localName', 'foxy-internal-transaction-post-action-control');
+      expect(action).to.have.property('localName', 'foxy-internal-post-action-control');
       expect(action).to.have.property('href', 'test');
 
       const refreshMethod = stub(wrapper, 'refresh');
-      action?.dispatchEvent(new CustomEvent('done'));
+      action?.dispatchEvent(new CustomEvent('success'));
 
       expect(refreshMethod).to.have.been.calledOnce;
       refreshMethod.restore();

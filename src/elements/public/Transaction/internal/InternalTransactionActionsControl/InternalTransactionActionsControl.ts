@@ -36,47 +36,49 @@ export class InternalTransactionActionsControl extends InternalControl {
 
   private __renderSendEmailsAction() {
     return html`
-      <foxy-internal-transaction-post-action-control
+      <foxy-internal-post-action-control
         infer="send-emails"
+        theme="tertiary-inline"
         href=${ifDefined(this.nucleon?.data?._links['fx:send_emails'].href)}
-        @done=${() => this.nucleon?.refresh()}
+        @success=${() => this.nucleon?.refresh()}
       >
-      </foxy-internal-transaction-post-action-control>
+      </foxy-internal-post-action-control>
     `;
   }
 
   private __renderCaptureAction() {
     return html`
-      <foxy-internal-transaction-post-action-control
-        theme="success"
+      <foxy-internal-post-action-control
+        theme="tertiary-inline success"
         infer="capture"
         href=${ifDefined(this.nucleon?.data?._links['fx:capture'].href)}
-        @done=${() => this.nucleon?.refresh()}
+        @success=${() => this.nucleon?.refresh()}
       >
-      </foxy-internal-transaction-post-action-control>
+      </foxy-internal-post-action-control>
     `;
   }
 
   private __renderVoidAction() {
     return html`
-      <foxy-internal-transaction-post-action-control
-        theme="error"
+      <foxy-internal-post-action-control
+        theme="tertiary-inline error"
         infer="void"
         href=${ifDefined(this.nucleon?.data?._links['fx:void']?.href)}
-        @done=${() => this.nucleon?.refresh()}
+        @success=${() => this.nucleon?.refresh()}
       >
-      </foxy-internal-transaction-post-action-control>
+      </foxy-internal-post-action-control>
     `;
   }
 
   private __renderRefundAction() {
     return html`
-      <foxy-internal-transaction-post-action-control
+      <foxy-internal-post-action-control
         infer="refund"
+        theme="tertiary-inline"
         href=${ifDefined(this.nucleon?.data?._links['fx:refund']?.href)}
-        @done=${() => this.nucleon?.refresh()}
+        @success=${() => this.nucleon?.refresh()}
       >
-      </foxy-internal-transaction-post-action-control>
+      </foxy-internal-post-action-control>
     `;
   }
 

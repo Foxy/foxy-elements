@@ -80,7 +80,7 @@ export class Transaction extends Base<Data> {
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = [
       'billing-addresses',
-      'datafeed',
+      'datafeed:data-is-fed',
       'webhooks:dialog:url',
       super.readonlySelector,
     ];
@@ -343,11 +343,13 @@ export class Transaction extends Base<Data> {
 
       <foxy-internal-summary-control infer="datafeed">
         <foxy-internal-switch-control infer="data-is-fed"></foxy-internal-switch-control>
-        <foxy-internal-transaction-post-action-control
+        <foxy-internal-post-action-control
           infer="process-webhook"
+          theme="tertiary-inline"
           href=${ifDefined(this.data?._links['fx:process_webhook']?.href)}
+          @success=${() => this.refresh()}
         >
-        </foxy-internal-transaction-post-action-control>
+        </foxy-internal-post-action-control>
       </foxy-internal-summary-control>
 
       <foxy-nucleon
