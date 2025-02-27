@@ -16,6 +16,10 @@ describe('AdminSubscriptionForm', () => {
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
+  it('imports and defines foxy-internal-post-action-control', () => {
+    expect(customElements.get('foxy-internal-post-action-control')).to.exist;
+  });
+
   it('imports and defines foxy-internal-async-list-control', () => {
     expect(customElements.get('foxy-internal-async-list-control')).to.exist;
   });
@@ -236,6 +240,35 @@ describe('AdminSubscriptionForm', () => {
     await form.requestUpdate();
     const control = form.renderRoot.querySelector('[infer="overdue"]');
     expect(control?.localName).to.equal('foxy-internal-summary-control');
+  });
+
+  it('renders post action control for charging past due amount when appropriate', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-admin-subscription-form
+        href="https://demo.api/hapi/subscriptions/0?zoom=transaction_template"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-admin-subscription-form>
+    `);
+
+    const testData = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
+    // @ts-expect-error - SDK doesn't know yet about the `fx:charge_past_due` link.
+    testData._links['fx:charge_past_due'] = { href: 'https://demo.api/virtual/empty' };
+    testData.past_due_amount = 10;
+    testData._embedded['fx:transaction_template'].currency_code = 'AUD';
+    form.data = testData;
+
+    await waitUntil(() => !!form.data, '', { timeout: 5000 });
+    await form.requestUpdate();
+    const summary = form.renderRoot.querySelector('[infer="overdue"]');
+    const control = summary?.querySelector('[infer="charge-past-due"]');
+
+    expect(control?.localName).to.equal('foxy-internal-post-action-control');
+    expect(control).to.have.attribute('theme', 'tertiary-inline');
+    expect(control).to.have.attribute('message-options', JSON.stringify({ amount: '10 AUD' }));
+    expect(control).to.have.attribute('href', 'https://demo.api/virtual/empty');
+    expect(control).to.have.attribute('href', 'https://demo.api/virtual/empty');
   });
 
   it('renders number control for past due amount inside of the overdue summary control', async () => {

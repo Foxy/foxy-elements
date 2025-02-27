@@ -46,6 +46,11 @@ export class AdminSubscriptionForm extends Base<Data> {
       transactionsHref = undefined;
     }
 
+    // @ts-expect-error - SDK doesn't know yet about the `fx:charge_past_due` link.
+    const chargePastDueHref: string | undefined = this.data?._links['fx:charge_past_due']?.href;
+    const pastDueAmount = this.data?.past_due_amount;
+    const currencyCode = this.data?._embedded['fx:transaction_template'].currency_code;
+
     return html`
       ${this.renderHeader()}
 
@@ -70,11 +75,24 @@ export class AdminSubscriptionForm extends Base<Data> {
       <foxy-internal-summary-control infer="overdue">
         <foxy-internal-number-control
           layout="summary-item"
-          suffix=${ifDefined(this.data?._embedded['fx:transaction_template'].currency_code)}
+          suffix=${ifDefined(currencyCode)}
           infer="past-due-amount"
           min="0"
         >
         </foxy-internal-number-control>
+
+        ${chargePastDueHref && currencyCode && pastDueAmount
+          ? html`
+              <foxy-internal-post-action-control
+                message-options=${JSON.stringify({ amount: `${pastDueAmount} ${currencyCode}` })}
+                theme="tertiary-inline"
+                infer="charge-past-due"
+                href=${chargePastDueHref}
+                @success=${() => this.refresh()}
+              >
+              </foxy-internal-post-action-control>
+            `
+          : ''}
       </foxy-internal-summary-control>
 
       <foxy-internal-summary-control infer="self-service-links">

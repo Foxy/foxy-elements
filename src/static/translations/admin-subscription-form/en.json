@@ -93,6 +93,22 @@
       "helper_text": "Missing payments increase this amount. Depending on your store settings, we may charge it automatically on the next billing cycle.",
       "placeholder": "0",
       "clear": "Clear"
+    },
+    "charge-past-due": {
+      "button": {
+        "idle": "Charge past due amount",
+        "busy": "Processing..."
+      },
+      "notification": {
+        "success": "Past due amount successfully charged.",
+        "error": "Failed to charge past due amount."
+      },
+      "confirm-dialog": {
+        "message": "This will attempt to charge the past due amount of {{ amount, price }}. Would you like to proceed?",
+        "confirm": "Yes",
+        "cancel": "No",
+        "header": "Past due payment"
+      }
     }
   },
   "self-service-links": {

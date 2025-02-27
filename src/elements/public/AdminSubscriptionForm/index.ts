@@ -1,3 +1,4 @@
+import '../../internal/InternalPostActionControl/index';
 import '../../internal/InternalAsyncListControl/index';
 import '../../internal/InternalFrequencyControl/index';
 import '../../internal/InternalNumberControl/index';
