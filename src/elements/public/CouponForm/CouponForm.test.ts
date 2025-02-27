@@ -269,12 +269,18 @@ describe('CouponForm', () => {
     expect(element.hiddenSelector.matches('coupon-codes', true)).to.be.true;
     expect(element.hiddenSelector.matches('category-restrictions', true)).to.be.true;
     expect(element.hiddenSelector.matches('attributes', true)).to.be.true;
+    expect(element.hiddenSelector.matches('coupon-codes-stub', true)).to.be.false;
+    expect(element.hiddenSelector.matches('category-restrictions-stub', true)).to.be.false;
+    expect(element.hiddenSelector.matches('attributes-stub', true)).to.be.false;
 
     element.data = await getTestData('./hapi/coupons/0');
 
     expect(element.hiddenSelector.matches('coupon-codes', true)).to.be.false;
     expect(element.hiddenSelector.matches('category-restrictions', true)).to.be.false;
     expect(element.hiddenSelector.matches('attributes', true)).to.be.false;
+    expect(element.hiddenSelector.matches('coupon-codes-stub', true)).to.be.true;
+    expect(element.hiddenSelector.matches('category-restrictions-stub', true)).to.be.true;
+    expect(element.hiddenSelector.matches('attributes-stub', true)).to.be.true;
   });
 
   it('renders a form header', () => {
@@ -363,10 +369,15 @@ describe('CouponForm', () => {
       </foxy-coupon-form>
     `);
 
+    const controlStub = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="coupon-codes-stub"] foxy-i18n[infer=""][key="text"]'
+    );
+
     const control = element.renderRoot.querySelector(
       'foxy-internal-async-list-control[infer=coupon-codes]'
     ) as InternalAsyncListControl;
 
+    expect(controlStub).to.exist;
     expect(control).to.exist;
 
     expect(control).to.have.attribute(
@@ -460,7 +471,12 @@ describe('CouponForm', () => {
       'foxy-internal-async-resource-link-list-control[infer=category-restrictions]'
     );
 
+    const controlStub = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="category-restrictions-stub"] foxy-i18n[infer=""][key="text"]'
+    );
+
     expect(control).to.exist;
+    expect(controlStub).to.exist;
     await waitUntil(() => !!control?.hasAttribute('options-href'));
 
     expect(control).to.have.attribute('foreign-key-for-uri', 'item_category_uri');
@@ -683,7 +699,12 @@ describe('CouponForm', () => {
       'foxy-internal-async-list-control[infer=attributes]'
     ) as InternalAsyncListControl;
 
+    const controlStub = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="category-restrictions-stub"] foxy-i18n[infer=""][key="text"]'
+    );
+
     expect(control).to.exist;
+    expect(controlStub).to.exist;
     expect(control).to.have.attribute(
       'first',
       'https://demo.api/hapi/coupon_attributes?coupon_id=0'
