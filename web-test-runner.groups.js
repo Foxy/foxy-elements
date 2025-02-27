@@ -80,6 +80,10 @@ export const groups = [
     files: './src/elements/internal/InternalPasswordControl/**/*.test.ts',
   },
   {
+    name: 'foxy-internal-post-action-control',
+    files: './src/elements/internal/InternalPostActionControl/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-query-builder-control',
     files: './src/elements/internal/InternalQueryBuilderControl/**/*.test.ts',
   },
