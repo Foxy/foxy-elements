@@ -35,13 +35,17 @@ describe('InternalConfirmDialog', () => {
   });
 
   it('renders default confirmation ui when opened', async () => {
-    const template = html`<foxy-internal-confirm-dialog></foxy-internal-confirm-dialog>`;
-    const dialog = await fixture<InternalConfirmDialog>(template);
-    const root = dialog.renderRoot;
+    const dialog = await fixture<InternalConfirmDialog>(html`
+      <foxy-internal-confirm-dialog message-options='{"foo":"bar"}'> </foxy-internal-confirm-dialog>
+    `);
 
     await dialog.show();
 
-    expect(root.querySelector(`foxy-i18n[key="${dialog.message}"]`)).to.exist;
+    const root = dialog.renderRoot;
+    const message = root.querySelector(`foxy-i18n[key="${dialog.message}"]`);
+
+    expect(message).to.exist;
+    expect(message).to.have.deep.property('options', { foo: 'bar' });
     expect(root.querySelector(`foxy-i18n[key="${dialog.confirm}"]`)).to.exist;
     expect(root.querySelector(`foxy-i18n[key="${dialog.cancel}"]`)).to.exist;
 

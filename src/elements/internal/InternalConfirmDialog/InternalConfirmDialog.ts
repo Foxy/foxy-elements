@@ -7,6 +7,7 @@ export class InternalConfirmDialog extends Dialog {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      messageOptions: { type: Object, attribute: 'message-options' },
       confirm: { type: String },
       message: { type: String },
       cancel: { type: String },
@@ -19,6 +20,8 @@ export class InternalConfirmDialog extends Dialog {
   readonly editable = false;
 
   readonly alert = true;
+
+  messageOptions: Record<string, string> = {};
 
   confirm = 'confirm';
 
@@ -36,6 +39,7 @@ export class InternalConfirmDialog extends Dialog {
           lang=${this.lang}
           key=${this.message}
           ns=${this.ns}
+          .options=${this.messageOptions}
         >
         </foxy-i18n>
 
