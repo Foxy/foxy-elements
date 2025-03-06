@@ -66,6 +66,11 @@ describe('FilterAttributeForm', () => {
     expect(new Form()).to.have.property('ns', 'filter-attribute-form');
   });
 
+  it('has a reactive property "defaults"', () => {
+    expect(Form).to.have.deep.nested.property('properties.defaults', {});
+    expect(new Form()).to.have.property('defaults', null);
+  });
+
   it('has a reactive property "pathname"', async () => {
     expect(Form).to.have.deep.nested.property('properties.pathname', {});
 
@@ -85,12 +90,15 @@ describe('FilterAttributeForm', () => {
   });
 
   it('renders query builder', async () => {
-    const layout = html`<foxy-filter-attribute-form pathname="/foo"></foxy-filter-attribute-form>`;
-    const element = await fixture<Form>(layout);
-    const control = element.renderRoot.querySelector<QueryBuilder>('[infer="filter-query"]')!;
+    const element = await fixture<Form>(html`
+      <foxy-filter-attribute-form pathname="/foo" defaults="color=blue">
+      </foxy-filter-attribute-form>
+    `);
 
+    const control = element.renderRoot.querySelector<QueryBuilder>('[infer="filter-query"]')!;
     expect(control).to.exist;
     expect(control).to.be.instanceOf(customElements.get('foxy-query-builder'));
+    expect(control).to.have.property('value', 'color=blue');
 
     const options: Form['options'] = [];
     element.options = options;
