@@ -88,6 +88,7 @@
   "overdue": {
     "label": "",
     "helper_text": "",
+    "error_with_zero_past_due_hint": "A past due amount has been successfully captured. Click to see the details.",
     "past-due-amount": {
       "label": "Past due amount",
       "helper_text": "Missing payments increase this amount. Depending on your store settings, we may charge it automatically on the next billing cycle.",

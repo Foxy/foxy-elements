@@ -88,14 +88,20 @@ describe('AdminSubscriptionForm', () => {
     expect(new Form().hiddenSelector.matches('delete', true)).to.be.true;
   });
 
-  it('hides error message control when there is no error', async () => {
+  it('hides error message control when there is no error or when past due amount is 0', async () => {
     const form = new Form();
     expect(form.hiddenSelector.matches('error-message', true)).to.be.true;
 
     const testData = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
+    testData.past_due_amount = 20;
     testData.error_message = 'Test error';
     form.data = testData;
     expect(form.hiddenSelector.matches('error-message', true)).to.be.false;
+
+    testData.past_due_amount = 0;
+    testData.error_message = 'Test error';
+    form.data = { ...testData };
+    expect(form.hiddenSelector.matches('error-message', true)).to.be.true;
   });
 
   it('hides View in cart and Cancel actions when there is no data', async () => {
@@ -269,6 +275,28 @@ describe('AdminSubscriptionForm', () => {
     expect(control).to.have.attribute('message-options', JSON.stringify({ amount: '10 AUD' }));
     expect(control).to.have.attribute('href', 'https://demo.api/virtual/empty');
     expect(control).to.have.attribute('href', 'https://demo.api/virtual/empty');
+  });
+
+  it('renders error message inside of the overdue summary control when past due amount is 0 and there is an error message', async () => {
+    const form = await fixture<Form>(html`
+      <foxy-admin-subscription-form></foxy-admin-subscription-form>
+    `);
+
+    const testData = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
+    testData.past_due_amount = 0;
+    testData.error_message = 'Test error';
+    form.data = testData;
+    await form.requestUpdate();
+
+    const section = form.renderRoot.querySelector('[infer="overdue"]');
+    const details = section?.querySelector('details');
+    const summary = details?.querySelector('summary foxy-i18n[infer=""]');
+
+    expect(details).to.exist;
+    expect(details?.textContent).to.include('Test error');
+
+    expect(summary).to.exist;
+    expect(summary).to.have.attribute('key', 'error_with_zero_past_due_hint');
   });
 
   it('renders number control for past due amount inside of the overdue summary control', async () => {

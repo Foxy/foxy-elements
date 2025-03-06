@@ -25,8 +25,11 @@ export class AdminSubscriptionForm extends Base<Data> {
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = ['delete', super.hiddenSelector.toString()];
-    if (!this.data?.error_message) alwaysMatch.unshift('error-message');
-    if (!this.data?.is_active) alwaysMatch.unshift('view-action', 'cancel-action');
+    const data = this.data;
+
+    if (!data?.error_message || !data.past_due_amount) alwaysMatch.unshift('error-message');
+    if (!data?.is_active) alwaysMatch.unshift('view-action', 'cancel-action');
+
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
@@ -49,6 +52,7 @@ export class AdminSubscriptionForm extends Base<Data> {
     // @ts-expect-error - SDK doesn't know yet about the `fx:charge_past_due` link.
     const chargePastDueHref: string | undefined = this.data?._links['fx:charge_past_due']?.href;
     const pastDueAmount = this.data?.past_due_amount;
+    const errorMessage = this.data?.error_message;
     const currencyCode = this.data?._embedded['fx:transaction_template'].currency_code;
 
     return html`
@@ -91,6 +95,25 @@ export class AdminSubscriptionForm extends Base<Data> {
                 @success=${() => this.refresh()}
               >
               </foxy-internal-post-action-control>
+            `
+          : errorMessage && !pastDueAmount
+          ? html`
+              <details
+                class="leading-xs text-xs text-secondary rounded-b focus-within-ring-2 focus-within-ring-inset focus-within-ring-primary-50"
+                style="--gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+              >
+                <summary
+                  class="cursor-pointer transition-colors hover-text-body focus-outline-none"
+                >
+                  <span class="flex items-start" style="gap: var(--gap)">
+                    ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="flex-shrink-0" style="width: 1.25em"><path fill-rule="evenodd" d="M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0ZM9 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM6.75 8a.75.75 0 0 0 0 1.5h.75v1.75a.75.75 0 0 0 1.5 0v-2.5A.75.75 0 0 0 8.25 8h-1.5Z" clip-rule="evenodd" /></svg>`}
+                    <foxy-i18n infer="" key="error_with_zero_past_due_hint"></foxy-i18n>
+                  </span>
+                </summary>
+                <p style="padding-left: calc(1.25em + var(--gap))" class="pt-xs">
+                  <span class="whitespace-pre-line">${errorMessage}</span>
+                </p>
+              </details>
             `
           : ''}
       </foxy-internal-summary-control>
