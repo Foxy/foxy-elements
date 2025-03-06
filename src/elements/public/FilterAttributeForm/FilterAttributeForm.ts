@@ -60,9 +60,10 @@ export class FilterAttributeForm extends Base<Data> {
     const constructor = this.constructor as typeof FilterAttributeForm;
     const filterQuery = this.__getValueParam(constructor.filterQueryKey);
     const hasData = !!this.data;
+    const hasValue = !!this.form.value;
 
     if (!hasData) alwaysHidden.push('filter-name');
-    if (!filterQuery && !hasData) alwaysHidden.push('action');
+    if (!hasValue || (!filterQuery && !hasData)) alwaysHidden.push('action');
 
     return new BooleanSelector(`${alwaysHidden.join(' ')} ${super.hiddenSelector}`.trim());
   }

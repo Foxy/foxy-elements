@@ -140,7 +140,7 @@ describe('FilterAttributeForm', () => {
     expect(element.hiddenSelector.matches('filter-name', true)).to.be.false;
   });
 
-  it('hides action if filter query is empty and attribute is not created yet', async () => {
+  it('hides action when appropriate', async () => {
     const layout = html`<foxy-filter-attribute-form></foxy-filter-attribute-form>`;
     const element = await fixture<Form>(layout);
 
@@ -148,7 +148,7 @@ describe('FilterAttributeForm', () => {
     element.data = await getTestData('./hapi/store_attributes/0');
     expect(element.hiddenSelector.matches('action', true)).to.be.false;
     element.edit({ value: '' });
-    expect(element.hiddenSelector.matches('action', true)).to.be.false;
+    expect(element.hiddenSelector.matches('action', true)).to.be.true;
   });
 
   it('uses fixed visibility and attribute name when creating a resource', async () => {
