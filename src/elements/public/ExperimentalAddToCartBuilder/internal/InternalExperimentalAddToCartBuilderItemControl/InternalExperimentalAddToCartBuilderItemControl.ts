@@ -15,6 +15,7 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
     return {
       ...super.properties,
       defaultItemCategory: { type: Object, attribute: 'default-item-category' },
+      useCartValidation: { type: Boolean, attribute: 'use-cart-validation' },
       itemCategories: { attribute: 'item-categories' },
       currencyCode: { attribute: 'currency-code' },
       index: { type: Number },
@@ -22,6 +23,8 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
   }
 
   defaultItemCategory: Resource<Rels.ItemCategory> | null = null;
+
+  useCartValidation = false;
 
   itemCategories: string | null = null;
 
@@ -75,6 +78,9 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
 
         <foxy-internal-summary-control infer="code-group">
           <foxy-internal-text-control
+            placeholder=${this.t(
+              `code-group.code.placeholder_${this.useCartValidation ? 'required' : 'optional'}`
+            )}
             property="items.${index}.code"
             layout="summary-item"
             infer="code"

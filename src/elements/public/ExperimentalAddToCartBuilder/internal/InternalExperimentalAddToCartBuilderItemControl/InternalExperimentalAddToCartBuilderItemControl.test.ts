@@ -52,6 +52,14 @@ describe('ExperimentalAddToCartBuilder', () => {
       });
     });
 
+    it('has a reactive property "useCartValidation" that defaults to false', () => {
+      expect(new Control()).to.have.property('useCartValidation', false);
+      expect(Control).to.have.deep.nested.property('properties.useCartValidation', {
+        attribute: 'use-cart-validation',
+        type: Boolean,
+      });
+    });
+
     it('has a reactive property "itemCategories" that defaults to null', () => {
       expect(new Control()).to.have.property('itemCategories', null);
       expect(Control).to.have.deep.nested.property('properties.itemCategories', {
@@ -221,8 +229,13 @@ describe('ExperimentalAddToCartBuilder', () => {
       );
 
       expect(control).to.exist;
+      expect(control).to.have.attribute('placeholder', 'code-group.code.placeholder_optional');
       expect(control).to.have.attribute('property', 'items.3.code');
       expect(control).to.have.attribute('layout', 'summary-item');
+
+      element.useCartValidation = true;
+      await element.requestUpdate();
+      expect(control).to.have.attribute('placeholder', 'code-group.code.placeholder_required');
     });
 
     it('renders a text control for the parent_code property inside of the code group', async () => {
