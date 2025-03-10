@@ -164,6 +164,11 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
     { label: 'option_flat_percent_with_minimum', value: 'flat_percent_with_minimum' },
   ];
 
+  private readonly __discountNameSetValue = (v: string) => {
+    this.edit({ discount_name: v });
+    if (!v) this.edit({ discount_type: '', discount_details: '' });
+  };
+
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = [super.readonlySelector.toString()];
     if (this.data?.code === 'DEFAULT') alwaysMatch.unshift('code', 'name');
@@ -238,7 +243,11 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
                 : ''}
             `}
 
-        <foxy-internal-text-control layout="summary-item" infer="discount-name">
+        <foxy-internal-text-control
+          layout="summary-item"
+          infer="discount-name"
+          .setValue=${this.__discountNameSetValue}
+        >
         </foxy-internal-text-control>
 
         ${this.form.discount_name ? this.__renderDiscountBuilder() : ''}
