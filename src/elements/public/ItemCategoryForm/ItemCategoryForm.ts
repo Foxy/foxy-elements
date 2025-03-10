@@ -383,7 +383,6 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
     return html`
       <foxy-discount-builder
         infer="discount-builder"
-        class="col-span-2"
         .parsedValue=${parsedValue}
         @change=${(evt: CustomEvent) => {
           const builder = evt.currentTarget as DiscountBuilder;
