@@ -66,6 +66,11 @@ describe('FilterAttributeForm', () => {
     expect(new Form()).to.have.property('ns', 'filter-attribute-form');
   });
 
+  it('has a reactive property "defaults"', () => {
+    expect(Form).to.have.deep.nested.property('properties.defaults', {});
+    expect(new Form()).to.have.property('defaults', null);
+  });
+
   it('has a reactive property "pathname"', async () => {
     expect(Form).to.have.deep.nested.property('properties.pathname', {});
 
@@ -85,12 +90,15 @@ describe('FilterAttributeForm', () => {
   });
 
   it('renders query builder', async () => {
-    const layout = html`<foxy-filter-attribute-form pathname="/foo"></foxy-filter-attribute-form>`;
-    const element = await fixture<Form>(layout);
-    const control = element.renderRoot.querySelector<QueryBuilder>('[infer="filter-query"]')!;
+    const element = await fixture<Form>(html`
+      <foxy-filter-attribute-form pathname="/foo" defaults="color=blue">
+      </foxy-filter-attribute-form>
+    `);
 
+    const control = element.renderRoot.querySelector<QueryBuilder>('[infer="filter-query"]')!;
     expect(control).to.exist;
     expect(control).to.be.instanceOf(customElements.get('foxy-query-builder'));
+    expect(control).to.have.property('value', 'color=blue');
 
     const options: Form['options'] = [];
     element.options = options;
@@ -140,7 +148,7 @@ describe('FilterAttributeForm', () => {
     expect(element.hiddenSelector.matches('filter-name', true)).to.be.false;
   });
 
-  it('hides action if filter query is empty and attribute is not created yet', async () => {
+  it('hides action when appropriate', async () => {
     const layout = html`<foxy-filter-attribute-form></foxy-filter-attribute-form>`;
     const element = await fixture<Form>(layout);
 
@@ -148,7 +156,7 @@ describe('FilterAttributeForm', () => {
     element.data = await getTestData('./hapi/store_attributes/0');
     expect(element.hiddenSelector.matches('action', true)).to.be.false;
     element.edit({ value: '' });
-    expect(element.hiddenSelector.matches('action', true)).to.be.false;
+    expect(element.hiddenSelector.matches('action', true)).to.be.true;
   });
 
   it('uses fixed visibility and attribute name when creating a resource', async () => {

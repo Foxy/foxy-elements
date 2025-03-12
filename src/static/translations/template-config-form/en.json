@@ -28,7 +28,7 @@
       "option_fullpage": "Full Page"
     },
     "cart-display-config-usage": {
-      "label": "Use default layout",
+      "label": "Show all product options",
       "helper_text": "",
       "checked": "Yes",
       "unchecked": "No"

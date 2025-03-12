@@ -9,8 +9,7 @@ export const date: FormatFunction = (value, _, lang, options): string => {
 
   const valueAsDate = new Date(value);
   const month = options?.month ?? 'long';
-  const year =
-    options?.year ?? new Date().getFullYear() === valueAsDate.getFullYear() ? undefined : 'numeric';
+  const year = options?.year ?? 'numeric';
   const day = options?.day ?? 'numeric';
 
   return valueAsDate.toLocaleDateString(lang, { month, year, day });

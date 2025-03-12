@@ -34,10 +34,14 @@ export class FilterAttributeForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      defaults: {},
       pathname: {},
       options: { type: Array },
     };
   }
+
+  /** Default filter query. */
+  defaults: string | null = null;
 
   /** Admin page pathname. */
   pathname: string | null = null;
@@ -60,9 +64,10 @@ export class FilterAttributeForm extends Base<Data> {
     const constructor = this.constructor as typeof FilterAttributeForm;
     const filterQuery = this.__getValueParam(constructor.filterQueryKey);
     const hasData = !!this.data;
+    const hasValue = !!this.form.value;
 
     if (!hasData) alwaysHidden.push('filter-name');
-    if (!filterQuery && !hasData) alwaysHidden.push('action');
+    if (!hasValue || (!filterQuery && !hasData)) alwaysHidden.push('action');
 
     return new BooleanSelector(`${alwaysHidden.join(' ')} ${super.hiddenSelector}`.trim());
   }
@@ -114,8 +119,26 @@ export class FilterAttributeForm extends Base<Data> {
 
   private __getValueParam(key: string) {
     try {
+      const constructor = this.constructor as typeof FilterAttributeForm;
       const url = new URL(decode(this.form.value ?? ''), 'https://example.com');
-      return url.searchParams.get(key) ?? '';
+
+      let result = url.searchParams.get(key) ?? '';
+
+      if (
+        key === constructor.filterQueryKey &&
+        (this.in({ idle: { snapshot: 'clean' } }) || this.in({ idle: { template: 'clean' } }))
+      ) {
+        try {
+          const fullQuery = new URLSearchParams(result);
+          const defaults = new URLSearchParams(this.defaults ?? '');
+          fullQuery.forEach((v, k) => defaults.set(k, v));
+          result = defaults.toString();
+        } catch {
+          // no-op
+        }
+      }
+
+      return result;
     } catch {
       return '';
     }

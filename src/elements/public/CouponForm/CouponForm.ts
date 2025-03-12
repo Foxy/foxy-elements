@@ -203,7 +203,9 @@ export class CouponForm extends Base<Data> {
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = [super.hiddenSelector.toString()];
 
-    if (!this.data) {
+    if (this.data) {
+      alwaysMatch.push('coupon-codes-stub', 'category-restrictions-stub', 'attributes-stub');
+    } else {
       alwaysMatch.push('coupon-codes', 'category-restrictions', 'attributes');
     }
 
@@ -258,6 +260,10 @@ export class CouponForm extends Base<Data> {
       <foxy-internal-coupon-form-rules-control infer="rules">
       </foxy-internal-coupon-form-rules-control>
 
+      <foxy-internal-summary-control infer="coupon-codes-stub">
+        <p class="text-disabled"><foxy-i18n infer="" key="text"></foxy-i18n></p>
+      </foxy-internal-summary-control>
+
       <foxy-internal-async-list-control
         first=${codesUrl}
         limit="5"
@@ -304,6 +310,10 @@ export class CouponForm extends Base<Data> {
 
       <foxy-internal-summary-control infer="auto-apply">
         <foxy-internal-switch-control infer="customer-auto-apply"></foxy-internal-switch-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="category-restrictions-stub">
+        <p class="text-disabled"><foxy-i18n infer="" key="text"></foxy-i18n></p>
       </foxy-internal-summary-control>
 
       <foxy-internal-async-resource-link-list-control
@@ -372,6 +382,10 @@ export class CouponForm extends Base<Data> {
         </foxy-internal-switch-control>
         <foxy-internal-switch-control infer="is-taxable"></foxy-internal-switch-control>
         <foxy-internal-switch-control infer="shared-codes-allowed"></foxy-internal-switch-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="attributes-stub">
+        <p class="text-disabled"><foxy-i18n infer="" key="text"></foxy-i18n></p>
       </foxy-internal-summary-control>
 
       <foxy-internal-async-list-control

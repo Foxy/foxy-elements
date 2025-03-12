@@ -144,6 +144,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
                   store=${ifDefined(storeUrl)}
                   index=${index}
                   infer="item"
+                  ?use-cart-validation=${ifDefined(store?.use_cart_validation)}
                   .defaultItemCategory=${this.__defaultItemCategory}
                   @remove=${() => {
                     const newProducts = this.form.items?.filter((_, i) => i !== index);
@@ -172,7 +173,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
         </foxy-internal-summary-control>
 
         <div class="space-y-m md-col-span-2 sticky top-0">
-          ${addToCartCode
+          ${addToCartCode && !addToCartCode.error
             ? html`
                 <foxy-internal-summary-control infer="preview">
                   <div class="flex">
@@ -311,8 +312,19 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
               `
             : html`
                 <foxy-internal-summary-control infer="preview">
-                  <div class="flex items-center justify-center p-xl">
-                    <foxy-spinner infer="unavailable"></foxy-spinner>
+                  <div class="flex flex-col gap-xs items-center justify-center p-xl">
+                    <foxy-spinner
+                      layout="no-label"
+                      infer="unavailable"
+                      state=${addToCartCode?.error ? 'paused' : 'busy'}
+                    >
+                    </foxy-spinner>
+                    <foxy-i18n
+                      class="text-tertiary text-s"
+                      infer="unavailable"
+                      key="${addToCartCode?.error ?? 'loading_busy'}"
+                    >
+                    </foxy-i18n>
                   </div>
                 </foxy-internal-summary-control>
               `}
@@ -604,7 +616,12 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
         addHiddenInput(`${prefix}category`, itemCategory.code);
       }
 
-      if (product.code) addHiddenInput(`${prefix}code`, product.code);
+      if (product.code) {
+        addHiddenInput(`${prefix}code`, product.code);
+      } else if (store.use_cart_validation) {
+        return { error: 'code_required' };
+      }
+
       if (product.parent_code) addHiddenInput(`${prefix}parent_code`, product.parent_code);
 
       if (product.image) {
@@ -813,7 +830,12 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       url.searchParams.set(`${prefix}name`, product.name);
       url.searchParams.set(`${prefix}price`, `${product.price}${currencyCode}`);
 
-      if (product.code) url.searchParams.set(`${prefix}code`, product.code);
+      if (product.code) {
+        url.searchParams.set(`${prefix}code`, product.code);
+      } else if (store.use_cart_validation) {
+        return { error: 'code_required' };
+      }
+
       if (product.parent_code) url.searchParams.set(`${prefix}parent_code`, product.parent_code);
 
       if (product.image) {
@@ -904,6 +926,8 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
     const formHTML = this.__getAddToCartFormHTML();
     const linkHref = this.__getAddToCartLinkHref();
     if (!formHTML && !linkHref) return null;
+    if (typeof formHTML === 'object') return { error: formHTML.error };
+    if (typeof linkHref === 'object') return { error: linkHref.error };
 
     let unsignedCode: string;
 

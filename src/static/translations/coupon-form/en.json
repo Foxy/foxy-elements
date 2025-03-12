@@ -171,6 +171,11 @@
     "description": "Description",
     "url_parameter": "URL parameter"
   },
+  "coupon-codes-stub": {
+    "label": "Codes",
+    "helper_text": "",
+    "text": "Coupon codes can be added after creating the coupon."
+  },
   "coupon-codes": {
     "label": "Codes",
     "delete_header": "Remove code?",
@@ -348,6 +353,11 @@
       "used_codes": "Codes used",
       "value": "Value"
     }
+  },
+  "attributes-stub": {
+    "label": "Attributes",
+    "helper_text": "",
+    "text": "Attributes can be added after creating the coupon."
   },
   "attributes": {
     "label": "Attributes",
@@ -545,6 +555,11 @@
     "add_value": "Add value",
     "option_name": "Option name",
     "rule": "Rule"
+  },
+  "category-restrictions-stub": {
+    "label": "Item category restrictions",
+    "helper_text": "",
+    "text": "Item category restrictions can be added after creating the coupon."
   },
   "category-restrictions": {
     "label": "Item category restrictions",

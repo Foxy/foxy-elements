@@ -16,6 +16,10 @@ describe('AdminSubscriptionForm', () => {
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
+  it('imports and defines foxy-internal-post-action-control', () => {
+    expect(customElements.get('foxy-internal-post-action-control')).to.exist;
+  });
+
   it('imports and defines foxy-internal-async-list-control', () => {
     expect(customElements.get('foxy-internal-async-list-control')).to.exist;
   });
@@ -84,14 +88,20 @@ describe('AdminSubscriptionForm', () => {
     expect(new Form().hiddenSelector.matches('delete', true)).to.be.true;
   });
 
-  it('hides error message control when there is no error', async () => {
+  it('hides error message control when there is no error or when past due amount is 0', async () => {
     const form = new Form();
     expect(form.hiddenSelector.matches('error-message', true)).to.be.true;
 
     const testData = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
+    testData.past_due_amount = 20;
     testData.error_message = 'Test error';
     form.data = testData;
     expect(form.hiddenSelector.matches('error-message', true)).to.be.false;
+
+    testData.past_due_amount = 0;
+    testData.error_message = 'Test error';
+    form.data = { ...testData };
+    expect(form.hiddenSelector.matches('error-message', true)).to.be.true;
   });
 
   it('hides View in cart and Cancel actions when there is no data', async () => {
@@ -236,6 +246,57 @@ describe('AdminSubscriptionForm', () => {
     await form.requestUpdate();
     const control = form.renderRoot.querySelector('[infer="overdue"]');
     expect(control?.localName).to.equal('foxy-internal-summary-control');
+  });
+
+  it('renders post action control for charging past due amount when appropriate', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-admin-subscription-form
+        href="https://demo.api/hapi/subscriptions/0?zoom=transaction_template"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-admin-subscription-form>
+    `);
+
+    const testData = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
+    // @ts-expect-error - SDK doesn't know yet about the `fx:charge_past_due` link.
+    testData._links['fx:charge_past_due'] = { href: 'https://demo.api/virtual/empty' };
+    testData.past_due_amount = 10;
+    testData._embedded['fx:transaction_template'].currency_code = 'AUD';
+    form.data = testData;
+
+    await waitUntil(() => !!form.data, '', { timeout: 5000 });
+    await form.requestUpdate();
+    const summary = form.renderRoot.querySelector('[infer="overdue"]');
+    const control = summary?.querySelector('[infer="charge-past-due"]');
+
+    expect(control?.localName).to.equal('foxy-internal-post-action-control');
+    expect(control).to.have.attribute('theme', 'tertiary-inline');
+    expect(control).to.have.attribute('message-options', JSON.stringify({ amount: '10 AUD' }));
+    expect(control).to.have.attribute('href', 'https://demo.api/virtual/empty');
+    expect(control).to.have.attribute('href', 'https://demo.api/virtual/empty');
+  });
+
+  it('renders error message inside of the overdue summary control when past due amount is 0 and there is an error message', async () => {
+    const form = await fixture<Form>(html`
+      <foxy-admin-subscription-form></foxy-admin-subscription-form>
+    `);
+
+    const testData = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
+    testData.past_due_amount = 0;
+    testData.error_message = 'Test error';
+    form.data = testData;
+    await form.requestUpdate();
+
+    const section = form.renderRoot.querySelector('[infer="overdue"]');
+    const details = section?.querySelector('details');
+    const summary = details?.querySelector('summary foxy-i18n[infer=""]');
+
+    expect(details).to.exist;
+    expect(details?.textContent).to.include('Test error');
+
+    expect(summary).to.exist;
+    expect(summary).to.have.attribute('key', 'error_with_zero_past_due_hint');
   });
 
   it('renders number control for past due amount inside of the overdue summary control', async () => {

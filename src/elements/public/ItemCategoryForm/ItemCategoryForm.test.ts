@@ -789,10 +789,21 @@ describe('ItemCategoryForm', () => {
 
     const control = element.renderRoot.querySelector(
       '[infer="handling-and-discount"] [infer="discount-name"]'
-    );
+    ) as InternalTextControl;
 
     expect(control).to.be.instanceOf(InternalTextControl);
     expect(control).to.have.attribute('layout', 'summary-item');
+
+    element.edit({ discount_type: 'price_amount', discount_details: '1-2|3+4' });
+    control.setValue('Foo');
+    expect(element.form).to.have.property('discount_name', 'Foo');
+    expect(element.form).to.have.property('discount_type', 'price_amount');
+    expect(element.form).to.have.property('discount_details', '1-2|3+4');
+
+    control.setValue('');
+    expect(element.form).to.have.property('discount_name', '');
+    expect(element.form).to.have.property('discount_type', '');
+    expect(element.form).to.have.property('discount_details', '');
   });
 
   it('renders a discount builder in the Handling and Discount section if discount name is not empty', async () => {

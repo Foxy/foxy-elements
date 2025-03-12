@@ -88,11 +88,23 @@
   "overdue": {
     "label": "",
     "helper_text": "",
+    "error_with_zero_past_due_hint": "A past due amount has been successfully captured. Click to see the details.",
     "past-due-amount": {
       "label": "Past due amount",
       "helper_text": "Missing payments increase this amount. Depending on your store settings, we may charge it automatically on the next billing cycle.",
       "placeholder": "0",
       "clear": "Clear"
+    },
+    "charge-past-due": {
+      "message_idle": "This will attempt to charge the past due amount of {{ amount, price }}. Would you like to proceed?",
+      "message_fail": "Failed to charge the past due amount of {{ amount, price }}. If you'd like to retry, close this dialog and click the charge past due amount button again.",
+      "message_done": "The past due amount of {{ amount, price }} has been charged successfully. You can close this dialog now.",
+      "button_close": "Close",
+      "button_confirm": "Charge now",
+      "button_cancel": "Go back",
+      "loading_busy": "Processing",
+      "header": "Past due payment",
+      "button": "Charge past due amount"
     }
   },
   "self-service-links": {
@@ -1145,8 +1157,8 @@
               "is_active_true": "Active",
               "spinner": {
                 "loading_busy": "Loading",
-                "loading_empty": "No webhooks",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_empty": "No webhooks"
               }
             }
           }
@@ -1161,14 +1173,19 @@
             "unchecked": "Not sent"
           },
           "process-webhook": {
-            "idle": "Resend datafeed",
-            "busy": "Resending datafeed...",
-            "fail": "Failed to resend datafeed",
-            "confirm": {
-              "header": "Resend datafeed",
-              "message": "Are you sure you'd like to resend XML datafeed for this transaction?",
+            "button": {
+              "idle": "Resend datafeed",
+              "busy": "Processing..."
+            },
+            "notification": {
+              "success": "XML datafeed resent successfully",
+              "error": "Failed to resend datafeed"
+            },
+            "confirm-dialog": {
+              "message": "This will attempt to resend the XML datafeed. Would you like to proceed?",
               "confirm": "Yes",
-              "cancel": "No"
+              "cancel": "No",
+              "header": "Resend datafeed"
             }
           }
         },
@@ -1966,48 +1983,48 @@
         },
         "actions": {
           "capture": {
-            "idle": "Capture",
-            "busy": "Capturing...",
-            "fail": "Failed to capture",
-            "confirm": {
-              "header": "Capture",
-              "message": "Are you sure you'd like to capture this transaction?",
-              "confirm": "Yes",
-              "cancel": "No"
-            }
+            "message_idle": "This action will attempt to capture this transaction. Would you like to proceed?",
+            "message_fail": "Failed to capture this transaction. If you'd like to retry, close this dialog and click the capture button again.",
+            "message_done": "Transaction was captured successfully. You can close this dialog now.",
+            "button_close": "Close",
+            "button_confirm": "Capture",
+            "button_cancel": "Go back",
+            "loading_busy": "Processing",
+            "header": "Capture",
+            "button": "Capture"
           },
           "void": {
-            "idle": "Void",
-            "busy": "Voiding...",
-            "fail": "Failed to void",
-            "confirm": {
-              "header": "Void",
-              "message": "Are you sure you'd like to void this transaction?",
-              "confirm": "Yes",
-              "cancel": "No"
-            }
+            "message_idle": "This action will attempt to void this transaction. Would you like to proceed?",
+            "message_fail": "Failed to void this transaction. If you'd like to retry, close this dialog and click the void button again.",
+            "message_done": "Transaction was voided successfully. You can close this dialog now.",
+            "button_close": "Close",
+            "button_confirm": "Void",
+            "button_cancel": "Go back",
+            "loading_busy": "Processing",
+            "header": "Void",
+            "button": "Void"
           },
           "refund": {
-            "idle": "Refund",
-            "busy": "Refunding...",
-            "fail": "Failed to refund",
-            "confirm": {
-              "header": "Refund",
-              "message": "Are you sure you'd like to refund this transaction?",
-              "confirm": "Yes",
-              "cancel": "No"
-            }
+            "message_idle": "This action will attempt to refund the full amount of this transaction. Would you like to proceed?",
+            "message_fail": "Failed to refund this transaction. If you'd like to retry, close this dialog and click the refund button again.",
+            "message_done": "Transaction was refunded successfully. You can close this dialog now.",
+            "button_close": "Close",
+            "button_confirm": "Refund",
+            "button_cancel": "Go back",
+            "loading_busy": "Processing",
+            "header": "Refund",
+            "button": "Refund"
           },
           "send-emails": {
-            "idle": "Resend emails",
-            "busy": "Resending emails...",
-            "fail": "Failed to resend emails",
-            "confirm": {
-              "header": "Send emails",
-              "message": "Are you sure you'd like to send emails for this transaction?",
-              "confirm": "Yes",
-              "cancel": "No"
-            }
+            "message_idle": "This action will attempt to resend emails for this transaction. Would you like to proceed?",
+            "message_fail": "Failed to resend emails for this transaction. If you'd like to retry, close this dialog and click the resend emails button again.",
+            "message_done": "Emails for this transaction were resent successfully. You can close this dialog now.",
+            "button_close": "Close",
+            "button_confirm": "Resend emails",
+            "button_cancel": "Go back",
+            "loading_busy": "Processing",
+            "header": "Resend emails",
+            "button": "Resend emails"
           },
           "subscription": {
             "caption": "Go to subscription"

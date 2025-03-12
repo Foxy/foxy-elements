@@ -83,8 +83,8 @@ describe('Transaction', () => {
     expect(customElements.get('foxy-internal-form')).to.exist;
   });
 
-  it('imports and defines foxy-internal-transaction-post-action-control', () => {
-    expect(customElements.get('foxy-internal-transaction-post-action-control')).to.exist;
+  it('imports and defines foxy-internal-post-action-control', () => {
+    expect(customElements.get('foxy-internal-post-action-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-transaction-customer-control', () => {
@@ -162,9 +162,9 @@ describe('Transaction', () => {
     });
   });
 
-  it('always keeps datafeed controls readonly', () => {
+  it('always keeps data-is-fed control readonly', () => {
     const element = new Transaction();
-    expect(element.readonlySelector.matches('datafeed', true)).to.be.true;
+    expect(element.readonlySelector.matches('datafeed:data-is-fed', true)).to.be.true;
   });
 
   it("hides XML datafeed controls when store doesn't have XML datafeed enabled", async () => {
@@ -673,7 +673,7 @@ describe('Transaction', () => {
     );
 
     expect(control).to.exist;
-    expect(control).to.have.property('localName', 'foxy-internal-transaction-post-action-control');
+    expect(control).to.have.property('localName', 'foxy-internal-post-action-control');
     expect(control).to.have.attribute('href', element.data!._links['fx:process_webhook'].href);
   });
 
