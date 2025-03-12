@@ -1679,68 +1679,48 @@
   },
   "actions": {
     "capture": {
-      "button": {
-        "idle": "Capture",
-        "busy": "Processing..."
-      },
-      "notification": {
-        "success": "Captured successfully",
-        "error": "Failed to capture"
-      },
-      "confirm-dialog": {
-        "message": "This will attempt to capture this transaction. Would you like to proceed?",
-        "confirm": "Yes",
-        "cancel": "No",
-        "header": "Capture"
-      }
+      "message_idle": "This action will attempt to capture this transaction. Would you like to proceed?",
+      "message_fail": "Failed to capture this transaction. If you'd like to retry, close this dialog and click the capture button again.",
+      "message_done": "Transaction was captured successfully. You can close this dialog now.",
+      "button_close": "Close",
+      "button_confirm": "Capture",
+      "button_cancel": "Go back",
+      "loading_busy": "Processing",
+      "header": "Capture",
+      "button": "Capture"
     },
     "void": {
-      "button": {
-        "idle": "Void",
-        "busy": "Processing..."
-      },
-      "notification": {
-        "success": "Voided successfully",
-        "error": "Failed to void"
-      },
-      "confirm-dialog": {
-        "message": "This will attempt to void this transaction. Would you like to proceed?",
-        "confirm": "Yes",
-        "cancel": "No",
-        "header": "Void"
-      }
+      "message_idle": "This action will attempt to void this transaction. Would you like to proceed?",
+      "message_fail": "Failed to void this transaction. If you'd like to retry, close this dialog and click the void button again.",
+      "message_done": "Transaction was voided successfully. You can close this dialog now.",
+      "button_close": "Close",
+      "button_confirm": "Void",
+      "button_cancel": "Go back",
+      "loading_busy": "Processing",
+      "header": "Void",
+      "button": "Void"
     },
     "refund": {
-      "button": {
-        "idle": "Refund",
-        "busy": "Processing..."
-      },
-      "notification": {
-        "success": "Refunded successfully",
-        "error": "Failed to refund"
-      },
-      "confirm-dialog": {
-        "message": "This will attempt to refund this transaction. Would you like to proceed?",
-        "confirm": "Yes",
-        "cancel": "No",
-        "header": "Refund"
-      }
+      "message_idle": "This action will attempt to refund the full amount of this transaction. Would you like to proceed?",
+      "message_fail": "Failed to refund this transaction. If you'd like to retry, close this dialog and click the refund button again.",
+      "message_done": "Transaction was refunded successfully. You can close this dialog now.",
+      "button_close": "Close",
+      "button_confirm": "Refund",
+      "button_cancel": "Go back",
+      "loading_busy": "Processing",
+      "header": "Refund",
+      "button": "Refund"
     },
     "send-emails": {
-      "button": {
-        "idle": "Resend emails",
-        "busy": "Sending..."
-      },
-      "notification": {
-        "success": "Emails resent successfully",
-        "error": "Failed to resend emails"
-      },
-      "confirm-dialog": {
-        "message": "This will attempt to resend emails for this transaction. Would you like to proceed?",
-        "confirm": "Yes",
-        "cancel": "No",
-        "header": "Resend emails"
-      }
+      "message_idle": "This action will attempt to resend emails for this transaction. Would you like to proceed?",
+      "message_fail": "Failed to resend emails for this transaction. If you'd like to retry, close this dialog and click the resend emails button again.",
+      "message_done": "Emails for this transaction were resent successfully. You can close this dialog now.",
+      "button_close": "Close",
+      "button_confirm": "Resend emails",
+      "button_cancel": "Go back",
+      "loading_busy": "Processing",
+      "header": "Resend emails",
+      "button": "Resend emails"
     },
     "subscription": {
       "caption": "Go to subscription"
