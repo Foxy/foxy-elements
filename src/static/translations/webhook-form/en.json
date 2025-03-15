@@ -76,11 +76,10 @@
   "statuses": {
     "label": "Runs",
     "pagination": {
-      "first": "First",
-      "last": "Last",
-      "next": "Next",
-      "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous",
+      "page_number": "Page number:",
+      "per_page": "Per page:",
+      "jump_to": "Jump to:",
+      "jump": "Jump",
       "card": {
         "status_initializing": "Initializing",
         "status_successful": "Successful",
@@ -98,11 +97,10 @@
   "logs": {
     "label": "Logs",
     "pagination": {
-      "first": "First",
-      "last": "Last",
-      "next": "Next",
-      "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous",
+      "page_number": "Page number:",
+      "per_page": "Per page:",
+      "jump_to": "Jump to:",
+      "jump": "Jump",
       "card": {
         "date": "{{ value, date }} at {{ value, time }}",
         "spinner": {

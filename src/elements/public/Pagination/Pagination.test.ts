@@ -1,14 +1,16 @@
-import { Rels } from '@foxy.io/sdk/backend';
-import { Resource } from '@foxy.io/sdk/core';
+import type { InternalNumberControl } from '../../internal/InternalNumberControl';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
+
+import './index';
+
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
-import { LitElement } from 'lit-element';
-import { createRouter } from '../../../server/index';
-import { getByKey } from '../../../testgen/getByKey';
-import { getByTestId } from '../../../testgen/getByTestId';
-import { getTestData } from '../../../testgen/getTestData';
-import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { Pagination } from './index';
+import { getByTestClass } from '../../../testgen/getByTestClass';
+import { createRouter } from '../../../server/index';
+import { Pagination } from './Pagination';
+import { LitElement } from 'lit-element';
 
 type TestData = Resource<Rels.CouponCodes>;
 customElements.define('test-page-element', class extends NucleonElement<TestData> {});
@@ -46,159 +48,155 @@ describe('Pagination', () => {
     );
   });
 
-  (['next', 'last', 'prev', 'first'] as const).forEach(rel => {
-    it(`sets "${rel}" URL as "href" on the page element when "${rel}" button is clicked`, async () => {
-      const router = createRouter();
-      const handle = (evt: FetchEvent) => router.handleEvent(evt);
-      const element = await fixture(html`
-        <foxy-pagination first="https://demo.api/hapi/coupon_codes?limit=1&offset=2">
-          <test-page-element @fetch=${handle}></test-page-element>
-        </foxy-pagination>
-      `);
-
-      const page = element.firstElementChild as NucleonElement<TestData>;
-      await waitUntil(() => page.in({ idle: 'snapshot' }));
-
-      const newHref = page.data?._links[rel].href;
-      const button = await getByTestId(element, rel);
-      button?.click();
-
-      expect(page).to.have.property('href', newHref);
-    });
-  });
-
-  it('disables "prev" and "first" buttons on first page', async () => {
+  it('renders limit selector', async () => {
     const router = createRouter();
-    const handle = (evt: FetchEvent) => router.handleEvent(evt);
-    const element = await fixture(html`
-      <foxy-pagination first="https://demo.api/hapi/coupon_codes">
-        <test-page-element @fetch=${handle}></test-page-element>
+    const element = await fixture<Pagination>(html`
+      <foxy-pagination first="https://demo.api/hapi/coupon_codes?limit=3">
+        <test-page-element @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        </test-page-element>
       </foxy-pagination>
     `);
 
-    const page = element.firstElementChild as NucleonElement<TestData>;
-    await waitUntil(() => page.in({ idle: 'snapshot' }));
+    const pageElement = element.firstElementChild as NucleonElement<TestData>;
+    await waitUntil(() => pageElement.in('idle'));
 
-    expect(await getByTestId(element, 'first')).to.have.attribute('disabled');
-    expect(await getByTestId(element, 'prev')).to.have.attribute('disabled');
+    const labelI18n = element.renderRoot.querySelector('foxy-i18n[infer=""][key="per_page"]');
+    const label = labelI18n?.closest('label');
+    const select = label?.htmlFor
+      ? element.renderRoot.querySelector<HTMLSelectElement>(`#${label.htmlFor}`)
+      : null;
+
+    expect(select).to.exist;
+    expect(select?.options.item(0)).to.have.property('value', '3');
+    expect(select?.options.item(1)).to.have.property('value', '20');
+    expect(select?.options.item(2)).to.have.property('value', '50');
+    expect(select?.options.item(3)).to.have.property('value', '100');
+    expect(select?.options.item(4)).to.have.property('value', '150');
+    expect(select?.options.item(5)).to.have.property('value', '200');
+    expect(select?.options.item(6)).to.not.exist;
+
+    select!.value = '20';
+    select!.dispatchEvent(new Event('change'));
+    await element.requestUpdate('__page');
+    expect(pageElement.href).to.equal('https://demo.api/hapi/coupon_codes?limit=20');
   });
 
-  it('disables "last" and "next" buttons on last page', async () => {
+  it('renders simple pagination', async () => {
     const router = createRouter();
-    const handle = (evt: FetchEvent) => router.handleEvent(evt);
-    const data = await getTestData<TestData>('./hapi/coupon_codes');
-
-    const element = await fixture(html`
-      <foxy-pagination first=${data._links.last.href}>
-        <test-page-element @fetch=${handle}></test-page-element>
+    const element = await fixture<Pagination>(html`
+      <foxy-pagination first="https://demo.api/hapi/coupon_codes?limit=50">
+        <test-page-element @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        </test-page-element>
       </foxy-pagination>
     `);
 
-    const page = element.firstElementChild as NucleonElement<TestData>;
-    await waitUntil(() => page.in({ idle: 'snapshot' }));
+    const pageElement = element.firstElementChild as NucleonElement<TestData>;
+    await waitUntil(() => pageElement.in('idle'));
 
-    expect(await getByTestId(element, 'last')).to.have.attribute('disabled');
-    expect(await getByTestId(element, 'next')).to.have.attribute('disabled');
+    const jumpToLabel = element.renderRoot.querySelector('foxy-i18n[infer=""][key="jump_to"]');
+    expect(jumpToLabel).to.exist;
+
+    const buttons = await getByTestClass(element, 'page-link');
+    expect(buttons).to.have.length(2);
+    expect(buttons[0].textContent?.trim()).to.equal('1');
+    expect(buttons[0]).to.have.attribute('disabled');
+    expect(buttons[1].textContent?.trim()).to.equal('2');
+    expect(buttons[1]).to.not.have.attribute('disabled');
+
+    buttons[1].click();
+    await element.requestUpdate('__page');
+    expect(pageElement.href).to.equal('https://demo.api/hapi/coupon_codes?limit=50&offset=50');
+    expect(buttons[0]).to.not.have.attribute('disabled');
+    expect(buttons[1]).to.have.attribute('disabled');
   });
 
-  it('hides all buttons while loading', async () => {
+  it('renders complex pagination with overflow', async () => {
     const router = createRouter();
-    const handle = (evt: FetchEvent) => router.handleEvent(evt);
-    const element = await fixture(html`
-      <foxy-pagination first="https://demo.api/virtual/stall">
-        <test-page-element @fetch=${handle}></test-page-element>
+    const element = await fixture<Pagination>(html`
+      <foxy-pagination first="https://demo.api/hapi/coupon_codes?limit=10">
+        <test-page-element @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        </test-page-element>
       </foxy-pagination>
     `);
 
-    const page = element.firstElementChild as NucleonElement<TestData>;
-    await waitUntil(() => page.in('busy'));
+    const pageElement = element.firstElementChild as NucleonElement<TestData>;
+    await waitUntil(() => pageElement.in('idle'));
 
-    expect(await getByTestId(element, 'first')).to.not.exist;
-    expect(await getByTestId(element, 'prev')).to.not.exist;
-    expect(await getByTestId(element, 'last')).to.not.exist;
-    expect(await getByTestId(element, 'next')).to.not.exist;
+    const buttons = await getByTestClass(element, 'page-link');
+    expect(buttons).to.have.length(7);
+    expect(buttons[0].textContent?.trim()).to.equal('1');
+    expect(buttons[1].textContent?.trim()).to.equal('2');
+    expect(buttons[2].textContent?.trim()).to.equal('3');
+    expect(buttons[3].textContent?.trim()).to.equal('4');
+    expect(buttons[4].textContent?.trim()).to.equal('5');
+    expect(buttons[5].textContent?.trim()).to.equal('...');
+    expect(buttons[6].textContent?.trim()).to.equal('10');
+
+    const dialog = element.renderRoot.querySelector('dialog');
+    expect(dialog).to.not.have.attribute('open');
+
+    buttons[5].click();
+    expect(dialog).to.have.attribute('open');
   });
 
-  it('hides all buttons if collection length is less than limit', async () => {
+  it('renders Jump To dialog', async () => {
     const router = createRouter();
-    const handle = (evt: FetchEvent) => router.handleEvent(evt);
-    const element = await fixture(html`
-      <foxy-pagination first="https://demo.api/hapi/transactions">
-        <test-page-element @fetch=${handle}></test-page-element>
+    const element = await fixture<Pagination>(html`
+      <foxy-pagination first="https://demo.api/hapi/coupon_codes?limit=10">
+        <test-page-element @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        </test-page-element>
       </foxy-pagination>
     `);
 
-    const page = element.firstElementChild as NucleonElement<TestData>;
-    await waitUntil(() => page.in('idle'));
+    const pageElement = element.firstElementChild as NucleonElement<TestData>;
+    await waitUntil(() => pageElement.in('idle'));
+    const dialog = element.renderRoot.querySelector('dialog');
+    const input = dialog?.querySelector<InternalNumberControl>('foxy-internal-number-control');
 
-    expect(await getByTestId(element, 'first')).to.not.exist;
-    expect(await getByTestId(element, 'prev')).to.not.exist;
-    expect(await getByTestId(element, 'last')).to.not.exist;
-    expect(await getByTestId(element, 'next')).to.not.exist;
+    expect(input).to.exist;
+    expect(input).to.have.attribute('placeholder', '1');
+    expect(input).to.have.attribute('helper-text', '');
+    expect(input).to.have.attribute('label', 'page_number');
+    expect(input).to.have.attribute('infer', '');
+    expect(input).to.have.attribute('step', '1');
+    expect(input).to.have.attribute('min', '1');
+    expect(input).to.have.attribute('max', '10');
+    expect(input?.getValue()).to.equal(1);
+
+    dialog?.showModal();
+    input?.setValue(7);
+    input?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    await element.requestUpdate('__page');
+    expect(pageElement.href).to.equal('https://demo.api/hapi/coupon_codes?limit=10&offset=60');
+    expect(dialog).to.not.have.attribute('open');
+
+    dialog?.showModal();
+    input?.setValue(8);
+    const jumpLabel = element.renderRoot.querySelector('foxy-i18n[infer=""][key="jump"]');
+    const jumpButton = jumpLabel?.closest('vaadin-button');
+    jumpButton?.click();
+    await element.requestUpdate('__page');
+    expect(pageElement.href).to.equal('https://demo.api/hapi/coupon_codes?limit=10&offset=70');
+    expect(dialog).to.not.have.attribute('open');
   });
 
-  it('disables all buttons when disabled is true', async () => {
+  it('disables controls when disabled', async () => {
     const router = createRouter();
-    const handle = (evt: FetchEvent) => router.handleEvent(evt);
-    const element = await fixture(html`
-      <foxy-pagination first="https://demo.api/hapi/coupon_codes" disabled>
-        <test-page-element @fetch=${handle}></test-page-element>
+    const element = await fixture<Pagination>(html`
+      <foxy-pagination first="https://demo.api/hapi/coupon_codes?limit=50" disabled>
+        <test-page-element @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        </test-page-element>
       </foxy-pagination>
     `);
 
-    const page = element.firstElementChild as NucleonElement<TestData>;
-    await waitUntil(() => page.in({ idle: 'snapshot' }));
+    const pageElement = element.firstElementChild as NucleonElement<TestData>;
+    await waitUntil(() => pageElement.in('idle'));
 
-    expect(await getByTestId(element, 'first')).to.have.attribute('disabled');
-    expect(await getByTestId(element, 'prev')).to.have.attribute('disabled');
-    expect(await getByTestId(element, 'last')).to.have.attribute('disabled');
-    expect(await getByTestId(element, 'next')).to.have.attribute('disabled');
-  });
+    const buttons = await getByTestClass(element, 'page-link');
+    const select = element.renderRoot.querySelector<HTMLSelectElement>('select');
 
-  it('enables all buttons when navigation is available in any direction', async () => {
-    const router = createRouter();
-    const handle = (evt: FetchEvent) => router.handleEvent(evt);
-    const element = await fixture(html`
-      <foxy-pagination first="https://demo.api/hapi/coupon_codes?limit=1&offset=2">
-        <test-page-element @fetch=${handle}></test-page-element>
-      </foxy-pagination>
-    `);
-
-    const page = element.firstElementChild as NucleonElement<TestData>;
-    await waitUntil(() => page.in({ idle: 'snapshot' }));
-
-    expect(await getByTestId(element, 'first')).to.not.have.attribute('disabled');
-    expect(await getByTestId(element, 'prev')).to.not.have.attribute('disabled');
-    expect(await getByTestId(element, 'last')).to.not.have.attribute('disabled');
-    expect(await getByTestId(element, 'next')).to.not.have.attribute('disabled');
-  });
-
-  it('renders current page in a label', async () => {
-    const router = createRouter();
-    const handle = (evt: FetchEvent) => router.handleEvent(evt);
-    const element = await fixture(html`
-      <foxy-pagination
-        first="https://demo.api/hapi/coupon_codes?limit=2&offset=2"
-        lang="es"
-        ns="foo"
-      >
-        <test-page-element @fetch=${handle}></test-page-element>
-      </foxy-pagination>
-    `);
-
-    const page = element.firstElementChild as NucleonElement<TestData>;
-    await waitUntil(() => page.in({ idle: 'snapshot' }));
-    const label = await getByKey(element, 'pagination');
-
-    expect(label).to.have.attribute('ns', 'foo');
-    expect(label).to.have.attribute('lang', 'es');
-    expect(label).to.have.attribute(
-      'options',
-      JSON.stringify({
-        total: page.data?.total_items,
-        from: 3,
-        to: 4,
-      })
-    );
+    expect(buttons[0]).to.have.attribute('disabled');
+    expect(buttons[1]).to.have.attribute('disabled');
+    expect(select).to.have.attribute('disabled');
   });
 });

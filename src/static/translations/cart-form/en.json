@@ -35,11 +35,10 @@
           "helper_text": "",
           "pagination": {
             "search_button_text": "Filters",
-            "first": "First",
-            "last": "Last",
-            "next": "Next",
-            "pagination": "{{from}}-{{to}} out of {{total}}",
-            "previous": "Previous",
+            "page_number": "Page number:",
+            "per_page": "Per page:",
+            "jump_to": "Jump to:",
+            "jump": "Jump",
             "card": {
               "spinner": {
                 "loading_busy": "Loading",
@@ -120,11 +119,10 @@
         },
         "pagination": {
           "search_button_text": "Filters",
-          "first": "First",
-          "last": "Last",
-          "next": "Next",
-          "pagination": "{{from}}-{{to}} out of {{total}}",
-          "previous": "Previous",
+          "page_number": "Page number:",
+          "per_page": "Per page:",
+          "jump_to": "Jump to:",
+          "jump": "Jump",
           "card": {
             "spinner": {
               "loading_busy": "Loading",
@@ -186,11 +184,10 @@
                 "clear": "Clear",
                 "pagination": {
                   "search_button_text": "Filters",
-                  "first": "First",
-                  "last": "Last",
-                  "next": "Next",
-                  "pagination": "{{from}}-{{to}} out of {{total}}",
-                  "previous": "Previous",
+                  "page_number": "Page number:",
+                  "per_page": "Per page:",
+                  "jump_to": "Jump to:",
+                  "jump": "Jump",
                   "card": {
                     "spinner": {
                       "loading_busy": "Loading",
@@ -361,11 +358,10 @@
           },
           "pagination": {
             "search_button_text": "Filters",
-            "first": "First",
-            "last": "Last",
-            "next": "Next",
-            "pagination": "{{from}}-{{to}} out of {{total}}",
-            "previous": "Previous",
+            "page_number": "Page number:",
+            "per_page": "Per page:",
+            "jump_to": "Jump to:",
+            "jump": "Jump",
             "card": {
               "title_valid": "{{type}} ••••{{last4Digits}}, expires {{month}}/{{year}}",
               "title_invalid": "Unknown payment method",
@@ -561,11 +557,10 @@
     "delete_header": "Delete item?",
     "pagination": {
       "create_button_text": "Add item +",
-      "first": "First",
-      "last": "Last",
-      "next": "Next",
-      "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous",
+      "page_number": "Page number:",
+      "per_page": "Per page:",
+      "jump_to": "Jump to:",
+      "jump": "Jump",
       "card": {
         "delete_button_text": "Remove",
         "daily": "Daily",
@@ -657,11 +652,10 @@
                 "clear": "Clear",
                 "pagination": {
                   "search_button_text": "Filters",
-                  "first": "First",
-                  "last": "Last",
-                  "next": "Next",
-                  "pagination": "{{from}}-{{to}} out of {{total}}",
-                  "previous": "Previous",
+                  "page_number": "Page number:",
+                  "per_page": "Per page:",
+                  "jump_to": "Jump to:",
+                  "jump": "Jump",
                   "card": {
                     "spinner": {
                       "loading_busy": "Loading",
@@ -805,11 +799,10 @@
         "discount-details": {
           "label": "Applied discounts",
           "pagination": {
-            "first": "First",
-            "last": "Last",
-            "next": "Next",
-            "pagination": "{{from}}-{{to}} out of {{total}}",
-            "previous": "Previous",
+            "page_number": "Page number:",
+            "per_page": "Per page:",
+            "jump_to": "Jump to:",
+            "jump": "Jump",
             "card": {
               "spinner": {
                 "loading_busy": "Loading",
@@ -822,11 +815,10 @@
         "coupon-details": {
           "label": "Applied coupons",
           "pagination": {
-            "first": "First",
-            "last": "Last",
-            "next": "Next",
-            "pagination": "{{from}}-{{to}} out of {{total}}",
-            "previous": "Previous",
+            "page_number": "Page number:",
+            "per_page": "Per page:",
+            "jump_to": "Jump to:",
+            "jump": "Jump",
             "card": {
               "spinner": {
                 "loading_busy": "Loading",
@@ -929,11 +921,10 @@
                 "loading_error": "Unknown error"
               }
             },
-            "first": "First",
-            "last": "Last",
-            "next": "Next",
-            "pagination": "{{from}}-{{to}} out of {{total}}",
-            "previous": "Previous"
+            "page_number": "Page number:",
+            "per_page": "Per page:",
+            "jump_to": "Jump to:",
+            "jump": "Jump"
           }
         },
         "item-options": {
@@ -1038,11 +1029,10 @@
               }
             },
             "create_button_text": "Add option +",
-            "first": "First",
-            "last": "Last",
-            "next": "Next",
-            "pagination": "{{from}}-{{to}} out of {{total}}",
-            "previous": "Previous"
+            "page_number": "Page number:",
+            "per_page": "Per page:",
+            "jump_to": "Jump to:",
+            "jump": "Jump"
           }
         },
         "timestamps": {
@@ -1087,11 +1077,10 @@
     "delete_header": "Delete code?",
     "pagination": {
       "create_button_text": "Apply code +",
-      "first": "First",
-      "last": "Last",
-      "next": "Next",
-      "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous",
+      "page_number": "Page number:",
+      "per_page": "Per page:",
+      "jump_to": "Jump to:",
+      "jump": "Jump",
       "card": {
         "delete_button_text": "Remove",
         "price": "{{amount, price}}",
@@ -1173,11 +1162,10 @@
     "delete_header": "Delete custom field?",
     "pagination": {
       "create_button_text": "Add custom field +",
-      "first": "First",
-      "last": "Last",
-      "next": "Next",
-      "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous",
+      "page_number": "Page number:",
+      "per_page": "Per page:",
+      "jump_to": "Jump to:",
+      "jump": "Jump",
       "card": {
         "delete_button_text": "Remove",
         "price": "{{amount, price}}",
@@ -1271,11 +1259,10 @@
     "delete_header": "Delete attribute?",
     "pagination": {
       "create_button_text": "Add attribute +",
-      "first": "First",
-      "last": "Last",
-      "next": "Next",
-      "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous",
+      "page_number": "Page number:",
+      "per_page": "Per page:",
+      "jump_to": "Jump to:",
+      "jump": "Jump",
       "card": {
         "delete_button_text": "Remove",
         "price": "{{amount, price}}",
