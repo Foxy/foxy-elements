@@ -34,6 +34,7 @@ export class Pagination extends Base {
       first: { type: String },
       __pageElement: { attribute: false },
       __customPage: { attribute: false },
+      __first: { attribute: false },
       __limit: { attribute: false },
       __page: { attribute: false },
     };
@@ -110,7 +111,7 @@ export class Pagination extends Base {
     const maxPageLinks = 5;
     const offsetValue = Number(get(data, 'offset'));
     const offset = Number.isNaN(offsetValue) ? 0 : offsetValue;
-    const pages = total && returnedItems ? Math.ceil(total / returnedItems) : 0;
+    const pages = total && this.__limit ? Math.ceil(total / this.__limit) : 0;
 
     return html`
       <slot @slotchange=${this.__connectPageElement}></slot>
@@ -133,8 +134,15 @@ export class Pagination extends Base {
               >
                 ${limitOptions.includes(this.__limit)
                   ? ''
-                  : html`<option value=${this.__limit}>${this.__limit}</option>`}
-                ${limitOptions.map(option => html`<option value=${option}>${option}</option>`)}
+                  : html`<option value=${this.__limit} selected>${this.__limit}</option>`}
+                ${limitOptions.map(
+                  option =>
+                    html`
+                      <option value=${option} ?selected=${option === this.__limit}>
+                        ${option}
+                      </option>
+                    `
+                )}
               </select>
 
               <foxy-i18n class="text-tertiary ml-auto" infer="" key="jump_to"></foxy-i18n>
