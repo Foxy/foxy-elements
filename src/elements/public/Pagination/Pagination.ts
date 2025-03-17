@@ -3,6 +3,7 @@ import type { PropertyDeclarations, TemplateResult, CSSResultArray } from 'lit-e
 import { LitElement, html, css } from 'lit-element';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { ResponsiveMixin } from '../../../mixins/responsive';
 import { InferrableMixin } from '../../../mixins/inferrable';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -10,7 +11,9 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
 import get from 'lodash-es/get';
 
 const NS = 'pagination';
-const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(InferrableMixin(LitElement), NS)));
+const Base = ConfigurableMixin(
+  ThemeableMixin(TranslatableMixin(ResponsiveMixin(InferrableMixin(LitElement)), NS))
+);
 
 /**
  * Helper element that adds pagination controls to elements
@@ -124,7 +127,7 @@ export class Pagination extends Base {
               </label>
 
               <select
-                class="cursor-pointer appearance-none bg-transparent rounded-s font-medium px-xs hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50"
+                class="mr-auto cursor-pointer appearance-none bg-transparent rounded-s font-medium px-xs transition-opacity hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
                 id="limit"
                 ?disabled=${this.disabled}
                 @change=${(evt: Event) => {
@@ -145,7 +148,8 @@ export class Pagination extends Base {
                 )}
               </select>
 
-              <foxy-i18n class="text-tertiary ml-auto" infer="" key="jump_to"></foxy-i18n>
+              <foxy-i18n class="text-tertiary sr-only sm-not-sr-only" infer="" key="jump_to">
+              </foxy-i18n>
 
               ${new Array(pages).fill('').map((_, pageIndex) => {
                 if (!(pageIndex < maxPageLinks + 1 || pageIndex === pages - 1)) return;
