@@ -10,6 +10,7 @@ import { InternalPasswordControl } from '../../internal/InternalPasswordControl/
 import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
 import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
 import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
+import { InternalNumberControl } from '../../internal/InternalNumberControl/InternalNumberControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
@@ -49,6 +50,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
   it('imports and defines foxy-internal-select-control', () => {
     const element = customElements.get('foxy-internal-select-control');
     expect(element).to.equal(InternalSelectControl);
+  });
+
+  it('imports and defines foxy-internal-number-control', () => {
+    const element = customElements.get('foxy-internal-number-control');
+    expect(element).to.equal(InternalNumberControl);
   });
 
   it('imports and defines foxy-internal-text-control', () => {
@@ -1516,6 +1522,132 @@ describe('PaymentsApiPaymentMethodForm', () => {
     element.edit({ config_3d_secure: 'maestro_only' });
     control.setValue(false);
     expect(element).to.have.nested.property('form.config_3d_secure', 'maestro_only');
+  });
+
+  it('renders a select control for card verification setting if supported', async () => {
+    const router = createRouter();
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
+            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    // @ts-expect-error SDK typings are incomplete
+    element.data!.helper.supports_card_verification = false;
+    element.data = { ...element.data! };
+    await element.requestUpdate();
+
+    expect(element.renderRoot.querySelector('[infer="card-verification"]')).to.not.exist;
+
+    // @ts-expect-error SDK typings are incomplete
+    element.data!.helper.supports_card_verification = true;
+    element.data = { ...element.data! };
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector(
+      '[infer="card-verification"]'
+    ) as InternalSelectControl;
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.deep.property('options', [
+      { value: 'disabled', label: 'option_disabled' },
+      { value: 'enabled_automatically', label: 'option_enabled_automatically' },
+      { value: 'enabled_override', label: 'option_enabled_override' },
+    ]);
+  });
+
+  it('renders controls for card verification amounts if supported', async () => {
+    const router = createRouter();
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
+            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    // @ts-expect-error SDK typings are incomplete
+    element.data!.helper.supports_card_verification = false;
+    element.data = { ...element.data! };
+    await element.requestUpdate();
+
+    expect(
+      element.renderRoot.querySelector('[infer="card-verification-config-verification-amounts"]')
+    ).to.not.exist;
+
+    // @ts-expect-error SDK typings are incomplete
+    element.data!.helper.supports_card_verification = true;
+    // @ts-expect-error SDK typings are incomplete
+    element.data!.helper.card_verification_config =
+      '{"verification_amounts": {"visa": 1, "mastercard": 1, "american_express": 1, "discover": 1, "default": 1}}';
+
+    element.data = { ...element.data! };
+    await element.requestUpdate();
+    const summary = element.renderRoot.querySelector(
+      '[infer="card-verification-config-verification-amounts"]'
+    );
+
+    expect(summary).to.exist;
+    expect(summary).to.be.instanceOf(InternalSummaryControl);
+
+    ['visa', 'mastercard', 'american-express', 'discover', 'default'].map(type => {
+      const control = summary?.querySelector(
+        `[infer="card-verification-config-verification-amounts-${type}"]`
+      );
+
+      expect(control).to.exist;
+      expect(control).to.be.instanceOf(InternalNumberControl);
+      expect(control).to.have.attribute(
+        'json-template',
+        // @ts-expect-error SDK typings are incomplete
+        element.data?.helper.card_verification_config
+      );
+
+      expect(control).to.have.attribute(
+        'json-path',
+        `verification_amounts.${type.replace(/-/g, '_')}`
+      );
+
+      expect(control).to.have.attribute('property', 'card_verification_config');
+      expect(control).to.have.attribute('step', '0.01');
+      expect(control).to.have.attribute('min', '0');
+    });
   });
 
   it('renders a Back button clearing "type" on first selection', async () => {

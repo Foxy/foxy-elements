@@ -143,6 +143,12 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     { value: 'maestro_only', label: 'option_maestro_only' },
   ];
 
+  private readonly __cardVerificationOptions = [
+    { label: 'option_disabled', value: 'disabled' },
+    { label: 'option_enabled_automatically', value: 'enabled_automatically' },
+    { label: 'option_enabled_override', value: 'enabled_override' },
+  ];
+
   get hiddenSelector(): BooleanSelector {
     return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
   }
@@ -370,8 +376,53 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
                 : ''}
             `
           : ''}
+        ${
+          // @ts-expect-error SDK typings are incomplete
+          this.form.helper?.supports_card_verification
+            ? html`
+                <foxy-internal-select-control
+                  layout="summary-item"
+                  infer="card-verification"
+                  .options=${this.__cardVerificationOptions}
+                >
+                </foxy-internal-select-control>
+              `
+            : ''
+        }
       </foxy-internal-summary-control>
 
+      ${
+        // @ts-expect-error SDK typings are incomplete
+        this.form.helper?.supports_card_verification &&
+        // @ts-expect-error SDK typings are incomplete
+        this.form.card_verification?.startsWith('enabled_')
+          ? html`
+              <foxy-internal-summary-control
+                layout="details"
+                infer="card-verification-config-verification-amounts"
+              >
+                ${['visa', 'mastercard', 'american-express', 'discover', 'default'].map(type => {
+                  return html`
+                    <foxy-internal-number-control
+                      json-template=${ifDefined(
+                        // @ts-expect-error SDK typings are incomplete
+                        this.form.helper?.card_verification_config
+                      )}
+                      json-path="verification_amounts.${type.replace(/-/g, '_')}"
+                      property="card_verification_config"
+                      layout="summary-item"
+                      suffix="¤"
+                      infer="card-verification-config-verification-amounts-${type}"
+                      step="0.01"
+                      min="0"
+                    >
+                    </foxy-internal-number-control>
+                  `;
+                })}
+              </foxy-internal-summary-control>
+            `
+          : ''
+      }
       ${['live', 'test'].map((type, index) => {
         const prefix = index === 0 ? '' : `${type}-`;
         const blocks = index === 0 ? this.__liveBlocks : this.__testBlocks;
@@ -402,8 +453,10 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
             helper-text=${ifDefined(
               showInactiveSetText ? this.t(`${scope}.helper_text_inactive`) : void 0
             )}
+            layout="details"
             label=${ifDefined(showInactiveSetText ? this.t(`${scope}.label_inactive`) : void 0)}
             infer=${scope}
+            ?open=${!showInactiveSetText}
           >
             ${this.form.helper?.id_description
               ? html`
