@@ -269,14 +269,14 @@ export class InternalCustomerPortalLoggedOutView extends Base<Data> {
 
     return html`
       <div class="h-full flex" data-testid="sign-in">
-        <div class="m-auto max-w-25rem flex-1">
+        <div class="m-auto max-w-25rem flex-1 min-w-0">
           ${this.renderTemplateOrSlot(`${scope}:before`)}
 
           <div class="space-y-m">
             ${hiddenSelector.matches('header', true) ? '' : this.__renderSignInHeader()}
             <div class="space-y-s">
               ${hiddenSelector.matches('form', true) ? '' : this.__renderSignInForm()}
-              <div class="flex justify-center gap-s">
+              <div class="flex justify-center gap-x-s flex-wrap">
                 ${isSignUpButtonHidden ? '' : this.__renderSignInSignUp()}
                 ${hiddenSelector.matches('recover', true) ? '' : this.__renderSignInRecover()}
               </div>
