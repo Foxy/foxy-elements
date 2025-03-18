@@ -191,7 +191,8 @@ export class InternalFrequencyControl extends InternalEditableControl {
             @input=${(evt: Event) => {
               evt.stopPropagation();
               const input = evt.currentTarget as HTMLInputElement;
-              this._value = this.__i18n.formatValue([input.value, units]);
+              const resolvedUnits = units || this.options[0].value;
+              this._value = this.__i18n.formatValue([input.value, resolvedUnits]);
             }}
           />
 
@@ -232,7 +233,7 @@ export class InternalFrequencyControl extends InternalEditableControl {
                 if (value === 'times_a_month') {
                   this._value = '.5m';
                 } else {
-                  this._value = this.__i18n.formatValue([count, value]);
+                  this._value = this.__i18n.formatValue([count || 1, value]);
                 }
               }}
             >
