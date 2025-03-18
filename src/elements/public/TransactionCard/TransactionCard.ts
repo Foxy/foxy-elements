@@ -92,7 +92,8 @@ class TransactionCard extends Base<Data> {
         ${data.type !== 'updateinfo' && data.type !== 'subscription_cancellation'
           ? html`
               <span>&bull;</span>
-              <foxy-i18n .options=${options} infer="" key="price"></foxy-i18n>
+              <foxy-i18n .options=${options} infer="" class="whitespace-nowrap" key="price">
+              </foxy-i18n>
             `
           : ''}
         ${data?.is_test
