@@ -328,6 +328,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
                   </div>
                 </foxy-internal-summary-control>
               `}
+          ${this.renderTemplateOrSlot()}
 
           <foxy-internal-summary-control infer="cart-settings">
             <foxy-internal-resource-picker-control
