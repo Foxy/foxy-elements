@@ -1603,50 +1603,42 @@ describe('PaymentsApiPaymentMethodForm', () => {
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
 
     // @ts-expect-error SDK typings are incomplete
-    element.data!.helper.supports_card_verification = false;
-    element.data = { ...element.data! };
-    await element.requestUpdate();
-
-    expect(
-      element.renderRoot.querySelector('[infer="card-verification-config-verification-amounts"]')
-    ).to.not.exist;
-
-    // @ts-expect-error SDK typings are incomplete
     element.data!.helper.supports_card_verification = true;
     // @ts-expect-error SDK typings are incomplete
     element.data!.helper.card_verification_config =
       '{"verification_amounts": {"visa": 1, "mastercard": 1, "american_express": 1, "discover": 1, "default": 1}}';
-
     element.data = { ...element.data! };
+    // @ts-expect-error SDK typings are incomplete
+    element.edit({ card_verification: 'enabled_automatically' });
     await element.requestUpdate();
-    const summary = element.renderRoot.querySelector(
-      '[infer="card-verification-config-verification-amounts"]'
-    );
 
-    expect(summary).to.exist;
-    expect(summary).to.be.instanceOf(InternalSummaryControl);
+    ['test', 'live'].map(group => {
+      ['visa', 'mastercard', 'american-express', 'discover', 'default'].map(type => {
+        const control = element.renderRoot.querySelector(
+          `[infer="${group}-group"] [infer="card-verification-config-verification-amounts-${type}"]`
+        );
 
-    ['visa', 'mastercard', 'american-express', 'discover', 'default'].map(type => {
-      const control = summary?.querySelector(
-        `[infer="card-verification-config-verification-amounts-${type}"]`
-      );
+        expect(control).to.exist;
+        expect(control).to.be.instanceOf(InternalNumberControl);
+        expect(control).to.have.attribute(
+          'json-template',
+          // @ts-expect-error SDK typings are incomplete
+          element.data?.helper.card_verification_config
+        );
 
-      expect(control).to.exist;
-      expect(control).to.be.instanceOf(InternalNumberControl);
-      expect(control).to.have.attribute(
-        'json-template',
-        // @ts-expect-error SDK typings are incomplete
-        element.data?.helper.card_verification_config
-      );
+        expect(control).to.have.attribute(
+          'json-path',
+          `verification_amounts.${type.replace(/-/g, '_')}`
+        );
 
-      expect(control).to.have.attribute(
-        'json-path',
-        `verification_amounts.${type.replace(/-/g, '_')}`
-      );
+        expect(control).to.have.attribute(
+          'property',
+          `${group === 'live' ? '' : 'test_'}card_verification_config`
+        );
 
-      expect(control).to.have.attribute('property', 'card_verification_config');
-      expect(control).to.have.attribute('step', '0.01');
-      expect(control).to.have.attribute('min', '0');
+        expect(control).to.have.attribute('step', '0.01');
+        expect(control).to.have.attribute('min', '0');
+      });
     });
   });
 
