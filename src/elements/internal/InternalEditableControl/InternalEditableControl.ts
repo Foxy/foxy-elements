@@ -5,6 +5,14 @@ import { InternalControl } from '../InternalControl/InternalControl';
 import debounce from 'lodash-es/debounce';
 import { get, set } from 'lodash-es';
 
+function safeParse(value: any): any {
+  try {
+    return JSON.parse(value as string);
+  } catch {
+    return null;
+  }
+}
+
 /**
  * An internal base class for controls that have editing functionality, e.g. a text field.
  * Instances of this class will provide shortcuts for translatable placeholder, label, helper
@@ -40,7 +48,13 @@ export class InternalEditableControl extends InternalControl {
 
   getValue = (): unknown => {
     const value = get(this.nucleon?.form, this.property);
-    if (this.jsonPath) return get(JSON.parse(value ?? this.jsonTemplate), this.jsonPath);
+
+    if (this.jsonPath) {
+      const parsedValue = safeParse(value);
+      const defaults = safeParse(this.jsonTemplate);
+      return get(parsedValue, this.jsonPath, get(defaults, this.jsonPath));
+    }
+
     return value;
   };
 
@@ -51,7 +65,7 @@ export class InternalEditableControl extends InternalControl {
       const nestedForm = this.nucleon?.form[formProperty] ?? {};
 
       if (this.jsonPath) {
-        const json = JSON.parse(this.nucleon?.form[formProperty] ?? this.jsonTemplate);
+        const json = safeParse(this.nucleon?.form[formProperty]) ?? safeParse(this.jsonTemplate);
         set(json, this.jsonPath, newValue);
         set(nestedForm, nestedPath, JSON.stringify(json));
       } else {
@@ -61,7 +75,7 @@ export class InternalEditableControl extends InternalControl {
       this.nucleon?.edit({ [formProperty]: nestedForm });
     } else {
       if (this.jsonPath) {
-        const json = JSON.parse(this.nucleon?.form[formProperty] ?? this.jsonTemplate);
+        const json = safeParse(this.nucleon?.form[formProperty]) ?? safeParse(this.jsonTemplate);
         set(json, this.jsonPath, newValue);
         this.nucleon?.edit({ [formProperty]: JSON.stringify(json) });
       } else {
