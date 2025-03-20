@@ -456,6 +456,12 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
                 this.form.helper?.supports_card_verification
                   ? html`
                       <foxy-internal-select-control
+                        helper-text=${this.t(
+                          `${scope}.${inferPrefix}card-verification.helper_text_${
+                            // @ts-expect-error SDK typings are incomplete
+                            this.form[`${propertyPrefix}card_verification`] || 'disabled'
+                          }`
+                        )}
                         layout="summary-item"
                         infer="${inferPrefix}card-verification"
                         .options=${this.__cardVerificationOptions}

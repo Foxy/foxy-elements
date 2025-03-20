@@ -1553,20 +1553,26 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     // @ts-expect-error SDK typings are incomplete
     element.data!.helper.supports_card_verification = false;
-    element.data = { ...element.data! };
     await element.requestUpdate();
 
     expect(element.renderRoot.querySelector('[infer="card-verification"]')).to.not.exist;
     expect(element.renderRoot.querySelector('[infer="test-card-verification"]')).to.not.exist;
 
-    // @ts-expect-error SDK typings are incomplete
-    element.data!.helper.supports_card_verification = true;
-    element.data = { ...element.data! };
+    element.data = {
+      ...element.data!,
+      // @ts-expect-error SDK typings are incomplete
+      helper: { ...element.data!.helper, supports_card_verification: true },
+      card_verification: 'disabled',
+      test_card_verification: 'disabled',
+    };
+
     await element.requestUpdate();
 
     ['test', 'live'].map(group => {
+      const scope = `${group}-group`;
+      const inferPrefix = group === 'live' ? '' : 'test-';
       const control = element.renderRoot.querySelector(
-        `[infer="${group}-group"] [infer="${group === 'test' ? 'test-' : ''}card-verification"]`
+        `[infer="${scope}"] [infer="${inferPrefix}card-verification"]`
       ) as InternalSelectControl;
 
       expect(control).to.exist;
@@ -1576,6 +1582,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
         { value: 'enabled_automatically', label: 'option_enabled_automatically' },
         { value: 'enabled_override', label: 'option_enabled_override' },
       ]);
+
+      expect(control).to.have.attribute(
+        'helper-text',
+        `${scope}.${inferPrefix}card-verification.helper_text_disabled`
+      );
     });
   });
 
