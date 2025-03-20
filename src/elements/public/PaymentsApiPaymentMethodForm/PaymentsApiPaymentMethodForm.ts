@@ -143,11 +143,6 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     { value: 'maestro_only', label: 'option_maestro_only' },
   ];
 
-  private readonly __cardVerificationGetValue = () => {
-    // @ts-expect-error SDK typings are incomplete
-    return this.form.card_verification || 'disabled';
-  };
-
   private readonly __cardVerificationOptions = [
     { label: 'option_disabled', value: 'disabled' },
     { label: 'option_enabled_automatically', value: 'enabled_automatically' },
@@ -381,24 +376,11 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
                 : ''}
             `
           : ''}
-        ${
-          // @ts-expect-error SDK typings are incomplete
-          this.form.helper?.supports_card_verification
-            ? html`
-                <foxy-internal-select-control
-                  layout="summary-item"
-                  infer="card-verification"
-                  .getValue=${this.__cardVerificationGetValue}
-                  .options=${this.__cardVerificationOptions}
-                >
-                </foxy-internal-select-control>
-              `
-            : ''
-        }
       </foxy-internal-summary-control>
 
       ${['live', 'test'].map((type, index) => {
-        const prefix = index === 0 ? '' : `${type}-`;
+        const propertyPrefix = index === 0 ? '' : `${type}_`;
+        const inferPrefix = index === 0 ? '' : `${type}-`;
         const blocks = index === 0 ? this.__liveBlocks : this.__testBlocks;
         const scope = `${type}-group`;
 
@@ -427,71 +409,100 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
             helper-text=${ifDefined(
               showInactiveSetText ? this.t(`${scope}.helper_text_inactive`) : void 0
             )}
-            layout="details"
+            layout="section"
             label=${ifDefined(showInactiveSetText ? this.t(`${scope}.label_inactive`) : void 0)}
             infer=${scope}
-            ?open=${!showInactiveSetText}
           >
-            ${this.form.helper?.id_description
-              ? html`
-                  <foxy-internal-text-control
-                    placeholder=${this.t('default_additional_field_placeholder')}
-                    helper-text=""
-                    layout="summary-item"
-                    label=${this.form.helper.id_description}
-                    infer="${prefix}account-id"
-                  >
-                  </foxy-internal-text-control>
-                `
-              : ''}
-            ${this.form.helper?.third_party_key_description
-              ? html`
-                  <foxy-internal-password-control
-                    placeholder=${this.t('default_additional_field_placeholder')}
-                    helper-text=""
-                    layout="summary-item"
-                    label=${this.form.helper.third_party_key_description}
-                    infer="${prefix}third-party-key"
-                  >
-                  </foxy-internal-password-control>
-                `
-              : ''}
-            ${this.form.helper?.key_description
-              ? html`
-                  <foxy-internal-password-control
-                    placeholder=${this.t('default_additional_field_placeholder')}
-                    layout="summary-item"
-                    helper-text=""
-                    label=${this.form.helper.key_description}
-                    infer="${prefix}account-key"
-                  >
-                  </foxy-internal-password-control>
-                `
-              : ''}
-            ${blocks.map(block => this.__renderBlock(block))}
+            <foxy-internal-summary-control infer="" label="" helper-text="">
+              ${this.form.helper?.id_description
+                ? html`
+                    <foxy-internal-text-control
+                      placeholder=${this.t('default_additional_field_placeholder')}
+                      helper-text=""
+                      layout="summary-item"
+                      label=${this.form.helper.id_description}
+                      infer="${inferPrefix}account-id"
+                    >
+                    </foxy-internal-text-control>
+                  `
+                : ''}
+              ${this.form.helper?.third_party_key_description
+                ? html`
+                    <foxy-internal-password-control
+                      placeholder=${this.t('default_additional_field_placeholder')}
+                      helper-text=""
+                      layout="summary-item"
+                      label=${this.form.helper.third_party_key_description}
+                      infer="${inferPrefix}third-party-key"
+                    >
+                    </foxy-internal-password-control>
+                  `
+                : ''}
+              ${this.form.helper?.key_description
+                ? html`
+                    <foxy-internal-password-control
+                      placeholder=${this.t('default_additional_field_placeholder')}
+                      layout="summary-item"
+                      helper-text=""
+                      label=${this.form.helper.key_description}
+                      infer="${inferPrefix}account-key"
+                    >
+                    </foxy-internal-password-control>
+                  `
+                : ''}
+              ${blocks.map(block => this.__renderBlock(block))}
+              ${
+                // @ts-expect-error SDK typings are incomplete
+                this.form.helper?.supports_card_verification
+                  ? html`
+                      <foxy-internal-select-control
+                        layout="summary-item"
+                        infer="${inferPrefix}card-verification"
+                        .options=${this.__cardVerificationOptions}
+                        .getValue=${() => {
+                          // @ts-expect-error SDK typings are incomplete
+                          return this.form[`${propertyPrefix}card_verification`] || 'disabled';
+                        }}
+                      >
+                      </foxy-internal-select-control>
+                    `
+                  : ''
+              }
+            </foxy-internal-summary-control>
+
             ${
               // @ts-expect-error SDK typings are incomplete
               this.form.helper?.supports_card_verification &&
               // @ts-expect-error SDK typings are incomplete
-              this.form.card_verification?.startsWith('enabled_')
-                ? ['visa', 'mastercard', 'american-express', 'discover', 'default'].map(type => {
-                    return html`
-                      <foxy-internal-number-control
-                        json-template=${ifDefined(
-                          // @ts-expect-error SDK typings are incomplete
-                          this.form.helper?.card_verification_config
-                        )}
-                        json-path="verification_amounts.${type.replace(/-/g, '_')}"
-                        property="${prefix.replace(/-/g, '_')}card_verification_config"
-                        layout="summary-item"
-                        suffix="¤"
-                        infer="card-verification-config-verification-amounts-${type}"
-                        step="0.01"
-                        min="0"
-                      >
-                      </foxy-internal-number-control>
-                    `;
-                  })
+              this.form[`${propertyPrefix}card_verification`]?.startsWith('enabled_')
+                ? html`
+                    <foxy-internal-summary-control
+                      layout="details"
+                      class="mt-s"
+                      infer="${inferPrefix}card-verification-config"
+                    >
+                      ${['visa', 'mastercard', 'american-express', 'discover', 'default'].map(
+                        type => {
+                          return html`
+                            <foxy-internal-number-control
+                              json-template=${ifDefined(
+                                // @ts-expect-error SDK typings are incomplete
+                                this.form.helper?.card_verification_config
+                              )}
+                              json-path="verification_amounts.${type.replace(/-/g, '_')}"
+                              property="${propertyPrefix}card_verification_config"
+                              layout="summary-item"
+                              suffix="¤"
+                              infer="${inferPrefix}card-verification-config-verification-amounts-${type}"
+                              step="0.01"
+                              min="0"
+                            >
+                            </foxy-internal-number-control>
+                          `;
+                        }
+                      )}
+                    </foxy-internal-summary-control>
+                  `
                 : ''
             }
           </foxy-internal-summary-control>

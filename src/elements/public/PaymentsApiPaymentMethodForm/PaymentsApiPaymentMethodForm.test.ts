@@ -1557,22 +1557,26 @@ describe('PaymentsApiPaymentMethodForm', () => {
     await element.requestUpdate();
 
     expect(element.renderRoot.querySelector('[infer="card-verification"]')).to.not.exist;
+    expect(element.renderRoot.querySelector('[infer="test-card-verification"]')).to.not.exist;
 
     // @ts-expect-error SDK typings are incomplete
     element.data!.helper.supports_card_verification = true;
     element.data = { ...element.data! };
     await element.requestUpdate();
-    const control = element.renderRoot.querySelector(
-      '[infer="card-verification"]'
-    ) as InternalSelectControl;
 
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(InternalSelectControl);
-    expect(control).to.have.deep.property('options', [
-      { value: 'disabled', label: 'option_disabled' },
-      { value: 'enabled_automatically', label: 'option_enabled_automatically' },
-      { value: 'enabled_override', label: 'option_enabled_override' },
-    ]);
+    ['test', 'live'].map(group => {
+      const control = element.renderRoot.querySelector(
+        `[infer="${group}-group"] [infer="${group === 'test' ? 'test-' : ''}card-verification"]`
+      ) as InternalSelectControl;
+
+      expect(control).to.exist;
+      expect(control).to.be.instanceOf(InternalSelectControl);
+      expect(control).to.have.deep.property('options', [
+        { value: 'disabled', label: 'option_disabled' },
+        { value: 'enabled_automatically', label: 'option_enabled_automatically' },
+        { value: 'enabled_override', label: 'option_enabled_override' },
+      ]);
+    });
   });
 
   it('renders controls for card verification amounts if supported', async () => {
@@ -1602,20 +1606,26 @@ describe('PaymentsApiPaymentMethodForm', () => {
     const element = wrapper.firstElementChild!.firstElementChild as Form;
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
 
-    // @ts-expect-error SDK typings are incomplete
-    element.data!.helper.supports_card_verification = true;
-    // @ts-expect-error SDK typings are incomplete
-    element.data!.helper.card_verification_config =
-      '{"verification_amounts": {"visa": 1, "mastercard": 1, "american_express": 1, "discover": 1, "default": 1}}';
-    element.data = { ...element.data! };
-    // @ts-expect-error SDK typings are incomplete
-    element.edit({ card_verification: 'enabled_automatically' });
+    element.data = {
+      ...element.data!,
+      helper: {
+        ...element.data!.helper,
+        // @ts-expect-error SDK typings are incomplete
+        supports_card_verification: true,
+        card_verification_config:
+          '{"verification_amounts": {"visa": 1, "mastercard": 1, "american_express": 1, "discover": 1, "default": 1}}',
+      },
+      card_verification: 'enabled_automatically',
+      test_card_verification: 'enabled_automatically',
+    };
+
     await element.requestUpdate();
 
     ['test', 'live'].map(group => {
       ['visa', 'mastercard', 'american-express', 'discover', 'default'].map(type => {
+        const inferPrefix = group === 'live' ? '' : 'test-';
         const control = element.renderRoot.querySelector(
-          `[infer="${group}-group"] [infer="card-verification-config-verification-amounts-${type}"]`
+          `[infer="${group}-group"] [infer="${inferPrefix}card-verification-config-verification-amounts-${type}"]`
         );
 
         expect(control).to.exist;
