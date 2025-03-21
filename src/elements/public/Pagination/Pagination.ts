@@ -1,6 +1,6 @@
 import type { PropertyDeclarations, TemplateResult, CSSResultArray } from 'lit-element';
 
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css, svg } from 'lit-element';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ResponsiveMixin } from '../../../mixins/responsive';
@@ -48,8 +48,6 @@ export class Pagination extends Base {
       super.styles,
       css`
         dialog {
-          --position-bottom: translate(-100%, var(--lumo-space-m));
-          --position-top: translate(calc(-100% - 1px), calc(-100% - var(--lumo-space-m) - 1px));
           border-radius: calc(var(--lumo-border-radius-m) + 1px);
         }
 
@@ -111,96 +109,95 @@ export class Pagination extends Base {
     const total = Number.isNaN(totalValue) ? 0 : totalValue;
 
     const limitOptions = [20, 50, 100, 150, 200];
-    const maxPageLinks = 5;
-    const offsetValue = Number(get(data, 'offset'));
-    const offset = Number.isNaN(offsetValue) ? 0 : offsetValue;
+    if (!limitOptions.includes(this.__limit)) limitOptions.unshift(this.__limit);
     const pages = total && this.__limit ? Math.ceil(total / this.__limit) : 0;
 
     return html`
       <slot @slotchange=${this.__connectPageElement}></slot>
 
-      ${offset > 0 || offset + returnedItems < total
-        ? html`
-            <div class="flex items-center gap-xs mt-s">
-              <label class="text-tertiary" for="limit">
-                <foxy-i18n infer="" key="per_page"></foxy-i18n>
-              </label>
+      <div class="flex gap-m relative mt-s" ?hidden=${pages <= 1}>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <vaadin-button
+            theme="tertiary-inline contrast"
+            ?disabled=${this.disabled}
+            @click=${(evt: CustomEvent) => {
+              const dialog = this.__dialog as HTMLDialogElement;
+              const button = evt.currentTarget as HTMLElement;
+              const buttonBox = button.getBoundingClientRect();
 
-              <select
-                class="mr-auto cursor-pointer appearance-none bg-transparent rounded-s font-medium px-xs transition-opacity hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
-                id="limit"
-                ?disabled=${this.disabled}
-                @change=${(evt: Event) => {
-                  this.__limit = parseInt((evt.currentTarget as HTMLSelectElement).value);
-                  this.__page = 1;
-                }}
-              >
-                ${limitOptions.includes(this.__limit)
-                  ? ''
-                  : html`<option value=${this.__limit} selected>${this.__limit}</option>`}
-                ${limitOptions.map(
-                  option =>
-                    html`
-                      <option value=${option} ?selected=${option === this.__limit}>
-                        ${option}
-                      </option>
-                    `
-                )}
-              </select>
+              dialog.showModal();
+              const marginLeft = buttonBox.left + buttonBox.width / 2 - dialog.offsetWidth / 2;
+              dialog.style.margin = `calc(var(--lumo-space-xs) + ${
+                buttonBox.bottom
+              }px) auto auto ${marginLeft.toFixed(2)}px`;
 
-              <foxy-i18n class="text-tertiary sr-only sm-not-sr-only" infer="" key="jump_to">
-              </foxy-i18n>
+              if (dialog.getBoundingClientRect().bottom > window.innerHeight) {
+                dialog.style.margin = `auto auto calc(${(
+                  window.innerHeight - buttonBox.top
+                ).toFixed(2)}px + var(--lumo-space-xs)) ${marginLeft.toFixed(2)}px`;
+              }
+            }}
+          >
+            <foxy-i18n
+              infer=""
+              class="text-xs leading-none"
+              key="pagination"
+              .options=${{
+                total,
+                from: (this.__page - 1) * this.__limit + 1,
+                to: (this.__page - 1) * this.__limit + returnedItems,
+              }}
+            >
+            </foxy-i18n>
+          </vaadin-button>
+        </div>
 
-              ${new Array(pages).fill('').map((_, pageIndex) => {
-                if (!(pageIndex < maxPageLinks + 1 || pageIndex === pages - 1)) return;
+        <vaadin-button
+          theme="tertiary-inline contrast"
+          class="relative"
+          ?disabled=${this.disabled || this.__page === 1}
+          @click=${() => (this.__page = 1)}
+        >
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block" style="width: 1em; height: 1em; transform: translate(-0.15em, -0.05em) scale(1.5)"><path fill-rule="evenodd" d="M4.72 9.47a.75.75 0 0 0 0 1.06l4.25 4.25a.75.75 0 1 0 1.06-1.06L6.31 10l3.72-3.72a.75.75 0 1 0-1.06-1.06L4.72 9.47Zm9.25-4.25L9.72 9.47a.75.75 0 0 0 0 1.06l4.25 4.25a.75.75 0 1 0 1.06-1.06L11.31 10l3.72-3.72a.75.75 0 0 0-1.06-1.06Z" clip-rule="evenodd" /></svg>`}
+          <foxy-i18n infer="" class="leading-none sr-only sm-not-sr-only" key="first"></foxy-i18n>
+        </vaadin-button>
 
-                const isEllipsis = pageIndex === maxPageLinks && pages > maxPageLinks + 2;
-                const isCurrentPage = this.__page === pageIndex + 1;
+        <vaadin-button
+          theme="tertiary-inline contrast"
+          class="relative"
+          ?disabled=${this.disabled || this.__page === 1}
+          @click=${() => this.__page--}
+        >
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block" style="width: 1em; height: 1em; transform: translate(-0.15em, -0.05em) scale(1.5)"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" /></svg>`}
+          <foxy-i18n infer="" class="leading-none sr-only sm-not-sr-only" key="previous">
+          </foxy-i18n>
+        </vaadin-button>
 
-                return html`
-                  <vaadin-button
-                    data-testclass="page-link"
-                    theme="tertiary-inline contrast"
-                    class="relative px-xs ${pageIndex === pages - 1 ? '-mr-xs' : ''}"
-                    ?disabled=${this.disabled || (isCurrentPage && !isEllipsis)}
-                    @click=${(evt: MouseEvent) => {
-                      if (isEllipsis) {
-                        const dialog = this.__dialog as HTMLDialogElement;
-                        dialog.showModal();
+        <div class="flex-1"></div>
 
-                        const elementRight = this.getBoundingClientRect().right;
-                        dialog.style.margin = `${evt.clientY}px auto auto ${elementRight}px`;
+        <vaadin-button
+          theme="tertiary-inline contrast"
+          class="relative"
+          ?disabled=${this.disabled || this.__page >= pages}
+          @click=${() => this.__page++}
+        >
+          <foxy-i18n infer="" class="leading-none sr-only sm-not-sr-only" key="next"></foxy-i18n>
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block" style="width: 1em; height: 1em; transform: translate(0.15em, -0.05em) scale(1.5)"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>`}
+        </vaadin-button>
 
-                        const dialogBottom = dialog.getBoundingClientRect().bottom;
-                        const dialogPosition = dialogBottom > innerHeight ? 'top' : 'bottom';
-                        dialog.style.transform = `var(--position-${dialogPosition})`;
-                      } else {
-                        this.__page = pageIndex + 1;
-                      }
-                    }}
-                  >
-                    ${isEllipsis
-                      ? this.__page > maxPageLinks && this.__page !== pages
-                        ? html`
-                            <span
-                              class="inline-block transform origin-top scale-50"
-                              style="--tw-translate-y: 0.1em;"
-                            >
-                              ${this.__page}
-                            </span>
-                            <span class="absolute inset-x-0 bottom-0">...</span>
-                          `
-                        : '...'
-                      : pageIndex + 1}
-                  </vaadin-button>
-                `;
-              })}
-            </div>
-          `
-        : ''}
+        <vaadin-button
+          theme="tertiary-inline contrast"
+          class="relative"
+          ?disabled=${this.disabled || this.__page >= pages}
+          @click=${() => (this.__page = pages)}
+        >
+          <foxy-i18n infer="" class="leading-none sr-only sm-not-sr-only" key="last"></foxy-i18n>
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block" style="width: 1em; height: 1em; transform: translate(0.15em, -0.05em) scale(1.5)"><path fill-rule="evenodd" d="M15.28 9.47a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 1 1-1.06-1.06L13.69 10 9.97 6.28a.75.75 0 0 1 1.06-1.06l4.25 4.25ZM6.03 5.22l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L8.69 10 4.97 6.28a.75.75 0 0 1 1.06-1.06Z" clip-rule="evenodd" /></svg>`}
+        </vaadin-button>
+      </div>
 
       <dialog
-        class="p-0 shadow-m bg-transparent"
+        class="p-0 shadow-m bg-transparent focus-outline-none"
         @click=${(evt: MouseEvent) => {
           const dialog = evt.currentTarget as HTMLDialogElement;
           const dialogBox = dialog.getBoundingClientRect();
@@ -220,6 +217,22 @@ export class Pagination extends Base {
           class="bg-base rounded border border-base"
           style="width: 18rem"
         >
+          <foxy-internal-select-control
+            placeholder=${this.t('select')}
+            helper-text=""
+            layout="summary-item"
+            label=${this.t('per_page')}
+            infer=""
+            .options=${limitOptions.map(value => ({ rawLabel: value, value }))}
+            .getValue=${() => this.__limit}
+            .setValue=${(value: number) => {
+              this.__dialog?.close();
+              this.__limit = value;
+              this.__page = 1;
+            }}
+          >
+          </foxy-internal-select-control>
+
           <foxy-internal-number-control
             placeholder="1"
             helper-text=""
@@ -231,26 +244,19 @@ export class Pagination extends Base {
             max=${pages}
             .getValue=${() => this.__customPage}
             .setValue=${(value: number) => (this.__customPage = value || 1)}
+            @blur=${() => {
+              this.__page = this.__customPage;
+              this.__dialog?.close();
+            }}
             @keydown=${(evt: KeyboardEvent) => {
               if (evt.key === 'Enter') {
+                evt.preventDefault();
                 this.__page = this.__customPage;
                 this.__dialog?.close();
               }
             }}
           >
           </foxy-internal-number-control>
-          <div>
-            <vaadin-button
-              theme="tertiary-inline"
-              ?disabled=${this.disabled}
-              @click=${() => {
-                this.__page = this.__customPage;
-                this.__dialog?.close();
-              }}
-            >
-              <foxy-i18n infer="" key="jump"></foxy-i18n>
-            </vaadin-button>
-          </div>
         </foxy-internal-summary-control>
       </dialog>
     `;

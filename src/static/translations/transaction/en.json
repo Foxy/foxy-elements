@@ -60,10 +60,14 @@
     "delete_cancel": "Cancel",
     "pagination": {
       "create_button_text": "Add item +",
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
       "page_number": "Page number:",
-      "per_page": "Per page:",
-      "jump_to": "Jump to:",
-      "jump": "Jump",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
         "daily": "Daily",
@@ -155,10 +159,14 @@
                 "clear": "Clear",
                 "pagination": {
                   "search_button_text": "Filters",
+                  "first": "First",
+                  "last": "Last",
+                  "next": "Next",
+                  "pagination": "{{from}}-{{to}} out of {{total}}",
+                  "previous": "Previous",
                   "page_number": "Page number:",
-                  "per_page": "Per page:",
-                  "jump_to": "Jump to:",
-                  "jump": "Jump",
+                  "select": "Select...",
+                  "per_page": "Items per page:",
                   "card": {
                     "spinner": {
                       "loading_busy": "Loading",
@@ -302,10 +310,14 @@
         "discount-details": {
           "label": "Applied discounts",
           "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
             "page_number": "Page number:",
-            "per_page": "Per page:",
-            "jump_to": "Jump to:",
-            "jump": "Jump",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "spinner": {
                 "loading_busy": "Loading",
@@ -318,10 +330,14 @@
         "coupon-details": {
           "label": "Applied coupons",
           "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
             "page_number": "Page number:",
-            "per_page": "Per page:",
-            "jump_to": "Jump to:",
-            "jump": "Jump",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "spinner": {
                 "loading_busy": "Loading",
@@ -424,10 +440,14 @@
                 "loading_error": "Unknown error"
               }
             },
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
             "page_number": "Page number:",
-            "per_page": "Per page:",
-            "jump_to": "Jump to:",
-            "jump": "Jump"
+            "select": "Select...",
+            "per_page": "Items per page:"
           }
         },
         "item-options": {
@@ -532,10 +552,14 @@
               }
             },
             "create_button_text": "Add option +",
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
             "page_number": "Page number:",
-            "per_page": "Per page:",
-            "jump_to": "Jump to:",
-            "jump": "Jump"
+            "select": "Select...",
+            "per_page": "Items per page:"
           }
         },
         "timestamps": {
@@ -646,10 +670,14 @@
     },
     "pagination": {
       "create_button_text": "Add custom field +",
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
       "page_number": "Page number:",
-      "per_page": "Per page:",
-      "jump_to": "Jump to:",
-      "jump": "Jump",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
         "spinner": {
@@ -745,10 +773,14 @@
     },
     "pagination": {
       "create_button_text": "Add attribute +",
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
       "page_number": "Page number:",
-      "per_page": "Per page:",
-      "jump_to": "Jump to:",
-      "jump": "Jump",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
         "spinner": {
@@ -778,10 +810,14 @@
         "statuses": {
           "label": "Runs",
           "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
             "page_number": "Page number:",
-            "per_page": "Per page:",
-            "jump_to": "Jump to:",
-            "jump": "Jump",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "status_initializing": "Initializing",
               "status_successful": "Successful",
@@ -799,10 +835,14 @@
         "logs": {
           "label": "Logs",
           "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
             "page_number": "Page number:",
-            "per_page": "Per page:",
-            "jump_to": "Jump to:",
-            "jump": "Jump",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "date": "{{ value, date }} at {{ value, time }}",
               "spinner": {
@@ -827,10 +867,14 @@
       "refeed_bulk_action_caption_busy": "Refeeding...",
       "refeed_bulk_action_notification_done": "Selected webhooks were sent successfully.",
       "refeed_bulk_action_notification_fail": "Failed to refeed selected webhooks.",
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
       "page_number": "Page number:",
-      "per_page": "Per page:",
-      "jump_to": "Jump to:",
-      "jump": "Jump",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "status_initializing": "Last run: {{ date_created, date }} at {{ date_created, time }} • Initializing",
         "status_successful": "Last run: {{ date_created, date }} at {{ date_created, time }} • Successful",
@@ -898,10 +942,14 @@
   "payments": {
     "label": "Payments",
     "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
       "page_number": "Page number:",
-      "per_page": "Per page:",
-      "jump_to": "Jump to:",
-      "jump": "Jump",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "code": "Code",
         "date": "{{value, date}}",
@@ -1626,10 +1674,14 @@
       }
     },
     "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
       "page_number": "Page number:",
-      "per_page": "Per page:",
-      "jump_to": "Jump to:",
-      "jump": "Jump",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "full_address": "{{address1}} {{address2}} {{city}} {{region}} {{country}} {{postal_code}}",
         "full_name": "{{first_name}} {{last_name}}",
@@ -1644,10 +1696,14 @@
   "shipments": {
     "label": "Shipments",
     "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
       "page_number": "Page number:",
-      "per_page": "Per page:",
-      "jump_to": "Jump to:",
-      "jump": "Jump",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "full_address": "{{ address1 }} {{ address2 }} {{ city }} {{ region }} {{ postal_code }}",
         "quantity": "Qty: {{ count }}",

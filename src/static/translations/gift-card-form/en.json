@@ -421,10 +421,14 @@
               "clear": "Clear",
               "pagination": {
                 "search_button_text": "Filters",
+                "first": "First",
+                "last": "Last",
+                "next": "Next",
+                "pagination": "{{from}}-{{to}} out of {{total}}",
+                "previous": "Previous",
                 "page_number": "Page number:",
-                "per_page": "Per page:",
-                "jump_to": "Jump to:",
-                "jump": "Jump",
+                "select": "Select...",
+                "per_page": "Items per page:",
                 "card": {
                   "spinner": {
                     "loading_busy": "Loading",
@@ -521,10 +525,14 @@
         "logs": {
           "label": "Timeline",
           "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
             "page_number": "Page number:",
-            "per_page": "Per page:",
-            "jump_to": "Jump to:",
-            "jump": "Jump",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "title_updated_via_api": "Updated via API",
               "title_used": "Used on checkout",
@@ -581,10 +589,14 @@
           "loading_error": "Unknown error"
         }
       },
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
       "page_number": "Page number:",
-      "per_page": "Per page:",
-      "jump_to": "Jump to:",
-      "jump": "Jump"
+      "select": "Select...",
+      "per_page": "Items per page:"
     },
     "query-builder": {
       "add_or_clause": "Add OR clause",
@@ -638,10 +650,14 @@
     "status_saving": "Saving...",
     "status_loading": "Loading...",
     "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
       "page_number": "Page number:",
-      "per_page": "Per page:",
-      "jump_to": "Jump to:",
-      "jump": "Jump",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "spinner": {
           "loading_busy": "Loading",
@@ -745,10 +761,14 @@
           "loading_error": "Unknown error"
         }
       },
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
       "page_number": "Page number:",
-      "per_page": "Per page:",
-      "jump_to": "Jump to:",
-      "jump": "Jump"
+      "select": "Select...",
+      "per_page": "Items per page:"
     }
   },
   "timestamps": {
