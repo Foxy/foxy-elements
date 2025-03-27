@@ -37,6 +37,7 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
         vaadin-checkbox::part(label) {
           margin: 0 0 0 calc(0.625em + (var(--lumo-border-radius) / 4) - 1px);
           align-self: center;
+          flex: 1;
         }
       `,
     ];
@@ -96,7 +97,7 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
 
     return wrap(html`
       <vaadin-checkbox
-        class="block"
+        class="block foxy-internal-checkbox-style-0"
         ?disabled=${isDisabled}
         ?checked=${!!linkResource}
         @change=${(evt: CustomEvent) => {
@@ -136,7 +137,9 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
           <div class="flex justify-between font-medium text-l" ?hidden=${!this.label}>
             <span>${this.label}</span>
             <foxy-i18n
-              class="transition-opacity ${isStatusVisible ? 'opacity-100' : 'opacity-0'}"
+              class="text-m text-tertiary font-normal transition-opacity ${isStatusVisible
+                ? 'opacity-100'
+                : 'opacity-0'}"
               infer=""
               key=${this.__isFetching ? 'status_saving' : 'status_loading'}
             >
@@ -150,7 +153,7 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
             infer="card"
             class=${classMap({
               'block transition-colors divide-y rounded overflow-hidden': true,
-              'bg-contrast-5 divide-contrast-10': true,
+              'bg-contrast-5 divide-base': true,
             })}
             .item=${this.__renderItem}
           >
@@ -194,6 +197,11 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
         const rumour = NucleonElement.Rumour(this.nucleon?.group ?? '');
         const data = await dataResponse.json();
 
+        console.log({
+          related: [this.linksHref ?? ''],
+          source: json._links.self.href,
+          data,
+        });
         rumour.share({
           related: [this.linksHref ?? ''],
           source: json._links.self.href,
