@@ -26,6 +26,7 @@ const summary: Summary = {
       'group-three:region-input',
       'group-three:city',
       'native-integrations',
+      'item-categories',
     ],
   },
 };
@@ -34,6 +35,7 @@ export default getMeta(summary);
 
 const ext = `
   native-integrations="https://demo.api/hapi/native_integrations"
+  item-categories="https://demo.api/hapi/item_categories"
   countries="https://demo.api/hapi/property_helpers/3"
   regions="https://demo.api/hapi/property_helpers/4"
 `;
