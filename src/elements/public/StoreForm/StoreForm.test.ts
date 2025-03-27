@@ -1306,6 +1306,35 @@ describe('StoreForm', () => {
     expect(JSON.parse(element.form.smtp_config!)).to.have.property('security', 'tls');
   });
 
+  it('renders a select control for Send HTML Email setting in the Emails section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="emails"] [infer="send-html-email"]'
+    ) as InternalSelectControl;
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSelectControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.deep.property('options', [
+      { label: 'option_text_only', value: 'text_only' },
+      { label: 'option_text_plus_html', value: 'text_plus_html' },
+    ]);
+
+    // @ts-expect-error SDK doesn't know about this property
+    element.edit({ send_html_email: false });
+    expect(control.getValue()).to.equal('text_only');
+
+    // @ts-expect-error SDK doesn't know about this property
+    element.edit({ send_html_email: true });
+    expect(control.getValue()).to.equal('text_plus_html');
+
+    control.setValue('text_only');
+    expect(element.form).to.have.property('send_html_email', false);
+
+    control.setValue('text_plus_html');
+    expect(element.form).to.have.property('send_html_email', true);
+  });
+
   it('renders a summary control for Shipping section', async () => {
     const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector(

@@ -194,6 +194,13 @@
       "option_ssl": "Use SSL",
       "option_tls": "Use TLS",
       "option_none": "Don't encrypt"
+    },
+    "send-html-email": {
+      "label": "Email format",
+      "placeholder": "Select",
+      "helper_text": "This setting impacts only the main transaction receipt emails for the store.",
+      "option_text_only": "Text only",
+      "option_text_plus_html": "Text + HTML"
     }
   },
   "shipping": {
