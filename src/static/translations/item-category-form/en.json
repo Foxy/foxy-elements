@@ -52,6 +52,9 @@
         "tax_global": "Global tax",
         "tax_rate_provider_default": "Default (Thomson Reuters; others)",
         "tax_union": "European Union tax",
+        "tax_item_categories": "{{ count }} category",
+        "tax_item_categories_plural": "{{ count }} categories",
+        "tax_item_categories_empty": "Not applied",
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "Add a tax in settings to apply it here",

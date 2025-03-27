@@ -5,6 +5,9 @@
   "tax_union": "European Union",
   "tax_custom_tax": "Live",
   "tax_rate_provider_custom": "Custom Tax Endpoint",
+  "tax_item_categories": "{{ count }} category",
+  "tax_item_categories_plural": "{{ count }} categories",
+  "tax_item_categories_empty": "Not applied",
   "spinner": {
     "loading_busy": "Loading",
     "loading_empty": "No data",
