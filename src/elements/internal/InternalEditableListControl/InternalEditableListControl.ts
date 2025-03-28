@@ -266,7 +266,7 @@ export class InternalEditableListControl extends InternalEditableControl {
                   @paste=${(evt: ClipboardEvent) => {
                     evt.preventDefault();
                     this.__newItem = evt.clipboardData?.getData('text') ?? '';
-                    addItem();
+                    if (this.__newItem.includes('\n')) addItem();
                   }}
                   @blur=${() => {
                     this.__isErrorVisible = true;

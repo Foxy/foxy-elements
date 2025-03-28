@@ -143,6 +143,30 @@ describe('InternalEditableListControl', () => {
     expect(value).to.deep.equal([{ value: 'foo', unit: '' }]);
   });
 
+  it('can add items on paste', async () => {
+    const element = await fixture<Control>(html`
+      <foxy-internal-editable-list-control></foxy-internal-editable-list-control>
+    `);
+
+    let value: unknown = [];
+    element.getValue = () => value;
+    element.setValue = newValue => (value = newValue);
+    await element.requestUpdate();
+
+    const input = element.renderRoot.querySelector('input') as HTMLInputElement;
+    const whenChangeEmitted = oneEvent(element, 'change');
+
+    const clipboardData = new DataTransfer();
+    clipboardData.setData('text/plain', 'foo\nbar');
+    input.dispatchEvent(new ClipboardEvent('paste', { clipboardData }));
+
+    expect(await whenChangeEmitted).to.be.instanceOf(CustomEvent);
+    expect(value).to.deep.equal([
+      { value: 'foo', unit: '' },
+      { value: 'bar', unit: '' },
+    ]);
+  });
+
   it('can add items on Submit button click', async () => {
     const layout = html`<foxy-internal-editable-list-control></foxy-internal-editable-list-control>`;
     const element = await fixture<Control>(layout);
