@@ -44,6 +44,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "percent": "{{fraction, percent}}",
         "tax_global": "Global tax",
@@ -211,6 +214,9 @@
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "type_custom_url": "Custom (URL)",
               "type_custom_text": "Custom (Text)",

@@ -35,6 +35,9 @@
                   "next": "Next",
                   "pagination": "{{from}}-{{to}} out of {{total}}",
                   "previous": "Previous",
+                  "page_number": "Page number:",
+                  "select": "Select...",
+                  "per_page": "Items per page:",
                   "card": {
                     "spinner": {
                       "loading_busy": "Loading",
@@ -395,6 +398,9 @@
                         "next": "Next",
                         "pagination": "{{from}}-{{to}} out of {{total}}",
                         "previous": "Previous",
+                        "page_number": "Page number:",
+                        "select": "Select...",
+                        "per_page": "Items per page:",
                         "card": {
                           "spinner": {
                             "loading_busy": "Loading",
@@ -448,8 +454,11 @@
             "first": "First",
             "last": "Last",
             "next": "Next",
-            "pagination": "{{from}}-{{to}}",
-            "previous": "Previous"
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:"
           }
         },
         "delete": {
@@ -485,6 +494,9 @@
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "spinner": {
                 "loading_busy": "Loading",

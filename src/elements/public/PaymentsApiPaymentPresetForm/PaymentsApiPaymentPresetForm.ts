@@ -113,6 +113,7 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
         item="foxy-payments-api-payment-method-card"
         form="foxy-payments-api-payment-method-form"
         alert
+        wide
         .itemProps=${{ '.getImageSrc': this.getPaymentMethodImageSrc }}
         .formProps=${{
           '.getImageSrc': this.getPaymentMethodImageSrc,

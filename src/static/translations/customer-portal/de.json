@@ -1026,10 +1026,13 @@
       "items": {
         "pagination": {
           "first": "Erste",
-          "last": "Zuletzt",
+          "last": "Letzte",
           "next": "Nächste",
-          "pagination": "{{from}}-{{to}} aus {{total}}",
+          "pagination": "{{from}}-{{to}} von {{total}}",
           "previous": "Vorherige",
+          "page_number": "Seitennummer:",
+          "select": "Auswählen...",
+          "per_page": "Artikel pro Seite:",
           "card": {
             "daily": "Täglich",
             "daily_plural": "Jeden {{count}} Tage",
@@ -1058,10 +1061,13 @@
         "label": "Transaktionen",
         "pagination": {
           "first": "Erste",
-          "last": "Zuletzt",
+          "last": "Letzte",
           "next": "Nächste",
-          "pagination": "{{from}}-{{to}} aus {{total}}",
+          "pagination": "{{from}}-{{to}} von {{total}}",
           "previous": "Vorherige",
+          "page_number": "Seitennummer:",
+          "select": "Auswählen...",
+          "per_page": "Artikel pro Seite:",
           "card": {
             "code": "Code",
             "customer": "Kunde",

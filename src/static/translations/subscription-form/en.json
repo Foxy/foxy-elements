@@ -92,6 +92,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
         "spinner": {
@@ -140,6 +143,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "daily": "Daily",
         "daily_plural": "Every {{count}} days",
@@ -171,6 +177,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "code": "Code",
         "customer": "Customer",

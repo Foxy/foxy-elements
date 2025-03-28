@@ -1025,11 +1025,14 @@
       "yearly_plural": "每一个 {{count}} 年",
       "items": {
         "pagination": {
-          "first": "第一的",
-          "last": "最后的",
+          "first": "第一",
+          "last": "最后",
           "next": "下一个",
-          "pagination": "{{from}}-{{to}} 在......之外 {{total}}",
-          "previous": "以前的",
+          "pagination": "{{from}}-{{to}} 共 {{total}}",
+          "previous": "以前",
+          "page_number": "页码：",
+          "select": "选择...",
+          "per_page": "每页项目：",
           "card": {
             "daily": "日常的",
             "daily_plural": "每一个 {{count}} 天",
@@ -1057,11 +1060,14 @@
       "transactions": {
         "label": "交易",
         "pagination": {
-          "first": "第一的",
-          "last": "最后的",
+          "first": "第一",
+          "last": "最后",
           "next": "下一个",
-          "pagination": "{{from}}-{{to}} 在......之外 {{total}}",
-          "previous": "以前的",
+          "pagination": "{{from}}-{{to}} 共 {{total}}",
+          "previous": "以前",
+          "page_number": "页码：",
+          "select": "选择...",
+          "per_page": "每页项目：",
           "card": {
             "code": "代码",
             "customer": "顾客",

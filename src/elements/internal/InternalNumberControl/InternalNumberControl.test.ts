@@ -346,7 +346,7 @@ describe('InternalNumberControl', () => {
     `);
 
     const input = control.renderRoot.querySelector('input')!;
-    expect(input).to.have.property('value', '');
+    expect(input).to.have.property('value', '0');
 
     control.testValue = 12.34;
     await control.requestUpdate();
@@ -360,7 +360,7 @@ describe('InternalNumberControl', () => {
     `);
 
     const input = control.renderRoot.querySelector('input')!;
-    expect(input).to.have.property('value', '');
+    expect(input).to.have.property('value', '0');
 
     input.value = '12.34';
     input.dispatchEvent(new CustomEvent('input'));

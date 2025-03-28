@@ -1025,11 +1025,14 @@
       "yearly_plural": "Varje {{count}} år",
       "items": {
         "pagination": {
-          "first": "Först",
+          "first": "Första",
           "last": "Sista",
           "next": "Nästa",
-          "pagination": "{{from}}-{{to}} ut ur {{total}}",
-          "previous": "Tidigare",
+          "pagination": "{{from}}-{{to}} av {{total}}",
+          "previous": "Föregående",
+          "page_number": "Sidnummer:",
+          "select": "Välj...",
+          "per_page": "Föremål per sida:",
           "card": {
             "daily": "Dagligen",
             "daily_plural": "Varje {{count}} dagar",
@@ -1057,11 +1060,14 @@
       "transactions": {
         "label": "Transaktioner",
         "pagination": {
-          "first": "Först",
+          "first": "Första",
           "last": "Sista",
           "next": "Nästa",
-          "pagination": "{{from}}-{{to}} ut ur {{total}}",
-          "previous": "Tidigare",
+          "pagination": "{{from}}-{{to}} av {{total}}",
+          "previous": "Föregående",
+          "page_number": "Sidnummer:",
+          "select": "Välj...",
+          "per_page": "Föremål per sida:",
           "card": {
             "code": "Koda",
             "customer": "Kund",

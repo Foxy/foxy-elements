@@ -1313,6 +1313,12 @@ export const createDataset: () => Dataset = () => ({
       test_account_id: 'BxFSnPy7',
       test_account_key: '8SPBTpqs4uf2ZwM8',
       test_third_party_key: '',
+      supports_card_verification: true,
+      card_verification: 'enabled_automatically',
+      card_verification_config:
+        '{"verification_amounts": {"visa": 1, "mastercard": 1, "american_express": 1, "discover": 1, "default": 1}}',
+      test_card_verification: '',
+      test_card_verification_config: '',
       date_created: '2014-07-17T06:46:00-0700',
       date_modified: '2014-07-17T06:46:00-0700',
     },
@@ -1334,6 +1340,11 @@ export const createDataset: () => Dataset = () => ({
       test_account_id: '',
       test_account_key: '',
       test_third_party_key: '',
+      supports_card_verification: false,
+      card_verification: '',
+      card_verification_config: '',
+      test_card_verification: '',
+      test_card_verification_config: '',
       date_created: '2015-05-26T17:49:56-0700',
       date_modified: '2015-05-26T17:49:56-0700',
     },
@@ -1420,6 +1431,10 @@ export const createDataset: () => Dataset = () => ({
           supports_auth_only: true,
           supports_3d_secure: true,
           additional_fields: null,
+          supports_card_verification: true,
+          card_verification: 'enabled_automatically',
+          card_verification_config:
+            '{"verification_amounts": {"visa": 1, "mastercard": 1, "american_express": 1, "discover": 1, "default": 1}}',
         },
       },
     },
@@ -1766,6 +1781,17 @@ export const createDataset: () => Dataset = () => ({
             },
           },
         },
+      },
+    },
+    {
+      id: 11,
+      message: 'fx:card_verification property helper',
+      values: {
+        disabled: 'Will never verify payment methods. Not recommended.',
+        enabled_automatically:
+          'Will perform a verification on zero-amount transactions when a payment method is required (such as future subscriptions). Greater than zero-amount transactions will be authorized or auth+captured at the full amount.',
+        enabled_override:
+          'For all transactions where a payment method is required (both zero-amount and greater than zero-amount), the payment method will be verified. Payment will not be collected without additional action. Only recommended in specific situations.',
       },
     },
   ],

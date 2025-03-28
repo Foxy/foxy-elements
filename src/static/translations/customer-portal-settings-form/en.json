@@ -149,7 +149,10 @@
       "last": "Last",
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous"
+      "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:"
     }
   },
   "subscriptions-allow-next-date-modification": {
@@ -299,7 +302,10 @@
       "last": "Last",
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous"
+      "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:"
     }
   },
   "timestamps": {

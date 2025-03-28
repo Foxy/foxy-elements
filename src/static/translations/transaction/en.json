@@ -65,6 +65,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
         "daily": "Daily",
@@ -161,6 +164,9 @@
                   "next": "Next",
                   "pagination": "{{from}}-{{to}} out of {{total}}",
                   "previous": "Previous",
+                  "page_number": "Page number:",
+                  "select": "Select...",
+                  "per_page": "Items per page:",
                   "card": {
                     "spinner": {
                       "loading_busy": "Loading",
@@ -309,6 +315,9 @@
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "spinner": {
                 "loading_busy": "Loading",
@@ -326,6 +335,9 @@
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "spinner": {
                 "loading_busy": "Loading",
@@ -432,7 +444,10 @@
             "last": "Last",
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
-            "previous": "Previous"
+            "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:"
           }
         },
         "item-options": {
@@ -541,7 +556,10 @@
             "last": "Last",
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
-            "previous": "Previous"
+            "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:"
           }
         },
         "timestamps": {
@@ -657,6 +675,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
         "spinner": {
@@ -757,6 +778,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
         "spinner": {
@@ -791,6 +815,9 @@
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "status_initializing": "Initializing",
               "status_successful": "Successful",
@@ -813,6 +840,9 @@
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "date": "{{ value, date }} at {{ value, time }}",
               "spinner": {
@@ -842,6 +872,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "status_initializing": "Last run: {{ date_created, date }} at {{ date_created, time }} • Initializing",
         "status_successful": "Last run: {{ date_created, date }} at {{ date_created, time }} • Successful",
@@ -914,6 +947,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "code": "Code",
         "date": "{{value, date}}",
@@ -1643,6 +1679,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "full_address": "{{address1}} {{address2}} {{city}} {{region}} {{country}} {{postal_code}}",
         "full_name": "{{first_name}} {{last_name}}",
@@ -1662,6 +1701,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "full_address": "{{ address1 }} {{ address2 }} {{ city }} {{ region }} {{ postal_code }}",
         "quantity": "Qty: {{ count }}",

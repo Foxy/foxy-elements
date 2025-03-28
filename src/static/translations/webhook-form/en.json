@@ -81,6 +81,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "status_initializing": "Initializing",
         "status_successful": "Successful",
@@ -103,6 +106,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "date": "{{ value, date }} at {{ value, time }}",
         "spinner": {

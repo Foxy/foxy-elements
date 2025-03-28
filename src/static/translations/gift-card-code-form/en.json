@@ -59,6 +59,9 @@
           "next": "Next",
           "pagination": "{{from}}-{{to}} out of {{total}}",
           "previous": "Previous",
+          "page_number": "Page number:",
+          "select": "Select...",
+          "per_page": "Items per page:",
           "card": {
             "spinner": {
               "loading_busy": "Loading",
@@ -160,6 +163,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "title_updated_via_api": "Updated via API",
         "title_used": "Used on checkout",

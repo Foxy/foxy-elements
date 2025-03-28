@@ -1045,4 +1045,13 @@ describe('ExperimentalAddToCartBuilder', () => {
       expect(formCopyButton?.getAttribute('text')).to.equal(testCase.html);
     });
   }
+
+  it('renders default slot', async () => {
+    const element = await fixture<Builder>(
+      html`<foxy-experimental-add-to-cart-builder></foxy-experimental-add-to-cart-builder>`
+    );
+
+    const slot = element.renderRoot.querySelector('slot:not([name])');
+    expect(slot).to.exist;
+  });
 });

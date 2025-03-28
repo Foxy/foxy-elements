@@ -40,6 +40,9 @@
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "spinner": {
                 "loading_busy": "Loading",
@@ -125,6 +128,9 @@
           "next": "Next",
           "pagination": "{{from}}-{{to}} out of {{total}}",
           "previous": "Previous",
+          "page_number": "Page number:",
+          "select": "Select...",
+          "per_page": "Items per page:",
           "card": {
             "spinner": {
               "loading_busy": "Loading",
@@ -191,6 +197,9 @@
                   "next": "Next",
                   "pagination": "{{from}}-{{to}} out of {{total}}",
                   "previous": "Previous",
+                  "page_number": "Page number:",
+                  "select": "Select...",
+                  "per_page": "Items per page:",
                   "card": {
                     "spinner": {
                       "loading_busy": "Loading",
@@ -366,6 +375,9 @@
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "title_valid": "{{type}} ••••{{last4Digits}}, expires {{month}}/{{year}}",
               "title_invalid": "Unknown payment method",
@@ -566,6 +578,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
         "daily": "Daily",
@@ -662,6 +677,9 @@
                   "next": "Next",
                   "pagination": "{{from}}-{{to}} out of {{total}}",
                   "previous": "Previous",
+                  "page_number": "Page number:",
+                  "select": "Select...",
+                  "per_page": "Items per page:",
                   "card": {
                     "spinner": {
                       "loading_busy": "Loading",
@@ -810,6 +828,9 @@
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "spinner": {
                 "loading_busy": "Loading",
@@ -827,6 +848,9 @@
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "spinner": {
                 "loading_busy": "Loading",
@@ -933,7 +957,10 @@
             "last": "Last",
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
-            "previous": "Previous"
+            "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:"
           }
         },
         "item-options": {
@@ -1042,7 +1069,10 @@
             "last": "Last",
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
-            "previous": "Previous"
+            "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:"
           }
         },
         "timestamps": {
@@ -1092,6 +1122,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
         "price": "{{amount, price}}",
@@ -1178,6 +1211,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
         "price": "{{amount, price}}",
@@ -1276,6 +1312,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
         "price": "{{amount, price}}",

@@ -78,14 +78,94 @@
           "label": "Test setup",
           "label_inactive": "Test setup (inactive)",
           "helper_text": "",
-          "helper_text_inactive": "To use this setup, turn off the \"Use live credentials\" option in the payment method set."
+          "helper_text_inactive": "To use this setup, turn off the \"Use live credentials\" option in the payment method set.",
+          "test-card-verification": {
+            "label": "Card verification",
+            "placeholder": "Select",
+            "helper_text": "",
+            "helper_text_disabled": "Will never verify payment methods. Not recommended.",
+            "helper_text_enabled_automatically": "Will perform a verification on zero-amount transactions when a payment method is required (such as future subscriptions). Greater than zero-amount transactions will be authorized or auth+captured at the full amount.",
+            "helper_text_enabled_override": "For all transactions where a payment method is required (both zero-amount and greater than zero-amount), the payment method will be verified. Payment will not be collected without additional action. Only recommended in specific situations.",
+            "option_disabled": "Off",
+            "option_enabled_automatically": "Enabled (auto)",
+            "option_enabled_override": "Enabled (always)"
+          },
+          "test-card-verification-config": {
+            "label": "Card verification amounts",
+            "helper_text": "",
+            "test-card-verification-config-verification-amounts-visa": {
+              "label": "Visa",
+              "placeholder": "1",
+              "helper_text": ""
+            },
+            "test-card-verification-config-verification-amounts-mastercard": {
+              "label": "Mastercard",
+              "placeholder": "1",
+              "helper_text": ""
+            },
+            "test-card-verification-config-verification-amounts-american-express": {
+              "label": "American Express",
+              "placeholder": "1",
+              "helper_text": ""
+            },
+            "test-card-verification-config-verification-amounts-discover": {
+              "label": "Discover",
+              "placeholder": "1",
+              "helper_text": ""
+            },
+            "test-card-verification-config-verification-amounts-default": {
+              "label": "Default",
+              "placeholder": "1",
+              "helper_text": ""
+            }
+          }
         },
         "live-group": {
           "label": "Live setup",
           "label_inactive": "Live setup (inactive)",
           "helper_text": "",
           "helper_text_inactive": "To use this setup, turn on the \"Use live credentials\" option in the payment method set.",
-          "inactive_message": "Only active stores can accept real payments. To activate your store, please upgrade to a paid plan."
+          "inactive_message": "Only active stores can accept real payments. To activate your store, please upgrade to a paid plan.",
+          "card-verification": {
+            "label": "Card verification",
+            "placeholder": "Select",
+            "helper_text": "",
+            "helper_text_disabled": "Will never verify payment methods. Not recommended.",
+            "helper_text_enabled_automatically": "Will perform a verification on zero-amount transactions when a payment method is required (such as future subscriptions). Greater than zero-amount transactions will be authorized or auth+captured at the full amount.",
+            "helper_text_enabled_override": "For all transactions where a payment method is required (both zero-amount and greater than zero-amount), the payment method will be verified. Payment will not be collected without additional action. Only recommended in specific situations.",
+            "option_disabled": "Off",
+            "option_enabled_automatically": "Enabled (auto)",
+            "option_enabled_override": "Enabled (always)"
+          },
+          "card-verification-config": {
+            "label": "Card verification amounts",
+            "helper_text": "",
+            "card-verification-config-verification-amounts-visa": {
+              "label": "Visa",
+              "placeholder": "1",
+              "helper_text": ""
+            },
+            "card-verification-config-verification-amounts-mastercard": {
+              "label": "Mastercard",
+              "placeholder": "1",
+              "helper_text": ""
+            },
+            "card-verification-config-verification-amounts-american-express": {
+              "label": "American Express",
+              "placeholder": "1",
+              "helper_text": ""
+            },
+            "card-verification-config-verification-amounts-discover": {
+              "label": "Discover",
+              "placeholder": "1",
+              "helper_text": ""
+            },
+            "card-verification-config-verification-amounts-default": {
+              "label": "Default",
+              "placeholder": "1",
+              "helper_text": ""
+            }
+          }
         },
         "general": {
           "label": "",

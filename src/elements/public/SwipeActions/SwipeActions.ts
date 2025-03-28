@@ -30,12 +30,8 @@ export class SwipeActions extends LitElement {
       }
 
       #scroll {
-        --internal-scrollbar-height: var(--scrollbar-height, 24px);
-
-        padding-bottom: var(--internal-scrollbar-height);
-        margin-top: calc(0px - var(--internal-scrollbar-height));
-        transform: translateY(var(--internal-scrollbar-height));
-        overflow: auto hidden;
+        margin-bottom: calc(0px - var(--scrollbar-height, 24px));
+        overflow: scroll hidden;
         white-space: nowrap;
         scroll-snap-type: x mandatory;
         display: flex;
@@ -87,6 +83,13 @@ export class SwipeActions extends LitElement {
         </div>
       </div>
     `;
+  }
+
+  firstUpdated(changes: Map<keyof this, unknown>): void {
+    super.firstUpdated(changes);
+    const scroll = this.__scroll;
+    const root = this.renderRoot.querySelector('#root') as HTMLElement;
+    root.style.setProperty('--scrollbar-height', `${scroll.offsetHeight - scroll.clientHeight}px`);
   }
 
   private get __scroll() {

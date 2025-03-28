@@ -1027,9 +1027,12 @@
         "pagination": {
           "first": "Primero",
           "last": "Último",
-          "next": "Próximo",
-          "pagination": "{{from}}-{{to}} fuera de {{total}}",
+          "next": "Siguiente",
+          "pagination": "{{from}}-{{to}} de {{total}}",
           "previous": "Anterior",
+          "page_number": "Número de página:",
+          "select": "Seleccionar...",
+          "per_page": "Elementos por página:",
           "card": {
             "daily": "A diario",
             "daily_plural": "Cada {{count}} días",
@@ -1059,9 +1062,12 @@
         "pagination": {
           "first": "Primero",
           "last": "Último",
-          "next": "Próximo",
-          "pagination": "{{from}}-{{to}} fuera de {{total}}",
+          "next": "Siguiente",
+          "pagination": "{{from}}-{{to}} de {{total}}",
           "previous": "Anterior",
+          "page_number": "Número de página:",
+          "select": "Seleccionar...",
+          "per_page": "Elementos por página:",
           "card": {
             "code": "Código",
             "customer": "Cliente",

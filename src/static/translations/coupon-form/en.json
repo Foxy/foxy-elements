@@ -232,6 +232,9 @@
             "next": "Next",
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select...",
+            "per_page": "Items per page:",
             "card": {
               "code": "Code",
               "customer": "Customer",
@@ -315,7 +318,10 @@
       "last": "Last",
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous"
+      "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:"
     },
     "query-builder": {
       "add_or_clause": "Add OR clause",
@@ -456,7 +462,10 @@
       "last": "Last",
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous"
+      "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:"
     }
   },
   "uses": {
@@ -571,6 +580,9 @@
       "next": "Next",
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
       "card": {
         "spinner": {
           "loading_busy": "Loading",

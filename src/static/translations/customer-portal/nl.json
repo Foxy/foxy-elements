@@ -1025,11 +1025,14 @@
       "yearly_plural": "Elk {{count}} jaren",
       "items": {
         "pagination": {
-          "first": "Eerst",
-          "last": "Laatst",
+          "first": "Eerste",
+          "last": "Laatste",
           "next": "Volgende",
-          "pagination": "{{from}}-{{to}} uit {{total}}",
-          "previous": "Vorig",
+          "pagination": "{{from}}-{{to}} van {{total}}",
+          "previous": "Vorige",
+          "page_number": "Paginanummer:",
+          "select": "Selecteer...",
+          "per_page": "Items per pagina:",
           "card": {
             "daily": "Dagelijks",
             "daily_plural": "Elk {{count}} dagen",
@@ -1057,11 +1060,14 @@
       "transactions": {
         "label": "Transacties",
         "pagination": {
-          "first": "Eerst",
-          "last": "Laatst",
+          "first": "Eerste",
+          "last": "Laatste",
           "next": "Volgende",
-          "pagination": "{{from}}-{{to}} uit {{total}}",
-          "previous": "Vorig",
+          "pagination": "{{from}}-{{to}} van {{total}}",
+          "previous": "Vorige",
+          "page_number": "Paginanummer:",
+          "select": "Selecteer...",
+          "per_page": "Items per pagina:",
           "card": {
             "code": "Code",
             "customer": "Klant",

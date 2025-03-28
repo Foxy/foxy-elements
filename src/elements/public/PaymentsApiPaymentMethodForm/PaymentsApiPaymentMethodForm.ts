@@ -143,6 +143,12 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     { value: 'maestro_only', label: 'option_maestro_only' },
   ];
 
+  private readonly __cardVerificationOptions = [
+    { label: 'option_disabled', value: 'disabled' },
+    { label: 'option_enabled_automatically', value: 'enabled_automatically' },
+    { label: 'option_enabled_override', value: 'enabled_override' },
+  ];
+
   get hiddenSelector(): BooleanSelector {
     return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
   }
@@ -373,7 +379,8 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
       </foxy-internal-summary-control>
 
       ${['live', 'test'].map((type, index) => {
-        const prefix = index === 0 ? '' : `${type}-`;
+        const propertyPrefix = index === 0 ? '' : `${type}_`;
+        const inferPrefix = index === 0 ? '' : `${type}-`;
         const blocks = index === 0 ? this.__liveBlocks : this.__testBlocks;
         const scope = `${type}-group`;
 
@@ -402,46 +409,108 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
             helper-text=${ifDefined(
               showInactiveSetText ? this.t(`${scope}.helper_text_inactive`) : void 0
             )}
+            layout="section"
             label=${ifDefined(showInactiveSetText ? this.t(`${scope}.label_inactive`) : void 0)}
             infer=${scope}
           >
-            ${this.form.helper?.id_description
-              ? html`
-                  <foxy-internal-text-control
-                    placeholder=${this.t('default_additional_field_placeholder')}
-                    helper-text=""
-                    layout="summary-item"
-                    label=${this.form.helper.id_description}
-                    infer="${prefix}account-id"
-                  >
-                  </foxy-internal-text-control>
-                `
-              : ''}
-            ${this.form.helper?.third_party_key_description
-              ? html`
-                  <foxy-internal-password-control
-                    placeholder=${this.t('default_additional_field_placeholder')}
-                    helper-text=""
-                    layout="summary-item"
-                    label=${this.form.helper.third_party_key_description}
-                    infer="${prefix}third-party-key"
-                  >
-                  </foxy-internal-password-control>
-                `
-              : ''}
-            ${this.form.helper?.key_description
-              ? html`
-                  <foxy-internal-password-control
-                    placeholder=${this.t('default_additional_field_placeholder')}
-                    layout="summary-item"
-                    helper-text=""
-                    label=${this.form.helper.key_description}
-                    infer="${prefix}account-key"
-                  >
-                  </foxy-internal-password-control>
-                `
-              : ''}
-            ${blocks.map(block => this.__renderBlock(block))}
+            <foxy-internal-summary-control infer="" label="" helper-text="">
+              ${this.form.helper?.id_description
+                ? html`
+                    <foxy-internal-text-control
+                      placeholder=${this.t('default_additional_field_placeholder')}
+                      helper-text=""
+                      layout="summary-item"
+                      label=${this.form.helper.id_description}
+                      infer="${inferPrefix}account-id"
+                    >
+                    </foxy-internal-text-control>
+                  `
+                : ''}
+              ${this.form.helper?.third_party_key_description
+                ? html`
+                    <foxy-internal-password-control
+                      placeholder=${this.t('default_additional_field_placeholder')}
+                      helper-text=""
+                      layout="summary-item"
+                      label=${this.form.helper.third_party_key_description}
+                      infer="${inferPrefix}third-party-key"
+                    >
+                    </foxy-internal-password-control>
+                  `
+                : ''}
+              ${this.form.helper?.key_description
+                ? html`
+                    <foxy-internal-password-control
+                      placeholder=${this.t('default_additional_field_placeholder')}
+                      layout="summary-item"
+                      helper-text=""
+                      label=${this.form.helper.key_description}
+                      infer="${inferPrefix}account-key"
+                    >
+                    </foxy-internal-password-control>
+                  `
+                : ''}
+              ${blocks.map(block => this.__renderBlock(block))}
+              ${
+                // @ts-expect-error SDK typings are incomplete
+                this.form.helper?.supports_card_verification
+                  ? html`
+                      <foxy-internal-select-control
+                        helper-text=${this.t(
+                          `${scope}.${inferPrefix}card-verification.helper_text_${
+                            // @ts-expect-error SDK typings are incomplete
+                            this.form[`${propertyPrefix}card_verification`] || 'disabled'
+                          }`
+                        )}
+                        layout="summary-item"
+                        infer="${inferPrefix}card-verification"
+                        .options=${this.__cardVerificationOptions}
+                        .getValue=${() => {
+                          // @ts-expect-error SDK typings are incomplete
+                          return this.form[`${propertyPrefix}card_verification`] || 'disabled';
+                        }}
+                      >
+                      </foxy-internal-select-control>
+                    `
+                  : ''
+              }
+            </foxy-internal-summary-control>
+
+            ${
+              // @ts-expect-error SDK typings are incomplete
+              this.form.helper?.supports_card_verification &&
+              // @ts-expect-error SDK typings are incomplete
+              this.form[`${propertyPrefix}card_verification`]?.startsWith('enabled_')
+                ? html`
+                    <foxy-internal-summary-control
+                      layout="details"
+                      class="mt-s"
+                      infer="${inferPrefix}card-verification-config"
+                    >
+                      ${['visa', 'mastercard', 'american-express', 'discover', 'default'].map(
+                        type => {
+                          return html`
+                            <foxy-internal-number-control
+                              json-template=${ifDefined(
+                                // @ts-expect-error SDK typings are incomplete
+                                this.form.helper?.card_verification_config
+                              )}
+                              json-path="verification_amounts.${type.replace(/-/g, '_')}"
+                              property="${propertyPrefix}card_verification_config"
+                              layout="summary-item"
+                              suffix="¤"
+                              infer="${inferPrefix}card-verification-config-verification-amounts-${type}"
+                              step="0.01"
+                              min="0"
+                            >
+                            </foxy-internal-number-control>
+                          `;
+                        }
+                      )}
+                    </foxy-internal-summary-control>
+                  `
+                : ''
+            }
           </foxy-internal-summary-control>
         `;
       })}
