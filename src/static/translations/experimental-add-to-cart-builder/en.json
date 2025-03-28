@@ -561,7 +561,9 @@
     "unavailable": {
       "loading_busy": "Loading preview...",
       "loading_paused": "Preview paused",
-      "code_required": "Preview and add-to-cart code will be available once you provide an SKU for each item."
+      "paused_code_required": "Preview and add-to-cart code will be available once you provide an SKU for each item.",
+      "error_html_entities_present": "Item parameters can't contain HTML entities when cart signing is enabled.",
+      "error_double_quotes_present": "Item parameters can't contain double quotes when cart signing is enabled."
     },
     "spinner": {
       "loading_busy": "Signing",

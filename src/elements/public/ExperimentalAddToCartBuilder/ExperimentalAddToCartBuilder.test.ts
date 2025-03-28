@@ -306,7 +306,123 @@ describe('ExperimentalAddToCartBuilder', () => {
     await element1.requestUpdate();
 
     const spinnerSelector = 'foxy-spinner[infer="unavailable"][state="paused"]';
-    const labelSelector = 'foxy-i18n[infer="unavailable"][key="code_required"]';
+    const labelSelector = 'foxy-i18n[infer="unavailable"][key="paused_code_required"]';
+    expect(element1.renderRoot.querySelector(spinnerSelector)).to.exist;
+    expect(element1.renderRoot.querySelector(labelSelector)).to.exist;
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/stores/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ use_cart_validation: false }),
+      })
+    )?.handlerPromise;
+
+    const element2 = await fixture<Builder>(
+      html`
+        <foxy-experimental-add-to-cart-builder
+          default-domain="foxycart.com"
+          encode-helper="https://demo.api/virtual/encode"
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          store="https://demo.api/hapi/stores/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-experimental-add-to-cart-builder>
+      `
+    );
+
+    await waitForIdle(element2);
+    await element2.requestUpdate();
+    expect(element2.renderRoot.querySelector(spinnerSelector)).to.not.exist;
+    expect(element2.renderRoot.querySelector(labelSelector)).to.not.exist;
+  });
+
+  it('renders HTML Entities Unsupported message when appropriate', async () => {
+    const router = createRouter();
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/stores/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ use_cart_validation: true }),
+      })
+    )?.handlerPromise;
+
+    const element1 = await fixture<Builder>(
+      html`
+        <foxy-experimental-add-to-cart-builder
+          default-domain="foxycart.com"
+          encode-helper="https://demo.api/virtual/encode"
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          store="https://demo.api/hapi/stores/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-experimental-add-to-cart-builder>
+      `
+    );
+
+    element1.edit({ items: [{ name: 'Test&quot;', code: 'TEST', price: 25, custom_options: [] }] });
+    await waitForIdle(element1);
+    await element1.requestUpdate();
+
+    const spinnerSelector = 'foxy-spinner[infer="unavailable"][state="error"]';
+    const labelSelector = 'foxy-i18n[infer="unavailable"][key="error_html_entities_present"]';
+    expect(element1.renderRoot.querySelector(spinnerSelector)).to.exist;
+    expect(element1.renderRoot.querySelector(labelSelector)).to.exist;
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/stores/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ use_cart_validation: false }),
+      })
+    )?.handlerPromise;
+
+    const element2 = await fixture<Builder>(
+      html`
+        <foxy-experimental-add-to-cart-builder
+          default-domain="foxycart.com"
+          encode-helper="https://demo.api/virtual/encode"
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          store="https://demo.api/hapi/stores/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-experimental-add-to-cart-builder>
+      `
+    );
+
+    await waitForIdle(element2);
+    await element2.requestUpdate();
+    expect(element2.renderRoot.querySelector(spinnerSelector)).to.not.exist;
+    expect(element2.renderRoot.querySelector(labelSelector)).to.not.exist;
+  });
+
+  it('renders Double Quotes Unsupported message when appropriate', async () => {
+    const router = createRouter();
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/stores/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ use_cart_validation: true }),
+      })
+    )?.handlerPromise;
+
+    const element1 = await fixture<Builder>(
+      html`
+        <foxy-experimental-add-to-cart-builder
+          default-domain="foxycart.com"
+          encode-helper="https://demo.api/virtual/encode"
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          store="https://demo.api/hapi/stores/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-experimental-add-to-cart-builder>
+      `
+    );
+
+    element1.edit({ items: [{ name: 'Test"', code: 'TEST', price: 25, custom_options: [] }] });
+    await waitForIdle(element1);
+    await element1.requestUpdate();
+
+    const spinnerSelector = 'foxy-spinner[infer="unavailable"][state="error"]';
+    const labelSelector = 'foxy-i18n[infer="unavailable"][key="error_double_quotes_present"]';
     expect(element1.renderRoot.querySelector(spinnerSelector)).to.exist;
     expect(element1.renderRoot.querySelector(labelSelector)).to.exist;
 

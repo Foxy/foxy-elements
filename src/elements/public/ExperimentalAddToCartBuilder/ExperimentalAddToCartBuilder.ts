@@ -24,6 +24,16 @@ const NS = 'experimental-add-to-cart-builder';
 const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 hljs.registerLanguage('xml', hljsxml);
 
+// TODO use proper encoding when encoding API supports HTML entities
+const weakEncode = (value: string, checkHmacCompatibility: boolean) => {
+  if (checkHmacCompatibility) {
+    if (decode(value) !== value) throw new Error('error_html_entities_present');
+    if (value.includes('"')) throw new Error('error_double_quotes_present');
+  }
+
+  return value.replace(/"/g, '&quot;');
+};
+
 /**
  * WARNING: this element is marked as experimental and is subject to change in future releases.
  * We will not be maintaining backwards compatibility for elements in the experimental namespace.
@@ -316,11 +326,15 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
                     <foxy-spinner
                       layout="no-label"
                       infer="unavailable"
-                      state=${addToCartCode?.error ? 'paused' : 'busy'}
+                      state=${addToCartCode?.error.split('_')[0] ?? 'busy'}
                     >
                     </foxy-spinner>
                     <foxy-i18n
-                      class="text-tertiary text-s"
+                      class=${classMap({
+                        'text-tertiary': !addToCartCode?.error.startsWith('error_'),
+                        'text-error': !!addToCartCode?.error.startsWith('error_'),
+                        'text-s': true,
+                      })}
                       infer="unavailable"
                       key="${addToCartCode?.error ?? 'loading_busy'}"
                     >
@@ -539,14 +553,15 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
 
     if (!this.defaultDomain || !templateSet || !store || !currencyCode || !cartUrl) return '';
 
+    const isHmacOn = store.use_cart_validation;
     let hasAtLeastOneFieldset = false;
-    let output = `<form action="${encode(cartUrl)}" method="post" target="_blank">`;
+    let output = `<form action="${weakEncode(cartUrl, isHmacOn)}" method="post" target="_blank">`;
     let level = 1;
 
     const newline = () => `\n${' '.repeat(level * 2)}`;
     const addHiddenInput = (name: string, value: string) => {
-      const encodedValue = encode(value);
-      const encodedName = encode(name);
+      const encodedValue = weakEncode(value, isHmacOn);
+      const encodedName = weakEncode(name, isHmacOn);
       output += `${newline()}<input type="hidden" name="${encodedName}" value="${encodedValue}">`;
     };
 
@@ -596,7 +611,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       const price = `${product.price}${currencyCode}`;
 
       if (product.price_configurable) {
-        const encodedNoCurrencyPrice = encode(product.price.toFixed(2));
+        const encodedNoCurrencyPrice = weakEncode(product.price.toFixed(2), isHmacOn);
         output += `${newline()}<label>`;
         level++;
         output += `${newline()}<span>${encode(this.t('preview.price_label'))}</span>`;
@@ -620,7 +635,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       if (product.code) {
         addHiddenInput(`${prefix}code`, product.code);
       } else if (store.use_cart_validation) {
-        return { error: 'code_required' };
+        return { error: 'paused_code_required' };
       }
 
       if (product.parent_code) addHiddenInput(`${prefix}parent_code`, product.parent_code);
@@ -679,14 +694,18 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
         output += `${newline()}<label>`;
         level++;
         output += `${newline()}<span>${encode(this.t('preview.quantity_label'))}</span>`;
-        output += `${newline()}<input type="number" name="${encode(`${prefix}quantity`)}"`;
-        output += ` min="${encode(String(resolvedMinQty))}"`;
 
-        if (resolvedMaxQty !== Infinity) output += ` max="${encode(String(resolvedMaxQty))}"`;
+        const encodedName = weakEncode(`${prefix}quantity`, isHmacOn);
+        output += `${newline()}<input type="number" name="${encodedName}"`;
+        output += ` min="${weakEncode(String(resolvedMinQty), isHmacOn)}"`;
+
+        if (resolvedMaxQty !== Infinity)
+          output += ` max="${weakEncode(String(resolvedMaxQty), isHmacOn)}"`;
         if (store.use_cart_validation) {
-          output += ` value="--OPEN--" data-replace="${encode(String(product.quantity ?? 1))}">`;
+          const encodedQuantity = weakEncode(String(product.quantity ?? 1), isHmacOn);
+          output += ` value="--OPEN--" data-replace="${encodedQuantity}">`;
         } else {
-          output += ` value="${encode(String(product.quantity ?? 1))}">`;
+          output += ` value="${weakEncode(String(product.quantity ?? 1), isHmacOn)}">`;
         }
 
         level--;
@@ -744,12 +763,12 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
             output += `${newline()}<label>`;
             level++;
             output += `${newline()}<span>${encode(optionName)}:</span>`;
-            output += `${newline()}<input name="${encode(name)}" `;
+            output += `${newline()}<input name="${weakEncode(name, isHmacOn)}" `;
 
             if (store.use_cart_validation) {
-              output += `value="--OPEN--" data-replace="${encode(value)}">`;
+              output += `value="--OPEN--" data-replace="${weakEncode(value, isHmacOn)}">`;
             } else {
-              output += `value="${encode(value)}">`;
+              output += `value="${weakEncode(value, isHmacOn)}">`;
             }
 
             level--;
@@ -768,8 +787,8 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
             const optionIndex = product.custom_options.indexOf(option);
             const itemCategory = this.__getItemCategoryLoader(productIndex, optionIndex)?.data;
             const modifiers = this.__getOptionModifiers(option, itemCategory ?? null, currencyCode);
-            const encodedValue = encode(`${option.value}${modifiers}`);
-            const encodedCaption = encode(option.value);
+            const encodedValue = weakEncode(`${option.value}${modifiers}`, isHmacOn);
+            const encodedCaption = encode(option.value ?? '');
             output += `${newline()}<option value="${encodedValue}">${encodedCaption}</option>`;
           });
 
@@ -788,6 +807,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
 
     const submitCaptionSuffix = this.form.cart === 'checkout' ? 'checkout' : 'cart';
     const encodedSubmitCaption = encode(this.t(`preview.submit_caption_${submitCaptionSuffix}`));
+
     output += `${newline()}<button type="submit">${encodedSubmitCaption}</button>`;
     level--;
     output += `${newline()}</form>`;
@@ -834,7 +854,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       if (product.code) {
         url.searchParams.set(`${prefix}code`, product.code);
       } else if (store.use_cart_validation) {
-        return { error: 'code_required' };
+        return { error: 'paused_code_required' };
       }
 
       if (product.parent_code) url.searchParams.set(`${prefix}parent_code`, product.parent_code);
@@ -921,37 +941,42 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
   }
 
   private __getAddToCartCode() {
-    const store = this.__storeLoader?.data;
-    if (!this.encodeHelper || !store) return null;
+    try {
+      const store = this.__storeLoader?.data;
+      if (!this.encodeHelper || !store) return null;
 
-    const formHTML = this.__getAddToCartFormHTML();
-    const linkHref = this.__getAddToCartLinkHref();
-    if (!formHTML && !linkHref) return null;
-    if (typeof formHTML === 'object') return { error: formHTML.error };
-    if (typeof linkHref === 'object') return { error: linkHref.error };
+      const checkEquality = store.use_cart_validation;
+      const formHTML = this.__getAddToCartFormHTML();
+      const linkHref = this.__getAddToCartLinkHref();
+      if (!formHTML && !linkHref) return null;
+      if (typeof formHTML === 'object') return { error: formHTML.error };
+      if (typeof linkHref === 'object') return { error: linkHref.error };
 
-    let unsignedCode: string;
+      let unsignedCode: string;
 
-    if (linkHref) {
-      const linkHTML = `<a href="${encode(linkHref)}">Add to cart</a>`;
-      unsignedCode = `${formHTML}${this.__signingSeparator}${linkHTML}`;
-    } else {
-      unsignedCode = formHTML;
+      if (linkHref) {
+        const linkHTML = `<a href="${weakEncode(linkHref, checkEquality)}">Add to cart</a>`;
+        unsignedCode = `${formHTML}${this.__signingSeparator}${linkHTML}`;
+      } else {
+        unsignedCode = formHTML;
+      }
+
+      if (unsignedCode === this.__previousUnsignedCode && this.__previousSignedCode) {
+        const [formHTML, linkHTML] = this.__previousSignedCode.split(this.__signingSeparator);
+        return {
+          linkHref: linkHTML ? decode(linkHTML.substring(9, linkHTML.length - 17)) : '',
+          formHTML,
+        };
+      }
+
+      this.__previousUnsignedCode = unsignedCode;
+      this.__previousSignedCode = '';
+
+      if (store.use_cart_validation) this.__signAsync(unsignedCode, this.encodeHelper);
+      return { formHTML, linkHref };
+    } catch (err) {
+      return { error: err.message };
     }
-
-    if (unsignedCode === this.__previousUnsignedCode && this.__previousSignedCode) {
-      const [formHTML, linkHTML] = this.__previousSignedCode.split(this.__signingSeparator);
-      return {
-        linkHref: linkHTML ? decode(linkHTML.substring(9, linkHTML.length - 17)) : '',
-        formHTML,
-      };
-    }
-
-    this.__previousUnsignedCode = unsignedCode;
-    this.__previousSignedCode = '';
-
-    if (store.use_cart_validation) this.__signAsync(unsignedCode, this.encodeHelper);
-    return { formHTML, linkHref };
   }
 
   private __getOptionModifiers(
