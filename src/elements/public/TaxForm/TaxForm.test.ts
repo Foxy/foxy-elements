@@ -308,15 +308,40 @@ describe('TaxForm', () => {
 
   it('conditionally hides exempt all customer tax ids switch', () => {
     const form = new Form();
-    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.false;
+
     form.edit({ type: 'union' });
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.false;
+
+    form.undo();
+    form.edit({ type: 'union', is_live: true, service_provider: 'avalara' });
     expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
+
+    form.undo();
     form.edit({ type: 'country' });
     expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.false;
+
+    form.undo();
+    form.edit({ type: 'country', is_live: true, service_provider: 'avalara' });
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
+
+    form.undo();
     form.edit({ type: 'region' });
     expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.false;
+
+    form.undo();
+    form.edit({ type: 'region', is_live: true, service_provider: 'avalara' });
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
+
+    form.undo();
     form.edit({ type: 'local' });
     expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.false;
+
+    form.undo();
+    form.edit({ type: 'local', is_live: true, service_provider: 'avalara' });
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
+
+    form.undo();
     form.edit({ type: 'custom_tax_endpoint' as Data['type'] });
     expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
   });

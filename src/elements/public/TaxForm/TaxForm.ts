@@ -321,12 +321,15 @@ export class TaxForm extends Base<Data> {
   }
 
   private get __isExemptAllCustomerTaxIdsHidden() {
-    const type = this.form.type as string | undefined;
-    if (type === 'custom_tax_endpoint') return true;
-    if (type === 'country' || type === 'region' || type === 'local') return !!this.form.is_live;
-
     const provider = this.form.service_provider as string | undefined;
-    return !provider || provider === 'onesource' || provider === 'avalara' || provider === 'taxjar';
+    const type = this.form.type as string | undefined;
+
+    if (type === 'custom_tax_endpoint') return true;
+    if (type === 'country' || type === 'region' || type === 'local' || type === 'union') {
+      return !!this.form.is_live && (provider === 'onesource' || provider === 'avalara');
+    }
+
+    return false;
   }
 
   private get __isApplyToShippingHidden() {
