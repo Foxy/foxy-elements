@@ -10,6 +10,17 @@ import { Checkbox, Choice, Dropdown, ErrorScreen, Group, I18N } from '../../priv
 import { DonationChangeEvent } from './DonationChangeEvent';
 import { DonationSubmitEvent } from './DonationSubmitEvent';
 
+declare global {
+  interface Window {
+    FC?: {
+      settings: {
+        session_name: string;
+        session_id: string;
+      };
+    };
+  }
+}
+
 interface DonationEventsMap {
   change: typeof DonationChangeEvent;
   submit: typeof DonationSubmitEvent;
@@ -420,6 +431,7 @@ export class Donation extends Translatable {
     if (typeof this.cart === 'string') data.set('cart', this.cart);
     if (this.empty) data.set('empty', this.empty);
     if (this.anonymous) data.set('Anonymous', 'true');
+    if (window.FC) data.set(window.FC.settings.session_name, window.FC.settings.session_id);
 
     data.set('quantity', '1');
 
