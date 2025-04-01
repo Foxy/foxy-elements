@@ -30,6 +30,7 @@ export function RangeValue(params: RangeValueParams): TemplateResult {
       <div class="bg-base">
         ${Field({
           displayValue: list?.find(v => v.value === from)?.label,
+          dateHours: [0, 0, 0, 0],
           readonly,
           disabled,
           value: from,
@@ -44,6 +45,7 @@ export function RangeValue(params: RangeValueParams): TemplateResult {
       <div class="bg-base">
         ${Field({
           displayValue: list?.find(v => v.value === to)?.label,
+          dateHours: [23, 59, 59, 999],
           readonly,
           disabled,
           label: 'range_to',

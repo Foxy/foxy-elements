@@ -4,11 +4,13 @@ import { I18n } from '../../I18n/I18n';
 import { classMap } from '../../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { serializeDateTime } from '../../../../utils/serialize-date';
+import { parseDate } from '../../../../utils/parse-date';
 
 export type InputParams = {
   t: I18n['t'];
   id?: string;
   list?: { label: string; value: string }[];
+  dateHours?: [number, number, number, number];
   type: string;
   label: string;
   value: string;
@@ -29,6 +31,18 @@ export function Input(params: InputParams): TemplateResult {
     const date = new Date(params.value);
     normalizedValue = isNaN(date.getTime()) ? '' : serializeDateTime(date);
   }
+
+  const inputType =
+    params.type === 'date' && (normalizedValue || !params.dateHours)
+      ? 'datetime-local'
+      : params.type;
+
+  const inputMax =
+    params.type === 'date'
+      ? normalizedValue || !params.dateHours
+        ? '9999-12-31T23:59'
+        : '9999-12-31'
+      : void 0;
 
   return html`
     <label class="relative flex items-center cursor-text group text-tertiary">
@@ -61,8 +75,8 @@ export function Input(params: InputParams): TemplateResult {
             'opacity-0 focus-opacity-100': hasDisplayValue,
           })}
           list=${ifDefined(params.list ? listId : undefined)}
-          type=${params.type === 'date' ? 'datetime-local' : params.type}
-          max=${ifDefined(params.type === 'date' ? '9999-12-31T23:59' : '')}
+          type=${inputType}
+          max=${ifDefined(inputMax)}
           .value=${normalizedValue}
           ?disabled=${params.disabled || params.readonly}
           @input=${(evt: Event) => {
@@ -71,7 +85,8 @@ export function Input(params: InputParams): TemplateResult {
 
             try {
               if (params.type === 'date') {
-                const newDate = new Date(input.value);
+                const newDate = normalizedValue ? new Date(input.value) : parseDate(input.value)!;
+                if (params.dateHours && !normalizedValue) newDate.setHours(...params.dateHours);
                 if (!isNaN(newDate.getTime())) newValue = newDate.toISOString();
               }
             } catch {
