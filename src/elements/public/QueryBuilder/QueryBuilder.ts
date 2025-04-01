@@ -37,6 +37,7 @@ class QueryBuilder extends Base {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      reservedPaths: { type: Array, attribute: 'reserved-paths' },
       disableZoom: { type: Boolean, attribute: 'disable-zoom' },
       disableOr: { type: Boolean, attribute: 'disable-or' },
       operators: { type: Array },
@@ -48,6 +49,9 @@ class QueryBuilder extends Base {
   static get styles(): CSSResultArray {
     return [super.styles, styles];
   }
+
+  /** List of reserved paths that should not be visible. */
+  reservedPaths: string[] = ['zoom', 'limit', 'offset', 'order', 'fields'];
 
   /** If true, doesn't add `zoom` query parameter for complex paths. */
   disableZoom = false;
@@ -65,7 +69,7 @@ class QueryBuilder extends Base {
   value: string | null = null;
 
   render(): TemplateResult {
-    const reservedPaths = new Set(['zoom', 'limit', 'offset', 'order', 'fields']);
+    const reservedPaths = new Set(this.reservedPaths);
     const hiddenValues: (ParsedValue | ParsedValue[])[] = [];
     const visibleValues: (ParsedValue | ParsedValue[])[] = [];
 

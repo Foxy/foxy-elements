@@ -24,6 +24,21 @@ describe('QueryBuilder', () => {
     expect(new QueryBuilder()).to.have.property('ns', 'query-builder');
   });
 
+  it('has a reactive property "reservedPaths"', () => {
+    expect(QueryBuilder).to.have.deep.nested.property('properties.reservedPaths', {
+      attribute: 'reserved-paths',
+      type: Array,
+    });
+
+    expect(new QueryBuilder()).to.have.deep.property('reservedPaths', [
+      'zoom',
+      'limit',
+      'offset',
+      'order',
+      'fields',
+    ]);
+  });
+
   it('has a reactive property "operators"', () => {
     expect(QueryBuilder).to.have.deep.nested.property('properties.operators', { type: Array });
     expect(new QueryBuilder()).to.have.deep.property(
@@ -115,6 +130,22 @@ describe('QueryBuilder', () => {
 
     expect(root.querySelectorAll(`[aria-label="query_builder_rule"]`)).to.have.length(2);
     expect(element).to.have.value('a=');
+  });
+
+  it('does not show a rule if the path is on the reserved paths list', async () => {
+    const element = await fixture<QueryBuilder>(
+      html`
+        <foxy-query-builder value="foo=1" reserved-paths=${JSON.stringify(['foo'])}>
+        </foxy-query-builder>
+      `
+    );
+
+    const root = element.renderRoot;
+    expect(root.querySelectorAll(`[aria-label="query_builder_rule"]`)).to.have.length(1);
+
+    element.reservedPaths = ['bar'];
+    await element.requestUpdate();
+    expect(root.querySelectorAll(`[aria-label="query_builder_rule"]`)).to.have.length(2);
   });
 
   it('clears path of the last rule after adding a new one', async () => {
