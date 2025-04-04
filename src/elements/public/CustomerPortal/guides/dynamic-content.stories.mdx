@@ -32,10 +32,10 @@ To get started, make sure you've got your basic setup ready. We'll need to write
 ></foxy-customer-portal>
 
 <script type="module">
-  import 'https://unpkg.com/@foxy.io/elements@1/dist/cdn/foxy-customer-portal.js';
+  import 'https://cdn-js.foxy.io/elements@1/foxy-customer-portal.js';
 
   const I18nElement = customElements.get('foxy-i18n');
-  const i18nBase = 'https://unpkg.com/@foxy.io/elements@1/dist/cdn/translations';
+  const i18nBase = 'https://cdn-js.foxy.io/elements@1/translations';
   I18nElement.onResourceFetch((ns, lang) => fetch(`${i18nBase}/${ns}/${lang}.json`));
 </script>
 ```
@@ -90,7 +90,7 @@ Let's extend our default setup with an HTML template rendering `<demo-promo>` el
   import 'https://cdn.skypack.dev/@foxy.io/elements@1/dist/cdn/foxy-customer-portal.js';
 
   const I18nElement = customElements.get('foxy-i18n');
-  const i18nBase = 'https://unpkg.com/@foxy.io/elements@1/dist/cdn/translations';
+  const i18nBase = 'https://cdn-js.foxy.io/elements@1/translations';
   I18nElement.onResourceFetch((ns, lang) => fetch(`${i18nBase}/${ns}/${lang}.json`));
 
   class PromoElement extends LitElement {
