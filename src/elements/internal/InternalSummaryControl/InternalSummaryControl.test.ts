@@ -39,8 +39,11 @@ describe('InternalSummaryControl', () => {
   });
 
   it('has a reactive property "open" that defaults to false', () => {
-    expect(Control).to.have.deep.nested.property('properties.open', { type: Boolean });
     expect(new Control()).to.have.property('open', false);
+    expect(Control).to.have.deep.nested.property('properties.open', {
+      reflect: true,
+      type: Boolean,
+    });
   });
 
   it('renders nothing in light DOM', () => {

@@ -12,7 +12,7 @@ export class InternalSummaryControl extends InternalEditableControl {
       unsafeHelperText: { type: Boolean, attribute: 'unsafe-helper-text' },
       layout: {},
       count: { type: Number },
-      open: { type: Boolean },
+      open: { type: Boolean, reflect: true },
     };
   }
 
