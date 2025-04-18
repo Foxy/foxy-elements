@@ -136,16 +136,15 @@ export class InternalNumberControl extends InternalEditableControl {
           />
 
           ${this.suffix ? html`<div class="font-medium text-secondary">${this.suffix}</div>` : ''}
-
-          <div style="max-width: 32rem">
-            <p class="text-xs text-secondary">${this.helperText}</p>
-            <p
-              class="text-xs text-error"
-              ?hidden=${!this.__isErrorVisible || this.disabled || this.readonly}
-            >
-              ${this._errorMessage}
-            </p>
-          </div>
+        </div>
+        <div style="max-width: 32rem">
+          <p class="text-xs text-secondary">${this.helperText}</p>
+          <p
+            class="text-xs text-error"
+            ?hidden=${!this.__isErrorVisible || this.disabled || this.readonly}
+          >
+            ${this._errorMessage}
+          </p>
         </div>
       </div>
     `;
