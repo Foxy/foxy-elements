@@ -27,7 +27,7 @@ export class InternalAsyncListControlFilterOverlay extends PositionMixin(Overlay
 
     const result = html`
       <div
-        style="display: grid; gap: var(--lumo-space-m); padding: var(--lumo-space-s); width: 22rem"
+        style="display: grid; gap: var(--lumo-space-m); padding: var(--lumo-space-s); min-width: 22rem; max-width: 35rem"
       >
         <foxy-query-builder
           lang=${m.lang}
