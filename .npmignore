@@ -13,6 +13,7 @@
 **/*.stories.js.map
 dist/server/**/*
 dist/mocks/**/*
+dist/cdn/translations/demo/**/*
 
 # and some system files
 .DS_Store

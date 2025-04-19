@@ -5,7 +5,7 @@ import { getMetaTitle } from './getMetaTitle';
 
 export function getMeta(summary: Summary): Meta {
   return {
-    title: getMetaTitle(summary.localName),
+    title: getMetaTitle(summary.localName.replace('demo-', 'foxy-')),
     argTypes: getMetaArgTypes(summary),
     component: summary.localName,
   };
