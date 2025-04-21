@@ -7744,7 +7744,7 @@
         {
           "name": "SignInEvent",
           "type": "typeof (Anonymous class)",
-          "default": "\"class extends CustomEvent<void> {}\""
+          "default": "\"class extends CustomEvent<{ forcePasswordReset: boolean }> {}\""
         },
         {
           "name": "SignUpEvent",
@@ -9375,6 +9375,9 @@
       ],
       "events": [
         {
+          "name": "skip"
+        },
+        {
           "name": "update",
           "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
         },
@@ -9838,6 +9841,11 @@
       ],
       "properties": [
         {
+          "name": "PasswordResetEvent",
+          "type": "typeof (Anonymous class)",
+          "default": "\"class extends CustomEvent<{\\n    result: 'skipped' | 'completed';\\n  }> {}\""
+        },
+        {
           "name": "transactionsTableColumns",
           "description": "Same as `.columns` property on `foxy-transactions-table`. Sets columns of that table.",
           "default": "[\"priceColumn\",\"summaryColumn\",\"statusColumn\",\"idColumn\",\"dateColumn\",\"receiptColumn\"]"
@@ -9892,7 +9900,7 @@
         {
           "name": "SignInEvent",
           "type": "typeof (Anonymous class)",
-          "default": "\"class extends CustomEvent<void> {}\""
+          "default": "\"class extends CustomEvent<{ forcePasswordReset: boolean }> {}\""
         },
         {
           "name": "SignUpEvent",
@@ -13440,8 +13448,16 @@
       "description": "Form element for creating and editing saved filters in Admin. Saved filters\nare powered by the Bookmark attribute format that allows adding custom sidebar items\nto Admin. Bookmark attributes are named `foxy-admin-bookmark` and contain a\nrelative URL of the bookmarked Admin page in the value.",
       "attributes": [
         {
+          "name": "defaults",
+          "description": "Default filter query."
+        },
+        {
           "name": "pathname",
           "description": "Admin page pathname."
+        },
+        {
+          "name": "docs-href",
+          "description": "Same as the `docsHref` property of `QueryBuilder`."
         },
         {
           "name": "options",
@@ -13557,9 +13573,19 @@
           "default": "\"filter_name\""
         },
         {
+          "name": "defaults",
+          "attribute": "defaults",
+          "description": "Default filter query."
+        },
+        {
           "name": "pathname",
           "attribute": "pathname",
           "description": "Admin page pathname."
+        },
+        {
+          "name": "docsHref",
+          "attribute": "docs-href",
+          "description": "Same as the `docsHref` property of `QueryBuilder`."
         },
         {
           "name": "options",
@@ -19346,6 +19372,9 @@
       "description": "Form element for configuring native integrations (`fx:native_integration`).",
       "attributes": [
         {
+          "name": "item-category-base"
+        },
+        {
           "name": "store"
         },
         {
@@ -19435,6 +19464,10 @@
         }
       ],
       "properties": [
+        {
+          "name": "itemCategoryBase",
+          "attribute": "item-category-base"
+        },
         {
           "name": "store",
           "attribute": "store"
@@ -19795,7 +19828,7 @@
       "attributes": [
         {
           "name": "first",
-          "description": "URL of the first page of the colletion.",
+          "description": "URL of the first page of the collection.",
           "type": "string"
         },
         {
@@ -19855,7 +19888,7 @@
         {
           "name": "first",
           "attribute": "first",
-          "description": "URL of the first page of the colletion.",
+          "description": "URL of the first page of the collection.",
           "type": "string"
         },
         {
@@ -22962,6 +22995,12 @@
       "description": "UI component for creating Foxy hAPI filters visually. Compatible with\nBackend API, Customer API or any other API using the same format as described\nin our [docs](https://api.foxy.io/docs/cheat-sheet).",
       "attributes": [
         {
+          "name": "reserved-paths",
+          "description": "Simple Mode will not show controls for these paths unless explicitly specified in options.",
+          "type": "array",
+          "default": "[\"zoom\",\"limit\",\"offset\",\"order\",\"fields\"]"
+        },
+        {
           "name": "disable-zoom",
           "description": "If true, doesn't add `zoom` query parameter for complex paths.",
           "type": "boolean",
@@ -22969,7 +23008,7 @@
         },
         {
           "name": "disable-or",
-          "description": "If true, hides the UI for the \"OR\" operator in queries.",
+          "description": "If true, hides the UI for the \"OR\" operator in queries in the Advanced Mode.",
           "type": "boolean",
           "default": "false"
         },
@@ -22980,14 +23019,17 @@
           "default": "\"Object.values(Operator)\""
         },
         {
+          "name": "docs-href",
+          "description": "When provided, will display a documentation link in the Advanced Mode."
+        },
+        {
           "name": "options",
-          "description": "Autocomplete suggestions.",
+          "description": "Filter options in Simple Mode and autocomplete suggestions in Advanced Mode.",
           "type": "array"
         },
         {
           "name": "value",
-          "description": "Current value as hAPI filter string.",
-          "type": "string"
+          "description": "Current value as hAPI filter string."
         },
         {
           "name": "mode",
@@ -23062,6 +23104,13 @@
           "default": "\"Type\""
         },
         {
+          "name": "reservedPaths",
+          "attribute": "reserved-paths",
+          "description": "Simple Mode will not show controls for these paths unless explicitly specified in options.",
+          "type": "array",
+          "default": "[\"zoom\",\"limit\",\"offset\",\"order\",\"fields\"]"
+        },
+        {
           "name": "disableZoom",
           "attribute": "disable-zoom",
           "description": "If true, doesn't add `zoom` query parameter for complex paths.",
@@ -23071,7 +23120,7 @@
         {
           "name": "disableOr",
           "attribute": "disable-or",
-          "description": "If true, hides the UI for the \"OR\" operator in queries.",
+          "description": "If true, hides the UI for the \"OR\" operator in queries in the Advanced Mode.",
           "type": "boolean",
           "default": "false"
         },
@@ -23083,16 +23132,20 @@
           "default": "\"Object.values(Operator)\""
         },
         {
+          "name": "docsHref",
+          "attribute": "docs-href",
+          "description": "When provided, will display a documentation link in the Advanced Mode."
+        },
+        {
           "name": "options",
           "attribute": "options",
-          "description": "Autocomplete suggestions.",
+          "description": "Filter options in Simple Mode and autocomplete suggestions in Advanced Mode.",
           "type": "array"
         },
         {
           "name": "value",
           "attribute": "value",
-          "description": "Current value as hAPI filter string.",
-          "type": "string"
+          "description": "Current value as hAPI filter string."
         },
         {
           "name": "templates",
@@ -27661,38 +27714,6 @@
           "default": "\"defaultNS\""
         },
         {
-          "name": "mode",
-          "type": "string",
-          "default": "\"production\""
-        },
-        {
-          "name": "readonly",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "readonlycontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "disabledcontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "hidden",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "hiddencontrols",
-          "default": "\"False\""
-        },
-        {
           "name": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
           "type": "string",
@@ -27748,61 +27769,6 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
-          "name": "templates",
-          "default": "{}"
-        },
-        {
-          "name": "mode",
-          "attribute": "mode",
-          "type": "string",
-          "default": "\"production\""
-        },
-        {
-          "name": "readonly",
-          "attribute": "readonly",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "readonlyControls",
-          "attribute": "readonlycontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "attribute": "disabled",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "disabledControls",
-          "attribute": "disabledcontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "hidden",
-          "attribute": "hidden",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "hiddenControls",
-          "attribute": "hiddencontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "readonlySelector",
-          "type": "BooleanSelector"
-        },
-        {
-          "name": "disabledSelector",
-          "type": "BooleanSelector"
-        },
-        {
-          "name": "hiddenSelector",
-          "type": "BooleanSelector"
         },
         {
           "name": "isBodyReady",
@@ -27913,6 +27879,10 @@
           "description": "URL of the `fx:native_integrations` collection for the store."
         },
         {
+          "name": "item-categories",
+          "description": "URL of the `fx:item_categories` collection for the store."
+        },
+        {
           "name": "countries",
           "description": "URL of the `fx:countries` property helper resource."
         },
@@ -28011,6 +27981,11 @@
           "name": "nativeIntegrations",
           "attribute": "native-integrations",
           "description": "URL of the `fx:native_integrations` collection for the store."
+        },
+        {
+          "name": "itemCategories",
+          "attribute": "item-categories",
+          "description": "URL of the `fx:item_categories` collection for the store."
         },
         {
           "name": "countries",
@@ -28238,11 +28213,11 @@
       "attributes": [
         {
           "name": "countries",
-          "description": "URI of the `fx:countries` hAPI resource."
+          "description": "URI of the `fx:countries` hAPI resource with `?include_regions=true`."
         },
         {
           "name": "regions",
-          "description": "URI of the `fx:regions` hAPI resource."
+          "deprecatedMessage": "URI of the `fx:regions` hAPI resource."
         },
         {
           "name": "store",
@@ -28338,12 +28313,12 @@
         {
           "name": "countries",
           "attribute": "countries",
-          "description": "URI of the `fx:countries` hAPI resource."
+          "description": "URI of the `fx:countries` hAPI resource with `?include_regions=true`."
         },
         {
           "name": "regions",
           "attribute": "regions",
-          "description": "URI of the `fx:regions` hAPI resource."
+          "deprecatedMessage": "URI of the `fx:regions` hAPI resource."
         },
         {
           "name": "store",
