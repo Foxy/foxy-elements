@@ -415,10 +415,10 @@ describe('CouponForm', () => {
     writeTextMethod.restore();
 
     expect(control).to.have.deep.property('filters', [
-      { label: 'code', path: 'code', type: Type.String },
-      { label: 'used_codes', path: 'number_of_uses_to_date', type: Type.Number },
-      { label: 'date_created', path: 'date_created', type: Type.Date },
-      { label: 'date_modified', path: 'date_modified', type: Type.Date },
+      { label: 'option_code', path: 'code', type: Type.String },
+      { label: 'option_number_of_uses_to_date', path: 'number_of_uses_to_date', type: Type.Number },
+      { label: 'option_date_created', path: 'date_created', type: Type.Date },
+      { label: 'option_date_modified', path: 'date_modified', type: Type.Date },
     ]);
   });
 

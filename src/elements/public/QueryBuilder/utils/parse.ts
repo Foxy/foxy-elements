@@ -1,6 +1,6 @@
-import { Operator, ParsedValue } from '../types';
+import { Operator, Rule } from '../types';
 
-function parseGroup(search: string): ParsedValue {
+function parseGroup(search: string): Rule {
   const separatorIndex = search.indexOf('=');
   const fullPath = decodeURIComponent(search.substring(0, separatorIndex));
   const value = decodeURIComponent(search.substring(separatorIndex + 1));
@@ -22,7 +22,7 @@ function parseGroup(search: string): ParsedValue {
   return { name, path, value, operator };
 }
 
-function parse(search: string): (ParsedValue | ParsedValue[])[] {
+function parse(search: string): (Rule | Rule[])[] {
   return search
     .split('&')
     .filter(v => !!v)

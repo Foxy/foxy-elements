@@ -1,6 +1,6 @@
-import { ParsedValue } from '../types';
+import type { Rule } from '../types';
 
-function stringifyGroup(parsedValue: ParsedValue): string {
+function stringifyGroup(parsedValue: Rule): string {
   let result = parsedValue.path;
   if (parsedValue.name) result += `:name[${parsedValue.name}]`;
   if (parsedValue.operator) result += `:${parsedValue.operator}`;
@@ -8,8 +8,8 @@ function stringifyGroup(parsedValue: ParsedValue): string {
   return result === '=' ? '' : result;
 }
 
-function stringify(newValue: (ParsedValue | ParsedValue[])[], disableZoom = false): string {
-  const toQuery = (rules: string[], rule: ParsedValue | ParsedValue[]) => {
+function stringify(newValue: (Rule | Rule[])[], disableZoom = false): string {
+  const toQuery = (rules: string[], rule: Rule | Rule[]) => {
     if (Array.isArray(rule)) {
       let key = rule[0].path;
       if (rule[0].name) key += `:name[${rule[0].name}]`;
@@ -38,7 +38,7 @@ function stringify(newValue: (ParsedValue | ParsedValue[])[], disableZoom = fals
   return query.join('&');
 }
 
-function getZoomedRels(value: (ParsedValue | ParsedValue[])[]): string[] {
+function getZoomedRels(value: (Rule | Rule[])[]): string[] {
   return value
     .map(rule => {
       if (Array.isArray(rule)) return getZoomedRels(rule);

@@ -1,13 +1,14 @@
-import type { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import type { QueryBuilder } from '../QueryBuilder/QueryBuilder';
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
 
 import './index';
 
 import { FilterAttributeForm as Form } from './FilterAttributeForm';
-import { expect, fixture, html, oneEvent } from '@open-wc/testing';
+import { expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
-import { getTestData } from '../../../testgen/getTestData';
+import { Type } from '../QueryBuilder/types';
+import { createRouter } from '../../../server';
+import { stub } from 'sinon';
 
 describe('FilterAttributeForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -16,13 +17,8 @@ describe('FilterAttributeForm', () => {
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
-  it('defines foxy-internal-filter-attribute-form-action-control', () => {
-    const localName = 'foxy-internal-filter-attribute-form-action-control';
-    expect(customElements.get(localName)).to.exist;
-  });
-
-  it('defines foxy-internal-text-control', () => {
-    const localName = 'foxy-internal-text-control';
+  it('defines vaadin-button', () => {
+    const localName = 'vaadin-button';
     expect(customElements.get(localName)).to.exist;
   });
 
@@ -33,6 +29,11 @@ describe('FilterAttributeForm', () => {
 
   it('defines foxy-query-builder', () => {
     const localName = 'foxy-query-builder';
+    expect(customElements.get(localName)).to.exist;
+  });
+
+  it('defines foxy-i18n', () => {
+    const localName = 'foxy-i18n';
     expect(customElements.get(localName)).to.exist;
   });
 
@@ -84,6 +85,11 @@ describe('FilterAttributeForm', () => {
     expect(element).to.have.nested.property('form.value', '/abc/d?filter_name=foo');
   });
 
+  it('has a reactive property "docsHref"', () => {
+    expect(Form).to.have.deep.nested.property('properties.docsHref', { attribute: 'docs-href' });
+    expect(new Form()).to.have.property('docsHref', null);
+  });
+
   it('has a reactive property "options"', () => {
     expect(Form).to.have.deep.nested.property('properties.options', { type: Array });
     expect(new Form()).to.have.deep.property('options', []);
@@ -100,10 +106,12 @@ describe('FilterAttributeForm', () => {
     expect(control).to.be.instanceOf(customElements.get('foxy-query-builder'));
     expect(control).to.have.property('value', 'color=blue');
 
-    const options: Form['options'] = [];
+    const options: Form['options'] = [{ type: Type.String, label: 'option_color', path: 'color' }];
     element.options = options;
+    element.docsHref = 'https://example.com';
     await element.requestUpdate();
-    expect(control).to.have.property('options', options);
+    expect(control).to.have.deep.property('options', options);
+    expect(control).to.have.property('docsHref', 'https://example.com');
 
     element.edit({ value: '/foo?filter_query=color%3Dred' });
     await element.requestUpdate();
@@ -114,49 +122,150 @@ describe('FilterAttributeForm', () => {
     expect(element).to.have.nested.property('form.value', '/foo?filter_query=color%3Dgreen');
   });
 
-  it('renders name field', async () => {
-    const layout = html`<foxy-filter-attribute-form pathname="/bar"></foxy-filter-attribute-form>`;
+  it('renders header in template state', async () => {
+    const layout = html`<foxy-filter-attribute-form
+      pathname="/stores/0/transactions"
+    ></foxy-filter-attribute-form>`;
     const element = await fixture<Form>(layout);
-    const control = element.renderRoot.querySelector<InternalTextControl>('[infer="filter-name"]')!;
-
-    expect(control).to.exist;
-    expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
-
-    element.edit({ value: '/bar?filter_name=my+filter' });
-    expect(control.getValue()).to.equal('my filter');
-
-    control.setValue('foo bar baz');
-    expect(element).to.have.nested.property('form.value', '/bar?filter_name=foo+bar+baz');
+    expect(element.renderRoot.querySelector('foxy-i18n[infer="header"][key="title"]')).to.exist;
   });
 
-  it('renders action', async () => {
-    const layout = html`<foxy-filter-attribute-form></foxy-filter-attribute-form>`;
+  it('renders name field in snapshot state', async () => {
+    const router = createRouter();
+    const layout = html`
+      <foxy-filter-attribute-form
+        pathname="/stores/0/transactions"
+        href="https://demo.api/hapi/store_attributes/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-filter-attribute-form>
+    `;
+
     const element = await fixture<Form>(layout);
-    const control = element.renderRoot.querySelector(
-      'foxy-internal-filter-attribute-form-action-control[infer="action"]'
+    await waitUntil(() => element.in('idle'));
+    const input = element.renderRoot.querySelector<HTMLInputElement>(
+      'input[aria-label="filter-name.label"]'
     )!;
 
-    expect(control).to.exist;
+    element.edit({ value: '/stores/0/transactions?filter_name=my+filter' });
+    await element.requestUpdate();
+    expect(input.value).to.equal('my filter');
+
+    input.value = 'foo bar baz';
+    input.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.nested.property(
+      'form.value',
+      '/stores/0/transactions?filter_name=foo+bar+baz'
+    );
   });
 
-  it('hides filter name until the attribute is created', async () => {
-    const layout = html`<foxy-filter-attribute-form></foxy-filter-attribute-form>`;
-    const element = await fixture<Form>(layout);
+  it('renders Reset button when appropriate', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-filter-attribute-form
+        pathname="/stores/0/transactions"
+        href="https://demo.api/hapi/store_attributes/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-filter-attribute-form>
+    `);
 
-    expect(element.hiddenSelector.matches('filter-name', true)).to.be.true;
-    element.data = await getTestData('./hapi/store_attributes/0');
-    expect(element.hiddenSelector.matches('filter-name', true)).to.be.false;
+    await waitUntil(() => element.in('idle'));
+    let button = element.renderRoot.querySelector('vaadin-button[aria-label="action.reset"]');
+    expect(button).to.not.exist;
+
+    element.edit({ value: '/stores/0/transactions?filter_name=my+filter' });
+    await element.requestUpdate();
+    button = element.renderRoot.querySelector('vaadin-button[aria-label="action.reset"]');
+    expect(button).to.exist;
+
+    const undoMethod = stub(element, 'undo');
+    button?.dispatchEvent(new CustomEvent('click'));
+    expect(undoMethod).to.have.been.calledOnce;
   });
 
-  it('hides action when appropriate', async () => {
-    const layout = html`<foxy-filter-attribute-form></foxy-filter-attribute-form>`;
-    const element = await fixture<Form>(layout);
+  it('renders Update button when appropriate', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-filter-attribute-form
+        pathname="/stores/0/transactions"
+        href="https://demo.api/hapi/store_attributes/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-filter-attribute-form>
+    `);
 
-    expect(element.hiddenSelector.matches('action', true)).to.be.true;
-    element.data = await getTestData('./hapi/store_attributes/0');
-    expect(element.hiddenSelector.matches('action', true)).to.be.false;
-    element.edit({ value: '' });
-    expect(element.hiddenSelector.matches('action', true)).to.be.true;
+    await waitUntil(() => element.in('idle'));
+    let caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="update"]');
+    let button = caption?.closest('vaadin-button');
+    expect(button).to.not.exist;
+
+    element.edit({ value: '/stores/0/transactions?filter_name=my+filter' });
+    await element.requestUpdate();
+    caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="update"]');
+    button = caption?.closest('vaadin-button');
+    expect(button).to.exist;
+
+    const submitMethod = stub(element, 'submit');
+    button?.dispatchEvent(new CustomEvent('click'));
+    expect(submitMethod).to.have.been.calledOnce;
+  });
+
+  it('renders Delete button when appropriate', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-filter-attribute-form
+        pathname="/stores/0/transactions"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-filter-attribute-form>
+    `);
+
+    let caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="delete"]');
+    let button = caption?.closest('vaadin-button');
+    expect(button).to.not.exist;
+
+    element.href = 'https://demo.api/hapi/store_attributes/0';
+    await waitUntil(() => element.in('idle'));
+    caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="delete"]');
+    button = caption?.closest('vaadin-button');
+    expect(button).to.exist;
+
+    const deleteMethod = stub(element, 'delete');
+    button?.dispatchEvent(new CustomEvent('click'));
+    expect(deleteMethod).to.have.been.calledOnce;
+  });
+
+  it('renders Create button when appropriate', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-filter-attribute-form
+        pathname="/stores/0/transactions"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-filter-attribute-form>
+    `);
+
+    let caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="create"]');
+    let button = caption?.closest('vaadin-button');
+    expect(button).to.not.exist;
+
+    element.edit({ value: '/stores/0/transactions?filter_name=my+filter&filter_query=color=red' });
+    await element.requestUpdate();
+    caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="create"]');
+    button = caption?.closest('vaadin-button');
+    expect(button).to.exist;
+
+    const submitMethod = stub(element, 'submit');
+    button?.dispatchEvent(new CustomEvent('click'));
+    expect(submitMethod).to.have.been.calledOnce;
+
+    submitMethod.restore();
+    element.href = 'https://demo.api/hapi/store_attributes/0';
+    await waitUntil(() => element.in('idle'));
+    caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="create"]');
+    button = caption?.closest('vaadin-button');
+    expect(button).to.not.exist;
   });
 
   it('uses fixed visibility and attribute name when creating a resource', async () => {

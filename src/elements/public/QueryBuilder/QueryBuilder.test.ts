@@ -1,9 +1,11 @@
-import { LitElement, html } from 'lit-element';
-import { expect, fixture, oneEvent } from '@open-wc/testing';
+import './index';
 
-import { QueryBuilder } from './index';
+import { expect, fixture, oneEvent } from '@open-wc/testing';
+import { LitElement, html } from 'lit-element';
 import { Operator, Type } from './types';
-import { serializeDateTime } from '../../../utils/serialize-date';
+import { serializeDate } from '../../../utils/serialize-date';
+import { QueryBuilder } from './QueryBuilder';
+import { parseDate } from '../../../utils/parse-date';
 
 describe('QueryBuilder', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -11,6 +13,12 @@ describe('QueryBuilder', () => {
   // @ts-expect-error disabling ResizeObserver because it errors in test env
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
+
+  const inputToAPIDate = (date: string, endOfDay = false) => {
+    const d = parseDate(date);
+    endOfDay ? d?.setHours(23, 59, 59, 999) : d?.setHours(0, 0, 0, 0);
+    return encodeURIComponent(d?.toISOString() ?? '');
+  };
 
   it('extends LitElement', () => {
     expect(new QueryBuilder()).to.be.instanceOf(LitElement);
@@ -63,6 +71,13 @@ describe('QueryBuilder', () => {
     });
   });
 
+  it('has a reactive property "docsHref"', () => {
+    expect(new QueryBuilder()).to.have.property('docsHref', null);
+    expect(QueryBuilder).to.have.deep.nested.property('properties.docsHref', {
+      attribute: 'docs-href',
+    });
+  });
+
   it('exposes change event class as a static field', () => {
     expect(QueryBuilder).to.have.property('ChangeEvent');
     expect(new QueryBuilder.ChangeEvent('change')).to.be.instanceOf(Event);
@@ -103,21 +118,19 @@ describe('QueryBuilder', () => {
     expect(new QueryBuilder()).to.have.property('options', null);
   });
 
-  it('renders a single empty rule by default', async () => {
+  it('renders a single empty rule in advanced mode by default', async () => {
     const element = await fixture<QueryBuilder>(html`<foxy-query-builder></foxy-query-builder>`);
     const groups = element.renderRoot.querySelectorAll(`[aria-label="query_builder_group"]`);
     const rules = groups[0]?.querySelectorAll(`[aria-label="query_builder_rule"]`);
-    const type = rules?.[0]?.querySelector('[title="type_any"]');
     const path = rules?.[0]?.querySelector('input');
 
     expect(groups).to.have.length(1);
     expect(rules).to.have.length(1);
-    expect(type).to.exist;
     expect(path).to.exist;
     expect(path).to.have.value('');
   });
 
-  it('adds a rule once user starts typing into the path field', async () => {
+  it('adds a rule in advanced mode once user starts typing into the path field', async () => {
     const element = await fixture<QueryBuilder>(html`<foxy-query-builder></foxy-query-builder>`);
     const root = element.renderRoot;
 
@@ -132,23 +145,7 @@ describe('QueryBuilder', () => {
     expect(element).to.have.value('a=');
   });
 
-  it('does not show a rule if the path is on the reserved paths list', async () => {
-    const element = await fixture<QueryBuilder>(
-      html`
-        <foxy-query-builder value="foo=1" reserved-paths=${JSON.stringify(['foo'])}>
-        </foxy-query-builder>
-      `
-    );
-
-    const root = element.renderRoot;
-    expect(root.querySelectorAll(`[aria-label="query_builder_rule"]`)).to.have.length(1);
-
-    element.reservedPaths = ['bar'];
-    await element.requestUpdate();
-    expect(root.querySelectorAll(`[aria-label="query_builder_rule"]`)).to.have.length(2);
-  });
-
-  it('clears path of the last rule after adding a new one', async () => {
+  it('clears path of the last rule after adding a new one in advanced mode', async () => {
     const element = await fixture<QueryBuilder>(html`<foxy-query-builder></foxy-query-builder>`);
     const root = element.renderRoot;
     const path = root.querySelector('[aria-label="query_builder_rule"] input') as HTMLInputElement;
@@ -162,12 +159,14 @@ describe('QueryBuilder', () => {
     ).to.have.value('');
   });
 
-  it('updates element value with notification once rule field changes', async () => {
+  it('updates element value with notification once rule field changes in advanced mode', async () => {
     const layout = html`<foxy-query-builder value="foo="></foxy-query-builder>`;
     const element = await fixture<QueryBuilder>(layout);
-    const value = element.renderRoot.querySelector('input') as HTMLInputElement;
-    const whenGotEvent = oneEvent(element, 'change');
+    const value = element.renderRoot.querySelector(
+      '[aria-label="query_builder_rule"] input'
+    ) as HTMLInputElement;
 
+    const whenGotEvent = oneEvent(element, 'change');
     value.value = 'bar';
     value.dispatchEvent(new InputEvent('input'));
     await element.requestUpdate();
@@ -176,7 +175,7 @@ describe('QueryBuilder', () => {
     expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
   });
 
-  it('updates element value with notification once rule type changes', async () => {
+  it('updates element value with notification once rule operator changes in advanced mode', async () => {
     const layout = html`<foxy-query-builder value="foo="></foxy-query-builder>`;
     const element = await fixture<QueryBuilder>(layout);
     const root = element.renderRoot;
@@ -190,12 +189,14 @@ describe('QueryBuilder', () => {
     expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
   });
 
-  it('updates element value with notification once rule value changes', async () => {
+  it('updates element value with notification once rule value changes in advanced mode', async () => {
     const layout = html`<foxy-query-builder value="foo=bar"></foxy-query-builder>`;
     const element = await fixture<QueryBuilder>(layout);
-    const value = element.renderRoot.querySelectorAll('input')[1] as HTMLInputElement;
-    const whenGotEvent = oneEvent(element, 'change');
+    const value = element.renderRoot.querySelectorAll<HTMLInputElement>(
+      '[aria-label="query_builder_rule"] input'
+    )[1];
 
+    const whenGotEvent = oneEvent(element, 'change');
     value.value = 'baz';
     value.dispatchEvent(new InputEvent('input'));
     await element.requestUpdate();
@@ -204,7 +205,7 @@ describe('QueryBuilder', () => {
     expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
   });
 
-  it('cycles through operators when clicking the toggle button', async () => {
+  it('cycles through operators when clicking the toggle button in advanced mode', async () => {
     const layout = html`<foxy-query-builder value="foo="></foxy-query-builder>`;
     const element = await fixture<QueryBuilder>(layout);
     const root = element.renderRoot;
@@ -230,7 +231,7 @@ describe('QueryBuilder', () => {
     }
   });
 
-  it('limits operators according to settings', async () => {
+  it('limits operators according to settings in advanced mode', async () => {
     const layout = html`
       <foxy-query-builder
         value="foo="
@@ -255,7 +256,7 @@ describe('QueryBuilder', () => {
     }
   });
 
-  it('adds attribute-only operators to the cycle for attribute-like resources', async () => {
+  it('adds attribute-only operators to the cycle for attribute-like resources in advanced mode', async () => {
     const layout = html`<foxy-query-builder value="foo[bar]="></foxy-query-builder>`;
     const element = await fixture<QueryBuilder>(layout);
     const root = element.renderRoot;
@@ -282,675 +283,7 @@ describe('QueryBuilder', () => {
     }
   });
 
-  it('cycles through only applicable operators for known attribute resources', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([{ path: 'foo', type: 'attribute', label: 'Foo' }])}
-        value="foo[bar]="
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const toggle = root.querySelector('button[title="operator_equal"]') as HTMLButtonElement;
-
-    const values = [
-      'foo%3Aname%5Bbar%5D%3Ain=&zoom=foo',
-      'foo%3Aname%5Bbar%5D%3Anot=&zoom=foo',
-      'foo%3Aname%5Bbar%5D%3Aisdefined=&zoom=foo',
-      'foo%3Aname%5Bbar%5D=&zoom=foo',
-    ];
-
-    for (const value of values) {
-      const whenGotEvent = oneEvent(element, 'change');
-      toggle.click();
-      await element.requestUpdate();
-
-      expect(element).to.have.value(value);
-      expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
-    }
-  });
-
-  it('cycles through only applicable operators for known string fields', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([{ path: 'foo', type: 'string', label: 'Foo' }])}
-        value="foo="
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const toggle = root.querySelector('button[title="operator_equal"]') as HTMLButtonElement;
-
-    const values = ['foo%3Ain=', 'foo%3Anot=', 'foo='];
-
-    for (const value of values) {
-      const whenGotEvent = oneEvent(element, 'change');
-      toggle.click();
-      await element.requestUpdate();
-
-      expect(element).to.have.value(value);
-      expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
-    }
-  });
-
-  it('cycles through only applicable operators for known number fields', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([{ path: 'foo', type: 'number', label: 'Foo' }])}
-        value="foo="
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const toggle = root.querySelector('button[title="operator_equal"]') as HTMLButtonElement;
-
-    const values = [
-      'foo%3Ain=',
-      'foo%3Anot=',
-      'foo%3Agreaterthan=',
-      'foo%3Alessthan=',
-      'foo%3Agreaterthanorequal=',
-      'foo%3Alessthanorequal=',
-      'foo=',
-    ];
-
-    for (const value of values) {
-      const whenGotEvent = oneEvent(element, 'change');
-      toggle.click();
-      await element.requestUpdate();
-
-      expect(element).to.have.value(value);
-      expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
-    }
-  });
-
-  it('cycles through only applicable operators for known date fields', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([{ path: 'foo', type: 'date', label: 'Foo' }])}
-        value="foo="
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const toggle = root.querySelector('button[title="operator_equal"]') as HTMLButtonElement;
-
-    const values = ['foo%3Ain=', 'foo%3Anot=', 'foo='];
-
-    for (const value of values) {
-      const whenGotEvent = oneEvent(element, 'change');
-      toggle.click();
-      await element.requestUpdate();
-
-      expect(element).to.have.value(value);
-      expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
-    }
-  });
-
-  it('disables operator toggle for known boolean fields', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([{ path: 'foo', type: 'boolean', label: 'Foo' }])}
-        value="foo="
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const toggle = root.querySelector('button[title="operator_equal"]') as HTMLButtonElement;
-
-    expect(toggle).to.have.attribute('disabled');
-  });
-
-  it('renders datalist options for known field paths', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([
-          { path: 'foo', type: 'boolean', label: 'Foo' },
-          { path: 'bar', type: 'string', label: 'Bar' },
-        ])}
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-
-    const path = root.querySelector('input') as HTMLInputElement;
-    const datalist = path.list as HTMLDataListElement;
-
-    expect(datalist).to.exist;
-    expect(datalist.options).to.have.length(2);
-
-    expect(datalist.options[0]).to.have.attribute('value', 'foo');
-    expect(datalist.options[1]).to.have.attribute('value', 'bar');
-
-    expect(datalist.options[0]).to.have.text('Foo');
-    expect(datalist.options[1]).to.have.text('Bar');
-  });
-
-  it('supports ranges for known date fields', async () => {
-    const fromDate = new Date(2020, 0, 1);
-    const toDate = new Date(2021, 0, 1);
-    const getRange = () => [fromDate, toDate].map(v => v.toISOString()).join('..');
-
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([{ path: 'foo', type: 'date', label: 'Foo' }])}
-        value="foo=${encodeURIComponent(getRange())}"
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const [from, to] = [...root.querySelectorAll<HTMLInputElement>('input[type="datetime-local"]')];
-
-    expect(from).to.have.property('value', serializeDateTime(fromDate));
-    expect(to).to.have.property('value', serializeDateTime(toDate));
-
-    fromDate.setFullYear(2022);
-    from.value = serializeDateTime(fromDate);
-    from.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value(`foo=${encodeURIComponent(getRange())}`);
-
-    toDate.setFullYear(2024);
-    to.value = serializeDateTime(toDate);
-    to.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value(`foo=${encodeURIComponent(getRange())}`);
-  });
-
-  it('supports ranges for known number fields', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([{ path: 'foo', type: 'number', label: 'Foo' }])}
-        value="foo=10..20"
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const [from, to] = [...root.querySelectorAll<HTMLInputElement>('input[type="number"]')];
-
-    expect(from).to.have.property('value', '10');
-    expect(to).to.have.property('value', '20');
-
-    from.value = '30';
-    from.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value('foo=30..20');
-
-    to.value = '40';
-    to.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value('foo=30..40');
-  });
-
-  it('supports lists for known date fields', async () => {
-    const date1 = new Date(2020, 0, 1);
-    const date2 = new Date(2021, 0, 1);
-    const getList = (...dates: Date[]) => dates.map(v => v.toISOString()).join();
-
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([{ path: 'foo', type: 'date', label: 'Foo' }])}
-        value="foo%3Ain=${encodeURIComponent(getList(date1, date2))}"
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const [first, second, addNew] = [
-      ...root.querySelectorAll<HTMLInputElement>('input[type="datetime-local"]'),
-    ];
-
-    expect(first).to.have.property('value', serializeDateTime(date1));
-    expect(second).to.have.property('value', serializeDateTime(date2));
-
-    date1.setFullYear(2022);
-    first.value = serializeDateTime(date1);
-    first.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value(`foo%3Ain=${encodeURIComponent(getList(date1, date2))}`);
-
-    date2.setFullYear(2024);
-    second.value = serializeDateTime(date2);
-    second.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value(`foo%3Ain=${encodeURIComponent(getList(date1, date2))}`);
-
-    const date3 = new Date(2026, 0, 1);
-    addNew.value = serializeDateTime(date3);
-    addNew.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value(`foo%3Ain=${encodeURIComponent(getList(date1, date2, date3))}`);
-
-    addNew.value = '';
-    addNew.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value(`foo%3Ain=${encodeURIComponent(getList(date1, date2))}`);
-  });
-
-  it('supports lists for known number fields', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([{ path: 'foo', type: 'number', label: 'Foo' }])}
-        value="foo%3Ain=2020%2C2021"
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const [first, second, addNew] = [
-      ...root.querySelectorAll<HTMLInputElement>('input[type="number"]'),
-    ];
-
-    expect(first).to.have.property('value', '2020');
-    expect(second).to.have.property('value', '2021');
-
-    first.value = '2022';
-    first.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value('foo%3Ain=2022%2C2021');
-
-    second.value = '2024';
-    second.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value('foo%3Ain=2022%2C2024');
-
-    addNew.value = '2026';
-    addNew.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value('foo%3Ain=2022%2C2024%2C2026');
-
-    addNew.value = '';
-    addNew.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value('foo%3Ain=2022%2C2024');
-  });
-
-  it('supports lists for known string fields', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([{ path: 'foo', type: 'string', label: 'Foo' }])}
-        value="foo%3Ain=bar%2Cbaz"
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [path, first, second, addNew] = [...root.querySelectorAll<HTMLInputElement>('input')];
-
-    expect(first).to.have.property('value', 'bar');
-    expect(second).to.have.property('value', 'baz');
-
-    first.value = 'qux';
-    first.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value('foo%3Ain=qux%2Cbaz');
-
-    second.value = 'abc';
-    second.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value('foo%3Ain=qux%2Cabc');
-
-    addNew.value = 'def';
-    addNew.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value('foo%3Ain=qux%2Cabc%2Cdef');
-
-    addNew.value = '';
-    addNew.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value('foo%3Ain=qux%2Cabc');
-  });
-
-  it('supports lists for unknown fields', async () => {
-    const layout = html`<foxy-query-builder value="foo%3Ain=bar%2Cbaz"></foxy-query-builder>`;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [path, first, second, addNew] = [...root.querySelectorAll<HTMLInputElement>('input')];
-
-    expect(first).to.have.property('value', 'bar');
-    expect(second).to.have.property('value', 'baz');
-
-    first.value = 'qux';
-    first.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value('foo%3Ain=qux%2Cbaz');
-
-    second.value = 'abc';
-    second.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value('foo%3Ain=qux%2Cabc');
-
-    addNew.value = 'def';
-    addNew.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value('foo%3Ain=qux%2Cabc%2Cdef');
-
-    addNew.value = '';
-    addNew.dispatchEvent(new InputEvent('input'));
-    await element.requestUpdate();
-
-    expect(element).to.have.value('foo%3Ain=qux%2Cabc');
-  });
-
-  it('supports predefined options for single string field values', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([
-          {
-            label: 'Foo',
-            path: 'foo',
-            type: 'string',
-            list: [
-              { value: 'bar', label: 'BAR' },
-              { value: 'baz', label: 'BAZ' },
-            ],
-          },
-        ])}
-        value="foo=bar"
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const value = root.querySelector('select') as HTMLSelectElement;
-
-    expect(value).to.exist;
-    expect(value.options).to.have.length(2);
-
-    expect(value.options[0]).to.have.value('bar');
-    expect(value.options[0]).to.contain.text('BAR');
-    expect(value.options[0]).to.have.attribute('selected');
-
-    expect(value.options[1]).to.have.value('baz');
-    expect(value.options[1]).to.contain.text('BAZ');
-    expect(value.options[1]).to.not.have.attribute('selected');
-  });
-
-  it('supports predefined options for single attribute values', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([
-          {
-            label: 'Foo',
-            path: 'foo',
-            type: 'attribute',
-            list: [
-              { value: 'bar', label: 'BAR' },
-              { value: 'baz', label: 'BAZ' },
-            ],
-          },
-        ])}
-        value="foo[abc]=bar"
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const value = root.querySelector('select') as HTMLSelectElement;
-
-    expect(value).to.exist;
-    expect(value.options).to.have.length(2);
-
-    expect(value.options[0]).to.have.value('bar');
-    expect(value.options[0]).to.contain.text('BAR');
-    expect(value.options[0]).to.have.attribute('selected');
-
-    expect(value.options[1]).to.have.value('baz');
-    expect(value.options[1]).to.contain.text('BAZ');
-    expect(value.options[1]).to.not.have.attribute('selected');
-  });
-
-  it('supports predefined options for single number field values', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([
-          {
-            label: 'Foo',
-            path: 'foo',
-            type: 'number',
-            list: [
-              { value: '123', label: 'One Two Three' },
-              { value: '456', label: 'Four Five Six' },
-            ],
-          },
-        ])}
-        value="foo=123"
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const value = root.querySelector('select') as HTMLSelectElement;
-
-    expect(value).to.exist;
-    expect(value.options).to.have.length(2);
-
-    expect(value.options[0]).to.have.value('123');
-    expect(value.options[0]).to.contain.text('One Two Three');
-    expect(value.options[0]).to.have.attribute('selected');
-
-    expect(value.options[1]).to.have.value('456');
-    expect(value.options[1]).to.contain.text('Four Five Six');
-    expect(value.options[1]).to.not.have.attribute('selected');
-  });
-
-  it('supports predefined options for single boolean field values', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([
-          {
-            label: 'Foo',
-            path: 'foo',
-            type: 'boolean',
-            list: [
-              { value: 'true', label: 'Yes' },
-              { value: 'false', label: 'No' },
-            ],
-          },
-        ])}
-        value="foo=true"
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const value = root.querySelector('select') as HTMLSelectElement;
-
-    expect(value).to.exist;
-    expect(value.options).to.have.length(2);
-
-    expect(value.options[0]).to.have.value('true');
-    expect(value.options[0]).to.contain.text('Yes');
-    expect(value.options[0]).to.have.attribute('selected');
-
-    expect(value.options[1]).to.have.value('false');
-    expect(value.options[1]).to.contain.text('No');
-    expect(value.options[1]).to.not.have.attribute('selected');
-  });
-
-  it('supports predefined options for single date field values', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([
-          {
-            label: 'Foo',
-            path: 'foo',
-            type: 'date',
-            list: [
-              { value: '2020-01-01', label: 'January 1, 2020' },
-              { value: '2021-01-01', label: 'January 1, 2021' },
-            ],
-          },
-        ])}
-        value="foo=2020-01-01"
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const value = root.querySelector('select') as HTMLSelectElement;
-
-    expect(value).to.exist;
-    expect(value.options).to.have.length(2);
-
-    expect(value.options[0]).to.have.value('2020-01-01');
-    expect(value.options[0]).to.contain.text('January 1, 2020');
-    expect(value.options[0]).to.have.attribute('selected');
-
-    expect(value.options[1]).to.have.value('2021-01-01');
-    expect(value.options[1]).to.contain.text('January 1, 2021');
-    expect(value.options[1]).to.not.have.attribute('selected');
-  });
-
-  it('supports predefined options for string list values', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([
-          {
-            label: 'Foo',
-            path: 'foo',
-            type: 'string',
-            list: [
-              { value: 'bar', label: 'BAR' },
-              { value: 'baz', label: 'BAZ' },
-            ],
-          },
-        ])}
-        value="foo%3Ain=bar%2Cbaz"
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const values = root.querySelectorAll<HTMLSelectElement>('select');
-
-    for (const value of values) {
-      const options = [...value.options].reverse();
-
-      expect(options[0]).to.have.value('baz');
-      expect(options[0]).to.contain.text('BAZ');
-
-      expect(options[1]).to.have.value('bar');
-      expect(options[1]).to.contain.text('BAR');
-    }
-  });
-
-  it('supports predefined options for number list values', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([
-          {
-            label: 'Foo',
-            path: 'foo',
-            type: 'number',
-            list: [
-              { value: '123', label: 'One Two Three' },
-              { value: '456', label: 'Four Five Six' },
-            ],
-          },
-        ])}
-        value="foo%3Ain=123%2C456"
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const values = root.querySelectorAll<HTMLSelectElement>('select');
-
-    for (const value of values) {
-      const options = [...value.options].reverse();
-
-      expect(options[0]).to.have.value('456');
-      expect(options[0]).to.contain.text('Four Five Six');
-
-      expect(options[1]).to.have.value('123');
-      expect(options[1]).to.contain.text('One Two Three');
-    }
-  });
-
-  it('supports predefined options for date list values', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([
-          {
-            label: 'Foo',
-            path: 'foo',
-            type: 'date',
-            list: [
-              { value: '2020-01-01T00:00:00.000Z', label: 'January 1, 2020' },
-              { value: '2021-01-01T00:00:00.000Z', label: 'January 1, 2021' },
-            ],
-          },
-        ])}
-        value="foo%3Ain=2020-01-01T00%3A00%3A00.000Z%2C2021-01-01T00%3A00%3A00.000Z"
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const values = root.querySelectorAll<HTMLSelectElement>('select');
-
-    for (const value of values) {
-      const options = [...value.options].reverse();
-
-      expect(options[0]).to.have.value('2021-01-01T00:00:00.000Z');
-      expect(options[0]).to.contain.text('January 1, 2021');
-
-      expect(options[1]).to.have.value('2020-01-01T00:00:00.000Z');
-      expect(options[1]).to.contain.text('January 1, 2020');
-    }
-  });
-
-  it('disables all interactive elements in the render root when disabled', async () => {
+  it('disables all interactive elements in the render root when disabled in advanced mode', async () => {
     const options = [
       { type: Type.Attribute, path: 'attributes', label: '' },
       { type: Type.Number, path: 'total_order', label: '' },
@@ -985,7 +318,10 @@ describe('QueryBuilder', () => {
     `);
 
     const root = element.renderRoot;
-    const controls = root.querySelectorAll(':is(input, button, select):not([disabled])');
+    const controls = root.querySelectorAll(
+      ':is(input, button, select):not([disabled]):not([type="radio"])'
+    );
+
     controls.forEach(control => expect(control).to.not.have.attribute('disabled'));
 
     element.disabled = true;
@@ -993,7 +329,7 @@ describe('QueryBuilder', () => {
     controls.forEach(control => expect(control).to.have.attribute('disabled'));
   });
 
-  it('disables all interactive elements in the render root when readonly', async () => {
+  it('disables all interactive elements in the render root when readonly in advanced mode', async () => {
     const options = [
       { type: Type.Attribute, path: 'attributes', label: '' },
       { type: Type.Number, path: 'total_order', label: '' },
@@ -1027,19 +363,20 @@ describe('QueryBuilder', () => {
       </foxy-query-builder>
     `);
 
-    element.renderRoot
-      .querySelectorAll(':is(input, button, select):not([disabled])')
-      .forEach(control => expect(control).to.not.have.attribute('disabled'));
+    const controls = element.renderRoot.querySelectorAll(
+      ':is(input, button, select):not([disabled]):not([type="radio"])'
+    );
 
+    controls.forEach(control => expect(control).to.not.have.attribute('disabled'));
     element.readonly = true;
     await element.requestUpdate();
 
     element.renderRoot
-      .querySelectorAll('input, button, select')
+      .querySelectorAll('input:not([type="radio"]), button, select')
       .forEach(control => expect(control).to.have.attribute('disabled'));
   });
 
-  it('disables OR operator when .disableOr=true', async () => {
+  it('disables OR operator in advanced mode when .disableOr=true', async () => {
     const element = await fixture<QueryBuilder>(
       html`<foxy-query-builder value="foo=bar"></foxy-query-builder>`
     );
@@ -1052,7 +389,7 @@ describe('QueryBuilder', () => {
     expect(or).to.have.class('opacity-0');
   });
 
-  it('does not add zoom query param when .disableZoom=true', async () => {
+  it('does not add zoom query param in advanced mode when .disableZoom=true', async () => {
     const element = await fixture<QueryBuilder>(html`<foxy-query-builder></foxy-query-builder>`);
     const root = element.renderRoot;
     const path = root.querySelector('[aria-label="query_builder_rule"] input') as HTMLInputElement;
@@ -1060,11 +397,537 @@ describe('QueryBuilder', () => {
     path.value = 'one:two:three';
     path.dispatchEvent(new InputEvent('input'));
     await element.requestUpdate();
-    expect(root.querySelectorAll(`[aria-label="query_builder_rule"]`)).to.have.length(2);
+    expect(root.querySelectorAll(`[aria-label="query_builder_rule"]`)).to.have.length(3);
     expect(element).to.have.value('one%3Atwo%3Athree=&zoom=one%2Ctwo');
 
     element.disableZoom = true;
     path.dispatchEvent(new InputEvent('input'));
     expect(element).to.have.value('one%3Atwo%3Athree=');
+  });
+
+  it('renders a field for Type.Boolean option in simple mode', async () => {
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder .options=${[{ type: Type.Boolean, path: 'foo', label: 'option_foo' }]}>
+      </foxy-query-builder>
+    `);
+
+    const rules = element.renderRoot.querySelectorAll('[aria-label="query_builder_rule"]');
+    expect(rules).to.have.length(1);
+
+    const rule = rules[0];
+    const label = rule.querySelector('foxy-i18n[key="option_foo"][infer=""]');
+    expect(label).to.exist;
+
+    // Initial state
+    const operatorSelect = rule.querySelector('select')!;
+    expect(operatorSelect).to.exist;
+    expect(operatorSelect.options).to.have.length(3);
+    expect(operatorSelect.options[0].value).to.equal('any');
+    expect(operatorSelect.options[0].innerText.trim()).to.equal('value_any');
+    expect(operatorSelect.options[1].value).to.equal('true');
+    expect(operatorSelect.options[1].innerText.trim()).to.equal('option_foo_true');
+    expect(operatorSelect.options[2].value).to.equal('false');
+    expect(operatorSelect.options[2].innerText.trim()).to.equal('option_foo_false');
+
+    // Editing value (true)
+    await element.requestUpdate();
+    operatorSelect.value = 'true';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value(`foo=true`);
+
+    // Editing value (false)
+    await element.requestUpdate();
+    operatorSelect.value = 'false';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value(`foo=false`);
+
+    // Editing value (Any)
+    await element.requestUpdate();
+    operatorSelect.value = 'any';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('');
+  });
+
+  it('renders a field for Type.String option in simple mode', async () => {
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder .options=${[{ type: Type.String, path: 'foo', label: 'option_foo' }]}>
+      </foxy-query-builder>
+    `);
+
+    const rules = element.renderRoot.querySelectorAll('[aria-label="query_builder_rule"]');
+    expect(rules).to.have.length(1);
+
+    const rule = rules[0];
+    const label = rule.querySelector('foxy-i18n[key="option_foo"][infer=""]');
+    expect(label).to.exist;
+
+    // Initial state
+    const operatorSelect = rule.querySelector('select')!;
+    expect(operatorSelect).to.exist;
+    expect(operatorSelect.options).to.have.length(3);
+    expect(operatorSelect.options[0].value).to.equal('any');
+    expect(operatorSelect.options[0].innerText.trim()).to.equal('value_any');
+    expect(operatorSelect.options[1].value).to.equal('equal');
+    expect(operatorSelect.options[1].innerText.trim()).to.equal('operator_equal');
+    expect(operatorSelect.options[2].value).to.equal('not');
+    expect(operatorSelect.options[2].innerText.trim()).to.equal('operator_not');
+
+    // Editing operator (Equal)
+    operatorSelect.value = 'equal';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo=');
+    await element.requestUpdate();
+
+    // Editing value
+    const valueInput = rule.querySelector('input') as HTMLInputElement;
+    expect(valueInput).to.exist;
+    expect(valueInput).to.have.value('');
+    valueInput.value = 'baz';
+    valueInput.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.value('foo=baz');
+
+    // Editing operator (Not)
+    operatorSelect.value = 'not';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo%3Anot=baz');
+
+    // Editing operator (Any)
+    operatorSelect.value = 'any';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('');
+  });
+
+  it('renders a field for Type.Number option in simple mode', async () => {
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder
+        .options=${[{ type: Type.Number, path: 'foo', label: 'option_foo', min: 10 }]}
+      >
+      </foxy-query-builder>
+    `);
+
+    const rules = element.renderRoot.querySelectorAll('[aria-label="query_builder_rule"]');
+    expect(rules).to.have.length(1);
+
+    const rule = rules[0];
+    const label = rule.querySelector('foxy-i18n[key="option_foo"][infer=""]');
+    expect(label).to.exist;
+
+    // Initial state
+    const operatorSelect = rule.querySelector('select')!;
+    expect(operatorSelect).to.exist;
+    expect(operatorSelect.options).to.have.length(8);
+    expect(operatorSelect.options[0].value).to.equal('any');
+    expect(operatorSelect.options[0].innerText.trim()).to.equal('value_any');
+    expect(operatorSelect.options[1].value).to.equal('equal');
+    expect(operatorSelect.options[1].innerText.trim()).to.equal('operator_equal');
+    expect(operatorSelect.options[2].value).to.equal('not');
+    expect(operatorSelect.options[2].innerText.trim()).to.equal('operator_not');
+    expect(operatorSelect.options[3].value).to.equal('lessthanorequal');
+    expect(operatorSelect.options[3].innerText.trim()).to.equal('operator_lessthanorequal');
+    expect(operatorSelect.options[4].value).to.equal('lessthan');
+    expect(operatorSelect.options[4].innerText.trim()).to.equal('operator_lessthan');
+    expect(operatorSelect.options[5].value).to.equal('greaterthanorequal');
+    expect(operatorSelect.options[5].innerText.trim()).to.equal('operator_greaterthanorequal');
+    expect(operatorSelect.options[6].value).to.equal('greaterthan');
+    expect(operatorSelect.options[6].innerText.trim()).to.equal('operator_greaterthan');
+    expect(operatorSelect.options[7].value).to.equal('range');
+    expect(operatorSelect.options[7].innerText.trim()).to.equal('range');
+
+    // Editing operator (Equal)
+    operatorSelect.value = 'equal';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo=10');
+    await element.requestUpdate();
+
+    // Editing value
+    const valueInput = rule.querySelector('input') as HTMLInputElement;
+    expect(valueInput).to.exist;
+    expect(valueInput).to.have.value('10');
+    expect(valueInput).to.have.attribute('min', '10');
+    valueInput.value = '13';
+    valueInput.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.value('foo=13');
+
+    // Editing operator (Not)
+    operatorSelect.value = 'not';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo%3Anot=13');
+
+    // Editing operator (LessThanOrEqual)
+    operatorSelect.value = 'lessthanorequal';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo%3Alessthanorequal=13');
+
+    // Editing operator (LessThan)
+    operatorSelect.value = 'lessthan';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo%3Alessthan=13');
+
+    // Editing operator (GreaterThanOrEqual)
+    operatorSelect.value = 'greaterthanorequal';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo%3Agreaterthanorequal=13');
+
+    // Editing operator (GreaterThan)
+    operatorSelect.value = 'greaterthan';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo%3Agreaterthan=13');
+
+    // Editing operator (Range)
+    operatorSelect.value = 'range';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo=13..23');
+
+    // Editing range value (From)
+    await element.requestUpdate();
+    const rangeFromInput = rule.querySelectorAll('input')[0] as HTMLInputElement;
+    expect(rangeFromInput).to.exist;
+    expect(rangeFromInput).to.have.attribute('min', '10');
+    expect(rangeFromInput).to.have.value('13');
+    rangeFromInput.value = '15';
+    rangeFromInput.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.value('foo=15..23');
+
+    // Editing range value (To)
+    const rangeToInput = rule.querySelectorAll('input')[1] as HTMLInputElement;
+    expect(rangeToInput).to.exist;
+    expect(rangeToInput).to.have.value('23');
+    expect(rangeFromInput).to.have.attribute('min', '10');
+    rangeToInput.value = '25';
+    rangeToInput.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.value('foo=15..25');
+
+    // Editing operator (Any)
+    operatorSelect.value = 'any';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('');
+  });
+
+  it('renders a field for Type.Date option in simple mode', async () => {
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder
+        .options=${[{ type: Type.Date, path: 'foo', label: 'option_foo', min: '2020-10-05' }]}
+      >
+      </foxy-query-builder>
+    `);
+
+    const rules = element.renderRoot.querySelectorAll('[aria-label="query_builder_rule"]');
+    expect(rules).to.have.length(1);
+
+    const rule = rules[0];
+    const label = rule.querySelector('foxy-i18n[key="option_foo"][infer=""]');
+    expect(label).to.exist;
+
+    // Initial state
+    const operatorSelect = rule.querySelector('select')!;
+    expect(operatorSelect).to.exist;
+    expect(operatorSelect.options).to.have.length(8);
+    expect(operatorSelect.options[0].value).to.equal('any');
+    expect(operatorSelect.options[0].innerText.trim()).to.equal('value_any');
+    expect(operatorSelect.options[1].value).to.equal('equal');
+    expect(operatorSelect.options[1].innerText.trim()).to.equal('operator_equal');
+    expect(operatorSelect.options[2].value).to.equal('not');
+    expect(operatorSelect.options[2].innerText.trim()).to.equal('operator_not');
+    expect(operatorSelect.options[3].value).to.equal('lessthanorequal');
+    expect(operatorSelect.options[3].innerText.trim()).to.equal('operator_lessthanorequal');
+    expect(operatorSelect.options[4].value).to.equal('lessthan');
+    expect(operatorSelect.options[4].innerText.trim()).to.equal('operator_lessthan');
+    expect(operatorSelect.options[5].value).to.equal('greaterthanorequal');
+    expect(operatorSelect.options[5].innerText.trim()).to.equal('operator_greaterthanorequal');
+    expect(operatorSelect.options[6].value).to.equal('greaterthan');
+    expect(operatorSelect.options[6].innerText.trim()).to.equal('operator_greaterthan');
+    expect(operatorSelect.options[7].value).to.equal('range');
+    expect(operatorSelect.options[7].innerText.trim()).to.equal('range');
+
+    // Editing operator (Equal)
+    operatorSelect.value = 'equal';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element.value).to.include(serializeDate(new Date())); // include because ms can be different
+    await element.requestUpdate();
+
+    // Editing value
+    const valueInput = rule.querySelector('input') as HTMLInputElement;
+    expect(valueInput).to.exist;
+    expect(valueInput).to.have.value(serializeDate(new Date()));
+    expect(valueInput).to.have.attribute('min', '2020-10-05');
+    valueInput.value = '2024-12-06';
+    valueInput.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.value(`foo=${inputToAPIDate('2024-12-06')}`);
+
+    // Editing operator (Not)
+    await element.requestUpdate();
+    operatorSelect.value = 'not';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value(`foo%3Anot=${inputToAPIDate('2024-12-06')}`);
+
+    // Editing operator (LessThanOrEqual)
+    await element.requestUpdate();
+    operatorSelect.value = 'lessthanorequal';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value(`foo%3Alessthanorequal=${inputToAPIDate('2024-12-06')}`);
+
+    // Editing operator (LessThan)
+    await element.requestUpdate();
+    operatorSelect.value = 'lessthan';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value(`foo%3Alessthan=${inputToAPIDate('2024-12-06')}`);
+
+    // Editing operator (GreaterThanOrEqual)
+    await element.requestUpdate();
+    operatorSelect.value = 'greaterthanorequal';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value(`foo%3Agreaterthanorequal=${inputToAPIDate('2024-12-06')}`);
+
+    // Editing operator (GreaterThan)
+    await element.requestUpdate();
+    operatorSelect.value = 'greaterthan';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value(`foo%3Agreaterthan=${inputToAPIDate('2024-12-06')}`);
+
+    // Editing operator (Range)
+    await element.requestUpdate();
+    operatorSelect.value = 'range';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value(
+      `foo=${inputToAPIDate('2024-11-06')}..${inputToAPIDate('2024-12-06', true)}`
+    );
+
+    // Editing range value (From)
+    await element.requestUpdate();
+    const rangeFromInput = rule.querySelectorAll('input')[0] as HTMLInputElement;
+    expect(rangeFromInput).to.exist;
+    expect(rangeFromInput).to.have.attribute('min', '2020-10-05');
+    expect(rangeFromInput).to.have.value('2024-11-06');
+    rangeFromInput.value = '2023-11-06';
+    rangeFromInput.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.value(
+      `foo=${inputToAPIDate('2023-11-06')}..${inputToAPIDate('2024-12-06', true)}`
+    );
+
+    // Editing range value (To)
+    await element.requestUpdate();
+    const rangeToInput = rule.querySelectorAll('input')[1] as HTMLInputElement;
+    expect(rangeToInput).to.exist;
+    expect(rangeFromInput).to.have.attribute('min', '2020-10-05');
+    expect(rangeToInput).to.have.value('2024-12-06');
+    rangeToInput.value = '2025-01-02';
+    rangeToInput.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.value(
+      `foo=${inputToAPIDate('2023-11-06')}..${inputToAPIDate('2025-01-02', true)}`
+    );
+
+    // Editing operator (Any)
+    await element.requestUpdate();
+    operatorSelect.value = 'any';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('');
+  });
+
+  it('renders a field for Type.Attribute option in simple mode', async () => {
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder .options=${[{ type: Type.Attribute, path: 'foo', label: 'option_foo' }]}>
+      </foxy-query-builder>
+    `);
+
+    const rules = element.renderRoot.querySelectorAll('[aria-label="query_builder_rule"]');
+    expect(rules).to.have.length(1);
+
+    const rule = rules[0];
+    const label = rule.querySelector('foxy-i18n[key="option_foo"][infer=""]');
+    expect(label).to.exist;
+
+    // Initial state
+    const nameInput = rule.querySelector('input')!;
+    const operatorSelect = rule.querySelector('select')!;
+    expect(nameInput).to.exist;
+    expect(operatorSelect).to.exist;
+    expect(operatorSelect.options).to.have.length(3);
+    expect(operatorSelect.options[0].value).to.equal('any');
+    expect(operatorSelect.options[0].innerText.trim()).to.equal('value_any');
+    expect(operatorSelect.options[1].value).to.equal('equal');
+    expect(operatorSelect.options[1].innerText.trim()).to.equal('operator_equal');
+    expect(operatorSelect.options[2].value).to.equal('not');
+    expect(operatorSelect.options[2].innerText.trim()).to.equal('operator_not');
+
+    // Editing name
+    nameInput.value = 'bar';
+    nameInput.dispatchEvent(new CustomEvent('input'));
+    expect(element).to.have.value('foo%3Aname%5Bbar%5D%3Aisdefined=true&zoom=foo');
+    await element.requestUpdate();
+
+    // Editing operator (Equal)
+    operatorSelect.value = 'equal';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo%3Aname%5Bbar%5D=&zoom=foo');
+    await element.requestUpdate();
+    const [_, valueInput] = rule.querySelectorAll('input');
+    expect(valueInput).to.exist;
+    expect(valueInput).to.have.value('');
+
+    // Editing value
+    valueInput.value = 'baz';
+    valueInput.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.value('foo%3Aname%5Bbar%5D=baz&zoom=foo');
+    await element.requestUpdate();
+
+    // Editing operator (Not)
+    operatorSelect.value = 'not';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo%3Aname%5Bbar%5D%3Anot=baz&zoom=foo');
+    await element.requestUpdate();
+
+    // Editing operator (Any)
+    operatorSelect.value = 'any';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo%3Aname%5Bbar%5D%3Aisdefined=true&zoom=foo');
+    await element.requestUpdate();
+
+    // Editing name (empty)
+    nameInput.value = '';
+    nameInput.dispatchEvent(new CustomEvent('input'));
+    expect(element).to.have.value('');
+  });
+
+  it('renders sorting controls for options in simple mode', async () => {
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder .options=${[{ type: Type.Number, path: 'foo', label: 'option_foo' }]}>
+      </foxy-query-builder>
+    `);
+
+    const rules = element.renderRoot.querySelectorAll('[aria-label="query_builder_rule"]');
+    const rule = rules[0];
+    const [_, orderSelect] = rule.querySelectorAll('select');
+
+    expect(orderSelect).to.exist;
+    expect(orderSelect.options).to.have.length(3);
+    expect(orderSelect.options[0].value).to.equal('none');
+    expect(orderSelect.options[0].innerText.trim()).to.equal('order_none');
+    expect(orderSelect.options[1].value).to.equal('asc');
+    expect(orderSelect.options[1].innerText.trim()).to.equal('order_asc_number');
+    expect(orderSelect.options[2].value).to.equal('desc');
+    expect(orderSelect.options[2].innerText.trim()).to.equal('order_desc_number');
+
+    // Editing order (Ascending)
+    orderSelect.value = 'asc';
+    orderSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('order=foo%20asc');
+
+    // Editing order (Descending)
+    orderSelect.value = 'desc';
+    orderSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('order=foo%20desc');
+
+    // Editing order (None)
+    orderSelect.value = 'none';
+    orderSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('');
+  });
+
+  it('renders a switcher for simple/advanced mode when options are available', async () => {
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder
+        value="foo=123"
+        .options=${[{ type: Type.Number, path: 'foo', label: 'option_foo' }]}
+      >
+      </foxy-query-builder>
+    `);
+
+    const simpleModeTabLabel = element.renderRoot.querySelector(
+      'foxy-i18n[key="mode_simple"][infer=""]'
+    );
+    const advancedModeTabLabel = element.renderRoot.querySelector(
+      'foxy-i18n[key="mode_advanced"][infer=""]'
+    );
+
+    const simpleModeTabInput = simpleModeTabLabel?.closest('label')?.querySelector('input');
+    const advancedModeTabInput = advancedModeTabLabel?.closest('label')?.querySelector('input');
+
+    // Initial state
+    expect(simpleModeTabInput).to.exist;
+    expect(advancedModeTabInput).to.exist;
+    expect(simpleModeTabInput?.checked).to.be.true;
+    expect(simpleModeTabInput?.name).to.equal(advancedModeTabInput?.name);
+
+    // 1 rule (no placeholder) indicates that the Simple mode is on
+    expect(element.renderRoot.querySelectorAll('[aria-label="query_builder_rule"]')).to.have.length(
+      1
+    );
+
+    advancedModeTabInput!.checked = true;
+    advancedModeTabInput!.dispatchEvent(new CustomEvent('change'));
+    await element.requestUpdate();
+
+    // 2 rules, where one has data and one is an empty placeholder, indicates that the Advanced mode is on
+    expect(element.renderRoot.querySelectorAll('[aria-label="query_builder_rule"]')).to.have.length(
+      2
+    );
+  });
+
+  it('disables simple mode if filters cannot be rendered in the simple mode', async () => {
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder
+        value="foo=123&bar=baz"
+        .options=${[{ type: Type.Number, path: 'foo', label: 'option_foo' }]}
+      >
+      </foxy-query-builder>
+    `);
+
+    const simpleModeTabLabel = element.renderRoot.querySelector(
+      'foxy-i18n[key="mode_simple_unsupported"][infer=""]'
+    );
+    const advancedModeTabLabel = element.renderRoot.querySelector(
+      'foxy-i18n[key="mode_advanced"][infer=""]'
+    );
+
+    const advancedModeTabInput = advancedModeTabLabel?.closest('label')?.querySelector('input');
+    const simpleModeTabInput = simpleModeTabLabel?.closest('label')?.querySelector('input');
+
+    expect(advancedModeTabInput).to.exist;
+    expect(advancedModeTabInput?.checked).to.be.true;
+    expect(advancedModeTabInput?.name).to.equal(simpleModeTabInput?.name);
+
+    expect(simpleModeTabInput).to.exist;
+    expect(simpleModeTabInput?.disabled).to.be.true;
+  });
+
+  it('displays simple mode even if options are not provided for paths in .reservedPaths', async () => {
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder
+        value="foo=123&bar=baz"
+        .options=${[{ type: Type.Number, path: 'foo', label: 'option_foo' }]}
+        .reservedPaths=${['bar']}
+      >
+      </foxy-query-builder>
+    `);
+
+    const rules = element.renderRoot.querySelectorAll('[aria-label="query_builder_rule"]');
+    const simpleModeTabLabel = element.renderRoot.querySelector(
+      'foxy-i18n[key="mode_simple"][infer=""]'
+    );
+
+    // 1 rule (no placeholder) indicates that the Simple mode is on
+    expect(rules).to.have.length(1);
+    expect(simpleModeTabLabel).to.exist;
+  });
+
+  it('displays docs reference in the advanced mode if .docsUrl is set', async () => {
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder docs-href="https://example.com" value="foo=123&bar=baz">
+      </foxy-query-builder>
+    `);
+
+    const notice = element.renderRoot.querySelector(
+      'foxy-i18n[infer=""][key="advanced_mode_notice"]'
+    );
+    const apiReferenceLinkCaption = element.renderRoot.querySelector(
+      'foxy-i18n[infer=""][key="api_reference_link"]'
+    );
+    const apiReferenceLink = apiReferenceLinkCaption?.closest('a');
+
+    expect(notice).to.exist;
+    expect(apiReferenceLink).to.exist;
+    expect(apiReferenceLink?.href).to.equal('https://example.com/');
+    expect(apiReferenceLink?.target).to.equal('_blank');
+    expect(apiReferenceLink?.rel).to.equal('nofollow noreferrer noopener');
   });
 });

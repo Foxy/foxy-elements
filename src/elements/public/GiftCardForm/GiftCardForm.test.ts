@@ -484,11 +484,11 @@ describe('GiftCardForm', () => {
     writeTextMethod.restore();
 
     expect(control).to.have.deep.property('filters', [
-      { label: 'code', path: 'code', type: Type.String },
-      { label: 'current_balance', path: 'current_balance', type: Type.Number },
-      { label: 'end_date', path: 'end_date', type: Type.Date },
-      { label: 'date_created', path: 'date_created', type: Type.Date },
-      { label: 'date_modified', path: 'date_modified', type: Type.Date },
+      { label: 'option_code', path: 'code', type: Type.String },
+      { label: 'option_current_balance', path: 'current_balance', type: Type.Number },
+      { label: 'option_end_date', path: 'end_date', type: Type.Date },
+      { label: 'option_date_created', path: 'date_created', type: Type.Date },
+      { label: 'option_date_modified', path: 'date_modified', type: Type.Date },
     ]);
   });
 

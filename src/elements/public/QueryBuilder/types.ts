@@ -1,3 +1,6 @@
+import type { TemplateResult } from 'lit-html';
+import type { I18n } from '../I18n/I18n';
+
 export enum Type {
   Attribute = 'attribute',
   Boolean = 'boolean',
@@ -18,15 +21,26 @@ export enum Operator {
 }
 
 export type Option = {
+  group?: { name: string; layout?: string };
   label: string;
-  list?: { label: string; value: string }[];
+  list?: ({ value: string } & ({ label: string } | { rawLabel: string }))[];
   path: string;
   type: Type;
+  min?: number | string;
 };
 
-export type ParsedValue = {
+export type Rule = {
+  operator: Operator | null;
+  value: string;
   name?: string;
   path: string;
-  value: string;
-  operator: Operator | null;
 };
+
+export type SimpleRuleComponent = (params: {
+  disabled: boolean;
+  readonly: boolean;
+  option: Option;
+  rule: Rule | undefined;
+  t: I18n['t'];
+  onChange: (newValue: Partial<Omit<Rule, 'path'>> | null) => void;
+}) => TemplateResult;
