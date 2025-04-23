@@ -1,17 +1,13 @@
 import { Operator, Rule } from '../types';
 
-function parseGroup(search: string): Rule {
-  const separatorIndex = search.indexOf('=');
-  const fullPath = decodeURIComponent(search.substring(0, separatorIndex));
-  const value = decodeURIComponent(search.substring(separatorIndex + 1));
-
+function parseGroup(key: string, value: string): Rule {
   const operators = Object.values(Operator) as Operator[];
-  const operator = operators.find(operator => fullPath.endsWith(`:${operator}`)) ?? null;
+  const operator = operators.find(operator => key.endsWith(`:${operator}`)) ?? null;
 
-  let path = fullPath.substring(0, operator ? fullPath.lastIndexOf(':') : undefined);
+  let path = key.substring(0, operator ? key.lastIndexOf(':') : undefined);
   let name: string | undefined = undefined;
 
-  const nameStart = fullPath.lastIndexOf('[');
+  const nameStart = key.lastIndexOf('[');
 
   if (path.endsWith(']') && nameStart !== -1) {
     name = path.substring(nameStart + 1, path.length - 1);
@@ -23,14 +19,23 @@ function parseGroup(search: string): Rule {
 }
 
 function parse(search: string): (Rule | Rule[])[] {
-  return search
-    .split('&')
-    .filter(v => !!v)
-    .map(entry => {
-      const [name, value] = entry.split('=').map(decodeURIComponent);
-      if (!value?.includes('|')) return parseGroup(entry);
-      return `${encodeURIComponent(name)}=${value}`.split('|').map(v => parseGroup(v));
-    });
+  const params = new URLSearchParams(search);
+  const result: (Rule | Rule[])[] = [];
+
+  for (const [key, value] of params.entries()) {
+    if (value.includes('|')) {
+      result.push(
+        value.split('|').map((part, index) => {
+          if (index === 0) return parseGroup(key, part);
+          return parseGroup(...(part.split('=') as [string, string]));
+        })
+      );
+    } else {
+      result.push(parseGroup(key, value));
+    }
+  }
+
+  return result;
 }
 
 export { parse };

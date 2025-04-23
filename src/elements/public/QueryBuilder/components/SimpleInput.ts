@@ -51,7 +51,11 @@ export function SimpleInput(params: Params): TemplateResult {
               type=${ifDefined(type)}
               min=${ifDefined(min)}
               .value=${value}
-              @input=${(evt: Event) => onChange((evt.target as HTMLInputElement).value)}
+              @keydown=${(evt: KeyboardEvent) => evt.key === '|' && evt.preventDefault()}
+              @input=${(evt: Event) => {
+                const input = evt.currentTarget as HTMLInputElement;
+                onChange(input.value.replace(/\|/gi, ''));
+              }}
             />
           `}
     </label>

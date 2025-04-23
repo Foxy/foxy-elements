@@ -398,9 +398,12 @@ describe('QueryBuilder', () => {
     path.dispatchEvent(new InputEvent('input'));
     await element.requestUpdate();
     expect(root.querySelectorAll(`[aria-label="query_builder_rule"]`)).to.have.length(3);
-    expect(element).to.have.value('one%3Atwo%3Athree=&zoom=one%2Ctwo');
+    expect(element).to.have.value('one%3Atwo%3Athree=&zoom=one%3Atwo');
 
+    element.value = '';
     element.disableZoom = true;
+    await element.requestUpdate();
+    path.value = 'one:two:three';
     path.dispatchEvent(new InputEvent('input'));
     expect(element).to.have.value('one%3Atwo%3Athree=');
   });
@@ -810,12 +813,12 @@ describe('QueryBuilder', () => {
     // Editing order (Ascending)
     orderSelect.value = 'asc';
     orderSelect.dispatchEvent(new InputEvent('change'));
-    expect(element).to.have.value('order=foo%20asc');
+    expect(element).to.have.value('order=foo+asc');
 
     // Editing order (Descending)
     orderSelect.value = 'desc';
     orderSelect.dispatchEvent(new InputEvent('change'));
-    expect(element).to.have.value('order=foo%20desc');
+    expect(element).to.have.value('order=foo+desc');
 
     // Editing order (None)
     orderSelect.value = 'none';

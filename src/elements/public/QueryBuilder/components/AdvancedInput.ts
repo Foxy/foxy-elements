@@ -29,9 +29,10 @@ export function AdvancedInput(params: Params): TemplateResult {
           })}
           .value=${params.value}
           ?disabled=${params.disabled || params.readonly}
+          @keydown=${(evt: KeyboardEvent) => evt.key === '|' && evt.preventDefault()}
           @input=${(evt: Event) => {
             const input = evt.currentTarget as HTMLInputElement;
-            params.onChange(input.value);
+            params.onChange(input.value.replace(/\|/gi, ''));
           }}
         />
       </div>
