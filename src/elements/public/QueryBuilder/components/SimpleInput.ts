@@ -21,7 +21,7 @@ export function SimpleInput(params: Params): TemplateResult {
   const { disabled, readonly, layout, label, value, type, min, t, onChange } = params;
 
   return html`
-    <label class="flex-shrink-0 flex items-center gap-s relative">
+    <label class="flex-shrink-0 flex items-center gap-s relative" style="max-width: 50%">
       <foxy-i18n infer="" class=${classMap({ 'sr-only': layout !== 'fixed' })} key=${label}>
       </foxy-i18n>
 
