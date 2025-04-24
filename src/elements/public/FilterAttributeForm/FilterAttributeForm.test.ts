@@ -160,31 +160,6 @@ describe('FilterAttributeForm', () => {
     );
   });
 
-  it('renders Reset button when appropriate', async () => {
-    const router = createRouter();
-    const element = await fixture<Form>(html`
-      <foxy-filter-attribute-form
-        pathname="/stores/0/transactions"
-        href="https://demo.api/hapi/store_attributes/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-filter-attribute-form>
-    `);
-
-    await waitUntil(() => element.in('idle'));
-    let button = element.renderRoot.querySelector('vaadin-button[aria-label="action.reset"]');
-    expect(button).to.not.exist;
-
-    element.edit({ value: '/stores/0/transactions?filter_name=my+filter' });
-    await element.requestUpdate();
-    button = element.renderRoot.querySelector('vaadin-button[aria-label="action.reset"]');
-    expect(button).to.exist;
-
-    const undoMethod = stub(element, 'undo');
-    button?.dispatchEvent(new CustomEvent('click'));
-    expect(undoMethod).to.have.been.calledOnce;
-  });
-
   it('renders Update button when appropriate', async () => {
     const router = createRouter();
     const element = await fixture<Form>(html`

@@ -8,7 +8,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { encode, decode } from 'html-entities';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { html, svg } from 'lit-html';
+import { html } from 'lit-html';
 
 const NS = 'filter-attribute-form';
 const Base = TranslatableMixin(InternalForm, NS);
@@ -66,9 +66,10 @@ export class FilterAttributeForm extends Base<Data> {
   renderBody(): TemplateResult {
     const constructor = this.constructor as typeof FilterAttributeForm;
     const filterQuery = this.__getValueParam(constructor.filterQueryKey);
-    const hasChanges = this.in({ idle: { snapshot: 'dirty' } });
     const hasValue = !!this.form.value;
     const hasData = !!this.data;
+    const hasChanges =
+      this.in({ idle: { snapshot: 'dirty' } }) || this.in({ idle: { template: 'dirty' } });
 
     return html`
       <div class="flex gap-s">
@@ -101,19 +102,6 @@ export class FilterAttributeForm extends Base<Data> {
         ${!hasValue || (!filterQuery && !hasData)
           ? ''
           : html`
-              ${hasData && hasChanges
-                ? html`
-                    <vaadin-button
-                      aria-label=${this.t('action.reset')}
-                      theme="contrast icon"
-                      ?disabled=${this.disabled}
-                      @click=${() => this.undo()}
-                    >
-                      ${svg`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1em; height: 1em; transform: translateY(-0.1em) scale(1.25)"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" /></svg>`}
-                    </vaadin-button>
-                  `
-                : ''}
-
               <vaadin-button
                 theme=${hasData ? (hasChanges ? 'secondary' : 'error') : 'success'}
                 style=${ifDefined(hasData ? void 0 : '--lumo-button-size: auto')}
@@ -204,5 +192,6 @@ export class FilterAttributeForm extends Base<Data> {
     const constructor = this.constructor as typeof FilterAttributeForm;
     const element = evt.currentTarget as QueryBuilder;
     this.__setValueParam(constructor.filterQueryKey, element.value ?? '');
+    this.requestUpdate();
   }
 }
