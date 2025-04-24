@@ -78,6 +78,11 @@ describe('QueryBuilder', () => {
     });
   });
 
+  it('has a static method to generate zoom parameter value from a query string', () => {
+    expect(QueryBuilder).to.have.property('zoom');
+    expect(QueryBuilder.zoom('one:two:three=1&four:five=2')).to.equal('one:two,four');
+  });
+
   it('exposes change event class as a static field', () => {
     expect(QueryBuilder).to.have.property('ChangeEvent');
     expect(new QueryBuilder.ChangeEvent('change')).to.be.instanceOf(Event);

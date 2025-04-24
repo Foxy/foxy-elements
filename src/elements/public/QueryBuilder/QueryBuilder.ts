@@ -15,6 +15,7 @@ import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../utils/class-map';
 import { styles } from './styles';
 import { parse } from './utils/parse';
+import { zoom } from './utils/zoom';
 
 const NS = 'query-builder';
 const Base = ConfigurableMixin(
@@ -38,6 +39,11 @@ export class QueryBuilder extends Base {
 
   /** Field type dictionary for use in autocomplete options. */
   static readonly Type = Type;
+
+  /** Returns zoom value for a filter query. */
+  static zoom(value: string): string {
+    return zoom(parse(value));
+  }
 
   static get properties(): PropertyDeclarations {
     return {

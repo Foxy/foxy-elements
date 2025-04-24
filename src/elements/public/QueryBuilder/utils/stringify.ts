@@ -1,4 +1,5 @@
 import type { Rule } from '../types';
+import { zoom } from './zoom';
 
 function stringifyRule(parsedValue: Rule): [string, string] {
   let key = parsedValue.path;
@@ -24,34 +25,8 @@ function stringify(newValue: (Rule | Rule[])[], disableZoom = false): string {
   }
 
   if (!disableZoom) {
-    const zooms = new Set<string>();
-    const maybeAdd = (rule: Rule) => {
-      let rel: string;
-
-      if (typeof rule.name === 'string') {
-        rel = rule.path;
-      } else {
-        const separatorIndex = rule.path.lastIndexOf(':');
-        if (separatorIndex === -1) return;
-        rel = rule.path.substring(0, separatorIndex);
-      }
-
-      if (rel.length > 0) zooms.add(rel);
-    };
-
-    for (const ruleOrGroup of newValue) {
-      if (Array.isArray(ruleOrGroup)) {
-        for (const rule of ruleOrGroup) maybeAdd(rule);
-      } else {
-        maybeAdd(ruleOrGroup);
-      }
-    }
-
-    if (zooms.size > 0) {
-      query.set('zoom', Array.from(zooms).join());
-    } else {
-      query.delete('zoom');
-    }
+    const zoomValue = zoom(newValue);
+    zoomValue ? query.set('zoom', zoomValue) : query.delete('zoom');
   }
 
   return query.toString();
