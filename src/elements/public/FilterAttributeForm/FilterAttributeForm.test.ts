@@ -105,6 +105,7 @@ describe('FilterAttributeForm', () => {
     expect(control).to.exist;
     expect(control).to.be.instanceOf(customElements.get('foxy-query-builder'));
     expect(control).to.have.property('value', 'color=blue');
+    expect(control).to.have.property('disableZoom', true);
 
     const options: Form['options'] = [{ type: Type.String, label: 'option_color', path: 'color' }];
     element.options = options;

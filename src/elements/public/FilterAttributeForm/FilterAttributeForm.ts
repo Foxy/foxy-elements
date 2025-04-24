@@ -135,6 +135,7 @@ export class FilterAttributeForm extends Base<Data> {
         options=${JSON.stringify(this.options)}
         infer="filter-query"
         value=${filterQuery}
+        disable-zoom
         @change=${this.__handleFilterQueryChange}
       >
       </foxy-query-builder>
