@@ -87,12 +87,13 @@ export class InternalEditableListControl extends InternalEditableControl {
 
     const isAddButtonDisabled = this.disabled || !this.__newItem;
 
-    const addItem = () => {
+    const addItem = (split = false) => {
       const newValue = [...this._value];
+      const splitBy = split && this.__newItem.includes(',') ? ',' : '\n';
       const unit = this.renderRoot.querySelector('select')?.value;
 
       this.__newItem
-        .split('\n')
+        .split(splitBy)
         .map(code => code.trim())
         .filter(code => code.length > 0)
         .forEach(value => {
@@ -266,7 +267,8 @@ export class InternalEditableListControl extends InternalEditableControl {
                   @paste=${(evt: ClipboardEvent) => {
                     evt.preventDefault();
                     this.__newItem = evt.clipboardData?.getData('text') ?? '';
-                    if (this.__newItem.includes('\n')) addItem();
+                    if (this.__newItem.includes('\n') || this.__newItem.includes(','))
+                      addItem(true);
                   }}
                   @blur=${() => {
                     this.__isErrorVisible = true;
