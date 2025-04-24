@@ -249,6 +249,8 @@ export class Donation extends Translatable {
    */
   public target = '_top';
 
+  private __fcSessionPollInterval: number | null = null;
+
   public constructor() {
     super('donation');
   }
@@ -405,6 +407,23 @@ export class Donation extends Translatable {
         </div>
       </section>
     `;
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    if (!window.FC?.settings.session_id && this.__fcSessionPollInterval === null) {
+      this.__fcSessionPollInterval = window.setInterval(() => {
+        if (window.FC?.settings.session_id) {
+          clearInterval(this.__fcSessionPollInterval ?? void 0);
+          this.requestUpdate();
+        }
+      }, 1000);
+    }
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    clearInterval(this.__fcSessionPollInterval ?? void 0);
   }
 
   public updated(): void {

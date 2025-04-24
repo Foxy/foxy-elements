@@ -99,10 +99,13 @@ describe('foxy-donation', () => {
       });
 
       it('includes fcsid in the form data', async () => {
-        window.FC = { settings: { session_name: 'fcsid', session_id: '1234567890' } };
-
         const element = await fixture<Donation>(layout);
-        const formData = new FormData(getRefs<Refs>(element).form);
+        let formData = new FormData(getRefs<Refs>(element).form);
+        expect(formData.get('fcsid')).to.be.null;
+
+        window.FC = { settings: { session_name: 'fcsid', session_id: '1234567890' } };
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        formData = new FormData(getRefs<Refs>(element).form);
         expect(formData.get('fcsid')).to.equal('1234567890');
 
         delete window.FC;
