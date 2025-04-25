@@ -24,8 +24,8 @@ export class TransactionsTable extends TranslatableMixin(Table, 'transactions-ta
       if (!items) return '';
 
       const options = {
-        most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
         count_minus_one: items.length - 1,
+        first_item: items[0],
         count: items.length,
       };
 
