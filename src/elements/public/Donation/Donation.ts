@@ -13,7 +13,7 @@ import { DonationSubmitEvent } from './DonationSubmitEvent';
 declare global {
   interface Window {
     FC?: {
-      settings: {
+      settings?: {
         session_name: string;
         session_id: string;
       };
@@ -411,9 +411,9 @@ export class Donation extends Translatable {
 
   connectedCallback(): void {
     super.connectedCallback();
-    if (!window.FC?.settings.session_id && this.__fcSessionPollInterval === null) {
+    if (!window.FC?.settings?.session_id && this.__fcSessionPollInterval === null) {
       this.__fcSessionPollInterval = window.setInterval(() => {
-        if (window.FC?.settings.session_id) {
+        if (window.FC?.settings?.session_id) {
           clearInterval(this.__fcSessionPollInterval ?? void 0);
           this.requestUpdate();
         }
@@ -450,7 +450,10 @@ export class Donation extends Translatable {
     if (typeof this.cart === 'string') data.set('cart', this.cart);
     if (this.empty) data.set('empty', this.empty);
     if (this.anonymous) data.set('Anonymous', 'true');
-    if (window.FC) data.set(window.FC.settings.session_name, window.FC.settings.session_id);
+
+    if (window.FC?.settings?.session_id && window.FC.settings.session_name) {
+      data.set(window.FC.settings.session_name, window.FC.settings.session_id);
+    }
 
     data.set('quantity', '1');
 
