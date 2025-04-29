@@ -358,7 +358,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     );
 
     const list = (await getByTestId(element, 'select-method-list')) as HTMLElement;
-    const groups = list.querySelectorAll('ul');
+    const groups = list.querySelectorAll('foxy-internal-summary-control');
     const headers = list.querySelectorAll('p');
 
     expect(list).to.exist;
@@ -368,15 +368,15 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(headers[0]).to.have.text('B');
     expect(headers[1]).to.have.text('F');
 
-    const group0Items = groups[0].querySelectorAll('li');
-    const group1Items = groups[1].querySelectorAll('li');
+    const group0Items = groups[0].querySelectorAll('button');
+    const group1Items = groups[1].querySelectorAll('button');
 
     expect(group0Items).to.have.length(1);
     expect(group1Items).to.have.length(2);
 
-    const group0Item0Button = group0Items[0].querySelector('button') as HTMLButtonElement;
-    const group1Item0Button = group1Items[0].querySelector('button') as HTMLButtonElement;
-    const group1Item1Button = group1Items[1].querySelector('button') as HTMLButtonElement;
+    const group0Item0Button = group0Items[0] as HTMLButtonElement;
+    const group1Item0Button = group1Items[0] as HTMLButtonElement;
+    const group1Item1Button = group1Items[1] as HTMLButtonElement;
 
     expect(group0Item0Button).to.exist;
     expect(group0Item0Button).to.not.have.attribute('disabled');
@@ -390,7 +390,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(group1Item0Button).to.exist;
     expect(group1Item0Button).to.not.have.attribute('disabled');
     expect(group1Item0Button).to.include.text('Foo One');
-    expect(await getByKey(group1Item0Button, 'conflict_message')).to.not.exist;
+    expect(group1Item0Button).to.not.include.text('conflict_message');
     expect(await getByTag(group1Item0Button, 'img')).to.have.attribute(
       'src',
       'https://example.com?type=foo_one'
@@ -403,7 +403,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
       'src',
       'https://example.com?type=foo_two'
     );
-    expect(group1Item1Button).to.have.attribute('title', 'conflict_message');
+    expect(group1Item1Button).to.include.text('conflict_message');
 
     group0Item0Button.click();
     await element.requestUpdate();
@@ -500,7 +500,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     );
 
     const list = (await getByTestId(element, 'select-method-list')) as HTMLElement;
-    const groups = list.querySelectorAll('ul');
+    const groups = list.querySelectorAll('foxy-internal-summary-control');
     const headers = list.querySelectorAll('p');
 
     expect(list).to.exist;
@@ -510,15 +510,15 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(headers[0]).to.have.text('B');
     expect(headers[1]).to.have.text('F');
 
-    const group0Items = groups[0].querySelectorAll('li');
-    const group1Items = groups[1].querySelectorAll('li');
+    const group0Items = groups[0].querySelectorAll('button');
+    const group1Items = groups[1].querySelectorAll('button');
 
     expect(group0Items).to.have.length(1);
     expect(group1Items).to.have.length(1);
 
-    const group0Item0Button = group0Items[0]?.querySelector('button');
-    const group1Item0Button = group1Items[0]?.querySelector('button');
-    const group1Item1Button = group1Items[1]?.querySelector('button');
+    const group0Item0Button = group0Items[0];
+    const group1Item0Button = group1Items[0];
+    const group1Item1Button = group1Items[1];
 
     expect(group0Item0Button).to.exist;
     expect(group1Item0Button).to.exist;
@@ -1881,5 +1881,121 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     expect(testGroup).to.have.attribute('helper-text', 'test-group.helper_text_inactive');
     expect(liveGroup).to.not.have.attribute('helper-text');
+  });
+
+  it('renders a search field for searching available payment methods', async () => {
+    const availableMethods: AvailablePaymentMethods = {
+      _links: {
+        self: { href: '' },
+      },
+      values: {
+        foo_one: {
+          name: 'Foo One',
+          test_id: '',
+          test_key: '',
+          test_third_party_key: '',
+          third_party_key_description: '',
+          id_description: '',
+          key_description: '',
+          supports_3d_secure: 0,
+          supports_auth_only: 0,
+          is_deprecated: false,
+          additional_fields: null,
+        },
+        foo_two: {
+          name: 'Foo Two',
+          test_id: '',
+          test_key: '',
+          test_third_party_key: '',
+          third_party_key_description: '',
+          id_description: '',
+          key_description: '',
+          supports_3d_secure: 0,
+          supports_auth_only: 0,
+          additional_fields: null,
+          is_deprecated: false,
+          conflict: { type: 'foo_one', name: 'Foo One' },
+        },
+        bar_one: {
+          name: 'Bar One',
+          test_id: '',
+          test_key: '',
+          test_third_party_key: '',
+          third_party_key_description: '',
+          id_description: '',
+          key_description: '',
+          supports_3d_secure: 0,
+          supports_auth_only: 0,
+          is_deprecated: false,
+          additional_fields: null,
+        },
+      },
+    };
+
+    const router = createRouter();
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            parent="https://foxy-payments-api.element/payment_presets/0/payment_methods"
+            store="https://demo.api/hapi/stores/0"
+            .getImageSrc=${(type: string) => `https://example.com?type=${type}`}
+            @fetch=${(evt: FetchEvent) => {
+              if (evt.request.url.endsWith('/payment_presets/0/available_payment_methods')) {
+                evt.preventDefault();
+                evt.respondWith(Promise.resolve(new Response(JSON.stringify(availableMethods))));
+              }
+            }}
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(
+      () => !!element.renderRoot.querySelector('[data-testid="select-method-list"]'),
+      '',
+      { timeout: 5000 }
+    );
+
+    const list = (await getByTestId(element, 'select-method-list')) as HTMLElement;
+    let groups = list.querySelectorAll('foxy-internal-summary-control');
+    const searchField = element.renderRoot.querySelector(
+      'input[type="search"]'
+    ) as HTMLInputElement;
+
+    expect(searchField).to.exist;
+    expect(searchField).to.have.attribute('placeholder', 'search_placeholder');
+    expect(groups).to.have.lengthOf(2);
+
+    searchField.value = 'Bar';
+    searchField.dispatchEvent(new Event('input'));
+    await element.requestUpdate();
+    groups = list.querySelectorAll('foxy-internal-summary-control');
+    expect(groups).to.have.lengthOf(1);
+
+    const group0Items = groups[0].querySelectorAll('button');
+    expect(group0Items).to.have.length(1);
+
+    const group0Item0Button = group0Items[0] as HTMLButtonElement;
+    expect(group0Item0Button).to.exist;
+    expect(group0Item0Button).to.not.have.attribute('disabled');
+    expect(group0Item0Button).to.include.text('Bar One');
+    expect(await getByKey(group0Item0Button, 'conflict_message')).to.not.exist;
+    expect(await getByTag(group0Item0Button, 'img')).to.have.attribute(
+      'src',
+      'https://example.com?type=bar_one'
+    );
   });
 });

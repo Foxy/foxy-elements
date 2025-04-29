@@ -14,6 +14,7 @@ import { ifDefined } from 'lit-html/directives/if-defined';
 import { html, svg } from 'lit-html';
 import { classMap } from '../../../utils/class-map';
 
+import Fuse from 'fuse.js';
 import has from 'lodash-es/has';
 import get from 'lodash-es/get';
 import set from 'lodash-es/set';
@@ -48,6 +49,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
       paymentPreset: { attribute: 'payment-preset' },
       getImageSrc: { attribute: false },
       store: {},
+      __search: { attribute: false },
     };
   }
 
@@ -149,6 +151,8 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     { label: 'option_enabled_override', value: 'enabled_override' },
   ];
 
+  private __search = '';
+
   get hiddenSelector(): BooleanSelector {
     return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
   }
@@ -237,7 +241,12 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
   }
 
   private get __groupedAvailablePaymentMethods() {
-    return Object.entries(this.__availablePaymentMethods ?? {})
+    const allMethods = Object.entries(this.__availablePaymentMethods ?? {});
+    const filteredMethods = this.__search
+      ? new Fuse(allMethods, { keys: ['1.name'] }).search(this.__search).map(v => v.item)
+      : allMethods;
+
+    return filteredMethods
       .sort((a, b) => a[0].localeCompare(b[0], 'en'))
       .reduce((groups, [type, helper]) => {
         if (helper.is_deprecated) return groups;
@@ -296,13 +305,26 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
     return html`
       <div>
-        <section data-testid="select-method-list" class="-mt-m">
+        <input
+          placeholder=${this.t('search_placeholder')}
+          class="w-full leading-m font-medium bg-contrast-5 rounded text-body transition-colors hover-bg-contrast-10 focus-bg-contrast-10 focus-outline-none focus-ring-2 focus-ring-primary-50"
+          style="padding: var(--lumo-space-xs) calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+          type="search"
+          .value=${this.__search}
+          @input=${(evt: Event) => {
+            this.__search = (evt.currentTarget as HTMLInputElement).value;
+          }}
+        />
+
+        <section data-testid="select-method-list">
           ${this.__groupedAvailablePaymentMethods.map(({ name, items }) => {
             return html`
               <p class="font-medium text-tertiary py-m">${name}</p>
-              <ul class="grid grid-cols-2 gap-m">
-                ${items.map(item => html`<li>${this.__renderPaymentMethodButton(item)}</li>`)}
-              </ul>
+              <foxy-internal-summary-control infer="" label="" helper-text="">
+                ${items.map((item, index) =>
+                  this.__renderPaymentMethodButton(item, index, items.length)
+                )}
+              </foxy-internal-summary-control>
             `;
           })}
         </section>
@@ -518,7 +540,11 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     `;
   }
 
-  private __renderPaymentMethodButton({ type, helper }: PaymentMethod) {
+  private __renderPaymentMethodButton(
+    { type, helper }: PaymentMethod,
+    index: number,
+    total: number
+  ) {
     const defaultSrc = PaymentsApiPaymentMethodForm.defaultImageSrc;
     const src = this.getImageSrc?.(type) ?? defaultSrc;
     const onError = (evt: Event) => ((evt.currentTarget as HTMLImageElement).src = defaultSrc);
@@ -526,25 +552,21 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     return html`
       <button
         class=${classMap({
-          'relative w-full block text-left p-s rounded bg-contrast-5 overflow-hidden': true,
-          'focus-outline-none focus-ring-2 focus-ring-primary-50': true,
+          'relative w-full block text-left bg-contrast-5 overflow-hidden': true,
+          'focus-outline-none focus-ring-inset focus-ring-2 focus-ring-primary-50': true,
           'transition-colors hover-bg-contrast-10': !helper.conflict,
           'cursor-default': !!helper.conflict,
+          'rounded-t': index === 0,
+          'rounded-b': index === total - 1,
         })}
         ?disabled=${!!helper.conflict}
-        title=${helper.conflict ? this.t('conflict_message', helper.conflict) : ''}
+        style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
         @click=${() => this.edit({ type, helper })}
       >
-        <img
-          class="absolute top-0 left-0 w-1-2 h-full object-cover bg-center filter saturate-200 blur-3xl"
-          style="transform: translate3d(0, 0, 0)"
-          src=${src}
-          alt=""
-          ?hidden=${!!helper.conflict}
-          @error=${onError}
-        />
-
-        <figure class="relative flex flex-col gap-m">
+        <figure
+          class="relative flex items-center"
+          style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+        >
           <img
             class=${classMap({
               'h-m w-m object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs': true,
@@ -554,15 +576,16 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
             alt=""
             @error=${onError}
           />
-
           <figcaption
             class=${classMap({
-              'min-w-0 flex-1 truncate leading-s': true,
+              'min-w-0 flex-1 grid leading-xs': true,
               'text-disabled': !!helper.conflict,
             })}
           >
-            <div class="font-medium">${helper.name}&ZeroWidthSpace;</div>
-            <div class="text-xs ${helper.conflict ? '' : 'text-secondary'}">${type}</div>
+            <span class="font-medium">${helper.name}&ZeroWidthSpace;</span>
+            ${helper.conflict
+              ? html`<span class="text-xs"> ${this.t('conflict_message', helper.conflict)}</span>`
+              : ''}
           </figcaption>
         </figure>
       </button>
