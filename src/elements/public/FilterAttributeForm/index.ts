@@ -1,7 +1,9 @@
-import './internal/InternalFilterAttributeFormActionControl/index';
-import '../../internal/InternalTextControl/index';
+import '@vaadin/vaadin-button';
+
 import '../../internal/InternalForm/index';
+
 import '../QueryBuilder/index';
+import '../I18n/index';
 
 import { FilterAttributeForm } from './FilterAttributeForm';
 

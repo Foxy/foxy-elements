@@ -424,6 +424,21 @@ export class StoreForm extends Base<Data> {
     }
   };
 
+  private readonly __sendHtmlEmailOptions = [
+    { label: 'option_text_only', value: 'text_only' },
+    { label: 'option_text_plus_html', value: 'text_plus_html' },
+  ];
+
+  private readonly __sendHtmlEmailGetValue = () => {
+    // @ts-expect-error SDK doesn't know about this property
+    return this.form.send_html_email ? 'text_plus_html' : 'text_only';
+  };
+
+  private readonly __sendHtmlEmailSetValue = (newValue: 'text_only' | 'text_plus_html') => {
+    // @ts-expect-error SDK doesn't know about this property
+    this.edit({ send_html_email: newValue === 'text_plus_html' });
+  };
+
   private __hCaptchaToken: string | null = null;
 
   get headerSubtitleOptions(): Record<string, unknown> {
@@ -708,6 +723,15 @@ export class StoreForm extends Base<Data> {
               </foxy-internal-select-control>
             `
           : ''}
+
+        <foxy-internal-select-control
+          layout="summary-item"
+          infer="send-html-email"
+          .getValue=${this.__sendHtmlEmailGetValue}
+          .setValue=${this.__sendHtmlEmailSetValue}
+          .options=${this.__sendHtmlEmailOptions}
+        >
+        </foxy-internal-select-control>
       </foxy-internal-summary-control>
 
       <foxy-internal-summary-control infer="shipping">

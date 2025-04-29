@@ -97,6 +97,24 @@ describe('foxy-donation', () => {
 
         expect(await onEvent).to.be.instanceOf(DonationSubmitEvent);
       });
+
+      it('includes fcsid in the form data', async () => {
+        const element = await fixture<Donation>(layout);
+        let formData = new FormData(getRefs<Refs>(element).form);
+        expect(formData.get('fcsid')).to.be.null;
+
+        window.FC = {};
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        formData = new FormData(getRefs<Refs>(element).form);
+        expect(formData.get('fcsid')).to.be.null;
+
+        window.FC = { settings: { session_name: 'fcsid', session_id: '1234567890' } };
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        formData = new FormData(getRefs<Refs>(element).form);
+        expect(formData.get('fcsid')).to.equal('1234567890');
+
+        delete window.FC;
+      });
     });
   });
 });

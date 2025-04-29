@@ -1,3 +1,6 @@
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
+
 import './index';
 
 import { expect, fixture, waitUntil } from '@open-wc/testing';
@@ -10,6 +13,7 @@ import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-html';
 import { createRouter } from '../../../server/index';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
+import { getByKey } from '../../../testgen/getByKey';
 
 const router = createRouter();
 
@@ -187,5 +191,32 @@ describe('TaxCard', () => {
     const subtitle = await getByTestId(element, 'subtitle');
 
     expect(subtitle).to.include.text('tax_rate_provider_default');
+  });
+
+  it('renders item categories count', async () => {
+    const router = createRouter();
+    const element = await fixture<TaxCard>(html`
+      <foxy-tax-card
+        href="https://demo.api/hapi/taxes/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-tax-card>
+    `);
+
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
+    const label = await getByKey(element, 'tax_item_categories');
+    const taxItemCategories = await getTestData<Resource<Rels.TaxItemCategories>>(
+      element.data!._links['fx:tax_item_categories'].href
+    );
+
+    expect(label).to.exist;
+    expect(label).to.have.attribute('infer', '');
+    expect(label).to.have.attribute(
+      'options',
+      JSON.stringify({
+        context: 'empty',
+        count: taxItemCategories.total_items,
+      })
+    );
   });
 });

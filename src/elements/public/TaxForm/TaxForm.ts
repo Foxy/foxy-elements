@@ -29,6 +29,7 @@ export class TaxForm extends Base<Data> {
     return {
       ...super.properties,
       nativeIntegrations: { attribute: 'native-integrations' },
+      itemCategories: { attribute: 'item-categories' },
       countries: {},
       regions: {},
     };
@@ -61,6 +62,9 @@ export class TaxForm extends Base<Data> {
 
   /** URL of the `fx:native_integrations` collection for the store. */
   nativeIntegrations: string | null = null;
+
+  /** URL of the `fx:item_categories` collection for the store. */
+  itemCategories: string | null = null;
 
   /** URL of the `fx:countries` property helper resource. */
   countries: string | null = null;
@@ -138,6 +142,8 @@ export class TaxForm extends Base<Data> {
 
     const regions = Object.values(this.__regionsLoader?.data?.values ?? {});
     alwaysMatch.unshift(`group-three:region-${regions.length ? 'input' : 'select'}`);
+
+    if (!this.data || !this.itemCategories) alwaysMatch.unshift('item-categories');
 
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
@@ -218,6 +224,20 @@ export class TaxForm extends Base<Data> {
 
         <foxy-internal-text-control layout="summary-item" infer="city"></foxy-internal-text-control>
       </foxy-internal-summary-control>
+
+      <foxy-internal-async-resource-link-list-control
+        foreign-key-for-uri="item_category_uri"
+        foreign-key-for-id="item_category_id"
+        own-key-for-uri="tax_uri"
+        own-uri=${ifDefined(this.data?._links.self.href)}
+        options-href=${ifDefined(this.itemCategories ?? undefined)}
+        links-href=${ifDefined(this.data?._links['fx:tax_item_categories'].href)}
+        embed-key="fx:tax_item_categories"
+        infer="item-categories"
+        limit="5"
+        item="foxy-item-category-card"
+      >
+      </foxy-internal-async-resource-link-list-control>
 
       ${super.renderBody()}
 
@@ -301,12 +321,15 @@ export class TaxForm extends Base<Data> {
   }
 
   private get __isExemptAllCustomerTaxIdsHidden() {
-    const type = this.form.type as string | undefined;
-    if (type === 'custom_tax_endpoint') return true;
-    if (type === 'country' || type === 'region' || type === 'local') return !!this.form.is_live;
-
     const provider = this.form.service_provider as string | undefined;
-    return !provider || provider === 'onesource' || provider === 'avalara' || provider === 'taxjar';
+    const type = this.form.type as string | undefined;
+
+    if (type === 'custom_tax_endpoint') return true;
+    if (type === 'country' || type === 'region' || type === 'local' || type === 'union') {
+      return !!this.form.is_live && (provider === 'onesource' || provider === 'avalara');
+    }
+
+    return false;
   }
 
   private get __isApplyToShippingHidden() {

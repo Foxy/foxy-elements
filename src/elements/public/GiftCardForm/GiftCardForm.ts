@@ -156,11 +156,11 @@ export class GiftCardForm extends Base<Data> {
   private readonly __storeLoaderId = 'storeLoader';
 
   private readonly __codesFilters: Option[] = [
-    { label: 'code', path: 'code', type: Type.String },
-    { label: 'current_balance', path: 'current_balance', type: Type.Number },
-    { label: 'end_date', path: 'end_date', type: Type.Date },
-    { label: 'date_created', path: 'date_created', type: Type.Date },
-    { label: 'date_modified', path: 'date_modified', type: Type.Date },
+    { label: 'option_code', path: 'code', type: Type.String },
+    { label: 'option_current_balance', path: 'current_balance', type: Type.Number },
+    { label: 'option_end_date', path: 'end_date', type: Type.Date },
+    { label: 'option_date_created', path: 'date_created', type: Type.Date },
+    { label: 'option_date_modified', path: 'date_modified', type: Type.Date },
   ];
 
   private __codesActions: SwipeAction<Resource<Rels.GiftCardCode>>[] = [

@@ -14,9 +14,10 @@ hljs.registerLanguage('xml', xml);
 export function getStoryCode(summary: Summary, args: Args): TemplateResult {
   const { sections = [], buttons = [], inputs = [] } = summary.configurable ?? {};
   const { readonlyControls = [], disabledControls = [], hiddenControls = [] } = args;
+  const localName = summary.localName.replace('demo-', 'foxy-');
 
   let code = `
-    <${summary.localName}
+    <${localName}
       ${readonlyControls.length > 0 ? `readonlycontrols="${readonlyControls.join(' ')}"` : ''}
       ${disabledControls.length > 0 ? `disabledcontrols="${disabledControls.join(' ')}"` : ''}
       ${hiddenControls.length > 0 ? `hiddencontrols="${hiddenControls.join(' ')}"` : ''}
@@ -38,7 +39,7 @@ export function getStoryCode(summary: Summary, args: Args): TemplateResult {
           const html = args[slot];
           return html ? `${result}<template slot="${slot}"><div>${html}</div></template>` : result;
         }, '')}
-    </${summary.localName}>
+    </${localName}>
   `;
 
   code = prettier.format(code, {

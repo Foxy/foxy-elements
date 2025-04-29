@@ -10,6 +10,17 @@ import { Checkbox, Choice, Dropdown, ErrorScreen, Group, I18N } from '../../priv
 import { DonationChangeEvent } from './DonationChangeEvent';
 import { DonationSubmitEvent } from './DonationSubmitEvent';
 
+declare global {
+  interface Window {
+    FC?: {
+      settings?: {
+        session_name: string;
+        session_id: string;
+      };
+    };
+  }
+}
+
 interface DonationEventsMap {
   change: typeof DonationChangeEvent;
   submit: typeof DonationSubmitEvent;
@@ -238,6 +249,8 @@ export class Donation extends Translatable {
    */
   public target = '_top';
 
+  private __fcSessionPollInterval: number | null = null;
+
   public constructor() {
     super('donation');
   }
@@ -396,6 +409,23 @@ export class Donation extends Translatable {
     `;
   }
 
+  connectedCallback(): void {
+    super.connectedCallback();
+    if (!window.FC?.settings?.session_id && this.__fcSessionPollInterval === null) {
+      this.__fcSessionPollInterval = window.setInterval(() => {
+        if (window.FC?.settings?.session_id) {
+          clearInterval(this.__fcSessionPollInterval ?? void 0);
+          this.requestUpdate();
+        }
+      }, 1000);
+    }
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    clearInterval(this.__fcSessionPollInterval ?? void 0);
+  }
+
   public updated(): void {
     this.dispatchEvent(new DonationChangeEvent(this.__data));
   }
@@ -420,6 +450,10 @@ export class Donation extends Translatable {
     if (typeof this.cart === 'string') data.set('cart', this.cart);
     if (this.empty) data.set('empty', this.empty);
     if (this.anonymous) data.set('Anonymous', 'true');
+
+    if (window.FC?.settings?.session_id && window.FC.settings.session_name) {
+      data.set(window.FC.settings.session_name, window.FC.settings.session_id);
+    }
 
     data.set('quantity', '1');
 

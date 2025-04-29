@@ -374,7 +374,7 @@ describe('InternalAsyncListControl', () => {
 
   it('visually hides itself when collection has 0 items and hideWhenEmpty is true', async () => {
     const router = createRouter();
-    const control = await fixture<Control>(html`
+    let control = await fixture<Control>(html`
       <foxy-internal-async-list-control
         first="https://demo.api/hapi/transactions?some_key_that_doesnt_exist=foo"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
@@ -382,23 +382,35 @@ describe('InternalAsyncListControl', () => {
       </foxy-internal-async-list-control>
     `);
 
-    const collectionPage = control.renderRoot.querySelector(
+    let collectionPage = control.renderRoot.querySelector(
       'foxy-collection-page'
     ) as CollectionPage<any>;
 
     await waitUntil(() => !!collectionPage.data, undefined, { timeout: 5000 });
     await control.requestUpdate();
-    const wrapper = control.shadowRoot?.firstElementChild;
+    let wrapper = control.shadowRoot?.firstElementChild;
     expect(wrapper).to.not.have.attribute('class', 'hidden');
 
     control.hideWhenEmpty = true;
     await control.requestUpdate();
     expect(wrapper).to.have.attribute('class', 'hidden');
 
-    control.first = 'https://demo.api/hapi/transactions';
-    await control.requestUpdate();
+    control = await fixture<Control>(html`
+      <foxy-internal-async-list-control
+        first="https://demo.api/hapi/transactions"
+        hide-when-empty
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-internal-async-list-control>
+    `);
+
+    collectionPage = control.renderRoot.querySelector(
+      'foxy-collection-page'
+    ) as CollectionPage<any>;
+
     await waitUntil(() => !!collectionPage.data, undefined, { timeout: 5000 });
     await control.requestUpdate();
+    wrapper = control.shadowRoot?.firstElementChild;
     expect(wrapper).to.not.have.attribute('class', 'hidden');
   });
 

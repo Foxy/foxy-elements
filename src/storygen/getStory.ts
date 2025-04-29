@@ -37,7 +37,7 @@ export function getStory(params: Params): Story {
     'args',
     `return args.html\`
       <div class="foxy-story ${isNarrow ? 'foxy-story--narrow' : ''}">
-        <${params.localName}
+        <${localName}
           ${interactiveControls.length > 0 ? 'disabledcontrols="${args.disabledControls}"' : ''}
           ${inputs.length > 0 ? 'readonlycontrols="${args.readonlyControls}"' : ''}
           ${allControls.length > 0 ? 'hiddencontrols="${args.hiddenControls}"' : ''}
@@ -50,7 +50,7 @@ export function getStory(params: Params): Story {
           ?readonly=\${args.readonly}
           ?hidden=\${args.hidden}
           class="foxy-story__preview"
-          simplify-ns-loading
+          ${localName.startsWith('demo-') ? '' : 'simplify-ns-loading'}
           ${params.ext ?? ''}
         >
           ${allControls
@@ -63,7 +63,7 @@ export function getStory(params: Params): Story {
               const template = `args.html\`<template slot="${slot}"><div>\${args.unsafeHTML(${content})}</div></template>\``;
               return `${innerHTML}\${${content} ? ${template} : ''}`;
             }, '')}
-        </${params.localName}>
+        </${localName}>
         
         ${params.code ? '<pre>${args.code}</pre>' : ''}
       </div>

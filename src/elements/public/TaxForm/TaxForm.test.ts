@@ -8,6 +8,7 @@ import './index';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { TaxForm as Form } from './TaxForm';
 import { createRouter } from '../../../server/index';
+import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 
 async function waitForIdle(element: Form) {
@@ -23,6 +24,7 @@ async function waitForIdle(element: Form) {
 
 describe('TaxForm', () => {
   it('imports and defines dependencies', () => {
+    expect(customElements.get('foxy-internal-async-resource-link-list-control')).to.exist;
     expect(customElements.get('foxy-internal-async-list-control')).to.exist;
     expect(customElements.get('foxy-internal-summary-control')).to.exist;
     expect(customElements.get('foxy-internal-select-control')).to.exist;
@@ -31,6 +33,7 @@ describe('TaxForm', () => {
     expect(customElements.get('foxy-internal-text-control')).to.exist;
     expect(customElements.get('foxy-internal-form')).to.exist;
     expect(customElements.get('foxy-native-integration-card')).to.exist;
+    expect(customElements.get('foxy-item-category-card')).to.exist;
     expect(customElements.get('foxy-nucleon')).to.exist;
   });
 
@@ -50,6 +53,13 @@ describe('TaxForm', () => {
     expect(new Form()).to.have.property('nativeIntegrations', null);
     expect(Form.properties).to.have.deep.property('nativeIntegrations', {
       attribute: 'native-integrations',
+    });
+  });
+
+  it('has a reactive property "itemCategories"', () => {
+    expect(new Form()).to.have.property('itemCategories', null);
+    expect(Form.properties).to.have.deep.property('itemCategories', {
+      attribute: 'item-categories',
     });
   });
 
@@ -298,17 +308,53 @@ describe('TaxForm', () => {
 
   it('conditionally hides exempt all customer tax ids switch', () => {
     const form = new Form();
-    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.false;
+
     form.edit({ type: 'union' });
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.false;
+
+    form.undo();
+    form.edit({ type: 'union', is_live: true, service_provider: 'avalara' });
     expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
+
+    form.undo();
     form.edit({ type: 'country' });
     expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.false;
+
+    form.undo();
+    form.edit({ type: 'country', is_live: true, service_provider: 'avalara' });
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
+
+    form.undo();
     form.edit({ type: 'region' });
     expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.false;
+
+    form.undo();
+    form.edit({ type: 'region', is_live: true, service_provider: 'avalara' });
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
+
+    form.undo();
     form.edit({ type: 'local' });
     expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.false;
+
+    form.undo();
+    form.edit({ type: 'local', is_live: true, service_provider: 'avalara' });
+    expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
+
+    form.undo();
     form.edit({ type: 'custom_tax_endpoint' as Data['type'] });
     expect(form.hiddenSelector.matches('group-two:exempt-all-customer-tax-ids', true)).to.be.true;
+  });
+
+  it('conditionally hides item categories list', async () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('item-categories', true)).to.be.true;
+
+    form.data = await getTestData('./hapi/taxes/0');
+    expect(form.hiddenSelector.matches('item-categories', true)).to.be.true;
+
+    form.itemCategories = 'https://demo.api/hapi/item_categories';
+    expect(form.hiddenSelector.matches('item-categories', true)).to.be.false;
   });
 
   it('renders a form header', () => {
@@ -631,5 +677,38 @@ describe('TaxForm', () => {
 
     expect(control).to.exist;
     expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders a resource link list control for item categories', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-tax-form
+        item-categories="https://demo.api/hapi/item_categories"
+        href="https://demo.api/hapi/taxes/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-tax-form>
+    `);
+
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
+    await waitForIdle(element);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-async-resource-link-list-control[infer="item-categories"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('foreign-key-for-uri', 'item_category_uri');
+    expect(control).to.have.attribute('foreign-key-for-id', 'item_category_id');
+    expect(control).to.have.attribute('own-key-for-uri', 'tax_uri');
+    expect(control).to.have.attribute('own-uri', element.data?._links.self.href);
+    expect(control).to.have.attribute('options-href', 'https://demo.api/hapi/item_categories');
+    expect(control).to.have.attribute(
+      'links-href',
+      'https://demo.api/hapi/tax_item_categories?tax_id=0'
+    );
+
+    expect(control).to.have.attribute('embed-key', 'fx:tax_item_categories');
+    expect(control).to.have.attribute('limit', '5');
+    expect(control).to.have.attribute('item', 'foxy-item-category-card');
   });
 });

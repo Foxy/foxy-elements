@@ -5,9 +5,9 @@ import type { Option } from '../QueryBuilder/types';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { BooleanSelector } from '@foxy.io/sdk/core';
 import { encode, decode } from 'html-entities';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
 const NS = 'filter-attribute-form';
@@ -36,6 +36,7 @@ export class FilterAttributeForm extends Base<Data> {
       ...super.properties,
       defaults: {},
       pathname: {},
+      docsHref: { attribute: 'docs-href' },
       options: { type: Array },
     };
   }
@@ -45,6 +46,9 @@ export class FilterAttributeForm extends Base<Data> {
 
   /** Admin page pathname. */
   pathname: string | null = null;
+
+  /** Same as the `docsHref` property of `QueryBuilder`. */
+  docsHref: string | null = null;
 
   /** Filter options passed down to `QueryBuilder.options.` */
   options: Option[] = [];
@@ -59,40 +63,70 @@ export class FilterAttributeForm extends Base<Data> {
     this.__setValueParam(constructor.filterNameKey, v);
   };
 
-  get hiddenSelector(): BooleanSelector {
-    const alwaysHidden: string[] = [];
-    const constructor = this.constructor as typeof FilterAttributeForm;
-    const filterQuery = this.__getValueParam(constructor.filterQueryKey);
-    const hasData = !!this.data;
-    const hasValue = !!this.form.value;
-
-    if (!hasData) alwaysHidden.push('filter-name');
-    if (!hasValue || (!filterQuery && !hasData)) alwaysHidden.push('action');
-
-    return new BooleanSelector(`${alwaysHidden.join(' ')} ${super.hiddenSelector}`.trim());
-  }
-
   renderBody(): TemplateResult {
     const constructor = this.constructor as typeof FilterAttributeForm;
+    const filterQuery = this.__getValueParam(constructor.filterQueryKey);
+    const hasValue = !!this.form.value;
+    const hasData = !!this.data;
+    const hasChanges =
+      this.in({ idle: { snapshot: 'dirty' } }) || this.in({ idle: { template: 'dirty' } });
 
     return html`
+      <div class="flex gap-s">
+        ${this.data
+          ? html`
+              <div
+                class="flex-1 rounded bg-contrast-5 transition-colors hover-bg-contrast-10 focus-within-bg-contrast-10 focus-within-ring-2 focus-within-ring-primary-50"
+              >
+                <input
+                  placeholder=${this.t('filter-name.placeholder')}
+                  aria-label=${this.t('filter-name.label')}
+                  style="padding: 0 calc(0.625 * var(--lumo-font-size-m) + (var(--lumo-border-radius) / 4) - 1px)"
+                  class="block w-full h-full appearance-none bg-transparent text-xl font-medium focus-outline-none"
+                  .value=${this.__filterNameGetValue()}
+                  @keydown=${(evt: KeyboardEvent) => {
+                    if (evt.key === 'Enter') {
+                      evt.preventDefault();
+                      this.submit();
+                    }
+                  }}
+                  @input=${(evt: Event) => {
+                    this.__filterNameSetValue((evt.target as HTMLInputElement).value);
+                  }}
+                />
+              </div>
+            `
+          : html`
+              <foxy-i18n class="text-xl flex-1 font-medium" infer="header" key="title"></foxy-i18n>
+            `}
+        ${!hasValue || (!filterQuery && !hasData)
+          ? ''
+          : html`
+              <vaadin-button
+                theme=${hasData ? (hasChanges ? 'secondary' : 'error') : 'success'}
+                style=${ifDefined(hasData ? void 0 : '--lumo-button-size: auto')}
+                ?disabled=${this.disabled}
+                @click=${() => (!hasData || hasChanges ? this.submit() : this.delete())}
+              >
+                <foxy-i18n
+                  infer="action"
+                  class="px-s"
+                  key=${hasData ? (hasChanges ? 'update' : 'delete') : 'create'}
+                >
+                </foxy-i18n>
+              </vaadin-button>
+            `}
+      </div>
+
       <foxy-query-builder
+        docs-href=${ifDefined(this.docsHref ?? void 0)}
+        options=${JSON.stringify(this.options)}
         infer="filter-query"
-        .options=${this.options}
-        .value=${this.__getValueParam(constructor.filterQueryKey)}
+        value=${filterQuery}
+        disable-zoom
         @change=${this.__handleFilterQueryChange}
       >
       </foxy-query-builder>
-
-      <foxy-internal-text-control
-        infer="filter-name"
-        .getValue=${this.__filterNameGetValue}
-        .setValue=${this.__filterNameSetValue}
-      >
-      </foxy-internal-text-control>
-
-      <foxy-internal-filter-attribute-form-action-control infer="action">
-      </foxy-internal-filter-attribute-form-action-control>
     `;
   }
 
@@ -158,5 +192,6 @@ export class FilterAttributeForm extends Base<Data> {
     const constructor = this.constructor as typeof FilterAttributeForm;
     const element = evt.currentTarget as QueryBuilder;
     this.__setValueParam(constructor.filterQueryKey, element.value ?? '');
+    this.requestUpdate();
   }
 }

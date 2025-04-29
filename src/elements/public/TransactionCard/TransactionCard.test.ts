@@ -265,8 +265,8 @@ describe('TransactionCard', () => {
       const items = transaction._embedded['fx:items'];
       const summary = await getByKey(element, 'summary');
       const options = {
-        most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
         count_minus_one: items.length - 1,
+        first_item: items[0],
         count: items.length,
       };
 

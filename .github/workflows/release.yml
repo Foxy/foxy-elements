@@ -7,7 +7,7 @@ on:
 jobs:
   release:
     name: Release on GitHub and npm
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
         run: npx semantic-release
   upload-to-cdn:
     name: Upload to Foxy CDN
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4

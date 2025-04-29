@@ -44,6 +44,7 @@ const summary: Summary = {
       'emails:smtp-config-username',
       'emails:smtp-config-password',
       'emails:smtp-config-security',
+      'emails:send-html-email',
 
       'shipping',
       'shipping:shipping-address-type',

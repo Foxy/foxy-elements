@@ -149,6 +149,29 @@
       "per_page": "Items per page:"
     }
   },
+  "item-categories": {
+    "label": "Item categories",
+    "helper_text": "We will apply this tax only to the products in the item categories selected below. Changes here are saved immediately.",
+    "status_saving": "Saving...",
+    "status_loading": "Loading...",
+    "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "page_number": "Page number:",
+      "select": "Select...",
+      "per_page": "Items per page:",
+      "card": {
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "Add an item category to apply it here",
+          "loading_error": "Unknown error"
+        }
+      }
+    }
+  },
   "timestamps": {
     "date_created": "Created on",
     "date_modified": "Last updated on",

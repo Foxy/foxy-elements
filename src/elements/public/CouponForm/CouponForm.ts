@@ -1,7 +1,7 @@
 import type { TemplateResult, PropertyDeclarations } from 'lit-element';
 import type { Data, TransactionPageHrefGetter } from './types';
-import type { Option, ParsedValue } from '../QueryBuilder/types';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
+import type { Option, Rule } from '../QueryBuilder/types';
 import type { SwipeAction } from '../../internal/InternalAsyncListControl/types';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
@@ -81,12 +81,12 @@ export class CouponForm extends Base<Data> {
           return value
             .filter(({ name }) => typeof name === 'string')
             .map(({ name, operator, value }) => {
-              const output: ParsedValue = { path: name as string, operator, value };
+              const output: Rule = { path: name as string, operator, value };
               return output;
             });
         }
 
-        const output: ParsedValue = {
+        const output: Rule = {
           operator: value.operator,
           value: value.value,
           path: value.name as string,
@@ -102,11 +102,11 @@ export class CouponForm extends Base<Data> {
     const augmentedValue = parse(newValue).map(value => {
       if (Array.isArray(value)) {
         return value.map(({ path, operator, value }) => {
-          const output: ParsedValue = { name: path, path: 'attributes', operator, value };
+          const output: Rule = { name: path, path: 'attributes', operator, value };
           return output;
         });
       } else {
-        const output: ParsedValue = {
+        const output: Rule = {
           operator: value.operator,
           value: value.value,
           path: 'attributes',
@@ -169,10 +169,10 @@ export class CouponForm extends Base<Data> {
   private readonly __storeLoaderId = 'storeLoader';
 
   private readonly __codesFilters: Option[] = [
-    { label: 'code', path: 'code', type: Type.String },
-    { label: 'used_codes', path: 'number_of_uses_to_date', type: Type.Number },
-    { label: 'date_created', path: 'date_created', type: Type.Date },
-    { label: 'date_modified', path: 'date_modified', type: Type.Date },
+    { label: 'option_code', path: 'code', type: Type.String },
+    { label: 'option_number_of_uses_to_date', path: 'number_of_uses_to_date', type: Type.Number },
+    { label: 'option_date_created', path: 'date_created', type: Type.Date },
+    { label: 'option_date_modified', path: 'date_modified', type: Type.Date },
   ];
 
   private __couponCodesActions: SwipeAction<Resource<Rels.CouponCode>>[] = [
