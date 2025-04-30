@@ -37,7 +37,7 @@ export class TaxCard extends TranslatableMixin(InternalCard, 'tax-card')<Data> {
             ? html`
                 <foxy-i18n
                   options=${JSON.stringify({
-                    context: taxItemCategories.total_items > 1 ? '' : 'empty',
+                    context: taxItemCategories.total_items > 0 ? '' : 'empty',
                     count: taxItemCategories.total_items,
                   })}
                   class="text-xs text-tertiary"
