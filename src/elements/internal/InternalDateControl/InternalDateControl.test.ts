@@ -65,6 +65,20 @@ describe('InternalDateControl', () => {
     expect(new Control()).to.be.instanceOf(InternalEditableControl);
   });
 
+  it('defines a reactive property for "hideClearButton" (Boolean)', () => {
+    expect(new Control()).to.have.property('hideClearButton', false);
+    expect(Control).to.have.deep.nested.property('properties.hideClearButton', {
+      attribute: 'hide-clear-button',
+      type: Boolean,
+      reflect: true,
+    });
+  });
+
+  it('defines a reactive property for "min" (String)', () => {
+    expect(Control).to.have.deep.nested.property('properties.min', {});
+    expect(new Control()).to.have.property('min', null);
+  });
+
   it('defines a reactive property for "format" (String)', () => {
     expect(Control).to.have.deep.nested.property('properties.format', {});
     expect(new Control()).to.have.property('format', null);
@@ -76,6 +90,32 @@ describe('InternalDateControl', () => {
     const field = control.renderRoot.querySelector('vaadin-date-picker');
 
     expect(field).to.not.be.null;
+  });
+
+  it('sets "clear-button-visible" on vaadin-date-picker from "hideClearButton" on itself', async () => {
+    const layout = html`<test-internal-date-control></test-internal-date-control>`;
+    const control = await fixture<TestControl>(layout);
+    const field = control.renderRoot.querySelector('vaadin-date-picker')!;
+
+    expect(field).to.have.attribute('clear-button-visible');
+
+    control.hideClearButton = true;
+    await control.requestUpdate();
+
+    expect(field).to.not.have.attribute('clear-button-visible');
+  });
+
+  it('sets "min" on vaadin-date-picker from "min" on itself', async () => {
+    const layout = html`<test-internal-date-control></test-internal-date-control>`;
+    const control = await fixture<TestControl>(layout);
+    const field = control.renderRoot.querySelector('vaadin-date-picker')!;
+
+    expect(field).to.not.have.attribute('min');
+
+    control.min = '2020-01-01';
+    await control.requestUpdate();
+
+    expect(field).to.have.attribute('min', '2020-01-01');
   });
 
   it('sets "errorMessage" on vaadin-date-picker from "_errorMessage" on itself', async () => {
