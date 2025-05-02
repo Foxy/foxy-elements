@@ -24,14 +24,66 @@
       "done": "Copied to clipboard"
     }
   },
-  "view-action": {
-    "caption": "View in cart"
-  },
-  "cancel-action": {
-    "caption": "Cancel"
-  },
-  "cancel": {
-    "caption": "Cancel"
+  "status-action": {
+    "caption_cancel": "Cancel this subscription",
+    "caption_uncancel": "Clear pending cancellation",
+    "caption_reactivate": "Reactivate this subscription",
+    "uncancel_header": "Clear pending cancellation",
+    "uncancel_message": "This will remove the subscription's end date, allowing it to continue billing indefinitely unless cancelled. Do you want to proceed?",
+    "uncancel_confirm": "Clear",
+    "uncancel_cancel": "Go back",
+    "form": {
+      "close": "Close",
+      "cancel": "Close",
+      "cancel_title": "Cancel this subscription",
+      "cancel_subtitle": "Cancelling subscriptions in Foxy works by setting the end date. You can select any date in the future, starting from tomorrow.",
+      "cancel_why_not_today_title": "Why can't I select today as the end date?",
+      "cancel_why_not_today_text": "Same-day cancellations may disrupt billing due to ongoing payment processing. Advance notice ensures that all transactions are completed before cancellation.",
+      "cancel_whats_next_title": "What happens next?",
+      "cancel_whats_next_text": "The subscription will remain active and all payments will be processed as usual before the end date. Payments scheduled on or after the end date will be cancelled.",
+      "cancel_how_to_reactivate_title": "Can I reactivate this subscription later?",
+      "cancel_how_to_reactivate_text": "Yes, you will be able to clear the pending cancellation before the end date and reactivate the subscription after the end date on this page.",
+      "cancel_submit": "Cancel this subscription",
+      "reactivate_title": "Reactivate this subscription",
+      "reactivate_subtitle": "Set the next payment date to reactivate this subscription. You can select any date in the future, starting from tomorrow.",
+      "reactivate_why_not_today_title": "Why can't I select today as the next payment date?",
+      "reactivate_why_not_today_text": "Same-day changes to subscription billing may disrupt payment processing. Advance notice ensures that the next payment is processed on time.",
+      "reactivate_whats_next_title": "What happens next?",
+      "reactivate_whats_next_text": "We will clear the end date and activate the subscription immediately. The next payment will be processed on the date you selected.",
+      "reactivate_submit": "Reactivate this subscription",
+      "end-date-preset": {
+        "label": "Cancel this subscription",
+        "helper_text": "",
+        "placeholder": "Select",
+        "option_tomorrow": "Tomorrow",
+        "option_next_transaction_date": "On next renewal date",
+        "option_custom_date": "On specific date"
+      },
+      "end-date": {
+        "label": "End date",
+        "helper_text": "",
+        "placeholder": "Select",
+        "v8n_required": "Please select a date.",
+        "display_value": "{{ value, date }}",
+        "week": "Week",
+        "calendar": "Calendar",
+        "clear": "Clear",
+        "today": "Today",
+        "cancel": "Cancel"
+      },
+      "next-transaction-date": {
+        "label": "Next payment date",
+        "helper_text": "",
+        "placeholder": "Select",
+        "v8n_required": "Please select a date.",
+        "display_value": "{{ value, date }}",
+        "week": "Week",
+        "calendar": "Calendar",
+        "clear": "Clear",
+        "today": "Today",
+        "cancel": "Cancel"
+      }
+    }
   },
   "general": {
     "label": "",

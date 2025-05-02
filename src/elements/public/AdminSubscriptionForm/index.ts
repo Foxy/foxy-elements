@@ -10,6 +10,7 @@ import '../AttributeCard/index';
 import '../AttributeForm/index';
 import '../Transaction/index';
 
+import './internal/InternalAdminSubscriptionFormStatusAction/index';
 import './internal/InternalAdminSubscriptionFormLinkControl/index';
 import './internal/InternalAdminSubscriptionFormError/index';
 
