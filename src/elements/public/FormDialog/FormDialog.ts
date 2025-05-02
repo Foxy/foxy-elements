@@ -34,8 +34,12 @@ export class FormDialog extends Dialog {
       closeOnPatch: { type: Boolean, attribute: 'close-on-patch' },
       keepOpenOnPost: { type: Boolean, attribute: 'keep-open-on-post' },
       keepOpenOnDelete: { type: Boolean, attribute: 'keep-open-on-delete' },
+      noConfirmWhenDirty: { type: Boolean, attribute: 'no-confirm-when-dirty' },
     };
   }
+
+  /** If true, FormDialog won't show the confirmation dialog when the form is dirty. */
+  noConfirmWhenDirty = false;
 
   /** If true, FormDialog will automatically close after the associated form updates the resource. */
   closeOnPatch = false;
@@ -175,7 +179,7 @@ export class FormDialog extends Dialog {
   }
 
   async hide(cancelled = false): Promise<void> {
-    if (cancelled && this.editable) {
+    if (cancelled && this.editable && !this.noConfirmWhenDirty) {
       const confirm = this.renderRoot.querySelector('#confirm') as InternalConfirmDialog;
       confirm.show();
     } else {

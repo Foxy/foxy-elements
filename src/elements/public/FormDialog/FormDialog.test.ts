@@ -14,6 +14,7 @@ import { html } from 'lit-html';
 import isEqual from 'lodash-es/isEqual';
 import { stub } from 'sinon';
 import { createRouter } from '../../../server';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog';
 
 describe('FormDialog', () => {
   it('extends Dialog', () => {
@@ -234,5 +235,63 @@ describe('FormDialog', () => {
     const dialog = new FormDialog();
     expect(dialog.hiddenSelector.matches('undo', true)).to.be.true;
     expect(dialog.hiddenSelector.matches('submit', true)).to.be.true;
+  });
+
+  it('displays confirmation dialog when form is dirty and user tries to close it', async () => {
+    const form = 'foxy-attribute-form';
+    const dialog = await fixture<FormDialog>(html`
+      <foxy-form-dialog form=${form}></foxy-form-dialog>
+    `);
+
+    await dialog.show();
+
+    const formElement = dialog.renderRoot.querySelector('#form') as NucleonElement<any>;
+    formElement.edit({ name: 'foo', value: 'bar' });
+    await dialog.requestUpdate();
+    const confirmDialog = dialog.renderRoot.querySelector(
+      'foxy-internal-confirm-dialog'
+    ) as InternalConfirmDialog;
+
+    expect(confirmDialog).to.exist;
+    expect(confirmDialog).to.have.attribute('message', 'undo_message');
+    expect(confirmDialog).to.have.attribute('confirm', 'undo_confirm');
+    expect(confirmDialog).to.have.attribute('cancel', 'undo_cancel');
+    expect(confirmDialog).to.have.attribute('header', 'undo_header');
+    expect(confirmDialog).to.have.attribute('theme', 'error');
+    expect(confirmDialog).to.have.attribute('lang', dialog.lang);
+    expect(confirmDialog).to.have.attribute('ns', dialog.ns);
+
+    const showStub = stub(confirmDialog, 'show');
+    await dialog.hide(true);
+    expect(showStub).to.have.been.calledOnce;
+  });
+
+  it('does not display confirmation dialog when noConfirmWhenDirty is true', async () => {
+    const form = 'foxy-attribute-form';
+    const dialog = await fixture<FormDialog>(html`
+      <foxy-form-dialog form=${form} no-confirm-when-dirty></foxy-form-dialog>
+    `);
+
+    await dialog.show();
+
+    const formElement = dialog.renderRoot.querySelector('#form') as NucleonElement<any>;
+    formElement.edit({ name: 'foo', value: 'bar' });
+    await dialog.requestUpdate();
+    const confirmDialog = dialog.renderRoot.querySelector(
+      'foxy-internal-confirm-dialog'
+    ) as InternalConfirmDialog;
+
+    expect(confirmDialog).to.exist;
+    expect(confirmDialog).to.have.attribute('message', 'undo_message');
+    expect(confirmDialog).to.have.attribute('confirm', 'undo_confirm');
+    expect(confirmDialog).to.have.attribute('cancel', 'undo_cancel');
+    expect(confirmDialog).to.have.attribute('header', 'undo_header');
+    expect(confirmDialog).to.have.attribute('theme', 'error');
+    expect(confirmDialog).to.have.attribute('lang', dialog.lang);
+    expect(confirmDialog).to.have.attribute('ns', dialog.ns);
+
+    const showStub = stub(confirmDialog, 'show');
+    await dialog.hide(true);
+    expect(showStub).to.not.have.been.calledOnce;
   });
 });
