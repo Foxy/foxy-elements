@@ -243,7 +243,9 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
   private get __groupedAvailablePaymentMethods() {
     const allMethods = Object.entries(this.__availablePaymentMethods ?? {});
     const filteredMethods = this.__search
-      ? new Fuse(allMethods, { keys: ['1.name'] }).search(this.__search).map(v => v.item)
+      ? new Fuse(allMethods, { keys: ['1.name'], threshold: 0.25 })
+          .search(this.__search)
+          .map(v => v.item)
       : allMethods;
 
     return filteredMethods
