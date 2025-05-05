@@ -9,10 +9,10 @@ import { parseDate } from '../../../../../utils/parse-date';
 import { html, svg } from 'lit-html';
 
 export class InternalAdminSubscriptionFormStatusActionForm extends InternalForm<Data> {
-  static get v8n(): NucleonV8N<Data> {
+  static get v8n(): NucleonV8N<Data, InternalAdminSubscriptionFormStatusActionForm> {
     return [
-      ({ next_transaction_date, end_date, is_active }) => {
-        if (is_active) {
+      ({ next_transaction_date, end_date }, host) => {
+        if (host.data?.is_active) {
           if (!end_date || end_date === '0000-00-00') return 'end-date:v8n_required';
         } else {
           if (!next_transaction_date) return 'next-transaction-date:v8n_required';

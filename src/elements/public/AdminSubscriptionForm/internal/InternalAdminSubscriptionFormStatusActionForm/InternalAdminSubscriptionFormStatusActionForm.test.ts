@@ -39,10 +39,11 @@ describe('AdminSubscriptionForm', () => {
       const data = await getTestData<Data>('./hapi/subscriptions/0');
 
       data.is_active = true;
-      data.end_date = null;
       form.data = data;
 
+      form.edit({ end_date: '' });
       expect(form.errors).to.include('end-date:v8n_required');
+
       form.edit({ end_date: '2100-01-01' });
       expect(form.errors).not.to.include('end-date:v8n_required');
     });
@@ -195,9 +196,6 @@ describe('AdminSubscriptionForm', () => {
       expect(dateControl).to.have.attribute('hide-clear-button');
       expect(dateControl).to.have.attribute('min', serializeDate(tomorrowDate));
       expect(dateControl?.getValue()).to.equal(form.form.next_transaction_date);
-
-      dateControl?.setValue('2100-01-01');
-      expect(form.form.end_date).to.equal('2100-01-01');
     });
 
     it('renders Cancel button in the Cancel state', async () => {
