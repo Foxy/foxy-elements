@@ -5,11 +5,9 @@ import './index';
 
 import { expect, fixture, waitUntil, html } from '@open-wc/testing';
 import { PaymentsApiPaymentMethodCard as Card } from './PaymentsApiPaymentMethodCard';
-import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { createRouter } from '../../../server/index';
-import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
+import { InternalCard } from '../../internal/InternalCard';
 import { getByTestId } from '../../../testgen/getByTestId';
-import { I18n } from '../I18n/I18n';
 import { getByTag } from '../../../testgen/getByTag';
 
 describe('PaymentsApiPaymentMethodCard', () => {
@@ -18,14 +16,6 @@ describe('PaymentsApiPaymentMethodCard', () => {
   // @ts-expect-error disabling ResizeObserver because it errors in test env
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
-
-  it('imports and registers foxy-i18n element', () => {
-    expect(customElements.get('foxy-i18n')).to.equal(I18n);
-  });
-
-  it('imports and registers foxy-internal-sandbox element', () => {
-    expect(customElements.get('foxy-internal-sandbox')).to.equal(InternalSandbox);
-  });
 
   it('imports and registers itself as foxy-payments-api-payment-method-card', () => {
     const constructor = customElements.get('foxy-payments-api-payment-method-card');
@@ -42,11 +32,11 @@ describe('PaymentsApiPaymentMethodCard', () => {
     expect(new Card()).to.have.property('getImageSrc', null);
   });
 
-  it('extends TwoLineCard', () => {
-    expect(new Card()).to.be.instanceOf(TwoLineCard);
+  it('extends InternalCard', () => {
+    expect(new Card()).to.be.instanceOf(InternalCard);
   });
 
-  it('renders payment method name in the title', async () => {
+  it('renders payment method name', async () => {
     const router = createRouter();
     const api = await fixture<HTMLDivElement>(html`
       <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -71,33 +61,6 @@ describe('PaymentsApiPaymentMethodCard', () => {
     await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
 
     expect(await getByTestId(element, 'title')).to.include.text(element.data!.helper.name);
-  });
-
-  it('renders payment method description in the subtitle', async () => {
-    const router = createRouter();
-    const api = await fixture<HTMLDivElement>(html`
-      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
-        <foxy-payments-api
-          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
-          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
-          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
-          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
-          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
-          fraud-protections-url="https://demo.api/hapi/fraud_protections"
-          payment-gateways-url="https://demo.api/hapi/payment_gateways"
-        >
-          <foxy-payments-api-payment-method-card
-            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
-          >
-          </foxy-payments-api-payment-method-card>
-        </foxy-payments-api>
-      </div>
-    `);
-
-    const element = api.firstElementChild?.firstElementChild as Card;
-    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
-
-    expect(await getByTestId(element, 'subtitle')).to.include.text(element.data!.description);
   });
 
   it('renders payment method image/logo if .getImageSrc is set', async () => {
