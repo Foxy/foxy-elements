@@ -74,6 +74,7 @@
         "default_additional_field_select_placeholder": "Select",
         "conflict_message": "Remove {{ name }} to use this method",
         "no_oauth_support_message": "Adding this gateway is currently restricted from this admin. Please utilise our legacy administration to connect this gateway to your payment set.",
+        "search_placeholder": "Search by name",
         "test-group": {
           "label": "Test setup",
           "label_inactive": "Test setup (inactive)",

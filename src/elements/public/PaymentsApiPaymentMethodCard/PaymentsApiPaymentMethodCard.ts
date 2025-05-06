@@ -3,11 +3,11 @@ import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
+import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { html } from 'lit-html';
 
 const NS = 'payments-api-payment-method-card';
-const Base = TranslatableMixin(TwoLineCard, NS);
+const Base = TranslatableMixin(InternalCard, NS);
 
 /**
  * Card element representing a `fx:payment_method` resource of Payments API.
@@ -39,13 +39,6 @@ export class PaymentsApiPaymentMethodCard extends Base<Data> {
   getImageSrc: ((type: string) => string) | null = null;
 
   renderBody(): TemplateResult {
-    const defaultLayout = super.renderBody({
-      title: data => html`${data.helper.name}`,
-      subtitle: data => html`${data.description}`,
-    });
-
-    if (!this.in({ idle: 'snapshot' })) return defaultLayout;
-
     const defaultSrc = PaymentsApiPaymentMethodCard.defaultImageSrc;
     const data = this.data;
 
@@ -60,8 +53,9 @@ export class PaymentsApiPaymentMethodCard extends Base<Data> {
           alt=${this.t('image_alt')}
           @error=${(evt: Event) => ((evt.currentTarget as HTMLImageElement).src = defaultSrc)}
         />
-
-        <figcaption class="min-w-0 flex-1">${defaultLayout}</figcaption>
+        <figcaption class="min-w-0 flex-1" data-testid="title">
+          ${data?.helper.name}&ZeroWidthSpace;
+        </figcaption>
       </figure>
     `;
   }

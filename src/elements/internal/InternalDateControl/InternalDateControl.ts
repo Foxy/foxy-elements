@@ -21,16 +21,24 @@ export class InternalDateControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      hideClearButton: { type: Boolean, attribute: 'hide-clear-button', reflect: true },
       format: {},
       layout: {},
+      min: {},
     };
   }
+
+  /** When true, hides Clear button. */
+  hideClearButton = false;
 
   /** Date format. If `unix`, expects and outputs a UNIX timestamp (number), otherwise defaults to ISO 8601 date. */
   format: 'unix' | 'iso-long' | null = null;
 
   /** Use summary item layout inside `<foxy-internal-summary-control>`. */
   layout: 'summary-item' | 'standalone' | null = null;
+
+  /** Minimum date, YYYY-MM-DD. */
+  min: string | null = null;
 
   renderControl(): TemplateResult {
     let value: string;
@@ -55,12 +63,13 @@ export class InternalDateControl extends InternalEditableControl {
         label=${this.label}
         class="w-full"
         theme=${this.layout ?? 'standalone'}
+        min=${ifDefined(this.min ?? void 0)}
+        ?clear-button-visible=${!this.hideClearButton}
         ?disabled=${this.disabled}
         ?readonly=${this.readonly}
         .checkValidity=${this._checkValidity}
         .value=${value}
         .i18n=${this.__pickerI18n}
-        clear-button-visible
         @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
         @change=${(evt: CustomEvent) => {
           const field = evt.currentTarget as DatePickerElement;

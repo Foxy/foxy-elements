@@ -26,16 +26,20 @@ export class AdminSubscriptionForm extends Base<Data> {
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = ['delete', super.hiddenSelector.toString()];
     const data = this.data;
-
     if (!data?.error_message || !data.past_due_amount) alwaysMatch.unshift('error-message');
-    if (!data?.is_active) alwaysMatch.unshift('view-action', 'cancel-action');
-
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
   get headerSubtitleKey(): string {
     const status = getSubscriptionStatus(this.data);
     return status ? `subtitle_${status}` : super.headerSubtitleKey;
+  }
+
+  renderHeaderActions(): TemplateResult {
+    return html`
+      <foxy-internal-admin-subscription-form-status-action infer="status-action">
+      </foxy-internal-admin-subscription-form-status-action>
+    `;
   }
 
   renderBody(): TemplateResult {

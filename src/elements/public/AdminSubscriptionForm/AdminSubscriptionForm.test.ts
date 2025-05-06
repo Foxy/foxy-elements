@@ -16,6 +16,10 @@ describe('AdminSubscriptionForm', () => {
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
+  it('imports and defines foxy-internal-admin-subscription-form-status-action', () => {
+    expect(customElements.get('foxy-internal-admin-subscription-form-status-action')).to.exist;
+  });
+
   it('imports and defines foxy-internal-post-action-control', () => {
     expect(customElements.get('foxy-internal-post-action-control')).to.exist;
   });
@@ -104,16 +108,6 @@ describe('AdminSubscriptionForm', () => {
     expect(form.hiddenSelector.matches('error-message', true)).to.be.true;
   });
 
-  it('hides View in cart and Cancel actions when there is no data', async () => {
-    const form = new Form();
-    expect(form.hiddenSelector.matches('view-action', true)).to.be.true;
-    expect(form.hiddenSelector.matches('cancel-action', true)).to.be.true;
-
-    form.data = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
-    expect(form.hiddenSelector.matches('view-action', true)).to.be.false;
-    expect(form.hiddenSelector.matches('cancel-action', true)).to.be.false;
-  });
-
   it('uses custom subtitle key based on the subscription status', async () => {
     const testData = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
     const status = getSubscriptionStatus(testData);
@@ -122,6 +116,21 @@ describe('AdminSubscriptionForm', () => {
     form.data = testData;
 
     expect(form.headerSubtitleKey).to.equal(`subtitle_${status}`);
+  });
+
+  it('renders header actions', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-admin-subscription-form
+        href="https://demo.api/hapi/subscriptions/0?zoom=transaction_template"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-admin-subscription-form>
+    `);
+
+    await waitUntil(() => !!form.data, '', { timeout: 5000 });
+    const action = form.renderRoot.querySelector('[infer="status-action"]');
+    expect(action?.localName).to.equal('foxy-internal-admin-subscription-form-status-action');
   });
 
   it('renders error message control', async () => {
