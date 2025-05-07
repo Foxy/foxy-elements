@@ -522,7 +522,6 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
                               json-path="verification_amounts.${type.replace(/-/g, '_')}"
                               property="${propertyPrefix}card_verification_config"
                               layout="summary-item"
-                              suffix="¤"
                               infer="${inferPrefix}card-verification-config-verification-amounts-${type}"
                               step="0.01"
                               min="0"
