@@ -448,8 +448,8 @@ export class StoreForm extends Base<Data> {
   renderBody(): TemplateResult {
     const storeDomainHelperText = this.t(
       this.form.use_remote_domain && !this.data?.use_remote_domain
-        ? 'essentials.store-domain.custom_domain_note'
-        : 'essentials.store-domain.helper_text'
+        ? 'essentials-group-one.store-domain.custom_domain_note'
+        : 'essentials-group-one.store-domain.helper_text'
     );
 
     const storeDomainSuffix =
@@ -513,7 +513,7 @@ export class StoreForm extends Base<Data> {
     return html`
       ${this.renderHeader()}
 
-      <foxy-internal-summary-control infer="essentials">
+      <foxy-internal-summary-control infer="essentials-group-one">
         <foxy-internal-text-control
           layout="summary-item"
           infer="store-name"
@@ -540,11 +540,11 @@ export class StoreForm extends Base<Data> {
         </foxy-internal-text-control>
       </foxy-internal-summary-control>
 
-      <foxy-internal-summary-control infer="essentials" label="" helper-text="">
+      <foxy-internal-summary-control infer="essentials-group-two">
         <foxy-internal-switch-control infer="is-maintenance-mode"></foxy-internal-switch-control>
       </foxy-internal-summary-control>
 
-      <foxy-internal-summary-control infer="essentials" label="" helper-text="">
+      <foxy-internal-summary-control infer="essentials-group-three">
         <foxy-internal-editable-list-control
           layout="summary-item"
           infer="store-email"
@@ -554,7 +554,7 @@ export class StoreForm extends Base<Data> {
         </foxy-internal-editable-list-control>
       </foxy-internal-summary-control>
 
-      <foxy-internal-summary-control infer="essentials" label="" helper-text="">
+      <foxy-internal-summary-control infer="essentials-group-four">
         <foxy-internal-select-control
           layout="summary-item"
           infer="timezone"
