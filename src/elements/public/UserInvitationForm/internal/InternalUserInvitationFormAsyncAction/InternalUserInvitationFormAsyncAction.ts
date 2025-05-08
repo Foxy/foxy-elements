@@ -47,8 +47,6 @@ export class InternalUserInvitationFormAsyncAction extends InternalControl {
       const response = await api.fetch(this.href ?? '', { method: 'POST' });
 
       if (response.ok) {
-        // if we refresh right away, sometimes we get an old response from cache
-        await new Promise<void>(resolve => setTimeout(resolve, 1000));
         this.nucleon?.refresh();
         this.__state = 'idle';
       } else {
