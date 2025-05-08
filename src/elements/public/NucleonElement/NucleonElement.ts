@@ -384,7 +384,9 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     let data: TData;
 
     try {
-      data = await this._fetch(this.href);
+      const lastEvent = this.__service.state.event.type;
+      const headers = lastEvent === 'REFRESH' ? { 'cache-control': 'no-cache' } : void 0;
+      data = await this._fetch(this.href, { headers });
       NucleonElement.Rumour(this.group).share({ data, source: this.href });
     } finally {
       this.__createRumour();
@@ -519,19 +521,22 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
         return event.respondWith(internalServer(request, this));
       }
 
-      const cacheResponse = serveFromCache(request.url, this.data);
-      const whenResponseReady = cacheResponse.ok ? cacheResponse : api.fetch(request);
+      let cacheResponsePromise: Promise<Response> | null = null;
 
-      event.respondWith(Promise.resolve(whenResponseReady));
-
-      if (cacheResponse.ok) {
-        console.debug(
-          `%c@foxy.io/elements::${this.localName}\n%c200%c GET ${request.url}`,
-          'color: gray',
-          `background: gray; padding: 0 .2em; border-radius: .2em; color: white;`,
-          ''
-        );
+      if (event.request.headers.get('cache-control') !== 'no-cache') {
+        const cacheResponse = serveFromCache(request.url, this.data);
+        if (cacheResponse.ok) {
+          cacheResponsePromise = Promise.resolve(cacheResponse);
+          console.debug(
+            `%c@foxy.io/elements::${this.localName}\n%c200%c GET ${request.url}`,
+            'color: gray',
+            `background: gray; padding: 0 .2em; border-radius: .2em; color: white;`,
+            ''
+          );
+        }
       }
+
+      event.respondWith(Promise.resolve(cacheResponsePromise ?? api.fetch(request)));
     });
 
     this.__fetchEventQueue = [];
