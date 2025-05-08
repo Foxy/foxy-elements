@@ -249,36 +249,6 @@ describe('ExperimentalAddToCartBuilder', () => {
     expect(control).to.exist;
   });
 
-  it('renders Unavailable message when preview is not available', async () => {
-    const router = createRouter();
-    const element1 = await fixture<Builder>(
-      html` <foxy-experimental-add-to-cart-builder> </foxy-experimental-add-to-cart-builder> `
-    );
-
-    const spinnerSelector = 'foxy-spinner[infer="unavailable"][state="busy"]';
-    const labelSelector = 'foxy-i18n[infer="unavailable"][key="loading_busy"]';
-    expect(element1.renderRoot.querySelector(spinnerSelector)).to.exist;
-    expect(element1.renderRoot.querySelector(labelSelector)).to.exist;
-
-    const element2 = await fixture<Builder>(
-      html`
-        <foxy-experimental-add-to-cart-builder
-          default-domain="foxycart.com"
-          encode-helper="https://demo.api/virtual/encode"
-          locale-codes="https://demo.api/hapi/property_helpers/7"
-          store="https://demo.api/hapi/stores/0"
-          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-        >
-        </foxy-experimental-add-to-cart-builder>
-      `
-    );
-
-    await waitForIdle(element2);
-    await element2.requestUpdate();
-    expect(element2.renderRoot.querySelector(spinnerSelector)).to.not.exist;
-    expect(element2.renderRoot.querySelector(labelSelector)).to.not.exist;
-  });
-
   it('renders SKU Required message when appropriate', async () => {
     const router = createRouter();
 
@@ -449,6 +419,261 @@ describe('ExperimentalAddToCartBuilder', () => {
     await waitForIdle(element2);
     await element2.requestUpdate();
     expect(element2.renderRoot.querySelector(spinnerSelector)).to.not.exist;
+    expect(element2.renderRoot.querySelector(labelSelector)).to.not.exist;
+  });
+
+  it('renders Special Characters Present message when appropriate', async () => {
+    const router = createRouter();
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/stores/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ use_cart_validation: true }),
+      })
+    )?.handlerPromise;
+
+    const element1 = await fixture<Builder>(
+      html`
+        <foxy-experimental-add-to-cart-builder
+          default-domain="foxycart.com"
+          encode-helper="https://demo.api/virtual/encode"
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          store="https://demo.api/hapi/stores/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-experimental-add-to-cart-builder>
+      `
+    );
+
+    element1.edit({ items: [{ name: 'Test&', code: 'TEST', price: 25, custom_options: [] }] });
+    await waitForIdle(element1);
+    await element1.requestUpdate();
+
+    const labelSelector = 'foxy-i18n[infer="unavailable"][key="error_special_characters_present"]';
+    expect(element1.renderRoot.querySelector(labelSelector)).to.exist;
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/stores/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ use_cart_validation: false }),
+      })
+    )?.handlerPromise;
+
+    const element2 = await fixture<Builder>(
+      html`
+        <foxy-experimental-add-to-cart-builder
+          default-domain="foxycart.com"
+          encode-helper="https://demo.api/virtual/encode"
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          store="https://demo.api/hapi/stores/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-experimental-add-to-cart-builder>
+      `
+    );
+
+    await waitForIdle(element2);
+    await element2.requestUpdate();
+    expect(element2.renderRoot.querySelector(labelSelector)).to.not.exist;
+  });
+
+  it('renders Configurable Price Unsupported message when appropriate', async () => {
+    const router = createRouter();
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/stores/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ use_cart_validation: true }),
+      })
+    )?.handlerPromise;
+
+    const element1 = await fixture<Builder>(
+      html`
+        <foxy-experimental-add-to-cart-builder
+          default-domain="foxycart.com"
+          encode-helper="https://demo.api/virtual/encode"
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          store="https://demo.api/hapi/stores/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-experimental-add-to-cart-builder>
+      `
+    );
+
+    element1.edit({
+      items: [
+        {
+          name: 'Test',
+          code: 'TEST',
+          price: 25,
+          price_configurable: true,
+          custom_options: [],
+        },
+      ],
+    });
+
+    await waitForIdle(element1);
+    await element1.requestUpdate();
+
+    const labelSelector = 'foxy-i18n[infer="unavailable"][key="error_price_configurable"]';
+    expect(element1.renderRoot.querySelector(labelSelector)).to.exist;
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/stores/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ use_cart_validation: false }),
+      })
+    )?.handlerPromise;
+
+    const element2 = await fixture<Builder>(
+      html`
+        <foxy-experimental-add-to-cart-builder
+          default-domain="foxycart.com"
+          encode-helper="https://demo.api/virtual/encode"
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          store="https://demo.api/hapi/stores/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-experimental-add-to-cart-builder>
+      `
+    );
+
+    await waitForIdle(element2);
+    await element2.requestUpdate();
+    expect(element2.renderRoot.querySelector(labelSelector)).to.not.exist;
+  });
+
+  it('renders Duplicate Custom Options Unsupported message when appropriate', async () => {
+    const router = createRouter();
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/stores/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ use_cart_validation: true }),
+      })
+    )?.handlerPromise;
+
+    const element1 = await fixture<Builder>(
+      html`
+        <foxy-experimental-add-to-cart-builder
+          default-domain="foxycart.com"
+          encode-helper="https://demo.api/virtual/encode"
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          store="https://demo.api/hapi/stores/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-experimental-add-to-cart-builder>
+      `
+    );
+
+    element1.edit({
+      items: [
+        {
+          name: 'Test',
+          code: 'TEST',
+          price: 25,
+          custom_options: [
+            { name: 'foo', value: 'bar' },
+            { name: 'foo', value: 'baz' },
+          ],
+        },
+      ],
+    });
+
+    await waitForIdle(element1);
+    await element1.requestUpdate();
+
+    const labelSelector =
+      'foxy-i18n[infer="unavailable"][key="error_duplicate_custom_option_names"]';
+    expect(element1.renderRoot.querySelector(labelSelector)).to.exist;
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/stores/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ use_cart_validation: false }),
+      })
+    )?.handlerPromise;
+
+    const element2 = await fixture<Builder>(
+      html`
+        <foxy-experimental-add-to-cart-builder
+          default-domain="foxycart.com"
+          encode-helper="https://demo.api/virtual/encode"
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          store="https://demo.api/hapi/stores/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-experimental-add-to-cart-builder>
+      `
+    );
+
+    await waitForIdle(element2);
+    await element2.requestUpdate();
+    expect(element2.renderRoot.querySelector(labelSelector)).to.not.exist;
+  });
+
+  it('renders Configurable Value In Custom Options Unsupported message when appropriate', async () => {
+    const router = createRouter();
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/stores/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ use_cart_validation: true }),
+      })
+    )?.handlerPromise;
+
+    const element1 = await fixture<Builder>(
+      html`
+        <foxy-experimental-add-to-cart-builder
+          default-domain="foxycart.com"
+          encode-helper="https://demo.api/virtual/encode"
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          store="https://demo.api/hapi/stores/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-experimental-add-to-cart-builder>
+      `
+    );
+
+    element1.edit({
+      items: [
+        {
+          name: 'Test',
+          code: 'TEST',
+          price: 25,
+          custom_options: [{ name: 'foo', value: 'bar', value_configurable: true }],
+        },
+      ],
+    });
+
+    await waitForIdle(element1);
+    await element1.requestUpdate();
+
+    const labelSelector = 'foxy-i18n[infer="unavailable"][key="error_option_value_configurable"]';
+    expect(element1.renderRoot.querySelector(labelSelector)).to.exist;
+
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/stores/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ use_cart_validation: false }),
+      })
+    )?.handlerPromise;
+
+    const element2 = await fixture<Builder>(
+      html`
+        <foxy-experimental-add-to-cart-builder
+          default-domain="foxycart.com"
+          encode-helper="https://demo.api/virtual/encode"
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          store="https://demo.api/hapi/stores/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-experimental-add-to-cart-builder>
+      `
+    );
+
+    await waitForIdle(element2);
+    await element2.requestUpdate();
     expect(element2.renderRoot.querySelector(labelSelector)).to.not.exist;
   });
 

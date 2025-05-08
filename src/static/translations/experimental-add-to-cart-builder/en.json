@@ -542,7 +542,16 @@
     "helper_text": "",
     "direct_link": "Direct link",
     "empty": "Modify the item parameters to see the add-to-cart link.",
-    "unavailable": "Direct link is not available when one or more items have configurable options.",
+    "unavailable": {
+      "loading_extra_data_needed": "Creating direct link...",
+      "error_special_characters_present": "At the moment we don't support signed direct links with item parameters that contain the following characters: #, &, %, =.",
+      "error_price_configurable": "Direct link is not available when one or more items have configurable price.",
+      "error_duplicate_custom_option_names": "Direct link is not available when one or more items have configurable custom options.",
+      "paused_code_required": "Direct link will be available once you provide an SKU for each item.",
+      "error_option_value_configurable": "Direct link is not available when one or more items have a custom option with a configurable value.",
+      "error_html_entities_present": "At the moment we don't support signed links with item parameters that contain HTML entities.",
+      "error_double_quotes_present": "At the moment we don't support signed links with item parameters that contain double quotes."
+    },
     "copy-to-clipboard": {
       "failed_to_copy": "Failed to copy",
       "click_to_copy": "Copy to clipboard",
@@ -561,11 +570,10 @@
     "submit_caption_cart": "Add to cart",
     "submit_caption_checkout": "Purchase",
     "unavailable": {
-      "loading_busy": "Loading preview...",
-      "loading_paused": "Preview paused",
+      "loading_extra_data_needed": "Loading direct link...",
       "paused_code_required": "Preview and add-to-cart code will be available once you provide an SKU for each item.",
-      "error_html_entities_present": "Item parameters can't contain HTML entities when cart signing is enabled.",
-      "error_double_quotes_present": "Item parameters can't contain double quotes when cart signing is enabled."
+      "error_html_entities_present": "At the moment we don't support signed forms with item parameters that contain HTML entities.",
+      "error_double_quotes_present": "At the moment we don't support signed forms with item parameters that contain double quotes."
     },
     "spinner": {
       "loading_busy": "Signing",
