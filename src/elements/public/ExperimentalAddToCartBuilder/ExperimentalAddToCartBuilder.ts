@@ -24,15 +24,23 @@ const NS = 'experimental-add-to-cart-builder';
 const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 hljs.registerLanguage('xml', hljsxml);
 
-// TODO use proper encoding when encoding API supports HTML entities
-const weakEncode = (value: string, checkHmacCompatibility: boolean) => {
-  if (checkHmacCompatibility) {
+// Notes about encoding for HMAC signing:
+//
+// API does not support HTML entities in attribute values. Good thing is that
+// encoding is optional for HTML attributes, except for the quote character.
+// Since we use double quotes for attributes, they can't appear in the attribute values.
+//
+// API supports % encoding for URLs, but only in the query parameter values. Query parameter
+// names must never be encoded. This is why we limit the allowed characters in the custom field names.
+
+function encodeAttributeValue(value: string, isCartSigningOn: boolean) {
+  if (isCartSigningOn) {
     if (decode(value) !== value) throw new Error('error_html_entities_present');
     if (value.includes('"')) throw new Error('error_double_quotes_present');
   }
 
   return value.replace(/"/g, '&quot;');
-};
+}
 
 /**
  * WARNING: this element is marked as experimental and is subject to change in future releases.
@@ -548,14 +556,15 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
     }
 
     const isHmacOn = store.use_cart_validation;
+    const encodedAction = encodeAttributeValue(cartUrl, isHmacOn);
     let hasAtLeastOneFieldset = false;
-    let output = `<form action="${weakEncode(cartUrl, isHmacOn)}" method="post" target="_blank">`;
+    let output = `<form action="${encodedAction}" method="post" target="_blank">`;
     let level = 1;
 
     const newline = () => `\n${' '.repeat(level * 2)}`;
     const addHiddenInput = (name: string, value: string) => {
-      const encodedValue = weakEncode(value, isHmacOn);
-      const encodedName = weakEncode(name, isHmacOn);
+      const encodedValue = encodeAttributeValue(value, isHmacOn);
+      const encodedName = encodeAttributeValue(name, isHmacOn);
       output += `${newline()}<input type="hidden" name="${encodedName}" value="${encodedValue}">`;
     };
 
@@ -605,7 +614,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       const price = `${product.price}${currencyCode}`;
 
       if (product.price_configurable) {
-        const encodedNoCurrencyPrice = weakEncode(product.price.toFixed(2), isHmacOn);
+        const encodedNoCurrencyPrice = encodeAttributeValue(product.price.toFixed(2), isHmacOn);
         output += `${newline()}<label>`;
         level++;
         output += `${newline()}<span>${encode(this.t('preview.price_label'))}</span>`;
@@ -689,17 +698,17 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
         level++;
         output += `${newline()}<span>${encode(this.t('preview.quantity_label'))}</span>`;
 
-        const encodedName = weakEncode(`${prefix}quantity`, isHmacOn);
+        const encodedName = encodeAttributeValue(`${prefix}quantity`, isHmacOn);
         output += `${newline()}<input type="number" name="${encodedName}"`;
-        output += ` min="${weakEncode(String(resolvedMinQty), isHmacOn)}"`;
+        output += ` min="${encodeAttributeValue(String(resolvedMinQty), isHmacOn)}"`;
 
         if (resolvedMaxQty !== Infinity)
-          output += ` max="${weakEncode(String(resolvedMaxQty), isHmacOn)}"`;
+          output += ` max="${encodeAttributeValue(String(resolvedMaxQty), isHmacOn)}"`;
         if (store.use_cart_validation) {
-          const encodedQuantity = weakEncode(String(product.quantity ?? 1), isHmacOn);
+          const encodedQuantity = encodeAttributeValue(String(product.quantity ?? 1), isHmacOn);
           output += ` value="--OPEN--" data-replace="${encodedQuantity}">`;
         } else {
-          output += ` value="${weakEncode(String(product.quantity ?? 1), isHmacOn)}">`;
+          output += ` value="${encodeAttributeValue(String(product.quantity ?? 1), isHmacOn)}">`;
         }
 
         level--;
@@ -757,12 +766,12 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
             output += `${newline()}<label>`;
             level++;
             output += `${newline()}<span>${encode(optionName)}:</span>`;
-            output += `${newline()}<input name="${weakEncode(name, isHmacOn)}" `;
+            output += `${newline()}<input name="${encodeAttributeValue(name, isHmacOn)}" `;
 
             if (store.use_cart_validation) {
-              output += `value="--OPEN--" data-replace="${weakEncode(value, isHmacOn)}">`;
+              output += `value="--OPEN--" data-replace="${encodeAttributeValue(value, isHmacOn)}">`;
             } else {
-              output += `value="${weakEncode(value, isHmacOn)}">`;
+              output += `value="${encodeAttributeValue(value, isHmacOn)}">`;
             }
 
             level--;
@@ -781,7 +790,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
             const optionIndex = product.custom_options.indexOf(option);
             const itemCategory = this.__getItemCategoryLoader(productIndex, optionIndex)?.data;
             const modifiers = this.__getOptionModifiers(option, itemCategory ?? null, currencyCode);
-            const encodedValue = weakEncode(`${option.value}${modifiers}`, isHmacOn);
+            const encodedValue = encodeAttributeValue(`${option.value}${modifiers}`, isHmacOn);
             const encodedCaption = encode(option.value ?? '');
             output += `${newline()}<option value="${encodedValue}">${encodedCaption}</option>`;
           });
@@ -819,22 +828,16 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       throw new Error('loading_extra_data_needed');
     }
 
-    const signedUrlParams = new Map<string, string>();
-    const unsignedUrlParams = new URLSearchParams();
+    const query = new Map<string, string>();
     const setOrThrow = (name: string, value: string) => {
       if (store.use_cart_validation) {
-        if (
-          name.includes('&') ||
-          value.includes('&') ||
-          name.includes('%') ||
-          value.includes('%') ||
-          name.includes('=') ||
-          value.includes('=')
-        )
+        if (['&', '%', '=', '#'].some(c => name.includes(c))) {
           throw new Error('error_special_characters_present');
-        signedUrlParams.set(name, value);
+        } else {
+          query.set(name, encodeURIComponent(value));
+        }
       } else {
-        unsignedUrlParams.set(name, value);
+        query.set(encodeURIComponent(name), encodeURIComponent(value));
       }
     };
 
@@ -956,11 +959,9 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       }
     }
 
-    return store.use_cart_validation
-      ? `${cartUrl}?${Array.from(signedUrlParams.entries())
-          .map(([key, value]) => `${key}=${value}`)
-          .join('&')}`
-      : `${cartUrl}?${unsignedUrlParams.toString()}`;
+    return `${cartUrl}?${Array.from(query.entries())
+      .map(([key, value]) => `${key}=${value}`)
+      .join('&')}`;
   }
 
   private __getAddToCartCode() {
@@ -991,7 +992,10 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
     try {
       linkHref = this.__getAddToCartLinkHref();
       if (linkHref) {
-        const linkHTML = `<a href="${weakEncode(linkHref, checkEquality)}">Add to cart</a>`;
+        const linkHTML = `<a href="${encodeAttributeValue(
+          linkHref,
+          checkEquality
+        )}">Add to cart</a>`;
         unsignedCode = `${formHTML}${this.__signingSeparator}${linkHTML}`;
       }
     } catch (err) {

@@ -445,7 +445,17 @@ describe('ExperimentalAddToCartBuilder', () => {
       `
     );
 
-    element1.edit({ items: [{ name: 'Test&', code: 'TEST', price: 25, custom_options: [] }] });
+    element1.edit({
+      items: [
+        {
+          name: 'Test',
+          code: 'TEST',
+          price: 25,
+          custom_options: [{ name: 'foo&', value: 'bar' }],
+        },
+      ],
+    });
+
     await waitForIdle(element1);
     await element1.requestUpdate();
 

@@ -544,7 +544,7 @@
     "empty": "Modify the item parameters to see the add-to-cart link.",
     "unavailable": {
       "loading_extra_data_needed": "Creating direct link...",
-      "error_special_characters_present": "At the moment we don't support signed direct links with item parameters that contain the following characters: #, &, %, =.",
+      "error_special_characters_present": "At the moment we don't support signed direct links with custom option names that contain the following characters: #, &, %, =.",
       "error_price_configurable": "Direct link is not available when one or more items have configurable price.",
       "error_duplicate_custom_option_names": "Direct link is not available when one or more items have configurable custom options.",
       "paused_code_required": "Direct link will be available once you provide an SKU for each item.",
