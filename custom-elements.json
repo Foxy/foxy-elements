@@ -13809,6 +13809,12 @@
       "description": "Dialog wrapper for the forms made with NucleonElement.",
       "attributes": [
         {
+          "name": "no-confirm-when-dirty",
+          "description": "If true, FormDialog won't show the confirmation dialog when the form is dirty.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
           "name": "close-on-patch",
           "description": "If true, FormDialog will automatically close after the associated form updates the resource.",
           "type": "boolean",
@@ -13954,6 +13960,13 @@
         }
       ],
       "properties": [
+        {
+          "name": "noConfirmWhenDirty",
+          "attribute": "no-confirm-when-dirty",
+          "description": "If true, FormDialog won't show the confirmation dialog when the form is dirty.",
+          "type": "boolean",
+          "default": "false"
+        },
         {
           "name": "closeOnPatch",
           "attribute": "close-on-patch",
@@ -21853,38 +21866,6 @@
           "default": "\"defaultNS\""
         },
         {
-          "name": "mode",
-          "type": "string",
-          "default": "\"production\""
-        },
-        {
-          "name": "readonly",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "readonlycontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "disabledcontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "hidden",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "hiddencontrols",
-          "default": "\"False\""
-        },
-        {
           "name": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
           "type": "string",
@@ -21944,61 +21925,6 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
-          "name": "templates",
-          "default": "{}"
-        },
-        {
-          "name": "mode",
-          "attribute": "mode",
-          "type": "string",
-          "default": "\"production\""
-        },
-        {
-          "name": "readonly",
-          "attribute": "readonly",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "readonlyControls",
-          "attribute": "readonlycontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "attribute": "disabled",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "disabledControls",
-          "attribute": "disabledcontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "hidden",
-          "attribute": "hidden",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "hiddenControls",
-          "attribute": "hiddencontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "readonlySelector",
-          "type": "BooleanSelector"
-        },
-        {
-          "name": "disabledSelector",
-          "type": "BooleanSelector"
-        },
-        {
-          "name": "hiddenSelector",
-          "type": "BooleanSelector"
         },
         {
           "name": "isBodyReady",
