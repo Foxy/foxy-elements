@@ -411,6 +411,56 @@
       "option_hidden": "Hidden"
     }
   },
+  "csp": {
+    "label": "Checkout security",
+    "helper_text": "",
+    "csp-group-one": {
+      "label": "",
+      "helper_text": "",
+      "warning": "This is security-related functionality that, when enabled, can stop custom scripts from loading on your checkout. Ensure you include any domains as custom script sources above, and review the documentation for this functionality:",
+      "csp-enable-csp": {
+        "label": "Enable Content Security Policy",
+        "helper_text": "Protects your checkout page by blocking remote content that isn’t explicitly allowed. Scripts and assets loaded by Foxy (including payment gateways and analytics) are always allowed, regardless of the settings below.",
+        "checked": "Yes",
+        "unchecked": "No"
+      },
+      "csp-policy-enforce-script-src": {
+        "label": "Custom script sources",
+        "placeholder": "example.com, *.example.com",
+        "helper_text": "",
+        "v8n_too_long": "Domain names must not exceed 1000 characters."
+      },
+      "csp-policy-enforce-reporting-endpoint": {
+        "label": "Reporting URL",
+        "helper_text": "",
+        "placeholder": "Optional",
+        "v8n_too_long": "This field must not exceed 1000 characters."
+      }
+    },
+    "csp-group-two": {
+      "label": "",
+      "helper_text": "",
+      "warning": "Please review the documentation for this functionality to ensure you understand potential impacts:",
+      "csp-enable-ro-csp": {
+        "label": "Enable Report-Only Content Security Policy",
+        "helper_text": "Test your policy without blocking content. This mode logs violations of the rules below, but still allows the content to load. As with enforced mode, Foxy-managed content (e.g., gateways, analytics) is always allowed and excluded from reporting.",
+        "checked": "Yes",
+        "unchecked": "No"
+      },
+      "csp-policy-report-script-src": {
+        "label": "Custom script sources",
+        "placeholder": "example.com, *.example.com",
+        "helper_text": "",
+        "v8n_too_long": "Domain names must not exceed 1000 characters."
+      },
+      "csp-policy-report-reporting-endpoint": {
+        "label": "Reporting URL",
+        "helper_text": "",
+        "placeholder": "Optional",
+        "v8n_too_long": "This field must not exceed 1000 characters."
+      }
+    }
+  },
   "analytics-config": {
     "label": "3rd-party analytics",
     "helper_text": "",

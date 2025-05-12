@@ -142,4 +142,17 @@ export type TemplateConfigJSON = {
   postal_code_lookup: {
     usage: 'none' | 'enabled';
   };
+
+  /** Content Security Policy settings. */
+  csp: {
+    usage: 'none' | 'enforce' | 'report' | 'both';
+    policy_enforce?: {
+      script_src?: string[];
+      reporting_endpoint?: string;
+    };
+    policy_report?: {
+      script_src?: string[];
+      reporting_endpoint?: string;
+    };
+  };
 };

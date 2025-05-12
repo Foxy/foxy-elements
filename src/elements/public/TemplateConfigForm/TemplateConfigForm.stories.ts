@@ -95,6 +95,16 @@ const summary: Summary = {
       'checkout-fields-group-three:custom-checkout-field-requirements-billing-phone',
       'checkout-fields-group-three:custom-checkout-field-requirements-coupon-entry',
 
+      'csp',
+      'csp-group-one',
+      'csp-group-one:csp-enable-csp',
+      'csp-group-one:csp-policy-enforce-reporting-endpoint',
+      'csp-group-one:csp-policy-enforce-script-src',
+      'csp-group-two',
+      'csp-group-two:csp-enable-ro-csp',
+      'csp-group-two:csp-policy-report-reporting-endpoint',
+      'csp-group-two:csp-policy-report-script-src',
+
       'analytics-config',
       'analytics-config:analytics-config-usage',
 

@@ -1,6 +1,7 @@
 import type { InternalTemplateConfigFormFilterValuesControl } from './internal/InternalTemplateConfigFormFilterValuesControl/InternalTemplateConfigFormFilterValuesControl';
 import type { InternalSourceControl } from '../../internal/InternalSourceControl/InternalSourceControl';
 import type { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
+import type { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
 import type { Data } from './types';
@@ -82,6 +83,66 @@ describe('TemplateConfigForm', () => {
   it('has a reactive property "store"', () => {
     expect(Form.properties).to.have.deep.property('store', {});
     expect(new Form().store).to.be.null;
+  });
+
+  it('produces "csp-policy-enforce-reporting-endpoint:v8n_too_long" error when appropriate', () => {
+    const form = new Form();
+    const error = 'csp-policy-enforce-reporting-endpoint:v8n_too_long';
+    expect(form.errors).to.not.include(error);
+
+    const json = getDefaultJSON();
+    json.csp = { usage: 'enforce', policy_enforce: { reporting_endpoint: 'A'.repeat(1000) } };
+    form.edit({ json: JSON.stringify(json) });
+    expect(form.errors).to.not.include(error);
+
+    json.csp = { usage: 'enforce', policy_enforce: { reporting_endpoint: 'A'.repeat(1001) } };
+    form.edit({ json: JSON.stringify(json) });
+    expect(form.errors).to.include(error);
+  });
+
+  it('produces "csp-policy-report-reporting-endpoint:v8n_too_long" error when appropriate', () => {
+    const form = new Form();
+    const error = 'csp-policy-report-reporting-endpoint:v8n_too_long';
+    expect(form.errors).to.not.include(error);
+
+    const json = getDefaultJSON();
+    json.csp = { usage: 'report', policy_report: { reporting_endpoint: 'A'.repeat(1000) } };
+    form.edit({ json: JSON.stringify(json) });
+    expect(form.errors).to.not.include(error);
+
+    json.csp = { usage: 'report', policy_report: { reporting_endpoint: 'A'.repeat(1001) } };
+    form.edit({ json: JSON.stringify(json) });
+    expect(form.errors).to.include(error);
+  });
+
+  it('produces "csp-policy-enforce-script-src:v8n_too_long" error when appropriate', () => {
+    const form = new Form();
+    const error = 'csp-policy-enforce-script-src:v8n_too_long';
+    expect(form.errors).to.not.include(error);
+
+    const json = getDefaultJSON();
+    json.csp = { usage: 'enforce', policy_enforce: { script_src: ['A'.repeat(1000)] } };
+    form.edit({ json: JSON.stringify(json) });
+    expect(form.errors).to.not.include(error);
+
+    json.csp = { usage: 'enforce', policy_enforce: { script_src: ['A'.repeat(1001)] } };
+    form.edit({ json: JSON.stringify(json) });
+    expect(form.errors).to.include(error);
+  });
+
+  it('produces "csp-policy-report-script-src:v8n_too_long" error when appropriate', () => {
+    const form = new Form();
+    const error = 'csp-policy-report-script-src:v8n_too_long';
+    expect(form.errors).to.not.include(error);
+
+    const json = getDefaultJSON();
+    json.csp = { usage: 'report', policy_report: { script_src: ['A'.repeat(1000)] } };
+    form.edit({ json: JSON.stringify(json) });
+    expect(form.errors).to.not.include(error);
+
+    json.csp = { usage: 'report', policy_report: { script_src: ['A'.repeat(1001)] } };
+    form.edit({ json: JSON.stringify(json) });
+    expect(form.errors).to.include(error);
   });
 
   it('hides cart display settings when customization is turned off', () => {
@@ -1033,6 +1094,154 @@ describe('TemplateConfigForm', () => {
         expect(control).to.have.attribute('layout', 'summary-item');
       });
     });
+  });
+
+  it('renders switch control for CSP usage in CSP settings group', async () => {
+    const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+    const element = await fixture<Form>(layout);
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      '[infer="csp"] [infer="csp-group-one"] foxy-internal-switch-control[infer="csp-enable-csp"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', JSON.stringify(getDefaultJSON()));
+    expect(control).to.have.attribute('json-path', 'csp.usage');
+    expect(control).to.have.attribute('property', 'json');
+
+    const json = getDefaultJSON();
+    json.csp.usage = 'none';
+    element.edit({ json: JSON.stringify(json) });
+    expect(control?.getValue()).to.equal(false);
+
+    control?.setValue(true);
+    expect(JSON.parse(element.form.json!).csp.usage).to.equal('enforce');
+    expect(control?.getValue()).to.equal(true);
+
+    json.csp.usage = 'report';
+    element.edit({ json: JSON.stringify(json) });
+    expect(control?.getValue()).to.equal(false);
+
+    control?.setValue(true);
+    expect(JSON.parse(element.form.json!).csp.usage).to.equal('both');
+    expect(control?.getValue()).to.equal(true);
+
+    control?.setValue(false);
+    expect(JSON.parse(element.form.json!).csp.usage).to.equal('report');
+  });
+
+  it('renders text control for CSP report URI in CSP settings group', async () => {
+    const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+    const element = await fixture<Form>(layout);
+
+    const json = getDefaultJSON();
+    json.csp = { usage: 'enforce' };
+    element.edit({ json: JSON.stringify(json) });
+    await element.requestUpdate();
+
+    const control = element.renderRoot.querySelector(
+      '[infer="csp"] [infer="csp-group-one"] foxy-internal-text-control[infer="csp-policy-enforce-reporting-endpoint"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', JSON.stringify(getDefaultJSON()));
+    expect(control).to.have.attribute('json-path', 'csp.policy_enforce.reporting_endpoint');
+    expect(control).to.have.attribute('property', 'json');
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders editable list control for CSP script sources in CSP settings group', async () => {
+    const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+    const element = await fixture<Form>(layout);
+
+    const json = getDefaultJSON();
+    json.csp = { usage: 'enforce' };
+    element.edit({ json: JSON.stringify(json) });
+    await element.requestUpdate();
+
+    const control = element.renderRoot.querySelector(
+      '[infer="csp"] [infer="csp-group-one"] foxy-internal-editable-list-control[infer="csp-policy-enforce-script-src"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', JSON.stringify(getDefaultJSON()));
+    expect(control).to.have.attribute('json-path', 'csp.policy_enforce.script_src');
+    expect(control).to.have.attribute('property', 'json');
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('simple-value');
+  });
+
+  it('renders switch control for CSP usage in Report Only CSP settings group', async () => {
+    const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+    const element = await fixture<Form>(layout);
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      '[infer="csp"] [infer="csp-group-two"] foxy-internal-switch-control[infer="csp-enable-ro-csp"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', JSON.stringify(getDefaultJSON()));
+    expect(control).to.have.attribute('json-path', 'csp.usage');
+    expect(control).to.have.attribute('property', 'json');
+
+    const json = getDefaultJSON();
+    json.csp.usage = 'none';
+    element.edit({ json: JSON.stringify(json) });
+    expect(control?.getValue()).to.equal(false);
+
+    control?.setValue(true);
+    expect(JSON.parse(element.form.json!).csp.usage).to.equal('report');
+    expect(control?.getValue()).to.equal(true);
+
+    json.csp.usage = 'enforce';
+    element.edit({ json: JSON.stringify(json) });
+    expect(control?.getValue()).to.equal(false);
+
+    control?.setValue(true);
+    expect(JSON.parse(element.form.json!).csp.usage).to.equal('both');
+    expect(control?.getValue()).to.equal(true);
+
+    control?.setValue(false);
+    expect(JSON.parse(element.form.json!).csp.usage).to.equal('enforce');
+  });
+
+  it('renders text control for CSP report URI in Report Only CSP settings group', async () => {
+    const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+    const element = await fixture<Form>(layout);
+
+    const json = getDefaultJSON();
+    json.csp = { usage: 'report' };
+    element.edit({ json: JSON.stringify(json) });
+    await element.requestUpdate();
+
+    const control = element.renderRoot.querySelector(
+      '[infer="csp"] [infer="csp-group-two"] foxy-internal-text-control[infer="csp-policy-report-reporting-endpoint"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', JSON.stringify(getDefaultJSON()));
+    expect(control).to.have.attribute('json-path', 'csp.policy_report.reporting_endpoint');
+    expect(control).to.have.attribute('property', 'json');
+    expect(control).to.have.attribute('layout', 'summary-item');
+  });
+
+  it('renders editable list control for CSP script sources in Report Only CSP settings group', async () => {
+    const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+    const element = await fixture<Form>(layout);
+
+    const json = getDefaultJSON();
+    json.csp = { usage: 'report' };
+    element.edit({ json: JSON.stringify(json) });
+    await element.requestUpdate();
+
+    const control = element.renderRoot.querySelector(
+      '[infer="csp"] [infer="csp-group-two"] foxy-internal-editable-list-control[infer="csp-policy-report-script-src"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', JSON.stringify(getDefaultJSON()));
+    expect(control).to.have.attribute('json-path', 'csp.policy_report.script_src');
+    expect(control).to.have.attribute('property', 'json');
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('simple-value');
   });
 
   it('renders group for analytics settings', async () => {
