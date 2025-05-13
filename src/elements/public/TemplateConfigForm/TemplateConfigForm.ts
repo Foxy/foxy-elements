@@ -706,62 +706,6 @@ export class TemplateConfigForm extends Base<Data> {
             json-template=${this.__defaultJSON}
             json-path="csp.usage"
             property="json"
-            infer="csp-enable-csp"
-            .getValue=${this.__cspUsageGetValue}
-            .setValue=${this.__cspUsageSetValue}
-          >
-          </foxy-internal-switch-control>
-
-          ${formCspUsage === 'enforce' || formCspUsage === 'both'
-            ? html`
-                <foxy-internal-text-control
-                  json-template=${this.__defaultJSON}
-                  json-path="csp.policy_enforce.reporting_endpoint"
-                  property="json"
-                  layout="summary-item"
-                  infer="csp-policy-enforce-reporting-endpoint"
-                >
-                </foxy-internal-text-control>
-
-                <foxy-internal-editable-list-control
-                  json-template=${this.__defaultJSON}
-                  json-path="csp.policy_enforce.script_src"
-                  property="json"
-                  layout="summary-item"
-                  infer="csp-policy-enforce-script-src"
-                  simple-value
-                >
-                </foxy-internal-editable-list-control>
-
-                ${dataCspUsage === 'none' || dataCspUsage === 'report'
-                  ? html`
-                      <div
-                        class="flex items-start bg-error-10"
-                        style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
-                      >
-                        ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="flex-shrink-0 text-error" style="width: 1.25em"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" /></svg>`}
-                        <p>
-                          <foxy-i18n infer="" key="warning"></foxy-i18n>
-                          <a
-                            target="_blank"
-                            class="inline-block rounded font-medium text-error transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-error-50"
-                            href="https://wiki.foxycart.com/v/2.0/content_security_policy"
-                          >
-                            wiki.foxycart.com
-                          </a>
-                        </p>
-                      </div>
-                    `
-                  : ''}
-              `
-            : ''}
-        </foxy-internal-summary-control>
-
-        <foxy-internal-summary-control infer="csp-group-two">
-          <foxy-internal-switch-control
-            json-template=${this.__defaultJSON}
-            json-path="csp.usage"
-            property="json"
             infer="csp-enable-ro-csp"
             .getValue=${this.__cspRoUsageGetValue}
             .setValue=${this.__cspRoUsageSetValue}
@@ -801,6 +745,62 @@ export class TemplateConfigForm extends Base<Data> {
                           <a
                             target="_blank"
                             class="inline-block rounded font-medium text-primary transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
+                            href="https://wiki.foxycart.com/v/2.0/content_security_policy"
+                          >
+                            wiki.foxycart.com
+                          </a>
+                        </p>
+                      </div>
+                    `
+                  : ''}
+              `
+            : ''}
+        </foxy-internal-summary-control>
+
+        <foxy-internal-summary-control infer="csp-group-two">
+          <foxy-internal-switch-control
+            json-template=${this.__defaultJSON}
+            json-path="csp.usage"
+            property="json"
+            infer="csp-enable-csp"
+            .getValue=${this.__cspUsageGetValue}
+            .setValue=${this.__cspUsageSetValue}
+          >
+          </foxy-internal-switch-control>
+
+          ${formCspUsage === 'enforce' || formCspUsage === 'both'
+            ? html`
+                <foxy-internal-text-control
+                  json-template=${this.__defaultJSON}
+                  json-path="csp.policy_enforce.reporting_endpoint"
+                  property="json"
+                  layout="summary-item"
+                  infer="csp-policy-enforce-reporting-endpoint"
+                >
+                </foxy-internal-text-control>
+
+                <foxy-internal-editable-list-control
+                  json-template=${this.__defaultJSON}
+                  json-path="csp.policy_enforce.script_src"
+                  property="json"
+                  layout="summary-item"
+                  infer="csp-policy-enforce-script-src"
+                  simple-value
+                >
+                </foxy-internal-editable-list-control>
+
+                ${dataCspUsage === 'none' || dataCspUsage === 'report'
+                  ? html`
+                      <div
+                        class="flex items-start bg-error-10"
+                        style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+                      >
+                        ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="flex-shrink-0 text-error" style="width: 1.25em"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" /></svg>`}
+                        <p>
+                          <foxy-i18n infer="" key="warning"></foxy-i18n>
+                          <a
+                            target="_blank"
+                            class="inline-block rounded font-medium text-error transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-error-50"
                             href="https://wiki.foxycart.com/v/2.0/content_security_policy"
                           >
                             wiki.foxycart.com

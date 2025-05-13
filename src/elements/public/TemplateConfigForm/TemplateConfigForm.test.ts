@@ -1100,7 +1100,7 @@ describe('TemplateConfigForm', () => {
     const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
     const element = await fixture<Form>(layout);
     const control = element.renderRoot.querySelector<InternalSwitchControl>(
-      '[infer="csp"] [infer="csp-group-one"] foxy-internal-switch-control[infer="csp-enable-csp"]'
+      '[infer="csp"] [infer="csp-group-two"] foxy-internal-switch-control[infer="csp-enable-csp"]'
     );
 
     expect(control).to.exist;
@@ -1139,7 +1139,7 @@ describe('TemplateConfigForm', () => {
     await element.requestUpdate();
 
     const control = element.renderRoot.querySelector(
-      '[infer="csp"] [infer="csp-group-one"] foxy-internal-text-control[infer="csp-policy-enforce-reporting-endpoint"]'
+      '[infer="csp"] [infer="csp-group-two"] foxy-internal-text-control[infer="csp-policy-enforce-reporting-endpoint"]'
     );
 
     expect(control).to.exist;
@@ -1159,7 +1159,7 @@ describe('TemplateConfigForm', () => {
     await element.requestUpdate();
 
     const control = element.renderRoot.querySelector(
-      '[infer="csp"] [infer="csp-group-one"] foxy-internal-editable-list-control[infer="csp-policy-enforce-script-src"]'
+      '[infer="csp"] [infer="csp-group-two"] foxy-internal-editable-list-control[infer="csp-policy-enforce-script-src"]'
     );
 
     expect(control).to.exist;
@@ -1174,7 +1174,7 @@ describe('TemplateConfigForm', () => {
     const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
     const element = await fixture<Form>(layout);
     const control = element.renderRoot.querySelector<InternalSwitchControl>(
-      '[infer="csp"] [infer="csp-group-two"] foxy-internal-switch-control[infer="csp-enable-ro-csp"]'
+      '[infer="csp"] [infer="csp-group-one"] foxy-internal-switch-control[infer="csp-enable-ro-csp"]'
     );
 
     expect(control).to.exist;
@@ -1213,7 +1213,7 @@ describe('TemplateConfigForm', () => {
     await element.requestUpdate();
 
     const control = element.renderRoot.querySelector(
-      '[infer="csp"] [infer="csp-group-two"] foxy-internal-text-control[infer="csp-policy-report-reporting-endpoint"]'
+      '[infer="csp"] [infer="csp-group-one"] foxy-internal-text-control[infer="csp-policy-report-reporting-endpoint"]'
     );
 
     expect(control).to.exist;
@@ -1233,7 +1233,7 @@ describe('TemplateConfigForm', () => {
     await element.requestUpdate();
 
     const control = element.renderRoot.querySelector(
-      '[infer="csp"] [infer="csp-group-two"] foxy-internal-editable-list-control[infer="csp-policy-report-script-src"]'
+      '[infer="csp"] [infer="csp-group-one"] foxy-internal-editable-list-control[infer="csp-policy-report-script-src"]'
     );
 
     expect(control).to.exist;
