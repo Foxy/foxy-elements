@@ -94,4 +94,5 @@ export const getDefaultJSON = (): TemplateConfigJSON => ({
   postal_code_lookup: {
     usage: 'enabled',
   },
+  csp: { usage: 'none' },
 });

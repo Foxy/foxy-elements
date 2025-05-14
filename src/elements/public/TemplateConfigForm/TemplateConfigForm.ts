@@ -2,6 +2,7 @@ import type { Data, TemplateConfigJSON } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
+import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 
@@ -30,6 +31,31 @@ export class TemplateConfigForm extends Base<Data> {
       regions: {},
       store: {},
     };
+  }
+
+  static get v8n(): NucleonV8N<Data, TemplateConfigForm> {
+    return [
+      ({ json }) => {
+        const formJson: TemplateConfigJSON = json ? JSON.parse(json) : getDefaultJSON();
+        const url = formJson.csp.policy_enforce?.reporting_endpoint ?? '';
+        return url.length <= 1000 || 'csp-policy-enforce-reporting-endpoint:v8n_too_long';
+      },
+      ({ json }) => {
+        const formJson: TemplateConfigJSON = json ? JSON.parse(json) : getDefaultJSON();
+        const url = formJson.csp.policy_report?.reporting_endpoint ?? '';
+        return url.length <= 1000 || 'csp-policy-report-reporting-endpoint:v8n_too_long';
+      },
+      ({ json }) => {
+        const formJson: TemplateConfigJSON = json ? JSON.parse(json) : getDefaultJSON();
+        const domains = formJson.csp.policy_enforce?.script_src ?? [];
+        return domains.every(d => d.length <= 1000) || 'csp-policy-enforce-script-src:v8n_too_long';
+      },
+      ({ json }) => {
+        const formJson: TemplateConfigJSON = json ? JSON.parse(json) : getDefaultJSON();
+        const domains = formJson.csp.policy_report?.script_src ?? [];
+        return domains.every(d => d.length <= 1000) || 'csp-policy-report-script-src:v8n_too_long';
+      },
+    ];
   }
 
   /** URI of the `fx:countries` hAPI resource with `?include_regions=true`. */
@@ -162,6 +188,46 @@ export class TemplateConfigForm extends Base<Data> {
     this.edit({ json: JSON.stringify(formJson) });
   };
 
+  private readonly __cspUsageGetValue = () => {
+    const usage = this.__formJson.csp.usage;
+    return usage === 'enforce' || usage === 'both';
+  };
+
+  private readonly __cspUsageSetValue = (newValue: boolean) => {
+    const formJson = this.__formJson;
+    const oldUsage = formJson.csp.usage;
+    const map: Record<string, Record<string, string>> = {
+      false: { both: 'report', enforce: 'none' },
+      true: { report: 'both', none: 'enforce' },
+    };
+
+    const newUsage = map[String(newValue)][oldUsage];
+    if (newUsage) {
+      const newJson = { ...formJson, csp: { ...formJson.csp, usage: newUsage } };
+      this.edit({ json: JSON.stringify(newJson) });
+    }
+  };
+
+  private readonly __cspRoUsageGetValue = () => {
+    const usage = this.__formJson.csp.usage;
+    return usage === 'report' || usage === 'both';
+  };
+
+  private readonly __cspRoUsageSetValue = (newValue: boolean) => {
+    const formJson = this.__formJson;
+    const oldUsage = formJson.csp.usage;
+    const map: Record<string, Record<string, string>> = {
+      false: { both: 'enforce', report: 'none' },
+      true: { enforce: 'both', none: 'report' },
+    };
+
+    const newUsage = map[String(newValue)][oldUsage];
+    if (newUsage) {
+      const newJson = { ...formJson, csp: { ...formJson.csp, usage: newUsage } };
+      this.edit({ json: JSON.stringify(newJson) });
+    }
+  };
+
   private readonly __defaultJSON = JSON.stringify(getDefaultJSON());
 
   get hiddenSelector(): BooleanSelector {
@@ -268,6 +334,9 @@ export class TemplateConfigForm extends Base<Data> {
       ['show_product_weight', 'show_product_category', 'show_product_code', 'show_product_options'],
       ['show_sub_frequency', 'show_sub_startdate', 'show_sub_nextdate', 'show_sub_enddate'],
     ];
+
+    const formCspUsage = this.__formJson.csp.usage;
+    const dataCspUsage = this.__dataJson?.csp?.usage;
 
     return html`
       ${this.renderHeader()}
@@ -630,6 +699,120 @@ export class TemplateConfigForm extends Base<Data> {
           `;
         })}
       </div>
+
+      <foxy-internal-summary-control infer="csp" class="space-y-m" layout="section">
+        <foxy-internal-summary-control infer="csp-group-one">
+          <foxy-internal-switch-control
+            json-template=${this.__defaultJSON}
+            json-path="csp.usage"
+            property="json"
+            infer="csp-enable-ro-csp"
+            .getValue=${this.__cspRoUsageGetValue}
+            .setValue=${this.__cspRoUsageSetValue}
+          >
+          </foxy-internal-switch-control>
+
+          ${formCspUsage === 'report' || formCspUsage === 'both'
+            ? html`
+                <foxy-internal-text-control
+                  json-template=${this.__defaultJSON}
+                  json-path="csp.policy_report.reporting_endpoint"
+                  property="json"
+                  layout="summary-item"
+                  infer="csp-policy-report-reporting-endpoint"
+                >
+                </foxy-internal-text-control>
+
+                <foxy-internal-editable-list-control
+                  json-template=${this.__defaultJSON}
+                  json-path="csp.policy_report.script_src"
+                  property="json"
+                  layout="summary-item"
+                  infer="csp-policy-report-script-src"
+                  simple-value
+                >
+                </foxy-internal-editable-list-control>
+
+                ${dataCspUsage === 'none' || dataCspUsage === 'enforce'
+                  ? html`
+                      <div
+                        class="flex items-start bg-primary-10"
+                        style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+                      >
+                        ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="flex-shrink-0 text-primary" style="width: 1.25em"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clip-rule="evenodd" /></svg>`}
+                        <p>
+                          <foxy-i18n infer="" key="warning"></foxy-i18n>
+                          <a
+                            target="_blank"
+                            class="inline-block rounded font-medium text-primary transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
+                            href="https://wiki.foxycart.com/v/2.0/content_security_policy"
+                          >
+                            wiki.foxycart.com
+                          </a>
+                        </p>
+                      </div>
+                    `
+                  : ''}
+              `
+            : ''}
+        </foxy-internal-summary-control>
+
+        <foxy-internal-summary-control infer="csp-group-two">
+          <foxy-internal-switch-control
+            json-template=${this.__defaultJSON}
+            json-path="csp.usage"
+            property="json"
+            infer="csp-enable-csp"
+            .getValue=${this.__cspUsageGetValue}
+            .setValue=${this.__cspUsageSetValue}
+          >
+          </foxy-internal-switch-control>
+
+          ${formCspUsage === 'enforce' || formCspUsage === 'both'
+            ? html`
+                <foxy-internal-text-control
+                  json-template=${this.__defaultJSON}
+                  json-path="csp.policy_enforce.reporting_endpoint"
+                  property="json"
+                  layout="summary-item"
+                  infer="csp-policy-enforce-reporting-endpoint"
+                >
+                </foxy-internal-text-control>
+
+                <foxy-internal-editable-list-control
+                  json-template=${this.__defaultJSON}
+                  json-path="csp.policy_enforce.script_src"
+                  property="json"
+                  layout="summary-item"
+                  infer="csp-policy-enforce-script-src"
+                  simple-value
+                >
+                </foxy-internal-editable-list-control>
+
+                ${dataCspUsage === 'none' || dataCspUsage === 'report'
+                  ? html`
+                      <div
+                        class="flex items-start bg-error-10"
+                        style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+                      >
+                        ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="flex-shrink-0 text-error" style="width: 1.25em"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" /></svg>`}
+                        <p>
+                          <foxy-i18n infer="" key="warning"></foxy-i18n>
+                          <a
+                            target="_blank"
+                            class="inline-block rounded font-medium text-error transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-error-50"
+                            href="https://wiki.foxycart.com/v/2.0/content_security_policy"
+                          >
+                            wiki.foxycart.com
+                          </a>
+                        </p>
+                      </div>
+                    `
+                  : ''}
+              `
+            : ''}
+        </foxy-internal-summary-control>
+      </foxy-internal-summary-control>
 
       <foxy-internal-summary-control infer="analytics-config">
         <foxy-internal-switch-control

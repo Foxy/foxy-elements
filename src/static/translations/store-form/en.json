@@ -21,7 +21,7 @@
     "store_domain_reserved": "Selected domain is reserved for internal use. Please choose another domain.",
     "store_domain_exists": "Selected domain is already in use by another store. Please choose another domain."
   },
-  "essentials": {
+  "essentials-group-one": {
     "label": "Essentials",
     "helper_text": "",
     "store-name": {
@@ -53,13 +53,21 @@
       "helper_text": "",
       "v8n_required": "Please enter the URL of your online store",
       "v8n_too_long": "Please use a URL that is 300 characters or less"
-    },
+    }
+  },
+  "essentials-group-two": {
+    "label": "",
+    "helper_text": "",
     "is-maintenance-mode": {
       "label": "Maintenance mode",
       "helper_text": "When enabled, your customers can't make purchases or use the checkout page in any way. Once you're done making changes, disable this mode to continue getting orders.",
       "checked": "On",
       "unchecked": "Off"
-    },
+    }
+  },
+  "essentials-group-three": {
+    "label": "",
+    "helper_text": "",
     "store-email": {
       "label": "Emails for billing and communication with Foxy",
       "placeholder": "Enter an email and press Enter",
@@ -68,7 +76,11 @@
       "delete": "Delete",
       "v8n_required": "Please enter at least one email",
       "v8n_too_long": "All emails for this store must fit within 300 characters when comma-separated"
-    },
+    }
+  },
+  "essentials-group-four": {
+    "label": "",
+    "helper_text": "",
     "timezone": {
       "label": "Time zone",
       "placeholder": "Select",

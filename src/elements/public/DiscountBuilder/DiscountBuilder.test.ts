@@ -205,8 +205,8 @@ describe('DiscountBuilder', () => {
       expect(price?.control).to.not.have.attribute('checked');
       expect(quantity?.control).to.have.attribute('checked');
 
-      const amount = labels.find(v => !!v.querySelector('[key="¤"]'));
-      const percentage = labels.find(v => !!v.querySelector('[key="%"]'));
+      const amount = labels.find(v => !!v.querySelector('[key="units_amount"]'));
+      const percentage = labels.find(v => !!v.querySelector('[key="units_percentage"]'));
 
       expect(amount?.control).to.not.have.attribute('checked');
       expect(percentage?.control).to.have.attribute('checked');
@@ -232,8 +232,8 @@ describe('DiscountBuilder', () => {
       expect(price?.control).to.not.have.attribute('checked');
       expect(quantity?.control).to.have.attribute('checked');
 
-      const amount = labels.find(v => !!v.querySelector('[key="¤"]'));
-      const percentage = labels.find(v => !!v.querySelector('[key="%"]'));
+      const amount = labels.find(v => !!v.querySelector('[key="units_amount"]'));
+      const percentage = labels.find(v => !!v.querySelector('[key="units_percentage"]'));
 
       expect(amount?.control).to.have.attribute('checked');
       expect(percentage?.control).to.not.have.attribute('checked');
@@ -259,8 +259,8 @@ describe('DiscountBuilder', () => {
       expect(price?.control).to.have.attribute('checked');
       expect(quantity?.control).to.not.have.attribute('checked');
 
-      const amount = labels.find(v => !!v.querySelector('[key="¤"]'));
-      const percentage = labels.find(v => !!v.querySelector('[key="%"]'));
+      const amount = labels.find(v => !!v.querySelector('[key="units_amount"]'));
+      const percentage = labels.find(v => !!v.querySelector('[key="units_percentage"]'));
 
       expect(amount?.control).to.not.have.attribute('checked');
       expect(percentage?.control).to.have.attribute('checked');
@@ -286,8 +286,8 @@ describe('DiscountBuilder', () => {
       expect(price?.control).to.have.attribute('checked');
       expect(quantity?.control).to.not.have.attribute('checked');
 
-      const amount = labels.find(v => !!v.querySelector('[key="¤"]'));
-      const percentage = labels.find(v => !!v.querySelector('[key="%"]'));
+      const amount = labels.find(v => !!v.querySelector('[key="units_amount"]'));
+      const percentage = labels.find(v => !!v.querySelector('[key="units_percentage"]'));
 
       expect(amount?.control).to.have.attribute('checked');
       expect(percentage?.control).to.not.have.attribute('checked');
@@ -337,10 +337,10 @@ describe('DiscountBuilder', () => {
     const quantity = labels.find(v => !!v.querySelector('[key="quantity"]'));
     const quantityControl = quantity?.control as HTMLInputElement;
 
-    const amount = labels.find(v => !!v.querySelector('[key="¤"]'));
+    const amount = labels.find(v => !!v.querySelector('[key="units_amount"]'));
     const amountControl = amount?.control as HTMLInputElement;
 
-    const percentage = labels.find(v => !!v.querySelector('[key="%"]'));
+    const percentage = labels.find(v => !!v.querySelector('[key="units_percentage"]'));
     const percentageControl = percentage?.control as HTMLInputElement;
 
     priceControl.checked = true;

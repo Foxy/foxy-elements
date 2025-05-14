@@ -24,15 +24,23 @@ const NS = 'experimental-add-to-cart-builder';
 const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 hljs.registerLanguage('xml', hljsxml);
 
-// TODO use proper encoding when encoding API supports HTML entities
-const weakEncode = (value: string, checkHmacCompatibility: boolean) => {
-  if (checkHmacCompatibility) {
+// Notes about encoding for HMAC signing:
+//
+// API does not support HTML entities in attribute values. Good thing is that
+// encoding is optional for HTML attributes, except for the quote character.
+// Since we use double quotes for attributes, they can't appear in the attribute values.
+//
+// API supports % encoding for URLs, but only in the query parameter values. Query parameter
+// names must never be encoded. This is why we limit the allowed characters in the custom field names.
+
+function encodeAttributeValue(value: string, isCartSigningOn: boolean) {
+  if (isCartSigningOn) {
     if (decode(value) !== value) throw new Error('error_html_entities_present');
     if (value.includes('"')) throw new Error('error_double_quotes_present');
   }
 
   return value.replace(/"/g, '&quot;');
-};
+}
 
 /**
  * WARNING: this element is marked as experimental and is subject to change in future releases.
@@ -131,6 +139,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
     const addToCartCode = this.__getAddToCartCode();
     const storeUrl = this.data?._links['fx:store'].href ?? this.store ?? void 0;
     const store = this.__storeLoader?.data;
+    const formHtmlState = addToCartCode.formHTMLError?.split('_')[0] ?? 'paused';
 
     return html`
       <div class="grid gap-m items-start sm-grid-cols-2 md-grid-cols-3 h-full overflow-auto">
@@ -183,9 +192,21 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
         </foxy-internal-summary-control>
 
         <div class="space-y-m md-col-span-2 sticky top-0">
-          ${addToCartCode && !addToCartCode.error
-            ? html`
-                <foxy-internal-summary-control infer="preview">
+          <foxy-internal-summary-control infer="preview">
+            ${addToCartCode.formHTMLError
+              ? html`
+                  <div class="flex flex-col gap-xs items-center justify-center p-xl">
+                    <foxy-spinner layout="no-label" infer="unavailable" state=${formHtmlState}>
+                    </foxy-spinner>
+                    <foxy-i18n
+                      class="${formHtmlState === 'error' ? 'text-error' : 'text-tertiary'} text-s"
+                      infer="unavailable"
+                      key=${addToCartCode.formHTMLError}
+                    >
+                    </foxy-i18n>
+                  </div>
+                `
+              : html`
                   <div class="flex">
                     <iframe
                       srcdoc="${previewCSS}${addToCartCode.formHTML}"
@@ -261,87 +282,66 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
                       </a>
                     </p>
                   </div>
-                </foxy-internal-summary-control>
+                `}
+          </foxy-internal-summary-control>
 
-                <foxy-internal-summary-control infer="link">
-                  ${addToCartCode.linkHref
-                    ? html`
-                        <div
-                          class="flex items-center leading-s min-w-0 relative"
-                          style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
-                        >
-                          <foxy-i18n infer="" key="direct_link"></foxy-i18n>
-                          <a
-                            target="_blank"
-                            style="max-width: 30rem"
-                            href=${addToCartCode.linkHref}
-                            class=${classMap({
-                              'font-medium truncate ml-auto min-w-0 rounded-s': true,
-                              'transition-all filter': true,
-                              'hover-underline': true,
-                              'focus-outline-none focus-ring-2 focus-ring-primary-50': true,
-                              'blur-sm': this.__signingState !== 'idle',
-                            })}
-                          >
-                            ${addToCartCode.linkHref}
-                          </a>
-                          <div
-                            style="top: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px); right: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
-                            class=${classMap({
-                              'absolute right-0 bg-base rounded-s transition-opacity': true,
-                              'opacity-0 pointer-events-none': this.__signingState !== 'busy',
-                            })}
-                          >
-                            <div class="bg-contrast-10 rounded-s">
-                              <foxy-spinner
-                                infer="spinner"
-                                state=${this.__signingState === 'fail' ? 'error' : 'busy'}
-                                class="-mx-xs"
-                                style="transform: scale(0.8)"
-                              >
-                              </foxy-spinner>
-                            </div>
-                          </div>
-                          <foxy-copy-to-clipboard
-                            infer="copy-to-clipboard"
-                            text=${addToCartCode.linkHref}
-                            class=${classMap({
-                              'flex-shrink-0 text-m transition-opacity': true,
-                              'opacity-0 pointer-events-none': this.__signingState === 'busy',
-                            })}
-                          >
-                          </foxy-copy-to-clipboard>
-                        </div>
-                      `
-                    : html`
-                        <p class="text-disabled">
-                          <foxy-i18n infer="" key="unavailable"></foxy-i18n>
-                        </p>
-                      `}
-                </foxy-internal-summary-control>
-              `
-            : html`
-                <foxy-internal-summary-control infer="preview">
-                  <div class="flex flex-col gap-xs items-center justify-center p-xl">
-                    <foxy-spinner
-                      layout="no-label"
-                      infer="unavailable"
-                      state=${addToCartCode?.error.split('_')[0] ?? 'busy'}
-                    >
-                    </foxy-spinner>
-                    <foxy-i18n
+          <foxy-internal-summary-control infer="link">
+            ${addToCartCode.linkHrefError
+              ? html`
+                  <p class="text-tertiary">
+                    <foxy-i18n infer="unavailable" key=${addToCartCode.linkHrefError}> </foxy-i18n>
+                  </p>
+                `
+              : html`
+                  <div
+                    class="flex items-center leading-s min-w-0 relative"
+                    style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+                  >
+                    <foxy-i18n infer="" key="direct_link"></foxy-i18n>
+                    <a
+                      target="_blank"
+                      style="max-width: 30rem"
+                      href=${addToCartCode.linkHref}
                       class=${classMap({
-                        'text-tertiary': !addToCartCode?.error.startsWith('error_'),
-                        'text-error': !!addToCartCode?.error.startsWith('error_'),
-                        'text-s': true,
+                        'font-medium truncate ml-auto min-w-0 rounded-s': true,
+                        'transition-all filter': true,
+                        'hover-underline': true,
+                        'focus-outline-none focus-ring-2 focus-ring-primary-50': true,
+                        'blur-sm': this.__signingState !== 'idle',
                       })}
-                      infer="unavailable"
-                      key="${addToCartCode?.error ?? 'loading_busy'}"
                     >
-                    </foxy-i18n>
+                      ${addToCartCode.linkHref}
+                    </a>
+                    <div
+                      style="top: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px); right: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+                      class=${classMap({
+                        'absolute right-0 bg-base rounded-s transition-opacity': true,
+                        'opacity-0 pointer-events-none': this.__signingState !== 'busy',
+                      })}
+                    >
+                      <div class="bg-contrast-10 rounded-s">
+                        <foxy-spinner
+                          infer="spinner"
+                          state=${this.__signingState === 'fail' ? 'error' : 'busy'}
+                          class="-mx-xs"
+                          style="transform: scale(0.8)"
+                        >
+                        </foxy-spinner>
+                      </div>
+                    </div>
+                    <foxy-copy-to-clipboard
+                      infer="copy-to-clipboard"
+                      text=${addToCartCode.linkHref}
+                      class=${classMap({
+                        'flex-shrink-0 text-m transition-opacity': true,
+                        'opacity-0 pointer-events-none': this.__signingState === 'busy',
+                      })}
+                    >
+                    </foxy-copy-to-clipboard>
                   </div>
-                </foxy-internal-summary-control>
-              `}
+                `}
+          </foxy-internal-summary-control>
+
           ${this.renderTemplateOrSlot()}
 
           <foxy-internal-summary-control infer="cart-settings">
@@ -551,17 +551,20 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
     const cartUrl = this.__resolvedCartUrl;
     const store = this.__storeLoader?.data;
 
-    if (!this.defaultDomain || !templateSet || !store || !currencyCode || !cartUrl) return '';
+    if (!this.defaultDomain || !templateSet || !store || !currencyCode || !cartUrl) {
+      throw new Error('loading_extra_data_needed');
+    }
 
     const isHmacOn = store.use_cart_validation;
+    const encodedAction = encodeAttributeValue(cartUrl, isHmacOn);
     let hasAtLeastOneFieldset = false;
-    let output = `<form action="${weakEncode(cartUrl, isHmacOn)}" method="post" target="_blank">`;
+    let output = `<form action="${encodedAction}" method="post" target="_blank">`;
     let level = 1;
 
     const newline = () => `\n${' '.repeat(level * 2)}`;
     const addHiddenInput = (name: string, value: string) => {
-      const encodedValue = weakEncode(value, isHmacOn);
-      const encodedName = weakEncode(name, isHmacOn);
+      const encodedValue = encodeAttributeValue(value, isHmacOn);
+      const encodedName = encodeAttributeValue(name, isHmacOn);
       output += `${newline()}<input type="hidden" name="${encodedName}" value="${encodedValue}">`;
     };
 
@@ -579,7 +582,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       const itemCategory = itemCategoryLoader?.data;
       const product = items[productIndex];
 
-      if (product.item_category_uri && !itemCategory) return '';
+      if (product.item_category_uri && !itemCategory) throw new Error('loading_extra_data_needed');
 
       const resolvedMinQty = Math.max(1, product.quantity_min ?? 1);
       const resolvedMaxQty = Math.max(resolvedMinQty, product.quantity_max ?? Infinity);
@@ -611,7 +614,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       const price = `${product.price}${currencyCode}`;
 
       if (product.price_configurable) {
-        const encodedNoCurrencyPrice = weakEncode(product.price.toFixed(2), isHmacOn);
+        const encodedNoCurrencyPrice = encodeAttributeValue(product.price.toFixed(2), isHmacOn);
         output += `${newline()}<label>`;
         level++;
         output += `${newline()}<span>${encode(this.t('preview.price_label'))}</span>`;
@@ -635,7 +638,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       if (product.code) {
         addHiddenInput(`${prefix}code`, product.code);
       } else if (store.use_cart_validation) {
-        return { error: 'paused_code_required' };
+        throw new Error('paused_code_required');
       }
 
       if (product.parent_code) addHiddenInput(`${prefix}parent_code`, product.parent_code);
@@ -695,17 +698,17 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
         level++;
         output += `${newline()}<span>${encode(this.t('preview.quantity_label'))}</span>`;
 
-        const encodedName = weakEncode(`${prefix}quantity`, isHmacOn);
+        const encodedName = encodeAttributeValue(`${prefix}quantity`, isHmacOn);
         output += `${newline()}<input type="number" name="${encodedName}"`;
-        output += ` min="${weakEncode(String(resolvedMinQty), isHmacOn)}"`;
+        output += ` min="${encodeAttributeValue(String(resolvedMinQty), isHmacOn)}"`;
 
         if (resolvedMaxQty !== Infinity)
-          output += ` max="${weakEncode(String(resolvedMaxQty), isHmacOn)}"`;
+          output += ` max="${encodeAttributeValue(String(resolvedMaxQty), isHmacOn)}"`;
         if (store.use_cart_validation) {
-          const encodedQuantity = weakEncode(String(product.quantity ?? 1), isHmacOn);
+          const encodedQuantity = encodeAttributeValue(String(product.quantity ?? 1), isHmacOn);
           output += ` value="--OPEN--" data-replace="${encodedQuantity}">`;
         } else {
-          output += ` value="${weakEncode(String(product.quantity ?? 1), isHmacOn)}">`;
+          output += ` value="${encodeAttributeValue(String(product.quantity ?? 1), isHmacOn)}">`;
         }
 
         level--;
@@ -763,12 +766,12 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
             output += `${newline()}<label>`;
             level++;
             output += `${newline()}<span>${encode(optionName)}:</span>`;
-            output += `${newline()}<input name="${weakEncode(name, isHmacOn)}" `;
+            output += `${newline()}<input name="${encodeAttributeValue(name, isHmacOn)}" `;
 
             if (store.use_cart_validation) {
-              output += `value="--OPEN--" data-replace="${weakEncode(value, isHmacOn)}">`;
+              output += `value="--OPEN--" data-replace="${encodeAttributeValue(value, isHmacOn)}">`;
             } else {
-              output += `value="${weakEncode(value, isHmacOn)}">`;
+              output += `value="${encodeAttributeValue(value, isHmacOn)}">`;
             }
 
             level--;
@@ -787,7 +790,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
             const optionIndex = product.custom_options.indexOf(option);
             const itemCategory = this.__getItemCategoryLoader(productIndex, optionIndex)?.data;
             const modifiers = this.__getOptionModifiers(option, itemCategory ?? null, currencyCode);
-            const encodedValue = weakEncode(`${option.value}${modifiers}`, isHmacOn);
+            const encodedValue = encodeAttributeValue(`${option.value}${modifiers}`, isHmacOn);
             const encodedCaption = encode(option.value ?? '');
             output += `${newline()}<option value="${encodedValue}">${encodedCaption}</option>`;
           });
@@ -821,16 +824,29 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
     const cartUrl = this.__resolvedCartUrl;
     const store = this.__storeLoader?.data;
 
-    if (!this.defaultDomain || !templateSet || !store || !currencyCode || !cartUrl) return '';
+    if (!this.defaultDomain || !templateSet || !store || !currencyCode || !cartUrl) {
+      throw new Error('loading_extra_data_needed');
+    }
 
-    const url = new URL(cartUrl);
+    const query = new Map<string, string>();
+    const setOrThrow = (name: string, value: string) => {
+      if (store.use_cart_validation) {
+        if (['&', '%', '=', '#'].some(c => name.includes(c))) {
+          throw new Error('error_special_characters_present');
+        } else {
+          query.set(name, encodeURIComponent(value));
+        }
+      } else {
+        query.set(encodeURIComponent(name), encodeURIComponent(value));
+      }
+    };
 
-    if (templateSet.code !== 'DEFAULT') url.searchParams.set('template_set', templateSet.code);
-    if (this.form.cart === 'checkout') url.searchParams.set('cart', 'checkout');
-    if (this.form.redirect) url.searchParams.set('redirect', this.form.redirect);
-    if (this.form.coupon) url.searchParams.set('coupon', this.form.coupon);
+    if (templateSet.code !== 'DEFAULT') setOrThrow('template_set', templateSet.code);
+    if (this.form.cart === 'checkout') setOrThrow('cart', 'checkout');
+    if (this.form.redirect) setOrThrow('redirect', this.form.redirect);
+    if (this.form.coupon) setOrThrow('coupon', this.form.coupon);
     if (this.form.empty && this.form.empty !== 'false') {
-      url.searchParams.set('empty', this.form.empty);
+      setOrThrow('empty', this.form.empty);
     }
 
     for (let index = 0; index < (this.form.items?.length ?? 0); ++index) {
@@ -838,35 +854,41 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
       const prefix = index === 0 ? '' : `${index + 1}:`;
       const itemCategory = this.__getItemCategoryLoader(index)?.data;
 
-      if (product.item_category_uri && !itemCategory) return '';
-      if (product.price_configurable) return '';
+      if (product.item_category_uri && !itemCategory) {
+        throw new Error('loading_extra_data_needed');
+      }
+
+      if (product.price_configurable) {
+        throw new Error('error_price_configurable');
+      }
+
       if (new Set(product.custom_options.map(v => v.name)).size < product.custom_options.length) {
-        return '';
+        throw new Error('error_duplicate_custom_option_names');
       }
 
       if (itemCategory && itemCategory.code !== 'DEFAULT') {
-        url.searchParams.set(`${prefix}category`, itemCategory.code);
+        setOrThrow(`${prefix}category`, itemCategory.code);
       }
 
-      url.searchParams.set(`${prefix}name`, product.name);
-      url.searchParams.set(`${prefix}price`, `${product.price}${currencyCode}`);
+      setOrThrow(`${prefix}name`, product.name);
+      setOrThrow(`${prefix}price`, `${product.price}${currencyCode}`);
 
       if (product.code) {
-        url.searchParams.set(`${prefix}code`, product.code);
+        setOrThrow(`${prefix}code`, product.code);
       } else if (store.use_cart_validation) {
-        return { error: 'paused_code_required' };
+        throw new Error('paused_code_required');
       }
 
-      if (product.parent_code) url.searchParams.set(`${prefix}parent_code`, product.parent_code);
+      if (product.parent_code) setOrThrow(`${prefix}parent_code`, product.parent_code);
 
       if (product.image) {
-        url.searchParams.set(`${prefix}image`, product.image);
-        if (product.url) url.searchParams.set(`${prefix}url`, product.url);
+        setOrThrow(`${prefix}image`, product.image);
+        if (product.url) setOrThrow(`${prefix}url`, product.url);
       }
 
       if (product.sub_enabled) {
         if (product.sub_frequency) {
-          url.searchParams.set(`${prefix}sub_frequency`, product.sub_frequency);
+          setOrThrow(`${prefix}sub_frequency`, product.sub_frequency);
 
           if (product.sub_startdate) {
             if (product.sub_startdate_format === 'yyyymmdd') {
@@ -874,9 +896,9 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
               const year = date.getFullYear();
               const month = (date.getMonth() + 1).toString().padStart(2, '0');
               const day = date.getDate().toString().padStart(2, '0');
-              url.searchParams.set(`${prefix}sub_startdate`, `${year}${month}${day}`);
+              setOrThrow(`${prefix}sub_startdate`, `${year}${month}${day}`);
             } else {
-              url.searchParams.set(`${prefix}sub_startdate`, String(product.sub_startdate));
+              setOrThrow(`${prefix}sub_startdate`, String(product.sub_startdate));
             }
           }
 
@@ -886,16 +908,16 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
               const year = date.getFullYear();
               const month = (date.getMonth() + 1).toString().padStart(2, '0');
               const day = date.getDate().toString().padStart(2, '0');
-              url.searchParams.set(`${prefix}sub_enddate`, `${year}${month}${day}`);
+              setOrThrow(`${prefix}sub_enddate`, `${year}${month}${day}`);
             } else {
-              url.searchParams.set(`${prefix}sub_enddate`, String(product.sub_enddate));
+              setOrThrow(`${prefix}sub_enddate`, String(product.sub_enddate));
             }
           }
         }
       }
 
       if (product.discount_name && product.discount_type && product.discount_details) {
-        url.searchParams.set(
+        setOrThrow(
           `${prefix}discount_${product.discount_type}`,
           `${product.discount_name}{${product.discount_details}}`
         );
@@ -903,80 +925,99 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
 
       if (product.expires_value) {
         if (product.expires_format === 'timestamp') {
-          url.searchParams.set(`${prefix}expires`, product.expires_value.toFixed(0));
+          setOrThrow(`${prefix}expires`, product.expires_value.toFixed(0));
         } else {
-          url.searchParams.set(`${prefix}expires`, product.expires_value.toFixed(0));
+          setOrThrow(`${prefix}expires`, product.expires_value.toFixed(0));
         }
       }
 
       if ((product.quantity ?? 1) > 1) {
-        url.searchParams.set(`${prefix}quantity`, (product.quantity ?? 1).toFixed(0));
+        setOrThrow(`${prefix}quantity`, (product.quantity ?? 1).toFixed(0));
       }
 
       if (product.expires_format !== 'minutes') {
         if (product.quantity_min) {
-          url.searchParams.set(`${prefix}quantity_min`, product.quantity_min.toString());
+          setOrThrow(`${prefix}quantity_min`, product.quantity_min.toString());
         }
         if (product.quantity_max) {
-          url.searchParams.set(`${prefix}quantity_max`, product.quantity_max.toString());
+          setOrThrow(`${prefix}quantity_max`, product.quantity_max.toString());
         }
       }
 
-      if (product.weight) url.searchParams.set(`${prefix}weight`, product.weight.toFixed(3));
-      if (product.length) url.searchParams.set(`${prefix}length`, product.length.toFixed(3));
-      if (product.width) url.searchParams.set(`${prefix}width`, product.width.toFixed(3));
-      if (product.height) url.searchParams.set(`${prefix}height`, product.height.toFixed(3));
+      if (product.weight) setOrThrow(`${prefix}weight`, product.weight.toFixed(3));
+      if (product.length) setOrThrow(`${prefix}length`, product.length.toFixed(3));
+      if (product.width) setOrThrow(`${prefix}width`, product.width.toFixed(3));
+      if (product.height) setOrThrow(`${prefix}height`, product.height.toFixed(3));
 
       for (let optionIndex = 0; optionIndex < product.custom_options.length; ++optionIndex) {
         const option = product.custom_options[optionIndex];
-        if (option.value_configurable) return '';
+        if (option.value_configurable) throw new Error('error_option_value_configurable');
 
         const itemCategory = this.__getItemCategoryLoader(index, optionIndex)?.data;
         const modifiers = this.__getOptionModifiers(option, itemCategory ?? null, currencyCode);
-        url.searchParams.set(`${prefix}${option.name}`, `${option.value ?? ''}${modifiers}`);
+        setOrThrow(`${prefix}${option.name}`, `${option.value ?? ''}${modifiers}`);
       }
     }
 
-    return url.toString();
+    return `${cartUrl}?${Array.from(query.entries())
+      .map(([key, value]) => `${key}=${value}`)
+      .join('&')}`;
   }
 
   private __getAddToCartCode() {
-    try {
-      const store = this.__storeLoader?.data;
-      if (!this.encodeHelper || !store) return null;
-
-      const checkEquality = store.use_cart_validation;
-      const formHTML = this.__getAddToCartFormHTML();
-      const linkHref = this.__getAddToCartLinkHref();
-      if (!formHTML && !linkHref) return null;
-      if (typeof formHTML === 'object') return { error: formHTML.error };
-      if (typeof linkHref === 'object') return { error: linkHref.error };
-
-      let unsignedCode: string;
-
-      if (linkHref) {
-        const linkHTML = `<a href="${weakEncode(linkHref, checkEquality)}">Add to cart</a>`;
-        unsignedCode = `${formHTML}${this.__signingSeparator}${linkHTML}`;
-      } else {
-        unsignedCode = formHTML;
-      }
-
-      if (unsignedCode === this.__previousUnsignedCode && this.__previousSignedCode) {
-        const [formHTML, linkHTML] = this.__previousSignedCode.split(this.__signingSeparator);
-        return {
-          linkHref: linkHTML ? decode(linkHTML.substring(9, linkHTML.length - 17)) : '',
-          formHTML,
-        };
-      }
-
-      this.__previousUnsignedCode = unsignedCode;
-      this.__previousSignedCode = '';
-
-      if (store.use_cart_validation) this.__signAsync(unsignedCode, this.encodeHelper);
-      return { formHTML, linkHref };
-    } catch (err) {
-      return { error: err.message };
+    const store = this.__storeLoader?.data;
+    if (!this.encodeHelper || !store) {
+      return {
+        linkHref: '',
+        linkHrefError: 'loading_extra_data_needed',
+        formHTML: '',
+        formHTMLError: 'loading_extra_data_needed',
+      };
     }
+
+    const checkEquality = store.use_cart_validation;
+    let formHTMLError: string | null = null;
+    let linkHrefError: string | null = null;
+    let formHTML = '';
+    let linkHref = '';
+
+    try {
+      formHTML = this.__getAddToCartFormHTML();
+    } catch (err) {
+      formHTMLError = err.message;
+    }
+
+    let unsignedCode = formHTML;
+
+    try {
+      linkHref = this.__getAddToCartLinkHref();
+      if (linkHref) {
+        const linkHTML = `<a href="${encodeAttributeValue(
+          linkHref,
+          checkEquality
+        )}">Add to cart</a>`;
+        unsignedCode = `${formHTML}${this.__signingSeparator}${linkHTML}`;
+      }
+    } catch (err) {
+      linkHrefError = err.message;
+      linkHref = '';
+    }
+
+    if (unsignedCode === this.__previousUnsignedCode && this.__previousSignedCode) {
+      const [formHTML, linkHTML] = this.__previousSignedCode.split(this.__signingSeparator);
+      return {
+        linkHref: linkHTML ? decode(linkHTML.substring(9, linkHTML.length - 17)) : '',
+        linkHrefError,
+        formHTML,
+        formHTMLError,
+      };
+    }
+
+    this.__previousUnsignedCode = unsignedCode;
+    this.__previousSignedCode = '';
+
+    if (store.use_cart_validation) this.__signAsync(unsignedCode, this.encodeHelper);
+    return { formHTML, formHTMLError, linkHref, linkHrefError };
   }
 
   private __getOptionModifiers(

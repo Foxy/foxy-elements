@@ -573,19 +573,10 @@ describe('StoreForm', () => {
     expect(renderHeaderMethod).to.have.been.called;
   });
 
-  it('renders a summary control for Essentials section', async () => {
-    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
-    const control = element.renderRoot.querySelector(
-      'foxy-internal-summary-control[infer="essentials"]'
-    );
-
-    expect(control).to.exist;
-  });
-
   it('renders a text control for store name in the Essentials section', async () => {
     const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer="essentials"] foxy-internal-text-control[infer="store-name"]'
+      '[infer="essentials-group-one"] foxy-internal-text-control[infer="store-name"]'
     );
 
     expect(control).to.exist;
@@ -595,7 +586,7 @@ describe('StoreForm', () => {
   it('generates a store domain based on the store name unless a custom one is provided', async () => {
     const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector<InternalTextControl>(
-      '[infer="essentials"] foxy-internal-text-control[infer="store-name"]'
+      '[infer="essentials-group-one"] foxy-internal-text-control[infer="store-name"]'
     );
 
     control?.setValue('My Test Store');
@@ -610,7 +601,7 @@ describe('StoreForm', () => {
   it('renders a text control for logo url in the Essentials section', async () => {
     const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer="essentials"] foxy-internal-text-control[infer="logo-url"]'
+      '[infer="essentials-group-one"] foxy-internal-text-control[infer="logo-url"]'
     );
 
     expect(control).to.exist;
@@ -624,7 +615,7 @@ describe('StoreForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="essentials"] foxy-internal-text-control[infer="store-domain"]'
+      '[infer="essentials-group-one"] foxy-internal-text-control[infer="store-domain"]'
     ) as InternalTextControl;
 
     expect(control).to.exist;
@@ -633,13 +624,19 @@ describe('StoreForm', () => {
     element.edit({ use_remote_domain: false, store_domain: 'test' });
     await element.requestUpdate();
 
-    expect(control).to.have.attribute('helper-text', 'essentials.store-domain.helper_text');
+    expect(control).to.have.attribute(
+      'helper-text',
+      'essentials-group-one.store-domain.helper_text'
+    );
     expect(control).to.have.attribute('suffix', '.foxycart.com');
 
     element.edit({ use_remote_domain: true, store_domain: 'test.com' });
     await element.requestUpdate();
 
-    expect(control).to.have.attribute('helper-text', 'essentials.store-domain.custom_domain_note');
+    expect(control).to.have.attribute(
+      'helper-text',
+      'essentials-group-one.store-domain.custom_domain_note'
+    );
     expect(control).to.have.attribute('suffix', '');
 
     control.setValue('test');
@@ -672,7 +669,7 @@ describe('StoreForm', () => {
   it('renders a text control for store url in the Essentials section', async () => {
     const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer="essentials"] foxy-internal-text-control[infer="store-url"]'
+      '[infer="essentials-group-one"] foxy-internal-text-control[infer="store-url"]'
     );
 
     expect(control).to.exist;
@@ -682,7 +679,7 @@ describe('StoreForm', () => {
   it('renders a switch control for maintenance mode in the Essentials section', async () => {
     const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer="essentials"] foxy-internal-switch-control[infer="is-maintenance-mode"]'
+      '[infer="essentials-group-two"] foxy-internal-switch-control[infer="is-maintenance-mode"]'
     );
 
     expect(control).to.exist;
@@ -691,7 +688,7 @@ describe('StoreForm', () => {
   it('renders an editable list control for store email in the Essentials section', async () => {
     const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer="essentials"] foxy-internal-editable-list-control[infer="store-email"]'
+      '[infer="essentials-group-three"] foxy-internal-editable-list-control[infer="store-email"]'
     ) as InternalEditableListControl;
 
     expect(control).to.exist;
@@ -719,7 +716,7 @@ describe('StoreForm', () => {
     );
 
     const control = element.renderRoot.querySelector(
-      '[infer="essentials"] [infer="timezone"]'
+      '[infer="essentials-group-four"] [infer="timezone"]'
     ) as InternalSelectControl;
 
     expect(control).to.exist;
@@ -767,7 +764,7 @@ describe('StoreForm', () => {
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="essentials"] [infer="country"]'
+      '[infer="essentials-group-four"] [infer="country"]'
     ) as InternalSelectControl;
 
     expect(control).to.exist;
@@ -883,7 +880,7 @@ describe('StoreForm', () => {
     await waitUntil(
       () => {
         control = element.renderRoot.querySelector(
-          '[infer="essentials"] foxy-internal-text-control[infer="region"]'
+          '[infer="essentials-group-four"] foxy-internal-text-control[infer="region"]'
         );
         return !!control;
       },
@@ -902,7 +899,9 @@ describe('StoreForm', () => {
       <foxy-store-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}> </foxy-store-form>
     `);
 
-    const control = element.renderRoot.querySelector('[infer="essentials"] [infer="postal-code"]');
+    const control = element.renderRoot.querySelector(
+      '[infer="essentials-group-four"] [infer="postal-code"]'
+    );
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalTextControl);
@@ -912,7 +911,7 @@ describe('StoreForm', () => {
   it('renders a select control for currency style in the Essentials section', async () => {
     const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector<InternalSelectControl>(
-      '[infer="essentials"] [infer="currency-style"]'
+      '[infer="essentials-group-four"] [infer="currency-style"]'
     );
 
     expect(control).to.exist;

@@ -51,7 +51,7 @@ export function getSubscriptionStatus(data: Data | null): Status | null {
   if (isActive && start > now) return 'will_start';
   if (next === null) return null;
 
-  if (isActive && end && end > now) return next <= end ? 'will_end_after_payment' : 'will_end';
+  if (isActive && end && end > now) return next < end ? 'will_end_after_payment' : 'will_end';
   if (isActive) return end ? 'ended' : 'next_payment';
 
   return start <= now && end && end <= now ? 'ended' : 'inactive';

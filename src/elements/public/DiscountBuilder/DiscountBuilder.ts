@@ -341,7 +341,7 @@ export class DiscountBuilder extends Base {
 
           ${this.__renderSwitch({
             value: params.units === 'percentage' ? 0 : 1,
-            options: ['%', '¤'],
+            options: ['units_percentage', 'units_amount'],
             onChange: i => params.onChange({ units: i ? 'amount' : 'percentage' }),
           })}
         </div>

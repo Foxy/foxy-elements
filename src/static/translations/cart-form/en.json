@@ -815,6 +815,8 @@
             "tier_repeat": "price of next item",
             "tier_single": "order total",
             "tier_then": "then",
+            "units_amount": "¤ amount",
+            "units_percentage": "% percentage",
             "quantity": "quantity",
             "total": "total",
             "reduce": "reduce",
