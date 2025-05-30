@@ -1,6 +1,6 @@
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { expect, fixture, waitUntil } from '@open-wc/testing';
-import { html, render } from 'lit-html';
+import { html, render, svg } from 'lit-html';
 import { spy, stub } from 'sinon';
 import { createRouter } from '../../../server/index';
 import { getByKey } from '../../../testgen/getByKey';
@@ -11,6 +11,7 @@ import { NucleonElement } from '../../public/NucleonElement/NucleonElement';
 import { InternalForm } from './index';
 import { Resource } from '@foxy.io/sdk/core';
 import { Rels } from '@foxy.io/sdk/backend';
+import { getByTestClass } from '../../../testgen/getByTestClass';
 
 describe('InternalForm', () => {
   it('imports and registers foxy-internal-timestamps-control', () => {
@@ -100,7 +101,10 @@ describe('InternalForm', () => {
         }
 
         get headerSubtitleBadges() {
-          return [{ key: 'abc' }, { key: 'def' }];
+          return [
+            { key: 'abc', icon: svg`<svg id="icon-abc"></svg>` },
+            { text: 'def', class: 'bg-success' },
+          ];
         }
       }
     );
@@ -122,11 +126,12 @@ describe('InternalForm', () => {
     expect(subtitle).to.exist;
     expect(subtitle).to.have.deep.property('options', { baz: 'qux' });
 
-    const abcBadge = root.querySelector(`foxy-i18n[infer="header badges"][key="abc"]`);
-    expect(abcBadge).to.exist;
-
-    const defBadge = root.querySelector(`foxy-i18n[infer="header badges"][key="def"]`);
-    expect(defBadge).to.exist;
+    const badges = await getByTestClass(root, 'badge');
+    expect(badges).to.have.lengthOf(2);
+    expect(badges[0].querySelector(`foxy-i18n[infer="header badges"][key="abc"]`)).to.exist;
+    expect(badges[0].querySelector(`svg#icon-abc`)).to.exist;
+    expect(badges[1]).to.include.text('def');
+    expect(badges[1]).to.have.class('bg-success');
   });
 
   it('when loaded, renders a Copy ID button in the optional header', async () => {

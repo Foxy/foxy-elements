@@ -1,7 +1,7 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { HALJSONResource } from '../../public/NucleonElement/types';
 import type { TemplateResult } from 'lit-html';
-import type { Status } from './types';
+import type { Badge, Status } from './types';
 
 import { BooleanSelector, getResourceId } from '@foxy.io/sdk/core';
 import { ConfigurableMixin } from '../../../mixins/configurable';
@@ -67,7 +67,7 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
   }
 
   /** Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible. */
-  get headerSubtitleBadges(): { key: string }[] {
+  get headerSubtitleBadges(): Badge[] {
     return [];
   }
 
@@ -100,8 +100,8 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
     return html`
       <div>
         ${this.renderTemplateOrSlot('header:before')}
-        <h2>
-          <span class="flex items-center gap-s leading-xs text-xl font-medium break-all">
+        <h2 class="grid gap-xs">
+          <span class="flex items-center gap-s leading-none text-xl font-medium break-all">
             <foxy-i18n
               options=${JSON.stringify(this.headerTitleOptions)}
               infer="header"
@@ -136,25 +136,32 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
           </span>
           ${data
             ? html`
-                <div class="flex items-center gap-s text-secondary leading-s">
+                <div class="flex flex-wrap items-center gap-s leading-xs">
                   ${this.headerSubtitleBadges.map(badge => {
                     return html`
-                      <foxy-i18n
-                        class="border border-contrast-60 font-medium uppercase tracking-wider block rounded-s px-xs text-xs"
-                        infer="header badges"
-                        key=${badge.key}
+                      <span
+                        data-testclass="badge"
+                        class=${classMap({
+                          'inline-flex gap-xs items-center rounded-s px-xs': true,
+                          [badge.class ?? 'bg-contrast-5']: true,
+                        })}
                       >
-                      </foxy-i18n>
+                        ${badge.icon}
+                        ${'text' in badge
+                          ? badge.text
+                          : html`<foxy-i18n infer="header badges" key=${badge.key}></foxy-i18n>`}
+                      </span>
                     `;
                   })}
                   <foxy-i18n
                     infer="header"
+                    class="text-secondary"
                     key=${this.headerSubtitleKey}
                     .options=${this.headerSubtitleOptions}
                   >
                   </foxy-i18n>
                 </div>
-                ${actions ? html`<div class="mt-xs flex gap-m">${actions}</div>` : ''}
+                ${actions ? html`<div class="flex gap-x-m">${actions}</div>` : ''}
               `
             : ''}
         </h2>
