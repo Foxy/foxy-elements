@@ -236,6 +236,10 @@ export const groups = [
     files: './src/elements/public/AdminSubscriptionForm/**/*.test.ts',
   },
   {
+    name: 'foxy-admin-transaction-card',
+    files: './src/elements/public/AdminTransactionCard/**/*.test.ts',
+  },
+  {
     name: 'foxy-api-browser',
     files: './src/elements/public/ApiBrowser/**/*.test.ts',
   },
