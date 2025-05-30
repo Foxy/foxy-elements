@@ -103,29 +103,40 @@ export class SubscriptionCard extends Base<Data> {
               </div>
             </div>
 
-            <div
-              class="flex-1 leading-xs mb-xs sm-mb-0 sm-text-right order-0 sm-order-1"
-            >
+            <div class="flex-1 leading-xs mb-xs sm-mb-0 sm-text-right order-0 sm-order-1">
               <foxy-i18n
                 data-testid="price"
                 options=${JSON.stringify(this.__getPriceOptions())}
                 class="text-xxs sm-text-l font-tnum tracking-wide sm-tracking-normal uppercase sm-normal-case font-medium text-secondary sm-text-body sm-block"
                 lang=${this.lang}
-                key="price${
-                  this.settings?.cart_display_config.show_sub_frequency ?? true
-                    ? `_${this.data?.frequency === '.5m' ? 'twice_a_month' : 'recurring'}`
-                    : ''
-                }"
+                key="price${this.settings?.cart_display_config.show_sub_frequency ?? true
+                  ? `_${this.data?.frequency === '.5m' ? 'twice_a_month' : 'recurring'}`
+                  : ''}"
                 ns=${this.ns}
               >
               </foxy-i18n>
+
               <span class="text-secondary font-medium sm-font-normal sm-block text-xxs sm-text-s">
-                <span class="sm-hidden">(</span><span class="hidden sm-inline">*</span><foxy-i18n infer="" key="fees_hint"></foxy-i18n><span class="sm-hidden">)</span>
+                <span class="sm-hidden">(</span>
+                <span class="hidden sm-inline">*</span>
+                <foxy-i18n infer="" key="fees_hint"></foxy-i18n>
+                <span class="sm-hidden">)</span>
                 <iron-icon id="hint" icon="icons:info-outline" class="icon-inline"></iron-icon>
-                <vcf-tooltip for="hint" position="bottom">
-                  <span class="text-s"><foxy-i18n infer="" key="fees_explainer"></foxy-i18n></span>
+                <vcf-tooltip
+                  position="bottom"
+                  style="--lumo-base-color: black"
+                  theme="light"
+                  for="hint"
+                >
+                  <foxy-i18n
+                    infer=""
+                    class="text-s whitespace-nowrap"
+                    style="color: white"
+                    key="fees_explainer"
+                  >
+                  </foxy-i18n>
                 </vcf-tooltip>
-              <span>
+              </span>
               &#8203;
             </div>
           </div>

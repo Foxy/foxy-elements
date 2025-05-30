@@ -53,8 +53,19 @@ export class AdminTransactionCard extends Base<Data> {
 
         ${data?.hide_transaction
           ? html`
-              <vcf-tooltip for="hidden" theme="light" position="bottom">
-                <foxy-i18n infer="" key="hidden_hint"></foxy-i18n>
+              <vcf-tooltip
+                for="hidden"
+                theme="light"
+                position="bottom"
+                style="--lumo-base-color: black"
+              >
+                <foxy-i18n
+                  infer=""
+                  class="whitespace-nowrap"
+                  style="color: white"
+                  key="hidden_hint"
+                >
+                </foxy-i18n>
               </vcf-tooltip>
               <span class="inline-block text-s text-tertiary rounded-s cursor-default" id="hidden">
                 ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" style="width: 1em; height: 1em;"><path d="M3 2a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H3Z" /><path fill-rule="evenodd" d="M3 6h10v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Zm3 2.75A.75.75 0 0 1 6.75 8h2.5a.75.75 0 0 1 0 1.5h-2.5A.75.75 0 0 1 6 8.75Z" clip-rule="evenodd" /></svg>`}
@@ -168,8 +179,14 @@ export class AdminTransactionCard extends Base<Data> {
       <span class="cursor-default text-s px-xs bg-contrast-5 rounded-s" id="source">
         ${sourceType}
       </span>
-      <vcf-tooltip for="source" theme="light" position="bottom">
-        <foxy-i18n infer="" key="source_${sourceType}"></foxy-i18n>
+      <vcf-tooltip for="source" theme="light" position="bottom" style="--lumo-base-color: black">
+        <foxy-i18n
+          infer=""
+          class="whitespace-nowrap"
+          style="color: white"
+          key="source_${sourceType}"
+        >
+        </foxy-i18n>
       </vcf-tooltip>
     `;
   }
