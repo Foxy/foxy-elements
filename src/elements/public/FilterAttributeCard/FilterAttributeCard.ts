@@ -8,9 +8,9 @@ import type { Data } from './types';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { html, svg } from 'lit-html';
 import { classMap } from '../../../utils/class-map';
 import { decode } from 'html-entities';
-import { html } from 'lit-html';
 
 const NS = 'filter-attribute-card';
 const Base = TranslatableMixin(InternalCard, NS);
@@ -84,11 +84,15 @@ export class FilterAttributeCard extends Base<Data> {
 
       <div
         class=${classMap({
-          'transition-colors flex gap-s font-medium text-m leading-xs rounded-s': true,
+          'transition-colors flex items-center gap-s font-medium text-m leading-s rounded-s': true,
           'bg-contrast-5': !this.in('fail') && !this.data,
           'bg-error-10': this.in('fail'),
         })}
       >
+        <span class=${classMap({ 'transition-opacity': true, 'opacity-0': !this.data })}>
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" style="width: 1em; height: 1em;"><path d="M14 2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2.172a2 2 0 0 0 .586 1.414l2.828 2.828A2 2 0 0 1 6 9.828v4.363a.5.5 0 0 0 .724.447l2.17-1.085A2 2 0 0 0 10 11.763V9.829a2 2 0 0 1 .586-1.414l2.828-2.828A2 2 0 0 0 14 4.172V2Z" /></svg>`}
+        </span>
+
         <span
           class=${classMap({
             'transition-opacity truncate min-w-0': true,
@@ -101,7 +105,7 @@ export class FilterAttributeCard extends Base<Data> {
 
         <span
           class=${classMap({
-            'transition-opacity bg-contrast-5 px-xs rounded-s': true,
+            'transition-opacity bg-contrast-5 px-xs rounded text-xs': true,
             'opacity-0': !this.data || typeof count !== 'number',
           })}
         >
