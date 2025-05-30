@@ -257,8 +257,8 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * Emits multiple `update` events as element state changes. Has no effect on invalid forms.
    * @example element.submit()
    */
-  submit(): void {
-    this.reportValidity();
+  submit(reportValidity = true): void {
+    if (reportValidity) this.reportValidity();
     this.__service.send({ type: 'SUBMIT' });
   }
 
