@@ -32,7 +32,7 @@ export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElem
       <div
         aria-busy=${this.in('busy')}
         aria-live="polite"
-        class="relative leading-m text-body text-m font-lumo"
+        class="relative leading-s text-body text-m font-lumo"
       >
         <div
           class=${classMap({
