@@ -768,7 +768,7 @@ describe('QueryBuilder', () => {
     operatorSelect.dispatchEvent(new InputEvent('change'));
     expect(element).to.have.value('foo%3Aname%5Bbar%5D=&zoom=foo');
     await element.requestUpdate();
-    const [_, valueInput] = rule.querySelectorAll('input');
+    const valueInput = rule.querySelectorAll('input')[1];
     expect(valueInput).to.exist;
     expect(valueInput).to.have.value('');
 
@@ -804,7 +804,7 @@ describe('QueryBuilder', () => {
 
     const rules = element.renderRoot.querySelectorAll('[aria-label="query_builder_rule"]');
     const rule = rules[0];
-    const [_, orderSelect] = rule.querySelectorAll('select');
+    const orderSelect = rule.querySelectorAll('select')[1];
 
     expect(orderSelect).to.exist;
     expect(orderSelect.options).to.have.length(3);
