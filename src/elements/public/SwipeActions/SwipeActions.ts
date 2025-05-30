@@ -30,11 +30,16 @@ export class SwipeActions extends LitElement {
       }
 
       #scroll {
-        margin-bottom: calc(0px - var(--scrollbar-height, 24px));
         overflow: scroll hidden;
         white-space: nowrap;
         scroll-snap-type: x mandatory;
         display: flex;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* Internet Explorer 10+ */
+      }
+
+      #scroll::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
       }
 
       #content {
@@ -83,13 +88,6 @@ export class SwipeActions extends LitElement {
         </div>
       </div>
     `;
-  }
-
-  firstUpdated(changes: Map<keyof this, unknown>): void {
-    super.firstUpdated(changes);
-    const scroll = this.__scroll;
-    const root = this.renderRoot.querySelector('#root') as HTMLElement;
-    root.style.setProperty('--scrollbar-height', `${scroll.offsetHeight - scroll.clientHeight}px`);
   }
 
   private get __scroll() {
