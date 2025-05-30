@@ -511,7 +511,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
       }
     } catch (err) {
       if (err instanceof Rumour.UpdateError) {
-        setTimeout(() => this.refresh());
+        this.refresh();
       } else {
         throw err;
       }
