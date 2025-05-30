@@ -94,6 +94,7 @@ export { Spinner } from './Spinner/index';
 export { StoreCard } from './StoreCard/index';
 export { StoreForm } from './StoreForm/index';
 export { StoreShippingMethodForm } from './StoreShippingMethodForm/index';
+export { StoreTransactionFolderCard } from './StoreTransactionFolderCard/index';
 export { StoreTransactionFolderForm } from './StoreTransactionFolderForm/index';
 export { SubscriptionCard } from './SubscriptionCard/index';
 export { SubscriptionForm } from './SubscriptionForm/index';
