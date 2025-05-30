@@ -26,6 +26,15 @@ describe('StoreTransactionFolderForm', () => {
       expect(control.colors).to.deep.equal({});
     });
 
+    it('renders label text', async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-store-transaction-folder-color-control label="Select a color">
+        </foxy-internal-store-transaction-folder-color-control>
+      `);
+
+      expect(control.renderRoot).to.include.text('Select a color');
+    });
+
     it('renders a radio button for each color', async () => {
       const colors: Control['colors'] = {
         'green': 'bg-green-500',

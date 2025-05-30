@@ -34,10 +34,20 @@ describe('StoreTransactionFolderForm', () => {
     expect(new Form()).to.have.property('ns', 'store-transaction-folder-form');
   });
 
+  it('renders folder name in plaintext', async () => {
+    const layout = html`<foxy-store-transaction-folder-form></foxy-store-transaction-folder-form>`;
+    const element = await fixture<Form>(layout);
+    expect(element.renderRoot).to.include.text('group-one.name.placeholder');
+
+    element.edit({ name: 'Test Folder' });
+    await element.requestUpdate();
+    expect(element.renderRoot).to.include.text('Test Folder');
+  });
+
   it('renders text control for folder name', async () => {
     const layout = html`<foxy-store-transaction-folder-form></foxy-store-transaction-folder-form>`;
     const element = await fixture<Form>(layout);
-    const selector = '[infer="group-one"] foxy-internal-text-control[infer="name"][layout="pill"]';
+    const selector = '[infer="group-one"] foxy-internal-text-control[infer="name"]';
 
     expect(element.renderRoot.querySelector(selector)).to.exist;
   });

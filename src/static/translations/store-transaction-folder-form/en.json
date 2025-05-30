@@ -6,11 +6,12 @@
     "label": "",
     "helper_text": "",
     "name": {
-      "label": "Folder name",
+      "label": "Name",
       "helper_text": "",
       "placeholder": "New folder"
     },
     "color": {
+      "label": "Color",
       "color_red": "Red",
       "color_red_pale": "Pale red",
       "color_green": "Green",
@@ -28,8 +29,8 @@
     "label": "",
     "helper_text": "",
     "is-default": {
-      "label": "Make this folder default",
-      "helper_text": "All new transactions will appear in this folder by default. Only one folder can be the default folder.",
+      "label": "Make default",
+      "helper_text": "All new transactions will appear in this folder by default. Only one folder can be the default.",
       "checked": "Yes",
       "unchecked": "No"
     }
