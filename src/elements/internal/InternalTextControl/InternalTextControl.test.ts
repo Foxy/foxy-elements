@@ -68,7 +68,7 @@ describe('InternalTextControl', () => {
     expect(new Control()).to.have.property('layout', null);
   });
 
-  it('renders vaadin-text-field element', async () => {
+  it('renders vaadin-text-field element in standalone mode', async () => {
     const layout = html`<test-internal-text-control></test-internal-text-control>`;
     const control = await fixture<TestControl>(layout);
     const field = control.renderRoot.querySelector('vaadin-text-field');
@@ -216,6 +216,19 @@ describe('InternalTextControl', () => {
     expect(control.renderRoot).to.include.text('Foo bar');
   });
 
+  it('renders label in pill layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-text-control layout="pill"></test-internal-text-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input');
+    expect(input).to.have.attribute('aria-label', 'label');
+
+    control.label = 'Foo bar';
+    await control.requestUpdate();
+    expect(input).to.have.attribute('aria-label', 'Foo bar');
+  });
+
   it('renders helper text in summary item layout', async () => {
     const control = await fixture<TestControl>(html`
       <test-internal-text-control layout="summary-item"></test-internal-text-control>
@@ -256,9 +269,40 @@ describe('InternalTextControl', () => {
     expect(input).to.have.attribute('type', 'text');
   });
 
+  it('renders text input in pill layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-text-control layout="pill"></test-internal-text-control>
+    `);
+
+    const vaadinTextField = control.renderRoot.querySelector('vaadin-text-field');
+    expect(vaadinTextField).to.be.null;
+
+    const input = control.renderRoot.querySelector('input');
+    expect(input).to.not.be.null;
+  });
+
   it('sets "disabled" on input from "disabled" on itself in summary item layout', async () => {
     const control = await fixture<TestControl>(html`
       <test-internal-text-control layout="summary-item"></test-internal-text-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    expect(input).to.have.property('disabled', false);
+
+    control.disabled = true;
+    await control.requestUpdate();
+
+    expect(input).to.have.property('disabled', true);
+
+    control.disabled = false;
+    await control.requestUpdate();
+
+    expect(input).to.have.property('disabled', false);
+  });
+
+  it('sets "disabled" on input from "disabled" on itself in pill layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-text-control layout="pill"></test-internal-text-control>
     `);
 
     const input = control.renderRoot.querySelector('input')!;
@@ -294,9 +338,42 @@ describe('InternalTextControl', () => {
     expect(input).to.have.property('readOnly', false);
   });
 
+  it('sets "readonly" on input from "readonly" on itself in pill layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-text-control layout="pill"></test-internal-text-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    expect(input).to.have.property('readOnly', false);
+
+    control.readonly = true;
+    await control.requestUpdate();
+
+    expect(input).to.have.property('readOnly', true);
+
+    control.readonly = false;
+    await control.requestUpdate();
+
+    expect(input).to.have.property('readOnly', false);
+  });
+
   it('sets "placeholder" on input from "placeholder" on itself in summary item layout', async () => {
     const control = await fixture<TestControl>(html`
       <test-internal-text-control layout="summary-item"></test-internal-text-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    expect(input).to.have.property('placeholder', 'placeholder');
+
+    control.placeholder = 'Test placeholder';
+    await control.requestUpdate();
+
+    expect(input).to.have.property('placeholder', 'Test placeholder');
+  });
+
+  it('sets "placeholder" on input from "placeholder" on itself in pill layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-text-control layout="pill"></test-internal-text-control>
     `);
 
     const input = control.renderRoot.querySelector('input')!;
@@ -322,6 +399,20 @@ describe('InternalTextControl', () => {
     expect(input).to.have.property('value', 'test_value');
   });
 
+  it('sets "value" on input from "_value" on itself in pill layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-text-control layout="pill"></test-internal-text-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    expect(input).to.have.property('value', '');
+
+    control.testValue = 'test_value';
+    await control.requestUpdate();
+
+    expect(input).to.have.property('value', 'test_value');
+  });
+
   it('writes to "_value" on input in summary item layout', async () => {
     const control = await fixture<TestControl>(html`
       <test-internal-text-control layout="summary-item"></test-internal-text-control>
@@ -336,9 +427,37 @@ describe('InternalTextControl', () => {
     expect(control).to.have.property('testValue', 'test_value');
   });
 
+  it('writes to "_value" on input in pill layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-text-control layout="pill"></test-internal-text-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    expect(input).to.have.property('value', '');
+
+    input.value = 'test_value';
+    input.dispatchEvent(new CustomEvent('input'));
+
+    expect(control).to.have.property('testValue', 'test_value');
+  });
+
   it('submits the host nucleon form on Enter in summary item layout', async () => {
     const control = await fixture<TestControl>(html`
       <test-internal-text-control layout="summary-item"></test-internal-text-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    const submitMethod = stub(control.nucleon, 'submit');
+
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    expect(submitMethod).to.have.been.calledOnce;
+
+    submitMethod.restore();
+  });
+
+  it('submits the host nucleon form on Enter in pill layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-text-control layout="pill"></test-internal-text-control>
     `);
 
     const input = control.renderRoot.querySelector('input')!;

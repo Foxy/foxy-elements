@@ -39,7 +39,7 @@ export class InternalTextControl extends InternalEditableControl {
     ];
   }
 
-  layout: 'summary-item' | 'standalone' | null = null;
+  layout: 'summary-item' | 'standalone' | 'pill' | null = null;
 
   prefix: string | null = null;
 
@@ -54,6 +54,7 @@ export class InternalTextControl extends InternalEditableControl {
 
   renderControl(): TemplateResult {
     if (this.layout === 'summary-item') return this.__renderSummaryItemLayout();
+    if (this.layout === 'pill') return this.__renderPillLayout();
 
     return html`
       <vaadin-text-field
@@ -148,6 +149,44 @@ export class InternalTextControl extends InternalEditableControl {
             ${this._errorMessage}
           </p>
         </div>
+      </div>
+    `;
+  }
+
+  private __renderPillLayout() {
+    const content = this._value || this.placeholder;
+    const contentClass =
+      'relative block whitespace-pre text-center text-xl font-medium px-s py-xs -my-xs opacity-0';
+
+    return html`
+      <div class="text-center flex items-center gap-s relative" style="min-width: 6rem">
+        <span class=${contentClass}>${content}</span>
+        <input
+          placeholder=${this.placeholder}
+          aria-label=${this.label}
+          class=${classMap({
+            'text-center appearance-none transition-all text-xl font-medium rounded': true,
+            'focus-outline-none focus-ring-2 focus-ring-primary-50': true,
+            'px-s py-xs -my-xs absolute inset-0': true,
+            'hover-bg-contrast-10': !this.disabled && !this.readonly,
+            'bg-transparent': this.readonly,
+            'bg-contrast-5': !this.readonly,
+            'text-disabled': this.disabled && !this.readonly,
+          })}
+          ?disabled=${this.disabled}
+          ?readonly=${this.readonly}
+          .value=${this._value ?? ''}
+          @keydown=${(evt: KeyboardEvent) => {
+            if (evt.key === 'Enter') {
+              evt.preventDefault();
+              this.nucleon?.submit();
+            }
+          }}
+          @input=${(evt: Event) => {
+            const input = evt.currentTarget as HTMLInputElement;
+            this._value = input.value;
+          }}
+        />
       </div>
     `;
   }
