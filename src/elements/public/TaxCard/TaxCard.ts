@@ -77,17 +77,17 @@ export class TaxCard extends TranslatableMixin(InternalCard, 'tax-card')<Data> {
     if (type === 'country') return country;
     if (type === 'region') return `${country}, ${region}`;
     if (type === 'local') return `${country}, ${region}, ${city}`;
-    if (type === 'custom_tax') return this.t('tax_custom_tax');
+    if (type === 'custom_tax_endpoint') return this.t('tax_custom_tax');
   }
 
   private __getRateLabel({ is_live, rate }: Data) {
     if (!is_live) return this.t('percent', { fraction: rate / 100 });
 
-    const provider = this.data?.service_provider as string | undefined;
+    const provider = this.data?.service_provider;
     if (provider === 'onesource') return 'Thomson Reuters ONESOURCE';
     if (provider === 'avalara') return 'Avalara AvaTax 15';
     if (provider === 'taxjar') return 'TaxJar';
-    if (provider === 'custom_tax_endpoint') return this.t('tax_rate_provider_custom');
+    if (provider === 'custom_tax') return this.t('tax_rate_provider_custom');
 
     return this.t('tax_rate_provider_default');
   }

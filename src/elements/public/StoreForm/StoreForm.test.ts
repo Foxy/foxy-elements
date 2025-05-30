@@ -1319,11 +1319,9 @@ describe('StoreForm', () => {
       { label: 'option_text_plus_html', value: 'text_plus_html' },
     ]);
 
-    // @ts-expect-error SDK doesn't know about this property
     element.edit({ send_html_email: false });
     expect(control.getValue()).to.equal('text_only');
 
-    // @ts-expect-error SDK doesn't know about this property
     element.edit({ send_html_email: true });
     expect(control.getValue()).to.equal('text_plus_html');
 

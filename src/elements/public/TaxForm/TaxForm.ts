@@ -50,7 +50,6 @@ export class TaxForm extends Base<Data> {
         return (
           v === void 0 ||
           v > 0 ||
-          // @ts-expect-error SDK types are not up to date.
           type === 'custom_tax_endpoint' ||
           type === void 0 ||
           is_live ||
@@ -87,7 +86,6 @@ export class TaxForm extends Base<Data> {
       country: '',
       region: '',
       city: '',
-      // @ts-expect-error SDK types are not up to date.
       service_provider: newValue === 'custom_tax_endpoint' ? 'custom_tax' : '',
       apply_to_shipping: false,
       use_origin_rates: false,

@@ -34,10 +34,7 @@ export class InternalTemplateConfigFormFilterValuesControl extends InternalEdita
           return html`
             <foxy-internal-template-config-form-filter-values-control-item
               regions=${JSON.stringify(regions === '*' ? [] : regions)}
-              options=${
-                // @ts-expect-error SDK types are not up-to-date
-                JSON.stringify(Array.isArray(option?.regions) ? {} : option?.regions ?? {})
-              }
+              options=${JSON.stringify(Array.isArray(option?.regions) ? {} : option?.regions ?? {})}
               infer=""
               code=${country}
               name=${ifDefined(option?.default)}

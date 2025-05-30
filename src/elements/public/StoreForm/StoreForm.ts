@@ -430,12 +430,10 @@ export class StoreForm extends Base<Data> {
   ];
 
   private readonly __sendHtmlEmailGetValue = () => {
-    // @ts-expect-error SDK doesn't know about this property
     return this.form.send_html_email ? 'text_plus_html' : 'text_only';
   };
 
   private readonly __sendHtmlEmailSetValue = (newValue: 'text_only' | 'text_plus_html') => {
-    // @ts-expect-error SDK doesn't know about this property
     this.edit({ send_html_email: newValue === 'text_plus_html' });
   };
 
