@@ -1,7 +1,10 @@
 import type { Data, TransactionPageHrefGetter } from './types';
 import type { PropertyDeclarations } from 'lit-element';
+import type { ItemRendererContext } from '../CollectionPage/types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
@@ -36,6 +39,22 @@ export class CouponCodeForm extends Base<Data> {
 
   getTransactionPageHref: TransactionPageHrefGetter | null = null;
 
+  private readonly __transactionsItemRenderer = (
+    ctx: ItemRendererContext<Resource<Rels.CouponCodeTransaction>>
+  ) => {
+    let href: string;
+
+    if (ctx.data) {
+      const url = new URL(ctx.data._links['fx:transaction'].href);
+      url.searchParams.set('zoom', 'folder,items');
+      href = url.toString();
+    } else {
+      href = ctx.href;
+    }
+
+    return html`<foxy-admin-transaction-card infer="" href=${href}></foxy-admin-transaction-card>`;
+  };
+
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch: string[] = [super.hiddenSelector.toString()];
     if (!this.href) alwaysMatch.unshift('transactions');
@@ -64,7 +83,7 @@ export class CouponCodeForm extends Base<Data> {
         first=${ifDefined(transactions)}
         infer="transactions"
         limit="5"
-        item="foxy-transaction-card"
+        .item=${this.__transactionsItemRenderer}
         .getPageHref=${this.getTransactionPageHref}
         hide-delete-button
       >

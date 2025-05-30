@@ -1,9 +1,16 @@
+import type { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
+import type { ItemRenderer } from '../CollectionPage/types';
+import type { Data } from './types';
+
 import './index';
 
 import { expect, fixture, html } from '@open-wc/testing';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { CouponCodeForm } from './CouponCodeForm';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { getTestData } from '../../../testgen/getTestData';
+import { spread } from '@open-wc/lit-helpers';
+import { render } from 'lit-html';
 import { stub } from 'sinon';
 
 describe('foxy-coupon-code-form', () => {
@@ -23,8 +30,8 @@ describe('foxy-coupon-code-form', () => {
     expect(customElements.get('foxy-internal-form')).to.exist;
   });
 
-  it('imports and defines foxy-transaction-card', () => {
-    expect(customElements.get('foxy-transaction-card')).to.exist;
+  it('imports and defines foxy-admin-transaction-card', () => {
+    expect(customElements.get('foxy-admin-transaction-card')).to.exist;
   });
 
   it('defines itself as foxy-coupon-code-form', () => {
@@ -116,16 +123,51 @@ describe('foxy-coupon-code-form', () => {
     const element = await fixture<CouponCodeForm>(
       html`<foxy-coupon-code-form></foxy-coupon-code-form>`
     );
-    const control = element.renderRoot.querySelector(
+
+    const control = element.renderRoot.querySelector<InternalAsyncListControl>(
       'foxy-internal-async-list-control[infer=transactions]'
     );
 
     expect(control).to.exist;
     expect(control).to.not.have.attribute('first');
     expect(control).to.have.attribute('limit', '5');
-    expect(control).to.have.attribute('item', 'foxy-transaction-card');
     expect(control).to.have.attribute('hide-delete-button');
     expect(control).to.have.property('getPageHref', null);
+
+    const itemRoot = document.createElement('div');
+    render(
+      (control!.item as ItemRenderer<Data>)({
+        simplifyNsLoading: false,
+        readonlyControls: BooleanSelector.False,
+        disabledControls: BooleanSelector.False,
+        hiddenControls: BooleanSelector.False,
+        templates: {},
+        readonly: false,
+        disabled: false,
+        previous: null,
+        related: [],
+        hidden: false,
+        parent: 'https://demo.api/hapi/coupon_code_transactions',
+        spread,
+        props: {},
+        group: '',
+        html,
+        lang: 'en',
+        href: 'https://demo.api/hapi/coupon_code_transactions/0',
+        data: await getTestData('./hapi/coupon_code_transactions/0'),
+        next: null,
+        ns: '',
+      }),
+      itemRoot
+    );
+
+    const item = itemRoot.querySelector('foxy-admin-transaction-card');
+    expect(item).to.exist;
+    expect(item).to.have.attribute('infer', '');
+    expect(item).to.have.attribute(
+      'href',
+      'https://demo.api/hapi/transactions/0?zoom=folder%2Citems'
+    );
 
     element.getTransactionPageHref = () => 'https://demo.api/hapi/transactions';
     await element.requestUpdate();
