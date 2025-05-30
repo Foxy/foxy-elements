@@ -600,6 +600,10 @@ export const groups = [
     files: './src/elements/public/StoreShippingMethodForm/**/*.test.ts',
   },
   {
+    name: 'foxy-store-transaction-folder-form',
+    files: './src/elements/public/StoreTransactionFolderForm/**/*.test.ts',
+  },
+  {
     name: 'foxy-subscription-card',
     files: './src/elements/public/SubscriptionCard/**/*.test.ts',
   },

@@ -98,7 +98,15 @@ export const links: Links = {
     'fx:transaction_template': { href: `./carts/${transaction_template_id}` },
   }),
 
-  transactions: ({ id, status, is_editable, store_id, customer_id, subscription_id }) => ({
+  transactions: ({
+    id,
+    status,
+    is_editable,
+    store_id,
+    folder_id,
+    customer_id,
+    subscription_id,
+  }) => ({
     ...(is_editable
       ? status === 'completed'
         ? {
@@ -112,6 +120,7 @@ export const links: Links = {
 
     'fx:store': { href: `./stores/${store_id}` },
     'fx:items': { href: `./items?transaction_id=${id}` },
+    'fx:folder': { href: `./transaction_folders/${folder_id}` },
     'fx:receipt': { href: 'about:blank' },
     'fx:customer': { href: `./customers/${customer_id}` },
     'fx:payments': { href: `./payments?transaction_id=${id}` },
@@ -172,6 +181,7 @@ export const links: Links = {
     'fx:fraud_protections': { href: `./fraud_protections?store_id=${id}` },
     'fx:receipt_templates': { href: `./receipt_templates?store_id=${id}` },
     'fx:checkout_templates': { href: `./checkout_templates?store_id=${id}` },
+    'fx:transaction_folders': { href: `./transaction_folders?store_id=${id}` },
     'fx:payment_method_sets': { href: `./payment_method_sets?store_id=${id}` },
     'fx:subscription_settings': { href: `./subscription_settings/${subscription_settings_id}` },
     'fx:cart_include_templates': { href: `./cart_include_templates?store_id=${id}` },
@@ -250,10 +260,17 @@ export const links: Links = {
     'fx:coupon_item_categories': { href: `./coupon_item_categories?coupon_id=${id}` },
   }),
 
-  coupon_codes: ({ coupon_id, store_id }) => ({
+  coupon_codes: ({ coupon_id, store_id, id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:coupon': { href: `./coupons/${coupon_id}` },
-    'fx:coupon_code_transactions': { href: `./transactions` },
+    'fx:coupon_code_transactions': { href: `./coupon_code_transactions?coupon_code_id=${id}` },
+  }),
+
+  coupon_code_transactions: ({ coupon_code_id, coupon_id, store_id, transaction_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:coupon': { href: `./coupons/${coupon_id}` },
+    'fx:coupon_code': { href: `./coupon_codes/${coupon_code_id}` },
+    'fx:transaction': { href: `./transactions/${transaction_id}` },
   }),
 
   generate_codes: () => ({}),
@@ -554,6 +571,10 @@ export const links: Links = {
   }),
 
   experimental_add_to_cart_snippets: ({ store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+  }),
+
+  transaction_folders: ({ store_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
   }),
 };

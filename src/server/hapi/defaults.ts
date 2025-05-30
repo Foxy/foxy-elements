@@ -268,6 +268,10 @@ export const defaults: Defaults = {
   transactions: (query, dataset) => ({
     id: increment('transactions', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
+    folder_id: parseInt(query.get('folder_id') ?? '0'),
+    folder_uri: query.has('folder_uri')
+      ? `https://demo.api/hapi/transaction_folders/${query.get('folder_id')}`
+      : '',
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     subscription_id: parseInt(query.get('subscription_id') ?? '0'),
     is_test: false,
@@ -542,6 +546,16 @@ export const defaults: Defaults = {
     coupon_id: parseInt(query.get('coupon_id') ?? '0'),
     code: '',
     number_of_uses_to_date: 0,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  coupon_code_transactions: (query, dataset) => ({
+    id: increment('coupon_code_transactions', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    coupon_id: parseInt(query.get('coupon_id') ?? '0'),
+    coupon_code_id: parseInt(query.get('coupon_code_id') ?? '0'),
+    transaction_id: parseInt(query.get('transaction_id') ?? '0'),
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
@@ -1091,5 +1105,16 @@ export const defaults: Defaults = {
     empty: null,
     cart: null,
     custom_options: [],
+  }),
+
+  transaction_folders: (query, dataset) => ({
+    id: increment('transaction_folders', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    name: '',
+    is_default: 0,
+    sort_order: 0,
+    color: '',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
   }),
 };

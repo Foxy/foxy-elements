@@ -1,0 +1,61 @@
+{
+  "error": {
+    "folder_not_empty": "This folder is not empty. Please remove all transactions from this folder before deleting it."
+  },
+  "group-one": {
+    "label": "",
+    "helper_text": "",
+    "name": {
+      "label": "Folder name",
+      "helper_text": "",
+      "placeholder": "New folder"
+    },
+    "color": {
+      "color_red": "Red",
+      "color_red_pale": "Pale red",
+      "color_green": "Green",
+      "color_green_pale": "Pale green",
+      "color_blue": "Blue",
+      "color_blue_pale": "Pale blue",
+      "color_orange": "Orange",
+      "color_orange_pale": "Pale orange",
+      "color_violet": "Violet",
+      "color_violet_pale": "Pale violet",
+      "color_none": "None"
+    }
+  },
+  "group-two": {
+    "label": "",
+    "helper_text": "",
+    "is-default": {
+      "label": "Make this folder default",
+      "helper_text": "All new transactions will appear in this folder by default. Only one folder can be the default folder.",
+      "checked": "Yes",
+      "unchecked": "No"
+    }
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "spinner": {
+    "refresh": "Refresh",
+    "loading_busy": "Loading",
+    "loading_error": "Unknown error"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this folder? You won't be able to bring it back."
+  },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
+  "create": {
+    "caption": "Create"
+  }
+}
