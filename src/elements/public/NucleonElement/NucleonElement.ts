@@ -477,6 +477,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   }
 
   private __createRumour() {
+    this.__destroyRumour();
     const rumour = NucleonElement.Rumour(this.group);
     this.__unsubscribeFromRumour = rumour.track(update => this.__handleRumourUpdate(update));
   }
