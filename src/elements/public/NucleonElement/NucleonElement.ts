@@ -394,7 +394,6 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
       const lastEvent = this.__service.state.event.type;
       const headers = lastEvent === 'REFRESH' ? { 'cache-control': 'no-cache' } : void 0;
       data = await this._fetch(this.href, { headers });
-      NucleonElement.Rumour(this.group).share({ data, source: this.href });
     } finally {
       this.__createRumour();
     }
