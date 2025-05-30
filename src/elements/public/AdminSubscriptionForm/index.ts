@@ -5,7 +5,7 @@ import '../../internal/InternalNumberControl/index';
 import '../../internal/InternalDateControl/index';
 import '../../internal/InternalForm/index';
 
-import '../TransactionCard/index';
+import '../AdminTransactionCard/index';
 import '../AttributeCard/index';
 import '../AttributeForm/index';
 import '../Transaction/index';

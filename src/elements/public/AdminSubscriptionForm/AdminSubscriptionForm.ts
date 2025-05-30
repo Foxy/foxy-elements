@@ -181,7 +181,7 @@ export class AdminSubscriptionForm extends Base<Data> {
         infer="transactions"
         class="min-w-0"
         first=${ifDefined(transactionsHref)}
-        item="foxy-transaction-card"
+        item="foxy-admin-transaction-card"
         form="foxy-transaction"
         hide-create-button
         hide-delete-button
