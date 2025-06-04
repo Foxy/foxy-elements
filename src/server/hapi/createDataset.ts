@@ -425,12 +425,14 @@ export const createDataset: () => Dataset = () => ({
     {
       id: 0,
       store_id: 0,
+      folder_id: 0,
+      folder_uri: 'https://demo.api/hapi/transaction_folders/0',
       customer_id: 0,
       subscription_id: 0,
       is_test: true,
       display_id: 2134962574,
       is_editable: true,
-      hide_transaction: false,
+      hide_transaction: true,
       data_is_fed: true,
       transaction_date: '2013-06-06T17:26:07-05:00',
       locale_code: 'en_US',
@@ -458,6 +460,8 @@ export const createDataset: () => Dataset = () => ({
     {
       id: 1,
       store_id: 0,
+      folder_id: null,
+      folder_uri: '',
       customer_id: 0,
       subscription_id: 0,
       is_test: true,
@@ -885,6 +889,18 @@ export const createDataset: () => Dataset = () => ({
     date_created: '2014-04-21T13:40:45-0700',
     date_modified: '2022-02-16T12:30:58-0700',
   })),
+
+  coupon_code_transactions: [
+    {
+      id: 0,
+      store_id: 0,
+      coupon_id: 0,
+      coupon_code_id: 0,
+      transaction_id: 0,
+      date_created: '2012-08-10T11:58:54-0700',
+      date_modified: '2012-08-10T11:58:54-0700',
+    },
+  ],
 
   generate_codes: [
     {
@@ -2165,6 +2181,29 @@ export const createDataset: () => Dataset = () => ({
           ],
         },
       ],
+    },
+  ],
+
+  transaction_folders: [
+    {
+      id: 0,
+      store_id: 0,
+      name: 'Pending',
+      is_default: 1,
+      sort_order: 0,
+      color: 'orange',
+      date_created: '2025-05-13T07:03:19-0700',
+      date_modified: '2025-05-13T08:45:46-0700',
+    },
+    {
+      id: 1,
+      store_id: 0,
+      name: 'Shipped',
+      is_default: 0,
+      sort_order: 1,
+      color: 'green',
+      date_created: '2025-05-13T07:03:19-0700',
+      date_modified: '2025-05-13T08:45:46-0700',
     },
   ],
 });

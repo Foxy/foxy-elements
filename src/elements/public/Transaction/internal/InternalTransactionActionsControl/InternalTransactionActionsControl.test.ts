@@ -1,3 +1,5 @@
+import type { NucleonElement } from '../../../NucleonElement/NucleonElement';
+
 import '../../../NucleonElement/index';
 
 import { expect, fixture, waitUntil } from '@open-wc/testing';
@@ -7,11 +9,22 @@ import { Transaction } from '../../Transaction';
 import { html } from 'lit-html';
 import { createRouter } from '../../../../../server/index';
 import { FetchEvent } from '../../../NucleonElement/FetchEvent';
-import { stub } from 'sinon';
+import { spy, stub } from 'sinon';
 
 import unset from 'lodash-es/unset';
 import set from 'lodash-es/set';
 import { BooleanSelector } from '@foxy.io/sdk/core';
+
+async function waitForIdle(element: InternalTransactionActionsControl) {
+  await waitUntil(
+    () => {
+      const loaders = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+      return [...loaders].every(loader => loader.in('idle'));
+    },
+    '',
+    { timeout: 5000 }
+  );
+}
 
 describe('Transaction', () => {
   describe('InternalTransactionActionsControl', () => {
@@ -352,6 +365,120 @@ describe('Transaction', () => {
       control.disabledControls = new BooleanSelector('archive');
       await control.requestUpdate();
       expect(button).to.have.attribute('disabled');
+    });
+
+    it('renders folder selector', async () => {
+      const router = createRouter();
+      const wrapper = await fixture<Transaction>(html`
+        <foxy-nucleon
+          href="https://demo.api/hapi/transactions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+          <foxy-internal-transaction-actions-control
+            infer="actions"
+            folders="https://demo.api/hapi/transaction_folders"
+          >
+          </foxy-internal-transaction-actions-control>
+        </foxy-nucleon>
+      `);
+
+      await waitUntil(() => wrapper.in({ idle: 'snapshot' }));
+      const control = wrapper.firstElementChild as InternalTransactionActionsControl;
+      await waitForIdle(control);
+
+      const labelText = control.renderRoot.querySelector(
+        'foxy-i18n[infer="folder"][key="caption"]'
+      );
+
+      const label = labelText?.closest('label');
+      const select = label?.querySelector('select');
+
+      expect(labelText).to.exist;
+      expect(label).to.exist;
+      expect(select).to.exist;
+
+      expect(select?.options).to.have.lengthOf(3);
+      expect(select?.options[0].value).to.equal('');
+      expect(select?.options[0]).to.include.text('folder.option_none');
+      expect(select?.options[0]).to.not.have.attribute('selected');
+
+      expect(select?.options[1].value).to.equal('https://demo.api/hapi/transaction_folders/0');
+      expect(select?.options[1]).to.include.text('Pending');
+      expect(select?.options[1]).to.have.attribute('selected');
+
+      expect(select?.options[2].value).to.equal('https://demo.api/hapi/transaction_folders/1');
+      expect(select?.options[2]).to.include.text('Shipped');
+      expect(select?.options[2]).to.not.have.attribute('selected');
+
+      const editMethod = spy(wrapper, 'edit');
+      const submitMethod = spy(wrapper, 'submit');
+
+      select!.options[2].selected = true;
+      select!.dispatchEvent(new CustomEvent('change', { bubbles: true, composed: true }));
+      expect(editMethod).to.have.been.calledOnceWith({ folder_uri: select!.options[2].value });
+      expect(submitMethod).to.have.been.calledOnceWith(false);
+    });
+
+    it('disables folder selector when control is disabled', async () => {
+      const router = createRouter();
+      const wrapper = await fixture<Transaction>(html`
+        <foxy-nucleon
+          href="https://demo.api/hapi/transactions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+          <foxy-internal-transaction-actions-control
+            infer="actions"
+            folders="https://demo.api/hapi/transaction_folders"
+          >
+          </foxy-internal-transaction-actions-control>
+        </foxy-nucleon>
+      `);
+
+      await waitUntil(() => wrapper.in({ idle: 'snapshot' }));
+      const control = wrapper.firstElementChild as InternalTransactionActionsControl;
+
+      await waitForIdle(control);
+      const select = control.renderRoot
+        .querySelector('foxy-i18n[infer="folder"][key="caption"]')
+        ?.closest('label')
+        ?.querySelector('select');
+
+      expect(select).to.not.have.attribute('disabled');
+
+      control.disabled = true;
+      await control.requestUpdate();
+      expect(select).to.have.attribute('disabled');
+    });
+
+    it('makes folder selector readonly when control is readonly', async () => {
+      const router = createRouter();
+      const wrapper = await fixture<Transaction>(html`
+        <foxy-nucleon
+          href="https://demo.api/hapi/transactions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+          <foxy-internal-transaction-actions-control
+            infer="actions"
+            folders="https://demo.api/hapi/transaction_folders"
+          >
+          </foxy-internal-transaction-actions-control>
+        </foxy-nucleon>
+      `);
+
+      await waitUntil(() => wrapper.in({ idle: 'snapshot' }));
+      const control = wrapper.firstElementChild as InternalTransactionActionsControl;
+
+      await waitForIdle(control);
+      const select = control.renderRoot
+        .querySelector('foxy-i18n[infer="folder"][key="caption"]')
+        ?.closest('label')
+        ?.querySelector('select');
+
+      expect(select).to.not.have.attribute('readonly');
+
+      control.readonly = true;
+      await control.requestUpdate();
+      expect(select).to.have.attribute('readonly');
     });
   });
 });

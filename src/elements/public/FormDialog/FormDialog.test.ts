@@ -294,4 +294,19 @@ describe('FormDialog', () => {
     await dialog.hide(true);
     expect(showStub).to.not.have.been.calledOnce;
   });
+
+  it('propagates update events from the form', async () => {
+    const href = 'https://demo.api/hapi/attributes/0';
+    const form = 'foxy-attribute-form';
+    const dialog = await fixture<FormDialog>(html`
+      <foxy-form-dialog href=${href} form=${form}></foxy-form-dialog>
+    `);
+
+    await dialog.show();
+
+    const formElement = dialog.renderRoot.querySelector('#form') as NucleonElement<never>;
+    const updateEvent = oneEvent(dialog, 'update');
+    formElement.dispatchEvent(new UpdateEvent());
+    expect(await updateEvent).to.be.instanceOf(UpdateEvent);
+  });
 });

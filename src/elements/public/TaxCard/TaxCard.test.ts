@@ -71,7 +71,7 @@ describe('TaxCard', () => {
 
   it('renders tax_custom_tax key for custom tax endpoint taxes in the subtitle', async () => {
     const data = await getTestData<Data>('./hapi/taxes/0');
-    data.type = 'custom_tax' as Data['type'];
+    data.type = 'custom_tax_endpoint';
 
     const element = await fixture<TaxCard>(html`<foxy-tax-card .data=${data}></foxy-tax-card>`);
     const subtitle = await getByTestId(element, 'subtitle');
@@ -137,7 +137,7 @@ describe('TaxCard', () => {
     const data = await getTestData<Data>('./hapi/taxes/0');
 
     data.is_live = true;
-    data.service_provider = 'onesource' as Data['service_provider'];
+    data.service_provider = 'onesource';
 
     const element = await fixture<TaxCard>(html`<foxy-tax-card .data=${data}></foxy-tax-card>`);
     const subtitle = await getByTestId(element, 'subtitle');
@@ -149,7 +149,7 @@ describe('TaxCard', () => {
     const data = await getTestData<Data>('./hapi/taxes/0');
 
     data.is_live = true;
-    data.service_provider = 'avalara' as Data['service_provider'];
+    data.service_provider = 'avalara';
 
     const element = await fixture<TaxCard>(html`<foxy-tax-card .data=${data}></foxy-tax-card>`);
     const subtitle = await getByTestId(element, 'subtitle');
@@ -161,7 +161,7 @@ describe('TaxCard', () => {
     const data = await getTestData<Data>('./hapi/taxes/0');
 
     data.is_live = true;
-    data.service_provider = 'taxjar' as Data['service_provider'];
+    data.service_provider = 'taxjar';
 
     const element = await fixture<TaxCard>(html`<foxy-tax-card .data=${data}></foxy-tax-card>`);
     const subtitle = await getByTestId(element, 'subtitle');
@@ -173,7 +173,7 @@ describe('TaxCard', () => {
     const data = await getTestData<Data>('./hapi/taxes/0');
 
     data.is_live = true;
-    data.service_provider = 'custom_tax_endpoint' as Data['service_provider'];
+    data.service_provider = 'custom_tax';
 
     const element = await fixture<TaxCard>(html`<foxy-tax-card .data=${data}></foxy-tax-card>`);
     const subtitle = await getByTestId(element, 'subtitle');
@@ -185,7 +185,7 @@ describe('TaxCard', () => {
     const data = await getTestData<Data>('./hapi/taxes/0');
 
     data.is_live = true;
-    data.service_provider = '' as Data['service_provider'];
+    data.service_provider = '';
 
     const element = await fixture<TaxCard>(html`<foxy-tax-card .data=${data}></foxy-tax-card>`);
     const subtitle = await getByTestId(element, 'subtitle');

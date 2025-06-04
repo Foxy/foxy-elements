@@ -5,6 +5,7 @@ import { NucleonElement } from './NucleonElement';
 import { generateTests } from './generateTests';
 import { createRouter } from '../../../server/hapi';
 import { html } from 'lit-html';
+import { spy } from 'sinon';
 
 customElements.define('foxy-nucleon-test', NucleonElement);
 
@@ -226,5 +227,20 @@ describe('NucleonElement', () => {
     expect(element).to.have.deep.nested.property('form.subscriptions.allowFrequencyModification', [
       { jsonataQuery: '*', values: ['1w'] },
     ]);
+  });
+
+  it('calls .reportValidity() on submit() by default', () => {
+    const nucleon = new NucleonElement();
+    const reportValidity = spy(nucleon, 'reportValidity');
+    nucleon.submit();
+    expect(reportValidity).to.have.been.calledOnce;
+    expect(reportValidity).to.have.been.calledWithExactly();
+  });
+
+  it('skips .reportValidity() call when calling submit(false)', () => {
+    const nucleon = new NucleonElement();
+    const reportValidity = spy(nucleon, 'reportValidity');
+    nucleon.submit(false);
+    expect(reportValidity).to.have.not.been.called;
   });
 });

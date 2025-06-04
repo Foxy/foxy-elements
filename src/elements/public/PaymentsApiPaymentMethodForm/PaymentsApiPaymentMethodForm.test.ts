@@ -148,6 +148,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           supports_3d_secure: 0,
           supports_auth_only: 0,
           is_deprecated: false,
+          supports_card_verification: false,
+          card_verification: 'disabled',
+          card_verification_config: '',
           additional_fields: {
             blocks: [
               {
@@ -243,6 +246,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
         supports_auth_only: 0,
         is_deprecated: false,
         additional_fields: null,
+        supports_card_verification: false,
+        card_verification: 'disabled',
+        card_verification_config: '',
       },
     });
 
@@ -289,6 +295,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           supports_auth_only: 0,
           is_deprecated: false,
           additional_fields: null,
+          supports_card_verification: false,
+          card_verification: 'disabled',
+          card_verification_config: '',
         },
         foo_two: {
           name: 'Foo Two',
@@ -303,6 +312,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           additional_fields: null,
           is_deprecated: false,
           conflict: { type: 'foo_one', name: 'Foo One' },
+          supports_card_verification: false,
+          card_verification: 'disabled',
+          card_verification_config: '',
         },
         bar_one: {
           name: 'Bar One',
@@ -316,6 +328,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           supports_auth_only: 0,
           is_deprecated: false,
           additional_fields: null,
+          supports_card_verification: false,
+          card_verification: 'disabled',
+          card_verification_config: '',
         },
       },
     };
@@ -431,6 +446,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           supports_auth_only: 0,
           is_deprecated: false,
           additional_fields: null,
+          supports_card_verification: false,
+          card_verification: 'disabled',
+          card_verification_config: '',
         },
         foo_two: {
           name: 'Foo Two',
@@ -445,6 +463,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           additional_fields: null,
           is_deprecated: true,
           conflict: { type: 'foo_one', name: 'Foo One' },
+          supports_card_verification: false,
+          card_verification: 'disabled',
+          card_verification_config: '',
         },
         bar_one: {
           name: 'Bar One',
@@ -458,6 +479,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           supports_auth_only: 0,
           is_deprecated: false,
           additional_fields: null,
+          supports_card_verification: false,
+          card_verification: 'disabled',
+          card_verification_config: '',
         },
       },
     };
@@ -1551,7 +1575,6 @@ describe('PaymentsApiPaymentMethodForm', () => {
     const element = wrapper.firstElementChild!.firstElementChild as Form;
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
 
-    // @ts-expect-error SDK typings are incomplete
     element.data!.helper.supports_card_verification = false;
     await element.requestUpdate();
 
@@ -1560,7 +1583,6 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     element.data = {
       ...element.data!,
-      // @ts-expect-error SDK typings are incomplete
       helper: { ...element.data!.helper, supports_card_verification: true },
       card_verification: 'disabled',
       test_card_verification: 'disabled',
@@ -1621,7 +1643,6 @@ describe('PaymentsApiPaymentMethodForm', () => {
       ...element.data!,
       helper: {
         ...element.data!.helper,
-        // @ts-expect-error SDK typings are incomplete
         supports_card_verification: true,
         card_verification_config:
           '{"verification_amounts": {"visa": 1, "mastercard": 1, "american_express": 1, "discover": 1, "default": 1}}',
@@ -1643,7 +1664,6 @@ describe('PaymentsApiPaymentMethodForm', () => {
         expect(control).to.be.instanceOf(InternalNumberControl);
         expect(control).to.have.attribute(
           'json-template',
-          // @ts-expect-error SDK typings are incomplete
           element.data?.helper.card_verification_config
         );
 
@@ -1681,6 +1701,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           supports_auth_only: 0,
           is_deprecated: false,
           additional_fields: null,
+          supports_card_verification: false,
+          card_verification: 'disabled',
+          card_verification_config: '',
         },
       },
     };
@@ -1901,6 +1924,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           supports_auth_only: 0,
           is_deprecated: false,
           additional_fields: null,
+          supports_card_verification: false,
+          card_verification: 'disabled',
+          card_verification_config: '',
         },
         foo_two: {
           name: 'Foo Two',
@@ -1915,6 +1941,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           additional_fields: null,
           is_deprecated: false,
           conflict: { type: 'foo_one', name: 'Foo One' },
+          supports_card_verification: false,
+          card_verification: 'disabled',
+          card_verification_config: '',
         },
         bar_one: {
           name: 'Bar One',
@@ -1928,6 +1957,9 @@ describe('PaymentsApiPaymentMethodForm', () => {
           supports_auth_only: 0,
           is_deprecated: false,
           additional_fields: null,
+          supports_card_verification: false,
+          card_verification: 'disabled',
+          card_verification_config: '',
         },
       },
     };

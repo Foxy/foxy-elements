@@ -624,6 +624,20 @@ describe('Transaction', () => {
     expect(element.headerSubtitleBadges).to.not.deep.include({ key: 'archived' });
   });
 
+  it('renders folder badge in subtitle if assigned', async () => {
+    const router = createRouter();
+    const element = await fixture<Transaction>(html`
+      <foxy-transaction
+        href="https://demo.api/hapi/transactions/0?zoom=folder,applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-transaction>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    expect(element.headerSubtitleBadges[0]).to.have.property('text', 'Pending');
+  });
+
   it('uses display_id as ID copied by Copy ID button', async () => {
     const router = createRouter();
     const element = await fixture<Transaction>(html`

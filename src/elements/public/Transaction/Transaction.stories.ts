@@ -5,7 +5,7 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,gift_card_code_logs:gift_card,gift_card_code_logs:gift_card_code',
+  href: 'https://demo.api/hapi/transactions/0?zoom=folder,applied_taxes,discounts,shipments,gift_card_code_logs:gift_card,gift_card_code_logs:gift_card_code',
   parent: 'https://demo.api/hapi/transactions',
   nucleon: true,
   localName: 'foxy-transaction',
@@ -22,7 +22,7 @@ export const Error = getStory(summary);
 export const Busy = getStory(summary);
 
 Readonly.args.href =
-  'https://demo.api/hapi/transactions/1?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card';
+  'https://demo.api/hapi/transactions/1?zoom=folder,applied_taxes,discounts,shipments,gift_card_code_logs:gift_card,gift_card_code_logs:gift_card_code';
 
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';

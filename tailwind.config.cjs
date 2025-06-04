@@ -21,10 +21,22 @@ function cssVar(foxy, fallback) {
 }
 
 const colorsMap = {
-  transparent: 'transparent',
-  current: 'currentColor',
-  base: cssVar('base-color', '#fff'),
-  tint: {
+  'folder-red': cssVar('folder-red', '#DC143C'),
+  'folder-red-pale': cssVar('folder-red-pale', '#FFA07A'),
+  'folder-green': cssVar('folder-green', '#228B22'),
+  'folder-green-pale': cssVar('folder-green-pale', '#98FB98'),
+  'folder-blue': cssVar('folder-blue', '#1E90FF'),
+  'folder-blue-pale': cssVar('folder-blue-pale', '#B0E0E6'),
+  'folder-orange': cssVar('folder-orange', '#FFA500'),
+  'folder-orange-pale': cssVar('folder-orange-pale', '#FFE4B5'),
+  'folder-violet': cssVar('folder-violet', '#9400D3'),
+  'folder-violet-pale': cssVar('folder-violet-pale', '#EE82EE'),
+  'black': '#000',
+  'white': '#fff',
+  'transparent': 'transparent',
+  'current': 'currentColor',
+  'base': cssVar('base-color', '#fff'),
+  'tint': {
     5: cssVar('tint-5pct', 'hsla(0, 0%, 100%, 0.3)'),
     10: cssVar('tint-10pct', 'hsla(0, 0%, 100%, 0.37)'),
     20: cssVar('tint-20pct', 'hsla(0, 0%, 100%, 0.44)'),
@@ -37,7 +49,7 @@ const colorsMap = {
     90: cssVar('tint-90pct', 'hsla(0, 0%, 100%, 0.9)'),
     DEFAULT: cssVar('tint', '#fff'),
   },
-  shade: {
+  'shade': {
     5: cssVar('shade-5pct', 'hsla(214, 61%, 25%, 0.05)'),
     10: cssVar('shade-10pct', 'hsla(214, 57%, 24%, 0.1)'),
     20: cssVar('shade-20pct', 'hsla(214, 53%, 23%, 0.16)'),
@@ -50,7 +62,7 @@ const colorsMap = {
     90: cssVar('shade-90pct', 'hsla(214, 40%, 16%, 0.94)'),
     DEFAULT: cssVar('shade', 'hsl(214, 35%, 15%)'),
   },
-  contrast: {
+  'contrast': {
     5: cssVar('contrast-5pct', 'hsla(214, 61%, 25%, 0.05)'),
     10: cssVar('contrast-10pct', 'hsla(214, 57%, 24%, 0.1)'),
     20: cssVar('contrast-20pct', 'hsla(214, 53%, 23%, 0.16)'),
@@ -63,19 +75,19 @@ const colorsMap = {
     90: cssVar('contrast-90pct', 'hsla(214, 40%, 16%, 0.94)'),
     DEFAULT: cssVar('contrast', 'hsl(214, 35%, 15%)'),
   },
-  primary: {
+  'primary': {
     10: cssVar('primary-color-10pct', 'hsla(214, 90%, 52%, 0.1)'),
     50: cssVar('primary-color-50pct', 'hsla(214, 90%, 52%, 0.5)'),
     DEFAULT: cssVar('primary-color', 'hsl(214, 90%, 52%)'),
     contrast: cssVar('primary-contrast-color', '#fff'),
   },
-  error: {
+  'error': {
     10: cssVar('error-color-10pct', 'hsla(3, 100%, 60%, 0.1)'),
     50: cssVar('error-color-50pct', 'hsla(3, 100%, 60%, 0.5)'),
     DEFAULT: cssVar('error-color', 'hsl(3, 100%, 61%)'),
     contrast: cssVar('error-contrast-color', '#fff'),
   },
-  success: {
+  'success': {
     10: cssVar('success-color-10pct', 'hsla(145, 76%, 44%, 0.12)'),
     50: cssVar('success-color-50pct', 'hsla(145, 76%, 44%, 0.55)'),
     DEFAULT: cssVar('success-color', 'hsl(145, 80%, 42%)'),

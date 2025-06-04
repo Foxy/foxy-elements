@@ -1,6 +1,7 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { Resource } from '@foxy.io/sdk/core';
+import type { Badge } from '../../internal/InternalForm/types';
 import type { Data } from './types';
 import type { Rels } from '@foxy.io/sdk/backend';
 
@@ -9,7 +10,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { ResponsiveMixin } from '../../../mixins/responsive';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { html } from 'lit-element';
+import { html, svg } from 'lit-element';
 
 const NS = 'transaction';
 const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
@@ -189,10 +190,36 @@ export class Transaction extends Base<Data> {
     };
   }
 
-  get headerSubtitleBadges(): { key: string }[] {
+  get headerSubtitleBadges(): Badge[] {
     const badges = super.headerSubtitleBadges;
-    if (this.data?.is_test) badges.push({ key: 'test' });
+    const folder = this.data?._embedded?.['fx:folder'];
+
+    if (folder?.name) {
+      const folderColor = folder.color ?? '';
+      const colors: Record<string, string> = {
+        'red': 'bg-folder-red text-white',
+        'red_pale': 'bg-folder-red-pale text-black',
+        'green': 'bg-folder-green text-white',
+        'green_pale': 'bg-folder-green-pale text-black',
+        'blue': 'bg-folder-blue text-white',
+        'blue_pale': 'bg-folder-blue-pale text-black',
+        'orange': 'bg-folder-orange text-white',
+        'orange_pale': 'bg-folder-orange-pale text-black',
+        'violet': 'bg-folder-violet text-white',
+        'violet_pale': 'bg-folder-violet-pale text-black',
+        '': 'bg-contrast-5 text-body',
+      };
+
+      badges.push({
+        class: colors[folderColor in colors ? folderColor : ''],
+        icon: svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1em; height: 1em;"><path d="M3.75 3A1.75 1.75 0 0 0 2 4.75v3.26a3.235 3.235 0 0 1 1.75-.51h12.5c.644 0 1.245.188 1.75.51V6.75A1.75 1.75 0 0 0 16.25 5h-4.836a.25.25 0 0 1-.177-.073L9.823 3.513A1.75 1.75 0 0 0 8.586 3H3.75ZM3.75 9A1.75 1.75 0 0 0 2 10.75v4.5c0 .966.784 1.75 1.75 1.75h12.5A1.75 1.75 0 0 0 18 15.25v-4.5A1.75 1.75 0 0 0 16.25 9H3.75Z" /></svg>`,
+        text: folder.name,
+      });
+    }
+
     if (this.data?.hide_transaction) badges.push({ key: 'archived' });
+    if (this.data?.is_test) badges.push({ key: 'test' });
+
     return badges;
   }
 
@@ -201,8 +228,10 @@ export class Transaction extends Base<Data> {
   }
 
   renderHeaderActions(): TemplateResult {
+    const foldersHref = this.__storeLoader?.data?._links['fx:transaction_folders'].href;
+
     return html`
-      <foxy-internal-transaction-actions-control infer="actions">
+      <foxy-internal-transaction-actions-control folders=${ifDefined(foldersHref)} infer="actions">
       </foxy-internal-transaction-actions-control>
     `;
   }

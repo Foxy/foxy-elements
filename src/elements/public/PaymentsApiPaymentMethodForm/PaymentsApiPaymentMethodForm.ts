@@ -403,7 +403,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
       </foxy-internal-summary-control>
 
       ${['live', 'test'].map((type, index) => {
-        const propertyPrefix = index === 0 ? '' : `${type}_`;
+        const propertyPrefix = index === 0 ? '' : (`${type}_` as '' | 'test_');
         const inferPrefix = index === 0 ? '' : `${type}-`;
         const blocks = index === 0 ? this.__liveBlocks : this.__testBlocks;
         const scope = `${type}-group`;
@@ -475,65 +475,55 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
                   `
                 : ''}
               ${blocks.map(block => this.__renderBlock(block))}
-              ${
-                // @ts-expect-error SDK typings are incomplete
-                this.form.helper?.supports_card_verification
-                  ? html`
-                      <foxy-internal-select-control
-                        helper-text=${this.t(
-                          `${scope}.${inferPrefix}card-verification.helper_text_${
-                            // @ts-expect-error SDK typings are incomplete
-                            this.form[`${propertyPrefix}card_verification`] || 'disabled'
-                          }`
-                        )}
-                        layout="summary-item"
-                        infer="${inferPrefix}card-verification"
-                        .options=${this.__cardVerificationOptions}
-                        .getValue=${() => {
-                          // @ts-expect-error SDK typings are incomplete
-                          return this.form[`${propertyPrefix}card_verification`] || 'disabled';
-                        }}
-                      >
-                      </foxy-internal-select-control>
-                    `
-                  : ''
-              }
+              ${this.form.helper?.supports_card_verification
+                ? html`
+                    <foxy-internal-select-control
+                      helper-text=${this.t(
+                        `${scope}.${inferPrefix}card-verification.helper_text_${
+                          this.form[`${propertyPrefix}card_verification` as const] || 'disabled'
+                        }`
+                      )}
+                      layout="summary-item"
+                      infer="${inferPrefix}card-verification"
+                      .options=${this.__cardVerificationOptions}
+                      .getValue=${() => {
+                        return (
+                          this.form[`${propertyPrefix}card_verification` as const] || 'disabled'
+                        );
+                      }}
+                    >
+                    </foxy-internal-select-control>
+                  `
+                : ''}
             </foxy-internal-summary-control>
 
-            ${
-              // @ts-expect-error SDK typings are incomplete
-              this.form.helper?.supports_card_verification &&
-              // @ts-expect-error SDK typings are incomplete
-              this.form[`${propertyPrefix}card_verification`]?.startsWith('enabled_')
-                ? html`
-                    <foxy-internal-summary-control
-                      layout="details"
-                      class="mt-s"
-                      infer="${inferPrefix}card-verification-config"
-                    >
-                      ${['visa', 'mastercard', 'american-express', 'discover', 'default'].map(
-                        type => {
-                          return html`
-                            <foxy-internal-number-control
-                              json-template=${ifDefined(
-                                // @ts-expect-error SDK typings are incomplete
-                                this.form.helper?.card_verification_config
-                              )}
-                              json-path="verification_amounts.${type.replace(/-/g, '_')}"
-                              property="${propertyPrefix}card_verification_config"
-                              layout="summary-item"
-                              infer="${inferPrefix}card-verification-config-verification-amounts-${type}"
-                              step="0.01"
-                              min="0"
-                            >
-                            </foxy-internal-number-control>
-                          `;
-                        }
-                      )}
-                    </foxy-internal-summary-control>
-                  `
-                : ''
-            }
+            ${this.form.helper?.supports_card_verification &&
+            this.form[`${propertyPrefix}card_verification` as const]?.startsWith('enabled_')
+              ? html`
+                  <foxy-internal-summary-control
+                    layout="details"
+                    class="mt-s"
+                    infer="${inferPrefix}card-verification-config"
+                  >
+                    ${['visa', 'mastercard', 'american-express', 'discover', 'default'].map(
+                      type => {
+                        return html`
+                          <foxy-internal-number-control
+                            json-template=${ifDefined(this.form.helper?.card_verification_config)}
+                            json-path="verification_amounts.${type.replace(/-/g, '_')}"
+                            property="${propertyPrefix}card_verification_config"
+                            layout="summary-item"
+                            infer="${inferPrefix}card-verification-config-verification-amounts-${type}"
+                            step="0.01"
+                            min="0"
+                          >
+                          </foxy-internal-number-control>
+                        `;
+                      }
+                    )}
+                  </foxy-internal-summary-control>
+                `
+              : ''}
           </foxy-internal-summary-control>
         `;
       })}

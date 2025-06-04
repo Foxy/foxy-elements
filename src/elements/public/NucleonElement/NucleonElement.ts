@@ -100,9 +100,9 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    */
   virtualHost: string | null = uniqueId('nucleon-');
 
-  private __hrefToLoad: string | null = null;
-
   private __group = '';
+
+  private __href: string | null = null;
 
   private __unsubscribeFromRumour: (() => void) | null = null;
 
@@ -188,7 +188,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
 
   set data(data: TData | null) {
     this.__destroyRumour();
-    this.__hrefToLoad = null;
+    this.__href = data?._links?.self?.href ?? null;
     this.__service.send({ type: 'SET_DATA', data });
     if (data) this.__createRumour();
   }
@@ -212,11 +212,11 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * @example element.href = 'https://demo.foxycart.com/s/customer/attributes/0'
    */
   get href(): string {
-    return this.form._links?.self.href ?? this.__hrefToLoad ?? '';
+    return this.__href ?? '';
   }
 
   set href(value: string) {
-    this.__hrefToLoad = value;
+    this.__href = value;
 
     if (value) {
       this.__service.send({ type: 'FETCH' });
@@ -248,7 +248,6 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * @example element.edit({ first_name: 'Alex' })
    */
   edit(data: Partial<TData>): void {
-    if (typeof data._links?.self.href === 'string') this.__hrefToLoad = null;
     this.__service.send({ type: 'EDIT', data });
   }
 
@@ -257,8 +256,8 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * Emits multiple `update` events as element state changes. Has no effect on invalid forms.
    * @example element.submit()
    */
-  submit(): void {
-    this.reportValidity();
+  submit(reportValidity = true): void {
+    if (reportValidity) this.reportValidity();
     this.__service.send({ type: 'SUBMIT' });
   }
 
@@ -366,11 +365,19 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     try {
       const body = JSON.stringify(edits);
       const postData = await this._fetch(this.parent, { body, method: 'POST' });
-      data = await this._fetch(postData._links.self.href);
+      const newOwnURL = new URL(postData._links.self.href);
+      const parentURL = new URL(this.parent);
+      const zoom = parentURL.searchParams.get('zoom');
+
+      if (zoom) newOwnURL.searchParams.set('zoom', zoom);
+      const newHref = newOwnURL.toString();
+      data = await this._fetch(newHref);
 
       const rumour = NucleonElement.Rumour(this.group);
       const related = [...this.related, this.parent];
       rumour.share({ data, related, source: data._links.self.href });
+
+      this.__href = newHref;
     } finally {
       this.__createRumour();
     }
@@ -387,7 +394,6 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
       const lastEvent = this.__service.state.event.type;
       const headers = lastEvent === 'REFRESH' ? { 'cache-control': 'no-cache' } : void 0;
       data = await this._fetch(this.href, { headers });
-      NucleonElement.Rumour(this.group).share({ data, source: this.href });
     } finally {
       this.__createRumour();
     }
@@ -470,6 +476,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   }
 
   private __createRumour() {
+    this.__destroyRumour();
     const rumour = NucleonElement.Rumour(this.group);
     this.__unsubscribeFromRumour = rumour.track(update => this.__handleRumourUpdate(update));
   }
@@ -504,7 +511,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
       }
     } catch (err) {
       if (err instanceof Rumour.UpdateError) {
-        setTimeout(() => this.refresh());
+        this.refresh();
       } else {
         throw err;
       }

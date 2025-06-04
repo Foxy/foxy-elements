@@ -53,7 +53,6 @@ export class AdminSubscriptionForm extends Base<Data> {
       transactionsHref = undefined;
     }
 
-    // @ts-expect-error - SDK doesn't know yet about the `fx:charge_past_due` link.
     const chargePastDueHref: string | undefined = this.data?._links['fx:charge_past_due']?.href;
     const pastDueAmount = this.data?.past_due_amount;
     const errorMessage = this.data?.error_message;
@@ -182,7 +181,7 @@ export class AdminSubscriptionForm extends Base<Data> {
         infer="transactions"
         class="min-w-0"
         first=${ifDefined(transactionsHref)}
-        item="foxy-transaction-card"
+        item="foxy-admin-transaction-card"
         form="foxy-transaction"
         hide-create-button
         hide-delete-button

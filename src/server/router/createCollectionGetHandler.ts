@@ -1,6 +1,7 @@
 import { HandleResult, HandlerContext, Router } from 'service-worker-router';
-
 import { Dataset } from './types';
+
+import get from 'lodash-es/get';
 
 export function createCollectionGetHandler(router: Router, dataset: Dataset) {
   return async ({ params, url }: HandlerContext): Promise<Response> => {
@@ -15,22 +16,27 @@ export function createCollectionGetHandler(router: Router, dataset: Dataset) {
 
     const filtersAsArray = Array.from(filters.entries());
     const allDocuments = dataset[params.collection] ?? [];
-    const matchingDocuments = allDocuments.filter(document => {
-      return filtersAsArray.every(([field, value]) => document[field] == value);
+    const matchingDocuments = (
+      await Promise.all(
+        allDocuments.map(async doc => {
+          const selfURL = new URL(`${url.origin}${url.pathname}/${doc.id}${url.hash}`);
+          const zoom = url.searchParams.get('zoom');
+          if (zoom) selfURL.searchParams.set('zoom', zoom);
+
+          const result = router.handleRequest(new Request(selfURL.toString())) as HandleResult;
+          return (await result.handlerPromise).json();
+        })
+      )
+    ).filter(doc => {
+      return filtersAsArray.every(([field, value]) => {
+        const path = field
+          .split(':')
+          .map((v, i, a) => (i === a.length - 1 ? v : `_embedded['fx:${v}']`))
+          .join('.');
+
+        return get(doc, path) == value;
+      });
     });
-
-    const itemsToReturn = await Promise.all(
-      matchingDocuments.slice(offset, limit + offset).map(async doc => {
-        const selfURL = new URL(`${url.origin}${url.pathname}/${doc.id}${url.hash}`);
-        const zoom = url.searchParams.get('zoom');
-        if (zoom) selfURL.searchParams.set('zoom', zoom);
-
-        const result = router.handleRequest(new Request(selfURL.toString())) as HandleResult;
-        const json = await (await result.handlerPromise).json();
-
-        return json;
-      })
-    );
 
     const first = new URL('', url);
     first.searchParams.set('offset', '0');
@@ -45,6 +51,7 @@ export function createCollectionGetHandler(router: Router, dataset: Dataset) {
     last.searchParams.set('offset', Math.max(matchingDocuments.length - limit, 0).toString());
 
     const rel = params.collection.endsWith('_attributes') ? 'attributes' : params.collection;
+    const itemsToReturn = matchingDocuments.slice(offset, offset + limit);
     const responseBody = {
       _embedded: { [`fx:${rel}`]: itemsToReturn },
       _links: {

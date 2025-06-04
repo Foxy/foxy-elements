@@ -98,6 +98,8 @@ export class FormDialog extends Dialog {
     this.editable =
       target.in({ idle: { template: { dirty: 'valid' } } }) ||
       target.in({ idle: { snapshot: { dirty: 'valid' } } });
+
+    this.dispatchEvent(new UpdateEvent(evt.type, { detail: evt.detail }));
   };
 
   get hiddenSelector(): BooleanSelector {

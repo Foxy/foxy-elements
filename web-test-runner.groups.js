@@ -236,6 +236,10 @@ export const groups = [
     files: './src/elements/public/AdminSubscriptionForm/**/*.test.ts',
   },
   {
+    name: 'foxy-admin-transaction-card',
+    files: './src/elements/public/AdminTransactionCard/**/*.test.ts',
+  },
+  {
     name: 'foxy-api-browser',
     files: './src/elements/public/ApiBrowser/**/*.test.ts',
   },
@@ -598,6 +602,14 @@ export const groups = [
   {
     name: 'foxy-store-shipping-method-form',
     files: './src/elements/public/StoreShippingMethodForm/**/*.test.ts',
+  },
+  {
+    name: 'foxy-store-transaction-folder-card',
+    files: './src/elements/public/StoreTransactionFolderCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-store-transaction-folder-form',
+    files: './src/elements/public/StoreTransactionFolderForm/**/*.test.ts',
   },
   {
     name: 'foxy-subscription-card',

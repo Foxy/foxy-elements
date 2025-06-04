@@ -44,8 +44,8 @@ describe('AdminSubscriptionForm', () => {
     expect(customElements.get('foxy-internal-form')).to.exist;
   });
 
-  it('imports and defines foxy-transaction-card', () => {
-    expect(customElements.get('foxy-transaction-card')).to.exist;
+  it('imports and defines foxy-admin-transaction-card', () => {
+    expect(customElements.get('foxy-admin-transaction-card')).to.exist;
   });
 
   it('imports and defines foxy-attribute-card', () => {
@@ -268,7 +268,6 @@ describe('AdminSubscriptionForm', () => {
     `);
 
     const testData = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
-    // @ts-expect-error - SDK doesn't know yet about the `fx:charge_past_due` link.
     testData._links['fx:charge_past_due'] = { href: 'https://demo.api/virtual/empty' };
     testData.past_due_amount = 10;
     testData._embedded['fx:transaction_template'].currency_code = 'AUD';
@@ -488,7 +487,7 @@ describe('AdminSubscriptionForm', () => {
     const control = form.renderRoot.querySelector('[infer="transactions"]');
     expect(control?.localName).to.equal('foxy-internal-async-list-control');
 
-    expect(control).to.have.attribute('item', 'foxy-transaction-card');
+    expect(control).to.have.attribute('item', 'foxy-admin-transaction-card');
     expect(control).to.have.attribute('form', 'foxy-transaction');
     expect(control).to.have.attribute('hide-create-button');
     expect(control).to.have.attribute('hide-delete-button');

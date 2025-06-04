@@ -163,8 +163,19 @@ class TransactionCard extends Base<Data> {
         <div class="text-tertiary text-s flex items-center space-x-xs">
           ${this.data?.hide_transaction
             ? html`
-                <vcf-tooltip for="hidden" theme="light" position="top">
-                  <foxy-i18n infer="" key="hidden_hint"></foxy-i18n>
+                <vcf-tooltip
+                  position="top"
+                  theme="light"
+                  style="--lumo-base-color: black"
+                  for="hidden"
+                >
+                  <foxy-i18n
+                    infer=""
+                    class="text-s whitespace-nowrap"
+                    style="color: white"
+                    key="hidden_hint"
+                  >
+                  </foxy-i18n>
                 </vcf-tooltip>
                 <iron-icon
                   class="icon-inline cursor-default"
@@ -176,8 +187,19 @@ class TransactionCard extends Base<Data> {
             : ''}
           ${source
             ? html`
-                <vcf-tooltip for="source" theme="light" position="top">
-                  <foxy-i18n infer="" key="source_${source}"></foxy-i18n>
+                <vcf-tooltip
+                  position="top"
+                  theme="light"
+                  style="--lumo-base-color: black"
+                  for="source"
+                >
+                  <foxy-i18n
+                    infer=""
+                    style="color: white"
+                    class="whitespace-nowrap text-s"
+                    key="source_${source}"
+                  >
+                  </foxy-i18n>
                 </vcf-tooltip>
                 <span class="cursor-default" id="source">${source}</span>
               `
@@ -199,8 +221,14 @@ class TransactionCard extends Base<Data> {
           >
           </iron-icon>
 
-          <vcf-tooltip for="status" theme="light" position="top">
-            <foxy-i18n infer="" key="status_${status}"></foxy-i18n>
+          <vcf-tooltip for="status" theme="light" position="top" style="--lumo-base-color: black">
+            <foxy-i18n
+              infer=""
+              class="whitespace-nowrap text-s"
+              style="color: white"
+              key="status_${status}"
+            >
+            </foxy-i18n>
           </vcf-tooltip>
         </div>
 
