@@ -449,16 +449,14 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
 
       let result: UpdateResult | undefined = undefined;
 
-      if (state.matches('idle') && state.context.errors.length === 0) {
-        if (state.history?.matches({ busy: 'deleting' })) {
-          result = UpdateResult.ResourceDeleted;
-        } else if (state.history?.matches({ busy: 'creating' })) {
-          result = UpdateResult.ResourceCreated;
-        } else if (state.history?.matches({ busy: 'updating' })) {
-          result = UpdateResult.ResourceUpdated;
-        } else if (state.history?.matches({ busy: 'fetching' })) {
-          result = UpdateResult.ResourceFetched;
-        }
+      if (state.history?.matches({ busy: 'deleting' })) {
+        if (state.matches({ idle: 'template' })) result = UpdateResult.ResourceDeleted;
+      } else if (state.history?.matches({ busy: 'creating' })) {
+        if (state.matches({ idle: 'snapshot' })) result = UpdateResult.ResourceCreated;
+      } else if (state.history?.matches({ busy: 'updating' })) {
+        if (state.matches({ idle: { snapshot: 'clean' } })) result = UpdateResult.ResourceUpdated;
+      } else if (state.history?.matches({ busy: 'fetching' })) {
+        if (state.matches({ idle: { snapshot: 'clean' } })) result = UpdateResult.ResourceFetched;
       }
 
       this.requestUpdate();
