@@ -896,7 +896,7 @@
   },
   "datafeed": {
     "label": "Legacy XML datafeed",
-    "helper_text": "To resend this webhook, use the Resend datafeed button at the top of the page.",
+    "helper_text": "",
     "data-is-fed": {
       "label": "Status",
       "helper_text": "",
@@ -904,20 +904,15 @@
       "unchecked": "Not sent"
     },
     "process-webhook": {
-      "button": {
-        "idle": "Resend datafeed",
-        "busy": "Processing..."
-      },
-      "notification": {
-        "success": "XML datafeed resent successfully",
-        "error": "Failed to resend datafeed"
-      },
-      "confirm-dialog": {
-        "message": "This will attempt to resend the XML datafeed. Would you like to proceed?",
-        "confirm": "Yes",
-        "cancel": "No",
-        "header": "Resend datafeed"
-      }
+      "message_idle": "This action will attempt to resend the legacy XML datafeed for this transaction. Would you like to proceed?",
+      "message_fail": "Failed to resend the datafeed this transaction. If you'd like to retry, close this dialog and click the Resend button again.",
+      "message_done": "Legacy XML datafeed was resent successfully. You can close this dialog now.",
+      "button_close": "Close",
+      "button_confirm": "Resend",
+      "button_cancel": "Go back",
+      "loading_busy": "Processing",
+      "header": "Resend datafeed",
+      "button": "Resend datafeed"
     }
   },
   "summary": {
