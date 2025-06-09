@@ -52,6 +52,7 @@
       "placeholder": "Required",
       "helper_text": "",
       "v8n_required": "Please enter the URL of your online store",
+      "v8n_invalid": "Please enter a valid URL starting with a protocol (http:// or https://).",
       "v8n_too_long": "Please use a URL that is 300 characters or less"
     }
   },

@@ -21,6 +21,7 @@ import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
 import slugify from '@sindresorhus/slugify';
+import memoize from 'lodash-es/memoize';
 import merge from 'lodash-es/merge';
 
 const NS = 'store-form';
@@ -60,6 +61,14 @@ export class StoreForm extends Base<Data> {
   }
 
   static get v8n(): NucleonV8N<Data, StoreForm> {
+    const isURL = memoize((value: string) => {
+      try {
+        return Boolean(new URL(value));
+      } catch {
+        return false;
+      }
+    });
+
     return [
       ({ store_name: v }) => !!v || 'store-name:v8n_required',
       ({ store_name: v }) => (v && v.length <= 50) || 'store-name:v8n_too_long',
@@ -90,6 +99,7 @@ export class StoreForm extends Base<Data> {
       },
       ({ store_url: v }) => !!v || 'store-url:v8n_required',
       ({ store_url: v }) => (v && v.length <= 300) || 'store-url:v8n_too_long',
+      ({ store_url: v }) => !v || isURL(v) || 'store-url:v8n_invalid',
       ({ receipt_continue_url: v }) => !v || v.length <= 300 || 'receipt-continue-url:v8n_too_long',
       ({ store_email: v }) => !!v || 'store-email:v8n_required',
       ({ store_email: v }) => (v && v.length <= 300) || 'store-email:v8n_too_long',

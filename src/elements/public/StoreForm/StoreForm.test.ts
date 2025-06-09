@@ -247,6 +247,16 @@ describe('StoreForm', () => {
     expect(form.errors).to.not.include('store-url:v8n_too_long');
   });
 
+  it('produces the store-url:v8n_invalid error when store url is not a valid url', () => {
+    const form = new Form();
+
+    form.edit({ store_url: 'a'.repeat(20) });
+    expect(form.errors).to.include('store-url:v8n_invalid');
+
+    form.edit({ store_url: 'https://example.com' });
+    expect(form.errors).to.not.include('store-url:v8n_invalid');
+  });
+
   it('produces the receipt-continue-url:v8n_too_long error if receipt continue url is longer than 300 characters', () => {
     const form = new Form();
 
