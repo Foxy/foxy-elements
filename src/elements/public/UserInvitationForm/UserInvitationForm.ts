@@ -262,6 +262,7 @@ export class UserInvitationForm extends Base<Data> {
   }
 
   private __renderUserSnapshotState({ status, store_name }: Data) {
+    const links = this.data?._links;
     const hidden = this.hiddenSelector;
     const textColorMap = {
       'text-primary': status === 'sent',
@@ -321,7 +322,7 @@ export class UserInvitationForm extends Base<Data> {
         theme="error"
         class="flex-1"
         infer="leave"
-        href=${ifDefined(this.data?._links['fx:revoke']?.href)}
+        href=${ifDefined(links?.['fx:revoke']?.href ?? links?.['fx:reject']?.href)}
       >
       </foxy-internal-user-invitation-form-async-action>
 
