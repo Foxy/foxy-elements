@@ -5,7 +5,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { html } from 'lit-element';
+import { html, svg } from 'lit-element';
 
 const NS = 'email-template-form';
 const Base = TranslatableMixin(InternalForm, NS);
@@ -45,16 +45,6 @@ export class EmailTemplateForm extends Base<Data> {
     }
   };
 
-  get readonlySelector(): BooleanSelector {
-    const alwaysMatch = [super.readonlySelector.toString()];
-    const subject = this.form.subject;
-
-    if (this.form.content_html_url && subject) alwaysMatch.unshift('content-html');
-    if (this.form.content_text_url && subject) alwaysMatch.unshift('content-text');
-
-    return new BooleanSelector(alwaysMatch.join(' ').trim());
-  }
-
   get disabledSelector(): BooleanSelector {
     const alwaysMatch = [super.disabledSelector.toString()];
 
@@ -84,6 +74,14 @@ export class EmailTemplateForm extends Base<Data> {
 
     if (!this.data?.content_html_url) alwaysMatch.unshift('html-source:cache');
     if (!this.data?.content_text_url) alwaysMatch.unshift('text-source:cache');
+
+    if (!this.form.content_html_url || (this.data?.content_html ?? '') === this.form.content_html) {
+      alwaysMatch.unshift('content-html-warning');
+    }
+    if (!this.form.content_text_url || (this.data?.content_text ?? '') === this.form.content_text) {
+      alwaysMatch.unshift('content-text-warning');
+    }
+
     if (!this.data?.subject && !this.form.subject) {
       alwaysMatch.unshift(
         'general:template-language',
@@ -91,7 +89,9 @@ export class EmailTemplateForm extends Base<Data> {
         'html-source',
         'text-source',
         'content-html',
-        'content-text'
+        'content-html-warning',
+        'content-text',
+        'content-text-warning'
       );
     }
 
@@ -128,6 +128,13 @@ export class EmailTemplateForm extends Base<Data> {
 
       <foxy-internal-source-control infer="content-html"></foxy-internal-source-control>
 
+      <foxy-internal-summary-control infer="content-html-warning" label="" helper-text="">
+        <div class="flex gap-s bg-error-10 text-error leading-xs text-s">
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1.25em; height: 1.25em; margin-top: 0.1em;" class="flex-shrink-0"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" /></svg>`}
+          <foxy-i18n infer="" key="text"></foxy-i18n>
+        </div>
+      </foxy-internal-summary-control>
+
       <foxy-internal-summary-control infer="html-source">
         <foxy-internal-text-control layout="summary-item" infer="content-html-url">
         </foxy-internal-text-control>
@@ -140,6 +147,13 @@ export class EmailTemplateForm extends Base<Data> {
       </foxy-internal-summary-control>
 
       <foxy-internal-source-control infer="content-text"></foxy-internal-source-control>
+
+      <foxy-internal-summary-control infer="content-text-warning" label="" helper-text="">
+        <div class="flex gap-s bg-error-10 text-error leading-xs text-s">
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1.25em; height: 1.25em; margin-top: 0.1em;" class="flex-shrink-0"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" /></svg>`}
+          <foxy-i18n infer="" key="text"></foxy-i18n>
+        </div>
+      </foxy-internal-summary-control>
 
       <foxy-internal-summary-control infer="text-source">
         <foxy-internal-text-control layout="summary-item" infer="content-text-url">

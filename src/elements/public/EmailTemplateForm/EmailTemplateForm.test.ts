@@ -35,6 +35,10 @@ describe('EmailTemplateForm', () => {
     expect(customElements.get('foxy-internal-form')).to.exist;
   });
 
+  it('imports and defines foxy-i18n', () => {
+    expect(customElements.get('foxy-i18n')).to.exist;
+  });
+
   it('imports and defines foxy-internal-email-template-form-async-action', () => {
     expect(customElements.get('foxy-internal-email-template-form-async-action')).to.exist;
   });
@@ -57,20 +61,6 @@ describe('EmailTemplateForm', () => {
   it('has a default i18next namespace of "email-template-form"', () => {
     expect(new Form().ns).to.equal('email-template-form');
     expect(Form.defaultNS).to.equal('email-template-form');
-  });
-
-  it('makes content-html control read-only when content_html_url and subject are set', () => {
-    const form = new Form();
-    expect(form.readonlySelector.matches('content-html', true)).to.be.false;
-    form.edit({ content_html_url: 'foo', subject: 'bar' });
-    expect(form.readonlySelector.matches('content-html', true)).to.be.true;
-  });
-
-  it('makes content-text control read-only when content_text_url and subject are set', () => {
-    const form = new Form();
-    expect(form.readonlySelector.matches('content-text', true)).to.be.false;
-    form.edit({ content_text_url: 'foo', subject: 'bar' });
-    expect(form.readonlySelector.matches('content-text', true)).to.be.true;
   });
 
   it('makes Cache buttons disabled when content_html_url or content_text_url are not set in data or when form is dirty', async () => {
@@ -153,15 +143,56 @@ describe('EmailTemplateForm', () => {
     expect(form.hiddenSelector.matches('html-source', true)).to.be.true;
     expect(form.hiddenSelector.matches('text-source', true)).to.be.true;
     expect(form.hiddenSelector.matches('content-html', true)).to.be.true;
+    expect(form.hiddenSelector.matches('content-html-warning', true)).to.be.true;
     expect(form.hiddenSelector.matches('content-text', true)).to.be.true;
+    expect(form.hiddenSelector.matches('content-text-warning', true)).to.be.true;
 
-    form.edit({ subject: 'foo' });
+    form.edit({
+      content_html_url: 'https://example.com',
+      content_text_url: 'https://example.com',
+      content_html: '<p>Test</p>',
+      content_text: 'Test',
+      subject: 'foo',
+    });
+
     expect(form.hiddenSelector.matches('general:template-language', true)).to.be.false;
     expect(form.hiddenSelector.matches('general:subject', true)).to.be.false;
     expect(form.hiddenSelector.matches('html-source', true)).to.be.false;
     expect(form.hiddenSelector.matches('text-source', true)).to.be.false;
     expect(form.hiddenSelector.matches('content-html', true)).to.be.false;
+    expect(form.hiddenSelector.matches('content-html-warning', true)).to.be.false;
     expect(form.hiddenSelector.matches('content-text', true)).to.be.false;
+    expect(form.hiddenSelector.matches('content-text-warning', true)).to.be.false;
+  });
+
+  it('hides html content field warning when html content url is not set or when html content is unchanged otherwise', async () => {
+    const form = new Form();
+    form.edit({ subject: 'Test' });
+    expect(form.hiddenSelector.matches('content-html-warning', true)).to.be.true;
+
+    form.edit({ content_html_url: 'https://example.com' });
+    expect(form.hiddenSelector.matches('content-html-warning', true)).to.be.false;
+
+    form.edit({ content_html: '' });
+    expect(form.hiddenSelector.matches('content-html-warning', true)).to.be.true;
+
+    form.edit({ content_html: '<p>Test</p>' });
+    expect(form.hiddenSelector.matches('content-html-warning', true)).to.be.false;
+  });
+
+  it('hides text content field warning when text content url is not set or when text content is unchanged otherwise', async () => {
+    const form = new Form();
+    form.edit({ subject: 'Test' });
+    expect(form.hiddenSelector.matches('content-text-warning', true)).to.be.true;
+
+    form.edit({ content_text_url: 'https://example.com' });
+    expect(form.hiddenSelector.matches('content-text-warning', true)).to.be.false;
+
+    form.edit({ content_text: '' });
+    expect(form.hiddenSelector.matches('content-text-warning', true)).to.be.true;
+
+    form.edit({ content_text: 'Test' });
+    expect(form.hiddenSelector.matches('content-text-warning', true)).to.be.false;
   });
 
   it('renders a form header', () => {
@@ -260,6 +291,13 @@ describe('EmailTemplateForm', () => {
     expect(control?.localName).to.equal('foxy-internal-source-control');
   });
 
+  it('renders a warning text for HTML Content', async () => {
+    const form = await fixture<Form>(html`<foxy-email-template-form></foxy-email-template-form>`);
+    const wrapper = form.renderRoot.querySelector('[infer="content-html-warning"]');
+    const text = wrapper?.querySelector('foxy-i18n[infer=""][key="text"]');
+    expect(text).to.exist;
+  });
+
   it('renders a summary control for HTML Source', async () => {
     const form = await fixture<Form>(html`<foxy-email-template-form></foxy-email-template-form>`);
     const control = form.renderRoot.querySelector('[infer="html-source"]');
@@ -301,6 +339,13 @@ describe('EmailTemplateForm', () => {
     const form = await fixture<Form>(html`<foxy-email-template-form></foxy-email-template-form>`);
     const control = form.renderRoot.querySelector('[infer="content-text"]');
     expect(control?.localName).to.equal('foxy-internal-source-control');
+  });
+
+  it('renders a warning text for Text Content', async () => {
+    const form = await fixture<Form>(html`<foxy-email-template-form></foxy-email-template-form>`);
+    const wrapper = form.renderRoot.querySelector('[infer="content-text-warning"]');
+    const text = wrapper?.querySelector('foxy-i18n[infer=""][key="text"]');
+    expect(text).to.exist;
   });
 
   it('renders a summary control for Text Source', async () => {
