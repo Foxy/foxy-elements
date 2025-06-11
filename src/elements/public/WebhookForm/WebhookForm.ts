@@ -53,6 +53,7 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
   private __eventResources = [
     { value: 'subscription', label: 'event_resource_subscription' },
     { value: 'transaction', label: 'event_resource_transaction' },
+    { value: 'transaction_log', label: 'event_resource_transaction_log' },
     { value: 'customer', label: 'event_resource_customer' },
   ];
 

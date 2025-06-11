@@ -512,8 +512,13 @@ describe('UserInvitationForm', () => {
       'foxy-internal-user-invitation-form-async-action[infer="leave"]'
     );
 
+    const newData = { ...form.data! } as any;
+    delete newData._links['fx:revoke'];
+    form.data = newData;
+    await form.requestUpdate();
+
     expect(action).to.exist;
-    expect(action).to.have.attribute('href', form.data!._links['fx:revoke'].href);
+    expect(action).to.have.attribute('href', form.data!._links['fx:reject'].href);
     expect(action).to.have.attribute('theme', 'error');
   });
 

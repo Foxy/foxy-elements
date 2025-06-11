@@ -11,6 +11,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { isHttpUrl } from '../../../utils/is-http-url';
 import { html, svg } from 'lit-html';
 
 import * as defaults from './defaults';
@@ -36,18 +37,11 @@ export class NativeIntegrationForm extends Base<Data> {
 
   static get v8n(): NucleonV8N<Data> {
     const parse = memoize(JSON.parse);
-    const isURL = memoize((value: string) => {
-      try {
-        return Boolean(new URL(value));
-      } catch {
-        return false;
-      }
-    });
 
     return [
       ({ provider: p = 'avalara', config: c = '{}' }) => {
         const url = parse(c).service_url;
-        const err = url ? (isURL(url) ? null : 'v8n_invalid') : 'v8n_required';
+        const err = url ? (isHttpUrl(url) ? null : 'v8n_invalid') : 'v8n_required';
         return p === 'avalara' && err ? `avalara-service-url:${err}` : true;
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
@@ -64,7 +58,7 @@ export class NativeIntegrationForm extends Base<Data> {
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
         const url = parse(c).service_url;
-        const err = url ? (isURL(url) ? null : 'v8n_invalid') : 'v8n_required';
+        const err = url ? (isHttpUrl(url) ? null : 'v8n_invalid') : 'v8n_required';
         return p === 'onesource' && err ? `onesource-service-url:${err}` : true;
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
@@ -93,7 +87,7 @@ export class NativeIntegrationForm extends Base<Data> {
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
         const { service: s, url: u } = parse(c);
-        const err = u ? (isURL(u) ? null : 'v8n_invalid') : 'v8n_required';
+        const err = u ? (isHttpUrl(u) ? null : 'v8n_invalid') : 'v8n_required';
         return p === 'webhook' && s === 'json' && err ? `webhook-json-url:${err}` : true;
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
@@ -103,7 +97,7 @@ export class NativeIntegrationForm extends Base<Data> {
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
         const { service: s, url: u } = parse(c);
-        const err = u ? (isURL(u) ? null : 'v8n_invalid') : 'v8n_required';
+        const err = u ? (isHttpUrl(u) ? null : 'v8n_invalid') : 'v8n_required';
         const prefix = 'webhook-legacy-xml-url';
         return p === 'webhook' && s === 'legacy_xml' && err ? `${prefix}:${err}` : true;
       },

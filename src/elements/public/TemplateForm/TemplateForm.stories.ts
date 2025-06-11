@@ -11,7 +11,7 @@ const summary: Summary = {
   localName: 'foxy-template-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps', 'header', 'general', 'source'],
+    sections: ['timestamps', 'header', 'general', 'source', 'content-warning'],
     buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
     inputs: ['general:description', 'content', 'source:content-html-url', 'source:cache'],
   },

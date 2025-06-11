@@ -18,6 +18,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { ResponsiveMixin } from '../../../mixins/responsive';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { isHttpUrl } from '../../../utils/is-http-url';
 import { html } from 'lit-html';
 
 import slugify from '@sindresorhus/slugify';
@@ -90,6 +91,7 @@ export class StoreForm extends Base<Data> {
       },
       ({ store_url: v }) => !!v || 'store-url:v8n_required',
       ({ store_url: v }) => (v && v.length <= 300) || 'store-url:v8n_too_long',
+      ({ store_url: v }) => !v || isHttpUrl(v) || 'store-url:v8n_invalid',
       ({ receipt_continue_url: v }) => !v || v.length <= 300 || 'receipt-continue-url:v8n_too_long',
       ({ store_email: v }) => !!v || 'store-email:v8n_required',
       ({ store_email: v }) => (v && v.length <= 300) || 'store-email:v8n_too_long',

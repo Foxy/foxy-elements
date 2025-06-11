@@ -41,7 +41,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "spinner": {
@@ -131,7 +131,7 @@
           "pagination": "{{from}}-{{to}} out of {{total}}",
           "previous": "Previous",
           "page_number": "Page number:",
-          "select": "Select...",
+          "select": "Select",
           "per_page": "Items per page:",
           "card": {
             "spinner": {
@@ -200,7 +200,7 @@
                   "pagination": "{{from}}-{{to}} out of {{total}}",
                   "previous": "Previous",
                   "page_number": "Page number:",
-                  "select": "Select...",
+                  "select": "Select",
                   "per_page": "Items per page:",
                   "card": {
                     "spinner": {
@@ -377,7 +377,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "title_valid": "{{type}} ••••{{last4Digits}}, expires {{month}}/{{year}}",
@@ -580,7 +580,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
@@ -679,7 +679,7 @@
                   "pagination": "{{from}}-{{to}} out of {{total}}",
                   "previous": "Previous",
                   "page_number": "Page number:",
-                  "select": "Select...",
+                  "select": "Select",
                   "per_page": "Items per page:",
                   "card": {
                     "spinner": {
@@ -832,7 +832,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "spinner": {
@@ -852,7 +852,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "spinner": {
@@ -962,7 +962,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:"
           }
         },
@@ -1074,7 +1074,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:"
           }
         },
@@ -1126,7 +1126,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
@@ -1215,7 +1215,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
@@ -1316,7 +1316,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",

@@ -39,7 +39,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "image_alt": "Shipping method logo",
@@ -85,7 +85,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "subtitle": "Code: {{ code }}",
@@ -127,7 +127,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "subtitle": "Code: {{ code }}",
@@ -223,7 +223,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:",
       "card": {
         "subtitle": "Code: {{ code }}",

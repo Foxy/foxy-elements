@@ -6,6 +6,7 @@
     "subtitle_webflow": "Webflow webhook",
     "subtitle_zapier": "Zapier webhook",
     "subtitle_transaction": "Transaction webhook",
+    "subtitle_transaction_log": "Transaction log webhook",
     "subtitle_subscription": "Subscription webhook",
     "subtitle_customer": "Customer webhook",
     "copy-id": {
@@ -45,7 +46,8 @@
     "event-resource": {
       "label": "Resource",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
+      "event_resource_transaction_log": "Transaction log",
       "event_resource_subscription": "Subscription",
       "event_resource_transaction": "Transaction",
       "event_resource_customer": "Customer"
@@ -82,7 +84,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:",
       "card": {
         "status_initializing": "Initializing",
@@ -107,7 +109,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:",
       "card": {
         "date": "{{ value, date }} at {{ value, time }}",

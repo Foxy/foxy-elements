@@ -11,18 +11,11 @@ import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html, svg } from 'lit-html';
+import { isHttpUrl } from '../../../utils/is-http-url';
 
 const NS = 'store-shipping-method-form';
 const Base = TranslatableMixin(InternalForm, NS);
 const getKbSize = (value: string) => new Blob([value]).size / 1024;
-const isURL = (value: string) => {
-  try {
-    new URL(value);
-    return true;
-  } catch {
-    return false;
-  }
-};
 
 /**
  * Form element for creating and editing store shipping methods (`fx:store_shipping_method`).
@@ -41,7 +34,7 @@ export class StoreShippingMethodForm extends Base<Data> {
 
   static get v8n(): NucleonV8N<Data> {
     return [
-      ({ shipping_method_uri: v }) => (v && isURL(v)) || 'shipping-method-uri:v8n_required',
+      ({ shipping_method_uri: v }) => (v && isHttpUrl(v)) || 'shipping-method-uri:v8n_required',
       ({ accountid: v }) => !v || v.length <= 50 || 'accountid:v8n_too_long',
       ({ password: v }) => !v || v.length <= 50 || 'password:v8n_too_long',
       ({ meter_number: v }) => !v || v.length <= 50 || 'meter-number:v8n_too_long',

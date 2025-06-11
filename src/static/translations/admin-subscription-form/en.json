@@ -220,7 +220,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:",
       "card": {
         "delete_button_text": "Remove",
@@ -320,7 +320,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:",
       "card": {
         "price": "{{amount, price}}",
@@ -429,7 +429,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "delete_button_text": "Remove",
@@ -528,7 +528,7 @@
                         "pagination": "{{from}}-{{to}} out of {{total}}",
                         "previous": "Previous",
                         "page_number": "Page number:",
-                        "select": "Select...",
+                        "select": "Select",
                         "per_page": "Items per page:",
                         "card": {
                           "spinner": {
@@ -681,7 +681,7 @@
                   "pagination": "{{from}}-{{to}} out of {{total}}",
                   "previous": "Previous",
                   "page_number": "Page number:",
-                  "select": "Select...",
+                  "select": "Select",
                   "per_page": "Items per page:",
                   "card": {
                     "spinner": {
@@ -701,7 +701,7 @@
                   "pagination": "{{from}}-{{to}} out of {{total}}",
                   "previous": "Previous",
                   "page_number": "Page number:",
-                  "select": "Select...",
+                  "select": "Select",
                   "per_page": "Items per page:",
                   "card": {
                     "spinner": {
@@ -811,7 +811,7 @@
                   "pagination": "{{from}}-{{to}} out of {{total}}",
                   "previous": "Previous",
                   "page_number": "Page number:",
-                  "select": "Select...",
+                  "select": "Select",
                   "per_page": "Items per page:"
                 }
               },
@@ -923,7 +923,7 @@
                   "pagination": "{{from}}-{{to}} out of {{total}}",
                   "previous": "Previous",
                   "page_number": "Page number:",
-                  "select": "Select...",
+                  "select": "Select",
                   "per_page": "Items per page:"
                 }
               },
@@ -1041,7 +1041,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "delete_button_text": "Remove",
@@ -1144,7 +1144,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "delete_button_text": "Remove",
@@ -1181,7 +1181,7 @@
                   "pagination": "{{from}}-{{to}} out of {{total}}",
                   "previous": "Previous",
                   "page_number": "Page number:",
-                  "select": "Select...",
+                  "select": "Select",
                   "per_page": "Items per page:",
                   "card": {
                     "status_initializing": "Initializing",
@@ -1206,7 +1206,7 @@
                   "pagination": "{{from}}-{{to}} out of {{total}}",
                   "previous": "Previous",
                   "page_number": "Page number:",
-                  "select": "Select...",
+                  "select": "Select",
                   "per_page": "Items per page:",
                   "card": {
                     "date": "{{ value, date }} at {{ value, time }}",
@@ -1238,7 +1238,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "status_initializing": "Last run: {{ date_created, date }} at {{ date_created, time }} • Initializing",
@@ -1259,7 +1259,7 @@
         },
         "datafeed": {
           "label": "Legacy XML datafeed",
-          "helper_text": "To resend this webhook, use the Resend datafeed button at the top of the page.",
+          "helper_text": "",
           "data-is-fed": {
             "label": "Status",
             "helper_text": "",
@@ -1267,20 +1267,15 @@
             "unchecked": "Not sent"
           },
           "process-webhook": {
-            "button": {
-              "idle": "Resend datafeed",
-              "busy": "Processing..."
-            },
-            "notification": {
-              "success": "XML datafeed resent successfully",
-              "error": "Failed to resend datafeed"
-            },
-            "confirm-dialog": {
-              "message": "This will attempt to resend the XML datafeed. Would you like to proceed?",
-              "confirm": "Yes",
-              "cancel": "No",
-              "header": "Resend datafeed"
-            }
+            "message_idle": "This action will attempt to resend the legacy XML datafeed for this transaction. Would you like to proceed?",
+            "message_fail": "Failed to resend the datafeed this transaction. If you'd like to retry, close this dialog and click the Resend button again.",
+            "message_done": "Legacy XML datafeed was resent successfully. You can close this dialog now.",
+            "button_close": "Close",
+            "button_confirm": "Resend",
+            "button_cancel": "Go back",
+            "loading_busy": "Processing",
+            "header": "Resend datafeed",
+            "button": "Resend datafeed"
           }
         },
         "summary": {
@@ -1313,7 +1308,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "code": "Code",
@@ -2045,7 +2040,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "full_address": "{{address1}} {{address2}} {{city}} {{region}} {{country}} {{postal_code}}",
@@ -2067,7 +2062,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "full_address": "{{ address1 }} {{ address2 }} {{ city }} {{ region }} {{ postal_code }}",

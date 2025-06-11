@@ -59,7 +59,7 @@
           "pagination": "{{from}}-{{to}} out of {{total}}",
           "previous": "Previous",
           "page_number": "Page number:",
-          "select": "Select...",
+          "select": "Select",
           "per_page": "Items per page:",
           "card": {
             "status_test": "Test",

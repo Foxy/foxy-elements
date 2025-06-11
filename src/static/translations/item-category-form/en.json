@@ -45,7 +45,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:",
       "card": {
         "percent": "{{fraction, percent}}",
@@ -74,7 +74,7 @@
       "option_downloaded": "Downloaded by the customer",
       "option_pickup": "Picked up by the customer",
       "option_notshipped": "Not shipped",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "helper_text": "",
       "v8n_required": "Please select a delivery type"
     },
@@ -101,7 +101,7 @@
     },
     "shipping-flat-rate-type": {
       "label": "Flat rate applies",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_per_order": "Per order",
       "option_per_item": "Per item",
       "helper_text": "",
@@ -122,7 +122,7 @@
     },
     "default-weight-unit": {
       "label": "Default weight unit",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_kgs": "KG",
       "option_lbs": "LBS",
       "helper_text": "",
@@ -130,7 +130,7 @@
     },
     "default-length-unit": {
       "label": "Default length unit",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_cm": "CM",
       "option_in": "IN",
       "helper_text": "",
@@ -147,7 +147,7 @@
       "option_flat_per_item": "Flat fee per product",
       "option_flat_percent": "Flat fee per shipment + % of price",
       "option_flat_percent_with_minimum": "Flat fee per shipment or % of price, whichever is greater",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "helper_text": "",
       "v8n_required": "Please select a value"
     },
@@ -220,7 +220,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "type_custom_url": "Custom (URL)",

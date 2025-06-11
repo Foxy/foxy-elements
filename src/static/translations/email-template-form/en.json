@@ -78,10 +78,16 @@
     "placeholder": "None (use default)",
     "helper_text": ""
   },
+  "content-html-warning": {
+    "text": "As you are caching from a remote template URL, we recommend making changes in your remote template directly and recaching the changes. Any changes made locally within the administration could be lost if the remote template is cached again."
+  },
   "content-text": {
     "label": "Custom text template",
     "placeholder": "None (use default)",
     "helper_text": ""
+  },
+  "content-text-warning": {
+    "text": "As you are caching from a remote template URL, we recommend making changes in your remote template directly and recaching the changes. Any changes made locally within the administration could be lost if the remote template is cached again."
   },
   "timestamps": {
     "date_created": "Created on",

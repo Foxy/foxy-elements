@@ -26,6 +26,10 @@ describe('TemplateForm', () => {
     expect(customElements.get('foxy-internal-form')).to.exist;
   });
 
+  it('imports and defines foxy-i18n', () => {
+    expect(customElements.get('foxy-i18n')).to.exist;
+  });
+
   it('imports and defines foxy-internal-template-form-async-action', () => {
     expect(customElements.get('foxy-internal-template-form-async-action')).to.exist;
   });
@@ -41,13 +45,6 @@ describe('TemplateForm', () => {
   it('has a default i18next namespace of "template-form"', () => {
     expect(new Form().ns).to.equal('template-form');
     expect(Form.defaultNS).to.equal('template-form');
-  });
-
-  it('makes content control read-only when content_url is set', () => {
-    const form = new Form();
-    expect(form.readonlySelector.matches('content', true)).to.be.false;
-    form.edit({ content_url: 'foo' });
-    expect(form.readonlySelector.matches('content', true)).to.be.true;
   });
 
   it('makes Cache button disabled when content_url is not set in data or when form is dirty', async () => {
@@ -76,6 +73,20 @@ describe('TemplateForm', () => {
     data.content_url = 'foo';
     form.data = { ...data };
     expect(form.hiddenSelector.matches('source:cache', true)).to.be.false;
+  });
+
+  it('hides content field warning when content url is not set or when content is unchanged otherwise', async () => {
+    const form = new Form();
+    expect(form.hiddenSelector.matches('content-warning', true)).to.be.true;
+
+    form.edit({ content_url: 'https://example.com' });
+    expect(form.hiddenSelector.matches('content-warning', true)).to.be.false;
+
+    form.edit({ content: '' });
+    expect(form.hiddenSelector.matches('content-warning', true)).to.be.true;
+
+    form.edit({ content: '<p>Test</p>' });
+    expect(form.hiddenSelector.matches('content-warning', true)).to.be.false;
   });
 
   it('renders a form header', () => {
@@ -110,6 +121,13 @@ describe('TemplateForm', () => {
     const form = await fixture<Form>(html`<foxy-template-form></foxy-template-form>`);
     const control = form.renderRoot.querySelector('[infer="content"]');
     expect(control?.localName).to.equal('foxy-internal-source-control');
+  });
+
+  it('renders a warning text for Content', async () => {
+    const form = await fixture<Form>(html`<foxy-template-form></foxy-template-form>`);
+    const wrapper = form.renderRoot.querySelector('[infer="content-warning"]');
+    const text = wrapper?.querySelector('foxy-i18n[infer=""][key="text"]');
+    expect(text).to.exist;
   });
 
   it('renders a summary control for Source', async () => {
