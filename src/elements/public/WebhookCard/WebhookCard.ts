@@ -57,6 +57,10 @@ export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')
     const cardStatus = recentStatuses ? lastStatus?.status ?? 'none' : 'loading';
     const isActive = !!this.data?.is_active;
 
+    // SDK types are incorrect – this is a string, not an array.
+    // TODO remove this cast when SDK is fixed.
+    const eventResource = (this.data?.event_resource ?? '') as unknown as string;
+
     return html`
       <div class="grid grid-cols-1 leading-s -my-xs">
         <p class="flex items-center gap-s justify-between">
@@ -78,7 +82,7 @@ export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')
         <p class="text-s truncate text-tertiary">
           ${this.resourceUri
             ? ''
-            : html`<span class="capitalize">${this.data?.event_resource}</span> &bull;`}
+            : html`<span class="capitalize">${eventResource.replace(/_/g, ' ')}</span> &bull;`}
           <foxy-i18n
             class=${classMap({ 'text-error': isActive && cardStatus === 'failed' })}
             infer=""
