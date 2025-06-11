@@ -427,7 +427,7 @@
                 "pagination": "{{from}}-{{to}} out of {{total}}",
                 "previous": "Previous",
                 "page_number": "Page number:",
-                "select": "Select...",
+                "select": "Select",
                 "per_page": "Items per page:",
                 "card": {
                   "spinner": {
@@ -529,7 +529,7 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select...",
+            "select": "Select",
             "per_page": "Items per page:",
             "card": {
               "title_updated_via_api": "Updated via API",
@@ -593,7 +593,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:"
     },
     "query-builder": {
@@ -657,7 +657,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:",
       "card": {
         "spinner": {
@@ -768,7 +768,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:"
     }
   },

@@ -140,7 +140,7 @@
     "location-filtering-usage": {
       "label": "Countries and regions filtering",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_none": "Allow all",
       "option_shipping": "Shipping only",
       "option_billing": "Billing only",
@@ -156,7 +156,7 @@
     "location-filtering-filter-type": {
       "label": "Filter type",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_blocklist": "Disallow only listed below",
       "option_allowlist": "Allow only listed below"
     },
@@ -173,7 +173,7 @@
     "location-filtering-shipping-filter-type": {
       "label": "Shipping filter type",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_blocklist": "Disallow only listed below",
       "option_allowlist": "Allow only listed below"
     },
@@ -190,7 +190,7 @@
     "location-filtering-billing-filter-type": {
       "label": "Billing filter type",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_blocklist": "Disallow only listed below",
       "option_allowlist": "Allow only listed below"
     },
@@ -212,7 +212,7 @@
     "csc-requirements": {
       "label": "Require CSC/CVC/CVV for",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_all_cards": "All new and saved cards",
       "option_sso_only": "New cards and SSO customers only",
       "option_new_cards_only": "New cards only"
@@ -224,7 +224,7 @@
     "checkout-type-account": {
       "label": "Allowed account types",
       "helper_text": "If you allow only guest accounts, your store will not be able to use subscriptions.",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_guest": "Only guest",
       "option_account": "Only registered",
       "option_both": "Guest and registered"
@@ -232,7 +232,7 @@
     "checkout-type-default": {
       "label": "Default behaviour",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_default_guest": "Checkout as guest",
       "option_default_account": "Ask to log in or sign up"
     }
@@ -243,7 +243,7 @@
     "tos-checkbox-settings-usage": {
       "label": "Terms of Service checkbox",
       "helper_text": "This displays a checkbox on your checkout to require customers to agree to your terms of service.",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_none": "None",
       "option_optional": "Optional",
       "option_required": "Required"
@@ -256,7 +256,7 @@
     "tos-checkbox-settings-initial-state": {
       "label": "Initial state",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_checked": "Checked",
       "option_unchecked": "Unchecked"
     },
@@ -303,7 +303,7 @@
     "custom-checkout-field-requirements-billing-address-one": {
       "label": "Address 1",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_optional": "Optional",
       "option_required": "Required",
       "option_default": "Default",
@@ -312,7 +312,7 @@
     "custom-checkout-field-requirements-billing-address-two": {
       "label": "Address 2",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_optional": "Optional",
       "option_required": "Required",
       "option_default": "Default",
@@ -321,7 +321,7 @@
     "custom-checkout-field-requirements-billing-city": {
       "label": "City",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_optional": "Optional",
       "option_required": "Required",
       "option_default": "Default",
@@ -330,7 +330,7 @@
     "custom-checkout-field-requirements-billing-region": {
       "label": "Region",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_optional": "Optional",
       "option_required": "Required",
       "option_default": "Default",
@@ -339,7 +339,7 @@
     "custom-checkout-field-requirements-billing-postal-code": {
       "label": "Postal code",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_optional": "Optional",
       "option_required": "Required",
       "option_default": "Default",
@@ -348,7 +348,7 @@
     "custom-checkout-field-requirements-billing-country": {
       "label": "Country",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_optional": "Optional",
       "option_required": "Required",
       "option_default": "Default",
@@ -361,14 +361,14 @@
     "custom-checkout-field-requirements-coupon-entry": {
       "label": "Coupon code",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_enabled": "Optional",
       "option_disabled": "Hidden"
     },
     "custom-checkout-field-requirements-billing-first-name": {
       "label": "First name",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_optional": "Optional",
       "option_required": "Required",
       "option_default": "Default",
@@ -377,7 +377,7 @@
     "custom-checkout-field-requirements-billing-last-name": {
       "label": "Last name",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_optional": "Optional",
       "option_required": "Required",
       "option_default": "Default",
@@ -386,7 +386,7 @@
     "custom-checkout-field-requirements-billing-company": {
       "label": "Company",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_optional": "Optional",
       "option_required": "Required",
       "option_default": "Default",
@@ -395,7 +395,7 @@
     "custom-checkout-field-requirements-billing-tax-id": {
       "label": "Tax ID",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_optional": "Optional",
       "option_required": "Required",
       "option_default": "Default",
@@ -404,7 +404,7 @@
     "custom-checkout-field-requirements-billing-phone": {
       "label": "Phone",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "option_optional": "Optional",
       "option_required": "Required",
       "option_default": "Default",

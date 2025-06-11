@@ -46,7 +46,7 @@
     "event-resource": {
       "label": "Resource",
       "helper_text": "",
-      "placeholder": "Select...",
+      "placeholder": "Select",
       "event_resource_transaction_log": "Transaction log",
       "event_resource_subscription": "Subscription",
       "event_resource_transaction": "Transaction",
@@ -84,7 +84,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:",
       "card": {
         "status_initializing": "Initializing",
@@ -109,7 +109,7 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "page_number": "Page number:",
-      "select": "Select...",
+      "select": "Select",
       "per_page": "Items per page:",
       "card": {
         "date": "{{ value, date }} at {{ value, time }}",
