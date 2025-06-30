@@ -32,13 +32,14 @@ export class InternalExperimentalAddToCartBuilderCustomOptionForm extends Base<D
 
   currencyCode: string | null = null;
 
-  get disabledSelector(): BooleanSelector {
-    const alwaysMatch = [super.disabledSelector.toString()];
+  private readonly __nameSetValue = (newValue: string) => {
+    this.edit({ name: newValue });
+    if (this.__isAlternative) this.edit({ value_configurable: false, required: false });
+  };
 
-    if (!this.href && this.existingOptions.some(o => o.name === this.form.name)) {
-      alwaysMatch.unshift('basics-group:value-configurable');
-    }
-
+  get readonlySelector(): BooleanSelector {
+    const alwaysMatch = [super.readonlySelector.toString()];
+    if (this.__isAlternative) alwaysMatch.unshift('basics-group:value-configurable');
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
@@ -57,7 +58,28 @@ export class InternalExperimentalAddToCartBuilderCustomOptionForm extends Base<D
   renderBody(): TemplateResult {
     return html`
       <foxy-internal-summary-control infer="basics-group">
-        <foxy-internal-text-control layout="summary-item" infer="name"></foxy-internal-text-control>
+        <foxy-internal-text-control
+          layout="summary-item"
+          infer="name"
+          .setValue=${this.__nameSetValue}
+          @keydown=${(evt: KeyboardEvent) => {
+            if (!['ArrowUp', 'ArrowDown'].includes(evt.key)) return;
+            evt.preventDefault();
+
+            const existingNames = this.existingOptions
+              .map(option => option.name)
+              .filter((v, i, a) => a.indexOf(v) === i);
+
+            const currentIndex = existingNames.indexOf(this.form.name ?? '');
+            let nextIndex = evt.key === 'ArrowUp' ? currentIndex - 1 : currentIndex + 1;
+            if (nextIndex < 0) nextIndex = existingNames.length - 1;
+            if (nextIndex >= existingNames.length) nextIndex = 0;
+
+            const nextName = existingNames[nextIndex];
+            if (nextName && nextName !== this.form.name) this.edit({ name: nextName });
+          }}
+        >
+        </foxy-internal-text-control>
 
         <foxy-internal-text-control
           property="value"
@@ -121,6 +143,8 @@ export class InternalExperimentalAddToCartBuilderCustomOptionForm extends Base<D
         @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
+
+      ${super.renderBody()}
     `;
   }
 
@@ -142,5 +166,10 @@ export class InternalExperimentalAddToCartBuilderCustomOptionForm extends Base<D
     type Loader = NucleonElement<Resource<Rels.ItemCategory>>;
     const loader = this.renderRoot.querySelector<Loader>('#itemCategoryLoader');
     return loader?.data?.default_weight_unit ?? this.defaultWeightUnit;
+  }
+
+  private get __isAlternative() {
+    const existing = this.existingOptions.filter(o => o.name === this.form.name);
+    return this.href ? existing.length > 1 : existing.length > 0;
   }
 }

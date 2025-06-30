@@ -115,7 +115,16 @@ describe('ExperimentalAddToCartBuilder', () => {
 
     it('renders text control for option name inside of the basics group', async () => {
       const form = await fixture<Form>(
-        html`<foxy-internal-experimental-add-to-cart-builder-custom-option-form></foxy-internal-experimental-add-to-cart-builder-custom-option-form>`
+        html`
+          <foxy-internal-experimental-add-to-cart-builder-custom-option-form
+            .existingOptions=${[
+              { name: 'foo', value: 'bar' },
+              { name: 'baz', value: 'qux' },
+              { name: 'quux', value: 'corge' },
+            ]}
+          >
+          </foxy-internal-experimental-add-to-cart-builder-custom-option-form>
+        `
       );
 
       const control = form.renderRoot.querySelector(
@@ -123,6 +132,12 @@ describe('ExperimentalAddToCartBuilder', () => {
       );
 
       expect(control).to.exist;
+
+      control?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+      expect(form.form.name).to.equal('quux');
+
+      control?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+      expect(form.form.name).to.equal('foo');
     });
 
     it('renders text control for option value inside of the basics group if value is not configurable', async () => {
