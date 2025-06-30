@@ -119,7 +119,7 @@ export class InternalNumberControl extends InternalEditableControl {
               'font-medium': !this.readonly,
             })}
             type="number"
-            step=${ifDefined(this.step ?? void 0)}
+            step=${this.step ?? 'any'}
             min=${ifDefined(this.min ?? void 0)}
             max=${ifDefined(this.max ?? void 0)}
             id="input"
