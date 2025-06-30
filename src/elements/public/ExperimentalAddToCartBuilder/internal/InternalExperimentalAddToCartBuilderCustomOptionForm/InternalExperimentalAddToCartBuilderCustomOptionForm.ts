@@ -32,12 +32,6 @@ export class InternalExperimentalAddToCartBuilderCustomOptionForm extends Base<D
 
   currencyCode: string | null = null;
 
-  get readonlySelector(): BooleanSelector {
-    const alwaysMatch = [super.readonlySelector.toString()];
-    if (this.href) alwaysMatch.unshift('basics-group');
-    return new BooleanSelector(alwaysMatch.join(' ').trim());
-  }
-
   get disabledSelector(): BooleanSelector {
     const alwaysMatch = [super.disabledSelector.toString()];
 
