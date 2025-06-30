@@ -103,7 +103,7 @@ export class SubscriptionCard extends Base<Data> {
               </div>
             </div>
 
-            <div class="flex-1 leading-xs mb-xs sm-mb-0 sm-text-right order-0 sm-order-1">
+            <div class="flex-1 leading-xs sm-text-right order-0 sm-order-1">
               <foxy-i18n
                 data-testid="price"
                 options=${JSON.stringify(this.__getPriceOptions())}
@@ -137,7 +137,6 @@ export class SubscriptionCard extends Base<Data> {
                   </foxy-i18n>
                 </vcf-tooltip>
               </span>
-              &#8203;
             </div>
           </div>
         </div>
