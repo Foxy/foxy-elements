@@ -44,7 +44,7 @@ export class InternalExperimentalAddToCartBuilderCustomOptionForm extends Base<D
   }
 
   get hiddenSelector(): BooleanSelector {
-    const alwaysMatch = [super.hiddenSelector.toString()];
+    const alwaysMatch = ['timestamps', super.hiddenSelector.toString()];
 
     if (this.form.value_configurable) {
       alwaysMatch.unshift('price-group', 'weight-group', 'code-group', 'category-group');

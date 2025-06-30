@@ -101,6 +101,11 @@ describe('ExperimentalAddToCartBuilder', () => {
       expect(form.hiddenSelector.matches('basics-group:required', true)).to.be.false;
     });
 
+    it('always hides timestamps', () => {
+      const form = new Form();
+      expect(form.hiddenSelector.matches('timestamps', true)).to.be.true;
+    });
+
     it('renders a summary control for the basics group', async () => {
       const form = await fixture<Form>(
         html`<foxy-internal-experimental-add-to-cart-builder-custom-option-form></foxy-internal-experimental-add-to-cart-builder-custom-option-form>`
