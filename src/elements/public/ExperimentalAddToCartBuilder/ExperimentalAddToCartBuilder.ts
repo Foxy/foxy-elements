@@ -769,9 +769,15 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
             output += `${newline()}<input name="${encodeAttributeValue(name, isHmacOn)}" `;
 
             if (store.use_cart_validation) {
-              output += `value="--OPEN--" data-replace="${encodeAttributeValue(value, isHmacOn)}">`;
+              output += `value="--OPEN--" data-replace="${encodeAttributeValue(value, isHmacOn)}"`;
             } else {
-              output += `value="${encodeAttributeValue(value, isHmacOn)}">`;
+              output += `value="${encodeAttributeValue(value, isHmacOn)}"`;
+            }
+
+            if (group[0].required) {
+              output += ` placeholder="${encode(this.t('preview.required'))}" required>`;
+            } else {
+              output += '>';
             }
 
             level--;

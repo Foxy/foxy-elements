@@ -47,6 +47,8 @@ export class InternalExperimentalAddToCartBuilderCustomOptionForm extends Base<D
 
     if (this.form.value_configurable) {
       alwaysMatch.unshift('price-group', 'weight-group', 'code-group', 'category-group');
+    } else {
+      alwaysMatch.unshift('basics-group:required');
     }
 
     return new BooleanSelector(alwaysMatch.join(' ').trim());
@@ -64,7 +66,15 @@ export class InternalExperimentalAddToCartBuilderCustomOptionForm extends Base<D
         >
         </foxy-internal-text-control>
 
-        <foxy-internal-switch-control infer="value-configurable"></foxy-internal-switch-control>
+        <foxy-internal-switch-control
+          helper-text=${ifDefined(this.__isAlternative ? void 0 : '')}
+          infer="value-configurable"
+          helper-text-as-tooltip
+        >
+        </foxy-internal-switch-control>
+
+        <foxy-internal-switch-control infer="required" helper-text-as-tooltip>
+        </foxy-internal-switch-control>
       </foxy-internal-summary-control>
 
       <foxy-internal-summary-control infer="price-group">

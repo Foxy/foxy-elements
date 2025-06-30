@@ -46,6 +46,7 @@ export interface ExperimentalAddToCartSnippet extends Graph {
         name: string;
         value?: string;
         value_configurable?: boolean;
+        required?: boolean;
         price?: number;
         replace_price?: boolean;
         weight?: number;

@@ -1302,7 +1302,12 @@ describe('ExperimentalAddToCartBuilder', () => {
             sub_enddate_format: 'duration',
             sub_enddate: '2y',
             custom_options: [
-              { name: 'Option1', value: 'Option1DefaultValue', value_configurable: true },
+              {
+                name: 'Option1',
+                value: 'Option1DefaultValue',
+                value_configurable: true,
+                required: true,
+              },
             ],
           },
           {
@@ -1332,7 +1337,7 @@ describe('ExperimentalAddToCartBuilder', () => {
             </label>
             <label>
               <span>Option1:</span>
-              <input name="Option1" value="Option1DefaultValue">
+              <input name="Option1" value="Option1DefaultValue" placeholder="preview.required" required>
             </label>
           </fieldset>
           <fieldset>
