@@ -50,13 +50,14 @@ export class SubscriptionCard extends Base<Data> {
       <div class="relative text-left">
         <div
           class=${classMap({
-            'flex items-start sm-items-center space-x-m transition duration-150 ease-in-out': true,
+            'flex items-start space-x-m transition duration-150 ease-in-out': true,
             'opacity-0': !this.in({ idle: 'snapshot' }),
           })}
         >
           <div
+            style="width: calc(var(--lumo-font-size-m) * var(--lumo-line-height-xs) * 2); height: calc(var(--lumo-font-size-m) * var(--lumo-line-height-xs) * 2)"
             class=${classMap({
-              'min-w-0 flex-shrink-0 rounded-full relative flex p-s': true,
+              'min-w-0 flex-shrink-0 rounded-full relative flex': true,
               'text-success bg-success-10': isGreen,
               'text-body bg-contrast-5': isNormal,
               'text-error bg-error-10': isRed,
@@ -69,18 +70,16 @@ export class SubscriptionCard extends Base<Data> {
             </iron-icon>
           </div>
 
-          <div class="flex-1 min-w-0 leading-xs flex flex-col sm-flex-row sm-items-center">
-            <div class="order-1 sm-order-0">
+          <div class="flex-1 min-w-0 leading-xs flex flex-col gap-m sm-flex-row">
+            <div>
               <div class="text-body font-medium origin-top-left text-m">
                 <foxy-i18n
                   data-testid="summary"
-                  options=${JSON.stringify(this.__getSummaryOptions())}
-                  lang=${this.lang}
-                  key="transaction_summary"
-                  ns=${this.ns}
+                  infer=""
+                  key="summary"
+                  .options=${this.__getSummaryOptions()}
                 >
                 </foxy-i18n>
-                &#8203;
               </div>
 
               <div
@@ -93,34 +92,28 @@ export class SubscriptionCard extends Base<Data> {
               >
                 <foxy-i18n
                   data-testid="status"
-                  lang=${this.lang}
+                  infer=""
                   key="status_${status}"
-                  ns=${this.ns}
                   .options=${this.data}
                 >
                 </foxy-i18n>
-                &#8203;
               </div>
             </div>
 
-            <div class="flex-1 leading-xs mb-xs sm-mb-0 sm-text-right order-0 sm-order-1">
+            <div class="flex-1 leading-xs sm-text-right sm-flex-shrink-0 sm-whitespace-nowrap">
               <foxy-i18n
                 data-testid="price"
                 options=${JSON.stringify(this.__getPriceOptions())}
-                class="text-xxs sm-text-l font-tnum tracking-wide sm-tracking-normal uppercase sm-normal-case font-medium text-secondary sm-text-body sm-block"
-                lang=${this.lang}
+                class="text-l font-medium block"
+                infer=""
                 key="price${this.settings?.cart_display_config.show_sub_frequency ?? true
                   ? `_${this.data?.frequency === '.5m' ? 'twice_a_month' : 'recurring'}`
                   : ''}"
-                ns=${this.ns}
               >
               </foxy-i18n>
 
-              <span class="text-secondary font-medium sm-font-normal sm-block text-xxs sm-text-s">
-                <span class="sm-hidden">(</span>
-                <span class="hidden sm-inline">*</span>
+              <span class="text-secondary font-normal block text-s">
                 <foxy-i18n infer="" key="fees_hint"></foxy-i18n>
-                <span class="sm-hidden">)</span>
                 <iron-icon id="hint" icon="icons:info-outline" class="icon-inline"></iron-icon>
                 <vcf-tooltip
                   position="bottom"
@@ -137,7 +130,6 @@ export class SubscriptionCard extends Base<Data> {
                   </foxy-i18n>
                 </vcf-tooltip>
               </span>
-              &#8203;
             </div>
           </div>
         </div>
@@ -152,8 +144,7 @@ export class SubscriptionCard extends Base<Data> {
           <foxy-spinner
             state=${this.in('fail') ? 'error' : this.in({ idle: 'template' }) ? 'empty' : 'busy'}
             class="m-auto"
-            lang=${this.lang}
-            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
+            infer="spinner"
           >
           </foxy-spinner>
         </div>
@@ -166,12 +157,17 @@ export class SubscriptionCard extends Base<Data> {
   private __getSummaryOptions() {
     if (this.data === null) return {};
     const items = this.data._embedded['fx:transaction_template']._embedded['fx:items'];
+    const count = items.length;
+    const context =
+      count === 1
+        ? 'one_item'
+        : count === 2
+        ? 'two_items'
+        : count === 3
+        ? 'three_items'
+        : 'four_plus_items';
 
-    return {
-      count_minus_one: items.length - 1,
-      first_item: items[0],
-      count: items.length,
-    };
+    return { items, count_minus_three: count - 3, context };
   }
 
   private __getPriceOptions() {

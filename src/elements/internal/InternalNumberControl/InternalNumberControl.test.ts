@@ -332,7 +332,7 @@ describe('InternalNumberControl', () => {
     `);
 
     const input = control.renderRoot.querySelector('input')!;
-    expect(input).to.not.have.attribute('step');
+    expect(input).to.have.attribute('step', 'any');
 
     control.step = 5;
     await control.requestUpdate();

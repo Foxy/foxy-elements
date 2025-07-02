@@ -69,19 +69,12 @@ describe('ExperimentalAddToCartBuilder', () => {
       });
     });
 
-    it('makes option basics group readonly if href is set', () => {
+    it('makes configurable value toggle readonly if name matches an existing option', () => {
       const form = new Form();
-      expect(form.readonlySelector.matches('basics-group', true)).to.be.false;
-      form.href = 'https://demo.api/virtual/empty';
-      expect(form.readonlySelector.matches('basics-group', true)).to.be.true;
-    });
-
-    it('makes configurable value toggle disabled if name matches an existing option', () => {
-      const form = new Form();
-      expect(form.disabledSelector.matches('basics-group:value-configurable', true)).to.be.false;
+      expect(form.readonlySelector.matches('basics-group:value-configurable', true)).to.be.false;
       form.existingOptions = [{ name: 'foo', value: 'bar' }];
       form.edit({ name: 'foo' });
-      expect(form.disabledSelector.matches('basics-group:value-configurable', true)).to.be.true;
+      expect(form.readonlySelector.matches('basics-group:value-configurable', true)).to.be.true;
     });
 
     it('hides price, weight, code and category groups if value is configurable', () => {
@@ -100,6 +93,19 @@ describe('ExperimentalAddToCartBuilder', () => {
       expect(form.hiddenSelector.matches('category-group', true)).to.be.true;
     });
 
+    it('hides Required switch if value is not configurable', () => {
+      const form = new Form();
+      expect(form.hiddenSelector.matches('basics-group:required', true)).to.be.true;
+
+      form.edit({ value_configurable: true });
+      expect(form.hiddenSelector.matches('basics-group:required', true)).to.be.false;
+    });
+
+    it('always hides timestamps', () => {
+      const form = new Form();
+      expect(form.hiddenSelector.matches('timestamps', true)).to.be.true;
+    });
+
     it('renders a summary control for the basics group', async () => {
       const form = await fixture<Form>(
         html`<foxy-internal-experimental-add-to-cart-builder-custom-option-form></foxy-internal-experimental-add-to-cart-builder-custom-option-form>`
@@ -114,7 +120,16 @@ describe('ExperimentalAddToCartBuilder', () => {
 
     it('renders text control for option name inside of the basics group', async () => {
       const form = await fixture<Form>(
-        html`<foxy-internal-experimental-add-to-cart-builder-custom-option-form></foxy-internal-experimental-add-to-cart-builder-custom-option-form>`
+        html`
+          <foxy-internal-experimental-add-to-cart-builder-custom-option-form
+            .existingOptions=${[
+              { name: 'foo', value: 'bar' },
+              { name: 'baz', value: 'qux' },
+              { name: 'quux', value: 'corge' },
+            ]}
+          >
+          </foxy-internal-experimental-add-to-cart-builder-custom-option-form>
+        `
       );
 
       const control = form.renderRoot.querySelector(
@@ -122,6 +137,12 @@ describe('ExperimentalAddToCartBuilder', () => {
       );
 
       expect(control).to.exist;
+
+      control?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+      expect(form.form.name).to.equal('quux');
+
+      control?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+      expect(form.form.name).to.equal('foo');
     });
 
     it('renders text control for option value inside of the basics group if value is not configurable', async () => {
@@ -159,6 +180,25 @@ describe('ExperimentalAddToCartBuilder', () => {
 
       const control = form.renderRoot.querySelector(
         '[infer="basics-group"] foxy-internal-switch-control[infer="value-configurable"]'
+      );
+
+      expect(control).to.exist;
+      expect(control).to.have.attribute('helper-text-as-tooltip');
+      expect(control).to.have.attribute('helper-text', '');
+
+      form.edit({ name: 'foo' });
+      form.existingOptions = [{ name: 'foo', value: 'bar' }];
+      await form.requestUpdate();
+      expect(control).to.not.have.attribute('helper-text');
+    });
+
+    it('renders switch control for required toggle inside of the basics group', async () => {
+      const form = await fixture<Form>(
+        html`<foxy-internal-experimental-add-to-cart-builder-custom-option-form></foxy-internal-experimental-add-to-cart-builder-custom-option-form>`
+      );
+
+      const control = form.renderRoot.querySelector(
+        '[infer="basics-group"] foxy-internal-switch-control[infer="required"]'
       );
 
       expect(control).to.exist;

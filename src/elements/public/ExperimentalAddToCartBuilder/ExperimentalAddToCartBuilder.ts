@@ -759,7 +759,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
           const optionIndex = product.custom_options.indexOf(group[0]);
           const itemCategory = this.__getItemCategoryLoader(productIndex, optionIndex)?.data;
           const modifiers = this.__getOptionModifiers(group[0], itemCategory ?? null, currencyCode);
-          const value = `${group[0].value}${modifiers}`;
+          const value = `${group[0].value ?? ''}${modifiers}`;
           const name = `${prefix}${optionName}`;
 
           if (group[0].value_configurable) {
@@ -769,9 +769,15 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
             output += `${newline()}<input name="${encodeAttributeValue(name, isHmacOn)}" `;
 
             if (store.use_cart_validation) {
-              output += `value="--OPEN--" data-replace="${encodeAttributeValue(value, isHmacOn)}">`;
+              output += `value="--OPEN--" data-replace="${encodeAttributeValue(value, isHmacOn)}"`;
             } else {
-              output += `value="${encodeAttributeValue(value, isHmacOn)}">`;
+              output += `value="${encodeAttributeValue(value, isHmacOn)}"`;
+            }
+
+            if (group[0].required) {
+              output += ` placeholder="${encode(this.t('preview.required'))}" required>`;
+            } else {
+              output += '>';
             }
 
             level--;
@@ -790,7 +796,10 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
             const optionIndex = product.custom_options.indexOf(option);
             const itemCategory = this.__getItemCategoryLoader(productIndex, optionIndex)?.data;
             const modifiers = this.__getOptionModifiers(option, itemCategory ?? null, currencyCode);
-            const encodedValue = encodeAttributeValue(`${option.value}${modifiers}`, isHmacOn);
+            const encodedValue = encodeAttributeValue(
+              `${option.value ?? ''}${modifiers}`,
+              isHmacOn
+            );
             const encodedCaption = encode(option.value ?? '');
             output += `${newline()}<option value="${encodedValue}">${encodedCaption}</option>`;
           });

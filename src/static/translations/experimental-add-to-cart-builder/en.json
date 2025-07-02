@@ -326,6 +326,12 @@
                 },
                 "value-configurable": {
                   "label": "Let users enter a custom value",
+                  "helper_text": "Not available for options with alternative values.",
+                  "checked": "Yes",
+                  "unchecked": "No"
+                },
+                "required": {
+                  "label": "Mark this field as required",
                   "helper_text": "",
                   "checked": "Yes",
                   "unchecked": "No"
@@ -567,6 +573,7 @@
     "price_label": "Price:",
     "quantity_label": "Quantity:",
     "shipto_label": "Ship to:",
+    "required": "Required",
     "submit_caption_cart": "Add to cart",
     "submit_caption_checkout": "Purchase",
     "unavailable": {
