@@ -7,6 +7,8 @@ import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../../../utils/class-map';
 
 export class InternalDownloadableFormUploadControl extends InternalControl {
+  private __ignoreNextFilesChange = false;
+
   get uploadElement(): UploadElement | null {
     return this.renderRoot.querySelector<UploadElement>('vaadin-upload');
   }
@@ -57,6 +59,7 @@ export class InternalDownloadableFormUploadControl extends InternalControl {
 
     if (upload && nucleon) {
       if (nucleon.in({ idle: { snapshot: 'clean' } }) && upload.files.length === 0) {
+        this.__ignoreNextFilesChange = true;
         upload.files = [
           // @ts-expect-error type doesn't match but it's ok because vaadin docs suggest this as a solution
           {
@@ -67,6 +70,7 @@ export class InternalDownloadableFormUploadControl extends InternalControl {
           },
         ];
       } else if (nucleon.in({ idle: { template: 'clean' } })) {
+        this.__ignoreNextFilesChange = true;
         upload.files = [];
       }
     }
@@ -118,6 +122,11 @@ export class InternalDownloadableFormUploadControl extends InternalControl {
   }
 
   private __handleFilesChanged(evt: CustomEvent) {
+    if (this.__ignoreNextFilesChange) {
+      this.__ignoreNextFilesChange = false;
+      return;
+    }
+
     const upload = evt.currentTarget as UploadElement;
     const nucleon = this.nucleon as DownloadableForm | null;
 
