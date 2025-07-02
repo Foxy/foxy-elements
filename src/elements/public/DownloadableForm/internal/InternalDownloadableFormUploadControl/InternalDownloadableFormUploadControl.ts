@@ -124,8 +124,6 @@ export class InternalDownloadableFormUploadControl extends InternalControl {
     const files = upload.files;
     if (files.length > 1) upload.files = [upload.files[0]];
     if (files[0]?.complete && !files[0].status) files[0].status = this.t('status_complete');
-
-    const newName = upload.files[0]?.name ?? '';
-    if (newName !== nucleon?.form.file_name) nucleon?.edit({ file_name: newName });
+    nucleon?.edit({ file_name: upload.files[0]?.name ?? '' });
   }
 }
