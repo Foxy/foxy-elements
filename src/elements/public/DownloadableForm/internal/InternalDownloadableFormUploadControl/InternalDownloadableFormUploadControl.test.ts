@@ -6,7 +6,6 @@ import './index';
 import { InternalDownloadableFormUploadControl as Control } from './InternalDownloadableFormUploadControl';
 import { html, expect, fixture, waitUntil } from '@open-wc/testing';
 import { createRouter } from '../../../../../server/hapi/index';
-import { getByKey } from '../../../../../testgen/getByKey';
 import { DownloadableForm } from '../../DownloadableForm';
 import { stub } from 'sinon';
 
@@ -29,17 +28,6 @@ describe('InternalDownloadableFormUploadControl', () => {
 
   it('extends foxy-internal-control', () => {
     expect(new Control()).to.be.instanceOf(customElements.get('foxy-internal-control'));
-  });
-
-  it('renders translatable label', async () => {
-    const control = await fixture<Control>(
-      html`<foxy-internal-downloadable-form-upload-control></foxy-internal-downloadable-form-upload-control>`
-    );
-
-    const label = await getByKey(control, 'label');
-
-    expect(label).to.exist;
-    expect(label).to.have.attribute('infer', '');
   });
 
   it('renders vaadin-upload for file selection and display', async () => {
@@ -239,16 +227,5 @@ describe('InternalDownloadableFormUploadControl', () => {
     expect(upload).to.have.nested.property('files[0].progress', 100);
     expect(upload).to.have.nested.property('files[0].status', 'status_complete');
     expect(upload).to.have.nested.property('files[0].name', element.data?.file_name);
-  });
-
-  it('renders translatable helper text', async () => {
-    const control = await fixture<Control>(
-      html`<foxy-internal-downloadable-form-upload-control></foxy-internal-downloadable-form-upload-control>`
-    );
-
-    const helperText = await getByKey(control, 'helper_text');
-
-    expect(helperText).to.exist;
-    expect(helperText).to.have.attribute('infer', '');
   });
 });

@@ -1,14 +1,10 @@
 import type { InternalDownloadableFormUploadControl } from './internal/InternalDownloadableFormUploadControl/InternalDownloadableFormUploadControl';
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
-import type { NucleonElement } from '../NucleonElement';
 import type { NucleonV8N } from '../NucleonElement/types';
-import type { Resource } from '@foxy.io/sdk/core';
-import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-element';
@@ -48,51 +44,33 @@ export class DownloadableForm extends Base<Data> {
   /** URL of the `fx:downloadable_item_categories` collection for the store. */
   downloadableItemCategories: string | null = null;
 
-  private readonly __downloadableItemCategoryLoaderId = 'downloadableItemCategoryLoader';
-
-  get disabledSelector(): BooleanSelector {
-    const alwaysDisabled: string[] = [];
-    const loader = this.__downloadableItemCategoryLoader;
-    if (!loader?.in('idle')) alwaysDisabled.push('item-category-uri');
-    return new BooleanSelector(`${alwaysDisabled.join(' ')}${super.disabledSelector}`);
-  }
-
   renderBody(): TemplateResult {
     return html`
       ${this.renderHeader()}
 
-      <foxy-internal-async-combo-box-control
-        item-label-path="name"
-        item-value-path="_links.self.href"
-        item-id-path="_links.self.href"
-        infer="item-category-uri"
-        first=${ifDefined(this.downloadableItemCategories ?? void 0)}
-        .selectedItem=${this.__downloadableItemCategoryLoader?.data}
-        .setValue=${(newValue: string) => {
-          this.edit({ item_category_uri: newValue });
-          const newID = parseInt(newValue.split('/').pop() ?? '');
-          if (!isNaN(newID)) this.edit({ item_category_id: newID });
-        }}
-      >
-      </foxy-internal-async-combo-box-control>
+      <foxy-internal-summary-control infer="group-one" label="" helper-text="">
+        <foxy-internal-text-control layout="summary-item" infer="name"></foxy-internal-text-control>
+        <foxy-internal-text-control layout="summary-item" infer="code"></foxy-internal-text-control>
+        <foxy-internal-resource-picker-control
+          layout="summary-item"
+          first=${ifDefined(this.downloadableItemCategories ?? void 0)}
+          infer="item-category-uri"
+          item="foxy-item-category-card"
+        >
+        </foxy-internal-resource-picker-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-text-control infer="name"></foxy-internal-text-control>
-      <foxy-internal-text-control infer="code"></foxy-internal-text-control>
-      <foxy-internal-number-control infer="price" min="0"></foxy-internal-number-control>
+      <foxy-internal-summary-control infer="group-two" label="" helper-text="">
+        <foxy-internal-number-control layout="summary-item" infer="price" min="0">
+        </foxy-internal-number-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-downloadable-form-upload-control infer="upload">
-      </foxy-internal-downloadable-form-upload-control>
+      <foxy-internal-summary-control infer="group-three" label="" helper-text="">
+        <foxy-internal-downloadable-form-upload-control infer="upload">
+        </foxy-internal-downloadable-form-upload-control>
+      </foxy-internal-summary-control>
 
       ${super.renderBody()}
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.form.item_category_uri || void 0)}
-        id=${this.__downloadableItemCategoryLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
     `;
   }
 
@@ -140,10 +118,5 @@ export class DownloadableForm extends Base<Data> {
     }
 
     return data;
-  }
-
-  private get __downloadableItemCategoryLoader() {
-    type Loader = NucleonElement<Resource<Rels.ItemCategory>>;
-    return this.renderRoot.querySelector<Loader>(`#${this.__downloadableItemCategoryLoaderId}`);
   }
 }

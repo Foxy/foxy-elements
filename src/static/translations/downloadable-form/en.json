@@ -16,51 +16,82 @@
       "done": "Copied to clipboard"
     }
   },
-  "item-category-uri": {
-    "label": "Item category",
-    "placeholder": "",
-    "helper_text": "The item category this product is part of (only categories with item delivery type of \"downloaded\" are displayed).",
-    "v8n_required": "Please select an item category"
+  "group-one": {
+    "name": {
+      "label": "Name",
+      "placeholder": "Required",
+      "helper_text": "",
+      "v8n_required": "Please enter a name",
+      "v8n_too_long": "Please shorten the name to 100 characters or less"
+    },
+    "code": {
+      "label": "Code (SKU)",
+      "placeholder": "Required",
+      "helper_text": "",
+      "v8n_required": "Please enter a code",
+      "v8n_too_long": "Please shorten the code to 50 characters or less"
+    },
+    "item-category-uri": {
+      "label": "Item category",
+      "helper_text": "",
+      "placeholder": "Select",
+      "value": "{{ resource.name }}",
+      "v8n_required": "Please select an item category.",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select item category",
+        "selection": {
+          "label": "",
+          "helper_text": "",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select",
+            "per_page": "Items per page:",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No item categories found",
+                "loading_error": "Unknown error"
+              }
+            }
+          }
+        }
+      }
+    }
   },
-  "name": {
-    "label": "Name",
-    "placeholder": "",
-    "helper_text": "The name of this downloadable. This will be shown to the customer in the cart.",
-    "v8n_required": "Please enter a name",
-    "v8n_too_long": "Please shorten the name to 100 characters or less"
+  "group-two": {
+    "price": {
+      "label": "Price",
+      "placeholder": "Required",
+      "helper_text": "Currency will be determined by the template set applied to the cart.",
+      "v8n_required": "Please enter a price",
+      "v8n_negative": "Downloadable products can't have a negative price"
+    }
   },
-  "code": {
-    "label": "Code",
-    "placeholder": "",
-    "helper_text": "The code for this downloadable. When adding this item to the cart, this is the code which will be used.",
-    "v8n_required": "Please enter a code",
-    "v8n_too_long": "Please shorten the code to 50 characters or less"
-  },
-  "price": {
-    "label": "Price",
-    "placeholder": "",
-    "helper_text": "The item total for this downloadable. This is the amount the customer will pay to purchase this downloadable item.",
-    "v8n_required": "Please enter a price",
-    "v8n_negative": "Downloadable products can't have a negative price"
-  },
-  "upload": {
-    "label": "File",
-    "helper_text": "Any file you'd like your customers to have access to after purchasing this item. Maximum size is 500MB.",
-    "drop_label": "or drag it here",
-    "select_label": "Select file...",
-    "cancel": "Cancel",
-    "error_too_many_files": "Too many files",
-    "error_too_large": "File is too large",
-    "status_connecting": "Connecting...",
-    "status_stalled": "Stalled",
-    "status_processing": "Processing...",
-    "status_held": "Save changes to upload",
-    "status_complete": "Available for download",
-    "remaining_prefix": "remaining time: ",
-    "remaining_unknown": "unknown remaining time",
-    "error_server_unavailable": "Server unavailable",
-    "error_unexpected_server_error": "Unexpected server error",
-    "error_forbidden": "Forbidden"
+  "group-three": {
+    "upload": {
+      "drop_label": "or drag it here (max 500MB)",
+      "select_label": "Select file",
+      "cancel": "Cancel",
+      "error_too_many_files": "Too many files",
+      "error_too_large": "File is too large",
+      "status_connecting": "Connecting...",
+      "status_stalled": "Stalled",
+      "status_processing": "Processing...",
+      "status_held": "Save changes to upload",
+      "status_complete": "Available for download",
+      "remaining_prefix": "remaining time: ",
+      "remaining_unknown": "unknown remaining time",
+      "error_server_unavailable": "Server unavailable",
+      "error_unexpected_server_error": "Unexpected server error",
+      "error_forbidden": "Forbidden"
+    }
   },
   "timestamps": {
     "date_created": "Created on",

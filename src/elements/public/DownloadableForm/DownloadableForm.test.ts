@@ -1,12 +1,10 @@
-import type { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl/InternalAsyncComboBoxControl';
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
 
 import './index';
 
-import { html, expect, fixture, waitUntil } from '@open-wc/testing';
+import { html, expect, fixture } from '@open-wc/testing';
 import { DownloadableForm as Form } from './DownloadableForm';
 import { createRouter } from '../../../server/hapi/index';
-import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 
 describe('DownloadableForm', () => {
@@ -14,12 +12,16 @@ describe('DownloadableForm', () => {
     expect(customElements.get('foxy-internal-downloadable-form-upload-control')).to.exist;
   });
 
-  it('imports and defines foxy-internal-async-combo-box-control', () => {
-    expect(customElements.get('foxy-internal-async-combo-box-control')).to.exist;
+  it('imports and defines foxy-internal-resource-picker-control', () => {
+    expect(customElements.get('foxy-internal-resource-picker-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-number-control', () => {
     expect(customElements.get('foxy-internal-number-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-summary-control', () => {
+    expect(customElements.get('foxy-internal-summary-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-text-control', () => {
@@ -28,10 +30,6 @@ describe('DownloadableForm', () => {
 
   it('imports and defines foxy-internal-form', () => {
     expect(customElements.get('foxy-internal-form')).to.exist;
-  });
-
-  it('imports and defines foxy-nucleon', () => {
-    expect(customElements.get('foxy-nucleon')).to.exist;
   });
 
   it('imports and defines itself as foxy-downloadable-form', () => {
@@ -140,7 +138,7 @@ describe('DownloadableForm', () => {
     expect(renderHeaderMethod).to.have.been.called;
   });
 
-  it('renders a foxy-internal-async-combo-box-control for item category uri', async () => {
+  it('renders a foxy-internal-resource-picker-control for item category uri', async () => {
     const router = createRouter();
 
     const element = await fixture<Form>(html`
@@ -151,52 +149,36 @@ describe('DownloadableForm', () => {
       </foxy-downloadable-form>
     `);
 
-    const control = element.renderRoot.querySelector<InternalAsyncComboBoxControl>(
-      '[infer="item-category-uri"]'
+    const control = element.renderRoot.querySelector(
+      '[infer="group-one"] foxy-internal-resource-picker-control[infer="item-category-uri"]'
     );
 
     expect(control).to.exist;
-    expect(control).to.have.attribute('item-label-path', 'name');
-    expect(control).to.have.attribute('item-value-path', '_links.self.href');
-    expect(control).to.have.attribute('item-id-path', '_links.self.href');
     expect(control).to.have.attribute('first', 'https://demo.api/hapi/item_categories');
-    expect(control).to.have.property('selectedItem', null);
-
-    control?.setValue('https://demo.api/hapi/item_categories/0');
-
-    expect(element).to.have.nested.property('form.item_category_id', 0);
-    expect(element).to.have.nested.property(
-      'form.item_category_uri',
-      'https://demo.api/hapi/item_categories/0'
-    );
-
-    const itemCategory = await getTestData('./hapi/item_categories/0', router);
-    await waitUntil(() => !!control?.selectedItem, '', { timeout: 5000 });
-    expect(control).to.have.deep.property('selectedItem', itemCategory);
   });
 
   it('renders a foxy-internal-text-control for name', async () => {
     const element = await fixture<Form>(html`<foxy-downloadable-form></foxy-downloadable-form>`);
-    const control = element.renderRoot.querySelector('[infer="name"]');
+    const control = element.renderRoot.querySelector('[infer="group-one"] [infer="name"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 
   it('renders a foxy-internal-text-control for code', async () => {
     const element = await fixture<Form>(html`<foxy-downloadable-form></foxy-downloadable-form>`);
-    const control = element.renderRoot.querySelector('[infer="code"]');
+    const control = element.renderRoot.querySelector('[infer="group-one"] [infer="code"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 
   it('renders a foxy-internal-number-control for price', async () => {
     const element = await fixture<Form>(html`<foxy-downloadable-form></foxy-downloadable-form>`);
-    const control = element.renderRoot.querySelector('[infer="price"]');
+    const control = element.renderRoot.querySelector('[infer="group-two"] [infer="price"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-number-control'));
     expect(control).to.have.attribute('min', '0');
   });
 
   it('renders a foxy-internal-downloadable-form-upload-control for file', async () => {
     const element = await fixture<Form>(html`<foxy-downloadable-form></foxy-downloadable-form>`);
-    const control = element.renderRoot.querySelector('[infer="upload"]');
+    const control = element.renderRoot.querySelector('[infer="group-three"] [infer="upload"]');
     expect(control).to.be.instanceOf(
       customElements.get('foxy-internal-downloadable-form-upload-control')
     );
