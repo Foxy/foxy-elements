@@ -33,6 +33,7 @@ export class InternalResourcePickerControl extends InternalEditableControl {
       first: {},
       item: {},
       form: {},
+      __isErrorVisible: { attribute: false },
     };
   }
 
@@ -55,6 +56,8 @@ export class InternalResourcePickerControl extends InternalEditableControl {
   item: string | null = null;
 
   form: string | null | FormRenderer = null;
+
+  private __isErrorVisible = false;
 
   private readonly __getItemRenderer = memoize((item: string | null) => {
     return new Function(
@@ -86,6 +89,7 @@ export class InternalResourcePickerControl extends InternalEditableControl {
         .props=${dialogProps}
         .form=${this.form ?? 'foxy-internal-resource-picker-control-form'}
         @fetch=${this.__handleFetchEvent}
+        @hide=${() => (this.__isErrorVisible = true)}
       >
       </foxy-form-dialog>
 
@@ -93,6 +97,11 @@ export class InternalResourcePickerControl extends InternalEditableControl {
         ? this.__renderSummaryItemLayout()
         : this.__renderStandaloneLayout()}
     `;
+  }
+
+  reportValidity(): void {
+    this.__isErrorVisible = true;
+    super.reportValidity();
   }
 
   updated(changes: Map<keyof this, unknown>): void {
@@ -169,7 +178,10 @@ export class InternalResourcePickerControl extends InternalEditableControl {
 
         <div style="max-width: 32rem">
           <div class="text-xs text-secondary">${this.helperText}</div>
-          <div class="text-xs text-error" ?hidden=${this.disabled || this.readonly}>
+          <div
+            class="text-xs text-error"
+            ?hidden=${this.disabled || this.readonly || !this.__isErrorVisible}
+          >
             ${this._errorMessage}
           </div>
         </div>
