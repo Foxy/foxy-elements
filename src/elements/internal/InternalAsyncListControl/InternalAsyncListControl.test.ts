@@ -245,6 +245,14 @@ describe('InternalAsyncListControl', () => {
     expect(Control).to.have.deep.nested.property('properties.filter', {});
   });
 
+  it('has a reactive property "extendFilter"', () => {
+    expect(new Control()).to.have.property('extendFilter', null);
+    expect(Control).to.have.deep.nested.property('properties.extendFilter', {
+      type: Function,
+      attribute: false,
+    });
+  });
+
   it('renders a form dialog if "form" is specified', async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-async-list-control></foxy-internal-async-list-control>
@@ -432,8 +440,14 @@ describe('InternalAsyncListControl', () => {
       control.first = 'https://demo.api/virtual/stall';
       control.limit = 5;
       await control.requestUpdate();
-
       expect(pagination).to.have.attribute('first', 'https://demo.api/virtual/stall?limit=5');
+
+      control.extendFilter = (params: URLSearchParams) => params.set('foo', 'bar');
+      await control.requestUpdate();
+      expect(pagination).to.have.attribute(
+        'first',
+        'https://demo.api/virtual/stall?limit=5&foo=bar'
+      );
     });
 
     it(`renders a collection page under pagination in ${layoutLabel} layout`, async () => {

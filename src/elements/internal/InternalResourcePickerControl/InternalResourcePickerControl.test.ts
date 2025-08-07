@@ -100,6 +100,14 @@ describe('InternalResourcePickerControl', () => {
     expect(new Control()).to.have.deep.property('filters', []);
   });
 
+  it('has a reactive property "extendFilter"', () => {
+    expect(new Control()).to.have.property('extendFilter', null);
+    expect(Control).to.have.deep.nested.property('properties.extendFilter', {
+      type: Function,
+      attribute: false,
+    });
+  });
+
   it('has a reactive property "layout"', () => {
     expect(Control).to.have.deep.nested.property('properties.layout', {});
     expect(new Control()).to.have.deep.property('layout', null);
@@ -247,6 +255,7 @@ describe('InternalResourcePickerControl', () => {
     expect(dialog).to.have.attribute('alert');
     expect(dialog).to.have.deep.property('props', {
       '.selectionProps': {
+        '.extendFilter': control.extendFilter,
         '.filters': control.filters,
         '.first': control.first,
         '.item': control.item,

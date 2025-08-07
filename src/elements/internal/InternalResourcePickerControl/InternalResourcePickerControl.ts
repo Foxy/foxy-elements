@@ -29,6 +29,7 @@ export class InternalResourcePickerControl extends InternalEditableControl {
       getItemUrl: { attribute: false },
       formProps: { type: Object },
       filters: { type: Array },
+      extendFilter: { type: Function, attribute: false },
       layout: {},
       first: {},
       item: {},
@@ -48,6 +49,9 @@ export class InternalResourcePickerControl extends InternalEditableControl {
   formProps: Record<string, unknown> = {};
 
   filters: Option[] = [];
+
+  /** Function to extend the filters applied to the dataset query without making it obvious to the user. */
+  extendFilter: ((params: URLSearchParams) => void) | null = null;
 
   layout: 'summary-item' | 'standalone' | null = null;
 
@@ -77,7 +81,12 @@ export class InternalResourcePickerControl extends InternalEditableControl {
   renderControl(): TemplateResult {
     const dialogProps = {
       ...this.formProps,
-      '.selectionProps': { '.filters': this.filters, '.first': this.first, '.item': this.item },
+      '.selectionProps': {
+        '.extendFilter': this.extendFilter,
+        '.filters': this.filters,
+        '.first': this.first,
+        '.item': this.item,
+      },
     };
 
     return html`
