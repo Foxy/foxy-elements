@@ -337,7 +337,7 @@
   },
   "webhook-warning": {
     "warning_text": "We are winding down support for custom services that rely on legacy webhooks and XML datafeed. Please consider using the new JSON webhooks instead.",
-    "link_text": "Read the announcement"
+    "link_text": "See the documentation"
   },
   "webhook-legacy-xml-group-one": {
     "label": "",

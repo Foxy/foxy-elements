@@ -565,7 +565,7 @@ export class NativeIntegrationForm extends Base<Data> {
           <a
             target="_blank"
             class="mt-xs inline-block rounded font-medium text-error transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
-            href="https://admin.foxycart.com"
+            href="https://wiki.foxycart.com/v/2.0/webhooks"
           >
             <foxy-i18n infer="webhook-warning" key="link_text"></foxy-i18n>
           </a>
