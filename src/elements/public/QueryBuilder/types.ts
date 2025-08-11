@@ -31,6 +31,7 @@ export type Option = {
 
 export type Rule = {
   operator: Operator | null;
+  invalid?: boolean;
   value: string;
   name?: string;
   path: string;

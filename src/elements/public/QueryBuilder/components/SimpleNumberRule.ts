@@ -38,16 +38,17 @@ export const SimpleNumberRule: SimpleRuleComponent = params => {
         if (newSelection === 'any') return onChange(null);
 
         if (newSelection === 'range') {
-          let parsedFrom = parseFloat(rule?.value ?? '');
-          if (isNaN(parsedFrom)) parsedFrom = 0;
+          const parsedFrom = parseFloat(rule?.value ?? '');
+          if (isNaN(parsedFrom)) return onChange({ operator: null, value: '..', invalid: true });
           return onChange({ operator: null, value: `${parsedFrom}..${parsedFrom + 10}` });
         }
 
-        const newValue = rule?.value ?? option.min?.toString() ?? '0';
+        const newValue = rule?.value ?? option.min?.toString() ?? '';
         const removeRange = newValue.includes('..') && newSelection !== 'range';
 
         return onChange({
           operator: newSelection === 'equal' ? null : (newSelection as Operator),
+          invalid: !newValue,
           value: removeRange ? newValue.split('..')[0] : newValue,
         });
       },
@@ -68,8 +69,8 @@ export const SimpleNumberRule: SimpleRuleComponent = params => {
             min,
             t,
             onChange: newValue => {
-              const to = rule?.value.split('..')[1];
-              onChange({ value: `${newValue || '0'}..${to}` });
+              const to = rule?.value.split('..')[1] ?? '';
+              onChange({ value: `${newValue}..${to}`, invalid: !newValue || !to });
             },
           })}
 
@@ -86,7 +87,7 @@ export const SimpleNumberRule: SimpleRuleComponent = params => {
             t,
             onChange: newValue => {
               const from = rule?.value.split('..')[0];
-              onChange({ value: `${from}..${newValue || '0'}` });
+              onChange({ value: `${from}..${newValue}`, invalid: !from || !newValue });
             },
           })}
         `
@@ -99,7 +100,7 @@ export const SimpleNumberRule: SimpleRuleComponent = params => {
           type: 'number',
           min,
           t,
-          onChange: newValue => onChange({ value: newValue }),
+          onChange: newValue => onChange({ value: newValue, invalid: !newValue }),
         })}
   `;
 };
