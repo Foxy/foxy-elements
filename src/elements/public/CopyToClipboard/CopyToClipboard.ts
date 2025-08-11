@@ -5,6 +5,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { InferrableMixin } from '../../../mixins/inferrable';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { classMap } from '../../../utils/class-map';
 
 const NS = 'copy-to-clipboard';
 const Base = ConfigurableMixin(TranslatableMixin(InferrableMixin(LitElement), NS));
@@ -44,9 +45,17 @@ export class CopyToClipboard extends Base {
         display: flex;
         justify-content: center;
         align-items: center;
+        transition: color 0.15s ease;
       }
 
-      .icon-button::before {
+      .icon-button.inline {
+        width: var(--lumo-size-s);
+        height: var(--lumo-size-s);
+        margin-left: calc(0px - ((var(--lumo-size-s) - 1em) / 4));
+        margin-right: calc(0px - ((var(--lumo-size-s) - 1em) / 2));
+      }
+
+      .icon-button:not(.inline)::before {
         position: absolute;
         inset: 0;
         content: ' ';
@@ -68,11 +77,16 @@ export class CopyToClipboard extends Base {
       }
 
       @media (hover: hover) {
-        .icon-button:not(:disabled):hover {
+        .icon-button:not(:disabled):not(.inline):hover {
           cursor: pointer;
         }
 
-        .icon-button:not(:disabled):hover::before {
+        .icon-button.inline:not(:disabled):hover {
+          color: var(--lumo-body-text-color);
+          cursor: default;
+        }
+
+        .icon-button:not(:disabled):not(.inline):hover::before {
           opacity: 0.16;
         }
       }
@@ -85,7 +99,7 @@ export class CopyToClipboard extends Base {
   }
 
   /** Icon or text UI. Icon UI by default. */
-  layout: 'complete' | 'text' | 'icon' | null = null;
+  layout: 'complete' | 'text' | 'icon' | 'icon-inline' | null = null;
 
   /** VaadinButton theme for text layout. */
   theme: string | null = null;
@@ -118,11 +132,11 @@ export class CopyToClipboard extends Base {
     }
 
     return html`
-      ${layout === 'icon'
+      ${layout === 'icon' || layout === 'icon-inline'
         ? html`
             <button
               id="trigger"
-              class="icon-button"
+              class=${classMap({ 'icon-button': true, 'inline': layout === 'icon-inline' })}
               ?disabled=${this.disabled}
               @click=${this.__copy}
             >
