@@ -34,18 +34,21 @@ export const SimpleNumberRule: SimpleRuleComponent = params => {
         { label: 'range', value: 'range' },
       ],
       t,
-      onChange: newValue => {
-        if (newValue === 'any') return onChange(null);
+      onChange: newSelection => {
+        if (newSelection === 'any') return onChange(null);
 
-        if (newValue === 'range') {
+        if (newSelection === 'range') {
           let parsedFrom = parseFloat(rule?.value ?? '');
           if (isNaN(parsedFrom)) parsedFrom = 0;
           return onChange({ operator: null, value: `${parsedFrom}..${parsedFrom + 10}` });
         }
 
+        const newValue = rule?.value ?? option.min?.toString() ?? '0';
+        const removeRange = newValue.includes('..') && newSelection !== 'range';
+
         return onChange({
-          operator: newValue === 'equal' ? null : (newValue as Operator),
-          value: rule?.value ?? option.min?.toString() ?? '0',
+          operator: newSelection === 'equal' ? null : (newSelection as Operator),
+          value: removeRange ? newValue.split('..')[0] : newValue,
         });
       },
     })}
