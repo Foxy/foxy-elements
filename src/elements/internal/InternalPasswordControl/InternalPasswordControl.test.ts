@@ -76,6 +76,13 @@ describe('InternalTextControl', () => {
     expect(new Control()).to.have.property('showGenerator', false);
   });
 
+  it('has a reactive property "visibilityToggle"', () => {
+    expect(new Control()).to.have.property('visibilityToggle', null);
+    expect(Control).to.have.deep.nested.property('properties.visibilityToggle', {
+      attribute: 'visibility-toggle',
+    });
+  });
+
   it('has a reactive property "layout"', () => {
     expect(Control).to.have.deep.nested.property('properties.layout', {});
     expect(new Control()).to.have.property('layout', null);
@@ -277,5 +284,31 @@ describe('InternalTextControl', () => {
 
     button.click();
     expect(control.testValue).to.equal('abc');
+  });
+
+  it('replaces Reveal Password button with Copy Password button when "visibilityToggle" is "copy"', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-password-control visibility-toggle="copy"></test-internal-password-control>
+    `);
+
+    const field = control.renderRoot.querySelector('vaadin-password-field')!;
+    expect(field).to.have.attribute('reveal-button-hidden');
+
+    let button = control.renderRoot.querySelector<HTMLElement>('foxy-copy-to-clipboard')!;
+    expect(button).to.have.attribute('layout', 'icon-inline');
+    expect(button).to.have.attribute('text', control.testValue);
+    expect(button).to.have.attribute('infer', '');
+
+    control.visibilityToggle = 'reveal';
+    await control.requestUpdate();
+    button = control.renderRoot.querySelector<HTMLElement>('foxy-copy-to-clipboard')!;
+    expect(button).to.not.exist;
+    expect(field).to.not.have.attribute('reveal-button-hidden');
+
+    control.visibilityToggle = null;
+    await control.requestUpdate();
+    button = control.renderRoot.querySelector<HTMLElement>('foxy-copy-to-clipboard')!;
+    expect(button).to.not.exist;
+    expect(field).to.not.have.attribute('reveal-button-hidden');
   });
 });

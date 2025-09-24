@@ -55,9 +55,12 @@ export const SimpleDateRule: SimpleRuleComponent = params => {
           return onChange({ operator: null, value: `${from}..${to}` });
         }
 
+        const newValue = value ?? new Date().toISOString();
+        const removeRange = newValue.includes('..') && newSelection !== 'range';
+
         return onChange({
           operator: newSelection === 'equal' ? null : (newSelection as Operator),
-          value: value ?? new Date().toISOString(),
+          value: removeRange ? newValue.split('..')[0] : newValue,
         });
       },
     })}

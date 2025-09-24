@@ -1,9 +1,10 @@
 import './internal/InternalDownloadableFormUploadControl/index';
-import '../../internal/InternalAsyncComboBoxControl/index';
+import '../../internal/InternalResourcePickerControl/index';
+import '../../internal/InternalSummaryControl/index';
 import '../../internal/InternalNumberControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
-import '../NucleonElement/index';
+import '../ItemCategoryCard/index';
 
 import { DownloadableForm } from './DownloadableForm';
 

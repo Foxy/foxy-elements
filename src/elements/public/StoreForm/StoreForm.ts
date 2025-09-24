@@ -807,6 +807,7 @@ export class StoreForm extends Base<Data> {
 
       <foxy-internal-summary-control infer="checkout" label="" helper-text="">
         <foxy-internal-password-control
+          visibility-toggle="copy"
           layout="summary-item"
           infer="unified-order-entry-password"
           show-generator

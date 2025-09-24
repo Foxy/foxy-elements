@@ -7,45 +7,30 @@ import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../../../utils/class-map';
 
 export class InternalDownloadableFormUploadControl extends InternalControl {
+  private __ignoreNextFilesChange = false;
+
   get uploadElement(): UploadElement | null {
     return this.renderRoot.querySelector<UploadElement>('vaadin-upload');
   }
 
   renderControl(): TemplateResult {
     return html`
-      <section
+      <vaadin-upload
+        max-file-size="524288000"
+        max-files=${ifDefined(this.disabled || this.readonly ? '0' : '2')}
         class=${classMap({
-          'grid gap-xs group leading-xs transition-colors': true,
-          'hover-text-body': !this.disabled && !this.readonly,
-          'text-secondary': !this.disabled,
+          'foxy-downloadable-form-upload transition-colors p-0 rounded-none': true,
           'text-disabled': this.disabled,
         })}
+        method="PUT"
+        no-auto
+        ?disabled=${this.disabled}
+        ?readonly=${this.readonly}
+        .i18n=${this.__uploadI18n}
+        @files-changed=${this.__handleFilesChanged}
+        @upload-request=${this.__handleUploadRequest}
       >
-        <foxy-i18n infer="" class="font-medium text-s" key="label"></foxy-i18n>
-
-        <vaadin-upload
-          max-file-size="524288000"
-          max-files=${ifDefined(this.disabled || this.readonly ? '0' : '2')}
-          style="padding: calc((0.625em + (var(--lumo-border-radius) / 4) - 1px) - var(--lumo-space-xs)) calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
-          class=${classMap({
-            'rounded-t-l rounded-b-l border transition-colors': true,
-            'border-dashed border-contrast-30': this.readonly,
-            'border-solid border-contrast-10': !this.readonly,
-            'group-hover-border-contrast-20': !this.disabled && !this.readonly,
-            'foxy-downloadable-form-upload': true,
-          })}
-          method="PUT"
-          no-auto
-          ?disabled=${this.disabled}
-          ?readonly=${this.readonly}
-          .i18n=${this.__uploadI18n}
-          @files-changed=${this.__handleFilesChanged}
-          @upload-request=${this.__handleUploadRequest}
-        >
-        </vaadin-upload>
-
-        <foxy-i18n infer="" class="text-xs" key="helper_text"></foxy-i18n>
-      </section>
+      </vaadin-upload>
     `;
   }
 
@@ -57,6 +42,7 @@ export class InternalDownloadableFormUploadControl extends InternalControl {
 
     if (upload && nucleon) {
       if (nucleon.in({ idle: { snapshot: 'clean' } }) && upload.files.length === 0) {
+        this.__ignoreNextFilesChange = true;
         upload.files = [
           // @ts-expect-error type doesn't match but it's ok because vaadin docs suggest this as a solution
           {
@@ -67,6 +53,7 @@ export class InternalDownloadableFormUploadControl extends InternalControl {
           },
         ];
       } else if (nucleon.in({ idle: { template: 'clean' } })) {
+        this.__ignoreNextFilesChange = true;
         upload.files = [];
       }
     }
@@ -118,14 +105,17 @@ export class InternalDownloadableFormUploadControl extends InternalControl {
   }
 
   private __handleFilesChanged(evt: CustomEvent) {
+    if (this.__ignoreNextFilesChange) {
+      this.__ignoreNextFilesChange = false;
+      return;
+    }
+
     const upload = evt.currentTarget as UploadElement;
     const nucleon = this.nucleon as DownloadableForm | null;
 
     const files = upload.files;
     if (files.length > 1) upload.files = [upload.files[0]];
     if (files[0]?.complete && !files[0].status) files[0].status = this.t('status_complete');
-
-    const newName = upload.files[0]?.name ?? '';
-    if (newName !== nucleon?.form.file_name) nucleon?.edit({ file_name: newName });
+    nucleon?.edit({ file_name: upload.files[0]?.name ?? '' });
   }
 }

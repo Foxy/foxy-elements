@@ -238,6 +238,10 @@ describe('GiftCardCodeForm', () => {
 
     element.edit({ customer_id: 2 });
     expect(control.getValue()).to.equal('https://demo.api/hapi/customers/2');
+
+    const testParams = new URLSearchParams();
+    control.extendFilter?.(testParams);
+    expect(testParams.get('is_anonymous')).to.equal('false|is_anonymous=true');
   });
 
   it('renders a resource picker control for associated cart item', async () => {

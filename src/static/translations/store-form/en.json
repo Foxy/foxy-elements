@@ -296,7 +296,11 @@
       "label": "Unified order entry password",
       "placeholder": "None",
       "helper_text": "Set a master password here if you would like to be able to check out as your customers without having to know their password.",
-      "v8n_required": "Please reduce your UOE password to 100 characters"
+      "v8n_required": "Please reduce your UOE password to 100 characters",
+      "click_to_copy": "Click to copy",
+      "copying": "Copying",
+      "done": "Done",
+      "failed_to_copy": "Failed to copy"
     },
     "use-single-sign-on": {
       "label": "Enable SSO",

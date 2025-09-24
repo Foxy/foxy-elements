@@ -61,6 +61,12 @@ export class GiftCardCodeForm extends Base<Data> {
     return itemUrl ?? null;
   };
 
+  private readonly __customerExtendFilter = (params: URLSearchParams) => {
+    if (!params.has('is_anonymous')) {
+      params.set('is_anonymous', 'false|is_anonymous=true');
+    }
+  };
+
   private readonly __customerGetValue = () => {
     const link = this.data?._links?.['fx:customer']?.href;
     const id = this.form.customer_id;
@@ -133,6 +139,7 @@ export class GiftCardCodeForm extends Base<Data> {
         infer="customer"
         first=${ifDefined(this.__storeLoader?.data?._links['fx:customers'].href)}
         item="foxy-customer-card"
+        .extendFilter=${this.__customerExtendFilter}
         .getValue=${this.__customerGetValue}
         .setValue=${this.__customerSetValue}
         .filters=${this.__customerFilters}

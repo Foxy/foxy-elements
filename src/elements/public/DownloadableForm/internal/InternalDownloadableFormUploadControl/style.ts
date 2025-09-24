@@ -5,7 +5,7 @@ registerStyles(
   'vaadin-upload',
   css`
     :host(.foxy-downloadable-form-upload) vaadin-upload-file {
-      padding: var(--lumo-space-xs) 0 0 0;
+      padding: var(--lumo-space-s) 0 0 0;
       line-height: var(--lumo-line-height-xs);
     }
 
@@ -22,6 +22,11 @@ registerStyles(
     :host(.foxy-downloadable-form-upload) vaadin-upload-file::part(clear-button),
     :host(.foxy-downloadable-form-upload) vaadin-upload-file::part(retry-button) {
       display: none;
+    }
+
+    :host(.foxy-downloadable-form-upload) [part='upload-button'] {
+      margin: 0;
+      border-radius: var(--lumo-border-radius-s);
     }
 
     :host(.foxy-downloadable-form-upload[disabled]) vaadin-upload-file::part(status) {

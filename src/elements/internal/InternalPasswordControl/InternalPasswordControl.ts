@@ -19,12 +19,16 @@ export class InternalPasswordControl extends InternalEditableControl {
     return {
       ...super.properties,
       generatorOptions: { type: Object, attribute: 'generator-options' },
+      visibilityToggle: { attribute: 'visibility-toggle' },
       showGenerator: { type: Boolean, attribute: 'show-generator' },
       layout: {},
     };
   }
 
   generatorOptions: null | GeneratorOptions = null;
+
+  /** Password visibility toggle mode, "reveal" by default which shows Reveal Password button. If set to "copy", shows "Copy Password" button instead. */
+  visibilityToggle: 'reveal' | 'copy' | null = null;
 
   /** If true, renders the password generator button. */
   showGenerator = false;
@@ -40,6 +44,7 @@ export class InternalPasswordControl extends InternalEditableControl {
         label=${this.label}
         theme=${ifDefined(this.layout ?? void 0)}
         class="w-full"
+        ?reveal-button-hidden=${this.visibilityToggle === 'copy'}
         ?disabled=${this.disabled}
         ?readonly=${this.readonly}
         .checkValidity=${this._checkValidity}
@@ -51,6 +56,7 @@ export class InternalPasswordControl extends InternalEditableControl {
         }}
       >
         ${this.showGenerator ? this.__renderGenerator() : ''}
+        ${this.visibilityToggle === 'copy' ? this.__renderCopyButton() : ''}
       </vaadin-password-field>
     `;
   }
@@ -61,6 +67,13 @@ export class InternalPasswordControl extends InternalEditableControl {
 
   protected set _value(newValue: string) {
     super._value = newValue as unknown | undefined;
+  }
+
+  private __renderCopyButton(): TemplateResult {
+    return html`
+      <foxy-copy-to-clipboard layout="icon-inline" infer="" slot="suffix" text=${this._value}>
+      </foxy-copy-to-clipboard>
+    `;
   }
 
   private __renderGenerator(): TemplateResult {

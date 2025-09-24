@@ -74,7 +74,7 @@ export class TransactionsTable extends TranslatableMixin(Table, 'transactions-ta
     cell: ctx => {
       return ctx.html`
         <span class="text-m text-secondary font-tnum" data-testclass="ids">
-          <span class="text-tertiary">ID</span> ${ctx.data.id}
+          <span class="text-tertiary">ID</span> ${ctx.data.display_id}
         </span>
       `;
     },

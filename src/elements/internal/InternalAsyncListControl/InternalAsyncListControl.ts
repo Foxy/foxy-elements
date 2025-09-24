@@ -43,6 +43,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
       bulkActions: { attribute: false },
       filters: { type: Array },
       filter: {},
+      extendFilter: { type: Function, attribute: false },
       __selection: { attribute: false },
       __totalItems: { attribute: false },
       __isSelecting: { attribute: false },
@@ -115,7 +116,11 @@ export class InternalAsyncListControl extends InternalEditableControl {
   /** If set, renders list items as <a> tags. */
   getPageHref: ((itemHref: string, item: unknown) => string | null) | null = null;
 
+  /** Filter applied to the dataset query. */
   filter: string | null = null;
+
+  /** Function to extend the filters applied to the dataset query without making it obvious to the user. */
+  extendFilter: ((params: URLSearchParams) => void) | null = null;
 
   private __deletionConfimationCallback: (() => void) | null = null;
 
@@ -581,6 +586,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
 
       url.searchParams.set('limit', String(this.limit));
       filter.forEach((value, key) => url.searchParams.set(key, value));
+      this.extendFilter?.(url.searchParams);
       first = url.toString();
     } catch {
       first = undefined;

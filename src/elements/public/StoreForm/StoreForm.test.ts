@@ -1559,6 +1559,7 @@ describe('StoreForm', () => {
     );
 
     expect(control).to.exist;
+    expect(control).to.have.attribute('visibility-toggle', 'copy');
     expect(control).to.have.attribute('layout', 'summary-item');
     expect(control).to.have.attribute('show-generator');
   });

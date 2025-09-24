@@ -34,18 +34,22 @@ export const SimpleNumberRule: SimpleRuleComponent = params => {
         { label: 'range', value: 'range' },
       ],
       t,
-      onChange: newValue => {
-        if (newValue === 'any') return onChange(null);
+      onChange: newSelection => {
+        if (newSelection === 'any') return onChange(null);
 
-        if (newValue === 'range') {
-          let parsedFrom = parseFloat(rule?.value ?? '');
-          if (isNaN(parsedFrom)) parsedFrom = 0;
+        if (newSelection === 'range') {
+          const parsedFrom = parseFloat(rule?.value ?? '');
+          if (isNaN(parsedFrom)) return onChange({ operator: null, value: '..', invalid: true });
           return onChange({ operator: null, value: `${parsedFrom}..${parsedFrom + 10}` });
         }
 
+        const newValue = rule?.value ?? option.min?.toString() ?? '';
+        const removeRange = newValue.includes('..') && newSelection !== 'range';
+
         return onChange({
-          operator: newValue === 'equal' ? null : (newValue as Operator),
-          value: rule?.value ?? option.min?.toString() ?? '0',
+          operator: newSelection === 'equal' ? null : (newSelection as Operator),
+          invalid: !newValue,
+          value: removeRange ? newValue.split('..')[0] : newValue,
         });
       },
     })}
@@ -65,8 +69,8 @@ export const SimpleNumberRule: SimpleRuleComponent = params => {
             min,
             t,
             onChange: newValue => {
-              const to = rule?.value.split('..')[1];
-              onChange({ value: `${newValue || '0'}..${to}` });
+              const to = rule?.value.split('..')[1] ?? '';
+              onChange({ value: `${newValue}..${to}`, invalid: !newValue || !to });
             },
           })}
 
@@ -83,7 +87,7 @@ export const SimpleNumberRule: SimpleRuleComponent = params => {
             t,
             onChange: newValue => {
               const from = rule?.value.split('..')[0];
-              onChange({ value: `${from}..${newValue || '0'}` });
+              onChange({ value: `${from}..${newValue}`, invalid: !from || !newValue });
             },
           })}
         `
@@ -96,7 +100,7 @@ export const SimpleNumberRule: SimpleRuleComponent = params => {
           type: 'number',
           min,
           t,
-          onChange: newValue => onChange({ value: newValue }),
+          onChange: newValue => onChange({ value: newValue, invalid: !newValue }),
         })}
   `;
 };

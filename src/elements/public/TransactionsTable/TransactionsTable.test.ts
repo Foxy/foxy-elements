@@ -51,7 +51,7 @@ describe('TransactionsTable', () => {
           expect(dateRef).to.have.attribute('key', 'date');
           expect(dateRef).to.have.deep.property('options', { value: transaction.transaction_date });
           expect(linkRef).to.have.attribute('href', transaction._links['fx:receipt'].href);
-          expect(idRef).to.contain.text(transaction.id.toString());
+          expect(idRef).to.contain.text(transaction.display_id.toString());
 
           {
             const items = transaction._embedded['fx:items'];

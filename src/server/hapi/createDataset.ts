@@ -465,6 +465,7 @@ export const createDataset: () => Dataset = () => ({
       customer_id: 0,
       subscription_id: 0,
       is_test: true,
+      display_id: 23455455,
       is_editable: false,
       hide_transaction: false,
       data_is_fed: true,

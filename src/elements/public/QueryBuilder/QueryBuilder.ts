@@ -54,7 +54,9 @@ export class QueryBuilder extends Base {
       operators: { type: Array },
       docsHref: { attribute: 'docs-href' },
       options: { type: Array },
-      value: {},
+      value: { noAccessor: true },
+      __reportedValue: { attribute: false },
+      __displayedValue: { attribute: false },
       __isAdvancedMode: { attribute: false },
     };
   }
@@ -81,21 +83,43 @@ export class QueryBuilder extends Base {
   /** Filter options in Simple Mode and autocomplete suggestions in Advanced Mode. */
   options: Option[] | null = null;
 
-  /** Current value as hAPI filter string. */
-  value: string | null = null;
-
   private __isAdvancedMode = false;
+
+  private __reportedValue: string | null = null;
+
+  private __displayedValue: string | null = null;
+
+  get value(): string | null {
+    return this.__reportedValue;
+  }
+
+  set value(newValue: string | null) {
+    this.__reportedValue = newValue;
+    this.__displayedValue = newValue;
+  }
 
   render(): TemplateResult {
     const isSimpleModeSupported = this.__isSimpleModeSupported;
-    const parsedValue = parse(this.value ?? '');
+    const parsedValue = parse(this.__displayedValue ?? '');
     const operators = this.operators ?? [];
     const options = this.options ?? [];
     const t = this.t.bind(this);
 
     const onChange = (newParsedValue: (Rule | Rule[])[]) => {
-      this.value = stringify(newParsedValue, this.disableZoom);
-      this.dispatchEvent(new QueryBuilder.ChangeEvent('change'));
+      this.__displayedValue = stringify(newParsedValue, this.disableZoom);
+
+      const isValid = newParsedValue.every(ruleOrGroup => {
+        if (Array.isArray(ruleOrGroup)) {
+          return ruleOrGroup.every(rule => !rule.invalid);
+        } else {
+          return !ruleOrGroup.invalid;
+        }
+      });
+
+      if (isValid) {
+        this.__reportedValue = this.__displayedValue;
+        this.dispatchEvent(new QueryBuilder.ChangeEvent('change'));
+      }
     };
 
     // This will trigger a re-render but is necessary to stay in the advanced mode once the support
@@ -192,7 +216,7 @@ export class QueryBuilder extends Base {
     if (this.options === null) return false;
     if (this.options.length === 0) return false;
 
-    const parsedValue = parse(this.value ?? '');
+    const parsedValue = parse(this.__displayedValue ?? '');
     if (parsedValue.length === 0) return true;
 
     return parsedValue.every(entry => {
