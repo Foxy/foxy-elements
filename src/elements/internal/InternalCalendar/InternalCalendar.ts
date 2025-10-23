@@ -3,6 +3,7 @@ import { LitElement, PropertyDeclarations, TemplateResult, html } from 'lit-elem
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 import { parseDate } from '../../../utils/parse-date';
+import { safeDate } from '../../../utils/safe-date';
 import { serializeDate } from '../../../utils/serialize-date';
 
 export class InternalCalendar extends ThemeableMixin(LitElement) {
@@ -97,7 +98,7 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
 
   private __renderMonth(month: number, year: number) {
     const lang = this.lang || navigator.language;
-    const date = new Date(year, month, 1, 0, 0, 0, 0);
+    const date = safeDate(year, month, 1);
     const items: TemplateResult[] = [];
 
     for (let i = 0; i < 7; ++i) {
@@ -145,7 +146,7 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
 
   private __renderDate(date: number, month: number, year: number, checked = false) {
     const disabled =
-      this.disabled || this.readonly || !this.checkAvailability(new Date(year, month, date));
+      this.disabled || this.readonly || !this.checkAvailability(safeDate(year, month, date));
 
     return html`
       <label
@@ -166,7 +167,7 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
           class="sr-only"
           ?disabled=${this.readonly || this.disabled || disabled}
           @change=${() => {
-            this.__valueAsDate = new Date(year, month, date);
+            this.__valueAsDate = safeDate(year, month, date);
             this.dispatchEvent(new CustomEvent('change'));
           }}
         />
