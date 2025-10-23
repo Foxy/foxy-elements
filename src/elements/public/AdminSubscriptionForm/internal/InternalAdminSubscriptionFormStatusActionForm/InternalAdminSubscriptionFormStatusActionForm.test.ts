@@ -102,6 +102,37 @@ describe('AdminSubscriptionForm', () => {
       expect($('foxy-i18n[infer=""][key="cancel_how_to_reactivate_text"]')).to.exist;
     });
 
+    it('renders text content for the Cancel state for future subscriptions', async () => {
+      const $ = (selector: string) => form.renderRoot.querySelector(selector);
+      const router = createRouter();
+      const form = await fixture<Form>(html`
+        <foxy-internal-admin-subscription-form-status-action-form
+          href="https://demo.api/hapi/subscriptions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-internal-admin-subscription-form-status-action-form>
+      `);
+
+      await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
+
+      form.data = {
+        ...form.data!,
+        is_active: true,
+        start_date: serializeDate(new Date(Date.now() + 86400000)),
+      };
+
+      await form.requestUpdate();
+
+      expect($('foxy-i18n[infer=""][key="cancel_title"]')).to.exist;
+      expect($('foxy-i18n[infer=""][key="cancel_subtitle_future"]')).to.exist;
+      expect($('foxy-i18n[infer=""][key="cancel_why_not_today_title"]')).to.exist;
+      expect($('foxy-i18n[infer=""][key="cancel_why_not_today_text_future"]')).to.exist;
+      expect($('foxy-i18n[infer=""][key="cancel_whats_next_title"]')).to.exist;
+      expect($('foxy-i18n[infer=""][key="cancel_whats_next_text_future"]')).to.exist;
+      expect($('foxy-i18n[infer=""][key="cancel_how_to_reactivate_title"]')).to.exist;
+      expect($('foxy-i18n[infer=""][key="cancel_how_to_reactivate_text"]')).to.exist;
+    });
+
     it('renders text content for the Reactivate state', async () => {
       const $ = (selector: string) => form.renderRoot.querySelector(selector);
       const router = createRouter();
@@ -165,6 +196,54 @@ describe('AdminSubscriptionForm', () => {
       tomorrowDate.setHours(0, 0, 0, 0);
       select?.setValue('tomorrow');
       expect(form.form.end_date).to.equal(serializeDate(tomorrowDate));
+
+      select?.setValue('custom_date');
+      expect(form.form.end_date).to.equal('');
+    });
+
+    it('renders end date presets in the Cancel state for future subscriptions', async () => {
+      const router = createRouter();
+      const form = await fixture<Form>(html`
+        <foxy-internal-admin-subscription-form-status-action-form
+          href="https://demo.api/hapi/subscriptions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-internal-admin-subscription-form-status-action-form>
+      `);
+
+      await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
+
+      form.data = {
+        ...form.data!,
+        is_active: true,
+        start_date: serializeDate(new Date(Date.now() + 86400000)),
+      };
+
+      await form.requestUpdate();
+
+      const select = form.renderRoot.querySelector<InternalSelectControl>(
+        'foxy-internal-select-control[infer="end-date-preset"]'
+      );
+
+      expect(select).to.exist;
+      expect(select).to.have.attribute(
+        'options',
+        JSON.stringify([
+          { value: 'start_date', label: 'option_start_date' },
+          { value: 'next_transaction_date', label: 'option_next_transaction_date' },
+          { value: 'custom_date', label: 'option_custom_date' },
+        ])
+      );
+
+      expect(select?.getValue()).to.equal('next_transaction_date');
+      form.edit({ end_date_preset: 'start_date' });
+      expect(select?.getValue()).to.equal('start_date');
+
+      select?.setValue('next_transaction_date');
+      expect(form.form.end_date).to.equal(form.form.next_transaction_date);
+
+      select?.setValue('start_date');
+      expect(form.form.end_date).to.equal(form.data!.start_date);
 
       select?.setValue('custom_date');
       expect(form.form.end_date).to.equal('');
