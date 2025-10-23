@@ -447,7 +447,7 @@ describe('CouponForm', () => {
     control.setValue([{ value: 'a' }, { unit: 'block', value: 'b' }]);
     expect(element).to.have.deep.nested.property('form.product_code_restrictions', 'a,-b');
 
-    element.edit({ product_code_restrictions: '-foo,bar' });
+    element.edit({ product_code_restrictions: ' -foo , bar ' });
     expect(control.getValue()).to.deep.equal([
       { label: 'product-code-restrictions.label_block', value: '-foo' },
       { label: 'product-code-restrictions.label_allow', value: 'bar' },
