@@ -135,7 +135,7 @@ describe('Transaction', () => {
           href="https://demo.api/hapi/transactions/0"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
-          <foxy-internal-transaction-actions-control infer="actions">
+          <foxy-internal-transaction-actions-control infer="actions" currency-display="code">
           </foxy-internal-transaction-actions-control>
         </foxy-nucleon>
       `);
@@ -150,7 +150,7 @@ describe('Transaction', () => {
 
       expect(control.renderRoot.querySelector('[infer="refund"]')).to.not.exist;
 
-      set(wrapper, 'data._links["fx:refund"]', { href: 'test' });
+      set(wrapper, 'data._links["fx:refund"]', { href: 'test', amount: '12.34' });
       wrapper.data = { ...wrapper.data! };
       await wrapper.requestUpdate();
       await control.requestUpdate();
@@ -160,6 +160,10 @@ describe('Transaction', () => {
       expect(action).to.exist;
       expect(action).to.have.property('localName', 'foxy-internal-post-action-control');
       expect(action).to.have.property('href', 'test');
+      expect(action).to.have.deep.property('messageOptions', {
+        currencyDisplay: 'code',
+        amount: '12.34 USD',
+      });
 
       const refreshMethod = stub(wrapper, 'refresh');
       action?.dispatchEvent(new CustomEvent('success'));

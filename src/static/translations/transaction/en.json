@@ -920,6 +920,8 @@
     "total_tax": "Tax",
     "subtotal": "Subtotal",
     "total": "Total",
+    "refundable_amount": "Refundable",
+    "refundable_amount_note": "The amount that can be refunded is different from the order total above because this transaction has been modified",
     "price": "{{amount, price}}",
     "status_capturing": "Capturing",
     "status_captured": "Captured",
@@ -1740,7 +1742,7 @@
       "button": "Void"
     },
     "refund": {
-      "message_idle": "This action will attempt to refund the full amount of this transaction. Would you like to proceed?",
+      "message_idle": "This action will attempt to refund {{ amount, price }} to the payment method used in this transaction. Would you like to proceed?",
       "message_fail": "Failed to refund this transaction. If you'd like to retry, close this dialog and click the refund button again.",
       "message_done": "Transaction was refunded successfully. You can close this dialog now.",
       "button_close": "Close",

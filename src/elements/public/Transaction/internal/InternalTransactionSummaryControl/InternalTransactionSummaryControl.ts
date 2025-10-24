@@ -17,6 +17,7 @@ export class InternalTransactionSummaryControl extends InternalControl {
 
     const taxes = data?._embedded?.['fx:applied_taxes'] ?? [];
     const shipments = data._embedded?.['fx:shipments'] ?? [];
+    const refundableAmount = this.__refundableAmount;
 
     return html`
       <foxy-nucleon
@@ -85,8 +86,37 @@ export class InternalTransactionSummaryControl extends InternalControl {
             ${this.__renderPrice(data.total_order)}
           </span>
         </span>
+
+        ${refundableAmount !== data.total_order
+          ? html`
+              <span class="col-span-2 border-t border-dashed border-contrast-20 my-s"></span>
+              <span class="col-span-2 flex justify-end">
+                <span>
+                  <span class="text-xl font-medium leading-xs">
+                    <foxy-i18n infer="" key="refundable_amount"></foxy-i18n>&colon;
+                    ${this.__renderPrice(refundableAmount)}
+                  </span>
+                  <br />
+                  <foxy-i18n
+                    class="inline-block whitespace-normal leading-s text-tertiary"
+                    style="max-width: 48ch"
+                    infer=""
+                    key="refundable_amount_note"
+                  >
+                  </foxy-i18n>
+                </span>
+              </span>
+            `
+          : ''}
       </p>
     `;
+  }
+
+  private get __refundableAmount(): number {
+    const data = this.nucleon?.data as Data | undefined;
+    const originalTotal = data?.total_order ?? 0;
+    // @ts-expect-error SDK types do not include amount on fx:refund
+    return parseFloat(data?._links['fx:refund']?.amount ?? originalTotal);
   }
 
   private get __storeHref() {

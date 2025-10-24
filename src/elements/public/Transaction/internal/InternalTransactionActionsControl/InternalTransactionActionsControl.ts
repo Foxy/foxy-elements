@@ -12,9 +12,12 @@ export class InternalTransactionActionsControl extends InternalControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      currencyDisplay: { attribute: 'currency-display' },
       folders: {},
     };
   }
+
+  currencyDisplay: string | null = null;
 
   folders: string | null = null;
 
@@ -31,6 +34,13 @@ export class InternalTransactionActionsControl extends InternalControl {
         ${this.folders ? this.__renderFolderSelector(this.folders) : ''}
       </div>
     `;
+  }
+
+  private get __refundAmount(): number {
+    const data = (this.nucleon as Transaction | null)?.data;
+    const originalTotal = data?.total_order ?? 0;
+    // @ts-expect-error SDK types do not include amount on fx:refund
+    return parseFloat(data?._links['fx:refund']?.amount ?? originalTotal);
   }
 
   private __renderSendEmailsAction() {
@@ -70,8 +80,14 @@ export class InternalTransactionActionsControl extends InternalControl {
   }
 
   private __renderRefundAction() {
+    const currencyCode = (this.nucleon as Transaction | null)?.data?.currency_code;
+
     return html`
       <foxy-internal-post-action-control
+        message-options=${JSON.stringify({
+          currencyDisplay: this.currencyDisplay,
+          amount: `${this.__refundAmount} ${currencyCode}`,
+        })}
         infer="refund"
         theme="tertiary-inline"
         href=${ifDefined(this.nucleon?.data?._links['fx:refund']?.href)}

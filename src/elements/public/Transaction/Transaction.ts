@@ -228,10 +228,15 @@ export class Transaction extends Base<Data> {
   }
 
   renderHeaderActions(): TemplateResult {
-    const foldersHref = this.__storeLoader?.data?._links['fx:transaction_folders'].href;
+    const store = this.__storeLoader?.data;
+    const foldersHref = store?._links['fx:transaction_folders'].href;
 
     return html`
-      <foxy-internal-transaction-actions-control folders=${ifDefined(foldersHref)} infer="actions">
+      <foxy-internal-transaction-actions-control
+        currency-display=${store?.use_international_currency_symbol ? 'code' : 'symbol'}
+        folders=${ifDefined(foldersHref)}
+        infer="actions"
+      >
       </foxy-internal-transaction-actions-control>
     `;
   }
