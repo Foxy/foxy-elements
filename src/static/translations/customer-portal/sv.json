@@ -1086,7 +1086,7 @@
             "status_pending": "I väntan på",
             "status_completed": "Avslutad",
             "status_problem": "Problem",
-            "status_pending_fraud_review": "Pending_fraud_review",
+            "status_pending_fraud_review": "Väntar på bedrägeriskontroll",
             "status_rejected": "avvisade",
             "status_declined": "Tackade nej",
             "status_refunding": "Återbetalning",
