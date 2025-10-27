@@ -9,6 +9,7 @@
     "subtitle_transaction_log": "Transaction log webhook",
     "subtitle_subscription": "Subscription webhook",
     "subtitle_customer": "Customer webhook",
+    "subtitle_changelog": "Changelog webhook",
     "copy-id": {
       "failed_to_copy": "Failed to copy",
       "click_to_copy": "Copy ID",
@@ -50,7 +51,8 @@
       "event_resource_transaction_log": "Transaction log",
       "event_resource_subscription": "Subscription",
       "event_resource_transaction": "Transaction",
-      "event_resource_customer": "Customer"
+      "event_resource_customer": "Customer",
+      "event_resource_changelog": "Changelog"
     },
     "url": {
       "label": "Endpoint",
