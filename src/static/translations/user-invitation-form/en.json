@@ -32,7 +32,16 @@
   "revoke": {
     "idle": "Revoke access",
     "busy": "Revoking...",
-    "fail": "Failed to revoke"
+    "fail": "Failed to revoke",
+    "message_idle": "You are about to remove your own access to {{ store_name }} ({{ store_domain }}). Are you sure you want to proceed? If you need access to this store again in the future, you will need to be re-invited by another user of the store.",
+    "message_fail": "Failed to revoke access. If you'd like to retry, close this dialog and click the revoke button again.",
+    "message_done": "Your access was revoked successfully. Close this dialog to continue.",
+    "button_close": "Close",
+    "button_confirm": "Leave this store",
+    "button_cancel": "Cancel",
+    "loading_busy": "Processing",
+    "header": "Confirmation Required",
+    "button": "Revoke access"
   },
   "resend": {
     "idle": "Resend invitation",

@@ -4,7 +4,7 @@ import type { Data } from './types';
 
 import './index';
 
-import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import { expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
 import { UserInvitationForm as Form } from './UserInvitationForm';
 import { InternalForm } from '../../internal/InternalForm';
 import { createRouter } from '../../../server';
@@ -51,6 +51,13 @@ describe('UserInvitationForm', () => {
     expect(new Form()).to.have.property('defaultDomain', null);
     expect(Form).to.have.deep.nested.property('properties.defaultDomain', {
       attribute: 'default-domain',
+    });
+  });
+
+  it('has a reactive property "currentUser"', () => {
+    expect(new Form()).to.have.property('currentUser', null);
+    expect(Form).to.have.deep.nested.property('properties.currentUser', {
+      attribute: 'current-user',
     });
   });
 
@@ -401,6 +408,36 @@ describe('UserInvitationForm', () => {
     expect(action).to.exist;
     expect(action).to.have.attribute('href', form.data!._links['fx:revoke'].href);
     expect(action).to.have.attribute('theme', 'error');
+  });
+
+  it("renders a special async action for revoking current user's access in snapshot admin layout", async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-user-invitation-form
+        current-user="https://demo.api/hapi/users/0"
+        layout="admin"
+        href="https://demo.api/hapi/user_invitations/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-user-invitation-form>
+    `);
+
+    await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
+    const action = form.renderRoot.querySelector(
+      'foxy-internal-post-action-control[infer="revoke"]'
+    );
+
+    expect(action).to.exist;
+    expect(action).to.have.attribute('href', form.data!._links['fx:revoke'].href);
+    expect(action).to.have.attribute('theme', 'error');
+    expect(action).to.have.attribute(
+      'message-options',
+      JSON.stringify({ store_domain: 'example', store_name: 'Example Store' })
+    );
+
+    const selfrevokedEvent = oneEvent(form, 'selfrevoked');
+    action!.dispatchEvent(new Event('success'));
+    expect(await selfrevokedEvent).to.exist;
   });
 
   it('renders async action for resending invitation in snapshot admin layout', async () => {
