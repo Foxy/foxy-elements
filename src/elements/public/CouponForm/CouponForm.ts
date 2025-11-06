@@ -148,7 +148,8 @@ export class CouponForm extends Base<Data> {
   private readonly __productCodeRestrictionsGetValue = () => {
     return this.form.product_code_restrictions
       ?.split(',')
-      .filter(v => !!v.trim())
+      .map(v => v.trim())
+      .filter(v => v.length > 0)
       .map(value => ({
         value,
         label: value.startsWith('-')

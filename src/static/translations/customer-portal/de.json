@@ -1086,7 +1086,7 @@
             "status_pending": "Ausstehend",
             "status_completed": "Vollendet",
             "status_problem": "Problem",
-            "status_pending_fraud_review": "Pending_fraud_review",
+            "status_pending_fraud_review": "Ausstehende Betrugsüberprüfung",
             "status_rejected": "Abgelehnt",
             "status_declined": "Abgelehnt",
             "status_refunding": "Rückerstattung",

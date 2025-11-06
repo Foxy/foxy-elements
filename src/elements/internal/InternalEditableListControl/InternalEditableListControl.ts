@@ -272,6 +272,7 @@ export class InternalEditableListControl extends InternalEditableControl {
                   }}
                   @blur=${() => {
                     this.__isErrorVisible = true;
+                    addItem();
                   }}
                 />
               `}

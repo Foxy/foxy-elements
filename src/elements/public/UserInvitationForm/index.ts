@@ -1,3 +1,4 @@
+import '../../internal/InternalPostActionControl/index';
 import '../../internal/InternalSummaryControl/index';
 import '../../internal/InternalDeleteControl/index';
 import '../../internal/InternalTextControl/index';

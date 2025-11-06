@@ -669,6 +669,7 @@ describe('Transaction', () => {
 
     expect(control).to.exist;
     expect(control).to.have.property('localName', 'foxy-internal-transaction-actions-control');
+    expect(control).to.have.property('currencyDisplay', 'code');
   });
 
   it('renders a post action control for refeeding XML datafeed', async () => {

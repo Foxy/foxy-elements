@@ -249,11 +249,11 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
       : allMethods;
 
     return filteredMethods
-      .sort((a, b) => a[0].localeCompare(b[0], 'en'))
+      .sort((a, b) => a[1].name.localeCompare(b[1].name, 'en'))
       .reduce((groups, [type, helper]) => {
         if (helper.is_deprecated) return groups;
 
-        const firstChar = type.charAt(0).toUpperCase();
+        const firstChar = helper.name.charAt(0).toUpperCase();
         const isSpecialCharacter = !/\w/.test(firstChar);
         const name = isSpecialCharacter ? '#' : firstChar;
         const group = groups.find(group => group.name === name);

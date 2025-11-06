@@ -37,6 +37,7 @@ export class InternalPostActionControl extends InternalControl {
 
       <vaadin-button
         theme=${ifDefined(this.theme ?? void 0)}
+        class="w-full"
         ?disabled=${this.disabled || this.readonly}
         @click=${(evt: CustomEvent) => {
           const button = evt.currentTarget as ButtonElement;

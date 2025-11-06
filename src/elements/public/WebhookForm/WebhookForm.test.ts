@@ -153,6 +153,7 @@ describe('WebhookForm', () => {
       { value: 'transaction', label: 'event_resource_transaction' },
       { value: 'transaction_log', label: 'event_resource_transaction_log' },
       { value: 'customer', label: 'event_resource_customer' },
+      { value: 'changelog', label: 'event_resource_changelog' },
     ];
 
     expect(control).to.exist;

@@ -163,6 +163,26 @@ describe('InternalEditableListControl', () => {
     expect(value).to.deep.equal([{ value: 'foo,bar', unit: '' }]);
   });
 
+  it('can add items on blur (non-range only)', async () => {
+    const layout = html`<foxy-internal-editable-list-control></foxy-internal-editable-list-control>`;
+    const element = await fixture<Control>(layout);
+
+    let value: unknown = [];
+    element.getValue = () => value;
+    element.setValue = newValue => (value = newValue);
+    await element.requestUpdate();
+
+    const input = element.renderRoot.querySelector('input') as HTMLInputElement;
+    const whenChangeEmitted = oneEvent(element, 'change');
+
+    input.value = 'foo';
+    input.dispatchEvent(new InputEvent('input'));
+    input.dispatchEvent(new FocusEvent('blur'));
+
+    expect(await whenChangeEmitted).to.be.instanceOf(CustomEvent);
+    expect(value).to.deep.equal([{ value: 'foo', unit: '' }]);
+  });
+
   it('can add items on paste (multiline text - split into multiple entries)', async () => {
     const element = await fixture<Control>(html`
       <foxy-internal-editable-list-control></foxy-internal-editable-list-control>

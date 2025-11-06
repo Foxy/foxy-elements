@@ -21,6 +21,7 @@ export class UserInvitationForm extends Base<Data> {
       ...super.properties,
       getStorePageHref: { attribute: false },
       defaultDomain: { attribute: 'default-domain' },
+      currentUser: { attribute: 'current-user' },
       layout: {},
     };
   }
@@ -61,6 +62,9 @@ export class UserInvitationForm extends Base<Data> {
 
   /** Default host domain for stores that don't use a custom domain name, e.g. `foxycart.com`. */
   defaultDomain: string | null = null;
+
+  /** Currently logged in user resource URL. Used to display a warning when revoking access. */
+  currentUser: string | null = null;
 
   /** Admin layout will display user info, user layout (default) will display store info. */
   layout: 'admin' | 'user' | null = null;
@@ -169,7 +173,7 @@ export class UserInvitationForm extends Base<Data> {
     `;
   }
 
-  private __renderAdminSnapshotState({ first_name, last_name }: Data) {
+  private __renderAdminSnapshotState({ first_name, last_name, store_name, _links }: Data) {
     const hasName = first_name?.trim() || last_name?.trim();
     const nameOptions = { first_name, last_name, context: hasName ? '' : 'empty' };
     const status = this.data?.status;
@@ -237,13 +241,30 @@ export class UserInvitationForm extends Base<Data> {
               hidden.matches('resend', true) &&
               hidden.matches('delete', true)}
             >
-              <foxy-internal-user-invitation-form-async-action
-                infer="revoke"
-                class="flex-1"
-                theme="error"
-                href=${ifDefined(this.data?._links['fx:revoke']?.href)}
-              >
-              </foxy-internal-user-invitation-form-async-action>
+              ${this.currentUser && _links['fx:user'] && this.currentUser === _links['fx:user'].href
+                ? html`
+                    <foxy-internal-post-action-control
+                      message-options=${JSON.stringify({
+                        store_domain: this.__storeDomainGetValue(),
+                        store_name,
+                      })}
+                      infer="revoke"
+                      class="flex-1"
+                      theme="error"
+                      href=${ifDefined(this.data?._links['fx:revoke']?.href)}
+                      @success=${() => this.dispatchEvent(new CustomEvent('selfrevoked'))}
+                    >
+                    </foxy-internal-post-action-control>
+                  `
+                : html`
+                    <foxy-internal-user-invitation-form-async-action
+                      infer="revoke"
+                      class="flex-1"
+                      theme="error"
+                      href=${ifDefined(this.data?._links['fx:revoke']?.href)}
+                    >
+                    </foxy-internal-user-invitation-form-async-action>
+                  `}
 
               <foxy-internal-user-invitation-form-async-action
                 infer="resend"

@@ -11,6 +11,7 @@ import { defaults } from '../../../../../server/hapi/defaults';
 import { links } from '../../../../../server/hapi/links';
 import { FetchEvent } from '../../../NucleonElement/FetchEvent';
 import { createDataset } from '../../../../../server/hapi/createDataset';
+import { set } from 'lodash-es';
 
 describe('Transaction', () => {
   describe('InternalTransactionSummaryControl', () => {
@@ -117,6 +118,48 @@ describe('Transaction', () => {
         signDisplay: 'auto',
         amount: '11.9 USD',
       });
+    });
+
+    it("renders refundable amount if it's different from the total item price", async () => {
+      const router = createRouter();
+      const wrapper = await fixture<Transaction>(html`
+        <foxy-nucleon
+          href="https://demo.api/hapi/transactions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+          <foxy-internal-transaction-summary-control infer="summary">
+          </foxy-internal-transaction-summary-control>
+        </foxy-nucleon>
+      `);
+
+      await waitUntil(() => wrapper.in({ idle: 'snapshot' }));
+      const control = wrapper.firstElementChild as InternalTransactionSummaryControl;
+
+      set(wrapper, 'data._links["fx:refund"]', { href: 'test', amount: '12.34' });
+      set(wrapper, 'data.total_order', 23.45);
+      await wrapper.requestUpdate();
+      await control.requestUpdate();
+
+      // @ts-expect-error using private property for testing purposes
+      await waitUntil(() => !!control.__store);
+
+      const label = control.renderRoot.querySelector('foxy-i18n[key="refundable_amount"]')!;
+      const value = label.nextElementSibling!;
+      const note = control.renderRoot.querySelector('foxy-i18n[key="refundable_amount_note"]')!;
+
+      expect(label).to.exist;
+      expect(label).to.have.property('infer', '');
+
+      expect(value).to.exist;
+      expect(value).to.have.property('infer', '');
+      expect(value).to.have.deep.property('options', {
+        currencyDisplay: 'code',
+        signDisplay: 'auto',
+        amount: '12.34 USD',
+      });
+
+      expect(note).to.exist;
+      expect(note).to.have.property('infer', '');
     });
 
     it('renders total shipping price if shipments are not embedded', async () => {

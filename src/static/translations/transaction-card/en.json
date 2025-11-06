@@ -13,7 +13,7 @@
   "status_pending": "Pending",
   "status_completed": "Completed",
   "status_problem": "Problem",
-  "status_pending_fraud_review": "Pending_fraud_review",
+  "status_pending_fraud_review": "Pending fraud review",
   "status_rejected": "Rejected",
   "status_declined": "Declined",
   "status_refunding": "Refunding",

@@ -10,6 +10,7 @@ import { html } from 'lit-element';
 import { getWeekdayShortNames } from './getWeekdayShortNames';
 import { getWeekdayLongNames } from './getWeekdayLongNames';
 import { getMonthNames } from './getMonthNames';
+import { safeDate } from '../../../utils/safe-date';
 
 /**
  * Internal control displaying a basic date picker box.
@@ -102,7 +103,7 @@ export class InternalDateControl extends InternalEditableControl {
       parseDate: null,
       formatTitle: (m: string, y: string) => m + ' ' + y,
       formatDate: (d: { day: number; month: number; year: number }) => {
-        return this.t('display_value', { value: new Date(d.year, d.month, d.day) });
+        return this.t('display_value', { value: safeDate(d.year, d.month, d.day) });
       },
     };
   }
