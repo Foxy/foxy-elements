@@ -67,6 +67,7 @@ export class ReportForm extends Base<Data> {
     { value: 'complete', label: 'option_complete' },
     { value: 'customers', label: 'option_customers' },
     { value: 'customers_ltv', label: 'option_customers_ltv' },
+    { value: 'transactions', label: 'option_transactions' },
   ]);
 
   private readonly __datetimePreciseGetValue = () => {

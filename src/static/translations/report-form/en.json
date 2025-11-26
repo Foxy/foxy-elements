@@ -23,9 +23,11 @@
     "helper_text_complete": "Transactions, coupon usage, subscription forecasts etc.",
     "helper_text_customers": "Exports customers to import somewhere else.",
     "helper_text_customers_ltv": "Customers with lifetime value info.",
+    "helper_text_transactions": "Exports transaction data for reporting and analysis.",
     "option_complete": "Complete",
     "option_customers": "Customers",
     "option_customers_ltv": "Lifetime value",
+    "option_transactions": "Transactions",
     "v8n_required": "Please select a report type."
   },
   "preset": {

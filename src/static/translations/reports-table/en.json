@@ -9,6 +9,7 @@
   "report_name_complete": "Complete",
   "report_name_customers": "Customers",
   "report_name_customers_ltv": "Lifetime value",
+  "report_name_transactions": "Transactions",
   "link-spinner": {
     "loading_busy": "Preparing",
     "loading_error": "Failed to create"
