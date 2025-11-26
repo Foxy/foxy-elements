@@ -23212,8 +23212,7 @@
           "type": "array"
         },
         {
-          "name": "value",
-          "description": "Current value as hAPI filter string."
+          "name": "value"
         },
         {
           "name": "mode",
@@ -23328,8 +23327,7 @@
         },
         {
           "name": "value",
-          "attribute": "value",
-          "description": "Current value as hAPI filter string."
+          "attribute": "value"
         },
         {
           "name": "templates",
@@ -23423,6 +23421,21 @@
       "description": "Form element for creating or editing reports (`fx:report`).",
       "attributes": [
         {
+          "name": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -23453,16 +23466,6 @@
         {
           "name": "hiddencontrols",
           "default": "\"False\""
-        },
-        {
-          "name": "simplify-ns-loading",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
         },
         {
           "name": "lang",
@@ -23504,6 +23507,65 @@
         }
       ],
       "properties": [
+        {
+          "name": "simplifyNsLoading",
+          "attribute": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
+          "name": "headerTitleKey",
+          "description": "Getter that returns a i18n key for the optional form header title.",
+          "type": "string"
+        },
+        {
+          "name": "headerTitleOptions",
+          "description": "I18next options to pass to the header title translation function.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleKey",
+          "description": "Getter that returns a i18n key for the optional form header subtitle. Note that subtitle is shown only when data is avaiable.",
+          "type": "string"
+        },
+        {
+          "name": "headerSubtitleOptions",
+          "description": "I18next options to pass to the header subtitle translation function. Note that subtitle is shown only when data is avaiable.",
+          "type": "Record<string, unknown>"
+        },
+        {
+          "name": "headerSubtitleBadges",
+          "description": "Getter that returns a list of the optional badges to put into the subtitle. The badges are shown only if subtitle is visible.",
+          "type": "Badge[]"
+        },
+        {
+          "name": "headerCopyIdValue",
+          "description": "ID that will be written to clipboard when Copy ID button in header is clicked.",
+          "type": "string | number"
+        },
         {
           "name": "templates",
           "default": "{}"
@@ -23558,23 +23620,6 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
-        },
-        {
-          "name": "simplifyNsLoading",
-          "attribute": "simplify-ns-loading",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "ns",
-          "attribute": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
-        },
-        {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "UpdateEvent",
@@ -32054,6 +32099,10 @@
           "description": "Default host domain for stores that don't use a custom domain name, e.g. `foxycart.com`."
         },
         {
+          "name": "current-user",
+          "description": "Currently logged in user resource URL. Used to display a warning when revoking access."
+        },
+        {
           "name": "layout",
           "description": "Admin layout will display user info, user layout (default) will display store info."
         },
@@ -32152,6 +32201,11 @@
           "name": "defaultDomain",
           "attribute": "default-domain",
           "description": "Default host domain for stores that don't use a custom domain name, e.g. `foxycart.com`."
+        },
+        {
+          "name": "currentUser",
+          "attribute": "current-user",
+          "description": "Currently logged in user resource URL. Used to display a warning when revoking access."
         },
         {
           "name": "layout",
@@ -32357,6 +32411,9 @@
         }
       ],
       "events": [
+        {
+          "name": "selfrevoked"
+        },
         {
           "name": "update",
           "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."

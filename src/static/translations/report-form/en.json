@@ -1,36 +1,86 @@
 {
-  "cancel": "Cancel",
-  "caption": "Create",
-  "date": "{{value, date}}",
-  "date_created": "Created on",
-  "date_modified": "Last updated on",
-  "datetime_end_required": "End date is required",
-  "datetime_start_required": "Start date is required",
-  "delete": "Delete",
-  "delete_prompt": "If you proceed, this report will be deleted forever. Are you sure?",
-  "end": "End",
-  "name": "Name",
-  "name_complete": "Complete",
-  "name_complete_explainer": "Transactions, coupon usage, subscription forecasts etc.",
-  "name_customers": "Customers",
-  "name_customers_explainer": "Exports customers to import somewhere else.",
-  "name_customers_ltv": "Lifetime value",
-  "name_customers_ltv_explainer": "Customers with lifetime value info.",
-  "preset": "Preset",
-  "preset_custom": "Custom",
-  "preset_last_30_days": "Last 30 days",
-  "preset_last_365_days": "Last 365 days",
-  "preset_previous_month": "Previous month",
-  "preset_previous_quarter": "Previous quarter",
-  "preset_previous_year": "Previous year",
-  "preset_this_month": "This month",
-  "preset_this_quarter": "This quarter",
-  "preset_this_year": "This year",
-  "range": "Range",
-  "select_date": "DD/MM/YYYY",
-  "select_time": "HH:MM:SS",
-  "start": "Start",
-  "use_precise_time": "Use precise time",
+  "header": {
+    "title_existing": "Report #{{ id }}",
+    "title_new": "New report",
+    "subtitle": "Status: {{ status }}",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
+  "name": {
+    "label": "Report type",
+    "placeholder": "Select",
+    "helper_text_none": "",
+    "helper_text_complete": "Transactions, coupon usage, subscription forecasts etc.",
+    "helper_text_customers": "Exports customers to import somewhere else.",
+    "helper_text_customers_ltv": "Customers with lifetime value info.",
+    "helper_text_transactions": "Exports transaction data for reporting and analysis.",
+    "option_complete": "Complete",
+    "option_customers": "Customers",
+    "option_customers_ltv": "Lifetime value",
+    "option_transactions": "Transactions",
+    "v8n_required": "Please select a report type."
+  },
+  "preset": {
+    "label": "Range",
+    "helper_text": "",
+    "placeholder": "Select",
+    "option_custom": "Custom",
+    "option_last_30_days": "Last 30 days",
+    "option_last_365_days": "Last 365 days",
+    "option_previous_month": "Previous month",
+    "option_previous_quarter": "Previous quarter",
+    "option_previous_year": "Previous year",
+    "option_this_month": "This month",
+    "option_this_quarter": "This quarter",
+    "option_this_year": "This year"
+  },
+  "datetime-precise": {
+    "label": "Use precise time",
+    "helper_text": "",
+    "checked": "Yes",
+    "unchecked": "No"
+  },
+  "datetime-start": {
+    "label": "Start date",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_required": "Please select a start date."
+  },
+  "datetime-end": {
+    "label": "End date",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_required": "Please select an end date."
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "If you proceed, this report will be deleted forever. Are you sure?"
+  },
+  "undo": {
+    "caption": "Undo"
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
+  "create": {
+    "caption": "Create"
+  },
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",

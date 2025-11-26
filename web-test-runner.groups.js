@@ -72,6 +72,10 @@ export const groups = [
     files: './src/elements/internal/InternalIntegerControl/**/*.test.ts',
   },
   {
+    name: 'foxy-internal-native-date-control',
+    files: './src/elements/internal/InternalNativeDateControl/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-number-control',
     files: './src/elements/internal/InternalNumberControl/**/*.test.ts',
   },

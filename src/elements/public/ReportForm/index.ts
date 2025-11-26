@@ -1,12 +1,8 @@
-import '@vaadin/vaadin-date-time-picker';
-import '@vaadin/vaadin-date-picker';
-import '@vaadin/vaadin-checkbox';
-import '@vaadin/vaadin-button';
-import '@vaadin/vaadin-select';
-import '../../internal/InternalConfirmDialog/index';
-import '../../internal/InternalSandbox/index';
-import '../Spinner/index';
-import '../I18n/index';
+import '../../internal/InternalNativeDateControl/index';
+import '../../internal/InternalSummaryControl/index';
+import '../../internal/InternalSwitchControl/index';
+import '../../internal/InternalSelectControl/index';
+import '../../internal/InternalForm/index';
 
 import { ReportForm } from './ReportForm';
 
