@@ -11,9 +11,9 @@ const summary: Summary = {
   localName: 'foxy-report-form',
   translatable: true,
   configurable: {
-    inputs: ['name', 'range'],
-    buttons: ['delete', 'create'],
-    sections: ['timestamps'],
+    sections: ['timestamps', 'header'],
+    buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
+    inputs: ['name', 'range', 'datetime-start', 'datetime-end', 'datetime-precise'],
   },
 };
 

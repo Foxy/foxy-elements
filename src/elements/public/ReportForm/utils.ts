@@ -100,6 +100,10 @@ export function toDateTimePickerValue(apiValue: string): string {
   return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.exec(apiValue)?.[0] ?? '';
 }
 
+export function toNativeDateTimePickerValue(apiValue: string): string {
+  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.exec(apiValue)?.[0] ?? '';
+}
+
 export function toDatePickerValue(apiValue: string): string {
   return /^\d{4}-\d{2}-\d{2}/.exec(apiValue)?.[0] ?? '';
 }

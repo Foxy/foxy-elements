@@ -1,7 +1,6 @@
-import { Choice, Group, Metadata } from '../../private/index';
-import { Data } from './types';
-import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { Data } from './types';
+
 import {
   getCurrentMonth,
   getCurrentQuarter,
@@ -13,32 +12,16 @@ import {
   getPreviousYear,
   toAPIDateTime,
   toDatePickerValue,
-  toDateTimePickerValue,
+  toNativeDateTimePickerValue,
 } from './utils';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
-import { CheckboxElement } from '@vaadin/vaadin-checkbox';
-import { ChoiceChangeEvent } from '../../private/Choice/ChoiceChangeEvent';
-import { ConfigurableMixin } from '../../../mixins/configurable';
-import { DateTimePicker } from '@vaadin/vaadin-date-time-picker';
-import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { NucleonV8N } from '../NucleonElement/types';
-import { ResponsiveMixin } from '../../../mixins/responsive';
-import { SelectElement } from '@vaadin/vaadin-select';
-import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
-import { ifDefined } from 'lit-html/directives/if-defined';
-import { live } from 'lit-html/directives/live';
-import { render } from 'lit-html';
+import { BooleanSelector } from '@foxy.io/sdk/core';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { NucleonV8N } from '../NucleonElement/types';
+import { html } from 'lit-element';
 
-const Base = ScopedElementsMixin(
-  ResponsiveMixin(
-    ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 'report-form')))
-  )
-);
+const Base = TranslatableMixin(InternalForm, 'report-form');
 
 /**
  * Form element for creating or editing reports (`fx:report`).
@@ -47,25 +30,6 @@ const Base = ScopedElementsMixin(
  * @since 1.16.0
  */
 export class ReportForm extends Base<Data> {
-  static get scopedElements(): ScopedElementsMap {
-    return {
-      'vaadin-date-time-picker': customElements.get('vaadin-date-time-picker'),
-      'vaadin-date-picker': customElements.get('vaadin-date-picker'),
-      'vaadin-checkbox': customElements.get('vaadin-checkbox'),
-      'vaadin-select': customElements.get('vaadin-select'),
-      'vaadin-button': customElements.get('vaadin-button'),
-
-      'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
-      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
-      'foxy-spinner': customElements.get('foxy-spinner'),
-      'foxy-i18n': customElements.get('foxy-i18n'),
-
-      'x-metadata': Metadata,
-      'x-choice': Choice,
-      'x-group': Group,
-    };
-  }
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -75,351 +39,157 @@ export class ReportForm extends Base<Data> {
 
   static get v8n(): NucleonV8N<Data> {
     return [
-      ({ name: v }) => !!v || 'name_required',
-      ({ datetime_start: v }) => !!v || 'datetime_start_required',
-      ({ datetime_end: v }) => !!v || 'datetime_end_required',
+      ({ datetime_start: v }) => !!v || 'datetime-start:v8n_required',
+      ({ datetime_end: v }) => !!v || 'datetime-end:v8n_required',
+      ({ name: v }) => !!v || 'name:v8n_required',
     ];
   }
 
   private __showRangeTime = false;
 
-  render(): TemplateResult {
-    const hidden = this.hiddenSelector;
+  private readonly __rawPresetOptions = [
+    { value: '0', label: 'option_previous_quarter', ...getPreviousQuarter() },
+    { value: '1', label: 'option_previous_month', ...getPreviousMonth() },
+    { value: '2', label: 'option_previous_year', ...getPreviousYear() },
+    { value: '3', label: 'option_this_quarter', ...getCurrentQuarter() },
+    { value: '4', label: 'option_this_month', ...getCurrentMonth() },
+    { value: '5', label: 'option_this_year', ...getCurrentYear() },
+    { value: '6', label: 'option_last_365_days', ...getLast365Days() },
+    { value: '7', label: 'option_last_30_days', ...getLast30Days() },
+  ];
 
-    return html`
-      <div
-        data-testid="wrapper"
-        aria-busy=${this.in('busy')}
-        aria-live="polite"
-        class="space-y-l relative"
-      >
-        <div class="space-y-m">
-          ${hidden.matches('name', true) ? '' : this.__renderName()}
-          ${hidden.matches('range', true) ? '' : this.__renderRange()}
-          ${hidden.matches('timestamps', true) || !this.data ? '' : this.__renderTimestamps()}
-          ${hidden.matches('create', true) || this.data ? '' : this.__renderCreate()}
-          ${hidden.matches('delete', true) || !this.data ? '' : this.__renderDelete()}
-        </div>
+  private readonly __presetOptions = JSON.stringify([
+    ...this.__rawPresetOptions,
+    { value: 'custom', label: 'option_custom' },
+  ]);
 
-        <div
-          data-testid="spinner"
-          class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex': true,
-            'opacity-0 pointer-events-none': this.in('idle'),
-          })}
-        >
-          <foxy-spinner
-            layout="vertical"
-            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-            state=${this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty'}
-            lang=${this.lang}
-            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
-          >
-          </foxy-spinner>
-        </div>
-      </div>
-    `;
-  }
+  private readonly __nameOptions = JSON.stringify([
+    { value: 'complete', label: 'option_complete' },
+    { value: 'customers', label: 'option_customers' },
+    { value: 'customers_ltv', label: 'option_customers_ltv' },
+  ]);
 
-  private __renderName() {
-    const scope = 'name';
-    const items = ['complete', 'customers', 'customers_ltv'];
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches(scope);
-    const isReadonly = this.readonlySelector.matches(scope);
+  private readonly __datetimePreciseGetValue = () => {
+    return this.__showRangeTime;
+  };
 
-    return html`
-      <div data-testid=${scope}>
-        ${this.renderTemplateOrSlot(`${scope}:before`)}
+  private readonly __datetimePreciseSetValue = (value: boolean) => {
+    this.__showRangeTime = value;
+  };
 
-        <x-group frame>
-          <foxy-i18n lang=${this.lang} slot="header" key="name" ns=${this.ns}></foxy-i18n>
+  private readonly __datetimeStartGetValue = () => {
+    const value = this.form.datetime_start;
+    return value
+      ? this.__showRangeTime || this.data
+        ? toNativeDateTimePickerValue(value)
+        : toDatePickerValue(value)
+      : '';
+  };
 
-          <x-choice
-            data-testid="name-choice"
-            .value=${this.form.name}
-            .items=${items}
-            ?readonly=${isReadonly}
-            ?disabled=${isDisabled}
-            @change=${(evt: Event) => {
-              if (evt instanceof ChoiceChangeEvent) {
-                this.edit({ name: evt.detail as Data['name'] });
-              }
-            }}
-          >
-            ${items.map(value => {
-              return html`
-                <div slot="${value}-label" class="py-s leading-s">
-                  <foxy-i18n class="block" lang=${this.lang} key="name_${value}" ns=${this.ns}>
-                  </foxy-i18n>
+  private readonly __datetimeStartSetValue = (value: string) => {
+    const time = this.__showRangeTime ? `${value.split('T')[1] ?? '00:00'}:00` : '00:00:00';
+    this.edit({ datetime_start: `${value.split('T')[0]}T${time}` });
+  };
 
-                  <foxy-i18n
-                    class="block text-s opacity-70"
-                    lang=${this.lang}
-                    key="name_${value}_explainer"
-                    ns=${this.ns}
-                  >
-                  </foxy-i18n>
-                </div>
-              `;
-            })}
-          </x-choice>
-        </x-group>
+  private readonly __datetimeEndGetValue = () => {
+    const value = this.form.datetime_end;
+    return value
+      ? this.__showRangeTime || this.data
+        ? toNativeDateTimePickerValue(value)
+        : toDatePickerValue(value)
+      : '';
+  };
 
-        ${this.renderTemplateOrSlot(`${scope}:after`)}
-      </div>
-    `;
-  }
+  private readonly __datetimeEndSetValue = (value: string) => {
+    const time = this.__showRangeTime ? `${value.split('T')[1] ?? '23:59'}:59` : '23:59:59';
+    this.edit({ datetime_end: `${value.split('T')[0]}T${time}` });
+  };
 
-  private __renderRangePreset() {
-    const options = [
-      [
-        { value: '0', label: 'preset_previous_quarter', ...getPreviousQuarter() },
-        { value: '1', label: 'preset_previous_month', ...getPreviousMonth() },
-        { value: '2', label: 'preset_previous_year', ...getPreviousYear() },
-      ],
-      [
-        { value: '3', label: 'preset_this_quarter', ...getCurrentQuarter() },
-        { value: '4', label: 'preset_this_month', ...getCurrentMonth() },
-        { value: '5', label: 'preset_this_year', ...getCurrentYear() },
-      ],
-      [
-        { value: '6', label: 'preset_last_365_days', ...getLast365Days() },
-        { value: '7', label: 'preset_last_30_days', ...getLast30Days() },
-      ],
-    ];
+  private readonly __presetGetValue = () => {
+    return (
+      this.__rawPresetOptions.find(option => {
+        const { datetime_end: end, datetime_start: start } = this.form;
+        return (
+          start && end && toAPIDateTime(option.start) === start && toAPIDateTime(option.end) === end
+        );
+      })?.value ?? 'custom'
+    );
+  };
 
-    const currentOption = options.flat(1).find(option => {
-      const { datetime_end: end, datetime_start: start } = this.form;
-      return (
-        start && end && toAPIDateTime(option.start) === start && toAPIDateTime(option.end) === end
-      );
-    });
+  private readonly __presetSetValue = (value: string) => {
+    const option = this.__rawPresetOptions.find(option => option.value === value);
 
-    const renderer = (root: Element) => {
-      const custom = html`<vaadin-item value="custom">${this.t('preset_custom')}</vaadin-item>`;
-      const separator = html`<hr />`;
-      const predefined = options.map(group => {
-        const items = group.map(({ value, label }) => {
-          return html`<vaadin-item value=${value}>${this.t(label)}</vaadin-item>`;
-        });
-
-        return html`${items}${separator}`;
+    if (option) {
+      this.edit({
+        datetime_start: toAPIDateTime(option.start),
+        datetime_end: toAPIDateTime(option.end),
       });
+    }
+  };
 
-      if (!root.firstElementChild) root.appendChild(document.createElement('vaadin-list-box'));
-      render(html`${predefined}${custom}`, root.firstElementChild as Element);
-    };
+  get readonlySelector(): BooleanSelector {
+    const alwaysMatch = [super.readonlySelector.toString()];
+    if (this.data) {
+      alwaysMatch.unshift('name', 'preset', 'datetime-precise', 'datetime-start', 'datetime-end');
+    }
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
+  }
 
+  get hiddenSelector(): BooleanSelector {
+    const alwaysMatch = [super.hiddenSelector.toString()];
+    if (this.data) alwaysMatch.unshift('preset', 'datetime-precise');
+    return new BooleanSelector(alwaysMatch.join(' ').trim());
+  }
+
+  renderBody(): TemplateResult {
     return html`
-      <div>
-        <vaadin-select
-          data-testid="range:preset"
-          label=${this.t('preset')}
-          class="w-full -mt-m -mb-xs"
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('range', true)}
-          ?readonly=${this.readonlySelector.matches('range', true)}
-          .value=${live(currentOption?.value ?? 'custom')}
-          .renderer=${renderer}
-          @change=${(evt: CustomEvent) => {
-            const select = evt.currentTarget as SelectElement;
-            const option = options.flat(1).find(option => option.value === select.value);
+      ${this.renderHeader()}
 
-            if (option) {
-              this.edit({
-                datetime_start: toAPIDateTime(option.start),
-                datetime_end: toAPIDateTime(option.end),
-              });
-            }
-          }}
+      <foxy-internal-summary-control infer="" label="" helper-text="">
+        <foxy-internal-select-control
+          helper-text=${this.t(`name.helper_text_${this.form.name ?? 'none'}`)}
+          options=${this.__nameOptions}
+          layout="summary-item"
+          infer="name"
         >
-        </vaadin-select>
-      </div>
-    `;
-  }
+        </foxy-internal-select-control>
 
-  private __renderRangeDateTimePicker(type: 'start' | 'end') {
-    const field = type === 'end' ? 'datetime_end' : 'datetime_start';
-    const error = this.errors.find(error => error.startsWith(`${field}_`));
-    const value = this.form[field as keyof Data] as string;
-
-    return html`
-      <vaadin-date-time-picker
-        date-placeholder=${this.t('select_date')}
-        time-placeholder=${this.t('select_time')}
-        error-message=${ifDefined(error ? this.t(error) : undefined)}
-        data-testid="range:${type}"
-        class="w-full"
-        label=${this.t(type)}
-        step="1"
-        ?disabled=${!this.in('idle') || this.disabledSelector.matches('range', true)}
-        ?readonly=${this.readonlySelector.matches('range', true)}
-        .checkValidity=${() => !error}
-        .value=${value ? toDateTimePickerValue(value) : ''}
-        @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
-        @change=${(evt: CustomEvent) => {
-          const picker = evt.currentTarget as DateTimePicker;
-          this.edit({ [field]: picker.value });
-        }}
-      >
-      </vaadin-date-time-picker>
-    `;
-  }
-
-  private __renderRangeDatePicker(type: 'start' | 'end') {
-    const field = type === 'end' ? 'datetime_end' : 'datetime_start';
-    const error = this.errors.find(error => error.startsWith(`${field}_`));
-    const value = this.form[field as keyof Data] as string;
-
-    return html`
-      <vaadin-date-picker
-        error-message=${ifDefined(error ? this.t(error) : undefined)}
-        placeholder=${this.t('select_date')}
-        data-testid="range:${type}"
-        class="w-full"
-        label=${this.t(type)}
-        step="1"
-        ?disabled=${!this.in('idle') || this.disabledSelector.matches('range', true)}
-        ?readonly=${this.readonlySelector.matches('range', true)}
-        .checkValidity=${() => !error}
-        .value=${value ? toDatePickerValue(value) : ''}
-        @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
-        @change=${(evt: CustomEvent) => {
-          const picker = evt.currentTarget as DateTimePicker;
-          const time = type === 'end' ? '23:59:59' : '00:00:00';
-
-          this.edit({ [field]: `${picker.value}T${time}` });
-        }}
-      >
-      </vaadin-date-picker>
-    `;
-  }
-
-  private __renderRange() {
-    const renderer = this.__showRangeTime
-      ? this.__renderRangeDateTimePicker
-      : this.__renderRangeDatePicker;
-
-    return html`
-      <div data-testid="range">
-        ${this.renderTemplateOrSlot('range:before')}
-
-        <x-group frame>
-          <foxy-i18n slot="header" lang=${this.lang} key="range" ns=${this.ns}></foxy-i18n>
-
-          <div
-            style="--lumo-border-radius: var(--lumo-border-radius-s)"
-            class="p-m grid gap-m ${this.__showRangeTime ? 'grid-cols-1' : 'sm-grid-cols-2'}"
-          >
-            <div class=${this.__showRangeTime ? 'col-span-1' : 'sm-col-span-2'}>
-              ${this.__renderRangePreset()}
-            </div>
-
-            ${renderer.call(this, 'start')} ${renderer.call(this, 'end')}
-
-            <vaadin-checkbox
-              data-testid="range:toggle"
-              class="-my-xs w-full ${this.__showRangeTime ? 'col-span-1' : 'sm-col-span-2'}"
-              ?disabled=${!this.in('idle') || this.disabledSelector.matches('range', true)}
-              ?checked=${this.__showRangeTime}
-              @change=${(evt: CustomEvent) => {
-                const checkbox = evt.currentTarget as CheckboxElement;
-                this.__showRangeTime = checkbox.checked;
-              }}
-            >
-              <foxy-i18n lang=${this.lang} key="use_precise_time" ns=${this.ns}></foxy-i18n>
-            </vaadin-checkbox>
-          </div>
-        </x-group>
-
-        ${this.renderTemplateOrSlot('range:after')}
-      </div>
-    `;
-  }
-
-  private __renderTimestamps() {
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('timestamps:before')}
-
-        <x-metadata
-          data-testid="timestamps"
-          .items=${(['date_modified', 'date_created'] as const).map(field => ({
-            name: this.t(field),
-            value: this.data?.[field]
-              ? this.t('date', { value: new Date(this.data[field] as string) })
-              : '',
-          }))}
+        <foxy-internal-select-control
+          options=${this.__presetOptions}
+          layout="summary-item"
+          infer="preset"
+          .getValue=${this.__presetGetValue}
+          .setValue=${this.__presetSetValue}
         >
-        </x-metadata>
+        </foxy-internal-select-control>
+      </foxy-internal-summary-control>
 
-        ${this.renderTemplateOrSlot('timestamps:after')}
-      </div>
-    `;
-  }
-
-  private __renderCreate() {
-    const isCleanTemplateInvalid = this.in({ idle: { template: { clean: 'invalid' } } });
-    const isDirtyTemplateInvalid = this.in({ idle: { template: { dirty: 'invalid' } } });
-    const isCleanSnapshotInvalid = this.in({ idle: { snapshot: { clean: 'invalid' } } });
-    const isDirtySnapshotInvalid = this.in({ idle: { snapshot: { dirty: 'invalid' } } });
-    const isTemplateInvalid = isCleanTemplateInvalid || isDirtyTemplateInvalid;
-    const isSnaphotInvalid = isCleanSnapshotInvalid || isDirtySnapshotInvalid;
-    const isInvalid = isTemplateInvalid || isSnaphotInvalid;
-    const isIdle = this.in('idle');
-
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('create:before')}
-
-        <vaadin-button
-          data-testid="create"
-          class="w-full"
-          theme="primary success"
-          ?disabled=${!isIdle || isInvalid || this.disabledSelector.matches('create', true)}
-          @click=${this.submit}
+      <foxy-internal-summary-control infer="" label="" helper-text="">
+        <foxy-internal-native-date-control
+          format=${this.__showRangeTime || this.data ? 'datetime-local' : 'date'}
+          infer="datetime-start"
+          .getValue=${this.__datetimeStartGetValue}
+          .setValue=${this.__datetimeStartSetValue}
         >
-          <foxy-i18n ns=${this.ns} key="create" lang=${this.lang}></foxy-i18n>
-        </vaadin-button>
+        </foxy-internal-native-date-control>
 
-        ${this.renderTemplateOrSlot('create:after')}
-      </div>
-    `;
-  }
-
-  private __renderDelete() {
-    return html`
-      <div>
-        <foxy-internal-confirm-dialog
-          data-testid="confirm"
-          message="delete_prompt"
-          confirm="delete"
-          cancel="cancel"
-          header="delete"
-          theme="primary error"
-          lang=${this.lang}
-          ns=${this.ns}
-          id="confirm"
-          @hide=${(evt: DialogHideEvent) => !evt.detail.cancelled && this.delete()}
+        <foxy-internal-native-date-control
+          format=${this.__showRangeTime || this.data ? 'datetime-local' : 'date'}
+          infer="datetime-end"
+          .getValue=${this.__datetimeEndGetValue}
+          .setValue=${this.__datetimeEndSetValue}
         >
-        </foxy-internal-confirm-dialog>
+        </foxy-internal-native-date-control>
 
-        ${this.renderTemplateOrSlot('delete:before')}
-
-        <vaadin-button
-          data-testid="delete"
-          theme="error"
-          class="w-full"
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('delete', true)}
-          @click=${(evt: CustomEvent) => {
-            const confirm = this.renderRoot.querySelector('#confirm') as InternalConfirmDialog;
-            confirm.show(evt.currentTarget as ButtonElement);
-          }}
+        <foxy-internal-switch-control
+          infer="datetime-precise"
+          .getValue=${this.__datetimePreciseGetValue}
+          .setValue=${this.__datetimePreciseSetValue}
         >
-          <foxy-i18n ns=${this.ns} key="delete" lang=${this.lang}></foxy-i18n>
-        </vaadin-button>
+        </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
-        ${this.renderTemplateOrSlot('delete:after')}
-      </div>
+      ${super.renderBody()}
     `;
   }
 }
