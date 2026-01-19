@@ -106,7 +106,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
         </foxy-internal-text-control>
       </foxy-internal-summary-control>
 
-      <foxy-internal-summary-control infer="subscriptions">
+      <foxy-internal-summary-control infer="subscription">
         <foxy-internal-frequency-control layout="summary-item" infer="subscription-frequency">
         </foxy-internal-frequency-control>
         <foxy-internal-date-control layout="summary-item" infer="subscription-start-date">

@@ -715,7 +715,7 @@
             "placeholder": "Optional"
           }
         },
-        "subscriptions": {
+        "subscription": {
           "label": "Subscription",
           "helper_text": "To modify these value for an existing subscription, you must modify the subscription directly.",
           "subscription-frequency": {
