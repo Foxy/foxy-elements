@@ -667,6 +667,7 @@ export const createDataset: () => Dataset = () => ({
     store_id: 0,
     shipment_id: id > 4 ? 1 : 0,
     transaction_id: id > 4 ? 1 : 0,
+    downloadable_purchase_id: id === 0 ? 0 : null,
     subscription_id: 0,
     item_category_id: 0,
     item_category_uri: `https://demo.api/hapi/item_categories/${id}`,
@@ -2205,6 +2206,22 @@ export const createDataset: () => Dataset = () => ({
       color: 'green',
       date_created: '2025-05-13T07:03:19-0700',
       date_modified: '2025-05-13T08:45:46-0700',
+    },
+  ],
+
+  downloadable_purchases: [
+    {
+      id: 0,
+      store_id: 0,
+      customer_id: 0,
+      transaction_id: 0,
+      item_id: 0,
+      downloadable_id: 0,
+      number_of_downloads: 4,
+      first_download_time: '2025-11-15T09:30:00-0800',
+      download_passcode: 'QYLKcnhe9Q1nklCXRQJLFTpZxDLKgSX2HAG',
+      date_created: '2025-11-15T09:30:00-0800',
+      date_modified: '2025-11-15T09:30:00-0800',
     },
   ],
 });

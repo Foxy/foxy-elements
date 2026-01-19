@@ -190,7 +190,15 @@ export const links: Links = {
     'fx:process_subscription_webhook': { href: 'https://demo.api/virtual/empty?status=200' },
   }),
 
-  items: ({ store_id, subscription_id, transaction_id, item_category_id, shipment_id, id }) => ({
+  items: ({
+    store_id,
+    subscription_id,
+    transaction_id,
+    item_category_id,
+    shipment_id,
+    downloadable_purchase_id: dp_id,
+    id,
+  }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:shipment': { href: `./shipments/${shipment_id}` },
     'fx:attributes': { href: `./item_attributes?item_id=${id}` },
@@ -199,6 +207,10 @@ export const links: Links = {
     'fx:item_category': { href: `./item_categories/${item_category_id}` },
     'fx:coupon_details': { href: `./coupon_details?coupon_id=${id}` },
     'fx:discount_details': { href: `./discount_details?item_id=${id}` },
+
+    ...(typeof dp_id === 'number'
+      ? { 'fx:downloadable_purchase': { href: `./downloadable_purchases/${dp_id}` } }
+      : {}),
 
     ...(typeof subscription_id === 'number'
       ? { 'fx:subscription': { href: `./subscriptions/${subscription_id}` } }
@@ -576,5 +588,21 @@ export const links: Links = {
 
   transaction_folders: ({ store_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
+  }),
+
+  downloadable_purchases: ({
+    store_id,
+    customer_id,
+    item_id,
+    transaction_id,
+    downloadable_id,
+  }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:customer': { href: `./customers/${customer_id}` },
+    'fx:item': { href: `./items/${item_id}` },
+    'fx:transaction': { href: `./transactions/${transaction_id}` },
+    'fx:downloadable': { href: `./downloadables/${downloadable_id}` },
+    'fx:reset_usage': { href: 'https://demo.api/virtual/empty?status=200' },
+    'fx:download_url': { href: 'about:blank' },
   }),
 };

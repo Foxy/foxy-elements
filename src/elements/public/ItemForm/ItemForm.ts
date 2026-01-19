@@ -57,6 +57,8 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
   /** Link to `fx:store` this item belongs to. */
   store: string | null = null;
 
+  private __downloadablePurchase: Resource<Rels.DownloadablePurchase> | null = null;
+
   private __itemsLink = '';
 
   get headerSubtitleOptions(): Record<string, unknown> {
@@ -74,12 +76,38 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
 
     if (!this.__storeLoader?.data?.features_multiship) alwaysMatch.unshift('general:shipto');
     if (this.data && !this.data.subscription_frequency) alwaysMatch.unshift('subscriptions');
+    if (!this.__downloadablePurchase) alwaysMatch.unshift('downloadable-purchase');
     if (!this.form.discount_name) alwaysMatch.unshift('discount:discount-builder');
     if (!this.href) {
       alwaysMatch.unshift('discount-details', 'coupon-details', 'item-options', 'attributes');
     }
 
     return new BooleanSelector(alwaysMatch.join(' ').trim());
+  }
+
+  renderHeaderActions(): TemplateResult {
+    if (!this.__downloadablePurchase) return html``;
+    const downloadUrl = this.__downloadablePurchase?._links['fx:download_url'].href;
+
+    return html`
+      <a
+        data-testid="download-link"
+        target="_blank"
+        class="text-primary font-medium cursor-pointer hover-underline rounded-sm focus-outline-none focus-ring-2 focus-ring-primary-50"
+        href=${ifDefined(downloadUrl)}
+        rel="noopener noreferrer"
+      >
+        <foxy-i18n infer="actions download" key="label"></foxy-i18n>
+      </a>
+
+      <foxy-copy-to-clipboard
+        layout="text"
+        theme="tertiary-inline"
+        infer="actions copy-download-link"
+        text=${ifDefined(downloadUrl)}
+      >
+      </foxy-copy-to-clipboard>
+    `;
   }
 
   renderBody(): TemplateResult {
@@ -114,6 +142,8 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
         <foxy-internal-date-control layout="summary-item" infer="subscription-end-date">
         </foxy-internal-date-control>
       </foxy-internal-summary-control>
+
+      ${this.__renderDownloadablePurchaseSection()}
 
       <foxy-internal-async-list-control
         layout="details"
@@ -209,6 +239,12 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
 
     const item = await super._sendGet();
 
+    if (item._links['fx:downloadable_purchase']) {
+      this.__downloadablePurchase = await super._fetch<Resource<Rels.DownloadablePurchase>>(
+        item._links['fx:downloadable_purchase'].href
+      );
+    }
+
     if (item._links['fx:subscription']) {
       const subscriptionHref = item._links['fx:subscription'].href;
       const subscription = await super._fetch<Subscription>(subscriptionHref);
@@ -259,6 +295,47 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
   private get __storeLoader() {
     type Loader = NucleonElement<Resource<Rels.Store>>;
     return this.renderRoot.querySelector<Loader>('#storeLoader');
+  }
+
+  private __renderDownloadablePurchaseSection(): TemplateResult {
+    const download = this.__downloadablePurchase;
+
+    return html`
+      <foxy-internal-summary-control infer="downloadable-purchase" layout="details">
+        ${download?.number_of_downloads
+          ? html`
+              <p class="flex justify-between gap-m">
+                <foxy-i18n infer="number-of-downloads" key="label"></foxy-i18n>
+                <span class="text-secondary">${download.number_of_downloads}</span>
+              </p>
+
+              <p class="flex justify-between gap-m">
+                <foxy-i18n infer="first-download-time" key="label"></foxy-i18n>
+                <foxy-i18n
+                  options=${JSON.stringify({ value: download?.first_download_time })}
+                  class="text-secondary"
+                  infer="first-download-time"
+                  key="value"
+                >
+                </foxy-i18n>
+              </p>
+
+              <div class="flex justify-start">
+                <foxy-internal-post-action-control
+                  theme="tertiary-inline"
+                  infer="reset-usage"
+                  href=${ifDefined(download?._links['fx:reset_usage'].href)}
+                >
+                </foxy-internal-post-action-control>
+              </div>
+            `
+          : html`
+              <p class="text-secondary">
+                <foxy-i18n infer="" key="no_stats_text"></foxy-i18n>
+              </p>
+            `}
+      </foxy-internal-summary-control>
+    `;
   }
 
   private __handleDiscountBuilderChange(evt: CustomEvent) {

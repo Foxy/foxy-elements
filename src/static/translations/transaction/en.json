@@ -230,6 +230,49 @@
             "placeholder": "None"
           }
         },
+        "downloadable-purchase": {
+          "label": "Downloadable usage",
+          "helper_text": "",
+          "no_stats_text": "This item has not been downloaded yet. Download statistics will appear here once the item has been downloaded by a customer.",
+          "number-of-downloads": {
+            "label": "Number of downloads"
+          },
+          "first-download-time": {
+            "label": "First download",
+            "value": "{{ value, date }} at {{ value, time }}"
+          },
+          "download-link": {
+            "label": "Download file"
+          },
+          "copy-download-link": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy URL",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          },
+          "reset-usage": {
+            "message_idle": "This action will attempt to reset usage for this downloadable purchase. Would you like to proceed?",
+            "message_fail": "Failed to reset usage for this downloadable purchase. If you'd like to retry, close this dialog and click the reset usage button again.",
+            "message_done": "Usage for this downloadable purchase was reset successfully. You can close this dialog now.",
+            "button_close": "Close",
+            "button_confirm": "Reset usage",
+            "button_cancel": "Go back",
+            "loading_busy": "Processing",
+            "header": "Reset usage",
+            "button": "Reset usage"
+          }
+        },
+        "actions": {
+          "download": {
+            "label": "Download file"
+          },
+          "copy-download-link": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy download link",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          }
+        },
         "dimensions": {
           "label": "Dimensions",
           "helper_text": "",
