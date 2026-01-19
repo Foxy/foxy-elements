@@ -100,7 +100,7 @@
   },
   "subscription": {
     "label": "Subscription",
-    "helper_text": "To modify these value for an existing subscription, you must modify the subscription directly.",
+    "helper_text": "",
     "subscription-frequency": {
       "label": "Frequency",
       "helper_text": "",
@@ -155,13 +155,13 @@
     "label": "Meta",
     "helper_text": "",
     "url": {
-      "label": "URL",
-      "helper_text": "Full URL for the customer to view this item on the store website.",
+      "label": "Website URL",
+      "helper_text": "",
       "placeholder": "None"
     },
     "image": {
-      "label": "Image",
-      "helper_text": "URL of the image to display for this item in the cart and checkout.",
+      "label": "Image URL",
+      "helper_text": "",
       "placeholder": "None"
     },
     "quantity-max": {
@@ -175,8 +175,8 @@
       "placeholder": "1"
     },
     "expires": {
-      "label": "Expires",
-      "helper_text": "Date when this item will be removed from the cart.",
+      "label": "Expiry Date",
+      "helper_text": "",
       "display_value": "{{ value, date }}",
       "placeholder": "Optional"
     }
@@ -208,6 +208,9 @@
   },
   "discount-details": {
     "label": "Applied discounts",
+    "helper_text": "",
+    "total_items": "{{ count }} discount",
+    "total_items_plural": "{{ count }} discounts",
     "pagination": {
       "first": "First",
       "last": "Last",
@@ -228,6 +231,9 @@
   },
   "coupon-details": {
     "label": "Applied coupons",
+    "helper_text": "",
+    "total_items": "{{ count }} coupon",
+    "total_items_plural": "{{ count }} coupons",
     "pagination": {
       "first": "First",
       "last": "Last",
@@ -248,6 +254,9 @@
   },
   "attributes": {
     "label": "Attributes",
+    "helper_text": "",
+    "total_items": "{{ count }} attribute",
+    "total_items_plural": "{{ count }} attributes",
     "delete_header": "Remove attribute?",
     "delete_message": "Please confirm that you'd like to remove this attribute from the item.",
     "delete_confirm": "Remove",
@@ -351,6 +360,9 @@
   },
   "item-options": {
     "label": "Item options",
+    "helper_text": "",
+    "total_items": "{{ count }} option",
+    "total_items_plural": "{{ count }} options",
     "delete_header": "Remove item option?",
     "delete_message": "Please confirm that you'd like to remove this item option from the item.",
     "delete_confirm": "Remove",

@@ -106,7 +106,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
         </foxy-internal-text-control>
       </foxy-internal-summary-control>
 
-      <foxy-internal-summary-control infer="subscription">
+      <foxy-internal-summary-control infer="subscription" layout="details">
         <foxy-internal-frequency-control layout="summary-item" infer="subscription-frequency">
         </foxy-internal-frequency-control>
         <foxy-internal-date-control layout="summary-item" infer="subscription-start-date">
@@ -116,6 +116,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
       </foxy-internal-summary-control>
 
       <foxy-internal-async-list-control
+        layout="details"
         infer="item-options"
         first=${ifDefined(this.data?._links['fx:item_options'].href)}
         form="foxy-item-option-form"
@@ -126,7 +127,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
       >
       </foxy-internal-async-list-control>
 
-      <foxy-internal-summary-control infer="dimensions">
+      <foxy-internal-summary-control infer="dimensions" layout="details">
         <foxy-internal-number-control layout="summary-item" infer="weight" min="0">
         </foxy-internal-number-control>
         <foxy-internal-number-control layout="summary-item" infer="length" min="0">
@@ -137,7 +138,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
         </foxy-internal-number-control>
       </foxy-internal-summary-control>
 
-      <foxy-internal-summary-control infer="meta">
+      <foxy-internal-summary-control infer="meta" layout="details">
         <foxy-internal-text-control layout="summary-item" infer="url"></foxy-internal-text-control>
         <foxy-internal-text-control layout="summary-item" infer="image">
         </foxy-internal-text-control>
@@ -149,7 +150,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
         </foxy-internal-date-control>
       </foxy-internal-summary-control>
 
-      <foxy-internal-summary-control infer="discount">
+      <foxy-internal-summary-control infer="discount" layout="details">
         <foxy-internal-text-control layout="summary-item" infer="discount-name">
         </foxy-internal-text-control>
         <foxy-discount-builder
@@ -162,6 +163,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
       </foxy-internal-summary-control>
 
       <foxy-internal-async-list-control
+        layout="details"
         infer="discount-details"
         first=${ifDefined(this.data?._links['fx:discount_details'].href)}
         item="foxy-discount-detail-card"
@@ -169,6 +171,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
       </foxy-internal-async-list-control>
 
       <foxy-internal-async-list-control
+        layout="details"
         infer="coupon-details"
         first=${ifDefined(this.data?._links['fx:coupon_details'].href)}
         item="foxy-coupon-detail-card"
@@ -176,6 +179,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
       </foxy-internal-async-list-control>
 
       <foxy-internal-async-list-control
+        layout="details"
         infer="attributes"
         first=${ifDefined(this.data?._links['fx:attributes'].href)}
         item="foxy-attribute-card"
