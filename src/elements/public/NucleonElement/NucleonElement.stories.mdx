@@ -67,7 +67,7 @@ addEventListener('fetch', (event: Event) => {
 });
 ```
 
-And here's how we can serve mock data from `foxy://mocks/attribute` during development (replace `MY_MOCK_ATTRIBUTE` with an attribute resource like [this one](https://api.foxycart.com/rels/attribute) and `LATENCY` with a network latency you're comfortable or need to test your elements with). By the way, this is exactly how most of the demos in this Storybook work:
+And here's how we can serve mock data from `foxy://mocks/attribute` during development (replace `MY_MOCK_ATTRIBUTE` with an attribute resource like <a href="https://api.foxycart.com/rels/attribute" target="_blank">this one</a> and `LATENCY` with a network latency you're comfortable or need to test your elements with). By the way, this is exactly how most of the demos in this Storybook work:
 
 ```ts
 addEventListener('fetch', (event: Event) => {
@@ -113,7 +113,7 @@ class MyAttributeElement extends NucleonElement<CustomerAttribute> {
 }
 ```
 
-You can see the full list of available states [in Nucleon docs](https://sdk.foxy.dev/modules/_core_index_._core_nucleon_index_.html#states). Now our element will show "Nothing to display" message by default, switch to "Loading..." while fetching data, render name and value once data becomes available or "Failed to load" if response is non-2XX.
+You can see the full list of available states <a href="https://sdk.foxy.dev/modules/_core_index_._core_nucleon_index_.html#states" target="_blank">in Nucleon docs</a>. Now our element will show "Nothing to display" message by default, switch to "Loading..." while fetching data, render name and value once data becomes available or "Failed to load" if response is non-2XX.
 
 ### Editing
 
@@ -202,13 +202,13 @@ And just like that we have a form that can both create new attributes and edit e
 <my-attribute href="foxy://mocks/attribute"></my-attribute>
 ```
 
-If NucleonElement has "href" attribute, it will always try to load the resource at that URL. Without "href" it will skip loading and initialize in `idle.template` state immediately. Setting both "href" and "parent" won't change the loading order, but will make resource sync with [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html) more accurate.
+If NucleonElement has "href" attribute, it will always try to load the resource at that URL. Without "href" it will skip loading and initialize in `idle.template` state immediately. Setting both "href" and "parent" won't change the loading order, but will make resource sync with <a href="https://sdk.foxy.dev/classes/_core_index_.rumour.html" target="_blank">Rumour</a> more accurate.
 
 ### Resource sync
 
 So we have our form, we have our mock API, but what if we also have another element on the page (like `<foxy-attribute-card>`) linked to the same resource (`foxy://mocks/attribute`)? Or worse, what if there's a customer element that loads attributes embedded into the customer object? If we make changes in `<my-attribute>`, how do we tell all other elements about them? Answer: we spread a little Rumour.
 
-[Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html) keeps every NucleonElement on the page connected by sharing HAL+JSON resource updates as soon as they become available – on load, on update, on creation and on deletion. Whether top-level or deeply embedded, Rumour can reach and update every local copy of a resource or trigger a reload if necessary. Non-Nucleon elements as well as Vue, React, Svelte and other components can tap into that stream using `NucleonElement.Rumour(group)` method. And the best part is, it requires zero effort to get going:
+<a href="https://sdk.foxy.dev/classes/_core_index_.rumour.html" target="_blank">Rumour</a> keeps every NucleonElement on the page connected by sharing HAL+JSON resource updates as soon as they become available – on load, on update, on creation and on deletion. Whether top-level or deeply embedded, Rumour can reach and update every local copy of a resource or trigger a reload if necessary. Non-Nucleon elements as well as Vue, React, Svelte and other components can tap into that stream using `NucleonElement.Rumour(group)` method. And the best part is, it requires zero effort to get going:
 
 ```html
 <!-- These two elements will stay in sync. Yep just like that. -->

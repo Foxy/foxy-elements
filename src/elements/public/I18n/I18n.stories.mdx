@@ -9,7 +9,7 @@ import { html } from 'lit-html';
 
 ## Features
 
-I18n element interface mirrors the [translation function](https://www.i18next.com/translation-function/essentials#overview-options) of i18next: `key` for accessing keys, `options` for providing context, count, default value and more, and 2 additional attributes/properties for ease of use: `ns` for namespaces and `lang` for language. It can do everything an i18next instance can and more:
+I18n element interface mirrors the <a href="https://www.i18next.com/translation-function/essentials#overview-options" target="_blank">translation function</a> of i18next: `key` for accessing keys, `options` for providing context, count, default value and more, and 2 additional attributes/properties for ease of use: `ns` for namespaces and `lang` for language. It can do everything an i18next instance can and more:
 
 1. Load JSON translations on demand;
 2. Add, edit or remove translations at any time;
@@ -38,7 +38,7 @@ customElements
   .i18next.addResource('en', 'shared', 'foo', 'Same foo, but in English');
 ```
 
-Since `shared` and `en` are set as both default and fallback values for namespace and language respectively, our element should now resolve "foo" key to the provided value and render "Same foo, but in English" instead (check out [this i18next guide](https://www.i18next.com/how-to/add-or-load-translations#add-after-init) for more options). Each localizable element from this package has its own namespace that you can add your translations to.
+Since `shared` and `en` are set as both default and fallback values for namespace and language respectively, our element should now resolve "foo" key to the provided value and render "Same foo, but in English" instead (check out <a href="https://www.i18next.com/how-to/add-or-load-translations#add-after-init" target="_blank">this i18next guide</a> for more options). Each localizable element from this package has its own namespace that you can add your translations to.
 
 Still, while having a JS interface can be very useful at times, it's often more practical to write translations in JSON files and store them separately – for example, every element in this Storybook operates exactly that way. I18n element comes with a backend plugin that allows us to load translation files from a custom location on demand. All we need to do is to tell it where to get them from by intercepting the `fetch` events:
 
@@ -61,7 +61,7 @@ Whenever I18n element needs to load translations for a language or a namespace, 
   <Story name="With key">{() => html`<foxy-i18n key="demo_key"></foxy-i18n>`}</Story>
 </Canvas>
 
-Cool! Let's see what it looks like in Spanish by setting the [lang attribute](https://developer.mozilla.org/en/docs/Web/HTML/Global_attributes/lang):
+Cool! Let's see what it looks like in Spanish by setting the <a href="https://developer.mozilla.org/en/docs/Web/HTML/Global_attributes/lang" target="_blank">lang attribute</a>:
 
 <Canvas mdxSource='<foxy-i18n key="demo_key" lang="es"></foxy-i18n>' isExpanded>
   <Story name="With lang">{() => html`<foxy-i18n key="demo_key" lang="es"></foxy-i18n>`}</Story>
@@ -111,7 +111,7 @@ In the example above `foxy-i18n` will load namespaces `foo` and `shared`. Then i
 
 In this example `foxy-i18n` will look for the value of `baz.bar.demo` in `foo`. If we omit `simplify-ns-loading` attribute on the form, `foxy-i18n` will download the translation file for `baz` as well.
 
-Finally, let's pass some [options](https://www.i18next.com/translation-function/essentials#overview-options) to our I18n element. For example, to display a date:
+Finally, let's pass some <a href="https://www.i18next.com/translation-function/essentials#overview-options" target="_blank">options</a> to our I18n element. For example, to display a date:
 
 <Canvas
   mdxSource={`<foxy-i18n key="demo_date" options='{"value":"2021-03-14"}'></foxy-i18n>`}
