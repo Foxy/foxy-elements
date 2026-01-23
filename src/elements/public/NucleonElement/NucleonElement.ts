@@ -357,27 +357,37 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     return response.json();
   }
 
-  /** POSTs to `element.parent`, shares response with the Rumour group and returns parsed JSON. */
-  protected async _sendPost(edits: Partial<TData>): Promise<TData> {
+  protected async _sendPost(
+    edits: Partial<TData>,
+    options?: { mode: 'collection' | 'action' }
+  ): Promise<TData> {
     this.__destroyRumour();
     let data: TData;
 
     try {
       const body = JSON.stringify(edits);
-      const postData = await this._fetch(this.parent, { body, method: 'POST' });
-      const newOwnURL = new URL(postData._links.self.href);
-      const parentURL = new URL(this.parent);
-      const zoom = parentURL.searchParams.get('zoom');
-
-      if (zoom) newOwnURL.searchParams.set('zoom', zoom);
-      const newHref = newOwnURL.toString();
-      data = await this._fetch(newHref);
-
       const rumour = NucleonElement.Rumour(this.group);
-      const related = [...this.related, this.parent];
-      rumour.share({ data, related, source: data._links.self.href });
+      const postData = await this._fetch(this.parent, { body, method: 'POST' });
 
-      this.__href = newHref;
+      if (options?.mode === 'action') {
+        data = postData;
+        rumour.share({ related: this.related, source: 'https://nucleon.element/void', data: null });
+      } else {
+        const newOwnURL = new URL(postData._links.self.href);
+        const parentURL = new URL(this.parent);
+        const zoom = parentURL.searchParams.get('zoom');
+
+        if (zoom) newOwnURL.searchParams.set('zoom', zoom);
+        const newHref = newOwnURL.toString();
+
+        data = await this._fetch(newHref);
+        this.__href = newHref;
+        rumour.share({
+          related: [...this.related, this.parent],
+          source: data._links.self.href,
+          data,
+        });
+      }
     } finally {
       this.__createRumour();
     }
