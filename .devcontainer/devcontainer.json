@@ -6,6 +6,9 @@
       "packages": "chromium"
     }
   },
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached"
+  ],
   "forwardPorts": [8000],
   "postCreateCommand": "npm install"
 }
