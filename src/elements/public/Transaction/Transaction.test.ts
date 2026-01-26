@@ -12,6 +12,8 @@ import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-html';
 import { stub } from 'sinon';
 
+import uainfer from 'uainfer/src/uainfer.js';
+
 describe('Transaction', () => {
   const OriginalResizeObserver = window.ResizeObserver;
 
@@ -859,6 +861,74 @@ describe('Transaction', () => {
       'first',
       'https://demo.api/hapi/transaction_attributes?transaction_id=0'
     );
+  });
+
+  it('renders transaction metadata when IP and user agent are present', async () => {
+    const router = createRouter();
+    const element = await fixture<Transaction>(html`
+      <foxy-transaction
+        href="https://demo.api/hapi/transactions/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-transaction>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)';
+    const analyzeStub = stub(uainfer, 'analyze').returns({ toString: () => 'Stub Agent' });
+
+    try {
+      element.data = {
+        ...element.data!,
+        customer_ip: '203.0.113.10',
+        ip_country: 'GB',
+        user_agent: userAgent,
+      };
+
+      await element.requestUpdate();
+
+      const metadata = element.renderRoot.querySelector('[infer="metadata"]');
+
+      expect(metadata).to.exist;
+      expect(metadata).to.have.property('localName', 'foxy-internal-summary-control');
+      expect(metadata?.textContent).to.include('203.0.113.10 (GB)');
+      expect(metadata?.textContent).to.include('Stub Agent');
+      expect(analyzeStub).to.have.been.calledWith(userAgent);
+    } finally {
+      analyzeStub.restore();
+    }
+  });
+
+  it('hides transaction metadata when IP or user agent is missing', async () => {
+    const router = createRouter();
+    const element = await fixture<Transaction>(html`
+      <foxy-transaction
+        href="https://demo.api/hapi/transactions/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-transaction>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    element.data = {
+      ...element.data!,
+      customer_ip: '203.0.113.10',
+      user_agent: '',
+    };
+
+    await element.requestUpdate();
+    expect(element.renderRoot.querySelector('[infer="metadata"]')).to.not.exist;
+
+    element.data = {
+      ...element.data!,
+      customer_ip: '',
+      user_agent: 'Mozilla/5.0',
+    };
+
+    await element.requestUpdate();
+    expect(element.renderRoot.querySelector('[infer="metadata"]')).to.not.exist;
   });
 
   it('renders shipments as control', async () => {
