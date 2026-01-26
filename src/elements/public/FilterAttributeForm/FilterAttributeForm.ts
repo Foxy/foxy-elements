@@ -99,6 +99,18 @@ export class FilterAttributeForm extends Base<Data> {
           : html`
               <foxy-i18n class="text-xl flex-1 font-medium" infer="header" key="title"></foxy-i18n>
             `}
+        ${hasChanges
+          ? html`
+              <vaadin-button
+                theme="secondary contrast"
+                style=${ifDefined(hasData ? void 0 : '--lumo-button-size: auto')}
+                ?disabled=${this.disabled}
+                @click=${() => this.undo()}
+              >
+                <foxy-i18n infer="action" class="px-s" key="reset"></foxy-i18n>
+              </vaadin-button>
+            `
+          : ''}
         ${!hasValue || (!filterQuery && !hasData)
           ? ''
           : html`

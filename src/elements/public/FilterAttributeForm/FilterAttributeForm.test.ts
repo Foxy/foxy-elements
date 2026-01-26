@@ -244,6 +244,50 @@ describe('FilterAttributeForm', () => {
     expect(button).to.not.exist;
   });
 
+  it('renders Reset button when appropriate', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-filter-attribute-form
+        pathname="/stores/0/transactions"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-filter-attribute-form>
+    `);
+
+    let caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="reset"]');
+    let button = caption?.closest('vaadin-button');
+    expect(button).to.not.exist;
+
+    element.edit({ value: '/stores/0/transactions?filter_name=my+filter' });
+    await element.requestUpdate();
+    caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="reset"]');
+    button = caption?.closest('vaadin-button');
+    expect(button).to.exist;
+
+    const undoMethod = stub(element, 'undo');
+    button?.dispatchEvent(new CustomEvent('click'));
+    expect(undoMethod).to.have.been.calledOnce;
+
+    undoMethod.restore();
+    element.undo();
+    await element.requestUpdate();
+    caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="reset"]');
+    button = caption?.closest('vaadin-button');
+    expect(button).to.not.exist;
+
+    element.href = 'https://demo.api/hapi/store_attributes/0';
+    await waitUntil(() => element.in('idle'));
+    caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="reset"]');
+    button = caption?.closest('vaadin-button');
+    expect(button).to.not.exist;
+
+    element.edit({ value: '/stores/0/transactions?filter_name=updated+filter' });
+    await element.requestUpdate();
+    caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="reset"]');
+    button = caption?.closest('vaadin-button');
+    expect(button).to.exist;
+  });
+
   it('uses fixed visibility and attribute name when creating a resource', async () => {
     const layout = html`<foxy-filter-attribute-form
       parent="https://demo.api/hapi/store_attributes"
