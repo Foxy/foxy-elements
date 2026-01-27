@@ -43,6 +43,7 @@
   "customer": {
     "label": "Customer",
     "helper_text": "",
+    "clear": "Clear",
     "dialog": {
       "cancel": "Cancel",
       "close": "Close",
