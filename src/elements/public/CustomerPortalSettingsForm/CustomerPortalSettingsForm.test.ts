@@ -1,4 +1,5 @@
-import type { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
+import type { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
+import type { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
 import type { InternalEditableListControl } from '../../internal/InternalEditableListControl/InternalEditableListControl';
 import type { InternalFrequencyControl } from '../../internal/InternalFrequencyControl/InternalFrequencyControl';
 import type { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
@@ -11,8 +12,12 @@ import { expect, fixture, html } from '@open-wc/testing';
 import { stub } from 'sinon';
 
 describe('CustomerPortalSettingsForm', () => {
-  it('imports and defines foxy-internal-checkbox-group-control', () => {
-    expect(customElements.get('foxy-internal-checkbox-group-control')).to.exist;
+  it('imports and defines foxy-internal-switch-control', () => {
+    expect(customElements.get('foxy-internal-switch-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-summary-control', () => {
+    expect(customElements.get('foxy-internal-summary-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-editable-list-control', () => {
@@ -182,12 +187,10 @@ describe('CustomerPortalSettingsForm', () => {
     expect(form.hiddenSelector.matches('header:copy-id', true)).to.be.true;
   });
 
-  it('hides sign-up verification settings when sign-up is disabled', () => {
+  it('hides hcaptcha settings when sign-up is disabled', () => {
     const form = new Form();
 
-    expect(form.hiddenSelector.matches('sign-up-verification-hcaptcha-site-key', true)).to.be.true;
-    expect(form.hiddenSelector.matches('sign-up-verification-hcaptcha-secret-key', true)).to.be
-      .true;
+    expect(form.hiddenSelector.matches('hcaptcha', true)).to.be.true;
 
     form.edit({
       signUp: {
@@ -200,9 +203,7 @@ describe('CustomerPortalSettingsForm', () => {
       },
     });
 
-    expect(form.hiddenSelector.matches('sign-up-verification-hcaptcha-site-key', true)).to.be.false;
-    expect(form.hiddenSelector.matches('sign-up-verification-hcaptcha-secret-key', true)).to.be
-      .false;
+    expect(form.hiddenSelector.matches('hcaptcha', true)).to.be.false;
   });
 
   it('hides frequency modification rules when the list is empty', () => {
@@ -275,71 +276,130 @@ describe('CustomerPortalSettingsForm', () => {
     expect(element).to.have.deep.nested.property('form.allowedOrigins', ['https://example.com']);
   });
 
-  it('renders checkbox group control for portal features', async () => {
+  it('renders summary control for portal features', async () => {
     const element = await fixture<Form>(
       html`<foxy-customer-portal-settings-form></foxy-customer-portal-settings-form>`
     );
 
-    const control = element.renderRoot.querySelector<InternalCheckboxGroupControl>(
-      'foxy-internal-checkbox-group-control[infer="features"]'
+    const control = element.renderRoot.querySelector<InternalSummaryControl>(
+      'foxy-internal-summary-control[infer="features"]'
     )!;
 
     expect(control).to.exist;
-    expect(control.getValue()).to.deep.equal([]);
-    expect(control).to.have.deep.property('options', [
-      { value: 'sso', label: 'option_sso' },
-      { value: 'sign-up', label: 'option_sign_up' },
-      { value: 'frequency-modification', label: 'option_frequency_modification' },
-      { value: 'next-date-modification', label: 'option_next_date_modification' },
+  });
+
+  it('renders switch control for SSO feature', async () => {
+    const element = await fixture<Form>(
+      html`<foxy-customer-portal-settings-form></foxy-customer-portal-settings-form>`
+    );
+
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      'foxy-internal-summary-control[infer="features"] foxy-internal-switch-control[infer="sso"]'
+    )!;
+
+    expect(control).to.exist;
+    expect(control.getValue()).to.equal(false);
+
+    control.setValue(true);
+    expect(element).to.have.nested.property('form.sso', true);
+
+    control.setValue(false);
+    expect(element).to.have.nested.property('form.sso', false);
+  });
+
+  it('renders switch control for sign-up feature', async () => {
+    const element = await fixture<Form>(
+      html`<foxy-customer-portal-settings-form></foxy-customer-portal-settings-form>`
+    );
+
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      'foxy-internal-summary-control[infer="features"] foxy-internal-switch-control[infer="sign-up"]'
+    )!;
+
+    expect(control).to.exist;
+    expect(control.getValue()).to.equal(false);
+
+    control.setValue(true);
+    expect(element).to.have.nested.property('form.signUp.enabled', true);
+
+    element.undo();
+    expect(control.getValue()).to.equal(false);
+
+    control.setValue(false);
+    expect(element).to.have.nested.property('form.signUp.enabled', false);
+  });
+
+  it('renders switch control for frequency modification feature', async () => {
+    const element = await fixture<Form>(
+      html`<foxy-customer-portal-settings-form></foxy-customer-portal-settings-form>`
+    );
+
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      'foxy-internal-summary-control[infer="features"] foxy-internal-switch-control[infer="frequency-modification"]'
+    )!;
+
+    expect(control).to.exist;
+    expect(control.getValue()).to.equal(false);
+
+    control.setValue(true);
+    expect(element).to.have.deep.nested.property('form.subscriptions.allowFrequencyModification', [
+      { jsonataQuery: '*', values: [] },
     ]);
 
-    element.edit({ sso: true });
-    expect(control.getValue()).to.deep.equal(['sso']);
-    control.setValue([]);
-    expect(element).to.have.nested.property('form.sso', false);
-
     element.undo();
-    element.edit({
-      signUp: {
-        enabled: true,
-        verification: {
-          secretKey: '',
-          siteKey: '',
-          type: 'hcaptcha',
-        },
-      },
-    });
+    expect(control.getValue()).to.equal(false);
 
-    expect(control.getValue()).to.deep.equal(['sign-up']);
-    control.setValue([]);
-    expect(element).to.have.nested.property('form.signUp.enabled', false);
-
-    element.undo();
-    element.edit({
-      subscriptions: {
-        allowFrequencyModification: [{ jsonataQuery: '*', values: ['1w'] }],
-        allowNextDateModification: false,
-      },
-    });
-
-    expect(control.getValue()).to.deep.equal(['frequency-modification']);
-    control.setValue([]);
+    control.setValue(false);
     expect(element).to.have.deep.nested.property(
       'form.subscriptions.allowFrequencyModification',
       []
     );
+  });
+
+  it('renders switch control for next date modification feature', async () => {
+    const element = await fixture<Form>(
+      html`<foxy-customer-portal-settings-form></foxy-customer-portal-settings-form>`
+    );
+
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      'foxy-internal-summary-control[infer="features"] foxy-internal-switch-control[infer="next-date-modification"]'
+    )!;
+
+    expect(control).to.exist;
+    expect(control.getValue()).to.equal(false);
+
+    control.setValue(true);
+    expect(element).to.have.nested.property('form.subscriptions.allowNextDateModification');
 
     element.undo();
-    element.edit({
-      subscriptions: {
-        allowFrequencyModification: [],
-        allowNextDateModification: true,
-      },
-    });
+    expect(control.getValue()).to.equal(false);
 
-    expect(control.getValue()).to.deep.equal(['next-date-modification']);
-    control.setValue([]);
+    control.setValue(false);
     expect(element).to.have.nested.property('form.subscriptions.allowNextDateModification', false);
+  });
+
+  it('renders summary control for security settings', async () => {
+    const element = await fixture<Form>(
+      html`<foxy-customer-portal-settings-form></foxy-customer-portal-settings-form>`
+    );
+
+    const control = element.renderRoot.querySelector<InternalSummaryControl>(
+      'foxy-internal-summary-control[infer="security"]'
+    )!;
+
+    expect(control).to.exist;
+  });
+
+  it('renders summary control for hcaptcha settings', async () => {
+    const element = await fixture<Form>(
+      html`<foxy-customer-portal-settings-form></foxy-customer-portal-settings-form>`
+    );
+
+    const control = element.renderRoot.querySelector<InternalSummaryControl>(
+      'foxy-internal-summary-control[infer="hcaptcha"]'
+    )!;
+
+    expect(control).to.exist;
   });
 
   it('renders password control for hcaptcha site key', async () => {
@@ -348,7 +408,7 @@ describe('CustomerPortalSettingsForm', () => {
     );
 
     const control = element.renderRoot.querySelector<InternalPasswordControl>(
-      'foxy-internal-password-control[infer="sign-up-verification-hcaptcha-site-key"]'
+      '[infer="hcaptcha"] foxy-internal-password-control[infer="sign-up-verification-hcaptcha-site-key"]'
     )!;
 
     expect(control).to.exist;
@@ -365,7 +425,7 @@ describe('CustomerPortalSettingsForm', () => {
     );
 
     const control = element.renderRoot.querySelector<InternalPasswordControl>(
-      'foxy-internal-password-control[infer="sign-up-verification-hcaptcha-secret-key"]'
+      '[infer="hcaptcha"] foxy-internal-password-control[infer="sign-up-verification-hcaptcha-secret-key"]'
     )!;
 
     expect(control).to.exist;
@@ -434,7 +494,7 @@ describe('CustomerPortalSettingsForm', () => {
     );
 
     const control = element.renderRoot.querySelector<InternalFrequencyControl>(
-      'foxy-internal-frequency-control[infer="session-lifespan-in-minutes"]'
+      'foxy-internal-summary-control[infer="security"] foxy-internal-frequency-control[infer="session-lifespan-in-minutes"]'
     )!;
 
     expect(control).to.exist;
@@ -456,7 +516,7 @@ describe('CustomerPortalSettingsForm', () => {
     );
 
     const control = element.renderRoot.querySelector<InternalPasswordControl>(
-      'foxy-internal-password-control[infer="jwt-shared-secret"]'
+      'foxy-internal-summary-control[infer="security"] foxy-internal-password-control[infer="jwt-shared-secret"]'
     )!;
 
     expect(control).to.exist;

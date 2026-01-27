@@ -10,19 +10,6 @@
       "done": "Copied to clipboard"
     }
   },
-  "session-lifespan-in-minutes": {
-    "label": "Session lifespan",
-    "option_minute": "Minute",
-    "option_minute_plural": "Minutes",
-    "option_hour": "Hour",
-    "option_hour_plural": "Hours",
-    "option_day": "Day",
-    "option_day_plural": "Days",
-    "option_week": "Week",
-    "option_week_plural": "Weeks",
-    "helper_text": "The maximum time a customer can be logged in without activity.",
-    "v8n_too_long": "We limit session lifespan to 4 weeks for security reasons. Please select a smaller value."
-  },
   "allowed-origins": {
     "label": "Allowed origins",
     "helper_text": "The list of origins that are allowed to access the Customer Portal API. Must be https unless it's localhost. You can add up to 10 origins in this section.",
@@ -30,33 +17,66 @@
     "v8n_invalid": "Some of the origins you've entered are invalid. Please check the items marked with ⚠️ and correct them.",
     "v8n_too_many": "We support up to 10 origins. Please remove some of them."
   },
-  "jwt-shared-secret": {
-    "label": "JWT shared secret",
-    "placeholder": "Leave empty to generate automatically",
-    "helper_text": "We use this key to sign customer JWTs. Changing it will drop all active sessions.",
-    "v8n_invalid": "Only letters (a-z), numbers (0-9) and dashes (-) are allowed in this field.",
-    "v8n_too_short": "This value must be at least 40 characters long.",
-    "v8n_too_long": "This value can't exceed 100 characters."
-  },
   "features": {
     "label": "Features",
-    "option_sso": "SSO (single sign-on)",
-    "option_sign_up": "Customer registration",
-    "option_frequency_modification": "Frequency changes for subscriptions",
-    "option_next_date_modification": "Next payment date changes for subscriptions",
-    "helper_text": ""
+    "helper_text": "",
+    "sso": {
+      "label": "SSO (single sign-on)",
+      "helper_text": ""
+    },
+    "sign-up": {
+      "label": "Customer registration",
+      "helper_text": ""
+    },
+    "frequency-modification": {
+      "label": "Frequency changes for subscriptions",
+      "helper_text": ""
+    },
+    "next-date-modification": {
+      "label": "Next payment date changes for subscriptions",
+      "helper_text": ""
+    }
   },
-  "sign-up-verification-hcaptcha-site-key": {
-    "label": "hCaptcha site key",
-    "placeholder": "Provided by Foxy",
-    "helper_text": "By default, we use our own hCaptcha site key for all portal installs. If you have a hCaptcha account and would like to use your own key, enter it here.",
-    "v8n_too_long": "This value can't exceed 100 characters."
+  "hcaptcha": {
+    "label": "hCaptcha settings",
+    "helper_text": "By default, we use our own hCaptcha account for all portal installs. If you have a hCaptcha account and would like to use it, enter your keys here.",
+    "sign-up-verification-hcaptcha-site-key": {
+      "label": "Site key",
+      "placeholder": "Provided by Foxy",
+      "helper_text": "",
+      "v8n_too_long": "This value can't exceed 100 characters."
+    },
+    "sign-up-verification-hcaptcha-secret-key": {
+      "label": "Secret key",
+      "placeholder": "Provided by Foxy",
+      "helper_text": "",
+      "v8n_too_long": "This value can't exceed 100 characters."
+    }
   },
-  "sign-up-verification-hcaptcha-secret-key": {
-    "label": "hCaptcha secret key",
-    "placeholder": "Provided by Foxy",
-    "helper_text": "By default, we use our own hCaptcha secret key for all portal installs. If you have a hCaptcha account and would like to use your own key, enter it here.",
-    "v8n_too_long": "This value can't exceed 100 characters."
+  "security": {
+    "label": "Security settings",
+    "helper_text": "",
+    "session-lifespan-in-minutes": {
+      "label": "Session lifespan",
+      "option_minute": "Minute",
+      "option_minute_plural": "Minutes",
+      "option_hour": "Hour",
+      "option_hour_plural": "Hours",
+      "option_day": "Day",
+      "option_day_plural": "Days",
+      "option_week": "Week",
+      "option_week_plural": "Weeks",
+      "helper_text": "The maximum time a customer can be logged in without activity.",
+      "v8n_too_long": "We limit session lifespan to 4 weeks for security reasons. Please select a smaller value."
+    },
+    "jwt-shared-secret": {
+      "label": "JWT shared secret",
+      "placeholder": "Generate automatically",
+      "helper_text": "We use this key to sign customer JWTs. Changing it will drop all active sessions.",
+      "v8n_invalid": "Only letters (a-z), numbers (0-9) and dashes (-) are allowed in this field.",
+      "v8n_too_short": "This value must be at least 40 characters long.",
+      "v8n_too_long": "This value can't exceed 100 characters."
+    }
   },
   "subscriptions-allow-frequency-modification": {
     "label": "Frequency options",
