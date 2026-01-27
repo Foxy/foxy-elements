@@ -73,7 +73,7 @@ export class GiftCardCodeForm extends Base<Data> {
     const isUnlinkingCustomer = selectedId === null;
 
     return isLinkingCustomer
-      ? this.getCustomerHref(selectedId)
+      ? this.getCustomerHref(selectedId as number)
       : isUnlinkingCustomer
       ? undefined
       : this.data?._links?.['fx:customer']?.href;
