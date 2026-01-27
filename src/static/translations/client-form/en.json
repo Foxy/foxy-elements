@@ -17,60 +17,76 @@
       "done": "Copied to clipboard"
     }
   },
-  "client-id": {
-    "label": "Client ID",
-    "placeholder": "",
-    "helper_text": ""
+  "general": {
+    "label": "",
+    "helper_text": "",
+    "client-id": {
+      "label": "Client ID",
+      "placeholder": "",
+      "helper_text": ""
+    },
+    "client-secret": {
+      "label": "Client secret",
+      "placeholder": "",
+      "helper_text": ""
+    },
+    "redirect-uri": {
+      "label": "Redirect URI",
+      "placeholder": "",
+      "helper_text": ""
+    }
   },
-  "client-secret": {
-    "label": "Client secret",
-    "placeholder": "",
-    "helper_text": ""
+  "project": {
+    "label": "Project",
+    "helper_text": "",
+    "project-name": {
+      "label": "Name",
+      "placeholder": "",
+      "helper_text": ""
+    },
+    "project-description": {
+      "label": "Description",
+      "placeholder": "",
+      "helper_text": ""
+    }
   },
-  "project-name": {
-    "label": "Project name",
-    "placeholder": "",
-    "helper_text": ""
+  "company": {
+    "label": "Company",
+    "helper_text": "",
+    "company-name": {
+      "label": "Name",
+      "placeholder": "",
+      "helper_text": ""
+    },
+    "company-url": {
+      "label": "URL",
+      "placeholder": "",
+      "helper_text": ""
+    },
+    "company-logo": {
+      "label": "Logo",
+      "placeholder": "",
+      "helper_text": ""
+    }
   },
-  "project-description": {
-    "label": "Project description",
-    "placeholder": "",
-    "helper_text": ""
-  },
-  "redirect-uri": {
-    "label": "Redirect URI",
-    "placeholder": "",
-    "helper_text": ""
-  },
-  "company-name": {
-    "label": "Company name",
-    "placeholder": "",
-    "helper_text": ""
-  },
-  "company-url": {
-    "label": "Company url",
-    "placeholder": "",
-    "helper_text": ""
-  },
-  "company-logo": {
-    "label": "Company logo",
-    "placeholder": "",
-    "helper_text": ""
-  },
-  "contact-name": {
-    "label": "Contact name",
-    "placeholder": "",
-    "helper_text": ""
-  },
-  "contact-email": {
-    "label": "Contact email",
-    "placeholder": "",
-    "helper_text": ""
-  },
-  "contact-phone": {
-    "label": "Contact phone",
-    "placeholder": "",
-    "helper_text": ""
+  "contact": {
+    "label": "Contact",
+    "helper_text": "",
+    "contact-name": {
+      "label": "Name",
+      "placeholder": "",
+      "helper_text": ""
+    },
+    "contact-email": {
+      "label": "Email",
+      "placeholder": "",
+      "helper_text": ""
+    },
+    "contact-phone": {
+      "label": "Phone",
+      "placeholder": "",
+      "helper_text": ""
+    }
   },
   "timestamps": {
     "date_created": "Created on",

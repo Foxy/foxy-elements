@@ -27,14 +27,14 @@ export class ClientForm extends Base<Data> {
   }
 
   get readonlySelector(): BooleanSelector {
-    const alwaysMatch = ['client-secret'];
-    if (this.data || this.in({ busy: 'fetching' })) alwaysMatch.push('client-id');
+    const alwaysMatch = ['general:client-secret'];
+    if (this.data || this.in({ busy: 'fetching' })) alwaysMatch.push('general:client-id');
     return new BooleanSelector(`${alwaysMatch.join(' ')} ${super.readonlySelector.toString()}`);
   }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch: string[] = [];
-    if (!this.data && !this.in({ busy: 'fetching' })) alwaysMatch.push('client-secret');
+    if (!this.data && !this.in({ busy: 'fetching' })) alwaysMatch.push('general:client-secret');
     return new BooleanSelector(`${alwaysMatch.join(' ')} ${super.hiddenSelector.toString()}`);
   }
 
@@ -42,34 +42,46 @@ export class ClientForm extends Base<Data> {
     return html`
       ${this.renderHeader()}
 
-      <div class="grid grid-cols-2 gap-m">
-        <foxy-internal-text-control class="col-span-2" infer="client-id">
+      <foxy-internal-summary-control infer="general">
+        <foxy-internal-text-control layout="summary-item" infer="client-id">
         </foxy-internal-text-control>
 
-        <foxy-internal-text-control class="col-span-2" infer="client-secret">
+        <foxy-internal-text-control layout="summary-item" infer="client-secret">
         </foxy-internal-text-control>
 
-        <foxy-internal-text-control class="col-span-2" infer="redirect-uri">
+        <foxy-internal-text-control layout="summary-item" infer="redirect-uri">
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="project">
+        <foxy-internal-text-control layout="summary-item" infer="project-name">
         </foxy-internal-text-control>
 
-        <foxy-internal-text-control class="col-span-2" infer="project-name">
+        <foxy-internal-text-control layout="summary-item" infer="project-description">
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="company">
+        <foxy-internal-text-control layout="summary-item" infer="company-name">
         </foxy-internal-text-control>
 
-        <foxy-internal-text-area-control class="col-span-2" infer="project-description">
-        </foxy-internal-text-area-control>
-
-        <foxy-internal-text-control infer="company-name"></foxy-internal-text-control>
-        <foxy-internal-text-control infer="company-url"></foxy-internal-text-control>
-
-        <foxy-internal-text-control class="col-span-2" infer="company-logo">
+        <foxy-internal-text-control layout="summary-item" infer="company-url">
         </foxy-internal-text-control>
 
-        <foxy-internal-text-control class="col-span-2" infer="contact-name">
+        <foxy-internal-text-control layout="summary-item" infer="company-logo">
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="contact">
+        <foxy-internal-text-control layout="summary-item" infer="contact-name">
         </foxy-internal-text-control>
 
-        <foxy-internal-text-control infer="contact-email"></foxy-internal-text-control>
-        <foxy-internal-text-control infer="contact-phone"></foxy-internal-text-control>
-      </div>
+        <foxy-internal-text-control layout="summary-item" infer="contact-email">
+        </foxy-internal-text-control>
+
+        <foxy-internal-text-control layout="summary-item" infer="contact-phone">
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
       ${super.renderBody()}
     `;

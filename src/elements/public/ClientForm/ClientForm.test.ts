@@ -10,8 +10,8 @@ import { stub } from 'sinon';
 import { Data } from './types';
 
 describe('ClientForm', () => {
-  it('imports and defines foxy-internal-text-area-control', () => {
-    expect(customElements.get('foxy-internal-text-area-control')).to.exist;
+  it('imports and defines foxy-internal-summary-control', () => {
+    expect(customElements.get('foxy-internal-summary-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-text-control', () => {
@@ -42,82 +42,108 @@ describe('ClientForm', () => {
     expect(renderHeaderMethod).to.have.been.called;
   });
 
+  it('renders a foxy-internal-summary-control for general section', async () => {
+    const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
+    const control = element.renderRoot.querySelector('[infer="general"]');
+    expect(control).to.be.instanceOf(customElements.get('foxy-internal-summary-control'));
+  });
+
+  it('renders a foxy-internal-summary-control for project section', async () => {
+    const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
+    const control = element.renderRoot.querySelector('[infer="project"]');
+    expect(control).to.be.instanceOf(customElements.get('foxy-internal-summary-control'));
+  });
+
+  it('renders a foxy-internal-summary-control for company section', async () => {
+    const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
+    const control = element.renderRoot.querySelector('[infer="company"]');
+    expect(control).to.be.instanceOf(customElements.get('foxy-internal-summary-control'));
+  });
+
+  it('renders a foxy-internal-summary-control for contact section', async () => {
+    const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
+    const control = element.renderRoot.querySelector('[infer="contact"]');
+    expect(control).to.be.instanceOf(customElements.get('foxy-internal-summary-control'));
+  });
+
   it('renders a foxy-internal-text-control for client id', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
-    const control = element.renderRoot.querySelector('[infer="client-id"]');
+    const control = element.renderRoot.querySelector('[infer="general"] [infer="client-id"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 
   it('renders a foxy-internal-text-control for client secret', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
-    const control = element.renderRoot.querySelector('[infer="client-secret"]');
+    const control = element.renderRoot.querySelector('[infer="general"] [infer="client-secret"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 
   it('renders a foxy-internal-text-control for redirect uri', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
-    const control = element.renderRoot.querySelector('[infer="redirect-uri"]');
+    const control = element.renderRoot.querySelector('[infer="general"] [infer="redirect-uri"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 
   it('renders a foxy-internal-text-control for project name', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
-    const control = element.renderRoot.querySelector('[infer="project-name"]');
+    const control = element.renderRoot.querySelector('[infer="project"] [infer="project-name"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 
-  it('renders a foxy-internal-text-area-control for project description', async () => {
+  it('renders a foxy-internal-text-control for project description', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
-    const control = element.renderRoot.querySelector('[infer="project-description"]');
-    expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-area-control'));
+    const control = element.renderRoot.querySelector(
+      '[infer="project"] [infer="project-description"]'
+    );
+    expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 
   it('renders a foxy-internal-text-control for company name', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
-    const control = element.renderRoot.querySelector('[infer="company-name"]');
+    const control = element.renderRoot.querySelector('[infer="company"] [infer="company-name"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 
   it('renders a foxy-internal-text-control for company url', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
-    const control = element.renderRoot.querySelector('[infer="company-url"]');
+    const control = element.renderRoot.querySelector('[infer="company"] [infer="company-url"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 
   it('renders a foxy-internal-text-control for company logo', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
-    const control = element.renderRoot.querySelector('[infer="company-logo"]');
+    const control = element.renderRoot.querySelector('[infer="company"] [infer="company-logo"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 
   it('renders a foxy-internal-text-control for contact name', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
-    const control = element.renderRoot.querySelector('[infer="contact-name"]');
+    const control = element.renderRoot.querySelector('[infer="contact"] [infer="contact-name"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 
   it('renders a foxy-internal-text-control for contact email', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
-    const control = element.renderRoot.querySelector('[infer="contact-email"]');
+    const control = element.renderRoot.querySelector('[infer="contact"] [infer="contact-email"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 
   it('renders a foxy-internal-text-control for contact phone', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
-    const control = element.renderRoot.querySelector('[infer="contact-phone"]');
+    const control = element.renderRoot.querySelector('[infer="contact"] [infer="contact-phone"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 
   it('always marks client secret control as readonly', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
-    expect(element.readonlySelector.matches('client-secret', true)).to.be.true;
+    expect(element.readonlySelector.matches('general:client-secret', true)).to.be.true;
   });
 
   it('marks client id control as readonly when loaded', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
-    expect(element.readonlySelector.matches('client-id', true)).to.be.false;
+    expect(element.readonlySelector.matches('general:client-id', true)).to.be.false;
     element.data = await getTestData('./hapi/clients/0');
-    expect(element.readonlySelector.matches('client-id', true)).to.be.true;
+    expect(element.readonlySelector.matches('general:client-id', true)).to.be.true;
   });
 
   it('marks client id control as readonly when loading', async () => {
@@ -126,15 +152,15 @@ describe('ClientForm', () => {
       <foxy-client-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}></foxy-client-form>
     `);
 
-    expect(element.readonlySelector.matches('client-id', true)).to.be.false;
+    expect(element.readonlySelector.matches('general:client-id', true)).to.be.false;
     element.href = 'https://demo.api/virtual/stall';
     await element.requestUpdate();
-    expect(element.readonlySelector.matches('client-id', true)).to.be.true;
+    expect(element.readonlySelector.matches('general:client-id', true)).to.be.true;
   });
 
   it('hides client secret control when empty', async () => {
     const element = await fixture<Form>(html`<foxy-client-form></foxy-client-form>`);
-    expect(element.hiddenSelector.matches('client-secret', true)).to.be.true;
+    expect(element.hiddenSelector.matches('general:client-secret', true)).to.be.true;
   });
 
   it('uses custom options for header subtitle', async () => {
