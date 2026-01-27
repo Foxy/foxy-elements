@@ -1,6 +1,6 @@
-import '../../internal/InternalIntegerControl/index';
 import '../../internal/InternalNumberControl/index';
 import '../../internal/InternalSourceControl/index';
+import '../../internal/InternalSummaryControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 

@@ -8,8 +8,8 @@ import { GenerateCodesForm } from './GenerateCodesForm';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 
 describe('GenerateCodesForm', () => {
-  it('imports and defines foxy-internal-integer-control', () => {
-    expect(customElements.get('foxy-internal-integer-control')).to.exist;
+  it('imports and defines foxy-internal-summary-control', () => {
+    expect(customElements.get('foxy-internal-summary-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-number-control', () => {
@@ -98,31 +98,39 @@ describe('GenerateCodesForm', () => {
     expect(element.hiddenSelector.matches('example', true)).to.be.true;
   });
 
+  it('renders a foxy-internal-summary-control for parameters section', async () => {
+    const element = await fixture<GenerateCodesForm>(
+      html`<foxy-generate-codes-form></foxy-generate-codes-form>`
+    );
+    const control = element.renderRoot.querySelector('[infer="parameters"]');
+    expect(control).to.be.instanceOf(customElements.get('foxy-internal-summary-control'));
+  });
+
   it('renders text control for prefix', async () => {
     const element = await fixture<GenerateCodesForm>(
       html`<foxy-generate-codes-form></foxy-generate-codes-form>`
     );
-    const control = element.renderRoot.querySelector('foxy-internal-text-control[infer=prefix]');
+    const control = element.renderRoot.querySelector('[infer="parameters"] [infer=prefix]');
 
     expect(control).to.exist;
   });
 
-  it('renders integer control for length', async () => {
+  it('renders number control for length', async () => {
     const element = await fixture<GenerateCodesForm>(
       html`<foxy-generate-codes-form></foxy-generate-codes-form>`
     );
-    const control = element.renderRoot.querySelector('foxy-internal-integer-control[infer=length]');
+    const control = element.renderRoot.querySelector('[infer="parameters"] [infer=length]');
 
     expect(control).to.exist;
     expect(control).to.have.attribute('min', '1');
   });
 
-  it('renders integer control for number of codes', async () => {
+  it('renders number control for number of codes', async () => {
     const element = await fixture<GenerateCodesForm>(
       html`<foxy-generate-codes-form></foxy-generate-codes-form>`
     );
     const control = element.renderRoot.querySelector(
-      'foxy-internal-integer-control[infer=number-of-codes]'
+      '[infer="parameters"] [infer=number-of-codes]'
     );
 
     expect(control).to.exist;
@@ -134,7 +142,7 @@ describe('GenerateCodesForm', () => {
       html`<foxy-generate-codes-form></foxy-generate-codes-form>`
     );
     const control = element.renderRoot.querySelector(
-      'foxy-internal-number-control[infer=current-balance]'
+      '[infer="parameters"] [infer=current-balance]'
     );
 
     expect(control).to.exist;
@@ -145,9 +153,7 @@ describe('GenerateCodesForm', () => {
     const element = await fixture<GenerateCodesForm>(
       html`<foxy-generate-codes-form></foxy-generate-codes-form>`
     );
-    const control = element.renderRoot.querySelector(
-      'foxy-internal-source-control[infer=example]'
-    ) as InternalSourceControl;
+    const control = element.renderRoot.querySelector('[infer=example]') as InternalSourceControl;
 
     expect(control).to.exist;
     expect(control.getValue()).to.equal('1V3BJ3\nP4YNSW\n7DGT4Q');

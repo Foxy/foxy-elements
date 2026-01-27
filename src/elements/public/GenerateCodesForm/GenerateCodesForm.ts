@@ -52,15 +52,22 @@ export class GenerateCodesForm extends Base<Data> {
 
   renderBody(): TemplateResult {
     return html`
-      <foxy-internal-text-control infer="prefix"></foxy-internal-text-control>
+      <foxy-internal-summary-control infer="parameters">
+        <foxy-internal-text-control
+          layout="summary-item"
+          infer="prefix"
+        ></foxy-internal-text-control>
 
-      <div class="grid grid-cols-2 gap-m">
-        <foxy-internal-integer-control infer="length" min="1"></foxy-internal-integer-control>
-        <foxy-internal-integer-control infer="number-of-codes" min="1">
-        </foxy-internal-integer-control>
-      </div>
+        <foxy-internal-number-control layout="summary-item" infer="length" min="1">
+        </foxy-internal-number-control>
 
-      <foxy-internal-number-control infer="current-balance" min="0"></foxy-internal-number-control>
+        <foxy-internal-number-control layout="summary-item" infer="number-of-codes" min="1">
+        </foxy-internal-number-control>
+
+        <foxy-internal-number-control layout="summary-item" infer="current-balance" min="0">
+        </foxy-internal-number-control>
+      </foxy-internal-summary-control>
+
       <foxy-internal-source-control infer="example" .getValue=${this.__exampleGetValue}>
       </foxy-internal-source-control>
 
