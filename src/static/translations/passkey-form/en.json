@@ -16,15 +16,19 @@
       "done": "Copied to clipboard"
     }
   },
-  "credential-id": {
-    "label": "Credential ID",
-    "placeholder": "",
-    "helper_text": "Unique identifier of your passkey. You might be able to find this passkey by Credential ID in your password manager."
-  },
-  "last-login-ua": {
-    "label": "Last browser",
-    "placeholder": "",
-    "helper_text": "User agent string of the browser that was last used to sign in to your Foxy Account with this passkey."
+  "settings": {
+    "label": "",
+    "helper_text": "",
+    "credential-id": {
+      "label": "ID",
+      "placeholder": "",
+      "helper_text": ""
+    },
+    "last-login-ua": {
+      "label": "Last used in",
+      "placeholder": "",
+      "helper_text": ""
+    }
   },
   "timestamps": {
     "date_created": "Created on",

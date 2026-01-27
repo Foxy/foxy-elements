@@ -1,4 +1,4 @@
-import '../../internal/InternalTextAreaControl/index';
+import '../../internal/InternalSummaryControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 import '../Spinner/index';

@@ -4,10 +4,11 @@ import { html, expect, fixture } from '@open-wc/testing';
 import { PasskeyForm as Form } from './PasskeyForm';
 import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
+import uainfer from 'uainfer/src/uainfer.js';
 
 describe('passkeyForm', () => {
-  it('imports and defines foxy-internal-text-area-control', () => {
-    expect(customElements.get('foxy-internal-text-area-control')).to.exist;
+  it('imports and defines foxy-internal-summary-control', () => {
+    expect(customElements.get('foxy-internal-summary-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-text-control', () => {
@@ -48,17 +49,25 @@ describe('passkeyForm', () => {
     element.data = await getTestData('./hapi/passkeys/0');
     await element.requestUpdate();
 
-    const control = element.renderRoot.querySelector('[infer="credential-id"]');
+    const control = element.renderRoot.querySelector('[infer="settings"] [infer=credential-id]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
   });
 
-  it('renders a foxy-internal-text-area-control for last login user agent', async () => {
+  it('renders a foxy-internal-text-control with human readable last login user agent', async () => {
     const element = await fixture<Form>(html`<foxy-passkey-form></foxy-passkey-form>`);
+    const analyzeStub = stub(uainfer, 'analyze').returns({ toString: () => 'Stub Agent' });
     element.data = await getTestData('./hapi/passkeys/0');
     await element.requestUpdate();
 
-    const control = element.renderRoot.querySelector('[infer="last-login-ua"]');
-    expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-area-control'));
+    const control = element.renderRoot.querySelector(
+      '[infer="settings"] [infer=last-login-ua]'
+    ) as HTMLElement;
+    expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
+
+    const input = control.shadowRoot?.querySelector('input') as HTMLInputElement;
+    expect(input?.value).to.equal('Stub Agent');
+    expect(analyzeStub).to.have.been.calledWithExactly(element.data?.last_login_ua);
+    analyzeStub.restore();
   });
 
   it('renders a spinner in empty state element when empty', async () => {
@@ -69,18 +78,8 @@ describe('passkeyForm', () => {
     expect(spinner).to.have.attribute('state', 'empty');
   });
 
-  it('always marks credential id as readonly', async () => {
+  it('always marks settings section as readonly', async () => {
     const element = await fixture<Form>(html`<foxy-passkey-form></foxy-passkey-form>`);
-    expect(element.readonlySelector.matches('credential-id', true)).to.be.true;
-  });
-
-  it('always marks last login date as readonly', async () => {
-    const element = await fixture<Form>(html`<foxy-passkey-form></foxy-passkey-form>`);
-    expect(element.readonlySelector.matches('last-login-date', true)).to.be.true;
-  });
-
-  it('always marks last login user agent as readonly', async () => {
-    const element = await fixture<Form>(html`<foxy-passkey-form></foxy-passkey-form>`);
-    expect(element.readonlySelector.matches('last-login-ua', true)).to.be.true;
+    expect(element.readonlySelector.matches('settings', true)).to.be.true;
   });
 });
