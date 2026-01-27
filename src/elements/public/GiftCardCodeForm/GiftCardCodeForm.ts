@@ -68,9 +68,15 @@ export class GiftCardCodeForm extends Base<Data> {
   };
 
   private readonly __customerGetValue = () => {
-    const link = this.data?._links?.['fx:customer']?.href;
-    const id = this.form.customer_id;
-    return typeof id === 'number' ? this.getCustomerHref(id) : link;
+    const selectedId = this.form.customer_id;
+    const isLinkingCustomer = typeof selectedId === 'number';
+    const isUnlinkingCustomer = selectedId === null;
+
+    return isLinkingCustomer
+      ? this.getCustomerHref(selectedId)
+      : isUnlinkingCustomer
+      ? undefined
+      : this.data?._links?.['fx:customer']?.href;
   };
 
   private readonly __customerSetValue = (v: string) => {
