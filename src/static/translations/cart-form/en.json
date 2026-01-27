@@ -1230,9 +1230,10 @@
           "v8n_required": "Please enter a coupon code."
         },
         "ignore-usage-limits": {
-          "label": "",
+          "label": "Ignore usage limits",
           "helper_text": "",
-          "option_checked": "Ignore usage limits"
+          "checked": "Yes",
+          "unchecked": "No"
         },
         "delete": {
           "delete": "Remove",
