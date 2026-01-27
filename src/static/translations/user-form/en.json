@@ -17,46 +17,66 @@
       "done": "Copied to clipboard"
     }
   },
-  "first-name": {
-    "label": "First name",
-    "placeholder": "Required",
+  "general": {
+    "label": "",
     "helper_text": "",
-    "v8n_required": "Please enter your first name",
-    "v8n_too_long": "Unfortunately we can't store first names longer than 50 characters"
+    "first-name": {
+      "label": "First name",
+      "placeholder": "Required",
+      "helper_text": "",
+      "v8n_required": "Please enter your first name",
+      "v8n_too_long": "Unfortunately we can't store first names longer than 50 characters"
+    },
+    "last-name": {
+      "label": "Last name",
+      "placeholder": "Required",
+      "helper_text": "",
+      "v8n_required": "Please enter your last name. If you don't have a last name, put any character in this field.",
+      "v8n_too_long": "Unfortunately we can't store last names longer than 50 characters"
+    }
   },
-  "last-name": {
-    "label": "Last name",
-    "placeholder": "Required",
+  "contact-info": {
+    "label": "Contact",
     "helper_text": "",
-    "v8n_required": "Please enter your last name. If you don't have a last name, put any character in this field.",
-    "v8n_too_long": "Unfortunately we can't store last names longer than 50 characters"
+    "email": {
+      "label": "Email",
+      "placeholder": "Required",
+      "helper_text": "",
+      "v8n_required": "Please enter your email address",
+      "v8n_invalid_email": "Please enter a valid email address",
+      "v8n_too_long": "Unfortunately we can't store email addresses longer than 100 characters"
+    },
+    "phone": {
+      "label": "Phone",
+      "placeholder": "Optional",
+      "helper_text": "",
+      "v8n_too_long": "This phone number appears to be too long. Please make sure you entered it correctly."
+    }
   },
-  "email": {
-    "label": "Email",
-    "placeholder": "Required",
-    "helper_text": "This email is your login to Foxy Admin. We'll also send important notifications to this address.",
-    "v8n_required": "Please enter your email address",
-    "v8n_invalid_email": "Please enter a valid email address",
-    "v8n_too_long": "Unfortunately we can't store email addresses longer than 100 characters"
-  },
-  "phone": {
-    "label": "Phone",
-    "placeholder": "Optional",
-    "helper_text": "We'll only use this number to contact you about your account.",
-    "v8n_too_long": "This phone number appears to be too long. Please make sure you entered it correctly."
+  "role": {
+    "label": "Role",
+    "helper_text": "",
+    "is-merchant": {
+      "label": "Merchant",
+      "helper_text": ""
+    },
+    "is-programmer": {
+      "label": "Backend Developer",
+      "helper_text": ""
+    },
+    "is-front-end-developer": {
+      "label": "Frontend Developer",
+      "helper_text": ""
+    },
+    "is-designer": {
+      "label": "Designer",
+      "helper_text": ""
+    }
   },
   "affiliate-id": {
     "label": "Affiliate ID",
     "placeholder": "Optional",
     "helper_text": "This value can only be set during user creation. Contact us if you need this value changed later."
-  },
-  "role": {
-    "label": "Role",
-    "helper_text": "If you contact us for help, your role will help us understand how to best assist you.",
-    "option_merchant": "Merchant",
-    "option_backend_developer": "Backend Developer",
-    "option_frontend_developer": "Frontend Developer",
-    "option_designer": "Designer"
   },
   "timestamps": {
     "date_created": "Created on",
