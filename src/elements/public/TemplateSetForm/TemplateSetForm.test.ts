@@ -13,6 +13,7 @@ import { InternalTextControl } from '../../internal/InternalTextControl/Internal
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
 import { createRouter } from '../../../server';
 import { getTestData } from '../../../testgen/getTestData';
 import { getByTestId } from '../../../testgen/getByTestId';
@@ -54,6 +55,10 @@ describe('TemplateSetForm', () => {
 
   it('imports and registers foxy-nucleon element', () => {
     expect(customElements.get('foxy-nucleon')).to.equal(NucleonElement);
+  });
+
+  it('imports and registers foxy-internal-summary-control element', () => {
+    expect(customElements.get('foxy-internal-summary-control')).to.equal(InternalSummaryControl);
   });
 
   it('imports and registers itself as foxy-template-set-form', () => {
@@ -293,5 +298,109 @@ describe('TemplateSetForm', () => {
     const editor = root.querySelector<I18nEditor>('[infer="language-overrides"]')!;
 
     expect(editor).to.not.exist;
+  });
+
+  it('renders metadata summary control', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-template-set-form
+        href="https://demo.api/hapi/template_sets/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-template-set-form>
+    `);
+
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    const root = element.renderRoot;
+    const control = root.querySelector<InternalSummaryControl>('[infer="metadata"]')!;
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSummaryControl);
+  });
+
+  it('renders localization summary control', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-template-set-form
+        languages="https://demo.api/hapi/property_helpers/6"
+        locale-codes="https://demo.api/hapi/property_helpers/7"
+        href="https://demo.api/hapi/template_sets/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-template-set-form>
+    `);
+
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    const root = element.renderRoot;
+    const control = root.querySelector<InternalSummaryControl>('[infer="localization"]')!;
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSummaryControl);
+  });
+
+  it('hides metadata section when code is DEFAULT', async () => {
+    const router = createRouter();
+    const data = await getTestData<Data>('./hapi/template_sets/0', router);
+    const form = new Form();
+
+    form.data = { ...data, code: 'DEFAULT' };
+    expect(form.hiddenSelector.matches('metadata', true)).to.be.true;
+
+    form.data = { ...data, code: 'CUSTOM' };
+    expect(form.hiddenSelector.matches('metadata', true)).to.be.false;
+  });
+
+  it('disables localization section when both language and locale code loaders have no data', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-template-set-form
+        href="https://demo.api/hapi/template_sets/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-template-set-form>
+    `);
+
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    // When both loaders don't have data, entire localization section should be disabled
+    expect(element.disabledSelector.matches('localization', true)).to.be.true;
+  });
+
+  it('disables only language when language loader has no data', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-template-set-form
+        locale-codes="https://demo.api/hapi/property_helpers/7"
+        href="https://demo.api/hapi/template_sets/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-template-set-form>
+    `);
+
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    // When only language loader is missing, only language field should be disabled
+    expect(element.disabledSelector.matches('localization:language', true)).to.be.true;
+    expect(element.disabledSelector.matches('localization', true)).to.be.false;
+  });
+
+  it('disables only locale code when locale code loader has no data', async () => {
+    const router = createRouter();
+    const element = await fixture<Form>(html`
+      <foxy-template-set-form
+        languages="https://demo.api/hapi/property_helpers/6"
+        href="https://demo.api/hapi/template_sets/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-template-set-form>
+    `);
+
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    // When only locale code loader is missing, only locale-code field should be disabled
+    expect(element.disabledSelector.matches('localization:locale-code', true)).to.be.true;
+    expect(element.disabledSelector.matches('localization', true)).to.be.false;
   });
 });

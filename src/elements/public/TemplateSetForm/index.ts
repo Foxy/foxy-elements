@@ -1,4 +1,5 @@
 import '../../internal/InternalResourcePickerControl/index';
+import '../../internal/InternalSummaryControl/index';
 import '../../internal/InternalSelectControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalSandbox/index';
