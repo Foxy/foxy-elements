@@ -21,16 +21,6 @@ export class AppliedCouponCodeForm extends Base<Data> {
     return [({ code: v }) => !!v || 'code:v8n_required'];
   }
 
-  private readonly __ignoreUsageLimitsOptions = [{ value: 'checked', label: 'option_checked' }];
-
-  private readonly __getIgnoreUsageLimitsValue = () => {
-    return this.form.ignore_usage_limits ? ['checked'] : [];
-  };
-
-  private readonly __setIgnoreUsageLimitsValue = (newValue: string[]) => {
-    this.edit({ ignore_usage_limits: newValue.includes('checked') });
-  };
-
   get readonlySelector(): BooleanSelector {
     return this.data ? new BooleanSelector('not=delete') : super.readonlySelector;
   }
@@ -43,26 +33,21 @@ export class AppliedCouponCodeForm extends Base<Data> {
     return html`
       ${this.renderHeader()}
 
-      <foxy-internal-text-control
-        helper-text=${this.t(this.data ? 'code.helper_text_existing' : 'code.helper_text_new')}
-        infer="code"
-      >
-      </foxy-internal-text-control>
+      <foxy-internal-summary-control infer="" label="" helper-text="">
+        <foxy-internal-text-control
+          helper-text=${this.t(this.data ? 'code.helper_text_existing' : 'code.helper_text_new')}
+          layout="summary-item"
+          infer="code"
+        >
+        </foxy-internal-text-control>
 
-      ${this.data
-        ? ''
-        : html`
-            <foxy-internal-checkbox-group-control
-              infer="ignore-usage-limits"
-              class="-my-xs"
-              .getValue=${this.__getIgnoreUsageLimitsValue}
-              .setValue=${this.__setIgnoreUsageLimitsValue}
-              .options=${this.__ignoreUsageLimitsOptions}
-            >
-            </foxy-internal-checkbox-group-control>
-          `}
-
-      <!-- -->
+        ${this.data
+          ? ''
+          : html`
+              <foxy-internal-switch-control infer="ignore-usage-limits">
+              </foxy-internal-switch-control>
+            `}
+      </foxy-internal-summary-control>
 
       ${super.renderBody()}
     `;

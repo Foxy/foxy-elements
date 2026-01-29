@@ -7,6 +7,8 @@ import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { html } from 'lit-element';
 
+import uainfer from 'uainfer/src/uainfer.js';
+
 const NS = 'passkey-form';
 const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 
@@ -17,10 +19,12 @@ const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
  * @since 1.24.0
  */
 export class PasskeyForm extends Base<Data> {
+  private readonly __lastLoginUaGetValue = () => {
+    return uainfer.analyze(this.data?.last_login_ua ?? '').toString();
+  };
+
   get readonlySelector(): BooleanSelector {
-    return new BooleanSelector(
-      `credential-id last-login-date last-login-ua ${super.readonlySelector.toString()}`
-    );
+    return new BooleanSelector(`settings ${super.readonlySelector.toString()}`);
   }
 
   renderBody(): TemplateResult {
@@ -34,8 +38,20 @@ export class PasskeyForm extends Base<Data> {
 
     return html`
       ${this.renderHeader()}
-      <foxy-internal-text-control infer="credential-id"></foxy-internal-text-control>
-      <foxy-internal-text-area-control infer="last-login-ua"></foxy-internal-text-area-control>
+
+      <foxy-internal-summary-control infer="settings">
+        <foxy-internal-text-control
+          layout="summary-item"
+          infer="credential-id"
+        ></foxy-internal-text-control>
+
+        <foxy-internal-text-control
+          layout="summary-item"
+          infer="last-login-ua"
+          .getValue=${this.__lastLoginUaGetValue}
+        ></foxy-internal-text-control>
+      </foxy-internal-summary-control>
+
       ${super.renderBody()}
     `;
   }

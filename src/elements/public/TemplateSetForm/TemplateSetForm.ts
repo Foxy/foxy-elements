@@ -69,14 +69,20 @@ export class TemplateSetForm extends Base<Data> {
 
   get disabledSelector(): BooleanSelector {
     const alwaysDisabled: string[] = [];
-    if (!this.__languagesLoader?.data) alwaysDisabled.push('language');
-    if (!this.__localeCodesLoader?.data) alwaysDisabled.push('locale-code');
+    const noLanguages = !this.__languagesLoader?.data;
+    const noLocaleCodes = !this.__localeCodesLoader?.data;
+    if (noLanguages && noLocaleCodes) {
+      alwaysDisabled.push('localization');
+    } else {
+      if (noLanguages) alwaysDisabled.push('localization:language');
+      if (noLocaleCodes) alwaysDisabled.push('localization:locale-code');
+    }
     return new BooleanSelector(`${alwaysDisabled.join(' ')} ${super.disabledSelector}`);
   }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysHidden: string[] = [];
-    if (this.data?.code === 'DEFAULT') alwaysHidden.push('delete', 'code', 'description');
+    if (this.data?.code === 'DEFAULT') alwaysHidden.push('delete', 'metadata');
     return new BooleanSelector(`${alwaysHidden.join(' ')} ${super.hiddenSelector}`);
   }
 
@@ -90,17 +96,26 @@ export class TemplateSetForm extends Base<Data> {
     return html`
       ${this.renderHeader()}
 
-      <div class="grid grid-cols-1 gap-m sm-grid-cols-2">
-        <foxy-internal-text-control infer="description"></foxy-internal-text-control>
+      <foxy-internal-summary-control infer="metadata">
+        <foxy-internal-text-control
+          layout="summary-item"
+          infer="description"
+        ></foxy-internal-text-control>
 
-        <foxy-internal-text-control infer="code"></foxy-internal-text-control>
+        <foxy-internal-text-control layout="summary-item" infer="code"></foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
-        <foxy-internal-select-control infer="language" .options=${languages}>
+      <foxy-internal-summary-control infer="localization">
+        <foxy-internal-select-control layout="summary-item" infer="language" .options=${languages}>
         </foxy-internal-select-control>
 
-        <foxy-internal-select-control infer="locale-code" .options=${localeCodes}>
+        <foxy-internal-select-control
+          layout="summary-item"
+          infer="locale-code"
+          .options=${localeCodes}
+        >
         </foxy-internal-select-control>
-      </div>
+      </foxy-internal-summary-control>
 
       <foxy-internal-resource-picker-control
         infer="payment-method-set-uri"

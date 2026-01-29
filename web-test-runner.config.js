@@ -6,7 +6,14 @@ import webServerConfig from './web-dev-server.config.js';
 export default Object.assign({}, webServerConfig, {
   browserLogs: false,
 
-  browsers: [puppeteerLauncher()],
+  browsers: [
+    puppeteerLauncher({
+      launchOptions: {
+        executablePath: '/usr/bin/chromium',
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      },
+    }),
+  ],
 
   groups,
 

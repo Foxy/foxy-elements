@@ -12,6 +12,8 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html, svg } from 'lit-element';
 
+import uainfer from 'uainfer/src/uainfer.js';
+
 const NS = 'transaction';
 const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 
@@ -353,6 +355,25 @@ export class Transaction extends Base<Data> {
         alert
       >
       </foxy-internal-async-list-control>
+
+      ${this.data && this.data.customer_ip && this.data.user_agent
+        ? html`
+            <foxy-internal-summary-control infer="metadata">
+              <p class="flex justify-between gap-m">
+                <foxy-i18n infer="ip" key="label"></foxy-i18n>
+                <span class="text-secondary">
+                  ${this.data.customer_ip} (${this.data.ip_country})
+                </span>
+              </p>
+              <p class="flex justify-between gap-m">
+                <foxy-i18n infer="user-agent" key="label"></foxy-i18n>
+                <span class="text-secondary">
+                  ${uainfer.analyze(this.data.user_agent).toString()}
+                </span>
+              </p>
+            </foxy-internal-summary-control>
+          `
+        : ''}
 
       <foxy-internal-async-list-control
         infer="shipments"

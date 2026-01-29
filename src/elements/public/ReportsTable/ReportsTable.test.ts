@@ -53,8 +53,6 @@ describe('ReportsTable', () => {
       type Report = Data['_embedded']['fx:reports'][number];
 
       const data = { ...(await getTestData<Report>('./hapi/reports/0')), name };
-      // TODO remove ts-expect-error when SDK types are updated
-      // @ts-expect-error SDK types do not include "transactions" yet
       const layout = ReportsTable.nameColumn.cell!({ lang: 'es', ns: 'foo', data, html });
       const cell = await fixture(layout as TemplateResult);
 

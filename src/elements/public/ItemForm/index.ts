@@ -1,4 +1,5 @@
 import '../../internal/InternalResourcePickerControl/index';
+import '../../internal/InternalPostActionControl/index';
 import '../../internal/InternalAsyncListControl/index';
 import '../../internal/InternalFrequencyControl/index';
 import '../../internal/InternalSummaryControl/index';
@@ -10,12 +11,14 @@ import '../../internal/InternalForm/index';
 import '../DiscountDetailCard/index';
 import '../CouponDetailCard/index';
 import '../ItemCategoryCard/index';
+import '../CopyToClipboard/index';
 import '../DiscountBuilder/index';
 import '../ItemOptionCard/index';
 import '../ItemOptionForm/index';
 import '../NucleonElement/index';
 import '../AttributeCard/index';
 import '../AttributeForm/index';
+import '../I18n/index';
 
 import { ItemForm } from './ItemForm';
 

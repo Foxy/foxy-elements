@@ -1,4 +1,4 @@
-import type { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
+import type { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
 
 import './index';
 
@@ -9,8 +9,12 @@ import { getTestData } from '../../../testgen/getTestData';
 import { Data } from './types';
 
 describe('UserForm', () => {
-  it('imports and defines foxy-internal-checkbox-group-control', () => {
-    expect(customElements.get('foxy-internal-checkbox-group-control')).to.exist;
+  it('imports and defines foxy-internal-summary-control', () => {
+    expect(customElements.get('foxy-internal-summary-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-switch-control', () => {
+    expect(customElements.get('foxy-internal-switch-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-text-control', () => {
@@ -154,26 +158,34 @@ describe('UserForm', () => {
     expect(control).to.exist;
   });
 
-  it('renders a checkbox group control for role', async () => {
+  it('renders switch controls for roles', async () => {
     const element = await fixture<UserForm>(html`<foxy-user-form></foxy-user-form>`);
-    const control = element.renderRoot.querySelector(
-      'foxy-internal-checkbox-group-control[infer=role]'
-    ) as InternalCheckboxGroupControl;
 
-    expect(control).to.exist;
-    expect(control).to.have.deep.property('options', [
-      { label: 'option_merchant', value: 'merchant' },
-      { label: 'option_backend_developer', value: 'backend_developer' },
-      { label: 'option_frontend_developer', value: 'frontend_developer' },
-      { label: 'option_designer', value: 'designer' },
-    ]);
+    const merchantSwitch = element.renderRoot.querySelector(
+      'foxy-internal-switch-control[infer=is-merchant]'
+    ) as InternalSwitchControl;
+    expect(merchantSwitch).to.exist;
 
-    expect(control.getValue()).to.deep.equal([]);
+    const backendSwitch = element.renderRoot.querySelector(
+      'foxy-internal-switch-control[infer=is-programmer]'
+    ) as InternalSwitchControl;
+    expect(backendSwitch).to.exist;
+
+    const frontendSwitch = element.renderRoot.querySelector(
+      'foxy-internal-switch-control[infer=is-front-end-developer]'
+    ) as InternalSwitchControl;
+    expect(frontendSwitch).to.exist;
+
+    const designerSwitch = element.renderRoot.querySelector(
+      'foxy-internal-switch-control[infer=is-designer]'
+    ) as InternalSwitchControl;
+    expect(designerSwitch).to.exist;
 
     element.edit({ is_merchant: true, is_programmer: true });
-    expect(control.getValue()).to.deep.equal(['merchant', 'backend_developer']);
+    expect(merchantSwitch.getValue()).to.equal(true);
+    expect(backendSwitch.getValue()).to.equal(true);
 
-    control.setValue(['frontend_developer']);
-    expect(element).to.have.nested.property('form.is_front_end_developer', true);
+    merchantSwitch.setValue(false);
+    expect(element).to.have.nested.property('form.is_merchant', false);
   });
 });

@@ -78,25 +78,29 @@
         "error": {
           "invalid_form": "These parameters won't generate any codes. Please make sure that the length of the code is greater than the length of the prefix, does not exceed 50 characters in total and that the code itself does not contain spaces."
         },
-        "length": {
-          "label": "Code length",
-          "placeholder": "6",
-          "helper_text": ""
-        },
-        "number-of-codes": {
-          "label": "Number of codes",
-          "placeholder": "10",
-          "helper_text": ""
-        },
-        "prefix": {
-          "label": "Prefix",
-          "placeholder": "Optional",
-          "helper_text": "The length value is inclusive of this prefix."
-        },
-        "current-balance": {
-          "label": "Initial balance",
-          "placeholder": "0",
-          "helper_text": ""
+        "parameters": {
+          "label": "",
+          "helper_text": "",
+          "prefix": {
+            "label": "Prefix",
+            "placeholder": "Optional",
+            "helper_text": "The length value is inclusive of this prefix."
+          },
+          "length": {
+            "label": "Code length",
+            "placeholder": "6",
+            "helper_text": ""
+          },
+          "number-of-codes": {
+            "label": "Number of codes",
+            "placeholder": "10",
+            "helper_text": ""
+          },
+          "current-balance": {
+            "label": "Initial balance",
+            "placeholder": "0",
+            "helper_text": ""
+          }
         },
         "example": {
           "label": "Examples",
@@ -410,6 +414,7 @@
         "customer": {
           "label": "Customer",
           "helper_text": "",
+          "clear": "Clear",
           "dialog": {
             "cancel": "Cancel",
             "close": "Close",

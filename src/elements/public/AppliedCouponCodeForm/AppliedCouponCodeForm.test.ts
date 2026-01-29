@@ -5,7 +5,8 @@ import './index';
 
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { AppliedCouponCodeForm as Form } from './AppliedCouponCodeForm';
-import { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
+import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
+import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server';
@@ -13,9 +14,14 @@ import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 
 describe('AppliedCouponCodeForm', () => {
-  it('imports and registers foxy-internal-checkbox-group-control element', () => {
-    const constructor = customElements.get('foxy-internal-checkbox-group-control');
-    expect(constructor).to.equal(InternalCheckboxGroupControl);
+  it('imports and registers foxy-internal-summary-control element', () => {
+    const constructor = customElements.get('foxy-internal-summary-control');
+    expect(constructor).to.equal(InternalSummaryControl);
+  });
+
+  it('imports and registers foxy-internal-switch-control element', () => {
+    const constructor = customElements.get('foxy-internal-switch-control');
+    expect(constructor).to.equal(InternalSwitchControl);
   });
 
   it('imports and registers foxy-internal-text-control element', () => {
@@ -91,26 +97,15 @@ describe('AppliedCouponCodeForm', () => {
     expect(control).to.have.property('helperText', 'code.helper_text_existing');
   });
 
-  it('renders a checkbox group control for "ignore_usage_limits" field in template state', async () => {
+  it('renders a switch control for "ignore_usage_limits" field in template state', async () => {
     const element = await fixture<Form>(
       html`<foxy-applied-coupon-code-form></foxy-applied-coupon-code-form>`
     );
 
-    const control = element.renderRoot.querySelector<InternalCheckboxGroupControl>(
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
       '[infer="ignore-usage-limits"]'
     );
 
-    const options = [{ value: 'checked', label: 'option_checked' }];
-
-    expect(control).to.be.instanceOf(InternalCheckboxGroupControl);
-    expect(control).to.have.deep.property('options', options);
-
-    control?.setValue(['checked']);
-    expect(control?.getValue()).to.deep.equal(['checked']);
-    expect(element).to.have.nested.property('form.ignore_usage_limits', true);
-
-    control?.setValue([]);
-    expect(control?.getValue()).to.deep.equal([]);
-    expect(element).to.have.nested.property('form.ignore_usage_limits', false);
+    expect(control).to.be.instanceOf(InternalSwitchControl);
   });
 });

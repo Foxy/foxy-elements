@@ -30,33 +30,6 @@ export class UserForm extends Base<Data> {
     ];
   }
 
-  private readonly __roleGetValue = () => {
-    const value: string[] = [];
-
-    if (this.form.is_merchant) value.push('merchant');
-    if (this.form.is_programmer) value.push('backend_developer');
-    if (this.form.is_front_end_developer) value.push('frontend_developer');
-    if (this.form.is_designer) value.push('designer');
-
-    return value;
-  };
-
-  private readonly __roleSetValue = (newValue: string[]) => {
-    this.edit({
-      is_merchant: newValue.includes('merchant'),
-      is_programmer: newValue.includes('backend_developer'),
-      is_front_end_developer: newValue.includes('frontend_developer'),
-      is_designer: newValue.includes('designer'),
-    });
-  };
-
-  private readonly __roleOptions = [
-    { label: 'option_merchant', value: 'merchant' },
-    { label: 'option_backend_developer', value: 'backend_developer' },
-    { label: 'option_frontend_developer', value: 'frontend_developer' },
-    { label: 'option_designer', value: 'designer' },
-  ];
-
   get headerSubtitleOptions(): Record<string, unknown> {
     return {
       ...super.headerSubtitleOptions,
@@ -68,18 +41,26 @@ export class UserForm extends Base<Data> {
     return html`
       ${this.renderHeader()}
 
-      <foxy-internal-text-control infer="first-name"></foxy-internal-text-control>
-      <foxy-internal-text-control infer="last-name"></foxy-internal-text-control>
-      <foxy-internal-text-control infer="email"></foxy-internal-text-control>
-      <foxy-internal-text-control infer="phone"></foxy-internal-text-control>
+      <foxy-internal-summary-control infer="general">
+        <foxy-internal-text-control layout="summary-item" infer="first-name">
+        </foxy-internal-text-control>
+        <foxy-internal-text-control layout="summary-item" infer="last-name">
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
 
-      <foxy-internal-checkbox-group-control
-        infer="role"
-        .getValue=${this.__roleGetValue}
-        .setValue=${this.__roleSetValue}
-        .options=${this.__roleOptions}
-      >
-      </foxy-internal-checkbox-group-control>
+      <foxy-internal-summary-control infer="contact-info">
+        <foxy-internal-text-control layout="summary-item" infer="email">
+        </foxy-internal-text-control>
+        <foxy-internal-text-control layout="summary-item" infer="phone">
+        </foxy-internal-text-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="role">
+        <foxy-internal-switch-control infer="is-merchant"></foxy-internal-switch-control>
+        <foxy-internal-switch-control infer="is-programmer"></foxy-internal-switch-control>
+        <foxy-internal-switch-control infer="is-front-end-developer"></foxy-internal-switch-control>
+        <foxy-internal-switch-control infer="is-designer"></foxy-internal-switch-control>
+      </foxy-internal-summary-control>
 
       ${super.renderBody()}
     `;

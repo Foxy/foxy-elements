@@ -95,46 +95,61 @@ export class CustomerPortalSettingsForm extends Base<Data> {
     });
   };
 
-  private readonly __featuresOptions = [
-    { value: 'sso', label: 'option_sso' },
-    { value: 'sign-up', label: 'option_sign_up' },
-    { value: 'frequency-modification', label: 'option_frequency_modification' },
-    { value: 'next-date-modification', label: 'option_next_date_modification' },
-  ];
-
-  private readonly __featuresGetValue = () => {
-    const features: string[] = [];
-
-    if (this.form.sso) features.push('sso');
-    if (this.form.signUp?.enabled) features.push('sign-up');
-    if (this.form.subscriptions?.allowNextDateModification) features.push('next-date-modification');
-    if (this.form.subscriptions?.allowFrequencyModification.length) {
-      features.push('frequency-modification');
-    }
-
-    return features;
+  private readonly __ssoGetValue = () => {
+    return this.form.sso ?? false;
   };
 
-  private readonly __featuresSetValue = (features: string[]) => {
-    const fmod = this.form.subscriptions?.allowFrequencyModification ?? [];
+  private readonly __ssoSetValue = (value: boolean) => {
+    this.edit({ sso: value });
+  };
 
+  private readonly __signUpGetValue = () => {
+    return this.form.signUp?.enabled ?? false;
+  };
+
+  private readonly __signUpSetValue = (value: boolean) => {
     this.edit({
-      sso: features.includes('sso'),
       signUp: {
-        enabled: features.includes('sign-up'),
+        enabled: value,
         verification: this.form.signUp?.verification ?? {
           type: 'hcaptcha',
           siteKey: '',
           secretKey: '',
         },
       },
+    });
+  };
+
+  private readonly __frequencyModificationGetValue = () => {
+    return (this.form.subscriptions?.allowFrequencyModification.length ?? 0) > 0;
+  };
+
+  private readonly __frequencyModificationSetValue = (value: boolean) => {
+    const fmod = this.form.subscriptions?.allowFrequencyModification ?? [];
+
+    this.edit({
       subscriptions: {
-        allowFrequencyModification: features.includes('frequency-modification')
+        allowFrequencyModification: value
           ? fmod.length === 0
             ? [{ jsonataQuery: '*', values: [] }]
             : fmod
           : [],
-        allowNextDateModification: features.includes('next-date-modification')
+        allowNextDateModification: this.form.subscriptions?.allowNextDateModification ?? false,
+      },
+    });
+  };
+
+  private readonly __nextDateModificationGetValue = () => {
+    return this.form.subscriptions?.allowNextDateModification ?? false;
+  };
+
+  private readonly __nextDateModificationSetValue = (value: boolean) => {
+    const fmod = this.form.subscriptions?.allowFrequencyModification ?? [];
+
+    this.edit({
+      subscriptions: {
+        allowFrequencyModification: fmod,
+        allowNextDateModification: value
           ? this.form.subscriptions?.allowNextDateModification || []
           : false,
       },
@@ -184,10 +199,7 @@ export class CustomerPortalSettingsForm extends Base<Data> {
     const alwaysMatch = ['header:copy-id', super.hiddenSelector.toString()];
 
     if (!this.form.signUp?.enabled) {
-      alwaysMatch.push(
-        'sign-up-verification-hcaptcha-site-key',
-        'sign-up-verification-hcaptcha-secret-key'
-      );
+      alwaysMatch.push('hcaptcha');
     }
 
     if (!this.form.subscriptions?.allowFrequencyModification.length) {
@@ -212,28 +224,52 @@ export class CustomerPortalSettingsForm extends Base<Data> {
       >
       </foxy-internal-editable-list-control>
 
-      <foxy-internal-checkbox-group-control
-        infer="features"
-        theme="vertical"
-        .getValue=${this.__featuresGetValue}
-        .setValue=${this.__featuresSetValue}
-        .options=${this.__featuresOptions}
-      >
-      </foxy-internal-checkbox-group-control>
+      <foxy-internal-summary-control infer="features">
+        <foxy-internal-switch-control
+          infer="sso"
+          .getValue=${this.__ssoGetValue}
+          .setValue=${this.__ssoSetValue}
+        ></foxy-internal-switch-control>
 
-      <foxy-internal-password-control
-        infer="sign-up-verification-hcaptcha-site-key"
-        .getValue=${this.__signUpVerificationHcaptchaSiteKeyGetValue}
-        .setValue=${this.__signUpVerificationHcaptchaSiteKeySetValue}
-      >
-      </foxy-internal-password-control>
+        <foxy-internal-switch-control
+          infer="sign-up"
+          .getValue=${this.__signUpGetValue}
+          .setValue=${this.__signUpSetValue}
+        >
+        </foxy-internal-switch-control>
 
-      <foxy-internal-password-control
-        infer="sign-up-verification-hcaptcha-secret-key"
-        .getValue=${this.__signUpVerificationHcaptchaSecretKeyGetValue}
-        .setValue=${this.__signUpVerificationHcaptchaSecretKeySetValue}
-      >
-      </foxy-internal-password-control>
+        <foxy-internal-switch-control
+          infer="frequency-modification"
+          .getValue=${this.__frequencyModificationGetValue}
+          .setValue=${this.__frequencyModificationSetValue}
+        >
+        </foxy-internal-switch-control>
+
+        <foxy-internal-switch-control
+          infer="next-date-modification"
+          .getValue=${this.__nextDateModificationGetValue}
+          .setValue=${this.__nextDateModificationSetValue}
+        >
+        </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="hcaptcha">
+        <foxy-internal-password-control
+          layout="summary-item"
+          infer="sign-up-verification-hcaptcha-site-key"
+          .getValue=${this.__signUpVerificationHcaptchaSiteKeyGetValue}
+          .setValue=${this.__signUpVerificationHcaptchaSiteKeySetValue}
+        >
+        </foxy-internal-password-control>
+
+        <foxy-internal-password-control
+          layout="summary-item"
+          infer="sign-up-verification-hcaptcha-secret-key"
+          .getValue=${this.__signUpVerificationHcaptchaSecretKeyGetValue}
+          .setValue=${this.__signUpVerificationHcaptchaSecretKeySetValue}
+        >
+        </foxy-internal-password-control>
+      </foxy-internal-summary-control>
 
       <foxy-internal-async-list-control
         first="foxy://${this.virtualHost}/form/subscriptions/allowFrequencyModification"
@@ -255,22 +291,26 @@ export class CustomerPortalSettingsForm extends Base<Data> {
       >
       </foxy-internal-async-list-control>
 
-      <foxy-internal-frequency-control
-        infer="session-lifespan-in-minutes"
-        max=""
-        .getValue=${this.__sessionLifespanInMinutesGetValue}
-        .setValue=${this.__sessionLifespanInMinutesSetValue}
-        .options=${this.__sessionLifespanInMinutesOptions}
-      >
-      </foxy-internal-frequency-control>
+      <foxy-internal-summary-control infer="security">
+        <foxy-internal-frequency-control
+          layout="summary-item"
+          infer="session-lifespan-in-minutes"
+          max=""
+          .getValue=${this.__sessionLifespanInMinutesGetValue}
+          .setValue=${this.__sessionLifespanInMinutesSetValue}
+          .options=${this.__sessionLifespanInMinutesOptions}
+        >
+        </foxy-internal-frequency-control>
 
-      <foxy-internal-password-control
-        property="jwtSharedSecret"
-        infer="jwt-shared-secret"
-        show-generator
-        .generatorOptions=${this.__jwtSecretGeneratorOptions}
-      >
-      </foxy-internal-password-control>
+        <foxy-internal-password-control
+          layout="summary-item"
+          property="jwtSharedSecret"
+          infer="jwt-shared-secret"
+          show-generator
+          .generatorOptions=${this.__jwtSecretGeneratorOptions}
+        >
+        </foxy-internal-password-control>
+      </foxy-internal-summary-control>
 
       ${super.renderBody()}
     `;

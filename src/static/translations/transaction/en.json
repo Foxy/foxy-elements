@@ -1,24 +1,24 @@
 {
   "header": {
     "title": "Transaction #{{ display_id }}",
-    "subtitle": "{{ transaction_date, date }} at {{ transaction_date, time }} • {{ ip_country }}",
-    "subtitle_customer_changed_payment_method": "{{ transaction_date, date }} at {{ transaction_date, time }} • {{ ip_country }} • Customer changed payment method",
+    "subtitle": "{{ transaction_date, date }} at {{ transaction_date, time }}",
+    "subtitle_customer_changed_payment_method": "{{ transaction_date, date }} at {{ transaction_date, time }} • Customer changed payment method",
     "subtitle_admin_changed_payment_method_with_uoe": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin used UOE password to change payment method",
     "subtitle_integration_changed_payment_method": "{{ transaction_date, date }} at {{ transaction_date, time }} • Integration changed payment method",
     "subtitle_admin_changed_payment_method": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin changed payment method",
-    "subtitle_customer_changed_subscription": "{{ transaction_date, date }} at {{ transaction_date, time }} • {{ ip_country }} • Customer made changes to subscription",
+    "subtitle_customer_changed_subscription": "{{ transaction_date, date }} at {{ transaction_date, time }} • Customer made changes to subscription",
     "subtitle_admin_changed_subscription_with_uoe": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin used UOE password to make changes to subscription",
     "subtitle_integration_changed_subscription": "{{ transaction_date, date }} at {{ transaction_date, time }} • Integration made changes to subscription",
     "subtitle_admin_changed_subscription": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin made changes to subscription",
     "subtitle_subscription_renewal_attempt": "{{ transaction_date, date }} at {{ transaction_date, time }} • Subscription renewal attempt",
     "subtitle_subscription_renewal_automated_reattempt": "{{ transaction_date, date }} at {{ transaction_date, time }} • Automated subscription renewal reattempt",
     "subtitle_subscription_renewal_manual_reattempt": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin attempted to renew subscription",
-    "subtitle_customer_canceled_subscription": "{{ transaction_date, date }} at {{ transaction_date, time }} • {{ ip_country }} • Customer cancelled subscription",
+    "subtitle_customer_canceled_subscription": "{{ transaction_date, date }} at {{ transaction_date, time }} • Customer cancelled subscription",
     "subtitle_admin_canceled_subscription": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin cancelled subscription",
-    "subtitle_customer_subscribed": "{{ transaction_date, date }} at {{ transaction_date, time }} • {{ ip_country }} • Customer bought a subscription",
+    "subtitle_customer_subscribed": "{{ transaction_date, date }} at {{ transaction_date, time }} • Customer bought a subscription",
     "subtitle_admin_subscribed_with_uoe": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin used UOE password to buy a subscription",
     "subtitle_integration_subscribed": "{{ transaction_date, date }} at {{ transaction_date, time }} • Integration placed an order for customer",
-    "subtitle_customer_placed_order": "{{ transaction_date, date }} at {{ transaction_date, time }} • {{ ip_country }} • Customer placed an order",
+    "subtitle_customer_placed_order": "{{ transaction_date, date }} at {{ transaction_date, time }} • Customer placed an order",
     "subtitle_admin_placed_order_with_uoe": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin used UOE password to place an order",
     "subtitle_integration_placed_order": "{{ transaction_date, date }} at {{ transaction_date, time }} • Integration bought a subscription",
     "alert_status_problem": "We were unable to complete this transaction because the amount that was sent to the payment gateway did not match the final total amount.",
@@ -201,9 +201,9 @@
             "placeholder": "Optional"
           }
         },
-        "subscriptions": {
+        "subscription": {
           "label": "Subscription",
-          "helper_text": "To modify these value for an existing subscription, you must modify the subscription directly.",
+          "helper_text": "",
           "subscription-frequency": {
             "label": "Frequency",
             "helper_text": "",
@@ -228,6 +228,49 @@
             "helper_text": "",
             "display_value": "{{ value, date }}",
             "placeholder": "None"
+          }
+        },
+        "downloadable-purchase": {
+          "label": "Downloadable usage",
+          "helper_text": "",
+          "no_stats_text": "This item has not been downloaded yet. Download statistics will appear here once the item has been downloaded by a customer.",
+          "number-of-downloads": {
+            "label": "Number of downloads"
+          },
+          "first-download-time": {
+            "label": "First download",
+            "value": "{{ value, date }} at {{ value, time }}"
+          },
+          "download-link": {
+            "label": "Download file"
+          },
+          "copy-download-link": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy URL",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          },
+          "reset-usage": {
+            "message_idle": "This action will attempt to reset usage for this downloadable purchase. Would you like to proceed?",
+            "message_fail": "Failed to reset usage for this downloadable purchase. If you'd like to retry, close this dialog and click the reset usage button again.",
+            "message_done": "Usage for this downloadable purchase was reset successfully. You can close this dialog now.",
+            "button_close": "Close",
+            "button_confirm": "Reset usage",
+            "button_cancel": "Go back",
+            "loading_busy": "Processing",
+            "header": "Reset usage",
+            "button": "Reset usage"
+          }
+        },
+        "actions": {
+          "download": {
+            "label": "Download file"
+          },
+          "copy-download-link": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy download link",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
           }
         },
         "dimensions": {
@@ -258,13 +301,13 @@
           "label": "Meta",
           "helper_text": "",
           "url": {
-            "label": "URL",
-            "helper_text": "Full URL for the customer to view this item on the store website.",
+            "label": "Website URL",
+            "helper_text": "",
             "placeholder": "None"
           },
           "image": {
-            "label": "Image",
-            "helper_text": "URL of the image to display for this item in the cart and checkout.",
+            "label": "Image URL",
+            "helper_text": "",
             "placeholder": "None"
           },
           "quantity-max": {
@@ -278,8 +321,8 @@
             "placeholder": "1"
           },
           "expires": {
-            "label": "Expires",
-            "helper_text": "Date when this item will be removed from the cart.",
+            "label": "Expiry Date",
+            "helper_text": "",
             "display_value": "{{ value, date }}",
             "placeholder": "Optional"
           }
@@ -311,6 +354,9 @@
         },
         "discount-details": {
           "label": "Applied discounts",
+          "helper_text": "",
+          "total_items": "{{ count }} discount",
+          "total_items_plural": "{{ count }} discounts",
           "pagination": {
             "first": "First",
             "last": "Last",
@@ -331,6 +377,9 @@
         },
         "coupon-details": {
           "label": "Applied coupons",
+          "helper_text": "",
+          "total_items": "{{ count }} coupon",
+          "total_items_plural": "{{ count }} coupons",
           "pagination": {
             "first": "First",
             "last": "Last",
@@ -351,6 +400,9 @@
         },
         "attributes": {
           "label": "Attributes",
+          "helper_text": "",
+          "total_items": "{{ count }} attribute",
+          "total_items_plural": "{{ count }} attributes",
           "delete_header": "Remove attribute?",
           "delete_message": "Please confirm that you'd like to remove this attribute from the item.",
           "delete_confirm": "Remove",
@@ -454,6 +506,9 @@
         },
         "item-options": {
           "label": "Item options",
+          "helper_text": "",
+          "total_items": "{{ count }} option",
+          "total_items_plural": "{{ count }} options",
           "delete_header": "Remove item option?",
           "delete_message": "Please confirm that you'd like to remove this item option from the item.",
           "delete_confirm": "Remove",
@@ -792,6 +847,12 @@
         }
       }
     }
+  },
+  "metadata": {
+    "label": "Metadata",
+    "helper_text": "",
+    "ip": { "label": "IP address" },
+    "user-agent": { "label": "User agent" }
   },
   "webhooks": {
     "label": "Webhooks",

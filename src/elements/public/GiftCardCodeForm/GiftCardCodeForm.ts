@@ -44,7 +44,7 @@ export class GiftCardCodeForm extends Base<Data> {
   getTransactionPageHref: TransactionPageHrefGetter | null = null;
 
   /** Returns a `fx:customer` Resource URL for a Customer ID. */
-  getCustomerHref: (id: number | string) => string = id => {
+  getCustomerHref: (id: number) => string = id => {
     return `https://api.foxycart.com/customers/${id}`;
   };
 
@@ -68,14 +68,20 @@ export class GiftCardCodeForm extends Base<Data> {
   };
 
   private readonly __customerGetValue = () => {
-    const link = this.data?._links?.['fx:customer']?.href;
-    const id = this.form.customer_id;
-    return id === undefined ? link : this.getCustomerHref(id);
+    const selectedId = this.form.customer_id;
+    const isLinkingCustomer = typeof selectedId === 'number';
+    const isUnlinkingCustomer = selectedId === null;
+
+    return isLinkingCustomer
+      ? this.getCustomerHref(selectedId as number)
+      : isUnlinkingCustomer
+      ? undefined
+      : this.data?._links?.['fx:customer']?.href;
   };
 
   private readonly __customerSetValue = (v: string) => {
     const id = getResourceId(v);
-    this.edit({ customer_id: typeof id === 'number' ? id : '' });
+    this.edit({ customer_id: typeof id === 'number' ? id : null });
   };
 
   private readonly __customerFilters: Option[] = [

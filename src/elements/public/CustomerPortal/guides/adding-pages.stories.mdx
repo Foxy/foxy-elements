@@ -56,7 +56,7 @@ If you run this code, you'll need to log in to see the links. It works!
 
 ## Styling
 
-Let's add some CSS to make it look a bit better. Every template is rendered in an isolated Shadow DOM, so you'll need to link or define your styles **inside of the template**. Quick tip: use [Lumo](https://demo.vaadin.com/lumo-editor/) to make your custom content look native to the portal.
+Let's add some CSS to make it look a bit better. Every template is rendered in an isolated Shadow DOM, so you'll need to link or define your styles **inside of the template**. Quick tip: use <a href="https://demo.vaadin.com/lumo-editor/" target="_blank">Lumo</a> to make your custom content look native to the portal.
 
 ```html
 <foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/" simplify-ns-loading>
@@ -83,7 +83,7 @@ Now our navigation uses the primary theme color, medium spacing and font weight 
 
 ## Adding custom page
 
-For our orders page, let's copy the contents of `index.html` and paste them into a new page – for example, `orders.html`. On that page, we'll want to replace the default portal content (transactions, addresses, etc) with our own. Customer portal comes with a handy feature that can help us with that: **configurable controls**. Almost every section, input or button in the portal can be hidden with [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) in the `hiddencontrols` attribute. Let's write one and keep only customer name with the logout button:
+For our orders page, let's copy the contents of `index.html` and paste them into a new page – for example, `orders.html`. On that page, we'll want to replace the default portal content (transactions, addresses, etc) with our own. Customer portal comes with a handy feature that can help us with that: **configurable controls**. Almost every section, input or button in the portal can be hidden with <a href="https://sdk.foxy.dev/classes/_core_index_.booleanselector.html" target="_blank">BooleanSelector</a> in the `hiddencontrols` attribute. Let's write one and keep only customer name with the logout button:
 
 ```html
 <foxy-customer-portal

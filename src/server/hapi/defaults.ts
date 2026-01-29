@@ -1117,4 +1117,18 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+
+  downloadable_purchases: (query, dataset) => ({
+    id: increment('downloadable_purchases', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    customer_id: parseInt(query.get('customer_id') ?? '0'),
+    transaction_id: parseInt(query.get('transaction_id') ?? '0'),
+    item_id: parseInt(query.get('item_id') ?? '0'),
+    downloadable_id: parseInt(query.get('downloadable_id') ?? '0'),
+    number_of_downloads: 0,
+    first_download_time: null,
+    download_passcode: 'QYLKcnhe9Q1nklCXRQJLFTpZxDLKgSX2HAG',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
 };

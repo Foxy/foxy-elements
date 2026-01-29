@@ -1,4 +1,5 @@
-import '../../internal/InternalCheckboxGroupControl/index';
+import '../../internal/InternalSwitchControl/index';
+import '../../internal/InternalSummaryControl/index';
 import '../../internal/InternalEditableListControl/index';
 import '../../internal/InternalAsyncListControl/index';
 import '../../internal/InternalFrequencyControl/index';

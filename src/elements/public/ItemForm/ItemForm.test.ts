@@ -206,11 +206,102 @@ describe('ItemForm', () => {
     expect(form.hiddenSelector.matches('attributes', true)).to.be.false;
   });
 
+  it('hides downloadable purchase section when item has no downloadable purchase', async () => {
+    const router = createRouter();
+    const element = await fixture<ItemForm>(
+      html`
+        <foxy-item-form
+          href="https://demo.api/hapi/items/1"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-form>
+      `
+    );
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    expect(element.hiddenSelector.matches('downloadable-purchase', true)).to.be.true;
+  });
+
   it('renders a form header', () => {
     const form = new ItemForm();
     const renderHeaderMethod = stub(form, 'renderHeader');
     form.render();
     expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('does not render header actions when item has no downloadable purchase', async () => {
+    const router = createRouter();
+    // Use item 1 which doesn't have downloadable purchase by default
+    const element = await fixture<ItemForm>(
+      html`
+        <foxy-item-form
+          href="https://demo.api/hapi/items/1"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-form>
+      `
+    );
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    const downloadLink = element.renderRoot.querySelector('a[href="about:blank"]');
+    const copyButton = element.renderRoot.querySelector(
+      'foxy-copy-to-clipboard[infer="actions copy-download-link"]'
+    );
+
+    expect(downloadLink).to.not.exist;
+    expect(copyButton).to.not.exist;
+  });
+
+  it('renders download link in header actions when item has downloadable purchase', async () => {
+    const router = createRouter();
+    // Item 0 has downloadable purchase by default
+    const element = await fixture<ItemForm>(
+      html`
+        <foxy-item-form
+          href="https://demo.api/hapi/items/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-form>
+      `
+    );
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    const downloadLink = element.renderRoot.querySelector<HTMLAnchorElement>(
+      'a[data-testid="download-link"]'
+    );
+
+    expect(downloadLink).to.exist;
+    expect(downloadLink).to.have.attribute('href', 'about:blank');
+    expect(downloadLink?.querySelector('foxy-i18n')).to.have.attribute('infer', 'actions download');
+    expect(downloadLink?.querySelector('foxy-i18n')).to.have.attribute('key', 'label');
+  });
+
+  it('renders copy download link button in header actions when item has downloadable purchase', async () => {
+    const router = createRouter();
+    // Item 0 has downloadable purchase by default
+    const element = await fixture<ItemForm>(
+      html`
+        <foxy-item-form
+          href="https://demo.api/hapi/items/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-form>
+      `
+    );
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    const copyButton = element.renderRoot.querySelector(
+      'foxy-copy-to-clipboard[infer="actions copy-download-link"]'
+    );
+
+    expect(copyButton).to.exist;
+    expect(copyButton).to.have.attribute('text', 'about:blank');
+    expect(copyButton).to.have.attribute('layout', 'text');
+    expect(copyButton).to.have.attribute('theme', 'tertiary-inline');
+    expect(copyButton).to.have.attribute('infer', 'actions copy-download-link');
   });
 
   it('uses custom header subtitle options', async () => {
@@ -231,6 +322,143 @@ describe('ItemForm', () => {
     );
 
     expect(control).to.exist;
+  });
+
+  it('renders downloadable purchase summary control', async () => {
+    const router = createRouter();
+    // Item 0 has downloadable purchase by default
+    const element = await fixture<ItemForm>(
+      html`
+        <foxy-item-form
+          href="https://demo.api/hapi/items/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-form>
+      `
+    );
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-summary-control[infer="downloadable-purchase"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('layout', 'details');
+  });
+
+  it('renders number of downloads in downloadable purchase section', async () => {
+    const router = createRouter();
+    // Item 0 has downloadable purchase by default
+    const element = await fixture<ItemForm>(
+      html`
+        <foxy-item-form
+          href="https://demo.api/hapi/items/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-form>
+      `
+    );
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    const section = element.renderRoot.querySelector('[infer="downloadable-purchase"]');
+    const label = section?.querySelector('foxy-i18n[infer="number-of-downloads"][key="label"]');
+
+    // Find the paragraph containing the number-of-downloads i18n element
+    const paragraphs = Array.from(section?.querySelectorAll('p') ?? []);
+    const value = paragraphs
+      .filter(p => p.querySelector('foxy-i18n[infer="number-of-downloads"]'))
+      .map(p => p.querySelector('span.text-secondary'))[0];
+
+    expect(label).to.exist;
+    expect(value).to.exist;
+    expect(value?.textContent).to.equal('4');
+  });
+
+  it('renders first download time in downloadable purchase section', async () => {
+    const router = createRouter();
+    // Item 0 has downloadable purchase by default
+    const element = await fixture<ItemForm>(
+      html`
+        <foxy-item-form
+          href="https://demo.api/hapi/items/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-form>
+      `
+    );
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    const section = element.renderRoot.querySelector('[infer="downloadable-purchase"]');
+    const timeLabel = section?.querySelector('foxy-i18n[infer="first-download-time"][key="label"]');
+    const timeValue = section?.querySelector('foxy-i18n[infer="first-download-time"][key="value"]');
+
+    expect(timeLabel).to.exist;
+    expect(timeValue).to.exist;
+    expect(timeValue).to.have.attribute('options');
+
+    const options = JSON.parse(timeValue?.getAttribute('options') ?? '{}');
+    expect(options).to.have.property('value', '2025-11-15T09:30:00-0800');
+  });
+
+  it('renders reset usage button in downloadable purchase section', async () => {
+    const router = createRouter();
+    // Item 0 has downloadable purchase by default
+    const element = await fixture<ItemForm>(
+      html`
+        <foxy-item-form
+          href="https://demo.api/hapi/items/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-form>
+      `
+    );
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    const section = element.renderRoot.querySelector('[infer="downloadable-purchase"]');
+    const resetButton = section?.querySelector(
+      'foxy-internal-post-action-control[infer="reset-usage"]'
+    );
+
+    expect(resetButton).to.exist;
+    expect(resetButton).to.have.attribute('theme', 'tertiary-inline');
+    expect(resetButton).to.have.attribute('href', 'https://demo.api/virtual/empty?status=200');
+  });
+
+  it('renders empty state message when downloadable purchase has no downloads', async () => {
+    const router = createRouter();
+
+    // Override downloadable purchase data with zero downloads
+    await router.handleRequest(
+      new Request('https://demo.api/hapi/downloadable_purchases/0', {
+        method: 'PATCH',
+        body: JSON.stringify({ number_of_downloads: 0 }),
+      })
+    )?.handlerPromise;
+
+    const element = await fixture<ItemForm>(
+      html`
+        <foxy-item-form
+          href="https://demo.api/hapi/items/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-form>
+      `
+    );
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+
+    const section = element.renderRoot.querySelector('[infer="downloadable-purchase"]');
+    const emptyMessage = section?.querySelector('foxy-i18n[key="no_stats_text"]');
+    const resetButton = section?.querySelector(
+      'foxy-internal-post-action-control[infer="reset-usage"]'
+    );
+
+    expect(emptyMessage).to.exist;
+    expect(resetButton).to.not.exist;
   });
 
   it('renders name as a control inside of the General summary', async () => {
@@ -315,10 +543,10 @@ describe('ItemForm', () => {
     expect(control).to.have.attribute('layout', 'summary-item');
   });
 
-  it('renders Subscriptions summary control', async () => {
+  it('renders Subscription summary control', async () => {
     const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-summary-control[infer="subscriptions"]'
+      'foxy-internal-summary-control[infer="subscription"]'
     );
 
     expect(control).to.exist;
@@ -327,7 +555,7 @@ describe('ItemForm', () => {
   it('renders subscription frequency as a control inside of the Subscriptions summary', async () => {
     const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer="subscriptions"] foxy-internal-frequency-control[infer="subscription-frequency"]'
+      '[infer="subscription"] foxy-internal-frequency-control[infer="subscription-frequency"]'
     );
 
     expect(control).to.exist;
@@ -337,7 +565,7 @@ describe('ItemForm', () => {
   it('renders subscription start date as a control inside of the Subscriptions summary', async () => {
     const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer="subscriptions"] foxy-internal-date-control[infer="subscription-start-date"]'
+      '[infer="subscription"] foxy-internal-date-control[infer="subscription-start-date"]'
     );
 
     expect(control).to.exist;
@@ -347,7 +575,7 @@ describe('ItemForm', () => {
   it('renders subscription end date as a control inside of the Subscriptions summary', async () => {
     const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
     const control = element.renderRoot.querySelector(
-      '[infer="subscriptions"] foxy-internal-date-control[infer="subscription-end-date"]'
+      '[infer="subscription"] foxy-internal-date-control[infer="subscription-end-date"]'
     );
 
     expect(control).to.exist;

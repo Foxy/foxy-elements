@@ -60,8 +60,7 @@ export class CouponCodesForm extends Base<Data> {
   }
 
   protected async _sendPost(edits: Partial<Data>): Promise<Data> {
-    const body = JSON.stringify(edits);
-    const data = await this._fetch(this.parent, { body, method: 'POST' });
+    const data = await super._sendPost(edits, { mode: 'action' });
     this.status = { key: 'success' };
     return data;
   }
