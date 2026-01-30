@@ -1,5 +1,5 @@
 import type { CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
-import type { Rule, Option } from './types';
+import type { Rule, Option, ConditionalOperator } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ConfigurableMixin } from '../../../mixins/configurable';
@@ -74,8 +74,8 @@ export class QueryBuilder extends Base {
   /** If true, hides the UI for the "OR" operator in queries in the Advanced Mode. */
   disableOr = false;
 
-  /** List of operators available in the builder UI. */
-  operators: Operator[] = Object.values(Operator);
+  /** List of operators available in the builder UI. When an operator is an object, it specifies the operator type and the paths it applies to. */
+  operators: (Operator | ConditionalOperator)[] = Object.values(Operator);
 
   /** When provided, will display a documentation link in the Advanced Mode. */
   docsHref: string | null = null;

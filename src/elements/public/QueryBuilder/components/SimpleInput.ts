@@ -5,6 +5,8 @@ import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../../utils/class-map';
 import { html } from 'lit-html';
 
+const debounceTimers = new WeakMap<HTMLInputElement, NodeJS.Timeout>();
+
 type Params = {
   disabled: boolean;
   readonly: boolean;
@@ -57,7 +59,13 @@ export function SimpleInput(params: Params): TemplateResult {
               @keydown=${(evt: KeyboardEvent) => evt.key === '|' && evt.preventDefault()}
               @input=${(evt: Event) => {
                 const input = evt.currentTarget as HTMLInputElement;
-                onChange(input.value.replace(/\|/gi, ''));
+                const newValue = input.value.replace(/\|/gi, '');
+
+                const existingTimer = debounceTimers.get(input);
+                if (existingTimer) clearTimeout(existingTimer);
+
+                const timer = setTimeout(() => onChange(newValue), 500);
+                debounceTimers.set(input, timer);
               }}
             />
           `}

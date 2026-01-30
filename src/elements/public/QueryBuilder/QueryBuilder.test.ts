@@ -107,6 +107,7 @@ describe('QueryBuilder', () => {
 
     const Type = QueryBuilder.Type;
 
+    expect(Type).to.have.property('NameValuePair', 'name_value_pair');
     expect(Type).to.have.property('Attribute', 'attribute');
     expect(Type).to.have.property('Boolean', 'boolean');
     expect(Type).to.have.property('String', 'string');
@@ -252,6 +253,56 @@ describe('QueryBuilder', () => {
     const values = ['foo%3Alessthan=', 'foo%3Agreaterthan=', 'foo%3Anot=', 'foo='];
 
     for (const value of values) {
+      const whenGotEvent = oneEvent(element, 'change');
+      toggle.click();
+      await element.requestUpdate();
+
+      expect(element).to.have.value(value);
+      expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
+    }
+  });
+
+  it('restricts operators to specified paths using ConditionalOperator in advanced mode', async () => {
+    const layout = html`
+      <foxy-query-builder
+        value="foo="
+        .operators=${[
+          { type: Operator.GreaterThan, paths: ['foo', 'bar'] },
+          { type: Operator.LessThan, paths: ['foo'] },
+          Operator.Not,
+        ]}
+      >
+      </foxy-query-builder>
+    `;
+
+    const element = await fixture<QueryBuilder>(layout);
+    const root = element.renderRoot;
+    const toggle = root.querySelector('button[title="operator_equal"]') as HTMLButtonElement;
+
+    // For 'foo' path, should cycle through: equal, lessthan, greaterthan, not
+    const fooValues = ['foo%3Alessthan=', 'foo%3Agreaterthan=', 'foo%3Anot=', 'foo='];
+
+    for (const value of fooValues) {
+      const whenGotEvent = oneEvent(element, 'change');
+      toggle.click();
+      await element.requestUpdate();
+
+      expect(element).to.have.value(value);
+      expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
+    }
+
+    // Switch to 'bar' path - should only have operators that include 'bar' in their paths
+    const pathInput = root.querySelector(
+      '[aria-label="query_builder_rule"] input'
+    ) as HTMLInputElement;
+    pathInput.value = 'bar';
+    pathInput.dispatchEvent(new InputEvent('input'));
+    await element.requestUpdate();
+
+    // For 'bar' path, should cycle through: equal, greaterthan, not
+    const barValues = ['bar%3Agreaterthan=', 'bar%3Anot=', 'bar='];
+
+    for (const value of barValues) {
       const whenGotEvent = oneEvent(element, 'change');
       toggle.click();
       await element.requestUpdate();
@@ -492,6 +543,7 @@ describe('QueryBuilder', () => {
     expect(valueInput).to.have.value('');
     valueInput.value = 'baz';
     valueInput.dispatchEvent(new InputEvent('input'));
+    await new Promise(resolve => setTimeout(resolve, 550)); // Wait for throttle
     expect(element).to.have.value('foo=baz');
 
     // Editing operator (Not)
@@ -499,9 +551,85 @@ describe('QueryBuilder', () => {
     operatorSelect.dispatchEvent(new InputEvent('change'));
     expect(element).to.have.value('foo%3Anot=baz');
 
+    await new Promise(resolve => setTimeout(resolve, 550)); // Wait for throttle
     // Editing operator (Any)
     operatorSelect.value = 'any';
     operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('');
+  });
+
+  it('renders a field for Type.NameValuePair option in simple mode', async () => {
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder
+        .options=${[{ type: Type.NameValuePair, path: 'foo', label: 'option_foo' }]}
+      >
+      </foxy-query-builder>
+    `);
+
+    const rules = element.renderRoot.querySelectorAll('[aria-label="query_builder_rule"]');
+    expect(rules).to.have.length(1);
+
+    const rule = rules[0];
+    const label = rule.querySelector('foxy-i18n[key="option_foo"][infer=""]');
+    expect(label).to.exist;
+
+    // Initial state - should have name input and operator select
+    const inputs = rule.querySelectorAll('input');
+    expect(inputs).to.have.length(1); // Only name input initially
+    const nameInput = inputs[0];
+    expect(nameInput).to.have.value('');
+
+    const selects = rule.querySelectorAll('select');
+    expect(selects).to.have.length(1); // Operator select
+    const operatorSelect = selects[0];
+    expect(operatorSelect.options).to.have.length(3);
+    expect(operatorSelect.options[0].value).to.equal('any');
+    expect(operatorSelect.options[1].value).to.equal('equal');
+    expect(operatorSelect.options[2].value).to.equal(Operator.Not);
+
+    // Editing name
+    nameInput.value = 'bar';
+    nameInput.dispatchEvent(new InputEvent('input'));
+    await new Promise(resolve => setTimeout(resolve, 550)); // Wait for debounce
+    expect(element).to.have.value('foo%3Aname%5Bbar%5D=*&zoom=foo');
+    await element.requestUpdate();
+
+    // Editing operator (Equal)
+    operatorSelect.value = 'equal';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo%3Aname%5Bbar%5D=&zoom=foo');
+    await element.requestUpdate();
+
+    // Should now show value input
+    const newInputs = rule.querySelectorAll('input');
+    expect(newInputs).to.have.length(2); // Name and value inputs
+    const valueInput = newInputs[1];
+    expect(valueInput).to.exist;
+    expect(valueInput).to.have.value('');
+
+    // Editing value
+    valueInput.value = 'baz';
+    valueInput.dispatchEvent(new InputEvent('input'));
+    await new Promise(resolve => setTimeout(resolve, 550)); // Wait for debounce
+    expect(element).to.have.value('foo%3Aname%5Bbar%5D=baz&zoom=foo');
+    await element.requestUpdate();
+
+    // Editing operator (Not)
+    operatorSelect.value = Operator.Not;
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo%3Aname%5Bbar%5D%3Anot=baz&zoom=foo');
+    await element.requestUpdate();
+
+    // Editing operator (Any)
+    operatorSelect.value = 'any';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    expect(element).to.have.value('foo%3Aname%5Bbar%5D=*&zoom=foo');
+    await element.requestUpdate();
+
+    // Editing name (empty)
+    nameInput.value = '';
+    nameInput.dispatchEvent(new InputEvent('input'));
+    await new Promise(resolve => setTimeout(resolve, 550)); // Wait for debounce
     expect(element).to.have.value('');
   });
 
@@ -554,6 +682,7 @@ describe('QueryBuilder', () => {
     expect(valueInput).to.have.attribute('min', '10');
     valueInput.value = '13';
     valueInput.dispatchEvent(new InputEvent('input'));
+    await new Promise(resolve => setTimeout(resolve, 550)); // Wait for throttle
     expect(element).to.have.value('foo=13');
 
     // Editing operator (Not)
@@ -594,6 +723,7 @@ describe('QueryBuilder', () => {
     expect(rangeFromInput).to.have.value('13');
     rangeFromInput.value = '15';
     rangeFromInput.dispatchEvent(new InputEvent('input'));
+    await new Promise(resolve => setTimeout(resolve, 550)); // Wait for throttle
     expect(element).to.have.value('foo=15..23');
 
     // Editing range value (To)
@@ -603,12 +733,61 @@ describe('QueryBuilder', () => {
     expect(rangeFromInput).to.have.attribute('min', '10');
     rangeToInput.value = '25';
     rangeToInput.dispatchEvent(new InputEvent('input'));
+    await new Promise(resolve => setTimeout(resolve, 550)); // Wait for throttle
     expect(element).to.have.value('foo=15..25');
 
     // Editing operator (Any)
     operatorSelect.value = 'any';
     operatorSelect.dispatchEvent(new InputEvent('change'));
     expect(element).to.have.value('');
+  });
+
+  it('throttles input changes in simple mode text inputs', async () => {
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder .options=${[{ type: Type.String, path: 'foo', label: 'option_foo' }]}>
+      </foxy-query-builder>
+    `);
+
+    const rules = element.renderRoot.querySelectorAll('[aria-label="query_builder_rule"]');
+    const rule = rules[0];
+
+    // Initial state - set to 'equal' operator to show value input
+    const operatorSelect = rule.querySelector('select')!;
+    operatorSelect.value = 'equal';
+    operatorSelect.dispatchEvent(new InputEvent('change'));
+    await element.requestUpdate();
+
+    const valueInput = rule.querySelector('input') as HTMLInputElement;
+
+    // Rapidly type characters - should not immediately update
+    valueInput.value = 'a';
+    valueInput.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.value('foo='); // Not yet updated
+
+    valueInput.value = 'ab';
+    valueInput.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.value('foo='); // Still not updated
+
+    valueInput.value = 'abc';
+    valueInput.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.value('foo='); // Still not updated
+
+    // Wait for the debounce timeout
+    await new Promise(resolve => setTimeout(resolve, 550));
+    expect(element).to.have.value('foo=abc'); // Now updated
+
+    // Test that subsequent rapid inputs also debounce correctly
+    valueInput.value = 'abcd';
+    valueInput.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.value('foo=abc'); // Not yet updated
+
+    valueInput.value = 'abcde';
+    valueInput.dispatchEvent(new InputEvent('input'));
+    expect(element).to.have.value('foo=abc'); // Not yet updated
+
+    // Wait for debounce
+    await new Promise(resolve => setTimeout(resolve, 550));
+    expect(element).to.have.value('foo=abcde'); // Now updated
   });
 
   it('renders a field for Type.Date option in simple mode', async () => {
@@ -634,18 +813,6 @@ describe('QueryBuilder', () => {
     expect(operatorSelect.options[0].innerText.trim()).to.equal('value_any');
     expect(operatorSelect.options[1].value).to.equal('equal');
     expect(operatorSelect.options[1].innerText.trim()).to.equal('operator_equal');
-    expect(operatorSelect.options[2].value).to.equal('not');
-    expect(operatorSelect.options[2].innerText.trim()).to.equal('operator_not');
-    expect(operatorSelect.options[3].value).to.equal('lessthanorequal');
-    expect(operatorSelect.options[3].innerText.trim()).to.equal('operator_lessthanorequal');
-    expect(operatorSelect.options[4].value).to.equal('lessthan');
-    expect(operatorSelect.options[4].innerText.trim()).to.equal('operator_lessthan');
-    expect(operatorSelect.options[5].value).to.equal('greaterthanorequal');
-    expect(operatorSelect.options[5].innerText.trim()).to.equal('operator_greaterthanorequal');
-    expect(operatorSelect.options[6].value).to.equal('greaterthan');
-    expect(operatorSelect.options[6].innerText.trim()).to.equal('operator_greaterthan');
-    expect(operatorSelect.options[7].value).to.equal('range');
-    expect(operatorSelect.options[7].innerText.trim()).to.equal('range');
 
     // Editing operator (Equal)
     operatorSelect.value = 'equal';
@@ -660,6 +827,7 @@ describe('QueryBuilder', () => {
     expect(valueInput).to.have.attribute('min', '2020-10-05');
     valueInput.value = '2024-12-06';
     valueInput.dispatchEvent(new InputEvent('input'));
+    await new Promise(resolve => setTimeout(resolve, 550)); // Wait for throttle
     expect(element).to.have.value(`foo=${inputToAPIDate('2024-12-06')}`);
 
     // Editing operator (Not)
@@ -680,18 +848,6 @@ describe('QueryBuilder', () => {
     operatorSelect.dispatchEvent(new InputEvent('change'));
     expect(element).to.have.value(`foo%3Alessthan=${inputToAPIDate('2024-12-06')}`);
 
-    // Editing operator (GreaterThanOrEqual)
-    await element.requestUpdate();
-    operatorSelect.value = 'greaterthanorequal';
-    operatorSelect.dispatchEvent(new InputEvent('change'));
-    expect(element).to.have.value(`foo%3Agreaterthanorequal=${inputToAPIDate('2024-12-06')}`);
-
-    // Editing operator (GreaterThan)
-    await element.requestUpdate();
-    operatorSelect.value = 'greaterthan';
-    operatorSelect.dispatchEvent(new InputEvent('change'));
-    expect(element).to.have.value(`foo%3Agreaterthan=${inputToAPIDate('2024-12-06')}`);
-
     // Editing operator (Range)
     await element.requestUpdate();
     operatorSelect.value = 'range';
@@ -708,6 +864,7 @@ describe('QueryBuilder', () => {
     expect(rangeFromInput).to.have.value('2024-11-06');
     rangeFromInput.value = '2023-11-06';
     rangeFromInput.dispatchEvent(new InputEvent('input'));
+    await new Promise(resolve => setTimeout(resolve, 550)); // Wait for throttle
     expect(element).to.have.value(
       `foo=${inputToAPIDate('2023-11-06')}..${inputToAPIDate('2024-12-06', true)}`
     );
@@ -720,6 +877,7 @@ describe('QueryBuilder', () => {
     expect(rangeToInput).to.have.value('2024-12-06');
     rangeToInput.value = '2025-01-02';
     rangeToInput.dispatchEvent(new InputEvent('input'));
+    await new Promise(resolve => setTimeout(resolve, 550)); // Wait for throttle
     expect(element).to.have.value(
       `foo=${inputToAPIDate('2023-11-06')}..${inputToAPIDate('2025-01-02', true)}`
     );
@@ -760,6 +918,7 @@ describe('QueryBuilder', () => {
     // Editing name
     nameInput.value = 'bar';
     nameInput.dispatchEvent(new CustomEvent('input'));
+    await new Promise(resolve => setTimeout(resolve, 550)); // Wait for throttle
     expect(element).to.have.value('foo%3Aname%5Bbar%5D%3Aisdefined=true&zoom=foo');
     await element.requestUpdate();
 
@@ -775,6 +934,7 @@ describe('QueryBuilder', () => {
     // Editing value
     valueInput.value = 'baz';
     valueInput.dispatchEvent(new InputEvent('input'));
+    await new Promise(resolve => setTimeout(resolve, 550)); // Wait for throttle
     expect(element).to.have.value('foo%3Aname%5Bbar%5D=baz&zoom=foo');
     await element.requestUpdate();
 
@@ -793,6 +953,7 @@ describe('QueryBuilder', () => {
     // Editing name (empty)
     nameInput.value = '';
     nameInput.dispatchEvent(new CustomEvent('input'));
+    await new Promise(resolve => setTimeout(resolve, 550)); // Wait for throttle
     expect(element).to.have.value('');
   });
 

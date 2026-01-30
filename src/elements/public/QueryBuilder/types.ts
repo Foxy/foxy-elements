@@ -2,6 +2,7 @@ import type { TemplateResult } from 'lit-html';
 import type { I18n } from '../I18n/I18n';
 
 export enum Type {
+  NameValuePair = 'name_value_pair',
   Attribute = 'attribute',
   Boolean = 'boolean',
   String = 'string',
@@ -45,3 +46,5 @@ export type SimpleRuleComponent = (params: {
   t: I18n['t'];
   onChange: (newValue: Partial<Omit<Rule, 'path'>> | null) => void;
 }) => TemplateResult;
+
+export type ConditionalOperator = { type: Operator; paths: string[] };

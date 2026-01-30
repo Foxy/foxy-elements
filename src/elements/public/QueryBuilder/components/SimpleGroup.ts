@@ -1,6 +1,7 @@
 import type { TemplateResult } from 'lit-html';
 import type { Option, Rule } from '../types';
 
+import { SimpleNameValuePairRule } from './SimpleNameValuePairRule';
 import { SimpleAttributeRule } from './SimpleAttributeRule';
 import { SimpleBooleanRule } from './SimpleBooleanRule';
 import { SimpleNumberRule } from './SimpleNumberRule';
@@ -47,6 +48,7 @@ export function SimpleGroup(params: Params): TemplateResult {
         const { type, label, list, path } = option;
 
         const controlsRenderers = {
+          [Type.NameValuePair]: SimpleNameValuePairRule,
           [Type.Attribute]: SimpleAttributeRule,
           [Type.Boolean]: SimpleBooleanRule,
           [Type.String]: SimpleStringRule,

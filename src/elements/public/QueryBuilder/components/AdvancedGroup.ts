@@ -1,4 +1,4 @@
-import type { Operator, Option, Rule } from '../types';
+import type { ConditionalOperator, Operator, Option, Rule } from '../types';
 import type { TemplateResult } from 'lit-html';
 import type { I18n } from '../../I18n/I18n';
 
@@ -7,7 +7,7 @@ import { repeat } from 'lit-html/directives/repeat';
 import { html } from 'lit-html';
 
 type Params = {
-  operators: Operator[];
+  operators: (Operator | ConditionalOperator)[];
   disableOr: boolean;
   isNested?: boolean;
   disabled: boolean;
@@ -47,6 +47,7 @@ export function AdvancedGroup(params: Params): TemplateResult {
               AdvancedRule({
                 ...params,
                 rule: { path: '', operator: null, value: '' },
+                operators: params.operators.filter(v => typeof v === 'string') as Operator[],
                 isFullSize: !params.isNested && params.rules.length === 0,
                 onChange: newValue => params.onChange([...params.rules, newValue]),
               }),
@@ -79,6 +80,9 @@ export function AdvancedGroup(params: Params): TemplateResult {
             AdvancedRule({
               ...params,
               rule: rule,
+              operators: params.operators
+                .filter(v => !(typeof v === 'object') || v.paths.includes(rule.path))
+                .map(v => (typeof v === 'object' ? v.type : v)),
               onChange: newValue => {
                 const newRules = [...params.rules];
                 newRules[ruleIndex] = newValue;
