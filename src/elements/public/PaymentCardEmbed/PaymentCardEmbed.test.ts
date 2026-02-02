@@ -163,7 +163,7 @@ describe('PaymentCardEmbed', () => {
         '--lumo-border-radius-m': '4px',
         '--lumo-border-radius-s': '4px',
         '--lumo-font-family':
-          '-apple-system, "system-ui", Roboto, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+          '-apple-system, BlinkMacSystemFont, Roboto, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
         '--lumo-font-size-m': '16px',
         '--lumo-font-size-s': '14px',
         '--lumo-font-size-xs': '13px',
