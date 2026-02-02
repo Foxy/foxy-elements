@@ -1,13 +1,14 @@
+import type { ConditionalOperator, Option } from '../QueryBuilder/types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { QueryBuilder } from '../QueryBuilder/QueryBuilder';
-import type { Option } from '../QueryBuilder/types';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { encode, decode } from 'html-entities';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { Operator } from '../QueryBuilder/types';
 import { html } from 'lit-html';
 
 const NS = 'filter-attribute-form';
@@ -34,12 +35,16 @@ export class FilterAttributeForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      operators: { type: Array },
       defaults: {},
       pathname: {},
       docsHref: { attribute: 'docs-href' },
       options: { type: Array },
     };
   }
+
+  /** List of operators passed down to `QueryBuilder.operators`. */
+  operators: (Operator | ConditionalOperator)[] = Object.values(Operator);
 
   /** Default filter query. */
   defaults: string | null = null;
@@ -132,6 +137,7 @@ export class FilterAttributeForm extends Base<Data> {
 
       <foxy-query-builder
         docs-href=${ifDefined(this.docsHref ?? void 0)}
+        operators=${JSON.stringify(this.operators)}
         options=${JSON.stringify(this.options)}
         infer="filter-query"
         value=${filterQuery}
