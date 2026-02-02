@@ -70,10 +70,10 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = ['header:copy-json', super.hiddenSelector.toString()];
-    const store = this.__storeLoader?.data;
+    const isStoreActive = !!this.__storeLoader?.data?.is_active;
 
     if (!this.data) alwaysMatch.unshift('payment-methods', 'fraud-protections');
-    if (!store) alwaysMatch.unshift('general:is-live', 'general:is-purchase-order-enabled');
+    if (!isStoreActive) alwaysMatch.unshift('general:is-live', 'general:is-purchase-order-enabled');
 
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
