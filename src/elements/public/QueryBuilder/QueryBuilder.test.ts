@@ -1099,4 +1099,96 @@ describe('QueryBuilder', () => {
     expect(apiReferenceLink?.target).to.equal('_blank');
     expect(apiReferenceLink?.rel).to.equal('nofollow noreferrer noopener');
   });
+
+  it('prevents pipe character in path input and removes it in input handler', async () => {
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder value="foo="></foxy-query-builder>
+    `);
+
+    // Advanced mode is the default when no options are provided
+    await element.requestUpdate();
+
+    const rule = element.renderRoot.querySelector('[aria-label="query_builder_rule"]');
+    const pathInput = rule?.querySelector('input') as HTMLInputElement;
+
+    // Simulate user typing a pipe character and having it filtered by input handler
+    pathInput.value = 'test|value';
+    pathInput.dispatchEvent(new InputEvent('input'));
+    await element.requestUpdate();
+
+    // The pipe should be removed by @input handler
+    expect(pathInput.value).to.equal('testvalue');
+  });
+
+  it('disables path input when element is disabled in advanced mode', async () => {
+    const options = [{ type: Type.String, path: 'product:name', label: 'product_name' }];
+
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder value="product:name=" .options=${options}></foxy-query-builder>
+    `);
+
+    // Switch to advanced mode using UI toggle
+    const advancedModeTabLabel = element.renderRoot.querySelector(
+      'foxy-i18n[key="mode_advanced"][infer=""]'
+    );
+    const advancedModeTabInput = advancedModeTabLabel?.closest('label')?.querySelector('input');
+    advancedModeTabInput!.checked = true;
+    advancedModeTabInput!.dispatchEvent(new CustomEvent('change'));
+    await element.requestUpdate();
+
+    let rule = element.renderRoot.querySelector('[aria-label="query_builder_rule"]');
+    let inputs = rule?.querySelectorAll('input') as NodeListOf<HTMLInputElement>;
+    let anyDisabled = false;
+    inputs.forEach(input => {
+      if (input.hasAttribute('disabled')) anyDisabled = true;
+    });
+    expect(anyDisabled).to.be.false;
+
+    element.disabled = true;
+    await element.requestUpdate();
+
+    rule = element.renderRoot.querySelector('[aria-label="query_builder_rule"]');
+    inputs = rule?.querySelectorAll('input') as NodeListOf<HTMLInputElement>;
+    anyDisabled = false;
+    inputs.forEach(input => {
+      if (input.hasAttribute('disabled')) anyDisabled = true;
+    });
+    expect(anyDisabled).to.be.true;
+  });
+
+  it('disables path input when element is readonly in advanced mode', async () => {
+    const options = [{ type: Type.String, path: 'product:name', label: 'product_name' }];
+
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder value="product:name=" .options=${options}></foxy-query-builder>
+    `);
+
+    // Switch to advanced mode using UI toggle
+    const advancedModeTabLabel = element.renderRoot.querySelector(
+      'foxy-i18n[key="mode_advanced"][infer=""]'
+    );
+    const advancedModeTabInput = advancedModeTabLabel?.closest('label')?.querySelector('input');
+    advancedModeTabInput!.checked = true;
+    advancedModeTabInput!.dispatchEvent(new CustomEvent('change'));
+    await element.requestUpdate();
+
+    let rule = element.renderRoot.querySelector('[aria-label="query_builder_rule"]');
+    let inputs = rule?.querySelectorAll('input') as NodeListOf<HTMLInputElement>;
+    let anyDisabled = false;
+    inputs.forEach(input => {
+      if (input.hasAttribute('disabled')) anyDisabled = true;
+    });
+    expect(anyDisabled).to.be.false;
+
+    element.readonly = true;
+    await element.requestUpdate();
+
+    rule = element.renderRoot.querySelector('[aria-label="query_builder_rule"]');
+    inputs = rule?.querySelectorAll('input') as NodeListOf<HTMLInputElement>;
+    anyDisabled = false;
+    inputs.forEach(input => {
+      if (input.hasAttribute('disabled')) anyDisabled = true;
+    });
+    expect(anyDisabled).to.be.true;
+  });
 });
