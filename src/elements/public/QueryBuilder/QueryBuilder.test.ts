@@ -1191,4 +1191,83 @@ describe('QueryBuilder', () => {
     });
     expect(anyDisabled).to.be.true;
   });
+
+  it('renders datalist with path options from .options in advanced mode', async () => {
+    const options = [
+      { type: Type.String, path: 'product:name', label: 'product_name' },
+      { type: Type.String, path: 'product:sku', label: 'product_sku' },
+      { type: Type.Number, path: 'quantity', label: 'quantity' },
+    ];
+
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder value="product:name=" .options=${options}></foxy-query-builder>
+    `);
+
+    // Switch to advanced mode using UI toggle
+    const advancedModeTabLabel = element.renderRoot.querySelector(
+      'foxy-i18n[key="mode_advanced"][infer=""]'
+    );
+    const advancedModeTabInput = advancedModeTabLabel?.closest('label')?.querySelector('input');
+    advancedModeTabInput!.checked = true;
+    advancedModeTabInput!.dispatchEvent(new CustomEvent('change'));
+    await element.requestUpdate();
+
+    // Find all datalists and check options
+    const datalists = element.renderRoot.querySelectorAll('datalist');
+    let foundPathOptions = false;
+
+    for (const dl of datalists) {
+      const opts = dl.querySelectorAll('option');
+      if (opts.length === 3) {
+        const values = Array.from(opts).map(o => o.getAttribute('value'));
+        if (
+          values.includes('product:name') &&
+          values.includes('product:sku') &&
+          values.includes('quantity')
+        ) {
+          foundPathOptions = true;
+          break;
+        }
+      }
+    }
+
+    expect(foundPathOptions).to.be.true;
+  });
+
+  it('associates datalist with path input field via list attribute', async () => {
+    const options = [
+      { type: Type.String, path: 'product:name', label: 'product_name' },
+      { type: Type.String, path: 'quantity', label: 'quantity' },
+    ];
+
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder value="product:name=" .options=${options}></foxy-query-builder>
+    `);
+
+    // Switch to advanced mode using UI toggle
+    const advancedModeTabLabel = element.renderRoot.querySelector(
+      'foxy-i18n[key="mode_advanced"][infer=""]'
+    );
+    const advancedModeTabInput = advancedModeTabLabel?.closest('label')?.querySelector('input');
+    advancedModeTabInput!.checked = true;
+    advancedModeTabInput!.dispatchEvent(new CustomEvent('change'));
+    await element.requestUpdate();
+
+    // Get all inputs with list attributes pointing to datalists
+    const inputs = element.renderRoot.querySelectorAll('input[list]');
+    let found = false;
+
+    for (const input of inputs) {
+      const listId = input.getAttribute('list');
+      if (listId) {
+        const datalist = element.renderRoot.querySelector(`datalist#${listId}`);
+        if (datalist) {
+          found = true;
+          break;
+        }
+      }
+    }
+
+    expect(found).to.be.true;
+  });
 });

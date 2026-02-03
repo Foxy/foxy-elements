@@ -9,6 +9,7 @@ import { field } from '../icons/index';
 import { html } from 'lit-html';
 
 type Params = {
+  pathOptions?: string[];
   isFullSize?: boolean;
   isNested?: boolean;
   operators: Operator[];
@@ -16,6 +17,7 @@ type Params = {
   readonly: boolean;
   disabled: boolean;
   rule: Rule;
+  id: string;
   t: I18n['t'];
   onConvert?: () => void;
   onDelete?: () => void;
@@ -61,6 +63,7 @@ export function AdvancedRule(params: Params): TemplateResult {
                           ...params,
                           value: rule.path,
                           label: 'field',
+                          id: `${params.id}-path`,
                           onChange: newPath => {
                             onChange({ operator: null, value: '', path: newPath });
                           },
@@ -69,8 +72,10 @@ export function AdvancedRule(params: Params): TemplateResult {
                       <div class="bg-base">
                         ${AdvancedInput({
                           ...params,
+                          pathOptions: undefined,
                           value: rule.name ?? '',
                           label: 'name',
+                          id: `${params.id}-name`,
                           onChange: newValue => onChange({ ...rule, name: newValue }),
                         })}
                       </div>
@@ -88,9 +93,11 @@ export function AdvancedRule(params: Params): TemplateResult {
             <div class="bg-base">
               ${AdvancedInput({
                 ...params,
+                pathOptions: undefined,
                 disabled: disabled || !rule.path,
                 value: rule.value ?? '',
                 label: 'value',
+                id: `${params.id}-value`,
                 onChange: newValue => onChange({ ...rule, value: newValue }),
               })}
             </div>

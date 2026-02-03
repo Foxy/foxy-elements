@@ -102,8 +102,12 @@ export class QueryBuilder extends Base {
     const isSimpleModeSupported = this.__isSimpleModeSupported;
     const parsedValue = parse(this.__displayedValue ?? '');
     const operators = this.operators ?? [];
-    const options = this.options ?? [];
     const t = this.t.bind(this);
+
+    const pathOptions = this.options?.reduce((acc, { type, path }) => {
+      if (type !== Type.Attribute && type !== Type.NameValuePair) return [...acc, path];
+      return [...acc, `${path}[name]`, `${path}:name`, `${path}:value`];
+    }, [] as string[]);
 
     const onChange = (newParsedValue: (Rule | Rule[])[]) => {
       this.__displayedValue = stringify(newParsedValue, this.disableZoom);
@@ -188,13 +192,14 @@ export class QueryBuilder extends Base {
               </p>
 
               ${AdvancedGroup({
+                pathOptions,
                 disableOr: this.disableOr,
                 disabled: this.disabled,
                 readonly: this.readonly,
                 rules: parsedValue,
                 operators,
                 onChange,
-                options,
+                id: 'advanced-group-root',
                 t,
               })}
             `
