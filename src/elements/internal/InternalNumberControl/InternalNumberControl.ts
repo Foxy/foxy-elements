@@ -100,6 +100,16 @@ export class InternalNumberControl extends InternalEditableControl {
     `;
   }
 
+  protected _handleHostClick(evt: MouseEvent): void {
+    if (this.layout !== 'summary-item') return;
+    const composedPath = evt.composedPath() as HTMLElement[];
+    const noOp = new Set(['INPUT', 'LABEL']);
+    if (!composedPath.some(el => noOp.has(el.tagName))) {
+      this.renderRoot.querySelector('input')?.focus();
+      super._handleHostClick(evt);
+    }
+  }
+
   private __renderSummaryItemLayout() {
     return html`
       <div class="leading-xs">

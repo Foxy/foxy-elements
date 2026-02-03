@@ -90,6 +90,10 @@ export class InternalEditableControl extends InternalControl {
     this.__asyncError = validOrError === true ? null : validOrError ?? null;
   }, 300);
 
+  private __handleHostClick = (evt: MouseEvent) => {
+    return this._handleHostClick(evt);
+  };
+
   private __previousValue: unknown | null = null;
 
   private __placeholder: string | null = null;
@@ -237,6 +241,20 @@ export class InternalEditableControl extends InternalControl {
         }
       }
     } while (walker.nextNode());
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.addEventListener('click', this.__handleHostClick);
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.removeEventListener('click', this.__handleHostClick);
+  }
+
+  protected _handleHostClick(evt: MouseEvent): void {
+    // Override in subclasses.
   }
 
   /**

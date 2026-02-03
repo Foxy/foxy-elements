@@ -112,4 +112,13 @@ export class InternalNativeDateControl extends InternalEditableControl {
   protected set _value(newValue: string) {
     super._value = newValue as unknown | undefined;
   }
+
+  protected _handleHostClick(evt: MouseEvent): void {
+    const composedPath = evt.composedPath() as HTMLElement[];
+    const noOp = new Set(['INPUT', 'LABEL']);
+    if (!composedPath.some(el => noOp.has(el.tagName))) {
+      this.renderRoot.querySelector('input')?.focus();
+      super._handleHostClick(evt);
+    }
+  }
 }

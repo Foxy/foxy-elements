@@ -342,4 +342,68 @@ describe('InternalNativeDateControl', () => {
     const button = control.renderRoot.querySelector('button');
     expect(button).to.have.property('disabled', true);
   });
+
+  it('focuses input when clicking outside INPUT and LABEL elements', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-native-date-control></test-internal-native-date-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    const focusStub = stub(input, 'focus');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [control],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(focusStub).to.have.been.calledOnce;
+
+    focusStub.restore();
+  });
+
+  it('does not focus input when clicking on INPUT element', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-native-date-control></test-internal-native-date-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    const focusStub = stub(input, 'focus');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [input],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(focusStub).to.not.have.been.called;
+
+    focusStub.restore();
+  });
+
+  it('does not focus input when clicking on LABEL element', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-native-date-control></test-internal-native-date-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    const focusStub = stub(input, 'focus');
+    const label = document.createElement('label');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [label],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(focusStub).to.not.have.been.called;
+
+    focusStub.restore();
+  });
 });

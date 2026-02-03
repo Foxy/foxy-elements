@@ -596,4 +596,72 @@ describe('InternalResourcePickerControl', () => {
       );
     });
   });
+
+  it('clicks button when clicking outside BUTTON in summary-item layout', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control
+        layout="summary-item"
+      ></foxy-internal-resource-picker-control>
+    `);
+
+    const button = control.renderRoot.querySelector('button')!;
+    const clickStub = stub(button, 'click');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [control],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(clickStub).to.have.been.calledOnce;
+
+    clickStub.restore();
+  });
+
+  it('does not click button when layout is not summary-item', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control></foxy-internal-resource-picker-control>
+    `);
+
+    const button = control.renderRoot.querySelector('button');
+    const clickStub = button ? stub(button, 'click') : null;
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [control],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    if (clickStub) {
+      expect(clickStub).to.not.have.been.called;
+      clickStub.restore();
+    }
+  });
+
+  it('does not click button when clicking on BUTTON element', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control
+        layout="summary-item"
+      ></foxy-internal-resource-picker-control>
+    `);
+
+    const button = control.renderRoot.querySelector('button')!;
+    const clickStub = stub(button, 'click');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [button],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(clickStub).to.not.have.been.called;
+
+    clickStub.restore();
+  });
 });
