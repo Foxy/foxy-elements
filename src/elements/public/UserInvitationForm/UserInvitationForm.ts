@@ -21,6 +21,7 @@ export class UserInvitationForm extends Base<Data> {
       ...super.properties,
       getStorePageHref: { attribute: false },
       defaultDomain: { attribute: 'default-domain' },
+      currentStore: { attribute: 'current-store' },
       currentUser: { attribute: 'current-user' },
       layout: {},
     };
@@ -63,7 +64,10 @@ export class UserInvitationForm extends Base<Data> {
   /** Default host domain for stores that don't use a custom domain name, e.g. `foxycart.com`. */
   defaultDomain: string | null = null;
 
-  /** Currently logged in user resource URL. Used to display a warning when revoking access. */
+  /** Currently viewed store URL. Used for determining when to emit `selfrevoked` event. */
+  currentStore: string | null = null;
+
+  /** Currently logged in user resource URL. Used for determining when to emit `selfrevoked` event. */
   currentUser: string | null = null;
 
   /** Admin layout will display user info, user layout (default) will display store info. */
@@ -179,6 +183,14 @@ export class UserInvitationForm extends Base<Data> {
     const status = this.data?.status;
     const hidden = this.hiddenSelector;
 
+    const isOwnInvitationForCurrentStore =
+      this.currentStore &&
+      this.currentUser &&
+      _links?.['fx:store'] &&
+      _links?.['fx:user'] &&
+      this.currentStore === _links?.['fx:store'].href &&
+      this.currentUser === _links?.['fx:user'].href;
+
     return html`
       <div style="padding-top: 3.5rem">
         <div class="relative">
@@ -241,7 +253,7 @@ export class UserInvitationForm extends Base<Data> {
               hidden.matches('resend', true) &&
               hidden.matches('delete', true)}
             >
-              ${this.currentUser && _links['fx:user'] && this.currentUser === _links['fx:user'].href
+              ${isOwnInvitationForCurrentStore
                 ? html`
                     <foxy-internal-post-action-control
                       message-options=${JSON.stringify({
@@ -291,6 +303,14 @@ export class UserInvitationForm extends Base<Data> {
       'text-error': status === 'rejected',
     };
 
+    const isOwnInvitationForCurrentStore =
+      this.currentStore &&
+      this.currentUser &&
+      links?.['fx:store'] &&
+      links?.['fx:user'] &&
+      this.currentStore === links?.['fx:store'].href &&
+      this.currentUser === links?.['fx:user'].href;
+
     return html`
       <div class=${classMap({ 'flex items-center gap-m': true, ...textColorMap })}>
         <div class="border-t flex-1"></div>
@@ -339,13 +359,30 @@ export class UserInvitationForm extends Base<Data> {
       >
       </foxy-i18n>
 
-      <foxy-internal-user-invitation-form-async-action
-        theme="error"
-        class="flex-1"
-        infer="leave"
-        href=${ifDefined(links?.['fx:revoke']?.href ?? links?.['fx:reject']?.href)}
-      >
-      </foxy-internal-user-invitation-form-async-action>
+      ${isOwnInvitationForCurrentStore
+        ? html`
+            <foxy-internal-post-action-control
+              message-options=${JSON.stringify({
+                store_domain: this.__storeDomainGetValue(),
+                store_name,
+              })}
+              infer="leave"
+              class="flex-1"
+              theme="error"
+              href=${ifDefined(links?.['fx:revoke']?.href ?? links?.['fx:reject']?.href)}
+              @success=${() => this.dispatchEvent(new CustomEvent('selfrevoked'))}
+            >
+            </foxy-internal-post-action-control>
+          `
+        : html`
+            <foxy-internal-user-invitation-form-async-action
+              theme="error"
+              class="flex-1"
+              infer="leave"
+              href=${ifDefined(links?.['fx:revoke']?.href ?? links?.['fx:reject']?.href)}
+            >
+            </foxy-internal-user-invitation-form-async-action>
+          `}
 
       <div
         class="grid grid-cols-2 gap-m"
