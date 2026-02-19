@@ -131,7 +131,7 @@ Quite often it's suitable to ask users for a donation amount outside of the list
 
 ## Adding designations
 
-Sometimes you might want to ask your donors to pick a cause to contribute to, which can be particularly useful if your organization has multiple donation-sponsored programs. To display a designation picker, provide the list of choices in the `designations` attribute value in form of a JSON array like this: `designations=["Medical Care", "Daily Meals", "Housing"]`. You can also pre-select a specific designation by setting the `designation` attribute: `designation="Daily Meals"`.
+Sometimes you might want to ask your donors to pick a cause to contribute to, which can be particularly useful if your organization has multiple donation-sponsored programs. To display a designation picker, provide the list of choices in the `designations` attribute value in form of a JSON array like this: `designations=["Medical Care", "Daily Meals", "Housing"]`. You can also pre-select a specific designation by setting the `designation` attribute: `designation='"Daily Meals"'`. Note that we are using single and double quotes here because this attribute is parsed as JSON.
 
 You can aggregate multiple designation under categories, for example: `designations='["Medical Care", ["Nutrition", ["Daily Meals", "Infant Nutrition Aid", "Elderly Nutrition Suplement"]], "Housing"]'`.
 
@@ -141,7 +141,7 @@ If an aggregated designation is to be the default choice, set the `designation` 
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", ["Nutrition", ["Daily Meals", "Infant Nutrition Aid", "Elderly Nutrition Suplement"]], "Housing"]'
-      designation="Nutrition: Daily Meals"
+      designation='"Nutrition: Daily Meals"'
       currency="usd"
       amounts="[25, 50, 75]"
       amount="25"
@@ -177,7 +177,7 @@ You can easily allow your website visitors to commit to a recurrent contribution
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation="Housing",
+      designation='"Housing"',
       currency="usd"
       amounts="[25, 50, 75]"
       amount="25"
@@ -245,7 +245,7 @@ If you'd like your donors to be able to leave a short message (visible only to y
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation="Daily Meals"
+      designation='"Daily Meals"'
       frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
@@ -283,7 +283,7 @@ Giving your donors an option to remain anonymous is often a reasonable idea. Whi
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation="Housing"
+      designation='"Housing"'
       frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
@@ -321,7 +321,7 @@ You can also enable anonymous donations by default by setting the `anonymous` at
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation="Housing"
+      designation='"Housing"'
       frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
@@ -363,7 +363,7 @@ You can use the `name`, `image` and `url` attributes to customize how the donati
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation="Housing"
+      designation='"Housing"'
       frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
@@ -409,7 +409,7 @@ You can insert your own content in a number of pre-defined places called slots. 
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation="Housing"
+      designation='"Housing"'
       frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
