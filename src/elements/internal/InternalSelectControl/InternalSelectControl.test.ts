@@ -379,4 +379,92 @@ describe('InternalSelectControl', () => {
 
     expect(select).to.not.have.attribute('hidden');
   });
+
+  it('focuses select when clicking outside SELECT and LABEL in summary-item layout', async () => {
+    const layout = html`<test-internal-select-control
+      layout="summary-item"
+    ></test-internal-select-control>`;
+    const control = await fixture<TestControl>(layout);
+
+    const select = control.renderRoot.querySelector('select')!;
+    const focusStub = stub(select, 'focus');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [control],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(focusStub).to.have.been.calledOnce;
+
+    focusStub.restore();
+  });
+
+  it('does not focus select when layout is not summary-item', async () => {
+    const layout = html`<test-internal-select-control></test-internal-select-control>`;
+    const control = await fixture<TestControl>(layout);
+
+    const select = control.renderRoot.querySelector('select');
+    const focusStub = select ? stub(select, 'focus') : null;
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [control],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    if (focusStub) {
+      expect(focusStub).to.not.have.been.called;
+      focusStub.restore();
+    }
+  });
+
+  it('does not focus select when clicking on SELECT element', async () => {
+    const layout = html`<test-internal-select-control
+      layout="summary-item"
+    ></test-internal-select-control>`;
+    const control = await fixture<TestControl>(layout);
+
+    const select = control.renderRoot.querySelector('select')!;
+    const focusStub = stub(select, 'focus');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [select],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(focusStub).to.not.have.been.called;
+
+    focusStub.restore();
+  });
+
+  it('does not focus select when clicking on LABEL element', async () => {
+    const layout = html`<test-internal-select-control
+      layout="summary-item"
+    ></test-internal-select-control>`;
+    const control = await fixture<TestControl>(layout);
+
+    const select = control.renderRoot.querySelector('select')!;
+    const focusStub = stub(select, 'focus');
+    const label = document.createElement('label');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [label],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(focusStub).to.not.have.been.called;
+
+    focusStub.restore();
+  });
 });

@@ -154,6 +154,16 @@ export class InternalFrequencyControl extends InternalEditableControl {
     if (field && field.value !== this._value) field.value = (this._value ?? '') as string;
   }
 
+  protected _handleHostClick(evt: MouseEvent): void {
+    if (this.layout !== 'summary-item') return;
+    const composedPath = evt.composedPath() as HTMLElement[];
+    const noOp = new Set(['INPUT', 'LABEL']);
+    if (!composedPath.some(el => noOp.has(el.tagName))) {
+      this.renderRoot.querySelector('input')?.focus();
+      super._handleHostClick(evt);
+    }
+  }
+
   private __renderSummaryItemLayout() {
     const value = (this._value ?? '') as string;
     const [strCount, units] = this.__i18n.parseValue(value);

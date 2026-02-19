@@ -203,7 +203,8 @@ describe('PaymentsApiPaymentPresetForm', () => {
     const store = await getTestData<Resource<Rels.Store>>('./hapi/stores/0', router);
     store.is_active = true;
     (resolve as ((response: Response) => void) | null)?.(new Response(JSON.stringify(store)));
-    await new Promise(r => setTimeout(r));
+    // @ts-expect-error using a private property for testing purposes
+    await waitUntil(() => element.__storeLoader?.data, '', { timeout: 5000 });
 
     expect(element.hiddenSelector.matches('general:is-live', true)).to.be.false;
     expect(element.hiddenSelector.matches('general:is-purchase-order-enabled', true)).to.be.false;

@@ -43,11 +43,11 @@ export function AdvancedOperatorToggle(params: Params): TemplateResult {
       class=${classMap({
         'flex items-center justify-center w-m h-m transition-colors': true,
         'focus-outline-none focus-ring-2 focus-ring-inset focus-ring-primary-50': true,
-        'text-body hover-bg-contrast-5': !isDisabled && availableOperators.length > 1,
-        'cursor-default text-tertiary': !isDisabled && availableOperators.length <= 1,
+        'text-body hover-bg-contrast-5': !isDisabled && availableOperators.length > 0,
+        'cursor-default text-tertiary': !isDisabled && availableOperators.length === 0,
         'text-disabled cursor-default': isDisabled,
       })}
-      ?disabled=${isDisabled || availableOperators.length <= 1}
+      ?disabled=${isDisabled || availableOperators.length === 0}
       @click=${() => {
         const newOperatorIndex = operator ? availableOperators.indexOf(operator) : -1;
         const newOperator = availableOperators[newOperatorIndex + 1] ?? null;

@@ -58,9 +58,12 @@
     }
   },
   "query-builder": {
+    "option_custom_fields": "Custom Field",
     "option_attributes": "Attribute",
     "option_total_order": "Total",
     "option_data_is_fed": "Legacy XML datafeed status",
+    "option_data_is_fed_true": "Processed",
+    "option_data_is_fed_false": "Unprocessed or failed",
     "option_transaction_date": "Date",
     "option_status": "Status"
   }

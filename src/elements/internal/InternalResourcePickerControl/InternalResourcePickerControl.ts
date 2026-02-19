@@ -118,6 +118,16 @@ export class InternalResourcePickerControl extends InternalEditableControl {
     if (changes.has('item')) this.__getItemRenderer.cache.clear?.();
   }
 
+  protected _handleHostClick(evt: MouseEvent): void {
+    if (this.layout !== 'summary-item') return;
+    const composedPath = evt.composedPath() as HTMLElement[];
+    const noOp = new Set(['BUTTON']);
+    if (!composedPath.some(el => noOp.has(el.tagName))) {
+      this.renderRoot.querySelector('button')?.click();
+      super._handleHostClick(evt);
+    }
+  }
+
   private __clear(): void {
     this._value = '';
     this.dispatchEvent(new CustomEvent('clear'));

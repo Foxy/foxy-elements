@@ -119,4 +119,13 @@ export class InternalSwitchControl extends InternalEditableControl {
     else if (this.falseAlias && value === false) super._value = this.falseAlias;
     else super._value = value;
   }
+
+  protected _handleHostClick(evt: MouseEvent): void {
+    const composedPath = evt.composedPath() as HTMLElement[];
+    const noOp = new Set(['INPUT', 'LABEL']);
+    if (!composedPath.some(el => noOp.has(el.tagName))) {
+      this.renderRoot.querySelector('input')?.click();
+      super._handleHostClick(evt);
+    }
+  }
 }

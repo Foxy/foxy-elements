@@ -13706,6 +13706,12 @@
       "description": "Form element for creating and editing saved filters in Admin. Saved filters\nare powered by the Bookmark attribute format that allows adding custom sidebar items\nto Admin. Bookmark attributes are named `foxy-admin-bookmark` and contain a\nrelative URL of the bookmarked Admin page in the value.",
       "attributes": [
         {
+          "name": "operators",
+          "description": "List of operators passed down to `QueryBuilder.operators`.",
+          "type": "array",
+          "default": "\"Object.values(Operator)\""
+        },
+        {
           "name": "defaults",
           "description": "Default filter query."
         },
@@ -13829,6 +13835,13 @@
           "name": "filterNameKey",
           "type": "string",
           "default": "\"filter_name\""
+        },
+        {
+          "name": "operators",
+          "attribute": "operators",
+          "description": "List of operators passed down to `QueryBuilder.operators`.",
+          "type": "array",
+          "default": "\"Object.values(Operator)\""
         },
         {
           "name": "defaults",
@@ -23198,7 +23211,7 @@
         },
         {
           "name": "operators",
-          "description": "List of operators available in the builder UI.",
+          "description": "List of operators available in the builder UI. When an operator is an object, it specifies the operator type and the paths it applies to.",
           "type": "array",
           "default": "\"Object.values(Operator)\""
         },
@@ -23310,7 +23323,7 @@
         {
           "name": "operators",
           "attribute": "operators",
-          "description": "List of operators available in the builder UI.",
+          "description": "List of operators available in the builder UI. When an operator is an object, it specifies the operator type and the paths it applies to.",
           "type": "array",
           "default": "\"Object.values(Operator)\""
         },

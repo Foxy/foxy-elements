@@ -5,10 +5,12 @@ import { classMap } from '../../../../utils/class-map';
 import { html } from 'lit-html';
 
 type Params = {
+  pathOptions?: string[];
   disabled: boolean;
   readonly: boolean;
   label: string;
   value: string;
+  id: string;
   t: I18n['t'];
   onChange: (newValue: string) => void;
 };
@@ -27,6 +29,7 @@ export function AdvancedInput(params: Params): TemplateResult {
             'flex max-w-full whitespace-nowrap': true, // ugh safari
             'focus-outline-none': true,
           })}
+          list="${params.id}-list"
           .value=${params.value}
           ?disabled=${params.disabled || params.readonly}
           @keydown=${(evt: KeyboardEvent) => evt.key === '|' && evt.preventDefault()}
@@ -35,6 +38,10 @@ export function AdvancedInput(params: Params): TemplateResult {
             params.onChange(input.value.replace(/\|/gi, ''));
           }}
         />
+
+        <datalist id="${params.id}-list">
+          ${params.pathOptions?.map(value => html`<option value=${value}></option>`)}
+        </datalist>
       </div>
 
       <span

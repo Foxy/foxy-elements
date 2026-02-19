@@ -328,7 +328,7 @@
       "per_page": "Items per page:",
       "card": {
         "price": "{{amount, price}}",
-        "time": "{{value, time}}",
+        "time": "{{value, date}} at {{value, time}}",
         "test": "Test",
         "folder_no_name": "New folder",
         "hidden_hint": "This transaction is archived",

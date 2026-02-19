@@ -229,4 +229,68 @@ describe('InternalSwitchControl', () => {
     control._value = false;
     expect(control.setValue).to.have.been.calledOnceWith(false);
   });
+
+  it('clicks input when clicking outside INPUT and LABEL elements', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-switch-control></foxy-internal-switch-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    const clickStub = stub(input, 'click');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [control],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(clickStub).to.have.been.calledOnce;
+
+    clickStub.restore();
+  });
+
+  it('does not click input when clicking on INPUT element', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-switch-control></foxy-internal-switch-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    const clickStub = stub(input, 'click');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [input],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(clickStub).to.not.have.been.called;
+
+    clickStub.restore();
+  });
+
+  it('does not click input when clicking on LABEL element', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-switch-control></foxy-internal-switch-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    const clickStub = stub(input, 'click');
+    const label = document.createElement('label');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [label],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(clickStub).to.not.have.been.called;
+
+    clickStub.restore();
+  });
 });

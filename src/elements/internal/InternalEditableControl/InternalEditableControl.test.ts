@@ -7,6 +7,7 @@ import { getTestData } from '../../../testgen/getTestData';
 import { InternalEditableControl } from './index';
 import { InternalControl } from '../InternalControl/InternalControl';
 import { AddressForm } from '../../public/AddressForm/AddressForm';
+import { stub, match } from 'sinon';
 
 import set from 'lodash-es/set';
 
@@ -349,5 +350,42 @@ describe('InternalEditableControl', () => {
     await waitUntil(() => control._error === 'address-name:v8n_async_error', undefined, {
       timeout: 5000,
     });
+  });
+
+  it('registers click event listener on connect', async () => {
+    const control = new InternalEditableControl();
+    const addEventListenerStub = stub(control, 'addEventListener');
+
+    control.connectedCallback?.();
+
+    expect(addEventListenerStub).to.have.been.calledWith('click', match.func);
+
+    addEventListenerStub.restore();
+  });
+
+  it('removes click event listener on disconnect', async () => {
+    const control = new InternalEditableControl();
+    const removeEventListenerStub = stub(control, 'removeEventListener');
+
+    control.disconnectedCallback?.();
+
+    expect(removeEventListenerStub).to.have.been.calledWith('click', match.func);
+
+    removeEventListenerStub.restore();
+  });
+
+  it('calls _handleHostClick when click event is fired', async () => {
+    const control = await fixture<InternalEditableControl>(html`
+      <foxy-internal-editable-control></foxy-internal-editable-control>
+    `);
+
+    const handleHostClickStub = stub(control, '_handleHostClick' as any);
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    control.dispatchEvent(mockEvent);
+
+    expect(handleHostClickStub).to.have.been.calledOnce;
+
+    handleHostClickStub.restore();
   });
 });

@@ -6,7 +6,7 @@ import './index';
 import { FilterAttributeForm as Form } from './FilterAttributeForm';
 import { expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
-import { Type } from '../QueryBuilder/types';
+import { Operator, Type } from '../QueryBuilder/types';
 import { createRouter } from '../../../server';
 import { stub } from 'sinon';
 
@@ -95,6 +95,11 @@ describe('FilterAttributeForm', () => {
     expect(new Form()).to.have.deep.property('options', []);
   });
 
+  it('has a reactive property "operators"', () => {
+    expect(Form).to.have.deep.nested.property('properties.operators', { type: Array });
+    expect(new Form()).to.have.deep.property('operators', Object.values(Operator));
+  });
+
   it('renders query builder', async () => {
     const element = await fixture<Form>(html`
       <foxy-filter-attribute-form pathname="/foo" defaults="color=blue">
@@ -106,6 +111,7 @@ describe('FilterAttributeForm', () => {
     expect(control).to.be.instanceOf(customElements.get('foxy-query-builder'));
     expect(control).to.have.property('value', 'color=blue');
     expect(control).to.have.property('disableZoom', true);
+    expect(control).to.have.deep.property('operators', Object.values(Operator));
 
     const options: Form['options'] = [{ type: Type.String, label: 'option_color', path: 'color' }];
     element.options = options;
@@ -113,6 +119,14 @@ describe('FilterAttributeForm', () => {
     await element.requestUpdate();
     expect(control).to.have.deep.property('options', options);
     expect(control).to.have.property('docsHref', 'https://example.com');
+
+    const operators: Form['operators'] = [
+      { type: Operator.In, paths: ['name', 'description'] },
+      Operator.Not,
+    ];
+    element.operators = operators;
+    await element.requestUpdate();
+    expect(control).to.have.deep.property('operators', operators);
 
     element.edit({ value: '/foo?filter_query=color%3Dred' });
     await element.requestUpdate();

@@ -4,10 +4,6 @@ export const groups = [
     files: './src/elements/internal/InternalArrayMapControl/**/*.test.ts',
   },
   {
-    name: 'foxy-internal-async-combo-box-control',
-    files: './src/elements/internal/InternalAsyncComboBoxControl/**/*.test.ts',
-  },
-  {
     name: 'foxy-internal-async-list-control',
     files: './src/elements/internal/InternalAsyncListControl/**/*.test.ts',
   },
@@ -66,10 +62,6 @@ export const groups = [
   {
     name: 'foxy-internal-frequency-control',
     files: './src/elements/internal/InternalFrequencyControl/**/*.test.ts',
-  },
-  {
-    name: 'foxy-internal-integer-control',
-    files: './src/elements/internal/InternalIntegerControl/**/*.test.ts',
   },
   {
     name: 'foxy-internal-native-date-control',

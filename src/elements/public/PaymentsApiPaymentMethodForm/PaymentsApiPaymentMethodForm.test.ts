@@ -352,7 +352,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
             payment-preset="https://foxy-payments-api.element/payment_presets/0"
             parent="https://foxy-payments-api.element/payment_presets/0/payment_methods"
             store="https://demo.api/hapi/stores/0"
-            .getImageSrc=${(type: string) => `https://example.com?type=${type}`}
+            .getImageSrc=${(type: string) =>
+              `https://static.www.foxycart.com/email/v2/email_header_logo.png?type=${type}`}
             @fetch=${(evt: FetchEvent) => {
               if (evt.request.url.endsWith('/payment_presets/0/available_payment_methods')) {
                 evt.preventDefault();
@@ -399,7 +400,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(await getByKey(group0Item0Button, 'conflict_message')).to.not.exist;
     expect(await getByTag(group0Item0Button, 'img')).to.have.attribute(
       'src',
-      'https://example.com?type=bar_one'
+      'https://static.www.foxycart.com/email/v2/email_header_logo.png?type=bar_one'
     );
 
     expect(group1Item0Button).to.exist;
@@ -408,7 +409,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(group1Item0Button).to.not.include.text('conflict_message');
     expect(await getByTag(group1Item0Button, 'img')).to.have.attribute(
       'src',
-      'https://example.com?type=foo_one'
+      'https://static.www.foxycart.com/email/v2/email_header_logo.png?type=foo_one'
     );
 
     expect(group1Item1Button).to.exist;
@@ -416,7 +417,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(group1Item1Button).to.include.text('Foo Two');
     expect(await getByTag(group1Item1Button, 'img')).to.have.attribute(
       'src',
-      'https://example.com?type=foo_two'
+      'https://static.www.foxycart.com/email/v2/email_header_logo.png?type=foo_two'
     );
     expect(group1Item1Button).to.include.text('conflict_message');
 
@@ -503,7 +504,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
             payment-preset="https://foxy-payments-api.element/payment_presets/0"
             parent="https://foxy-payments-api.element/payment_presets/0/payment_methods"
             store="https://demo.api/hapi/stores/0"
-            .getImageSrc=${(type: string) => `https://example.com?type=${type}`}
+            .getImageSrc=${(type: string) =>
+              `https://static.www.foxycart.com/email/v2/email_header_logo.png?type=${type}`}
             @fetch=${(evt: FetchEvent) => {
               if (evt.request.url.endsWith('/payment_presets/0/available_payment_methods')) {
                 evt.preventDefault();
@@ -1981,7 +1983,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
             payment-preset="https://foxy-payments-api.element/payment_presets/0"
             parent="https://foxy-payments-api.element/payment_presets/0/payment_methods"
             store="https://demo.api/hapi/stores/0"
-            .getImageSrc=${(type: string) => `https://example.com?type=${type}`}
+            .getImageSrc=${(type: string) =>
+              `https://static.www.foxycart.com/email/v2/email_header_logo.png?type=${type}`}
             @fetch=${(evt: FetchEvent) => {
               if (evt.request.url.endsWith('/payment_presets/0/available_payment_methods')) {
                 evt.preventDefault();
@@ -2027,7 +2030,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(await getByKey(group0Item0Button, 'conflict_message')).to.not.exist;
     expect(await getByTag(group0Item0Button, 'img')).to.have.attribute(
       'src',
-      'https://example.com?type=bar_one'
+      'https://static.www.foxycart.com/email/v2/email_header_logo.png?type=bar_one'
     );
   });
 });

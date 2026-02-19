@@ -1,4 +1,4 @@
-import type { Operator, Option, Rule } from '../types';
+import type { ConditionalOperator, Operator, Rule } from '../types';
 import type { TemplateResult } from 'lit-html';
 import type { I18n } from '../../I18n/I18n';
 
@@ -7,13 +7,14 @@ import { repeat } from 'lit-html/directives/repeat';
 import { html } from 'lit-html';
 
 type Params = {
-  operators: Operator[];
+  pathOptions?: string[];
+  operators: (Operator | ConditionalOperator)[];
   disableOr: boolean;
   isNested?: boolean;
   disabled: boolean;
   readonly: boolean;
-  options: Option[];
   rules: (Rule | Rule[])[];
+  id: string;
   t: I18n['t'];
   onChange: (newValue: (Rule | Rule[])[]) => void;
 };
@@ -46,7 +47,9 @@ export function AdvancedGroup(params: Params): TemplateResult {
               divider,
               AdvancedRule({
                 ...params,
+                id: `${params.id}-rule-${ruleIndex}`,
                 rule: { path: '', operator: null, value: '' },
+                operators: params.operators.filter(v => typeof v === 'string') as Operator[],
                 isFullSize: !params.isNested && params.rules.length === 0,
                 onChange: newValue => params.onChange([...params.rules, newValue]),
               }),
@@ -62,6 +65,7 @@ export function AdvancedGroup(params: Params): TemplateResult {
                     ...params,
                     rules: rule,
                     isNested: true,
+                    id: `${params.id}-nested-${ruleIndex}`,
                     onChange: newRule => {
                       const newValue = [...params.rules];
                       const typedNewRule = newRule as Rule[];
@@ -79,6 +83,10 @@ export function AdvancedGroup(params: Params): TemplateResult {
             AdvancedRule({
               ...params,
               rule: rule,
+              id: `${params.id}-rule-${ruleIndex}`,
+              operators: params.operators
+                .filter(v => !(typeof v === 'object') || v.paths.includes(rule.path))
+                .map(v => (typeof v === 'object' ? v.type : v)),
               onChange: newValue => {
                 const newRules = [...params.rules];
                 newRules[ruleIndex] = newValue;

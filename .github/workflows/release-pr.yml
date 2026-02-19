@@ -1,0 +1,41 @@
+name: Create release PR (beta → main)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (print output, don't create/update PR)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  release_pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (full history + tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Create/Update release PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE_BRANCH: main
+          HEAD_BRANCH: beta
+          REVIEWER: brettflorio
+          UPDATE_IF_EXISTS: "true"
+        run: |
+          set -euo pipefail
+          chmod +x scripts/release-pr.sh
+
+          if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+            ./scripts/release-pr.sh --dry-run
+          else
+            ./scripts/release-pr.sh
+          fi

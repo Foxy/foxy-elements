@@ -154,4 +154,14 @@ export class InternalSelectControl extends InternalEditableControl {
       </div>
     `;
   }
+
+  protected _handleHostClick(evt: MouseEvent): void {
+    if (this.layout !== 'summary-item') return;
+    const composedPath = evt.composedPath() as HTMLElement[];
+    const noOp = new Set(['SELECT', 'LABEL']);
+    if (!composedPath.some(el => noOp.has(el.tagName))) {
+      this.renderRoot.querySelector('select')?.focus();
+      super._handleHostClick(evt);
+    }
+  }
 }

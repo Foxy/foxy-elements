@@ -463,4 +463,98 @@ describe('InternalFrequencyControl', () => {
     expect(input).to.have.property('value', '2');
     expect(select).to.have.property('value', 'times_a_month');
   });
+
+  it('focuses input when clicking outside INPUT and LABEL in summary-item layout', async () => {
+    const layout = html`<test-internal-frequency-control
+      layout="summary-item"
+    ></test-internal-frequency-control>`;
+    const control = await fixture<TestControl>(layout);
+
+    const input = control.renderRoot.querySelector('vaadin-integer-field')?.querySelector('input');
+    if (!input) return; // Skip if input not found
+
+    const focusStub = stub(input, 'focus');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [control],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(focusStub).to.have.been.calledOnce;
+
+    focusStub.restore();
+  });
+
+  it('does not focus input when layout is not summary-item', async () => {
+    const layout = html`<test-internal-frequency-control></test-internal-frequency-control>`;
+    const control = await fixture<TestControl>(layout);
+
+    const input = control.renderRoot.querySelector('input');
+    const focusStub = input ? stub(input, 'focus') : null;
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [control],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    if (focusStub) {
+      expect(focusStub).to.not.have.been.called;
+      focusStub.restore();
+    }
+  });
+
+  it('does not focus input when clicking on INPUT element', async () => {
+    const layout = html`<test-internal-frequency-control
+      layout="summary-item"
+    ></test-internal-frequency-control>`;
+    const control = await fixture<TestControl>(layout);
+
+    const input = control.renderRoot.querySelector('vaadin-integer-field')?.querySelector('input');
+    if (!input) return;
+
+    const focusStub = stub(input, 'focus');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [input],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(focusStub).to.not.have.been.called;
+
+    focusStub.restore();
+  });
+
+  it('does not focus input when clicking on LABEL element', async () => {
+    const layout = html`<test-internal-frequency-control
+      layout="summary-item"
+    ></test-internal-frequency-control>`;
+    const control = await fixture<TestControl>(layout);
+
+    const input = control.renderRoot.querySelector('vaadin-integer-field')?.querySelector('input');
+    if (!input) return;
+
+    const focusStub = stub(input, 'focus');
+    const label = document.createElement('label');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [label],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(focusStub).to.not.have.been.called;
+
+    focusStub.restore();
+  });
 });
