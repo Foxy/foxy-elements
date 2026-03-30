@@ -337,6 +337,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
   private __renderPaymentMethodConfig() {
     const oauthGateways = [
       'stripe_connect',
+      'stripe_v2',
       'square_up',
       'quickbook_payments',
       'amazon_mws',
