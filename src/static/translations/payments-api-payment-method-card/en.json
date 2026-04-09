@@ -1,8 +1,0 @@
-{
-  "image_alt": "Payment gateway logo",
-  "spinner": {
-    "loading_busy": "Loading",
-    "loading_empty": "No data",
-    "loading_error": "Unknown error"
-  }
-}

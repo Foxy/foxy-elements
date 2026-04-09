@@ -1,8 +1,0 @@
-{
-  "date": "{{ value, date }} at {{ value, time }}",
-  "spinner": {
-    "loading_busy": "Loading",
-    "loading_error": "Unknown error",
-    "loading_empty": "No data"
-  }
-}
