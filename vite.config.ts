@@ -1,6 +1,7 @@
 /// <reference types="vitest/config" />
 import path from "path";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, loadEnv } from "vite";
 import { fileURLToPath } from "node:url";
 
@@ -17,7 +18,7 @@ export default defineConfig(({ mode }) => {
       global: {},
       "process.env": env,
     },
-    plugins: [react()],
+    plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
         "@": path.resolve(dirname, "./src"),
@@ -26,18 +27,18 @@ export default defineConfig(({ mode }) => {
     build: {
       lib: {
         entry: {
-          elements: path.resolve(dirname, "src/lib/elements/index.ts"),
+          elements: path.resolve(dirname, "src/elements/index.ts"),
           "ach-field-element": path.resolve(
             dirname,
-            "src/lib/elements/ach-field-element.ts",
+            "src/elements/ach-field-element.ts",
           ),
           "card-embed-element": path.resolve(
             dirname,
-            "src/lib/elements/card-embed-element.ts",
+            "src/elements/card-embed-element.ts",
           ),
           "payment-method-selector-element": path.resolve(
             dirname,
-            "src/lib/elements/payment-method-selector-element.tsx",
+            "src/elements/payment-method-selector-element.tsx",
           ),
         },
         formats: ["es"],

@@ -11,6 +11,7 @@ type AchFieldElementProps = Omit<
   "ach-input-padding"?: string;
   "ach-input-padding-x"?: string;
   "ach-input-padding-y"?: string;
+  "ach-input-placeholder-color"?: string;
   "ach-input-font"?: string;
   "ach-input-text-color"?: string;
   "ach-input-text-color-error"?: string;
@@ -22,6 +23,8 @@ type CardEmbedElementProps = Omit<
   "style"
 > & {
   style?: CSSProperties & Record<`--${string}`, string | number>;
+  "card-input-background"?: string;
+  "card-input-placeholder-color"?: string;
   "card-input-height"?: string;
   "card-input-padding"?: string;
   "card-input-padding-x"?: string;

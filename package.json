@@ -4,22 +4,22 @@
   "description": "Foxy checkout and commerce web elements.",
   "type": "module",
   "private": true,
-  "main": "src/lib/elements/index.ts",
-  "module": "src/lib/elements/index.ts",
+  "main": "src/elements/index.ts",
+  "module": "src/elements/index.ts",
   "types": "src/vite-env.d.ts",
   "exports": {
-    ".": "./src/lib/elements/index.ts",
-    "./ach-field-element": "./src/lib/elements/ach-field-element.ts",
-    "./card-embed-element": "./src/lib/elements/card-embed-element.ts",
-    "./payment-method-selector-element": "./src/lib/elements/payment-method-selector-element.tsx",
-    "./elements-contracts": "./src/lib/elements/contracts.ts"
+    ".": "./src/elements/index.ts",
+    "./ach-field-element": "./src/elements/ach-field-element.ts",
+    "./card-embed-element": "./src/elements/card-embed-element.ts",
+    "./payment-method-selector-element": "./src/elements/payment-method-selector-element.tsx"
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "extract": "formatjs extract 'src/**/*.ts*' --ignore='**/*.d.ts' --out-file src/locales/en-US.json --id-interpolation-pattern '[sha512:contenthash:base64:6]' --format simple"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",
@@ -42,6 +42,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@storybook/addon-themes": "^10.3.5",
     "@stripe/react-stripe-js": "^6.0.0",
     "@stripe/stripe-js": "^9.0.0",
     "@tailwindcss/vite": "^4.1.11",

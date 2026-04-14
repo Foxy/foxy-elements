@@ -1,3 +1,4 @@
+import { withThemeByClassName } from "@storybook/addon-themes";
 import type { Preview } from "@storybook/web-components-vite";
 import "../src/index.css";
 
@@ -18,6 +19,19 @@ const preview: Preview = {
       },
     },
   },
+  decorators: [
+    withThemeByClassName({
+      themes: {
+        Default: "",
+        "Neo Brutalism": "demo-theme-one",
+        "Quantum Rose": "demo-theme-two",
+        "Amethyst Haze": "demo-theme-three",
+        "Midnight Slate": "demo-theme-dark",
+        "High Contrast Dark": "demo-theme-dark-hc",
+      },
+      defaultTheme: "Default",
+    }),
+  ],
 };
 
 export default preview;
