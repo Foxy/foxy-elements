@@ -9,7 +9,6 @@ import { createRoot } from "react-dom/client";
 import { IntlProvider } from "react-intl";
 import defaultShadowStyles from "@/index.css?inline";
 import enUsMessages from "@/locales/en-US.json";
-import { getRequiredEnvVar } from "@/lib/required-env";
 import { Payment } from "./payment";
 import { StripeCardElementOption } from "./payment/stripe-card-element";
 import { StripePaymentElementOption } from "./payment/stripe-payment-element";
@@ -22,7 +21,8 @@ export const paymentMethodSelectorEvents = {
 } as const;
 
 type CheckoutApiLike = EventTarget & {
-  state: unknown;
+  state?: unknown;
+  json?: unknown;
   updateBillingAddress?: (
     changes: Record<string, unknown>,
   ) => Promise<unknown> | void;
@@ -47,11 +47,12 @@ type PaymentMethodSelectorTokenizationErrorEventDetail = {
   error: unknown;
 };
 
-const DEFAULT_EMBED_ORIGIN = getRequiredEnvVar("VITE_EMBED_ORIGIN");
+const DEFAULT_EMBED_ORIGIN = "https://embed.foxy.io";
 const DEFAULT_EMBED_PATH = "/v2.html";
 
 const LANG_ATTRIBUTE = "lang";
 const OPTION_INDEX_ATTRIBUTE = "option-index";
+const EMBED_ORIGIN_ATTRIBUTE = "embed-origin";
 const DEFAULT_LOCALE = "en-US";
 
 const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
@@ -134,7 +135,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
   #themeSyncObserver: MutationObserver | null = null;
 
   static get observedAttributes(): string[] {
-    return [LANG_ATTRIBUTE, OPTION_INDEX_ATTRIBUTE];
+    return [LANG_ATTRIBUTE, OPTION_INDEX_ATTRIBUTE, EMBED_ORIGIN_ATTRIBUTE];
   }
 
   constructor() {
@@ -155,12 +156,9 @@ export class PaymentMethodSelectorElement extends HTMLElement {
   set api(value: CheckoutApiLike | null) {
     if (this.#api === value) return;
 
-    this.#api?.removeEventListener(
-      "afterStateChange",
-      this.#handleApiStateChange,
-    );
+    this.#removeApiSubscriptions(this.#api);
     this.#api = value;
-    this.#api?.addEventListener("afterStateChange", this.#handleApiStateChange);
+    this.#addApiSubscriptions(this.#api);
     this.#render();
   }
 
@@ -267,16 +265,13 @@ export class PaymentMethodSelectorElement extends HTMLElement {
       this.#root = createRoot(this.#container);
     }
     this.#startThemeSync();
-    this.#api?.addEventListener("afterStateChange", this.#handleApiStateChange);
+    this.#addApiSubscriptions(this.#api);
     this.#render();
   }
 
   disconnectedCallback() {
     this.#stopThemeSync();
-    this.#api?.removeEventListener(
-      "afterStateChange",
-      this.#handleApiStateChange,
-    );
+    this.#removeApiSubscriptions(this.#api);
     this.#root?.unmount();
     this.#root = null;
     this.#controllers.clear();
@@ -297,7 +292,26 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     if (name === OPTION_INDEX_ATTRIBUTE) {
       this.#optionIndex = this.#parseOptionIndexAttribute(newValue);
       this.#render();
+      return;
     }
+
+    if (name === EMBED_ORIGIN_ATTRIBUTE) {
+      this.#render();
+    }
+  }
+
+  #addApiSubscriptions(api: CheckoutApiLike | null) {
+    if (!api) return;
+
+    api.addEventListener("afterStateChange", this.#handleApiStateChange);
+    api.addEventListener("update", this.#handleApiStateChange);
+  }
+
+  #removeApiSubscriptions(api: CheckoutApiLike | null) {
+    if (!api) return;
+
+    api.removeEventListener("afterStateChange", this.#handleApiStateChange);
+    api.removeEventListener("update", this.#handleApiStateChange);
   }
 
   #render() {
@@ -518,7 +532,15 @@ export class PaymentMethodSelectorElement extends HTMLElement {
   }
 
   #resolveApiState(): Record<string, unknown> | null {
-    return this.#asRecord(this.#api?.state);
+    const state = this.#asRecord(this.#api?.state);
+    if (state) return state;
+
+    return this.#asRecord(this.#api?.json);
+  }
+
+  #getEmbedOrigin(): string {
+    const fromAttribute = this.getAttribute(EMBED_ORIGIN_ATTRIBUTE)?.trim();
+    return fromAttribute || DEFAULT_EMBED_ORIGIN;
   }
 
   #getStripePaymentElementAmount(
@@ -568,7 +590,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
   }
 
   #getCardEmbedSecureOrigin(): string {
-    return DEFAULT_EMBED_ORIGIN;
+    return this.#getEmbedOrigin();
   }
 
   #getCardEmbedPath(): string {
@@ -576,7 +598,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
   }
 
   #getHostedFieldSecureOrigin(): string {
-    return DEFAULT_EMBED_ORIGIN;
+    return this.#getEmbedOrigin();
   }
 
   #getHostedFieldEmbedPath(): string {
@@ -1085,15 +1107,17 @@ export class PaymentMethodSelectorElement extends HTMLElement {
   }
 
   #hasBillingAddressChanges(patch: Record<string, unknown>): boolean {
-    const state =
-      this.#api?.state && typeof this.#api.state === "object"
-        ? (this.#api.state as Record<string, unknown>)
-        : null;
-    const current = state?.billing_address;
-    if (!current || typeof current !== "object") return true;
+    const state = this.#resolveApiState();
+    const current = this.#asRecord(state?.billing_address);
+    if (!current) return true;
 
     return Object.entries(patch).some(([key, value]) => {
-      const currentValue = (current as Record<string, unknown>)[key];
+      const currentValue = current[key];
+
+      if (typeof value === "boolean") {
+        return Boolean(currentValue) !== value;
+      }
+
       return this.#toText(currentValue) !== this.#toText(value);
     });
   }
