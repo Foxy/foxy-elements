@@ -34,7 +34,7 @@ const STYLE_ATTR_TO_CSS_VAR: Record<CardStyleAttributeName, string> = {
   "card-input-font-size": "--input-font-size",
 };
 
-const DEFAULT_CARD_SECURE_ORIGIN = getRequiredEnvVar("VITE_CARD_SECURE_ORIGIN");
+const DEFAULT_CARD_SECURE_ORIGIN = getRequiredEnvVar("VITE_EMBED_ORIGIN");
 
 type TokenizeDeferred = {
   resolve: (value: { token: string; requestId?: string }) => void;

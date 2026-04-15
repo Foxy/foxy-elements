@@ -8,7 +8,7 @@ import { getRequiredEnvVar } from "../../lib/required-env";
 
 defineCardEmbedElement();
 
-const CARD_SECURE_ORIGIN = getRequiredEnvVar("VITE_CARD_SECURE_ORIGIN");
+const CARD_SECURE_ORIGIN = getRequiredEnvVar("VITE_EMBED_ORIGIN");
 const CARD_MERCHANT_ORIGIN =
   typeof window === "undefined"
     ? "http://localhost:6006"

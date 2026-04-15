@@ -5,7 +5,7 @@ import type {
 import { getRequiredEnvVar } from "@/lib/required-env";
 
 export const ACH_FIELD_ELEMENT_TAG = "foxy-ach-field";
-const DEFAULT_ACH_SECURE_ORIGIN = getRequiredEnvVar("VITE_ACH_SECURE_ORIGIN");
+const DEFAULT_ACH_SECURE_ORIGIN = getRequiredEnvVar("VITE_EMBED_ORIGIN");
 const ACH_SECURE_ORIGIN = DEFAULT_ACH_SECURE_ORIGIN;
 
 const DEFAULT_LABELS = {

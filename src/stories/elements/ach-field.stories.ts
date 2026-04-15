@@ -8,7 +8,7 @@ import { getRequiredEnvVar } from "../../lib/required-env";
 
 defineAchFieldElement();
 
-const ACH_SECURE_ORIGIN = getRequiredEnvVar("VITE_ACH_SECURE_ORIGIN");
+const ACH_SECURE_ORIGIN = getRequiredEnvVar("VITE_EMBED_ORIGIN");
 const ACH_MERCHANT_ORIGIN =
   typeof window === "undefined"
     ? "http://localhost:6006"
