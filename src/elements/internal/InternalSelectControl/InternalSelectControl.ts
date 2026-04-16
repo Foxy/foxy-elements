@@ -158,7 +158,7 @@ export class InternalSelectControl extends InternalEditableControl {
   protected _handleHostClick(evt: MouseEvent): void {
     if (this.layout !== 'summary-item') return;
     const composedPath = evt.composedPath() as HTMLElement[];
-    const noOp = new Set(['SELECT', 'LABEL']);
+    const noOp = new Set(['SELECT', 'LABEL', 'BUTTON']);
     if (!composedPath.some(el => noOp.has(el.tagName))) {
       this.renderRoot.querySelector('select')?.focus();
       super._handleHostClick(evt);

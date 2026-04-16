@@ -406,4 +406,26 @@ describe('InternalNativeDateControl', () => {
 
     focusStub.restore();
   });
+
+  it('does not focus input when clicking on BUTTON element', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-native-date-control></test-internal-native-date-control>
+    `);
+
+    const input = control.renderRoot.querySelector('input')!;
+    const focusStub = stub(input, 'focus');
+    const button = document.createElement('button');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [button],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(focusStub).to.not.have.been.called;
+
+    focusStub.restore();
+  });
 });
