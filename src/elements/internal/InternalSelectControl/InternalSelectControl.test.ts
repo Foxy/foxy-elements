@@ -467,4 +467,27 @@ describe('InternalSelectControl', () => {
 
     focusStub.restore();
   });
+
+  it('does not focus select when clicking on BUTTON element', async () => {
+    const layout = html`<test-internal-select-control
+      layout="summary-item"
+    ></test-internal-select-control>`;
+    const control = await fixture<TestControl>(layout);
+
+    const select = control.renderRoot.querySelector('select')!;
+    const focusStub = stub(select, 'focus');
+    const button = document.createElement('button');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [button],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(focusStub).to.not.have.been.called;
+
+    focusStub.restore();
+  });
 });

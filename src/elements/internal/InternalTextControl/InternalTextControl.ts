@@ -91,7 +91,7 @@ export class InternalTextControl extends InternalEditableControl {
   protected _handleHostClick(evt: MouseEvent): void {
     if (this.layout !== 'summary-item') return;
     const composedPath = evt.composedPath() as HTMLElement[];
-    const noOp = new Set(['INPUT', 'LABEL']);
+    const noOp = new Set(['INPUT', 'LABEL', 'BUTTON']);
     if (!composedPath.some(el => noOp.has(el.tagName))) {
       this.renderRoot.querySelector('input')?.focus();
       super._handleHostClick(evt);

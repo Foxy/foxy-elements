@@ -557,4 +557,29 @@ describe('InternalFrequencyControl', () => {
 
     focusStub.restore();
   });
+
+  it('does not focus input when clicking on SELECT element', async () => {
+    const layout = html`<test-internal-frequency-control
+      layout="summary-item"
+    ></test-internal-frequency-control>`;
+    const control = await fixture<TestControl>(layout);
+
+    const input = control.renderRoot.querySelector('vaadin-integer-field')?.querySelector('input');
+    if (!input) return;
+
+    const focusStub = stub(input, 'focus');
+    const select = document.createElement('select');
+
+    const mockEvent = new MouseEvent('click', { bubbles: true });
+    Object.defineProperty(mockEvent, 'composedPath', {
+      value: () => [select],
+    });
+
+    // @ts-expect-error accessing protected member for testing purposes
+    control._handleHostClick(mockEvent);
+
+    expect(focusStub).to.not.have.been.called;
+
+    focusStub.restore();
+  });
 });
