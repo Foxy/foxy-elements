@@ -5,7 +5,17 @@ import { ReportForm as Form } from './ReportForm';
 import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
 import { InternalNativeDateControl } from '../../internal/InternalNativeDateControl/InternalNativeDateControl';
 import { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
-import { getCurrentMonth, toAPIDateTime } from './utils';
+import {
+  getCurrentMonth,
+  getCurrentQuarter,
+  getCurrentYear,
+  getLast30Days,
+  getLast365Days,
+  getPreviousMonth,
+  getPreviousQuarter,
+  getPreviousYear,
+  toAPIDateTime,
+} from './utils';
 import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 
@@ -154,6 +164,31 @@ describe('ReportForm', () => {
     });
 
     expect(control.getValue()).to.equal('4'); // 'this_month' preset
+  });
+
+  it('uses calendar-aligned boundaries for all report date range presets', () => {
+    const now = new Date(2026, 3, 17, 12, 34, 56);
+    const cases = [
+      { range: getPreviousQuarter(now), start: '2026-01-01T00:00:00', end: '2026-03-31T23:59:59' },
+      { range: getCurrentQuarter(now), start: '2026-04-01T00:00:00', end: '2026-06-30T23:59:59' },
+      { range: getPreviousMonth(now), start: '2026-03-01T00:00:00', end: '2026-03-31T23:59:59' },
+      { range: getCurrentMonth(now), start: '2026-04-01T00:00:00', end: '2026-04-30T23:59:59' },
+      { range: getPreviousYear(now), start: '2025-01-01T00:00:00', end: '2025-12-31T23:59:59' },
+      { range: getCurrentYear(now), start: '2026-01-01T00:00:00', end: '2026-12-31T23:59:59' },
+      { range: getLast365Days(now), start: '2025-04-17T00:00:00', end: '2026-04-17T23:59:59' },
+      { range: getLast30Days(now), start: '2026-03-18T00:00:00', end: '2026-04-17T23:59:59' },
+    ];
+
+    cases.forEach(({ range, start, end }) => {
+      expect(toAPIDateTime(range.start)).to.equal(start);
+      expect(toAPIDateTime(range.end)).to.equal(end);
+    });
+  });
+
+  it('uses previous year when previous quarter crosses year boundary', () => {
+    const { start, end } = getPreviousQuarter(new Date(2026, 0, 7, 9, 0, 0));
+    expect(toAPIDateTime(start)).to.equal('2025-10-01T00:00:00');
+    expect(toAPIDateTime(end)).to.equal('2025-12-31T23:59:59');
   });
 
   it('uses custom setValue for preset control to set datetime_start and datetime_end', async () => {
