@@ -18,10 +18,10 @@ export function getPreviousQuarter(now = new Date()): Range {
   const previousQuarterYear = now.getFullYear() - (currentQuarter === 0 ? 1 : 0);
 
   const previousQuarterStart = quarters[previousQuarter][0];
-  const start = safeDate(previousQuarterYear, previousQuarterStart);
+  const start = safeDate(previousQuarterYear, previousQuarterStart, 1);
 
   const previousQuarterEnd = quarters[previousQuarter][2];
-  const end = new Date(new Date(previousQuarterYear, previousQuarterEnd + 1).getTime() - 1);
+  const end = new Date(safeDate(previousQuarterYear, previousQuarterEnd + 1, 1).getTime() - 1);
 
   return { start, end };
 }
@@ -31,38 +31,38 @@ export function getCurrentQuarter(now = new Date()): Range {
   const currentQuarter = quarters.findIndex(months => months.includes(currentMonth));
 
   const currentQuarterStart = quarters[currentQuarter][0];
-  const start = safeDate(now.getFullYear(), currentQuarterStart);
+  const start = safeDate(now.getFullYear(), currentQuarterStart, 1);
 
   const currentQuarterEnd = quarters[currentQuarter][2];
-  const end = new Date(safeDate(now.getFullYear(), currentQuarterEnd + 1).getTime() - 1);
+  const end = new Date(safeDate(now.getFullYear(), currentQuarterEnd + 1, 1).getTime() - 1);
 
   return { start, end };
 }
 
 export function getPreviousMonth(now = new Date()): Range {
-  const start = safeDate(now.getFullYear(), now.getMonth() - 1);
-  const end = new Date(safeDate(now.getFullYear(), now.getMonth()).getTime() - 1);
+  const start = safeDate(now.getFullYear(), now.getMonth() - 1, 1);
+  const end = new Date(safeDate(now.getFullYear(), now.getMonth(), 1).getTime() - 1);
 
   return { start, end };
 }
 
 export function getCurrentMonth(now = new Date()): Range {
-  const start = safeDate(now.getFullYear(), now.getMonth());
-  const end = new Date(safeDate(now.getFullYear(), now.getMonth() + 1).getTime() - 1);
+  const start = safeDate(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(safeDate(now.getFullYear(), now.getMonth() + 1, 1).getTime() - 1);
 
   return { start, end };
 }
 
 export function getPreviousYear(now = new Date()): Range {
-  const start = safeDate(now.getFullYear() - 1, 0);
-  const end = new Date(safeDate(now.getFullYear(), 0).getTime() - 1);
+  const start = safeDate(now.getFullYear() - 1, 0, 1);
+  const end = new Date(safeDate(now.getFullYear(), 0, 1).getTime() - 1);
 
   return { start, end };
 }
 
 export function getCurrentYear(now = new Date()): Range {
-  const start = safeDate(now.getFullYear(), 0);
-  const end = new Date(safeDate(now.getFullYear() + 1, 0).getTime() - 1);
+  const start = safeDate(now.getFullYear(), 0, 1);
+  const end = new Date(safeDate(now.getFullYear() + 1, 0, 1).getTime() - 1);
 
   return { start, end };
 }
