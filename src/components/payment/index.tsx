@@ -3,15 +3,14 @@ import type {
   CardEmbedTokenizeErrorCode,
 } from "@foxy.io/sdk/checkout";
 import type {
+  AchHostedFieldName,
   AchFieldElement,
-  AchFieldElementConfig,
-  AchTokenizeErrorEventDetail,
-} from "../ach-field-element";
+  AchTokenizationErrorEventDetail,
+} from "../../elements/ach-field-element";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import type {
-  CardEmbedElement,
-  CardEmbedTokenizeErrorEventDetail,
-} from "../card-embed-element";
+  PaymentCardFieldElement,
+} from "../../elements/payment-card-field-element";
 import type {
   PaymentMethodSelectorBillingAddress,
   PaymentMethodSelectorBillingField,
@@ -53,8 +52,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { defineAchFieldElement } from "../ach-field-element";
-import { defineCardEmbedElement } from "../card-embed-element";
 import {
   type HostedFieldStyleAttributes,
   useHostedFieldStyleAttributes,
@@ -65,7 +62,7 @@ import { cn } from "@/lib/utils";
 import { defineMessages, useIntl } from "react-intl";
 import type { IntlShape, MessageDescriptor } from "react-intl";
 
-const ACH_FIELDS: Array<AchFieldElementConfig["field"]> = [
+const ACH_FIELDS: AchHostedFieldName[] = [
   "routing_number",
   "account_number",
   "account_type",
@@ -279,7 +276,7 @@ const BILLING_FIELD_LABEL_BY_ID: Partial<Record<string, MessageDescriptor>> = {
 };
 
 const ACH_LABEL_BY_FIELD: Partial<
-  Record<AchFieldElementConfig["field"], MessageDescriptor>
+  Record<AchHostedFieldName, MessageDescriptor>
 > = {
   routing_number: messages.achRoutingNumber,
   account_number: messages.achAccountNumber,
@@ -1083,19 +1080,19 @@ function CardOptionEmbed({
   styleAttributes: HostedFieldStyleAttributes;
   onControllerReady?: (controller: PaymentController | null) => void;
 }) {
-  const elementRef = useRef<CardEmbedElement | null>(null);
+  const elementRef = useRef<PaymentCardFieldElement | null>(null);
   const [error, setError] = useState<CardEmbedTokenizeErrorCode | null>(null);
   const intl = useIntl();
-
-  useEffect(() => {
-    defineCardEmbedElement();
-  }, []);
 
   useEffect(() => {
     const element = elementRef.current;
     if (!element || !option.hostedCard) return;
 
-    element.config = option.hostedCard;
+    element.secureOrigin = option.hostedCard.secureOrigin;
+    element.mode = option.hostedCard.mode;
+    element.templateSetId = option.hostedCard.templateSetId;
+    element.demoMode = option.hostedCard.demoMode;
+    element.translations = option.hostedCard.translations;
     element.disabled = Boolean(disabled);
     element.readonly = Boolean(disabled);
   }, [disabled, option.hostedCard]);
@@ -1116,18 +1113,17 @@ function CardOptionEmbed({
 
     const onTokenizeSuccess = () => setError(null);
     const onTokenizeError = (event: Event) => {
-      const detail = (event as CustomEvent<CardEmbedTokenizeErrorEventDetail>)
-        .detail;
+      const detail = (event as CustomEvent<{ code: CardEmbedTokenizeErrorCode }>).detail;
       setError(detail.code);
     };
 
-    element.addEventListener("foxy-tokenize-success", onTokenizeSuccess);
-    element.addEventListener("foxy-tokenize-error", onTokenizeError);
+    element.addEventListener("tokenizationsuccess", onTokenizeSuccess);
+    element.addEventListener("tokenizationerror", onTokenizeError);
     onControllerReady?.(controller);
 
     return () => {
-      element.removeEventListener("foxy-tokenize-success", onTokenizeSuccess);
-      element.removeEventListener("foxy-tokenize-error", onTokenizeError);
+      element.removeEventListener("tokenizationsuccess", onTokenizeSuccess);
+      element.removeEventListener("tokenizationerror", onTokenizeError);
       onControllerReady?.(null);
     };
   }, [onControllerReady, option.hostedCard]);
@@ -1149,20 +1145,24 @@ function CardOptionEmbed({
       </Field>
       {createElement("foxy-payment-card-field", {
         id: fieldId,
+        mode: option.hostedCard.mode,
+        "secure-origin": option.hostedCard.secureOrigin,
+        "template-set-id": option.hostedCard.templateSetId,
+        "demo-mode": option.hostedCard.demoMode,
         className:
-          "border-input dark:bg-input/30 data-[disabled]:bg-input/50 dark:data-[disabled]:bg-input/80 data-[disabled]:opacity-50 rounded-[var(--radius)] border transition-colors block w-full overflow-hidden",
-        "card-input-background": styleAttributes.inputBackground,
-        "card-input-placeholder-color": styleAttributes.inputPlaceholderColor,
-        "card-input-height": styleAttributes.inputHeight,
-        "card-input-padding": styleAttributes.inputPadding,
-        "card-input-padding-x": styleAttributes.inputPaddingX,
-        "card-input-padding-y": styleAttributes.inputPaddingY,
-        "card-input-font": styleAttributes.inputFont,
-        "card-input-text-color": styleAttributes.inputTextColor,
-        "card-input-text-color-error": styleAttributes.inputTextColorError,
-        "card-input-font-size": styleAttributes.inputTextSize,
+          "border-input dark:bg-input/30 data-[focused]:border-ring data-[focused]:ring-ring/50 data-[user-invalid]:border-destructive data-[user-invalid]:ring-destructive/20 dark:data-[user-invalid]:ring-destructive/40 data-[user-invalid]:ring-3 data-[focused]:ring-3 data-[disabled]:bg-input/50 dark:data-[disabled]:bg-input/80 data-[disabled]:opacity-50 rounded-[var(--radius)] border transition-colors block w-full overflow-hidden",
+        "theme-background": styleAttributes.inputBackground,
+        "theme-input-placeholder-color": styleAttributes.inputPlaceholderColor,
+        "theme-input-height": styleAttributes.inputHeight,
+        "theme-input-padding": styleAttributes.inputPadding,
+        "theme-input-padding-x": styleAttributes.inputPaddingX,
+        "theme-input-padding-y": styleAttributes.inputPaddingY,
+        "theme-font-sans": styleAttributes.inputFont,
+        "theme-input-text-color": styleAttributes.inputTextColor,
+        "theme-input-error-text-color": styleAttributes.inputTextColorError,
+        "theme-input-font-size": styleAttributes.inputTextSize,
         ref: (node: Element | null) => {
-          elementRef.current = node as CardEmbedElement | null;
+          elementRef.current = node as PaymentCardFieldElement | null;
         },
       })}
       {error ? (
@@ -1189,17 +1189,11 @@ function AchOptionEmbed({
   const [error, setError] = useState<AchHostedFieldsTokenizeErrorCode | null>(
     null,
   );
-  const refs = useRef<
-    Partial<Record<AchFieldElementConfig["field"], AchFieldElement | null>>
-  >({});
+  const refs = useRef<Partial<Record<AchHostedFieldName, AchFieldElement | null>>>({});
   const sessionId = useMemo(
     () => option.hostedFields?.sessionId ?? crypto.randomUUID(),
     [option.hostedFields?.sessionId],
   );
-
-  useEffect(() => {
-    defineAchFieldElement();
-  }, []);
 
   useEffect(() => {
     const fields = option.hostedFields;
@@ -1209,18 +1203,13 @@ function AchOptionEmbed({
       const element = refs.current[fieldName];
       if (!element) continue;
 
-      element.config = {
-        secureOrigin: fields.secureOrigin,
-        embedPath: fields.embedPath,
-        merchantOrigin: fields.merchantOrigin,
-        sessionId,
-        field: fieldName,
-        label: fields.labels?.[fieldName],
-        placeholder: fields.placeholders?.[fieldName],
-        ...(fieldName === "account_type"
-          ? { accountTypeValues: fields.accountTypeValues }
-          : {}),
-      };
+      element.secureOrigin = fields.secureOrigin;
+      element.sessionId = sessionId;
+      element.field = fieldName;
+      element.label = fields.labels?.[fieldName];
+      element.placeholder = fields.placeholders?.[fieldName];
+      element.accountTypeValues =
+        fieldName === "account_type" ? fields.accountTypeValues : undefined;
       element.disabled = Boolean(disabled);
     }
   }, [disabled, option.hostedFields, sessionId]);
@@ -1247,20 +1236,20 @@ function AchOptionEmbed({
 
     const onTokenizeSuccess = () => setError(null);
     const onTokenizeError = (event: Event) => {
-      const detail = (event as CustomEvent<AchTokenizeErrorEventDetail>).detail;
+      const detail = (event as CustomEvent<AchTokenizationErrorEventDetail>).detail;
       setError(detail.code);
     };
 
-    firstMounted.addEventListener("ach-tokenize-success", onTokenizeSuccess);
-    firstMounted.addEventListener("ach-tokenize-error", onTokenizeError);
+    firstMounted.addEventListener("tokenizationsuccess", onTokenizeSuccess);
+    firstMounted.addEventListener("tokenizationerror", onTokenizeError);
     onControllerReady?.(controller);
 
     return () => {
       firstMounted.removeEventListener(
-        "ach-tokenize-success",
+        "tokenizationsuccess",
         onTokenizeSuccess,
       );
-      firstMounted.removeEventListener("ach-tokenize-error", onTokenizeError);
+      firstMounted.removeEventListener("tokenizationerror", onTokenizeError);
       onControllerReady?.(null);
     };
   }, [option.hostedFields, onControllerReady]);
@@ -1291,17 +1280,17 @@ function AchOptionEmbed({
                     "--ach-field-height":
                       styleAttributes.inputHeight ?? "calc(2rem - 2px)",
                   },
-                  "ach-input-height": styleAttributes.inputHeight,
-                  "ach-input-padding": styleAttributes.inputPadding,
-                  "ach-input-padding-x": styleAttributes.inputPaddingX,
-                  "ach-input-padding-y": styleAttributes.inputPaddingY,
-                  "ach-input-placeholder-color":
+                  "theme-input-height": styleAttributes.inputHeight,
+                  "theme-input-padding": styleAttributes.inputPadding,
+                  "theme-input-padding-x": styleAttributes.inputPaddingX,
+                  "theme-input-padding-y": styleAttributes.inputPaddingY,
+                  "theme-input-placeholder-color":
                     styleAttributes.inputPlaceholderColor,
-                  "ach-input-font": styleAttributes.inputFont,
-                  "ach-input-text-color": styleAttributes.inputTextColor,
-                  "ach-input-text-color-error":
+                  "theme-font-sans": styleAttributes.inputFont,
+                  "theme-input-text-color": styleAttributes.inputTextColor,
+                  "theme-input-error-text-color":
                     styleAttributes.inputTextColorError,
-                  "ach-input-text-size": styleAttributes.inputTextSize,
+                  "theme-input-font-size": styleAttributes.inputTextSize,
                   ref: (node: Element | null) => {
                     refs.current[fieldName] = node as AchFieldElement | null;
                   },

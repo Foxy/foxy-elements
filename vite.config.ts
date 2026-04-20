@@ -32,9 +32,9 @@ export default defineConfig(({ mode }) => {
             dirname,
             "src/elements/ach-field-element.ts",
           ),
-          "card-embed-element": path.resolve(
+          "payment-card-field-element": path.resolve(
             dirname,
-            "src/elements/card-embed-element.ts",
+            "src/elements/payment-card-field-element.ts",
           ),
           "payment-method-selector-element": path.resolve(
             dirname,

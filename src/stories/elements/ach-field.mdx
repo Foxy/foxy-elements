@@ -1,0 +1,164 @@
+import { Meta, Canvas, Controls } from "@storybook/blocks";
+import * as AchFieldStories from "./ach-field.stories";
+
+<Meta of={AchFieldStories} />
+
+# ACH Field
+
+Renders a secure hosted ACH input inside an iframe. You can use this element to securely collect ACH data on your website or web app. Every element renders only one field, without label or helper text. You can render as many fields as you need as style them to look like the regular input fields in your project.
+
+## Setup
+
+To use the ACH element, include the script and render the fields you need in a standard web form. The element is form-associated and contributes native validity, so you can use it with native form submission or any custom flow that fits your needs.
+
+When the form is submitted, call `tokenize` on any field to tokenize all fields in the same session. The resulting token can be used to process ACH payments on your server.
+
+```html
+<form id="ach-form">
+  <label>Routing number: <foxy-ach-field field="routing_number"></foxy-ach-field></label>
+  <label>Account number: <foxy-ach-field field="account_number"></foxy-ach-field></label>
+  <label>Account type: <foxy-ach-field field="account_type"></foxy-ach-field></label>
+  <label>Name on account: <foxy-ach-field field="account_holder_name"></foxy-ach-field></label>
+
+  <button type="submit">Pay</button>
+</form>
+
+<script type="module">
+  import "https://cdn-js.foxy.io/elements@2/foxy-ach-field.js?store=my-store";
+
+  const form = document.getElementById("ach-form");
+  const field = form.querySelector("foxy-ach-field");
+
+  async function submit() {
+    try {
+      const result = await field.tokenize();
+      // Send result.token to your server to process the payment
+    } catch (error) {
+      console.error("ACH tokenization failed", error);
+    }
+  }
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (form.reportValidity()) submit();
+  });
+</script>
+```
+
+## API
+
+The ACH element is attribute-first and exposes matching properties.
+
+<table>
+  <thead>
+    <tr><th>Attribute</th><th>Property</th><th>Type</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>secure-origin</code></td><td><code>secureOrigin</code></td><td><code>string</code></td><td>Secure embed origin. Defaults to <code>VITE_EMBED_ORIGIN</code>.</td></tr>
+    <tr><td><code>field</code></td><td><code>field</code></td><td><code>"routing_number" | "account_number" | "account_type" | "account_holder_name"</code></td><td>Hosted field to render.</td></tr>
+    <tr><td><code>session-id</code></td><td><code>sessionId</code></td><td><code>string</code></td><td>Shared ACH session id. Auto-generated if omitted.</td></tr>
+    <tr><td><code>label</code></td><td><code>label</code></td><td><code>string | undefined</code></td><td>Field label shown in iframe.</td></tr>
+    <tr><td><code>placeholder</code></td><td><code>placeholder</code></td><td><code>string | undefined</code></td><td>Field placeholder shown in iframe.</td></tr>
+    <tr><td><code>account-type-values</code></td><td><code>accountTypeValues</code></td><td><code>("checking" | "savings")[] | undefined</code></td><td>Restrict account type options for <code>account_type</code>.</td></tr>
+    <tr><td><code>disabled</code></td><td><code>disabled</code></td><td><code>boolean</code></td><td>Disables hosted inputs for the session.</td></tr>
+  </tbody>
+</table>
+
+## Methods
+
+### `clear(): void`
+
+Clears ACH values in the current session.
+
+### `tokenize(requestId?: string): Promise<{ token: string; last4: string; bankName?: string; requestId?: string }>`
+
+Tokenizes session fields.
+
+### `checkValidity(): boolean`
+
+Uses form-associated validity state.
+
+### `reportValidity(): boolean`
+
+Uses native form validation UI/flow.
+
+---
+
+## Events
+
+<table>
+  <thead>
+    <tr><th>Event</th><th>Detail</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>load</code></td><td><code>{'{ sessionId: string; registeredFields: AchHostedFieldName[] }'}</code></td></tr>
+    <tr><td><code>change</code></td><td><code>{'{ sessionId: string; fields: Partial<Record<AchHostedFieldName, { empty: boolean; complete: boolean; errorCode: string | null; focused?: boolean; touched?: boolean }>> }'}</code></td></tr>
+    <tr><td><code>tokenizationsuccess</code></td><td><code>{'{ sessionId: string; token: string; last4: string; bankName?: string; requestId?: string }'}</code></td></tr>
+    <tr><td><code>tokenizationerror</code></td><td><code>{'{ sessionId: string; code: AchHostedFieldsTokenizeErrorCode; requestId?: string }'}</code></td></tr>
+  </tbody>
+</table>
+
+---
+
+## Theming
+
+<table>
+  <thead>
+    <tr><th>Attribute</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>theme-input-placeholder-color</code></td><td>Placeholder color</td></tr>
+    <tr><td><code>theme-input-height</code></td><td>Input height</td></tr>
+    <tr><td><code>theme-input-padding</code></td><td>Input padding</td></tr>
+    <tr><td><code>theme-input-padding-x</code></td><td>Input horizontal padding</td></tr>
+    <tr><td><code>theme-input-padding-y</code></td><td>Input vertical padding</td></tr>
+    <tr><td><code>theme-font-sans</code></td><td>Input font family/shorthand</td></tr>
+    <tr><td><code>theme-input-text-color</code></td><td>Input text color</td></tr>
+    <tr><td><code>theme-input-error-text-color</code></td><td>Input error text color</td></tr>
+    <tr><td><code>theme-input-font-size</code></td><td>Input font size</td></tr>
+  </tbody>
+</table>
+
+Host sizing can still use `--ach-field-height` (default `52px`).
+
+### States
+
+<table>
+  <thead>
+    <tr><th>Attribute</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>data-focused</code></td><td>Field is focused</td></tr>
+    <tr><td><code>data-invalid</code></td><td>Field is invalid</td></tr>
+    <tr><td><code>data-user-invalid</code></td><td>Field has been interacted with and is invalid</td></tr>
+    <tr><td><code>data-disabled</code></td><td>Field is disabled</td></tr>
+  </tbody>
+</table>
+
+## Stories
+
+### Routing Number
+
+<Canvas of={AchFieldStories.RoutingNumber} />
+
+### Account Number
+
+<Canvas of={AchFieldStories.AccountNumber} />
+
+### Account Type
+
+<Canvas of={AchFieldStories.AccountType} />
+
+### Account Holder Name
+
+<Canvas of={AchFieldStories.AccountHolderName} />
+
+### Disabled
+
+<Canvas of={AchFieldStories.Disabled} />
+
+### Form Validity Flow
+
+Demonstrates native form `reportValidity` plus ACH tokenization across a shared session.
+
+<Canvas of={AchFieldStories.FormValidityFlow} />

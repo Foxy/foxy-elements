@@ -1,17 +1,19 @@
 import type {
   PaymentMethodSelectorBillingAddress,
   PaymentMethodSelectorBillingField,
-} from "./payment/billing-address-types";
-import type { PaymentMethodSelectorOption } from "./payment/option-types";
+} from "../components/payment/billing-address-types";
+import type { PaymentMethodSelectorOption } from "../components/payment/option-types";
 
+import "./ach-field-element";
+import "./payment-card-field-element";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import { IntlProvider } from "react-intl";
 import defaultShadowStyles from "@/index.css?inline";
 import enUsMessages from "@/locales/en-US.json";
-import { Payment } from "./payment";
-import { StripeCardElementOption } from "./payment/stripe-card-element";
-import { StripePaymentElementOption } from "./payment/stripe-payment-element";
+import { Payment } from "../components/payment";
+import { StripeCardElementOption } from "../components/payment/stripe-card-element";
+import { StripePaymentElementOption } from "../components/payment/stripe-payment-element";
 
 export const paymentMethodSelectorEvents = {
   tokenizationStart: "tokenizationstart",
@@ -47,8 +49,8 @@ type PaymentMethodSelectorTokenizationErrorEventDetail = {
   error: unknown;
 };
 
-const DEFAULT_EMBED_ORIGIN = "https://embed.foxy.io";
-const DEFAULT_EMBED_PATH = "/v2.html";
+const DEFAULT_EMBED_ORIGIN =
+  import.meta.env.VITE_EMBED_ORIGIN?.trim() || "https://embed.foxy.io";
 
 const LANG_ATTRIBUTE = "lang";
 const OPTION_INDEX_ATTRIBUTE = "option-index";
@@ -214,10 +216,15 @@ export class PaymentMethodSelectorElement extends HTMLElement {
 
       const controller = this.#controllers.get(selectedOption.id);
       const tokenized = controller ? await controller.tokenize() : {};
+      const savedPaymentMethodId =
+        selectedOption.type === "saved-card"
+          ? selectedOption.savedPaymentMethodId
+          : undefined;
 
       const payload = {
         optionIndex,
         optionType: selectedOption.type,
+        savedPaymentMethodId,
         billingAddress: this.#billingStateByOption.get(selectedOption.id),
         ...tokenized,
       };
@@ -498,6 +505,38 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     return undefined;
   }
 
+  #toPaymentOptionType(value: unknown): string {
+    const raw = this.#toText(value).trim().toLowerCase();
+    if (!raw) return "";
+
+    const normalized = raw.replace(/_/g, "-");
+    if (normalized === "new-card") return "new-card";
+    if (normalized === "saved-card") return "saved-card";
+    if (normalized === "stripe-card-element") return "stripe-card-element";
+    if (normalized === "stripe-payment-element")
+      return "stripe-payment-element";
+    if (normalized === "apple-pay") return "apple-pay";
+    if (normalized === "google-pay") return "google-pay";
+    return normalized;
+  }
+
+  #resolveAchAccountTypeValues(
+    option: Record<string, unknown>,
+  ): Array<"checking" | "savings"> | undefined {
+    const rawValues =
+      option.account_types ??
+      option.account_type_values ??
+      option.accountTypeValues;
+    if (!Array.isArray(rawValues)) return undefined;
+
+    const values = rawValues.filter(
+      (field): field is "checking" | "savings" =>
+        field === "checking" || field === "savings",
+    );
+
+    return values.length ? values : undefined;
+  }
+
   #asRecord(value: unknown): Record<string, unknown> | null {
     return value && typeof value === "object" && !Array.isArray(value)
       ? (value as Record<string, unknown>)
@@ -593,16 +632,8 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     return this.#getEmbedOrigin();
   }
 
-  #getCardEmbedPath(): string {
-    return DEFAULT_EMBED_PATH;
-  }
-
   #getHostedFieldSecureOrigin(): string {
     return this.#getEmbedOrigin();
-  }
-
-  #getHostedFieldEmbedPath(): string {
-    return DEFAULT_EMBED_PATH;
   }
 
   #createSavedCardOptions(
@@ -614,7 +645,11 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     if (!paymentMethod) return [];
 
     const gateway = this.#toText(option.gateway);
-    const paymentMethodId = this.#toText(paymentMethod.payment_method_id);
+    const savedPaymentMethodId =
+      this.#toText(paymentMethod.payment_method_id) ||
+      this.#toText(paymentMethod.payment_token) ||
+      this.#toText(paymentMethod.id) ||
+      undefined;
     const templateSetId = this.#toNumber(
       this.#asRecord(apiState.template_set)?.id,
     );
@@ -635,6 +670,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
         type: "saved-card",
         label,
         gateway: gateway || undefined,
+        savedPaymentMethodId,
         description:
           expirationMonth && expirationYear
             ? `Expires ${expirationMonth}/${expirationYear}`
@@ -647,10 +683,8 @@ export class PaymentMethodSelectorElement extends HTMLElement {
             ? undefined
             : {
                 secureOrigin: this.#getCardEmbedSecureOrigin(),
-                embedPath: this.#getCardEmbedPath(),
                 templateSetId,
                 mode: "csc-only",
-                paymentToken: paymentMethodId,
               },
       },
     ];
@@ -661,7 +695,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     index: number,
     apiState: Record<string, unknown>,
   ): PaymentMethodSelectorOption[] {
-    const type = this.#toText(option.type);
+    const type = this.#toPaymentOptionType(option.type);
     const optionId = index === 0 ? type : `${type}-${index + 1}`;
     const gateway = this.#toText(option.gateway);
 
@@ -686,7 +720,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           acceptedBrands: acceptedBrands?.length ? acceptedBrands : undefined,
           hostedCard: {
             secureOrigin: this.#getCardEmbedSecureOrigin(),
-            embedPath: this.#getCardEmbedPath(),
             templateSetId,
             mode: "full",
           },
@@ -695,12 +728,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     }
 
     if (type === "ach") {
-      const rawAccountTypes = Array.isArray(option.account_types)
-        ? option.account_types.filter(
-            (field): field is "checking" | "savings" =>
-              field === "checking" || field === "savings",
-          )
-        : undefined;
+      const accountTypeValues = this.#resolveAchAccountTypeValues(option);
 
       return [
         {
@@ -712,11 +740,10 @@ export class PaymentMethodSelectorElement extends HTMLElement {
             "Enter your bank account details in the secure fields below.",
           hostedFields: {
             secureOrigin: this.#getHostedFieldSecureOrigin(),
-            embedPath: this.#getHostedFieldEmbedPath(),
             placeholders: {
               routing_number: "123456789",
             },
-            accountTypeValues: rawAccountTypes,
+            accountTypeValues,
           },
         },
       ];
@@ -854,11 +881,8 @@ export class PaymentMethodSelectorElement extends HTMLElement {
       ];
     }
 
-    if (Array.isArray(option.fields) && Array.isArray(option.account_types)) {
-      const accountTypeValues = option.account_types.filter(
-        (field): field is "checking" | "savings" =>
-          field === "checking" || field === "savings",
-      );
+    const accountTypeValues = this.#resolveAchAccountTypeValues(option);
+    if (Array.isArray(option.fields) || accountTypeValues?.length) {
 
       return [
         {
@@ -870,11 +894,12 @@ export class PaymentMethodSelectorElement extends HTMLElement {
             "Enter your bank account details in the secure fields below.",
           hostedFields: {
             secureOrigin: this.#getHostedFieldSecureOrigin(),
-            embedPath: this.#getHostedFieldEmbedPath(),
             placeholders: {
               routing_number: "123456789",
             },
-            accountTypeValues,
+            accountTypeValues: accountTypeValues?.length
+              ? accountTypeValues
+              : undefined,
           },
         },
       ];
@@ -923,7 +948,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
         acceptedBrands: this.#resolveSupportedPaymentCards(apiState),
         hostedCard: {
           secureOrigin: this.#getCardEmbedSecureOrigin(),
-          embedPath: this.#getCardEmbedPath(),
           templateSetId,
           mode: "full",
         },
@@ -968,7 +992,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
         acceptedBrands: this.#resolveSupportedPaymentCards(apiState),
         hostedCard: {
           secureOrigin: this.#getCardEmbedSecureOrigin(),
-          embedPath: this.#getCardEmbedPath(),
           templateSetId,
           mode: "full",
         },

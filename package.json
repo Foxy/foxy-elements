@@ -10,7 +10,7 @@
   "exports": {
     ".": "./src/elements/index.ts",
     "./ach-field-element": "./src/elements/ach-field-element.ts",
-    "./card-embed-element": "./src/elements/card-embed-element.ts",
+    "./payment-card-field-element": "./src/elements/payment-card-field-element.ts",
     "./payment-method-selector-element": "./src/elements/payment-method-selector-element.tsx"
   },
   "scripts": {

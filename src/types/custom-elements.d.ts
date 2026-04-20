@@ -1,38 +1,52 @@
 import type { CSSProperties, DetailedHTMLProps, HTMLAttributes } from "react";
 import type { AchFieldElement } from "@/elements/ach-field-element";
-import type { CardEmbedElement } from "@/elements/card-embed-element";
+import type { PaymentCardFieldElement } from "@/elements/payment-card-field-element";
 
 type AchFieldElementProps = Omit<
   DetailedHTMLProps<HTMLAttributes<AchFieldElement>, AchFieldElement>,
   "style"
 > & {
   style?: CSSProperties & Record<`--${string}`, string | number>;
-  "ach-input-height"?: string;
-  "ach-input-padding"?: string;
-  "ach-input-padding-x"?: string;
-  "ach-input-padding-y"?: string;
-  "ach-input-placeholder-color"?: string;
-  "ach-input-font"?: string;
-  "ach-input-text-color"?: string;
-  "ach-input-text-color-error"?: string;
-  "ach-input-text-size"?: string;
+  field?: "routing_number" | "account_number" | "account_type" | "account_holder_name";
+  "secure-origin"?: string;
+  "session-id"?: string;
+  label?: string;
+  placeholder?: string;
+  "account-type-values"?: string;
+  disabled?: boolean;
+  "theme-input-placeholder-color"?: string;
+  "theme-input-height"?: string;
+  "theme-input-padding"?: string;
+  "theme-input-padding-x"?: string;
+  "theme-input-padding-y"?: string;
+  "theme-font-sans"?: string;
+  "theme-input-text-color"?: string;
+  "theme-input-error-text-color"?: string;
+  "theme-input-font-size"?: string;
 };
 
 type CardEmbedElementProps = Omit<
-  DetailedHTMLProps<HTMLAttributes<CardEmbedElement>, CardEmbedElement>,
+  DetailedHTMLProps<
+    HTMLAttributes<PaymentCardFieldElement>,
+    PaymentCardFieldElement
+  >,
   "style"
 > & {
   style?: CSSProperties & Record<`--${string}`, string | number>;
-  "card-input-background"?: string;
-  "card-input-placeholder-color"?: string;
-  "card-input-height"?: string;
-  "card-input-padding"?: string;
-  "card-input-padding-x"?: string;
-  "card-input-padding-y"?: string;
-  "card-input-font"?: string;
-  "card-input-text-color"?: string;
-  "card-input-text-color-error"?: string;
-  "card-input-font-size"?: string;
+  mode?: "full" | "csc-only";
+  "secure-origin"?: string;
+  "template-set-id"?: number;
+  "demo-mode"?: "full" | "csc-only";
+  "theme-background"?: string;
+  "theme-input-placeholder-color"?: string;
+  "theme-input-height"?: string;
+  "theme-input-padding"?: string;
+  "theme-input-padding-x"?: string;
+  "theme-input-padding-y"?: string;
+  "theme-font-sans"?: string;
+  "theme-input-text-color"?: string;
+  "theme-input-error-text-color"?: string;
+  "theme-input-font-size"?: string;
 };
 
 type ApplePayButtonElementProps = DetailedHTMLProps<

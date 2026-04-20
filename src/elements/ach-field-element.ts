@@ -1,45 +1,37 @@
 import type {
-  AchHostedFieldsPublicState,
   AchHostedFieldsTokenizeErrorCode,
+  AchHostedFieldsPublicState,
 } from "@foxy.io/sdk/checkout";
 import { getRequiredEnvVar } from "@/lib/required-env";
 
 export const ACH_FIELD_ELEMENT_TAG = "foxy-ach-field";
+
 const DEFAULT_ACH_SECURE_ORIGIN = getRequiredEnvVar("VITE_EMBED_ORIGIN");
-const ACH_SECURE_ORIGIN = DEFAULT_ACH_SECURE_ORIGIN;
+const DEFAULT_EMBED_PATH = "/v2.html";
+const DEFAULT_FIELD_HEIGHT = "52px";
 
 const DEFAULT_LABELS = {
   routing_number: "Routing number",
   account_number: "Account number",
   account_type: "Account type",
   account_holder_name: "Name on account",
-};
+} as const;
 
-const STYLE_ATTRIBUTE_NAMES = [
-  "ach-input-height",
-  "ach-input-padding",
-  "ach-input-padding-x",
-  "ach-input-padding-y",
-  "ach-input-placeholder-color",
-  "ach-input-font",
-  "ach-input-text-color",
-  "ach-input-text-color-error",
-  "ach-input-text-size",
-] as const;
+export type AchAccountTypeValue = "checking" | "savings";
 
-type AchAccountTypeValue = "checking" | "savings";
-
-type AchHostedFieldName =
+export type AchHostedFieldName =
   | "routing_number"
   | "account_number"
   | "account_type"
   | "account_holder_name";
 
-type AchStyleAttributeName = (typeof STYLE_ATTRIBUTE_NAMES)[number];
-
-type AchStyleAttributeMap = Partial<Record<AchStyleAttributeName, string>>;
-
-const DEFAULT_FIELD_HEIGHT = 52;
+type AchFieldState = {
+  empty: boolean;
+  complete: boolean;
+  errorCode: string | null;
+  focused?: boolean;
+  touched?: boolean;
+};
 
 type TokenizeDeferred = {
   owner: AchFieldElement;
@@ -58,54 +50,60 @@ type ControllerRegistryEntry = {
   host: AchFieldElement | null;
   controllerIframe: HTMLIFrameElement | null;
   pendingTokenizes: Map<string, TokenizeDeferred>;
+  registeredFields: Set<AchHostedFieldName>;
+  fieldStates: Partial<Record<AchHostedFieldName, AchFieldState>>;
 };
 
 const controllerRegistry = new Map<string, ControllerRegistryEntry>();
 
-export type AchFieldElementConfig = {
-  secureOrigin: string;
-  embedPath: string;
-  field: AchHostedFieldName;
-  merchantOrigin?: string;
-  sessionId?: string;
-  label?: string;
-  placeholder?: string;
-  /** Account type options to render in the accountType select. Omit for checking + savings. */
-  accountTypeValues?: AchAccountTypeValue[];
-};
+const FIELD_ATTRIBUTE = "field";
+const SECURE_ORIGIN_ATTRIBUTE = "secure-origin";
+const SESSION_ID_ATTRIBUTE = "session-id";
+const LABEL_ATTRIBUTE = "label";
+const PLACEHOLDER_ATTRIBUTE = "placeholder";
+const ACCOUNT_TYPE_VALUES_ATTRIBUTE = "account-type-values";
+const DISABLED_ATTRIBUTE = "disabled";
 
-export type AchReadyEventDetail = {
+const THEME_CSS_VARS = [
+  "--input-placeholder-color",
+  "--input-height",
+  "--input-padding",
+  "--input-padding-x",
+  "--input-padding-y",
+  "--font-sans",
+  "--input-text-color",
+  "--input-error-text-color",
+  "--input-font-size",
+] as const;
+
+type ThemeCssVar = (typeof THEME_CSS_VARS)[number];
+type ThemeAttributeName = `theme-${string}`;
+
+const THEME_ATTR_TO_CSS_VAR: Record<ThemeAttributeName, ThemeCssVar> =
+  THEME_CSS_VARS.reduce(
+    (result, cssVar) => {
+      const attrName = `theme-${cssVar.slice(2)}` as ThemeAttributeName;
+      result[attrName] = cssVar;
+      return result;
+    },
+    {} as Record<ThemeAttributeName, ThemeCssVar>,
+  );
+
+const THEME_ATTRIBUTE_NAMES = Object.keys(
+  THEME_ATTR_TO_CSS_VAR,
+) as ThemeAttributeName[];
+
+export type AchLoadEventDetail = {
   sessionId: string;
   registeredFields: AchHostedFieldName[];
 };
 
 export type AchChangeEventDetail = {
   sessionId: string;
-  fields: Partial<
-    Record<
-      AchHostedFieldName,
-      {
-        empty: boolean;
-        complete: boolean;
-        errorCode: string | null;
-        focused?: boolean;
-        touched?: boolean;
-      }
-    >
-  >;
+  fields: Partial<Record<AchHostedFieldName, AchFieldState>>;
 };
 
-export type AchFocusEventDetail = {
-  sessionId: string;
-  field: AchHostedFieldName;
-};
-
-export type AchBlurEventDetail = {
-  sessionId: string;
-  field: AchHostedFieldName;
-};
-
-export type AchTokenizeSuccessEventDetail = {
+export type AchTokenizationSuccessEventDetail = {
   sessionId: string;
   token: string;
   last4: string;
@@ -113,33 +111,25 @@ export type AchTokenizeSuccessEventDetail = {
   requestId?: string;
 };
 
-export type AchTokenizeErrorEventDetail = {
+export type AchTokenizationErrorEventDetail = {
   sessionId: string;
   code: AchHostedFieldsTokenizeErrorCode;
   requestId?: string;
 };
 
-export const achFieldEvents = {
-  ready: "ach-ready",
-  change: "ach-change",
-  focus: "ach-focus",
-  blur: "ach-blur",
-  tokenizeSuccess: "ach-tokenize-success",
-  tokenizeError: "ach-tokenize-error",
-} as const;
+type AchFieldElementEventMap = HTMLElementEventMap & {
+  load: CustomEvent<AchLoadEventDetail>;
+  change: CustomEvent<AchChangeEventDetail>;
+  tokenizationsuccess: CustomEvent<AchTokenizationSuccessEventDetail>;
+  tokenizationerror: CustomEvent<AchTokenizationErrorEventDetail>;
+};
 
-export interface AchFieldElementContract extends HTMLElement {
-  config: AchFieldElementConfig;
-  disabled: boolean;
-  clear(): void;
-  setDisabled(disabled: boolean): void;
-  tokenize(requestId?: string): Promise<{
-    token: string;
-    last4: string;
-    bankName?: string;
-    requestId?: string;
-  }>;
-}
+export const achFieldEvents = {
+  load: "load",
+  change: "change",
+  tokenizationSuccess: "tokenizationsuccess",
+  tokenizationError: "tokenizationerror",
+} as const;
 
 function isAchFieldName(value: unknown): value is AchHostedFieldName {
   return (
@@ -163,20 +153,13 @@ function isTokenizeErrorCode(
   );
 }
 
-function normalizeUrl(secureOrigin: string, embedPath: string): URL | null {
+function normalizeUrl(secureOrigin: string): URL | null {
   try {
     const origin = secureOrigin.replace(/\/$/, "");
-    const path = embedPath.startsWith("/") ? embedPath : `/${embedPath}`;
-    return new URL(`${origin}${path}`);
+    return new URL(`${origin}${DEFAULT_EMBED_PATH}`);
   } catch {
     return null;
   }
-}
-
-function isLoopbackHostname(hostname: string): boolean {
-  return (
-    hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]"
-  );
 }
 
 function normalizeOrigin(value: string): string | null {
@@ -187,50 +170,70 @@ function normalizeOrigin(value: string): string | null {
   }
 }
 
-function areConfigsEqual(
-  left: AchFieldElementConfig,
-  right: AchFieldElementConfig,
-): boolean {
-  const leftAccountTypeValues = [...(left.accountTypeValues ?? [])]
-    .sort()
-    .join(",");
-  const rightAccountTypeValues = [...(right.accountTypeValues ?? [])]
-    .sort()
-    .join(",");
-  return (
-    left.secureOrigin === right.secureOrigin &&
-    left.embedPath === right.embedPath &&
-    left.field === right.field &&
-    (left.merchantOrigin ?? "") === (right.merchantOrigin ?? "") &&
-    (left.sessionId ?? "") === (right.sessionId ?? "") &&
-    (left.label ?? "") === (right.label ?? "") &&
-    (left.placeholder ?? "") === (right.placeholder ?? "") &&
-    leftAccountTypeValues === rightAccountTypeValues
-  );
+function generateSessionId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (char) => {
+    const random = (Math.random() * 16) | 0;
+    const value = char === "x" ? random : (random & 0x3) | 0x8;
+    return value.toString(16);
+  });
+}
+
+function parseAccountTypeValues(raw: string | null): AchAccountTypeValue[] | undefined {
+  if (!raw) return undefined;
+
+  const values = raw
+    .split(",")
+    .map((value) => value.trim())
+    .filter((value): value is AchAccountTypeValue => value === "checking" || value === "savings");
+
+  return values.length > 0 ? values : undefined;
+}
+
+function stringifyAccountTypeValues(values: AchAccountTypeValue[] | undefined): string | null {
+  if (!values?.length) return null;
+  const uniqueValues = Array.from(new Set(values));
+  return uniqueValues.join(",");
 }
 
 export class AchFieldElement extends HTMLElement {
+  static formAssociated = true;
+
   static get observedAttributes(): string[] {
-    return [...STYLE_ATTRIBUTE_NAMES];
+    return [
+      FIELD_ATTRIBUTE,
+      SECURE_ORIGIN_ATTRIBUTE,
+      SESSION_ID_ATTRIBUTE,
+      LABEL_ATTRIBUTE,
+      PLACEHOLDER_ATTRIBUTE,
+      ACCOUNT_TYPE_VALUES_ATTRIBUTE,
+      DISABLED_ATTRIBUTE,
+      ...THEME_ATTRIBUTE_NAMES,
+    ];
   }
 
-  private _config: AchFieldElementConfig = {
-    secureOrigin: ACH_SECURE_ORIGIN,
-    embedPath: "/v2.html",
-    field: "routing_number",
-  };
-
   private _disabled = false;
+  private _secureOrigin = DEFAULT_ACH_SECURE_ORIGIN;
+  private _field: AchHostedFieldName = "routing_number";
+  private _sessionId = "";
+  private _label: string | undefined;
+  private _placeholder: string | undefined;
+  private _accountTypeValues: AchAccountTypeValue[] | undefined;
+
   private _fieldPublicState: Partial<AchHostedFieldsPublicState> = {};
   private _fallbackRequestCounter = 0;
   private _listening = false;
   private _isRegistered = false;
+  private _internals: ElementInternals | null;
 
   private readonly _onWindowMessage = (event: MessageEvent) => {
     const entry = this._registryEntry;
     if (!entry || entry.host !== this) return;
 
-    const url = normalizeUrl(this._config.secureOrigin, this._config.embedPath);
+    const url = normalizeUrl(this._secureOrigin);
     if (!url || event.origin !== url.origin) return;
     if (event.source !== entry.controllerIframe?.contentWindow) return;
 
@@ -250,10 +253,14 @@ export class AchFieldElement extends HTMLElement {
         ? incomingFields.filter(isAchFieldName)
         : [];
 
-      this._broadcast("ach-ready", {
+      entry.registeredFields = new Set(registeredFields);
+
+      this._broadcast(achFieldEvents.load, {
         sessionId: this._sessionId,
         registeredFields,
       });
+
+      this._syncSessionValidity(entry);
       return;
     }
 
@@ -262,13 +269,11 @@ export class AchFieldElement extends HTMLElement {
       if (!fields || typeof fields !== "object") return;
 
       const normalizedFields: AchChangeEventDetail["fields"] = {};
-      for (const fieldName of Object.keys(
-        DEFAULT_LABELS,
-      ) as AchHostedFieldName[]) {
+      for (const fieldName of Object.keys(DEFAULT_LABELS) as AchHostedFieldName[]) {
         const entryStateRaw = (fields as Record<string, unknown>)[fieldName];
         if (!entryStateRaw || typeof entryStateRaw !== "object") continue;
-        const entryState = entryStateRaw as Record<string, unknown>;
 
+        const entryState = entryStateRaw as Record<string, unknown>;
         const empty = entryState["empty"];
         const complete = entryState["complete"];
         const errorCode = entryState["errorCode"];
@@ -282,40 +287,32 @@ export class AchFieldElement extends HTMLElement {
           (typeof focused === "boolean" || focused === undefined) &&
           (typeof touched === "boolean" || touched === undefined)
         ) {
-          normalizedFields[fieldName] = {
+          const normalized: AchFieldState = {
             empty,
             complete,
             errorCode,
             focused,
             touched,
           };
+
+          normalizedFields[fieldName] = normalized;
+          entry.fieldStates[fieldName] = normalized;
         }
       }
 
       for (const instance of entry.instances) {
-        const ownField = instance._config.field;
-        if (!(ownField in normalizedFields)) continue;
-        instance._applyFieldPublicState(normalizedFields[ownField]);
+        const ownField = instance._field;
+        const ownState = normalizedFields[ownField];
+        if (!ownState) continue;
+        instance._applyFieldPublicState(ownState);
       }
 
-      this._broadcast("ach-change", {
+      this._broadcast(achFieldEvents.change, {
         sessionId: this._sessionId,
         fields: normalizedFields,
       });
-      return;
-    }
 
-    if (kind === "ach:focus") {
-      const field = payload["field"];
-      if (!isAchFieldName(field)) return;
-      this._broadcast("ach-focus", { sessionId: this._sessionId, field });
-      return;
-    }
-
-    if (kind === "ach:blur") {
-      const field = payload["field"];
-      if (!isAchFieldName(field)) return;
-      this._broadcast("ach-blur", { sessionId: this._sessionId, field });
+      this._syncSessionValidity(entry);
       return;
     }
 
@@ -327,7 +324,7 @@ export class AchFieldElement extends HTMLElement {
 
       if (typeof token !== "string" || typeof last4 !== "string") return;
 
-      this._broadcast("ach-tokenize-success", {
+      this._broadcast(achFieldEvents.tokenizationSuccess, {
         sessionId: this._sessionId,
         token,
         last4,
@@ -357,7 +354,7 @@ export class AchFieldElement extends HTMLElement {
       const requestId = payload["requestId"];
       if (!isTokenizeErrorCode(code)) return;
 
-      this._broadcast("ach-tokenize-error", {
+      this._broadcast(achFieldEvents.tokenizationError, {
         sessionId: this._sessionId,
         code,
         requestId: typeof requestId === "string" ? requestId : undefined,
@@ -377,14 +374,72 @@ export class AchFieldElement extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    this._internals = typeof this.attachInternals === "function" ? this.attachInternals() : null;
+
+    const secureOrigin = this.getAttribute(SECURE_ORIGIN_ATTRIBUTE)?.trim();
+    if (secureOrigin) this._secureOrigin = secureOrigin;
+
+    const field = this.getAttribute(FIELD_ATTRIBUTE);
+    if (isAchFieldName(field)) this._field = field;
+
+    this._sessionId = this.getAttribute(SESSION_ID_ATTRIBUTE)?.trim() || generateSessionId();
+    this._label = this.getAttribute(LABEL_ATTRIBUTE)?.trim() || undefined;
+    this._placeholder = this.getAttribute(PLACEHOLDER_ATTRIBUTE)?.trim() || undefined;
+    this._accountTypeValues = parseAccountTypeValues(
+      this.getAttribute(ACCOUNT_TYPE_VALUES_ATTRIBUTE),
+    );
+    this._disabled = this.hasAttribute(DISABLED_ATTRIBUTE);
+  }
+
+  addEventListener<K extends keyof AchFieldElementEventMap>(
+    type: K,
+    listener: (this: AchFieldElement, event: AchFieldElementEventMap[K]) => void,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void {
+    super.addEventListener(type, listener, options);
+  }
+
+  removeEventListener<K extends keyof AchFieldElementEventMap>(
+    type: K,
+    listener: (this: AchFieldElement, event: AchFieldElementEventMap[K]) => void,
+    options?: boolean | EventListenerOptions,
+  ): void;
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | EventListenerOptions,
+  ): void;
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | EventListenerOptions,
+  ): void {
+    super.removeEventListener(type, listener, options);
   }
 
   connectedCallback(): void {
+    if (!this.hasAttribute(SESSION_ID_ATTRIBUTE)) {
+      this.setAttribute(SESSION_ID_ATTRIBUTE, this._sessionId);
+    }
+
     this._isRegistered = true;
     this._registerInstance();
     this._render();
-    this.setDisabled(this._disabled);
+    this._syncDisabledState();
     this._syncPublicStateDataAttributes();
+
+    const entry = this._registryEntry;
+    if (entry) this._syncFormValidity(entry);
   }
 
   disconnectedCallback(): void {
@@ -392,37 +447,157 @@ export class AchFieldElement extends HTMLElement {
     this._unregisterInstance();
   }
 
+  formDisabledCallback(disabled: boolean): void {
+    this.disabled = disabled;
+  }
+
   attributeChangedCallback(
     name: string,
     oldValue: string | null,
     newValue: string | null,
   ): void {
-    if (!STYLE_ATTRIBUTE_NAMES.includes(name as AchStyleAttributeName)) return;
     if (oldValue === newValue) return;
+
+    if (name === SECURE_ORIGIN_ATTRIBUTE) {
+      this._secureOrigin = newValue?.trim() || DEFAULT_ACH_SECURE_ORIGIN;
+      this._rekeyIfNeeded();
+      return;
+    }
+
+    if (name === FIELD_ATTRIBUTE) {
+      if (isAchFieldName(newValue)) this._field = newValue;
+      this._render();
+      this._syncSessionValidity(this._registryEntry);
+      return;
+    }
+
+    if (name === SESSION_ID_ATTRIBUTE) {
+      this._sessionId = newValue?.trim() || generateSessionId();
+      this._rekeyIfNeeded();
+      return;
+    }
+
+    if (name === LABEL_ATTRIBUTE) {
+      this._label = newValue?.trim() || undefined;
+      this._render();
+      return;
+    }
+
+    if (name === PLACEHOLDER_ATTRIBUTE) {
+      this._placeholder = newValue?.trim() || undefined;
+      this._render();
+      return;
+    }
+
+    if (name === ACCOUNT_TYPE_VALUES_ATTRIBUTE) {
+      this._accountTypeValues = parseAccountTypeValues(newValue);
+      this._render();
+      return;
+    }
+
+    if (name === DISABLED_ATTRIBUTE) {
+      this._disabled = newValue !== null;
+      this._syncDisabledState();
+      return;
+    }
+
+    if (!THEME_ATTRIBUTE_NAMES.includes(name as ThemeAttributeName)) return;
     if (!this._isRegistered) return;
 
     this._render();
-    this.setDisabled(this._disabled);
+    this._syncDisabledState();
   }
 
-  set config(value: AchFieldElementConfig) {
-    const nextConfig = { ...value };
-    if (areConfigsEqual(this._config, nextConfig)) return;
+  get secureOrigin(): string {
+    return this._secureOrigin;
+  }
 
-    const priorKey = this._registryKey;
-    this._config = nextConfig;
+  set secureOrigin(value: string) {
+    const normalized = value.trim();
+    if (!normalized || normalized === this._secureOrigin) return;
 
-    if (this._isRegistered && priorKey !== this._registryKey) {
-      this._unregisterInstance(priorKey);
-      this._registerInstance();
+    this._secureOrigin = normalized;
+    if (this.getAttribute(SECURE_ORIGIN_ATTRIBUTE) !== normalized) {
+      this.setAttribute(SECURE_ORIGIN_ATTRIBUTE, normalized);
     }
-
-    this._render();
-    this.setDisabled(this._disabled);
   }
 
-  get config(): AchFieldElementConfig {
-    return { ...this._config };
+  get field(): AchHostedFieldName {
+    return this._field;
+  }
+
+  set field(value: AchHostedFieldName) {
+    const normalized = isAchFieldName(value) ? value : "routing_number";
+    if (normalized === this._field) return;
+
+    this._field = normalized;
+    if (this.getAttribute(FIELD_ATTRIBUTE) !== normalized) {
+      this.setAttribute(FIELD_ATTRIBUTE, normalized);
+    }
+  }
+
+  get sessionId(): string {
+    return this._sessionId;
+  }
+
+  set sessionId(value: string) {
+    const normalized = value.trim() || generateSessionId();
+    if (normalized === this._sessionId) return;
+
+    this._sessionId = normalized;
+    if (this.getAttribute(SESSION_ID_ATTRIBUTE) !== normalized) {
+      this.setAttribute(SESSION_ID_ATTRIBUTE, normalized);
+    }
+  }
+
+  get label(): string | undefined {
+    return this._label;
+  }
+
+  set label(value: string | undefined) {
+    const normalized = value?.trim() || undefined;
+    if (normalized === this._label) return;
+
+    this._label = normalized;
+    if (normalized === undefined) {
+      this.removeAttribute(LABEL_ATTRIBUTE);
+    } else if (this.getAttribute(LABEL_ATTRIBUTE) !== normalized) {
+      this.setAttribute(LABEL_ATTRIBUTE, normalized);
+    }
+  }
+
+  get placeholder(): string | undefined {
+    return this._placeholder;
+  }
+
+  set placeholder(value: string | undefined) {
+    const normalized = value?.trim() || undefined;
+    if (normalized === this._placeholder) return;
+
+    this._placeholder = normalized;
+    if (normalized === undefined) {
+      this.removeAttribute(PLACEHOLDER_ATTRIBUTE);
+    } else if (this.getAttribute(PLACEHOLDER_ATTRIBUTE) !== normalized) {
+      this.setAttribute(PLACEHOLDER_ATTRIBUTE, normalized);
+    }
+  }
+
+  get accountTypeValues(): AchAccountTypeValue[] | undefined {
+    return this._accountTypeValues ? [...this._accountTypeValues] : undefined;
+  }
+
+  set accountTypeValues(values: AchAccountTypeValue[] | undefined) {
+    const normalized = values?.length ? [...new Set(values)] : undefined;
+    const left = stringifyAccountTypeValues(this._accountTypeValues);
+    const right = stringifyAccountTypeValues(normalized);
+    if (left === right) return;
+
+    this._accountTypeValues = normalized;
+    if (right === null) {
+      this.removeAttribute(ACCOUNT_TYPE_VALUES_ATTRIBUTE);
+    } else if (this.getAttribute(ACCOUNT_TYPE_VALUES_ATTRIBUTE) !== right) {
+      this.setAttribute(ACCOUNT_TYPE_VALUES_ATTRIBUTE, right);
+    }
   }
 
   get disabled(): boolean {
@@ -430,36 +605,19 @@ export class AchFieldElement extends HTMLElement {
   }
 
   set disabled(value: boolean) {
-    this._disabled = Boolean(value);
-    this.setDisabled(this._disabled);
-  }
+    const normalized = Boolean(value);
+    if (this._disabled === normalized) return;
 
-  get sessionId(): string {
-    return this._sessionId;
-  }
-
-  focusField(field: AchHostedFieldName): void {
-    this._postMessage({ kind: "merchant:focus", field });
+    this._disabled = normalized;
+    if (normalized) {
+      this.setAttribute(DISABLED_ATTRIBUTE, "");
+    } else {
+      this.removeAttribute(DISABLED_ATTRIBUTE);
+    }
   }
 
   clear(): void {
     this._postMessage({ kind: "merchant:clear" });
-  }
-
-  setDisabled(disabled: boolean, field?: AchHostedFieldName): void {
-    const nextDisabled = Boolean(disabled);
-    const isNoOpGlobalToggle =
-      field === undefined && this._disabled === nextDisabled;
-
-    this._disabled = nextDisabled;
-    this._syncDisabledDataAttribute();
-    if (isNoOpGlobalToggle) return;
-
-    this._postMessage({
-      kind: "merchant:setDisabled",
-      disabled: this._disabled,
-      field,
-    });
   }
 
   tokenize(requestId?: string): Promise<{
@@ -474,8 +632,7 @@ export class AchFieldElement extends HTMLElement {
     }
 
     const normalizedRequestId =
-      requestId ??
-      `ach-tokenize-${++this._fallbackRequestCounter}-${Date.now()}`;
+      requestId ?? `ach-tokenize-${++this._fallbackRequestCounter}-${Date.now()}`;
 
     return new Promise((resolve, reject) => {
       const timeoutId = window.setTimeout(() => {
@@ -497,36 +654,39 @@ export class AchFieldElement extends HTMLElement {
     });
   }
 
-  destroy(): void {
-    this.remove();
+  checkValidity(): boolean {
+    return this._internals?.checkValidity() ?? true;
   }
 
-  private get _sessionId(): string {
-    if (this._config.sessionId) return this._config.sessionId;
-
-    const generated = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-      /[xy]/g,
-      (c) => {
-        const r = (Math.random() * 16) | 0;
-        return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
-      },
-    );
-    this._config = { ...this._config, sessionId: generated };
-    return generated;
+  reportValidity(): boolean {
+    if (!this._internals) return true;
+    return this._internals.reportValidity();
   }
 
   private get _registryKey(): string {
-    const merchantOrigin = this._merchantOrigin;
-    return [
-      this._config.secureOrigin,
-      this._config.embedPath,
-      merchantOrigin,
-      this._sessionId,
-    ].join("|");
+    return [this._secureOrigin, this._merchantOrigin, this._sessionId].join("|");
   }
 
   private get _registryEntry(): ControllerRegistryEntry | undefined {
     return controllerRegistry.get(this._registryKey);
+  }
+
+  private get _merchantOrigin(): string {
+    return normalizeOrigin(window.location.origin) ?? window.location.origin;
+  }
+
+  private _rekeyIfNeeded(): void {
+    if (!this._isRegistered) return;
+    const previousKeys = Array.from(controllerRegistry.keys());
+    const previousKey = previousKeys.find((key) => {
+      const entry = controllerRegistry.get(key);
+      return Boolean(entry?.instances.has(this));
+    });
+
+    this._unregisterInstance(previousKey);
+    this._registerInstance();
+    this._render();
+    this._syncDisabledState();
   }
 
   private _registerInstance(): void {
@@ -536,6 +696,8 @@ export class AchFieldElement extends HTMLElement {
       host: null,
       controllerIframe: null,
       pendingTokenizes: new Map<string, TokenizeDeferred>(),
+      registeredFields: new Set<AchHostedFieldName>(),
+      fieldStates: {},
     };
 
     entry.instances.add(this);
@@ -546,6 +708,8 @@ export class AchFieldElement extends HTMLElement {
     } else {
       this._stopListening();
     }
+
+    this._syncFormValidity(entry);
   }
 
   private _unregisterInstance(explicitKey?: string): void {
@@ -558,7 +722,7 @@ export class AchFieldElement extends HTMLElement {
     for (const [requestId, deferred] of entry.pendingTokenizes) {
       if (deferred.owner !== this) continue;
       window.clearTimeout(deferred.timeoutId);
-      deferred.reject(new Error("ACH field element was destroyed."));
+      deferred.reject(new Error("ACH field element was disconnected."));
       entry.pendingTokenizes.delete(requestId);
     }
 
@@ -568,16 +732,11 @@ export class AchFieldElement extends HTMLElement {
 
       const nextHost = Array.from(entry.instances)[0] ?? null;
       entry.host = nextHost;
-      if (nextHost) {
-        nextHost._claimHost(entry);
-      }
+      if (nextHost) nextHost._claimHost(entry);
     }
 
     if (entry.instances.size === 0) {
-      const targetOrigin = normalizeUrl(
-        this._config.secureOrigin,
-        this._config.embedPath,
-      )?.origin;
+      const targetOrigin = normalizeUrl(this._secureOrigin)?.origin;
       if (targetOrigin && entry.controllerIframe?.contentWindow) {
         entry.controllerIframe.contentWindow.postMessage(
           { kind: "merchant:destroy" },
@@ -592,7 +751,10 @@ export class AchFieldElement extends HTMLElement {
       entry.pendingTokenizes.clear();
 
       controllerRegistry.delete(key);
+      return;
     }
+
+    this._syncSessionValidity(entry);
   }
 
   private _claimHost(entry: ControllerRegistryEntry): void {
@@ -601,7 +763,7 @@ export class AchFieldElement extends HTMLElement {
     this._render();
     entry.controllerIframe =
       this.shadowRoot?.querySelector("iframe[data-role='controller']") ?? null;
-    this.setDisabled(this._disabled);
+    this._syncDisabledState();
   }
 
   private _startListening(): void {
@@ -621,15 +783,17 @@ export class AchFieldElement extends HTMLElement {
     if (!entry) return;
 
     for (const instance of entry.instances) {
-      instance.dispatchEvent(new CustomEvent(eventName, { detail }));
+      instance.dispatchEvent(
+        new CustomEvent(eventName, {
+          detail,
+          bubbles: true,
+          composed: true,
+        }),
+      );
     }
   }
 
-  private _applyFieldPublicState(
-    nextState: AchChangeEventDetail["fields"][AchHostedFieldName],
-  ): void {
-    if (!nextState) return;
-
+  private _applyFieldPublicState(nextState: AchFieldState): void {
     this._fieldPublicState = {
       ...this._fieldPublicState,
       ...nextState,
@@ -647,15 +811,71 @@ export class AchFieldElement extends HTMLElement {
     this._toggleDataAttribute("focused", isFocused);
     this._toggleDataAttribute("invalid", isInvalid);
     this._toggleDataAttribute("user-invalid", isUserInvalid);
+    this._toggleDataAttribute("disabled", this._disabled);
   }
 
-  private _syncDisabledDataAttribute(): void {
+  private _syncDisabledState(): void {
     this._toggleDataAttribute("disabled", this._disabled);
+    this._postMessage({ kind: "merchant:setDisabled", disabled: this._disabled });
+
+    if (!this._disabled) {
+      const entry = this._registryEntry;
+      if (entry) this._syncFormValidity(entry);
+      return;
+    }
+
+    this._internals?.setValidity({});
+  }
+
+  private _syncSessionValidity(entry: ControllerRegistryEntry | undefined): void {
+    if (!entry) return;
+    for (const instance of entry.instances) {
+      instance._syncFormValidity(entry);
+    }
+  }
+
+  private _syncFormValidity(entry: ControllerRegistryEntry): void {
+    if (!this._internals) return;
+
+    if (this._disabled) {
+      this._internals.setValidity({});
+      return;
+    }
+
+    const fields = new Set<AchHostedFieldName>();
+    for (const instance of entry.instances) {
+      fields.add(instance._field);
+    }
+    for (const field of entry.registeredFields) {
+      fields.add(field);
+    }
+
+    for (const field of fields) {
+      const state = entry.fieldStates[field];
+      const label = DEFAULT_LABELS[field].toLowerCase();
+
+      if (!state || !state.complete) {
+        this._internals.setValidity(
+          { customError: true },
+          `Please complete ${label}.`,
+        );
+        return;
+      }
+
+      if (state.errorCode) {
+        this._internals.setValidity(
+          { customError: true },
+          `Please check ${label}.`,
+        );
+        return;
+      }
+    }
+
+    this._internals.setValidity({});
   }
 
   private _toggleDataAttribute(name: string, enabled: boolean): void {
     const attributeName = `data-${name}`;
-
     if (enabled) {
       this.setAttribute(attributeName, "");
       return;
@@ -665,118 +885,73 @@ export class AchFieldElement extends HTMLElement {
   }
 
   private _buildIframeUrl(mode: "controller" | "field"): string {
-    const url = normalizeUrl(this._config.secureOrigin, this._config.embedPath);
+    const url = normalizeUrl(this._secureOrigin);
     if (!url) return "about:blank";
 
-    const merchantOrigin = this._merchantOrigin;
     url.searchParams.set("mode", mode);
     url.searchParams.set("sessionId", this._sessionId);
-    url.searchParams.set("merchantOrigin", merchantOrigin);
+    url.searchParams.set("merchantOrigin", this._merchantOrigin);
 
     if (mode === "field") {
-      const field = this._config.field;
+      const field = this._field;
       const fallbackLabel = DEFAULT_LABELS[field];
-      const configuredLabel = this._config.label?.trim();
-      const styleAttributes = this._getStyleAttributes();
+      const configuredLabel = this._label?.trim();
+      const theme = this._getThemeAttributes();
+
       url.searchParams.set("field", field);
       url.searchParams.set(
         "label",
         configuredLabel?.length ? configuredLabel : fallbackLabel,
       );
-      if (this._config.placeholder) {
-        url.searchParams.set("placeholder", this._config.placeholder);
+
+      if (this._placeholder) {
+        url.searchParams.set("placeholder", this._placeholder);
       }
-      if (field === "account_type" && this._config.accountTypeValues?.length) {
-        url.searchParams.set(
-          "accountTypeValues",
-          this._config.accountTypeValues.join(","),
-        );
+
+      if (field === "account_type" && this._accountTypeValues?.length) {
+        url.searchParams.set("accountTypeValues", this._accountTypeValues.join(","));
       }
-      if (styleAttributes["ach-input-height"]) {
-        url.searchParams.set(
-          "inputHeight",
-          styleAttributes["ach-input-height"],
-        );
+
+      if (Object.keys(theme).length > 0) {
+        url.searchParams.set("style", JSON.stringify(theme));
       }
-      if (styleAttributes["ach-input-padding"]) {
-        url.searchParams.set(
-          "inputPadding",
-          styleAttributes["ach-input-padding"],
-        );
+
+      // Keep existing embed query keys in sync while using theme-prefixed public attributes.
+      if (theme["--input-height"]) {
+        url.searchParams.set("inputHeight", theme["--input-height"]);
       }
-      if (styleAttributes["ach-input-padding-x"]) {
-        url.searchParams.set(
-          "inputPaddingX",
-          styleAttributes["ach-input-padding-x"],
-        );
+      if (theme["--input-padding"]) {
+        url.searchParams.set("inputPadding", theme["--input-padding"]);
       }
-      if (styleAttributes["ach-input-padding-y"]) {
-        url.searchParams.set(
-          "inputPaddingY",
-          styleAttributes["ach-input-padding-y"],
-        );
+      if (theme["--input-padding-x"]) {
+        url.searchParams.set("inputPaddingX", theme["--input-padding-x"]);
       }
-      if (styleAttributes["ach-input-placeholder-color"]) {
-        url.searchParams.set(
-          "inputPlaceholderColor",
-          styleAttributes["ach-input-placeholder-color"],
-        );
+      if (theme["--input-padding-y"]) {
+        url.searchParams.set("inputPaddingY", theme["--input-padding-y"]);
       }
-      if (styleAttributes["ach-input-font"]) {
-        url.searchParams.set("inputFont", styleAttributes["ach-input-font"]);
+      if (theme["--input-placeholder-color"]) {
+        url.searchParams.set("inputPlaceholderColor", theme["--input-placeholder-color"]);
       }
-      if (styleAttributes["ach-input-text-color"]) {
-        url.searchParams.set(
-          "inputTextColor",
-          styleAttributes["ach-input-text-color"],
-        );
+      if (theme["--font-sans"]) {
+        url.searchParams.set("inputFont", theme["--font-sans"]);
       }
-      if (styleAttributes["ach-input-text-color-error"]) {
-        url.searchParams.set(
-          "inputTextColorError",
-          styleAttributes["ach-input-text-color-error"],
-        );
+      if (theme["--input-text-color"]) {
+        url.searchParams.set("inputTextColor", theme["--input-text-color"]);
       }
-      if (styleAttributes["ach-input-text-size"]) {
-        url.searchParams.set(
-          "inputTextSize",
-          styleAttributes["ach-input-text-size"],
-        );
+      if (theme["--input-error-text-color"]) {
+        url.searchParams.set("inputTextColorError", theme["--input-error-text-color"]);
+      }
+      if (theme["--input-font-size"]) {
+        url.searchParams.set("inputTextSize", theme["--input-font-size"]);
       }
     }
 
     return url.toString();
   }
 
-  private get _merchantOrigin(): string {
-    const currentOrigin = window.location.origin;
-    const configuredOrigin = this._config.merchantOrigin
-      ? normalizeOrigin(this._config.merchantOrigin)
-      : null;
-
-    if (!configuredOrigin) return currentOrigin;
-    if (configuredOrigin === currentOrigin) return configuredOrigin;
-
-    const currentUrl = new URL(currentOrigin);
-    const configuredUrl = new URL(configuredOrigin);
-
-    // During local development, prefer the live page origin over stale localhost ports.
-    if (
-      isLoopbackHostname(currentUrl.hostname) &&
-      isLoopbackHostname(configuredUrl.hostname)
-    ) {
-      return currentOrigin;
-    }
-
-    return configuredOrigin;
-  }
-
   private _postMessage(message: unknown): void {
     const entry = this._registryEntry;
-    const targetOrigin = normalizeUrl(
-      this._config.secureOrigin,
-      this._config.embedPath,
-    )?.origin;
+    const targetOrigin = normalizeUrl(this._secureOrigin)?.origin;
 
     if (!entry?.controllerIframe?.contentWindow || !targetOrigin) return;
 
@@ -787,23 +962,28 @@ export class AchFieldElement extends HTMLElement {
     }
   }
 
-  private _getStyleAttributes(): AchStyleAttributeMap {
-    const attributes: AchStyleAttributeMap = {};
+  private _getThemeAttributes(): Record<ThemeCssVar, string> {
+    const style = {} as Record<ThemeCssVar, string>;
 
-    for (const attributeName of STYLE_ATTRIBUTE_NAMES) {
-      const rawValue = this.getAttribute(attributeName)?.trim();
-      if (rawValue) {
-        attributes[attributeName] = rawValue;
-      }
+    for (const attrName of THEME_ATTRIBUTE_NAMES) {
+      const value = this.getAttribute(attrName)?.trim();
+      if (!value) continue;
+      style[THEME_ATTR_TO_CSS_VAR[attrName]] = value;
     }
 
-    return attributes;
+    return style;
+  }
+
+  private _resolveInitialIframeHeight(): string {
+    const configuredHeight = this.getAttribute("theme-input-height")?.trim();
+    return configuredHeight || DEFAULT_FIELD_HEIGHT;
   }
 
   private _render(): void {
     if (!this.shadowRoot) return;
 
     const isHost = this._registryEntry?.host === this;
+    const initialIframeHeight = this._resolveInitialIframeHeight();
 
     this.shadowRoot.innerHTML = "";
 
@@ -811,7 +991,7 @@ export class AchFieldElement extends HTMLElement {
     style.textContent = `
       :host { display: block; background: transparent; }
       .controller { display: none; }
-      iframe { width: 100%; height: var(--ach-field-height, ${DEFAULT_FIELD_HEIGHT}px); border: 0; display: block; background: transparent; }
+      iframe { width: 100%; height: var(--ach-field-height, ${initialIframeHeight}); min-height: var(--ach-field-height, ${initialIframeHeight}); border: 0; display: block; background: transparent; }
     `;
 
     this.shadowRoot.appendChild(style);
@@ -822,15 +1002,12 @@ export class AchFieldElement extends HTMLElement {
       controller.dataset.role = "controller";
       controller.title = "ACH controller";
       controller.src = this._buildIframeUrl("controller");
-      controller.setAttribute(
-        "sandbox",
-        "allow-forms allow-same-origin allow-scripts",
-      );
+      controller.setAttribute("sandbox", "allow-forms allow-same-origin allow-scripts");
       this.shadowRoot.appendChild(controller);
     }
 
     const fieldIframe = document.createElement("iframe");
-    fieldIframe.title = `ACH ${this._config.field}`;
+    fieldIframe.title = `ACH ${this._field}`;
     fieldIframe.src = this._buildIframeUrl("field");
     fieldIframe.style.visibility = "hidden";
     fieldIframe.style.opacity = "0";
@@ -839,28 +1016,21 @@ export class AchFieldElement extends HTMLElement {
       fieldIframe.style.visibility = "visible";
       fieldIframe.style.opacity = "1";
     });
-    fieldIframe.setAttribute(
-      "sandbox",
-      "allow-forms allow-same-origin allow-scripts",
-    );
+    fieldIframe.setAttribute("sandbox", "allow-forms allow-same-origin allow-scripts");
     this.shadowRoot.appendChild(fieldIframe);
 
     if (isHost) {
       const entry = this._registryEntry;
       if (entry) {
         entry.controllerIframe =
-          (this.shadowRoot.querySelector(
-            "iframe[data-role='controller']",
-          ) as HTMLIFrameElement | null) ?? null;
+          this.shadowRoot.querySelector("iframe[data-role='controller']") ?? null;
       }
     }
   }
 }
 
-export function defineAchFieldElement(): void {
-  if (!customElements.get(ACH_FIELD_ELEMENT_TAG)) {
-    customElements.define(ACH_FIELD_ELEMENT_TAG, AchFieldElement);
-  }
+if (typeof window !== "undefined" && !customElements.get(ACH_FIELD_ELEMENT_TAG)) {
+  customElements.define(ACH_FIELD_ELEMENT_TAG, AchFieldElement);
 }
 
 declare global {
