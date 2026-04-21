@@ -1,51 +1,78 @@
 /// <reference types="vitest/config" />
-import path from "path";
-import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
-import { defineConfig, loadEnv } from "vite";
-import { fileURLToPath } from "node:url";
 
-const dirname =
-  typeof __dirname !== "undefined"
-    ? __dirname
-    : path.dirname(fileURLToPath(import.meta.url));
+import pluginExternal from "vite-plugin-external";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import dts from "vite-plugin-dts";
+
+import { dependencies } from "./package.json";
+import { resolve } from "node:path";
+
+import {
+  type BuildEnvironmentOptions,
+  type LibraryOptions,
+  type PluginOption,
+  defineConfig,
+} from "vite";
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
+  const rolldownOptions: BuildEnvironmentOptions["rolldownOptions"] = {};
+  const plugins: PluginOption[] = [react(), tailwindcss()];
+  const srcDir = resolve(import.meta.dirname, "./src");
+  const elementsDir = resolve(srcDir, "./elements");
+  const entry: LibraryOptions["entry"] = {};
+  const isCDN = mode === "cdn";
+
+  entry["foxy-ach-field"] = resolve(elementsDir, "./ach-field-element.ts");
+  entry["foxy-payment-card-field"] = resolve(
+    elementsDir,
+    "./payment-card-field-element.ts",
+  );
+  entry["foxy-payment-method-selector"] = resolve(
+    elementsDir,
+    "./payment-method-selector-element.tsx",
+  );
+
+  if (isCDN) {
+    plugins.push(
+      pluginExternal({
+        externals: {
+          "@foxy.io/sdk/checkout": "https://cdn-js.foxy.io/sdk@2/checkout.js",
+        },
+      }),
+    );
+  } else {
+    plugins.push(
+      pluginExternal({
+        externalizeDeps: Object.keys(dependencies),
+        nodeBuiltins: true,
+      }),
+      dts({
+        tsconfigPath: "./tsconfig.app.json",
+        rollupTypes: true,
+      }),
+    );
+
+    rolldownOptions.output = {
+      postBanner: "/* See licenses of bundled dependencies in LICENSE.md */",
+    };
+
+    entry.index = resolve(elementsDir, "./index.ts");
+  }
 
   return {
-    define: {
-      global: {},
-      "process.env": env,
-    },
-    plugins: [react(), tailwindcss()],
-    resolve: {
-      alias: {
-        "@": path.resolve(dirname, "./src"),
-      },
-    },
+    plugins,
+    resolve: { alias: { "@": srcDir } },
     build: {
+      rolldownOptions,
+      sourcemap: !isCDN,
+      license: isCDN && { fileName: "LICENSE.md" },
+      minify: isCDN,
+      outDir: `dist/${isCDN ? "cdn" : "npm"}`,
       lib: {
-        entry: {
-          elements: path.resolve(dirname, "src/elements/index.ts"),
-          "ach-field-element": path.resolve(
-            dirname,
-            "src/elements/ach-field-element.ts",
-          ),
-          "payment-card-field-element": path.resolve(
-            dirname,
-            "src/elements/payment-card-field-element.ts",
-          ),
-          "payment-method-selector-element": path.resolve(
-            dirname,
-            "src/elements/payment-method-selector-element.tsx",
-          ),
-        },
-        formats: ["es"],
         fileName: (_, entryName) => `${entryName}.js`,
-      },
-      rollupOptions: {
-        external: ["react", "react-dom"],
+        formats: ["es"],
+        entry,
       },
     },
   };
