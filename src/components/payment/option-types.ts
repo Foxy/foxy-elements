@@ -27,8 +27,7 @@ export type PaymentMethodSelectorOption = {
     paymentElementOptions?: Record<string, unknown>;
   };
   hostedFields?: {
-    secureOrigin: string;
-    sessionId?: string;
+    group?: string;
     labels?: Partial<Record<AchHostedFieldName, string>>;
     placeholders?: Partial<Record<AchHostedFieldName, string>>;
     accountTypeValues?: AchAccountTypeValue[];

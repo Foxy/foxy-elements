@@ -6,3 +6,5 @@ dist
 .DS_Store
 storybook-static
 foxy.io-elements-0.0.0.tgz
+.vitest-*
+__screenshots__

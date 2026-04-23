@@ -27,7 +27,7 @@ Load one or more elements directly from a CDN build and then use them in markup:
   type="module"
   src="https://cdn-js.foxy.io/elements@2/foxy-ach-field.js"
 ></script>
-<foxy-ach-field field="routing_number"></foxy-ach-field>
+<foxy-ach-field type="routing_number"></foxy-ach-field>
 ```
 
 ## npm Usage

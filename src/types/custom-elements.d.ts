@@ -7,10 +7,8 @@ type AchFieldElementProps = Omit<
   "style"
 > & {
   style?: CSSProperties & Record<`--${string}`, string | number>;
-  field?: "routing_number" | "account_number" | "account_type" | "account_holder_name";
-  "secure-origin"?: string;
-  "session-id"?: string;
-  label?: string;
+  type?: "routing-number" | "account-number" | "account-type" | "account-holder-name";
+  group?: string;
   placeholder?: string;
   "account-type-values"?: string;
   disabled?: boolean;
@@ -35,8 +33,12 @@ type CardEmbedElementProps = Omit<
   style?: CSSProperties & Record<`--${string}`, string | number>;
   mode?: "full" | "csc-only";
   "secure-origin"?: string;
-  "template-set-id"?: number;
-  "demo-mode"?: "full" | "csc-only";
+  "translation-card-number-label"?: string;
+  "translation-card-number-placeholder"?: string;
+  "translation-card-expiration-label"?: string;
+  "translation-card-expiration-placeholder"?: string;
+  "translation-card-csc-label"?: string;
+  "translation-card-csc-placeholder"?: string;
   "theme-background"?: string;
   "theme-input-placeholder-color"?: string;
   "theme-input-height"?: string;

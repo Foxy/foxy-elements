@@ -1,0 +1,176 @@
+import { Meta, Canvas, Controls } from "@storybook/blocks";
+import * as CardEmbedStories from "./card-embed.stories";
+
+<Meta of={CardEmbedStories} />
+
+# Card Embed
+
+Developer diagnostics suite for foxy-payment-card-field. These stories prioritize maintainers and AI agents validating runtime behavior and integration contracts.
+
+## Story Selection Guide
+
+- Validate reflected API and attributes: use ApiPlayground
+- Verify mode reflection and runtime switching: use ModeTransitions
+- Reproduce validity transitions: use ValidationStates
+- Verify theme attribute passthrough: use ThemeAttributeControls
+- Verify deterministic tokenize success contract: use TokenizeSuccess
+- Replay tokenize failure path deterministically: use TokenizeErrorMatrix
+- Exercise form-associated integration: use FormIntegrationInteraction
+- Verify disabled host state styling: use Disabled
+
+## API Reference
+
+The card field is attribute-first and exposes matching properties.
+
+<table>
+  <thead>
+    <tr>
+      <th>Attribute</th>
+      <th>Property</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>secure-origin</code></td>
+      <td><code>secureOrigin</code></td>
+      <td><code>string</code></td>
+      <td>Secure embed origin used for iframe mounting.</td>
+    </tr>
+    <tr>
+      <td><code>mode</code></td>
+      <td><code>mode</code></td>
+      <td><code>"full" | "csc-only"</code></td>
+      <td>Controls full card fields or CSC-only mode.</td>
+    </tr>
+    <tr>
+      <td><code>disabled</code></td>
+      <td><code>disabled</code></td>
+      <td><code>boolean</code></td>
+      <td>Disables hosted inputs.</td>
+    </tr>
+  </tbody>
+</table>
+
+### Methods
+
+- `clear(): void`
+- `tokenize(requestId?: string): Promise<{ token: string; requestId?: string }>`
+- `checkValidity(): boolean`
+- `reportValidity(): boolean`
+
+### Events
+
+<table>
+  <thead>
+    <tr>
+      <th>Event</th>
+      <th>Detail</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>load</code></td><td>none</td></tr>
+    <tr><td><code>resize</code></td><td><code>{'{ height: string }'}</code></td></tr>
+    <tr>
+      <td><code>tokenizationsuccess</code></td>
+      <td><code>{'{ token: string; requestId?: string }'}</code></td>
+    </tr>
+    <tr>
+      <td><code>tokenizationerror</code></td>
+      <td><code>{'{ code: CardEmbedTokenizeErrorCode; message?: string; requestId?: string }'}</code></td>
+    </tr>
+  </tbody>
+</table>
+
+### Theme Attributes
+
+<table>
+  <thead>
+    <tr>
+      <th>Attribute</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>theme-background</code></td><td>Iframe background color</td></tr>
+    <tr><td><code>theme-input-placeholder-color</code></td><td>Placeholder color</td></tr>
+    <tr><td><code>theme-input-height</code></td><td>Input height</td></tr>
+    <tr><td><code>theme-input-padding-x</code></td><td>Horizontal input padding</td></tr>
+    <tr><td><code>theme-input-padding-y</code></td><td>Vertical input padding</td></tr>
+    <tr><td><code>theme-font-sans</code></td><td>Input font family/shorthand</td></tr>
+    <tr><td><code>theme-input-text-color</code></td><td>Input text color</td></tr>
+    <tr><td><code>theme-input-error-text-color</code></td><td>Input error text color</td></tr>
+    <tr><td><code>theme-input-font-size</code></td><td>Input font size</td></tr>
+  </tbody>
+</table>
+
+### States
+
+The element exposes ElementInternals custom states on the host:
+
+- :state(focused)
+- :state(user-invalid)
+- :state(user-valid)
+- :state(disabled)
+
+Native :valid and :invalid also apply because the element is form-associated.
+
+## Local Dev Notes
+
+- The hosted iframe is loaded from VITE_EMBED_ORIGIN.
+- If that origin is unavailable, stories still validate host API, controls, events, and deterministic play interactions, but browser console network errors for iframe requests are expected.
+
+## Stories
+
+### API Playground
+
+Control-driven single-field harness for mode and disabled reflection checks.
+
+<Canvas of={CardEmbedStories.ApiPlayground} />
+
+<Controls of={CardEmbedStories.ApiPlayground} />
+
+### Mode Transitions
+
+Play-driven runtime mode switches for reflection and lifecycle verification.
+
+<Canvas of={CardEmbedStories.ModeTransitions} />
+
+### Validity States
+
+Play-driven validation updates for invalid and valid transitions.
+
+<Canvas of={CardEmbedStories.ValidationStates} />
+
+### Theme Attribute Controls
+
+Theme propagation checks for text color, placeholder color, error color, background, and typography.
+
+<Canvas of={CardEmbedStories.ThemeAttributeControls} />
+
+<Controls of={CardEmbedStories.ThemeAttributeControls} />
+
+### Tokenize Success
+
+Deterministic tokenize success path with promise and event payload checks.
+
+<Canvas of={CardEmbedStories.TokenizeSuccess} />
+
+### Tokenize Error Matrix
+
+Deterministic tokenize failure replay and rejection assertions.
+
+<Canvas of={CardEmbedStories.TokenizeErrorMatrix} />
+
+### Form Integration Interaction
+
+Minimal form-associated flow using reportValidity plus tokenize behavior.
+
+<Canvas of={CardEmbedStories.FormIntegrationInteraction} />
+
+### Disabled
+
+Host disabled-state diagnostics.
+
+<Canvas of={CardEmbedStories.Disabled} />

@@ -63,10 +63,10 @@ import { defineMessages, useIntl } from "react-intl";
 import type { IntlShape, MessageDescriptor } from "react-intl";
 
 const ACH_FIELDS: AchHostedFieldName[] = [
-  "routing_number",
-  "account_number",
-  "account_type",
-  "account_holder_name",
+  "routing-number",
+  "account-number",
+  "account-type",
+  "account-holder-name",
 ];
 
 const CARD_TYPES = new Set(["new-card", "saved-card", "card"]);
@@ -278,10 +278,10 @@ const BILLING_FIELD_LABEL_BY_ID: Partial<Record<string, MessageDescriptor>> = {
 const ACH_LABEL_BY_FIELD: Partial<
   Record<AchHostedFieldName, MessageDescriptor>
 > = {
-  routing_number: messages.achRoutingNumber,
-  account_number: messages.achAccountNumber,
-  account_type: messages.achAccountType,
-  account_holder_name: messages.achAccountHolderName,
+  "routing-number": messages.achRoutingNumber,
+  "account-number": messages.achAccountNumber,
+  "account-type": messages.achAccountType,
+  "account-holder-name": messages.achAccountHolderName,
 };
 
 const GATEWAY_NAME_BY_TYPE: Record<string, string> = {
@@ -1090,11 +1090,7 @@ function CardOptionEmbed({
 
     element.secureOrigin = option.hostedCard.secureOrigin;
     element.mode = option.hostedCard.mode;
-    element.templateSetId = option.hostedCard.templateSetId;
-    element.demoMode = option.hostedCard.demoMode;
-    element.translations = option.hostedCard.translations;
     element.disabled = Boolean(disabled);
-    element.readonly = Boolean(disabled);
   }, [disabled, option.hostedCard]);
 
   useEffect(() => {
@@ -1147,10 +1143,16 @@ function CardOptionEmbed({
         id: fieldId,
         mode: option.hostedCard.mode,
         "secure-origin": option.hostedCard.secureOrigin,
-        "template-set-id": option.hostedCard.templateSetId,
-        "demo-mode": option.hostedCard.demoMode,
+        "translation-card-number-label": option.hostedCard.translationCardNumberLabel,
+        "translation-card-number-placeholder":
+          option.hostedCard.translationCardNumberPlaceholder,
+        "translation-card-expiration-label": option.hostedCard.translationCardExpirationLabel,
+        "translation-card-expiration-placeholder":
+          option.hostedCard.translationCardExpirationPlaceholder,
+        "translation-card-csc-label": option.hostedCard.translationCardCscLabel,
+        "translation-card-csc-placeholder": option.hostedCard.translationCardCscPlaceholder,
         className:
-          "border-input dark:bg-input/30 data-[focused]:border-ring data-[focused]:ring-ring/50 data-[user-invalid]:border-destructive data-[user-invalid]:ring-destructive/20 dark:data-[user-invalid]:ring-destructive/40 data-[user-invalid]:ring-3 data-[focused]:ring-3 data-[disabled]:bg-input/50 dark:data-[disabled]:bg-input/80 data-[disabled]:opacity-50 rounded-[var(--radius)] border transition-colors block w-full overflow-hidden",
+          "border-input dark:bg-input/30 [&:state(focused)]:border-ring [&:state(focused)]:ring-ring/50 [&:state(user-invalid)]:border-destructive [&:state(user-invalid)]:ring-destructive/20 dark:[&:state(user-invalid)]:ring-destructive/40 [&:state(user-invalid)]:ring-3 [&:state(focused)]:ring-3 [&:state(disabled)]:bg-input/50 dark:[&:state(disabled)]:bg-input/80 [&:state(disabled)]:opacity-50 rounded-[var(--radius)] border transition-colors block w-full overflow-hidden",
         "theme-background": styleAttributes.inputBackground,
         "theme-input-placeholder-color": styleAttributes.inputPlaceholderColor,
         "theme-input-height": styleAttributes.inputHeight,
@@ -1190,9 +1192,9 @@ function AchOptionEmbed({
     null,
   );
   const refs = useRef<Partial<Record<AchHostedFieldName, AchFieldElement | null>>>({});
-  const sessionId = useMemo(
-    () => option.hostedFields?.sessionId ?? crypto.randomUUID(),
-    [option.hostedFields?.sessionId],
+  const group = useMemo(
+    () => option.hostedFields?.group ?? crypto.randomUUID(),
+    [option.hostedFields?.group],
   );
 
   useEffect(() => {
@@ -1203,16 +1205,14 @@ function AchOptionEmbed({
       const element = refs.current[fieldName];
       if (!element) continue;
 
-      element.secureOrigin = fields.secureOrigin;
-      element.sessionId = sessionId;
-      element.field = fieldName;
-      element.label = fields.labels?.[fieldName];
+      element.group = group;
+      element.type = fieldName;
       element.placeholder = fields.placeholders?.[fieldName];
       element.accountTypeValues =
-        fieldName === "account_type" ? fields.accountTypeValues : undefined;
+        fieldName === "account-type" ? fields.accountTypeValues : undefined;
       element.disabled = Boolean(disabled);
     }
-  }, [disabled, option.hostedFields, sessionId]);
+  }, [disabled, option.hostedFields, group]);
 
   useEffect(() => {
     if (!option.hostedFields) return;
@@ -1228,8 +1228,6 @@ function AchOptionEmbed({
         return {
           token: payload.token,
           requestId: payload.requestId,
-          last4: payload.last4,
-          bankName: payload.bankName,
         };
       },
     };
@@ -1275,11 +1273,7 @@ function AchOptionEmbed({
                 <FieldLabel>{label}</FieldLabel>
                 {createElement("foxy-ach-field", {
                   className:
-                    "border-input dark:bg-input/30 data-[focused]:border-ring data-[focused]:ring-ring/50 data-[user-invalid]:border-destructive data-[user-invalid]:ring-destructive/20 dark:data-[user-invalid]:ring-destructive/40 data-[user-invalid]:ring-3 data-[focused]:ring-3 data-[disabled]:bg-input/50 dark:data-[disabled]:bg-input/80 data-[disabled]:opacity-50 rounded-lg border transition-colors relative flex w-full min-w-0 items-center overflow-hidden outline-none block min-h-8",
-                  style: {
-                    "--ach-field-height":
-                      styleAttributes.inputHeight ?? "calc(2rem - 2px)",
-                  },
+                    "border-input dark:bg-input/30 state-focused:border-ring state-focused:ring-ring/50 state-user-invalid:border-destructive state-user-invalid:ring-destructive/20 dark:state-user-invalid:ring-destructive/40 state-user-invalid:ring-3 state-focused:ring-3 state-disabled:bg-input/50 dark:state-disabled:bg-input/80 state-disabled:opacity-50 rounded-lg border transition-colors relative flex w-full min-w-0 items-center overflow-hidden outline-none block min-h-8",
                   "theme-input-height": styleAttributes.inputHeight,
                   "theme-input-padding": styleAttributes.inputPadding,
                   "theme-input-padding-x": styleAttributes.inputPaddingX,

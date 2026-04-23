@@ -2,28 +2,28 @@ import type {
   AchHostedFieldsTokenizeErrorCode,
   AchHostedFieldsPublicState,
 } from "@foxy.io/sdk/checkout";
-import { getRequiredEnvVar } from "@/lib/required-env";
 
 export const ACH_FIELD_ELEMENT_TAG = "foxy-ach-field";
 
-const DEFAULT_ACH_SECURE_ORIGIN = getRequiredEnvVar("VITE_EMBED_ORIGIN");
+const DEFAULT_ACH_SECURE_ORIGIN =
+  import.meta.env.VITE_EMBED_ORIGIN?.trim() || "https://embed.foxy.io";
 const DEFAULT_EMBED_PATH = "/v2.html";
 const DEFAULT_FIELD_HEIGHT = "52px";
 
 const DEFAULT_LABELS = {
-  routing_number: "Routing number",
-  account_number: "Account number",
-  account_type: "Account type",
-  account_holder_name: "Name on account",
+  "routing-number": "Routing number",
+  "account-number": "Account number",
+  "account-type": "Account type",
+  "account-holder-name": "Name on account",
 } as const;
 
 export type AchAccountTypeValue = "checking" | "savings";
 
 export type AchHostedFieldName =
-  | "routing_number"
-  | "account_number"
-  | "account_type"
-  | "account_holder_name";
+  | "routing-number"
+  | "account-number"
+  | "account-type"
+  | "account-holder-name";
 
 type AchFieldState = {
   empty: boolean;
@@ -35,12 +35,7 @@ type AchFieldState = {
 
 type TokenizeDeferred = {
   owner: AchFieldElement;
-  resolve: (value: {
-    token: string;
-    last4: string;
-    bankName?: string;
-    requestId?: string;
-  }) => void;
+  resolve: (value: { token: string; requestId?: string }) => void;
   reject: (error: Error) => void;
   timeoutId: number;
 };
@@ -56,10 +51,8 @@ type ControllerRegistryEntry = {
 
 const controllerRegistry = new Map<string, ControllerRegistryEntry>();
 
-const FIELD_ATTRIBUTE = "field";
-const SECURE_ORIGIN_ATTRIBUTE = "secure-origin";
-const SESSION_ID_ATTRIBUTE = "session-id";
-const LABEL_ATTRIBUTE = "label";
+const TYPE_ATTRIBUTE = "type";
+const GROUP_ATTRIBUTE = "group";
 const PLACEHOLDER_ATTRIBUTE = "placeholder";
 const ACCOUNT_TYPE_VALUES_ATTRIBUTE = "account-type-values";
 const DISABLED_ATTRIBUTE = "disabled";
@@ -93,33 +86,23 @@ const THEME_ATTRIBUTE_NAMES = Object.keys(
   THEME_ATTR_TO_CSS_VAR,
 ) as ThemeAttributeName[];
 
-export type AchLoadEventDetail = {
-  sessionId: string;
-  registeredFields: AchHostedFieldName[];
-};
-
-export type AchChangeEventDetail = {
-  sessionId: string;
-  fields: Partial<Record<AchHostedFieldName, AchFieldState>>;
-};
+export type AchLoadEventDetail = Record<string, never>;
 
 export type AchTokenizationSuccessEventDetail = {
-  sessionId: string;
   token: string;
-  last4: string;
-  bankName?: string;
   requestId?: string;
 };
 
 export type AchTokenizationErrorEventDetail = {
-  sessionId: string;
   code: AchHostedFieldsTokenizeErrorCode;
   requestId?: string;
 };
 
 type AchFieldElementEventMap = HTMLElementEventMap & {
   load: CustomEvent<AchLoadEventDetail>;
-  change: CustomEvent<AchChangeEventDetail>;
+  change: Event;
+  focus: FocusEvent;
+  blur: FocusEvent;
   tokenizationsuccess: CustomEvent<AchTokenizationSuccessEventDetail>;
   tokenizationerror: CustomEvent<AchTokenizationErrorEventDetail>;
 };
@@ -127,16 +110,34 @@ type AchFieldElementEventMap = HTMLElementEventMap & {
 export const achFieldEvents = {
   load: "load",
   change: "change",
+  focus: "focus",
+  blur: "blur",
   tokenizationSuccess: "tokenizationsuccess",
   tokenizationError: "tokenizationerror",
 } as const;
 
+/** Maps public kebab-case field names to the snake_case names expected by the embed iframe protocol. */
+const EMBED_FIELD_NAME: Record<AchHostedFieldName, string> = {
+  "routing-number": "routing_number",
+  "account-number": "account_number",
+  "account-type": "account_type",
+  "account-holder-name": "account_holder_name",
+};
+
+/** Maps snake_case embed field names back to public kebab-case names. */
+const EMBED_TO_PUBLIC: Record<string, AchHostedFieldName> = {
+  routing_number: "routing-number",
+  account_number: "account-number",
+  account_type: "account-type",
+  account_holder_name: "account-holder-name",
+};
+
 function isAchFieldName(value: unknown): value is AchHostedFieldName {
   return (
-    value === "routing_number" ||
-    value === "account_number" ||
-    value === "account_type" ||
-    value === "account_holder_name"
+    value === "routing-number" ||
+    value === "account-number" ||
+    value === "account-type" ||
+    value === "account-holder-name"
   );
 }
 
@@ -199,15 +200,20 @@ function stringifyAccountTypeValues(values: AchAccountTypeValue[] | undefined): 
   return uniqueValues.join(",");
 }
 
+function createNativeLikeFocusEvent(type: "focus" | "blur"): FocusEvent {
+  return new FocusEvent(type, {
+    bubbles: false,
+    composed: false,
+  });
+}
+
 export class AchFieldElement extends HTMLElement {
   static formAssociated = true;
 
   static get observedAttributes(): string[] {
     return [
-      FIELD_ATTRIBUTE,
-      SECURE_ORIGIN_ATTRIBUTE,
-      SESSION_ID_ATTRIBUTE,
-      LABEL_ATTRIBUTE,
+      TYPE_ATTRIBUTE,
+      GROUP_ATTRIBUTE,
       PLACEHOLDER_ATTRIBUTE,
       ACCOUNT_TYPE_VALUES_ATTRIBUTE,
       DISABLED_ATTRIBUTE,
@@ -217,9 +223,8 @@ export class AchFieldElement extends HTMLElement {
 
   private _disabled = false;
   private _secureOrigin = DEFAULT_ACH_SECURE_ORIGIN;
-  private _field: AchHostedFieldName = "routing_number";
-  private _sessionId = "";
-  private _label: string | undefined;
+  private _type: AchHostedFieldName = "routing-number";
+  private _group = "";
   private _placeholder: string | undefined;
   private _accountTypeValues: AchAccountTypeValue[] | undefined;
 
@@ -245,20 +250,19 @@ export class AchFieldElement extends HTMLElement {
     if (typeof kind !== "string") return;
 
     const sessionId = payload["sessionId"];
-    if (typeof sessionId === "string" && sessionId !== this._sessionId) return;
+    if (typeof sessionId === "string" && sessionId !== this._group) return;
 
     if (kind === "ach:ready") {
       const incomingFields = payload["registeredFields"];
       const registeredFields = Array.isArray(incomingFields)
-        ? incomingFields.filter(isAchFieldName)
+        ? incomingFields
+            .map((f) => (typeof f === "string" ? EMBED_TO_PUBLIC[f] : undefined))
+            .filter((f): f is AchHostedFieldName => f !== undefined)
         : [];
 
       entry.registeredFields = new Set(registeredFields);
 
-      this._broadcast(achFieldEvents.load, {
-        sessionId: this._sessionId,
-        registeredFields,
-      });
+      this._broadcast(achFieldEvents.load, {});
 
       this._syncSessionValidity(entry);
       return;
@@ -268,9 +272,9 @@ export class AchFieldElement extends HTMLElement {
       const fields = payload["fields"];
       if (!fields || typeof fields !== "object") return;
 
-      const normalizedFields: AchChangeEventDetail["fields"] = {};
       for (const fieldName of Object.keys(DEFAULT_LABELS) as AchHostedFieldName[]) {
-        const entryStateRaw = (fields as Record<string, unknown>)[fieldName];
+        const embedKey = EMBED_FIELD_NAME[fieldName];
+        const entryStateRaw = (fields as Record<string, unknown>)[embedKey];
         if (!entryStateRaw || typeof entryStateRaw !== "object") continue;
 
         const entryState = entryStateRaw as Record<string, unknown>;
@@ -295,22 +299,29 @@ export class AchFieldElement extends HTMLElement {
             touched,
           };
 
-          normalizedFields[fieldName] = normalized;
           entry.fieldStates[fieldName] = normalized;
         }
       }
 
       for (const instance of entry.instances) {
-        const ownField = instance._field;
-        const ownState = normalizedFields[ownField];
+        const ownField = instance._type;
+        const ownState = entry.fieldStates[ownField];
         if (!ownState) continue;
-        instance._applyFieldPublicState(ownState);
-      }
 
-      this._broadcast(achFieldEvents.change, {
-        sessionId: this._sessionId,
-        fields: normalizedFields,
-      });
+        const wasFocused = Boolean(instance._fieldPublicState.focused);
+        const isFocused = Boolean(ownState.focused);
+        instance._applyFieldPublicState(ownState);
+
+        if (wasFocused !== isFocused) {
+          instance.dispatchEvent(
+            createNativeLikeFocusEvent(
+              isFocused ? achFieldEvents.focus : achFieldEvents.blur,
+            ),
+          );
+        }
+
+        instance.dispatchEvent(new Event(achFieldEvents.change));
+      }
 
       this._syncSessionValidity(entry);
       return;
@@ -319,16 +330,12 @@ export class AchFieldElement extends HTMLElement {
     if (kind === "ach:tokenize:success") {
       const token = payload["token"];
       const last4 = payload["last4"];
-      const bankName = payload["bankName"];
       const requestId = payload["requestId"];
 
       if (typeof token !== "string" || typeof last4 !== "string") return;
 
       this._broadcast(achFieldEvents.tokenizationSuccess, {
-        sessionId: this._sessionId,
         token,
-        last4,
-        bankName: typeof bankName === "string" ? bankName : undefined,
         requestId: typeof requestId === "string" ? requestId : undefined,
       });
 
@@ -338,12 +345,7 @@ export class AchFieldElement extends HTMLElement {
 
         entry.pendingTokenizes.delete(requestId);
         window.clearTimeout(pending.timeoutId);
-        pending.resolve({
-          token,
-          last4,
-          bankName: typeof bankName === "string" ? bankName : undefined,
-          requestId,
-        });
+        pending.resolve({ token, requestId });
       }
 
       return;
@@ -355,7 +357,6 @@ export class AchFieldElement extends HTMLElement {
       if (!isTokenizeErrorCode(code)) return;
 
       this._broadcast(achFieldEvents.tokenizationError, {
-        sessionId: this._sessionId,
         code,
         requestId: typeof requestId === "string" ? requestId : undefined,
       });
@@ -376,14 +377,10 @@ export class AchFieldElement extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this._internals = typeof this.attachInternals === "function" ? this.attachInternals() : null;
 
-    const secureOrigin = this.getAttribute(SECURE_ORIGIN_ATTRIBUTE)?.trim();
-    if (secureOrigin) this._secureOrigin = secureOrigin;
+    const type = this.getAttribute(TYPE_ATTRIBUTE);
+    if (isAchFieldName(type)) this._type = type;
 
-    const field = this.getAttribute(FIELD_ATTRIBUTE);
-    if (isAchFieldName(field)) this._field = field;
-
-    this._sessionId = this.getAttribute(SESSION_ID_ATTRIBUTE)?.trim() || generateSessionId();
-    this._label = this.getAttribute(LABEL_ATTRIBUTE)?.trim() || undefined;
+    this._group = this.getAttribute(GROUP_ATTRIBUTE)?.trim() || generateSessionId();
     this._placeholder = this.getAttribute(PLACEHOLDER_ATTRIBUTE)?.trim() || undefined;
     this._accountTypeValues = parseAccountTypeValues(
       this.getAttribute(ACCOUNT_TYPE_VALUES_ATTRIBUTE),
@@ -428,15 +425,15 @@ export class AchFieldElement extends HTMLElement {
   }
 
   connectedCallback(): void {
-    if (!this.hasAttribute(SESSION_ID_ATTRIBUTE)) {
-      this.setAttribute(SESSION_ID_ATTRIBUTE, this._sessionId);
+    if (!this.hasAttribute(GROUP_ATTRIBUTE)) {
+      this.setAttribute(GROUP_ATTRIBUTE, this._group);
     }
 
     this._isRegistered = true;
     this._registerInstance();
     this._render();
     this._syncDisabledState();
-    this._syncPublicStateDataAttributes();
+    this._syncPublicStates();
 
     const entry = this._registryEntry;
     if (entry) this._syncFormValidity(entry);
@@ -458,28 +455,16 @@ export class AchFieldElement extends HTMLElement {
   ): void {
     if (oldValue === newValue) return;
 
-    if (name === SECURE_ORIGIN_ATTRIBUTE) {
-      this._secureOrigin = newValue?.trim() || DEFAULT_ACH_SECURE_ORIGIN;
-      this._rekeyIfNeeded();
-      return;
-    }
-
-    if (name === FIELD_ATTRIBUTE) {
-      if (isAchFieldName(newValue)) this._field = newValue;
+    if (name === TYPE_ATTRIBUTE) {
+      if (isAchFieldName(newValue)) this._type = newValue;
       this._render();
       this._syncSessionValidity(this._registryEntry);
       return;
     }
 
-    if (name === SESSION_ID_ATTRIBUTE) {
-      this._sessionId = newValue?.trim() || generateSessionId();
+    if (name === GROUP_ATTRIBUTE) {
+      this._group = newValue?.trim() || generateSessionId();
       this._rekeyIfNeeded();
-      return;
-    }
-
-    if (name === LABEL_ATTRIBUTE) {
-      this._label = newValue?.trim() || undefined;
-      this._render();
       return;
     }
 
@@ -508,64 +493,33 @@ export class AchFieldElement extends HTMLElement {
     this._syncDisabledState();
   }
 
-  get secureOrigin(): string {
-    return this._secureOrigin;
+  get type(): AchHostedFieldName {
+    return this._type;
   }
 
-  set secureOrigin(value: string) {
-    const normalized = value.trim();
-    if (!normalized || normalized === this._secureOrigin) return;
+  set type(value: AchHostedFieldName) {
+    const normalized = isAchFieldName(value) ? value : "routing-number";
+    if (normalized === this._type) return;
 
-    this._secureOrigin = normalized;
-    if (this.getAttribute(SECURE_ORIGIN_ATTRIBUTE) !== normalized) {
-      this.setAttribute(SECURE_ORIGIN_ATTRIBUTE, normalized);
+    this._type = normalized;
+    if (this.getAttribute(TYPE_ATTRIBUTE) !== normalized) {
+      this.setAttribute(TYPE_ATTRIBUTE, normalized);
     }
   }
 
-  get field(): AchHostedFieldName {
-    return this._field;
+  get group(): string {
+    return this._group;
   }
 
-  set field(value: AchHostedFieldName) {
-    const normalized = isAchFieldName(value) ? value : "routing_number";
-    if (normalized === this._field) return;
-
-    this._field = normalized;
-    if (this.getAttribute(FIELD_ATTRIBUTE) !== normalized) {
-      this.setAttribute(FIELD_ATTRIBUTE, normalized);
-    }
-  }
-
-  get sessionId(): string {
-    return this._sessionId;
-  }
-
-  set sessionId(value: string) {
+  set group(value: string) {
     const normalized = value.trim() || generateSessionId();
-    if (normalized === this._sessionId) return;
+    if (normalized === this._group) return;
 
-    this._sessionId = normalized;
-    if (this.getAttribute(SESSION_ID_ATTRIBUTE) !== normalized) {
-      this.setAttribute(SESSION_ID_ATTRIBUTE, normalized);
+    this._group = normalized;
+    if (this.getAttribute(GROUP_ATTRIBUTE) !== normalized) {
+      this.setAttribute(GROUP_ATTRIBUTE, normalized);
     }
   }
-
-  get label(): string | undefined {
-    return this._label;
-  }
-
-  set label(value: string | undefined) {
-    const normalized = value?.trim() || undefined;
-    if (normalized === this._label) return;
-
-    this._label = normalized;
-    if (normalized === undefined) {
-      this.removeAttribute(LABEL_ATTRIBUTE);
-    } else if (this.getAttribute(LABEL_ATTRIBUTE) !== normalized) {
-      this.setAttribute(LABEL_ATTRIBUTE, normalized);
-    }
-  }
-
   get placeholder(): string | undefined {
     return this._placeholder;
   }
@@ -620,12 +574,7 @@ export class AchFieldElement extends HTMLElement {
     this._postMessage({ kind: "merchant:clear" });
   }
 
-  tokenize(requestId?: string): Promise<{
-    token: string;
-    last4: string;
-    bankName?: string;
-    requestId?: string;
-  }> {
+  tokenize(requestId?: string): Promise<{ token: string; requestId?: string }> {
     const entry = this._registryEntry;
     if (!entry?.controllerIframe?.contentWindow) {
       return Promise.reject(new Error("ACH controller iframe is not mounted."));
@@ -664,7 +613,7 @@ export class AchFieldElement extends HTMLElement {
   }
 
   private get _registryKey(): string {
-    return [this._secureOrigin, this._merchantOrigin, this._sessionId].join("|");
+    return [this._secureOrigin, this._merchantOrigin, this._group].join("|");
   }
 
   private get _registryEntry(): ControllerRegistryEntry | undefined {
@@ -798,24 +747,26 @@ export class AchFieldElement extends HTMLElement {
       ...this._fieldPublicState,
       ...nextState,
     };
-    this._syncPublicStateDataAttributes();
+    this._syncPublicStates();
   }
 
-  private _syncPublicStateDataAttributes(): void {
+  private _syncPublicStates(): void {
     const isFocused = Boolean(this._fieldPublicState.focused);
-    const isInvalid = Boolean(this._fieldPublicState.errorCode);
     const isUserInvalid = Boolean(
       this._fieldPublicState.touched && this._fieldPublicState.errorCode,
     );
+    const isUserValid = Boolean(
+      this._fieldPublicState.touched && !this._fieldPublicState.errorCode,
+    );
 
-    this._toggleDataAttribute("focused", isFocused);
-    this._toggleDataAttribute("invalid", isInvalid);
-    this._toggleDataAttribute("user-invalid", isUserInvalid);
-    this._toggleDataAttribute("disabled", this._disabled);
+    this._toggleState("focused", isFocused);
+    this._toggleState("user-invalid", isUserInvalid);
+    this._toggleState("user-valid", isUserValid);
+    this._toggleState("disabled", this._disabled);
   }
 
   private _syncDisabledState(): void {
-    this._toggleDataAttribute("disabled", this._disabled);
+    this._toggleState("disabled", this._disabled);
     this._postMessage({ kind: "merchant:setDisabled", disabled: this._disabled });
 
     if (!this._disabled) {
@@ -842,46 +793,43 @@ export class AchFieldElement extends HTMLElement {
       return;
     }
 
-    const fields = new Set<AchHostedFieldName>();
-    for (const instance of entry.instances) {
-      fields.add(instance._field);
+    const field = this._type;
+    const state = entry.fieldStates[field];
+    const label = DEFAULT_LABELS[field].toLowerCase();
+
+    if (!state || !state.complete) {
+      this._internals.setValidity(
+        { valueMissing: true },
+        `Please complete ${label}.`,
+      );
+      return;
     }
-    for (const field of entry.registeredFields) {
-      fields.add(field);
-    }
 
-    for (const field of fields) {
-      const state = entry.fieldStates[field];
-      const label = DEFAULT_LABELS[field].toLowerCase();
-
-      if (!state || !state.complete) {
-        this._internals.setValidity(
-          { customError: true },
-          `Please complete ${label}.`,
-        );
-        return;
-      }
-
-      if (state.errorCode) {
-        this._internals.setValidity(
-          { customError: true },
-          `Please check ${label}.`,
-        );
-        return;
-      }
+    if (state.errorCode) {
+      this._internals.setValidity(
+        { badInput: true },
+        `Please check ${label}.`,
+      );
+      return;
     }
 
     this._internals.setValidity({});
   }
 
-  private _toggleDataAttribute(name: string, enabled: boolean): void {
-    const attributeName = `data-${name}`;
+  private _toggleState(name: string, enabled: boolean): void {
     if (enabled) {
-      this.setAttribute(attributeName, "");
-      return;
+      this._internals?.states?.add(name);
+    } else {
+      this._internals?.states?.delete(name);
     }
+  }
 
-    this.removeAttribute(attributeName);
+  private _getAssociatedLabelText(): string {
+    const labels = this._internals?.labels;
+    if (!labels?.length) return "";
+    const clone = labels[0].cloneNode(true) as HTMLElement;
+    clone.querySelectorAll('[aria-hidden="true"]').forEach((el) => el.remove());
+    return clone.textContent?.trim() ?? "";
   }
 
   private _buildIframeUrl(mode: "controller" | "field"): string {
@@ -889,26 +837,21 @@ export class AchFieldElement extends HTMLElement {
     if (!url) return "about:blank";
 
     url.searchParams.set("mode", mode);
-    url.searchParams.set("sessionId", this._sessionId);
+    url.searchParams.set("sessionId", this._group);
     url.searchParams.set("merchantOrigin", this._merchantOrigin);
 
     if (mode === "field") {
-      const field = this._field;
-      const fallbackLabel = DEFAULT_LABELS[field];
-      const configuredLabel = this._label?.trim();
+      const field = this._type;
       const theme = this._getThemeAttributes();
 
-      url.searchParams.set("field", field);
-      url.searchParams.set(
-        "label",
-        configuredLabel?.length ? configuredLabel : fallbackLabel,
-      );
+      url.searchParams.set("field", EMBED_FIELD_NAME[field]);
+      url.searchParams.set("label", this._getAssociatedLabelText() || DEFAULT_LABELS[field]);
 
       if (this._placeholder) {
         url.searchParams.set("placeholder", this._placeholder);
       }
 
-      if (field === "account_type" && this._accountTypeValues?.length) {
+      if (field === "account-type" && this._accountTypeValues?.length) {
         url.searchParams.set("accountTypeValues", this._accountTypeValues.join(","));
       }
 
@@ -991,7 +934,7 @@ export class AchFieldElement extends HTMLElement {
     style.textContent = `
       :host { display: block; background: transparent; }
       .controller { display: none; }
-      iframe { width: 100%; height: var(--ach-field-height, ${initialIframeHeight}); min-height: var(--ach-field-height, ${initialIframeHeight}); border: 0; display: block; background: transparent; }
+      iframe { width: 100%; height: ${initialIframeHeight}; min-height: ${initialIframeHeight}; border: 0; display: block; background: transparent; }
     `;
 
     this.shadowRoot.appendChild(style);
@@ -1007,7 +950,7 @@ export class AchFieldElement extends HTMLElement {
     }
 
     const fieldIframe = document.createElement("iframe");
-    fieldIframe.title = `ACH ${this._field}`;
+    fieldIframe.title = `ACH ${this._type}`;
     fieldIframe.src = this._buildIframeUrl("field");
     fieldIframe.style.visibility = "hidden";
     fieldIframe.style.opacity = "0";

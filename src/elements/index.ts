@@ -5,7 +5,6 @@ export {
   type AchAccountTypeValue,
   type AchHostedFieldName,
   type AchLoadEventDetail,
-  type AchChangeEventDetail,
   type AchTokenizationSuccessEventDetail,
   type AchTokenizationErrorEventDetail,
 } from "./ach-field-element";

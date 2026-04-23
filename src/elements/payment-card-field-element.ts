@@ -18,9 +18,12 @@ type PaymentCardFieldMode = "full" | "csc-only";
 export type PaymentCardFieldOption = {
   secureOrigin: string;
   mode: PaymentCardFieldMode;
-  templateSetId?: number;
-  demoMode?: PaymentCardFieldMode;
-  translations?: Record<string, string>;
+  translationCardNumberLabel?: string;
+  translationCardNumberPlaceholder?: string;
+  translationCardExpirationLabel?: string;
+  translationCardExpirationPlaceholder?: string;
+  translationCardCscLabel?: string;
+  translationCardCscPlaceholder?: string;
 };
 
 type TokenizeDeferred = {
@@ -81,8 +84,28 @@ const THEME_ATTRIBUTE_NAMES = Object.keys(THEME_ATTR_TO_CSS_VAR) as ThemeAttribu
 
 const MODE_ATTRIBUTE = "mode";
 const SECURE_ORIGIN_ATTRIBUTE = "secure-origin";
-const TEMPLATE_SET_ID_ATTRIBUTE = "template-set-id";
-const DEMO_MODE_ATTRIBUTE = "demo-mode";
+const TRANSLATION_CARD_NUMBER_LABEL_ATTRIBUTE = "translation-card-number-label";
+const TRANSLATION_CARD_NUMBER_PLACEHOLDER_ATTRIBUTE =
+  "translation-card-number-placeholder";
+const TRANSLATION_CARD_EXPIRATION_LABEL_ATTRIBUTE = "translation-card-expiration-label";
+const TRANSLATION_CARD_EXPIRATION_PLACEHOLDER_ATTRIBUTE =
+  "translation-card-expiration-placeholder";
+const TRANSLATION_CARD_CSC_LABEL_ATTRIBUTE = "translation-card-csc-label";
+const TRANSLATION_CARD_CSC_PLACEHOLDER_ATTRIBUTE = "translation-card-csc-placeholder";
+
+const TRANSLATION_ATTRIBUTE_TO_KEY = {
+  [TRANSLATION_CARD_NUMBER_LABEL_ATTRIBUTE]: "card.number.label",
+  [TRANSLATION_CARD_NUMBER_PLACEHOLDER_ATTRIBUTE]: "card.number.placeholder",
+  [TRANSLATION_CARD_EXPIRATION_LABEL_ATTRIBUTE]: "card.expiration.label",
+  [TRANSLATION_CARD_EXPIRATION_PLACEHOLDER_ATTRIBUTE]: "card.expiration.placeholder",
+  [TRANSLATION_CARD_CSC_LABEL_ATTRIBUTE]: "card.csc.label",
+  [TRANSLATION_CARD_CSC_PLACEHOLDER_ATTRIBUTE]: "card.csc.placeholder",
+} as const;
+
+type TranslationAttributeName = keyof typeof TRANSLATION_ATTRIBUTE_TO_KEY;
+const TRANSLATION_ATTRIBUTE_NAMES = Object.keys(
+  TRANSLATION_ATTRIBUTE_TO_KEY,
+) as TranslationAttributeName[];
 
 function normalizeUrl(secureOrigin: string): URL | null {
   try {
@@ -117,18 +140,6 @@ function toMode(value: string | null): PaymentCardFieldMode {
   return value === "csc-only" ? "csc-only" : "full";
 }
 
-function toDemoMode(value: string | null): PaymentCardFieldMode | undefined {
-  if (value === "full" || value === "csc-only") return value;
-  return undefined;
-}
-
-function toTemplateSetId(value: string | null): number | undefined {
-  if (!value) return undefined;
-  const parsed = Number.parseInt(value, 10);
-  if (!Number.isFinite(parsed) || parsed <= 0) return undefined;
-  return parsed;
-}
-
 export class PaymentCardFieldElement extends HTMLElement {
   static formAssociated = true;
 
@@ -136,19 +147,14 @@ export class PaymentCardFieldElement extends HTMLElement {
     return [
       MODE_ATTRIBUTE,
       SECURE_ORIGIN_ATTRIBUTE,
-      TEMPLATE_SET_ID_ATTRIBUTE,
-      DEMO_MODE_ATTRIBUTE,
+      ...TRANSLATION_ATTRIBUTE_NAMES,
       ...THEME_ATTRIBUTE_NAMES,
     ];
   }
 
   private _disabled = false;
-  private _readonly = false;
   private _secureOrigin = DEFAULT_CARD_SECURE_ORIGIN;
   private _mode: PaymentCardFieldMode = "full";
-  private _templateSetId: number | undefined;
-  private _demoMode: PaymentCardFieldMode | undefined;
-  private _translations: Record<string, string> | undefined;
   private _iframe: HTMLIFrameElement | null = null;
   private _port: MessagePort | null = null;
   private _fallbackRequestCounter = 0;
@@ -168,8 +174,6 @@ export class PaymentCardFieldElement extends HTMLElement {
     const secureOrigin = this.getAttribute(SECURE_ORIGIN_ATTRIBUTE)?.trim();
     if (secureOrigin) this._secureOrigin = secureOrigin;
     this._mode = toMode(this.getAttribute(MODE_ATTRIBUTE));
-    this._templateSetId = toTemplateSetId(this.getAttribute(TEMPLATE_SET_ID_ATTRIBUTE));
-    this._demoMode = toDemoMode(this.getAttribute(DEMO_MODE_ATTRIBUTE));
   }
 
   addEventListener<K extends keyof PaymentCardFieldEventMap>(
@@ -242,52 +246,6 @@ export class PaymentCardFieldElement extends HTMLElement {
     this._sendConfig();
   }
 
-  get templateSetId(): number | undefined {
-    return this._templateSetId;
-  }
-
-  set templateSetId(value: number | undefined) {
-    const normalized = typeof value === "number" && value > 0 ? Math.trunc(value) : undefined;
-    if (this._templateSetId === normalized) return;
-
-    this._templateSetId = normalized;
-    if (normalized === undefined) {
-      this.removeAttribute(TEMPLATE_SET_ID_ATTRIBUTE);
-    } else if (this.getAttribute(TEMPLATE_SET_ID_ATTRIBUTE) !== String(normalized)) {
-      this.setAttribute(TEMPLATE_SET_ID_ATTRIBUTE, String(normalized));
-    }
-
-    if (!this.isConnected) return;
-    this._mountIframe();
-  }
-
-  get demoMode(): PaymentCardFieldMode | undefined {
-    return this._demoMode;
-  }
-
-  set demoMode(value: PaymentCardFieldMode | undefined) {
-    if (this._demoMode === value) return;
-
-    this._demoMode = value;
-    if (value === undefined) {
-      this.removeAttribute(DEMO_MODE_ATTRIBUTE);
-    } else if (this.getAttribute(DEMO_MODE_ATTRIBUTE) !== value) {
-      this.setAttribute(DEMO_MODE_ATTRIBUTE, value);
-    }
-
-    if (!this.isConnected) return;
-    this._mountIframe();
-  }
-
-  get translations(): Record<string, string> | undefined {
-    return this._translations;
-  }
-
-  set translations(value: Record<string, string> | undefined) {
-    this._translations = value ? { ...value } : undefined;
-    this._sendConfig();
-  }
-
   get disabled(): boolean {
     return this._disabled;
   }
@@ -296,18 +254,24 @@ export class PaymentCardFieldElement extends HTMLElement {
     if (this._disabled === value) return;
     this._disabled = value;
     if (this._disabled) this._focused = false;
-    this._syncPublicStateDataAttributes();
+    this._syncPublicStates();
     this._sendConfig();
+
+    if (this._disabled) {
+      this._internals?.setValidity({});
+    }
   }
 
-  get readonly(): boolean {
-    return this._readonly;
+  formDisabledCallback(disabled: boolean): void {
+    this.disabled = disabled;
   }
 
-  set readonly(value: boolean) {
-    if (this._readonly === value) return;
-    this._readonly = value;
-    this._sendConfig();
+  checkValidity(): boolean {
+    return this._internals?.checkValidity() ?? true;
+  }
+
+  reportValidity(): boolean {
+    return this._internals?.reportValidity() ?? true;
   }
 
   connectedCallback(): void {
@@ -333,15 +297,8 @@ export class PaymentCardFieldElement extends HTMLElement {
       return;
     }
 
-    if (name === TEMPLATE_SET_ID_ATTRIBUTE) {
-      this._templateSetId = toTemplateSetId(newValue);
-      if (this.isConnected) this._mountIframe();
-      return;
-    }
-
-    if (name === DEMO_MODE_ATTRIBUTE) {
-      this._demoMode = toDemoMode(newValue);
-      if (this.isConnected) this._mountIframe();
+    if (TRANSLATION_ATTRIBUTE_NAMES.includes(name as TranslationAttributeName)) {
+      if (this.isConnected) this._sendConfig();
       return;
     }
 
@@ -362,12 +319,6 @@ export class PaymentCardFieldElement extends HTMLElement {
   }
 
   tokenize(requestId?: string): Promise<{ token: string; requestId?: string }> {
-    const invalidConfigCode = this._getInvalidConfigCode();
-    if (invalidConfigCode) {
-      const error = this._emitTokenizeError(invalidConfigCode, requestId);
-      return Promise.reject(error);
-    }
-
     if (!this._port || !this._ready) {
       const error = this._emitTokenizeError("invalid_state", requestId);
       return Promise.reject(error);
@@ -396,7 +347,7 @@ export class PaymentCardFieldElement extends HTMLElement {
     this._focused = false;
     this._touched = false;
     this._invalid = false;
-    this._syncPublicStateDataAttributes();
+    this._syncPublicStates();
 
     if (this._port) {
       this._port.onmessage = null;
@@ -475,7 +426,7 @@ export class PaymentCardFieldElement extends HTMLElement {
     if (this._disabled) return;
     this._focused = true;
     this._touched = true;
-    this._syncPublicStateDataAttributes();
+    this._syncPublicStates();
   };
 
   private _onIframePointerDown = (): void => {
@@ -486,12 +437,12 @@ export class PaymentCardFieldElement extends HTMLElement {
     // to set the focused state on click.
     this._focused = true;
     this._touched = true;
-    this._syncPublicStateDataAttributes();
+    this._syncPublicStates();
   };
 
   private _onIframeBlur = (): void => {
     this._focused = false;
-    this._syncPublicStateDataAttributes();
+    this._syncPublicStates();
   };
 
   private _applyIframeHeight(nextHeight: string): void {
@@ -512,13 +463,6 @@ export class PaymentCardFieldElement extends HTMLElement {
   private _buildIframeUrl(): string | null {
     const url = normalizeUrl(this._secureOrigin);
     if (!url) return null;
-
-    if (this._demoMode) {
-      url.searchParams.set("demo", this._demoMode);
-    } else if (typeof this._templateSetId === "number" && this._templateSetId > 0) {
-      url.searchParams.set("template_set_id", String(this._templateSetId));
-    }
-
     return url.toString();
   }
 
@@ -591,13 +535,13 @@ export class PaymentCardFieldElement extends HTMLElement {
       if (this._disabled) return;
       this._focused = true;
       this._touched = true;
-      this._syncPublicStateDataAttributes();
+      this._syncPublicStates();
       return;
     }
 
     if (type === "blur") {
       this._focused = false;
-      this._syncPublicStateDataAttributes();
+      this._syncPublicStates();
       return;
     }
 
@@ -659,7 +603,7 @@ export class PaymentCardFieldElement extends HTMLElement {
 
   private _updateFormValidity(valid: boolean, message: string | null): void {
     this._invalid = !valid;
-    this._syncPublicStateDataAttributes();
+    this._syncPublicStates();
 
     if (!this._internals) return;
 
@@ -674,37 +618,25 @@ export class PaymentCardFieldElement extends HTMLElement {
     );
   }
 
-  private _syncPublicStateDataAttributes(): void {
+  private _syncPublicStates(): void {
     const isDisabled = this._disabled;
     const isFocused = this._focused && !isDisabled;
-    const isInvalid = this._invalid;
     const isUserInvalid = this._touched && this._invalid;
+    const isUserValid = this._touched && !this._invalid;
 
-    this._toggleDataAttribute("disabled", isDisabled);
-    this._toggleDataAttribute("focused", isFocused);
-    this._toggleDataAttribute("invalid", isInvalid);
-    this._toggleDataAttribute("user-invalid", isUserInvalid);
+    this._toggleState("disabled", isDisabled);
+    this._toggleState("focused", isFocused);
+    this._toggleState("user-invalid", isUserInvalid);
+    this._toggleState("user-valid", isUserValid);
   }
 
-  private _toggleDataAttribute(name: string, enabled: boolean): void {
-    const attributeName = `data-${name}`;
+  private _toggleState(name: string, enabled: boolean): void {
     if (enabled) {
-      this.setAttribute(attributeName, "");
+      this._internals?.states?.add(name);
       return;
     }
 
-    this.removeAttribute(attributeName);
-  }
-
-  private _getInvalidConfigCode(): CardEmbedTokenizeErrorCode | null {
-    const hasDemoMode = Boolean(this._demoMode);
-    const hasTemplateSetId = typeof this._templateSetId === "number" && this._templateSetId > 0;
-
-    if (!hasDemoMode && !hasTemplateSetId) {
-      return "invalid_config";
-    }
-
-    return null;
+    this._internals?.states?.delete(name);
   }
 
   private _sendConfig(): void {
@@ -712,11 +644,22 @@ export class PaymentCardFieldElement extends HTMLElement {
     this._postPort({
       type: "config",
       disabled: this._disabled,
-      readonly: this._readonly,
       mode: this._mode,
       style: Object.keys(style).length > 0 ? style : undefined,
-      translations: this._translations,
+      translations: this._getTranslationsFromAttributes(),
     });
+  }
+
+  private _getTranslationsFromAttributes(): Record<string, string> | undefined {
+    const translations: Record<string, string> = {};
+
+    for (const attrName of TRANSLATION_ATTRIBUTE_NAMES) {
+      const value = this.getAttribute(attrName)?.trim();
+      if (!value) continue;
+      translations[TRANSLATION_ATTRIBUTE_TO_KEY[attrName]] = value;
+    }
+
+    return Object.keys(translations).length > 0 ? translations : undefined;
   }
 
   private _getThemeAttributes(): Record<string, string> {

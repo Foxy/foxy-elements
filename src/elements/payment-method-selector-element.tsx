@@ -632,14 +632,10 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     return this.#getEmbedOrigin();
   }
 
-  #getHostedFieldSecureOrigin(): string {
-    return this.#getEmbedOrigin();
-  }
-
   #createSavedCardOptions(
     option: Record<string, unknown>,
     index: number,
-    apiState: Record<string, unknown>,
+    _apiState: Record<string, unknown>,
   ): PaymentMethodSelectorOption[] {
     const paymentMethod = this.#asRecord(option.payment_method);
     if (!paymentMethod) return [];
@@ -650,9 +646,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
       this.#toText(paymentMethod.payment_token) ||
       this.#toText(paymentMethod.id) ||
       undefined;
-    const templateSetId = this.#toNumber(
-      this.#asRecord(apiState.template_set)?.id,
-    );
     const cardBrand = this.#toText(paymentMethod.brand);
     const last4 = this.#toText(paymentMethod.last_4);
     const expirationMonth = this.#toText(paymentMethod.expiry_month);
@@ -678,12 +671,10 @@ export class PaymentMethodSelectorElement extends HTMLElement {
         hostedCard:
           gateway === "stripe_v2" ||
           gateway === "stripe_connect" ||
-          gateway === "stripe_connect_charge" ||
-          typeof templateSetId !== "number"
+          gateway === "stripe_connect_charge"
             ? undefined
             : {
                 secureOrigin: this.#getCardEmbedSecureOrigin(),
-                templateSetId,
                 mode: "csc-only",
               },
       },
@@ -704,10 +695,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     }
 
     if (type === "new-card") {
-      const templateSetId = this.#toNumber(
-        this.#asRecord(apiState.template_set)?.id,
-      );
-      if (typeof templateSetId !== "number") return [];
       const acceptedBrands = this.#resolveSupportedPaymentCards(apiState);
 
       return [
@@ -720,7 +707,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           acceptedBrands: acceptedBrands?.length ? acceptedBrands : undefined,
           hostedCard: {
             secureOrigin: this.#getCardEmbedSecureOrigin(),
-            templateSetId,
             mode: "full",
           },
         },
@@ -739,9 +725,8 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           description:
             "Enter your bank account details in the secure fields below.",
           hostedFields: {
-            secureOrigin: this.#getHostedFieldSecureOrigin(),
             placeholders: {
-              routing_number: "123456789",
+              "routing-number": "123456789",
             },
             accountTypeValues,
           },
@@ -893,9 +878,8 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           description:
             "Enter your bank account details in the secure fields below.",
           hostedFields: {
-            secureOrigin: this.#getHostedFieldSecureOrigin(),
             placeholders: {
-              routing_number: "123456789",
+              "routing-number": "123456789",
             },
             accountTypeValues: accountTypeValues?.length
               ? accountTypeValues
@@ -907,13 +891,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
 
     const applePay = this.#asRecord(option.apple_pay);
     const googlePay = this.#asRecord(option.google_pay);
-    const templateSetId = this.#toNumber(
-      this.#asRecord(apiState.template_set)?.id,
-    );
-
-    if (typeof templateSetId !== "number") {
-      return [...normalizedSavedCards];
-    }
 
     return [
       ...(applePay?.merchant_id || applePay?.merchant_identifier
@@ -948,7 +925,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
         acceptedBrands: this.#resolveSupportedPaymentCards(apiState),
         hostedCard: {
           secureOrigin: this.#getCardEmbedSecureOrigin(),
-          templateSetId,
           mode: "full",
         },
       },
@@ -978,11 +954,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
       return inferred;
     }
 
-    const templateSetId = this.#toNumber(
-      this.#asRecord(apiState.template_set)?.id,
-    );
-    if (typeof templateSetId !== "number") return [];
-
     return [
       {
         id: "new-card",
@@ -992,7 +963,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
         acceptedBrands: this.#resolveSupportedPaymentCards(apiState),
         hostedCard: {
           secureOrigin: this.#getCardEmbedSecureOrigin(),
-          templateSetId,
           mode: "full",
         },
       },

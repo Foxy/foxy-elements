@@ -4,6 +4,10 @@
 @import "@fontsource-variable/inter";
 /*---break---*/
 @custom-variant dark (&:is(.dark *));
+@custom-variant state-focused (&:state(focused));
+@custom-variant state-user-invalid (&:state(user-invalid));
+@custom-variant state-user-valid (&:state(user-valid));
+@custom-variant state-disabled (&:state(disabled));
 
 :root,
 :host {
@@ -130,11 +134,13 @@
     @apply border-border outline-ring/50;
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
     @apply font-sans bg-background text-foreground;
     @apply font-sans bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
     @apply font-sans;
@@ -144,6 +150,7 @@
 /** Tailwind puts these properties inside a @supports rule that doesn't work in adopted stylesheets **/
 /** https://github.com/tailwindlabs/tailwindcss/blob/4d37043fc4b88be50f400bd967c388888ceee0a0/packages/tailwindcss/src/ast.ts#L702 **/
 @layer properties {
+
   *,
   :before,
   :after,
@@ -196,6 +203,7 @@
     --tw-exit-translate-y: 0;
   }
 }
+
 /*---break---*/
 :root,
 :host {
@@ -232,6 +240,7 @@
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
 }
+
 /*---break---*/
 .dark,
 :host(.dark) {
