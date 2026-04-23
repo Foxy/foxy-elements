@@ -60,6 +60,8 @@ Some elements in this repo may use our SDK to interact with our API. If you also
 
 ## Development
 
+Use Node 22 for local development.
+
 1. Install dependencies:
 
    ```bash

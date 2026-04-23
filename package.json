@@ -8,6 +8,10 @@
     "url": "https://github.com/Foxy/foxy-elements.git"
   },
   "license": "MIT",
+  "engines": {
+    "node": "22.x",
+    "npm": ">=10"
+  },
   "module": "./dist/npm/index.js",
   "types": "./dist/npm/index.d.ts",
   "exports": {

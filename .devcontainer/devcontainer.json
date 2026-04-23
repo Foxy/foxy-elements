@@ -1,6 +1,6 @@
 {
   "name": "foxy-elements",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
@@ -10,6 +10,8 @@
   "mounts": [
     "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached"
   ],
-  "forwardPorts": [8000],
+  "forwardPorts": [
+    6006
+  ],
   "postCreateCommand": "npm install"
 }
