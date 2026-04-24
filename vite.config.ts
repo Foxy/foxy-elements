@@ -38,6 +38,8 @@ export default defineConfig(({ mode }) => {
       pluginExternal({
         externals: {
           "@foxy.io/sdk/checkout": "https://cdn-js.foxy.io/sdk@2/checkout.js",
+          "@foxy.io/sdk/checkout/client": "https://cdn-js.foxy.io/sdk@2/checkout/client.js",
+          "@foxy.io/sdk/checkout/loader": "https://cdn-js.foxy.io/sdk@2/checkout/loader.js",
         },
       }),
     );
