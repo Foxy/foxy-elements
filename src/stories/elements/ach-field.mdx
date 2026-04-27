@@ -1,195 +1,143 @@
-import { Meta, Canvas, Controls } from "@storybook/blocks";
+import { Meta } from "@storybook/blocks";
 import * as AchFieldStories from "./ach-field.stories";
 
 <Meta of={AchFieldStories} />
 
-# ACH Field
+# AchFieldElement
 
-Developer diagnostics suite for `foxy-ach-field`. These stories prioritize maintainers and AI agents working on runtime behavior, not consumer onboarding.
+Form-associated hosted ACH input element that renders one secure ACH field (routing number, account number, account type, or account holder name) and participates in grouped tokenization sessions.
 
-## Story Selection Guide
+Required attributes: none.
 
-- Validate reflected API and attributes: use `ApiPlayground`
-- Verify focus/change/blur semantics: use `EventSemantics`
-- Reproduce validity transitions: use `ValidityStates`
-- Check same-group vs isolated session behavior: use `SessionGroupTopology`
-- Verify tokenize success payload contract: use `TokenizeSuccess`
-- Replay tokenize error codes deterministically: use `TokenizeErrorMatrix`
-- Validate account type restriction wiring: use `AccountTypeRestrictions`
-- Verify theme attribute passthrough: use `ThemeAttributeControls`
-- Exercise minimal form-associated integration flow: use `FormIntegrationInteraction`
-
-## API Reference
-
-The ACH element is attribute-first and exposes matching properties.
+## Attributes
 
 <table>
-	<thead>
-		<tr>
-			<th>Attribute</th>
-			<th>Property</th>
-			<th>Type</th>
-			<th>Description</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<td><code>type</code></td>
-			<td><code>type</code></td>
-			<td><code>"routing-number" | "account-number" | "account-type" | "account-holder-name"</code></td>
-			<td>Hosted field to render.</td>
-		</tr>
-		<tr>
-			<td><code>group</code></td>
-			<td><code>group</code></td>
-			<td><code>string</code></td>
-			<td>Shared group id for multi-field sessions. Auto-generated if omitted.</td>
-		</tr>
-		<tr>
-			<td><code>placeholder</code></td>
-			<td><code>placeholder</code></td>
-			<td><code>string | undefined</code></td>
-			<td>Field placeholder shown in iframe.</td>
-		</tr>
-		<tr>
-			<td><code>account-type-values</code></td>
-			<td><code>accountTypeValues</code></td>
-			<td><code>("checking" | "savings")[] | undefined</code></td>
-			<td>Restrict account type options for <code>account-type</code>.</td>
-		</tr>
-		<tr>
-			<td><code>disabled</code></td>
-			<td><code>disabled</code></td>
-			<td><code>boolean</code></td>
-			<td>Disables hosted inputs for the session.</td>
-		</tr>
-	</tbody>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Value example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>type</code></td><td>Field variant to render in the secure iframe.</td><td><code>routing-number</code></td></tr>
+    <tr><td><code>group</code></td><td>Shared session id for multi-field ACH tokenization.</td><td><code>checkout-ach-1</code></td></tr>
+    <tr><td><code>placeholder</code></td><td>Placeholder text for the hosted input.</td><td><code>123456789</code></td></tr>
+    <tr><td><code>account-type-values</code></td><td>Allowed values when <code>type</code> is <code>account-type</code>.</td><td><code>checking,savings</code></td></tr>
+    <tr><td><code>disabled</code></td><td>Disables the hosted field and marks the control disabled.</td><td><code>""</code></td></tr>
+    <tr><td><code>lang</code></td><td>Locale passed to the hosted field configuration.</td><td><code>en-US</code></td></tr>
+    <tr><td><code>theme-input-placeholder-color</code></td><td>Placeholder text color token.</td><td><code>#94a3b8</code></td></tr>
+    <tr><td><code>theme-input-height</code></td><td>Hosted input height.</td><td><code>44px</code></td></tr>
+    <tr><td><code>theme-input-padding</code></td><td>Hosted input shorthand padding.</td><td><code>0 12px</code></td></tr>
+    <tr><td><code>theme-input-padding-x</code></td><td>Hosted input horizontal padding override.</td><td><code>12px</code></td></tr>
+    <tr><td><code>theme-input-padding-y</code></td><td>Hosted input vertical padding override.</td><td><code>10px</code></td></tr>
+    <tr><td><code>theme-font-sans</code></td><td>Hosted input font family token.</td><td><code>"IBM Plex Sans", sans-serif</code></td></tr>
+    <tr><td><code>theme-input-text-color</code></td><td>Hosted input text color token.</td><td><code>#0f172a</code></td></tr>
+    <tr><td><code>theme-input-error-text-color</code></td><td>Error-state text color token.</td><td><code>#dc2626</code></td></tr>
+    <tr><td><code>theme-input-font-size</code></td><td>Hosted input font size token.</td><td><code>16px</code></td></tr>
+  </tbody>
 </table>
 
-### Methods
-
-- `clear(): void`
-- `tokenize(requestId?: string): Promise<{ token: string; requestId?: string }>`
-- `checkValidity(): boolean`
-- `reportValidity(): boolean`
-
-### Events
+## Properties
 
 <table>
-	<thead>
-		<tr>
-			<th>Event</th>
-			<th>Detail</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr><td><code>load</code></td><td><code>{}</code></td></tr>
-		<tr><td><code>change</code></td><td>none</td></tr>
-		<tr><td><code>focus</code></td><td>none</td></tr>
-		<tr><td><code>blur</code></td><td>none</td></tr>
-		<tr>
-			<td><code>tokenizationsuccess</code></td>
-			<td><code>{'{ token: string; requestId?: string }'}</code></td>
-		</tr>
-		<tr>
-			<td><code>tokenizationerror</code></td>
-			<td><code>{'{ code: AchHostedFieldsTokenizeErrorCode; requestId?: string }'}</code></td>
-		</tr>
-	</tbody>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>type</code></td><td><code>"routing-number" | "account-number" | "account-type" | "account-holder-name"</code></td><td>Active ACH field type to render.</td></tr>
+    <tr><td><code>group</code></td><td><code>string</code></td><td>Session identifier used to coordinate related ACH fields.</td></tr>
+    <tr><td><code>placeholder</code></td><td><code>string | undefined</code></td><td>Placeholder text for the hosted input.</td></tr>
+    <tr><td><code>accountTypeValues</code></td><td><code>("checking" | "savings")[] | undefined</code></td><td>Allowed account types when rendering the account-type field.</td></tr>
+    <tr><td><code>disabled</code></td><td><code>boolean</code></td><td>Controls disabled state and form participation.</td></tr>
+    <tr><td><code>lang</code></td><td><code>string</code></td><td>Inherited HTMLElement language property used as locale input.</td></tr>
+  </tbody>
 </table>
 
-### Theme Attributes
+## Methods
 
 <table>
-	<thead>
-		<tr>
-			<th>Attribute</th>
-			<th>Meaning</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr><td><code>theme-input-placeholder-color</code></td><td>Placeholder color</td></tr>
-		<tr><td><code>theme-input-height</code></td><td>Input height</td></tr>
-		<tr><td><code>theme-input-padding</code></td><td>Input padding</td></tr>
-		<tr><td><code>theme-font-sans</code></td><td>Input font family/shorthand</td></tr>
-		<tr><td><code>theme-input-text-color</code></td><td>Input text color</td></tr>
-		<tr><td><code>theme-input-error-text-color</code></td><td>Input error text color</td></tr>
-		<tr><td><code>theme-input-font-size</code></td><td>Input font size</td></tr>
-	</tbody>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Arguments</th>
+      <th>Return type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>clear</code></td><td><code>()</code></td><td><code>void</code></td><td>Clears the hosted field value in the active session.</td></tr>
+    <tr><td><code>tokenize</code></td><td><code>(requestId?: string)</code></td><td><code>Promise&lt;&#123; token: string; requestId?: string &#125;&gt;</code></td><td>Requests tokenization for the current ACH session.</td></tr>
+    <tr><td><code>checkValidity</code></td><td><code>()</code></td><td><code>boolean</code></td><td>Runs constraint validation and returns current validity.</td></tr>
+    <tr><td><code>reportValidity</code></td><td><code>()</code></td><td><code>boolean</code></td><td>Reports native validity UI and returns validity status.</td></tr>
+  </tbody>
 </table>
 
-### States
+## Events
 
-The element exposes `ElementInternals` custom states on the host:
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Detail type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>load</code></td><td><code>CustomEvent&lt;AchLoadEventDetail&gt;</code></td><td>Fires when the ACH controller session is ready.</td></tr>
+    <tr><td><code>change</code></td><td><code>Event</code></td><td>Fires when the field public state changes.</td></tr>
+    <tr><td><code>focus</code></td><td><code>FocusEvent</code></td><td>Fires when the hosted field gains focus.</td></tr>
+    <tr><td><code>blur</code></td><td><code>FocusEvent</code></td><td>Fires when the hosted field loses focus.</td></tr>
+    <tr><td><code>tokenizationsuccess</code></td><td><code>CustomEvent&lt;AchTokenizationSuccessEventDetail&gt;</code></td><td>Fires when ACH tokenization succeeds.</td></tr>
+    <tr><td><code>tokenizationerror</code></td><td><code>CustomEvent&lt;AchTokenizationErrorEventDetail&gt;</code></td><td>Fires when ACH tokenization fails.</td></tr>
+  </tbody>
+</table>
 
-- `:state(focused)`
-- `:state(user-invalid)`
-- `:state(user-valid)`
-- `:state(disabled)`
+## Usage Example
 
-Native `:valid` and `:invalid` also apply because the element is form-associated.
+```html
+<form>
+  <label for="ach-routing">Routing number</label>
+  <foxy-ach-field
+    id="ach-routing"
+    type="routing-number"
+    group="checkout-ach"
+    placeholder="123456789"
+    theme-input-height="44px"
+  ></foxy-ach-field>
 
-## Local Dev Notes
+  <label for="ach-account">Account number</label>
+  <foxy-ach-field
+    id="ach-account"
+    type="account-number"
+    group="checkout-ach"
+    placeholder="000123456789"
+  ></foxy-ach-field>
 
-- The hosted iframe payload is served by the ACH embed origin configured in `VITE_EMBED_ORIGIN`.
-- If that origin is unavailable, stories still validate host-level API behavior, controls, events, and play interactions, but you may see network errors in the browser console for iframe requests.
+  <button type="button" id="ach-tokenize">Tokenize ACH</button>
+</form>
 
-## Stories
+<script type="module">
+  import "https://cdn-js.foxy.io/elements@2/foxy-ach-field.js";
 
-### API Playground
+  const achAccountField = document.querySelector("#ach-account");
+  const achTokenizeButton = document.querySelector("#ach-tokenize");
 
-Control-driven single-field harness for API surface checks.
+  achAccountField.addEventListener("tokenizationsuccess", (event) => {
+    console.log("ACH tokenized", event.detail.token, event.detail.requestId);
+  });
 
-<Canvas of={AchFieldStories.ApiPlayground} />
+  achAccountField.addEventListener("tokenizationerror", (event) => {
+    console.error("ACH tokenization failed", event.detail.code);
+  });
 
-<Controls of={AchFieldStories.ApiPlayground} />
-
-### Event Semantics
-
-Play-driven transitions for non-bubbling focus/blur and instance-scoped change behavior.
-
-<Canvas of={AchFieldStories.EventSemantics} />
-
-### Validity States
-
-Play-driven incomplete, badInput, and valid transitions via native validity APIs.
-
-<Canvas of={AchFieldStories.ValidityStates} />
-
-### Session Group Topology
-
-Shared and isolated groups in one canvas to verify group-scoped behavior.
-
-<Canvas of={AchFieldStories.SessionGroupTopology} />
-
-### Tokenize Success
-
-Deterministic `tokenize(requestId)` success scenario with payload checks.
-
-<Canvas of={AchFieldStories.TokenizeSuccess} />
-
-### Tokenize Error Matrix
-
-Control-selected tokenize error code replay with deterministic rejection path.
-
-<Canvas of={AchFieldStories.TokenizeErrorMatrix} />
-
-### Account Type Restrictions
-
-Account type control matrix for `account-type-values` permutations.
-
-<Canvas of={AchFieldStories.AccountTypeRestrictions} />
-
-### Theme Attribute Controls
-
-Theme propagation checks for text color, placeholder color, font size, and font family.
-
-<Canvas of={AchFieldStories.ThemeAttributeControls} />
-
-<Controls of={AchFieldStories.ThemeAttributeControls} />
-
-### Form Integration Interaction
-
-Minimal form flow for `reportValidity` and tokenization integration behavior.
-
-<Canvas of={AchFieldStories.FormIntegrationInteraction} />
+  achTokenizeButton.addEventListener("click", async () => {
+    const result = await achAccountField.tokenize();
+    console.log("ACH tokenize() result", result);
+  });
+</script>
+```

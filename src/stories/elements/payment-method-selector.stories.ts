@@ -1,10 +1,103 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import "@/elements/payment-method-selector-element";
+import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
+import {
+  applyThemeAttributeMap,
+  bindThemeAttributes,
+  getShadcnInputMetrics,
+  type ThemeAttributeMapEntry,
+} from "./theme-attribute-sync";
 
 const STRIPE_PUBLISHABLE_KEY =
   import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim() ||
   import.meta.env.VITE_STRIPE_DEMO_PUBLISHABLE_KEY?.trim() ||
   "";
+
+const SELECTOR_THEME_ATTRIBUTE_MAP: ThemeAttributeMapEntry[] = [
+  {
+    attribute: "theme-background",
+    cssVariable: "--background",
+    fallback: "oklch(1 0 0)",
+  },
+  {
+    attribute: "theme-foreground",
+    cssVariable: "--foreground",
+    fallback: "oklch(0.145 0 0)",
+  },
+  {
+    attribute: "theme-card",
+    cssVariable: "--card",
+    fallback: "oklch(1 0 0)",
+  },
+  {
+    attribute: "theme-card-foreground",
+    cssVariable: "--card-foreground",
+    fallback: "oklch(0.145 0 0)",
+  },
+  {
+    attribute: "theme-primary",
+    cssVariable: "--primary",
+    fallback: "oklch(0.205 0 0)",
+  },
+  {
+    attribute: "theme-primary-foreground",
+    cssVariable: "--primary-foreground",
+    fallback: "oklch(0.985 0 0)",
+  },
+  {
+    attribute: "theme-muted-foreground",
+    cssVariable: "--muted-foreground",
+    fallback: "oklch(0.556 0 0)",
+  },
+  {
+    attribute: "theme-destructive",
+    cssVariable: "--destructive",
+    fallback: "oklch(0.577 0.245 27.325)",
+  },
+  {
+    attribute: "theme-border",
+    cssVariable: "--border",
+    fallback: "oklch(0.922 0 0)",
+  },
+  {
+    attribute: "theme-input",
+    cssVariable: "--input",
+    fallback: "oklch(0.922 0 0)",
+  },
+  {
+    attribute: "theme-ring",
+    cssVariable: "--ring",
+    fallback: "oklch(0.708 0 0)",
+  },
+  {
+    attribute: "theme-font-sans",
+    cssVariable: "--font-sans",
+    fallback: "ui-sans-serif, system-ui, sans-serif",
+  },
+  {
+    attribute: "theme-radius",
+    cssVariable: "--radius",
+    fallback: "0.625rem",
+  },
+  {
+    attribute: "theme-spacing",
+    cssVariable: "--spacing",
+    fallback: "0.25rem",
+  },
+];
+
+function applySelectorThemeAttributes(element: HTMLElement): void {
+  const metrics = getShadcnInputMetrics();
+  const hostBorderTotalPx = 2;
+  const hostedInputHeightPx = Math.max(metrics.outerHeightPx - hostBorderTotalPx, 0);
+
+  element.setAttribute("theme-input-height", `${hostedInputHeightPx}px`);
+  element.setAttribute("theme-input-padding", `${metrics.paddingY} ${metrics.paddingX}`);
+  element.setAttribute("theme-input-padding-x", metrics.paddingX);
+  element.setAttribute("theme-input-padding-y", metrics.paddingY);
+
+  applyThemeAttributeMap(element, SELECTOR_THEME_ATTRIBUTE_MAP);
+}
 
 const baseApiState = {
   billing_address: {
@@ -47,46 +140,22 @@ function createDemoApiState(paymentOptions: unknown[]) {
   };
 }
 
-type PaymentMethodSelectorApiLike = EventTarget & {
-  state: unknown;
+type CheckoutClientLike = EventTarget & {
+  hydrateJson: (nextJson: unknown, options?: { state?: "idle" | "busy" }) => Promise<void>;
   updateBillingAddress?: (
     changes: Record<string, unknown>,
   ) => Promise<unknown> | void;
 };
 
+function seedCheckoutClientState(client: CheckoutClientLike, nextState: unknown): void {
+  const seeded = structuredClone(nextState);
+  void client.hydrateJson(seeded, { state: "idle" });
+}
+
 type PaymentMethodSelectorElementLike = HTMLElement & {
-  api: PaymentMethodSelectorApiLike | null;
   optionIndex: number | undefined;
   tokenize(): Promise<Record<string, unknown>>;
 };
-
-class DemoPaymentApi
-  extends EventTarget
-  implements PaymentMethodSelectorApiLike
-{
-  state = structuredClone(
-    baseApiState,
-  ) as PaymentMethodSelectorApiLike["state"];
-
-  updateBillingAddress(changes: Record<string, unknown>) {
-    const currentState = this.state as Record<string, unknown>;
-    const currentBillingAddress =
-      currentState.billing_address &&
-      typeof currentState.billing_address === "object"
-        ? (currentState.billing_address as Record<string, unknown>)
-        : {};
-
-    this.state = {
-      ...currentState,
-      billing_address: {
-        ...currentBillingAddress,
-        ...changes,
-      },
-    };
-
-    this.dispatchEvent(new CustomEvent("afterStateChange"));
-  }
-}
 
 type SelectorStoryArgs = {
   apiState: unknown;
@@ -115,16 +184,14 @@ const meta = {
   render: ({ apiState, optionIndex }) => {
     const wrapper = document.createElement("div");
     wrapper.style.width = "420px";
-    const api = new DemoPaymentApi();
-    api.state = structuredClone(
-      apiState,
-    ) as PaymentMethodSelectorApiLike["state"];
+    const client = checkoutClient as CheckoutClientLike;
+    seedCheckoutClientState(client, apiState);
 
     const element = document.createElement(
       "foxy-payment-method-selector",
     ) as PaymentMethodSelectorElementLike;
 
-    element.api = api;
+    bindThemeAttributes(element, applySelectorThemeAttributes);
     element.optionIndex = optionIndex;
 
     wrapper.append(element);

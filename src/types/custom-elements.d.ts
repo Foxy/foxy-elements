@@ -10,6 +10,7 @@ type AchFieldElementProps = Omit<
   type?: "routing-number" | "account-number" | "account-type" | "account-holder-name";
   group?: string;
   placeholder?: string;
+  lang?: string;
   "account-type-values"?: string;
   disabled?: boolean;
   "theme-input-placeholder-color"?: string;
@@ -33,6 +34,7 @@ type CardEmbedElementProps = Omit<
   style?: CSSProperties & Record<`--${string}`, string | number>;
   mode?: "full" | "csc-only";
   "secure-origin"?: string;
+  lang?: string;
   "translation-card-number-label"?: string;
   "translation-card-number-placeholder"?: string;
   "translation-card-expiration-label"?: string;

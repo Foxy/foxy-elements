@@ -20,6 +20,7 @@ import {
 
 type CardStoryArgs = {
   mode: (typeof CARD_MODE_OPTIONS)[number];
+  lang: string;
   disabled: boolean;
   requestId: string;
   token: string;
@@ -42,12 +43,13 @@ const meta = {
     docs: {
       description: {
         component:
-          "Developer diagnostics stories for card embed API semantics, validity transitions, theme propagation, and tokenization flow.",
+          "Developer diagnostics stories for card embed API semantics, validity transitions, theme propagation, tokenization flow, and language propagation via the lang attribute.",
       },
     },
   },
   args: {
     mode: "full",
+    lang: "en-US",
     disabled: false,
     requestId: "card-story-request-1",
     token: "tok_story_card_12345",
@@ -72,12 +74,12 @@ function getPrimaryField(canvasElement: HTMLElement): PaymentCardFieldElement {
 export const ApiPlayground: Story = {
   parameters: {
     controls: {
-      include: ["mode", "disabled"],
+      include: ["mode", "lang", "disabled"],
     },
     docs: {
       description: {
         story:
-          "Single-field API control surface for mode and disabled reflection on the hosted card element.",
+          "Single-field API control surface for mode, lang, and disabled reflection on the hosted card element. The lang attribute is forwarded to iframe config.",
       },
     },
   },
@@ -86,9 +88,13 @@ export const ApiPlayground: Story = {
       control: "select",
       options: CARD_MODE_OPTIONS,
     },
+    lang: {
+      control: "text",
+      description: "Optional BCP 47 locale tag forwarded to the hosted card iframe (for example, en-US).",
+    },
     disabled: { control: "boolean" },
   },
-  render: ({ mode, disabled }) => {
+  render: ({ mode, lang, disabled }) => {
     const surface = createCardSurface();
     const item = createLabeledField({
       id: "card-api-playground",
@@ -96,6 +102,7 @@ export const ApiPlayground: Story = {
       disabled,
       role: "primary",
     });
+    item.field.lang = lang;
 
     attachActionLogging(item.field, "api-playground");
     surface.append(

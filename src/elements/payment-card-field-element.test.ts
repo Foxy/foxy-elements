@@ -61,6 +61,7 @@ describe("PaymentCardFieldElement", () => {
     );
     expect(PaymentCardFieldElement.observedAttributes).not.toContain("template-set-id");
     expect(PaymentCardFieldElement.observedAttributes).not.toContain("demo-mode");
+    expect(PaymentCardFieldElement.observedAttributes).toContain("lang");
   });
 
   it("applies disabled state through formDisabledCallback", () => {
@@ -137,6 +138,30 @@ describe("PaymentCardFieldElement", () => {
       "card.csc.label": "Security code",
     });
     expect("readonly" in payload).toBe(false);
+  });
+
+  it("includes lang in config payload", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+    element.lang = "es-MX";
+
+    const postMessage = vi.fn();
+    const privateElement = element as unknown as {
+      _port: { postMessage: (message: string) => void };
+      _sendConfig: () => void;
+    };
+    privateElement._port = { postMessage };
+
+    privateElement._sendConfig();
+
+    const payloadRaw = postMessage.mock.calls[0]?.[0] as string;
+    const payload = JSON.parse(payloadRaw) as {
+      lang?: string;
+    };
+
+    expect(payload.lang).toBe("es-MX");
   });
 
   it("rejects tokenize with invalid_state when iframe is not ready", async () => {

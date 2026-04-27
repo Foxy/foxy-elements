@@ -16,7 +16,7 @@ const DEFAULT_EMBED_PATH = "/v2.html";
 type PaymentCardFieldMode = "full" | "csc-only";
 
 export type PaymentCardFieldOption = {
-  secureOrigin: string;
+  secureOrigin?: string;
   mode: PaymentCardFieldMode;
   translationCardNumberLabel?: string;
   translationCardNumberPlaceholder?: string;
@@ -84,6 +84,7 @@ const THEME_ATTRIBUTE_NAMES = Object.keys(THEME_ATTR_TO_CSS_VAR) as ThemeAttribu
 
 const MODE_ATTRIBUTE = "mode";
 const SECURE_ORIGIN_ATTRIBUTE = "secure-origin";
+const LANG_ATTRIBUTE = "lang";
 const TRANSLATION_CARD_NUMBER_LABEL_ATTRIBUTE = "translation-card-number-label";
 const TRANSLATION_CARD_NUMBER_PLACEHOLDER_ATTRIBUTE =
   "translation-card-number-placeholder";
@@ -147,6 +148,7 @@ export class PaymentCardFieldElement extends HTMLElement {
     return [
       MODE_ATTRIBUTE,
       SECURE_ORIGIN_ATTRIBUTE,
+      LANG_ATTRIBUTE,
       ...TRANSLATION_ATTRIBUTE_NAMES,
       ...THEME_ATTRIBUTE_NAMES,
     ];
@@ -155,6 +157,7 @@ export class PaymentCardFieldElement extends HTMLElement {
   private _disabled = false;
   private _secureOrigin = DEFAULT_CARD_SECURE_ORIGIN;
   private _mode: PaymentCardFieldMode = "full";
+  private _lang: string | undefined;
   private _iframe: HTMLIFrameElement | null = null;
   private _port: MessagePort | null = null;
   private _fallbackRequestCounter = 0;
@@ -174,6 +177,7 @@ export class PaymentCardFieldElement extends HTMLElement {
     const secureOrigin = this.getAttribute(SECURE_ORIGIN_ATTRIBUTE)?.trim();
     if (secureOrigin) this._secureOrigin = secureOrigin;
     this._mode = toMode(this.getAttribute(MODE_ATTRIBUTE));
+    this._lang = this.getAttribute(LANG_ATTRIBUTE)?.trim() || undefined;
   }
 
   addEventListener<K extends keyof PaymentCardFieldEventMap>(
@@ -294,6 +298,12 @@ export class PaymentCardFieldElement extends HTMLElement {
     if (name === SECURE_ORIGIN_ATTRIBUTE) {
       this._secureOrigin = newValue?.trim() || DEFAULT_CARD_SECURE_ORIGIN;
       if (this.isConnected) this._mountIframe();
+      return;
+    }
+
+    if (name === LANG_ATTRIBUTE) {
+      this._lang = newValue?.trim() || undefined;
+      if (this.isConnected) this._sendConfig();
       return;
     }
 
@@ -645,6 +655,7 @@ export class PaymentCardFieldElement extends HTMLElement {
       type: "config",
       disabled: this._disabled,
       mode: this._mode,
+      lang: this._lang,
       style: Object.keys(style).length > 0 ? style : undefined,
       translations: this._getTranslationsFromAttributes(),
     });

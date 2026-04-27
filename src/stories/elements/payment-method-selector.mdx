@@ -1,0 +1,131 @@
+import { Meta } from "@storybook/blocks";
+import * as PaymentMethodSelectorStories from "./payment-method-selector.stories";
+
+<Meta of={PaymentMethodSelectorStories} />
+
+# PaymentMethodSelectorElement
+
+Payment method selector element that renders available checkout payment options, tracks the selected option, and tokenizes the selected method payload.
+
+Required attributes: none. The element still requires checkout client state to be initialized before it can render payment options and tokenize.
+
+## Attributes
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Value example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>lang</code></td><td>Locale used to resolve translated UI messages.</td><td><code>en-US</code></td></tr>
+    <tr><td><code>option-index</code></td><td>Zero-based index of the selected payment option.</td><td><code>0</code></td></tr>
+    <tr><td><code>theme-background</code></td><td>Background token for selector and embedded payment surfaces.</td><td><code>#ffffff</code></td></tr>
+    <tr><td><code>theme-foreground</code></td><td>Default text color token.</td><td><code>#0f172a</code></td></tr>
+    <tr><td><code>theme-card</code></td><td>Card surface token for option containers.</td><td><code>#f8fafc</code></td></tr>
+    <tr><td><code>theme-card-foreground</code></td><td>Text color token for card surfaces.</td><td><code>#0f172a</code></td></tr>
+    <tr><td><code>theme-primary</code></td><td>Primary accent token for selected controls.</td><td><code>#111827</code></td></tr>
+    <tr><td><code>theme-primary-foreground</code></td><td>Foreground color token on primary surfaces.</td><td><code>#ffffff</code></td></tr>
+    <tr><td><code>theme-muted-foreground</code></td><td>Muted text and placeholder token.</td><td><code>#64748b</code></td></tr>
+    <tr><td><code>theme-destructive</code></td><td>Error and destructive state token.</td><td><code>#dc2626</code></td></tr>
+    <tr><td><code>theme-border</code></td><td>Border color token for containers and controls.</td><td><code>#cbd5e1</code></td></tr>
+    <tr><td><code>theme-input</code></td><td>Input outline/background token.</td><td><code>#e2e8f0</code></td></tr>
+    <tr><td><code>theme-ring</code></td><td>Focus ring token.</td><td><code>#2563eb</code></td></tr>
+    <tr><td><code>theme-font-sans</code></td><td>Sans font family token for selector and embedded fields.</td><td><code>"IBM Plex Sans", sans-serif</code></td></tr>
+    <tr><td><code>theme-radius</code></td><td>Border radius token.</td><td><code>0.75rem</code></td></tr>
+    <tr><td><code>theme-spacing</code></td><td>Spacing scale token used by embedded appearances.</td><td><code>4px</code></td></tr>
+    <tr><td><code>theme-input-height</code></td><td>Hosted card input height override token.</td><td><code>40px</code></td></tr>
+    <tr><td><code>theme-input-padding</code></td><td>Hosted card input shorthand padding token.</td><td><code>0 12px</code></td></tr>
+    <tr><td><code>theme-input-padding-x</code></td><td>Hosted card input horizontal padding override token.</td><td><code>12px</code></td></tr>
+    <tr><td><code>theme-input-padding-y</code></td><td>Hosted card input vertical padding override token.</td><td><code>10px</code></td></tr>
+  </tbody>
+</table>
+
+## Properties
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>optionIndex</code></td><td><code>number | undefined</code></td><td>Selected payment option index; undefined clears selection.</td></tr>
+    <tr><td><code>lang</code></td><td><code>string</code></td><td>Inherited HTMLElement language property used as locale input.</td></tr>
+  </tbody>
+</table>
+
+## Methods
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Arguments</th>
+      <th>Return type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>tokenize</code></td><td><code>()</code></td><td><code>Promise&lt;Record&lt;string, unknown&gt;&gt;</code></td><td>Tokenizes the selected payment option and resolves the normalized payload.</td></tr>
+  </tbody>
+</table>
+
+## Events
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Detail type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>tokenizationstart</code></td><td><code>CustomEvent&lt;&#123; optionIndex: number &#125;&gt;</code></td><td>Cancelable event fired before tokenization begins.</td></tr>
+    <tr><td><code>tokenizationsuccess</code></td><td><code>CustomEvent&lt;&#123; payload: Record&lt;string, unknown&gt; &#125;&gt;</code></td><td>Fires when tokenization succeeds.</td></tr>
+    <tr><td><code>tokenizationerror</code></td><td><code>CustomEvent&lt;&#123; error: unknown &#125;&gt;</code></td><td>Fires when tokenization fails.</td></tr>
+    <tr><td><code>optionindexchange</code></td><td><code>CustomEvent&lt;&#123; optionIndex: number &#125;&gt;</code></td><td>Fires after user selection changes to a new option.</td></tr>
+  </tbody>
+</table>
+
+## Usage Example
+
+```html
+<foxy-payment-method-selector
+  id="payment-selector"
+  lang="en-US"
+  option-index="0"
+  theme-primary="#111827"
+  theme-radius="0.75rem"
+></foxy-payment-method-selector>
+
+<button type="button" id="selector-tokenize">Tokenize Selection</button>
+
+<script type="module">
+  import "https://cdn-js.foxy.io/elements@2/foxy-payment-method-selector.js";
+  import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
+
+  const selector = document.querySelector("#payment-selector");
+  const selectorTokenizeButton = document.querySelector("#selector-tokenize");
+
+  await checkoutClient.refresh();
+
+  selector.addEventListener("tokenizationsuccess", (event) => {
+    console.log("Payment method tokenized", event.detail.payload);
+  });
+
+  selector.addEventListener("tokenizationerror", (event) => {
+    console.error("Payment method tokenization failed", event.detail.error);
+  });
+
+  selectorTokenizeButton.addEventListener("click", async () => {
+    const payload = await selector.tokenize();
+    console.log("Selector tokenize() result", payload);
+  });
+</script>
+```

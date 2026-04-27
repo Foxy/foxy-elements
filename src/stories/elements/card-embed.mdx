@@ -1,176 +1,136 @@
-import { Meta, Canvas, Controls } from "@storybook/blocks";
+import { Meta } from "@storybook/blocks";
 import * as CardEmbedStories from "./card-embed.stories";
 
 <Meta of={CardEmbedStories} />
 
-# Card Embed
+# PaymentCardFieldElement
 
-Developer diagnostics suite for foxy-payment-card-field. These stories prioritize maintainers and AI agents validating runtime behavior and integration contracts.
+Form-associated hosted card field element that mounts a secure iframe for full card entry or CSC-only entry and provides tokenization and validation APIs.
 
-## Story Selection Guide
+Required attributes: none. The element still depends on `VITE_EMBED_ORIGIN` being configured for the build, even when `secure-origin` is omitted.
 
-- Validate reflected API and attributes: use ApiPlayground
-- Verify mode reflection and runtime switching: use ModeTransitions
-- Reproduce validity transitions: use ValidationStates
-- Verify theme attribute passthrough: use ThemeAttributeControls
-- Verify deterministic tokenize success contract: use TokenizeSuccess
-- Replay tokenize failure path deterministically: use TokenizeErrorMatrix
-- Exercise form-associated integration: use FormIntegrationInteraction
-- Verify disabled host state styling: use Disabled
-
-## API Reference
-
-The card field is attribute-first and exposes matching properties.
+## Attributes
 
 <table>
   <thead>
     <tr>
-      <th>Attribute</th>
-      <th>Property</th>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Value example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>mode</code></td><td>Card field mode for full card details or CSC only.</td><td><code>full</code></td></tr>
+    <tr><td><code>secure-origin</code></td><td>Origin of the secure embed runtime.</td><td><code>https://embed.foxy.io</code></td></tr>
+    <tr><td><code>lang</code></td><td>Locale passed to the embedded card runtime.</td><td><code>en-US</code></td></tr>
+    <tr><td><code>translation-card-number-label</code></td><td>Override label for the card number field.</td><td><code>Card number</code></td></tr>
+    <tr><td><code>translation-card-number-placeholder</code></td><td>Override placeholder for card number.</td><td><code>4111 1111 1111 1111</code></td></tr>
+    <tr><td><code>translation-card-expiration-label</code></td><td>Override label for expiration date.</td><td><code>Expiration</code></td></tr>
+    <tr><td><code>translation-card-expiration-placeholder</code></td><td>Override placeholder for expiration date.</td><td><code>MM / YY</code></td></tr>
+    <tr><td><code>translation-card-csc-label</code></td><td>Override label for security code.</td><td><code>Security code</code></td></tr>
+    <tr><td><code>translation-card-csc-placeholder</code></td><td>Override placeholder for security code.</td><td><code>CVC</code></td></tr>
+    <tr><td><code>theme-background</code></td><td>Background color token for iframe content.</td><td><code>#ffffff</code></td></tr>
+    <tr><td><code>theme-input-placeholder-color</code></td><td>Placeholder text color token.</td><td><code>#94a3b8</code></td></tr>
+    <tr><td><code>theme-input-height</code></td><td>Hosted input height.</td><td><code>44px</code></td></tr>
+    <tr><td><code>theme-input-padding</code></td><td>Hosted input shorthand padding.</td><td><code>0 12px</code></td></tr>
+    <tr><td><code>theme-input-padding-x</code></td><td>Hosted input horizontal padding override.</td><td><code>12px</code></td></tr>
+    <tr><td><code>theme-input-padding-y</code></td><td>Hosted input vertical padding override.</td><td><code>10px</code></td></tr>
+    <tr><td><code>theme-font-sans</code></td><td>Hosted input font family token.</td><td><code>"IBM Plex Sans", sans-serif</code></td></tr>
+    <tr><td><code>theme-input-text-color</code></td><td>Hosted input text color token.</td><td><code>#0f172a</code></td></tr>
+    <tr><td><code>theme-input-error-text-color</code></td><td>Error-state text color token.</td><td><code>#dc2626</code></td></tr>
+    <tr><td><code>theme-input-font-size</code></td><td>Hosted input font size token.</td><td><code>16px</code></td></tr>
+  </tbody>
+</table>
+
+## Properties
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
       <th>Type</th>
       <th>Description</th>
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <td><code>secure-origin</code></td>
-      <td><code>secureOrigin</code></td>
-      <td><code>string</code></td>
-      <td>Secure embed origin used for iframe mounting.</td>
-    </tr>
-    <tr>
-      <td><code>mode</code></td>
-      <td><code>mode</code></td>
-      <td><code>"full" | "csc-only"</code></td>
-      <td>Controls full card fields or CSC-only mode.</td>
-    </tr>
-    <tr>
-      <td><code>disabled</code></td>
-      <td><code>disabled</code></td>
-      <td><code>boolean</code></td>
-      <td>Disables hosted inputs.</td>
-    </tr>
+    <tr><td><code>mode</code></td><td><code>"full" | "csc-only"</code></td><td>Current card field rendering mode.</td></tr>
+    <tr><td><code>secureOrigin</code></td><td><code>string</code></td><td>Current secure embed origin used for iframe mounting.</td></tr>
+    <tr><td><code>disabled</code></td><td><code>boolean</code></td><td>Disables interaction and tokenization while true.</td></tr>
+    <tr><td><code>lang</code></td><td><code>string</code></td><td>Inherited HTMLElement language property used as locale input.</td></tr>
   </tbody>
 </table>
 
-### Methods
-
-- `clear(): void`
-- `tokenize(requestId?: string): Promise<{ token: string; requestId?: string }>`
-- `checkValidity(): boolean`
-- `reportValidity(): boolean`
-
-### Events
+## Methods
 
 <table>
   <thead>
     <tr>
-      <th>Event</th>
-      <th>Detail</th>
+      <th>Name</th>
+      <th>Arguments</th>
+      <th>Return type</th>
+      <th>Description</th>
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>load</code></td><td>none</td></tr>
-    <tr><td><code>resize</code></td><td><code>{'{ height: string }'}</code></td></tr>
-    <tr>
-      <td><code>tokenizationsuccess</code></td>
-      <td><code>{'{ token: string; requestId?: string }'}</code></td>
-    </tr>
-    <tr>
-      <td><code>tokenizationerror</code></td>
-      <td><code>{'{ code: CardEmbedTokenizeErrorCode; message?: string; requestId?: string }'}</code></td>
-    </tr>
+    <tr><td><code>clear</code></td><td><code>()</code></td><td><code>void</code></td><td>Clears card input values in the secure iframe.</td></tr>
+    <tr><td><code>tokenize</code></td><td><code>(requestId?: string)</code></td><td><code>Promise&lt;&#123; token: string; requestId?: string &#125;&gt;</code></td><td>Requests card tokenization from the secure iframe.</td></tr>
+    <tr><td><code>checkValidity</code></td><td><code>()</code></td><td><code>boolean</code></td><td>Runs constraint validation and returns current validity.</td></tr>
+    <tr><td><code>reportValidity</code></td><td><code>()</code></td><td><code>boolean</code></td><td>Reports native validity UI and returns validity status.</td></tr>
   </tbody>
 </table>
 
-### Theme Attributes
+## Events
 
 <table>
   <thead>
     <tr>
-      <th>Attribute</th>
-      <th>Meaning</th>
+      <th>Name</th>
+      <th>Detail type</th>
+      <th>Description</th>
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>theme-background</code></td><td>Iframe background color</td></tr>
-    <tr><td><code>theme-input-placeholder-color</code></td><td>Placeholder color</td></tr>
-    <tr><td><code>theme-input-height</code></td><td>Input height</td></tr>
-    <tr><td><code>theme-input-padding-x</code></td><td>Horizontal input padding</td></tr>
-    <tr><td><code>theme-input-padding-y</code></td><td>Vertical input padding</td></tr>
-    <tr><td><code>theme-font-sans</code></td><td>Input font family/shorthand</td></tr>
-    <tr><td><code>theme-input-text-color</code></td><td>Input text color</td></tr>
-    <tr><td><code>theme-input-error-text-color</code></td><td>Input error text color</td></tr>
-    <tr><td><code>theme-input-font-size</code></td><td>Input font size</td></tr>
+    <tr><td><code>load</code></td><td><code>Event</code></td><td>Fires when the secure iframe runtime is ready.</td></tr>
+    <tr><td><code>resize</code></td><td><code>CustomEvent&lt;&#123; height: string &#125;&gt;</code></td><td>Fires when iframe content requests a height change.</td></tr>
+    <tr><td><code>tokenizationsuccess</code></td><td><code>CustomEvent&lt;&#123; token: string; requestId?: string &#125;&gt;</code></td><td>Fires when card tokenization succeeds.</td></tr>
+    <tr><td><code>tokenizationerror</code></td><td><code>CustomEvent&lt;&#123; code: CardEmbedTokenizeErrorCode; message?: string; requestId?: string &#125;&gt;</code></td><td>Fires when card tokenization fails.</td></tr>
   </tbody>
 </table>
 
-### States
+## Usage Example
 
-The element exposes ElementInternals custom states on the host:
+```html
+<form>
+  <label for="card-field">Card details</label>
+  <foxy-payment-card-field
+    id="card-field"
+    mode="full"
+    secure-origin="https://embed.foxy.io"
+    lang="en-US"
+    theme-input-height="44px"
+    theme-input-padding="0 12px"
+  ></foxy-payment-card-field>
 
-- :state(focused)
-- :state(user-invalid)
-- :state(user-valid)
-- :state(disabled)
+  <button type="button" id="card-tokenize">Tokenize Card</button>
+</form>
 
-Native :valid and :invalid also apply because the element is form-associated.
+<script type="module">
+  import "https://cdn-js.foxy.io/elements@2/foxy-payment-card-field.js";
 
-## Local Dev Notes
+  const cardField = document.querySelector("#card-field");
+  const cardTokenizeButton = document.querySelector("#card-tokenize");
 
-- The hosted iframe is loaded from VITE_EMBED_ORIGIN.
-- If that origin is unavailable, stories still validate host API, controls, events, and deterministic play interactions, but browser console network errors for iframe requests are expected.
+  cardField.addEventListener("tokenizationsuccess", (event) => {
+    console.log("Card tokenized", event.detail.token, event.detail.requestId);
+  });
 
-## Stories
+  cardField.addEventListener("tokenizationerror", (event) => {
+    console.error("Card tokenization failed", event.detail.code, event.detail.message);
+  });
 
-### API Playground
-
-Control-driven single-field harness for mode and disabled reflection checks.
-
-<Canvas of={CardEmbedStories.ApiPlayground} />
-
-<Controls of={CardEmbedStories.ApiPlayground} />
-
-### Mode Transitions
-
-Play-driven runtime mode switches for reflection and lifecycle verification.
-
-<Canvas of={CardEmbedStories.ModeTransitions} />
-
-### Validity States
-
-Play-driven validation updates for invalid and valid transitions.
-
-<Canvas of={CardEmbedStories.ValidationStates} />
-
-### Theme Attribute Controls
-
-Theme propagation checks for text color, placeholder color, error color, background, and typography.
-
-<Canvas of={CardEmbedStories.ThemeAttributeControls} />
-
-<Controls of={CardEmbedStories.ThemeAttributeControls} />
-
-### Tokenize Success
-
-Deterministic tokenize success path with promise and event payload checks.
-
-<Canvas of={CardEmbedStories.TokenizeSuccess} />
-
-### Tokenize Error Matrix
-
-Deterministic tokenize failure replay and rejection assertions.
-
-<Canvas of={CardEmbedStories.TokenizeErrorMatrix} />
-
-### Form Integration Interaction
-
-Minimal form-associated flow using reportValidity plus tokenize behavior.
-
-<Canvas of={CardEmbedStories.FormIntegrationInteraction} />
-
-### Disabled
-
-Host disabled-state diagnostics.
-
-<Canvas of={CardEmbedStories.Disabled} />
+  cardTokenizeButton.addEventListener("click", async () => {
+    const result = await cardField.tokenize();
+    console.log("Card tokenize() result", result);
+  });
+</script>
+```

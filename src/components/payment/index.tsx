@@ -411,6 +411,7 @@ type PaymentController = {
 type PaymentProps = {
   options: PaymentMethodSelectorOption[];
   selectedOptionId?: string;
+  lang?: string;
   disabled?: boolean;
   loading?: boolean;
   onSelectionChange?: (
@@ -1071,11 +1072,13 @@ function BillingAddressSection({
 
 function CardOptionEmbed({
   option,
+  lang,
   disabled,
   styleAttributes,
   onControllerReady,
 }: {
   option: PaymentMethodSelectorOption;
+  lang?: string;
   disabled?: boolean;
   styleAttributes: HostedFieldStyleAttributes;
   onControllerReady?: (controller: PaymentController | null) => void;
@@ -1088,7 +1091,9 @@ function CardOptionEmbed({
     const element = elementRef.current;
     if (!element || !option.hostedCard) return;
 
-    element.secureOrigin = option.hostedCard.secureOrigin;
+    if (option.hostedCard.secureOrigin) {
+      element.secureOrigin = option.hostedCard.secureOrigin;
+    }
     element.mode = option.hostedCard.mode;
     element.disabled = Boolean(disabled);
   }, [disabled, option.hostedCard]);
@@ -1141,6 +1146,7 @@ function CardOptionEmbed({
       </Field>
       {createElement("foxy-payment-card-field", {
         id: fieldId,
+        lang,
         mode: option.hostedCard.mode,
         "secure-origin": option.hostedCard.secureOrigin,
         "translation-card-number-label": option.hostedCard.translationCardNumberLabel,
@@ -1178,11 +1184,13 @@ function CardOptionEmbed({
 
 function AchOptionEmbed({
   option,
+  lang,
   disabled,
   styleAttributes,
   onControllerReady,
 }: {
   option: PaymentMethodSelectorOption;
+  lang?: string;
   disabled?: boolean;
   styleAttributes: HostedFieldStyleAttributes;
   onControllerReady?: (controller: PaymentController | null) => void;
@@ -1272,6 +1280,7 @@ function AchOptionEmbed({
               <Field key={fieldName}>
                 <FieldLabel>{label}</FieldLabel>
                 {createElement("foxy-ach-field", {
+                  lang,
                   className:
                     "border-input dark:bg-input/30 state-focused:border-ring state-focused:ring-ring/50 state-user-invalid:border-destructive state-user-invalid:ring-destructive/20 dark:state-user-invalid:ring-destructive/40 state-user-invalid:ring-3 state-focused:ring-3 state-disabled:bg-input/50 dark:state-disabled:bg-input/80 state-disabled:opacity-50 rounded-lg border transition-colors relative flex w-full min-w-0 items-center overflow-hidden outline-none block min-h-8",
                   "theme-input-height": styleAttributes.inputHeight,
@@ -1305,6 +1314,7 @@ function AchOptionEmbed({
 
 function PaymentOptionBody({
   option,
+  lang,
   disabled,
   styleAttributes,
   onControllerReady,
@@ -1313,6 +1323,7 @@ function PaymentOptionBody({
   onBillingAddressChange,
 }: {
   option: PaymentMethodSelectorOption;
+  lang?: string;
   disabled?: boolean;
   styleAttributes: HostedFieldStyleAttributes;
   onControllerReady?: (controller: PaymentController | null) => void;
@@ -1343,6 +1354,7 @@ function PaymentOptionBody({
       <>
         <CardOptionEmbed
           option={option}
+          lang={lang}
           disabled={disabled}
           styleAttributes={styleAttributes}
           onControllerReady={onControllerReady}
@@ -1357,6 +1369,7 @@ function PaymentOptionBody({
       <>
         <AchOptionEmbed
           option={option}
+          lang={lang}
           disabled={disabled}
           styleAttributes={styleAttributes}
           onControllerReady={onControllerReady}
@@ -1416,6 +1429,7 @@ function PaymentOptionBody({
 export function Payment({
   options,
   selectedOptionId,
+  lang,
   disabled,
   loading,
   onSelectionChange,
@@ -1631,6 +1645,7 @@ export function Payment({
                       >
                         <PaymentOptionBody
                           option={option}
+                          lang={lang}
                           disabled={optionDisabled}
                           styleAttributes={styleAttributes}
                           onControllerReady={(controller) =>

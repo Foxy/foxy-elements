@@ -3,6 +3,7 @@ import type {
   PaymentMethodSelectorBillingField,
 } from "../components/payment/billing-address-types";
 import type { PaymentMethodSelectorOption } from "../components/payment/option-types";
+import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
 
 import "./ach-field-element";
 import "./payment-card-field-element";
@@ -49,12 +50,8 @@ type PaymentMethodSelectorTokenizationErrorEventDetail = {
   error: unknown;
 };
 
-const DEFAULT_EMBED_ORIGIN =
-  import.meta.env.VITE_EMBED_ORIGIN?.trim() || "https://embed.foxy.io";
-
 const LANG_ATTRIBUTE = "lang";
 const OPTION_INDEX_ATTRIBUTE = "option-index";
-const EMBED_ORIGIN_ATTRIBUTE = "embed-origin";
 const DEFAULT_LOCALE = "en-US";
 
 const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
@@ -62,65 +59,46 @@ const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
   en: enUsMessages as Record<string, string>,
 };
 
-const THEME_TOKEN_NAMES = [
+const THEME_CSS_VARS = [
   "--background",
   "--foreground",
   "--card",
   "--card-foreground",
-  "--popover",
-  "--popover-foreground",
   "--primary",
   "--primary-foreground",
-  "--secondary",
-  "--secondary-foreground",
-  "--muted",
   "--muted-foreground",
-  "--accent",
-  "--accent-foreground",
   "--destructive",
-  "--destructive-foreground",
   "--border",
   "--input",
   "--ring",
-  "--chart-1",
-  "--chart-2",
-  "--chart-3",
-  "--chart-4",
-  "--chart-5",
-  "--sidebar",
-  "--sidebar-foreground",
-  "--sidebar-primary",
-  "--sidebar-primary-foreground",
-  "--sidebar-accent",
-  "--sidebar-accent-foreground",
-  "--sidebar-border",
-  "--sidebar-ring",
   "--font-sans",
-  "--font-serif",
-  "--font-mono",
   "--radius",
-  "--shadow-x",
-  "--shadow-y",
-  "--shadow-blur",
-  "--shadow-spread",
-  "--shadow-opacity",
-  "--shadow-color",
-  "--shadow-2xs",
-  "--shadow-xs",
-  "--shadow-sm",
-  "--shadow",
-  "--shadow-md",
-  "--shadow-lg",
-  "--shadow-xl",
-  "--shadow-2xl",
-  "--tracking-normal",
   "--spacing",
+  "--input-height",
+  "--input-padding",
+  "--input-padding-x",
+  "--input-padding-y",
 ] as const;
+
+type ThemeCssVar = (typeof THEME_CSS_VARS)[number];
+type ThemeAttributeName = `theme-${string}`;
+
+const THEME_ATTR_TO_CSS_VAR = THEME_CSS_VARS.reduce(
+  (result, cssVar) => {
+    const attrName = `theme-${cssVar.slice(2)}` as ThemeAttributeName;
+    result[attrName] = cssVar;
+    return result;
+  },
+  {} as Record<ThemeAttributeName, ThemeCssVar>,
+);
+
+const THEME_ATTRIBUTE_NAMES = Object.keys(
+  THEME_ATTR_TO_CSS_VAR,
+) as ThemeAttributeName[];
 
 export class PaymentMethodSelectorElement extends HTMLElement {
   #optionIndex: number | undefined;
   #loading = false;
-  #api: CheckoutApiLike | null = null;
   #shadowRootRef: ShadowRoot;
   #root: Root | null = null;
   #container: HTMLDivElement;
@@ -134,10 +112,10 @@ export class PaymentMethodSelectorElement extends HTMLElement {
   >();
   #lightDomStripeHosts = new Map<string, HTMLDivElement>();
   #lightDomStripeRoots = new Map<string, Root>();
-  #themeSyncObserver: MutationObserver | null = null;
+  #checkoutClient = checkoutClient as CheckoutApiLike;
 
   static get observedAttributes(): string[] {
-    return [LANG_ATTRIBUTE, OPTION_INDEX_ATTRIBUTE, EMBED_ORIGIN_ATTRIBUTE];
+    return [LANG_ATTRIBUTE, OPTION_INDEX_ATTRIBUTE, ...THEME_ATTRIBUTE_NAMES];
   }
 
   constructor() {
@@ -150,19 +128,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
   // ---------------------------------------------------------------------------
   // Public API
   // ---------------------------------------------------------------------------
-
-  get api(): CheckoutApiLike | null {
-    return this.#api;
-  }
-
-  set api(value: CheckoutApiLike | null) {
-    if (this.#api === value) return;
-
-    this.#removeApiSubscriptions(this.#api);
-    this.#api = value;
-    this.#addApiSubscriptions(this.#api);
-    this.#render();
-  }
 
   get optionIndex(): number | undefined {
     return this.#optionIndex;
@@ -188,6 +153,10 @@ export class PaymentMethodSelectorElement extends HTMLElement {
   }
 
   async tokenize(): Promise<Record<string, unknown>> {
+    if (!this.#resolveApiState()) {
+      throw new Error("Checkout client is not initialized.");
+    }
+
     this.#setLoading(true);
     try {
       const options = this.#resolveOptions();
@@ -271,14 +240,13 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     if (!this.#root) {
       this.#root = createRoot(this.#container);
     }
-    this.#startThemeSync();
-    this.#addApiSubscriptions(this.#api);
+    this.#syncThemeAttributesToHostStyles();
+    this.#addApiSubscriptions();
     this.#render();
   }
 
   disconnectedCallback() {
-    this.#stopThemeSync();
-    this.#removeApiSubscriptions(this.#api);
+    this.#removeApiSubscriptions();
     this.#root?.unmount();
     this.#root = null;
     this.#controllers.clear();
@@ -302,27 +270,44 @@ export class PaymentMethodSelectorElement extends HTMLElement {
       return;
     }
 
-    if (name === EMBED_ORIGIN_ATTRIBUTE) {
+    if (THEME_ATTRIBUTE_NAMES.includes(name as ThemeAttributeName)) {
+      this.#syncThemeAttributesToHostStyles();
       this.#render();
+      return;
     }
+
+    this.#render();
   }
 
-  #addApiSubscriptions(api: CheckoutApiLike | null) {
-    if (!api) return;
-
-    api.addEventListener("afterStateChange", this.#handleApiStateChange);
-    api.addEventListener("update", this.#handleApiStateChange);
+  #addApiSubscriptions() {
+    this.#checkoutClient.addEventListener(
+      "afterStateChange",
+      this.#handleApiStateChange,
+    );
+    this.#checkoutClient.addEventListener("update", this.#handleApiStateChange);
   }
 
-  #removeApiSubscriptions(api: CheckoutApiLike | null) {
-    if (!api) return;
-
-    api.removeEventListener("afterStateChange", this.#handleApiStateChange);
-    api.removeEventListener("update", this.#handleApiStateChange);
+  #removeApiSubscriptions() {
+    this.#checkoutClient.removeEventListener(
+      "afterStateChange",
+      this.#handleApiStateChange,
+    );
+    this.#checkoutClient.removeEventListener(
+      "update",
+      this.#handleApiStateChange,
+    );
   }
 
   #render() {
     if (!this.#root) return;
+
+    const apiState = this.#resolveApiState();
+    if (!apiState) {
+      this.#renderUninitializedState();
+      this.#syncStripeLightDomMount(undefined);
+      this.#applyStylesheet();
+      return;
+    }
 
     const options = this.#resolveOptions();
     const selectedOptionId = this.#resolveSelectedOptionId(options);
@@ -339,6 +324,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
         <Payment
           options={options}
           selectedOptionId={selectedOptionId}
+          lang={locale}
           disabled={false}
           loading={this.#loading}
           billingAddress={billingAddress}
@@ -392,7 +378,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
               return;
             }
 
-            const result = this.#api?.updateBillingAddress?.(patch);
+            const result = this.#checkoutClient.updateBillingAddress?.(patch);
             if (
               result &&
               typeof (result as Promise<unknown>).catch === "function"
@@ -425,39 +411,55 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     this.#render();
   };
 
+  #renderUninitializedState() {
+    if (!this.#root) return;
+
+    this.#root.render(
+      <div
+        role="status"
+        aria-live="polite"
+        style={{
+          border: "1px solid hsl(var(--border, 240 5.9% 90%))",
+          borderRadius: "var(--radius, 0.5rem)",
+          background: "hsl(var(--card, 0 0% 100%))",
+          color: "hsl(var(--foreground, 240 10% 3.9%))",
+          padding: "0.875rem",
+          maxWidth: "34rem",
+          fontFamily: "var(--font-sans, sans-serif)",
+          fontSize: "0.95rem",
+          lineHeight: "1.35rem",
+        }}
+      >
+        Checkout client is not initialized. Load the checkout SDK loader or
+        configure the client from @foxy.io/sdk/checkout/client before rendering
+        this element.
+      </div>,
+    );
+  }
+
   #setLoading(isLoading: boolean) {
     if (this.#loading === isLoading) return;
     this.#loading = isLoading;
     this.#render();
   }
 
-  #startThemeSync() {
-    this.#syncThemeTokensFromDocument();
+  #getThemeAttributes(): Partial<Record<ThemeCssVar, string>> {
+    const style: Partial<Record<ThemeCssVar, string>> = {};
 
-    if (this.#themeSyncObserver) return;
+    for (const attrName of THEME_ATTRIBUTE_NAMES) {
+      const value = this.getAttribute(attrName)?.trim();
+      if (!value) continue;
+      style[THEME_ATTR_TO_CSS_VAR[attrName]] = value;
+    }
 
-    this.#themeSyncObserver = new MutationObserver(() => {
-      this.#syncThemeTokensFromDocument();
-    });
-
-    this.#themeSyncObserver.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class", "style"],
-    });
+    return style;
   }
 
-  #stopThemeSync() {
-    if (!this.#themeSyncObserver) return;
+  #syncThemeAttributesToHostStyles() {
+    const themeAttributes = this.#getThemeAttributes();
 
-    this.#themeSyncObserver.disconnect();
-    this.#themeSyncObserver = null;
-  }
-
-  #syncThemeTokensFromDocument() {
-    const rootStyles = getComputedStyle(document.documentElement);
-
-    for (const tokenName of THEME_TOKEN_NAMES) {
-      const tokenValue = rootStyles.getPropertyValue(tokenName).trim();
+    for (const tokenName of THEME_CSS_VARS) {
+      const tokenValue = themeAttributes[tokenName]?.trim();
 
       if (tokenValue) {
         this.style.setProperty(tokenName, tokenValue);
@@ -571,15 +573,10 @@ export class PaymentMethodSelectorElement extends HTMLElement {
   }
 
   #resolveApiState(): Record<string, unknown> | null {
-    const state = this.#asRecord(this.#api?.state);
+    const state = this.#asRecord(this.#checkoutClient?.state);
     if (state) return state;
 
-    return this.#asRecord(this.#api?.json);
-  }
-
-  #getEmbedOrigin(): string {
-    const fromAttribute = this.getAttribute(EMBED_ORIGIN_ATTRIBUTE)?.trim();
-    return fromAttribute || DEFAULT_EMBED_ORIGIN;
+    return this.#asRecord(this.#checkoutClient?.json);
   }
 
   #getStripePaymentElementAmount(
@@ -628,10 +625,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     return options;
   }
 
-  #getCardEmbedSecureOrigin(): string {
-    return this.#getEmbedOrigin();
-  }
-
   #createSavedCardOptions(
     option: Record<string, unknown>,
     index: number,
@@ -674,7 +667,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           gateway === "stripe_connect_charge"
             ? undefined
             : {
-                secureOrigin: this.#getCardEmbedSecureOrigin(),
                 mode: "csc-only",
               },
       },
@@ -706,7 +698,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           description: "Enter your payment card details to complete checkout.",
           acceptedBrands: acceptedBrands?.length ? acceptedBrands : undefined,
           hostedCard: {
-            secureOrigin: this.#getCardEmbedSecureOrigin(),
             mode: "full",
           },
         },
@@ -924,7 +915,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
         description: "Enter your payment card details to complete checkout.",
         acceptedBrands: this.#resolveSupportedPaymentCards(apiState),
         hostedCard: {
-          secureOrigin: this.#getCardEmbedSecureOrigin(),
           mode: "full",
         },
       },
@@ -962,7 +952,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
         description: "Enter your payment card details to complete checkout.",
         acceptedBrands: this.#resolveSupportedPaymentCards(apiState),
         hostedCard: {
-          secureOrigin: this.#getCardEmbedSecureOrigin(),
           mode: "full",
         },
       },

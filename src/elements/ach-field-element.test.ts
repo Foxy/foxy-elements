@@ -285,4 +285,18 @@ describe("AchFieldElement events", () => {
     });
     expect("sessionId" in event.detail).toBe(false);
   });
+
+  it("passes lang through iframe URL params", () => {
+    const field = createField("routing-number");
+    field.lang = "fr-CA";
+
+    const iframe = field.shadowRoot?.querySelector(
+      "iframe:not([data-role='controller'])",
+    ) as HTMLIFrameElement | null;
+    expect(iframe).toBeTruthy();
+
+    const src = iframe?.getAttribute("src") ?? "";
+    const url = new URL(src, window.location.origin);
+    expect(url.searchParams.get("lang")).toBe("fr-CA");
+  });
 });

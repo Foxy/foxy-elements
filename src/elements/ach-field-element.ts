@@ -56,6 +56,7 @@ const GROUP_ATTRIBUTE = "group";
 const PLACEHOLDER_ATTRIBUTE = "placeholder";
 const ACCOUNT_TYPE_VALUES_ATTRIBUTE = "account-type-values";
 const DISABLED_ATTRIBUTE = "disabled";
+const LANG_ATTRIBUTE = "lang";
 
 const THEME_CSS_VARS = [
   "--input-placeholder-color",
@@ -217,6 +218,7 @@ export class AchFieldElement extends HTMLElement {
       PLACEHOLDER_ATTRIBUTE,
       ACCOUNT_TYPE_VALUES_ATTRIBUTE,
       DISABLED_ATTRIBUTE,
+      LANG_ATTRIBUTE,
       ...THEME_ATTRIBUTE_NAMES,
     ];
   }
@@ -226,6 +228,7 @@ export class AchFieldElement extends HTMLElement {
   private _type: AchHostedFieldName = "routing-number";
   private _group = "";
   private _placeholder: string | undefined;
+  private _lang: string | undefined;
   private _accountTypeValues: AchAccountTypeValue[] | undefined;
 
   private _fieldPublicState: Partial<AchHostedFieldsPublicState> = {};
@@ -382,6 +385,7 @@ export class AchFieldElement extends HTMLElement {
 
     this._group = this.getAttribute(GROUP_ATTRIBUTE)?.trim() || generateSessionId();
     this._placeholder = this.getAttribute(PLACEHOLDER_ATTRIBUTE)?.trim() || undefined;
+    this._lang = this.getAttribute(LANG_ATTRIBUTE)?.trim() || undefined;
     this._accountTypeValues = parseAccountTypeValues(
       this.getAttribute(ACCOUNT_TYPE_VALUES_ATTRIBUTE),
     );
@@ -483,6 +487,12 @@ export class AchFieldElement extends HTMLElement {
     if (name === DISABLED_ATTRIBUTE) {
       this._disabled = newValue !== null;
       this._syncDisabledState();
+      return;
+    }
+
+    if (name === LANG_ATTRIBUTE) {
+      this._lang = newValue?.trim() || undefined;
+      this._render();
       return;
     }
 
@@ -839,6 +849,9 @@ export class AchFieldElement extends HTMLElement {
     url.searchParams.set("mode", mode);
     url.searchParams.set("sessionId", this._group);
     url.searchParams.set("merchantOrigin", this._merchantOrigin);
+    if (this._lang) {
+      url.searchParams.set("lang", this._lang);
+    }
 
     if (mode === "field") {
       const field = this._type;

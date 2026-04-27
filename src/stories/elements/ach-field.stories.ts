@@ -18,6 +18,7 @@ import {
 
 type AchStoryArgs = {
   type: AchHostedFieldName;
+  lang: string;
   placeholder?: string;
   disabled: boolean;
   group: string;
@@ -51,12 +52,13 @@ const meta = {
     docs: {
       description: {
         component:
-          "Developer diagnostics stories for ACH field API, event semantics, validity, grouping, and tokenization.",
+          "Developer diagnostics stories for ACH field API, event semantics, validity, grouping, tokenization, and language propagation via the lang attribute.",
       },
     },
   },
   args: {
     type: "routing-number",
+    lang: "en-US",
     placeholder: "123456789",
     disabled: false,
     group: "storybook-ach-session",
@@ -85,12 +87,12 @@ function getPrimaryField(canvasElement: HTMLElement): AchFieldElement {
 export const ApiPlayground: Story = {
   parameters: {
     controls: {
-      include: ["type", "placeholder", "disabled", "group", "accountTypeValues"],
+      include: ["type", "lang", "placeholder", "disabled", "group", "accountTypeValues"],
     },
     docs: {
       description: {
         story:
-          "Single-field API control surface for type, placeholder, disabled, group, and account-type-values mapping.",
+          "Single-field API control surface for type, lang, placeholder, disabled, group, and account-type-values mapping. The lang attribute is forwarded to hosted ACH iframes.",
       },
     },
   },
@@ -98,6 +100,10 @@ export const ApiPlayground: Story = {
     type: {
       control: "select",
       options: ACH_FIELD_TYPE_OPTIONS,
+    },
+    lang: {
+      control: "text",
+      description: "Optional BCP 47 locale tag forwarded to hosted ACH iframes (for example, en-US).",
     },
     placeholder: { control: "text" },
     disabled: { control: "boolean" },
@@ -107,7 +113,7 @@ export const ApiPlayground: Story = {
       options: ACH_ACCOUNT_TYPE_VALUES_OPTIONS,
     },
   },
-  render: ({ type, placeholder, disabled, group, accountTypeValues }) => {
+  render: ({ type, lang, placeholder, disabled, group, accountTypeValues }) => {
     const surface = createAchSurface();
     const item = createLabeledField({
       id: "ach-api-playground",
@@ -118,6 +124,7 @@ export const ApiPlayground: Story = {
       accountTypeValues,
       role: "primary",
     });
+    item.field.lang = lang;
 
     attachActionLogging(item.field, "api-playground");
     surface.append(
