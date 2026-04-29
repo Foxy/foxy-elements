@@ -12,7 +12,7 @@ import type {
 } from "./billing-address-types";
 import type { PaymentMethodSelectorOption } from "./option-types";
 
-import { createElement, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
 import {
   AmericanExpressFlatRoundedIcon,
@@ -1145,38 +1145,42 @@ function CardOptionEmbed({
       <Field>
         <FieldLabel htmlFor={fieldId}>{fieldLabel}</FieldLabel>
       </Field>
-      {createElement("foxy-payment-card-field", {
-        id: fieldId,
-        lang,
-        mode: option.hostedCard.mode,
-        "secure-origin": option.hostedCard.secureOrigin,
-        "translation-card-number-label":
-          option.hostedCard.translationCardNumberLabel,
-        "translation-card-number-placeholder":
-          option.hostedCard.translationCardNumberPlaceholder,
-        "translation-card-expiration-label":
-          option.hostedCard.translationCardExpirationLabel,
-        "translation-card-expiration-placeholder":
-          option.hostedCard.translationCardExpirationPlaceholder,
-        "translation-card-csc-label": option.hostedCard.translationCardCscLabel,
-        "translation-card-csc-placeholder":
-          option.hostedCard.translationCardCscPlaceholder,
-        className:
-          "border-input dark:bg-input/30 [&:state(focused)]:border-ring [&:state(focused)]:ring-ring/50 [&:state(user-invalid)]:border-destructive [&:state(user-invalid)]:ring-destructive/20 dark:[&:state(user-invalid)]:ring-destructive/40 [&:state(user-invalid)]:ring-3 [&:state(focused)]:ring-3 [&:state(disabled)]:bg-input/50 dark:[&:state(disabled)]:bg-input/80 [&:state(disabled)]:opacity-50 rounded-[var(--radius)] border transition-colors block w-full overflow-hidden",
-        "theme-background": styleAttributes.inputBackground,
-        "theme-input-placeholder-color": styleAttributes.inputPlaceholderColor,
-        "theme-input-height": styleAttributes.inputHeight,
-        "theme-input-padding": styleAttributes.inputPadding,
-        "theme-input-padding-x": styleAttributes.inputPaddingX,
-        "theme-input-padding-y": styleAttributes.inputPaddingY,
-        "theme-font-sans": styleAttributes.inputFont,
-        "theme-input-text-color": styleAttributes.inputTextColor,
-        "theme-input-error-text-color": styleAttributes.inputTextColorError,
-        "theme-input-font-size": styleAttributes.inputTextSize,
-        ref: (node: Element | null) => {
+      <foxy-payment-card-field
+        id={fieldId}
+        lang={lang}
+        mode={option.hostedCard.mode}
+        secure-origin={option.hostedCard.secureOrigin}
+        translation-card-number-label={
+          option.hostedCard.translationCardNumberLabel
+        }
+        translation-card-number-placeholder={
+          option.hostedCard.translationCardNumberPlaceholder
+        }
+        translation-card-expiration-label={
+          option.hostedCard.translationCardExpirationLabel
+        }
+        translation-card-expiration-placeholder={
+          option.hostedCard.translationCardExpirationPlaceholder
+        }
+        translation-card-csc-label={option.hostedCard.translationCardCscLabel}
+        translation-card-csc-placeholder={
+          option.hostedCard.translationCardCscPlaceholder
+        }
+        className="border-input dark:bg-input/30 [&:state(focused)]:border-ring [&:state(focused)]:ring-ring/50 [&:state(user-invalid)]:border-destructive [&:state(user-invalid)]:ring-destructive/20 dark:[&:state(user-invalid)]:ring-destructive/40 [&:state(user-invalid)]:ring-3 [&:state(focused)]:ring-3 [&:state(disabled)]:bg-input/50 dark:[&:state(disabled)]:bg-input/80 [&:state(disabled)]:opacity-50 rounded-[var(--radius)] border transition-colors block w-full overflow-hidden"
+        theme-background={styleAttributes.inputBackground}
+        theme-input-placeholder-color={styleAttributes.inputPlaceholderColor}
+        theme-input-height={styleAttributes.inputHeight}
+        theme-input-padding={styleAttributes.inputPadding}
+        theme-input-padding-x={styleAttributes.inputPaddingX}
+        theme-input-padding-y={styleAttributes.inputPaddingY}
+        theme-font-sans={styleAttributes.inputFont}
+        theme-input-text-color={styleAttributes.inputTextColor}
+        theme-input-error-text-color={styleAttributes.inputTextColorError}
+        theme-input-font-size={styleAttributes.inputTextSize}
+        ref={(node: Element | null) => {
           elementRef.current = node as PaymentCardFieldElement | null;
-        },
-      })}
+        }}
+      />
       {error ? (
         <p className="m-0 text-sm text-destructive">
           {intl.formatMessage(messages.tokenizeCardError)}
@@ -1286,25 +1290,26 @@ function AchOptionEmbed({
             return (
               <Field key={fieldName}>
                 <FieldLabel>{label}</FieldLabel>
-                {createElement("foxy-ach-field", {
-                  lang,
-                  className:
-                    "border-input dark:bg-input/30 state-focused:border-ring state-focused:ring-ring/50 state-user-invalid:border-destructive state-user-invalid:ring-destructive/20 dark:state-user-invalid:ring-destructive/40 state-user-invalid:ring-3 state-focused:ring-3 state-disabled:bg-input/50 dark:state-disabled:bg-input/80 state-disabled:opacity-50 rounded-lg border transition-colors relative flex w-full min-w-0 items-center overflow-hidden outline-none block min-h-8",
-                  "theme-input-height": styleAttributes.inputHeight,
-                  "theme-input-padding": styleAttributes.inputPadding,
-                  "theme-input-padding-x": styleAttributes.inputPaddingX,
-                  "theme-input-padding-y": styleAttributes.inputPaddingY,
-                  "theme-input-placeholder-color":
-                    styleAttributes.inputPlaceholderColor,
-                  "theme-font-sans": styleAttributes.inputFont,
-                  "theme-input-text-color": styleAttributes.inputTextColor,
-                  "theme-input-error-text-color":
-                    styleAttributes.inputTextColorError,
-                  "theme-input-font-size": styleAttributes.inputTextSize,
-                  ref: (node: Element | null) => {
+                <foxy-ach-field
+                  lang={lang}
+                  className="border-input dark:bg-input/30 state-focused:border-ring state-focused:ring-ring/50 state-user-invalid:border-destructive state-user-invalid:ring-destructive/20 dark:state-user-invalid:ring-destructive/40 state-user-invalid:ring-3 state-focused:ring-3 state-disabled:bg-input/50 dark:state-disabled:bg-input/80 state-disabled:opacity-50 rounded-lg border transition-colors relative flex w-full min-w-0 items-center overflow-hidden outline-none block min-h-8"
+                  theme-input-height={styleAttributes.inputHeight}
+                  theme-input-padding={styleAttributes.inputPadding}
+                  theme-input-padding-x={styleAttributes.inputPaddingX}
+                  theme-input-padding-y={styleAttributes.inputPaddingY}
+                  theme-input-placeholder-color={
+                    styleAttributes.inputPlaceholderColor
+                  }
+                  theme-font-sans={styleAttributes.inputFont}
+                  theme-input-text-color={styleAttributes.inputTextColor}
+                  theme-input-error-text-color={
+                    styleAttributes.inputTextColorError
+                  }
+                  theme-input-font-size={styleAttributes.inputTextSize}
+                  ref={(node: Element | null) => {
                     refs.current[fieldName] = node as AchFieldElement | null;
-                  },
-                })}
+                  }}
+                />
               </Field>
             );
           })}
