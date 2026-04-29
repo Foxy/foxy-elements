@@ -3,14 +3,14 @@ import type { CardEmbedTokenizeErrorCode } from "@foxy.io/sdk/checkout";
 import {
   PAYMENT_CARD_FIELD_ELEMENT_TAG,
   type PaymentCardFieldElement,
-} from "@/elements/payment-card-field-element";
+} from "@/elements/foxy-payment-card-field/element";
 import { getRequiredEnvVar } from "@/lib/required-env";
 import {
   applyThemeAttributeMap,
   bindThemeAttributes,
   getShadcnInputMetrics,
   type ThemeAttributeMapEntry,
-} from "./theme-attribute-sync";
+} from "../../lib/theme-attribute-sync";
 
 export const CARD_SECURE_ORIGIN = getRequiredEnvVar("VITE_EMBED_ORIGIN");
 

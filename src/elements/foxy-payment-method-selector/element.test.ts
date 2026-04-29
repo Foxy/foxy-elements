@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
 
-import { PaymentMethodSelectorElement } from "./payment-method-selector-element";
+import { PaymentMethodSelectorElement } from "./element";
 
 describe("PaymentMethodSelectorElement theme attributes", () => {
   beforeEach(() => {

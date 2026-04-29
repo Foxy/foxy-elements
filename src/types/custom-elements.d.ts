@@ -1,6 +1,6 @@
 import type { CSSProperties, DetailedHTMLProps, HTMLAttributes } from "react";
-import type { AchFieldElement } from "@/elements/ach-field-element";
-import type { PaymentCardFieldElement } from "@/elements/payment-card-field-element";
+import type { AchFieldElement } from "@/elements/foxy-ach-field/element";
+import type { PaymentCardFieldElement } from "@/elements/foxy-payment-card-field/element";
 
 type AchFieldElementProps = Omit<
   DetailedHTMLProps<HTMLAttributes<AchFieldElement>, AchFieldElement>,

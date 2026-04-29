@@ -4,7 +4,7 @@ import {
   ACH_FIELD_ELEMENT_TAG,
   AchFieldElement,
   achFieldEvents,
-} from "./ach-field-element";
+} from "./element";
 
 type FakeInternals = {
   checkValidity: ReturnType<typeof vi.fn>;

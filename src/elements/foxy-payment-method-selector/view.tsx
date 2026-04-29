@@ -3,14 +3,14 @@ import type {
   AchHostedFieldName,
   AchFieldElement,
   AchTokenizationErrorEventDetail,
-} from "../../elements/ach-field-element";
-import type { Dispatch, ReactNode, SetStateAction } from "react";
-import type { PaymentCardFieldElement } from "../../elements/payment-card-field-element";
+} from "../foxy-ach-field/element";
+import type { ReactNode } from "react";
+import type { PaymentCardFieldElement } from "../foxy-payment-card-field/element";
 import type {
+  PaymentController,
   PaymentMethodSelectorBillingAddress,
-  PaymentMethodSelectorBillingField,
-} from "./billing-address-types";
-import type { PaymentMethodSelectorOption } from "./option-types";
+  PaymentMethodSelectorOption,
+} from "./types";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
@@ -25,9 +25,8 @@ import {
   VisaFlatRoundedIcon,
 } from "react-svg-credit-card-payment-icons";
 import { CreditCard, Landmark, Wallet } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import { BillingAddressSection } from "./billing";
 import {
   Field,
   FieldContent,
@@ -36,23 +35,14 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   type HostedFieldStyleAttributes,
   useHostedFieldStyleAttributes,
-} from "./style-hooks";
-import { StripeCardElementOption } from "./stripe-card-element";
-import { StripePaymentElementOption } from "./stripe-payment-element";
+} from "./stripe/style-hooks";
+import { StripeCardElementOption } from "./stripe/card-option";
+import { StripePaymentElementOption } from "./stripe/payment-option";
 import { cn } from "@/lib/utils";
 import { defineMessages, useIntl } from "react-intl";
 import type { IntlShape, MessageDescriptor } from "react-intl";
@@ -65,12 +55,6 @@ const ACH_FIELDS: AchHostedFieldName[] = [
 ];
 
 const CARD_TYPES = new Set(["new-card", "saved-card", "card"]);
-const BILLING_ADDRESS_SUPPORTED_TYPES = new Set([
-  "new-card",
-  "saved-card",
-  "stripe-card-element",
-  "stripe-payment-element",
-]);
 
 const messages = defineMessages({
   loadingOptions: {
@@ -270,6 +254,13 @@ const BILLING_FIELD_LABEL_BY_ID: Partial<Record<string, MessageDescriptor>> = {
   "billing-phone": messages.billingPhone,
 };
 
+const BILLING_SECTION_MESSAGES = {
+  billingAddressTitle: messages.billingAddressTitle,
+  addBillingAddress: messages.addBillingAddress,
+  useShippingForBilling: messages.useShippingForBilling,
+  selectPlaceholder: messages.selectPlaceholder,
+};
+
 const ACH_LABEL_BY_FIELD: Partial<
   Record<AchHostedFieldName, MessageDescriptor>
 > = {
@@ -399,10 +390,6 @@ const GATEWAY_NAME_BY_TYPE: Record<string, string> = {
 const FIELD_STYLE_PROBE_CLASS_NAME =
   "h-8 px-2.5 py-1 text-base font-normal md:text-sm border border-transparent bg-card text-foreground placeholder:text-muted-foreground";
 
-type PaymentController = {
-  tokenize: (requestId?: string) => Promise<Record<string, unknown>>;
-};
-
 type PaymentProps = {
   options: PaymentMethodSelectorOption[];
   selectedOptionId?: string;
@@ -428,37 +415,6 @@ type PaymentProps = {
     useShippingAddress: boolean;
     values: Record<string, string>;
   }) => void;
-};
-
-function buildInitialBillingValues(
-  billingAddress: PaymentMethodSelectorBillingAddress | undefined,
-) {
-  return Object.fromEntries(
-    (billingAddress?.fields ?? []).map((field) => [
-      field.id,
-      field.value ?? "",
-    ]),
-  );
-}
-
-function getBillingSummaryLines(values: Record<string, string>) {
-  const name = [values["billing-first-name"], values["billing-last-name"]]
-    .filter(Boolean)
-    .join(" ");
-  const company = values["billing-company"];
-  const address1 = values["billing-address1"];
-  const address2 = values["billing-address2"];
-  const cityLine = [
-    values["billing-city"],
-    values["billing-region"],
-    values["billing-postal-code"],
-    values["billing-country"],
-  ]
-    .filter(Boolean)
-    .join(", ");
-  const phone = values["billing-phone"];
-
-  return [name, company, address1, address2, cityLine, phone].filter(Boolean);
 }
 
 function getGatewayName(gateway: string): string {
@@ -866,205 +822,6 @@ function getPaymentOptionBrandIcon(
   return null;
 }
 
-function renderBillingField(
-  field: PaymentMethodSelectorBillingField,
-  disabled: boolean,
-  values: Record<string, string>,
-  setValues: Dispatch<SetStateAction<Record<string, string>>>,
-  intl: IntlShape,
-) {
-  const value = values[field.id] ?? "";
-  const fieldDisabled = disabled || Boolean(field.disabled);
-
-  if (field.type === "select") {
-    return (
-      <Select
-        value={value}
-        disabled={fieldDisabled}
-        onValueChange={(nextValue) => {
-          setValues((prev) => ({ ...prev, [field.id]: nextValue ?? "" }));
-        }}
-      >
-        <SelectTrigger id={field.id} className="w-full">
-          <SelectValue
-            placeholder={intl.formatMessage(messages.selectPlaceholder)}
-          />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            {(field.options ?? []).map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-    );
-  }
-
-  return (
-    <Input
-      type={field.type === "tel" ? "tel" : "text"}
-      value={value}
-      placeholder={field.placeholder}
-      disabled={fieldDisabled}
-      required={field.required}
-      onChange={(event) => {
-        const nextValue = event.target.value;
-        setValues((prev) => ({ ...prev, [field.id]: nextValue }));
-      }}
-    />
-  );
-}
-
-function BillingAddressSection({
-  option,
-  disabled,
-  billingAddress,
-  onBillingAddressChange,
-}: {
-  option: PaymentMethodSelectorOption;
-  disabled?: boolean;
-  billingAddress?: PaymentMethodSelectorBillingAddress;
-  onBillingAddressChange?: (params: {
-    optionId: string;
-    useShippingAddress: boolean;
-    values: Record<string, string>;
-  }) => void;
-}) {
-  const intl = useIntl();
-  const [useShippingAddress, setUseShippingAddress] = useState(
-    billingAddress?.useDefaultShippingAddress === "yes-by-default",
-  );
-  const [showSummaryEditor, setShowSummaryEditor] = useState(false);
-  const [values, setValues] = useState<Record<string, string>>(() =>
-    buildInitialBillingValues(billingAddress),
-  );
-
-  const supportsBillingAddress = option.type
-    ? BILLING_ADDRESS_SUPPORTED_TYPES.has(option.type)
-    : false;
-
-  useEffect(() => {
-    setUseShippingAddress(
-      billingAddress?.useDefaultShippingAddress === "yes-by-default",
-    );
-    setShowSummaryEditor(false);
-    setValues(buildInitialBillingValues(billingAddress));
-  }, [billingAddress, option.id]);
-
-  useEffect(() => {
-    if (!supportsBillingAddress || !billingAddress) return;
-
-    onBillingAddressChange?.({
-      optionId: option.id,
-      useShippingAddress,
-      values,
-    });
-  }, [
-    billingAddress,
-    onBillingAddressChange,
-    option.id,
-    supportsBillingAddress,
-    useShippingAddress,
-    values,
-  ]);
-
-  if (
-    !billingAddress ||
-    !supportsBillingAddress ||
-    !billingAddress.fields.length
-  ) {
-    return null;
-  }
-
-  const fieldsMarkup = (
-    <FieldSet>
-      <FieldGroup>
-        {billingAddress.fields.map((field) => {
-          const labelDescriptor = BILLING_FIELD_LABEL_BY_ID[field.id];
-          const label = labelDescriptor
-            ? intl.formatMessage(labelDescriptor)
-            : field.label;
-
-          return (
-            <Field key={field.id}>
-              <FieldLabel htmlFor={field.id}>{label}</FieldLabel>
-              {renderBillingField(
-                field,
-                Boolean(disabled),
-                values,
-                setValues,
-                intl,
-              )}
-            </Field>
-          );
-        })}
-      </FieldGroup>
-    </FieldSet>
-  );
-
-  if (option.type === "saved-card") {
-    if (showSummaryEditor) {
-      return fieldsMarkup;
-    }
-
-    const summaryLines = getBillingSummaryLines(values);
-    return (
-      <Button
-        type="button"
-        variant="outline"
-        disabled={disabled}
-        onClick={() => setShowSummaryEditor(true)}
-        className="h-auto w-full items-start justify-start px-3 py-3 text-left"
-      >
-        <span className="flex flex-col gap-1">
-          <span className="font-semibold">
-            {intl.formatMessage(messages.billingAddressTitle)}
-          </span>
-          {summaryLines.length ? (
-            summaryLines.map((line) => (
-              <span key={line} className="text-sm text-muted-foreground">
-                {line}
-              </span>
-            ))
-          ) : (
-            <span className="text-sm text-muted-foreground">
-              {intl.formatMessage(messages.addBillingAddress)}
-            </span>
-          )}
-        </span>
-      </Button>
-    );
-  }
-
-  const hasShippingToggle = Boolean(billingAddress.useDefaultShippingAddress);
-
-  return (
-    <div className="flex flex-col gap-2.5">
-      {hasShippingToggle ? (
-        <Field orientation="horizontal">
-          <Checkbox
-            id={`use-shipping-address-${option.id}`}
-            checked={useShippingAddress}
-            disabled={disabled}
-            onCheckedChange={(checked) =>
-              setUseShippingAddress(Boolean(checked))
-            }
-            aria-label={intl.formatMessage(messages.useShippingForBilling)}
-          />
-          <FieldLabel htmlFor={`use-shipping-address-${option.id}`}>
-            {intl.formatMessage(messages.useShippingForBilling)}
-          </FieldLabel>
-        </Field>
-      ) : null}
-
-      {(!hasShippingToggle || !useShippingAddress) && fieldsMarkup}
-    </div>
-  );
-}
-
 function CardOptionEmbed({
   option,
   lang,
@@ -1091,11 +848,6 @@ function CardOptionEmbed({
     }
     element.mode = option.hostedCard.mode;
     element.disabled = Boolean(disabled);
-  }, [disabled, option.hostedCard]);
-
-  useEffect(() => {
-    const element = elementRef.current;
-    if (!element || !option.hostedCard) return;
 
     const controller: PaymentController = {
       tokenize: async (requestId?: string) => {
@@ -1128,7 +880,7 @@ function CardOptionEmbed({
       element.removeEventListener("tokenizationerror", onTokenizeError);
       onControllerReady?.(null);
     };
-  }, [onControllerReady, option.hostedCard]);
+  }, [disabled, onControllerReady, option.hostedCard]);
 
   if (!option.hostedCard) {
     return null;
@@ -1358,6 +1110,8 @@ function PaymentOptionBody({
       disabled={disabled}
       billingAddress={billingAddress}
       onBillingAddressChange={onBillingAddressChange}
+      fieldLabelById={BILLING_FIELD_LABEL_BY_ID}
+      messages={BILLING_SECTION_MESSAGES}
     />
   );
 

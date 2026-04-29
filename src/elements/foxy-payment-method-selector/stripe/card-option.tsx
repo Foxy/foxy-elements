@@ -1,4 +1,7 @@
-import type { PaymentMethodSelectorOption } from "./option-types";
+import type {
+  PaymentController,
+  PaymentMethodSelectorOption,
+} from "../types";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -15,16 +18,12 @@ import {
 import {
   resolveStripeLocale,
   resolveStripePublishableKey,
-} from "./stripe-shared";
+} from "./shared";
 import {
   getStripeFontsForAppearance,
   mergeStripeAppearance,
   useStripeTokenAppearance,
 } from "./style-hooks";
-
-type PaymentController = {
-  tokenize: (requestId?: string) => Promise<Record<string, unknown>>;
-};
 
 function StripeCardField({
   cardOptions,

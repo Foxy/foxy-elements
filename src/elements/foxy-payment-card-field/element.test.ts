@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   PAYMENT_CARD_FIELD_ELEMENT_TAG,
   PaymentCardFieldElement,
-} from "./payment-card-field-element";
+} from "./element";
 
 type FakeInternals = {
   checkValidity: ReturnType<typeof vi.fn>;

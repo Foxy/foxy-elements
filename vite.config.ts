@@ -14,32 +14,29 @@ import {
   type PluginOption,
   defineConfig,
 } from "vite";
+import { readdirSync } from "node:fs";
 
 export default defineConfig(({ mode }) => {
   const rolldownOptions: BuildEnvironmentOptions["rolldownOptions"] = {};
   const plugins: PluginOption[] = [react(), tailwindcss()];
   const srcDir = resolve(import.meta.dirname, "./src");
-  const elementsDir = resolve(srcDir, "./elements");
-  const entry: LibraryOptions["entry"] = {};
   const isCDN = mode === "cdn";
+  const elementsDir = resolve(srcDir, "./elements");
+  const sdkBase = "https://cdn-js.foxy.io/sdk@2";
 
-  entry["foxy-ach-field"] = resolve(elementsDir, "./ach-field-element.ts");
-  entry["foxy-payment-card-field"] = resolve(
-    elementsDir,
-    "./payment-card-field-element.ts",
-  );
-  entry["foxy-payment-method-selector"] = resolve(
-    elementsDir,
-    "./payment-method-selector-element.tsx",
+  const entry: LibraryOptions["entry"] = Object.fromEntries(
+    readdirSync(elementsDir, { withFileTypes: true })
+      .filter((dir) => dir.isDirectory())
+      .map((dir) => [dir.name, resolve(elementsDir, `./${dir.name}/index.ts`)]),
   );
 
   if (isCDN) {
     plugins.push(
       pluginExternal({
         externals: {
-          "@foxy.io/sdk/checkout": "https://cdn-js.foxy.io/sdk@2/checkout.js",
-          "@foxy.io/sdk/checkout/client": "https://cdn-js.foxy.io/sdk@2/checkout/client.js",
-          "@foxy.io/sdk/checkout/loader": "https://cdn-js.foxy.io/sdk@2/checkout/loader.js",
+          "@foxy.io/sdk/checkout": `${sdkBase}/checkout.js`,
+          "@foxy.io/sdk/checkout/client": `${sdkBase}/checkout/client.js`,
+          "@foxy.io/sdk/checkout/loader": `${sdkBase}/checkout/loader.js`,
         },
       }),
     );

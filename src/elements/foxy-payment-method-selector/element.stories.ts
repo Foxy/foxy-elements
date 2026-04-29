@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
-import "@/elements/payment-method-selector-element";
+import "@/elements/foxy-payment-method-selector/element";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
 import {
   applyThemeAttributeMap,
   bindThemeAttributes,
   getShadcnInputMetrics,
   type ThemeAttributeMapEntry,
-} from "./theme-attribute-sync";
+} from "../../lib/theme-attribute-sync";
 
 const STRIPE_PUBLISHABLE_KEY =
   import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim() ||

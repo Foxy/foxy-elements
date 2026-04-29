@@ -1,27 +1,32 @@
 import type {
+  PaymentController,
   PaymentMethodSelectorBillingAddress,
   PaymentMethodSelectorBillingField,
-} from "../components/payment/billing-address-types";
-import type { PaymentMethodSelectorOption } from "../components/payment/option-types";
+  PaymentMethodSelectorOption,
+  PaymentMethodSelectorTokenizeOptionType,
+  PaymentMethodSelectorTokenizePayload,
+} from "./types";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
 
-import "./ach-field-element";
-import "./payment-card-field-element";
+import "../foxy-ach-field/element";
+import "../foxy-payment-card-field/element";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import { IntlProvider } from "react-intl";
 import defaultShadowStyles from "@/index.css?inline";
 import enUsMessages from "@/locales/en-US.json";
-import { Payment } from "../components/payment";
-import { StripeCardElementOption } from "../components/payment/stripe-card-element";
-import { StripePaymentElementOption } from "../components/payment/stripe-payment-element";
+import {
+  paymentMethodSelectorEvents,
+  type PaymentMethodSelectorChangeEventDetail,
+  type PaymentMethodSelectorTokenizationErrorEventDetail,
+  type PaymentMethodSelectorTokenizationStartEventDetail,
+  type PaymentMethodSelectorTokenizationSuccessEventDetail,
+} from "./events";
+import { Payment } from "./view";
+import { StripeCardElementOption } from "./stripe/card-option";
+import { StripePaymentElementOption } from "./stripe/payment-option";
 
-export const paymentMethodSelectorEvents = {
-  tokenizationStart: "tokenizationstart",
-  tokenizationSuccess: "tokenizationsuccess",
-  tokenizationError: "tokenizationerror",
-  optionIndexChange: "optionindexchange",
-} as const;
+export { paymentMethodSelectorEvents } from "./events";
 
 type CheckoutApiLike = EventTarget & {
   state?: unknown;
@@ -29,54 +34,6 @@ type CheckoutApiLike = EventTarget & {
   updateBillingAddress?: (
     changes: Record<string, unknown>,
   ) => Promise<unknown> | void;
-};
-
-type PaymentMethodSelectorTokenizeEventDetail = {
-  payload: PaymentMethodSelectorTokenizePayload;
-};
-
-type PaymentMethodSelectorTokenizationSuccessEventDetail =
-  PaymentMethodSelectorTokenizeEventDetail;
-
-type PaymentMethodSelectorChangeEventDetail = {
-  optionIndex: number;
-};
-
-type PaymentMethodSelectorTokenizationStartEventDetail = {
-  optionIndex: number;
-};
-
-type PaymentMethodSelectorTokenizationErrorEventDetail = {
-  error: unknown;
-};
-
-export type PaymentMethodSelectorTokenizeOptionType =
-  | "saved-card"
-  | "new-card"
-  | "ach"
-  | "stripe-card-element"
-  | "stripe-payment-element"
-  | "apple-pay"
-  | "google-pay"
-  | "generic";
-
-export type PaymentMethodSelectorBillingPayload = {
-  useShippingAddress: boolean;
-  values: Record<string, string>;
-};
-
-export type PaymentMethodSelectorTokenizePayload = {
-  optionIndex: number;
-  optionType: PaymentMethodSelectorTokenizeOptionType;
-  billingAddress?: PaymentMethodSelectorBillingPayload;
-  token?: string;
-  requestId?: string;
-  paymentMethodId?: string;
-  paymentMethodType?: string;
-  cardBrand?: string;
-  last4?: string;
-  expirationMonth?: number;
-  expirationYear?: number;
 };
 
 const LANG_ATTRIBUTE = "lang";
@@ -131,10 +88,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
   #shadowRootRef: ShadowRoot;
   #root: Root | null = null;
   #container: HTMLDivElement;
-  #controllers = new Map<
-    string,
-    { tokenize: (requestId?: string) => Promise<Record<string, unknown>> }
-  >();
+  #controllers = new Map<string, PaymentController>();
   #billingStateByOption = new Map<
     string,
     { useShippingAddress: boolean; values: Record<string, string> }

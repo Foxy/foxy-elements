@@ -1,4 +1,7 @@
-import type { PaymentMethodSelectorOption } from "./option-types";
+import type {
+  PaymentController,
+  PaymentMethodSelectorOption,
+} from "../types";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -11,16 +14,12 @@ import { loadStripe, type StripeElementsOptions } from "@stripe/stripe-js";
 import {
   resolveStripeLocale,
   resolveStripePublishableKey,
-} from "./stripe-shared";
+} from "./shared";
 import {
   getStripeFontsForAppearance,
   mergeStripeAppearance,
   useStripeTokenAppearance,
 } from "./style-hooks";
-
-type PaymentController = {
-  tokenize: (requestId?: string) => Promise<Record<string, unknown>>;
-};
 
 type PaymentElementOptionsMap = Record<string, unknown>;
 

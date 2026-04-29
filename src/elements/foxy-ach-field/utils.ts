@@ -5,13 +5,13 @@ import {
   type AchFieldElement,
   type AchHostedFieldName,
   type AchTokenizationErrorEventDetail,
-} from "@/elements/ach-field-element";
+} from "@/elements/foxy-ach-field/element";
 import {
   applyThemeAttributeMap,
   bindThemeAttributes,
   getShadcnInputMetrics,
   type ThemeAttributeMapEntry,
-} from "./theme-attribute-sync";
+} from "../../lib/theme-attribute-sync";
 
 const FIELD_TO_EMBED: Record<AchHostedFieldName, string> = {
   "routing-number": "routing_number",

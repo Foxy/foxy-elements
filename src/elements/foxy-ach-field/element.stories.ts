@@ -4,7 +4,7 @@ import type {
   AchFieldElement,
   AchHostedFieldName,
   AchTokenizationErrorEventDetail,
-} from "@/elements/ach-field-element";
+} from "@/elements/foxy-ach-field/element";
 import {
   ACH_ACCOUNT_TYPE_VALUES_OPTIONS,
   ACH_FIELD_TYPE_OPTIONS,
@@ -17,7 +17,7 @@ import {
   dispatchHostedChange,
   dispatchTokenizationError,
   dispatchTokenizationSuccess,
-} from "./ach-field-story-shared";
+} from "./utils";
 
 type AchStoryArgs = {
   type: AchHostedFieldName;

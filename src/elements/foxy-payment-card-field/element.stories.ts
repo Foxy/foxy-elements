@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import type { CardEmbedTokenizeErrorCode } from "@foxy.io/sdk/checkout";
 import { expect, userEvent, waitFor, within } from "storybook/test";
-import type { PaymentCardFieldElement } from "@/elements/payment-card-field-element";
+import type { PaymentCardFieldElement } from "@/elements/foxy-payment-card-field/element";
 import {
   CARD_MODE_OPTIONS,
   CARD_TOKENIZE_ERROR_OPTIONS,
@@ -16,7 +16,7 @@ import {
   dispatchTokenizationError,
   dispatchTokenizationSuccess,
   ensureCardReady,
-} from "./card-embed-story-shared";
+} from "./utils";
 
 type CardStoryArgs = {
   mode: (typeof CARD_MODE_OPTIONS)[number];
