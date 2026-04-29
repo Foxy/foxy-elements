@@ -193,6 +193,8 @@ export const links: Links = {
     'fx:hosted_payment_gateways': { href: `./hosted_payment_gateways?store_id=${id}` },
     'fx:customer_portal_settings': { href: `./customer_portal_settings/${cps_id}` },
     'fx:process_subscription_webhook': { href: 'https://demo.api/virtual/empty?status=200' },
+    'fx:products': { href: `./products?store_id=${id}` },
+    'fx:product_categories': { href: `./product_categories?store_id=${id}` },
   }),
 
   items: ({
@@ -613,5 +615,43 @@ export const links: Links = {
     'fx:downloadable': { href: `./downloadables/${downloadable_id}` },
     'fx:reset_usage': { href: 'https://demo.api/virtual/empty?status=200' },
     'fx:download_url': { href: 'about:blank' },
+  }),
+
+  products: ({ id, store_id, inherit_from_id, category_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:product_variants': { href: `./products?inherit_from_id=${id}&product_type=variant` },
+    'fx:product_stock_rules': { href: `./product_stock_rules?source_product_id=${id}` },
+    'fx:product_tags': { href: `./product_tags?product_id=${id}` },
+    'fx:product_events': { href: `./product_events?product_id=${id}` },
+    ...(category_id != null
+      ? { 'fx:product_category': { href: `./product_categories/${category_id}` } }
+      : {}),
+    ...(inherit_from_id != null
+      ? { 'fx:parent_product': { href: `./products/${inherit_from_id}` } }
+      : {}),
+  }),
+
+  product_categories: ({ id, store_id, parent_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:products': { href: `./products?store_id=${store_id}&category_id=${id}` },
+    ...(parent_id != null
+      ? { 'fx:parent_category': { href: `./product_categories/${parent_id}` } }
+      : {}),
+  }),
+
+  product_tags: ({ store_id, product_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:product': { href: `./products/${product_id}` },
+  }),
+
+  product_stock_rules: ({ store_id, source_product_id, target_product_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:source_product': { href: `./products/${source_product_id}` },
+    'fx:target_product': { href: `./products/${target_product_id}` },
+  }),
+
+  product_events: ({ store_id, product_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:product': { href: `./products/${product_id}` },
   }),
 };
