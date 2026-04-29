@@ -1,5 +1,5 @@
 import { action } from "storybook/actions";
-import type { CardEmbedTokenizeErrorCode, CardValidationField } from "@foxy.io/sdk/checkout";
+import type { CardEmbedTokenizeErrorCode } from "@foxy.io/sdk/checkout";
 import {
   PAYMENT_CARD_FIELD_ELEMENT_TAG,
   type PaymentCardFieldElement,
@@ -21,6 +21,14 @@ export const CARD_TOKENIZE_ERROR_OPTIONS: CardEmbedTokenizeErrorCode[] = [
   "invalid_config",
   "tokenization_failed",
 ];
+
+type EmbedCardValidationField = "cc_number" | "cc_exp" | "cc_csc" | "form";
+type EmbedCardValidationCode =
+  | "value_missing"
+  | "pattern_mismatch"
+  | "range_underflow"
+  | "card_brand_unsupported"
+  | "invalid_state";
 
 const CARD_THEME_ATTRIBUTE_MAP: ThemeAttributeMapEntry[] = [
   {
@@ -131,10 +139,14 @@ export function createLabeledField(options: {
   const label = document.createElement("label");
   label.style.fontSize = "0.875rem";
   label.style.fontWeight = "500";
-  label.textContent = options.label ?? (options.mode === "csc-only" ? "Security code" : "Card details");
+  label.textContent =
+    options.label ??
+    (options.mode === "csc-only" ? "Security code" : "Card details");
   label.htmlFor = options.id;
 
-  const field = document.createElement(PAYMENT_CARD_FIELD_ELEMENT_TAG) as PaymentCardFieldElement;
+  const field = document.createElement(
+    PAYMENT_CARD_FIELD_ELEMENT_TAG,
+  ) as PaymentCardFieldElement;
   field.id = options.id;
   field.mode = options.mode;
   field.disabled = Boolean(options.disabled);
@@ -152,11 +164,17 @@ export function createLabeledField(options: {
     }
 
     if (options.theme?.placeholderColor) {
-      target.setAttribute("theme-input-placeholder-color", options.theme.placeholderColor);
+      target.setAttribute(
+        "theme-input-placeholder-color",
+        options.theme.placeholderColor,
+      );
     }
 
     if (options.theme?.errorTextColor) {
-      target.setAttribute("theme-input-error-text-color", options.theme.errorTextColor);
+      target.setAttribute(
+        "theme-input-error-text-color",
+        options.theme.errorTextColor,
+      );
     }
 
     if (options.theme?.background) {
@@ -184,7 +202,10 @@ export function createLabeledField(options: {
   return { wrapper, field };
 }
 
-export function attachActionLogging(field: PaymentCardFieldElement, label: string): void {
+export function attachActionLogging(
+  field: PaymentCardFieldElement,
+  label: string,
+): void {
   const eventNames = [
     "load",
     "resize",
@@ -200,7 +221,11 @@ export function attachActionLogging(field: PaymentCardFieldElement, label: strin
         return;
       }
 
-      log({ type: event.type, bubbles: event.bubbles, composed: event.composed });
+      log({
+        type: event.type,
+        bubbles: event.bubbles,
+        composed: event.composed,
+      });
     });
   }
 }
@@ -238,16 +263,16 @@ export function dispatchCardBlur(field: PaymentCardFieldElement): void {
 export function dispatchCardValidation(
   field: PaymentCardFieldElement,
   payload: {
-    field: CardValidationField;
+    field: EmbedCardValidationField;
     valid: boolean;
-    message: string | null;
+    code: EmbedCardValidationCode | null;
   },
 ): void {
   dispatchCardPortMessage(field, {
     type: "validation",
     field: payload.field,
     valid: payload.valid,
-    message: payload.message,
+    code: payload.code,
   });
 }
 
@@ -260,10 +285,15 @@ export function dispatchTokenizationSuccess(
     type: "tokenization_response",
     id: requestId,
     token,
+    brand: "visa",
+    last4Digits: token.slice(-4).padStart(4, "0"),
   });
 }
 
-export function dispatchTokenizationError(field: PaymentCardFieldElement, requestId: string): void {
+export function dispatchTokenizationError(
+  field: PaymentCardFieldElement,
+  requestId: string,
+): void {
   dispatchCardPortMessage(field, {
     type: "tokenization_response",
     id: requestId,
@@ -329,7 +359,10 @@ function injectFieldInteractionStyles(container: HTMLElement): void {
 function applyCardThemeAttributes(element: PaymentCardFieldElement): void {
   const metrics = getShadcnInputMetrics();
   const hostBorderTotalPx = 2;
-  const hostedInputHeightPx = Math.max(metrics.outerHeightPx - hostBorderTotalPx, 0);
+  const hostedInputHeightPx = Math.max(
+    metrics.outerHeightPx - hostBorderTotalPx,
+    0,
+  );
 
   element.setAttribute("theme-input-height", `${hostedInputHeightPx}px`);
   element.setAttribute("theme-input-padding-y", metrics.paddingY);

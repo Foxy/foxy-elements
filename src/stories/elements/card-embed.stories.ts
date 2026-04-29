@@ -68,7 +68,9 @@ export default meta;
 type Story = StoryObj<CardStoryArgs>;
 
 function getPrimaryField(canvasElement: HTMLElement): PaymentCardFieldElement {
-  return canvasElement.querySelector("[data-story-role='primary']") as PaymentCardFieldElement;
+  return canvasElement.querySelector(
+    "[data-story-role='primary']",
+  ) as PaymentCardFieldElement;
 }
 
 export const ApiPlayground: Story = {
@@ -79,7 +81,7 @@ export const ApiPlayground: Story = {
     docs: {
       description: {
         story:
-          "Single-field API control surface for mode, lang, and disabled reflection on the hosted card element. The lang attribute is forwarded to iframe config.",
+          "Single-field API control surface for mode, lang, and disabled reflection on the hosted card element. The lang attribute is forwarded via iframe URL params.",
       },
     },
   },
@@ -90,7 +92,8 @@ export const ApiPlayground: Story = {
     },
     lang: {
       control: "text",
-      description: "Optional BCP 47 locale tag forwarded to the hosted card iframe (for example, en-US).",
+      description:
+        "Optional BCP 47 locale tag forwarded to the hosted card iframe (for example, en-US).",
     },
     disabled: { control: "boolean" },
   },
@@ -107,7 +110,9 @@ export const ApiPlayground: Story = {
     attachActionLogging(item.field, "api-playground");
     surface.append(
       item.wrapper,
-      createStoryNote("Use Controls to verify mode and disabled reflection without depending on live iframe responses."),
+      createStoryNote(
+        "Use Controls to verify mode and disabled reflection without depending on live iframe responses.",
+      ),
     );
 
     return surface;
@@ -145,7 +150,9 @@ export const ModeTransitions: Story = {
     attachActionLogging(item.field, "mode-transitions");
     surface.append(
       item.wrapper,
-      createStoryNote("Play function toggles mode at runtime to verify reflected attributes and control-plane behavior."),
+      createStoryNote(
+        "Play function toggles mode at runtime to verify reflected attributes and control-plane behavior.",
+      ),
     );
 
     return surface;
@@ -190,7 +197,9 @@ export const ValidationStates: Story = {
     attachActionLogging(item.field, "validity-states");
     surface.append(
       item.wrapper,
-      createStoryNote("Play function dispatches focus, validation, and blur payloads to verify checkValidity and touched-state transitions."),
+      createStoryNote(
+        "Play function dispatches focus, validation, and blur payloads to verify checkValidity and touched-state transitions.",
+      ),
     );
 
     return surface;
@@ -200,26 +209,26 @@ export const ValidationStates: Story = {
 
     dispatchCardFocus(field);
     dispatchCardValidation(field, {
-      field: "cc-number",
+      field: "cc_number",
       valid: false,
-      message: "Card number is incomplete.",
+      code: "pattern_mismatch",
     });
     expect(field.checkValidity()).toBe(false);
 
     dispatchCardValidation(field, {
-      field: "cc-number",
+      field: "cc_number",
       valid: true,
-      message: null,
+      code: null,
     });
     dispatchCardValidation(field, {
-      field: "cc-exp",
+      field: "cc_exp",
       valid: true,
-      message: null,
+      code: null,
     });
     dispatchCardValidation(field, {
-      field: "cc-csc",
+      field: "cc_csc",
       valid: true,
-      message: null,
+      code: null,
     });
 
     dispatchCardBlur(field);
@@ -281,7 +290,9 @@ export const ThemeAttributeControls: Story = {
     attachActionLogging(item.field, "theme-attribute-controls");
     surface.append(
       item.wrapper,
-      createStoryNote("Theme controls update host attributes that are forwarded to iframe config style payload."),
+      createStoryNote(
+        "Theme controls update host attributes that are forwarded to iframe config style payload.",
+      ),
     );
 
     return surface;
@@ -315,7 +326,9 @@ export const TokenizeSuccess: Story = {
     attachActionLogging(item.field, "tokenize-success");
     surface.append(
       item.wrapper,
-      createStoryNote("Play function runs tokenize(requestId) and resolves via a synthetic tokenization_response payload."),
+      createStoryNote(
+        "Play function runs tokenize(requestId) and resolves via a synthetic tokenization_response payload.",
+      ),
     );
 
     return surface;
@@ -329,7 +342,9 @@ export const TokenizeSuccess: Story = {
     field.addEventListener(
       "tokenizationsuccess",
       (event) => {
-        eventDetail = (event as CustomEvent<{ token: string; requestId?: string }>).detail;
+        eventDetail = (
+          event as CustomEvent<{ token: string; requestId?: string }>
+        ).detail;
       },
       { once: true },
     );
@@ -381,7 +396,9 @@ export const TokenizeErrorMatrix: Story = {
     attachActionLogging(item.field, "tokenize-error-matrix");
     surface.append(
       item.wrapper,
-      createStoryNote("Switch errorCode control to verify handling across all known tokenize error codes."),
+      createStoryNote(
+        "Switch errorCode control to verify handling across all known tokenize error codes.",
+      ),
     );
 
     return surface;
@@ -391,7 +408,11 @@ export const TokenizeErrorMatrix: Story = {
     ensureCardReady(field);
 
     let eventDetail:
-      | { code: CardEmbedTokenizeErrorCode; message?: string; requestId?: string }
+      | {
+          code: CardEmbedTokenizeErrorCode;
+          message?: string;
+          requestId?: string;
+        }
       | undefined;
 
     field.addEventListener(
@@ -411,7 +432,9 @@ export const TokenizeErrorMatrix: Story = {
     const resultPromise = field.tokenize(args.requestId);
     dispatchTokenizationError(field, args.requestId);
 
-    await expect(resultPromise).rejects.toThrow("Unable to tokenize card details.");
+    await expect(resultPromise).rejects.toThrow(
+      "Unable to tokenize card details.",
+    );
 
     await waitFor(() => {
       expect(eventDetail?.code).toBe("tokenization_failed");
@@ -476,25 +499,27 @@ export const FormIntegrationInteraction: Story = {
     const canvas = within(canvasElement);
 
     dispatchCardValidation(field, {
-      field: "cc-number",
+      field: "cc_number",
       valid: true,
-      message: null,
+      code: null,
     });
     dispatchCardValidation(field, {
-      field: "cc-exp",
+      field: "cc_exp",
       valid: true,
-      message: null,
+      code: null,
     });
     dispatchCardValidation(field, {
-      field: "cc-csc",
+      field: "cc_csc",
       valid: true,
-      message: null,
+      code: null,
     });
 
     const submit = canvas.getByRole("button", { name: "Submit card form" });
     await userEvent.click(submit);
 
-    const status = canvasElement.querySelector("[data-story-role='form-status']");
+    const status = canvasElement.querySelector(
+      "[data-story-role='form-status']",
+    );
     await waitFor(() => {
       expect(status?.textContent).toContain("Form is valid");
     });
@@ -517,7 +542,8 @@ export const Disabled: Story = {
     },
     docs: {
       description: {
-        story: "Disabled-state visual and interaction diagnostics with the hosted field in readonly mode.",
+        story:
+          "Disabled-state visual and interaction diagnostics with the hosted field in readonly mode.",
       },
     },
   },

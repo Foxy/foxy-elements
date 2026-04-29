@@ -1,4 +1,4 @@
-import type { CardEmbedTokenizeErrorCode, CardValidationField } from "@foxy.io/sdk/checkout";
+import type { CardEmbedTokenizeErrorCode } from "@foxy.io/sdk/checkout";
 import { getRequiredEnvVar } from "@/lib/required-env";
 
 export const PAYMENT_CARD_FIELD_ELEMENT_TAG = "foxy-payment-card-field";
@@ -14,6 +14,14 @@ const DEFAULT_CARD_SECURE_ORIGIN = getRequiredEnvVar("VITE_EMBED_ORIGIN");
 const DEFAULT_EMBED_PATH = "/v2.html";
 
 type PaymentCardFieldMode = "full" | "csc-only";
+type EmbedCardMode = "card" | "card_csc";
+type EmbedValidationField = "cc_number" | "cc_exp" | "cc_csc" | "form";
+type EmbedValidationCode =
+  | "value_missing"
+  | "pattern_mismatch"
+  | "range_underflow"
+  | "card_brand_unsupported"
+  | "invalid_state";
 
 export type PaymentCardFieldOption = {
   secureOrigin?: string;
@@ -27,7 +35,7 @@ export type PaymentCardFieldOption = {
 };
 
 type TokenizeDeferred = {
-  resolve: (value: { token: string; requestId?: string }) => void;
+  resolve: (value: TokenizationSuccessEventDetail) => void;
   reject: (error: Error) => void;
   timeoutId: number;
 };
@@ -35,6 +43,10 @@ type TokenizeDeferred = {
 type TokenizationSuccessEventDetail = {
   token: string;
   requestId?: string;
+  cardBrand?: string;
+  last4?: string;
+  expirationMonth?: number;
+  expirationYear?: number;
 };
 
 type TokenizationErrorEventDetail = {
@@ -55,32 +67,34 @@ type PaymentCardFieldEventMap = HTMLElementEventMap & {
 };
 
 const THEME_CSS_VARS = [
-  "--background",
-  "--input-placeholder-color",
-  "--input-height",
-  "--input-padding",
-  "--input-padding-x",
-  "--input-padding-y",
-  "--font-sans",
-  "--input-text-color",
-  "--input-error-text-color",
-  "--input-font-size",
+  "theme-background",
+  "theme-input-placeholder-color",
+  "theme-input-height",
+  "theme-input-padding",
+  "theme-input-padding-x",
+  "theme-input-padding-y",
+  "theme-font-sans",
+  "theme-input-text-color",
+  "theme-input-error-text-color",
+  "theme-input-font-size",
 ] as const;
 
-type ThemeCssVar = (typeof THEME_CSS_VARS)[number];
-type ThemeAttributeName = `theme-${string}`;
+type ThemeAttributeName = (typeof THEME_CSS_VARS)[number];
 
-const THEME_ATTR_TO_CSS_VAR: Record<ThemeAttributeName, ThemeCssVar> =
-  THEME_CSS_VARS.reduce(
-    (result, cssVar) => {
-      const attrName = `theme-${cssVar.slice(2)}` as ThemeAttributeName;
-      result[attrName] = cssVar;
-      return result;
-    },
-    {} as Record<ThemeAttributeName, ThemeCssVar>,
-  );
+const THEME_ATTR_TO_QUERY_KEY: Record<ThemeAttributeName, string> = {
+  "theme-background": "theme_background",
+  "theme-input-placeholder-color": "theme_input_placeholder_color",
+  "theme-input-height": "theme_input_height",
+  "theme-input-padding": "theme_input_padding",
+  "theme-input-padding-x": "theme_input_padding_x",
+  "theme-input-padding-y": "theme_input_padding_y",
+  "theme-font-sans": "theme_font_sans",
+  "theme-input-text-color": "theme_input_text_color",
+  "theme-input-error-text-color": "theme_input_error_text_color",
+  "theme-input-font-size": "theme_input_font_size",
+};
 
-const THEME_ATTRIBUTE_NAMES = Object.keys(THEME_ATTR_TO_CSS_VAR) as ThemeAttributeName[];
+const THEME_ATTRIBUTE_NAMES = [...THEME_CSS_VARS];
 
 const MODE_ATTRIBUTE = "mode";
 const SECURE_ORIGIN_ATTRIBUTE = "secure-origin";
@@ -88,19 +102,21 @@ const LANG_ATTRIBUTE = "lang";
 const TRANSLATION_CARD_NUMBER_LABEL_ATTRIBUTE = "translation-card-number-label";
 const TRANSLATION_CARD_NUMBER_PLACEHOLDER_ATTRIBUTE =
   "translation-card-number-placeholder";
-const TRANSLATION_CARD_EXPIRATION_LABEL_ATTRIBUTE = "translation-card-expiration-label";
+const TRANSLATION_CARD_EXPIRATION_LABEL_ATTRIBUTE =
+  "translation-card-expiration-label";
 const TRANSLATION_CARD_EXPIRATION_PLACEHOLDER_ATTRIBUTE =
   "translation-card-expiration-placeholder";
 const TRANSLATION_CARD_CSC_LABEL_ATTRIBUTE = "translation-card-csc-label";
-const TRANSLATION_CARD_CSC_PLACEHOLDER_ATTRIBUTE = "translation-card-csc-placeholder";
+const TRANSLATION_CARD_CSC_PLACEHOLDER_ATTRIBUTE =
+  "translation-card-csc-placeholder";
 
 const TRANSLATION_ATTRIBUTE_TO_KEY = {
-  [TRANSLATION_CARD_NUMBER_LABEL_ATTRIBUTE]: "card.number.label",
-  [TRANSLATION_CARD_NUMBER_PLACEHOLDER_ATTRIBUTE]: "card.number.placeholder",
-  [TRANSLATION_CARD_EXPIRATION_LABEL_ATTRIBUTE]: "card.expiration.label",
-  [TRANSLATION_CARD_EXPIRATION_PLACEHOLDER_ATTRIBUTE]: "card.expiration.placeholder",
-  [TRANSLATION_CARD_CSC_LABEL_ATTRIBUTE]: "card.csc.label",
-  [TRANSLATION_CARD_CSC_PLACEHOLDER_ATTRIBUTE]: "card.csc.placeholder",
+  [TRANSLATION_CARD_NUMBER_LABEL_ATTRIBUTE]: "cc_number_label",
+  [TRANSLATION_CARD_NUMBER_PLACEHOLDER_ATTRIBUTE]: "cc_number_placeholder",
+  [TRANSLATION_CARD_EXPIRATION_LABEL_ATTRIBUTE]: "cc_exp_label",
+  [TRANSLATION_CARD_EXPIRATION_PLACEHOLDER_ATTRIBUTE]: "cc_exp_placeholder",
+  [TRANSLATION_CARD_CSC_LABEL_ATTRIBUTE]: "cc_csc_label",
+  [TRANSLATION_CARD_CSC_PLACEHOLDER_ATTRIBUTE]: "cc_csc_placeholder",
 } as const;
 
 type TranslationAttributeName = keyof typeof TRANSLATION_ATTRIBUTE_TO_KEY;
@@ -117,13 +133,49 @@ function normalizeUrl(secureOrigin: string): URL | null {
   }
 }
 
-function isValidationField(value: unknown): value is CardValidationField {
-  return (
-    value === "cc-number" ||
-    value === "cc-exp" ||
-    value === "cc-csc" ||
-    value === "form"
-  );
+function toEmbedMode(value: PaymentCardFieldMode): EmbedCardMode {
+  return value === "csc-only" ? "card_csc" : "card";
+}
+
+function normalizeValidationField(value: unknown): EmbedValidationField | null {
+  switch (value) {
+    case "cc-number":
+    case "cc_number":
+      return "cc_number";
+    case "cc-exp":
+    case "cc_exp":
+      return "cc_exp";
+    case "cc-csc":
+    case "cc_csc":
+      return "cc_csc";
+    case "form":
+      return "form";
+    default:
+      return null;
+  }
+}
+
+function toValidationMessage(
+  field: EmbedValidationField,
+  code: EmbedValidationCode | null,
+): string | null {
+  if (!code) return null;
+
+  if (field === "cc_number") {
+    return code === "card_brand_unsupported"
+      ? "This card brand is not accepted."
+      : "Please enter a valid card number.";
+  }
+
+  if (field === "cc_exp") {
+    return "Please enter a valid expiration date.";
+  }
+
+  if (field === "cc_csc") {
+    return "Please enter a valid security code.";
+  }
+
+  return "Card details are invalid.";
 }
 
 function toErrorMessage(code: CardEmbedTokenizeErrorCode): string {
@@ -163,7 +215,10 @@ export class PaymentCardFieldElement extends HTMLElement {
   private _fallbackRequestCounter = 0;
   private _pendingTokenizes = new Map<string, TokenizeDeferred>();
   private _ready = false;
-  private _fieldValidation = new Map<CardValidationField, { valid: boolean; message: string | null }>();
+  private _fieldValidation = new Map<
+    EmbedValidationField,
+    { valid: boolean; message: string | null }
+  >();
   private _focused = false;
   private _touched = false;
   private _invalid = false;
@@ -172,7 +227,10 @@ export class PaymentCardFieldElement extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-    this._internals = typeof this.attachInternals === "function" ? this.attachInternals() : null;
+    this._internals =
+      typeof this.attachInternals === "function"
+        ? this.attachInternals()
+        : null;
 
     const secureOrigin = this.getAttribute(SECURE_ORIGIN_ATTRIBUTE)?.trim();
     if (secureOrigin) this._secureOrigin = secureOrigin;
@@ -182,7 +240,10 @@ export class PaymentCardFieldElement extends HTMLElement {
 
   addEventListener<K extends keyof PaymentCardFieldEventMap>(
     type: K,
-    listener: (this: PaymentCardFieldElement, event: PaymentCardFieldEventMap[K]) => void,
+    listener: (
+      this: PaymentCardFieldElement,
+      event: PaymentCardFieldEventMap[K],
+    ) => void,
     options?: boolean | AddEventListenerOptions,
   ): void;
   addEventListener(
@@ -200,7 +261,10 @@ export class PaymentCardFieldElement extends HTMLElement {
 
   removeEventListener<K extends keyof PaymentCardFieldEventMap>(
     type: K,
-    listener: (this: PaymentCardFieldElement, event: PaymentCardFieldEventMap[K]) => void,
+    listener: (
+      this: PaymentCardFieldElement,
+      event: PaymentCardFieldEventMap[K],
+    ) => void,
     options?: boolean | EventListenerOptions,
   ): void;
   removeEventListener(
@@ -247,7 +311,7 @@ export class PaymentCardFieldElement extends HTMLElement {
     }
 
     this._updateFormValidity(true, null);
-    this._sendConfig();
+    if (this.isConnected) this._mountIframe();
   }
 
   get disabled(): boolean {
@@ -259,7 +323,7 @@ export class PaymentCardFieldElement extends HTMLElement {
     this._disabled = value;
     if (this._disabled) this._focused = false;
     this._syncPublicStates();
-    this._sendConfig();
+    this._syncDisabledState();
 
     if (this._disabled) {
       this._internals?.setValidity({});
@@ -286,12 +350,16 @@ export class PaymentCardFieldElement extends HTMLElement {
     this._teardown();
   }
 
-  attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
+  attributeChangedCallback(
+    name: string,
+    oldValue: string | null,
+    newValue: string | null,
+  ): void {
     if (oldValue === newValue) return;
 
     if (name === MODE_ATTRIBUTE) {
       this._mode = toMode(newValue);
-      this._sendConfig();
+      if (this.isConnected) this._mountIframe();
       return;
     }
 
@@ -303,44 +371,43 @@ export class PaymentCardFieldElement extends HTMLElement {
 
     if (name === LANG_ATTRIBUTE) {
       this._lang = newValue?.trim() || undefined;
-      if (this.isConnected) this._sendConfig();
+      if (this.isConnected) this._mountIframe();
       return;
     }
 
-    if (TRANSLATION_ATTRIBUTE_NAMES.includes(name as TranslationAttributeName)) {
-      if (this.isConnected) this._sendConfig();
+    if (
+      TRANSLATION_ATTRIBUTE_NAMES.includes(name as TranslationAttributeName)
+    ) {
+      if (this.isConnected) this._mountIframe();
       return;
     }
 
     if (!THEME_ATTRIBUTE_NAMES.includes(name as ThemeAttributeName)) return;
     if (!this.isConnected) return;
 
-    if (name === "theme-input-height" && this._iframe) {
-      const nextHeight = this._resolveInitialIframeHeight();
-      this._iframe.style.minHeight = nextHeight;
-      this._applyIframeHeight(nextHeight);
-    }
-
-    this._sendConfig();
+    this._mountIframe();
   }
 
   clear(): void {
     this._postPort({ type: "clear" });
   }
 
-  tokenize(requestId?: string): Promise<{ token: string; requestId?: string }> {
+  tokenize(requestId?: string): Promise<TokenizationSuccessEventDetail> {
     if (!this._port || !this._ready) {
       const error = this._emitTokenizeError("invalid_state", requestId);
       return Promise.reject(error);
     }
 
     const normalizedRequestId =
-      requestId ?? `card-tokenize-${++this._fallbackRequestCounter}-${Date.now()}`;
+      requestId ??
+      `card-tokenize-${++this._fallbackRequestCounter}-${Date.now()}`;
 
     return new Promise((resolve, reject) => {
       const timeoutId = window.setTimeout(() => {
         this._pendingTokenizes.delete(normalizedRequestId);
-        reject(this._emitTokenizeError("tokenization_failed", normalizedRequestId));
+        reject(
+          this._emitTokenizeError("tokenization_failed", normalizedRequestId),
+        );
       }, 30000);
 
       this._pendingTokenizes.set(normalizedRequestId, {
@@ -359,17 +426,8 @@ export class PaymentCardFieldElement extends HTMLElement {
     this._invalid = false;
     this._syncPublicStates();
 
-    if (this._port) {
-      this._port.onmessage = null;
-      this._port.close();
-      this._port = null;
-    }
-
-    for (const [requestId, deferred] of this._pendingTokenizes) {
-      window.clearTimeout(deferred.timeoutId);
-      deferred.reject(new Error(`Card tokenization aborted for request ${requestId}.`));
-      this._pendingTokenizes.delete(requestId);
-    }
+    this._disconnectPort();
+    this._rejectPendingTokenizes("Card tokenization aborted.");
 
     this._iframe?.remove();
     this._iframe = null;
@@ -381,12 +439,10 @@ export class PaymentCardFieldElement extends HTMLElement {
 
     this._ready = false;
     this._fieldValidation.clear();
-
-    if (this._port) {
-      this._port.onmessage = null;
-      this._port.close();
-      this._port = null;
-    }
+    this._disconnectPort();
+    this._rejectPendingTokenizes("Card tokenization aborted.");
+    this._iframe?.remove();
+    this._iframe = null;
 
     const iframe = document.createElement("iframe");
     iframe.setAttribute("part", "iframe");
@@ -414,7 +470,10 @@ export class PaymentCardFieldElement extends HTMLElement {
     if (iframeUrl) {
       iframe.src = iframeUrl;
     } else {
-      iframe.setAttribute("srcdoc", "<!doctype html><html><body></body></html>");
+      iframe.setAttribute(
+        "srcdoc",
+        "<!doctype html><html><body></body></html>",
+      );
     }
 
     iframe.addEventListener("load", () => this._connectPort(iframe));
@@ -473,6 +532,28 @@ export class PaymentCardFieldElement extends HTMLElement {
   private _buildIframeUrl(): string | null {
     const url = normalizeUrl(this._secureOrigin);
     if (!url) return null;
+
+    url.searchParams.set("mode", toEmbedMode(this._mode));
+
+    if (this._lang) {
+      url.searchParams.set("lang", this._lang);
+    }
+
+    for (const attrName of THEME_ATTRIBUTE_NAMES) {
+      const value = this.getAttribute(attrName)?.trim();
+      if (!value) continue;
+      url.searchParams.set(THEME_ATTR_TO_QUERY_KEY[attrName], value);
+    }
+
+    for (const attrName of TRANSLATION_ATTRIBUTE_NAMES) {
+      const value = this.getAttribute(attrName)?.trim();
+      if (!value) continue;
+      url.searchParams.set(
+        `translations_${TRANSLATION_ATTRIBUTE_TO_KEY[attrName]}`,
+        value,
+      );
+    }
+
     return url.toString();
   }
 
@@ -493,7 +574,7 @@ export class PaymentCardFieldElement extends HTMLElement {
 
     contentWindow.postMessage("connect", url.origin, [channel.port2]);
     this._port = channel.port1;
-    this._sendConfig();
+    this._syncDisabledState();
   }
 
   private _handlePortMessage(event: MessageEvent<string>): void {
@@ -517,7 +598,12 @@ export class PaymentCardFieldElement extends HTMLElement {
         this._iframe.style.visibility = "visible";
         this._iframe.style.opacity = "1";
       }
-      this.dispatchEvent(new Event(paymentCardFieldEvents.load, { bubbles: true, composed: true }));
+      this.dispatchEvent(
+        new Event(paymentCardFieldEvents.load, {
+          bubbles: true,
+          composed: true,
+        }),
+      );
       return;
     }
 
@@ -558,6 +644,10 @@ export class PaymentCardFieldElement extends HTMLElement {
     if (type === "tokenization_response") {
       const requestId = payload["id"];
       const token = payload["token"];
+      const brand = payload["brand"];
+      const last4Digits = payload["last4Digits"];
+      const expirationMonth = payload["expirationMonth"];
+      const expirationYear = payload["expirationYear"];
 
       if (typeof requestId !== "string") return;
 
@@ -568,17 +658,35 @@ export class PaymentCardFieldElement extends HTMLElement {
       window.clearTimeout(pending.timeoutId);
 
       if (typeof token === "string" && token) {
+        const detail: TokenizationSuccessEventDetail = { token, requestId };
+
+        if (typeof brand === "string" && brand) {
+          detail.cardBrand = brand;
+        }
+
+        if (typeof last4Digits === "string" && last4Digits) {
+          detail.last4 = last4Digits;
+        }
+
+        if (typeof expirationMonth === "number") {
+          detail.expirationMonth = expirationMonth;
+        }
+
+        if (typeof expirationYear === "number") {
+          detail.expirationYear = expirationYear;
+        }
+
         this.dispatchEvent(
           new CustomEvent<TokenizationSuccessEventDetail>(
             paymentCardFieldEvents.tokenizationSuccess,
             {
-              detail: { token, requestId },
+              detail,
               bubbles: true,
               composed: true,
             },
           ),
         );
-        pending.resolve({ token, requestId });
+        pending.resolve(detail);
       } else {
         const error = this._emitTokenizeError("tokenization_failed", requestId);
         pending.reject(error);
@@ -587,13 +695,24 @@ export class PaymentCardFieldElement extends HTMLElement {
   }
 
   private _handleValidationPayload(payload: Record<string, unknown>): void {
-    const field = payload["field"];
+    const field = normalizeValidationField(payload["field"]);
     const valid = payload["valid"];
-    const message = payload["message"];
+    const code = payload["code"];
 
-    if (!isValidationField(field) || typeof valid !== "boolean") return;
-    if (!(typeof message === "string" || message === null)) return;
+    if (!field || typeof valid !== "boolean") return;
+    if (
+      !(
+        typeof code === "string" ||
+        code === null ||
+        typeof code === "undefined"
+      )
+    )
+      return;
 
+    const message =
+      valid || typeof code !== "string"
+        ? null
+        : toValidationMessage(field, code as EmbedValidationCode);
     this._fieldValidation.set(field, { valid, message });
 
     if (field === "form") {
@@ -601,8 +720,10 @@ export class PaymentCardFieldElement extends HTMLElement {
       return;
     }
 
-    const activeFields: CardValidationField[] =
-      this._mode === "csc-only" ? ["cc-csc"] : ["cc-number", "cc-exp", "cc-csc"];
+    const activeFields: EmbedValidationField[] =
+      this._mode === "csc-only"
+        ? ["cc_csc"]
+        : ["cc_number", "cc_exp", "cc_csc"];
 
     const invalid = activeFields
       .map((name) => this._fieldValidation.get(name))
@@ -649,40 +770,24 @@ export class PaymentCardFieldElement extends HTMLElement {
     this._internals?.states?.delete(name);
   }
 
-  private _sendConfig(): void {
-    const style = this._getThemeAttributes();
-    this._postPort({
-      type: "config",
-      disabled: this._disabled,
-      mode: this._mode,
-      lang: this._lang,
-      style: Object.keys(style).length > 0 ? style : undefined,
-      translations: this._getTranslationsFromAttributes(),
-    });
+  private _syncDisabledState(): void {
+    this._postPort({ type: this._disabled ? "disable" : "enable" });
   }
 
-  private _getTranslationsFromAttributes(): Record<string, string> | undefined {
-    const translations: Record<string, string> = {};
+  private _disconnectPort(): void {
+    if (!this._port) return;
 
-    for (const attrName of TRANSLATION_ATTRIBUTE_NAMES) {
-      const value = this.getAttribute(attrName)?.trim();
-      if (!value) continue;
-      translations[TRANSLATION_ATTRIBUTE_TO_KEY[attrName]] = value;
-    }
-
-    return Object.keys(translations).length > 0 ? translations : undefined;
+    this._port.onmessage = null;
+    this._port.close();
+    this._port = null;
   }
 
-  private _getThemeAttributes(): Record<string, string> {
-    const style: Record<string, string> = {};
-
-    for (const attrName of THEME_ATTRIBUTE_NAMES) {
-      const value = this.getAttribute(attrName)?.trim();
-      if (!value) continue;
-      style[THEME_ATTR_TO_CSS_VAR[attrName]] = value;
+  private _rejectPendingTokenizes(message: string): void {
+    for (const [requestId, deferred] of this._pendingTokenizes) {
+      window.clearTimeout(deferred.timeoutId);
+      deferred.reject(new Error(`${message} Request: ${requestId}.`));
+      this._pendingTokenizes.delete(requestId);
     }
-
-    return style;
   }
 
   private _postPort(message: Record<string, unknown>): void {
@@ -710,8 +815,14 @@ export class PaymentCardFieldElement extends HTMLElement {
   }
 }
 
-if (typeof window !== "undefined" && !customElements.get(PAYMENT_CARD_FIELD_ELEMENT_TAG)) {
-  customElements.define(PAYMENT_CARD_FIELD_ELEMENT_TAG, PaymentCardFieldElement);
+if (
+  typeof window !== "undefined" &&
+  !customElements.get(PAYMENT_CARD_FIELD_ELEMENT_TAG)
+) {
+  customElements.define(
+    PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    PaymentCardFieldElement,
+  );
 }
 
 declare global {

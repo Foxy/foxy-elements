@@ -50,18 +50,27 @@ function getInternals(element: HTMLElement): FakeInternals {
   return internals;
 }
 
-function createField(type: AchFieldElement["type"], group = "ach-unit-group"): AchFieldElement {
-  const element = document.createElement(ACH_FIELD_ELEMENT_TAG) as AchFieldElement;
+function createField(
+  type: AchFieldElement["type"],
+  group = "ach-unit-group",
+): AchFieldElement {
+  const element = document.createElement(
+    ACH_FIELD_ELEMENT_TAG,
+  ) as AchFieldElement;
   element.type = type;
   element.group = group;
   document.body.append(element);
   return element;
 }
 
-function attachFakeControllerSource(host: AchFieldElement): { postMessage: ReturnType<typeof vi.fn> } {
-  const entry = (host as unknown as {
-    _registryEntry?: { controllerIframe?: HTMLIFrameElement | null };
-  })._registryEntry;
+function attachFakeControllerSource(host: AchFieldElement): {
+  postMessage: ReturnType<typeof vi.fn>;
+} {
+  const entry = (
+    host as unknown as {
+      _registryEntry?: { controllerIframe?: HTMLIFrameElement | null };
+    }
+  )._registryEntry;
   if (!entry) {
     throw new Error("Missing registry entry for ACH field test.");
   }
@@ -78,7 +87,8 @@ function attachFakeControllerSource(host: AchFieldElement): { postMessage: Retur
 }
 
 function getExpectedOrigin(host: AchFieldElement): string {
-  const secureOrigin = (host as unknown as { _secureOrigin: string })._secureOrigin;
+  const secureOrigin = (host as unknown as { _secureOrigin: string })
+    ._secureOrigin;
   return new URL(secureOrigin, window.location.origin).origin;
 }
 
@@ -87,13 +97,23 @@ function dispatchHostedChange(
   fields: Partial<Record<AchFieldElement["type"], HostedFieldState>>,
 ): void {
   const source = attachFakeControllerSource(host);
-
-  const group = host.group;
-  const onWindowMessage = (host as unknown as { _onWindowMessage: (event: MessageEvent) => void })
-    ._onWindowMessage;
+  const onWindowMessage = (
+    host as unknown as { _onWindowMessage: (event: MessageEvent) => void }
+  )._onWindowMessage;
 
   onWindowMessage({
-    data: { fields, kind: "ach:change", sessionId: group },
+    data: {
+      type: "change",
+      fields: Object.entries(fields).reduce(
+        (result, [fieldName, state]) => {
+          if (!state) return result;
+
+          result[fieldName.replace(/-/g, "_")] = state;
+          return result;
+        },
+        {} as Record<string, HostedFieldState>,
+      ),
+    },
     origin: getExpectedOrigin(host),
     source,
   } as unknown as MessageEvent);
@@ -106,11 +126,12 @@ function dispatchTokenizationError(
 ): void {
   const source = attachFakeControllerSource(host);
 
-  const onWindowMessage = (host as unknown as { _onWindowMessage: (event: MessageEvent) => void })
-    ._onWindowMessage;
+  const onWindowMessage = (
+    host as unknown as { _onWindowMessage: (event: MessageEvent) => void }
+  )._onWindowMessage;
 
   onWindowMessage({
-    data: { code, kind: "ach:tokenize:error", requestId, sessionId: host.group },
+    data: { type: "tokenization_response", id: requestId, token: null, code },
     origin: getExpectedOrigin(host),
     source,
   } as unknown as MessageEvent);
@@ -269,7 +290,10 @@ describe("AchFieldElement events", () => {
   it("omits sessionId from tokenizationerror detail", () => {
     const routing = createField("routing-number");
     const onTokenizationError = vi.fn();
-    routing.addEventListener(achFieldEvents.tokenizationError, onTokenizationError);
+    routing.addEventListener(
+      achFieldEvents.tokenizationError,
+      onTokenizationError,
+    );
 
     dispatchTokenizationError(routing, "validation_failed", "req-1");
 

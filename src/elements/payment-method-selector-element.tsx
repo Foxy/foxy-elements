@@ -32,7 +32,7 @@ type CheckoutApiLike = EventTarget & {
 };
 
 type PaymentMethodSelectorTokenizeEventDetail = {
-  payload: Record<string, unknown>;
+  payload: PaymentMethodSelectorTokenizePayload;
 };
 
 type PaymentMethodSelectorTokenizationSuccessEventDetail =
@@ -48,6 +48,35 @@ type PaymentMethodSelectorTokenizationStartEventDetail = {
 
 type PaymentMethodSelectorTokenizationErrorEventDetail = {
   error: unknown;
+};
+
+export type PaymentMethodSelectorTokenizeOptionType =
+  | "saved-card"
+  | "new-card"
+  | "ach"
+  | "stripe-card-element"
+  | "stripe-payment-element"
+  | "apple-pay"
+  | "google-pay"
+  | "generic";
+
+export type PaymentMethodSelectorBillingPayload = {
+  useShippingAddress: boolean;
+  values: Record<string, string>;
+};
+
+export type PaymentMethodSelectorTokenizePayload = {
+  optionIndex: number;
+  optionType: PaymentMethodSelectorTokenizeOptionType;
+  billingAddress?: PaymentMethodSelectorBillingPayload;
+  token?: string;
+  requestId?: string;
+  paymentMethodId?: string;
+  paymentMethodType?: string;
+  cardBrand?: string;
+  last4?: string;
+  expirationMonth?: number;
+  expirationYear?: number;
 };
 
 const LANG_ATTRIBUTE = "lang";
@@ -152,7 +181,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     this.#render();
   }
 
-  async tokenize(): Promise<Record<string, unknown>> {
+  async tokenize(): Promise<PaymentMethodSelectorTokenizePayload> {
     if (!this.#resolveApiState()) {
       throw new Error("Checkout client is not initialized.");
     }
@@ -185,15 +214,11 @@ export class PaymentMethodSelectorElement extends HTMLElement {
 
       const controller = this.#controllers.get(selectedOption.id);
       const tokenized = controller ? await controller.tokenize() : {};
-      const savedPaymentMethodId =
-        selectedOption.type === "saved-card"
-          ? selectedOption.savedPaymentMethodId
-          : undefined;
 
-      const payload = {
+      const payload: PaymentMethodSelectorTokenizePayload = {
         optionIndex,
-        optionType: selectedOption.type,
-        savedPaymentMethodId,
+        optionType:
+          selectedOption.type as PaymentMethodSelectorTokenizeOptionType,
         billingAddress: this.#billingStateByOption.get(selectedOption.id),
         ...tokenized,
       };
@@ -1313,7 +1338,9 @@ export interface PaymentMethodSelectorElement {
   ): void;
   addEventListener(
     type: "tokenizationsuccess",
-    listener: (ev: CustomEvent<{ payload: Record<string, unknown> }>) => void,
+    listener: (
+      ev: CustomEvent<{ payload: PaymentMethodSelectorTokenizePayload }>,
+    ) => void,
     options?: boolean | AddEventListenerOptions,
   ): void;
   addEventListener(
@@ -1338,7 +1365,9 @@ export interface PaymentMethodSelectorElement {
   ): void;
   removeEventListener(
     type: "tokenizationsuccess",
-    listener: (ev: CustomEvent<{ payload: Record<string, unknown> }>) => void,
+    listener: (
+      ev: CustomEvent<{ payload: PaymentMethodSelectorTokenizePayload }>,
+    ) => void,
     options?: boolean | EventListenerOptions,
   ): void;
   removeEventListener(

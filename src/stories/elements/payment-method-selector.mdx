@@ -71,7 +71,59 @@ Required attributes: none. The element still requires checkout client state to b
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>tokenize</code></td><td><code>()</code></td><td><code>Promise&lt;Record&lt;string, unknown&gt;&gt;</code></td><td>Tokenizes the selected payment option and resolves the normalized payload.</td></tr>
+    <tr><td><code>tokenize</code></td><td><code>()</code></td><td><code>Promise&lt;PaymentMethodSelectorTokenizePayload&gt;</code></td><td>Tokenizes the selected payment option and resolves the same payload emitted by <code>tokenizationsuccess</code>.</td></tr>
+  </tbody>
+</table>
+
+## Tokenization Payload
+
+<code>tokenize()</code> resolves with this payload. The <code>tokenizationsuccess</code> event emits the same object as <code>event.detail.payload</code>.
+
+```ts
+type PaymentMethodSelectorTokenizePayload = {
+  optionIndex: number;
+  optionType:
+    | "saved-card"
+    | "new-card"
+    | "ach"
+    | "stripe-card-element"
+    | "stripe-payment-element"
+    | "apple-pay"
+    | "google-pay"
+    | "generic";
+  billingAddress?: {
+    useShippingAddress: boolean;
+    values: Record<string, string>;
+  };
+  token?: string;
+  requestId?: string;
+  paymentMethodId?: string;
+  paymentMethodType?: string;
+  cardBrand?: string;
+  last4?: string;
+  expirationMonth?: number;
+  expirationYear?: number;
+};
+```
+
+Every successful payload includes <code>optionIndex</code> and <code>optionType</code>. <code>billingAddress</code> is included after the billing address UI has reported values for the selected option.
+
+Payload fields by selected option:
+
+<table>
+  <thead>
+    <tr>
+      <th>Option type</th>
+      <th>Additional fields</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>new-card</code></td><td><code>token?: string</code>, <code>requestId?: string</code>, <code>cardBrand?: string</code>, <code>last4?: string</code>, <code>expirationMonth?: number</code>, <code>expirationYear?: number</code></td></tr>
+    <tr><td><code>saved-card</code></td><td>Non-Stripe saved cards that require CSC include <code>token?: string</code> and <code>requestId?: string</code>.</td></tr>
+    <tr><td><code>ach</code></td><td><code>token?: string</code>, <code>requestId?: string</code></td></tr>
+    <tr><td><code>stripe-card-element</code></td><td><code>paymentMethodId?: string</code>, <code>cardBrand?: string</code>, <code>last4?: string</code>, <code>expirationMonth?: number</code>, <code>expirationYear?: number</code></td></tr>
+    <tr><td><code>stripe-payment-element</code></td><td><code>paymentMethodId?: string</code>, <code>paymentMethodType?: string</code>, <code>cardBrand?: string</code>, <code>last4?: string</code>, <code>expirationMonth?: number</code>, <code>expirationYear?: number</code></td></tr>
+    <tr><td><code>apple-pay</code>, <code>google-pay</code>, <code>generic</code></td><td>No method-specific fields are added by the selector.</td></tr>
   </tbody>
 </table>
 
@@ -87,7 +139,7 @@ Required attributes: none. The element still requires checkout client state to b
   </thead>
   <tbody>
     <tr><td><code>tokenizationstart</code></td><td><code>CustomEvent&lt;&#123; optionIndex: number &#125;&gt;</code></td><td>Cancelable event fired before tokenization begins.</td></tr>
-    <tr><td><code>tokenizationsuccess</code></td><td><code>CustomEvent&lt;&#123; payload: Record&lt;string, unknown&gt; &#125;&gt;</code></td><td>Fires when tokenization succeeds.</td></tr>
+    <tr><td><code>tokenizationsuccess</code></td><td><code>CustomEvent&lt;&#123; payload: PaymentMethodSelectorTokenizePayload &#125;&gt;</code></td><td>Fires when tokenization succeeds.</td></tr>
     <tr><td><code>tokenizationerror</code></td><td><code>CustomEvent&lt;&#123; error: unknown &#125;&gt;</code></td><td>Fires when tokenization fails.</td></tr>
     <tr><td><code>optionindexchange</code></td><td><code>CustomEvent&lt;&#123; optionIndex: number &#125;&gt;</code></td><td>Fires after user selection changes to a new option.</td></tr>
   </tbody>

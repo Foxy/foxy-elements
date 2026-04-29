@@ -1,16 +1,11 @@
-import type {
-  AchHostedFieldsTokenizeErrorCode,
-  CardEmbedTokenizeErrorCode,
-} from "@foxy.io/sdk/checkout";
+import type { CardEmbedTokenizeErrorCode } from "@foxy.io/sdk/checkout";
 import type {
   AchHostedFieldName,
   AchFieldElement,
   AchTokenizationErrorEventDetail,
 } from "../../elements/ach-field-element";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import type {
-  PaymentCardFieldElement,
-} from "../../elements/payment-card-field-element";
+import type { PaymentCardFieldElement } from "../../elements/payment-card-field-element";
 import type {
   PaymentMethodSelectorBillingAddress,
   PaymentMethodSelectorBillingField,
@@ -1108,13 +1103,19 @@ function CardOptionEmbed({
         return {
           token: payload.token,
           requestId: payload.requestId,
+          cardBrand: payload.cardBrand,
+          last4: payload.last4,
+          expirationMonth: payload.expirationMonth,
+          expirationYear: payload.expirationYear,
         };
       },
     };
 
     const onTokenizeSuccess = () => setError(null);
     const onTokenizeError = (event: Event) => {
-      const detail = (event as CustomEvent<{ code: CardEmbedTokenizeErrorCode }>).detail;
+      const detail = (
+        event as CustomEvent<{ code: CardEmbedTokenizeErrorCode }>
+      ).detail;
       setError(detail.code);
     };
 
@@ -1149,14 +1150,17 @@ function CardOptionEmbed({
         lang,
         mode: option.hostedCard.mode,
         "secure-origin": option.hostedCard.secureOrigin,
-        "translation-card-number-label": option.hostedCard.translationCardNumberLabel,
+        "translation-card-number-label":
+          option.hostedCard.translationCardNumberLabel,
         "translation-card-number-placeholder":
           option.hostedCard.translationCardNumberPlaceholder,
-        "translation-card-expiration-label": option.hostedCard.translationCardExpirationLabel,
+        "translation-card-expiration-label":
+          option.hostedCard.translationCardExpirationLabel,
         "translation-card-expiration-placeholder":
           option.hostedCard.translationCardExpirationPlaceholder,
         "translation-card-csc-label": option.hostedCard.translationCardCscLabel,
-        "translation-card-csc-placeholder": option.hostedCard.translationCardCscPlaceholder,
+        "translation-card-csc-placeholder":
+          option.hostedCard.translationCardCscPlaceholder,
         className:
           "border-input dark:bg-input/30 [&:state(focused)]:border-ring [&:state(focused)]:ring-ring/50 [&:state(user-invalid)]:border-destructive [&:state(user-invalid)]:ring-destructive/20 dark:[&:state(user-invalid)]:ring-destructive/40 [&:state(user-invalid)]:ring-3 [&:state(focused)]:ring-3 [&:state(disabled)]:bg-input/50 dark:[&:state(disabled)]:bg-input/80 [&:state(disabled)]:opacity-50 rounded-[var(--radius)] border transition-colors block w-full overflow-hidden",
         "theme-background": styleAttributes.inputBackground,
@@ -1196,10 +1200,12 @@ function AchOptionEmbed({
   onControllerReady?: (controller: PaymentController | null) => void;
 }) {
   const intl = useIntl();
-  const [error, setError] = useState<AchHostedFieldsTokenizeErrorCode | null>(
-    null,
-  );
-  const refs = useRef<Partial<Record<AchHostedFieldName, AchFieldElement | null>>>({});
+  const [error, setError] = useState<
+    AchTokenizationErrorEventDetail["code"] | null
+  >(null);
+  const refs = useRef<
+    Partial<Record<AchHostedFieldName, AchFieldElement | null>>
+  >({});
   const group = useMemo(
     () => option.hostedFields?.group ?? crypto.randomUUID(),
     [option.hostedFields?.group],
@@ -1242,7 +1248,8 @@ function AchOptionEmbed({
 
     const onTokenizeSuccess = () => setError(null);
     const onTokenizeError = (event: Event) => {
-      const detail = (event as CustomEvent<AchTokenizationErrorEventDetail>).detail;
+      const detail = (event as CustomEvent<AchTokenizationErrorEventDetail>)
+        .detail;
       setError(detail.code);
     };
 

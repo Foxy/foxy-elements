@@ -1,7 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
-import type { AchHostedFieldsTokenizeErrorCode } from "@foxy.io/sdk/checkout";
 import { expect, userEvent, waitFor, within } from "storybook/test";
-import type { AchFieldElement, AchHostedFieldName } from "@/elements/ach-field-element";
+import type {
+  AchFieldElement,
+  AchHostedFieldName,
+  AchTokenizationErrorEventDetail,
+} from "@/elements/ach-field-element";
 import {
   ACH_ACCOUNT_TYPE_VALUES_OPTIONS,
   ACH_FIELD_TYPE_OPTIONS,
@@ -25,7 +28,7 @@ type AchStoryArgs = {
   accountTypeValues: (typeof ACH_ACCOUNT_TYPE_VALUES_OPTIONS)[number];
   requestId: string;
   token: string;
-  errorCode: AchHostedFieldsTokenizeErrorCode;
+  errorCode: AchTokenizationErrorEventDetail["code"];
   themeTextColor: string;
   themePlaceholderColor: string;
   themeErrorTextColor: string;
@@ -81,13 +84,22 @@ export default meta;
 type Story = StoryObj<AchStoryArgs>;
 
 function getPrimaryField(canvasElement: HTMLElement): AchFieldElement {
-  return canvasElement.querySelector("[data-story-role='primary']") as AchFieldElement;
+  return canvasElement.querySelector(
+    "[data-story-role='primary']",
+  ) as AchFieldElement;
 }
 
 export const ApiPlayground: Story = {
   parameters: {
     controls: {
-      include: ["type", "lang", "placeholder", "disabled", "group", "accountTypeValues"],
+      include: [
+        "type",
+        "lang",
+        "placeholder",
+        "disabled",
+        "group",
+        "accountTypeValues",
+      ],
     },
     docs: {
       description: {
@@ -103,7 +115,8 @@ export const ApiPlayground: Story = {
     },
     lang: {
       control: "text",
-      description: "Optional BCP 47 locale tag forwarded to hosted ACH iframes (for example, en-US).",
+      description:
+        "Optional BCP 47 locale tag forwarded to hosted ACH iframes (for example, en-US).",
     },
     placeholder: { control: "text" },
     disabled: { control: "boolean" },
@@ -129,7 +142,9 @@ export const ApiPlayground: Story = {
     attachActionLogging(item.field, "api-playground");
     surface.append(
       item.wrapper,
-      createStoryNote("Use Controls to verify runtime reflection and attribute-driven behavior."),
+      createStoryNote(
+        "Use Controls to verify runtime reflection and attribute-driven behavior.",
+      ),
     );
 
     return surface;
@@ -161,7 +176,9 @@ export const EventSemantics: Story = {
     attachActionLogging(item.field, "event-semantics");
     surface.append(
       item.wrapper,
-      createStoryNote("Play function emits ach:change states to verify transition ordering and event bubbling rules."),
+      createStoryNote(
+        "Play function emits ach:change states to verify transition ordering and event bubbling rules.",
+      ),
     );
 
     return surface;
@@ -172,13 +189,21 @@ export const EventSemantics: Story = {
     let focusEvent: FocusEvent | undefined;
     let blurEvent: FocusEvent | undefined;
 
-    field.addEventListener("focus", (event) => {
-      focusEvent = event as FocusEvent;
-    }, { once: true });
+    field.addEventListener(
+      "focus",
+      (event) => {
+        focusEvent = event as FocusEvent;
+      },
+      { once: true },
+    );
 
-    field.addEventListener("blur", (event) => {
-      blurEvent = event as FocusEvent;
-    }, { once: true });
+    field.addEventListener(
+      "blur",
+      (event) => {
+        blurEvent = event as FocusEvent;
+      },
+      { once: true },
+    );
 
     dispatchHostedChange(field, {
       "routing-number": {
@@ -234,7 +259,9 @@ export const ValidityStates: Story = {
     attachActionLogging(item.field, "validity-states");
     surface.append(
       item.wrapper,
-      createStoryNote("The play function drives synthetic hosted state updates and validates native validity transitions."),
+      createStoryNote(
+        "The play function drives synthetic hosted state updates and validates native validity transitions.",
+      ),
     );
 
     return surface;
@@ -389,7 +416,9 @@ export const TokenizeSuccess: Story = {
     attachActionLogging(item.field, "tokenize-success");
     surface.append(
       item.wrapper,
-      createStoryNote("Play function calls tokenize(requestId) and resolves via ach:tokenize:success."),
+      createStoryNote(
+        "Play function calls tokenize(requestId) and resolves via ach:tokenize:success.",
+      ),
     );
 
     return surface;
@@ -401,7 +430,9 @@ export const TokenizeSuccess: Story = {
     field.addEventListener(
       "tokenizationsuccess",
       (event) => {
-        eventDetail = (event as CustomEvent<{ token: string; requestId?: string }>).detail;
+        eventDetail = (
+          event as CustomEvent<{ token: string; requestId?: string }>
+        ).detail;
       },
       { once: true },
     );
@@ -455,7 +486,9 @@ export const TokenizeErrorMatrix: Story = {
     attachActionLogging(item.field, "tokenize-error-matrix");
     surface.append(
       item.wrapper,
-      createStoryNote("Switch errorCode control to replay each supported tokenize failure code."),
+      createStoryNote(
+        "Switch errorCode control to replay each supported tokenize failure code.",
+      ),
     );
 
     return surface;
@@ -463,7 +496,7 @@ export const TokenizeErrorMatrix: Story = {
   play: async ({ canvasElement, args }) => {
     const field = getPrimaryField(canvasElement);
     let eventDetail:
-      | { code: AchHostedFieldsTokenizeErrorCode; requestId?: string }
+      | { code: AchTokenizationErrorEventDetail["code"]; requestId?: string }
       | undefined;
 
     field.addEventListener(
@@ -471,7 +504,7 @@ export const TokenizeErrorMatrix: Story = {
       (event) => {
         eventDetail = (
           event as CustomEvent<{
-            code: AchHostedFieldsTokenizeErrorCode;
+            code: AchTokenizationErrorEventDetail["code"];
             requestId?: string;
           }>
         ).detail;
@@ -531,7 +564,9 @@ export const AccountTypeRestrictions: Story = {
     attachActionLogging(item.field, "account-type-restrictions");
     surface.append(
       item.wrapper,
-      createStoryNote("Use accountTypeValues to validate checking-only, savings-only, mixed, and default field behavior."),
+      createStoryNote(
+        "Use accountTypeValues to validate checking-only, savings-only, mixed, and default field behavior.",
+      ),
     );
 
     return surface;
@@ -599,7 +634,9 @@ export const ThemeAttributeControls: Story = {
     attachActionLogging(item.field, "theme-attribute-controls");
     surface.append(
       item.wrapper,
-      createStoryNote("Theme controls set host attributes that are forwarded to the embed style payload."),
+      createStoryNote(
+        "Theme controls set host attributes that are forwarded to the embed style payload.",
+      ),
     );
 
     return surface;
@@ -660,7 +697,9 @@ export const FormIntegrationInteraction: Story = {
     const submitButton = createButton("Submit ACH form");
     submitButton.type = "submit";
 
-    const status = createStoryNote("Click submit to run reportValidity and tokenization.");
+    const status = createStoryNote(
+      "Click submit to run reportValidity and tokenization.",
+    );
     status.setAttribute("data-story-role", "form-status");
 
     form.addEventListener("submit", async (event) => {
@@ -673,7 +712,13 @@ export const FormIntegrationInteraction: Story = {
       status.textContent = "Form is valid.";
     });
 
-    form.append(routing.wrapper, account.wrapper, holder.wrapper, submitButton, status);
+    form.append(
+      routing.wrapper,
+      account.wrapper,
+      holder.wrapper,
+      submitButton,
+      status,
+    );
     surface.append(form);
 
     return surface;
@@ -711,7 +756,9 @@ export const FormIntegrationInteraction: Story = {
       requestId: args.requestId,
     });
 
-    const status = canvasElement.querySelector("[data-story-role='form-status']");
+    const status = canvasElement.querySelector(
+      "[data-story-role='form-status']",
+    );
     await waitFor(() => {
       expect(status?.textContent).toContain("Form is valid");
     });

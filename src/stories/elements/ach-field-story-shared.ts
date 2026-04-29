@@ -1,12 +1,10 @@
 import { action } from "storybook/actions";
-import type {
-  AchHostedFieldsTokenizeErrorCode,
-  AchHostedFieldsPublicState,
-} from "@foxy.io/sdk/checkout";
+import type { AchHostedFieldsPublicState } from "@foxy.io/sdk/checkout";
 import {
   ACH_FIELD_ELEMENT_TAG,
   type AchFieldElement,
   type AchHostedFieldName,
+  type AchTokenizationErrorEventDetail,
 } from "@/elements/ach-field-element";
 import {
   applyThemeAttributeMap,
@@ -44,14 +42,16 @@ export const ACH_FIELD_TYPE_OPTIONS: AchHostedFieldName[] = [
   "account-holder-name",
 ];
 
-export const ACH_TOKENIZE_ERROR_OPTIONS: AchHostedFieldsTokenizeErrorCode[] = [
-  "invalid_state",
-  "validation_failed",
-  "collect_timeout",
-  "tokenization_network_error",
-  "tokenization_failed",
-  "unknown_error",
-];
+export const ACH_TOKENIZE_ERROR_OPTIONS: AchTokenizationErrorEventDetail["code"][] =
+  [
+    "invalid_state",
+    "validation_failed",
+    "collect_timeout",
+    "tokenization_network_error",
+    "tokenization_timeout",
+    "tokenization_failed",
+    "unknown_error",
+  ];
 
 export const ACH_ACCOUNT_TYPE_VALUES_OPTIONS = [
   "checking,savings",
@@ -172,7 +172,9 @@ export function createLabeledField(options: {
   label.textContent = options.label ?? formatAchFieldLabel(options.type);
   label.htmlFor = options.id;
 
-  const field = document.createElement(ACH_FIELD_ELEMENT_TAG) as AchFieldElement;
+  const field = document.createElement(
+    ACH_FIELD_ELEMENT_TAG,
+  ) as AchFieldElement;
   field.id = options.id;
   field.type = options.type;
   field.group = options.group;
@@ -198,7 +200,10 @@ export function createLabeledField(options: {
     }
 
     if (options.theme?.placeholderColor) {
-      target.setAttribute("theme-input-placeholder-color", options.theme.placeholderColor);
+      target.setAttribute(
+        "theme-input-placeholder-color",
+        options.theme.placeholderColor,
+      );
     }
 
     if (options.theme?.fontSize) {
@@ -206,7 +211,10 @@ export function createLabeledField(options: {
     }
 
     if (options.theme?.errorTextColor) {
-      target.setAttribute("theme-input-error-text-color", options.theme.errorTextColor);
+      target.setAttribute(
+        "theme-input-error-text-color",
+        options.theme.errorTextColor,
+      );
     }
 
     if (options.theme?.height) {
@@ -234,7 +242,10 @@ export function createLabeledField(options: {
   return { wrapper, field };
 }
 
-export function attachActionLogging(field: AchFieldElement, label: string): void {
+export function attachActionLogging(
+  field: AchFieldElement,
+  label: string,
+): void {
   const eventNames = [
     "load",
     "change",
@@ -252,7 +263,11 @@ export function attachActionLogging(field: AchFieldElement, label: string): void
         return;
       }
 
-      log({ type: event.type, bubbles: event.bubbles, composed: event.composed });
+      log({
+        type: event.type,
+        bubbles: event.bubbles,
+        composed: event.composed,
+      });
     });
   }
 }
@@ -281,8 +296,7 @@ export function dispatchHostedChange(
 
   onWindowMessage({
     data: {
-      kind: "ach:change",
-      sessionId: field.group,
+      type: "change",
       fields,
     },
     origin,
@@ -296,24 +310,23 @@ export function dispatchTokenizationSuccess(
   requestId: string,
 ): void {
   dispatchControllerMessage(field, {
-    kind: "ach:tokenize:success",
-    sessionId: field.group,
+    type: "tokenization_response",
+    id: requestId,
     token,
-    last4: token.slice(-4).padStart(4, "0"),
-    requestId,
+    last4Digits: token.slice(-4).padStart(4, "0"),
   });
 }
 
 export function dispatchTokenizationError(
   field: AchFieldElement,
-  code: AchHostedFieldsTokenizeErrorCode,
+  code: AchTokenizationErrorEventDetail["code"],
   requestId: string,
 ): void {
   dispatchControllerMessage(field, {
-    kind: "ach:tokenize:error",
-    sessionId: field.group,
+    type: "tokenization_response",
+    id: requestId,
+    token: null,
     code,
-    requestId,
   });
 }
 
@@ -397,7 +410,10 @@ function injectFieldInteractionStyles(container: HTMLElement): void {
 function applyAchThemeAttributes(element: AchFieldElement): void {
   const metrics = getShadcnInputMetrics();
   const hostBorderTotalPx = 2;
-  const hostedInputHeightPx = Math.max(metrics.outerHeightPx - hostBorderTotalPx, 0);
+  const hostedInputHeightPx = Math.max(
+    metrics.outerHeightPx - hostBorderTotalPx,
+    0,
+  );
   const hostedInputPadding = `${metrics.paddingY} ${metrics.paddingX}`;
 
   element.setAttribute("theme-input-height", `${hostedInputHeightPx}px`);

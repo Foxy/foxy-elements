@@ -73,7 +73,7 @@ Required attributes: none. The element still depends on `VITE_EMBED_ORIGIN` bein
   </thead>
   <tbody>
     <tr><td><code>clear</code></td><td><code>()</code></td><td><code>void</code></td><td>Clears card input values in the secure iframe.</td></tr>
-    <tr><td><code>tokenize</code></td><td><code>(requestId?: string)</code></td><td><code>Promise&lt;&#123; token: string; requestId?: string &#125;&gt;</code></td><td>Requests card tokenization from the secure iframe.</td></tr>
+    <tr><td><code>tokenize</code></td><td><code>(requestId?: string)</code></td><td><code>Promise&lt;&#123; token: string; requestId?: string; cardBrand?: string; last4?: string; expirationMonth?: number; expirationYear?: number &#125;&gt;</code></td><td>Requests card tokenization from the secure iframe.</td></tr>
     <tr><td><code>checkValidity</code></td><td><code>()</code></td><td><code>boolean</code></td><td>Runs constraint validation and returns current validity.</td></tr>
     <tr><td><code>reportValidity</code></td><td><code>()</code></td><td><code>boolean</code></td><td>Reports native validity UI and returns validity status.</td></tr>
   </tbody>
@@ -92,7 +92,7 @@ Required attributes: none. The element still depends on `VITE_EMBED_ORIGIN` bein
   <tbody>
     <tr><td><code>load</code></td><td><code>Event</code></td><td>Fires when the secure iframe runtime is ready.</td></tr>
     <tr><td><code>resize</code></td><td><code>CustomEvent&lt;&#123; height: string &#125;&gt;</code></td><td>Fires when iframe content requests a height change.</td></tr>
-    <tr><td><code>tokenizationsuccess</code></td><td><code>CustomEvent&lt;&#123; token: string; requestId?: string &#125;&gt;</code></td><td>Fires when card tokenization succeeds.</td></tr>
+    <tr><td><code>tokenizationsuccess</code></td><td><code>CustomEvent&lt;&#123; token: string; requestId?: string; cardBrand?: string; last4?: string; expirationMonth?: number; expirationYear?: number &#125;&gt;</code></td><td>Fires when card tokenization succeeds.</td></tr>
     <tr><td><code>tokenizationerror</code></td><td><code>CustomEvent&lt;&#123; code: CardEmbedTokenizeErrorCode; message?: string; requestId?: string &#125;&gt;</code></td><td>Fires when card tokenization fails.</td></tr>
   </tbody>
 </table>

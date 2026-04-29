@@ -177,6 +177,7 @@ function StripePaymentField({
     const card = result.paymentMethod.card;
     return {
       paymentMethodId: result.paymentMethod.id,
+      paymentMethodType: result.paymentMethod.type,
       cardBrand: card?.brand,
       last4: card?.last4,
       expirationMonth: card?.exp_month,

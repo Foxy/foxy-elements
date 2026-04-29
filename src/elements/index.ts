@@ -3,6 +3,7 @@ export {
   AchFieldElement,
   achFieldEvents,
   type AchAccountTypeValue,
+  type AchEmbedTokenizeErrorCode,
   type AchHostedFieldName,
   type AchLoadEventDetail,
   type AchTokenizationSuccessEventDetail,

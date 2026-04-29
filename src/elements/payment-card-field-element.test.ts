@@ -59,8 +59,12 @@ describe("PaymentCardFieldElement", () => {
     expect(PaymentCardFieldElement.observedAttributes).toContain(
       "translation-card-csc-placeholder",
     );
-    expect(PaymentCardFieldElement.observedAttributes).not.toContain("template-set-id");
-    expect(PaymentCardFieldElement.observedAttributes).not.toContain("demo-mode");
+    expect(PaymentCardFieldElement.observedAttributes).not.toContain(
+      "template-set-id",
+    );
+    expect(PaymentCardFieldElement.observedAttributes).not.toContain(
+      "demo-mode",
+    );
     expect(PaymentCardFieldElement.observedAttributes).toContain("lang");
   });
 
@@ -109,59 +113,49 @@ describe("PaymentCardFieldElement", () => {
     expect(element.hasAttribute("data-user-invalid")).toBe(false);
   });
 
-  it("serializes translation attributes into config payload without readonly", () => {
+  it("encodes translation attributes into iframe URL params", () => {
     const element = document.createElement(
       PAYMENT_CARD_FIELD_ELEMENT_TAG,
     ) as PaymentCardFieldElement;
-    document.body.append(element);
+    element.secureOrigin = "https://embed.example";
 
     element.setAttribute("translation-card-number-label", "Card number");
     element.setAttribute("translation-card-csc-label", "Security code");
+    document.body.append(element);
 
-    const postMessage = vi.fn();
-    const privateElement = element as unknown as {
-      _port: { postMessage: (message: string) => void };
-      _sendConfig: () => void;
-    };
-    privateElement._port = { postMessage };
+    const iframe = element.shadowRoot?.querySelector("iframe");
+    expect(iframe).toBeTruthy();
 
-    privateElement._sendConfig();
-
-    const payloadRaw = postMessage.mock.calls[0]?.[0] as string;
-    const payload = JSON.parse(payloadRaw) as {
-      translations?: Record<string, string>;
-      readonly?: unknown;
-    };
-
-    expect(payload.translations).toEqual({
-      "card.number.label": "Card number",
-      "card.csc.label": "Security code",
-    });
-    expect("readonly" in payload).toBe(false);
+    const url = new URL(
+      iframe?.getAttribute("src") ?? "",
+      window.location.origin,
+    );
+    expect(url.searchParams.get("translations_cc_number_label")).toBe(
+      "Card number",
+    );
+    expect(url.searchParams.get("translations_cc_csc_label")).toBe(
+      "Security code",
+    );
   });
 
-  it("includes lang in config payload", () => {
+  it("includes lang and embed mode in iframe URL params", () => {
     const element = document.createElement(
       PAYMENT_CARD_FIELD_ELEMENT_TAG,
     ) as PaymentCardFieldElement;
-    document.body.append(element);
+    element.secureOrigin = "https://embed.example";
     element.lang = "es-MX";
+    element.mode = "csc-only";
+    document.body.append(element);
 
-    const postMessage = vi.fn();
-    const privateElement = element as unknown as {
-      _port: { postMessage: (message: string) => void };
-      _sendConfig: () => void;
-    };
-    privateElement._port = { postMessage };
+    const iframe = element.shadowRoot?.querySelector("iframe");
+    expect(iframe).toBeTruthy();
 
-    privateElement._sendConfig();
-
-    const payloadRaw = postMessage.mock.calls[0]?.[0] as string;
-    const payload = JSON.parse(payloadRaw) as {
-      lang?: string;
-    };
-
-    expect(payload.lang).toBe("es-MX");
+    const url = new URL(
+      iframe?.getAttribute("src") ?? "",
+      window.location.origin,
+    );
+    expect(url.searchParams.get("lang")).toBe("es-MX");
+    expect(url.searchParams.get("mode")).toBe("card_csc");
   });
 
   it("rejects tokenize with invalid_state when iframe is not ready", async () => {
@@ -170,6 +164,88 @@ describe("PaymentCardFieldElement", () => {
     ) as PaymentCardFieldElement;
     document.body.append(element);
 
-    await expect(element.tokenize()).rejects.toThrow("Secure card fields are not ready yet.");
+    await expect(element.tokenize()).rejects.toThrow(
+      "Secure card fields are not ready yet.",
+    );
+  });
+
+  it("resolves tokenize with metadata from tokenization_response payload", async () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const postMessage = vi.fn();
+    const privateElement = element as unknown as {
+      _port: { postMessage: (message: string) => void };
+      _ready: boolean;
+      _handlePortMessage: (event: MessageEvent<string>) => void;
+    };
+
+    privateElement._port = { postMessage };
+    privateElement._ready = true;
+
+    let eventDetail:
+      | {
+          token: string;
+          requestId?: string;
+          cardBrand?: string;
+          last4?: string;
+          expirationMonth?: number;
+          expirationYear?: number;
+        }
+      | undefined;
+
+    element.addEventListener(
+      "tokenizationsuccess",
+      (event) => {
+        eventDetail = (
+          event as CustomEvent<{
+            token: string;
+            requestId?: string;
+            cardBrand?: string;
+            last4?: string;
+            expirationMonth?: number;
+            expirationYear?: number;
+          }>
+        ).detail;
+      },
+      { once: true },
+    );
+
+    const resultPromise = element.tokenize("card-request-1");
+
+    privateElement._handlePortMessage({
+      data: JSON.stringify({
+        type: "tokenization_response",
+        id: "card-request-1",
+        token: "tok_test_card",
+        brand: "visa",
+        last4Digits: "1111",
+        expirationMonth: 12,
+        expirationYear: 2030,
+      }),
+    } as MessageEvent<string>);
+
+    await expect(resultPromise).resolves.toEqual({
+      token: "tok_test_card",
+      requestId: "card-request-1",
+      cardBrand: "visa",
+      last4: "1111",
+      expirationMonth: 12,
+      expirationYear: 2030,
+    });
+
+    expect(eventDetail).toEqual({
+      token: "tok_test_card",
+      requestId: "card-request-1",
+      cardBrand: "visa",
+      last4: "1111",
+      expirationMonth: 12,
+      expirationYear: 2030,
+    });
+    expect(postMessage).toHaveBeenCalledWith(
+      JSON.stringify({ type: "tokenization_request", id: "card-request-1" }),
+    );
   });
 });

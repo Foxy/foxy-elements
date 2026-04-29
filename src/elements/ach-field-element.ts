@@ -1,7 +1,5 @@
-import type {
-  AchHostedFieldsTokenizeErrorCode,
-  AchHostedFieldsPublicState,
-} from "@foxy.io/sdk/checkout";
+import type { AchHostedFieldsPublicState } from "@foxy.io/sdk/checkout";
+import type { AchHostedFieldsTokenizeErrorCode } from "@foxy.io/sdk/checkout";
 
 export const ACH_FIELD_ELEMENT_TAG = "foxy-ach-field";
 
@@ -94,8 +92,12 @@ export type AchTokenizationSuccessEventDetail = {
   requestId?: string;
 };
 
+export type AchEmbedTokenizeErrorCode =
+  | AchHostedFieldsTokenizeErrorCode
+  | "tokenization_timeout";
+
 export type AchTokenizationErrorEventDetail = {
-  code: AchHostedFieldsTokenizeErrorCode;
+  code: AchEmbedTokenizeErrorCode;
   requestId?: string;
 };
 
@@ -144,12 +146,13 @@ function isAchFieldName(value: unknown): value is AchHostedFieldName {
 
 function isTokenizeErrorCode(
   value: unknown,
-): value is AchHostedFieldsTokenizeErrorCode {
+): value is AchEmbedTokenizeErrorCode {
   return (
     value === "invalid_state" ||
     value === "validation_failed" ||
     value === "collect_timeout" ||
     value === "tokenization_network_error" ||
+    value === "tokenization_timeout" ||
     value === "tokenization_failed" ||
     value === "unknown_error"
   );
@@ -173,7 +176,10 @@ function normalizeOrigin(value: string): string | null {
 }
 
 function generateSessionId(): string {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
     return crypto.randomUUID();
   }
 
@@ -184,18 +190,25 @@ function generateSessionId(): string {
   });
 }
 
-function parseAccountTypeValues(raw: string | null): AchAccountTypeValue[] | undefined {
+function parseAccountTypeValues(
+  raw: string | null,
+): AchAccountTypeValue[] | undefined {
   if (!raw) return undefined;
 
   const values = raw
     .split(",")
     .map((value) => value.trim())
-    .filter((value): value is AchAccountTypeValue => value === "checking" || value === "savings");
+    .filter(
+      (value): value is AchAccountTypeValue =>
+        value === "checking" || value === "savings",
+    );
 
   return values.length > 0 ? values : undefined;
 }
 
-function stringifyAccountTypeValues(values: AchAccountTypeValue[] | undefined): string | null {
+function stringifyAccountTypeValues(
+  values: AchAccountTypeValue[] | undefined,
+): string | null {
   if (!values?.length) return null;
   const uniqueValues = Array.from(new Set(values));
   return uniqueValues.join(",");
@@ -249,17 +262,16 @@ export class AchFieldElement extends HTMLElement {
     if (!data || typeof data !== "object") return;
 
     const payload = data as Record<string, unknown>;
-    const kind = payload["kind"];
-    if (typeof kind !== "string") return;
+    const type = payload["type"];
+    if (typeof type !== "string") return;
 
-    const sessionId = payload["sessionId"];
-    if (typeof sessionId === "string" && sessionId !== this._group) return;
-
-    if (kind === "ach:ready") {
+    if (type === "ready") {
       const incomingFields = payload["registeredFields"];
       const registeredFields = Array.isArray(incomingFields)
         ? incomingFields
-            .map((f) => (typeof f === "string" ? EMBED_TO_PUBLIC[f] : undefined))
+            .map((f) =>
+              typeof f === "string" ? EMBED_TO_PUBLIC[f] : undefined,
+            )
             .filter((f): f is AchHostedFieldName => f !== undefined)
         : [];
 
@@ -271,11 +283,13 @@ export class AchFieldElement extends HTMLElement {
       return;
     }
 
-    if (kind === "ach:change") {
+    if (type === "change") {
       const fields = payload["fields"];
       if (!fields || typeof fields !== "object") return;
 
-      for (const fieldName of Object.keys(DEFAULT_LABELS) as AchHostedFieldName[]) {
+      for (const fieldName of Object.keys(
+        DEFAULT_LABELS,
+      ) as AchHostedFieldName[]) {
         const embedKey = EMBED_FIELD_NAME[fieldName];
         const entryStateRaw = (fields as Record<string, unknown>)[embedKey];
         if (!entryStateRaw || typeof entryStateRaw !== "object") continue;
@@ -330,61 +344,70 @@ export class AchFieldElement extends HTMLElement {
       return;
     }
 
-    if (kind === "ach:tokenize:success") {
+    if (type === "tokenization_response") {
       const token = payload["token"];
-      const last4 = payload["last4"];
-      const requestId = payload["requestId"];
-
-      if (typeof token !== "string" || typeof last4 !== "string") return;
-
-      this._broadcast(achFieldEvents.tokenizationSuccess, {
-        token,
-        requestId: typeof requestId === "string" ? requestId : undefined,
-      });
-
-      if (typeof requestId === "string") {
-        const pending = entry.pendingTokenizes.get(requestId);
-        if (!pending) return;
-
-        entry.pendingTokenizes.delete(requestId);
-        window.clearTimeout(pending.timeoutId);
-        pending.resolve({ token, requestId });
-      }
-
-      return;
-    }
-
-    if (kind === "ach:tokenize:error") {
       const code = payload["code"];
       const requestId = payload["requestId"];
+      const responseId = payload["id"];
+      const normalizedRequestId =
+        typeof requestId === "string"
+          ? requestId
+          : typeof responseId === "string"
+            ? responseId
+            : undefined;
+
+      if (typeof token === "string" && token) {
+        this._broadcast(achFieldEvents.tokenizationSuccess, {
+          token,
+          requestId: normalizedRequestId,
+        });
+
+        if (normalizedRequestId) {
+          const pending = entry.pendingTokenizes.get(normalizedRequestId);
+          if (!pending) return;
+
+          entry.pendingTokenizes.delete(normalizedRequestId);
+          window.clearTimeout(pending.timeoutId);
+          pending.resolve({ token, requestId: normalizedRequestId });
+        }
+
+        return;
+      }
       if (!isTokenizeErrorCode(code)) return;
 
       this._broadcast(achFieldEvents.tokenizationError, {
         code,
-        requestId: typeof requestId === "string" ? requestId : undefined,
+        requestId: normalizedRequestId,
       });
 
-      if (typeof requestId === "string") {
-        const pending = entry.pendingTokenizes.get(requestId);
+      if (normalizedRequestId) {
+        const pending = entry.pendingTokenizes.get(normalizedRequestId);
         if (!pending) return;
 
-        entry.pendingTokenizes.delete(requestId);
+        entry.pendingTokenizes.delete(normalizedRequestId);
         window.clearTimeout(pending.timeoutId);
         pending.reject(new Error(`ACH tokenization failed with code: ${code}`));
       }
+
+      return;
     }
   };
 
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-    this._internals = typeof this.attachInternals === "function" ? this.attachInternals() : null;
+    this._internals =
+      typeof this.attachInternals === "function"
+        ? this.attachInternals()
+        : null;
 
     const type = this.getAttribute(TYPE_ATTRIBUTE);
     if (isAchFieldName(type)) this._type = type;
 
-    this._group = this.getAttribute(GROUP_ATTRIBUTE)?.trim() || generateSessionId();
-    this._placeholder = this.getAttribute(PLACEHOLDER_ATTRIBUTE)?.trim() || undefined;
+    this._group =
+      this.getAttribute(GROUP_ATTRIBUTE)?.trim() || generateSessionId();
+    this._placeholder =
+      this.getAttribute(PLACEHOLDER_ATTRIBUTE)?.trim() || undefined;
     this._lang = this.getAttribute(LANG_ATTRIBUTE)?.trim() || undefined;
     this._accountTypeValues = parseAccountTypeValues(
       this.getAttribute(ACCOUNT_TYPE_VALUES_ATTRIBUTE),
@@ -394,7 +417,10 @@ export class AchFieldElement extends HTMLElement {
 
   addEventListener<K extends keyof AchFieldElementEventMap>(
     type: K,
-    listener: (this: AchFieldElement, event: AchFieldElementEventMap[K]) => void,
+    listener: (
+      this: AchFieldElement,
+      event: AchFieldElementEventMap[K],
+    ) => void,
     options?: boolean | AddEventListenerOptions,
   ): void;
   addEventListener(
@@ -412,7 +438,10 @@ export class AchFieldElement extends HTMLElement {
 
   removeEventListener<K extends keyof AchFieldElementEventMap>(
     type: K,
-    listener: (this: AchFieldElement, event: AchFieldElementEventMap[K]) => void,
+    listener: (
+      this: AchFieldElement,
+      event: AchFieldElementEventMap[K],
+    ) => void,
     options?: boolean | EventListenerOptions,
   ): void;
   removeEventListener(
@@ -581,7 +610,7 @@ export class AchFieldElement extends HTMLElement {
   }
 
   clear(): void {
-    this._postMessage({ kind: "merchant:clear" });
+    this._postMessage({ type: "clear" });
   }
 
   tokenize(requestId?: string): Promise<{ token: string; requestId?: string }> {
@@ -591,7 +620,8 @@ export class AchFieldElement extends HTMLElement {
     }
 
     const normalizedRequestId =
-      requestId ?? `ach-tokenize-${++this._fallbackRequestCounter}-${Date.now()}`;
+      requestId ??
+      `ach-tokenize-${++this._fallbackRequestCounter}-${Date.now()}`;
 
     return new Promise((resolve, reject) => {
       const timeoutId = window.setTimeout(() => {
@@ -607,8 +637,8 @@ export class AchFieldElement extends HTMLElement {
       });
 
       this._postMessage({
-        kind: "merchant:tokenize",
-        requestId: normalizedRequestId,
+        type: "tokenization_request",
+        id: normalizedRequestId,
       });
     });
   }
@@ -698,7 +728,7 @@ export class AchFieldElement extends HTMLElement {
       const targetOrigin = normalizeUrl(this._secureOrigin)?.origin;
       if (targetOrigin && entry.controllerIframe?.contentWindow) {
         entry.controllerIframe.contentWindow.postMessage(
-          { kind: "merchant:destroy" },
+          { type: "destroy" },
           targetOrigin,
         );
       }
@@ -777,7 +807,10 @@ export class AchFieldElement extends HTMLElement {
 
   private _syncDisabledState(): void {
     this._toggleState("disabled", this._disabled);
-    this._postMessage({ kind: "merchant:setDisabled", disabled: this._disabled });
+    this._postMessage({
+      type: this._disabled ? "disable" : "enable",
+      field: EMBED_FIELD_NAME[this._type],
+    });
 
     if (!this._disabled) {
       const entry = this._registryEntry;
@@ -788,7 +821,9 @@ export class AchFieldElement extends HTMLElement {
     this._internals?.setValidity({});
   }
 
-  private _syncSessionValidity(entry: ControllerRegistryEntry | undefined): void {
+  private _syncSessionValidity(
+    entry: ControllerRegistryEntry | undefined,
+  ): void {
     if (!entry) return;
     for (const instance of entry.instances) {
       instance._syncFormValidity(entry);
@@ -816,10 +851,7 @@ export class AchFieldElement extends HTMLElement {
     }
 
     if (state.errorCode) {
-      this._internals.setValidity(
-        { badInput: true },
-        `Please check ${label}.`,
-      );
+      this._internals.setValidity({ badInput: true }, `Please check ${label}.`);
       return;
     }
 
@@ -846,9 +878,12 @@ export class AchFieldElement extends HTMLElement {
     const url = normalizeUrl(this._secureOrigin);
     if (!url) return "about:blank";
 
-    url.searchParams.set("mode", mode);
-    url.searchParams.set("sessionId", this._group);
-    url.searchParams.set("merchantOrigin", this._merchantOrigin);
+    url.searchParams.set(
+      "mode",
+      mode === "controller" ? "ach_controller" : "ach_field",
+    );
+    url.searchParams.set("channel_id", this._group);
+    url.searchParams.set("origin", this._merchantOrigin);
     if (this._lang) {
       url.searchParams.set("lang", this._lang);
     }
@@ -858,47 +893,54 @@ export class AchFieldElement extends HTMLElement {
       const theme = this._getThemeAttributes();
 
       url.searchParams.set("field", EMBED_FIELD_NAME[field]);
-      url.searchParams.set("label", this._getAssociatedLabelText() || DEFAULT_LABELS[field]);
+      url.searchParams.set(
+        "label",
+        this._getAssociatedLabelText() || DEFAULT_LABELS[field],
+      );
 
       if (this._placeholder) {
         url.searchParams.set("placeholder", this._placeholder);
       }
 
       if (field === "account-type" && this._accountTypeValues?.length) {
-        url.searchParams.set("accountTypeValues", this._accountTypeValues.join(","));
+        url.searchParams.set(
+          "account_type_values",
+          this._accountTypeValues.join(","),
+        );
       }
 
-      if (Object.keys(theme).length > 0) {
-        url.searchParams.set("style", JSON.stringify(theme));
-      }
-
-      // Keep existing embed query keys in sync while using theme-prefixed public attributes.
       if (theme["--input-height"]) {
-        url.searchParams.set("inputHeight", theme["--input-height"]);
+        url.searchParams.set("input_height", theme["--input-height"]);
       }
       if (theme["--input-padding"]) {
-        url.searchParams.set("inputPadding", theme["--input-padding"]);
+        url.searchParams.set("input_padding", theme["--input-padding"]);
       }
       if (theme["--input-padding-x"]) {
-        url.searchParams.set("inputPaddingX", theme["--input-padding-x"]);
+        url.searchParams.set("input_padding_x", theme["--input-padding-x"]);
       }
       if (theme["--input-padding-y"]) {
-        url.searchParams.set("inputPaddingY", theme["--input-padding-y"]);
+        url.searchParams.set("input_padding_y", theme["--input-padding-y"]);
       }
       if (theme["--input-placeholder-color"]) {
-        url.searchParams.set("inputPlaceholderColor", theme["--input-placeholder-color"]);
+        url.searchParams.set(
+          "input_placeholder_color",
+          theme["--input-placeholder-color"],
+        );
       }
       if (theme["--font-sans"]) {
-        url.searchParams.set("inputFont", theme["--font-sans"]);
+        url.searchParams.set("input_font", theme["--font-sans"]);
       }
       if (theme["--input-text-color"]) {
-        url.searchParams.set("inputTextColor", theme["--input-text-color"]);
+        url.searchParams.set("input_text_color", theme["--input-text-color"]);
       }
       if (theme["--input-error-text-color"]) {
-        url.searchParams.set("inputTextColorError", theme["--input-error-text-color"]);
+        url.searchParams.set(
+          "input_text_color_error",
+          theme["--input-error-text-color"],
+        );
       }
       if (theme["--input-font-size"]) {
-        url.searchParams.set("inputTextSize", theme["--input-font-size"]);
+        url.searchParams.set("input_text_size", theme["--input-font-size"]);
       }
     }
 
@@ -958,7 +1000,11 @@ export class AchFieldElement extends HTMLElement {
       controller.dataset.role = "controller";
       controller.title = "ACH controller";
       controller.src = this._buildIframeUrl("controller");
-      controller.setAttribute("sandbox", "allow-forms allow-same-origin allow-scripts");
+      controller.addEventListener("load", () => this._syncDisabledState());
+      controller.setAttribute(
+        "sandbox",
+        "allow-forms allow-same-origin allow-scripts",
+      );
       this.shadowRoot.appendChild(controller);
     }
 
@@ -972,20 +1018,27 @@ export class AchFieldElement extends HTMLElement {
       fieldIframe.style.visibility = "visible";
       fieldIframe.style.opacity = "1";
     });
-    fieldIframe.setAttribute("sandbox", "allow-forms allow-same-origin allow-scripts");
+    fieldIframe.setAttribute(
+      "sandbox",
+      "allow-forms allow-same-origin allow-scripts",
+    );
     this.shadowRoot.appendChild(fieldIframe);
 
     if (isHost) {
       const entry = this._registryEntry;
       if (entry) {
         entry.controllerIframe =
-          this.shadowRoot.querySelector("iframe[data-role='controller']") ?? null;
+          this.shadowRoot.querySelector("iframe[data-role='controller']") ??
+          null;
       }
     }
   }
 }
 
-if (typeof window !== "undefined" && !customElements.get(ACH_FIELD_ELEMENT_TAG)) {
+if (
+  typeof window !== "undefined" &&
+  !customElements.get(ACH_FIELD_ELEMENT_TAG)
+) {
   customElements.define(ACH_FIELD_ELEMENT_TAG, AchFieldElement);
 }
 
