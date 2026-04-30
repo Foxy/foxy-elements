@@ -95,11 +95,18 @@ function getExpectedOrigin(host: AchFieldElement): string {
 function dispatchHostedChange(
   host: AchFieldElement,
   fields: Partial<Record<AchFieldElement["type"], HostedFieldState>>,
+  options?: {
+    changedFields?: AchFieldElement["type"][];
+  },
 ): void {
   const source = attachFakeControllerSource(host);
   const onWindowMessage = (
     host as unknown as { _onWindowMessage: (event: MessageEvent) => void }
   )._onWindowMessage;
+
+  const changedFields = options?.changedFields?.map((fieldName) =>
+    fieldName.replace(/-/g, "_"),
+  );
 
   onWindowMessage({
     data: {
@@ -113,6 +120,7 @@ function dispatchHostedChange(
         },
         {} as Record<string, HostedFieldState>,
       ),
+      changedFields: changedFields ?? [],
     },
     origin: getExpectedOrigin(host),
     source,
@@ -137,6 +145,18 @@ function dispatchTokenizationError(
   } as unknown as MessageEvent);
 }
 
+const THEME_PROPERTY_MAPPINGS = [
+  ["themeInputPlaceholderColor", "theme-input-placeholder-color"],
+  ["themeInputHeight", "theme-input-height"],
+  ["themeInputPadding", "theme-input-padding"],
+  ["themeInputPaddingX", "theme-input-padding-x"],
+  ["themeInputPaddingY", "theme-input-padding-y"],
+  ["themeFontSans", "theme-font-sans"],
+  ["themeInputTextColor", "theme-input-text-color"],
+  ["themeInputErrorTextColor", "theme-input-error-text-color"],
+  ["themeInputFontSize", "theme-input-font-size"],
+] as const;
+
 describe("AchFieldElement events", () => {
   beforeEach(() => {
     installFakeInternals();
@@ -145,82 +165,118 @@ describe("AchFieldElement events", () => {
 
   afterEach(() => {
     document.body.innerHTML = "";
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
-  it("dispatches change only on each field instance without public detail", () => {
+  it("dispatches change only for field instances whose values changed", () => {
     const routing = createField("routing-number");
-    const account = createField("account-number");
+    const account = createField("account-number", routing.group);
 
     const routingChange = vi.fn();
     const accountChange = vi.fn();
     routing.addEventListener(achFieldEvents.change, routingChange);
     account.addEventListener(achFieldEvents.change, accountChange);
 
-    dispatchHostedChange(routing, {
-      "routing-number": {
-        complete: true,
-        empty: false,
-        errorCode: null,
+    dispatchHostedChange(
+      routing,
+      {
+        "routing-number": {
+          complete: true,
+          empty: false,
+          errorCode: null,
+        },
+        "account-number": {
+          complete: false,
+          empty: true,
+          errorCode: null,
+        },
       },
-      "account-number": {
-        complete: false,
-        empty: true,
-        errorCode: null,
-      },
-    });
+      { changedFields: ["routing-number"] },
+    );
 
     expect(routingChange).toHaveBeenCalledTimes(1);
-    expect(accountChange).toHaveBeenCalledTimes(1);
-
-    const routingEvent = routingChange.mock.calls[0]?.[0];
-    const accountEvent = accountChange.mock.calls[0]?.[0];
-    expect(routingEvent).toBeInstanceOf(Event);
-    expect(accountEvent).toBeInstanceOf(Event);
-    expect("detail" in routingEvent).toBe(false);
-    expect("detail" in accountEvent).toBe(false);
+    expect(accountChange).not.toHaveBeenCalled();
   });
 
   it("emits native-like focus and blur transitions per field", () => {
     const routing = createField("routing-number");
 
+    const onChange = vi.fn();
     const onFocus = vi.fn();
     const onBlur = vi.fn();
+    routing.addEventListener(achFieldEvents.change, onChange);
     routing.addEventListener(achFieldEvents.focus, onFocus);
     routing.addEventListener(achFieldEvents.blur, onBlur);
 
-    dispatchHostedChange(routing, {
-      "routing-number": {
-        complete: false,
-        empty: true,
-        errorCode: null,
-        focused: true,
+    dispatchHostedChange(
+      routing,
+      {
+        "routing-number": {
+          complete: false,
+          empty: true,
+          errorCode: null,
+          focused: true,
+        },
       },
-    });
-    dispatchHostedChange(routing, {
-      "routing-number": {
-        complete: false,
-        empty: true,
-        errorCode: null,
-        focused: true,
+      { changedFields: [] },
+    );
+    dispatchHostedChange(
+      routing,
+      {
+        "routing-number": {
+          complete: false,
+          empty: true,
+          errorCode: null,
+          focused: true,
+        },
       },
-    });
-    dispatchHostedChange(routing, {
-      "routing-number": {
-        complete: false,
-        empty: true,
-        errorCode: null,
-        focused: false,
+      { changedFields: [] },
+    );
+    dispatchHostedChange(
+      routing,
+      {
+        "routing-number": {
+          complete: false,
+          empty: true,
+          errorCode: null,
+          focused: false,
+        },
       },
-    });
+      { changedFields: [] },
+    );
 
     expect(onFocus).toHaveBeenCalledTimes(1);
     expect(onBlur).toHaveBeenCalledTimes(1);
+    expect(onChange).not.toHaveBeenCalled();
 
     const focusEvent = onFocus.mock.calls[0]?.[0] as FocusEvent;
     const blurEvent = onBlur.mock.calls[0]?.[0] as FocusEvent;
     expect(focusEvent.bubbles).toBe(false);
     expect(blurEvent.bubbles).toBe(false);
+  });
+
+  it("dispatches change when the hosted value is cleared", () => {
+    const routing = createField("routing-number");
+    const onChange = vi.fn();
+
+    routing.addEventListener(achFieldEvents.change, onChange);
+
+    dispatchHostedChange(
+      routing,
+      {
+        "routing-number": {
+          complete: false,
+          empty: true,
+          errorCode: "required",
+          focused: false,
+          touched: false,
+        },
+      },
+      { changedFields: ["routing-number"] },
+    );
+
+    expect(onChange).toHaveBeenCalledTimes(1);
   });
 
   it("uses built-in validity flags for incomplete and invalid hosted state", () => {
@@ -310,6 +366,72 @@ describe("AchFieldElement events", () => {
     expect("sessionId" in event.detail).toBe(false);
   });
 
+  it("emits tokenizationerror when tokenize times out", async () => {
+    vi.useFakeTimers();
+
+    const routing = createField("routing-number");
+    attachFakeControllerSource(routing);
+
+    const onTokenizationError = vi.fn();
+    routing.addEventListener(
+      achFieldEvents.tokenizationError,
+      onTokenizationError,
+    );
+
+    const tokenizePromise = routing.tokenize("req-timeout");
+
+    await vi.advanceTimersByTimeAsync(30000);
+
+    await expect(tokenizePromise).rejects.toThrow(
+      "ACH tokenization timed out.",
+    );
+    expect(onTokenizationError).toHaveBeenCalledTimes(1);
+    expect(
+      (
+        onTokenizationError.mock.calls[0]?.[0] as CustomEvent<{
+          code: string;
+          requestId?: string;
+        }>
+      ).detail,
+    ).toEqual({
+      code: "tokenization_timeout",
+      requestId: "req-timeout",
+    });
+  });
+
+  it("clears hosted state when the form resets", () => {
+    const routing = createField("routing-number");
+    const internals = getInternals(routing);
+
+    dispatchHostedChange(routing, {
+      "routing-number": {
+        complete: true,
+        empty: false,
+        errorCode: "invalid_routing_number",
+        focused: true,
+        touched: true,
+      },
+    });
+
+    expect(internals.states.has("focused")).toBe(true);
+    expect(internals.states.has("user-invalid")).toBe(true);
+
+    const source = attachFakeControllerSource(routing);
+
+    routing.formResetCallback();
+
+    expect(source.postMessage).toHaveBeenCalledWith(
+      { type: "clear" },
+      getExpectedOrigin(routing),
+    );
+    expect(internals.states.has("focused")).toBe(false);
+    expect(internals.states.has("user-invalid")).toBe(false);
+    expect(internals.setValidity).toHaveBeenLastCalledWith(
+      { valueMissing: true },
+      "Please complete routing number.",
+    );
+  });
+
   it("passes lang through iframe URL params", () => {
     const field = createField("routing-number");
     field.lang = "fr-CA";
@@ -322,5 +444,27 @@ describe("AchFieldElement events", () => {
     const src = iframe?.getAttribute("src") ?? "";
     const url = new URL(src, window.location.origin);
     expect(url.searchParams.get("lang")).toBe("fr-CA");
+  });
+
+  it("reflects theme attributes through camelCase properties", () => {
+    const field = createField("routing-number");
+    const fieldRecord = field as unknown as Record<string, string | undefined>;
+
+    for (const [propertyName, attributeName] of THEME_PROPERTY_MAPPINGS) {
+      const fromAttribute = `${attributeName}-value`;
+      field.setAttribute(attributeName, fromAttribute);
+      expect(fieldRecord[propertyName]).toBe(fromAttribute);
+
+      const fromProperty = `${propertyName}-value`;
+      fieldRecord[propertyName] = fromProperty;
+      expect(field.getAttribute(attributeName)).toBe(fromProperty);
+
+      fieldRecord[propertyName] = undefined;
+      expect(field.hasAttribute(attributeName)).toBe(false);
+      expect(fieldRecord[propertyName]).toBeUndefined();
+    }
+
+    field.themeInputHeight = " 44px ";
+    expect(field.getAttribute("theme-input-height")).toBe("44px");
   });
 });

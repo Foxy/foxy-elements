@@ -13,8 +13,7 @@ export const paymentCardFieldEvents = {
 const DEFAULT_CARD_SECURE_ORIGIN = getRequiredEnvVar("VITE_EMBED_ORIGIN");
 const DEFAULT_EMBED_PATH = "/v2.html";
 
-type PaymentCardFieldMode = "full" | "csc-only";
-type EmbedCardMode = "card" | "card_csc";
+type PaymentCardFieldMode = "card" | "card_csc";
 type EmbedValidationField = "cc_number" | "cc_exp" | "cc_csc" | "form";
 type EmbedValidationCode =
   | "value_missing"
@@ -24,7 +23,6 @@ type EmbedValidationCode =
   | "invalid_state";
 
 export type PaymentCardFieldOption = {
-  secureOrigin?: string;
   mode: PaymentCardFieldMode;
   translationCardNumberLabel?: string;
   translationCardNumberPlaceholder?: string;
@@ -96,8 +94,23 @@ const THEME_ATTR_TO_QUERY_KEY: Record<ThemeAttributeName, string> = {
 
 const THEME_ATTRIBUTE_NAMES = [...THEME_CSS_VARS];
 
+const THEME_PROPERTY_TO_ATTRIBUTE = {
+  themeBackground: "theme-background",
+  themeInputPlaceholderColor: "theme-input-placeholder-color",
+  themeInputHeight: "theme-input-height",
+  themeInputPadding: "theme-input-padding",
+  themeInputPaddingX: "theme-input-padding-x",
+  themeInputPaddingY: "theme-input-padding-y",
+  themeFontSans: "theme-font-sans",
+  themeInputTextColor: "theme-input-text-color",
+  themeInputErrorTextColor: "theme-input-error-text-color",
+  themeInputFontSize: "theme-input-font-size",
+} as const;
+
+type ThemePropertyName = keyof typeof THEME_PROPERTY_TO_ATTRIBUTE;
+
 const MODE_ATTRIBUTE = "mode";
-const SECURE_ORIGIN_ATTRIBUTE = "secure-origin";
+const DISABLED_ATTRIBUTE = "disabled";
 const LANG_ATTRIBUTE = "lang";
 const TRANSLATION_CARD_NUMBER_LABEL_ATTRIBUTE = "translation-card-number-label";
 const TRANSLATION_CARD_NUMBER_PLACEHOLDER_ATTRIBUTE =
@@ -124,17 +137,33 @@ const TRANSLATION_ATTRIBUTE_NAMES = Object.keys(
   TRANSLATION_ATTRIBUTE_TO_KEY,
 ) as TranslationAttributeName[];
 
+const TRANSLATION_PROPERTY_TO_ATTRIBUTE = {
+  translationCardNumberLabel: TRANSLATION_CARD_NUMBER_LABEL_ATTRIBUTE,
+  translationCardNumberPlaceholder:
+    TRANSLATION_CARD_NUMBER_PLACEHOLDER_ATTRIBUTE,
+  translationCardExpirationLabel: TRANSLATION_CARD_EXPIRATION_LABEL_ATTRIBUTE,
+  translationCardExpirationPlaceholder:
+    TRANSLATION_CARD_EXPIRATION_PLACEHOLDER_ATTRIBUTE,
+  translationCardCscLabel: TRANSLATION_CARD_CSC_LABEL_ATTRIBUTE,
+  translationCardCscPlaceholder: TRANSLATION_CARD_CSC_PLACEHOLDER_ATTRIBUTE,
+} as const;
+
+type TranslationPropertyName = keyof typeof TRANSLATION_PROPERTY_TO_ATTRIBUTE;
+
+function normalizeStringAttribute(
+  value: string | null | undefined,
+): string | undefined {
+  return value?.trim() || undefined;
+}
+
 function normalizeUrl(secureOrigin: string): URL | null {
   try {
-    const origin = secureOrigin.replace(/\/$/, "");
-    return new URL(`${origin}${DEFAULT_EMBED_PATH}`);
+    const url = new URL(secureOrigin);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    return new URL(DEFAULT_EMBED_PATH, `${url.origin}/`);
   } catch {
     return null;
   }
-}
-
-function toEmbedMode(value: PaymentCardFieldMode): EmbedCardMode {
-  return value === "csc-only" ? "card_csc" : "card";
 }
 
 function normalizeValidationField(value: unknown): EmbedValidationField | null {
@@ -189,8 +218,8 @@ function toErrorMessage(code: CardEmbedTokenizeErrorCode): string {
   }
 }
 
-function toMode(value: string | null): PaymentCardFieldMode {
-  return value === "csc-only" ? "csc-only" : "full";
+function normalizeMode(value: string | null | undefined): PaymentCardFieldMode {
+  return value === "card_csc" ? "card_csc" : "card";
 }
 
 export class PaymentCardFieldElement extends HTMLElement {
@@ -199,7 +228,7 @@ export class PaymentCardFieldElement extends HTMLElement {
   static get observedAttributes(): string[] {
     return [
       MODE_ATTRIBUTE,
-      SECURE_ORIGIN_ATTRIBUTE,
+      DISABLED_ATTRIBUTE,
       LANG_ATTRIBUTE,
       ...TRANSLATION_ATTRIBUTE_NAMES,
       ...THEME_ATTRIBUTE_NAMES,
@@ -207,8 +236,7 @@ export class PaymentCardFieldElement extends HTMLElement {
   }
 
   private _disabled = false;
-  private _secureOrigin = DEFAULT_CARD_SECURE_ORIGIN;
-  private _mode: PaymentCardFieldMode = "full";
+  private _mode: PaymentCardFieldMode = "card";
   private _lang: string | undefined;
   private _iframe: HTMLIFrameElement | null = null;
   private _port: MessagePort | null = null;
@@ -232,10 +260,10 @@ export class PaymentCardFieldElement extends HTMLElement {
         ? this.attachInternals()
         : null;
 
-    const secureOrigin = this.getAttribute(SECURE_ORIGIN_ATTRIBUTE)?.trim();
-    if (secureOrigin) this._secureOrigin = secureOrigin;
-    this._mode = toMode(this.getAttribute(MODE_ATTRIBUTE));
+    this._disabled = this.hasAttribute(DISABLED_ATTRIBUTE);
+    this._mode = normalizeMode(this.getAttribute(MODE_ATTRIBUTE));
     this._lang = this.getAttribute(LANG_ATTRIBUTE)?.trim() || undefined;
+    this._syncPublicStates();
   }
 
   addEventListener<K extends keyof PaymentCardFieldEventMap>(
@@ -280,29 +308,12 @@ export class PaymentCardFieldElement extends HTMLElement {
     super.removeEventListener(type, listener, options);
   }
 
-  get secureOrigin(): string {
-    return this._secureOrigin;
-  }
-
-  set secureOrigin(value: string) {
-    const normalized = value.trim();
-    if (!normalized || this._secureOrigin === normalized) return;
-
-    this._secureOrigin = normalized;
-    if (this.getAttribute(SECURE_ORIGIN_ATTRIBUTE) !== normalized) {
-      this.setAttribute(SECURE_ORIGIN_ATTRIBUTE, normalized);
-    }
-
-    if (!this.isConnected) return;
-    this._mountIframe();
-  }
-
   get mode(): PaymentCardFieldMode {
     return this._mode;
   }
 
   set mode(value: PaymentCardFieldMode) {
-    const normalized = value === "csc-only" ? "csc-only" : "full";
+    const normalized = normalizeMode(value);
     if (this._mode === normalized) return;
 
     this._mode = normalized;
@@ -310,7 +321,7 @@ export class PaymentCardFieldElement extends HTMLElement {
       this.setAttribute(MODE_ATTRIBUTE, normalized);
     }
 
-    this._updateFormValidity(true, null);
+    this._syncAggregateValidity();
     if (this.isConnected) this._mountIframe();
   }
 
@@ -319,15 +330,143 @@ export class PaymentCardFieldElement extends HTMLElement {
   }
 
   set disabled(value: boolean) {
-    if (this._disabled === value) return;
-    this._disabled = value;
-    if (this._disabled) this._focused = false;
-    this._syncPublicStates();
-    this._syncDisabledState();
+    const normalized = Boolean(value);
+    if (this._disabled === normalized) return;
 
-    if (this._disabled) {
-      this._internals?.setValidity({});
+    this._applyDisabledState(normalized);
+    if (normalized) {
+      this.setAttribute(DISABLED_ATTRIBUTE, "");
+    } else {
+      this.removeAttribute(DISABLED_ATTRIBUTE);
     }
+  }
+
+  get translationCardNumberLabel(): string | undefined {
+    return this._getTranslationProperty("translationCardNumberLabel");
+  }
+
+  set translationCardNumberLabel(value: string | undefined) {
+    this._setTranslationProperty("translationCardNumberLabel", value);
+  }
+
+  get translationCardNumberPlaceholder(): string | undefined {
+    return this._getTranslationProperty("translationCardNumberPlaceholder");
+  }
+
+  set translationCardNumberPlaceholder(value: string | undefined) {
+    this._setTranslationProperty("translationCardNumberPlaceholder", value);
+  }
+
+  get translationCardExpirationLabel(): string | undefined {
+    return this._getTranslationProperty("translationCardExpirationLabel");
+  }
+
+  set translationCardExpirationLabel(value: string | undefined) {
+    this._setTranslationProperty("translationCardExpirationLabel", value);
+  }
+
+  get translationCardExpirationPlaceholder(): string | undefined {
+    return this._getTranslationProperty("translationCardExpirationPlaceholder");
+  }
+
+  set translationCardExpirationPlaceholder(value: string | undefined) {
+    this._setTranslationProperty("translationCardExpirationPlaceholder", value);
+  }
+
+  get translationCardCscLabel(): string | undefined {
+    return this._getTranslationProperty("translationCardCscLabel");
+  }
+
+  set translationCardCscLabel(value: string | undefined) {
+    this._setTranslationProperty("translationCardCscLabel", value);
+  }
+
+  get translationCardCscPlaceholder(): string | undefined {
+    return this._getTranslationProperty("translationCardCscPlaceholder");
+  }
+
+  set translationCardCscPlaceholder(value: string | undefined) {
+    this._setTranslationProperty("translationCardCscPlaceholder", value);
+  }
+
+  get themeBackground(): string | undefined {
+    return this._getThemeProperty("themeBackground");
+  }
+
+  set themeBackground(value: string | undefined) {
+    this._setThemeProperty("themeBackground", value);
+  }
+
+  get themeInputPlaceholderColor(): string | undefined {
+    return this._getThemeProperty("themeInputPlaceholderColor");
+  }
+
+  set themeInputPlaceholderColor(value: string | undefined) {
+    this._setThemeProperty("themeInputPlaceholderColor", value);
+  }
+
+  get themeInputHeight(): string | undefined {
+    return this._getThemeProperty("themeInputHeight");
+  }
+
+  set themeInputHeight(value: string | undefined) {
+    this._setThemeProperty("themeInputHeight", value);
+  }
+
+  get themeInputPadding(): string | undefined {
+    return this._getThemeProperty("themeInputPadding");
+  }
+
+  set themeInputPadding(value: string | undefined) {
+    this._setThemeProperty("themeInputPadding", value);
+  }
+
+  get themeInputPaddingX(): string | undefined {
+    return this._getThemeProperty("themeInputPaddingX");
+  }
+
+  set themeInputPaddingX(value: string | undefined) {
+    this._setThemeProperty("themeInputPaddingX", value);
+  }
+
+  get themeInputPaddingY(): string | undefined {
+    return this._getThemeProperty("themeInputPaddingY");
+  }
+
+  set themeInputPaddingY(value: string | undefined) {
+    this._setThemeProperty("themeInputPaddingY", value);
+  }
+
+  get themeFontSans(): string | undefined {
+    return this._getThemeProperty("themeFontSans");
+  }
+
+  set themeFontSans(value: string | undefined) {
+    this._setThemeProperty("themeFontSans", value);
+  }
+
+  get themeInputTextColor(): string | undefined {
+    return this._getThemeProperty("themeInputTextColor");
+  }
+
+  set themeInputTextColor(value: string | undefined) {
+    this._setThemeProperty("themeInputTextColor", value);
+  }
+
+  get themeInputErrorTextColor(): string | undefined {
+    return this._getThemeProperty("themeInputErrorTextColor");
+  }
+
+  set themeInputErrorTextColor(value: string | undefined) {
+    this._setThemeProperty("themeInputErrorTextColor", value);
+  }
+
+  get themeInputFontSize(): string | undefined {
+    return this._getThemeProperty("themeInputFontSize");
+  }
+
+  set themeInputFontSize(value: string | undefined) {
+    this._setThemeProperty("themeInputFontSize", value);
   }
 
   formDisabledCallback(disabled: boolean): void {
@@ -358,14 +497,20 @@ export class PaymentCardFieldElement extends HTMLElement {
     if (oldValue === newValue) return;
 
     if (name === MODE_ATTRIBUTE) {
-      this._mode = toMode(newValue);
+      const normalized = normalizeMode(newValue);
+      if (newValue !== null && newValue !== normalized) {
+        this.setAttribute(MODE_ATTRIBUTE, normalized);
+        return;
+      }
+
+      if (this._mode === normalized) return;
+      this._mode = normalized;
       if (this.isConnected) this._mountIframe();
       return;
     }
 
-    if (name === SECURE_ORIGIN_ATTRIBUTE) {
-      this._secureOrigin = newValue?.trim() || DEFAULT_CARD_SECURE_ORIGIN;
-      if (this.isConnected) this._mountIframe();
+    if (name === DISABLED_ATTRIBUTE) {
+      this._applyDisabledState(newValue !== null);
       return;
     }
 
@@ -401,6 +546,15 @@ export class PaymentCardFieldElement extends HTMLElement {
     const normalizedRequestId =
       requestId ??
       `card-tokenize-${++this._fallbackRequestCounter}-${Date.now()}`;
+
+    if (this._pendingTokenizes.has(normalizedRequestId)) {
+      const error = this._emitTokenizeError(
+        "invalid_state",
+        normalizedRequestId,
+        `Tokenization request "${normalizedRequestId}" is already pending.`,
+      );
+      return Promise.reject(error);
+    }
 
     return new Promise((resolve, reject) => {
       const timeoutId = window.setTimeout(() => {
@@ -448,7 +602,7 @@ export class PaymentCardFieldElement extends HTMLElement {
     iframe.setAttribute("part", "iframe");
     iframe.setAttribute("scrolling", "no");
     iframe.title =
-      this._mode === "csc-only"
+      this._mode === "card_csc"
         ? "Secure card security code"
         : "Secure card details";
     iframe.style.display = "block";
@@ -530,10 +684,10 @@ export class PaymentCardFieldElement extends HTMLElement {
   }
 
   private _buildIframeUrl(): string | null {
-    const url = normalizeUrl(this._secureOrigin);
+    const url = normalizeUrl(DEFAULT_CARD_SECURE_ORIGIN);
     if (!url) return null;
 
-    url.searchParams.set("mode", toEmbedMode(this._mode));
+    url.searchParams.set("mode", this._mode);
 
     if (this._lang) {
       url.searchParams.set("lang", this._lang);
@@ -557,9 +711,50 @@ export class PaymentCardFieldElement extends HTMLElement {
     return url.toString();
   }
 
+  private _getThemeProperty(name: ThemePropertyName): string | undefined {
+    return normalizeStringAttribute(
+      this.getAttribute(THEME_PROPERTY_TO_ATTRIBUTE[name]),
+    );
+  }
+
+  private _setThemeProperty(
+    name: ThemePropertyName,
+    value: string | undefined,
+  ): void {
+    this._setStringAttribute(THEME_PROPERTY_TO_ATTRIBUTE[name], value);
+  }
+
+  private _getTranslationProperty(
+    name: TranslationPropertyName,
+  ): string | undefined {
+    return normalizeStringAttribute(
+      this.getAttribute(TRANSLATION_PROPERTY_TO_ATTRIBUTE[name]),
+    );
+  }
+
+  private _setTranslationProperty(
+    name: TranslationPropertyName,
+    value: string | undefined,
+  ): void {
+    this._setStringAttribute(TRANSLATION_PROPERTY_TO_ATTRIBUTE[name], value);
+  }
+
+  private _setStringAttribute(name: string, value: string | undefined): void {
+    const normalized = normalizeStringAttribute(value);
+
+    if (normalized === undefined) {
+      this.removeAttribute(name);
+      return;
+    }
+
+    if (this.getAttribute(name) !== normalized) {
+      this.setAttribute(name, normalized);
+    }
+  }
+
   private _connectPort(iframe: HTMLIFrameElement): void {
     const contentWindow = iframe.contentWindow;
-    const url = normalizeUrl(this._secureOrigin);
+    const url = normalizeUrl(DEFAULT_CARD_SECURE_ORIGIN);
 
     if (!contentWindow || !url) return;
 
@@ -720,16 +915,7 @@ export class PaymentCardFieldElement extends HTMLElement {
       return;
     }
 
-    const activeFields: EmbedValidationField[] =
-      this._mode === "csc-only"
-        ? ["cc_csc"]
-        : ["cc_number", "cc_exp", "cc_csc"];
-
-    const invalid = activeFields
-      .map((name) => this._fieldValidation.get(name))
-      .find((state) => state && !state.valid);
-
-    this._updateFormValidity(!invalid, invalid?.message ?? null);
+    this._syncAggregateValidity();
   }
 
   private _updateFormValidity(valid: boolean, message: string | null): void {
@@ -746,6 +932,56 @@ export class PaymentCardFieldElement extends HTMLElement {
     this._internals.setValidity(
       { customError: true },
       message?.trim() || "Card details are invalid.",
+    );
+  }
+
+  private _applyDisabledState(disabled: boolean): void {
+    if (this._disabled === disabled) return;
+
+    this._disabled = disabled;
+    if (disabled) this._focused = false;
+    this._syncPublicStates();
+    this._syncDisabledState();
+
+    if (disabled) {
+      this._internals?.setValidity({});
+      return;
+    }
+
+    this._syncAggregateValidity();
+  }
+
+  private _syncAggregateValidity(): void {
+    const activeFields: EmbedValidationField[] =
+      this._mode === "card_csc"
+        ? ["cc_csc"]
+        : ["cc_number", "cc_exp", "cc_csc"];
+    const activeStates = activeFields
+      .map((name) => this._fieldValidation.get(name))
+      .filter(
+        (
+          state,
+        ): state is {
+          valid: boolean;
+          message: string | null;
+        } => state !== undefined,
+      );
+    const invalid = activeStates.find((state) => !state.valid);
+
+    if (invalid) {
+      this._updateFormValidity(false, invalid.message ?? null);
+      return;
+    }
+
+    if (activeStates.length > 0) {
+      this._updateFormValidity(true, null);
+      return;
+    }
+
+    const formState = this._fieldValidation.get("form");
+    this._updateFormValidity(
+      formState?.valid ?? true,
+      formState?.message ?? null,
     );
   }
 

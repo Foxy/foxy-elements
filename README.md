@@ -23,13 +23,19 @@ The package also exports related TypeScript types and event constants from each 
 First, load the SDK initializer script from our CDN. Replace `your-store-domain` in the `src` with your store's domain at Foxy:
 
 ```html
-<script type="module" src="https://cdn-js.foxy.io/sdk@2/checkout/loader.js?store=your-store-domain"></script>
+<script
+  type="module"
+  src="https://cdn-js.foxy.io/sdk@2/checkout/loader.js?store=your-store-domain"
+></script>
 ```
 
 Then load one or more elements directly from a CDN build and then use them in markup. Our elements will automatically pick up the relevant SDK configuration from the loader script above:
 
 ```html
-<script type="module" src="https://cdn-js.foxy.io/elements@2/foxy-ach-field.js"></script>
+<script
+  type="module"
+  src="https://cdn-js.foxy.io/elements@2/foxy-ach-field.js"
+></script>
 <foxy-ach-field type="routing_number"></foxy-ach-field>
 ```
 
@@ -45,7 +51,7 @@ Initialize the API client from our SDK like so:
 
 ```js
 import { client } from "@foxy.io/sdk/checkout/client";
-client.setStoreDomain('your-store-domain');
+client.setStoreDomain("your-store-domain");
 ```
 
 Then import the elements you need:
@@ -59,6 +65,31 @@ And use them your app:
 ```html
 <foxy-payment-method-selector></foxy-payment-method-selector>
 ```
+
+## Attributes and Properties
+
+All custom element configuration in this package is available through HTML
+attributes and through corresponding JavaScript properties.
+
+- Dashed HTML attributes map to camelCase properties.
+- Native HTMLElement properties such as `lang` keep their native names.
+- Boolean flags such as `disabled` use boolean properties and reflected
+  attributes.
+
+Example:
+
+```ts
+const cardField = document.querySelector("foxy-payment-card-field");
+cardField.translationCardNumberLabel = "Card number";
+cardField.themeInputHeight = "56px";
+
+const selector = document.querySelector("foxy-payment-method-selector");
+selector.optionIndex = 1;
+selector.themePrimary = "#111827";
+```
+
+See the Storybook docs for each element for the full attribute/property API
+surface.
 
 ## SDK and Duplicate Modules
 

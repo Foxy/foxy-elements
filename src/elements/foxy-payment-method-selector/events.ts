@@ -5,6 +5,7 @@ export const paymentMethodSelectorEvents = {
   tokenizationSuccess: "tokenizationsuccess",
   tokenizationError: "tokenizationerror",
   optionIndexChange: "optionindexchange",
+  billingAddressError: "billingaddresserror",
 } as const;
 
 export type PaymentMethodSelectorChangeEventDetail = {
@@ -21,4 +22,11 @@ export type PaymentMethodSelectorTokenizationSuccessEventDetail = {
 
 export type PaymentMethodSelectorTokenizationErrorEventDetail = {
   error: unknown;
+};
+
+export type PaymentMethodSelectorBillingAddressErrorEventDetail = {
+  error: unknown;
+  optionId: string;
+  useShippingAddress: boolean;
+  values: Record<string, string>;
 };

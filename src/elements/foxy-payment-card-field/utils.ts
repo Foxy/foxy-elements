@@ -4,7 +4,6 @@ import {
   PAYMENT_CARD_FIELD_ELEMENT_TAG,
   type PaymentCardFieldElement,
 } from "@/elements/foxy-payment-card-field/element";
-import { getRequiredEnvVar } from "@/lib/required-env";
 import {
   applyThemeAttributeMap,
   bindThemeAttributes,
@@ -12,9 +11,7 @@ import {
   type ThemeAttributeMapEntry,
 } from "../../lib/theme-attribute-sync";
 
-export const CARD_SECURE_ORIGIN = getRequiredEnvVar("VITE_EMBED_ORIGIN");
-
-export const CARD_MODE_OPTIONS = ["full", "csc-only"] as const;
+export const CARD_MODE_OPTIONS = ["card", "card_csc"] as const;
 
 export const CARD_TOKENIZE_ERROR_OPTIONS: CardEmbedTokenizeErrorCode[] = [
   "invalid_state",
@@ -141,7 +138,7 @@ export function createLabeledField(options: {
   label.style.fontWeight = "500";
   label.textContent =
     options.label ??
-    (options.mode === "csc-only" ? "Security code" : "Card details");
+    (options.mode === "card_csc" ? "Security code" : "Card details");
   label.htmlFor = options.id;
 
   const field = document.createElement(
@@ -150,7 +147,6 @@ export function createLabeledField(options: {
   field.id = options.id;
   field.mode = options.mode;
   field.disabled = Boolean(options.disabled);
-  field.secureOrigin = CARD_SECURE_ORIGIN;
 
   if (options.role) {
     field.setAttribute("data-story-role", options.role);

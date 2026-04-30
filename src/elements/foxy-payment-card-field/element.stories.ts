@@ -34,7 +34,7 @@ type CardStoryArgs = {
 };
 
 const meta = {
-  title: "Elements/Card Embed",
+  title: "Elements/foxy-payment-card-field",
   parameters: {
     layout: "centered",
     actions: {
@@ -48,7 +48,7 @@ const meta = {
     },
   },
   args: {
-    mode: "full",
+    mode: "card",
     lang: "en-US",
     disabled: false,
     requestId: "card-story-request-1",
@@ -135,7 +135,7 @@ export const ModeTransitions: Story = {
     docs: {
       description: {
         story:
-          "Play-driven mode transitions that verify property-to-attribute sync when switching between full and csc-only modes.",
+          "Play-driven mode transitions that verify property-to-attribute sync when switching between card and card_csc modes.",
       },
     },
   },
@@ -143,7 +143,7 @@ export const ModeTransitions: Story = {
     const surface = createCardSurface();
     const item = createLabeledField({
       id: "card-mode-transitions",
-      mode: "full",
+      mode: "card",
       role: "primary",
     });
 
@@ -160,16 +160,16 @@ export const ModeTransitions: Story = {
   play: async ({ canvasElement }) => {
     const field = getPrimaryField(canvasElement);
 
-    field.mode = "csc-only";
+    field.mode = "card_csc";
     await waitFor(() => {
-      expect(field.mode).toBe("csc-only");
-      expect(field.getAttribute("mode")).toBe("csc-only");
+      expect(field.mode).toBe("card_csc");
+      expect(field.getAttribute("mode")).toBe("card_csc");
     });
 
-    field.mode = "full";
+    field.mode = "card";
     await waitFor(() => {
-      expect(field.mode).toBe("full");
-      expect(field.getAttribute("mode")).toBe("full");
+      expect(field.mode).toBe("card");
+      expect(field.getAttribute("mode")).toBe("card");
     });
   },
 };
@@ -190,7 +190,7 @@ export const ValidationStates: Story = {
     const surface = createCardSurface();
     const item = createLabeledField({
       id: "card-validity-states",
-      mode: "full",
+      mode: "card",
       role: "primary",
     });
 
@@ -319,7 +319,7 @@ export const TokenizeSuccess: Story = {
     const surface = createCardSurface();
     const item = createLabeledField({
       id: "card-tokenize-success",
-      mode: "full",
+      mode: "card",
       role: "primary",
     });
 
@@ -389,7 +389,7 @@ export const TokenizeErrorMatrix: Story = {
     const surface = createCardSurface();
     const item = createLabeledField({
       id: "card-tokenize-error",
-      mode: "full",
+      mode: "card",
       role: "primary",
     });
 
@@ -467,7 +467,7 @@ export const FormIntegrationInteraction: Story = {
 
     const item = createLabeledField({
       id: "card-form-integration",
-      mode: "full",
+      mode: "card",
       role: "primary",
     });
 

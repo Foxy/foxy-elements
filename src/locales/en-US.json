@@ -133,6 +133,9 @@
   "payment_ach_account_holder_name_label": "Name on account",
   "payment_card_field_label_full": "Card details",
   "payment_card_field_label_csc": "Security code",
+  "payment_billing_update_error": "Unable to update billing address. Try again.",
+  "payment_no_methods_available": "No payment methods are currently available.",
+  "payment_no_methods_available_description": "Refresh checkout or choose a different payment flow before continuing.",
   "payment_tokenize_card_error": "Unable to tokenize card details.",
   "payment_tokenize_ach_error": "Unable to tokenize bank details."
 }

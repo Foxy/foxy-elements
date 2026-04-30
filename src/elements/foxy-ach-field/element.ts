@@ -85,6 +85,20 @@ const THEME_ATTRIBUTE_NAMES = Object.keys(
   THEME_ATTR_TO_CSS_VAR,
 ) as ThemeAttributeName[];
 
+const THEME_PROPERTY_TO_ATTRIBUTE = {
+  themeInputPlaceholderColor: "theme-input-placeholder-color",
+  themeInputHeight: "theme-input-height",
+  themeInputPadding: "theme-input-padding",
+  themeInputPaddingX: "theme-input-padding-x",
+  themeInputPaddingY: "theme-input-padding-y",
+  themeFontSans: "theme-font-sans",
+  themeInputTextColor: "theme-input-text-color",
+  themeInputErrorTextColor: "theme-input-error-text-color",
+  themeInputFontSize: "theme-input-font-size",
+} as const;
+
+type ThemePropertyName = keyof typeof THEME_PROPERTY_TO_ATTRIBUTE;
+
 export type AchLoadEventDetail = Record<string, never>;
 
 export type AchTokenizationSuccessEventDetail = {
@@ -141,6 +155,22 @@ function isAchFieldName(value: unknown): value is AchHostedFieldName {
     value === "account-number" ||
     value === "account-type" ||
     value === "account-holder-name"
+  );
+}
+
+function parseChangedFields(
+  value: unknown,
+): Set<AchHostedFieldName> | undefined {
+  if (!Array.isArray(value)) return undefined;
+
+  return new Set(
+    value
+      .map((fieldName) =>
+        typeof fieldName === "string" ? EMBED_TO_PUBLIC[fieldName] : undefined,
+      )
+      .filter(
+        (fieldName): fieldName is AchHostedFieldName => fieldName !== undefined,
+      ),
   );
 }
 
@@ -212,6 +242,16 @@ function stringifyAccountTypeValues(
   if (!values?.length) return null;
   const uniqueValues = Array.from(new Set(values));
   return uniqueValues.join(",");
+}
+
+function createPristineFieldState(): AchFieldState {
+  return {
+    empty: true,
+    complete: false,
+    errorCode: null,
+    focused: false,
+    touched: false,
+  };
 }
 
 function createNativeLikeFocusEvent(type: "focus" | "blur"): FocusEvent {
@@ -287,6 +327,9 @@ export class AchFieldElement extends HTMLElement {
       const fields = payload["fields"];
       if (!fields || typeof fields !== "object") return;
 
+      const changedFields =
+        parseChangedFields(payload["changedFields"]) ?? new Set();
+
       for (const fieldName of Object.keys(
         DEFAULT_LABELS,
       ) as AchHostedFieldName[]) {
@@ -337,7 +380,9 @@ export class AchFieldElement extends HTMLElement {
           );
         }
 
-        instance.dispatchEvent(new Event(achFieldEvents.change));
+        if (changedFields.has(ownField)) {
+          instance.dispatchEvent(new Event(achFieldEvents.change));
+        }
       }
 
       this._syncSessionValidity(entry);
@@ -375,10 +420,7 @@ export class AchFieldElement extends HTMLElement {
       }
       if (!isTokenizeErrorCode(code)) return;
 
-      this._broadcast(achFieldEvents.tokenizationError, {
-        code,
-        requestId: normalizedRequestId,
-      });
+      const error = this._emitTokenizationError(code, normalizedRequestId);
 
       if (normalizedRequestId) {
         const pending = entry.pendingTokenizes.get(normalizedRequestId);
@@ -386,7 +428,7 @@ export class AchFieldElement extends HTMLElement {
 
         entry.pendingTokenizes.delete(normalizedRequestId);
         window.clearTimeout(pending.timeoutId);
-        pending.reject(new Error(`ACH tokenization failed with code: ${code}`));
+        pending.reject(error);
       }
 
       return;
@@ -479,6 +521,23 @@ export class AchFieldElement extends HTMLElement {
 
   formDisabledCallback(disabled: boolean): void {
     this.disabled = disabled;
+  }
+
+  formResetCallback(): void {
+    this.clear();
+
+    const nextState = createPristineFieldState();
+    this._fieldPublicState = { ...nextState };
+    this._syncPublicStates();
+
+    const entry = this._registryEntry;
+    if (!entry) {
+      this._internals?.setValidity({});
+      return;
+    }
+
+    entry.fieldStates[this._type] = nextState;
+    this._syncSessionValidity(entry);
   }
 
   attributeChangedCallback(
@@ -609,6 +668,78 @@ export class AchFieldElement extends HTMLElement {
     }
   }
 
+  get themeInputPlaceholderColor(): string | undefined {
+    return this._getThemeProperty("themeInputPlaceholderColor");
+  }
+
+  set themeInputPlaceholderColor(value: string | undefined) {
+    this._setThemeProperty("themeInputPlaceholderColor", value);
+  }
+
+  get themeInputHeight(): string | undefined {
+    return this._getThemeProperty("themeInputHeight");
+  }
+
+  set themeInputHeight(value: string | undefined) {
+    this._setThemeProperty("themeInputHeight", value);
+  }
+
+  get themeInputPadding(): string | undefined {
+    return this._getThemeProperty("themeInputPadding");
+  }
+
+  set themeInputPadding(value: string | undefined) {
+    this._setThemeProperty("themeInputPadding", value);
+  }
+
+  get themeInputPaddingX(): string | undefined {
+    return this._getThemeProperty("themeInputPaddingX");
+  }
+
+  set themeInputPaddingX(value: string | undefined) {
+    this._setThemeProperty("themeInputPaddingX", value);
+  }
+
+  get themeInputPaddingY(): string | undefined {
+    return this._getThemeProperty("themeInputPaddingY");
+  }
+
+  set themeInputPaddingY(value: string | undefined) {
+    this._setThemeProperty("themeInputPaddingY", value);
+  }
+
+  get themeFontSans(): string | undefined {
+    return this._getThemeProperty("themeFontSans");
+  }
+
+  set themeFontSans(value: string | undefined) {
+    this._setThemeProperty("themeFontSans", value);
+  }
+
+  get themeInputTextColor(): string | undefined {
+    return this._getThemeProperty("themeInputTextColor");
+  }
+
+  set themeInputTextColor(value: string | undefined) {
+    this._setThemeProperty("themeInputTextColor", value);
+  }
+
+  get themeInputErrorTextColor(): string | undefined {
+    return this._getThemeProperty("themeInputErrorTextColor");
+  }
+
+  set themeInputErrorTextColor(value: string | undefined) {
+    this._setThemeProperty("themeInputErrorTextColor", value);
+  }
+
+  get themeInputFontSize(): string | undefined {
+    return this._getThemeProperty("themeInputFontSize");
+  }
+
+  set themeInputFontSize(value: string | undefined) {
+    this._setThemeProperty("themeInputFontSize", value);
+  }
+
   clear(): void {
     this._postMessage({ type: "clear" });
   }
@@ -616,7 +747,13 @@ export class AchFieldElement extends HTMLElement {
   tokenize(requestId?: string): Promise<{ token: string; requestId?: string }> {
     const entry = this._registryEntry;
     if (!entry?.controllerIframe?.contentWindow) {
-      return Promise.reject(new Error("ACH controller iframe is not mounted."));
+      return Promise.reject(
+        this._emitTokenizationError(
+          "invalid_state",
+          requestId,
+          "ACH controller iframe is not mounted.",
+        ),
+      );
     }
 
     const normalizedRequestId =
@@ -625,8 +762,17 @@ export class AchFieldElement extends HTMLElement {
 
     return new Promise((resolve, reject) => {
       const timeoutId = window.setTimeout(() => {
+        const pending = entry.pendingTokenizes.get(normalizedRequestId);
+        if (!pending) return;
+
         entry.pendingTokenizes.delete(normalizedRequestId);
-        reject(new Error("ACH tokenization timed out."));
+        pending.reject(
+          this._emitTokenizationError(
+            "tokenization_timeout",
+            normalizedRequestId,
+            "ACH tokenization timed out.",
+          ),
+        );
       }, 30000);
 
       entry.pendingTokenizes.set(normalizedRequestId, {
@@ -957,6 +1103,40 @@ export class AchFieldElement extends HTMLElement {
       entry.controllerIframe.contentWindow.postMessage(message, targetOrigin);
     } catch {
       // Ignore transient startup races while the controller iframe is still navigating.
+    }
+  }
+
+  private _emitTokenizationError(
+    code: AchEmbedTokenizeErrorCode,
+    requestId?: string,
+    message?: string,
+  ): Error {
+    this._broadcast(achFieldEvents.tokenizationError, { code, requestId });
+
+    if (message) return new Error(message);
+    return new Error(`ACH tokenization failed with code: ${code}`);
+  }
+
+  private _getThemeProperty(name: ThemePropertyName): string | undefined {
+    return (
+      this.getAttribute(THEME_PROPERTY_TO_ATTRIBUTE[name])?.trim() || undefined
+    );
+  }
+
+  private _setThemeProperty(
+    name: ThemePropertyName,
+    value: string | undefined,
+  ): void {
+    const normalized = value?.trim() || undefined;
+    const attributeName = THEME_PROPERTY_TO_ATTRIBUTE[name];
+
+    if (normalized === undefined) {
+      this.removeAttribute(attributeName);
+      return;
+    }
+
+    if (this.getAttribute(attributeName) !== normalized) {
+      this.setAttribute(attributeName, normalized);
     }
   }
 

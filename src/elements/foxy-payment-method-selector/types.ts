@@ -35,6 +35,10 @@ export type PaymentMethodSelectorBillingPayload = {
   values: Record<string, string>;
 };
 
+export type PaymentMethodSelectorBillingError = {
+  message?: string;
+};
+
 export type PaymentMethodSelectorTokenizePayload = {
   optionIndex: number;
   optionType: PaymentMethodSelectorTokenizeOptionType;

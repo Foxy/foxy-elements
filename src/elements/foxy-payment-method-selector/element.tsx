@@ -1,4 +1,5 @@
 import type {
+  PaymentMethodSelectorBillingError,
   PaymentController,
   PaymentMethodSelectorBillingAddress,
   PaymentMethodSelectorBillingField,
@@ -16,6 +17,7 @@ import { IntlProvider } from "react-intl";
 import defaultShadowStyles from "@/index.css?inline";
 import enUsMessages from "@/locales/en-US.json";
 import {
+  type PaymentMethodSelectorBillingAddressErrorEventDetail,
   paymentMethodSelectorEvents,
   type PaymentMethodSelectorChangeEventDetail,
   type PaymentMethodSelectorTokenizationErrorEventDetail,
@@ -82,6 +84,35 @@ const THEME_ATTRIBUTE_NAMES = Object.keys(
   THEME_ATTR_TO_CSS_VAR,
 ) as ThemeAttributeName[];
 
+const THEME_PROPERTY_TO_ATTRIBUTE = {
+  themeBackground: "theme-background",
+  themeForeground: "theme-foreground",
+  themeCard: "theme-card",
+  themeCardForeground: "theme-card-foreground",
+  themePrimary: "theme-primary",
+  themePrimaryForeground: "theme-primary-foreground",
+  themeMutedForeground: "theme-muted-foreground",
+  themeDestructive: "theme-destructive",
+  themeBorder: "theme-border",
+  themeInput: "theme-input",
+  themeRing: "theme-ring",
+  themeFontSans: "theme-font-sans",
+  themeRadius: "theme-radius",
+  themeSpacing: "theme-spacing",
+  themeInputHeight: "theme-input-height",
+  themeInputPadding: "theme-input-padding",
+  themeInputPaddingX: "theme-input-padding-x",
+  themeInputPaddingY: "theme-input-padding-y",
+} as const;
+
+type ThemePropertyName = keyof typeof THEME_PROPERTY_TO_ATTRIBUTE;
+
+function normalizeStringAttribute(
+  value: string | null | undefined,
+): string | undefined {
+  return value?.trim() || undefined;
+}
+
 export class PaymentMethodSelectorElement extends HTMLElement {
   #optionIndex: number | undefined;
   #loading = false;
@@ -93,8 +124,11 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     string,
     { useShippingAddress: boolean; values: Record<string, string> }
   >();
+  #billingErrorsByOption = new Map<string, PaymentMethodSelectorBillingError>();
+  #billingRequestVersionByOption = new Map<string, number>();
   #lightDomStripeHosts = new Map<string, HTMLDivElement>();
   #lightDomStripeRoots = new Map<string, Root>();
+  #stripeSyncVersion = 0;
   #checkoutClient = checkoutClient as CheckoutApiLike;
 
   static get observedAttributes(): string[] {
@@ -133,6 +167,150 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     }
 
     this.#render();
+  }
+
+  get themeBackground(): string | undefined {
+    return this.#getThemeProperty("themeBackground");
+  }
+
+  set themeBackground(value: string | undefined) {
+    this.#setThemeProperty("themeBackground", value);
+  }
+
+  get themeForeground(): string | undefined {
+    return this.#getThemeProperty("themeForeground");
+  }
+
+  set themeForeground(value: string | undefined) {
+    this.#setThemeProperty("themeForeground", value);
+  }
+
+  get themeCard(): string | undefined {
+    return this.#getThemeProperty("themeCard");
+  }
+
+  set themeCard(value: string | undefined) {
+    this.#setThemeProperty("themeCard", value);
+  }
+
+  get themeCardForeground(): string | undefined {
+    return this.#getThemeProperty("themeCardForeground");
+  }
+
+  set themeCardForeground(value: string | undefined) {
+    this.#setThemeProperty("themeCardForeground", value);
+  }
+
+  get themePrimary(): string | undefined {
+    return this.#getThemeProperty("themePrimary");
+  }
+
+  set themePrimary(value: string | undefined) {
+    this.#setThemeProperty("themePrimary", value);
+  }
+
+  get themePrimaryForeground(): string | undefined {
+    return this.#getThemeProperty("themePrimaryForeground");
+  }
+
+  set themePrimaryForeground(value: string | undefined) {
+    this.#setThemeProperty("themePrimaryForeground", value);
+  }
+
+  get themeMutedForeground(): string | undefined {
+    return this.#getThemeProperty("themeMutedForeground");
+  }
+
+  set themeMutedForeground(value: string | undefined) {
+    this.#setThemeProperty("themeMutedForeground", value);
+  }
+
+  get themeDestructive(): string | undefined {
+    return this.#getThemeProperty("themeDestructive");
+  }
+
+  set themeDestructive(value: string | undefined) {
+    this.#setThemeProperty("themeDestructive", value);
+  }
+
+  get themeBorder(): string | undefined {
+    return this.#getThemeProperty("themeBorder");
+  }
+
+  set themeBorder(value: string | undefined) {
+    this.#setThemeProperty("themeBorder", value);
+  }
+
+  get themeInput(): string | undefined {
+    return this.#getThemeProperty("themeInput");
+  }
+
+  set themeInput(value: string | undefined) {
+    this.#setThemeProperty("themeInput", value);
+  }
+
+  get themeRing(): string | undefined {
+    return this.#getThemeProperty("themeRing");
+  }
+
+  set themeRing(value: string | undefined) {
+    this.#setThemeProperty("themeRing", value);
+  }
+
+  get themeFontSans(): string | undefined {
+    return this.#getThemeProperty("themeFontSans");
+  }
+
+  set themeFontSans(value: string | undefined) {
+    this.#setThemeProperty("themeFontSans", value);
+  }
+
+  get themeRadius(): string | undefined {
+    return this.#getThemeProperty("themeRadius");
+  }
+
+  set themeRadius(value: string | undefined) {
+    this.#setThemeProperty("themeRadius", value);
+  }
+
+  get themeSpacing(): string | undefined {
+    return this.#getThemeProperty("themeSpacing");
+  }
+
+  set themeSpacing(value: string | undefined) {
+    this.#setThemeProperty("themeSpacing", value);
+  }
+
+  get themeInputHeight(): string | undefined {
+    return this.#getThemeProperty("themeInputHeight");
+  }
+
+  set themeInputHeight(value: string | undefined) {
+    this.#setThemeProperty("themeInputHeight", value);
+  }
+
+  get themeInputPadding(): string | undefined {
+    return this.#getThemeProperty("themeInputPadding");
+  }
+
+  set themeInputPadding(value: string | undefined) {
+    this.#setThemeProperty("themeInputPadding", value);
+  }
+
+  get themeInputPaddingX(): string | undefined {
+    return this.#getThemeProperty("themeInputPaddingX");
+  }
+
+  set themeInputPaddingX(value: string | undefined) {
+    this.#setThemeProperty("themeInputPaddingX", value);
+  }
+
+  get themeInputPaddingY(): string | undefined {
+    return this.#getThemeProperty("themeInputPaddingY");
+  }
+
+  set themeInputPaddingY(value: string | undefined) {
+    this.#setThemeProperty("themeInputPaddingY", value);
   }
 
   async tokenize(): Promise<PaymentMethodSelectorTokenizePayload> {
@@ -230,6 +408,9 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     this.#root = null;
     this.#controllers.clear();
     this.#billingStateByOption.clear();
+    this.#billingErrorsByOption.clear();
+    this.#billingRequestVersionByOption.clear();
+    this.#stripeSyncVersion += 1;
     this.#cleanupAllStripeHosts();
   }
 
@@ -283,7 +464,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     const apiState = this.#resolveApiState();
     if (!apiState) {
       this.#renderUninitializedState();
-      this.#syncStripeLightDomMount(undefined);
+      this.#scheduleStripeLightDomSync(undefined);
       this.#applyStylesheet();
       return;
     }
@@ -307,6 +488,11 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           disabled={false}
           loading={this.#loading}
           billingAddress={billingAddress}
+          billingError={
+            selectedOptionId
+              ? this.#billingErrorsByOption.get(selectedOptionId)
+              : undefined
+          }
           onSelectionChange={(optionId) => {
             const previousSelectedOption = this.#resolveSelectedOption();
             if (previousSelectedOption?.id === optionId) {
@@ -353,16 +539,51 @@ export class PaymentMethodSelectorElement extends HTMLElement {
               values,
             });
 
+            const requestVersion = this.#nextBillingRequestVersion(optionId);
+            this.#setBillingAddressError(optionId, undefined);
+
             if (!this.#hasBillingAddressChanges(patch)) {
               return;
             }
 
-            const result = this.#checkoutClient.updateBillingAddress?.(patch);
-            if (
-              result &&
-              typeof (result as Promise<unknown>).catch === "function"
-            ) {
-              void (result as Promise<unknown>).catch(() => undefined);
+            const handleFailure = (error: unknown) => {
+              if (
+                this.#billingRequestVersionByOption.get(optionId) !==
+                requestVersion
+              ) {
+                return;
+              }
+
+              this.#setBillingAddressError(optionId, {
+                message: this.#getErrorMessage(error),
+              });
+              this.dispatchEvent(
+                new CustomEvent<PaymentMethodSelectorBillingAddressErrorEventDetail>(
+                  paymentMethodSelectorEvents.billingAddressError,
+                  {
+                    bubbles: true,
+                    composed: true,
+                    detail: {
+                      error,
+                      optionId,
+                      useShippingAddress,
+                      values,
+                    },
+                  },
+                ),
+              );
+            };
+
+            try {
+              const result = this.#checkoutClient.updateBillingAddress?.(patch);
+              if (
+                result &&
+                typeof (result as Promise<unknown>).catch === "function"
+              ) {
+                void (result as Promise<unknown>).catch(handleFailure);
+              }
+            } catch (error) {
+              handleFailure(error);
             }
           }}
           onControllerReady={(optionId, controller) => {
@@ -381,7 +602,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
       </IntlProvider>,
     );
 
-    this.#syncStripeLightDomMount(selectedOptionId);
+    this.#scheduleStripeLightDomSync(selectedOptionId);
 
     this.#applyStylesheet();
   }
@@ -420,6 +641,29 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     if (this.#loading === isLoading) return;
     this.#loading = isLoading;
     this.#render();
+  }
+
+  #getThemeProperty(name: ThemePropertyName): string | undefined {
+    return normalizeStringAttribute(
+      this.getAttribute(THEME_PROPERTY_TO_ATTRIBUTE[name]),
+    );
+  }
+
+  #setThemeProperty(name: ThemePropertyName, value: string | undefined) {
+    this.#setStringAttribute(THEME_PROPERTY_TO_ATTRIBUTE[name], value);
+  }
+
+  #setStringAttribute(name: string, value: string | undefined) {
+    const normalized = normalizeStringAttribute(value);
+
+    if (normalized === undefined) {
+      this.removeAttribute(name);
+      return;
+    }
+
+    if (this.getAttribute(name) !== normalized) {
+      this.setAttribute(name, normalized);
+    }
   }
 
   #getThemeAttributes(): Partial<Record<ThemeCssVar, string>> {
@@ -474,6 +718,23 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     if (typeof value === "string") return value;
     if (typeof value === "number") return String(value);
     return "";
+  }
+
+  #getErrorMessage(error: unknown): string | undefined {
+    if (typeof error === "string") {
+      return error.trim() || undefined;
+    }
+
+    if (error instanceof Error) {
+      return error.message.trim() || undefined;
+    }
+
+    const errorRecord = this.#asRecord(error);
+    if (typeof errorRecord?.message === "string") {
+      return errorRecord.message.trim() || undefined;
+    }
+
+    return undefined;
   }
 
   #toNumber(value: unknown): number | undefined {
@@ -622,6 +883,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     const last4 = this.#toText(paymentMethod.last_4);
     const expirationMonth = this.#toText(paymentMethod.expiry_month);
     const expirationYear = this.#toText(paymentMethod.expiry_year);
+    const disabled = option.disabled === true;
     const label =
       cardBrand && last4
         ? `${cardBrand.toUpperCase()} •••• ${last4}`
@@ -635,6 +897,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
         type: "saved-card",
         label,
         gateway: gateway || undefined,
+        disabled,
         savedPaymentMethodId,
         description:
           expirationMonth && expirationYear
@@ -646,7 +909,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           gateway === "stripe_connect_charge"
             ? undefined
             : {
-                mode: "csc-only",
+                mode: "card_csc",
               },
       },
     ];
@@ -660,6 +923,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     const type = this.#toPaymentOptionType(option.type);
     const optionId = index === 0 ? type : `${type}-${index + 1}`;
     const gateway = this.#toText(option.gateway);
+    const disabled = option.disabled === true;
 
     if (type === "saved-card") {
       return this.#createSavedCardOptions(option, index, apiState);
@@ -674,10 +938,11 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           type: "new-card",
           label: "New Card",
           gateway: gateway || undefined,
+          disabled,
           description: "Enter your payment card details to complete checkout.",
           acceptedBrands: acceptedBrands?.length ? acceptedBrands : undefined,
           hostedCard: {
-            mode: "full",
+            mode: "card",
           },
         },
       ];
@@ -692,6 +957,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           type: "ach",
           label: "Bank Account (ACH)",
           gateway: gateway || undefined,
+          disabled,
           description:
             "Enter your bank account details in the secure fields below.",
           hostedFields: {
@@ -711,6 +977,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           type: "stripe-card-element",
           label: "Credit or Debit Card",
           gateway: gateway || undefined,
+          disabled,
           description: "Enter your payment card details to complete checkout.",
           stripeCardElement: {
             publishableKey: this.#toText(option.publishable_key),
@@ -726,6 +993,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           type: "stripe-payment-element",
           label: "New Payment Method",
           gateway: gateway || undefined,
+          disabled,
           description:
             "Select a payment method and enter your details below to complete checkout.",
           stripePaymentElement: {
@@ -745,6 +1013,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           type: "apple-pay",
           label: "Apple Pay",
           gateway: gateway || undefined,
+          disabled,
           description: "Pay securely with Apple Pay.",
         },
       ];
@@ -757,6 +1026,7 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           type: "google-pay",
           label: "Google Pay",
           gateway: gateway || undefined,
+          disabled,
           description: "Pay securely with Google Pay.",
         },
       ];
@@ -768,136 +1038,13 @@ export class PaymentMethodSelectorElement extends HTMLElement {
           id: optionId,
           type: "generic",
           gateway: gateway || undefined,
+          disabled,
           label: "Continue to Payment Provider",
         },
       ];
     }
 
     return [];
-  }
-
-  #createLegacyOptions(
-    option: Record<string, unknown>,
-    index: number,
-    apiState: Record<string, unknown>,
-  ): PaymentMethodSelectorOption[] {
-    const gateway = this.#toText(option.gateway);
-    const savedPaymentMethods = Array.isArray(option.saved_payment_methods)
-      ? option.saved_payment_methods
-      : [];
-    const normalizedSavedCards = savedPaymentMethods.flatMap(
-      (paymentMethod, savedIndex) =>
-        this.#createSavedCardOptions(
-          { type: "saved-card", gateway, payment_method: paymentMethod },
-          savedIndex,
-          apiState,
-        ),
-    );
-
-    if (gateway === "stripe_v2") {
-      return [
-        ...normalizedSavedCards,
-        {
-          id:
-            index === 0
-              ? "stripe-payment-element"
-              : `stripe-payment-element-${index + 1}`,
-          type: "stripe-payment-element",
-          label: "New Payment Method",
-          gateway: gateway || undefined,
-          description:
-            "Select a payment method and enter your details below to complete checkout.",
-          stripePaymentElement: {
-            publishableKey: this.#toText(option.publishable_key),
-            locale: this.#toText(option.locale) || undefined,
-            paymentElementOptions:
-              this.#createStripePaymentElementOptions(apiState),
-          },
-        },
-      ];
-    }
-
-    if (gateway === "stripe_connect" || gateway === "stripe_connect_charge") {
-      return [
-        ...normalizedSavedCards,
-        {
-          id:
-            index === 0
-              ? "stripe-card-element"
-              : `stripe-card-element-${index + 1}`,
-          type: "stripe-card-element",
-          label: "Credit or Debit Card",
-          gateway: gateway || undefined,
-          description: "Enter your payment card details to complete checkout.",
-          stripeCardElement: {
-            publishableKey: this.#toText(option.publishable_key),
-          },
-        },
-      ];
-    }
-
-    const accountTypeValues = this.#resolveAchAccountTypeValues(option);
-    if (Array.isArray(option.fields) || accountTypeValues?.length) {
-
-      return [
-        {
-          id: index === 0 ? "ach" : `ach-${index + 1}`,
-          type: "ach",
-          label: "Bank Account (ACH)",
-          gateway: gateway || undefined,
-          description:
-            "Enter your bank account details in the secure fields below.",
-          hostedFields: {
-            placeholders: {
-              "routing-number": "123456789",
-            },
-            accountTypeValues: accountTypeValues?.length
-              ? accountTypeValues
-              : undefined,
-          },
-        },
-      ];
-    }
-
-    const applePay = this.#asRecord(option.apple_pay);
-    const googlePay = this.#asRecord(option.google_pay);
-
-    return [
-      ...(applePay?.merchant_id || applePay?.merchant_identifier
-        ? [
-            {
-              id: `apple-pay-${index + 1}`,
-              type: "apple-pay",
-              label: "Apple Pay",
-              gateway: gateway || undefined,
-              description: "Pay securely with Apple Pay.",
-            } satisfies PaymentMethodSelectorOption,
-          ]
-        : []),
-      ...(googlePay?.merchant_id
-        ? [
-            {
-              id: `google-pay-${index + 1}`,
-              type: "google-pay",
-              label: "Google Pay",
-              gateway: gateway || undefined,
-              description: "Pay securely with Google Pay.",
-            } satisfies PaymentMethodSelectorOption,
-          ]
-        : []),
-      ...normalizedSavedCards,
-      {
-        id: index === 0 ? "new-card" : `new-card-${index + 1}`,
-        type: "new-card",
-        label: "New Card",
-        gateway: gateway || undefined,
-        description: "Enter your payment card details to complete checkout.",
-        acceptedBrands: this.#resolveSupportedPaymentCards(apiState),
-        hostedCard: {
-          mode: "full",
-        },
-      },
-    ];
   }
 
   #resolveOptions(): PaymentMethodSelectorOption[] {
@@ -912,29 +1059,16 @@ export class PaymentMethodSelectorElement extends HTMLElement {
       const option = this.#asRecord(entry);
       if (!option) return [];
 
-      if (typeof option.type === "string") {
-        return this.#createNormalizedOption(option, index, apiState);
-      }
-
-      return this.#createLegacyOptions(option, index, apiState);
+      return typeof option.type === "string"
+        ? this.#createNormalizedOption(option, index, apiState)
+        : [];
     });
 
     if (inferred.length) {
       return inferred;
     }
 
-    return [
-      {
-        id: "new-card",
-        type: "new-card",
-        label: "New Card",
-        description: "Enter your payment card details to complete checkout.",
-        acceptedBrands: this.#resolveSupportedPaymentCards(apiState),
-        hostedCard: {
-          mode: "full",
-        },
-      },
-    ];
+    return [];
   }
 
   #resolveBillingAddress(): PaymentMethodSelectorBillingAddress | undefined {
@@ -1083,6 +1217,34 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     });
   }
 
+  #nextBillingRequestVersion(optionId: string): number {
+    const nextVersion =
+      (this.#billingRequestVersionByOption.get(optionId) ?? 0) + 1;
+    this.#billingRequestVersionByOption.set(optionId, nextVersion);
+    return nextVersion;
+  }
+
+  #setBillingAddressError(
+    optionId: string,
+    error: PaymentMethodSelectorBillingError | undefined,
+  ) {
+    const previous = this.#billingErrorsByOption.get(optionId);
+
+    if (!error) {
+      if (!this.#billingErrorsByOption.has(optionId)) return;
+      this.#billingErrorsByOption.delete(optionId);
+      this.#render();
+      return;
+    }
+
+    if (previous?.message === error.message) {
+      return;
+    }
+
+    this.#billingErrorsByOption.set(optionId, error);
+    this.#render();
+  }
+
   #isStripeOption(option: PaymentMethodSelectorOption | undefined): boolean {
     if (!option) return false;
     return (
@@ -1177,6 +1339,15 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     for (const optionId of this.#lightDomStripeHosts.keys()) {
       this.#cleanupStripeHost(optionId);
     }
+  }
+
+  #scheduleStripeLightDomSync(selectedOptionId: string | undefined) {
+    const syncVersion = ++this.#stripeSyncVersion;
+
+    queueMicrotask(() => {
+      if (syncVersion !== this.#stripeSyncVersion) return;
+      this.#syncStripeLightDomMount(selectedOptionId);
+    });
   }
 
   #syncStripeLightDomMount(selectedOptionId: string | undefined) {
@@ -1303,6 +1474,13 @@ export interface PaymentMethodSelectorElement {
     options?: boolean | AddEventListenerOptions,
   ): void;
   addEventListener(
+    type: "billingaddresserror",
+    listener: (
+      ev: CustomEvent<PaymentMethodSelectorBillingAddressErrorEventDetail>,
+    ) => void,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
     options?: boolean | AddEventListenerOptions,
@@ -1327,6 +1505,13 @@ export interface PaymentMethodSelectorElement {
   removeEventListener(
     type: "tokenizationerror",
     listener: (ev: CustomEvent<{ error: unknown }>) => void,
+    options?: boolean | EventListenerOptions,
+  ): void;
+  removeEventListener(
+    type: "billingaddresserror",
+    listener: (
+      ev: CustomEvent<PaymentMethodSelectorBillingAddressErrorEventDetail>,
+    ) => void,
     options?: boolean | EventListenerOptions,
   ): void;
   removeEventListener(

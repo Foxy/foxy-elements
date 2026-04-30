@@ -3,7 +3,7 @@ import * as AchFieldStories from "./element.stories";
 
 <Meta of={AchFieldStories} />
 
-# AchFieldElement
+# foxy-ach-field
 
 Form-associated hosted ACH input element that renders one secure ACH field (routing number, account number, account type, or account holder name) and participates in grouped tokenization sessions.
 
@@ -20,21 +20,143 @@ Required attributes: none.
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>type</code></td><td>Field variant to render in the secure iframe.</td><td><code>routing-number</code></td></tr>
-    <tr><td><code>group</code></td><td>Shared session id for multi-field ACH tokenization.</td><td><code>checkout-ach-1</code></td></tr>
-    <tr><td><code>placeholder</code></td><td>Placeholder text for the hosted input.</td><td><code>123456789</code></td></tr>
-    <tr><td><code>account-type-values</code></td><td>Allowed values when <code>type</code> is <code>account-type</code>.</td><td><code>checking,savings</code></td></tr>
-    <tr><td><code>disabled</code></td><td>Disables the hosted field and marks the control disabled.</td><td><code>""</code></td></tr>
-    <tr><td><code>lang</code></td><td>Locale passed to the hosted field configuration.</td><td><code>en-US</code></td></tr>
-    <tr><td><code>theme-input-placeholder-color</code></td><td>Placeholder text color token.</td><td><code>#94a3b8</code></td></tr>
-    <tr><td><code>theme-input-height</code></td><td>Hosted input height.</td><td><code>44px</code></td></tr>
-    <tr><td><code>theme-input-padding</code></td><td>Hosted input shorthand padding.</td><td><code>0 12px</code></td></tr>
-    <tr><td><code>theme-input-padding-x</code></td><td>Hosted input horizontal padding override.</td><td><code>12px</code></td></tr>
-    <tr><td><code>theme-input-padding-y</code></td><td>Hosted input vertical padding override.</td><td><code>10px</code></td></tr>
-    <tr><td><code>theme-font-sans</code></td><td>Hosted input font family token.</td><td><code>"IBM Plex Sans", sans-serif</code></td></tr>
-    <tr><td><code>theme-input-text-color</code></td><td>Hosted input text color token.</td><td><code>#0f172a</code></td></tr>
-    <tr><td><code>theme-input-error-text-color</code></td><td>Error-state text color token.</td><td><code>#dc2626</code></td></tr>
-    <tr><td><code>theme-input-font-size</code></td><td>Hosted input font size token.</td><td><code>16px</code></td></tr>
+    <tr>
+      <td>
+        <code>type</code>
+      </td>
+      <td>Field variant to render in the secure iframe.</td>
+      <td>
+        <code>routing-number</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>group</code>
+      </td>
+      <td>Shared session id for multi-field ACH tokenization.</td>
+      <td>
+        <code>checkout-ach-1</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>placeholder</code>
+      </td>
+      <td>Placeholder text for the hosted input.</td>
+      <td>
+        <code>123456789</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>account-type-values</code>
+      </td>
+      <td>
+        Allowed values when <code>type</code> is <code>account-type</code>.
+      </td>
+      <td>
+        <code>checking,savings</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>disabled</code>
+      </td>
+      <td>Disables the hosted field and marks the control disabled.</td>
+      <td>
+        <code>""</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>lang</code>
+      </td>
+      <td>Locale passed to the hosted field configuration.</td>
+      <td>
+        <code>en-US</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-placeholder-color</code>
+      </td>
+      <td>Placeholder text color token.</td>
+      <td>
+        <code>#94a3b8</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-height</code>
+      </td>
+      <td>Hosted input height.</td>
+      <td>
+        <code>44px</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-padding</code>
+      </td>
+      <td>Hosted input shorthand padding.</td>
+      <td>
+        <code>0 12px</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-padding-x</code>
+      </td>
+      <td>Hosted input horizontal padding override.</td>
+      <td>
+        <code>12px</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-padding-y</code>
+      </td>
+      <td>Hosted input vertical padding override.</td>
+      <td>
+        <code>10px</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-font-sans</code>
+      </td>
+      <td>Hosted input font family token.</td>
+      <td>
+        <code>"IBM Plex Sans", sans-serif</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-text-color</code>
+      </td>
+      <td>Hosted input text color token.</td>
+      <td>
+        <code>#0f172a</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-error-text-color</code>
+      </td>
+      <td>Error-state text color token.</td>
+      <td>
+        <code>#dc2626</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-font-size</code>
+      </td>
+      <td>Hosted input font size token.</td>
+      <td>
+        <code>16px</code>
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -49,12 +171,166 @@ Required attributes: none.
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>type</code></td><td><code>"routing-number" | "account-number" | "account-type" | "account-holder-name"</code></td><td>Active ACH field type to render.</td></tr>
-    <tr><td><code>group</code></td><td><code>string</code></td><td>Session identifier used to coordinate related ACH fields.</td></tr>
-    <tr><td><code>placeholder</code></td><td><code>string | undefined</code></td><td>Placeholder text for the hosted input.</td></tr>
-    <tr><td><code>accountTypeValues</code></td><td><code>("checking" | "savings")[] | undefined</code></td><td>Allowed account types when rendering the account-type field.</td></tr>
-    <tr><td><code>disabled</code></td><td><code>boolean</code></td><td>Controls disabled state and form participation.</td></tr>
-    <tr><td><code>lang</code></td><td><code>string</code></td><td>Inherited HTMLElement language property used as locale input.</td></tr>
+    <tr>
+      <td>
+        <code>type</code>
+      </td>
+      <td>
+        <code>
+          "routing-number" | "account-number" | "account-type" |
+          "account-holder-name"
+        </code>
+      </td>
+      <td>Active ACH field type to render.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>group</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Session identifier used to coordinate related ACH fields.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>placeholder</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>Placeholder text for the hosted input.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>accountTypeValues</code>
+      </td>
+      <td>
+        <code>("checking" | "savings")[] | undefined</code>
+      </td>
+      <td>Allowed account types when rendering the account-type field.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>disabled</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>Controls disabled state and form participation.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>lang</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Inherited HTMLElement language property used as locale input.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputPlaceholderColor</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-placeholder-color</code> for hosted
+        placeholder text color.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputHeight</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-height</code> for hosted input height.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputPadding</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-padding</code> for hosted input padding
+        shorthand.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputPaddingX</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-padding-x</code> for horizontal padding.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputPaddingY</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-padding-y</code> for vertical padding.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeFontSans</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-font-sans</code> for the hosted font family.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputTextColor</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-text-color</code> for hosted input text
+        color.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputErrorTextColor</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-error-text-color</code> for error-state text
+        color.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputFontSize</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-font-size</code> for hosted input font size.
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -70,10 +346,62 @@ Required attributes: none.
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>clear</code></td><td><code>()</code></td><td><code>void</code></td><td>Clears the hosted field value in the active session.</td></tr>
-    <tr><td><code>tokenize</code></td><td><code>(requestId?: string)</code></td><td><code>Promise&lt;&#123; token: string; requestId?: string &#125;&gt;</code></td><td>Requests tokenization for the current ACH session.</td></tr>
-    <tr><td><code>checkValidity</code></td><td><code>()</code></td><td><code>boolean</code></td><td>Runs constraint validation and returns current validity.</td></tr>
-    <tr><td><code>reportValidity</code></td><td><code>()</code></td><td><code>boolean</code></td><td>Reports native validity UI and returns validity status.</td></tr>
+    <tr>
+      <td>
+        <code>clear</code>
+      </td>
+      <td>
+        <code>()</code>
+      </td>
+      <td>
+        <code>void</code>
+      </td>
+      <td>
+        Clears the hosted field value in the active session. Parent form resets
+        call this automatically.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>tokenize</code>
+      </td>
+      <td>
+        <code>(requestId?: string)</code>
+      </td>
+      <td>
+        <code>
+          Promise&lt;&#123; token: string; requestId?: string &#125;&gt;
+        </code>
+      </td>
+      <td>
+        Requests tokenization for the current ACH session. Failures, including
+        timeouts, also dispatch <code>tokenizationerror</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>checkValidity</code>
+      </td>
+      <td>
+        <code>()</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>Runs constraint validation and returns current validity.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>reportValidity</code>
+      </td>
+      <td>
+        <code>()</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>Reports native validity UI and returns validity status.</td>
+    </tr>
   </tbody>
 </table>
 
@@ -88,14 +416,67 @@ Required attributes: none.
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>load</code></td><td><code>CustomEvent&lt;AchLoadEventDetail&gt;</code></td><td>Fires when the ACH controller session is ready.</td></tr>
-    <tr><td><code>change</code></td><td><code>Event</code></td><td>Fires when the field public state changes.</td></tr>
-    <tr><td><code>focus</code></td><td><code>FocusEvent</code></td><td>Fires when the hosted field gains focus.</td></tr>
-    <tr><td><code>blur</code></td><td><code>FocusEvent</code></td><td>Fires when the hosted field loses focus.</td></tr>
-    <tr><td><code>tokenizationsuccess</code></td><td><code>CustomEvent&lt;AchTokenizationSuccessEventDetail&gt;</code></td><td>Fires when ACH tokenization succeeds.</td></tr>
-    <tr><td><code>tokenizationerror</code></td><td><code>CustomEvent&lt;AchTokenizationErrorEventDetail&gt;</code></td><td>Fires when ACH tokenization fails.</td></tr>
+    <tr>
+      <td>
+        <code>load</code>
+      </td>
+      <td>
+        <code>CustomEvent&lt;AchLoadEventDetail&gt;</code>
+      </td>
+      <td>Fires when the ACH controller session is ready.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>change</code>
+      </td>
+      <td>
+        <code>Event</code>
+      </td>
+      <td>
+        Fires on the field instance when its hosted value changes. This event
+        does not expose the raw hosted value to the host page.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>focus</code>
+      </td>
+      <td>
+        <code>FocusEvent</code>
+      </td>
+      <td>Fires when the hosted field gains focus.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>blur</code>
+      </td>
+      <td>
+        <code>FocusEvent</code>
+      </td>
+      <td>Fires when the hosted field loses focus.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>tokenizationsuccess</code>
+      </td>
+      <td>
+        <code>CustomEvent&lt;AchTokenizationSuccessEventDetail&gt;</code>
+      </td>
+      <td>Fires when ACH tokenization succeeds.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>tokenizationerror</code>
+      </td>
+      <td>
+        <code>CustomEvent&lt;AchTokenizationErrorEventDetail&gt;</code>
+      </td>
+      <td>Fires when ACH tokenization fails.</td>
+    </tr>
   </tbody>
 </table>
+
+Reset semantics follow native form-associated behavior: resetting a parent <code>&lt;form&gt;</code> clears the hosted ACH session field and returns the element to a pristine, incomplete state.
 
 ## Usage Example
 

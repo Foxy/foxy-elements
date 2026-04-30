@@ -89,10 +89,16 @@ const SELECTOR_THEME_ATTRIBUTE_MAP: ThemeAttributeMapEntry[] = [
 function applySelectorThemeAttributes(element: HTMLElement): void {
   const metrics = getShadcnInputMetrics();
   const hostBorderTotalPx = 2;
-  const hostedInputHeightPx = Math.max(metrics.outerHeightPx - hostBorderTotalPx, 0);
+  const hostedInputHeightPx = Math.max(
+    metrics.outerHeightPx - hostBorderTotalPx,
+    0,
+  );
 
   element.setAttribute("theme-input-height", `${hostedInputHeightPx}px`);
-  element.setAttribute("theme-input-padding", `${metrics.paddingY} ${metrics.paddingX}`);
+  element.setAttribute(
+    "theme-input-padding",
+    `${metrics.paddingY} ${metrics.paddingX}`,
+  );
   element.setAttribute("theme-input-padding-x", metrics.paddingX);
   element.setAttribute("theme-input-padding-y", metrics.paddingY);
 
@@ -141,13 +147,19 @@ function createDemoApiState(paymentOptions: unknown[]) {
 }
 
 type CheckoutClientLike = EventTarget & {
-  hydrateJson: (nextJson: unknown, options?: { state?: "idle" | "busy" }) => Promise<void>;
+  hydrateJson: (
+    nextJson: unknown,
+    options?: { state?: "idle" | "busy" },
+  ) => Promise<void>;
   updateBillingAddress?: (
     changes: Record<string, unknown>,
   ) => Promise<unknown> | void;
 };
 
-function seedCheckoutClientState(client: CheckoutClientLike, nextState: unknown): void {
+function seedCheckoutClientState(
+  client: CheckoutClientLike,
+  nextState: unknown,
+): void {
   const seeded = structuredClone(nextState);
   void client.hydrateJson(seeded, { state: "idle" });
 }
@@ -163,7 +175,7 @@ type SelectorStoryArgs = {
 };
 
 const meta = {
-  title: "Elements/Payment Method Selector",
+  title: "Elements/foxy-payment-method-selector",
   parameters: {
     layout: "centered",
     docs: {

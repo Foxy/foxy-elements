@@ -7,6 +7,7 @@ import type {
 import type { ReactNode } from "react";
 import type { PaymentCardFieldElement } from "../foxy-payment-card-field/element";
 import type {
+  PaymentMethodSelectorBillingError,
   PaymentController,
   PaymentMethodSelectorBillingAddress,
   PaymentMethodSelectorOption,
@@ -215,6 +216,19 @@ const messages = defineMessages({
     id: "payment_tokenize_ach_error",
     defaultMessage: "Unable to tokenize bank details.",
   },
+  billingAddressUpdateError: {
+    id: "payment_billing_update_error",
+    defaultMessage: "Unable to update billing address. Try again.",
+  },
+  noPaymentMethods: {
+    id: "payment_no_methods_available",
+    defaultMessage: "No payment methods are currently available.",
+  },
+  noPaymentMethodsDescription: {
+    id: "payment_no_methods_available_description",
+    defaultMessage:
+      "Refresh checkout or choose a different payment flow before continuing.",
+  },
   selectPlaceholder: {
     id: "generic_select_placeholder",
     defaultMessage: "Select",
@@ -259,6 +273,7 @@ const BILLING_SECTION_MESSAGES = {
   addBillingAddress: messages.addBillingAddress,
   useShippingForBilling: messages.useShippingForBilling,
   selectPlaceholder: messages.selectPlaceholder,
+  billingAddressUpdateError: messages.billingAddressUpdateError,
 };
 
 const ACH_LABEL_BY_FIELD: Partial<
@@ -410,12 +425,13 @@ type PaymentProps = {
     onControllerReady?: (controller: PaymentController | null) => void;
   }) => ReactNode;
   billingAddress?: PaymentMethodSelectorBillingAddress;
+  billingError?: PaymentMethodSelectorBillingError;
   onBillingAddressChange?: (params: {
     optionId: string;
     useShippingAddress: boolean;
     values: Record<string, string>;
   }) => void;
-}
+};
 
 function getGatewayName(gateway: string): string {
   const normalized = gateway.trim();
@@ -843,9 +859,6 @@ function CardOptionEmbed({
     const element = elementRef.current;
     if (!element || !option.hostedCard) return;
 
-    if (option.hostedCard.secureOrigin) {
-      element.secureOrigin = option.hostedCard.secureOrigin;
-    }
     element.mode = option.hostedCard.mode;
     element.disabled = Boolean(disabled);
 
@@ -888,7 +901,7 @@ function CardOptionEmbed({
 
   const fieldId = `card-hosted-field-${option.id}`;
   const fieldLabel =
-    option.hostedCard.mode === "csc-only"
+    option.hostedCard.mode === "card_csc"
       ? intl.formatMessage(messages.cardFieldLabelCsc)
       : intl.formatMessage(messages.cardFieldLabelFull);
 
@@ -901,7 +914,6 @@ function CardOptionEmbed({
         id={fieldId}
         lang={lang}
         mode={option.hostedCard.mode}
-        secure-origin={option.hostedCard.secureOrigin}
         translation-card-number-label={
           option.hostedCard.translationCardNumberLabel
         }
@@ -1084,6 +1096,7 @@ function PaymentOptionBody({
   onControllerReady,
   renderStripeContent,
   billingAddress,
+  billingError,
   onBillingAddressChange,
 }: {
   option: PaymentMethodSelectorOption;
@@ -1097,6 +1110,7 @@ function PaymentOptionBody({
     onControllerReady?: (controller: PaymentController | null) => void;
   }) => ReactNode;
   billingAddress?: PaymentMethodSelectorBillingAddress;
+  billingError?: PaymentMethodSelectorBillingError;
   onBillingAddressChange?: (params: {
     optionId: string;
     useShippingAddress: boolean;
@@ -1109,6 +1123,7 @@ function PaymentOptionBody({
       option={option}
       disabled={disabled}
       billingAddress={billingAddress}
+      billingError={billingError}
       onBillingAddressChange={onBillingAddressChange}
       fieldLabelById={BILLING_FIELD_LABEL_BY_ID}
       messages={BILLING_SECTION_MESSAGES}
@@ -1202,6 +1217,7 @@ export function Payment({
   onControllerReady,
   renderStripeContent,
   billingAddress,
+  billingError,
   onBillingAddressChange,
 }: PaymentProps) {
   const intl = useIntl();
@@ -1259,10 +1275,18 @@ export function Payment({
   }, [selectedOptionId, visibleOptions]);
 
   useEffect(() => {
+    if (
+      selectedOptionId &&
+      selection !== selectedOptionId &&
+      visibleOptions.some((option) => option.id === selectedOptionId)
+    ) {
+      return;
+    }
+
     const selected = visibleOptions.find((option) => option.id === selection);
     if (!selected) return;
     onSelectionChangeRef.current?.(selected.id, selected.type);
-  }, [selection, visibleOptions]);
+  }, [selection, selectedOptionId, visibleOptions]);
 
   const [mountedOptionIds, setMountedOptionIds] = useState<Set<string>>(
     () =>
@@ -1307,7 +1331,20 @@ export function Payment({
   }, [selection, visibleOptions]);
 
   if (!visibleOptions.length) {
-    return null;
+    return (
+      <div
+        role="status"
+        aria-live="polite"
+        className="flex w-full max-w-[34rem] flex-col gap-1 rounded-[var(--radius)] border border-input bg-card px-4 py-3"
+      >
+        <p className="m-0 text-sm font-medium">
+          {intl.formatMessage(messages.noPaymentMethods)}
+        </p>
+        <p className="m-0 text-sm text-muted-foreground">
+          {intl.formatMessage(messages.noPaymentMethodsDescription)}
+        </p>
+      </div>
+    );
   }
 
   if (loading) {
@@ -1419,6 +1456,7 @@ export function Payment({
                           }
                           renderStripeContent={renderStripeContent}
                           billingAddress={billingAddress}
+                          billingError={checked ? billingError : undefined}
                           onBillingAddressChange={onBillingAddressChange}
                         />
                       </CardContent>

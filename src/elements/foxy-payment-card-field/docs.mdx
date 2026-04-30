@@ -3,11 +3,11 @@ import * as CardEmbedStories from "./element.stories";
 
 <Meta of={CardEmbedStories} />
 
-# PaymentCardFieldElement
+# foxy-payment-card-field
 
-Form-associated hosted card field element that mounts a secure iframe for full card entry or CSC-only entry and provides tokenization and validation APIs.
+Form-associated hosted card field element that mounts a secure iframe for card entry or card security code entry and provides tokenization and validation APIs.
 
-Required attributes: none. The element still depends on `VITE_EMBED_ORIGIN` being configured for the build, even when `secure-origin` is omitted.
+Required attributes: none. The secure embed origin is always taken from `VITE_EMBED_ORIGIN` at build time.
 
 ## Attributes
 
@@ -20,29 +20,178 @@ Required attributes: none. The element still depends on `VITE_EMBED_ORIGIN` bein
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>mode</code></td><td>Card field mode for full card details or CSC only.</td><td><code>full</code></td></tr>
-    <tr><td><code>secure-origin</code></td><td>Origin of the secure embed runtime.</td><td><code>https://embed.foxy.io</code></td></tr>
-    <tr><td><code>lang</code></td><td>Locale passed to the embedded card runtime.</td><td><code>en-US</code></td></tr>
-    <tr><td><code>translation-card-number-label</code></td><td>Override label for the card number field.</td><td><code>Card number</code></td></tr>
-    <tr><td><code>translation-card-number-placeholder</code></td><td>Override placeholder for card number.</td><td><code>4111 1111 1111 1111</code></td></tr>
-    <tr><td><code>translation-card-expiration-label</code></td><td>Override label for expiration date.</td><td><code>Expiration</code></td></tr>
-    <tr><td><code>translation-card-expiration-placeholder</code></td><td>Override placeholder for expiration date.</td><td><code>MM / YY</code></td></tr>
-    <tr><td><code>translation-card-csc-label</code></td><td>Override label for security code.</td><td><code>Security code</code></td></tr>
-    <tr><td><code>translation-card-csc-placeholder</code></td><td>Override placeholder for security code.</td><td><code>CVC</code></td></tr>
-    <tr><td><code>theme-background</code></td><td>Background color token for iframe content.</td><td><code>#ffffff</code></td></tr>
-    <tr><td><code>theme-input-placeholder-color</code></td><td>Placeholder text color token.</td><td><code>#94a3b8</code></td></tr>
-    <tr><td><code>theme-input-height</code></td><td>Hosted input height.</td><td><code>44px</code></td></tr>
-    <tr><td><code>theme-input-padding</code></td><td>Hosted input shorthand padding.</td><td><code>0 12px</code></td></tr>
-    <tr><td><code>theme-input-padding-x</code></td><td>Hosted input horizontal padding override.</td><td><code>12px</code></td></tr>
-    <tr><td><code>theme-input-padding-y</code></td><td>Hosted input vertical padding override.</td><td><code>10px</code></td></tr>
-    <tr><td><code>theme-font-sans</code></td><td>Hosted input font family token.</td><td><code>"IBM Plex Sans", sans-serif</code></td></tr>
-    <tr><td><code>theme-input-text-color</code></td><td>Hosted input text color token.</td><td><code>#0f172a</code></td></tr>
-    <tr><td><code>theme-input-error-text-color</code></td><td>Error-state text color token.</td><td><code>#dc2626</code></td></tr>
-    <tr><td><code>theme-input-font-size</code></td><td>Hosted input font size token.</td><td><code>16px</code></td></tr>
+    <tr>
+      <td>
+        <code>mode</code>
+      </td>
+      <td>Card field mode for full card details or card security code only.</td>
+      <td>
+        <code>card</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>lang</code>
+      </td>
+      <td>Locale passed to the embedded card runtime.</td>
+      <td>
+        <code>en-US</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>translation-card-number-label</code>
+      </td>
+      <td>Override label for the card number field.</td>
+      <td>
+        <code>Card number</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>translation-card-number-placeholder</code>
+      </td>
+      <td>Override placeholder for card number.</td>
+      <td>
+        <code>4111 1111 1111 1111</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>translation-card-expiration-label</code>
+      </td>
+      <td>Override label for expiration date.</td>
+      <td>
+        <code>Expiration</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>translation-card-expiration-placeholder</code>
+      </td>
+      <td>Override placeholder for expiration date.</td>
+      <td>
+        <code>MM / YY</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>translation-card-csc-label</code>
+      </td>
+      <td>Override label for security code.</td>
+      <td>
+        <code>Security code</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>translation-card-csc-placeholder</code>
+      </td>
+      <td>Override placeholder for security code.</td>
+      <td>
+        <code>CVC</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-background</code>
+      </td>
+      <td>Background color token for iframe content.</td>
+      <td>
+        <code>#ffffff</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-placeholder-color</code>
+      </td>
+      <td>Placeholder text color token.</td>
+      <td>
+        <code>#94a3b8</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-height</code>
+      </td>
+      <td>Hosted input height.</td>
+      <td>
+        <code>44px</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-padding</code>
+      </td>
+      <td>Hosted input shorthand padding.</td>
+      <td>
+        <code>0 12px</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-padding-x</code>
+      </td>
+      <td>Hosted input horizontal padding override.</td>
+      <td>
+        <code>12px</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-padding-y</code>
+      </td>
+      <td>Hosted input vertical padding override.</td>
+      <td>
+        <code>10px</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-font-sans</code>
+      </td>
+      <td>Hosted input font family token.</td>
+      <td>
+        <code>"IBM Plex Sans", sans-serif</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-text-color</code>
+      </td>
+      <td>Hosted input text color token.</td>
+      <td>
+        <code>#0f172a</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-error-text-color</code>
+      </td>
+      <td>Error-state text color token.</td>
+      <td>
+        <code>#dc2626</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-font-size</code>
+      </td>
+      <td>Hosted input font size token.</td>
+      <td>
+        <code>16px</code>
+      </td>
+    </tr>
   </tbody>
 </table>
 
 ## Properties
+
+Every custom attribute above also has a corresponding camelCase property. For
+example, <code>translation-card-number-label</code> is also available as
+
+<code>translationCardNumberLabel</code>. Native DOM properties such as
+<code>lang</code> remain the inherited <code>HTMLElement</code> property.
 
 <table>
   <thead>
@@ -53,10 +202,223 @@ Required attributes: none. The element still depends on `VITE_EMBED_ORIGIN` bein
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>mode</code></td><td><code>"full" | "csc-only"</code></td><td>Current card field rendering mode.</td></tr>
-    <tr><td><code>secureOrigin</code></td><td><code>string</code></td><td>Current secure embed origin used for iframe mounting.</td></tr>
-    <tr><td><code>disabled</code></td><td><code>boolean</code></td><td>Disables interaction and tokenization while true.</td></tr>
-    <tr><td><code>lang</code></td><td><code>string</code></td><td>Inherited HTMLElement language property used as locale input.</td></tr>
+    <tr>
+      <td>
+        <code>mode</code>
+      </td>
+      <td>
+        <code>"card" | "card_csc"</code>
+      </td>
+      <td>Current card field rendering mode.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>disabled</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>Disables interaction and tokenization while true.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>lang</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Inherited HTMLElement language property used as locale input.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>translationCardNumberLabel</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>translation-card-number-label</code> for the card number
+        label override.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>translationCardNumberPlaceholder</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>translation-card-number-placeholder</code> for the card
+        number placeholder override.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>translationCardExpirationLabel</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>translation-card-expiration-label</code> for the
+        expiration label override.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>translationCardExpirationPlaceholder</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>translation-card-expiration-placeholder</code> for the
+        expiration placeholder override.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>translationCardCscLabel</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>translation-card-csc-label</code> for the security code
+        label override.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>translationCardCscPlaceholder</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>translation-card-csc-placeholder</code> for the security
+        code placeholder override.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeBackground</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-background</code> for the hosted field background
+        token.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputPlaceholderColor</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-placeholder-color</code> for placeholder text
+        color.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputHeight</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-height</code> for hosted input height.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputPadding</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-padding</code> for hosted input shorthand
+        padding.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputPaddingX</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-padding-x</code> for hosted input horizontal
+        padding.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputPaddingY</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-padding-y</code> for hosted input vertical
+        padding.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeFontSans</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-font-sans</code> for hosted field typography.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputTextColor</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-text-color</code> for hosted input text
+        color.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputErrorTextColor</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-error-text-color</code> for hosted error text
+        color.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputFontSize</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-font-size</code> for hosted typography
+        sizing.
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -72,10 +434,58 @@ Required attributes: none. The element still depends on `VITE_EMBED_ORIGIN` bein
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>clear</code></td><td><code>()</code></td><td><code>void</code></td><td>Clears card input values in the secure iframe.</td></tr>
-    <tr><td><code>tokenize</code></td><td><code>(requestId?: string)</code></td><td><code>Promise&lt;&#123; token: string; requestId?: string; cardBrand?: string; last4?: string; expirationMonth?: number; expirationYear?: number &#125;&gt;</code></td><td>Requests card tokenization from the secure iframe.</td></tr>
-    <tr><td><code>checkValidity</code></td><td><code>()</code></td><td><code>boolean</code></td><td>Runs constraint validation and returns current validity.</td></tr>
-    <tr><td><code>reportValidity</code></td><td><code>()</code></td><td><code>boolean</code></td><td>Reports native validity UI and returns validity status.</td></tr>
+    <tr>
+      <td>
+        <code>clear</code>
+      </td>
+      <td>
+        <code>()</code>
+      </td>
+      <td>
+        <code>void</code>
+      </td>
+      <td>Clears card input values in the secure iframe.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>tokenize</code>
+      </td>
+      <td>
+        <code>(requestId?: string)</code>
+      </td>
+      <td>
+        <code>
+          Promise&lt;&#123; token: string; requestId?: string; cardBrand?:
+          string; last4?: string; expirationMonth?: number; expirationYear?:
+          number &#125;&gt;
+        </code>
+      </td>
+      <td>Requests card tokenization from the secure iframe.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>checkValidity</code>
+      </td>
+      <td>
+        <code>()</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>Runs constraint validation and returns current validity.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>reportValidity</code>
+      </td>
+      <td>
+        <code>()</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>Reports native validity UI and returns validity status.</td>
+    </tr>
   </tbody>
 </table>
 
@@ -90,10 +500,49 @@ Required attributes: none. The element still depends on `VITE_EMBED_ORIGIN` bein
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>load</code></td><td><code>Event</code></td><td>Fires when the secure iframe runtime is ready.</td></tr>
-    <tr><td><code>resize</code></td><td><code>CustomEvent&lt;&#123; height: string &#125;&gt;</code></td><td>Fires when iframe content requests a height change.</td></tr>
-    <tr><td><code>tokenizationsuccess</code></td><td><code>CustomEvent&lt;&#123; token: string; requestId?: string; cardBrand?: string; last4?: string; expirationMonth?: number; expirationYear?: number &#125;&gt;</code></td><td>Fires when card tokenization succeeds.</td></tr>
-    <tr><td><code>tokenizationerror</code></td><td><code>CustomEvent&lt;&#123; code: CardEmbedTokenizeErrorCode; message?: string; requestId?: string &#125;&gt;</code></td><td>Fires when card tokenization fails.</td></tr>
+    <tr>
+      <td>
+        <code>load</code>
+      </td>
+      <td>
+        <code>Event</code>
+      </td>
+      <td>Fires when the secure iframe runtime is ready.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>resize</code>
+      </td>
+      <td>
+        <code>CustomEvent&lt;&#123; height: string &#125;&gt;</code>
+      </td>
+      <td>Fires when iframe content requests a height change.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>tokenizationsuccess</code>
+      </td>
+      <td>
+        <code>
+          CustomEvent&lt;&#123; token: string; requestId?: string; cardBrand?:
+          string; last4?: string; expirationMonth?: number; expirationYear?:
+          number &#125;&gt;
+        </code>
+      </td>
+      <td>Fires when card tokenization succeeds.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>tokenizationerror</code>
+      </td>
+      <td>
+        <code>
+          CustomEvent&lt;&#123; code: CardEmbedTokenizeErrorCode; message?:
+          string; requestId?: string &#125;&gt;
+        </code>
+      </td>
+      <td>Fires when card tokenization fails.</td>
+    </tr>
   </tbody>
 </table>
 
@@ -104,8 +553,7 @@ Required attributes: none. The element still depends on `VITE_EMBED_ORIGIN` bein
   <label for="card-field">Card details</label>
   <foxy-payment-card-field
     id="card-field"
-    mode="full"
-    secure-origin="https://embed.foxy.io"
+    mode="card"
     lang="en-US"
     theme-input-height="44px"
     theme-input-padding="0 12px"
@@ -125,7 +573,11 @@ Required attributes: none. The element still depends on `VITE_EMBED_ORIGIN` bein
   });
 
   cardField.addEventListener("tokenizationerror", (event) => {
-    console.error("Card tokenization failed", event.detail.code, event.detail.message);
+    console.error(
+      "Card tokenization failed",
+      event.detail.code,
+      event.detail.message,
+    );
   });
 
   cardTokenizeButton.addEventListener("click", async () => {

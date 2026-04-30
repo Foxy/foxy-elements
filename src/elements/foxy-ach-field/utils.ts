@@ -275,6 +275,9 @@ export function attachActionLogging(
 export function dispatchHostedChange(
   field: AchFieldElement,
   states: Partial<Record<AchHostedFieldName, HostedState>>,
+  options?: {
+    changedFields?: AchHostedFieldName[];
+  },
 ): void {
   const internalField = field as unknown as StoryFieldInternals;
   const onWindowMessage = internalField._onWindowMessage;
@@ -294,10 +297,15 @@ export function dispatchHostedChange(
     {} as Record<string, HostedState>,
   );
 
+  const changedFields = options?.changedFields?.map(
+    (fieldName) => FIELD_TO_EMBED[fieldName],
+  );
+
   onWindowMessage({
     data: {
       type: "change",
       fields,
+      changedFields: changedFields ?? [],
     },
     origin,
     source,

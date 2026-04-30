@@ -2,11 +2,12 @@ import type { Dispatch, SetStateAction } from "react";
 import type { MessageDescriptor, IntlShape } from "react-intl";
 import type {
   PaymentMethodSelectorBillingAddress,
+  PaymentMethodSelectorBillingError,
   PaymentMethodSelectorBillingField,
   PaymentMethodSelectorOption,
 } from "./types";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -28,11 +29,18 @@ const BILLING_ADDRESS_SUPPORTED_TYPES = new Set([
   "stripe-payment-element",
 ]);
 
+function getBillingAddressSignature(
+  billingAddress: PaymentMethodSelectorBillingAddress | undefined,
+): string {
+  return JSON.stringify(billingAddress ?? null);
+}
+
 type BillingSectionMessages = {
   billingAddressTitle: MessageDescriptor;
   addBillingAddress: MessageDescriptor;
   useShippingForBilling: MessageDescriptor;
   selectPlaceholder: MessageDescriptor;
+  billingAddressUpdateError: MessageDescriptor;
 };
 
 function buildInitialBillingValues(
@@ -121,6 +129,7 @@ export function BillingAddressSection({
   option,
   disabled,
   billingAddress,
+  billingError,
   onBillingAddressChange,
   fieldLabelById,
   messages,
@@ -128,6 +137,7 @@ export function BillingAddressSection({
   option: PaymentMethodSelectorOption;
   disabled?: boolean;
   billingAddress?: PaymentMethodSelectorBillingAddress;
+  billingError?: PaymentMethodSelectorBillingError;
   onBillingAddressChange?: (params: {
     optionId: string;
     useShippingAddress: boolean;
@@ -144,6 +154,10 @@ export function BillingAddressSection({
   const [values, setValues] = useState<Record<string, string>>(() =>
     buildInitialBillingValues(billingAddress),
   );
+  const onBillingAddressChangeRef = useRef(onBillingAddressChange);
+  const lastReportedChangeRef = useRef<string | null>(null);
+  onBillingAddressChangeRef.current = onBillingAddressChange;
+  const billingAddressSignature = getBillingAddressSignature(billingAddress);
 
   const supportsBillingAddress = option.type
     ? BILLING_ADDRESS_SUPPORTED_TYPES.has(option.type)
@@ -155,19 +169,30 @@ export function BillingAddressSection({
     );
     setShowSummaryEditor(false);
     setValues(buildInitialBillingValues(billingAddress));
-  }, [billingAddress, option.id]);
+    lastReportedChangeRef.current = null;
+  }, [billingAddressSignature, option.id]);
 
   useEffect(() => {
     if (!supportsBillingAddress || !billingAddress) return;
 
-    onBillingAddressChange?.({
+    const nextChangeSignature = JSON.stringify({
+      optionId: option.id,
+      useShippingAddress,
+      values,
+    });
+    if (lastReportedChangeRef.current === nextChangeSignature) {
+      return;
+    }
+
+    lastReportedChangeRef.current = nextChangeSignature;
+
+    onBillingAddressChangeRef.current?.({
       optionId: option.id,
       useShippingAddress,
       values,
     });
   }, [
-    billingAddress,
-    onBillingAddressChange,
+    billingAddressSignature,
     option.id,
     supportsBillingAddress,
     useShippingAddress,
@@ -209,37 +234,52 @@ export function BillingAddressSection({
     </FieldSet>
   );
 
+  const errorMarkup = billingError ? (
+    <p className="m-0 text-sm text-destructive">
+      {billingError.message ||
+        intl.formatMessage(messages.billingAddressUpdateError)}
+    </p>
+  ) : null;
+
   if (option.type === "saved-card") {
     if (showSummaryEditor) {
-      return fieldsMarkup;
+      return (
+        <div className="flex flex-col gap-2.5">
+          {fieldsMarkup}
+          {errorMarkup}
+        </div>
+      );
     }
 
     const summaryLines = getBillingSummaryLines(values);
     return (
-      <Button
-        type="button"
-        variant="outline"
-        disabled={disabled}
-        onClick={() => setShowSummaryEditor(true)}
-        className="h-auto w-full items-start justify-start px-3 py-3 text-left"
-      >
-        <span className="flex flex-col gap-1">
-          <span className="font-semibold">
-            {intl.formatMessage(messages.billingAddressTitle)}
-          </span>
-          {summaryLines.length ? (
-            summaryLines.map((line) => (
-              <span key={line} className="text-sm text-muted-foreground">
-                {line}
-              </span>
-            ))
-          ) : (
-            <span className="text-sm text-muted-foreground">
-              {intl.formatMessage(messages.addBillingAddress)}
+      <div className="flex flex-col gap-2.5">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={disabled}
+          onClick={() => setShowSummaryEditor(true)}
+          className="h-auto w-full items-start justify-start px-3 py-3 text-left"
+        >
+          <span className="flex flex-col gap-1">
+            <span className="font-semibold">
+              {intl.formatMessage(messages.billingAddressTitle)}
             </span>
-          )}
-        </span>
-      </Button>
+            {summaryLines.length ? (
+              summaryLines.map((line) => (
+                <span key={line} className="text-sm text-muted-foreground">
+                  {line}
+                </span>
+              ))
+            ) : (
+              <span className="text-sm text-muted-foreground">
+                {intl.formatMessage(messages.addBillingAddress)}
+              </span>
+            )}
+          </span>
+        </Button>
+        {errorMarkup}
+      </div>
     );
   }
 
@@ -265,6 +305,7 @@ export function BillingAddressSection({
       ) : null}
 
       {(!hasShippingToggle || !useShippingAddress) && fieldsMarkup}
+      {errorMarkup}
     </div>
   );
 }

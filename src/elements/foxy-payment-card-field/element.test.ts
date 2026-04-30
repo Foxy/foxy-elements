@@ -41,6 +41,24 @@ function getInternals(element: HTMLElement): FakeInternals {
   return internals;
 }
 
+const STRING_PROPERTY_MAPPINGS = [
+  [
+    "translationCardNumberLabel",
+    "translation-card-number-label",
+    "Card number",
+  ],
+  [
+    "translationCardExpirationPlaceholder",
+    "translation-card-expiration-placeholder",
+    "MM / YY",
+  ],
+  ["translationCardCscPlaceholder", "translation-card-csc-placeholder", "CVV"],
+  ["themeBackground", "theme-background", "#ffffff"],
+  ["themeInputHeight", "theme-input-height", "56px"],
+  ["themeInputPaddingX", "theme-input-padding-x", "14px"],
+  ["themeFontSans", "theme-font-sans", "Figtree"],
+] as const;
+
 describe("PaymentCardFieldElement", () => {
   beforeEach(() => {
     installFakeInternals();
@@ -52,6 +70,30 @@ describe("PaymentCardFieldElement", () => {
     vi.restoreAllMocks();
   });
 
+  it.each(STRING_PROPERTY_MAPPINGS)(
+    "reflects %s through %s",
+    (propertyName, attributeName, value) => {
+      const element = document.createElement(
+        PAYMENT_CARD_FIELD_ELEMENT_TAG,
+      ) as PaymentCardFieldElement;
+
+      (element as unknown as Record<string, string | undefined>)[propertyName] =
+        value;
+
+      expect(element.getAttribute(attributeName)).toBe(value);
+      expect(
+        (element as unknown as Record<string, string | undefined>)[
+          propertyName
+        ],
+      ).toBe(value);
+
+      (element as unknown as Record<string, string | undefined>)[propertyName] =
+        undefined;
+
+      expect(element.hasAttribute(attributeName)).toBe(false);
+    },
+  );
+
   it("observes explicit translation attributes and omits demo/template attributes", () => {
     expect(PaymentCardFieldElement.observedAttributes).toContain(
       "translation-card-number-label",
@@ -59,6 +101,7 @@ describe("PaymentCardFieldElement", () => {
     expect(PaymentCardFieldElement.observedAttributes).toContain(
       "translation-card-csc-placeholder",
     );
+    expect(PaymentCardFieldElement.observedAttributes).toContain("disabled");
     expect(PaymentCardFieldElement.observedAttributes).not.toContain(
       "template-set-id",
     );
@@ -79,6 +122,23 @@ describe("PaymentCardFieldElement", () => {
 
     expect(element.disabled).toBe(true);
     expect(internals.states.has("disabled")).toBe(true);
+  });
+
+  it("supports declarative disabled attribute reflection", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    element.setAttribute("disabled", "");
+    document.body.append(element);
+
+    const internals = getInternals(element);
+    expect(element.disabled).toBe(true);
+    expect(internals.states.has("disabled")).toBe(true);
+
+    element.removeAttribute("disabled");
+
+    expect(element.disabled).toBe(false);
+    expect(internals.states.has("disabled")).toBe(false);
   });
 
   it("tracks focused and user validity using ElementInternals states", () => {
@@ -117,7 +177,6 @@ describe("PaymentCardFieldElement", () => {
     const element = document.createElement(
       PAYMENT_CARD_FIELD_ELEMENT_TAG,
     ) as PaymentCardFieldElement;
-    element.secureOrigin = "https://embed.example";
 
     element.setAttribute("translation-card-number-label", "Card number");
     element.setAttribute("translation-card-csc-label", "Security code");
@@ -142,9 +201,8 @@ describe("PaymentCardFieldElement", () => {
     const element = document.createElement(
       PAYMENT_CARD_FIELD_ELEMENT_TAG,
     ) as PaymentCardFieldElement;
-    element.secureOrigin = "https://embed.example";
     element.lang = "es-MX";
-    element.mode = "csc-only";
+    element.mode = "card_csc";
     document.body.append(element);
 
     const iframe = element.shadowRoot?.querySelector("iframe");
@@ -156,6 +214,38 @@ describe("PaymentCardFieldElement", () => {
     );
     expect(url.searchParams.get("lang")).toBe("es-MX");
     expect(url.searchParams.get("mode")).toBe("card_csc");
+  });
+
+  it("falls back to card mode for unsupported mode values", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    element.setAttribute("mode", "unsupported-mode");
+    document.body.append(element);
+
+    expect(element.mode).toBe("card");
+    expect(element.getAttribute("mode")).toBe("card");
+  });
+
+  it("uses VITE_EMBED_ORIGIN to build the iframe URL", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const iframe = element.shadowRoot?.querySelector("iframe");
+    expect(iframe).toBeTruthy();
+
+    const url = new URL(
+      iframe?.getAttribute("src") ?? "",
+      window.location.origin,
+    );
+    const expectedOrigin = new URL(
+      import.meta.env.VITE_EMBED_ORIGIN,
+      window.location.origin,
+    ).origin;
+    expect(url.origin).toBe(expectedOrigin);
+    expect(url.pathname).toBe("/v2.html");
   });
 
   it("rejects tokenize with invalid_state when iframe is not ready", async () => {
@@ -177,12 +267,16 @@ describe("PaymentCardFieldElement", () => {
 
     const postMessage = vi.fn();
     const privateElement = element as unknown as {
-      _port: { postMessage: (message: string) => void };
+      _port: {
+        close: () => void;
+        onmessage: ((event: MessageEvent<string>) => void) | null;
+        postMessage: (message: string) => void;
+      };
       _ready: boolean;
       _handlePortMessage: (event: MessageEvent<string>) => void;
     };
 
-    privateElement._port = { postMessage };
+    privateElement._port = { close: vi.fn(), onmessage: null, postMessage };
     privateElement._ready = true;
 
     let eventDetail:
@@ -246,6 +340,83 @@ describe("PaymentCardFieldElement", () => {
     });
     expect(postMessage).toHaveBeenCalledWith(
       JSON.stringify({ type: "tokenization_request", id: "card-request-1" }),
+    );
+  });
+
+  it("rejects duplicate tokenize request IDs while the original request is pending", async () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const postMessage = vi.fn();
+    const privateElement = element as unknown as {
+      _port: {
+        close: () => void;
+        onmessage: ((event: MessageEvent<string>) => void) | null;
+        postMessage: (message: string) => void;
+      };
+      _ready: boolean;
+      _handlePortMessage: (event: MessageEvent<string>) => void;
+    };
+
+    privateElement._port = { close: vi.fn(), onmessage: null, postMessage };
+    privateElement._ready = true;
+
+    const firstRequest = element.tokenize("card-request-duplicate");
+
+    await expect(element.tokenize("card-request-duplicate")).rejects.toThrow(
+      'Tokenization request "card-request-duplicate" is already pending.',
+    );
+
+    expect(postMessage).toHaveBeenCalledTimes(1);
+
+    privateElement._handlePortMessage({
+      data: JSON.stringify({
+        type: "tokenization_response",
+        id: "card-request-duplicate",
+        token: "tok_test_card",
+      }),
+    } as MessageEvent<string>);
+
+    await expect(firstRequest).resolves.toEqual({
+      token: "tok_test_card",
+      requestId: "card-request-duplicate",
+    });
+  });
+
+  it("restores previously known invalid state when re-enabled", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const internals = getInternals(element);
+    const privateElement = element as unknown as {
+      _handlePortMessage: (event: MessageEvent<string>) => void;
+    };
+
+    privateElement._handlePortMessage({
+      data: JSON.stringify({
+        type: "validation",
+        field: "cc_number",
+        valid: false,
+        code: "pattern_mismatch",
+      }),
+    } as MessageEvent<string>);
+
+    expect(internals.setValidity).toHaveBeenLastCalledWith(
+      { customError: true },
+      "Please enter a valid card number.",
+    );
+
+    element.disabled = true;
+    expect(internals.setValidity).toHaveBeenLastCalledWith({});
+
+    element.disabled = false;
+    expect(internals.setValidity).toHaveBeenLastCalledWith(
+      { customError: true },
+      "Please enter a valid card number.",
     );
   });
 });

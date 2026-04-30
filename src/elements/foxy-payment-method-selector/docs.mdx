@@ -3,11 +3,13 @@ import * as PaymentMethodSelectorStories from "./element.stories";
 
 <Meta of={PaymentMethodSelectorStories} />
 
-# PaymentMethodSelectorElement
+# foxy-payment-method-selector
 
 Payment method selector element that renders available checkout payment options, tracks the selected option, and tokenizes the selected method payload.
 
 Required attributes: none. The element still requires checkout client state to be initialized before it can render payment options and tokenize.
+
+If checkout state is initialized but exposes no recognized payment methods, the element renders an unavailable state instead of fabricating a fallback option. In that state, <code>tokenize()</code> rejects because no payment method is selected.
 
 ## Attributes
 
@@ -20,30 +22,196 @@ Required attributes: none. The element still requires checkout client state to b
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>lang</code></td><td>Locale used to resolve translated UI messages.</td><td><code>en-US</code></td></tr>
-    <tr><td><code>option-index</code></td><td>Zero-based index of the selected payment option.</td><td><code>0</code></td></tr>
-    <tr><td><code>theme-background</code></td><td>Background token for selector and embedded payment surfaces.</td><td><code>#ffffff</code></td></tr>
-    <tr><td><code>theme-foreground</code></td><td>Default text color token.</td><td><code>#0f172a</code></td></tr>
-    <tr><td><code>theme-card</code></td><td>Card surface token for option containers.</td><td><code>#f8fafc</code></td></tr>
-    <tr><td><code>theme-card-foreground</code></td><td>Text color token for card surfaces.</td><td><code>#0f172a</code></td></tr>
-    <tr><td><code>theme-primary</code></td><td>Primary accent token for selected controls.</td><td><code>#111827</code></td></tr>
-    <tr><td><code>theme-primary-foreground</code></td><td>Foreground color token on primary surfaces.</td><td><code>#ffffff</code></td></tr>
-    <tr><td><code>theme-muted-foreground</code></td><td>Muted text and placeholder token.</td><td><code>#64748b</code></td></tr>
-    <tr><td><code>theme-destructive</code></td><td>Error and destructive state token.</td><td><code>#dc2626</code></td></tr>
-    <tr><td><code>theme-border</code></td><td>Border color token for containers and controls.</td><td><code>#cbd5e1</code></td></tr>
-    <tr><td><code>theme-input</code></td><td>Input outline/background token.</td><td><code>#e2e8f0</code></td></tr>
-    <tr><td><code>theme-ring</code></td><td>Focus ring token.</td><td><code>#2563eb</code></td></tr>
-    <tr><td><code>theme-font-sans</code></td><td>Sans font family token for selector and embedded fields.</td><td><code>"IBM Plex Sans", sans-serif</code></td></tr>
-    <tr><td><code>theme-radius</code></td><td>Border radius token.</td><td><code>0.75rem</code></td></tr>
-    <tr><td><code>theme-spacing</code></td><td>Spacing scale token used by embedded appearances.</td><td><code>4px</code></td></tr>
-    <tr><td><code>theme-input-height</code></td><td>Hosted card input height override token.</td><td><code>40px</code></td></tr>
-    <tr><td><code>theme-input-padding</code></td><td>Hosted card input shorthand padding token.</td><td><code>0 12px</code></td></tr>
-    <tr><td><code>theme-input-padding-x</code></td><td>Hosted card input horizontal padding override token.</td><td><code>12px</code></td></tr>
-    <tr><td><code>theme-input-padding-y</code></td><td>Hosted card input vertical padding override token.</td><td><code>10px</code></td></tr>
+    <tr>
+      <td>
+        <code>lang</code>
+      </td>
+      <td>Locale used to resolve translated UI messages.</td>
+      <td>
+        <code>en-US</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>option-index</code>
+      </td>
+      <td>Zero-based index of the selected payment option.</td>
+      <td>
+        <code>0</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-background</code>
+      </td>
+      <td>Background token for selector and embedded payment surfaces.</td>
+      <td>
+        <code>#ffffff</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-foreground</code>
+      </td>
+      <td>Default text color token.</td>
+      <td>
+        <code>#0f172a</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-card</code>
+      </td>
+      <td>Card surface token for option containers.</td>
+      <td>
+        <code>#f8fafc</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-card-foreground</code>
+      </td>
+      <td>Text color token for card surfaces.</td>
+      <td>
+        <code>#0f172a</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-primary</code>
+      </td>
+      <td>Primary accent token for selected controls.</td>
+      <td>
+        <code>#111827</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-primary-foreground</code>
+      </td>
+      <td>Foreground color token on primary surfaces.</td>
+      <td>
+        <code>#ffffff</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-muted-foreground</code>
+      </td>
+      <td>Muted text and placeholder token.</td>
+      <td>
+        <code>#64748b</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-destructive</code>
+      </td>
+      <td>Error and destructive state token.</td>
+      <td>
+        <code>#dc2626</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-border</code>
+      </td>
+      <td>Border color token for containers and controls.</td>
+      <td>
+        <code>#cbd5e1</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input</code>
+      </td>
+      <td>Input outline/background token.</td>
+      <td>
+        <code>#e2e8f0</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-ring</code>
+      </td>
+      <td>Focus ring token.</td>
+      <td>
+        <code>#2563eb</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-font-sans</code>
+      </td>
+      <td>Sans font family token for selector and embedded fields.</td>
+      <td>
+        <code>"IBM Plex Sans", sans-serif</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-radius</code>
+      </td>
+      <td>Border radius token.</td>
+      <td>
+        <code>0.75rem</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-spacing</code>
+      </td>
+      <td>Spacing scale token used by embedded appearances.</td>
+      <td>
+        <code>4px</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-height</code>
+      </td>
+      <td>Hosted card input height override token.</td>
+      <td>
+        <code>40px</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-padding</code>
+      </td>
+      <td>Hosted card input shorthand padding token.</td>
+      <td>
+        <code>0 12px</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-padding-x</code>
+      </td>
+      <td>Hosted card input horizontal padding override token.</td>
+      <td>
+        <code>12px</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-padding-y</code>
+      </td>
+      <td>Hosted card input vertical padding override token.</td>
+      <td>
+        <code>10px</code>
+      </td>
+    </tr>
   </tbody>
 </table>
 
 ## Properties
+
+All custom theme attributes above are also available as camelCase properties.
+For example, <code>theme-primary</code> is also available as
+
+<code>themePrimary</code>. Native DOM properties such as <code>lang</code>
+remain the inherited <code>HTMLElement</code> property.
 
 <table>
   <thead>
@@ -54,8 +222,231 @@ Required attributes: none. The element still requires checkout client state to b
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>optionIndex</code></td><td><code>number | undefined</code></td><td>Selected payment option index; undefined clears selection.</td></tr>
-    <tr><td><code>lang</code></td><td><code>string</code></td><td>Inherited HTMLElement language property used as locale input.</td></tr>
+    <tr>
+      <td>
+        <code>optionIndex</code>
+      </td>
+      <td>
+        <code>number | undefined</code>
+      </td>
+      <td>Selected payment option index; undefined clears selection.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>lang</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Inherited HTMLElement language property used as locale input.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeBackground</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-background</code> for the selector background
+        token.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeForeground</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-foreground</code> for the default text color token.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeCard</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-card</code> for option container surfaces.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeCardForeground</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-card-foreground</code> for card surface text color.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themePrimary</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-primary</code> for primary accent styling.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themePrimaryForeground</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-primary-foreground</code> for text on primary
+        surfaces.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeMutedForeground</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-muted-foreground</code> for muted text and
+        placeholder styling.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeDestructive</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-destructive</code> for error and destructive
+        states.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeBorder</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-border</code> for control and container borders.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInput</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input</code> for input outline and background
+        styling.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeRing</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-ring</code> for focus ring styling.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeFontSans</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-font-sans</code> for selector and embedded field
+        typography.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeRadius</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-radius</code> for border radius styling.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeSpacing</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-spacing</code> for embedded spacing scale.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputHeight</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-height</code> for hosted card input height.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputPadding</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-padding</code> for hosted card input
+        shorthand padding.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputPaddingX</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-padding-x</code> for hosted card input
+        horizontal padding.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputPaddingY</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-padding-y</code> for hosted card input
+        vertical padding.
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -71,13 +462,30 @@ Required attributes: none. The element still requires checkout client state to b
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>tokenize</code></td><td><code>()</code></td><td><code>Promise&lt;PaymentMethodSelectorTokenizePayload&gt;</code></td><td>Tokenizes the selected payment option and resolves the same payload emitted by <code>tokenizationsuccess</code>.</td></tr>
+    <tr>
+      <td>
+        <code>tokenize</code>
+      </td>
+      <td>
+        <code>()</code>
+      </td>
+      <td>
+        <code>Promise&lt;PaymentMethodSelectorTokenizePayload&gt;</code>
+      </td>
+      <td>
+        Tokenizes the selected payment option and resolves the same payload
+        emitted by <code>tokenizationsuccess</code>. Rejects when no payment
+        method is currently selected or available.
+      </td>
+    </tr>
   </tbody>
 </table>
 
 ## Tokenization Payload
 
-<code>tokenize()</code> resolves with this payload. The <code>tokenizationsuccess</code> event emits the same object as <code>event.detail.payload</code>.
+<code>tokenize()</code> resolves with this payload. The
+<code>tokenizationsuccess</code> event emits the same object as
+<code>event.detail.payload</code>.
 
 ```ts
 type PaymentMethodSelectorTokenizePayload = {
@@ -118,12 +526,61 @@ Payload fields by selected option:
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>new-card</code></td><td><code>token?: string</code>, <code>requestId?: string</code>, <code>cardBrand?: string</code>, <code>last4?: string</code>, <code>expirationMonth?: number</code>, <code>expirationYear?: number</code></td></tr>
-    <tr><td><code>saved-card</code></td><td>Non-Stripe saved cards that require CSC include <code>token?: string</code> and <code>requestId?: string</code>.</td></tr>
-    <tr><td><code>ach</code></td><td><code>token?: string</code>, <code>requestId?: string</code></td></tr>
-    <tr><td><code>stripe-card-element</code></td><td><code>paymentMethodId?: string</code>, <code>cardBrand?: string</code>, <code>last4?: string</code>, <code>expirationMonth?: number</code>, <code>expirationYear?: number</code></td></tr>
-    <tr><td><code>stripe-payment-element</code></td><td><code>paymentMethodId?: string</code>, <code>paymentMethodType?: string</code>, <code>cardBrand?: string</code>, <code>last4?: string</code>, <code>expirationMonth?: number</code>, <code>expirationYear?: number</code></td></tr>
-    <tr><td><code>apple-pay</code>, <code>google-pay</code>, <code>generic</code></td><td>No method-specific fields are added by the selector.</td></tr>
+    <tr>
+      <td>
+        <code>new-card</code>
+      </td>
+      <td>
+        <code>token?: string</code>, <code>requestId?: string</code>,{" "}
+        <code>cardBrand?: string</code>, <code>last4?: string</code>,{" "}
+        <code>expirationMonth?: number</code>,{" "}
+        <code>expirationYear?: number</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>saved-card</code>
+      </td>
+      <td>
+        Non-Stripe saved cards that require CSC include{" "}
+        <code>token?: string</code> and <code>requestId?: string</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>ach</code>
+      </td>
+      <td>
+        <code>token?: string</code>, <code>requestId?: string</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>stripe-card-element</code>
+      </td>
+      <td>
+        <code>paymentMethodId?: string</code>, <code>cardBrand?: string</code>,{" "}
+        <code>last4?: string</code>, <code>expirationMonth?: number</code>,{" "}
+        <code>expirationYear?: number</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>stripe-payment-element</code>
+      </td>
+      <td>
+        <code>paymentMethodId?: string</code>,{" "}
+        <code>paymentMethodType?: string</code>, <code>cardBrand?: string</code>
+        , <code>last4?: string</code>, <code>expirationMonth?: number</code>,{" "}
+        <code>expirationYear?: number</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>apple-pay</code>, <code>google-pay</code>, <code>generic</code>
+      </td>
+      <td>No method-specific fields are added by the selector.</td>
+    </tr>
   </tbody>
 </table>
 
@@ -138,10 +595,61 @@ Payload fields by selected option:
     </tr>
   </thead>
   <tbody>
-    <tr><td><code>tokenizationstart</code></td><td><code>CustomEvent&lt;&#123; optionIndex: number &#125;&gt;</code></td><td>Cancelable event fired before tokenization begins.</td></tr>
-    <tr><td><code>tokenizationsuccess</code></td><td><code>CustomEvent&lt;&#123; payload: PaymentMethodSelectorTokenizePayload &#125;&gt;</code></td><td>Fires when tokenization succeeds.</td></tr>
-    <tr><td><code>tokenizationerror</code></td><td><code>CustomEvent&lt;&#123; error: unknown &#125;&gt;</code></td><td>Fires when tokenization fails.</td></tr>
-    <tr><td><code>optionindexchange</code></td><td><code>CustomEvent&lt;&#123; optionIndex: number &#125;&gt;</code></td><td>Fires after user selection changes to a new option.</td></tr>
+    <tr>
+      <td>
+        <code>tokenizationstart</code>
+      </td>
+      <td>
+        <code>CustomEvent&lt;&#123; optionIndex: number &#125;&gt;</code>
+      </td>
+      <td>Cancelable event fired before tokenization begins.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>tokenizationsuccess</code>
+      </td>
+      <td>
+        <code>
+          CustomEvent&lt;&#123; payload: PaymentMethodSelectorTokenizePayload
+          &#125;&gt;
+        </code>
+      </td>
+      <td>Fires when tokenization succeeds.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>tokenizationerror</code>
+      </td>
+      <td>
+        <code>CustomEvent&lt;&#123; error: unknown &#125;&gt;</code>
+      </td>
+      <td>Fires when tokenization fails.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>optionindexchange</code>
+      </td>
+      <td>
+        <code>CustomEvent&lt;&#123; optionIndex: number &#125;&gt;</code>
+      </td>
+      <td>Fires after user selection changes to a new option.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>billingaddresserror</code>
+      </td>
+      <td>
+        <code>
+          CustomEvent&lt;&#123; error: unknown; optionId: string;
+          useShippingAddress: boolean; values: Record&lt;string, string&gt;
+          &#125;&gt;
+        </code>
+      </td>
+      <td>
+        Fires when a billing-address update fails after the user changes billing
+        details or toggles shipping-address reuse.
+      </td>
+    </tr>
   </tbody>
 </table>
 

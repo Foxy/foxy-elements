@@ -39,7 +39,7 @@ type AchStoryArgs = {
 };
 
 const meta = {
-  title: "Elements/ACH Field",
+  title: "Elements/foxy-ach-field",
   parameters: {
     layout: "centered",
     actions: {
@@ -159,7 +159,7 @@ export const EventSemantics: Story = {
     docs: {
       description: {
         story:
-          "Deterministic focus/change/blur transitions with event semantics verification and Actions output.",
+          "Deterministic focus/value-change/blur transitions showing that only hosted value changes fire change.",
       },
     },
   },
@@ -177,7 +177,7 @@ export const EventSemantics: Story = {
     surface.append(
       item.wrapper,
       createStoryNote(
-        "Play function emits ach:change states to verify transition ordering and event bubbling rules.",
+        "Play function emits focus-only, value-change, and blur-only updates to verify that change fires only for the value mutation.",
       ),
     );
 
@@ -205,25 +205,47 @@ export const EventSemantics: Story = {
       { once: true },
     );
 
-    dispatchHostedChange(field, {
-      "routing-number": {
-        empty: true,
-        complete: false,
-        errorCode: null,
-        focused: true,
-        touched: true,
+    dispatchHostedChange(
+      field,
+      {
+        "routing-number": {
+          empty: true,
+          complete: false,
+          errorCode: null,
+          focused: true,
+          touched: true,
+        },
       },
-    });
+      { changedFields: [] },
+    );
 
-    dispatchHostedChange(field, {
-      "routing-number": {
-        empty: false,
-        complete: true,
-        errorCode: null,
-        focused: false,
-        touched: true,
+    dispatchHostedChange(
+      field,
+      {
+        "routing-number": {
+          empty: false,
+          complete: true,
+          errorCode: null,
+          focused: true,
+          touched: true,
+        },
       },
-    });
+      { changedFields: ["routing-number"] },
+    );
+
+    dispatchHostedChange(
+      field,
+      {
+        "routing-number": {
+          empty: false,
+          complete: true,
+          errorCode: null,
+          focused: false,
+          touched: true,
+        },
+      },
+      { changedFields: [] },
+    );
 
     await waitFor(() => {
       expect(focusEvent).toBeDefined();
@@ -269,34 +291,46 @@ export const ValidityStates: Story = {
   play: async ({ canvasElement }) => {
     const field = getPrimaryField(canvasElement);
 
-    dispatchHostedChange(field, {
-      "routing-number": {
-        empty: true,
-        complete: false,
-        errorCode: null,
-        touched: true,
+    dispatchHostedChange(
+      field,
+      {
+        "routing-number": {
+          empty: true,
+          complete: false,
+          errorCode: null,
+          touched: true,
+        },
       },
-    });
+      { changedFields: [] },
+    );
     expect(field.checkValidity()).toBe(false);
 
-    dispatchHostedChange(field, {
-      "routing-number": {
-        empty: false,
-        complete: true,
-        errorCode: "invalid_routing_number",
-        touched: true,
+    dispatchHostedChange(
+      field,
+      {
+        "routing-number": {
+          empty: false,
+          complete: true,
+          errorCode: "invalid_routing_number",
+          touched: true,
+        },
       },
-    });
+      { changedFields: ["routing-number"] },
+    );
     expect(field.reportValidity()).toBe(false);
 
-    dispatchHostedChange(field, {
-      "routing-number": {
-        empty: false,
-        complete: true,
-        errorCode: null,
-        touched: true,
+    dispatchHostedChange(
+      field,
+      {
+        "routing-number": {
+          empty: false,
+          complete: true,
+          errorCode: null,
+          touched: true,
+        },
       },
-    });
+      { changedFields: ["routing-number"] },
+    );
     expect(field.checkValidity()).toBe(true);
   },
 };
@@ -367,18 +401,22 @@ export const SessionGroupTopology: Story = {
       "[data-story-role='isolated']",
     ) as AchFieldElement;
 
-    dispatchHostedChange(sharedRouting, {
-      "routing-number": {
-        empty: false,
-        complete: true,
-        errorCode: null,
+    dispatchHostedChange(
+      sharedRouting,
+      {
+        "routing-number": {
+          empty: false,
+          complete: true,
+          errorCode: null,
+        },
+        "account-number": {
+          empty: true,
+          complete: false,
+          errorCode: null,
+        },
       },
-      "account-number": {
-        empty: true,
-        complete: false,
-        errorCode: null,
-      },
-    });
+      { changedFields: ["routing-number"] },
+    );
 
     await waitFor(() => {
       expect(sharedRouting.checkValidity()).toBe(true);
@@ -728,23 +766,33 @@ export const FormIntegrationInteraction: Story = {
     const submit = canvas.getByRole("button", { name: "Submit ACH form" });
     const primaryField = getPrimaryField(canvasElement);
 
-    dispatchHostedChange(primaryField, {
-      "routing-number": {
-        empty: false,
-        complete: true,
-        errorCode: null,
+    dispatchHostedChange(
+      primaryField,
+      {
+        "routing-number": {
+          empty: false,
+          complete: true,
+          errorCode: null,
+        },
+        "account-number": {
+          empty: false,
+          complete: true,
+          errorCode: null,
+        },
+        "account-holder-name": {
+          empty: false,
+          complete: true,
+          errorCode: null,
+        },
       },
-      "account-number": {
-        empty: false,
-        complete: true,
-        errorCode: null,
+      {
+        changedFields: [
+          "routing-number",
+          "account-number",
+          "account-holder-name",
+        ],
       },
-      "account-holder-name": {
-        empty: false,
-        complete: true,
-        errorCode: null,
-      },
-    });
+    );
 
     await userEvent.click(submit);
 
