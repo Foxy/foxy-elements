@@ -74,6 +74,7 @@ export { NucleonElement } from './NucleonElement/NucleonElement';
 export { Pagination } from './Pagination/Pagination';
 export { PasskeyCard } from './PasskeyCard/PasskeyCard';
 export { PasskeyForm } from './PasskeyForm/PasskeyForm';
+export { ProductCard } from './ProductCard/ProductCard';
 export { PaymentCard } from './PaymentCard/PaymentCard';
 export { PaymentCardEmbed } from './PaymentCardEmbed/PaymentCardEmbed';
 export { ShipmentCard } from './ShipmentCard/ShipmentCard';

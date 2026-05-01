@@ -512,6 +512,10 @@ export const groups = [
     files: './src/elements/public/PasskeyForm/**/*.test.ts',
   },
   {
+    name: 'foxy-product-card',
+    files: './src/elements/public/ProductCard/**/*.test.ts',
+  },
+  {
     name: 'foxy-payment-card',
     files: './src/elements/public/PaymentCard/**/*.test.ts',
   },
