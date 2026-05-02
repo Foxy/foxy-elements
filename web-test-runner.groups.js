@@ -516,6 +516,18 @@ export const groups = [
     files: './src/elements/public/ProductCard/**/*.test.ts',
   },
   {
+    name: 'foxy-product-form',
+    files: './src/elements/public/ProductForm/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-tag-card',
+    files: './src/elements/public/ProductTagCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-tag-form',
+    files: './src/elements/public/ProductTagForm/**/*.test.ts',
+  },
+  {
     name: 'foxy-payment-card',
     files: './src/elements/public/PaymentCard/**/*.test.ts',
   },

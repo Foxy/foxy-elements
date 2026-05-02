@@ -1,0 +1,143 @@
+{
+  "header": {
+    "title_existing": "Product",
+    "title_new": "New product",
+    "subtitle_standalone": "Standalone product",
+    "subtitle_parent": "Parent product with variants",
+    "subtitle_variant": "Variant",
+    "subtitle_template": "Template (not listed in catalog)",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
+  "inheritance_note": "Empty fields inherit from the parent product.",
+  "general": {
+    "title": "General",
+    "subtitle": "Core product details.",
+    "name": {
+      "label": "Name",
+      "placeholder": "e.g. Acme Widget",
+      "helper_text": "",
+      "v8n_required": "Required."
+    },
+    "sku": {
+      "label": "SKU",
+      "placeholder": "e.g. WIDGET-001",
+      "helper_text": "Unique within this store.",
+      "v8n_required": "Required.",
+      "v8n_too_long": "Must be 255 characters or fewer."
+    },
+    "price": {
+      "label": "Price",
+      "placeholder": "0.00",
+      "helper_text": "Default-currency price.",
+      "v8n_negative": "Must be zero or greater."
+    },
+    "description": {
+      "label": "Description",
+      "placeholder": "Short description shown on storefronts.",
+      "helper_text": ""
+    },
+    "category": {
+      "label": "Category",
+      "placeholder": "Choose a category",
+      "helper_text": "Foxy Products taxonomy. Separate from billing/shipping item categories."
+    }
+  },
+  "stock": {
+    "title": "Stock",
+    "subtitle": "Inventory tracking.",
+    "stock-level": {
+      "label": "Stock level",
+      "placeholder": "Leave blank to skip stock tracking",
+      "helper_text": "0 = out of stock. Blank = not tracked."
+    }
+  },
+  "tags": {
+    "title": "Tags",
+    "subtitle": "Free-form labels for filtering and search.",
+    "create_button_text": "Add a tag",
+    "delete_button_text": "Remove",
+    "card": {
+      "spinner": {
+        "loading_busy": "Loading",
+        "loading_empty": "No data",
+        "loading_error": "Unknown error"
+      }
+    },
+    "form": {
+      "header": {
+        "title_existing": "Tag",
+        "title_new": "New tag"
+      },
+      "tag": {
+        "label": "Tag",
+        "placeholder": "e.g. bestseller",
+        "v8n_required": "Required.",
+        "v8n_too_long": "Must be 255 characters or fewer."
+      },
+      "create": { "create": "Create", "cancel": "Cancel" },
+      "delete": { "delete": "Delete", "cancel": "Cancel" },
+      "submit": { "create": "Create", "cancel": "Cancel" },
+      "undo": { "undo": "Undo", "cancel": "Cancel" }
+    },
+    "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "previous": "Previous"
+    },
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_empty": "No tags yet",
+      "loading_error": "Unknown error"
+    }
+  },
+  "variants": {
+    "title": "Variants",
+    "subtitle": "Variants of this product. Filled in by Unit 6."
+  },
+  "advanced": {
+    "title": "Advanced",
+    "subtitle": "Options, multi-currency prices, subscription fields, SEO. Filled in by Unit 8."
+  },
+  "stock-rules": {
+    "title": "Stock rules",
+    "subtitle": "Cross-product inventory rules. Filled in by Unit 9."
+  },
+  "events": {
+    "title": "Events",
+    "subtitle": "Activity log for this product. Filled in by Unit 9."
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "create": { "create": "Create", "cancel": "Cancel" },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Soft-delete this product? Restorable later by clearing deleted_at."
+  },
+  "submit": { "create": "Create", "cancel": "Cancel" },
+  "undo": {
+    "undo": "Undo",
+    "cancel": "Cancel",
+    "undo_prompt": "Discard unsaved changes?"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Unknown error"
+  }
+}
