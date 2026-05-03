@@ -75,6 +75,8 @@ export { Pagination } from './Pagination/index';
 export { PasskeyCard } from './PasskeyCard/index';
 export { PasskeyForm } from './PasskeyForm/index';
 export { ProductCard } from './ProductCard/index';
+export { ProductCategoryCard } from './ProductCategoryCard/index';
+export { ProductCategoryForm } from './ProductCategoryForm/index';
 export { ProductForm } from './ProductForm/index';
 export { ProductTagCard } from './ProductTagCard/index';
 export { ProductTagForm } from './ProductTagForm/index';

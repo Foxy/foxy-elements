@@ -50,6 +50,7 @@ export interface ProductEvent extends Graph {
     'fx:product': Product;
   };
   props: {
+    id: number;
     event_type: ProductEventType;
     event_source: ProductEventSource | null;
     /** Structured diff: `{ field: { before: val, after: val } }`. */

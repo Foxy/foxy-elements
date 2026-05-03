@@ -87,6 +87,7 @@ export interface Product extends Graph {
   };
 
   props: {
+    id: number;
     sku: string;
     product_type: ProductType;
     /** ID of the parent product when this is a variant, or the inherited template. */
@@ -127,6 +128,7 @@ export interface ProductStockRule extends Graph {
     'fx:target_product': Product;
   };
   props: {
+    id: number;
     /** When this product is purchased… */
     source_product_id: number;
     /** …decrement the stock of this product. */

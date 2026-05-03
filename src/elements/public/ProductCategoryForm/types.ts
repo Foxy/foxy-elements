@@ -34,6 +34,7 @@ export interface ProductCategory extends Graph {
     'fx:create_upload_url'?: any;
   };
   props: {
+    id: number;
     parent_id: number | null;
     name: string;
     /** Lowercase kebab-case URL slug, unique per parent within a store. */

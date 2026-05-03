@@ -31,6 +31,7 @@ export interface ProductTag extends Graph {
     'fx:product': Product;
   };
   props: {
+    id: number;
     product_id: number;
     tag: string;
     date_created: string | null;
