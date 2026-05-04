@@ -26,7 +26,11 @@ import {
   VisaFlatRoundedIcon,
 } from "react-svg-credit-card-payment-icons";
 import { CreditCard, Landmark, Wallet } from "lucide-react";
-import { Card, CardContent, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+} from "@foxy.io/design-system/ui/card";
 import { BillingAddressSection } from "./billing";
 import {
   Field,
@@ -35,9 +39,12 @@ import {
   FieldLabel,
   FieldLegend,
   FieldSet,
-} from "@/components/ui/field";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@foxy.io/design-system/ui/field";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@foxy.io/design-system/ui/radio-group";
+import { Skeleton } from "@foxy.io/design-system/ui/skeleton";
 import {
   type HostedFieldStyleAttributes,
   useHostedFieldStyleAttributes,

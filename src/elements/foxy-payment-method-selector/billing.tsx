@@ -9,10 +9,15 @@ import type {
 
 import { useEffect, useRef, useState } from "react";
 import { useIntl } from "react-intl";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Button } from "@foxy.io/design-system/ui/button";
+import { Checkbox } from "@foxy.io/design-system/ui/checkbox";
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@foxy.io/design-system/ui/field";
+import { Input } from "@foxy.io/design-system/ui/input";
 import {
   Select,
   SelectContent,
@@ -20,7 +25,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@foxy.io/design-system/ui/select";
 
 const BILLING_ADDRESS_SUPPORTED_TYPES = new Set([
   "new-card",

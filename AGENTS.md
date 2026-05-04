@@ -21,6 +21,11 @@
 - If an element composes other custom elements, import their implementation modules from the parent module so they self-register before use.
 - Use the `@/` alias for imports from `src/*`.
 
+## UI System
+
+- Use `@foxy.io/design-system` as the shared UI layer. Import UI components from `@foxy.io/design-system/ui/*` and styles from `@foxy.io/design-system/styles.css` instead of adding local `src/components/ui` copies.
+- The design system is built on top of shadcn/ui. When extending or reasoning about its components, apply shadcn/ui conventions and patterns to the design system's public API instead of re-implementing local shadcn/ui variants.
+
 ## API Conventions
 
 - Public element APIs are dual-surfaced: dashed HTML attributes map to camelCase properties, while native `HTMLElement` names like `lang` stay unchanged.
