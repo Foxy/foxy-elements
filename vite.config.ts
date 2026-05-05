@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import dts from "vite-plugin-dts";
 
-import { dependencies } from "./package.json";
+import { dependencies, peerDependencies } from "./package.json";
 import { resolve } from "node:path";
 
 import {
@@ -19,6 +19,10 @@ import { readdirSync } from "node:fs";
 export default defineConfig(({ mode }) => {
   const rolldownOptions: BuildEnvironmentOptions["rolldownOptions"] = {};
   const plugins: PluginOption[] = [react(), tailwindcss()];
+  const externalPackages = [
+    ...Object.keys(dependencies),
+    ...Object.keys(peerDependencies ?? {}),
+  ];
   const srcDir = resolve(import.meta.dirname, "./src");
   const isCDN = mode === "cdn";
   const elementsDir = resolve(srcDir, "./elements");
@@ -43,7 +47,7 @@ export default defineConfig(({ mode }) => {
   } else {
     plugins.push(
       pluginExternal({
-        externalizeDeps: Object.keys(dependencies),
+        externalizeDeps: externalPackages,
         nodeBuiltins: true,
       }),
       dts({

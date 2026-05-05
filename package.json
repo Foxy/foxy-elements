@@ -17,6 +17,7 @@
   "exports": {
     ".": "./dist/npm/index.js",
     "./foxy-ach-field": "./dist/npm/foxy-ach-field.js",
+    "./foxy-express-checkout": "./dist/npm/foxy-express-checkout.js",
     "./foxy-payment-card-field": "./dist/npm/foxy-payment-card-field.js",
     "./foxy-payment-method-selector": "./dist/npm/foxy-payment-method-selector.js"
   },
@@ -29,8 +30,6 @@
     "prepack": "npm run build:npm"
   },
   "dependencies": {
-    "@foxy.io/design-system": "file:foxy.io-design-system-0.0.0.tgz",
-    "@foxy.io/sdk": "file:foxy.io-sdk-0.0.0.tgz",
     "@stripe/react-stripe-js": "^6.0.0",
     "@stripe/stripe-js": "^9.0.0",
     "clsx": "^2.1.1",
@@ -41,11 +40,17 @@
     "react-svg-credit-card-payment-icons": "^5.1.2",
     "tailwind-merge": "^3.4.0"
   },
+  "peerDependencies": {
+    "@foxy.io/design-system": "0.0.0",
+    "@foxy.io/sdk": "0.0.0"
+  },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.1.1",
     "@eslint/js": "^9.30.1",
     "@fontsource-variable/inter": "^5.2.8",
     "@formatjs/cli": "^6.7.2",
+    "@foxy.io/design-system": "file:foxy.io-design-system-0.0.0.tgz",
+    "@foxy.io/sdk": "file:foxy.io-sdk-0.0.0.tgz",
     "@storybook/addon-a11y": "^10.3.5",
     "@storybook/addon-docs": "^10.3.5",
     "@storybook/addon-themes": "^10.3.5",

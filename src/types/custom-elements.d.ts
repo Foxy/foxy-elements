@@ -1,5 +1,6 @@
 import type { CSSProperties, DetailedHTMLProps, HTMLAttributes } from "react";
 import type { AchFieldElement } from "@/elements/foxy-ach-field/element";
+import type { ExpressCheckoutElement } from "@/elements/foxy-express-checkout/element";
 import type { PaymentCardFieldElement } from "@/elements/foxy-payment-card-field/element";
 import type { PaymentMethodSelectorElement } from "@/elements/foxy-payment-method-selector/element";
 
@@ -133,6 +134,16 @@ type PaymentMethodSelectorElementProps = Omit<
   "theme-input-padding-y"?: string;
 };
 
+type ExpressCheckoutElementProps = Omit<
+  DetailedHTMLProps<
+    HTMLAttributes<ExpressCheckoutElement>,
+    ExpressCheckoutElement
+  >,
+  "style"
+> & {
+  lang?: string;
+};
+
 type ApplePayButtonElementProps = DetailedHTMLProps<
   HTMLAttributes<HTMLElement>,
   HTMLElement
@@ -186,6 +197,7 @@ declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
       "foxy-ach-field": AchFieldElementProps;
+      "foxy-express-checkout": ExpressCheckoutElementProps;
       "foxy-payment-card-field": CardEmbedElementProps;
       "foxy-payment-method-selector": PaymentMethodSelectorElementProps;
       "apple-pay-button": ApplePayButtonElementProps;
@@ -198,6 +210,7 @@ declare module "react/jsx-runtime" {
   namespace JSX {
     interface IntrinsicElements {
       "foxy-ach-field": AchFieldElementProps;
+      "foxy-express-checkout": ExpressCheckoutElementProps;
       "foxy-payment-card-field": CardEmbedElementProps;
       "foxy-payment-method-selector": PaymentMethodSelectorElementProps;
       "apple-pay-button": ApplePayButtonElementProps;
