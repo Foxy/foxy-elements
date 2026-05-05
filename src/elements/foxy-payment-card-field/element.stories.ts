@@ -34,7 +34,7 @@ type CardStoryArgs = {
 };
 
 const meta = {
-  title: "Elements/foxy-payment-card-field",
+  title: "Universal/foxy-payment-card-field",
   parameters: {
     layout: "centered",
     actions: {

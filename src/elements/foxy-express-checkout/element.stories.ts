@@ -89,7 +89,7 @@ function renderElement(
 }
 
 const meta = {
-  title: "foxy-express-checkout",
+  title: "Checkout/foxy-express-checkout",
   parameters: {
     layout: "centered",
     docs: {

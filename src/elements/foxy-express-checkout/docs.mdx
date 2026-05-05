@@ -1,15 +1,16 @@
 import { Meta } from "@storybook/blocks";
 import * as ExpressCheckoutStories from "./element.stories";
 
-<Meta of={ExpressCheckoutStories} />
+<Meta of={ExpressCheckoutStories} name="Docs" />
 
 # foxy-express-checkout
 
 Custom element that renders express checkout wallet buttons from the checkout
 SDK client's API JSON. The element reads supported express checkout
 configuration from <code>client.json.express_checkout_options</code> in
-<code>@foxy.io/sdk/checkout/client</code> and uses <code>lang</code> as its
-only direct input.
+
+<code>@foxy.io/sdk/checkout/client</code> and uses <code>lang</code> as its only
+direct input.
 
 Required attributes: none. The checkout SDK client must already be initialized
 with API JSON that contains a supported express checkout option. For the

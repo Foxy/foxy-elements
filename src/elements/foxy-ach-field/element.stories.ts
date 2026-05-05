@@ -39,7 +39,7 @@ type AchStoryArgs = {
 };
 
 const meta = {
-  title: "Elements/foxy-ach-field",
+  title: "Universal/foxy-ach-field",
   parameters: {
     layout: "centered",
     actions: {

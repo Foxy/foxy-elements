@@ -175,7 +175,7 @@ type SelectorStoryArgs = {
 };
 
 const meta = {
-  title: "Elements/foxy-payment-method-selector",
+  title: "Checkout/foxy-payment-method-selector",
   parameters: {
     layout: "centered",
     docs: {
