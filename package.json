@@ -42,7 +42,7 @@
   },
   "peerDependencies": {
     "@foxy.io/design-system": "0.0.0",
-    "@foxy.io/sdk": "0.0.0"
+    "@foxy.io/sdk": "file:foxy.io-sdk-0.0.0.tgz"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.1.1",
