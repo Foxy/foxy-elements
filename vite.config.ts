@@ -44,6 +44,10 @@ export default defineConfig(({ mode }) => {
         },
       }),
     );
+
+    rolldownOptions.output = {
+      postBanner: "/* See licenses of bundled dependencies in LICENSE.md */",
+    };
   } else {
     plugins.push(
       pluginExternal({
@@ -55,10 +59,6 @@ export default defineConfig(({ mode }) => {
         rollupTypes: true,
       }),
     );
-
-    rolldownOptions.output = {
-      postBanner: "/* See licenses of bundled dependencies in LICENSE.md */",
-    };
 
     entry.index = resolve(elementsDir, "./index.ts");
   }
