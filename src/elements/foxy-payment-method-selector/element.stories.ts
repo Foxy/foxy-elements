@@ -187,7 +187,7 @@ const meta = {
   },
   render: ({ apiState, optionIndex }) => {
     const wrapper = document.createElement("div");
-    wrapper.style.width = "420px";
+    wrapper.style.width = "640px";
     const client = checkoutClient as CheckoutClientLike;
     seedCheckoutClientState(client, apiState);
 

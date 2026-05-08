@@ -59,7 +59,7 @@ function createCheckoutApiState(
 
 function createStorySurface(note: string): HTMLDivElement {
   const wrapper = document.createElement("div");
-  wrapper.style.width = "420px";
+  wrapper.style.width = "640px";
   wrapper.style.display = "grid";
   wrapper.style.gap = "12px";
 
