@@ -8,6 +8,7 @@ import type {
   PaymentMethodSelectorTokenizePayload,
 } from "./types";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
+import { Alert, AlertDescription } from "@foxy.io/design-system/ui/alert";
 
 import "../foxy-ach-field/element";
 import "../foxy-payment-card-field/element";
@@ -421,25 +422,13 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     if (!this.#root) return;
 
     this.#root.render(
-      <div
-        role="status"
-        aria-live="polite"
-        style={{
-          border: "1px solid hsl(var(--border, 240 5.9% 90%))",
-          borderRadius: "var(--radius, 0.5rem)",
-          background: "hsl(var(--card, 0 0% 100%))",
-          color: "hsl(var(--foreground, 240 10% 3.9%))",
-          padding: "0.875rem",
-          maxWidth: "34rem",
-          fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "0.95rem",
-          lineHeight: "1.35rem",
-        }}
-      >
-        Checkout client is not initialized. Load the checkout SDK loader or
-        configure the client from @foxy.io/sdk/checkout/client before rendering
-        this element.
-      </div>,
+      <Alert variant="destructive" aria-live="polite">
+        <AlertDescription>
+          Checkout client is not initialized. Load the checkout SDK loader or
+          configure the client from @foxy.io/sdk/checkout/client before
+          rendering this element.
+        </AlertDescription>
+      </Alert>,
     );
   }
 

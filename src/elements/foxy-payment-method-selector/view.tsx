@@ -1342,7 +1342,7 @@ export function Payment({
       <div
         role="status"
         aria-live="polite"
-        className="flex w-full max-w-[34rem] flex-col gap-1 rounded-[var(--radius)] border border-input bg-card px-4 py-3"
+        className="flex w-full flex-col gap-1 rounded-[var(--radius)] border border-input bg-card px-4 py-3"
       >
         <p className="m-0 text-sm font-medium">
           {intl.formatMessage(messages.noPaymentMethods)}
@@ -1356,10 +1356,7 @@ export function Payment({
 
   if (loading) {
     return (
-      <div
-        className="flex w-full max-w-[34rem] flex-col gap-2.5"
-        aria-live="polite"
-      >
+      <div className="flex w-full flex-col gap-2.5" aria-live="polite">
         <Skeleton className="h-9 w-full" />
         <Skeleton className="h-22 w-full" />
         <p className="m-0 text-sm text-muted-foreground">

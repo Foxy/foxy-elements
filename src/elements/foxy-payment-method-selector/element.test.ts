@@ -269,6 +269,31 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
+  it("renders the uninitialized alert and rejects tokenization when checkout client state is missing", async () => {
+    const restoreClient = overrideClientState(undefined);
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const alert = element.shadowRoot?.querySelector('[data-slot="alert"]');
+      await waitForText(
+        () => alert?.textContent,
+        "Checkout client is not initialized.",
+      );
+      expect(alert?.getAttribute("role")).toBe("alert");
+      await expect(element.tokenize()).rejects.toThrow(
+        "Checkout client is not initialized.",
+      );
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
   it("mounts and cleans up stripe light DOM hosts when the selected option changes", async () => {
     const restoreClient = overrideClientState({
       payment_options: [
