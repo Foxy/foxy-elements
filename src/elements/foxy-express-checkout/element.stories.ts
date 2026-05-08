@@ -205,6 +205,42 @@ export const MissingConfigFallback: Story = {
   },
 };
 
+export const Uninitialized: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Fallback state shown when the shared checkout client has not been initialized yet and exposes neither state nor JSON.",
+      },
+    },
+  },
+  render: ({ lang }) => {
+    const wrapper = createStorySurface(
+      "This story clears checkout client state before render so the element exercises its no-client-data fallback.",
+    );
+    const element = document.createElement(
+      "foxy-express-checkout",
+    ) as ExpressCheckoutElement;
+
+    setCheckoutClientApiState(undefined);
+    element.lang = lang;
+
+    wrapper.append(element);
+    return wrapper;
+  },
+  play: async ({ canvasElement }) => {
+    const element = canvasElement.querySelector(
+      "foxy-express-checkout",
+    ) as ExpressCheckoutElement | null;
+
+    await waitFor(() => {
+      expect(element?.shadowRoot?.textContent).toContain(
+        "Express checkout is not configured yet.",
+      );
+    });
+  },
+};
+
 export const LangFallbackLocale: Story = {
   args: {
     lang: "fr-CA",

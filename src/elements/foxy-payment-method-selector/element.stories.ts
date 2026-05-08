@@ -133,10 +133,8 @@ function createDemoApiState(paymentOptions: unknown[]) {
 }
 
 type CheckoutClientLike = EventTarget & {
-  hydrateJson: (
-    nextJson: unknown,
-    options?: { state?: "idle" | "busy" },
-  ) => Promise<void>;
+  state?: unknown;
+  json?: unknown;
   updateBillingAddress?: (
     changes: Record<string, unknown>,
   ) => Promise<unknown> | void;
@@ -146,8 +144,16 @@ function seedCheckoutClientState(
   client: CheckoutClientLike,
   nextState: unknown,
 ): void {
-  const seeded = structuredClone(nextState);
-  void client.hydrateJson(seeded, { state: "idle" });
+  Object.defineProperty(client, "state", {
+    configurable: true,
+    value: undefined,
+    writable: true,
+  });
+  Object.defineProperty(client, "json", {
+    configurable: true,
+    value: nextState === undefined ? undefined : structuredClone(nextState),
+    writable: true,
+  });
 }
 
 type PaymentMethodSelectorElementLike = HTMLElement & {
@@ -200,6 +206,21 @@ const meta = {
 export default meta;
 
 type Story = StoryObj<SelectorStoryArgs>;
+
+export const Uninitialized: Story = {
+  args: {
+    apiState: undefined,
+    optionIndex: undefined,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Shows the fallback status message when the shared checkout client has not been initialized.",
+      },
+    },
+  },
+};
 
 export const NewCard: Story = {
   args: {
