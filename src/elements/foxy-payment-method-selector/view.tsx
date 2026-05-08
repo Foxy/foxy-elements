@@ -32,6 +32,7 @@ import {
   CardDescription,
 } from "@foxy.io/design-system/ui/card";
 import { BillingAddressSection } from "./billing";
+import { Checkbox } from "@foxy.io/design-system/ui/checkbox";
 import {
   Field,
   FieldContent,
@@ -206,6 +207,14 @@ const messages = defineMessages({
   achAccountHolderName: {
     id: "payment_ach_account_holder_name_label",
     defaultMessage: "Name on account",
+  },
+  achOwnerConfirmationLabel: {
+    id: "payment_ach_owner_confirmation_label",
+    defaultMessage: "I'm the owner of this account",
+  },
+  achOwnerConfirmationError: {
+    id: "payment_ach_owner_confirmation_error",
+    defaultMessage: "Please confirm that you own this account.",
   },
   cardFieldLabelFull: {
     id: "payment_card_field_label_full",
@@ -975,6 +984,8 @@ function AchOptionEmbed({
   onControllerReady?: (controller: PaymentController | null) => void;
 }) {
   const intl = useIntl();
+  const [ownerConfirmed, setOwnerConfirmed] = useState(false);
+  const [ownerConfirmationError, setOwnerConfirmationError] = useState(false);
   const [error, setError] = useState<
     AchTokenizationErrorEventDetail["code"] | null
   >(null);
@@ -1013,6 +1024,13 @@ function AchOptionEmbed({
 
     const controller: PaymentController = {
       tokenize: async (requestId?: string) => {
+        if (!ownerConfirmed) {
+          setOwnerConfirmationError(true);
+          throw new Error(
+            intl.formatMessage(messages.achOwnerConfirmationError),
+          );
+        }
+
         const payload = await firstMounted.tokenize(requestId);
         return {
           token: payload.token,
@@ -1021,7 +1039,10 @@ function AchOptionEmbed({
       },
     };
 
-    const onTokenizeSuccess = () => setError(null);
+    const onTokenizeSuccess = () => {
+      setError(null);
+      setOwnerConfirmationError(false);
+    };
     const onTokenizeError = (event: Event) => {
       const detail = (event as CustomEvent<AchTokenizationErrorEventDetail>)
         .detail;
@@ -1040,7 +1061,7 @@ function AchOptionEmbed({
       firstMounted.removeEventListener("tokenizationerror", onTokenizeError);
       onControllerReady?.(null);
     };
-  }, [option.hostedFields, onControllerReady]);
+  }, [intl, onControllerReady, option.hostedFields, ownerConfirmed]);
 
   if (!option.hostedFields) {
     return null;
@@ -1084,6 +1105,32 @@ function AchOptionEmbed({
               </Field>
             );
           })}
+          <Field orientation="horizontal" className="sm:col-span-2">
+            <Checkbox
+              id={`ach-owner-confirmation-${option.id}`}
+              checked={ownerConfirmed}
+              disabled={disabled}
+              data-ach-owner-confirmation="true"
+              onCheckedChange={(checked) => {
+                const isChecked = Boolean(checked);
+                setOwnerConfirmed(isChecked);
+                if (isChecked) {
+                  setOwnerConfirmationError(false);
+                }
+              }}
+              aria-label={intl.formatMessage(
+                messages.achOwnerConfirmationLabel,
+              )}
+            />
+            <FieldLabel htmlFor={`ach-owner-confirmation-${option.id}`}>
+              {intl.formatMessage(messages.achOwnerConfirmationLabel)}
+            </FieldLabel>
+          </Field>
+          {ownerConfirmationError ? (
+            <p className="m-0 text-sm text-destructive sm:col-span-2">
+              {intl.formatMessage(messages.achOwnerConfirmationError)}
+            </p>
+          ) : null}
         </FieldGroup>
       </FieldSet>
       {error ? (

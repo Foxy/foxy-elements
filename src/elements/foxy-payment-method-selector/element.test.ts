@@ -84,6 +84,25 @@ function createBillingApiState() {
   };
 }
 
+function createAchApiState() {
+  return {
+    payment_options: [
+      {
+        type: "ach",
+        gateway: "authorize",
+        hosted_fields: {
+          labels: {
+            routing_number: "Routing number",
+            account_number: "Account number",
+            account_type: "Account type",
+            account_holder_name: "Name on account",
+          },
+        },
+      },
+    ],
+  };
+}
+
 const STRING_PROPERTY_MAPPINGS = (
   Object.entries(THEME_PROPERTY_TO_ATTRIBUTE) as [string, string][]
 ).map(([propertyName, attributeName]) => {
@@ -332,6 +351,91 @@ describe("PaymentMethodSelectorElement", () => {
         1,
       );
     } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("renders the ACH owner confirmation checkbox", async () => {
+    const restoreClient = overrideClientState(createAchApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const checkbox = element.shadowRoot?.querySelector(
+        '[data-ach-owner-confirmation="true"]',
+      ) as HTMLElement | null;
+
+      expect(checkbox).toBeTruthy();
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "I'm the owner of this account",
+      );
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("rejects ACH tokenization until owner confirmation is checked", async () => {
+    const restoreClient = overrideClientState(createAchApiState());
+    const tokenize = vi.fn(() =>
+      Promise.resolve({ token: "ach_token_123", requestId: "ach-req-1" }),
+    );
+    const achFieldPrototype = customElements.get("foxy-ach-field")?.prototype;
+    const tokenizeDescriptor = achFieldPrototype
+      ? Object.getOwnPropertyDescriptor(achFieldPrototype, "tokenize")
+      : undefined;
+
+    if (!achFieldPrototype || !tokenizeDescriptor?.value) {
+      restoreClient();
+      throw new Error("Missing foxy-ach-field tokenize prototype for test.");
+    }
+
+    const tokenizeSpy = vi
+      .spyOn(achFieldPrototype, "tokenize")
+      .mockImplementation(tokenize);
+
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      await expect(element.tokenize()).rejects.toThrow(
+        "Please confirm that you own this account.",
+      );
+      expect(tokenize).not.toHaveBeenCalled();
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Please confirm that you own this account.",
+      );
+
+      const checkbox = element.shadowRoot?.querySelector(
+        '[data-ach-owner-confirmation="true"]',
+      ) as HTMLElement | null;
+      expect(checkbox).toBeTruthy();
+
+      checkbox?.click();
+      await waitForRender();
+
+      const payload = await element.tokenize();
+
+      expect(tokenize).toHaveBeenCalledTimes(1);
+      expect(payload).toEqual({
+        optionIndex: 0,
+        optionType: "ach",
+        token: "ach_token_123",
+        requestId: "ach-req-1",
+      });
+    } finally {
+      tokenizeSpy.mockRestore();
       element.remove();
       restoreClient();
     }
