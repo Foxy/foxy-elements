@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { THEME_PROPERTY_TO_ATTRIBUTE } from "@/lib/theme-mixin";
 
 import {
   ACH_FIELD_ELEMENT_TAG,
@@ -145,26 +146,23 @@ function dispatchTokenizationError(
   } as unknown as MessageEvent);
 }
 
-const THEME_PROPERTY_MAPPINGS = [
-  ["themeInputPlaceholderColor", "theme-input-placeholder-color"],
-  ["themeInputHeight", "theme-input-height"],
-  ["themeInputPadding", "theme-input-padding"],
-  ["themeInputPaddingX", "theme-input-padding-x"],
-  ["themeInputPaddingY", "theme-input-padding-y"],
-  ["themeFontSans", "theme-font-sans"],
-  ["themeInputTextColor", "theme-input-text-color"],
-  ["themeInputErrorTextColor", "theme-input-error-text-color"],
-  ["themeInputFontSize", "theme-input-font-size"],
-] as const;
+const THEME_PROPERTY_MAPPINGS = Object.entries(THEME_PROPERTY_TO_ATTRIBUTE) as [
+  string,
+  string,
+][];
 
 describe("AchFieldElement events", () => {
   beforeEach(() => {
     installFakeInternals();
     document.body.innerHTML = "";
+    document.documentElement.style.removeProperty("--font-sans");
+    document.documentElement.style.removeProperty("--input-height");
   });
 
   afterEach(() => {
     document.body.innerHTML = "";
+    document.documentElement.style.removeProperty("--font-sans");
+    document.documentElement.style.removeProperty("--input-height");
     vi.useRealTimers();
     vi.restoreAllMocks();
   });
@@ -461,10 +459,33 @@ describe("AchFieldElement events", () => {
 
       fieldRecord[propertyName] = undefined;
       expect(field.hasAttribute(attributeName)).toBe(false);
-      expect(fieldRecord[propertyName]).toBeUndefined();
     }
 
     field.themeInputHeight = " 44px ";
     expect(field.getAttribute("theme-input-height")).toBe("44px");
+  });
+
+  it("uses CSS custom properties as default theme values", () => {
+    const field = document.createElement(
+      ACH_FIELD_ELEMENT_TAG,
+    ) as AchFieldElement;
+    field.type = "routing-number";
+    field.group = "ach-unit-group";
+    field.style.setProperty("--font-sans", "Figtree");
+    field.style.setProperty("--input-height", "48px");
+    document.body.append(field);
+
+    expect(field.themeFontSans).toBe("Figtree");
+    expect(field.themeInputHeight).toBe("48px");
+
+    const iframe = field.shadowRoot?.querySelector(
+      "iframe:not([data-role='controller'])",
+    ) as HTMLIFrameElement | null;
+    expect(iframe).toBeTruthy();
+
+    const src = iframe?.getAttribute("src") ?? "";
+    const url = new URL(src, window.location.origin);
+    expect(url.searchParams.get("input_font")).toBe("Figtree");
+    expect(url.searchParams.get("input_height")).toBe("48px");
   });
 });

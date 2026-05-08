@@ -1,6 +1,16 @@
+import {
+  THEME_DEFINITION_BY_ATTRIBUTE,
+  type ThemeAttributeName,
+} from "./theme-mixin";
+
 type ThemeAttributeMapEntry = {
   attribute: string;
   cssVariable: `--${string}`;
+  fallback: string;
+};
+
+type ThemeAttributeFallbackEntry = {
+  attribute: ThemeAttributeName;
   fallback: string;
 };
 
@@ -35,6 +45,18 @@ export function applyThemeAttributeMap(
       readCssVarValue(styles, entry.cssVariable, entry.fallback),
     );
   }
+}
+
+export function createThemeAttributeMap(
+  entries: readonly ThemeAttributeFallbackEntry[],
+): ThemeAttributeMapEntry[] {
+  return entries.map(({ attribute, fallback }) => {
+    return {
+      attribute,
+      cssVariable: THEME_DEFINITION_BY_ATTRIBUTE[attribute].cssVariable,
+      fallback,
+    };
+  });
 }
 
 export function bindThemeAttributes<T extends HTMLElement>(

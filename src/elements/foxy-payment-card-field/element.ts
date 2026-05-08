@@ -1,5 +1,12 @@
 import type { CardEmbedTokenizeErrorCode } from "@foxy.io/sdk/checkout";
 import { getRequiredEnvVar } from "@/lib/required-env";
+import {
+  THEME_DEFINITION_BY_ATTRIBUTE,
+  ThemeMixin,
+  type ThemeAttributeName,
+  type ThemeMixinMethods,
+  type ThemePropertyValues,
+} from "@/lib/theme-mixin";
 
 export const PAYMENT_CARD_FIELD_ELEMENT_TAG = "foxy-payment-card-field";
 
@@ -64,22 +71,7 @@ type PaymentCardFieldEventMap = HTMLElementEventMap & {
   tokenizationerror: CustomEvent<TokenizationErrorEventDetail>;
 };
 
-const THEME_CSS_VARS = [
-  "theme-background",
-  "theme-input-placeholder-color",
-  "theme-input-height",
-  "theme-input-padding",
-  "theme-input-padding-x",
-  "theme-input-padding-y",
-  "theme-font-sans",
-  "theme-input-text-color",
-  "theme-input-error-text-color",
-  "theme-input-font-size",
-] as const;
-
-type ThemeAttributeName = (typeof THEME_CSS_VARS)[number];
-
-const THEME_ATTR_TO_QUERY_KEY: Record<ThemeAttributeName, string> = {
+const THEME_ATTR_TO_QUERY_KEY = {
   "theme-background": "theme_background",
   "theme-input-placeholder-color": "theme_input_placeholder_color",
   "theme-input-height": "theme_input_height",
@@ -90,24 +82,13 @@ const THEME_ATTR_TO_QUERY_KEY: Record<ThemeAttributeName, string> = {
   "theme-input-text-color": "theme_input_text_color",
   "theme-input-error-text-color": "theme_input_error_text_color",
   "theme-input-font-size": "theme_input_font_size",
-};
+} as const satisfies Partial<Record<ThemeAttributeName, string>>;
 
-const THEME_ATTRIBUTE_NAMES = [...THEME_CSS_VARS];
+type ThemeQueryAttributeName = keyof typeof THEME_ATTR_TO_QUERY_KEY;
 
-const THEME_PROPERTY_TO_ATTRIBUTE = {
-  themeBackground: "theme-background",
-  themeInputPlaceholderColor: "theme-input-placeholder-color",
-  themeInputHeight: "theme-input-height",
-  themeInputPadding: "theme-input-padding",
-  themeInputPaddingX: "theme-input-padding-x",
-  themeInputPaddingY: "theme-input-padding-y",
-  themeFontSans: "theme-font-sans",
-  themeInputTextColor: "theme-input-text-color",
-  themeInputErrorTextColor: "theme-input-error-text-color",
-  themeInputFontSize: "theme-input-font-size",
-} as const;
-
-type ThemePropertyName = keyof typeof THEME_PROPERTY_TO_ATTRIBUTE;
+const THEME_QUERY_ATTRIBUTE_NAMES = Object.keys(
+  THEME_ATTR_TO_QUERY_KEY,
+) as ThemeQueryAttributeName[];
 
 const MODE_ATTRIBUTE = "mode";
 const DISABLED_ATTRIBUTE = "disabled";
@@ -222,7 +203,9 @@ function normalizeMode(value: string | null | undefined): PaymentCardFieldMode {
   return value === "card_csc" ? "card_csc" : "card";
 }
 
-export class PaymentCardFieldElement extends HTMLElement {
+const ThemeableHTMLElement = ThemeMixin(HTMLElement);
+
+export class PaymentCardFieldElement extends ThemeableHTMLElement {
   static formAssociated = true;
 
   static get observedAttributes(): string[] {
@@ -231,7 +214,7 @@ export class PaymentCardFieldElement extends HTMLElement {
       DISABLED_ATTRIBUTE,
       LANG_ATTRIBUTE,
       ...TRANSLATION_ATTRIBUTE_NAMES,
-      ...THEME_ATTRIBUTE_NAMES,
+      ...ThemeableHTMLElement.themeAttributeNames,
     ];
   }
 
@@ -389,86 +372,6 @@ export class PaymentCardFieldElement extends HTMLElement {
     this._setTranslationProperty("translationCardCscPlaceholder", value);
   }
 
-  get themeBackground(): string | undefined {
-    return this._getThemeProperty("themeBackground");
-  }
-
-  set themeBackground(value: string | undefined) {
-    this._setThemeProperty("themeBackground", value);
-  }
-
-  get themeInputPlaceholderColor(): string | undefined {
-    return this._getThemeProperty("themeInputPlaceholderColor");
-  }
-
-  set themeInputPlaceholderColor(value: string | undefined) {
-    this._setThemeProperty("themeInputPlaceholderColor", value);
-  }
-
-  get themeInputHeight(): string | undefined {
-    return this._getThemeProperty("themeInputHeight");
-  }
-
-  set themeInputHeight(value: string | undefined) {
-    this._setThemeProperty("themeInputHeight", value);
-  }
-
-  get themeInputPadding(): string | undefined {
-    return this._getThemeProperty("themeInputPadding");
-  }
-
-  set themeInputPadding(value: string | undefined) {
-    this._setThemeProperty("themeInputPadding", value);
-  }
-
-  get themeInputPaddingX(): string | undefined {
-    return this._getThemeProperty("themeInputPaddingX");
-  }
-
-  set themeInputPaddingX(value: string | undefined) {
-    this._setThemeProperty("themeInputPaddingX", value);
-  }
-
-  get themeInputPaddingY(): string | undefined {
-    return this._getThemeProperty("themeInputPaddingY");
-  }
-
-  set themeInputPaddingY(value: string | undefined) {
-    this._setThemeProperty("themeInputPaddingY", value);
-  }
-
-  get themeFontSans(): string | undefined {
-    return this._getThemeProperty("themeFontSans");
-  }
-
-  set themeFontSans(value: string | undefined) {
-    this._setThemeProperty("themeFontSans", value);
-  }
-
-  get themeInputTextColor(): string | undefined {
-    return this._getThemeProperty("themeInputTextColor");
-  }
-
-  set themeInputTextColor(value: string | undefined) {
-    this._setThemeProperty("themeInputTextColor", value);
-  }
-
-  get themeInputErrorTextColor(): string | undefined {
-    return this._getThemeProperty("themeInputErrorTextColor");
-  }
-
-  set themeInputErrorTextColor(value: string | undefined) {
-    this._setThemeProperty("themeInputErrorTextColor", value);
-  }
-
-  get themeInputFontSize(): string | undefined {
-    return this._getThemeProperty("themeInputFontSize");
-  }
-
-  set themeInputFontSize(value: string | undefined) {
-    this._setThemeProperty("themeInputFontSize", value);
-  }
-
   formDisabledCallback(disabled: boolean): void {
     this.disabled = disabled;
   }
@@ -527,7 +430,13 @@ export class PaymentCardFieldElement extends HTMLElement {
       return;
     }
 
-    if (!THEME_ATTRIBUTE_NAMES.includes(name as ThemeAttributeName)) return;
+    if (
+      !ThemeableHTMLElement.themeAttributeNames.includes(
+        name as ThemeAttributeName,
+      )
+    ) {
+      return;
+    }
     if (!this.isConnected) return;
 
     this._mountIframe();
@@ -641,7 +550,7 @@ export class PaymentCardFieldElement extends HTMLElement {
   }
 
   private _resolveInitialIframeHeight(): string {
-    const styleHeight = this.getAttribute("theme-input-height")?.trim();
+    const styleHeight = this.getThemeProperty("themeInputHeight");
     return styleHeight || "52px";
   }
 
@@ -693,8 +602,10 @@ export class PaymentCardFieldElement extends HTMLElement {
       url.searchParams.set("lang", this._lang);
     }
 
-    for (const attrName of THEME_ATTRIBUTE_NAMES) {
-      const value = this.getAttribute(attrName)?.trim();
+    for (const attrName of THEME_QUERY_ATTRIBUTE_NAMES) {
+      const value = this.getThemeProperty(
+        THEME_DEFINITION_BY_ATTRIBUTE[attrName].property,
+      );
       if (!value) continue;
       url.searchParams.set(THEME_ATTR_TO_QUERY_KEY[attrName], value);
     }
@@ -709,19 +620,6 @@ export class PaymentCardFieldElement extends HTMLElement {
     }
 
     return url.toString();
-  }
-
-  private _getThemeProperty(name: ThemePropertyName): string | undefined {
-    return normalizeStringAttribute(
-      this.getAttribute(THEME_PROPERTY_TO_ATTRIBUTE[name]),
-    );
-  }
-
-  private _setThemeProperty(
-    name: ThemePropertyName,
-    value: string | undefined,
-  ): void {
-    this._setStringAttribute(THEME_PROPERTY_TO_ATTRIBUTE[name], value);
   }
 
   private _getTranslationProperty(
@@ -1050,6 +948,9 @@ export class PaymentCardFieldElement extends HTMLElement {
     return new Error(message);
   }
 }
+
+export interface PaymentCardFieldElement
+  extends ThemePropertyValues, ThemeMixinMethods {}
 
 if (
   typeof window !== "undefined" &&

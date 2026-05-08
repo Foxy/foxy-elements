@@ -88,6 +88,36 @@ selector.optionIndex = 1;
 selector.themePrimary = "#111827";
 ```
 
+The themed elements in this package share one canonical theme API. The current
+shared theme properties and matching dashed attributes are:
+
+- `themeBackground` / `theme-background`
+- `themeForeground` / `theme-foreground`
+- `themeCard` / `theme-card`
+- `themeCardForeground` / `theme-card-foreground`
+- `themePrimary` / `theme-primary`
+- `themePrimaryForeground` / `theme-primary-foreground`
+- `themeMutedForeground` / `theme-muted-foreground`
+- `themeDestructive` / `theme-destructive`
+- `themeBorder` / `theme-border`
+- `themeInput` / `theme-input`
+- `themeRing` / `theme-ring`
+- `themeFontSans` / `theme-font-sans`
+- `themeRadius` / `theme-radius`
+- `themeSpacing` / `theme-spacing`
+- `themeInputPlaceholderColor` / `theme-input-placeholder-color`
+- `themeInputHeight` / `theme-input-height`
+- `themeInputPadding` / `theme-input-padding`
+- `themeInputPaddingX` / `theme-input-padding-x`
+- `themeInputPaddingY` / `theme-input-padding-y`
+- `themeInputTextColor` / `theme-input-text-color`
+- `themeInputErrorTextColor` / `theme-input-error-text-color`
+- `themeInputFontSize` / `theme-input-font-size`
+
+Elements accept the full shared theme surface even when a particular token does
+not currently affect that element's rendering. Existing element-specific theme
+behavior is unchanged.
+
 See the Storybook docs for each element for the full attribute/property API
 surface.
 

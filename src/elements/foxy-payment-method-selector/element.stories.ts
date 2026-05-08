@@ -4,8 +4,8 @@ import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
 import {
   applyThemeAttributeMap,
   bindThemeAttributes,
+  createThemeAttributeMap,
   getShadcnInputMetrics,
-  type ThemeAttributeMapEntry,
 } from "../../lib/theme-attribute-sync";
 
 const STRIPE_PUBLISHABLE_KEY =
@@ -13,78 +13,64 @@ const STRIPE_PUBLISHABLE_KEY =
   import.meta.env.VITE_STRIPE_DEMO_PUBLISHABLE_KEY?.trim() ||
   "";
 
-const SELECTOR_THEME_ATTRIBUTE_MAP: ThemeAttributeMapEntry[] = [
+const SELECTOR_THEME_ATTRIBUTE_MAP = createThemeAttributeMap([
   {
     attribute: "theme-background",
-    cssVariable: "--background",
     fallback: "oklch(1 0 0)",
   },
   {
     attribute: "theme-foreground",
-    cssVariable: "--foreground",
     fallback: "oklch(0.145 0 0)",
   },
   {
     attribute: "theme-card",
-    cssVariable: "--card",
     fallback: "oklch(1 0 0)",
   },
   {
     attribute: "theme-card-foreground",
-    cssVariable: "--card-foreground",
     fallback: "oklch(0.145 0 0)",
   },
   {
     attribute: "theme-primary",
-    cssVariable: "--primary",
     fallback: "oklch(0.205 0 0)",
   },
   {
     attribute: "theme-primary-foreground",
-    cssVariable: "--primary-foreground",
     fallback: "oklch(0.985 0 0)",
   },
   {
     attribute: "theme-muted-foreground",
-    cssVariable: "--muted-foreground",
     fallback: "oklch(0.556 0 0)",
   },
   {
     attribute: "theme-destructive",
-    cssVariable: "--destructive",
     fallback: "oklch(0.577 0.245 27.325)",
   },
   {
     attribute: "theme-border",
-    cssVariable: "--border",
     fallback: "oklch(0.922 0 0)",
   },
   {
     attribute: "theme-input",
-    cssVariable: "--input",
     fallback: "oklch(0.922 0 0)",
   },
   {
     attribute: "theme-ring",
-    cssVariable: "--ring",
     fallback: "oklch(0.708 0 0)",
   },
   {
     attribute: "theme-font-sans",
-    cssVariable: "--font-sans",
     fallback: "ui-sans-serif, system-ui, sans-serif",
   },
   {
     attribute: "theme-radius",
-    cssVariable: "--radius",
     fallback: "0.625rem",
   },
   {
     attribute: "theme-spacing",
-    cssVariable: "--spacing",
     fallback: "0.25rem",
   },
-];
+] as const);
 
 function applySelectorThemeAttributes(element: HTMLElement): void {
   const metrics = getShadcnInputMetrics();

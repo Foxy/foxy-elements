@@ -1,5 +1,12 @@
 import type { AchHostedFieldsPublicState } from "@foxy.io/sdk/checkout";
 import type { AchHostedFieldsTokenizeErrorCode } from "@foxy.io/sdk/checkout";
+import {
+  getThemeDefinitionsByAttributeNames,
+  ThemeMixin,
+  type ThemeAttributeName,
+  type ThemeMixinMethods,
+  type ThemePropertyValues,
+} from "@/lib/theme-mixin";
 
 export const ACH_FIELD_ELEMENT_TAG = "foxy-ach-field";
 
@@ -56,48 +63,21 @@ const ACCOUNT_TYPE_VALUES_ATTRIBUTE = "account-type-values";
 const DISABLED_ATTRIBUTE = "disabled";
 const LANG_ATTRIBUTE = "lang";
 
-const THEME_CSS_VARS = [
-  "--input-placeholder-color",
-  "--input-height",
-  "--input-padding",
-  "--input-padding-x",
-  "--input-padding-y",
-  "--font-sans",
-  "--input-text-color",
-  "--input-error-text-color",
-  "--input-font-size",
-] as const;
+const ACH_IFRAME_THEME_ATTRIBUTE_NAMES = [
+  "theme-input-placeholder-color",
+  "theme-input-height",
+  "theme-input-padding",
+  "theme-input-padding-x",
+  "theme-input-padding-y",
+  "theme-font-sans",
+  "theme-input-text-color",
+  "theme-input-error-text-color",
+  "theme-input-font-size",
+] as const satisfies readonly ThemeAttributeName[];
 
-type ThemeCssVar = (typeof THEME_CSS_VARS)[number];
-type ThemeAttributeName = `theme-${string}`;
-
-const THEME_ATTR_TO_CSS_VAR: Record<ThemeAttributeName, ThemeCssVar> =
-  THEME_CSS_VARS.reduce(
-    (result, cssVar) => {
-      const attrName = `theme-${cssVar.slice(2)}` as ThemeAttributeName;
-      result[attrName] = cssVar;
-      return result;
-    },
-    {} as Record<ThemeAttributeName, ThemeCssVar>,
-  );
-
-const THEME_ATTRIBUTE_NAMES = Object.keys(
-  THEME_ATTR_TO_CSS_VAR,
-) as ThemeAttributeName[];
-
-const THEME_PROPERTY_TO_ATTRIBUTE = {
-  themeInputPlaceholderColor: "theme-input-placeholder-color",
-  themeInputHeight: "theme-input-height",
-  themeInputPadding: "theme-input-padding",
-  themeInputPaddingX: "theme-input-padding-x",
-  themeInputPaddingY: "theme-input-padding-y",
-  themeFontSans: "theme-font-sans",
-  themeInputTextColor: "theme-input-text-color",
-  themeInputErrorTextColor: "theme-input-error-text-color",
-  themeInputFontSize: "theme-input-font-size",
-} as const;
-
-type ThemePropertyName = keyof typeof THEME_PROPERTY_TO_ATTRIBUTE;
+const ACH_IFRAME_THEME_DEFINITIONS = getThemeDefinitionsByAttributeNames(
+  ACH_IFRAME_THEME_ATTRIBUTE_NAMES,
+);
 
 export type AchLoadEventDetail = Record<string, never>;
 
@@ -261,7 +241,9 @@ function createNativeLikeFocusEvent(type: "focus" | "blur"): FocusEvent {
   });
 }
 
-export class AchFieldElement extends HTMLElement {
+const ThemeableHTMLElement = ThemeMixin(HTMLElement);
+
+export class AchFieldElement extends ThemeableHTMLElement {
   static formAssociated = true;
 
   static get observedAttributes(): string[] {
@@ -272,7 +254,7 @@ export class AchFieldElement extends HTMLElement {
       ACCOUNT_TYPE_VALUES_ATTRIBUTE,
       DISABLED_ATTRIBUTE,
       LANG_ATTRIBUTE,
-      ...THEME_ATTRIBUTE_NAMES,
+      ...ThemeableHTMLElement.themeAttributeNames,
     ];
   }
 
@@ -584,7 +566,13 @@ export class AchFieldElement extends HTMLElement {
       return;
     }
 
-    if (!THEME_ATTRIBUTE_NAMES.includes(name as ThemeAttributeName)) return;
+    if (
+      !ThemeableHTMLElement.themeAttributeNames.includes(
+        name as ThemeAttributeName,
+      )
+    ) {
+      return;
+    }
     if (!this._isRegistered) return;
 
     this._render();
@@ -666,78 +654,6 @@ export class AchFieldElement extends HTMLElement {
     } else {
       this.removeAttribute(DISABLED_ATTRIBUTE);
     }
-  }
-
-  get themeInputPlaceholderColor(): string | undefined {
-    return this._getThemeProperty("themeInputPlaceholderColor");
-  }
-
-  set themeInputPlaceholderColor(value: string | undefined) {
-    this._setThemeProperty("themeInputPlaceholderColor", value);
-  }
-
-  get themeInputHeight(): string | undefined {
-    return this._getThemeProperty("themeInputHeight");
-  }
-
-  set themeInputHeight(value: string | undefined) {
-    this._setThemeProperty("themeInputHeight", value);
-  }
-
-  get themeInputPadding(): string | undefined {
-    return this._getThemeProperty("themeInputPadding");
-  }
-
-  set themeInputPadding(value: string | undefined) {
-    this._setThemeProperty("themeInputPadding", value);
-  }
-
-  get themeInputPaddingX(): string | undefined {
-    return this._getThemeProperty("themeInputPaddingX");
-  }
-
-  set themeInputPaddingX(value: string | undefined) {
-    this._setThemeProperty("themeInputPaddingX", value);
-  }
-
-  get themeInputPaddingY(): string | undefined {
-    return this._getThemeProperty("themeInputPaddingY");
-  }
-
-  set themeInputPaddingY(value: string | undefined) {
-    this._setThemeProperty("themeInputPaddingY", value);
-  }
-
-  get themeFontSans(): string | undefined {
-    return this._getThemeProperty("themeFontSans");
-  }
-
-  set themeFontSans(value: string | undefined) {
-    this._setThemeProperty("themeFontSans", value);
-  }
-
-  get themeInputTextColor(): string | undefined {
-    return this._getThemeProperty("themeInputTextColor");
-  }
-
-  set themeInputTextColor(value: string | undefined) {
-    this._setThemeProperty("themeInputTextColor", value);
-  }
-
-  get themeInputErrorTextColor(): string | undefined {
-    return this._getThemeProperty("themeInputErrorTextColor");
-  }
-
-  set themeInputErrorTextColor(value: string | undefined) {
-    this._setThemeProperty("themeInputErrorTextColor", value);
-  }
-
-  get themeInputFontSize(): string | undefined {
-    return this._getThemeProperty("themeInputFontSize");
-  }
-
-  set themeInputFontSize(value: string | undefined) {
-    this._setThemeProperty("themeInputFontSize", value);
   }
 
   clear(): void {
@@ -1036,7 +952,7 @@ export class AchFieldElement extends HTMLElement {
 
     if (mode === "field") {
       const field = this._type;
-      const theme = this._getThemeAttributes();
+      const theme = this.getThemeCssVarMap(ACH_IFRAME_THEME_DEFINITIONS);
 
       url.searchParams.set("field", EMBED_FIELD_NAME[field]);
       url.searchParams.set(
@@ -1117,43 +1033,8 @@ export class AchFieldElement extends HTMLElement {
     return new Error(`ACH tokenization failed with code: ${code}`);
   }
 
-  private _getThemeProperty(name: ThemePropertyName): string | undefined {
-    return (
-      this.getAttribute(THEME_PROPERTY_TO_ATTRIBUTE[name])?.trim() || undefined
-    );
-  }
-
-  private _setThemeProperty(
-    name: ThemePropertyName,
-    value: string | undefined,
-  ): void {
-    const normalized = value?.trim() || undefined;
-    const attributeName = THEME_PROPERTY_TO_ATTRIBUTE[name];
-
-    if (normalized === undefined) {
-      this.removeAttribute(attributeName);
-      return;
-    }
-
-    if (this.getAttribute(attributeName) !== normalized) {
-      this.setAttribute(attributeName, normalized);
-    }
-  }
-
-  private _getThemeAttributes(): Record<ThemeCssVar, string> {
-    const style = {} as Record<ThemeCssVar, string>;
-
-    for (const attrName of THEME_ATTRIBUTE_NAMES) {
-      const value = this.getAttribute(attrName)?.trim();
-      if (!value) continue;
-      style[THEME_ATTR_TO_CSS_VAR[attrName]] = value;
-    }
-
-    return style;
-  }
-
   private _resolveInitialIframeHeight(): string {
-    const configuredHeight = this.getAttribute("theme-input-height")?.trim();
+    const configuredHeight = this.getThemeProperty("themeInputHeight");
     return configuredHeight || DEFAULT_FIELD_HEIGHT;
   }
 
@@ -1214,6 +1095,9 @@ export class AchFieldElement extends HTMLElement {
     }
   }
 }
+
+export interface AchFieldElement
+  extends ThemePropertyValues, ThemeMixinMethods {}
 
 if (
   typeof window !== "undefined" &&

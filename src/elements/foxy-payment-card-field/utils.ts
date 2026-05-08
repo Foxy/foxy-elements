@@ -7,8 +7,8 @@ import {
 import {
   applyThemeAttributeMap,
   bindThemeAttributes,
+  createThemeAttributeMap,
   getShadcnInputMetrics,
-  type ThemeAttributeMapEntry,
 } from "../../lib/theme-attribute-sync";
 
 export const CARD_MODE_OPTIONS = ["card", "card_csc"] as const;
@@ -27,33 +27,28 @@ type EmbedCardValidationCode =
   | "card_brand_unsupported"
   | "invalid_state";
 
-const CARD_THEME_ATTRIBUTE_MAP: ThemeAttributeMapEntry[] = [
+const CARD_THEME_ATTRIBUTE_MAP = createThemeAttributeMap([
   {
     attribute: "theme-font-sans",
-    cssVariable: "--font-sans",
     fallback: "ui-sans-serif, system-ui, sans-serif",
   },
   {
     attribute: "theme-input-text-color",
-    cssVariable: "--foreground",
     fallback: "#111827",
   },
   {
     attribute: "theme-input-placeholder-color",
-    cssVariable: "--muted-foreground",
     fallback: "#6b7280",
   },
   {
     attribute: "theme-input-error-text-color",
-    cssVariable: "--destructive",
     fallback: "#dc2626",
   },
   {
     attribute: "theme-background",
-    cssVariable: "--background",
     fallback: "#ffffff",
   },
-];
+] as const);
 
 type StoryCardInternals = {
   _handlePortMessage?: (event: MessageEvent<string>) => void;

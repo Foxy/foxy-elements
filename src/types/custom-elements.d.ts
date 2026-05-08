@@ -3,6 +3,10 @@ import type { AchFieldElement } from "@/elements/foxy-ach-field/element";
 import type { ExpressCheckoutElement } from "@/elements/foxy-express-checkout/element";
 import type { PaymentCardFieldElement } from "@/elements/foxy-payment-card-field/element";
 import type { PaymentMethodSelectorElement } from "@/elements/foxy-payment-method-selector/element";
+import type { ThemeAttributeName, ThemePropertyName } from "@/lib/theme-mixin";
+
+type SharedThemeProps = Partial<Record<ThemePropertyName, string>> &
+  Partial<Record<ThemeAttributeName, string>>;
 
 type AchFieldElementProps = Omit<
   DetailedHTMLProps<HTMLAttributes<AchFieldElement>, AchFieldElement>,
@@ -20,25 +24,7 @@ type AchFieldElementProps = Omit<
   accountTypeValues?: ("checking" | "savings")[];
   "account-type-values"?: string;
   disabled?: boolean;
-  themeInputPlaceholderColor?: string;
-  themeInputHeight?: string;
-  themeInputPadding?: string;
-  themeInputPaddingX?: string;
-  themeInputPaddingY?: string;
-  themeFontSans?: string;
-  themeInputTextColor?: string;
-  themeInputErrorTextColor?: string;
-  themeInputFontSize?: string;
-  "theme-input-placeholder-color"?: string;
-  "theme-input-height"?: string;
-  "theme-input-padding"?: string;
-  "theme-input-padding-x"?: string;
-  "theme-input-padding-y"?: string;
-  "theme-font-sans"?: string;
-  "theme-input-text-color"?: string;
-  "theme-input-error-text-color"?: string;
-  "theme-input-font-size"?: string;
-};
+} & SharedThemeProps;
 
 type CardEmbedElementProps = Omit<
   DetailedHTMLProps<
@@ -57,33 +43,13 @@ type CardEmbedElementProps = Omit<
   translationCardExpirationPlaceholder?: string;
   translationCardCscLabel?: string;
   translationCardCscPlaceholder?: string;
-  themeBackground?: string;
-  themeInputPlaceholderColor?: string;
-  themeInputHeight?: string;
-  themeInputPadding?: string;
-  themeInputPaddingX?: string;
-  themeInputPaddingY?: string;
-  themeFontSans?: string;
-  themeInputTextColor?: string;
-  themeInputErrorTextColor?: string;
-  themeInputFontSize?: string;
   "translation-card-number-label"?: string;
   "translation-card-number-placeholder"?: string;
   "translation-card-expiration-label"?: string;
   "translation-card-expiration-placeholder"?: string;
   "translation-card-csc-label"?: string;
   "translation-card-csc-placeholder"?: string;
-  "theme-background"?: string;
-  "theme-input-placeholder-color"?: string;
-  "theme-input-height"?: string;
-  "theme-input-padding"?: string;
-  "theme-input-padding-x"?: string;
-  "theme-input-padding-y"?: string;
-  "theme-font-sans"?: string;
-  "theme-input-text-color"?: string;
-  "theme-input-error-text-color"?: string;
-  "theme-input-font-size"?: string;
-};
+} & SharedThemeProps;
 
 type PaymentMethodSelectorElementProps = Omit<
   DetailedHTMLProps<
@@ -96,43 +62,7 @@ type PaymentMethodSelectorElementProps = Omit<
   lang?: string;
   optionIndex?: number;
   "option-index"?: string | number;
-  themeBackground?: string;
-  themeForeground?: string;
-  themeCard?: string;
-  themeCardForeground?: string;
-  themePrimary?: string;
-  themePrimaryForeground?: string;
-  themeMutedForeground?: string;
-  themeDestructive?: string;
-  themeBorder?: string;
-  themeInput?: string;
-  themeRing?: string;
-  themeFontSans?: string;
-  themeRadius?: string;
-  themeSpacing?: string;
-  themeInputHeight?: string;
-  themeInputPadding?: string;
-  themeInputPaddingX?: string;
-  themeInputPaddingY?: string;
-  "theme-background"?: string;
-  "theme-foreground"?: string;
-  "theme-card"?: string;
-  "theme-card-foreground"?: string;
-  "theme-primary"?: string;
-  "theme-primary-foreground"?: string;
-  "theme-muted-foreground"?: string;
-  "theme-destructive"?: string;
-  "theme-border"?: string;
-  "theme-input"?: string;
-  "theme-ring"?: string;
-  "theme-font-sans"?: string;
-  "theme-radius"?: string;
-  "theme-spacing"?: string;
-  "theme-input-height"?: string;
-  "theme-input-padding"?: string;
-  "theme-input-padding-x"?: string;
-  "theme-input-padding-y"?: string;
-};
+} & SharedThemeProps;
 
 type ExpressCheckoutElementProps = Omit<
   DetailedHTMLProps<

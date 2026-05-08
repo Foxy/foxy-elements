@@ -9,8 +9,8 @@ import {
 import {
   applyThemeAttributeMap,
   bindThemeAttributes,
+  createThemeAttributeMap,
   getShadcnInputMetrics,
-  type ThemeAttributeMapEntry,
 } from "../../lib/theme-attribute-sync";
 
 const FIELD_TO_EMBED: Record<AchHostedFieldName, string> = {
@@ -60,28 +60,24 @@ export const ACH_ACCOUNT_TYPE_VALUES_OPTIONS = [
   "",
 ] as const;
 
-const ACH_THEME_ATTRIBUTE_MAP: ThemeAttributeMapEntry[] = [
+const ACH_THEME_ATTRIBUTE_MAP = createThemeAttributeMap([
   {
     attribute: "theme-font-sans",
-    cssVariable: "--font-sans",
     fallback: "ui-sans-serif, system-ui, sans-serif",
   },
   {
     attribute: "theme-input-text-color",
-    cssVariable: "--foreground",
     fallback: "#111827",
   },
   {
     attribute: "theme-input-placeholder-color",
-    cssVariable: "--muted-foreground",
     fallback: "#6b7280",
   },
   {
     attribute: "theme-input-error-text-color",
-    cssVariable: "--destructive",
     fallback: "#dc2626",
   },
-];
+] as const);
 
 export function createAchSurface(width = "460px"): HTMLDivElement {
   const element = document.createElement("div");

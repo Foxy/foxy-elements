@@ -27,6 +27,12 @@ import {
 import { Payment } from "./view";
 import { StripeCardElementOption } from "./stripe/card-option";
 import { StripePaymentElementOption } from "./stripe/payment-option";
+import {
+  ThemeMixin,
+  type ThemeAttributeName,
+  type ThemeMixinMethods,
+  type ThemePropertyValues,
+} from "@/lib/theme-mixin";
 
 export { paymentMethodSelectorEvents } from "./events";
 
@@ -47,73 +53,9 @@ const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
   en: enUsMessages as Record<string, string>,
 };
 
-const THEME_CSS_VARS = [
-  "--background",
-  "--foreground",
-  "--card",
-  "--card-foreground",
-  "--primary",
-  "--primary-foreground",
-  "--muted-foreground",
-  "--destructive",
-  "--border",
-  "--input",
-  "--ring",
-  "--font-sans",
-  "--radius",
-  "--spacing",
-  "--input-height",
-  "--input-padding",
-  "--input-padding-x",
-  "--input-padding-y",
-] as const;
+const ThemeableHTMLElement = ThemeMixin(HTMLElement);
 
-type ThemeCssVar = (typeof THEME_CSS_VARS)[number];
-type ThemeAttributeName = `theme-${string}`;
-
-const THEME_ATTR_TO_CSS_VAR = THEME_CSS_VARS.reduce(
-  (result, cssVar) => {
-    const attrName = `theme-${cssVar.slice(2)}` as ThemeAttributeName;
-    result[attrName] = cssVar;
-    return result;
-  },
-  {} as Record<ThemeAttributeName, ThemeCssVar>,
-);
-
-const THEME_ATTRIBUTE_NAMES = Object.keys(
-  THEME_ATTR_TO_CSS_VAR,
-) as ThemeAttributeName[];
-
-const THEME_PROPERTY_TO_ATTRIBUTE = {
-  themeBackground: "theme-background",
-  themeForeground: "theme-foreground",
-  themeCard: "theme-card",
-  themeCardForeground: "theme-card-foreground",
-  themePrimary: "theme-primary",
-  themePrimaryForeground: "theme-primary-foreground",
-  themeMutedForeground: "theme-muted-foreground",
-  themeDestructive: "theme-destructive",
-  themeBorder: "theme-border",
-  themeInput: "theme-input",
-  themeRing: "theme-ring",
-  themeFontSans: "theme-font-sans",
-  themeRadius: "theme-radius",
-  themeSpacing: "theme-spacing",
-  themeInputHeight: "theme-input-height",
-  themeInputPadding: "theme-input-padding",
-  themeInputPaddingX: "theme-input-padding-x",
-  themeInputPaddingY: "theme-input-padding-y",
-} as const;
-
-type ThemePropertyName = keyof typeof THEME_PROPERTY_TO_ATTRIBUTE;
-
-function normalizeStringAttribute(
-  value: string | null | undefined,
-): string | undefined {
-  return value?.trim() || undefined;
-}
-
-export class PaymentMethodSelectorElement extends HTMLElement {
+export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #optionIndex: number | undefined;
   #loading = false;
   #shadowRootRef: ShadowRoot;
@@ -132,7 +74,11 @@ export class PaymentMethodSelectorElement extends HTMLElement {
   #checkoutClient = checkoutClient as CheckoutApiLike;
 
   static get observedAttributes(): string[] {
-    return [LANG_ATTRIBUTE, OPTION_INDEX_ATTRIBUTE, ...THEME_ATTRIBUTE_NAMES];
+    return [
+      LANG_ATTRIBUTE,
+      OPTION_INDEX_ATTRIBUTE,
+      ...ThemeableHTMLElement.themeAttributeNames,
+    ];
   }
 
   constructor() {
@@ -167,150 +113,6 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     }
 
     this.#render();
-  }
-
-  get themeBackground(): string | undefined {
-    return this.#getThemeProperty("themeBackground");
-  }
-
-  set themeBackground(value: string | undefined) {
-    this.#setThemeProperty("themeBackground", value);
-  }
-
-  get themeForeground(): string | undefined {
-    return this.#getThemeProperty("themeForeground");
-  }
-
-  set themeForeground(value: string | undefined) {
-    this.#setThemeProperty("themeForeground", value);
-  }
-
-  get themeCard(): string | undefined {
-    return this.#getThemeProperty("themeCard");
-  }
-
-  set themeCard(value: string | undefined) {
-    this.#setThemeProperty("themeCard", value);
-  }
-
-  get themeCardForeground(): string | undefined {
-    return this.#getThemeProperty("themeCardForeground");
-  }
-
-  set themeCardForeground(value: string | undefined) {
-    this.#setThemeProperty("themeCardForeground", value);
-  }
-
-  get themePrimary(): string | undefined {
-    return this.#getThemeProperty("themePrimary");
-  }
-
-  set themePrimary(value: string | undefined) {
-    this.#setThemeProperty("themePrimary", value);
-  }
-
-  get themePrimaryForeground(): string | undefined {
-    return this.#getThemeProperty("themePrimaryForeground");
-  }
-
-  set themePrimaryForeground(value: string | undefined) {
-    this.#setThemeProperty("themePrimaryForeground", value);
-  }
-
-  get themeMutedForeground(): string | undefined {
-    return this.#getThemeProperty("themeMutedForeground");
-  }
-
-  set themeMutedForeground(value: string | undefined) {
-    this.#setThemeProperty("themeMutedForeground", value);
-  }
-
-  get themeDestructive(): string | undefined {
-    return this.#getThemeProperty("themeDestructive");
-  }
-
-  set themeDestructive(value: string | undefined) {
-    this.#setThemeProperty("themeDestructive", value);
-  }
-
-  get themeBorder(): string | undefined {
-    return this.#getThemeProperty("themeBorder");
-  }
-
-  set themeBorder(value: string | undefined) {
-    this.#setThemeProperty("themeBorder", value);
-  }
-
-  get themeInput(): string | undefined {
-    return this.#getThemeProperty("themeInput");
-  }
-
-  set themeInput(value: string | undefined) {
-    this.#setThemeProperty("themeInput", value);
-  }
-
-  get themeRing(): string | undefined {
-    return this.#getThemeProperty("themeRing");
-  }
-
-  set themeRing(value: string | undefined) {
-    this.#setThemeProperty("themeRing", value);
-  }
-
-  get themeFontSans(): string | undefined {
-    return this.#getThemeProperty("themeFontSans");
-  }
-
-  set themeFontSans(value: string | undefined) {
-    this.#setThemeProperty("themeFontSans", value);
-  }
-
-  get themeRadius(): string | undefined {
-    return this.#getThemeProperty("themeRadius");
-  }
-
-  set themeRadius(value: string | undefined) {
-    this.#setThemeProperty("themeRadius", value);
-  }
-
-  get themeSpacing(): string | undefined {
-    return this.#getThemeProperty("themeSpacing");
-  }
-
-  set themeSpacing(value: string | undefined) {
-    this.#setThemeProperty("themeSpacing", value);
-  }
-
-  get themeInputHeight(): string | undefined {
-    return this.#getThemeProperty("themeInputHeight");
-  }
-
-  set themeInputHeight(value: string | undefined) {
-    this.#setThemeProperty("themeInputHeight", value);
-  }
-
-  get themeInputPadding(): string | undefined {
-    return this.#getThemeProperty("themeInputPadding");
-  }
-
-  set themeInputPadding(value: string | undefined) {
-    this.#setThemeProperty("themeInputPadding", value);
-  }
-
-  get themeInputPaddingX(): string | undefined {
-    return this.#getThemeProperty("themeInputPaddingX");
-  }
-
-  set themeInputPaddingX(value: string | undefined) {
-    this.#setThemeProperty("themeInputPaddingX", value);
-  }
-
-  get themeInputPaddingY(): string | undefined {
-    return this.#getThemeProperty("themeInputPaddingY");
-  }
-
-  set themeInputPaddingY(value: string | undefined) {
-    this.#setThemeProperty("themeInputPaddingY", value);
   }
 
   async tokenize(): Promise<PaymentMethodSelectorTokenizePayload> {
@@ -430,7 +232,11 @@ export class PaymentMethodSelectorElement extends HTMLElement {
       return;
     }
 
-    if (THEME_ATTRIBUTE_NAMES.includes(name as ThemeAttributeName)) {
+    if (
+      ThemeableHTMLElement.themeAttributeNames.includes(
+        name as ThemeAttributeName,
+      )
+    ) {
       this.#syncThemeAttributesToHostStyles();
       this.#render();
       return;
@@ -643,53 +449,8 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     this.#render();
   }
 
-  #getThemeProperty(name: ThemePropertyName): string | undefined {
-    return normalizeStringAttribute(
-      this.getAttribute(THEME_PROPERTY_TO_ATTRIBUTE[name]),
-    );
-  }
-
-  #setThemeProperty(name: ThemePropertyName, value: string | undefined) {
-    this.#setStringAttribute(THEME_PROPERTY_TO_ATTRIBUTE[name], value);
-  }
-
-  #setStringAttribute(name: string, value: string | undefined) {
-    const normalized = normalizeStringAttribute(value);
-
-    if (normalized === undefined) {
-      this.removeAttribute(name);
-      return;
-    }
-
-    if (this.getAttribute(name) !== normalized) {
-      this.setAttribute(name, normalized);
-    }
-  }
-
-  #getThemeAttributes(): Partial<Record<ThemeCssVar, string>> {
-    const style: Partial<Record<ThemeCssVar, string>> = {};
-
-    for (const attrName of THEME_ATTRIBUTE_NAMES) {
-      const value = this.getAttribute(attrName)?.trim();
-      if (!value) continue;
-      style[THEME_ATTR_TO_CSS_VAR[attrName]] = value;
-    }
-
-    return style;
-  }
-
   #syncThemeAttributesToHostStyles() {
-    const themeAttributes = this.#getThemeAttributes();
-
-    for (const tokenName of THEME_CSS_VARS) {
-      const tokenValue = themeAttributes[tokenName]?.trim();
-
-      if (tokenValue) {
-        this.style.setProperty(tokenName, tokenValue);
-      } else {
-        this.style.removeProperty(tokenName);
-      }
-    }
+    this.syncThemeCssVarsToStyle();
   }
 
   #resolveLocale(): string {
@@ -1436,6 +1197,9 @@ export class PaymentMethodSelectorElement extends HTMLElement {
     style.textContent = defaultShadowStyles;
   }
 }
+
+export interface PaymentMethodSelectorElement
+  extends ThemePropertyValues, ThemeMixinMethods {}
 
 if (!customElements.get("foxy-payment-method-selector")) {
   customElements.define(

@@ -9,6 +9,8 @@ Payment method selector element that renders available checkout payment options,
 
 Required attributes: none. The element still requires checkout client state to be initialized before it can render payment options and tokenize.
 
+The themed elements in this package support a broader shared set of theme attributes and properties. This page documents only the theme tokens that currently affect <code>foxy-payment-method-selector</code>. Additional shared theme tokens may be accepted for API consistency, but they do not currently change this element.
+
 If checkout state is initialized but exposes no recognized payment methods, the element renders an unavailable state instead of fabricating a fallback option. In that state, <code>tokenize()</code> rejects because no payment method is selected.
 
 ## Attributes

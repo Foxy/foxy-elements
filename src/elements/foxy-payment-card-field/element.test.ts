@@ -1,4 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  THEME_ATTRIBUTE_NAMES,
+  THEME_PROPERTY_TO_ATTRIBUTE,
+} from "@/lib/theme-mixin";
 
 import {
   PAYMENT_CARD_FIELD_ELEMENT_TAG,
@@ -41,6 +45,12 @@ function getInternals(element: HTMLElement): FakeInternals {
   return internals;
 }
 
+const THEME_PROPERTY_MAPPINGS = (
+  Object.entries(THEME_PROPERTY_TO_ATTRIBUTE) as [string, string][]
+).map(([propertyName, attributeName]) => {
+  return [propertyName, attributeName, `${attributeName}-value`] as const;
+});
+
 const STRING_PROPERTY_MAPPINGS = [
   [
     "translationCardNumberLabel",
@@ -53,24 +63,25 @@ const STRING_PROPERTY_MAPPINGS = [
     "MM / YY",
   ],
   ["translationCardCscPlaceholder", "translation-card-csc-placeholder", "CVV"],
-  ["themeBackground", "theme-background", "#ffffff"],
-  ["themeInputHeight", "theme-input-height", "56px"],
-  ["themeInputPaddingX", "theme-input-padding-x", "14px"],
-  ["themeFontSans", "theme-font-sans", "Figtree"],
-] as const;
+  ...THEME_PROPERTY_MAPPINGS,
+];
 
 describe("PaymentCardFieldElement", () => {
   beforeEach(() => {
     installFakeInternals();
     document.body.innerHTML = "";
+    document.documentElement.style.removeProperty("--font-sans");
+    document.documentElement.style.removeProperty("--input-height");
   });
 
   afterEach(() => {
     document.body.innerHTML = "";
+    document.documentElement.style.removeProperty("--font-sans");
+    document.documentElement.style.removeProperty("--input-height");
     vi.restoreAllMocks();
   });
 
-  it.each(STRING_PROPERTY_MAPPINGS)(
+  it.each(STRING_PROPERTY_MAPPINGS as Array<[string, string, string]>)(
     "reflects %s through %s",
     (propertyName, attributeName, value) => {
       const element = document.createElement(
@@ -109,6 +120,12 @@ describe("PaymentCardFieldElement", () => {
       "demo-mode",
     );
     expect(PaymentCardFieldElement.observedAttributes).toContain("lang");
+
+    for (const attributeName of THEME_ATTRIBUTE_NAMES) {
+      expect(PaymentCardFieldElement.observedAttributes).toContain(
+        attributeName,
+      );
+    }
   });
 
   it("applies disabled state through formDisabledCallback", () => {
@@ -214,6 +231,29 @@ describe("PaymentCardFieldElement", () => {
     );
     expect(url.searchParams.get("lang")).toBe("es-MX");
     expect(url.searchParams.get("mode")).toBe("card_csc");
+  });
+
+  it("uses CSS custom properties as default theme values", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    element.style.setProperty("--font-sans", "Figtree");
+    element.style.setProperty("--input-height", "64px");
+    document.body.append(element);
+
+    expect(element.themeFontSans).toBe("Figtree");
+    expect(element.themeInputHeight).toBe("64px");
+
+    const iframe = element.shadowRoot?.querySelector("iframe");
+    expect(iframe).toBeTruthy();
+    expect(iframe?.style.height).toBe("64px");
+
+    const url = new URL(
+      iframe?.getAttribute("src") ?? "",
+      window.location.origin,
+    );
+    expect(url.searchParams.get("theme_font_sans")).toBe("Figtree");
+    expect(url.searchParams.get("theme_input_height")).toBe("64px");
   });
 
   it("falls back to card mode for unsupported mode values", () => {

@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
+import {
+  THEME_ATTRIBUTE_NAMES,
+  THEME_PROPERTY_TO_ATTRIBUTE,
+} from "@/lib/theme-mixin";
 
 import { PaymentMethodSelectorElement } from "./element";
 
@@ -80,20 +84,21 @@ function createBillingApiState() {
   };
 }
 
-const STRING_PROPERTY_MAPPINGS = [
-  ["themeBackground", "theme-background", "#fafafa"],
-  ["themePrimary", "theme-primary", "#111111"],
-  ["themeInputPaddingX", "theme-input-padding-x", "18px"],
-  ["themeFontSans", "theme-font-sans", "Figtree"],
-] as const;
+const STRING_PROPERTY_MAPPINGS = (
+  Object.entries(THEME_PROPERTY_TO_ATTRIBUTE) as [string, string][]
+).map(([propertyName, attributeName]) => {
+  return [propertyName, attributeName, `${attributeName}-value`] as const;
+});
 
 describe("PaymentMethodSelectorElement", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
+    document.documentElement.style.removeProperty("--font-sans");
   });
 
   afterEach(() => {
     document.body.innerHTML = "";
+    document.documentElement.style.removeProperty("--font-sans");
     vi.restoreAllMocks();
   });
 
@@ -126,10 +131,10 @@ describe("PaymentMethodSelectorElement", () => {
 
     expect(observed).toContain("lang");
     expect(observed).toContain("option-index");
-    expect(observed).toContain("theme-background");
-    expect(observed).toContain("theme-primary");
-    expect(observed).toContain("theme-input-height");
-    expect(observed).toContain("theme-input-padding-x");
+
+    for (const attributeName of THEME_ATTRIBUTE_NAMES) {
+      expect(observed).toContain(attributeName);
+    }
   });
 
   it("maps theme attributes to host CSS variables", () => {
@@ -167,6 +172,17 @@ describe("PaymentMethodSelectorElement", () => {
     element.setAttribute("theme-unknown-token", "123");
     expect(element.style.getPropertyValue("--unknown-token")).toBe("");
     expect(element.style.getPropertyValue("--background")).toBe("#fff");
+  });
+
+  it("uses CSS custom properties as default theme values", () => {
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+    element.style.setProperty("--font-sans", "Figtree");
+    document.body.append(element);
+
+    expect(element.themeFontSans).toBe("Figtree");
+    expect(element.style.getPropertyValue("--font-sans")).toBe("Figtree");
   });
 
   it("omits savedPaymentMethodId from saved-card tokenization payload", async () => {
