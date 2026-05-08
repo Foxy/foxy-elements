@@ -858,12 +858,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         value: this.#toText(billingAddress.last_name),
       },
       {
-        id: "billing-company",
-        label: "Company",
-        type: "text",
-        value: this.#toText(billingAddress.company),
-      },
-      {
         id: "billing-address1",
         label: "Address",
         type: "text",
@@ -874,32 +868,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         label: "Address 2",
         type: "text",
         value: this.#toText(billingAddress.address2),
-      },
-      {
-        id: "billing-city",
-        label: "City",
-        type: "text",
-        value: this.#toText(billingAddress.city),
-      },
-      regionOptions
-        ? {
-            id: "billing-region",
-            label: "Region",
-            type: "select",
-            value: this.#toText(billingAddress.region),
-            options: regionOptions,
-          }
-        : {
-            id: "billing-region",
-            label: "Region",
-            type: "text",
-            value: this.#toText(billingAddress.region),
-          },
-      {
-        id: "billing-postal-code",
-        label: "Postal code",
-        type: "text",
-        value: this.#toText(billingAddress.postal_code),
       },
       countryOptions
         ? {
@@ -916,10 +884,42 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             value: this.#toText(billingAddress.country),
           },
       {
+        id: "billing-postal-code",
+        label: "Postal code",
+        type: "text",
+        value: this.#toText(billingAddress.postal_code),
+      },
+      regionOptions
+        ? {
+            id: "billing-region",
+            label: "Region",
+            type: "select",
+            value: this.#toText(billingAddress.region),
+            options: regionOptions,
+          }
+        : {
+            id: "billing-region",
+            label: "Region",
+            type: "text",
+            value: this.#toText(billingAddress.region),
+          },
+      {
+        id: "billing-city",
+        label: "City",
+        type: "text",
+        value: this.#toText(billingAddress.city),
+      },
+      {
         id: "billing-phone",
         label: "Phone",
         type: "tel",
         value: this.#toText(billingAddress.phone),
+      },
+      {
+        id: "billing-company",
+        label: "Company",
+        type: "text",
+        value: this.#toText(billingAddress.company),
       },
     ];
 

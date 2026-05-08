@@ -34,6 +34,11 @@ const BILLING_ADDRESS_SUPPORTED_TYPES = new Set([
   "stripe-payment-element",
 ]);
 
+const FULL_WIDTH_BILLING_FIELD_IDS = new Set([
+  "billing-address1",
+  "billing-address2",
+]);
+
 function getBillingAddressSignature(
   billingAddress: PaymentMethodSelectorBillingAddress | undefined,
 ): string {
@@ -213,16 +218,19 @@ export function BillingAddressSection({
   }
 
   const fieldsMarkup = (
-    <FieldSet>
-      <FieldGroup>
+    <FieldSet className="mt-4">
+      <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
         {billingAddress.fields.map((field) => {
           const labelDescriptor = fieldLabelById[field.id];
           const label = labelDescriptor
             ? intl.formatMessage(labelDescriptor)
             : field.label;
+          const fieldClassName = FULL_WIDTH_BILLING_FIELD_IDS.has(field.id)
+            ? "sm:col-span-2"
+            : undefined;
 
           return (
-            <Field key={field.id}>
+            <Field key={field.id} className={fieldClassName}>
               <FieldLabel htmlFor={field.id}>{label}</FieldLabel>
               {renderBillingField(
                 field,

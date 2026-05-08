@@ -1049,7 +1049,7 @@ function AchOptionEmbed({
   return (
     <div className="flex flex-col gap-2.5">
       <FieldSet>
-        <FieldGroup>
+        <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
           {ACH_FIELDS.map((fieldName) => {
             const labelDescriptor = ACH_LABEL_BY_FIELD[fieldName];
             const defaultLabel = labelDescriptor
