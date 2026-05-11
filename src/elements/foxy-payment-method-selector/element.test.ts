@@ -228,7 +228,14 @@ describe("PaymentMethodSelectorElement", () => {
     try {
       const payload = await element.tokenize();
 
-      expect(payload.optionType).toBe("saved-card");
+      expect(payload).toEqual({
+        token: undefined,
+        requestId: undefined,
+        cardBrand: "Visa",
+        last4: "4242",
+        expirationMonth: 12,
+        expirationYear: 2030,
+      });
       expect(payload).not.toHaveProperty("savedPaymentMethodId");
     } finally {
       restoreClient();
@@ -253,12 +260,17 @@ describe("PaymentMethodSelectorElement", () => {
     const element = document.createElement(
       "foxy-payment-method-selector",
     ) as PaymentMethodSelectorElement;
+    const onTokenizationStart = vi.fn();
 
     try {
+      element.addEventListener("tokenizationstart", onTokenizationStart);
       const payload = await element.tokenize();
 
-      expect(payload.optionIndex).toBe(1);
-      expect(payload.optionType).toBe("apple-pay");
+      expect(payload).toEqual({});
+      expect(onTokenizationStart).toHaveBeenCalledTimes(1);
+      expect(onTokenizationStart.mock.calls[0]?.[0]?.detail).toEqual({
+        optionIndex: 1,
+      });
     } finally {
       restoreClient();
     }
@@ -429,8 +441,6 @@ describe("PaymentMethodSelectorElement", () => {
 
       expect(tokenize).toHaveBeenCalledTimes(1);
       expect(payload).toEqual({
-        optionIndex: 0,
-        optionType: "ach",
         token: "ach_token_123",
         requestId: "ach-req-1",
       });
@@ -480,6 +490,78 @@ describe("PaymentMethodSelectorElement", () => {
         phone: "6125550100",
       });
     } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("does not include billing address in the tokenization payload", async () => {
+    const updateBillingAddress = vi.fn(() => Promise.resolve());
+    const restoreClient = overrideClientState(
+      createBillingApiState(),
+      undefined,
+      {
+        updateBillingAddress,
+      },
+    );
+    const tokenize = vi.fn(() =>
+      Promise.resolve({
+        token: "card_token_123",
+        requestId: "card-req-1",
+        cardBrand: "visa",
+        last4: "4242",
+        expirationMonth: 12,
+        expirationYear: 2030,
+      }),
+    );
+    const cardFieldPrototype = customElements.get(
+      "foxy-payment-card-field",
+    )?.prototype;
+    const tokenizeDescriptor = cardFieldPrototype
+      ? Object.getOwnPropertyDescriptor(cardFieldPrototype, "tokenize")
+      : undefined;
+
+    if (!cardFieldPrototype || !tokenizeDescriptor?.value) {
+      restoreClient();
+      throw new Error(
+        "Missing foxy-payment-card-field tokenize prototype for test.",
+      );
+    }
+
+    const tokenizeSpy = vi
+      .spyOn(cardFieldPrototype, "tokenize")
+      .mockImplementation(tokenize);
+
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const checkbox = element.shadowRoot?.querySelector(
+        '[data-slot="checkbox"]',
+      ) as HTMLElement | null;
+      expect(checkbox).toBeTruthy();
+
+      checkbox?.click();
+      await waitForRender();
+
+      const payload = await element.tokenize();
+
+      expect(updateBillingAddress).toHaveBeenCalled();
+      expect(payload).toEqual({
+        token: "card_token_123",
+        requestId: "card-req-1",
+        cardBrand: "visa",
+        last4: "4242",
+        expirationMonth: 12,
+        expirationYear: 2030,
+      });
+      expect(payload).not.toHaveProperty("billingAddress");
+    } finally {
+      tokenizeSpy.mockRestore();
       element.remove();
       restoreClient();
     }

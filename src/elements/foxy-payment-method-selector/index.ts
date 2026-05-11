@@ -1,11 +1,18 @@
 export { paymentMethodSelectorEvents } from "./events";
 export type {
+  PaymentMethodSelectorAchTokenizePayload,
+  PaymentMethodSelectorApplePayTokenizePayload,
   PaymentController,
   PaymentMethodSelectorBillingAddress,
   PaymentMethodSelectorBillingField,
   PaymentMethodSelectorBillingPayload,
+  PaymentMethodSelectorGenericTokenizePayload,
+  PaymentMethodSelectorGooglePayTokenizePayload,
+  PaymentMethodSelectorNewCardTokenizePayload,
   PaymentMethodSelectorOption,
-  PaymentMethodSelectorTokenizeOptionType,
+  PaymentMethodSelectorSavedCardTokenizePayload,
+  PaymentMethodSelectorStripeCardElementTokenizePayload,
+  PaymentMethodSelectorStripePaymentElementTokenizePayload,
   PaymentMethodSelectorTokenizePayload,
 } from "./types";
 export { Payment } from "./view";

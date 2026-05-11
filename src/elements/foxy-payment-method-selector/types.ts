@@ -20,16 +20,6 @@ export type PaymentMethodSelectorBillingAddress = {
   fields: PaymentMethodSelectorBillingField[];
 };
 
-export type PaymentMethodSelectorTokenizeOptionType =
-  | "saved-card"
-  | "new-card"
-  | "ach"
-  | "stripe-card-element"
-  | "stripe-payment-element"
-  | "apple-pay"
-  | "google-pay"
-  | "generic";
-
 export type PaymentMethodSelectorBillingPayload = {
   useShippingAddress: boolean;
   values: Record<string, string>;
@@ -39,22 +29,78 @@ export type PaymentMethodSelectorBillingError = {
   message?: string;
 };
 
-export type PaymentMethodSelectorTokenizePayload = {
-  optionIndex: number;
-  optionType: PaymentMethodSelectorTokenizeOptionType;
-  billingAddress?: PaymentMethodSelectorBillingPayload;
-  token?: string;
-  requestId?: string;
-  paymentMethodId?: string;
-  paymentMethodType?: string;
+type PaymentMethodSelectorCardTokenizeDetails = {
+  cardBrand: string | undefined;
+  last4: string | undefined;
+  expirationMonth: number | undefined;
+  expirationYear: number | undefined;
+};
+
+type PaymentMethodSelectorOptionalHostedCardTokenizePayload = {
+  token: string | undefined;
+  requestId: string | undefined;
+};
+
+type PaymentMethodSelectorRequiredHostedCardTokenizePayload = {
+  token: string;
+  requestId: string;
+};
+
+type PaymentMethodSelectorOptionalCardTokenizeDetails = {
   cardBrand?: string;
   last4?: string;
   expirationMonth?: number;
   expirationYear?: number;
 };
 
+export type PaymentMethodSelectorSavedCardTokenizePayload =
+  PaymentMethodSelectorOptionalHostedCardTokenizePayload &
+    PaymentMethodSelectorCardTokenizeDetails;
+
+export type PaymentMethodSelectorNewCardTokenizePayload =
+  PaymentMethodSelectorRequiredHostedCardTokenizePayload &
+    PaymentMethodSelectorCardTokenizeDetails;
+
+export type PaymentMethodSelectorAchTokenizePayload = {
+  token: string;
+  requestId: string;
+};
+
+export type PaymentMethodSelectorStripeCardElementTokenizePayload = {
+  paymentMethodId: string;
+} & PaymentMethodSelectorCardTokenizeDetails;
+
+export type PaymentMethodSelectorStripePaymentElementTokenizePayload = {
+  paymentMethodId: string;
+  paymentMethodType: string;
+} & PaymentMethodSelectorOptionalCardTokenizeDetails;
+
+export type PaymentMethodSelectorApplePayTokenizePayload = Record<
+  string,
+  never
+>;
+
+export type PaymentMethodSelectorGooglePayTokenizePayload = Record<
+  string,
+  never
+>;
+
+export type PaymentMethodSelectorGenericTokenizePayload = Record<string, never>;
+
+export type PaymentMethodSelectorTokenizePayload =
+  | PaymentMethodSelectorSavedCardTokenizePayload
+  | PaymentMethodSelectorNewCardTokenizePayload
+  | PaymentMethodSelectorAchTokenizePayload
+  | PaymentMethodSelectorStripeCardElementTokenizePayload
+  | PaymentMethodSelectorStripePaymentElementTokenizePayload
+  | PaymentMethodSelectorApplePayTokenizePayload
+  | PaymentMethodSelectorGooglePayTokenizePayload
+  | PaymentMethodSelectorGenericTokenizePayload;
+
 export type PaymentController = {
-  tokenize: (requestId?: string) => Promise<Record<string, unknown>>;
+  tokenize: (
+    requestId?: string,
+  ) => Promise<PaymentMethodSelectorTokenizePayload>;
 };
 
 export type PaymentMethodSelectorOption = {
@@ -65,6 +111,10 @@ export type PaymentMethodSelectorOption = {
   gateway?: string;
   disabled?: boolean;
   savedPaymentMethodId?: string;
+  cardBrand?: string;
+  last4?: string;
+  expirationMonth?: number;
+  expirationYear?: number;
   acceptedBrands?: string[];
   hostedCard?: PaymentCardFieldOption;
   stripeCardElement?: {

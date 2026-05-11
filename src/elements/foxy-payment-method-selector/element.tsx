@@ -4,7 +4,6 @@ import type {
   PaymentMethodSelectorBillingAddress,
   PaymentMethodSelectorBillingField,
   PaymentMethodSelectorOption,
-  PaymentMethodSelectorTokenizeOptionType,
   PaymentMethodSelectorTokenizePayload,
 } from "./types";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
@@ -63,10 +62,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #root: Root | null = null;
   #container: HTMLDivElement;
   #controllers = new Map<string, PaymentController>();
-  #billingStateByOption = new Map<
-    string,
-    { useShippingAddress: boolean; values: Record<string, string> }
-  >();
   #billingErrorsByOption = new Map<string, PaymentMethodSelectorBillingError>();
   #billingRequestVersionByOption = new Map<string, number>();
   #lightDomStripeHosts = new Map<string, HTMLDivElement>();
@@ -149,14 +144,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
       const controller = this.#controllers.get(selectedOption.id);
       const tokenized = controller ? await controller.tokenize() : {};
-
-      const payload: PaymentMethodSelectorTokenizePayload = {
-        optionIndex,
-        optionType:
-          selectedOption.type as PaymentMethodSelectorTokenizeOptionType,
-        billingAddress: this.#billingStateByOption.get(selectedOption.id),
-        ...tokenized,
-      };
+      const payload = this.#createTokenizePayload(selectedOption, tokenized);
 
       this.dispatchEvent(
         new CustomEvent<PaymentMethodSelectorTokenizationSuccessEventDetail>(
@@ -210,7 +198,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     this.#root?.unmount();
     this.#root = null;
     this.#controllers.clear();
-    this.#billingStateByOption.clear();
     this.#billingErrorsByOption.clear();
     this.#billingRequestVersionByOption.clear();
     this.#stripeSyncVersion += 1;
@@ -336,11 +323,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             useShippingAddress,
             values,
           }) => {
-            this.#billingStateByOption.set(optionId, {
-              useShippingAddress,
-              values,
-            });
-
             const patch = this.#toBillingAddressPatch({
               useShippingAddress,
               values,
@@ -470,6 +452,11 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return "";
   }
 
+  #toOptionalText(value: unknown): string | undefined {
+    const normalized = this.#toText(value).trim();
+    return normalized || undefined;
+  }
+
   #getErrorMessage(error: unknown): string | undefined {
     if (typeof error === "string") {
       return error.trim() || undefined;
@@ -495,6 +482,124 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     return undefined;
+  }
+
+  #readPayloadString(
+    payload: Record<string, unknown>,
+    key: string,
+  ): string | undefined {
+    return this.#toOptionalText(payload[key]);
+  }
+
+  #readPayloadNumber(
+    payload: Record<string, unknown>,
+    key: string,
+  ): number | undefined {
+    return this.#toNumber(payload[key]);
+  }
+
+  #requirePayloadString(
+    payload: Record<string, unknown>,
+    key: string,
+    errorMessage: string,
+  ): string {
+    const value = this.#readPayloadString(payload, key);
+    if (value) return value;
+    throw new Error(errorMessage);
+  }
+
+  #createTokenizePayload(
+    selectedOption: PaymentMethodSelectorOption,
+    tokenized: PaymentMethodSelectorTokenizePayload | Record<string, unknown>,
+  ): PaymentMethodSelectorTokenizePayload {
+    const payload = this.#asRecord(tokenized) ?? {};
+
+    if (selectedOption.type === "saved-card") {
+      return {
+        token: this.#readPayloadString(payload, "token"),
+        requestId: this.#readPayloadString(payload, "requestId"),
+        cardBrand:
+          this.#readPayloadString(payload, "cardBrand") ??
+          selectedOption.cardBrand,
+        last4:
+          this.#readPayloadString(payload, "last4") ?? selectedOption.last4,
+        expirationMonth:
+          this.#readPayloadNumber(payload, "expirationMonth") ??
+          selectedOption.expirationMonth,
+        expirationYear:
+          this.#readPayloadNumber(payload, "expirationYear") ??
+          selectedOption.expirationYear,
+      };
+    }
+
+    if (selectedOption.type === "new-card") {
+      return {
+        token: this.#requirePayloadString(
+          payload,
+          "token",
+          "Card tokenization response is missing a token.",
+        ),
+        requestId: this.#requirePayloadString(
+          payload,
+          "requestId",
+          "Card tokenization response is missing a request id.",
+        ),
+        cardBrand: this.#readPayloadString(payload, "cardBrand"),
+        last4: this.#readPayloadString(payload, "last4"),
+        expirationMonth: this.#readPayloadNumber(payload, "expirationMonth"),
+        expirationYear: this.#readPayloadNumber(payload, "expirationYear"),
+      };
+    }
+
+    if (selectedOption.type === "ach") {
+      return {
+        token: this.#requirePayloadString(
+          payload,
+          "token",
+          "ACH tokenization response is missing a token.",
+        ),
+        requestId: this.#requirePayloadString(
+          payload,
+          "requestId",
+          "ACH tokenization response is missing a request id.",
+        ),
+      };
+    }
+
+    if (selectedOption.type === "stripe-card-element") {
+      return {
+        paymentMethodId: this.#requirePayloadString(
+          payload,
+          "paymentMethodId",
+          "Stripe Card Element tokenization response is missing a payment method id.",
+        ),
+        cardBrand: this.#readPayloadString(payload, "cardBrand"),
+        last4: this.#readPayloadString(payload, "last4"),
+        expirationMonth: this.#readPayloadNumber(payload, "expirationMonth"),
+        expirationYear: this.#readPayloadNumber(payload, "expirationYear"),
+      };
+    }
+
+    if (selectedOption.type === "stripe-payment-element") {
+      return {
+        paymentMethodId: this.#requirePayloadString(
+          payload,
+          "paymentMethodId",
+          "Stripe Payment Element tokenization response is missing a payment method id.",
+        ),
+        paymentMethodType: this.#requirePayloadString(
+          payload,
+          "paymentMethodType",
+          "Stripe Payment Element tokenization response is missing a payment method type.",
+        ),
+        cardBrand: this.#readPayloadString(payload, "cardBrand"),
+        last4: this.#readPayloadString(payload, "last4"),
+        expirationMonth: this.#readPayloadNumber(payload, "expirationMonth"),
+        expirationYear: this.#readPayloadNumber(payload, "expirationYear"),
+      };
+    }
+
+    return {};
   }
 
   #toPaymentOptionType(value: unknown): string {
@@ -629,10 +734,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       this.#toText(paymentMethod.payment_token) ||
       this.#toText(paymentMethod.id) ||
       undefined;
-    const cardBrand = this.#toText(paymentMethod.brand);
-    const last4 = this.#toText(paymentMethod.last_4);
-    const expirationMonth = this.#toText(paymentMethod.expiry_month);
-    const expirationYear = this.#toText(paymentMethod.expiry_year);
+    const cardBrand = this.#toOptionalText(paymentMethod.brand);
+    const last4 = this.#toOptionalText(paymentMethod.last_4);
+    const expirationMonth = this.#toNumber(paymentMethod.expiry_month);
+    const expirationYear = this.#toNumber(paymentMethod.expiry_year);
     const disabled = option.disabled === true;
     const label =
       cardBrand && last4
@@ -640,6 +745,12 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         : last4
           ? `•••• ${last4}`
           : "••••";
+    const expirationMonthLabel =
+      typeof expirationMonth === "number"
+        ? String(expirationMonth).padStart(2, "0")
+        : undefined;
+    const expirationYearLabel =
+      typeof expirationYear === "number" ? String(expirationYear) : undefined;
 
     return [
       {
@@ -649,9 +760,13 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         gateway: gateway || undefined,
         disabled,
         savedPaymentMethodId,
+        cardBrand,
+        last4,
+        expirationMonth,
+        expirationYear,
         description:
-          expirationMonth && expirationYear
-            ? `Expires ${expirationMonth}/${expirationYear}`
+          expirationMonthLabel && expirationYearLabel
+            ? `Expires ${expirationMonthLabel}/${expirationYearLabel}`
             : undefined,
         hostedCard:
           gateway === "stripe_v2" ||

@@ -485,38 +485,70 @@ remain the inherited <code>HTMLElement</code> property.
 
 ## Tokenization Payload
 
-<code>tokenize()</code> resolves with this payload. The
+<code>tokenize()</code> resolves with one of these payload types. The
 <code>tokenizationsuccess</code> event emits the same object as
 <code>event.detail.payload</code>.
 
 ```ts
-type PaymentMethodSelectorTokenizePayload = {
-  optionIndex: number;
-  optionType:
-    | "saved-card"
-    | "new-card"
-    | "ach"
-    | "stripe-card-element"
-    | "stripe-payment-element"
-    | "apple-pay"
-    | "google-pay"
-    | "generic";
-  billingAddress?: {
-    useShippingAddress: boolean;
-    values: Record<string, string>;
-  };
-  token?: string;
-  requestId?: string;
-  paymentMethodId?: string;
-  paymentMethodType?: string;
+type PaymentMethodSelectorSavedCardTokenizePayload = {
+  token: string | undefined;
+  requestId: string | undefined;
+  cardBrand: string | undefined;
+  last4: string | undefined;
+  expirationMonth: number | undefined;
+  expirationYear: number | undefined;
+};
+
+type PaymentMethodSelectorNewCardTokenizePayload = {
+  token: string;
+  requestId: string;
+  cardBrand: string | undefined;
+  last4: string | undefined;
+  expirationMonth: number | undefined;
+  expirationYear: number | undefined;
+};
+
+type PaymentMethodSelectorAchTokenizePayload = {
+  token: string;
+  requestId: string;
+};
+
+type PaymentMethodSelectorStripeCardElementTokenizePayload = {
+  paymentMethodId: string;
+  cardBrand: string | undefined;
+  last4: string | undefined;
+  expirationMonth: number | undefined;
+  expirationYear: number | undefined;
+};
+
+type PaymentMethodSelectorStripePaymentElementTokenizePayload = {
+  paymentMethodId: string;
+  paymentMethodType: string;
   cardBrand?: string;
   last4?: string;
   expirationMonth?: number;
   expirationYear?: number;
 };
+
+type PaymentMethodSelectorApplePayTokenizePayload = Record<string, never>;
+type PaymentMethodSelectorGooglePayTokenizePayload = Record<string, never>;
+type PaymentMethodSelectorGenericTokenizePayload = Record<string, never>;
+
+type PaymentMethodSelectorTokenizePayload =
+  | PaymentMethodSelectorSavedCardTokenizePayload
+  | PaymentMethodSelectorNewCardTokenizePayload
+  | PaymentMethodSelectorAchTokenizePayload
+  | PaymentMethodSelectorStripeCardElementTokenizePayload
+  | PaymentMethodSelectorStripePaymentElementTokenizePayload
+  | PaymentMethodSelectorApplePayTokenizePayload
+  | PaymentMethodSelectorGooglePayTokenizePayload
+  | PaymentMethodSelectorGenericTokenizePayload;
 ```
 
-Every successful payload includes <code>optionIndex</code> and <code>optionType</code>. <code>billingAddress</code> is included after the billing address UI has reported values for the selected option.
+Billing address edits are sent directly to the checkout client through
+
+<code>updateBillingAddress(...)</code> as fields change. They are not included
+in the tokenization payload.
 
 Payload fields by selected option:
 
@@ -524,6 +556,7 @@ Payload fields by selected option:
   <thead>
     <tr>
       <th>Option type</th>
+      <th>Payload type</th>
       <th>Additional fields</th>
     </tr>
   </thead>
@@ -533,10 +566,14 @@ Payload fields by selected option:
         <code>new-card</code>
       </td>
       <td>
-        <code>token?: string</code>, <code>requestId?: string</code>,{" "}
-        <code>cardBrand?: string</code>, <code>last4?: string</code>,{" "}
-        <code>expirationMonth?: number</code>,{" "}
-        <code>expirationYear?: number</code>
+        <code>PaymentMethodSelectorNewCardTokenizePayload</code>
+      </td>
+      <td>
+        <code>token: string</code>, <code>requestId: string</code>,{" "}
+        <code>cardBrand: string | undefined</code>,{" "}
+        <code>last4: string | undefined</code>,{" "}
+        <code>expirationMonth: number | undefined</code>,{" "}
+        <code>expirationYear: number | undefined</code>
       </td>
     </tr>
     <tr>
@@ -544,8 +581,17 @@ Payload fields by selected option:
         <code>saved-card</code>
       </td>
       <td>
-        Non-Stripe saved cards that require CSC include{" "}
-        <code>token?: string</code> and <code>requestId?: string</code>.
+        <code>PaymentMethodSelectorSavedCardTokenizePayload</code>
+      </td>
+      <td>
+        <code>token: string | undefined</code>,{" "}
+        <code>requestId: string | undefined</code>,{" "}
+        <code>cardBrand: string | undefined</code>,{" "}
+        <code>last4: string | undefined</code>,{" "}
+        <code>expirationMonth: number | undefined</code>,{" "}
+        <code>expirationYear: number | undefined</code>. Gateway-native saved
+        cards keep <code>token</code> and <code>requestId</code> undefined while
+        still returning the card metadata keys.
       </td>
     </tr>
     <tr>
@@ -553,7 +599,10 @@ Payload fields by selected option:
         <code>ach</code>
       </td>
       <td>
-        <code>token?: string</code>, <code>requestId?: string</code>
+        <code>PaymentMethodSelectorAchTokenizePayload</code>
+      </td>
+      <td>
+        <code>token: string</code>, <code>requestId: string</code>
       </td>
     </tr>
     <tr>
@@ -561,9 +610,14 @@ Payload fields by selected option:
         <code>stripe-card-element</code>
       </td>
       <td>
-        <code>paymentMethodId?: string</code>, <code>cardBrand?: string</code>,{" "}
-        <code>last4?: string</code>, <code>expirationMonth?: number</code>,{" "}
-        <code>expirationYear?: number</code>
+        <code>PaymentMethodSelectorStripeCardElementTokenizePayload</code>
+      </td>
+      <td>
+        <code>paymentMethodId: string</code>,{" "}
+        <code>cardBrand: string | undefined</code>,{" "}
+        <code>last4: string | undefined</code>,{" "}
+        <code>expirationMonth: number | undefined</code>,{" "}
+        <code>expirationYear: number | undefined</code>
       </td>
     </tr>
     <tr>
@@ -571,15 +625,23 @@ Payload fields by selected option:
         <code>stripe-payment-element</code>
       </td>
       <td>
-        <code>paymentMethodId?: string</code>,{" "}
-        <code>paymentMethodType?: string</code>, <code>cardBrand?: string</code>
-        , <code>last4?: string</code>, <code>expirationMonth?: number</code>,{" "}
+        <code>PaymentMethodSelectorStripePaymentElementTokenizePayload</code>
+      </td>
+      <td>
+        <code>paymentMethodId: string</code>,{" "}
+        <code>paymentMethodType: string</code>, <code>cardBrand?: string</code>,{" "}
+        <code>last4?: string</code>, <code>expirationMonth?: number</code>,{" "}
         <code>expirationYear?: number</code>
       </td>
     </tr>
     <tr>
       <td>
         <code>apple-pay</code>, <code>google-pay</code>, <code>generic</code>
+      </td>
+      <td>
+        <code>PaymentMethodSelectorApplePayTokenizePayload</code>,{" "}
+        <code>PaymentMethodSelectorGooglePayTokenizePayload</code>,{" "}
+        <code>PaymentMethodSelectorGenericTokenizePayload</code>
       </td>
       <td>No method-specific fields are added by the selector.</td>
     </tr>

@@ -881,6 +881,12 @@ function CardOptionEmbed({
     const controller: PaymentController = {
       tokenize: async (requestId?: string) => {
         const payload = await element.tokenize(requestId);
+        if (!payload.requestId) {
+          throw new Error(
+            "Card tokenization response is missing a request id.",
+          );
+        }
+
         return {
           token: payload.token,
           requestId: payload.requestId,
@@ -1032,6 +1038,10 @@ function AchOptionEmbed({
         }
 
         const payload = await firstMounted.tokenize(requestId);
+        if (!payload.requestId) {
+          throw new Error("ACH tokenization response is missing a request id.");
+        }
+
         return {
           token: payload.token,
           requestId: payload.requestId,
