@@ -10,6 +10,7 @@ export type {
   PaymentMethodSelectorGooglePayTokenizePayload,
   PaymentMethodSelectorNewCardTokenizePayload,
   PaymentMethodSelectorOption,
+  PaymentMethodSelectorPurchaseOrderTokenizePayload,
   PaymentMethodSelectorSavedCardTokenizePayload,
   PaymentMethodSelectorStripeCardElementTokenizePayload,
   PaymentMethodSelectorStripePaymentElementTokenizePayload,

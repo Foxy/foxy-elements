@@ -59,6 +59,20 @@ async function waitForText(
   throw new Error(`Timed out waiting for text: ${expected}`);
 }
 
+async function setTextInputValue(
+  input: HTMLInputElement,
+  value: string,
+): Promise<void> {
+  const valueSetter = Object.getOwnPropertyDescriptor(
+    HTMLInputElement.prototype,
+    "value",
+  )?.set;
+
+  valueSetter?.call(input, value);
+  input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+  await waitForRender();
+}
+
 function createBillingApiState() {
   return {
     billing_address: {
@@ -98,6 +112,16 @@ function createAchApiState() {
             account_holder_name: "Name on account",
           },
         },
+      },
+    ],
+  };
+}
+
+function createPurchaseOrderApiState() {
+  return {
+    payment_options: [
+      {
+        type: "purchase_order",
       },
     ],
   };
@@ -446,6 +470,112 @@ describe("PaymentMethodSelectorElement", () => {
       });
     } finally {
       tokenizeSpy.mockRestore();
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("renders the purchase order number field", async () => {
+    const restoreClient = overrideClientState(createPurchaseOrderApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const input = element.shadowRoot?.querySelector(
+        '[data-purchase-order-number="true"]',
+      ) as HTMLInputElement | null;
+
+      expect(input).toBeTruthy();
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Purchase order number",
+      );
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("rejects purchase-order tokenization when the field is empty", async () => {
+    const restoreClient = overrideClientState(createPurchaseOrderApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      await expect(element.tokenize()).rejects.toThrow(
+        "Purchase order number is required.",
+      );
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Purchase order number is required.",
+      );
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("rejects purchase-order tokenization when the field exceeds 32 characters", async () => {
+    const restoreClient = overrideClientState(createPurchaseOrderApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const input = element.shadowRoot?.querySelector(
+        '[data-purchase-order-number="true"]',
+      ) as HTMLInputElement | null;
+
+      expect(input).toBeTruthy();
+      await setTextInputValue(input!, "P".repeat(33));
+
+      await expect(element.tokenize()).rejects.toThrow(
+        "Purchase order number must be 32 characters or less.",
+      );
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Purchase order number must be 32 characters or less.",
+      );
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("includes the purchase order number in the tokenization payload", async () => {
+    const restoreClient = overrideClientState(createPurchaseOrderApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const input = element.shadowRoot?.querySelector(
+        '[data-purchase-order-number="true"]',
+      ) as HTMLInputElement | null;
+
+      expect(input).toBeTruthy();
+      await setTextInputValue(input!, "PO-123456");
+
+      const payload = await element.tokenize();
+
+      expect(payload).toEqual({
+        purchaseOrderNumber: "PO-123456",
+      });
+    } finally {
       element.remove();
       restoreClient();
     }

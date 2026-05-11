@@ -294,6 +294,17 @@ export const Ach: Story = {
   },
 };
 
+export const PurchaseOrder: Story = {
+  args: {
+    apiState: createDemoApiState([
+      {
+        type: "purchase_order",
+      },
+    ]),
+    optionIndex: 0,
+  },
+};
+
 export const ApplePay: Story = {
   args: {
     apiState: createDemoApiState([
@@ -359,6 +370,9 @@ export const AllPaymentMethods: Story = {
           "account-holder-name",
         ],
         account_types: ["checking", "savings"],
+      },
+      {
+        type: "purchase_order",
       },
       {
         type: "apple-pay",

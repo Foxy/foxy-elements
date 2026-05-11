@@ -75,6 +75,10 @@ export type PaymentMethodSelectorStripePaymentElementTokenizePayload = {
   paymentMethodType: string;
 } & PaymentMethodSelectorOptionalCardTokenizeDetails;
 
+export type PaymentMethodSelectorPurchaseOrderTokenizePayload = {
+  purchaseOrderNumber: string;
+};
+
 export type PaymentMethodSelectorApplePayTokenizePayload = Record<
   string,
   never
@@ -93,6 +97,7 @@ export type PaymentMethodSelectorTokenizePayload =
   | PaymentMethodSelectorAchTokenizePayload
   | PaymentMethodSelectorStripeCardElementTokenizePayload
   | PaymentMethodSelectorStripePaymentElementTokenizePayload
+  | PaymentMethodSelectorPurchaseOrderTokenizePayload
   | PaymentMethodSelectorApplePayTokenizePayload
   | PaymentMethodSelectorGooglePayTokenizePayload
   | PaymentMethodSelectorGenericTokenizePayload;

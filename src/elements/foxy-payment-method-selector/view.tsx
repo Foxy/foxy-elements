@@ -25,7 +25,7 @@ import {
   UnionPayFlatRoundedIcon,
   VisaFlatRoundedIcon,
 } from "react-svg-credit-card-payment-icons";
-import { CreditCard, Landmark, Wallet } from "lucide-react";
+import { CreditCard, FileText, Landmark, Wallet } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -41,6 +41,7 @@ import {
   FieldLegend,
   FieldSet,
 } from "@foxy.io/design-system/ui/field";
+import { Input } from "@foxy.io/design-system/ui/input";
 import {
   RadioGroup,
   RadioGroupItem,
@@ -64,6 +65,7 @@ const ACH_FIELDS: AchHostedFieldName[] = [
 ];
 
 const CARD_TYPES = new Set(["new-card", "saved-card", "card"]);
+const PURCHASE_ORDER_MAX_LENGTH = 32;
 
 const messages = defineMessages({
   loadingOptions: {
@@ -102,6 +104,10 @@ const messages = defineMessages({
     id: "payment_option_label_stripe_payment_element",
     defaultMessage: "New Payment Method",
   },
+  optionLabelPurchaseOrder: {
+    id: "payment_option_label_purchase_order",
+    defaultMessage: "Purchase Order",
+  },
   optionDescriptionNewCard: {
     id: "payment_option_description_new_card",
     defaultMessage: "Enter your payment card details below.",
@@ -117,6 +123,10 @@ const messages = defineMessages({
   optionDescriptionStripePaymentElement: {
     id: "payment_option_description_stripe_payment_element",
     defaultMessage: "Select a payment method and enter your details below.",
+  },
+  optionDescriptionPurchaseOrder: {
+    id: "payment_option_description_purchase_order",
+    defaultMessage: "Enter your purchase order number below.",
   },
   optionDescriptionAch: {
     id: "payment_option_description_ach",
@@ -216,6 +226,23 @@ const messages = defineMessages({
     id: "payment_ach_owner_confirmation_error",
     defaultMessage: "Please confirm that you own this account.",
   },
+  purchaseOrderNumberLabel: {
+    id: "payment_purchase_order_number_label",
+    defaultMessage: "Purchase order number",
+  },
+  purchaseOrderNumberPlaceholder: {
+    id: "payment_purchase_order_number_placeholder",
+    defaultMessage: "Enter purchase order number",
+  },
+  purchaseOrderNumberRequired: {
+    id: "payment_purchase_order_number_required",
+    defaultMessage: "Purchase order number is required.",
+  },
+  purchaseOrderNumberTooLong: {
+    id: "payment_purchase_order_number_too_long",
+    defaultMessage:
+      "Purchase order number must be {maxLength} characters or less.",
+  },
   cardFieldLabelFull: {
     id: "payment_card_field_label_full",
     defaultMessage: "Card details",
@@ -256,6 +283,7 @@ const OPTION_LABEL_BY_TYPE: Partial<Record<string, MessageDescriptor>> = {
   ach: messages.optionLabelAch,
   "apple-pay": messages.optionLabelApplePay,
   "google-pay": messages.optionLabelGooglePay,
+  "purchase-order": messages.optionLabelPurchaseOrder,
   generic: messages.optionLabelRedirect,
   "stripe-card-element": messages.optionLabelStripeCardElement,
   "stripe-payment-element": messages.optionLabelStripePaymentElement,
@@ -266,6 +294,7 @@ const OPTION_DESCRIPTION_BY_TYPE: Partial<Record<string, MessageDescriptor>> = {
   "saved-card": messages.optionDescriptionSavedCard,
   "stripe-card-element": messages.optionDescriptionStripeCardElement,
   "stripe-payment-element": messages.optionDescriptionStripePaymentElement,
+  "purchase-order": messages.optionDescriptionPurchaseOrder,
   ach: messages.optionDescriptionAch,
   "apple-pay": messages.optionDescriptionApplePay,
   "google-pay": messages.optionDescriptionGooglePay,
@@ -733,6 +762,25 @@ function getGenericPaymentOptionIcon(icon: ReactNode): ReactNode {
   );
 }
 
+function getPurchaseOrderErrorMessage(
+  value: string,
+  intl: IntlShape,
+): string | null {
+  const normalized = value.trim();
+
+  if (!normalized) {
+    return intl.formatMessage(messages.purchaseOrderNumberRequired);
+  }
+
+  if (normalized.length > PURCHASE_ORDER_MAX_LENGTH) {
+    return intl.formatMessage(messages.purchaseOrderNumberTooLong, {
+      maxLength: PURCHASE_ORDER_MAX_LENGTH,
+    });
+  }
+
+  return null;
+}
+
 function NewCardBrandCycler({ acceptedBrands }: { acceptedBrands?: string[] }) {
   const icons = useMemo(() => {
     if (!acceptedBrands?.length) return NEW_CARD_BRAND_ICONS;
@@ -848,6 +896,12 @@ function getPaymentOptionBrandIcon(
   if (option.type === "stripe-payment-element") {
     return getGenericPaymentOptionIcon(
       <Wallet className="h-4 w-4 text-muted-foreground" />,
+    );
+  }
+
+  if (option.type === "purchase-order") {
+    return getGenericPaymentOptionIcon(
+      <FileText className="h-4 w-4 text-muted-foreground" />,
     );
   }
 
@@ -1152,6 +1206,94 @@ function AchOptionEmbed({
   );
 }
 
+function PurchaseOrderOptionEmbed({
+  option,
+  disabled,
+  onControllerReady,
+}: {
+  option: PaymentMethodSelectorOption;
+  disabled?: boolean;
+  onControllerReady?: (controller: PaymentController | null) => void;
+}) {
+  const intl = useIntl();
+  const [purchaseOrderNumber, setPurchaseOrderNumber] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const purchaseOrderNumberRef = useRef("");
+
+  useEffect(() => {
+    purchaseOrderNumberRef.current = purchaseOrderNumber;
+  }, [purchaseOrderNumber]);
+
+  useEffect(() => {
+    const controller: PaymentController = {
+      tokenize: async () => {
+        const nextError = getPurchaseOrderErrorMessage(
+          purchaseOrderNumberRef.current,
+          intl,
+        );
+
+        if (nextError) {
+          setError(nextError);
+          throw new Error(nextError);
+        }
+
+        setError(null);
+
+        return {
+          purchaseOrderNumber: purchaseOrderNumberRef.current.trim(),
+        };
+      },
+    };
+
+    onControllerReady?.(controller);
+
+    return () => {
+      onControllerReady?.(null);
+    };
+  }, [intl, onControllerReady]);
+
+  useEffect(() => {
+    setPurchaseOrderNumber("");
+    purchaseOrderNumberRef.current = "";
+    setError(null);
+  }, [option.id]);
+
+  const fieldId = `purchase-order-number-${option.id}`;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Field>
+        <FieldLabel htmlFor={fieldId}>
+          {intl.formatMessage(messages.purchaseOrderNumberLabel)}
+        </FieldLabel>
+        <Input
+          id={fieldId}
+          data-purchase-order-number="true"
+          type="text"
+          value={purchaseOrderNumber}
+          maxLength={PURCHASE_ORDER_MAX_LENGTH}
+          placeholder={intl.formatMessage(
+            messages.purchaseOrderNumberPlaceholder,
+          )}
+          disabled={disabled}
+          aria-invalid={Boolean(error)}
+          required
+          onChange={(event) => {
+            const nextValue = event.target.value;
+            purchaseOrderNumberRef.current = nextValue;
+            setPurchaseOrderNumber(nextValue);
+
+            if (error) {
+              setError(getPurchaseOrderErrorMessage(nextValue, intl));
+            }
+          }}
+        />
+      </Field>
+      {error ? <p className="m-0 text-sm text-destructive">{error}</p> : null}
+    </div>
+  );
+}
+
 function PaymentOptionBody({
   option,
   lang,
@@ -1265,6 +1407,16 @@ function PaymentOptionBody({
         />
         {billingSection}
       </>
+    );
+  }
+
+  if (option.type === "purchase-order") {
+    return (
+      <PurchaseOrderOptionEmbed
+        option={option}
+        disabled={disabled}
+        onControllerReady={onControllerReady}
+      />
     );
   }
 

@@ -599,6 +599,16 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       };
     }
 
+    if (selectedOption.type === "purchase-order") {
+      return {
+        purchaseOrderNumber: this.#requirePayloadString(
+          payload,
+          "purchaseOrderNumber",
+          "Purchase order tokenization response is missing a purchase order number.",
+        ),
+      };
+    }
+
     return {};
   }
 
@@ -612,6 +622,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     if (normalized === "stripe-card-element") return "stripe-card-element";
     if (normalized === "stripe-payment-element")
       return "stripe-payment-element";
+    if (normalized === "purchase-order") return "purchase-order";
     if (normalized === "apple-pay") return "apple-pay";
     if (normalized === "google-pay") return "google-pay";
     return normalized;
@@ -867,6 +878,19 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             paymentElementOptions:
               this.#createStripePaymentElementOptions(apiState),
           },
+        },
+      ];
+    }
+
+    if (type === "purchase-order") {
+      return [
+        {
+          id: optionId,
+          type: "purchase-order",
+          label: "Purchase Order",
+          gateway: gateway || undefined,
+          disabled,
+          description: "Enter your purchase order number below.",
         },
       ];
     }

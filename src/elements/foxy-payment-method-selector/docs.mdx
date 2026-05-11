@@ -530,6 +530,10 @@ type PaymentMethodSelectorStripePaymentElementTokenizePayload = {
   expirationYear?: number;
 };
 
+type PaymentMethodSelectorPurchaseOrderTokenizePayload = {
+  purchaseOrderNumber: string;
+};
+
 type PaymentMethodSelectorApplePayTokenizePayload = Record<string, never>;
 type PaymentMethodSelectorGooglePayTokenizePayload = Record<string, never>;
 type PaymentMethodSelectorGenericTokenizePayload = Record<string, never>;
@@ -540,6 +544,7 @@ type PaymentMethodSelectorTokenizePayload =
   | PaymentMethodSelectorAchTokenizePayload
   | PaymentMethodSelectorStripeCardElementTokenizePayload
   | PaymentMethodSelectorStripePaymentElementTokenizePayload
+  | PaymentMethodSelectorPurchaseOrderTokenizePayload
   | PaymentMethodSelectorApplePayTokenizePayload
   | PaymentMethodSelectorGooglePayTokenizePayload
   | PaymentMethodSelectorGenericTokenizePayload;
@@ -549,6 +554,10 @@ Billing address edits are sent directly to the checkout client through
 
 <code>updateBillingAddress(...)</code> as fields change. They are not included
 in the tokenization payload.
+
+Purchase order selections render a single required purchase order number field.
+The selector enforces a 32-character maximum and returns the entered value in
+the tokenization payload.
 
 Payload fields by selected option:
 
@@ -632,6 +641,17 @@ Payload fields by selected option:
         <code>paymentMethodType: string</code>, <code>cardBrand?: string</code>,{" "}
         <code>last4?: string</code>, <code>expirationMonth?: number</code>,{" "}
         <code>expirationYear?: number</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>purchase-order</code>
+      </td>
+      <td>
+        <code>PaymentMethodSelectorPurchaseOrderTokenizePayload</code>
+      </td>
+      <td>
+        <code>purchaseOrderNumber: string</code>
       </td>
     </tr>
     <tr>
