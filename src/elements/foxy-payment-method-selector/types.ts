@@ -79,6 +79,41 @@ export type PaymentMethodSelectorPurchaseOrderTokenizePayload = {
   purchaseOrderNumber: string;
 };
 
+export type PaymentMethodSelectorPayPalPlatformFlow =
+  | "buttons"
+  | "card-fields"
+  | "apple-pay"
+  | "google-pay";
+
+export type PaymentMethodSelectorPayPalPlatformFundingSource =
+  | "paypal"
+  | "paylater"
+  | "credit"
+  | "venmo"
+  | "sepa"
+  | "bancontact"
+  | "eps"
+  | "blik"
+  | "ideal"
+  | "p24";
+
+export type PaymentMethodSelectorPayPalPlatformConfig = {
+  clientId: string;
+  flow: PaymentMethodSelectorPayPalPlatformFlow;
+  fundingSources?: PaymentMethodSelectorPayPalPlatformFundingSource[];
+};
+
+export type PaymentMethodSelectorPayPalMessage = {
+  amount?: string;
+  currencyCode?: string;
+  buyerCountry?: string;
+  locale?: string;
+};
+
+export type PaymentMethodSelectorPayPalPlatformTokenizePayload = {
+  paypalPlatform: PaymentMethodSelectorPayPalPlatformConfig;
+};
+
 export type PaymentMethodSelectorApplePayTokenizePayload = Record<
   string,
   never
@@ -98,6 +133,7 @@ export type PaymentMethodSelectorTokenizePayload =
   | PaymentMethodSelectorStripeCardElementTokenizePayload
   | PaymentMethodSelectorStripePaymentElementTokenizePayload
   | PaymentMethodSelectorPurchaseOrderTokenizePayload
+  | PaymentMethodSelectorPayPalPlatformTokenizePayload
   | PaymentMethodSelectorApplePayTokenizePayload
   | PaymentMethodSelectorGooglePayTokenizePayload
   | PaymentMethodSelectorGenericTokenizePayload;
@@ -115,6 +151,8 @@ export type PaymentMethodSelectorOption = {
   description?: string;
   gateway?: string;
   disabled?: boolean;
+  paypalPlatform?: PaymentMethodSelectorPayPalPlatformConfig;
+  paypalMessage?: PaymentMethodSelectorPayPalMessage;
   savedPaymentMethodId?: string;
   cardBrand?: string;
   last4?: string;

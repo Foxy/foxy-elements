@@ -1,0 +1,164 @@
+import type { ReactNode } from "react";
+import { Suspense, lazy } from "react";
+import { CreditCard, FileText, Landmark, Wallet } from "lucide-react";
+import type { PaymentMethodSelectorOption } from "../types";
+import {
+  CursorClickButtonIcon,
+  PaymentOptionIconFallback,
+  getGenericPaymentOptionIcon,
+} from "./shared";
+
+const ApplePayMarkIcon = lazy(() => import("./apple-pay"));
+const GooglePayMarkIcon = lazy(() => import("./google-pay"));
+const PayPalMarkIcon = lazy(() => import("./paypal"));
+const VenmoMarkIcon = lazy(() => import("./venmo"));
+const IdealMarkIcon = lazy(() => import("./ideal"));
+const BancontactMarkIcon = lazy(() => import("./bancontact"));
+const SepaMarkIcon = lazy(() => import("./sepa"));
+const EpsMarkIcon = lazy(() => import("./eps"));
+const BlikMarkIcon = lazy(() => import("./blik"));
+const Przelewy24MarkIcon = lazy(() => import("./przelewy24"));
+const PaymentOptionCardBrandIcon = lazy(() => import("./card-brands"));
+
+export function PaymentOptionBrandIcon({
+  option,
+}: {
+  option: PaymentMethodSelectorOption;
+}): ReactNode {
+  if (
+    option.type === "paypal" ||
+    option.type === "paypal-pay-later" ||
+    option.type === "paypal-credit"
+  ) {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<PayPalMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "venmo") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<VenmoMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "sepa") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<SepaMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "bancontact") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(
+          <BancontactMarkIcon className="h-5 w-auto" />,
+        )}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "eps") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<EpsMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "blik") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<BlikMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "ideal") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<IdealMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "przelewy24") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(
+          <Przelewy24MarkIcon className="h-5 w-auto" />,
+        )}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "apple-pay") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        <span className="inline-flex h-5 shrink-0 items-center" aria-hidden>
+          <ApplePayMarkIcon className="h-5 w-auto" />
+        </span>
+      </Suspense>
+    );
+  }
+
+  if (option.type === "google-pay") {
+    return (
+      <Suspense
+        fallback={<PaymentOptionIconFallback wrapperClassName="-mr-[0.1em]" />}
+      >
+        <span
+          className="inline-flex h-5 shrink-0 items-center -mr-[0.1em]"
+          aria-hidden
+        >
+          <GooglePayMarkIcon className="h-5 w-auto" />
+        </span>
+      </Suspense>
+    );
+  }
+
+  if (option.type === "saved-card" || option.type === "new-card") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        <PaymentOptionCardBrandIcon option={option} />
+      </Suspense>
+    );
+  }
+
+  if (option.type === "stripe-card-element") {
+    return getGenericPaymentOptionIcon(
+      <CreditCard className="h-4 w-4 text-muted-foreground" />,
+    );
+  }
+
+  if (option.type === "ach") {
+    return getGenericPaymentOptionIcon(
+      <Landmark className="h-4 w-4 text-muted-foreground" />,
+    );
+  }
+
+  if (option.type === "generic") {
+    return getGenericPaymentOptionIcon(
+      <CursorClickButtonIcon className="h-4 w-4 text-muted-foreground" />,
+    );
+  }
+
+  if (option.type === "stripe-payment-element") {
+    return getGenericPaymentOptionIcon(
+      <Wallet className="h-4 w-4 text-muted-foreground" />,
+    );
+  }
+
+  if (option.type === "purchase-order") {
+    return getGenericPaymentOptionIcon(
+      <FileText className="h-4 w-4 text-muted-foreground" />,
+    );
+  }
+
+  return null;
+}

@@ -4,13 +4,13 @@ import type {
   PaymentMethodSelectorBillingAddress,
   PaymentMethodSelectorBillingField,
   PaymentMethodSelectorOption,
+  PaymentMethodSelectorPayPalMessage,
+  PaymentMethodSelectorPayPalPlatformConfig,
   PaymentMethodSelectorTokenizePayload,
 } from "./types";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
 import { Alert, AlertDescription } from "@foxy.io/design-system/ui/alert";
 
-import "../foxy-ach-field/element";
-import "../foxy-payment-card-field/element";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import { IntlProvider } from "react-intl";
@@ -116,7 +116,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       throw new Error("Checkout client is not initialized.");
     }
 
-    this.#setLoading(true);
     try {
       const options = this.#resolveOptions();
       const optionIndex = this.#resolveSelectedOptionIndex(options);
@@ -142,7 +141,31 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         throw new Error("Tokenization start was canceled.");
       }
 
-      const controller = this.#controllers.get(selectedOption.id);
+      if (selectedOption.paypalPlatform) {
+        this.#setLoading(true);
+        const payload = this.#createTokenizePayload(selectedOption, {});
+
+        this.dispatchEvent(
+          new CustomEvent<PaymentMethodSelectorTokenizationSuccessEventDetail>(
+            paymentMethodSelectorEvents.tokenizationSuccess,
+            {
+              bubbles: true,
+              composed: true,
+              detail: {
+                payload,
+              },
+            },
+          ),
+        );
+
+        return payload;
+      }
+
+      const controller = this.#optionRequiresController(selectedOption)
+        ? await this.#awaitController(selectedOption.id)
+        : this.#controllers.get(selectedOption.id);
+
+      this.#setLoading(true);
       const tokenized = controller ? await controller.tokenize() : {};
       const payload = this.#createTokenizePayload(selectedOption, tokenized);
 
@@ -178,6 +201,37 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     } finally {
       this.#setLoading(false);
     }
+  }
+
+  async #awaitController(
+    optionId: string,
+  ): Promise<PaymentController | undefined> {
+    const existing = this.#controllers.get(optionId);
+    if (existing) return existing;
+
+    for (let attempt = 0; attempt < 60; attempt += 1) {
+      await Promise.resolve();
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => resolve()),
+      );
+
+      const controller = this.#controllers.get(optionId);
+      if (controller) {
+        return controller;
+      }
+    }
+
+    return undefined;
+  }
+
+  #optionRequiresController(option: PaymentMethodSelectorOption): boolean {
+    return Boolean(
+      option.hostedCard ||
+      option.hostedFields ||
+      option.stripeCardElement ||
+      option.stripePaymentElement ||
+      option.type === "purchase-order",
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -514,6 +568,17 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   ): PaymentMethodSelectorTokenizePayload {
     const payload = this.#asRecord(tokenized) ?? {};
 
+    if (selectedOption.paypalPlatform) {
+      return {
+        paypalPlatform: {
+          ...selectedOption.paypalPlatform,
+          fundingSources: selectedOption.paypalPlatform.fundingSources
+            ? [...selectedOption.paypalPlatform.fundingSources]
+            : undefined,
+        },
+      };
+    }
+
     if (selectedOption.type === "saved-card") {
       return {
         token: this.#readPayloadString(payload, "token"),
@@ -713,6 +778,127 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return normalized || undefined;
   }
 
+  #getPayPalMessageAmount(
+    apiState: Record<string, unknown>,
+  ): string | undefined {
+    const totals = Array.isArray(apiState.totals) ? apiState.totals : [];
+    const total = this.#asRecord(totals[0]);
+    const totalOrder = total?.total_order;
+
+    if (typeof totalOrder !== "number" || !Number.isFinite(totalOrder)) {
+      return undefined;
+    }
+
+    const format = this.#asRecord(apiState.format);
+    const maximumFractionDigits = Math.max(
+      0,
+      Math.min(
+        20,
+        typeof format?.maximum_fraction_digits === "number"
+          ? format.maximum_fraction_digits
+          : 2,
+      ),
+    );
+
+    return totalOrder.toFixed(maximumFractionDigits);
+  }
+
+  #getPayPalMessageConfig(
+    apiState: Record<string, unknown>,
+  ): PaymentMethodSelectorPayPalMessage | undefined {
+    const format = this.#asRecord(apiState.format);
+    const billingAddress = this.#asRecord(apiState.billing_address);
+    const amount = this.#getPayPalMessageAmount(apiState);
+    const currencyCode = this.#toOptionalText(format?.currency_code);
+    const locale = this.#toOptionalText(format?.locale_code);
+    const buyerCountry = this.#toOptionalText(billingAddress?.country);
+
+    if (!(amount || currencyCode || locale || buyerCountry)) {
+      return undefined;
+    }
+
+    return {
+      amount,
+      currencyCode,
+      locale,
+      buyerCountry,
+    };
+  }
+
+  #getPayPalFundingSource(
+    type: string,
+  ):
+    | "paypal"
+    | "paylater"
+    | "credit"
+    | "venmo"
+    | "sepa"
+    | "bancontact"
+    | "eps"
+    | "blik"
+    | "ideal"
+    | "p24"
+    | undefined {
+    switch (type) {
+      case "paypal":
+        return "paypal";
+      case "paypal-pay-later":
+        return "paylater";
+      case "paypal-credit":
+        return "credit";
+      case "venmo":
+        return "venmo";
+      case "sepa":
+        return "sepa";
+      case "bancontact":
+        return "bancontact";
+      case "eps":
+        return "eps";
+      case "blik":
+        return "blik";
+      case "ideal":
+        return "ideal";
+      case "przelewy24":
+        return "p24";
+      default:
+        return undefined;
+    }
+  }
+
+  #createPayPalPlatformConfig(
+    type: string,
+    option: Record<string, unknown>,
+  ): PaymentMethodSelectorPayPalPlatformConfig | undefined {
+    if (this.#toText(option.gateway) !== "paypal_platform") {
+      return undefined;
+    }
+
+    const clientId = this.#toOptionalText(option.client_id);
+    if (!clientId) {
+      return undefined;
+    }
+
+    if (type === "new-card") {
+      return { clientId, flow: "card-fields" };
+    }
+
+    if (type === "apple-pay") {
+      return { clientId, flow: "apple-pay" };
+    }
+
+    if (type === "google-pay") {
+      return { clientId, flow: "google-pay" };
+    }
+
+    const fundingSource = this.#getPayPalFundingSource(type);
+
+    return {
+      clientId,
+      flow: "buttons",
+      fundingSources: fundingSource ? [fundingSource] : undefined,
+    };
+  }
+
   #createStripePaymentElementOptions(
     apiState: Record<string, unknown>,
   ): Record<string, unknown> {
@@ -805,6 +991,41 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       return this.#createSavedCardOptions(option, index, apiState);
     }
 
+    if (gateway === "paypal_platform") {
+      const paypalPlatform = this.#createPayPalPlatformConfig(type, option);
+
+      if (!paypalPlatform) {
+        return [];
+      }
+
+      const acceptedBrands =
+        type === "new-card"
+          ? this.#resolveSupportedPaymentCards(apiState)
+          : undefined;
+
+      return [
+        {
+          id: optionId,
+          type,
+          label: "",
+          gateway,
+          disabled,
+          acceptedBrands: acceptedBrands?.length ? acceptedBrands : undefined,
+          hostedCard:
+            type === "new-card"
+              ? {
+                  mode: "card",
+                }
+              : undefined,
+          paypalPlatform,
+          paypalMessage:
+            type === "paypal-pay-later"
+              ? this.#getPayPalMessageConfig(apiState)
+              : undefined,
+        },
+      ];
+    }
+
     if (type === "new-card") {
       const acceptedBrands = this.#resolveSupportedPaymentCards(apiState);
 
@@ -812,10 +1033,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         {
           id: optionId,
           type: "new-card",
-          label: "New Card",
+          label: "",
           gateway: gateway || undefined,
           disabled,
-          description: "Enter your payment card details to complete checkout.",
           acceptedBrands: acceptedBrands?.length ? acceptedBrands : undefined,
           hostedCard: {
             mode: "card",
@@ -831,11 +1051,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         {
           id: optionId,
           type: "ach",
-          label: "Bank Account (ACH)",
+          label: "",
           gateway: gateway || undefined,
           disabled,
-          description:
-            "Enter your bank account details in the secure fields below.",
           hostedFields: {
             placeholders: {
               "routing-number": "123456789",
@@ -851,10 +1069,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         {
           id: optionId,
           type: "stripe-card-element",
-          label: "Credit or Debit Card",
+          label: "",
           gateway: gateway || undefined,
           disabled,
-          description: "Enter your payment card details to complete checkout.",
           stripeCardElement: {
             publishableKey: this.#toText(option.publishable_key),
           },
@@ -867,11 +1084,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         {
           id: optionId,
           type: "stripe-payment-element",
-          label: "New Payment Method",
+          label: "",
           gateway: gateway || undefined,
           disabled,
-          description:
-            "Select a payment method and enter your details below to complete checkout.",
           stripePaymentElement: {
             publishableKey: this.#toText(option.publishable_key),
             locale: this.#toText(option.locale) || undefined,
@@ -887,10 +1102,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         {
           id: optionId,
           type: "purchase-order",
-          label: "Purchase Order",
+          label: "",
           gateway: gateway || undefined,
           disabled,
-          description: "Enter your purchase order number below.",
         },
       ];
     }
@@ -900,10 +1114,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         {
           id: optionId,
           type: "apple-pay",
-          label: "Apple Pay",
+          label: "",
           gateway: gateway || undefined,
           disabled,
-          description: "Pay securely with Apple Pay.",
         },
       ];
     }
@@ -913,10 +1126,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         {
           id: optionId,
           type: "google-pay",
-          label: "Google Pay",
+          label: "",
           gateway: gateway || undefined,
           disabled,
-          description: "Pay securely with Google Pay.",
         },
       ];
     }
@@ -928,7 +1140,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           type: "generic",
           gateway: gateway || undefined,
           disabled,
-          label: "Continue to Payment Provider",
+          label: "",
         },
       ];
     }

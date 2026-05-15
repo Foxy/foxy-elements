@@ -9,6 +9,10 @@ Payment method selector element that renders available checkout payment options,
 
 Required attributes: none. The element still requires checkout client state to be initialized before it can render payment options and tokenize.
 
+For the <code>paypal_platform</code> gateway, the selector renders the base PayPal option plus the SDK-discovered PayPal-supported methods as first-class entries instead of collapsing them into a generic fallback. The dedicated <code>PayPalSupportedPaymentMethods</code> story shows that matrix in isolation, and <code>AllPaymentMethods</code> includes the same PayPal-supported methods alongside the rest of the selector surface.
+
+PayPal Pay Later renders a <code>paypal-message</code> element in the option description. The selector only hydrates that element through the PayPal surface already exposed on <code>@foxy.io/sdk/checkout/client</code>; it does not load the PayPal SDK directly. In static Storybook fixtures that seed checkout JSON without a cached PayPal instance, the light-DOM fallback description remains visible.
+
 The themed elements in this package support a broader shared set of theme attributes and properties. This page documents only the theme tokens that currently affect <code>foxy-payment-method-selector</code>. Additional shared theme tokens may be accepted for API consistency, but they do not currently change this element.
 
 If checkout state is initialized but exposes no recognized payment methods, the element renders an unavailable state instead of fabricating a fallback option. In that state, <code>tokenize()</code> rejects because no payment method is selected.
@@ -534,6 +538,25 @@ type PaymentMethodSelectorPurchaseOrderTokenizePayload = {
   purchaseOrderNumber: string;
 };
 
+type PaymentMethodSelectorPayPalPlatformTokenizePayload = {
+  paypalPlatform: {
+    clientId: string;
+    flow: "buttons" | "card-fields" | "apple-pay" | "google-pay";
+    fundingSources?: (
+      | "paypal"
+      | "paylater"
+      | "credit"
+      | "venmo"
+      | "sepa"
+      | "bancontact"
+      | "eps"
+      | "blik"
+      | "ideal"
+      | "p24"
+    )[];
+  };
+};
+
 type PaymentMethodSelectorApplePayTokenizePayload = Record<string, never>;
 type PaymentMethodSelectorGooglePayTokenizePayload = Record<string, never>;
 type PaymentMethodSelectorGenericTokenizePayload = Record<string, never>;
@@ -545,6 +568,7 @@ type PaymentMethodSelectorTokenizePayload =
   | PaymentMethodSelectorStripeCardElementTokenizePayload
   | PaymentMethodSelectorStripePaymentElementTokenizePayload
   | PaymentMethodSelectorPurchaseOrderTokenizePayload
+  | PaymentMethodSelectorPayPalPlatformTokenizePayload
   | PaymentMethodSelectorApplePayTokenizePayload
   | PaymentMethodSelectorGooglePayTokenizePayload
   | PaymentMethodSelectorGenericTokenizePayload;
@@ -558,6 +582,8 @@ in the tokenization payload.
 Purchase order selections render a single required purchase order number field.
 The selector enforces a 32-character maximum and returns the entered value in
 the tokenization payload.
+
+PayPal Platform selections return <code>paypalPlatform</code> metadata that identifies the selected PayPal flow. Wallet and alternative payment methods use <code>flow: "buttons"</code> with a single funding source, while PayPal new-card, Apple Pay, and Google Pay use their dedicated flow values.
 
 Payload fields by selected option:
 

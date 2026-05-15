@@ -127,6 +127,31 @@ function createPurchaseOrderApiState() {
   };
 }
 
+function createPayPalPlatformApiState(paymentOptions: unknown[]) {
+  return {
+    billing_address: {
+      use_customer_shipping_address: true,
+      first_name: "Taylor",
+      last_name: "Morgan",
+      company: "",
+      address1: "123 Main Street",
+      address2: "",
+      city: "Minneapolis",
+      region: "MN",
+      postal_code: "55401",
+      country: "US",
+      phone: "6125550100",
+    },
+    totals: [{ total_order: 22.04 }],
+    format: {
+      currency_code: "USD",
+      maximum_fraction_digits: 2,
+      locale_code: "en-US",
+    },
+    payment_options: paymentOptions,
+  };
+}
+
 const STRING_PROPERTY_MAPPINGS = (
   Object.entries(THEME_PROPERTY_TO_ATTRIBUTE) as [string, string][]
 ).map(([propertyName, attributeName]) => {
@@ -422,27 +447,27 @@ describe("PaymentMethodSelectorElement", () => {
     const tokenize = vi.fn(() =>
       Promise.resolve({ token: "ach_token_123", requestId: "ach-req-1" }),
     );
-    const achFieldPrototype = customElements.get("foxy-ach-field")?.prototype;
-    const tokenizeDescriptor = achFieldPrototype
-      ? Object.getOwnPropertyDescriptor(achFieldPrototype, "tokenize")
-      : undefined;
-
-    if (!achFieldPrototype || !tokenizeDescriptor?.value) {
-      restoreClient();
-      throw new Error("Missing foxy-ach-field tokenize prototype for test.");
-    }
-
-    const tokenizeSpy = vi
-      .spyOn(achFieldPrototype, "tokenize")
-      .mockImplementation(tokenize);
-
     const element = document.createElement(
       "foxy-payment-method-selector",
     ) as PaymentMethodSelectorElement;
+    let tokenizeSpy: ReturnType<typeof vi.spyOn> | undefined;
 
     try {
       document.body.append(element);
       await waitForRender();
+
+      const achFieldPrototype = customElements.get("foxy-ach-field")?.prototype;
+      const tokenizeDescriptor = achFieldPrototype
+        ? Object.getOwnPropertyDescriptor(achFieldPrototype, "tokenize")
+        : undefined;
+
+      if (!achFieldPrototype || !tokenizeDescriptor?.value) {
+        throw new Error("Missing foxy-ach-field tokenize prototype for test.");
+      }
+
+      tokenizeSpy = vi
+        .spyOn(achFieldPrototype, "tokenize")
+        .mockImplementation(tokenize);
 
       await expect(element.tokenize()).rejects.toThrow(
         "Please confirm that you own this account.",
@@ -469,7 +494,7 @@ describe("PaymentMethodSelectorElement", () => {
         requestId: "ach-req-1",
       });
     } finally {
-      tokenizeSpy.mockRestore();
+      tokenizeSpy?.mockRestore();
       element.remove();
       restoreClient();
     }
@@ -738,6 +763,391 @@ describe("PaymentMethodSelectorElement", () => {
         () => element.shadowRoot?.textContent,
         "Billing sync failed.",
       );
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("renders paypal-platform payment options as first-class selector entries", async () => {
+    const restoreClient = overrideClientState(
+      createPayPalPlatformApiState([
+        {
+          type: "paypal",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+        {
+          type: "paypal-credit",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+        {
+          type: "venmo",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+        {
+          type: "sepa",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+        {
+          type: "bancontact",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+        {
+          type: "eps",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+        {
+          type: "blik",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+        {
+          type: "ideal",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+        {
+          type: "przelewy24",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+      ]),
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const content = element.shadowRoot?.textContent ?? "";
+
+      expect(content).toContain("PayPal");
+      expect(content).toContain("PayPal Credit");
+      expect(content).toContain("Venmo");
+      expect(content).toContain("SEPA");
+      expect(content).toContain("Bancontact");
+      expect(content).toContain("EPS");
+      expect(content).toContain("BLIK");
+      expect(content).toContain("iDEAL");
+      expect(content).toContain("Przelewy24");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("renders card fields for paypal-platform new-card options", async () => {
+    const restoreClient = overrideClientState(
+      createPayPalPlatformApiState([
+        {
+          type: "new-card",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+      ]),
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const cardField = element.shadowRoot?.querySelector(
+        "foxy-payment-card-field",
+      ) as HTMLElement | null;
+
+      expect(cardField).toBeTruthy();
+      expect((cardField as { mode?: string } | null)?.mode).toBe("card");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("renders and hydrates the paypal-message fallback for PayPal Pay Later", async () => {
+    const render = vi.fn(() => Promise.resolve());
+    const createPayPalMessages = vi.fn(() => ({ render }));
+    const restoreClient = overrideClientState(
+      createPayPalPlatformApiState([
+        {
+          type: "paypal-pay-later",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+      ]),
+      undefined,
+      {
+        paypal: {
+          createPayPalMessages,
+        },
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const payLaterMessage = element.shadowRoot?.querySelector(
+        '[data-paypal-paylater-label="true"]',
+      ) as HTMLElement | null;
+
+      expect(payLaterMessage).toBeTruthy();
+      await waitForText(
+        () => payLaterMessage?.textContent,
+        "Click the PayPal Pay Later button under the order summary to submit your order.",
+      );
+      expect(createPayPalMessages).toHaveBeenCalledTimes(1);
+      expect(render).toHaveBeenCalledWith(payLaterMessage);
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("shows the click-hint icon in expanded content for button-driven payment options", async () => {
+    const paymentOptions = [
+      {
+        type: "apple-pay",
+        gateway: "paypal_platform",
+        client_id: "paypal-client-id",
+      },
+      {
+        type: "google-pay",
+        gateway: "paypal_platform",
+        client_id: "paypal-client-id",
+      },
+      {
+        type: "paypal",
+        gateway: "paypal_platform",
+        client_id: "paypal-client-id",
+      },
+      {
+        type: "paypal-pay-later",
+        gateway: "paypal_platform",
+        client_id: "paypal-client-id",
+      },
+      {
+        type: "paypal-credit",
+        gateway: "paypal_platform",
+        client_id: "paypal-client-id",
+      },
+      {
+        type: "venmo",
+        gateway: "paypal_platform",
+        client_id: "paypal-client-id",
+      },
+      {
+        type: "sepa",
+        gateway: "paypal_platform",
+        client_id: "paypal-client-id",
+      },
+      {
+        type: "bancontact",
+        gateway: "paypal_platform",
+        client_id: "paypal-client-id",
+      },
+      {
+        type: "eps",
+        gateway: "paypal_platform",
+        client_id: "paypal-client-id",
+      },
+      {
+        type: "blik",
+        gateway: "paypal_platform",
+        client_id: "paypal-client-id",
+      },
+      {
+        type: "ideal",
+        gateway: "paypal_platform",
+        client_id: "paypal-client-id",
+      },
+      {
+        type: "przelewy24",
+        gateway: "paypal_platform",
+        client_id: "paypal-client-id",
+      },
+    ];
+    const restoreClient = overrideClientState(
+      createPayPalPlatformApiState(paymentOptions),
+      undefined,
+      {
+        paypal: {
+          createPayPalMessages: vi.fn(() => ({ render: vi.fn() })),
+        },
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      for (const [index] of paymentOptions.entries()) {
+        element.optionIndex = index;
+        await waitForRender();
+
+        const clickHintIcon = element.shadowRoot?.querySelector(
+          '[data-payment-option-click-hint="true"]',
+        );
+
+        expect(clickHintIcon).toBeTruthy();
+      }
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("uses the leading-icon layout for a single button-driven payment option", async () => {
+    const restoreClient = overrideClientState(
+      createPayPalPlatformApiState([
+        {
+          type: "paypal-credit",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+      ]),
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const leadingLayoutRows = element.shadowRoot?.querySelectorAll(
+        '[style*="column-gap"]',
+      );
+
+      expect(leadingLayoutRows).toHaveLength(1);
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("does not use the leading-icon layout when multiple payment options are present", async () => {
+    const restoreClient = overrideClientState(
+      createPayPalPlatformApiState([
+        {
+          type: "paypal-credit",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+        {
+          type: "new-card",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+      ]),
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const leadingLayoutRows = element.shadowRoot?.querySelectorAll(
+        '[style*="column-gap"]',
+      );
+
+      expect(leadingLayoutRows).toHaveLength(0);
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("returns paypal-platform metadata for selected PayPal option flows", async () => {
+    const restoreClient = overrideClientState(
+      createPayPalPlatformApiState([
+        {
+          type: "paypal-pay-later",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+        {
+          type: "new-card",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+        {
+          type: "apple-pay",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+        {
+          type: "google-pay",
+          gateway: "paypal_platform",
+          client_id: "paypal-client-id",
+        },
+      ]),
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      element.optionIndex = 0;
+      await waitForRender();
+      await expect(element.tokenize()).resolves.toEqual({
+        paypalPlatform: {
+          clientId: "paypal-client-id",
+          flow: "buttons",
+          fundingSources: ["paylater"],
+        },
+      });
+
+      element.optionIndex = 1;
+      await waitForRender();
+      await expect(element.tokenize()).resolves.toEqual({
+        paypalPlatform: {
+          clientId: "paypal-client-id",
+          flow: "card-fields",
+          fundingSources: undefined,
+        },
+      });
+
+      element.optionIndex = 2;
+      await waitForRender();
+      await expect(element.tokenize()).resolves.toEqual({
+        paypalPlatform: {
+          clientId: "paypal-client-id",
+          flow: "apple-pay",
+          fundingSources: undefined,
+        },
+      });
+
+      element.optionIndex = 3;
+      await waitForRender();
+      await expect(element.tokenize()).resolves.toEqual({
+        paypalPlatform: {
+          clientId: "paypal-client-id",
+          flow: "google-pay",
+          fundingSources: undefined,
+        },
+      });
     } finally {
       element.remove();
       restoreClient();

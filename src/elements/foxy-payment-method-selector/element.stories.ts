@@ -13,6 +13,9 @@ const STRIPE_PUBLISHABLE_KEY =
   import.meta.env.VITE_STRIPE_DEMO_PUBLISHABLE_KEY?.trim() ||
   "";
 
+const PAYPAL_PLATFORM_CLIENT_ID =
+  import.meta.env.VITE_PAYPAL_SANDBOX_CLIENT_ID?.trim() || "paypal-client-id";
+
 const SELECTOR_THEME_ATTRIBUTE_MAP = createThemeAttributeMap([
   {
     attribute: "theme-background",
@@ -118,6 +121,7 @@ const baseApiState = {
   format: {
     currency_code: "USD",
     maximum_fraction_digits: 2,
+    locale_code: "en-US",
   },
   store: {
     name: "Foxy Demo Store",
@@ -125,10 +129,99 @@ const baseApiState = {
   payment_options: [{ type: "new-card", gateway: "authorize" }],
 };
 
+const PAYPAL_PLATFORM_PAYMENT_OPTIONS = [
+  {
+    type: "paypal",
+    gateway: "paypal_platform",
+    client_id: PAYPAL_PLATFORM_CLIENT_ID,
+  },
+  {
+    type: "new-card",
+    gateway: "paypal_platform",
+    client_id: PAYPAL_PLATFORM_CLIENT_ID,
+  },
+  {
+    type: "apple-pay",
+    gateway: "paypal_platform",
+    client_id: PAYPAL_PLATFORM_CLIENT_ID,
+  },
+  {
+    type: "google-pay",
+    gateway: "paypal_platform",
+    client_id: PAYPAL_PLATFORM_CLIENT_ID,
+  },
+  {
+    type: "paypal-pay-later",
+    gateway: "paypal_platform",
+    client_id: PAYPAL_PLATFORM_CLIENT_ID,
+  },
+  {
+    type: "paypal-credit",
+    gateway: "paypal_platform",
+    client_id: PAYPAL_PLATFORM_CLIENT_ID,
+  },
+  {
+    type: "venmo",
+    gateway: "paypal_platform",
+    client_id: PAYPAL_PLATFORM_CLIENT_ID,
+  },
+  {
+    type: "sepa",
+    gateway: "paypal_platform",
+    client_id: PAYPAL_PLATFORM_CLIENT_ID,
+  },
+  {
+    type: "bancontact",
+    gateway: "paypal_platform",
+    client_id: PAYPAL_PLATFORM_CLIENT_ID,
+  },
+  {
+    type: "eps",
+    gateway: "paypal_platform",
+    client_id: PAYPAL_PLATFORM_CLIENT_ID,
+  },
+  {
+    type: "blik",
+    gateway: "paypal_platform",
+    client_id: PAYPAL_PLATFORM_CLIENT_ID,
+  },
+  {
+    type: "ideal",
+    gateway: "paypal_platform",
+    client_id: PAYPAL_PLATFORM_CLIENT_ID,
+  },
+  {
+    type: "przelewy24",
+    gateway: "paypal_platform",
+    client_id: PAYPAL_PLATFORM_CLIENT_ID,
+  },
+];
+
 function createDemoApiState(paymentOptions: unknown[]) {
   return {
     ...structuredClone(baseApiState),
     payment_options: paymentOptions,
+  };
+}
+
+function createPayPalPlatformMethodApiState(type: string) {
+  const paymentOption = PAYPAL_PLATFORM_PAYMENT_OPTIONS.find(
+    (option) => option.type === type,
+  );
+
+  if (!paymentOption) {
+    throw new Error(`Unknown PayPal Platform payment option type: ${type}`);
+  }
+
+  return createDemoApiState([structuredClone(paymentOption)]);
+}
+
+function createPayPalPlatformMethodStory(type: string): Story {
+  return {
+    args: {
+      apiState: createPayPalPlatformMethodApiState(type),
+      optionIndex: 0,
+    },
   };
 }
 
@@ -331,6 +424,42 @@ export const GooglePay: Story = {
   },
 };
 
+export const PayPal = createPayPalPlatformMethodStory("paypal");
+
+export const PayPalPayLater =
+  createPayPalPlatformMethodStory("paypal-pay-later");
+
+export const PayPalCredit = createPayPalPlatformMethodStory("paypal-credit");
+
+export const Venmo = createPayPalPlatformMethodStory("venmo");
+
+export const Sepa = createPayPalPlatformMethodStory("sepa");
+
+export const Bancontact = createPayPalPlatformMethodStory("bancontact");
+
+export const Eps = createPayPalPlatformMethodStory("eps");
+
+export const Blik = createPayPalPlatformMethodStory("blik");
+
+export const Ideal = createPayPalPlatformMethodStory("ideal");
+
+export const Przelewy24 = createPayPalPlatformMethodStory("przelewy24");
+
+export const PayPalPlatform: Story = {
+  args: {
+    apiState: createDemoApiState(PAYPAL_PLATFORM_PAYMENT_OPTIONS),
+    optionIndex: 0,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Shows the PayPal Platform payment methods discovered by Foxy SDK, including PayPal, Pay Later, wallets, and alternative payment methods.",
+      },
+    },
+  },
+};
+
 export const AllPaymentMethods: Story = {
   args: {
     apiState: createDemoApiState([
@@ -384,6 +513,7 @@ export const AllPaymentMethods: Story = {
         gateway: "stripe_v2",
         merchant_id: "merchant-123",
       },
+      ...PAYPAL_PLATFORM_PAYMENT_OPTIONS,
     ]),
     optionIndex: 0,
   },
