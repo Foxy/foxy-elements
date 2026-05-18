@@ -1,7 +1,6 @@
 import { Meta } from "@storybook/blocks";
-import * as PaymentMethodSelectorStories from "./element.stories";
 
-<Meta of={PaymentMethodSelectorStories} name="Docs" />
+<Meta title="Checkout/foxy-payment-method-selector" name="Docs" />
 
 # foxy-payment-method-selector
 
@@ -9,13 +8,28 @@ Payment method selector element that renders available checkout payment options,
 
 Required attributes: none. The element still requires checkout client state to be initialized before it can render payment options and tokenize.
 
-For the <code>paypal_platform</code> gateway, the selector renders the base PayPal option plus the SDK-discovered PayPal-supported methods as first-class entries instead of collapsing them into a generic fallback. The dedicated <code>PayPalSupportedPaymentMethods</code> story shows that matrix in isolation, and <code>AllPaymentMethods</code> includes the same PayPal-supported methods alongside the rest of the selector surface.
+For the <code>paypal_platform</code> gateway, the selector renders the base PayPal option plus the SDK-discovered PayPal-supported methods as first-class entries instead of collapsing them into a generic fallback. The standalone example pages under <code>examples/foxy-payment-method-selector/</code> include both a dedicated <code>paypal-platform.html</code> matrix and an <code>all-payment-methods.html</code> page that shows the same options alongside the rest of the selector surface.
 
-PayPal Pay Later renders a <code>paypal-message</code> element in the option description. The selector only hydrates that element through the PayPal surface already exposed on <code>@foxy.io/sdk/checkout/client</code>; it does not load the PayPal SDK directly. In static Storybook fixtures that seed checkout JSON without a cached PayPal instance, the light-DOM fallback description remains visible.
+PayPal Pay Later renders a <code>paypal-message</code> element in the option description. The selector only hydrates that element through the PayPal surface already exposed on <code>@foxy.io/sdk/checkout/client</code>; it does not load the PayPal SDK directly. In the standalone example pages, the light-DOM fallback description remains visible unless the shared checkout client already has a hydrated PayPal surface.
 
 The themed elements in this package support a broader shared set of theme attributes and properties. This page documents only the theme tokens that currently affect <code>foxy-payment-method-selector</code>. Additional shared theme tokens may be accepted for API consistency, but they do not currently change this element.
 
 If checkout state is initialized but exposes no recognized payment methods, the element renders an unavailable state instead of fabricating a fallback option. In that state, <code>tokenize()</code> rejects because no payment method is selected.
+
+## Examples
+
+Run <code>npm run localdev:examples</code> and open the standalone pages under <code>examples/foxy-payment-method-selector/</code>.
+
+- <code>uninitialized.html</code> shows the empty client state.
+- <code>stripe-payment-element.html</code>,
+  <code>stripe-card-element.html</code>, and <code>new-card.html</code> cover
+  the card-entry variants.
+- <code>klarna.html</code> prefers <code>VITE_KLARNA_INIT_RESPONSE</code> when
+  present and falls back to static demo categories otherwise.
+- <code>paypal-platform.html</code> and <code>all-payment-methods.html</code>
+  cover the flattened PayPal Platform options.
+
+Stripe examples read <code>VITE_STRIPE_PUBLISHABLE_KEY</code> first and fall back to <code>VITE_STRIPE_DEMO_PUBLISHABLE_KEY</code> or a safe demo key. PayPal Platform examples read <code>VITE_PAYPAL_SANDBOX_CLIENT_ID</code> when it is available.
 
 ## Attributes
 
