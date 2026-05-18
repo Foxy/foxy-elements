@@ -148,6 +148,19 @@ Use Node 22 for local development.
    VITE_EMBED_ORIGIN=https://embed.foxy.io
    ```
 
+   Optional Klarna Storybook setup:
+
+   ```bash
+   KLARNA_USERNAME=your-klarna-username
+   KLARNA_PASSWORD=your-klarna-password
+   KLARNA_API_URL=https://api.playground.klarna.com
+   KLARNA_MERCHANT_URL_AUTHORIZATION=https://example.com/checkout/klarna/authorization
+   ```
+
+   If Klarna returns `HTTP 403 INVALID_OPERATION` during session creation, the most common cause is an endpoint or region mismatch for the MID. Start with `https://api.playground.klarna.com` unless Klarna gave you a different regional playground host for that account.
+
+   Run `npm run init:klarna` to open a sandbox Klarna session and write a Vite-safe encoded copy of the session response to `.env.local` as `VITE_KLARNA_INIT_RESPONSE`. Storybook and Vitest can read that generated value, and the Klarna stories will prefer it over the built-in fixture when present. Restart Storybook after refreshing the session because Vite reads env files at startup.
+
 3. Start local Storybook development:
 
    ```bash

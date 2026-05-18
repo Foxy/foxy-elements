@@ -3,6 +3,7 @@ import type {
   PaymentController,
   PaymentMethodSelectorBillingAddress,
   PaymentMethodSelectorBillingField,
+  PaymentMethodSelectorKlarnaCategory,
   PaymentMethodSelectorOption,
   PaymentMethodSelectorPayPalMessage,
   PaymentMethodSelectorPayPalPlatformConfig,
@@ -226,6 +227,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
   #optionRequiresController(option: PaymentMethodSelectorOption): boolean {
     return Boolean(
+      option.klarna ||
       option.hostedCard ||
       option.hostedFields ||
       option.stripeCardElement ||
@@ -568,6 +570,22 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   ): PaymentMethodSelectorTokenizePayload {
     const payload = this.#asRecord(tokenized) ?? {};
 
+    if (selectedOption.klarna) {
+      return {
+        authorizationToken: this.#requirePayloadString(
+          payload,
+          "authorizationToken",
+          "Klarna authorization response is missing an authorization token.",
+        ),
+        sessionId:
+          this.#readPayloadString(payload, "sessionId") ??
+          selectedOption.klarna.sessionId,
+        paymentMethodCategory:
+          this.#readPayloadString(payload, "paymentMethodCategory") ??
+          selectedOption.klarna.category.identifier,
+      };
+    }
+
     if (selectedOption.paypalPlatform) {
       return {
         paypalPlatform: {
@@ -691,6 +709,80 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     if (normalized === "apple-pay") return "apple-pay";
     if (normalized === "google-pay") return "google-pay";
     return normalized;
+  }
+
+  #toOptionKeySegment(value: unknown): string {
+    const normalized = this.#toText(value)
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    return normalized || "option";
+  }
+
+  #resolveKlarnaCategories(
+    option: Record<string, unknown>,
+  ): PaymentMethodSelectorKlarnaCategory[] {
+    const rawCategories = Array.isArray(option.payment_method_categories)
+      ? option.payment_method_categories
+      : [];
+
+    return rawCategories.flatMap((entry) => {
+      const category = this.#asRecord(entry);
+      if (!category) return [];
+
+      const assetUrls = this.#asRecord(category.asset_urls);
+      const identifier = this.#toOptionalText(category.identifier);
+      const name = this.#toOptionalText(category.name);
+      const descriptive = this.#toText(assetUrls?.descriptive);
+      const standard = this.#toText(assetUrls?.standard);
+
+      if (!identifier || !name || (!descriptive && !standard)) {
+        return [];
+      }
+
+      return [
+        {
+          identifier,
+          name,
+          asset_urls: {
+            descriptive: descriptive || standard,
+            standard: standard || descriptive,
+          },
+        },
+      ];
+    });
+  }
+
+  #createKlarnaOptions(
+    option: Record<string, unknown>,
+    index: number,
+  ): PaymentMethodSelectorOption[] {
+    const sessionId = this.#toOptionalText(option.session_id);
+    if (!sessionId) return [];
+
+    const categories = this.#resolveKlarnaCategories(option);
+    if (!categories.length) return [];
+
+    return categories.map((category, categoryIndex) => {
+      const slug = this.#toOptionKeySegment(category.identifier);
+      const suffix =
+        categories.length === 1 && categoryIndex === 0
+          ? ""
+          : `-${index + 1}-${slug}`;
+
+      return {
+        id: `klarna${suffix}`,
+        label: category.name,
+        gateway: "klarna",
+        disabled: option.disabled === true,
+        klarna: {
+          sessionId,
+          category,
+        },
+      };
+    });
   }
 
   #resolveAchAccountTypeValues(
@@ -989,6 +1081,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
     if (type === "saved-card") {
       return this.#createSavedCardOptions(option, index, apiState);
+    }
+
+    if (type === "klarna" && gateway === "klarna") {
+      return this.#createKlarnaOptions(option, index);
     }
 
     if (gateway === "paypal_platform") {

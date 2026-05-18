@@ -134,6 +134,7 @@ export const GATEWAY_NAME_BY_TYPE: Record<string, string> = {
   stripe_connect_charge: "Stripe Connect Charge",
   stripe_v2: "Stripe",
   paypal_platform: "PayPal",
+  klarna: "Klarna",
 };
 
 export const FIELD_STYLE_PROBE_CLASS_NAME =

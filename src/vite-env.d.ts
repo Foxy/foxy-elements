@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_EMBED_ORIGIN: string;
+  readonly VITE_KLARNA_INIT_RESPONSE?: string;
 }
 
 interface ImportMeta {

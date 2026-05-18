@@ -152,6 +152,76 @@ function createPayPalPlatformApiState(paymentOptions: unknown[]) {
   };
 }
 
+function createSvgLogoDataUri(text: string, fill: string): string {
+  return `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="24" viewBox="0 0 80 24" fill="none"><rect width="80" height="24" rx="12" fill="${fill}"/><text x="40" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#111">${text}</text></svg>`)}`;
+}
+
+const KLARNA_PAY_IN_FOUR_LOGO = createSvgLogoDataUri("Pay in 4", "#ffb3c7");
+const KLARNA_PAY_IN_30_DAYS_LOGO = createSvgLogoDataUri("30 days", "#ffd8e4");
+
+function createKlarnaApiState() {
+  return {
+    customer: {
+      email: "taylor@example.com",
+    },
+    billing_address: {
+      use_customer_shipping_address: false,
+      first_name: "Taylor",
+      last_name: "Morgan",
+      company: "",
+      address1: "123 Main Street",
+      address2: "Suite 5",
+      city: "Minneapolis",
+      region: "MN",
+      postal_code: "55401",
+      country: "US",
+      phone: "6125550100",
+    },
+    shipments: [
+      {
+        first_name: "Jordan",
+        last_name: "Lee",
+        company: "",
+        address1: "987 Market Street",
+        address2: "Apt 12",
+        city: "Saint Paul",
+        region: "MN",
+        postal_code: "55102",
+        country: "US",
+        phone: "6515550100",
+        country_options: ["US", "CA"],
+        region_options: ["MN", "WI"],
+      },
+    ],
+    payment_options: [
+      {
+        type: "klarna",
+        gateway: "klarna",
+        session_id: "klarna-session-id",
+        client_token: "klarna-client-token",
+        payment_method_categories: [
+          {
+            identifier: "pay_in_4",
+            name: "Pay in 4",
+            asset_urls: {
+              descriptive: KLARNA_PAY_IN_FOUR_LOGO,
+              standard: KLARNA_PAY_IN_FOUR_LOGO,
+            },
+          },
+          {
+            identifier: "pay_in_30_days",
+            name: "Pay in 30 Days",
+            asset_urls: {
+              descriptive: KLARNA_PAY_IN_30_DAYS_LOGO,
+              standard: KLARNA_PAY_IN_30_DAYS_LOGO,
+            },
+          },
+        ],
+      },
+    ],
+  };
+}
+
 const STRING_PROPERTY_MAPPINGS = (
   Object.entries(THEME_PROPERTY_TO_ATTRIBUTE) as [string, string][]
 ).map(([propertyName, attributeName]) => {
@@ -1148,6 +1218,235 @@ describe("PaymentMethodSelectorElement", () => {
           fundingSources: undefined,
         },
       });
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("flattens Klarna categories into separate selector entries with API logos", async () => {
+    const load = vi.fn(
+      (
+        options: {
+          container: HTMLElement | string;
+          payment_method_category?: string;
+        },
+        _data: Record<string, unknown>,
+        callback: (result: { show_form: boolean }) => void,
+      ) => {
+        if (options.container instanceof HTMLElement) {
+          options.container.textContent = `Klarna widget ${options.payment_method_category ?? "unknown"}`;
+        }
+
+        callback({ show_form: true });
+      },
+    );
+    const restoreClient = overrideClientState(
+      createKlarnaApiState(),
+      undefined,
+      {
+        klarna: {
+          Payments: {
+            load,
+            authorize: vi.fn(),
+            finalize: vi.fn(),
+            on: vi.fn(),
+            off: vi.fn(),
+          },
+        },
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      await waitForText(() => element.shadowRoot?.textContent, "Pay in 4");
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Pay in 30 Days",
+      );
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Klarna widget pay_in_4",
+      );
+
+      const images = Array.from(
+        element.shadowRoot?.querySelectorAll("img") ?? [],
+      ).map((image) => image.getAttribute("src"));
+
+      expect(images).toContain(KLARNA_PAY_IN_FOUR_LOGO);
+      expect(images).toContain(KLARNA_PAY_IN_30_DAYS_LOGO);
+      expect(load).toHaveBeenCalledTimes(1);
+      expect(load.mock.calls[0]?.[0]).toMatchObject({
+        payment_method_category: "pay_in_4",
+      });
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("authorizes the selected Klarna category during tokenization", async () => {
+    const load = vi.fn(
+      (
+        options: {
+          container: HTMLElement | string;
+          payment_method_category?: string;
+        },
+        _data: Record<string, unknown>,
+        callback: (result: { show_form: boolean }) => void,
+      ) => {
+        if (options.container instanceof HTMLElement) {
+          options.container.textContent = `Klarna widget ${options.payment_method_category ?? "unknown"}`;
+        }
+
+        callback({ show_form: true });
+      },
+    );
+    const authorize = vi.fn(
+      (
+        _options: { payment_method_category?: string },
+        _data: Record<string, unknown>,
+        callback: (result: {
+          approved: boolean;
+          show_form: boolean;
+          finalize_required?: boolean;
+        }) => void,
+      ) => {
+        callback({
+          approved: true,
+          show_form: true,
+          finalize_required: true,
+        });
+      },
+    );
+    const finalize = vi.fn(
+      (
+        _options: { payment_method_category?: string },
+        _data: Record<string, unknown>,
+        callback: (result: {
+          approved: boolean;
+          show_form: boolean;
+          authorization_token?: string;
+        }) => void,
+      ) => {
+        callback({
+          approved: true,
+          show_form: true,
+          authorization_token: "klarna-final-token",
+        });
+      },
+    );
+    const restoreClient = overrideClientState(
+      createKlarnaApiState(),
+      undefined,
+      {
+        klarna: {
+          Payments: {
+            load,
+            authorize,
+            finalize,
+            on: vi.fn(),
+            off: vi.fn(),
+          },
+        },
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      element.optionIndex = 1;
+      await waitForRender();
+
+      const payload = await element.tokenize();
+      const authorizeData = authorize.mock.calls[0]?.[1] as
+        | Record<string, unknown>
+        | undefined;
+
+      expect(load).toHaveBeenCalledTimes(2);
+      expect(load.mock.calls[1]?.[0]).toMatchObject({
+        payment_method_category: "pay_in_30_days",
+      });
+      expect(authorize.mock.calls[0]?.[0]).toMatchObject({
+        payment_method_category: "pay_in_30_days",
+      });
+      expect(authorizeData).toMatchObject({
+        billing_address: expect.objectContaining({
+          given_name: "Taylor",
+          family_name: "Morgan",
+          email: "taylor@example.com",
+          street_address: "123 Main Street",
+        }),
+        shipping_address: expect.objectContaining({
+          given_name: "Jordan",
+          family_name: "Lee",
+          street_address: "987 Market Street",
+        }),
+      });
+      expect(finalize).toHaveBeenCalledTimes(1);
+      expect(payload).toEqual({
+        authorizationToken: "klarna-final-token",
+        sessionId: "klarna-session-id",
+        paymentMethodCategory: "pay_in_30_days",
+      });
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("shows an unavailable Klarna state when load pre-assessment fails", async () => {
+    const load = vi.fn(
+      (
+        _options: {
+          container: HTMLElement | string;
+          payment_method_category?: string;
+        },
+        _data: Record<string, unknown>,
+        callback: (result: { show_form: boolean }) => void,
+      ) => {
+        callback({ show_form: false });
+      },
+    );
+    const restoreClient = overrideClientState(
+      createKlarnaApiState(),
+      undefined,
+      {
+        klarna: {
+          Payments: {
+            load,
+            authorize: vi.fn(),
+            finalize: vi.fn(),
+            on: vi.fn(),
+            off: vi.fn(),
+          },
+        },
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "This Klarna option is currently unavailable.",
+      );
+      await expect(element.tokenize()).rejects.toThrow(
+        "This Klarna option is currently unavailable.",
+      );
     } finally {
       element.remove();
       restoreClient();

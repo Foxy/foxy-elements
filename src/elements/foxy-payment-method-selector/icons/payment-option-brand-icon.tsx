@@ -25,6 +25,25 @@ export function PaymentOptionBrandIcon({
 }: {
   option: PaymentMethodSelectorOption;
 }): ReactNode {
+  if (option.klarna) {
+    const logoUrl =
+      option.klarna.category.asset_urls.standard ||
+      option.klarna.category.asset_urls.descriptive;
+
+    if (!logoUrl) {
+      return null;
+    }
+
+    return getGenericPaymentOptionIcon(
+      <img
+        src={logoUrl}
+        alt=""
+        loading="lazy"
+        className="h-5 w-auto max-w-24 object-contain"
+      />,
+    );
+  }
+
   if (
     option.type === "paypal" ||
     option.type === "paypal-pay-later" ||

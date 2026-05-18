@@ -23,6 +23,7 @@
   },
   "scripts": {
     "extract": "formatjs extract 'src/**/*.ts*' --ignore='**/*.d.ts' --out-file src/locales/en-US.json --id-interpolation-pattern '[sha512:contenthash:base64:6]' --format simple",
+    "init:klarna": "node ./scripts/init-klarna-session.js",
     "localdev": "storybook dev -p 6006 --no-open",
     "build:npm": "tsc -b && vite build",
     "build:cdn": "tsc -b && vite build --mode=cdn",

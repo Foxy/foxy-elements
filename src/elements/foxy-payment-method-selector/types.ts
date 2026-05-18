@@ -2,7 +2,21 @@ import type {
   AchAccountTypeValue,
   AchHostedFieldName,
 } from "../foxy-ach-field/element";
+import type { PaymentOption as CheckoutPaymentOption } from "@foxy.io/sdk/checkout";
 import type { PaymentCardFieldOption } from "../foxy-payment-card-field/element";
+
+type PaymentMethodSelectorKlarnaServerOption = Extract<
+  CheckoutPaymentOption,
+  { type: "klarna"; gateway: "klarna" }
+>;
+
+export type PaymentMethodSelectorKlarnaCategory =
+  PaymentMethodSelectorKlarnaServerOption["payment_method_categories"][number];
+
+export type PaymentMethodSelectorKlarnaConfig = {
+  sessionId: string;
+  category: PaymentMethodSelectorKlarnaCategory;
+};
 
 export type PaymentMethodSelectorBillingField = {
   id: string;
@@ -79,6 +93,12 @@ export type PaymentMethodSelectorPurchaseOrderTokenizePayload = {
   purchaseOrderNumber: string;
 };
 
+export type PaymentMethodSelectorKlarnaTokenizePayload = {
+  authorizationToken: string;
+  sessionId: string;
+  paymentMethodCategory: string;
+};
+
 export type PaymentMethodSelectorPayPalPlatformFlow =
   | "buttons"
   | "card-fields"
@@ -133,6 +153,7 @@ export type PaymentMethodSelectorTokenizePayload =
   | PaymentMethodSelectorStripeCardElementTokenizePayload
   | PaymentMethodSelectorStripePaymentElementTokenizePayload
   | PaymentMethodSelectorPurchaseOrderTokenizePayload
+  | PaymentMethodSelectorKlarnaTokenizePayload
   | PaymentMethodSelectorPayPalPlatformTokenizePayload
   | PaymentMethodSelectorApplePayTokenizePayload
   | PaymentMethodSelectorGooglePayTokenizePayload
@@ -151,6 +172,7 @@ export type PaymentMethodSelectorOption = {
   description?: string;
   gateway?: string;
   disabled?: boolean;
+  klarna?: PaymentMethodSelectorKlarnaConfig;
   paypalPlatform?: PaymentMethodSelectorPayPalPlatformConfig;
   paypalMessage?: PaymentMethodSelectorPayPalMessage;
   savedPaymentMethodId?: string;

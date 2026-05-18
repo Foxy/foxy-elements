@@ -7,6 +7,7 @@ import {
   createThemeAttributeMap,
   getShadcnInputMetrics,
 } from "../../lib/theme-attribute-sync";
+import { getKlarnaInitPaymentOptionFromEnv } from "@/lib/klarna-init-response";
 
 const STRIPE_PUBLISHABLE_KEY =
   import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim() ||
@@ -15,6 +16,13 @@ const STRIPE_PUBLISHABLE_KEY =
 
 const PAYPAL_PLATFORM_CLIENT_ID =
   import.meta.env.VITE_PAYPAL_SANDBOX_CLIENT_ID?.trim() || "paypal-client-id";
+
+function createSvgLogoDataUri(text: string, fill: string): string {
+  return `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="24" viewBox="0 0 80 24" fill="none"><rect width="80" height="24" rx="12" fill="${fill}"/><text x="40" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#111">${text}</text></svg>`)}`;
+}
+
+const KLARNA_PAY_IN_FOUR_LOGO = createSvgLogoDataUri("Pay in 4", "#ffb3c7");
+const KLARNA_PAY_IN_30_DAYS_LOGO = createSvgLogoDataUri("30 days", "#ffd8e4");
 
 const SELECTOR_THEME_ATTRIBUTE_MAP = createThemeAttributeMap([
   {
@@ -197,6 +205,36 @@ const PAYPAL_PLATFORM_PAYMENT_OPTIONS = [
   },
 ];
 
+const DEFAULT_KLARNA_PAYMENT_OPTION = {
+  type: "klarna",
+  gateway: "klarna",
+  session_id: "klarna-session-id",
+  client_token: "klarna-client-token",
+  payment_method_categories: [
+    {
+      identifier: "pay_in_4",
+      name: "Pay in 4",
+      asset_urls: {
+        descriptive: KLARNA_PAY_IN_FOUR_LOGO,
+        standard: KLARNA_PAY_IN_FOUR_LOGO,
+      },
+    },
+    {
+      identifier: "pay_in_30_days",
+      name: "Pay in 30 Days",
+      asset_urls: {
+        descriptive: KLARNA_PAY_IN_30_DAYS_LOGO,
+        standard: KLARNA_PAY_IN_30_DAYS_LOGO,
+      },
+    },
+  ],
+};
+
+const LIVE_KLARNA_PAYMENT_OPTION = getKlarnaInitPaymentOptionFromEnv();
+const KLARNA_PAYMENT_OPTIONS = [
+  LIVE_KLARNA_PAYMENT_OPTION ?? DEFAULT_KLARNA_PAYMENT_OPTION,
+];
+
 function createDemoApiState(paymentOptions: unknown[]) {
   return {
     ...structuredClone(baseApiState),
@@ -228,12 +266,17 @@ function createPayPalPlatformMethodStory(type: string): Story {
 type CheckoutClientLike = EventTarget & {
   state?: unknown;
   json?: unknown;
+  klarna?: unknown;
+  hydrateJson?: (
+    nextState: unknown,
+    options?: { state?: "idle" | "busy"; emitUpdate?: boolean },
+  ) => Promise<void>;
   updateBillingAddress?: (
     changes: Record<string, unknown>,
   ) => Promise<unknown> | void;
 };
 
-function seedCheckoutClientState(
+function seedCheckoutClientSnapshot(
   client: CheckoutClientLike,
   nextState: unknown,
 ): void {
@@ -247,6 +290,136 @@ function seedCheckoutClientState(
     value: nextState === undefined ? undefined : structuredClone(nextState),
     writable: true,
   });
+}
+
+function clearCheckoutClientOverrides(client: CheckoutClientLike): void {
+  for (const key of ["state", "json", "klarna"] as const) {
+    const descriptor = Object.getOwnPropertyDescriptor(client, key);
+
+    if (descriptor?.configurable) {
+      delete (client as unknown as Record<string, unknown>)[key];
+    }
+  }
+}
+
+function getKlarnaOption(apiState: unknown): Record<string, unknown> | null {
+  if (!apiState || typeof apiState !== "object") {
+    return null;
+  }
+
+  const paymentOptions = Array.isArray(
+    (apiState as { payment_options?: unknown[] }).payment_options,
+  )
+    ? (apiState as { payment_options: unknown[] }).payment_options
+    : [];
+
+  for (const entry of paymentOptions) {
+    if (!entry || typeof entry !== "object") continue;
+
+    const option = entry as Record<string, unknown>;
+    if (option.type === "klarna" && option.gateway === "klarna") {
+      return option;
+    }
+  }
+
+  return null;
+}
+
+function seedCheckoutClientKlarna(
+  client: CheckoutClientLike,
+  apiState: unknown,
+): void {
+  const klarnaOption = getKlarnaOption(apiState);
+
+  Object.defineProperty(client, "klarna", {
+    configurable: true,
+    value: klarnaOption
+      ? {
+          Payments: {
+            load: (
+              options: {
+                container: HTMLElement | string;
+                payment_method_category?: string;
+              },
+              _data: Record<string, unknown>,
+              callback: (result: { show_form: boolean }) => void,
+            ) => {
+              const container =
+                typeof options.container === "string"
+                  ? document.querySelector(options.container)
+                  : options.container;
+
+              if (container instanceof HTMLElement) {
+                container.innerHTML = `<div data-storybook-klarna-widget="true">Klarna widget: ${options.payment_method_category ?? "unknown"}</div>`;
+              }
+
+              callback({ show_form: true });
+            },
+            authorize: (
+              options: { payment_method_category?: string },
+              _data: Record<string, unknown>,
+              callback: (result: {
+                approved: boolean;
+                show_form: boolean;
+                authorization_token?: string;
+              }) => void,
+            ) => {
+              callback({
+                approved: true,
+                show_form: true,
+                authorization_token: `klarna-auth-${options.payment_method_category ?? "unknown"}`,
+              });
+            },
+            finalize: (
+              options: { payment_method_category?: string },
+              _data: Record<string, unknown>,
+              callback: (result: {
+                approved: boolean;
+                show_form: boolean;
+                authorization_token?: string;
+              }) => void,
+            ) => {
+              callback({
+                approved: true,
+                show_form: true,
+                authorization_token: `klarna-final-${options.payment_method_category ?? "unknown"}`,
+              });
+            },
+            on: () => undefined,
+            off: () => undefined,
+          },
+        }
+      : null,
+    writable: true,
+  });
+}
+
+function isLiveKlarnaOption(option: Record<string, unknown> | null): boolean {
+  if (!LIVE_KLARNA_PAYMENT_OPTION || !option) {
+    return false;
+  }
+
+  return (
+    option.session_id === LIVE_KLARNA_PAYMENT_OPTION.session_id &&
+    option.client_token === LIVE_KLARNA_PAYMENT_OPTION.client_token
+  );
+}
+
+function shouldUseLiveKlarnaHydration(apiState: unknown): boolean {
+  return isLiveKlarnaOption(getKlarnaOption(apiState));
+}
+
+function createSelectorElement(
+  optionIndex: number | undefined,
+): PaymentMethodSelectorElementLike {
+  const element = document.createElement(
+    "foxy-payment-method-selector",
+  ) as PaymentMethodSelectorElementLike;
+
+  bindThemeAttributes(element, applySelectorThemeAttributes);
+  element.optionIndex = optionIndex;
+
+  return element;
 }
 
 type PaymentMethodSelectorElementLike = HTMLElement & {
@@ -282,16 +455,32 @@ const meta = {
     const wrapper = document.createElement("div");
     wrapper.style.width = "640px";
     const client = checkoutClient as CheckoutClientLike;
-    seedCheckoutClientState(client, apiState);
 
-    const element = document.createElement(
-      "foxy-payment-method-selector",
-    ) as PaymentMethodSelectorElementLike;
+    if (shouldUseLiveKlarnaHydration(apiState) && client.hydrateJson) {
+      clearCheckoutClientOverrides(client);
 
-    bindThemeAttributes(element, applySelectorThemeAttributes);
-    element.optionIndex = optionIndex;
+      void client
+        .hydrateJson(structuredClone(apiState), { state: "idle" })
+        .then(() => {
+          wrapper.replaceChildren(createSelectorElement(optionIndex));
+        })
+        .catch((error) => {
+          console.warn(
+            "Failed to hydrate Storybook checkout client with the live Klarna session.",
+            error,
+          );
 
-    wrapper.append(element);
+          seedCheckoutClientSnapshot(client, apiState);
+          seedCheckoutClientKlarna(client, apiState);
+          wrapper.replaceChildren(createSelectorElement(optionIndex));
+        });
+
+      return wrapper;
+    }
+
+    seedCheckoutClientSnapshot(client, apiState);
+    seedCheckoutClientKlarna(client, apiState);
+    wrapper.append(createSelectorElement(optionIndex));
     return wrapper;
   },
 } satisfies Meta<SelectorStoryArgs>;
@@ -395,6 +584,21 @@ export const PurchaseOrder: Story = {
       },
     ]),
     optionIndex: 0,
+  },
+};
+
+export const Klarna: Story = {
+  args: {
+    apiState: createDemoApiState(KLARNA_PAYMENT_OPTIONS),
+    optionIndex: 0,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Shows Klarna categories flattened into separate selector entries, each using the shared SDK instance exposed by Foxy SDK.",
+      },
+    },
   },
 };
 
@@ -503,6 +707,7 @@ export const AllPaymentMethods: Story = {
       {
         type: "purchase_order",
       },
+      ...KLARNA_PAYMENT_OPTIONS,
       {
         type: "apple-pay",
         gateway: "stripe_v2",

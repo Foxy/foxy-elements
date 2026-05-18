@@ -102,6 +102,11 @@ export const messages = defineMessages({
     id: "payment_option_description_purchase_order",
     defaultMessage: "Enter your purchase order number below.",
   },
+  optionDescriptionKlarna: {
+    id: "payment_option_description_klarna",
+    defaultMessage:
+      "Click the Klarna button under the order summary to submit your order.",
+  },
   optionDescriptionAch: {
     id: "payment_option_description_ach",
     defaultMessage: "Enter your bank account details below.",
@@ -109,7 +114,7 @@ export const messages = defineMessages({
   optionDescriptionApplePay: {
     id: "payment_option_description_apple_pay",
     defaultMessage:
-      "Click the Apple Pay button under the order summary to pay.",
+      "Click the Apple Pay button under the order summary to submit your order.",
   },
   optionDescriptionGooglePay: {
     id: "payment_option_description_google_pay",
@@ -282,6 +287,28 @@ export const messages = defineMessages({
   tokenizeAchError: {
     id: "payment_tokenize_ach_error",
     defaultMessage: "Unable to tokenize bank details.",
+  },
+  klarnaLoading: {
+    id: "payment_klarna_loading",
+    defaultMessage: "Loading Klarna...",
+  },
+  klarnaUnavailable: {
+    id: "payment_klarna_unavailable",
+    defaultMessage: "This Klarna option is currently unavailable.",
+  },
+  klarnaLoadError: {
+    id: "payment_klarna_load_error",
+    defaultMessage:
+      "Unable to load Klarna. Choose a different payment method or try again.",
+  },
+  klarnaAuthorizeError: {
+    id: "payment_klarna_authorize_error",
+    defaultMessage:
+      "Klarna couldn't authorize this payment. Review your details and try again.",
+  },
+  klarnaFinalizeError: {
+    id: "payment_klarna_finalize_error",
+    defaultMessage: "Klarna couldn't finalize this payment. Try again.",
   },
   billingAddressUpdateError: {
     id: "payment_billing_update_error",

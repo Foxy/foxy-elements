@@ -61,6 +61,7 @@ import type { IntlShape } from "react-intl";
 
 const CardOptionEmbed = lazy(() => import("./embeds/card-hosted"));
 const AchOptionEmbed = lazy(() => import("./embeds/ach-hosted"));
+const KlarnaOptionEmbed = lazy(() => import("./embeds/klarna"));
 const PurchaseOrderOptionEmbed = lazy(() => import("./embeds/purchase-order"));
 const StripeCardElementOption = lazy(() => import("./embeds/stripe-card"));
 const StripePaymentElementOption = lazy(
@@ -199,6 +200,10 @@ function getPaymentOptionDescriptionText(
   option: PaymentMethodSelectorOption,
   intl: IntlShape,
 ): string | undefined {
+  if (option.klarna) {
+    return intl.formatMessage(messages.optionDescriptionKlarna);
+  }
+
   if (!option.type) return option.description;
   const descriptor = OPTION_DESCRIPTION_BY_TYPE[option.type];
   if (!descriptor) return option.description;
@@ -560,6 +565,30 @@ function PaymentOptionBody({
     );
   }
 
+  if (option.klarna) {
+    return (
+      <>
+        <Suspense fallback={bodyFallback}>
+          <KlarnaOptionEmbed
+            option={option}
+            disabled={disabled}
+            onControllerReady={onControllerReady}
+            loadingMessage={intl.formatMessage(messages.klarnaLoading)}
+            unavailableMessage={intl.formatMessage(messages.klarnaUnavailable)}
+            loadErrorMessage={intl.formatMessage(messages.klarnaLoadError)}
+            authorizeErrorMessage={intl.formatMessage(
+              messages.klarnaAuthorizeError,
+            )}
+            finalizeErrorMessage={intl.formatMessage(
+              messages.klarnaFinalizeError,
+            )}
+          />
+        </Suspense>
+        {billingSection}
+      </>
+    );
+  }
+
   return billingSection;
 }
 
@@ -567,7 +596,15 @@ function hasBillingAddressContent(
   option: PaymentMethodSelectorOption,
   billingAddress: PaymentMethodSelectorBillingAddress | undefined,
 ): boolean {
-  if (!billingAddress?.fields.length || !option.type) {
+  if (!billingAddress?.fields.length) {
+    return false;
+  }
+
+  if (option.klarna) {
+    return true;
+  }
+
+  if (!option.type) {
     return false;
   }
 
@@ -602,6 +639,10 @@ function hasPaymentOptionBodyContent(
   }
 
   if (option.type === "purchase-order") {
+    return true;
+  }
+
+  if (option.klarna) {
     return true;
   }
 
