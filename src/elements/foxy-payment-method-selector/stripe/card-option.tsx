@@ -1,7 +1,4 @@
-import type {
-  PaymentController,
-  PaymentMethodSelectorOption,
-} from "../types";
+import type { PaymentController, PaymentMethodSelectorOption } from "../types";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -15,10 +12,7 @@ import {
   type StripeCardElementOptions,
   type StripeElementsOptions,
 } from "@stripe/stripe-js";
-import {
-  resolveStripeLocale,
-  resolveStripePublishableKey,
-} from "./shared";
+import { resolveStripeLocale, resolveStripePublishableKey } from "./shared";
 import {
   getStripeFontsForAppearance,
   mergeStripeAppearance,
@@ -100,6 +94,7 @@ export function StripeCardElementOption({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isShadowContext, setIsShadowContext] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isFocused, setIsFocused] = useState(false);
   const stripeConfig = option.stripeCardElement;
   const publishableKey = resolveStripePublishableKey(
     stripeConfig?.publishableKey,
@@ -148,9 +143,49 @@ export function StripeCardElementOption({
     setIsShadowContext(isShadow);
 
     if (isShadow) {
+      setIsFocused(false);
       onControllerReady?.(null);
     }
   }, [onControllerReady]);
+
+  useEffect(() => {
+    if (isShadowContext !== false) {
+      return;
+    }
+
+    const container = containerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    const syncFocusedState = () => {
+      const stripeElement = container.querySelector(".StripeElement");
+
+      setIsFocused(
+        stripeElement instanceof HTMLElement &&
+          stripeElement.classList.contains("StripeElement--focus"),
+      );
+    };
+
+    syncFocusedState();
+
+    const observer = new MutationObserver(() => {
+      syncFocusedState();
+    });
+
+    observer.observe(container, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => {
+      observer.disconnect();
+      setIsFocused(false);
+    };
+  }, [appearanceSignature, isShadowContext]);
 
   if (isShadowContext === true) {
     return (
@@ -192,13 +227,21 @@ export function StripeCardElementOption({
       <div ref={probeRef} className="sr-only" aria-hidden />
       <div
         style={{
-          border: "1px solid var(--input, #d1d5db)",
+          border: `1px solid ${
+            isFocused ? "var(--ring, #9ca3af)" : "var(--input, #d1d5db)"
+          }`,
           borderRadius: "var(--radius, 0.625rem)",
+          boxSizing: "border-box",
+          boxShadow: isFocused
+            ? "0 0 0 3px color-mix(in oklab, var(--ring, #9ca3af) 50%, transparent)"
+            : "none",
           padding:
             "var(--input-padding, var(--input-padding-y, 0.25rem) var(--input-padding-x, 0.625rem))",
           minHeight: "calc(var(--input-height, calc(2rem - 2px)) + 2px)",
           display: "grid",
           alignItems: "center",
+          transition:
+            "border-color 150ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
         <Elements

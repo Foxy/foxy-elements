@@ -682,6 +682,7 @@ export function Payment({
   }, [visibleOptions]);
   const [selection, setSelection] = useState<string>(selectedOptionId ?? "");
   const { probeRef, styleAttributes } = useHostedFieldStyleAttributes();
+  const pendingSelectionChangeRef = useRef<string | null>(null);
 
   // Keep a ref so the notify effect doesn't re-fire just because the parent
   // created a new inline callback reference on every render.
@@ -694,6 +695,7 @@ export function Payment({
   // prop, and immediately revert the selection (the flash).
   useEffect(() => {
     if (!visibleOptions.length) {
+      pendingSelectionChangeRef.current = null;
       setSelection((prev) => (prev ? "" : prev));
       return;
     }
@@ -702,6 +704,7 @@ export function Payment({
       selectedOptionId &&
       visibleOptions.some((option) => option.id === selectedOptionId)
     ) {
+      pendingSelectionChangeRef.current = null;
       setSelection(selectedOptionId);
       return;
     }
@@ -712,23 +715,22 @@ export function Payment({
       if (visibleOptions.some((option) => option.id === prev)) return prev;
       const fallback =
         visibleOptions.find((option) => !option.disabled) ?? visibleOptions[0];
+      pendingSelectionChangeRef.current = null;
       return fallback.id;
     });
   }, [selectedOptionId, visibleOptions]);
 
   useEffect(() => {
-    if (
-      selectedOptionId &&
-      selection !== selectedOptionId &&
-      visibleOptions.some((option) => option.id === selectedOptionId)
-    ) {
+    const selected = visibleOptions.find((option) => option.id === selection);
+    if (!selected) return;
+
+    if (pendingSelectionChangeRef.current !== selected.id) {
       return;
     }
 
-    const selected = visibleOptions.find((option) => option.id === selection);
-    if (!selected) return;
+    pendingSelectionChangeRef.current = null;
     onSelectionChangeRef.current?.(selected.id, selected.type);
-  }, [selection, selectedOptionId, visibleOptions]);
+  }, [selection, visibleOptions]);
 
   const [mountedOptionIds, setMountedOptionIds] = useState<Set<string>>(
     () =>
@@ -811,6 +813,7 @@ export function Payment({
       </FieldLegend>
       <input
         ref={probeRef}
+        data-foxy-field-style-probe="true"
         tabIndex={-1}
         aria-hidden="true"
         readOnly
@@ -820,7 +823,10 @@ export function Payment({
       />
       <RadioGroup
         value={selection}
-        onValueChange={(value) => setSelection(value)}
+        onValueChange={(value) => {
+          pendingSelectionChangeRef.current = value;
+          setSelection(value);
+        }}
         className="w-full"
       >
         {visibleOptions.map((option) => {

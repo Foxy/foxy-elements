@@ -453,8 +453,7 @@ describe("PaymentMethodSelectorElement", () => {
           publishable_key: "",
         },
         {
-          type: "apple-pay",
-          gateway: "stripe_v2",
+          type: "purchase_order",
         },
       ],
     });
@@ -481,6 +480,59 @@ describe("PaymentMethodSelectorElement", () => {
       expect(element.querySelectorAll("[data-foxy-stripe-host]").length).toBe(
         1,
       );
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("syncs UI selection changes back to the element option index", async () => {
+    const restoreClient = overrideClientState({
+      payment_options: [
+        {
+          type: "stripe-card-element",
+          gateway: "stripe_connect",
+          publishable_key: "",
+        },
+        {
+          type: "purchase_order",
+        },
+      ],
+    });
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      expect(element.optionIndex).toBeUndefined();
+      expect(
+        element.querySelector('[data-foxy-stripe-host="stripe-card-element"]'),
+      ).toBeTruthy();
+
+      const secondOption = element.shadowRoot?.querySelector(
+        "#payment-option-purchase-order-2",
+      ) as HTMLElement | null;
+
+      secondOption?.click();
+      await waitForRender();
+
+      expect(element.optionIndex).toBe(1);
+      expect(element.querySelector("[data-foxy-stripe-host]")).toBeNull();
+
+      const firstOption = element.shadowRoot?.querySelector(
+        "#payment-option-stripe-card-element",
+      ) as HTMLElement | null;
+
+      firstOption?.click();
+      await waitForRender();
+
+      expect(element.optionIndex).toBe(0);
+      expect(
+        element.querySelector('[data-foxy-stripe-host="stripe-card-element"]'),
+      ).toBeTruthy();
     } finally {
       element.remove();
       restoreClient();

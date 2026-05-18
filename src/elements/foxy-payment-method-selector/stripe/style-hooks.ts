@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import type { StripeElementsOptions } from "@stripe/stripe-js";
+import { FIELD_STYLE_PROBE_CLASS_NAME } from "../constants";
 
 export type HostedFieldStyleAttributes = {
   inputHeight?: string;
@@ -57,6 +58,64 @@ function areStyleAttributesEqual(
   );
 }
 
+function resolveNearestShadowHost(
+  probeElement: HTMLElement,
+): HTMLElement | null {
+  let current: HTMLElement | null = probeElement.parentElement;
+
+  while (current) {
+    if (current.shadowRoot) {
+      return current;
+    }
+
+    current = current.parentElement;
+  }
+
+  return null;
+}
+
+function resolveProbeAttachmentTarget(
+  probeElement: HTMLElement,
+): HTMLElement | ShadowRoot {
+  const nearestShadowHost = resolveNearestShadowHost(probeElement);
+  if (nearestShadowHost?.shadowRoot) {
+    return nearestShadowHost.shadowRoot;
+  }
+
+  const parentElement = probeElement.parentElement;
+  if (parentElement) {
+    return parentElement;
+  }
+
+  const rootNode = probeElement.getRootNode();
+  if (rootNode instanceof ShadowRoot) {
+    return rootNode;
+  }
+
+  return probeElement.ownerDocument.body;
+}
+
+function appendProbeElement(
+  probeElement: HTMLElement,
+  probeNode: HTMLElement,
+): void {
+  resolveProbeAttachmentTarget(probeElement).append(probeNode);
+}
+
+function resolveProbeQueryRoot(probeElement: HTMLElement): ParentNode {
+  const rootNode = probeElement.getRootNode();
+  if (rootNode instanceof ShadowRoot) {
+    return rootNode;
+  }
+
+  const nearestShadowHost = resolveNearestShadowHost(probeElement);
+  if (nearestShadowHost?.shadowRoot) {
+    return nearestShadowHost.shadowRoot;
+  }
+
+  return probeElement.ownerDocument;
+}
+
 function resolveCssVariableColor(
   probeElement: HTMLElement,
   variableName: string,
@@ -68,12 +127,7 @@ function resolveCssVariableColor(
   colorProbe.style.pointerEvents = "none";
   colorProbe.style.color = `var(${variableName})`;
 
-  const rootNode = probeElement.getRootNode();
-  if (rootNode instanceof ShadowRoot) {
-    rootNode.append(colorProbe);
-  } else {
-    ownerDocument.body.append(colorProbe);
-  }
+  appendProbeElement(probeElement, colorProbe);
 
   const resolved = sanitizeCssValue(getComputedStyle(colorProbe).color);
   colorProbe.remove();
@@ -187,12 +241,7 @@ function normalizeColorForStripe(
   fallbackProbe.style.pointerEvents = "none";
   fallbackProbe.style.color = sanitized;
 
-  const rootNode = probeElement.getRootNode();
-  if (rootNode instanceof ShadowRoot) {
-    rootNode.append(fallbackProbe);
-  } else {
-    ownerDocument.body.append(fallbackProbe);
-  }
+  appendProbeElement(probeElement, fallbackProbe);
 
   const computedColor = sanitizeCssValue(getComputedStyle(fallbackProbe).color);
   fallbackProbe.remove();
@@ -242,12 +291,7 @@ function resolveCssVariableLength(
   lengthProbe.style.pointerEvents = "none";
   lengthProbe.style[cssProperty] = `var(${variableName})`;
 
-  const rootNode = probeElement.getRootNode();
-  if (rootNode instanceof ShadowRoot) {
-    rootNode.append(lengthProbe);
-  } else {
-    ownerDocument.body.append(lengthProbe);
-  }
+  appendProbeElement(probeElement, lengthProbe);
 
   const resolved = sanitizeCssValue(getComputedStyle(lengthProbe)[cssProperty]);
   lengthProbe.remove();
@@ -283,11 +327,9 @@ function normalizeFontFamilyForStripe(
 }
 
 function resolveReferenceInputStyle(probeElement: HTMLElement) {
-  const rootNode = probeElement.getRootNode();
-  const queryRoot =
-    rootNode instanceof ShadowRoot ? rootNode : probeElement.ownerDocument;
+  const queryRoot = resolveProbeQueryRoot(probeElement);
   const referenceInput = queryRoot.querySelector<HTMLElement>(
-    "[data-slot='input']",
+    "[data-foxy-field-style-probe='true'], [data-slot='input']",
   );
   if (!referenceInput) return undefined;
 
@@ -310,18 +352,12 @@ function resolveInputProbeStyle(probeElement: HTMLElement) {
   const ownerDocument = probeElement.ownerDocument;
   const inputProbe = ownerDocument.createElement("input");
   inputProbe.type = "text";
-  inputProbe.className =
-    "h-8 rounded-lg border px-2.5 py-1 text-base md:text-sm font-sans";
+  inputProbe.className = FIELD_STYLE_PROBE_CLASS_NAME;
   inputProbe.style.position = "absolute";
   inputProbe.style.opacity = "0";
   inputProbe.style.pointerEvents = "none";
 
-  const rootNode = probeElement.getRootNode();
-  if (rootNode instanceof ShadowRoot) {
-    rootNode.append(inputProbe);
-  } else {
-    ownerDocument.body.append(inputProbe);
-  }
+  appendProbeElement(probeElement, inputProbe);
 
   const style = getComputedStyle(inputProbe);
   const result = {
@@ -367,6 +403,7 @@ function buildStripeAppearanceFromTokens(
   );
   const focusColor =
     resolveCssVariableColor(probeElement, "--ring") ?? colorPrimary;
+  const selectedTextColor = colorPrimaryForeground ?? colorText;
 
   const rootFontFamily = sanitizeCssValue(style.fontFamily);
   const rawFontFamily =
@@ -395,26 +432,24 @@ function buildStripeAppearanceFromTokens(
       ? inputStyle.borderRadius
       : radiusToken;
   const inputPaddingVertical =
-    incrementPx(inputStyle.paddingTop, 1) ??
-    incrementPx(inputStyle.paddingBottom, 1) ??
-    "5px";
+    inputStyle.paddingTop ?? inputStyle.paddingBottom ?? "4px";
   const inputPaddingHorizontal =
     inputStyle.paddingRight ?? inputStyle.paddingLeft ?? "10px";
   const inputPadding = `${inputPaddingVertical} ${inputPaddingHorizontal}`;
 
   const variables: NonNullable<StripeAppearance["variables"]> = {
-    ...(focusColor
-      ? { colorPrimary: focusColor }
-      : colorPrimary
-        ? { colorPrimary }
+    ...(colorPrimary
+      ? { colorPrimary }
+      : focusColor
+        ? { colorPrimary: focusColor }
         : {}),
     ...(colorBackground ? { colorBackground } : {}),
     ...(colorText ? { colorText } : {}),
     ...(colorDanger ? { colorDanger } : {}),
-    ...(colorText
+    ...(selectedTextColor
       ? {
-          tabIconSelectedColor: colorText,
-          buttonColorText: colorText,
+          tabIconSelectedColor: selectedTextColor,
+          buttonColorText: selectedTextColor,
         }
       : {}),
     ...(colorTextSecondary
@@ -440,7 +475,7 @@ function buildStripeAppearanceFromTokens(
       : {}),
     ...(fontFamily ? { fontFamily } : {}),
     ...(fontSizeBase ? { fontSizeBase } : {}),
-    fontWeightNormal: "500",
+    fontWeightNormal: "400",
     fontWeightMedium: "500",
     ...(spacingUnit ? { spacingUnit } : {}),
     gridColumnSpacing: gridSpacing,
