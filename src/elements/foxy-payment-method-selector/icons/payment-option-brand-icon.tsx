@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Suspense, lazy } from "react";
 import { CreditCard, FileText, Landmark, Wallet } from "lucide-react";
 import type { PaymentMethodSelectorOption } from "../types";
+import SezzleMarkIcon from "./sezzle";
 import {
   CursorClickButtonIcon,
   PaymentOptionIconFallback,
@@ -113,6 +114,12 @@ export function PaymentOptionBrandIcon({
           <Przelewy24MarkIcon className="h-5 w-auto" />,
         )}
       </Suspense>
+    );
+  }
+
+  if (option.type === "sezzle") {
+    return getGenericPaymentOptionIcon(
+      <SezzleMarkIcon className="h-5 w-auto" />,
     );
   }
 

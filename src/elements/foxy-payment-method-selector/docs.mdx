@@ -12,6 +12,8 @@ For the <code>paypal_platform</code> gateway, the selector renders the base PayP
 
 PayPal Pay Later renders a <code>paypal-message</code> element in the option description. The selector only hydrates that element through the PayPal surface already exposed on <code>@foxy.io/sdk/checkout/client</code>; it does not load the PayPal SDK directly. In the standalone example pages, the light-DOM fallback description remains visible unless the shared checkout client already has a hydrated PayPal surface.
 
+Sezzle is exposed as a first-class selector option and <code>tokenize()</code> returns Sezzle metadata for the selected option. The selector does not currently create or start a Sezzle checkout session on its own because the checkout API state only exposes Sezzle's public key, not the checkout payload or checkout URL required to launch the Sezzle flow.
+
 The themed elements in this package support a broader shared set of theme attributes and properties. This page documents only the theme tokens that currently affect <code>foxy-payment-method-selector</code>. Additional shared theme tokens may be accepted for API consistency, but they do not currently change this element.
 
 If checkout state is initialized but exposes no recognized payment methods, the element renders an unavailable state instead of fabricating a fallback option. In that state, <code>tokenize()</code> rejects because no payment method is selected.
@@ -26,10 +28,13 @@ Run <code>npm run localdev:examples</code> and open the standalone pages under <
   the card-entry variants.
 - <code>klarna.html</code> prefers <code>VITE_KLARNA_INIT_RESPONSE</code> when
   present and falls back to static demo categories otherwise.
+- <code>sezzle.html</code> shows the Sezzle selector option with an inline logo
+  and selector-only tokenization metadata.
 - <code>paypal-platform.html</code> and <code>all-payment-methods.html</code>
-  cover the flattened PayPal Platform options.
+  cover the flattened PayPal Platform options alongside Sezzle and the rest of
+  the selector surface.
 
-Stripe examples read <code>VITE_STRIPE_PUBLISHABLE_KEY</code> first and fall back to <code>VITE_STRIPE_DEMO_PUBLISHABLE_KEY</code> or a safe demo key. PayPal Platform examples read <code>VITE_PAYPAL_SANDBOX_CLIENT_ID</code> when it is available.
+Stripe examples read <code>VITE_STRIPE_PUBLISHABLE_KEY</code> first and fall back to <code>VITE_STRIPE_DEMO_PUBLISHABLE_KEY</code> or a safe demo key. PayPal Platform examples read <code>VITE_PAYPAL_SANDBOX_CLIENT_ID</code> when it is available. Sezzle examples read <code>VITE_SEZZLE_PUBLIC_KEY</code> when it is available and otherwise install a lightweight local <code>window.Checkout</code> mock so the selector can keep rendering the Sezzle option without a live Sezzle checkout session.
 
 ## Attributes
 

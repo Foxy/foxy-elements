@@ -18,6 +18,10 @@ export type PaymentMethodSelectorKlarnaConfig = {
   category: PaymentMethodSelectorKlarnaCategory;
 };
 
+export type PaymentMethodSelectorSezzleConfig = {
+  publicKey: string;
+};
+
 export type PaymentMethodSelectorBillingField = {
   id: string;
   label: string;
@@ -99,6 +103,10 @@ export type PaymentMethodSelectorKlarnaTokenizePayload = {
   paymentMethodCategory: string;
 };
 
+export type PaymentMethodSelectorSezzleTokenizePayload = {
+  sezzle: PaymentMethodSelectorSezzleConfig;
+};
+
 export type PaymentMethodSelectorPayPalPlatformFlow =
   | "buttons"
   | "card-fields"
@@ -154,6 +162,7 @@ export type PaymentMethodSelectorTokenizePayload =
   | PaymentMethodSelectorStripePaymentElementTokenizePayload
   | PaymentMethodSelectorPurchaseOrderTokenizePayload
   | PaymentMethodSelectorKlarnaTokenizePayload
+  | PaymentMethodSelectorSezzleTokenizePayload
   | PaymentMethodSelectorPayPalPlatformTokenizePayload
   | PaymentMethodSelectorApplePayTokenizePayload
   | PaymentMethodSelectorGooglePayTokenizePayload
@@ -173,6 +182,7 @@ export type PaymentMethodSelectorOption = {
   gateway?: string;
   disabled?: boolean;
   klarna?: PaymentMethodSelectorKlarnaConfig;
+  sezzle?: PaymentMethodSelectorSezzleConfig;
   paypalPlatform?: PaymentMethodSelectorPayPalPlatformConfig;
   paypalMessage?: PaymentMethodSelectorPayPalMessage;
   savedPaymentMethodId?: string;

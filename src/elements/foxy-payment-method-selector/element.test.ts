@@ -59,6 +59,26 @@ async function waitForText(
   throw new Error(`Timed out waiting for text: ${expected}`);
 }
 
+async function waitForTruthy<T>(
+  getValue: () => T | null | undefined,
+  label: string,
+): Promise<NonNullable<T>> {
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const value = getValue();
+    if (value) {
+      return value as NonNullable<T>;
+    }
+
+    await waitForRender();
+  }
+
+  throw new Error(`Timed out waiting for value: ${label}`);
+}
+
+async function waitForTime(ms: number): Promise<void> {
+  await new Promise<void>((resolve) => setTimeout(resolve, ms));
+}
+
 async function setTextInputValue(
   input: HTMLInputElement,
   value: string,
@@ -217,6 +237,17 @@ function createKlarnaApiState() {
             },
           },
         ],
+      },
+    ],
+  };
+}
+
+function createSezzleApiState() {
+  return {
+    payment_options: [
+      {
+        type: "sezzle",
+        public_key: "sezzle-public-key",
       },
     ],
   };
@@ -395,6 +426,47 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
+  it("renders Sezzle as a first-class option and returns Sezzle metadata from tokenize()", async () => {
+    const restoreClient = overrideClientState(createSezzleApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Buy Now, Pay Later with Sezzle",
+      );
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Click the Sezzle button under the order summary to submit your order.",
+      );
+
+      await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector(
+            '[data-payment-option-brand="sezzle"]',
+          ),
+        "Sezzle brand icon",
+      );
+      expect(
+        element.shadowRoot?.querySelector('[data-payment-option-click-hint="true"]'),
+      ).toBeTruthy();
+
+      await expect(element.tokenize()).resolves.toEqual({
+        sezzle: {
+          publicKey: "sezzle-public-key",
+        },
+      });
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
   it("renders an unavailable state and rejects tokenization when no payment methods are available", async () => {
     const restoreClient = overrideClientState({ payment_options: [] });
     const element = document.createElement(
@@ -427,6 +499,15 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
+      await waitForRender();
+
+      const status = element.shadowRoot?.querySelector('[data-slot="alert"]');
+      await waitForText(
+        () => status?.textContent,
+        "Loading payment options...",
+      );
+
+      await waitForTime(800);
       await waitForRender();
 
       const alert = element.shadowRoot?.querySelector('[data-slot="alert"]');

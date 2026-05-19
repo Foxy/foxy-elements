@@ -26,6 +26,10 @@ export const messages = defineMessages({
     id: "payment_option_label_google_pay",
     defaultMessage: "Google Pay",
   },
+  optionLabelSezzle: {
+    id: "payment_option_label_sezzle",
+    defaultMessage: "Buy Now, Pay Later with Sezzle",
+  },
   optionLabelRedirect: {
     id: "payment_option_label_redirect",
     defaultMessage: "Continue to Payment Provider",
@@ -120,6 +124,11 @@ export const messages = defineMessages({
     id: "payment_option_description_google_pay",
     defaultMessage:
       "Click the Google Pay button under the order summary to submit your order.",
+  },
+  optionDescriptionSezzle: {
+    id: "payment_option_description_sezzle",
+    defaultMessage:
+      "Click the Sezzle button under the order summary to submit your order.",
   },
   optionDescriptionPayPal: {
     id: "payment_option_description_paypal",
@@ -335,6 +344,7 @@ export const OPTION_LABEL_BY_TYPE: Partial<Record<string, MessageDescriptor>> =
     ach: messages.optionLabelAch,
     "apple-pay": messages.optionLabelApplePay,
     "google-pay": messages.optionLabelGooglePay,
+    sezzle: messages.optionLabelSezzle,
     paypal: messages.optionLabelPayPal,
     "paypal-pay-later": messages.optionLabelPayPalPayLater,
     "paypal-credit": messages.optionLabelPayPalCredit,
@@ -362,6 +372,7 @@ export const OPTION_DESCRIPTION_BY_TYPE: Partial<
   ach: messages.optionDescriptionAch,
   "apple-pay": messages.optionDescriptionApplePay,
   "google-pay": messages.optionDescriptionGooglePay,
+  sezzle: messages.optionDescriptionSezzle,
   paypal: messages.optionDescriptionPayPal,
   "paypal-pay-later": messages.optionDescriptionPayPalPayLater,
   "paypal-credit": messages.optionDescriptionPayPalCredit,

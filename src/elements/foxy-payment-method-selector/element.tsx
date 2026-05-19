@@ -25,6 +25,7 @@ import {
   type PaymentMethodSelectorTokenizationStartEventDetail,
   type PaymentMethodSelectorTokenizationSuccessEventDetail,
 } from "./events";
+import { messages } from "./messages";
 import { Payment } from "./view";
 import { StripeCardElementOption } from "./stripe/card-option";
 import { StripePaymentElementOption } from "./stripe/payment-option";
@@ -48,6 +49,7 @@ type CheckoutApiLike = EventTarget & {
 const LANG_ATTRIBUTE = "lang";
 const OPTION_INDEX_ATTRIBUTE = "option-index";
 const DEFAULT_LOCALE = "en-US";
+const UNINITIALIZED_ALERT_GRACE_MS = 750;
 
 const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
   "en-US": enUsMessages as Record<string, string>,
@@ -59,6 +61,8 @@ const ThemeableHTMLElement = ThemeMixin(HTMLElement);
 export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #optionIndex: number | undefined;
   #loading = false;
+  #canRenderUninitializedAlert = false;
+  #uninitializedAlertTimer: ReturnType<typeof setTimeout> | undefined;
   #shadowRootRef: ShadowRoot;
   #root: Root | null = null;
   #container: HTMLDivElement;
@@ -246,10 +250,13 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
     this.#syncThemeAttributesToHostStyles();
     this.#addApiSubscriptions();
+    this.#startUninitializedAlertGracePeriod();
     this.#render();
   }
 
   disconnectedCallback() {
+    this.#clearUninitializedAlertTimer();
+    this.#canRenderUninitializedAlert = false;
     this.#removeApiSubscriptions();
     this.#root?.unmount();
     this.#root = null;
@@ -313,11 +320,18 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
     const apiState = this.#resolveApiState();
     if (!apiState) {
-      this.#renderUninitializedState();
+      if (this.#canRenderUninitializedAlert) {
+        this.#renderUninitializedState();
+      } else {
+        this.#renderLoadingState();
+      }
       this.#scheduleStripeLightDomSync(undefined);
       this.#applyStylesheet();
       return;
     }
+
+    this.#clearUninitializedAlertTimer();
+    this.#canRenderUninitializedAlert = true;
 
     const options = this.#resolveOptions();
     const selectedOptionId = this.#resolveSelectedOptionId(options);
@@ -453,8 +467,52 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   }
 
   #handleApiStateChange = () => {
+    if (this.#resolveApiState()) {
+      this.#clearUninitializedAlertTimer();
+      this.#canRenderUninitializedAlert = true;
+    }
+
     this.#render();
   };
+
+  #startUninitializedAlertGracePeriod() {
+    this.#clearUninitializedAlertTimer();
+    this.#canRenderUninitializedAlert = false;
+
+    this.#uninitializedAlertTimer = setTimeout(() => {
+      this.#uninitializedAlertTimer = undefined;
+      this.#canRenderUninitializedAlert = true;
+
+      if (!this.#resolveApiState()) {
+        this.#render();
+      }
+    }, UNINITIALIZED_ALERT_GRACE_MS);
+  }
+
+  #clearUninitializedAlertTimer() {
+    if (this.#uninitializedAlertTimer === undefined) {
+      return;
+    }
+
+    clearTimeout(this.#uninitializedAlertTimer);
+    this.#uninitializedAlertTimer = undefined;
+  }
+
+  #renderLoadingState() {
+    if (!this.#root) return;
+
+    const locale = this.#resolveLocale();
+    const localizedMessages = this.#resolveMessages(locale);
+    const loadingText =
+      localizedMessages[messages.loadingOptions.id] ??
+      messages.loadingOptions.defaultMessage;
+
+    this.#root.render(
+      <Alert aria-live="polite">
+        <AlertDescription>{loadingText}</AlertDescription>
+      </Alert>,
+    );
+  }
 
   #renderUninitializedState() {
     if (!this.#root) return;
@@ -593,6 +651,14 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           fundingSources: selectedOption.paypalPlatform.fundingSources
             ? [...selectedOption.paypalPlatform.fundingSources]
             : undefined,
+        },
+      };
+    }
+
+    if (selectedOption.sezzle) {
+      return {
+        sezzle: {
+          publicKey: selectedOption.sezzle.publicKey,
         },
       };
     }
@@ -1225,6 +1291,25 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           label: "",
           gateway: gateway || undefined,
           disabled,
+        },
+      ];
+    }
+
+    if (type === "sezzle") {
+      const publicKey = this.#toOptionalText(option.public_key);
+      if (!publicKey) {
+        return [];
+      }
+
+      return [
+        {
+          id: optionId,
+          type: "sezzle",
+          label: "",
+          disabled,
+          sezzle: {
+            publicKey,
+          },
         },
       ];
     }

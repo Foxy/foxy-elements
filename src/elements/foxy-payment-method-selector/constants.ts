@@ -3,6 +3,7 @@ export const CARD_TYPES = new Set(["new-card", "saved-card", "card"]);
 export const BUTTON_CLICK_HINT_OPTION_TYPES = new Set([
   "apple-pay",
   "google-pay",
+  "sezzle",
   "paypal",
   "paypal-pay-later",
   "paypal-credit",
