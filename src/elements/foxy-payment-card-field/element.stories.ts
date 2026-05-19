@@ -336,14 +336,27 @@ export const TokenizeSuccess: Story = {
   play: async ({ canvasElement, args }) => {
     const field = getPrimaryField(canvasElement);
     ensureCardReady(field);
+    const expectedLast4 = args.token.slice(-4).padStart(4, "0");
 
-    let eventDetail: { token: string; requestId?: string } | undefined;
+    let eventDetail:
+      | {
+          token: string;
+          requestId?: string;
+          cardBrand?: string;
+          last4?: string;
+        }
+      | undefined;
 
     field.addEventListener(
       "tokenizationsuccess",
       (event) => {
         eventDetail = (
-          event as CustomEvent<{ token: string; requestId?: string }>
+          event as CustomEvent<{
+            token: string;
+            requestId?: string;
+            cardBrand?: string;
+            last4?: string;
+          }>
         ).detail;
       },
       { once: true },
@@ -355,12 +368,16 @@ export const TokenizeSuccess: Story = {
     await expect(resultPromise).resolves.toEqual({
       token: args.token,
       requestId: args.requestId,
+      cardBrand: "visa",
+      last4: expectedLast4,
     });
 
     await waitFor(() => {
       expect(eventDetail).toEqual({
         token: args.token,
         requestId: args.requestId,
+        cardBrand: "visa",
+        last4: expectedLast4,
       });
     });
   },
@@ -497,6 +514,7 @@ export const FormIntegrationInteraction: Story = {
   play: async ({ canvasElement, args }) => {
     const field = getPrimaryField(canvasElement);
     const canvas = within(canvasElement);
+    const expectedLast4 = args.token.slice(-4).padStart(4, "0");
 
     dispatchCardValidation(field, {
       field: "cc_number",
@@ -531,6 +549,8 @@ export const FormIntegrationInteraction: Story = {
     await expect(tokenizePromise).resolves.toEqual({
       token: args.token,
       requestId: args.requestId,
+      cardBrand: "visa",
+      last4: expectedLast4,
     });
   },
 };

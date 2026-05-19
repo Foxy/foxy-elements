@@ -299,18 +299,6 @@ function resolveCssVariableLength(
   return resolved;
 }
 
-function incrementPx(
-  value: string | undefined,
-  increment: number,
-): string | undefined {
-  if (!value) return undefined;
-  const normalized = value.trim().toLowerCase();
-  if (!normalized.endsWith("px")) return undefined;
-  const parsed = Number.parseFloat(normalized);
-  if (!Number.isFinite(parsed)) return undefined;
-  return `${parsed + increment}px`;
-}
-
 function normalizeFontFamilyForStripe(
   value: string | undefined,
 ): string | undefined {

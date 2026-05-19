@@ -9,6 +9,8 @@ import type {
   PaymentMethodSelectorPayPalPlatformConfig,
   PaymentMethodSelectorTokenizePayload,
 } from "./types";
+import "../foxy-ach-field/element";
+import "../foxy-payment-card-field/element";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
 import { Alert, AlertDescription } from "@foxy.io/design-system/ui/alert";
 

@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { toInlineSvgDataUri } from "./shared";
 
 export default function SezzleMarkIcon({
   className,
