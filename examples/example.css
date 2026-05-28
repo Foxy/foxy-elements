@@ -1,0 +1,78 @@
+body {
+  display: grid;
+  gap: 24px;
+  padding: 16px;
+  margin: 0;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  background: #f3f5f7;
+}
+
+.example {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  align-items: start;
+  gap: 24px;
+  width: min(1200px, 100%);
+  margin: auto;
+
+  & .panel {
+    font-family: "IBM Plex Sans", "Geist", sans-serif;
+    display: grid;
+    gap: 12px;
+
+    & h1,
+    & p {
+      margin: 0;
+    }
+
+    & h1 {
+      font-weight: 700;
+      font-size: 18px;
+      line-height: 1.2;
+      color: #0f172a;
+      margin: 0;
+    }
+
+    & p {
+      font-size: 14px;
+      line-height: 1.5;
+      color: #475569;
+      margin: 0;
+    }
+
+    & .shell {
+      padding: 20px;
+      border-radius: 20px;
+      background: #ffffff;
+
+      &.dark {
+        background: #05080a;
+        font-family: monospace;
+
+        & foxy-payment-method-selector.contrast-dark {
+          --background: #060b08;
+          --foreground: #e7ffe8;
+          --card: #0b120d;
+          --card-foreground: #ecffed;
+          --primary: #8dff72;
+          --primary-foreground: #071108;
+          --muted: #101713;
+          --muted-foreground: #92b39a;
+          --destructive: #ff7d7d;
+          --border: #4f8c5c;
+          --input: #4f8c5c;
+          --ring: #8dff72;
+          --font-sans: monospace;
+          --radius: 0.3rem;
+          --spacing: 0.3rem;
+        }
+      }
+
+      & foxy-payment-method-selector {
+        width: min(640px, 100%);
+        margin: 0 auto;
+      }
+    }
+  }
+}

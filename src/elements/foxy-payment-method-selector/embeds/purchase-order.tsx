@@ -103,6 +103,7 @@ export default function PurchaseOrderOptionEmbed({
           placeholder={placeholder}
           disabled={disabled}
           aria-invalid={Boolean(error)}
+          className="text-foreground"
           required
           onChange={(event) => {
             const nextValue = event.target.value;

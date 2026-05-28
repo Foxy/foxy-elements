@@ -341,6 +341,7 @@ function resolveInputProbeStyle(probeElement: HTMLElement) {
   const inputProbe = ownerDocument.createElement("input");
   inputProbe.type = "text";
   inputProbe.className = FIELD_STYLE_PROBE_CLASS_NAME;
+  inputProbe.style.fontFamily = "var(--font-sans)";
   inputProbe.style.position = "absolute";
   inputProbe.style.opacity = "0";
   inputProbe.style.pointerEvents = "none";

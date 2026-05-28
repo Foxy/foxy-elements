@@ -8,7 +8,7 @@ Payment method selector element that renders available checkout payment options,
 
 Required attributes: none. The element still requires checkout client state to be initialized before it can render payment options and tokenize.
 
-For the <code>paypal_platform</code> gateway, the selector renders the base PayPal option plus the SDK-discovered PayPal-supported methods as first-class entries instead of collapsing them into a generic fallback. The standalone example pages under <code>examples/foxy-payment-method-selector/</code> include both a dedicated <code>paypal-platform.html</code> matrix and an <code>all-payment-methods.html</code> page that shows the same options alongside the rest of the selector surface.
+For the <code>paypal_platform</code> gateway, the selector renders the base PayPal option plus the SDK-discovered PayPal-supported methods as first-class entries instead of collapsing them into a generic fallback. The standalone PayPal examples now live under <code>examples/foxy-payment-method-selector/paypal_platform/</code> with buyer-country pages named <code>us.html</code>, <code>be.html</code>, <code>nl.html</code>, <code>at.html</code>, and <code>pl.html</code>, while the broader showcase moved to <code>examples/foxy-payment-method-selector/misc/all-payment-methods.html</code>.
 
 PayPal Pay Later renders a <code>paypal-message</code> element in the option description. The selector only hydrates that element through the PayPal surface already exposed on <code>@foxy.io/sdk/checkout/client</code>; it does not load the PayPal SDK directly. In the standalone example pages, the light-DOM fallback description remains visible unless the shared checkout client already has a hydrated PayPal surface.
 
@@ -22,19 +22,23 @@ If checkout state is initialized but exposes no recognized payment methods, the 
 
 Run <code>npm run localdev:examples</code> and open the standalone pages under <code>examples/foxy-payment-method-selector/</code>.
 
-- <code>uninitialized.html</code> shows the empty client state.
-- <code>stripe-payment-element.html</code>,
-  <code>stripe-card-element.html</code>, and <code>new-card.html</code> cover
-  the card-entry variants.
-- <code>klarna.html</code> prefers <code>VITE_KLARNA_INIT_RESPONSE</code> when
-  present and falls back to static demo categories otherwise.
-- <code>sezzle.html</code> shows the Sezzle selector option with an inline logo
-  and selector-only tokenization metadata.
-- <code>paypal-platform.html</code> and <code>all-payment-methods.html</code>
-  cover the flattened PayPal Platform options alongside Sezzle and the rest of
-  the selector surface.
+- Gateway-named root pages cover the SDK payment gateway ids directly, including <code>authorize.html</code>, <code>authorize_cim.html</code>, <code>braintree_sdk.html</code>, <code>bluesnap.html</code>, <code>cybersource_rest.html</code>, <code>bank_of_america.html</code>, <code>eway.html</code>, <code>firstdata_e4.html</code>, <code>moneris.html</code>, <code>nmi_native.html</code>, <code>paytrace.html</code>, <code>quickbook_payments.html</code>, <code>vantiv_omnipay.html</code>, <code>sagepay.html</code>, <code>stripe_connect.html</code>, <code>stripe_connect_charge.html</code>, <code>stripe_v2.html</code>, <code>authorize_ach.html</code>, <code>ach_com.html</code>, <code>klarna.html</code>, <code>sezzle.html</code>, and <code>mollie_omnipay.html</code>.
+- <code>examples/foxy-payment-method-selector/paypal_platform/us.html</code>,
+  <code>be.html</code>, <code>nl.html</code>, <code>at.html</code>, and
+  <code>pl.html</code> cover the PayPal Platform options by buyer market, and
+  their setup notes now live in
+  <code>examples/foxy-payment-method-selector/paypal_platform/README.md</code>.
+- <code>examples/foxy-payment-method-selector/misc/uninitialized.html</code>
+  shows the empty client state.
+- <code>examples/foxy-payment-method-selector/misc/new-card.html</code>,
+  <code>misc/saved-card.html</code>, <code>misc/apple-pay.html</code>,
+  <code>misc/google-pay.html</code>, <code>misc/purchase-order.html</code>, and
+  <code>misc/all-payment-methods.html</code> are non-gateway demos for selector
+  states and composed payment flows.
 
-Stripe examples read <code>VITE_STRIPE_PUBLISHABLE_KEY</code> first and fall back to <code>VITE_STRIPE_DEMO_PUBLISHABLE_KEY</code> or a safe demo key. PayPal Platform examples read <code>VITE_PAYPAL_SANDBOX_CLIENT_ID</code> when it is available. Sezzle examples read <code>VITE_SEZZLE_PUBLIC_KEY</code> when it is available and otherwise install a lightweight local <code>window.Checkout</code> mock so the selector can keep rendering the Sezzle option without a live Sezzle checkout session.
+Stripe examples read <code>VITE_STRIPE_PUBLISHABLE_KEY</code> first and fall back to <code>VITE_STRIPE_DEMO_PUBLISHABLE_KEY</code> or a safe demo key. The PayPal country pages under <code>examples/foxy-payment-method-selector/paypal_platform/</code> use matching sandbox client IDs: <code>us.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_US</code>, <code>be.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_BE</code>, <code>nl.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_NL</code>, <code>at.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_AT</code>, and <code>pl.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_PL</code>. Each page seeds the matching locale, currency, and buyer-country hint. The per-market setup details and expected methods now live in <code>examples/foxy-payment-method-selector/paypal_platform/README.md</code>. Sezzle examples read <code>VITE_SEZZLE_PUBLIC_KEY</code> when it is available and otherwise install a lightweight local <code>window.Checkout</code> mock so the selector can keep rendering the Sezzle option without a live Sezzle checkout session. The SDK also includes <code>adyen_embedded</code> in its gateway list, but this examples folder does not currently include an Adyen page because the selector does not synthesize a standalone option from gateway-only fixture data.
+
+The standard card, Stripe, and PayPal example pages also seed a single saved payment method through <code>saved_payment_methods</code> so each supported example can demonstrate the saved-card option alongside the gateway-specific flow.
 
 ## Attributes
 
@@ -117,6 +121,15 @@ Stripe examples read <code>VITE_STRIPE_PUBLISHABLE_KEY</code> first and fall bac
       <td>Foreground color token on primary surfaces.</td>
       <td>
         <code>#ffffff</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-muted</code>
+      </td>
+      <td>Muted surface token used for hover and subdued backgrounds.</td>
+      <td>
+        <code>#f1f5f9</code>
       </td>
     </tr>
     <tr>
@@ -331,6 +344,18 @@ remain the inherited <code>HTMLElement</code> property.
       <td>
         Reflects <code>theme-primary-foreground</code> for text on primary
         surfaces.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeMuted</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-muted</code> for hover surfaces and subdued
+        backgrounds.
       </td>
     </tr>
     <tr>

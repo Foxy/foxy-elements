@@ -26,6 +26,10 @@ export const messages = defineMessages({
     id: "payment_option_label_google_pay",
     defaultMessage: "Google Pay",
   },
+  optionLabelMollie: {
+    id: "payment_option_label_mollie",
+    defaultMessage: "Pay via Mollie",
+  },
   optionLabelSezzle: {
     id: "payment_option_label_sezzle",
     defaultMessage: "Buy Now, Pay Later with Sezzle",
@@ -124,6 +128,11 @@ export const messages = defineMessages({
     id: "payment_option_description_google_pay",
     defaultMessage:
       "Click the Google Pay button under the order summary to submit your order.",
+  },
+  optionDescriptionMollie: {
+    id: "payment_option_description_mollie",
+    defaultMessage:
+      "Click the Submit button under the order summary to submit your order",
   },
   optionDescriptionSezzle: {
     id: "payment_option_description_sezzle",
@@ -344,6 +353,7 @@ export const OPTION_LABEL_BY_TYPE: Partial<Record<string, MessageDescriptor>> =
     ach: messages.optionLabelAch,
     "apple-pay": messages.optionLabelApplePay,
     "google-pay": messages.optionLabelGooglePay,
+    mollie: messages.optionLabelMollie,
     sezzle: messages.optionLabelSezzle,
     paypal: messages.optionLabelPayPal,
     "paypal-pay-later": messages.optionLabelPayPalPayLater,
@@ -372,6 +382,7 @@ export const OPTION_DESCRIPTION_BY_TYPE: Partial<
   ach: messages.optionDescriptionAch,
   "apple-pay": messages.optionDescriptionApplePay,
   "google-pay": messages.optionDescriptionGooglePay,
+  mollie: messages.optionDescriptionMollie,
   sezzle: messages.optionDescriptionSezzle,
   paypal: messages.optionDescriptionPayPal,
   "paypal-pay-later": messages.optionDescriptionPayPalPayLater,

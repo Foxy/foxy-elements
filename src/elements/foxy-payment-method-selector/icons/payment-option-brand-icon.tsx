@@ -11,6 +11,7 @@ import {
 
 const ApplePayMarkIcon = lazy(() => import("./apple-pay"));
 const GooglePayMarkIcon = lazy(() => import("./google-pay"));
+const MollieMarkIcon = lazy(() => import("./mollie"));
 const PayPalMarkIcon = lazy(() => import("./paypal"));
 const VenmoMarkIcon = lazy(() => import("./venmo"));
 const IdealMarkIcon = lazy(() => import("./ideal"));
@@ -143,6 +144,16 @@ export function PaymentOptionBrandIcon({
           aria-hidden
         >
           <GooglePayMarkIcon className="h-5 w-auto" />
+        </span>
+      </Suspense>
+    );
+  }
+
+  if (option.type === "mollie") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        <span className="inline-flex h-5 shrink-0 items-center" aria-hidden>
+          <MollieMarkIcon className="h-5 w-auto" />
         </span>
       </Suspense>
     );

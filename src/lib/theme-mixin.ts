@@ -36,6 +36,11 @@ const THEME_DEFINITIONS = [
     cssVariable: "--primary-foreground",
   },
   {
+    property: "themeMuted",
+    attribute: "theme-muted",
+    cssVariable: "--muted",
+  },
+  {
     property: "themeMutedForeground",
     attribute: "theme-muted-foreground",
     cssVariable: "--muted-foreground",

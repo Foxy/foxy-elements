@@ -104,7 +104,7 @@ function renderBillingField(
           setValues((prev) => ({ ...prev, [field.id]: nextValue ?? "" }));
         }}
       >
-        <SelectTrigger id={field.id} className="w-full">
+        <SelectTrigger id={field.id} className="w-full text-foreground">
           <SelectValue placeholder={intl.formatMessage(selectPlaceholder)} />
         </SelectTrigger>
         <SelectContent>
@@ -126,6 +126,7 @@ function renderBillingField(
       value={value}
       placeholder={field.placeholder}
       disabled={fieldDisabled}
+      className="text-foreground"
       required={field.required}
       onChange={(event) => {
         const nextValue = event.target.value;

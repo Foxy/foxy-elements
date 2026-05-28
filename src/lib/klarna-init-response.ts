@@ -1,10 +1,12 @@
-import type { PaymentOption } from "@foxy.io/sdk/checkout";
 import type { PaymentMethodSelectorKlarnaCategory } from "@/elements/foxy-payment-method-selector/types";
 
-type KlarnaServerPaymentOption = Extract<
-  PaymentOption,
-  { type: "klarna"; gateway: "klarna" }
->;
+type KlarnaServerPaymentOption = {
+  type: "klarna";
+  gateway: "klarna";
+  session_id: string;
+  client_token: string;
+  payment_method_categories: PaymentMethodSelectorKlarnaCategory[];
+};
 
 type BufferLike = {
   from(

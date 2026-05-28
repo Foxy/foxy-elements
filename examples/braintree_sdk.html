@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>foxy-payment-method-selector • Purchase Order</title>
+    <title>foxy-payment-method-selector • braintree_sdk</title>
+    <link rel="stylesheet" href="./example.css" />
     <script
       type="module"
       src="/src/elements/foxy-payment-method-selector/index.ts"
@@ -25,9 +26,9 @@
           first_name: "John",
           last_name: "Doe",
           email: "john.doe@example.com",
-          type: "guest",
-          id: null,
-          token: null,
+          type: "registered",
+          id: 123456,
+          token: "jwt_demo_customer_token",
         },
         shipments: [
           {
@@ -132,7 +133,17 @@
           has_eligible_coupons: true,
           supported_payment_cards: ["visa", "mastercard", "amex"],
         },
-        payment_options: [{ type: "purchase_order" }],
+        saved_payment_methods: [
+          {
+            gateway: "braintree_sdk",
+            brand: "Visa",
+            last_4: "4242",
+            expiry_month: "12",
+            expiry_year: "2030",
+            id: "pt_saved_4242",
+          },
+        ],
+        payment_gateways: [{ type: "braintree_sdk" }],
         messages: [],
         language_strings: {},
         custom_fields: {},
@@ -163,19 +174,27 @@
     </script>
   </head>
   <body>
-    <style>
-      body {
-        display: flex;
-        padding: 16px;
-        margin: 0;
-        min-height: calc(100dvh - 32px);
-      }
-      foxy-payment-method-selector {
-        flex: 1;
-        margin: auto;
-        max-width: 640px;
-      }
-    </style>
-    <foxy-payment-method-selector></foxy-payment-method-selector>
+    <main class="example">
+      <section class="panel">
+        <div>
+          <h1>Default Theme</h1>
+          <p>Unstyled selector using the component defaults.</p>
+        </div>
+        <div class="shell">
+          <foxy-payment-method-selector></foxy-payment-method-selector>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div>
+          <h1>Custom Theme</h1>
+          <p>Selector themed with a custom dark preset.</p>
+        </div>
+        <div class="shell dark">
+          <foxy-payment-method-selector class="contrast-dark"
+          ></foxy-payment-method-selector>
+        </div>
+      </section>
+    </main>
   </body>
 </html>

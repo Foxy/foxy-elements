@@ -60,23 +60,6 @@ export default function AchOptionEmbed({
   );
 
   useEffect(() => {
-    const fields = option.hostedFields;
-    if (!fields) return;
-
-    for (const fieldName of ACH_FIELDS) {
-      const element = refs.current[fieldName];
-      if (!element) continue;
-
-      element.group = group;
-      element.type = fieldName;
-      element.placeholder = fields.placeholders?.[fieldName];
-      element.accountTypeValues =
-        fieldName === "account-type" ? fields.accountTypeValues : undefined;
-      element.disabled = Boolean(disabled);
-    }
-  }, [disabled, option.hostedFields, group]);
-
-  useEffect(() => {
     if (!option.hostedFields) return;
 
     const firstMounted = ACH_FIELDS.map((field) => refs.current[field]).find(
@@ -150,7 +133,16 @@ export default function AchOptionEmbed({
               <Field key={fieldName}>
                 <FieldLabel>{label}</FieldLabel>
                 <foxy-ach-field
+                  type={fieldName}
+                  group={group}
                   lang={lang}
+                  placeholder={option.hostedFields?.placeholders?.[fieldName]}
+                  account-type-values={
+                    fieldName === "account-type"
+                      ? option.hostedFields?.accountTypeValues?.join(",")
+                      : undefined
+                  }
+                  disabled={disabled || undefined}
                   className="border-input dark:bg-input/30 state-focused:border-ring state-focused:ring-ring/50 state-user-invalid:border-destructive state-user-invalid:ring-destructive/20 dark:state-user-invalid:ring-destructive/40 state-user-invalid:ring-3 state-focused:ring-3 state-disabled:bg-input/50 dark:state-disabled:bg-input/80 state-disabled:opacity-50 rounded-lg border transition-colors relative flex w-full min-w-0 items-center overflow-hidden outline-none block min-h-8"
                   theme-input-height={styleAttributes.inputHeight}
                   theme-input-padding={styleAttributes.inputPadding}

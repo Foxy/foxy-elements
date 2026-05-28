@@ -21,11 +21,11 @@ export default function SezzleMarkIcon({
         y2="97.49"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" stop-color="#ce5dcb" />
-        <stop offset=".21" stop-color="#c558cc" />
-        <stop offset=".55" stop-color="#ac4acf" />
-        <stop offset=".98" stop-color="#8534d4" />
-        <stop offset="1" stop-color="#8333d4" />
+        <stop offset="0" stopColor="#ce5dcb" />
+        <stop offset=".21" stopColor="#c558cc" />
+        <stop offset=".55" stopColor="#ac4acf" />
+        <stop offset=".98" stopColor="#8534d4" />
+        <stop offset="1" stopColor="#8333d4" />
       </linearGradient>
       <path
         fill="url(#SVGID_1_)"
@@ -39,9 +39,9 @@ export default function SezzleMarkIcon({
         y2="92.15"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset=".02" stop-color="#ff5667" />
-        <stop offset=".66" stop-color="#fc8b82" />
-        <stop offset="1" stop-color="#fba28e" />
+        <stop offset=".02" stopColor="#ff5667" />
+        <stop offset=".66" stopColor="#fc8b82" />
+        <stop offset="1" stopColor="#fba28e" />
       </linearGradient>
       <path
         fill="url(#SVGID_2_)"
@@ -61,10 +61,10 @@ export default function SezzleMarkIcon({
         y2="67.1"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" stop-color="#00b874" />
-        <stop offset=".51" stop-color="#29d3a2" />
-        <stop offset=".68" stop-color="#53dfb6" />
-        <stop offset="1" stop-color="#9ff4d9" />
+        <stop offset="0" stopColor="#00b874" />
+        <stop offset=".51" stopColor="#29d3a2" />
+        <stop offset=".68" stopColor="#53dfb6" />
+        <stop offset="1" stopColor="#9ff4d9" />
       </linearGradient>
       <use xlinkHref="#SVGID_3_" fill="url(#SVGID_4_)" overflow="visible" />
       <linearGradient
@@ -75,9 +75,9 @@ export default function SezzleMarkIcon({
         y2="132.46"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" stop-color="#fcd77e" />
-        <stop offset=".52" stop-color="#fea500" />
-        <stop offset="1" stop-color="#ff5b00" />
+        <stop offset="0" stopColor="#fcd77e" />
+        <stop offset=".52" stopColor="#fea500" />
+        <stop offset="1" stopColor="#ff5b00" />
       </linearGradient>
       <path
         fill="url(#SVGID_6_)"

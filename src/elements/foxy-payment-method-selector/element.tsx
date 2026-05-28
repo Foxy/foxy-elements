@@ -43,10 +43,47 @@ export { paymentMethodSelectorEvents } from "./events";
 type CheckoutApiLike = EventTarget & {
   state?: unknown;
   json?: unknown;
+  paypal?: unknown;
+  klarna?: unknown;
+  sezzle?: unknown;
+  adyenEmbedded?: unknown;
   updateBillingAddress?: (
     changes: Record<string, unknown>,
   ) => Promise<unknown> | void;
 };
+
+const PAYPAL_UNDOCUMENTED_APMS = [
+  {
+    eligibilityKey: "bancontact",
+    type: "bancontact",
+    sessionCreator: "createBancontactOneTimePaymentSession",
+  },
+  {
+    eligibilityKey: "sepa",
+    type: "sepa",
+    sessionCreator: "createSepaOneTimePaymentSession",
+  },
+  {
+    eligibilityKey: "ideal",
+    type: "ideal",
+    sessionCreator: "createIdealOneTimePaymentSession",
+  },
+  {
+    eligibilityKey: "eps",
+    type: "eps",
+    sessionCreator: "createEpsOneTimePaymentSession",
+  },
+  {
+    eligibilityKey: "blik",
+    type: "blik",
+    sessionCreator: "createBlikOneTimePaymentSession",
+  },
+  {
+    eligibilityKey: "p24",
+    type: "przelewy24",
+    sessionCreator: "createP24OneTimePaymentSession",
+  },
+] as const;
 
 const LANG_ATTRIBUTE = "lang";
 const OPTION_INDEX_ATTRIBUTE = "option-index";
@@ -75,6 +112,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #lightDomStripeRoots = new Map<string, Root>();
   #stripeSyncVersion = 0;
   #checkoutClient = checkoutClient as CheckoutApiLike;
+  #options: PaymentMethodSelectorOption[] = [];
+  #optionsLoading = false;
+  #optionsPromise: Promise<PaymentMethodSelectorOption[]> | null = null;
+  #optionsRequestVersion = 0;
 
   static get observedAttributes(): string[] {
     return [
@@ -88,6 +129,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     super();
     this.#shadowRootRef = this.attachShadow({ mode: "open" });
     this.#container = document.createElement("div");
+    this.#container.style.fontFamily = "var(--font-sans)";
+    this.#container.style.color = "var(--foreground)";
     this.#shadowRootRef.append(this.#container);
   }
 
@@ -124,7 +167,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     try {
-      const options = this.#resolveOptions();
+      const options = await this.#waitForOptions();
       const optionIndex = this.#resolveSelectedOptionIndex(options);
       const selectedOption =
         optionIndex === undefined ? undefined : options[optionIndex];
@@ -210,6 +253,18 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
   }
 
+  async #waitForOptions(): Promise<PaymentMethodSelectorOption[]> {
+    if (this.#optionsPromise) {
+      try {
+        await this.#optionsPromise;
+      } catch {
+        // Fall back to the most recent cached options on generation errors.
+      }
+    }
+
+    return this.#resolveOptions();
+  }
+
   async #awaitController(
     optionId: string,
   ): Promise<PaymentController | undefined> {
@@ -253,6 +308,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     this.#syncThemeAttributesToHostStyles();
     this.#addApiSubscriptions();
     this.#startUninitializedAlertGracePeriod();
+    void this.#refreshOptions();
     this.#render();
   }
 
@@ -266,6 +322,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     this.#billingErrorsByOption.clear();
     this.#billingRequestVersionByOption.clear();
     this.#stripeSyncVersion += 1;
+    this.#optionsRequestVersion += 1;
+    this.#optionsLoading = false;
+    this.#optionsPromise = null;
+    this.#options = [];
     this.#cleanupAllStripeHosts();
   }
 
@@ -336,6 +396,14 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     this.#canRenderUninitializedAlert = true;
 
     const options = this.#resolveOptions();
+
+    if (this.#optionsLoading && options.length === 0) {
+      this.#renderLoadingState();
+      this.#scheduleStripeLightDomSync(undefined);
+      this.#applyStylesheet();
+      return;
+    }
+
     const selectedOptionId = this.#resolveSelectedOptionId(options);
     const billingAddress = this.#resolveBillingAddress();
     const locale = this.#resolveLocale();
@@ -352,7 +420,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           selectedOptionId={selectedOptionId}
           lang={locale}
           disabled={false}
-          loading={this.#loading}
+          loading={this.#loading || this.#optionsLoading}
           billingAddress={billingAddress}
           billingError={
             selectedOptionId
@@ -474,7 +542,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       this.#canRenderUninitializedAlert = true;
     }
 
-    this.#render();
+    void this.#refreshOptions();
   };
 
   #startUninitializedAlertGracePeriod() {
@@ -910,6 +978,495 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return this.#asRecord(this.#checkoutClient?.json);
   }
 
+  async #refreshOptions(): Promise<void> {
+    const apiState = this.#resolveApiState();
+    const requestVersion = this.#optionsRequestVersion + 1;
+    this.#optionsRequestVersion = requestVersion;
+
+    if (!apiState) {
+      this.#optionsLoading = false;
+      this.#optionsPromise = null;
+      this.#options = [];
+      this.#render();
+      return;
+    }
+
+    this.#optionsLoading = true;
+
+    const promise = this.#generateOptions(apiState)
+      .then((options) => {
+        if (requestVersion !== this.#optionsRequestVersion) {
+          return this.#options;
+        }
+
+        this.#options = options;
+        this.#optionsLoading = false;
+        this.#optionsPromise = null;
+        this.#render();
+        return options;
+      })
+      .catch(() => {
+        if (requestVersion !== this.#optionsRequestVersion) {
+          return this.#options;
+        }
+
+        this.#options = [];
+        this.#optionsLoading = false;
+        this.#optionsPromise = null;
+        this.#render();
+        return [];
+      });
+
+    this.#optionsPromise = promise;
+    this.#render();
+    await promise;
+  }
+
+  #getArrayRecords(value: unknown): Record<string, unknown>[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    return value.flatMap((entry) => {
+      const record = this.#asRecord(entry);
+      return record ? [record] : [];
+    });
+  }
+
+  #createSavedPaymentMethodEntries(
+    apiState: Record<string, unknown>,
+  ): Record<string, unknown>[] {
+    return this.#getArrayRecords(apiState.saved_payment_methods).map(
+      (savedPaymentMethod) => ({
+        type: "saved-card",
+        gateway: this.#toOptionalText(savedPaymentMethod.gateway),
+        payment_method: {
+          brand: savedPaymentMethod.brand,
+          last_4: savedPaymentMethod.last_4,
+          expiry_month: savedPaymentMethod.expiry_month,
+          expiry_year: savedPaymentMethod.expiry_year,
+          payment_method_id:
+            this.#toOptionalText(savedPaymentMethod.id) ??
+            this.#toOptionalText(savedPaymentMethod.payment_method_id) ??
+            this.#toOptionalText(savedPaymentMethod.payment_token),
+        },
+      }),
+    );
+  }
+
+  #createStandardCardGatewayEntries(
+    gateway: string,
+    config: Record<string, unknown>,
+  ): Record<string, unknown>[] {
+    const entries: Record<string, unknown>[] = [];
+    const applePay = this.#asRecord(config.apple_pay);
+    const googlePay = this.#asRecord(config.google_pay);
+    const gatewayDisabled = config.disabled === true;
+    const applePaySession = (
+      globalThis as typeof globalThis & {
+        ApplePaySession?: { canMakePayments?: () => boolean };
+      }
+    ).ApplePaySession;
+    const canMakeApplePayPayments =
+      typeof applePaySession?.canMakePayments === "function"
+        ? Boolean(applePaySession.canMakePayments())
+        : false;
+
+    if (applePay && canMakeApplePayPayments) {
+      entries.push({
+        type: "apple-pay",
+        gateway,
+        merchant_id: this.#toOptionalText(applePay.merchant_id),
+        disabled: gatewayDisabled || applePay.disabled === true,
+      });
+    }
+
+    if (googlePay) {
+      const gatewayParameters = this.#asRecord(googlePay.gateway_parameters);
+      const normalizedGatewayParameters = gatewayParameters
+        ? Object.fromEntries(
+            Object.entries(gatewayParameters).flatMap(([key, value]) =>
+              typeof value === "string" ? [[key, value]] : [],
+            ),
+          )
+        : undefined;
+
+      entries.push({
+        type: "google-pay",
+        gateway,
+        merchant_id: this.#toOptionalText(googlePay.merchant_id),
+        disabled: gatewayDisabled || googlePay.disabled === true,
+        gateway_parameters:
+          normalizedGatewayParameters &&
+          Object.keys(normalizedGatewayParameters).length > 0
+            ? normalizedGatewayParameters
+            : undefined,
+      });
+    }
+
+    entries.push({ type: "new-card", gateway, disabled: gatewayDisabled });
+    return entries;
+  }
+
+  #buildPayPalEligibilityOptions(
+    apiState: Record<string, unknown>,
+  ): Record<string, unknown> {
+    const options: Record<string, unknown> = {
+      paymentFlow: "ONE_TIME_PAYMENT",
+    };
+    const amount = this.#getPayPalMessageAmount(apiState);
+
+    if (amount) {
+      options.amount = amount;
+    }
+
+    const format = this.#asRecord(apiState.format);
+    const currencyCode = this.#toOptionalText(format?.currency_code);
+
+    if (currencyCode) {
+      options.currencyCode = currencyCode;
+    }
+
+    return options;
+  }
+
+  #getPayPalDiscoveryRecord(): Record<string, unknown> | null {
+    return this.#asRecord(this.#checkoutClient?.paypal);
+  }
+
+  #hasPayPalSessionCreator(
+    paypal: Record<string, unknown>,
+    methodName: string,
+  ): boolean {
+    return typeof paypal[methodName] === "function";
+  }
+
+  #isEligiblePayPalMethod(
+    eligibility: Record<string, unknown> | null,
+    fundingSource: string,
+  ): boolean {
+    if (!eligibility || typeof eligibility.isEligible !== "function") {
+      return false;
+    }
+
+    try {
+      return Boolean(
+        (eligibility.isEligible as (fundingSource: string) => boolean)(
+          fundingSource,
+        ),
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  #getPayPalEligibilityDetails(
+    eligibility: Record<string, unknown> | null,
+    fundingSource: string,
+  ): Record<string, unknown> | null {
+    if (!eligibility || typeof eligibility.getDetails !== "function") {
+      return null;
+    }
+
+    try {
+      return this.#asRecord(
+        (eligibility.getDetails as (fundingSource: string) => unknown)(
+          fundingSource,
+        ),
+      );
+    } catch {
+      return null;
+    }
+  }
+
+  #getGooglePayGatewayParameters(
+    details: Record<string, unknown> | null,
+  ): Record<string, string> | undefined {
+    const config = this.#asRecord(details?.config);
+    const allowedPaymentMethods = Array.isArray(config?.allowedPaymentMethods)
+      ? config.allowedPaymentMethods
+      : [];
+    const allowedPaymentMethod = this.#asRecord(allowedPaymentMethods[0]);
+    const tokenizationSpecification = this.#asRecord(
+      allowedPaymentMethod?.tokenizationSpecification,
+    );
+    const parameters = this.#asRecord(tokenizationSpecification?.parameters);
+
+    if (!parameters) {
+      return undefined;
+    }
+
+    const gatewayParameters = Object.fromEntries(
+      Object.entries(parameters).flatMap(([key, value]) =>
+        typeof value === "string" ? [[key, value]] : [],
+      ),
+    );
+
+    return Object.keys(gatewayParameters).length
+      ? gatewayParameters
+      : undefined;
+  }
+
+  async #createPayPalGatewayEntries(
+    config: Record<string, unknown>,
+    apiState: Record<string, unknown>,
+  ): Promise<Record<string, unknown>[]> {
+    const clientId = this.#toOptionalText(config.client_id);
+
+    if (!clientId) {
+      return [];
+    }
+
+    const entries: Record<string, unknown>[] = [
+      {
+        type: "paypal",
+        gateway: "paypal_platform",
+        client_id: clientId,
+      },
+    ];
+    const paypal = this.#getPayPalDiscoveryRecord();
+
+    if (!paypal || typeof paypal.findEligibleMethods !== "function") {
+      return entries;
+    }
+
+    let eligibility: Record<string, unknown> | null = null;
+
+    try {
+      eligibility = this.#asRecord(
+        await (
+          paypal.findEligibleMethods as (
+            options: Record<string, unknown>,
+          ) => Promise<unknown>
+        )(this.#buildPayPalEligibilityOptions(apiState)),
+      );
+    } catch {
+      return entries;
+    }
+
+    if (
+      this.#isEligiblePayPalMethod(eligibility, "advanced_cards") &&
+      this.#hasPayPalSessionCreator(
+        paypal,
+        "createCardFieldsOneTimePaymentSession",
+      )
+    ) {
+      entries.push({
+        type: "new-card",
+        gateway: "paypal_platform",
+        client_id: clientId,
+      });
+    }
+
+    if (
+      this.#isEligiblePayPalMethod(eligibility, "applepay") &&
+      this.#hasPayPalSessionCreator(
+        paypal,
+        "createApplePayOneTimePaymentSession",
+      )
+    ) {
+      entries.push({
+        type: "apple-pay",
+        gateway: "paypal_platform",
+        client_id: clientId,
+      });
+    }
+
+    if (
+      this.#isEligiblePayPalMethod(eligibility, "googlepay") &&
+      this.#hasPayPalSessionCreator(
+        paypal,
+        "createGooglePayOneTimePaymentSession",
+      )
+    ) {
+      const details = this.#getPayPalEligibilityDetails(
+        eligibility,
+        "googlepay",
+      );
+      const configRecord = this.#asRecord(details?.config);
+      const merchantInfo = this.#asRecord(configRecord?.merchantInfo);
+
+      entries.push({
+        type: "google-pay",
+        gateway: "paypal_platform",
+        client_id: clientId,
+        merchant_id: this.#toOptionalText(merchantInfo?.merchantId),
+        gateway_parameters: this.#getGooglePayGatewayParameters(details),
+      });
+    }
+
+    if (
+      this.#isEligiblePayPalMethod(eligibility, "paylater") &&
+      this.#hasPayPalSessionCreator(
+        paypal,
+        "createPayLaterOneTimePaymentSession",
+      )
+    ) {
+      entries.push({
+        type: "paypal-pay-later",
+        gateway: "paypal_platform",
+        client_id: clientId,
+      });
+    }
+
+    if (
+      this.#isEligiblePayPalMethod(eligibility, "credit") &&
+      this.#hasPayPalSessionCreator(
+        paypal,
+        "createPayPalCreditOneTimePaymentSession",
+      )
+    ) {
+      entries.push({
+        type: "paypal-credit",
+        gateway: "paypal_platform",
+        client_id: clientId,
+      });
+    }
+
+    if (
+      this.#isEligiblePayPalMethod(eligibility, "venmo") &&
+      this.#hasPayPalSessionCreator(paypal, "createVenmoOneTimePaymentSession")
+    ) {
+      entries.push({
+        type: "venmo",
+        gateway: "paypal_platform",
+        client_id: clientId,
+      });
+    }
+
+    for (const apm of PAYPAL_UNDOCUMENTED_APMS) {
+      if (
+        this.#isEligiblePayPalMethod(eligibility, apm.eligibilityKey) &&
+        this.#hasPayPalSessionCreator(paypal, apm.sessionCreator)
+      ) {
+        entries.push({
+          type: apm.type,
+          gateway: "paypal_platform",
+          client_id: clientId,
+        });
+      }
+    }
+
+    return entries;
+  }
+
+  async #createPaymentGatewayEntries(
+    config: Record<string, unknown>,
+    apiState: Record<string, unknown>,
+  ): Promise<Record<string, unknown>[]> {
+    const gateway = this.#toOptionalText(config.type);
+
+    if (!gateway) {
+      return [];
+    }
+
+    if (gateway === "purchase_order" || gateway === "purchase-order") {
+      return [{ type: "purchase-order" }];
+    }
+
+    if (gateway === "paypal_platform") {
+      return await this.#createPayPalGatewayEntries(config, apiState);
+    }
+
+    if (gateway === "klarna") {
+      return [
+        {
+          type: "klarna",
+          gateway,
+          session_id: this.#toOptionalText(config.session_id),
+          client_token: this.#toOptionalText(config.client_token),
+          payment_method_categories: Array.isArray(
+            config.payment_method_categories,
+          )
+            ? config.payment_method_categories
+            : [],
+        },
+      ];
+    }
+
+    if (gateway === "sezzle") {
+      return [
+        {
+          type: "sezzle",
+          public_key: this.#toOptionalText(config.public_key),
+        },
+      ];
+    }
+
+    if (gateway === "mollie_omnipay") {
+      return [{ type: "mollie", gateway }];
+    }
+
+    if (gateway === "stripe_v2") {
+      return [
+        {
+          type: "stripe-payment-element",
+          gateway,
+          publishable_key: this.#toOptionalText(config.publishable_key),
+          locale: this.#toOptionalText(config.locale),
+        },
+      ];
+    }
+
+    if (gateway === "stripe_connect" || gateway === "stripe_connect_charge") {
+      return [
+        {
+          type: "stripe-card-element",
+          gateway,
+          publishable_key: this.#toOptionalText(config.publishable_key),
+        },
+      ];
+    }
+
+    if (Array.isArray(config.fields) && Array.isArray(config.account_types)) {
+      return [
+        {
+          type: "ach",
+          gateway,
+          fields: config.fields,
+          account_types: config.account_types,
+        },
+      ];
+    }
+
+    if (gateway === "adyen_embedded") {
+      return [];
+    }
+
+    return this.#createStandardCardGatewayEntries(gateway, config);
+  }
+
+  async #createSyntheticPaymentOptions(
+    apiState: Record<string, unknown>,
+  ): Promise<Record<string, unknown>[]> {
+    const savedPaymentMethodEntries =
+      this.#createSavedPaymentMethodEntries(apiState);
+    const paymentGatewayConfigs = this.#getArrayRecords(
+      apiState.payment_gateways,
+    );
+    const paymentGatewayEntries = await Promise.all(
+      paymentGatewayConfigs.map((config) =>
+        this.#createPaymentGatewayEntries(config, apiState),
+      ),
+    );
+
+    return [...savedPaymentMethodEntries, ...paymentGatewayEntries.flat()];
+  }
+
+  async #generateOptions(
+    apiState: Record<string, unknown>,
+  ): Promise<PaymentMethodSelectorOption[]> {
+    const paymentOptions = await this.#createSyntheticPaymentOptions(apiState);
+
+    return paymentOptions.flatMap((entry, index) => {
+      const option = this.#asRecord(entry);
+
+      return option && typeof option.type === "string"
+        ? this.#createNormalizedOption(option, index, apiState)
+        : [];
+    });
+  }
+
   #getStripePaymentElementAmount(
     apiState: Record<string, unknown>,
   ): number | undefined {
@@ -1297,6 +1854,18 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       ];
     }
 
+    if (type === "mollie") {
+      return [
+        {
+          id: optionId,
+          type: "mollie",
+          label: "",
+          gateway: gateway || undefined,
+          disabled,
+        },
+      ];
+    }
+
     if (type === "sezzle") {
       const publicKey = this.#toOptionalText(option.public_key);
       if (!publicKey) {
@@ -1332,27 +1901,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   }
 
   #resolveOptions(): PaymentMethodSelectorOption[] {
-    const apiState = this.#resolveApiState();
-    if (!apiState) return [];
-
-    const paymentOptions = Array.isArray(apiState.payment_options)
-      ? apiState.payment_options
-      : [];
-
-    const inferred = paymentOptions.flatMap((entry, index) => {
-      const option = this.#asRecord(entry);
-      if (!option) return [];
-
-      return typeof option.type === "string"
-        ? this.#createNormalizedOption(option, index, apiState)
-        : [];
-    });
-
-    if (inferred.length) {
-      return inferred;
-    }
-
-    return [];
+    return this.#options;
   }
 
   #resolveBillingAddress(): PaymentMethodSelectorBillingAddress | undefined {

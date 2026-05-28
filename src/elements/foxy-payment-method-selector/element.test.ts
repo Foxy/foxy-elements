@@ -7,6 +7,55 @@ import {
 
 import { PaymentMethodSelectorElement } from "./element";
 
+type PayPalPlatformTestOptionType =
+  | "paypal"
+  | "new-card"
+  | "apple-pay"
+  | "google-pay"
+  | "paypal-pay-later"
+  | "paypal-credit"
+  | "venmo"
+  | "sepa"
+  | "bancontact"
+  | "eps"
+  | "blik"
+  | "ideal"
+  | "przelewy24";
+
+const PAYPAL_PLATFORM_ELIGIBILITY_KEY_BY_OPTION_TYPE: Partial<
+  Record<PayPalPlatformTestOptionType, string>
+> = {
+  "new-card": "advanced_cards",
+  "apple-pay": "applepay",
+  "google-pay": "googlepay",
+  "paypal-pay-later": "paylater",
+  "paypal-credit": "credit",
+  venmo: "venmo",
+  sepa: "sepa",
+  bancontact: "bancontact",
+  eps: "eps",
+  blik: "blik",
+  ideal: "ideal",
+  przelewy24: "p24",
+};
+
+const PAYPAL_PLATFORM_SESSION_CREATOR_BY_OPTION_TYPE: Partial<
+  Record<PayPalPlatformTestOptionType, string>
+> = {
+  "new-card": "createCardFieldsOneTimePaymentSession",
+  "apple-pay": "createApplePayOneTimePaymentSession",
+  "google-pay": "createGooglePayOneTimePaymentSession",
+  "paypal-pay-later": "createPayLaterOneTimePaymentSession",
+  "paypal-credit": "createPayPalCreditOneTimePaymentSession",
+  venmo: "createVenmoOneTimePaymentSession",
+  sepa: "createSepaOneTimePaymentSession",
+  bancontact: "createBancontactOneTimePaymentSession",
+  eps: "createEpsOneTimePaymentSession",
+  blik: "createBlikOneTimePaymentSession",
+  ideal: "createIdealOneTimePaymentSession",
+  przelewy24: "createP24OneTimePaymentSession",
+};
+
 function overrideCheckoutClient(properties: Record<string, unknown>) {
   const descriptors = new Map<string, PropertyDescriptor | undefined>();
 
@@ -34,7 +83,11 @@ function overrideClientState(
   json: unknown = undefined,
   extraProperties: Record<string, unknown> = {},
 ) {
-  return overrideCheckoutClient({ state, json, ...extraProperties });
+  return overrideCheckoutClient({
+    state,
+    json,
+    ...extraProperties,
+  });
 }
 
 async function waitForRender(): Promise<void> {
@@ -93,6 +146,63 @@ async function setTextInputValue(
   await waitForRender();
 }
 
+function createPayPalPlatformMock(
+  optionTypes: PayPalPlatformTestOptionType[],
+  overrides: Record<string, unknown> = {},
+) {
+  const eligibleFundingSources = new Set(
+    optionTypes.flatMap((type) => {
+      const eligibilityKey =
+        PAYPAL_PLATFORM_ELIGIBILITY_KEY_BY_OPTION_TYPE[type];
+
+      return eligibilityKey ? [eligibilityKey] : [];
+    }),
+  );
+
+  const paypal: Record<string, unknown> = {
+    findEligibleMethods: vi.fn(async () => ({
+      isEligible: (fundingSource: string) =>
+        eligibleFundingSources.has(fundingSource),
+      getDetails: (fundingSource: string) => {
+        if (fundingSource !== "googlepay") {
+          return null;
+        }
+
+        return {
+          config: {
+            merchantInfo: {
+              merchantId: "google-merchant-id",
+            },
+            allowedPaymentMethods: [
+              {
+                tokenizationSpecification: {
+                  parameters: {
+                    gateway: "paypal",
+                    gatewayMerchantId: "google-merchant-id",
+                  },
+                },
+              },
+            ],
+          },
+        };
+      },
+    })),
+  };
+
+  for (const type of optionTypes) {
+    const sessionCreator = PAYPAL_PLATFORM_SESSION_CREATOR_BY_OPTION_TYPE[type];
+
+    if (sessionCreator) {
+      paypal[sessionCreator] = vi.fn();
+    }
+  }
+
+  return {
+    ...paypal,
+    ...overrides,
+  };
+}
+
 function createBillingApiState() {
   return {
     billing_address: {
@@ -114,24 +224,22 @@ function createBillingApiState() {
         region_options: ["MN", "WI"],
       },
     ],
-    payment_options: [{ type: "new-card", gateway: "authorize" }],
+    payment_gateways: [{ type: "authorize" }],
   };
 }
 
 function createAchApiState() {
   return {
-    payment_options: [
+    payment_gateways: [
       {
-        type: "ach",
-        gateway: "authorize",
-        hosted_fields: {
-          labels: {
-            routing_number: "Routing number",
-            account_number: "Account number",
-            account_type: "Account type",
-            account_holder_name: "Name on account",
-          },
-        },
+        type: "authorize_ach",
+        fields: [
+          "routing-number",
+          "account-number",
+          "account-type",
+          "account-holder-name",
+        ],
+        account_types: ["checking", "savings"],
       },
     ],
   };
@@ -139,7 +247,7 @@ function createAchApiState() {
 
 function createPurchaseOrderApiState() {
   return {
-    payment_options: [
+    payment_gateways: [
       {
         type: "purchase_order",
       },
@@ -147,7 +255,7 @@ function createPurchaseOrderApiState() {
   };
 }
 
-function createPayPalPlatformApiState(paymentOptions: unknown[]) {
+function createPayPalPlatformApiState() {
   return {
     billing_address: {
       use_customer_shipping_address: true,
@@ -168,7 +276,12 @@ function createPayPalPlatformApiState(paymentOptions: unknown[]) {
       maximum_fraction_digits: 2,
       locale_code: "en-US",
     },
-    payment_options: paymentOptions,
+    payment_gateways: [
+      {
+        type: "paypal_platform",
+        client_id: "paypal-client-id",
+      },
+    ],
   };
 }
 
@@ -213,10 +326,9 @@ function createKlarnaApiState() {
         region_options: ["MN", "WI"],
       },
     ],
-    payment_options: [
+    payment_gateways: [
       {
         type: "klarna",
-        gateway: "klarna",
         session_id: "klarna-session-id",
         client_token: "klarna-client-token",
         payment_method_categories: [
@@ -244,10 +356,20 @@ function createKlarnaApiState() {
 
 function createSezzleApiState() {
   return {
-    payment_options: [
+    payment_gateways: [
       {
         type: "sezzle",
         public_key: "sezzle-public-key",
+      },
+    ],
+  };
+}
+
+function createMollieApiState() {
+  return {
+    payment_gateways: [
+      {
+        type: "mollie_omnipay",
       },
     ],
   };
@@ -354,19 +476,42 @@ describe("PaymentMethodSelectorElement", () => {
     expect(element.style.getPropertyValue("--font-sans")).toBe("Figtree");
   });
 
+  it("binds internal content and probes to --font-sans", async () => {
+    const restoreClient = overrideClientState(createBillingApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      element.setAttribute("theme-font-sans", "Figtree");
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "New Card");
+
+      const shadowContainer = element.shadowRoot
+        ?.children[1] as HTMLDivElement | null;
+      const probe = element.shadowRoot?.querySelector(
+        '[data-foxy-field-style-probe="true"]',
+      ) as HTMLInputElement | null;
+
+      expect(element.style.getPropertyValue("--font-sans")).toBe("Figtree");
+      expect(shadowContainer?.style.fontFamily).toBe("var(--font-sans)");
+      expect(probe?.style.fontFamily).toBe("var(--font-sans)");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
   it("omits savedPaymentMethodId from saved-card tokenization payload", async () => {
     const restoreClient = overrideClientState({
-      payment_options: [
+      saved_payment_methods: [
         {
-          type: "saved-card",
           gateway: "stripe_v2",
-          payment_method: {
-            brand: "Visa",
-            last_4: "4242",
-            expiry_month: "12",
-            expiry_year: "2030",
-            payment_method_id: "pm_saved_4242",
-          },
+          brand: "Visa",
+          last_4: "4242",
+          expiry_month: "12",
+          expiry_year: "2030",
+          id: "pm_saved_4242",
         },
       ],
     });
@@ -376,6 +521,9 @@ describe("PaymentMethodSelectorElement", () => {
     ) as PaymentMethodSelectorElement;
 
     try {
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "4242");
+
       const payload = await element.tokenize();
 
       expect(payload).toEqual({
@@ -388,21 +536,31 @@ describe("PaymentMethodSelectorElement", () => {
       });
       expect(payload).not.toHaveProperty("savedPaymentMethodId");
     } finally {
+      element.remove();
       restoreClient();
     }
   });
 
   it("skips disabled payment options when picking the default tokenization target", async () => {
+    const globalWithApplePay = globalThis as typeof globalThis & {
+      ApplePaySession?: { canMakePayments?: () => boolean };
+    };
+    const previousApplePaySession = globalWithApplePay.ApplePaySession;
+    globalWithApplePay.ApplePaySession = {
+      canMakePayments: () => true,
+    };
+
     const restoreClient = overrideClientState({
-      payment_options: [
+      payment_gateways: [
         {
-          type: "google-pay",
-          gateway: "stripe_v2",
-          disabled: true,
-        },
-        {
-          type: "apple-pay",
-          gateway: "stripe_v2",
+          type: "authorize",
+          apple_pay: {
+            merchant_id: "apple-merchant-id",
+            disabled: true,
+          },
+          google_pay: {
+            merchant_id: "google-merchant-id",
+          },
         },
       ],
     });
@@ -413,6 +571,9 @@ describe("PaymentMethodSelectorElement", () => {
     const onTokenizationStart = vi.fn();
 
     try {
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "Google Pay");
+
       element.addEventListener("tokenizationstart", onTokenizationStart);
       const payload = await element.tokenize();
 
@@ -422,6 +583,13 @@ describe("PaymentMethodSelectorElement", () => {
         optionIndex: 1,
       });
     } finally {
+      if (previousApplePaySession) {
+        globalWithApplePay.ApplePaySession = previousApplePaySession;
+      } else {
+        delete globalWithApplePay.ApplePaySession;
+      }
+
+      element.remove();
       restoreClient();
     }
   });
@@ -453,7 +621,9 @@ describe("PaymentMethodSelectorElement", () => {
         "Sezzle brand icon",
       );
       expect(
-        element.shadowRoot?.querySelector('[data-payment-option-click-hint="true"]'),
+        element.shadowRoot?.querySelector(
+          '[data-payment-option-click-hint="true"]',
+        ),
       ).toBeTruthy();
 
       await expect(element.tokenize()).resolves.toEqual({
@@ -467,8 +637,50 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
+  it("renders Mollie as a branded button-driven option", async () => {
+    const restoreClient = overrideClientState(createMollieApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Pay via Mollie",
+      );
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Click the Submit button under the order summary to submit your order",
+      );
+
+      await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector(
+            '[data-payment-option-brand="mollie"]',
+          ),
+        "Mollie brand icon",
+      );
+      expect(
+        element.shadowRoot?.querySelector('[style*="column-gap"]'),
+      ).toBeTruthy();
+      expect(
+        element.shadowRoot?.querySelector(
+          '[data-payment-option-click-hint="true"]',
+        ),
+      ).toBeTruthy();
+
+      await expect(element.tokenize()).resolves.toEqual({});
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
   it("renders an unavailable state and rejects tokenization when no payment methods are available", async () => {
-    const restoreClient = overrideClientState({ payment_options: [] });
+    const restoreClient = overrideClientState({ payment_gateways: [] });
     const element = document.createElement(
       "foxy-payment-method-selector",
     ) as PaymentMethodSelectorElement;
@@ -527,10 +739,9 @@ describe("PaymentMethodSelectorElement", () => {
 
   it("mounts and cleans up stripe light DOM hosts when the selected option changes", async () => {
     const restoreClient = overrideClientState({
-      payment_options: [
+      payment_gateways: [
         {
-          type: "stripe-card-element",
-          gateway: "stripe_connect",
+          type: "stripe_connect",
           publishable_key: "",
         },
         {
@@ -569,10 +780,9 @@ describe("PaymentMethodSelectorElement", () => {
 
   it("syncs UI selection changes back to the element option index", async () => {
     const restoreClient = overrideClientState({
-      payment_options: [
+      payment_gateways: [
         {
-          type: "stripe-card-element",
-          gateway: "stripe_connect",
+          type: "stripe_connect",
           publishable_key: "",
         },
         {
@@ -973,54 +1183,23 @@ describe("PaymentMethodSelectorElement", () => {
   });
 
   it("renders paypal-platform payment options as first-class selector entries", async () => {
+    const optionTypes: PayPalPlatformTestOptionType[] = [
+      "paypal",
+      "paypal-credit",
+      "venmo",
+      "sepa",
+      "bancontact",
+      "eps",
+      "blik",
+      "ideal",
+      "przelewy24",
+    ];
     const restoreClient = overrideClientState(
-      createPayPalPlatformApiState([
-        {
-          type: "paypal",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-        {
-          type: "paypal-credit",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-        {
-          type: "venmo",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-        {
-          type: "sepa",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-        {
-          type: "bancontact",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-        {
-          type: "eps",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-        {
-          type: "blik",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-        {
-          type: "ideal",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-        {
-          type: "przelewy24",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-      ]),
+      createPayPalPlatformApiState(),
+      undefined,
+      {
+        paypal: createPayPalPlatformMock(optionTypes),
+      },
     );
     const element = document.createElement(
       "foxy-payment-method-selector",
@@ -1028,7 +1207,7 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
-      await waitForRender();
+      await waitForText(() => element.shadowRoot?.textContent, "PayPal");
 
       const content = element.shadowRoot?.textContent ?? "";
 
@@ -1049,13 +1228,11 @@ describe("PaymentMethodSelectorElement", () => {
 
   it("renders card fields for paypal-platform new-card options", async () => {
     const restoreClient = overrideClientState(
-      createPayPalPlatformApiState([
-        {
-          type: "new-card",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-      ]),
+      createPayPalPlatformApiState(),
+      undefined,
+      {
+        paypal: createPayPalPlatformMock(["new-card"]),
+      },
     );
     const element = document.createElement(
       "foxy-payment-method-selector",
@@ -1063,11 +1240,17 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "PayPal");
+      element.optionIndex = 1;
       await waitForRender();
 
-      const cardField = element.shadowRoot?.querySelector(
-        "foxy-payment-card-field",
-      ) as HTMLElement | null;
+      const cardField = await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector(
+            "foxy-payment-card-field",
+          ) as HTMLElement | null,
+        "PayPal card field",
+      );
 
       expect(cardField).toBeTruthy();
       expect((cardField as { mode?: string } | null)?.mode).toBe("card");
@@ -1081,18 +1264,12 @@ describe("PaymentMethodSelectorElement", () => {
     const render = vi.fn(() => Promise.resolve());
     const createPayPalMessages = vi.fn(() => ({ render }));
     const restoreClient = overrideClientState(
-      createPayPalPlatformApiState([
-        {
-          type: "paypal-pay-later",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-      ]),
+      createPayPalPlatformApiState(),
       undefined,
       {
-        paypal: {
+        paypal: createPayPalPlatformMock(["paypal-pay-later"], {
           createPayPalMessages,
-        },
+        }),
       },
     );
     const element = document.createElement(
@@ -1101,11 +1278,20 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "PayPal Pay Later",
+      );
+      element.optionIndex = 1;
       await waitForRender();
 
-      const payLaterMessage = element.shadowRoot?.querySelector(
-        '[data-paypal-paylater-label="true"]',
-      ) as HTMLElement | null;
+      const payLaterMessage = await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector(
+            '[data-paypal-paylater-label="true"]',
+          ) as HTMLElement | null,
+        "PayPal Pay Later fallback message",
+      );
 
       expect(payLaterMessage).toBeTruthy();
       await waitForText(
@@ -1121,75 +1307,25 @@ describe("PaymentMethodSelectorElement", () => {
   });
 
   it("shows the click-hint icon in expanded content for button-driven payment options", async () => {
-    const paymentOptions = [
-      {
-        type: "apple-pay",
-        gateway: "paypal_platform",
-        client_id: "paypal-client-id",
-      },
-      {
-        type: "google-pay",
-        gateway: "paypal_platform",
-        client_id: "paypal-client-id",
-      },
-      {
-        type: "paypal",
-        gateway: "paypal_platform",
-        client_id: "paypal-client-id",
-      },
-      {
-        type: "paypal-pay-later",
-        gateway: "paypal_platform",
-        client_id: "paypal-client-id",
-      },
-      {
-        type: "paypal-credit",
-        gateway: "paypal_platform",
-        client_id: "paypal-client-id",
-      },
-      {
-        type: "venmo",
-        gateway: "paypal_platform",
-        client_id: "paypal-client-id",
-      },
-      {
-        type: "sepa",
-        gateway: "paypal_platform",
-        client_id: "paypal-client-id",
-      },
-      {
-        type: "bancontact",
-        gateway: "paypal_platform",
-        client_id: "paypal-client-id",
-      },
-      {
-        type: "eps",
-        gateway: "paypal_platform",
-        client_id: "paypal-client-id",
-      },
-      {
-        type: "blik",
-        gateway: "paypal_platform",
-        client_id: "paypal-client-id",
-      },
-      {
-        type: "ideal",
-        gateway: "paypal_platform",
-        client_id: "paypal-client-id",
-      },
-      {
-        type: "przelewy24",
-        gateway: "paypal_platform",
-        client_id: "paypal-client-id",
-      },
+    const optionTypes: PayPalPlatformTestOptionType[] = [
+      "paypal",
+      "paypal-pay-later",
+      "paypal-credit",
+      "venmo",
+      "sepa",
+      "bancontact",
+      "eps",
+      "blik",
+      "ideal",
+      "przelewy24",
     ];
     const restoreClient = overrideClientState(
-      createPayPalPlatformApiState(paymentOptions),
+      createPayPalPlatformApiState(),
       undefined,
       {
-        paypal: {
+        paypal: createPayPalPlatformMock(optionTypes, {
           createPayPalMessages: vi.fn(() => ({ render: vi.fn() })),
-        },
+        }),
       },
     );
     const element = document.createElement(
@@ -1198,9 +1334,13 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
-      await waitForRender();
+      await waitForText(() => element.shadowRoot?.textContent, "Przelewy24");
 
-      for (const [index] of paymentOptions.entries()) {
+      const renderedOptions = Array.from(
+        element.shadowRoot?.querySelectorAll('[id^="payment-option-"]') ?? [],
+      );
+
+      for (const [index] of renderedOptions.entries()) {
         element.optionIndex = index;
         await waitForRender();
 
@@ -1217,22 +1357,17 @@ describe("PaymentMethodSelectorElement", () => {
   });
 
   it("uses the leading-icon layout for a single button-driven payment option", async () => {
-    const restoreClient = overrideClientState(
-      createPayPalPlatformApiState([
-        {
-          type: "paypal-credit",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-      ]),
-    );
+    const restoreClient = overrideClientState(createSezzleApiState());
     const element = document.createElement(
       "foxy-payment-method-selector",
     ) as PaymentMethodSelectorElement;
 
     try {
       document.body.append(element);
-      await waitForRender();
+      await waitForTruthy(
+        () => element.shadowRoot?.querySelector('[style*="column-gap"]'),
+        "leading icon layout row",
+      );
 
       const leadingLayoutRows = element.shadowRoot?.querySelectorAll(
         '[style*="column-gap"]',
@@ -1246,27 +1381,27 @@ describe("PaymentMethodSelectorElement", () => {
   });
 
   it("does not use the leading-icon layout when multiple payment options are present", async () => {
-    const restoreClient = overrideClientState(
-      createPayPalPlatformApiState([
+    const restoreClient = overrideClientState({
+      payment_gateways: [
         {
-          type: "paypal-credit",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
+          type: "sezzle",
+          public_key: "sezzle-public-key",
         },
         {
-          type: "new-card",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
+          type: "purchase_order",
         },
-      ]),
-    );
+      ],
+    });
     const element = document.createElement(
       "foxy-payment-method-selector",
     ) as PaymentMethodSelectorElement;
 
     try {
       document.body.append(element);
-      await waitForRender();
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Buy Now, Pay Later with Sezzle",
+      );
 
       const leadingLayoutRows = element.shadowRoot?.querySelectorAll(
         '[style*="column-gap"]',
@@ -1281,28 +1416,16 @@ describe("PaymentMethodSelectorElement", () => {
 
   it("returns paypal-platform metadata for selected PayPal option flows", async () => {
     const restoreClient = overrideClientState(
-      createPayPalPlatformApiState([
-        {
-          type: "paypal-pay-later",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-        {
-          type: "new-card",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-        {
-          type: "apple-pay",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-        {
-          type: "google-pay",
-          gateway: "paypal_platform",
-          client_id: "paypal-client-id",
-        },
-      ]),
+      createPayPalPlatformApiState(),
+      undefined,
+      {
+        paypal: createPayPalPlatformMock([
+          "new-card",
+          "apple-pay",
+          "google-pay",
+          "paypal-pay-later",
+        ]),
+      },
     );
     const element = document.createElement(
       "foxy-payment-method-selector",
@@ -1310,7 +1433,10 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
-      await waitForRender();
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "PayPal Pay Later",
+      );
 
       element.optionIndex = 0;
       await waitForRender();
@@ -1318,7 +1444,7 @@ describe("PaymentMethodSelectorElement", () => {
         paypalPlatform: {
           clientId: "paypal-client-id",
           flow: "buttons",
-          fundingSources: ["paylater"],
+          fundingSources: ["paypal"],
         },
       });
 
@@ -1349,6 +1475,16 @@ describe("PaymentMethodSelectorElement", () => {
           clientId: "paypal-client-id",
           flow: "google-pay",
           fundingSources: undefined,
+        },
+      });
+
+      element.optionIndex = 4;
+      await waitForRender();
+      await expect(element.tokenize()).resolves.toEqual({
+        paypalPlatform: {
+          clientId: "paypal-client-id",
+          flow: "buttons",
+          fundingSources: ["paylater"],
         },
       });
     } finally {

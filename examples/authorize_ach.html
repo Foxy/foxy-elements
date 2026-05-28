@@ -3,17 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>foxy-payment-method-selector • Stripe Card Element</title>
+    <title>foxy-payment-method-selector • authorize_ach</title>
+    <link rel="stylesheet" href="./example.css" />
     <script
       type="module"
       src="/src/elements/foxy-payment-method-selector/index.ts"
     ></script>
     <script type="module">
       import { client } from "@foxy.io/sdk/checkout/client";
-
-      const stripePublishableKey =
-        import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim() ||
-        import.meta.env.VITE_STRIPE_DEMO_PUBLISHABLE_KEY?.trim();
 
       const apiState = {
         template_set: {
@@ -136,11 +133,16 @@
           has_eligible_coupons: true,
           supported_payment_cards: ["visa", "mastercard", "amex"],
         },
-        payment_options: [
+        payment_gateways: [
           {
-            type: "stripe-card-element",
-            gateway: "stripe_connect",
-            publishable_key: stripePublishableKey,
+            type: "authorize_ach",
+            fields: [
+              "routing-number",
+              "account-number",
+              "account-type",
+              "account-holder-name",
+            ],
+            account_types: ["checking", "savings"],
           },
         ],
         messages: [],
@@ -173,19 +175,27 @@
     </script>
   </head>
   <body>
-    <style>
-      body {
-        display: flex;
-        padding: 16px;
-        margin: 0;
-        min-height: calc(100dvh - 32px);
-      }
-      foxy-payment-method-selector {
-        flex: 1;
-        margin: auto;
-        max-width: 640px;
-      }
-    </style>
-    <foxy-payment-method-selector></foxy-payment-method-selector>
+    <main class="example">
+      <section class="panel">
+        <div>
+          <h1>Default Theme</h1>
+          <p>Unstyled selector using the component defaults.</p>
+        </div>
+        <div class="shell">
+          <foxy-payment-method-selector></foxy-payment-method-selector>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div>
+          <h1>Custom Theme</h1>
+          <p>Selector themed with a custom dark preset.</p>
+        </div>
+        <div class="shell dark">
+          <foxy-payment-method-selector class="contrast-dark"
+          ></foxy-payment-method-selector>
+        </div>
+      </section>
+    </main>
   </body>
 </html>

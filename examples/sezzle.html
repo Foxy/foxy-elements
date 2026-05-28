@@ -3,21 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>foxy-payment-method-selector • All Payment Methods</title>
+    <title>foxy-payment-method-selector • Sezzle</title>
+    <link rel="stylesheet" href="./example.css" />
     <script
       type="module"
       src="/src/elements/foxy-payment-method-selector/index.ts"
     ></script>
     <script type="module">
       import { client } from "@foxy.io/sdk/checkout/client";
-      import { getKlarnaInitPaymentOptionFromEnv } from "/src/lib/klarna-init-response.ts";
-
-      const stripePublishableKey =
-        import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim() ||
-        import.meta.env.VITE_STRIPE_DEMO_PUBLISHABLE_KEY?.trim();
-
-      const paypalPlatformClientId =
-        import.meta.env.VITE_PAYPAL_SANDBOX_CLIENT_ID?.trim();
 
       const sezzlePublicKey =
         import.meta.env.VITE_SEZZLE_PUBLIC_KEY?.trim() || "sezzle-public-key";
@@ -49,108 +42,6 @@
       }
 
       ensureMockSezzleSdk();
-
-      function createSvgLogoDataUri(text, fill) {
-        return `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="24" viewBox="0 0 80 24" fill="none"><rect width="80" height="24" rx="12" fill="${fill}"/><text x="40" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#111">${text}</text></svg>`)}`;
-      }
-
-      const defaultKlarnaPaymentOption = {
-        type: "klarna",
-        gateway: "klarna",
-        session_id: "klarna-session-id",
-        client_token: "klarna-client-token",
-        payment_method_categories: [
-          {
-            identifier: "pay_in_4",
-            name: "Pay in 4",
-            asset_urls: {
-              descriptive: createSvgLogoDataUri("Pay in 4", "#ffb3c7"),
-              standard: createSvgLogoDataUri("Pay in 4", "#ffb3c7"),
-            },
-          },
-          {
-            identifier: "pay_in_30_days",
-            name: "Pay in 30 Days",
-            asset_urls: {
-              descriptive: createSvgLogoDataUri("30 days", "#ffd8e4"),
-              standard: createSvgLogoDataUri("30 days", "#ffd8e4"),
-            },
-          },
-        ],
-      };
-
-      const klarnaPaymentOption =
-        getKlarnaInitPaymentOptionFromEnv() ?? defaultKlarnaPaymentOption;
-
-      const paypalPlatformPaymentOptions = paypalPlatformClientId
-        ? [
-            {
-              type: "paypal",
-              gateway: "paypal_platform",
-              client_id: paypalPlatformClientId,
-            },
-            {
-              type: "new-card",
-              gateway: "paypal_platform",
-              client_id: paypalPlatformClientId,
-            },
-            {
-              type: "apple-pay",
-              gateway: "paypal_platform",
-              client_id: paypalPlatformClientId,
-            },
-            {
-              type: "google-pay",
-              gateway: "paypal_platform",
-              client_id: paypalPlatformClientId,
-            },
-            {
-              type: "paypal-pay-later",
-              gateway: "paypal_platform",
-              client_id: paypalPlatformClientId,
-            },
-            {
-              type: "paypal-credit",
-              gateway: "paypal_platform",
-              client_id: paypalPlatformClientId,
-            },
-            {
-              type: "venmo",
-              gateway: "paypal_platform",
-              client_id: paypalPlatformClientId,
-            },
-            {
-              type: "sepa",
-              gateway: "paypal_platform",
-              client_id: paypalPlatformClientId,
-            },
-            {
-              type: "bancontact",
-              gateway: "paypal_platform",
-              client_id: paypalPlatformClientId,
-            },
-            {
-              type: "eps",
-              gateway: "paypal_platform",
-              client_id: paypalPlatformClientId,
-            },
-            {
-              type: "blik",
-              gateway: "paypal_platform",
-              client_id: paypalPlatformClientId,
-            },
-            {
-              type: "ideal",
-              gateway: "paypal_platform",
-              client_id: paypalPlatformClientId,
-            },
-            {
-              type: "przelewy24",
-              gateway: "paypal_platform",
-              client_id: paypalPlatformClientId,
-            },
-          ]
-        : [];
 
       const apiState = {
         template_set: {
@@ -273,61 +164,11 @@
           has_eligible_coupons: true,
           supported_payment_cards: ["visa", "mastercard", "amex"],
         },
-        payment_options: [
-          {
-            type: "saved-card",
-            gateway: "authorize",
-            payment_method: {
-              brand: "Visa",
-              last_4: "4242",
-              expiry_month: "12",
-              expiry_year: "2030",
-              payment_method_id: "pt_saved_4242",
-            },
-          },
-          { type: "new-card", gateway: "authorize" },
-          {
-            type: "stripe-card-element",
-            gateway: "stripe_connect",
-            publishable_key: stripePublishableKey,
-          },
-          {
-            type: "stripe-payment-element",
-            gateway: "stripe_v2",
-            publishable_key: stripePublishableKey,
-            account_id: "",
-            return_url: "https://example.com/checkout/return",
-            auth_only: false,
-            locale: "en",
-          },
-          {
-            type: "ach",
-            gateway: "accept_blue_ach",
-            fields: [
-              "routing-number",
-              "account-number",
-              "account-type",
-              "account-holder-name",
-            ],
-            account_types: ["checking", "savings"],
-          },
-          { type: "purchase_order" },
-          klarnaPaymentOption,
-          {
-            type: "apple-pay",
-            gateway: "stripe_v2",
-            merchant_id: "merchant.com.foxy.demo",
-          },
-          {
-            type: "google-pay",
-            gateway: "stripe_v2",
-            merchant_id: "merchant-123",
-          },
+        payment_gateways: [
           {
             type: "sezzle",
             public_key: sezzlePublicKey,
           },
-          ...paypalPlatformPaymentOptions,
         ],
         messages: [],
         language_strings: {},
@@ -362,19 +203,27 @@
     </script>
   </head>
   <body>
-    <style>
-      body {
-        display: flex;
-        padding: 16px;
-        margin: 0;
-        min-height: calc(100dvh - 32px);
-      }
-      foxy-payment-method-selector {
-        flex: 1;
-        margin: auto;
-        max-width: 640px;
-      }
-    </style>
-    <foxy-payment-method-selector></foxy-payment-method-selector>
+    <main class="example">
+      <section class="panel">
+        <div>
+          <h1>Default Theme</h1>
+          <p>Unstyled selector using the component defaults.</p>
+        </div>
+        <div class="shell">
+          <foxy-payment-method-selector></foxy-payment-method-selector>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div>
+          <h1>Custom Theme</h1>
+          <p>Selector themed with a custom dark preset.</p>
+        </div>
+        <div class="shell dark">
+          <foxy-payment-method-selector class="contrast-dark"
+          ></foxy-payment-method-selector>
+        </div>
+      </section>
+    </main>
   </body>
 </html>

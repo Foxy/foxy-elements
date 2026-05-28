@@ -19,10 +19,10 @@ export default function BlikMarkIcon({
         y2="1.1"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" stop-color="#5a5a5a" />
-        <stop offset=".1" stop-color="#484848" />
-        <stop offset=".5" stop-color="#212121" />
-        <stop offset=".8" stop-color="#080808" />
+        <stop offset="0" stopColor="#5a5a5a" />
+        <stop offset=".1" stopColor="#484848" />
+        <stop offset=".5" stopColor="#212121" />
+        <stop offset=".8" stopColor="#080808" />
         <stop offset="1" />
       </linearGradient>
       <linearGradient
@@ -33,8 +33,8 @@ export default function BlikMarkIcon({
         y2="9.9"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" stop-color="#e52f08" />
-        <stop offset="1" stop-color="#e94f96" />
+        <stop offset="0" stopColor="#e52f08" />
+        <stop offset="1" stopColor="#e94f96" />
       </linearGradient>
       <filter
         id="c"
@@ -46,7 +46,7 @@ export default function BlikMarkIcon({
       >
         <feOffset dx="2.4" dy="3" />
         <feGaussianBlur result="blur" stdDeviation=".7" />
-        <feFlood flood-opacity=".9" />
+        <feFlood floodOpacity=".9" />
         <feComposite in2="blur" operator="in" result="result1" />
         <feComposite in="SourceGraphic" in2="result1" />
       </filter>

@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>foxy-payment-method-selector • PayPal Platform</title>
+    <title>foxy-payment-method-selector • stripe_connect</title>
+    <link rel="stylesheet" href="./example.css" />
     <script
       type="module"
       src="/src/elements/foxy-payment-method-selector/index.ts"
@@ -11,8 +12,9 @@
     <script type="module">
       import { client } from "@foxy.io/sdk/checkout/client";
 
-      const paypalPlatformClientId =
-        import.meta.env.VITE_PAYPAL_SANDBOX_CLIENT_ID?.trim();
+      const stripePublishableKey =
+        import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim() ||
+        import.meta.env.VITE_STRIPE_DEMO_PUBLISHABLE_KEY?.trim();
 
       const apiState = {
         template_set: {
@@ -28,9 +30,9 @@
           first_name: "John",
           last_name: "Doe",
           email: "john.doe@example.com",
-          type: "guest",
-          id: null,
-          token: null,
+          type: "registered",
+          id: 123456,
+          token: "jwt_demo_customer_token",
         },
         shipments: [
           {
@@ -135,71 +137,20 @@
           has_eligible_coupons: true,
           supported_payment_cards: ["visa", "mastercard", "amex"],
         },
-        payment_options: [
+        saved_payment_methods: [
           {
-            type: "paypal",
-            gateway: "paypal_platform",
-            client_id: paypalPlatformClientId,
+            gateway: "stripe_connect",
+            brand: "Visa",
+            last_4: "4242",
+            expiry_month: "12",
+            expiry_year: "2030",
+            id: "pt_saved_4242",
           },
+        ],
+        payment_gateways: [
           {
-            type: "new-card",
-            gateway: "paypal_platform",
-            client_id: paypalPlatformClientId,
-          },
-          {
-            type: "apple-pay",
-            gateway: "paypal_platform",
-            client_id: paypalPlatformClientId,
-          },
-          {
-            type: "google-pay",
-            gateway: "paypal_platform",
-            client_id: paypalPlatformClientId,
-          },
-          {
-            type: "paypal-pay-later",
-            gateway: "paypal_platform",
-            client_id: paypalPlatformClientId,
-          },
-          {
-            type: "paypal-credit",
-            gateway: "paypal_platform",
-            client_id: paypalPlatformClientId,
-          },
-          {
-            type: "venmo",
-            gateway: "paypal_platform",
-            client_id: paypalPlatformClientId,
-          },
-          {
-            type: "sepa",
-            gateway: "paypal_platform",
-            client_id: paypalPlatformClientId,
-          },
-          {
-            type: "bancontact",
-            gateway: "paypal_platform",
-            client_id: paypalPlatformClientId,
-          },
-          {
-            type: "eps",
-            gateway: "paypal_platform",
-            client_id: paypalPlatformClientId,
-          },
-          {
-            type: "blik",
-            gateway: "paypal_platform",
-            client_id: paypalPlatformClientId,
-          },
-          {
-            type: "ideal",
-            gateway: "paypal_platform",
-            client_id: paypalPlatformClientId,
-          },
-          {
-            type: "przelewy24",
-            gateway: "paypal_platform",
-            client_id: paypalPlatformClientId,
+            type: "stripe_connect",
+            publishable_key: stripePublishableKey,
           },
         ],
         messages: [],
@@ -232,19 +183,27 @@
     </script>
   </head>
   <body>
-    <style>
-      body {
-        display: flex;
-        padding: 16px;
-        margin: 0;
-        min-height: calc(100dvh - 32px);
-      }
-      foxy-payment-method-selector {
-        flex: 1;
-        margin: auto;
-        max-width: 640px;
-      }
-    </style>
-    <foxy-payment-method-selector></foxy-payment-method-selector>
+    <main class="example">
+      <section class="panel">
+        <div>
+          <h1>Default Theme</h1>
+          <p>Unstyled selector using the component defaults.</p>
+        </div>
+        <div class="shell">
+          <foxy-payment-method-selector></foxy-payment-method-selector>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div>
+          <h1>Custom Theme</h1>
+          <p>Selector themed with a custom dark preset.</p>
+        </div>
+        <div class="shell dark">
+          <foxy-payment-method-selector class="contrast-dark"
+          ></foxy-payment-method-selector>
+        </div>
+      </section>
+    </main>
   </body>
 </html>

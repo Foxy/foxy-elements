@@ -2,16 +2,16 @@ import type {
   AchAccountTypeValue,
   AchHostedFieldName,
 } from "../foxy-ach-field/element";
-import type { PaymentOption as CheckoutPaymentOption } from "@foxy.io/sdk/checkout";
 import type { PaymentCardFieldOption } from "../foxy-payment-card-field/element";
 
-type PaymentMethodSelectorKlarnaServerOption = Extract<
-  CheckoutPaymentOption,
-  { type: "klarna"; gateway: "klarna" }
->;
-
-export type PaymentMethodSelectorKlarnaCategory =
-  PaymentMethodSelectorKlarnaServerOption["payment_method_categories"][number];
+export type PaymentMethodSelectorKlarnaCategory = {
+  identifier: string;
+  name: string;
+  asset_urls: {
+    descriptive: string;
+    standard: string;
+  };
+};
 
 export type PaymentMethodSelectorKlarnaConfig = {
   sessionId: string;

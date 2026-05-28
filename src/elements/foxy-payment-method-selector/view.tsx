@@ -384,6 +384,7 @@ function renderPaymentOptionBodyFallback(
             disabled
             value=""
             readOnly
+            className="text-foreground"
             placeholder={intl.formatMessage(
               messages.purchaseOrderNumberPlaceholder,
             )}
@@ -819,6 +820,7 @@ export function Payment({
         readOnly
         placeholder=""
         value=""
+        style={{ fontFamily: "var(--font-sans)" }}
         className={`${FIELD_STYLE_PROBE_CLASS_NAME} pointer-events-none absolute z-[-1] opacity-0`}
       />
       <RadioGroup

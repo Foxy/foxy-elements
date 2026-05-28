@@ -11,7 +11,7 @@ export default function BancontactMarkIcon({
       viewBox="0 0 132.5 82.2"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g fill-rule="evenodd">
+      <g fillRule="evenodd">
         <path
           fill="#005697"
           d="M118 14.3H77.2L72.9 19 59.4 34.3 55.2 39H14.7l4.1-4.8 2-2.2 4-4.8H6.3A6.3 6.3 0 0 0 0 33.6V47c0 3.5 2.8 6.3 6.2 6.3h71.4c3.4 0 8-2.1 10.4-4.7l10.8-12.3z"

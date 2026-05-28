@@ -270,6 +270,7 @@ export class AchFieldElement extends ThemeableHTMLElement {
   private _fallbackRequestCounter = 0;
   private _listening = false;
   private _isRegistered = false;
+  private _renderScheduled = false;
   private _internals: ElementInternals | null;
 
   private readonly _onWindowMessage = (event: MessageEvent) => {
@@ -488,12 +489,17 @@ export class AchFieldElement extends ThemeableHTMLElement {
 
     this._isRegistered = true;
     this._registerInstance();
-    this._render();
-    this._syncDisabledState();
+    this._scheduleRender();
     this._syncPublicStates();
 
     const entry = this._registryEntry;
-    if (entry) this._syncFormValidity(entry);
+    if (!entry) return;
+
+    if (entry.host !== this) {
+      this._syncDisabledState();
+    }
+
+    this._syncFormValidity(entry);
   }
 
   disconnectedCallback(): void {
@@ -531,7 +537,7 @@ export class AchFieldElement extends ThemeableHTMLElement {
 
     if (name === TYPE_ATTRIBUTE) {
       if (isAchFieldName(newValue)) this._type = newValue;
-      this._render();
+      this._scheduleRender();
       this._syncSessionValidity(this._registryEntry);
       return;
     }
@@ -544,13 +550,13 @@ export class AchFieldElement extends ThemeableHTMLElement {
 
     if (name === PLACEHOLDER_ATTRIBUTE) {
       this._placeholder = newValue?.trim() || undefined;
-      this._render();
+      this._scheduleRender();
       return;
     }
 
     if (name === ACCOUNT_TYPE_VALUES_ATTRIBUTE) {
       this._accountTypeValues = parseAccountTypeValues(newValue);
-      this._render();
+      this._scheduleRender();
       return;
     }
 
@@ -562,7 +568,7 @@ export class AchFieldElement extends ThemeableHTMLElement {
 
     if (name === LANG_ATTRIBUTE) {
       this._lang = newValue?.trim() || undefined;
-      this._render();
+      this._scheduleRender();
       return;
     }
 
@@ -575,7 +581,7 @@ export class AchFieldElement extends ThemeableHTMLElement {
     }
     if (!this._isRegistered) return;
 
-    this._render();
+    this._scheduleRender();
     this._syncDisabledState();
   }
 
@@ -810,11 +816,28 @@ export class AchFieldElement extends ThemeableHTMLElement {
 
   private _claimHost(entry: ControllerRegistryEntry): void {
     entry.host = this;
+    entry.controllerIframe = null;
     this._startListening();
-    this._render();
-    entry.controllerIframe =
-      this.shadowRoot?.querySelector("iframe[data-role='controller']") ?? null;
-    this._syncDisabledState();
+    this._scheduleRender();
+  }
+
+  private _scheduleRender(): void {
+    if (this._renderScheduled) return;
+
+    this._renderScheduled = true;
+    queueMicrotask(() => {
+      this._renderScheduled = false;
+      if (!this._isRegistered || !this.isConnected) return;
+
+      this._render();
+
+      const entry = this._registryEntry;
+      if (entry?.host === this) {
+        entry.controllerIframe =
+          this.shadowRoot?.querySelector("iframe[data-role='controller']") ??
+          null;
+      }
+    });
   }
 
   private _startListening(): void {
