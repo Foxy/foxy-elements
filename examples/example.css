@@ -21,12 +21,12 @@ body {
     display: grid;
     gap: 12px;
 
-    & h1,
-    & p {
+    & > :first-child h1,
+    & > :first-child p {
       margin: 0;
     }
 
-    & h1 {
+    & > :first-child h1 {
       font-weight: 700;
       font-size: 18px;
       line-height: 1.2;
@@ -34,7 +34,7 @@ body {
       margin: 0;
     }
 
-    & p {
+    & > :first-child p {
       font-size: 14px;
       line-height: 1.5;
       color: #475569;
@@ -50,7 +50,7 @@ body {
         background: #05080a;
         font-family: monospace;
 
-        & foxy-payment-method-selector.contrast-dark {
+        & foxy-payment-method-selector {
           --background: #060b08;
           --foreground: #e7ffe8;
           --card: #0b120d;
