@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>foxy-payment-method-selector • Adyen US</title>
+    <link rel="stylesheet" href="../example.css" />
+    <script
+      type="module"
+      src="/src/elements/foxy-payment-method-selector/index.ts"
+    ></script>
+    <script type="module">
+      import { hydrateAdyenExample } from "./shared.js";
+
+      await hydrateAdyenExample({
+        country: "US",
+        region: "NY",
+        city: "New York",
+        postalCode: "10001",
+        locale: "en-US",
+        currency: "USD",
+        total: 17.49,
+        environment: import.meta.env.VITE_ADYEN_ENVIRONMENT,
+        clientKey: import.meta.env.VITE_ADYEN_CLIENT_KEY_US,
+        clientKeyEnvName: "VITE_ADYEN_CLIENT_KEY_US",
+        sessionId: import.meta.env.VITE_ADYEN_SESSION_ID_US,
+        sessionIdEnvName: "VITE_ADYEN_SESSION_ID_US",
+        sessionData: import.meta.env.VITE_ADYEN_SESSION_DATA_US,
+        sessionDataEnvName: "VITE_ADYEN_SESSION_DATA_US",
+      });
+    </script>
+  </head>
+  <body>
+    <main class="example">
+      <section class="panel">
+        <div>
+          <h1>US Session</h1>
+          <p data-example-status aria-live="polite">
+            Waiting for Adyen session.
+          </p>
+        </div>
+        <div class="shell">
+          <foxy-payment-method-selector></foxy-payment-method-selector>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div>
+          <h1>US Session</h1>
+          <p data-example-status aria-live="polite">
+            Waiting for Adyen session.
+          </p>
+        </div>
+        <div class="shell dark">
+          <foxy-payment-method-selector></foxy-payment-method-selector>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

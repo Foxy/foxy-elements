@@ -103,6 +103,7 @@ export const GATEWAY_NAME_BY_TYPE: Record<string, string> = {
   payjunction_ach: "PayJunction ACH",
   vantiv_ach: "Vantiv ACH",
   adyen: "Adyen",
+  adyen_embedded: "Adyen",
   amazon_fps: "Amazon FPS",
   bitpay: "BitPay",
   cardx: "CardX",

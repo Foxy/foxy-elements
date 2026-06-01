@@ -22,6 +22,23 @@ export type PaymentMethodSelectorSezzleConfig = {
   publicKey: string;
 };
 
+export type PaymentMethodSelectorAdyenEmbeddedPaymentMethod = {
+  type: string;
+  name?: string;
+  brands?: string[];
+  [key: string]: unknown;
+};
+
+export type PaymentMethodSelectorAdyenEmbeddedConfig = {
+  sessionId: string;
+  sessionData: string;
+  environment: string;
+  clientKey: string;
+  paymentMethodType: string;
+  paymentMethod: PaymentMethodSelectorAdyenEmbeddedPaymentMethod;
+  componentName: string;
+};
+
 export type PaymentMethodSelectorBillingField = {
   id: string;
   label: string;
@@ -107,6 +124,15 @@ export type PaymentMethodSelectorSezzleTokenizePayload = {
   sezzle: PaymentMethodSelectorSezzleConfig;
 };
 
+export type PaymentMethodSelectorAdyenEmbeddedTokenizePayload = {
+  adyenEmbedded: {
+    sessionId: string;
+    paymentMethodType: string;
+    paymentMethod: PaymentMethodSelectorAdyenEmbeddedPaymentMethod;
+    result: Record<string, unknown>;
+  };
+};
+
 export type PaymentMethodSelectorPayPalPlatformFlow =
   | "buttons"
   | "card-fields"
@@ -163,6 +189,7 @@ export type PaymentMethodSelectorTokenizePayload =
   | PaymentMethodSelectorPurchaseOrderTokenizePayload
   | PaymentMethodSelectorKlarnaTokenizePayload
   | PaymentMethodSelectorSezzleTokenizePayload
+  | PaymentMethodSelectorAdyenEmbeddedTokenizePayload
   | PaymentMethodSelectorPayPalPlatformTokenizePayload
   | PaymentMethodSelectorApplePayTokenizePayload
   | PaymentMethodSelectorGooglePayTokenizePayload
@@ -171,7 +198,7 @@ export type PaymentMethodSelectorTokenizePayload =
 export type PaymentController = {
   tokenize: (
     requestId?: string,
-  ) => Promise<PaymentMethodSelectorTokenizePayload>;
+  ) => Promise<PaymentMethodSelectorTokenizePayload | Record<string, unknown>>;
 };
 
 export type PaymentMethodSelectorOption = {
@@ -183,6 +210,7 @@ export type PaymentMethodSelectorOption = {
   disabled?: boolean;
   klarna?: PaymentMethodSelectorKlarnaConfig;
   sezzle?: PaymentMethodSelectorSezzleConfig;
+  adyenEmbedded?: PaymentMethodSelectorAdyenEmbeddedConfig;
   paypalPlatform?: PaymentMethodSelectorPayPalPlatformConfig;
   paypalMessage?: PaymentMethodSelectorPayPalMessage;
   savedPaymentMethodId?: string;

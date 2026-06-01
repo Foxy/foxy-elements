@@ -365,6 +365,93 @@ function createSezzleApiState() {
   };
 }
 
+function createAdyenEmbeddedApiState() {
+  return {
+    billing_address: {
+      use_customer_shipping_address: true,
+      first_name: "Taylor",
+      last_name: "Morgan",
+      company: "",
+      address1: "123 Main Street",
+      address2: "",
+      city: "Minneapolis",
+      region: "MN",
+      postal_code: "55401",
+      country: "US",
+      phone: "6125550100",
+    },
+    shipments: [
+      {
+        country_options: ["US", "NL", "BE", "PL"],
+        region_options: ["MN", "WI"],
+      },
+    ],
+    payment_gateways: [
+      {
+        type: "adyen_embedded",
+        session_id: "adyen-session-id",
+        session_data: "adyen-session-data",
+        environment: "test",
+        client_key: "adyen-client-key",
+      },
+    ],
+  };
+}
+
+type AdyenComponentProps = Record<string, unknown> & {
+  type?: string;
+  onPaymentCompleted?: (result: unknown) => void;
+  onPaymentFailed?: (result: unknown) => void;
+};
+
+type AdyenComponentInstance = {
+  props: AdyenComponentProps;
+  mount: ReturnType<typeof vi.fn>;
+  unmount: ReturnType<typeof vi.fn>;
+  isAvailable: ReturnType<typeof vi.fn>;
+  submit: ReturnType<typeof vi.fn>;
+};
+
+function createAdyenComponentMock(params?: {
+  available?: boolean;
+  mountText?: string;
+  result?: Record<string, unknown>;
+  unmountError?: Error;
+}) {
+  const instances: AdyenComponentInstance[] = [];
+  const Component = vi.fn(function AdyenComponent(
+    this: AdyenComponentInstance,
+    _checkout: unknown,
+    props?: AdyenComponentProps,
+  ) {
+    const componentProps = props ?? {};
+    this.props = componentProps;
+    this.mount = vi.fn((container: HTMLElement) => {
+      container.textContent =
+        params?.mountText ?? `Adyen ${componentProps.type}`;
+    });
+    this.unmount = vi.fn(() => {
+      if (params?.unmountError) {
+        throw params.unmountError;
+      }
+    });
+    this.isAvailable = vi.fn(() =>
+      params?.available === false ? Promise.reject() : Promise.resolve(),
+    );
+    this.submit = vi.fn(() => {
+      componentProps.onPaymentCompleted?.(
+        params?.result ?? {
+          resultCode: "Authorised",
+          sessionData: "next-session-data",
+        },
+      );
+    });
+    instances.push(this);
+  });
+
+  return { Component, instances };
+}
+
 function createMollieApiState() {
   return {
     payment_gateways: [
@@ -1487,6 +1574,406 @@ describe("PaymentMethodSelectorElement", () => {
           fundingSources: ["paylater"],
         },
       });
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("renders Adyen Embedded payment methods from the SDK response", async () => {
+    const { Component: Card } = createAdyenComponentMock({
+      mountText: "Adyen card component",
+    });
+    const { Component: Redirect } = createAdyenComponentMock();
+    const restoreClient = overrideClientState(
+      createAdyenEmbeddedApiState(),
+      undefined,
+      {
+        adyenEmbedded: {
+          Card,
+          Redirect,
+          paymentMethodsResponse: {
+            paymentMethods: [
+              { type: "scheme", name: "Credit Card", brands: ["visa"] },
+              { type: "ideal", name: "iDEAL" },
+              { type: "bcmc", name: "Bancontact" },
+              { type: "sepadirectdebit", name: "SEPA Direct Debit" },
+            ],
+            storedPaymentMethods: [{ type: "scheme", name: "Saved Visa" }],
+          },
+        },
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "New Card");
+
+      const content = element.shadowRoot?.textContent ?? "";
+      expect(content).toContain("New Card");
+      expect(content).toContain("iDEAL");
+      expect(content).toContain("Bancontact");
+      expect(content).toContain("SEPA");
+      expect(content).not.toContain("Saved Visa");
+      await waitForTruthy(() => Card.mock.calls.length === 1, "Adyen card");
+      expect(Card).toHaveBeenCalledTimes(1);
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("mounts Adyen Embedded components in light DOM and cleans them up", async () => {
+    const { Component: Card, instances } = createAdyenComponentMock({
+      mountText: "Adyen card component",
+    });
+    const { Component: Redirect } = createAdyenComponentMock({
+      mountText: "Adyen redirect component",
+    });
+    const restoreClient = overrideClientState(
+      createAdyenEmbeddedApiState(),
+      undefined,
+      {
+        adyenEmbedded: {
+          Card,
+          Redirect,
+          paymentMethodsResponse: {
+            paymentMethods: [
+              { type: "scheme", name: "Credit Card" },
+              { type: "ideal", name: "iDEAL" },
+            ],
+          },
+        },
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      const host = await waitForTruthy(
+        () => element.querySelector("[data-foxy-adyen-host]"),
+        "Adyen light DOM host",
+      );
+
+      await waitForText(() => host.textContent, "Adyen card component");
+
+      expect(host.textContent).toContain("Adyen card component");
+      expect(instances[0]?.props).toMatchObject({
+        type: "scheme",
+        showPayButton: false,
+      });
+
+      element.optionIndex = 1;
+      await waitForText(() => element.textContent, "Adyen redirect component");
+
+      expect(element.querySelectorAll("[data-foxy-adyen-host]")).toHaveLength(
+        1,
+      );
+      expect(instances[0]?.unmount).toHaveBeenCalledTimes(1);
+
+      element.remove();
+      await waitForRender();
+      expect(element.querySelector("[data-foxy-adyen-host]")).toBeNull();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("continues remounting Adyen Embedded components when provider unmount throws", async () => {
+    const { Component: Card, instances } = createAdyenComponentMock({
+      mountText: "Adyen card component",
+      unmountError: new Error("Provider cleanup failed"),
+    });
+    const { Component: Redirect } = createAdyenComponentMock({
+      mountText: "Adyen redirect component",
+    });
+    const restoreClient = overrideClientState(
+      createAdyenEmbeddedApiState(),
+      undefined,
+      {
+        adyenEmbedded: {
+          Card,
+          Redirect,
+          paymentMethodsResponse: {
+            paymentMethods: [
+              { type: "scheme", name: "Credit Card" },
+              { type: "ideal", name: "iDEAL" },
+            ],
+          },
+        },
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForText(() => element.textContent, "Adyen card component");
+
+      element.optionIndex = 1;
+      await waitForText(() => element.textContent, "Adyen redirect component");
+
+      expect(instances[0]?.unmount).toHaveBeenCalledTimes(1);
+      expect(
+        element.querySelector("[data-foxy-adyen-host]")?.textContent,
+      ).toContain("Adyen redirect component");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("passes themed input styles to Adyen Embedded components", async () => {
+    const { Component: Card, instances } = createAdyenComponentMock({
+      mountText: "Adyen card component",
+    });
+    const restoreClient = overrideClientState(
+      createAdyenEmbeddedApiState(),
+      undefined,
+      {
+        adyenEmbedded: {
+          Card,
+          paymentMethodsResponse: {
+            paymentMethods: [{ type: "scheme", name: "Credit Card" }],
+          },
+        },
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      element.setAttribute("theme-font-sans", "Figtree");
+      element.setAttribute("theme-input-font-size", "18px");
+      element.setAttribute("theme-input-padding", "6px 14px");
+      element.setAttribute("theme-input-text-color", "#123456");
+      element.setAttribute("theme-input-placeholder-color", "#654321");
+      element.setAttribute("theme-input-error-text-color", "#ff0000");
+      document.body.append(element);
+
+      await waitForText(() => element.textContent, "Adyen card component");
+
+      expect(instances[0]?.props.styles).toMatchObject({
+        base: expect.objectContaining({
+          caretColor: "rgb(18, 52, 86)",
+          color: "rgb(18, 52, 86)",
+          fontFamily: expect.stringContaining("Figtree"),
+          fontSmoothing: "antialiased",
+          fontSize: "18px",
+          mozOsxFontSmoothing: "grayscale",
+          padding: "6px 14px 6px 0px",
+          webkitFontSmoothing: "antialiased",
+        }),
+        error: {
+          caretColor: "rgb(255, 0, 0)",
+          color: "rgb(255, 0, 0)",
+        },
+        placeholder: { color: "rgb(101, 67, 33)" },
+        validated: {
+          caretColor: "rgb(18, 52, 86)",
+          color: "rgb(18, 52, 86)",
+        },
+      });
+
+      const embeddedStyles = document.head.querySelector(
+        'style[data-foxy-adyen-embedded-styles="true"]',
+      );
+      const embeddedRoot = element.querySelector<HTMLElement>(
+        ".foxy-adyen-embedded",
+      );
+
+      expect(
+        embeddedRoot?.style.getPropertyValue("--foxy-adyen-input-padding-x"),
+      ).toBe("14px");
+      expect(
+        embeddedRoot?.style.getPropertyValue("--foxy-adyen-input-padding-y"),
+      ).toBe("6px");
+
+      expect(embeddedStyles?.textContent).toContain(
+        "--adyen-sdk-color-label-primary",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        "--adyen-sdk-color-background-primary",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        "--foxy-adyen-input-text-size: var(--input-font-size, var(--text-sm, 0.875rem))",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        "--foxy-adyen-input-height: var(--input-height, calc((var(--spacing, 0.25rem) * 8) - 2px))",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        "--foxy-adyen-label-input-gap: calc(var(--foxy-adyen-spacing) * 2)",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        "--adyen-sdk-spacer-020: var(--foxy-adyen-label-input-gap)",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        "--adyen-sdk-spacer-060: var(--foxy-adyen-input-padding-x)",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        "--adyen-sdk-border-radius-xs",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        "--adyen-sdk-border-radius-s",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        "--adyen-sdk-border-radius-m",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        "--adyen-sdk-border-radius-l",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        "--adyen-sdk-border-radius-x",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        ".adyen-checkout-form-instruction",
+      );
+      expect(embeddedStyles?.textContent).not.toContain(".adyen-checkout__");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("falls back to host text tokens for Adyen Embedded card field styles", async () => {
+    const { Component: Card, instances } = createAdyenComponentMock({
+      mountText: "Adyen card component",
+    });
+    const restoreClient = overrideClientState(
+      createAdyenEmbeddedApiState(),
+      undefined,
+      {
+        adyenEmbedded: {
+          Card,
+          paymentMethodsResponse: {
+            paymentMethods: [{ type: "scheme", name: "Credit Card" }],
+          },
+        },
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      element.setAttribute("theme-foreground", "#e7ffe8");
+      element.setAttribute("theme-muted-foreground", "#92b39a");
+      element.setAttribute("theme-destructive", "#ff7d7d");
+      document.body.append(element);
+
+      await waitForText(() => element.textContent, "Adyen card component");
+
+      expect(instances[0]?.props.styles).toMatchObject({
+        base: expect.objectContaining({
+          caretColor: "rgb(231, 255, 232)",
+          color: "rgb(231, 255, 232)",
+          fontSize: "14px",
+        }),
+        error: {
+          caretColor: "rgb(255, 125, 125)",
+          color: "rgb(255, 125, 125)",
+        },
+        placeholder: { color: "rgb(146, 179, 154)" },
+        validated: {
+          caretColor: "rgb(231, 255, 232)",
+          color: "rgb(231, 255, 232)",
+        },
+      });
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("returns a wrapped Adyen Embedded session result from tokenize()", async () => {
+    const adyenResult = {
+      resultCode: "Authorised",
+      sessionData: "next-session-data",
+    };
+    const { Component: Card } = createAdyenComponentMock({
+      result: adyenResult,
+    });
+    const restoreClient = overrideClientState(
+      createAdyenEmbeddedApiState(),
+      undefined,
+      {
+        adyenEmbedded: {
+          Card,
+          paymentMethodsResponse: {
+            paymentMethods: [
+              { type: "scheme", name: "Credit Card", brands: ["visa"] },
+            ],
+          },
+        },
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForTruthy(
+        () => element.querySelector("[data-foxy-adyen-host]"),
+        "Adyen light DOM host",
+      );
+
+      await expect(element.tokenize()).resolves.toEqual({
+        adyenEmbedded: {
+          sessionId: "adyen-session-id",
+          paymentMethodType: "scheme",
+          paymentMethod: {
+            type: "scheme",
+            name: "Credit Card",
+            brands: ["visa"],
+          },
+          result: adyenResult,
+        },
+      });
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("does not render button click hints for Adyen Embedded mapped APMs", async () => {
+    const { Component: Redirect } = createAdyenComponentMock();
+    const restoreClient = overrideClientState(
+      createAdyenEmbeddedApiState(),
+      undefined,
+      {
+        adyenEmbedded: {
+          Redirect,
+          paymentMethodsResponse: {
+            paymentMethods: [{ type: "ideal", name: "iDEAL" }],
+          },
+        },
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "iDEAL");
+
+      expect(
+        element.shadowRoot?.querySelector(
+          '[data-payment-option-click-hint="true"]',
+        ),
+      ).toBeNull();
+      expect(element.shadowRoot?.textContent).toContain(
+        "Enter your payment details below.",
+      );
     } finally {
       element.remove();
       restoreClient();

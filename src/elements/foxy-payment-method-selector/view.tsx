@@ -67,6 +67,7 @@ const StripeCardElementOption = lazy(() => import("./embeds/stripe-card"));
 const StripePaymentElementOption = lazy(
   () => import("./embeds/stripe-payment"),
 );
+const AdyenEmbeddedOption = lazy(() => import("./embeds/adyen-embedded"));
 const PAYMENT_OPTION_BODY_FALLBACK = <Skeleton className="h-8 w-full" />;
 
 type PaymentProps = {
@@ -84,6 +85,11 @@ type PaymentProps = {
     controller: PaymentController | null,
   ) => void;
   renderStripeContent?: (params: {
+    option: PaymentMethodSelectorOption;
+    disabled?: boolean;
+    onControllerReady?: (controller: PaymentController | null) => void;
+  }) => ReactNode;
+  renderAdyenContent?: (params: {
     option: PaymentMethodSelectorOption;
     disabled?: boolean;
     onControllerReady?: (controller: PaymentController | null) => void;
@@ -204,6 +210,14 @@ function getPaymentOptionDescriptionText(
     return intl.formatMessage(messages.optionDescriptionKlarna);
   }
 
+  if (option.adyenEmbedded) {
+    if (option.type === "new-card") {
+      return intl.formatMessage(messages.optionDescriptionNewCard);
+    }
+
+    return intl.formatMessage(messages.optionDescriptionAdyenEmbedded);
+  }
+
   if (!option.type) return option.description;
   const descriptor = OPTION_DESCRIPTION_BY_TYPE[option.type];
   if (!descriptor) return option.description;
@@ -321,7 +335,11 @@ function renderPaymentOptionDescription(
       description
     );
 
-  if (!option.type || !BUTTON_CLICK_HINT_OPTION_TYPES.has(option.type)) {
+  if (
+    option.adyenEmbedded ||
+    !option.type ||
+    !BUTTON_CLICK_HINT_OPTION_TYPES.has(option.type)
+  ) {
     return content;
   }
 
@@ -404,6 +422,7 @@ function PaymentOptionBody({
   styleAttributes,
   onControllerReady,
   renderStripeContent,
+  renderAdyenContent,
   billingAddress,
   billingError,
   onBillingAddressChange,
@@ -414,6 +433,11 @@ function PaymentOptionBody({
   styleAttributes: HostedFieldStyleAttributes;
   onControllerReady?: (controller: PaymentController | null) => void;
   renderStripeContent?: (params: {
+    option: PaymentMethodSelectorOption;
+    disabled?: boolean;
+    onControllerReady?: (controller: PaymentController | null) => void;
+  }) => ReactNode;
+  renderAdyenContent?: (params: {
     option: PaymentMethodSelectorOption;
     disabled?: boolean;
     onControllerReady?: (controller: PaymentController | null) => void;
@@ -566,6 +590,34 @@ function PaymentOptionBody({
     );
   }
 
+  if (option.adyenEmbedded) {
+    if (renderAdyenContent) {
+      return (
+        <>
+          {renderAdyenContent({ option, disabled, onControllerReady })}
+          {billingSection}
+        </>
+      );
+    }
+
+    return (
+      <>
+        <Suspense fallback={bodyFallback}>
+          <AdyenEmbeddedOption
+            option={option}
+            disabled={disabled}
+            onControllerReady={onControllerReady}
+            loadingMessage={intl.formatMessage(messages.adyenLoading)}
+            unavailableMessage={intl.formatMessage(messages.adyenUnavailable)}
+            loadErrorMessage={intl.formatMessage(messages.adyenLoadError)}
+            submitErrorMessage={intl.formatMessage(messages.adyenSubmitError)}
+          />
+        </Suspense>
+        {billingSection}
+      </>
+    );
+  }
+
   if (option.klarna) {
     return (
       <>
@@ -601,7 +653,7 @@ function hasBillingAddressContent(
     return false;
   }
 
-  if (option.klarna) {
+  if (option.klarna || option.adyenEmbedded) {
     return true;
   }
 
@@ -643,7 +695,7 @@ function hasPaymentOptionBodyContent(
     return true;
   }
 
-  if (option.klarna) {
+  if (option.klarna || option.adyenEmbedded) {
     return true;
   }
 
@@ -659,6 +711,7 @@ export function Payment({
   onSelectionChange,
   onControllerReady,
   renderStripeContent,
+  renderAdyenContent,
   billingAddress,
   billingError,
   onBillingAddressChange,
@@ -939,6 +992,7 @@ export function Payment({
                             onControllerReady?.(option.id, controller)
                           }
                           renderStripeContent={renderStripeContent}
+                          renderAdyenContent={renderAdyenContent}
                           billingAddress={billingAddress}
                           billingError={checked ? billingError : undefined}
                           onBillingAddressChange={onBillingAddressChange}

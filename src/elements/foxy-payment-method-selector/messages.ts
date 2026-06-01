@@ -106,6 +106,10 @@ export const messages = defineMessages({
     id: "payment_option_description_stripe_payment_element",
     defaultMessage: "Select a payment method and enter your details below.",
   },
+  optionDescriptionAdyenEmbedded: {
+    id: "payment_option_description_adyen_embedded",
+    defaultMessage: "Enter your payment details below.",
+  },
   optionDescriptionPurchaseOrder: {
     id: "payment_option_description_purchase_order",
     defaultMessage: "Enter your purchase order number below.",
@@ -327,6 +331,23 @@ export const messages = defineMessages({
   klarnaFinalizeError: {
     id: "payment_klarna_finalize_error",
     defaultMessage: "Klarna couldn't finalize this payment. Try again.",
+  },
+  adyenLoading: {
+    id: "payment_adyen_loading",
+    defaultMessage: "Loading payment details...",
+  },
+  adyenUnavailable: {
+    id: "payment_adyen_unavailable",
+    defaultMessage: "This payment method is currently unavailable.",
+  },
+  adyenLoadError: {
+    id: "payment_adyen_load_error",
+    defaultMessage:
+      "Unable to load this payment method. Choose a different payment method or try again.",
+  },
+  adyenSubmitError: {
+    id: "payment_adyen_submit_error",
+    defaultMessage: "Unable to submit this payment method. Try again.",
   },
   billingAddressUpdateError: {
     id: "payment_billing_update_error",

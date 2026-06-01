@@ -13,12 +13,24 @@ export type HostedFieldStyleAttributes = {
   inputTextColor?: string;
   inputTextColorError?: string;
   inputTextSize?: string;
+  inputLineHeight?: string;
 };
 
 type StripeAppearance = NonNullable<StripeElementsOptions["appearance"]>;
 type StripeRules = NonNullable<StripeAppearance["rules"]>;
 type StripeRuleInput = Record<string, Record<string, string>>;
 type StripeFonts = NonNullable<StripeElementsOptions["fonts"]>;
+
+type HostedFieldStyleResolutionOptions = {
+  inputTextColorFallbackVariable?: string;
+  inputTextSizeFallbackVariable?: string;
+};
+
+type ResolvedPaddingValue = {
+  value?: string;
+  x?: string;
+  y?: string;
+};
 
 const DEFAULT_STRIPE_APPEARANCE: StripeAppearance = {
   theme: "flat",
@@ -54,7 +66,8 @@ function areStyleAttributesEqual(
     left.inputFont === right.inputFont &&
     left.inputTextColor === right.inputTextColor &&
     left.inputTextColorError === right.inputTextColorError &&
-    left.inputTextSize === right.inputTextSize
+    left.inputTextSize === right.inputTextSize &&
+    left.inputLineHeight === right.inputLineHeight
   );
 }
 
@@ -120,6 +133,10 @@ function resolveCssVariableColor(
   probeElement: HTMLElement,
   variableName: string,
 ): string | undefined {
+  if (!getCssVariableValue(getComputedStyle(probeElement), variableName)) {
+    return undefined;
+  }
+
   const ownerDocument = probeElement.ownerDocument;
   const colorProbe = ownerDocument.createElement("span");
   colorProbe.style.position = "absolute";
@@ -282,8 +299,12 @@ function getCssVariableValue(
 function resolveCssVariableLength(
   probeElement: HTMLElement,
   variableName: string,
-  cssProperty: "borderRadius" | "padding" | "fontSize",
+  cssProperty: "borderRadius" | "padding" | "fontSize" | "height",
 ): string | undefined {
+  if (!getCssVariableValue(getComputedStyle(probeElement), variableName)) {
+    return undefined;
+  }
+
   const ownerDocument = probeElement.ownerDocument;
   const lengthProbe = ownerDocument.createElement("span");
   lengthProbe.style.position = "absolute";
@@ -297,6 +318,34 @@ function resolveCssVariableLength(
   lengthProbe.remove();
 
   return resolved;
+}
+
+function resolveCssVariablePadding(
+  probeElement: HTMLElement,
+  variableName: string,
+): ResolvedPaddingValue | undefined {
+  if (!getCssVariableValue(getComputedStyle(probeElement), variableName)) {
+    return undefined;
+  }
+
+  const ownerDocument = probeElement.ownerDocument;
+  const paddingProbe = ownerDocument.createElement("span");
+  paddingProbe.style.position = "absolute";
+  paddingProbe.style.opacity = "0";
+  paddingProbe.style.pointerEvents = "none";
+  paddingProbe.style.padding = `var(${variableName})`;
+
+  appendProbeElement(probeElement, paddingProbe);
+
+  const style = getComputedStyle(paddingProbe);
+  const result = {
+    value: sanitizeCssValue(style.padding),
+    x: sanitizeCssValue(style.paddingRight),
+    y: sanitizeCssValue(style.paddingTop),
+  };
+  paddingProbe.remove();
+
+  return result;
 }
 
 function normalizeFontFamilyForStripe(
@@ -362,6 +411,87 @@ function resolveInputProbeStyle(probeElement: HTMLElement) {
 
   inputProbe.remove();
   return result;
+}
+
+function readHostedFieldStyleAttributes(
+  probeElement: HTMLElement,
+  options: HostedFieldStyleResolutionOptions = {},
+): HostedFieldStyleAttributes {
+  const anchorStyle = getComputedStyle(probeElement);
+  const ownerDocument = probeElement.ownerDocument;
+  const inputProbe = ownerDocument.createElement("input");
+  inputProbe.type = "text";
+  inputProbe.className = FIELD_STYLE_PROBE_CLASS_NAME;
+  inputProbe.style.fontFamily = "var(--font-sans)";
+  inputProbe.style.position = "absolute";
+  inputProbe.style.opacity = "0";
+  inputProbe.style.pointerEvents = "none";
+
+  appendProbeElement(probeElement, inputProbe);
+
+  const style = getComputedStyle(inputProbe);
+  const placeholderStyle = getComputedStyle(inputProbe, "::placeholder");
+  const inputPaddingVariable = resolveCssVariablePadding(
+    probeElement,
+    "--input-padding",
+  );
+  const inputHeight =
+    resolveCssVariableLength(probeElement, "--input-height", "height") ??
+    normalizeToPixelValue(style.height);
+  const inputPadding =
+    inputPaddingVariable?.value ??
+    getCssVariableValue(anchorStyle, "--input-padding");
+  const inputPaddingY =
+    resolveCssVariableLength(probeElement, "--input-padding-y", "padding") ??
+    inputPaddingVariable?.y ??
+    normalizeToPixelValue(style.paddingTop);
+  const inputPaddingX =
+    resolveCssVariableLength(probeElement, "--input-padding-x", "padding") ??
+    inputPaddingVariable?.x ??
+    normalizeToPixelValue(style.paddingRight);
+
+  const attributes: HostedFieldStyleAttributes = {
+    inputHeight,
+    inputPadding:
+      inputPadding ??
+      (inputPaddingY && inputPaddingX
+        ? `${inputPaddingY} ${inputPaddingX}`
+        : undefined),
+    inputPaddingX,
+    inputPaddingY,
+    inputBackground: sanitizeCssValue(style.backgroundColor),
+    inputPlaceholderColor:
+      resolveCssVariableColor(probeElement, "--input-placeholder-color") ??
+      resolveCssVariableColor(probeElement, "--muted-foreground") ??
+      sanitizeCssValue(placeholderStyle.color),
+    inputFont: sanitizeCssValue(style.fontFamily),
+    inputTextColor:
+      resolveCssVariableColor(probeElement, "--input-text-color") ??
+      (options.inputTextColorFallbackVariable
+        ? resolveCssVariableColor(
+            probeElement,
+            options.inputTextColorFallbackVariable,
+          )
+        : undefined) ??
+      sanitizeCssValue(style.color),
+    inputTextColorError:
+      resolveCssVariableColor(probeElement, "--input-error-text-color") ??
+      resolveCssVariableColor(probeElement, "--destructive"),
+    inputTextSize:
+      resolveCssVariableLength(probeElement, "--input-font-size", "fontSize") ??
+      (options.inputTextSizeFallbackVariable
+        ? resolveCssVariableLength(
+            probeElement,
+            options.inputTextSizeFallbackVariable,
+            "fontSize",
+          )
+        : undefined) ??
+      normalizeToPixelValue(style.fontSize),
+    inputLineHeight: sanitizeCssValue(style.lineHeight),
+  };
+
+  inputProbe.remove();
+  return attributes;
 }
 
 function buildStripeAppearanceFromTokens(
@@ -738,32 +868,7 @@ export function useHostedFieldStyleAttributes() {
       const probeElement = probeRef.current;
       if (!probeElement) return;
 
-      const style = getComputedStyle(probeElement);
-      const placeholderStyle = getComputedStyle(probeElement, "::placeholder");
-      const inputHeight = normalizeToPixelValue(style.height);
-      const inputPaddingY = normalizeToPixelValue(style.paddingTop);
-      const inputPaddingX = normalizeToPixelValue(style.paddingRight);
-
-      const nextAttributes: HostedFieldStyleAttributes = {
-        inputHeight,
-        inputPadding:
-          inputPaddingY && inputPaddingX
-            ? `${inputPaddingY} ${inputPaddingX}`
-            : undefined,
-        inputPaddingX,
-        inputPaddingY,
-        inputBackground: sanitizeCssValue(style.backgroundColor),
-        inputPlaceholderColor:
-          sanitizeCssValue(placeholderStyle.color) ??
-          resolveCssVariableColor(probeElement, "--muted-foreground"),
-        inputFont: sanitizeCssValue(style.fontFamily),
-        inputTextColor: sanitizeCssValue(style.color),
-        inputTextColorError: resolveCssVariableColor(
-          probeElement,
-          "--destructive",
-        ),
-        inputTextSize: normalizeToPixelValue(style.fontSize),
-      };
+      const nextAttributes = readHostedFieldStyleAttributes(probeElement);
 
       setStyleAttributes((previousAttributes) =>
         areStyleAttributesEqual(previousAttributes, nextAttributes)
@@ -789,6 +894,60 @@ export function useHostedFieldStyleAttributes() {
   }, []);
 
   return { probeRef, styleAttributes };
+}
+
+export function useResolvedHostedFieldStyleAttributes(
+  options: HostedFieldStyleResolutionOptions = {},
+) {
+  const probeRef = useRef<HTMLDivElement | null>(null);
+  const [styleAttributes, setStyleAttributes] =
+    useState<HostedFieldStyleAttributes>({});
+  const [ready, setReady] = useState(false);
+  const { inputTextColorFallbackVariable, inputTextSizeFallbackVariable } =
+    options;
+
+  useLayoutEffect(() => {
+    const probeElement = probeRef.current;
+    if (!probeElement) return;
+
+    const readStyleAttributes = () => {
+      const nextAttributes = readHostedFieldStyleAttributes(probeElement, {
+        inputTextColorFallbackVariable,
+        inputTextSizeFallbackVariable,
+      });
+      setStyleAttributes((previousAttributes) =>
+        areStyleAttributesEqual(previousAttributes, nextAttributes)
+          ? previousAttributes
+          : nextAttributes,
+      );
+      setReady(true);
+    };
+
+    readStyleAttributes();
+
+    const observers: MutationObserver[] = [];
+    const observeAttributes = (element: Element | null) => {
+      if (!element) return;
+
+      const observer = new MutationObserver(() => readStyleAttributes());
+      observer.observe(element, {
+        attributes: true,
+        attributeFilter: ["class", "style"],
+      });
+      observers.push(observer);
+    };
+
+    observeAttributes(document.documentElement);
+    observeAttributes(resolveNearestShadowHost(probeElement));
+    window.addEventListener("resize", readStyleAttributes);
+
+    return () => {
+      for (const observer of observers) observer.disconnect();
+      window.removeEventListener("resize", readStyleAttributes);
+    };
+  }, [inputTextColorFallbackVariable, inputTextSizeFallbackVariable]);
+
+  return { probeRef, ready, styleAttributes };
 }
 
 export function useStripeTokenAppearance(enabled: boolean) {

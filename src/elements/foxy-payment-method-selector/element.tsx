@@ -1,6 +1,7 @@
 import type {
   PaymentMethodSelectorBillingError,
   PaymentController,
+  PaymentMethodSelectorAdyenEmbeddedConfig,
   PaymentMethodSelectorBillingAddress,
   PaymentMethodSelectorBillingField,
   PaymentMethodSelectorKlarnaCategory,
@@ -31,6 +32,7 @@ import { messages } from "./messages";
 import { Payment } from "./view";
 import { StripeCardElementOption } from "./stripe/card-option";
 import { StripePaymentElementOption } from "./stripe/payment-option";
+import AdyenEmbeddedOption from "./embeds/adyen-embedded";
 import {
   ThemeMixin,
   type ThemeAttributeName,
@@ -50,6 +52,82 @@ type CheckoutApiLike = EventTarget & {
   updateBillingAddress?: (
     changes: Record<string, unknown>,
   ) => Promise<unknown> | void;
+};
+
+type AdyenEmbeddedPaymentMethodLike = {
+  type: string;
+  name?: string;
+  brands?: string[];
+  [key: string]: unknown;
+};
+
+type AdyenEmbeddedSdkLike = {
+  paymentMethodsResponse?: {
+    paymentMethods?: unknown[];
+    storedPaymentMethods?: unknown[];
+    [key: string]: unknown;
+  };
+};
+
+const ADYEN_PAYMENT_METHOD_TYPE_MAP: Record<
+  string,
+  { type: string; componentName: string }
+> = {
+  card: { type: "new-card", componentName: "Card" },
+  scheme: { type: "new-card", componentName: "Card" },
+  bcmc: { type: "bancontact", componentName: "Bancontact" },
+  bcmc_mobile: { type: "bancontact", componentName: "BcmcMobile" },
+  bcmc_mobile_qr: { type: "bancontact", componentName: "BcmcMobile" },
+  sepadirectdebit: { type: "sepa", componentName: "SepaDirectDebit" },
+  applepay: { type: "apple-pay", componentName: "ApplePay" },
+  googlepay: { type: "google-pay", componentName: "GooglePay" },
+  paywithgoogle: { type: "google-pay", componentName: "GooglePay" },
+  eps: { type: "eps", componentName: "Eps" },
+  blik: { type: "blik", componentName: "Blik" },
+  ideal: { type: "ideal", componentName: "Redirect" },
+  p24: { type: "przelewy24", componentName: "Redirect" },
+  redirect: { type: "generic", componentName: "Redirect" },
+  paypal: { type: "paypal", componentName: "PayPal" },
+  klarna: { type: "klarna", componentName: "Klarna" },
+  klarna_account: { type: "klarna", componentName: "Klarna" },
+  klarna_paynow: { type: "klarna", componentName: "Klarna" },
+  ach: { type: "ach", componentName: "Ach" },
+  directdebit_gb: {
+    type: "bacs-direct-debit",
+    componentName: "BacsDirectDebit",
+  },
+  eft_directdebit_ca: {
+    type: "eft",
+    componentName: "PreAuthorizedDebitCanada",
+  },
+  affirm: { type: "affirm", componentName: "Affirm" },
+  afterpay: { type: "afterpay", componentName: "AfterPay" },
+  afterpay_default: { type: "afterpay", componentName: "AfterPay" },
+  afterpay_b2b: { type: "afterpay", componentName: "AfterPayB2B" },
+  atome: { type: "atome", componentName: "Atome" },
+  amazonpay: { type: "amazon-pay", componentName: "AmazonPay" },
+  cashapp: { type: "cash-app", componentName: "CashAppPay" },
+  clicktopay: { type: "click-to-pay", componentName: "ClickToPay" },
+  boletobancario: { type: "boleto-bancario", componentName: "Boleto" },
+  oxxo: { type: "oxxo", componentName: "Oxxo" },
+  dotpay: { type: "dotpay", componentName: "Dotpay" },
+  giropay: { type: "giropay", componentName: "Giropay" },
+  multibanco: { type: "multibanco", componentName: "Multibanco" },
+  twint: { type: "twint", componentName: "Twint" },
+  vipps: { type: "vipps", componentName: "Vipps" },
+  trustly: { type: "trustly", componentName: "Trustly" },
+  pix: { type: "pix", componentName: "Pix" },
+  swish: { type: "swish", componentName: "Swish" },
+  wechatpay: { type: "we-chat", componentName: "WeChat" },
+  wechatpayqr: { type: "we-chat", componentName: "WeChat" },
+  promptpay: { type: "prompt-pay", componentName: "PromptPay" },
+  paynow: { type: "pay-now", componentName: "PayNow" },
+  duitnow: { type: "duit-now", componentName: "DuitNow" },
+  mbway: { type: "mbway", componentName: "MBWay" },
+  payto: { type: "payto", componentName: "PayTo" },
+  upi: { type: "upi", componentName: "UPI" },
+  upi_qr: { type: "upi", componentName: "UPI" },
+  upi_intent: { type: "upi", componentName: "UPI" },
 };
 
 const PAYPAL_UNDOCUMENTED_APMS = [
@@ -111,6 +189,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #lightDomStripeHosts = new Map<string, HTMLDivElement>();
   #lightDomStripeRoots = new Map<string, Root>();
   #stripeSyncVersion = 0;
+  #lightDomAdyenHosts = new Map<string, HTMLDivElement>();
+  #lightDomAdyenRoots = new Map<string, Root>();
+  #adyenSyncVersion = 0;
   #checkoutClient = checkoutClient as CheckoutApiLike;
   #options: PaymentMethodSelectorOption[] = [];
   #optionsLoading = false;
@@ -293,6 +374,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       option.hostedFields ||
       option.stripeCardElement ||
       option.stripePaymentElement ||
+      option.adyenEmbedded ||
       option.type === "purchase-order",
     );
   }
@@ -322,11 +404,13 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     this.#billingErrorsByOption.clear();
     this.#billingRequestVersionByOption.clear();
     this.#stripeSyncVersion += 1;
+    this.#adyenSyncVersion += 1;
     this.#optionsRequestVersion += 1;
     this.#optionsLoading = false;
     this.#optionsPromise = null;
     this.#options = [];
     this.#cleanupAllStripeHosts();
+    this.#cleanupAllAdyenHosts();
   }
 
   attributeChangedCallback(
@@ -388,6 +472,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         this.#renderLoadingState();
       }
       this.#scheduleStripeLightDomSync(undefined);
+      this.#scheduleAdyenLightDomSync(undefined);
       this.#applyStylesheet();
       return;
     }
@@ -400,6 +485,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     if (this.#optionsLoading && options.length === 0) {
       this.#renderLoadingState();
       this.#scheduleStripeLightDomSync(undefined);
+      this.#scheduleAdyenLightDomSync(undefined);
       this.#applyStylesheet();
       return;
     }
@@ -527,11 +613,16 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             const slotName = this.#getStripeSlotName(option.id);
             return <slot name={slotName} />;
           }}
+          renderAdyenContent={({ option }) => {
+            const slotName = this.#getAdyenSlotName(option.id);
+            return <slot name={slotName} />;
+          }}
         />
       </IntlProvider>,
     );
 
     this.#scheduleStripeLightDomSync(selectedOptionId);
+    this.#scheduleAdyenLightDomSync(selectedOptionId);
 
     this.#applyStylesheet();
   }
@@ -733,6 +824,24 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       };
     }
 
+    if (selectedOption.adyenEmbedded) {
+      const result = this.#asRecord(payload.result);
+      if (!result) {
+        throw new Error(
+          "Adyen Embedded tokenization response is missing a result.",
+        );
+      }
+
+      return {
+        adyenEmbedded: {
+          sessionId: selectedOption.adyenEmbedded.sessionId,
+          paymentMethodType: selectedOption.adyenEmbedded.paymentMethodType,
+          paymentMethod: selectedOption.adyenEmbedded.paymentMethod,
+          result,
+        },
+      };
+    }
+
     if (selectedOption.type === "saved-card") {
       return {
         token: this.#readPayloadString(payload, "token"),
@@ -844,7 +953,71 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     if (normalized === "purchase-order") return "purchase-order";
     if (normalized === "apple-pay") return "apple-pay";
     if (normalized === "google-pay") return "google-pay";
+    if (normalized === "adyen-embedded") return "adyen_embedded";
     return normalized;
+  }
+
+  #toAdyenPaymentMethodKey(value: unknown): string {
+    return this.#toText(value).trim().toLowerCase();
+  }
+
+  #getAdyenPaymentMethodMapping(
+    paymentMethodType: string,
+  ): { type: string; componentName: string } | undefined {
+    return ADYEN_PAYMENT_METHOD_TYPE_MAP[
+      this.#toAdyenPaymentMethodKey(paymentMethodType)
+    ];
+  }
+
+  #getAdyenEmbeddedSdk(): AdyenEmbeddedSdkLike | null {
+    return this.#asRecord(
+      this.#checkoutClient.adyenEmbedded,
+    ) as AdyenEmbeddedSdkLike | null;
+  }
+
+  #createAdyenEmbeddedGatewayEntries(
+    config: Record<string, unknown>,
+  ): Record<string, unknown>[] {
+    const sessionId = this.#toOptionalText(config.session_id);
+    const sessionData = this.#toOptionalText(config.session_data);
+    const environment = this.#toOptionalText(config.environment);
+    const clientKey = this.#toOptionalText(config.client_key);
+
+    if (!sessionId || !sessionData || !environment || !clientKey) {
+      return [];
+    }
+
+    const sdk = this.#getAdyenEmbeddedSdk();
+    const paymentMethods = sdk?.paymentMethodsResponse?.paymentMethods;
+
+    if (!Array.isArray(paymentMethods)) {
+      return [];
+    }
+
+    return paymentMethods.flatMap((rawPaymentMethod) => {
+      const paymentMethod = this.#asRecord(
+        rawPaymentMethod,
+      ) as AdyenEmbeddedPaymentMethodLike | null;
+      const paymentMethodType = this.#toOptionalText(paymentMethod?.type);
+      if (!paymentMethod || !paymentMethodType) return [];
+
+      const mapping = this.#getAdyenPaymentMethodMapping(paymentMethodType);
+      if (!mapping) return [];
+
+      return [
+        {
+          type: mapping.type,
+          gateway: "adyen_embedded",
+          session_id: sessionId,
+          session_data: sessionData,
+          environment,
+          client_key: clientKey,
+          adyen_payment_method_type: paymentMethodType,
+          adyen_payment_method: paymentMethod,
+          adyen_component_name: mapping.componentName,
+        },
+      ];
+    });
   }
 
   #toOptionKeySegment(value: unknown): string {
@@ -1430,7 +1603,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     if (gateway === "adyen_embedded") {
-      return [];
+      return this.#createAdyenEmbeddedGatewayEntries(config);
     }
 
     return this.#createStandardCardGatewayEntries(gateway, config);
@@ -1634,6 +1807,48 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return options;
   }
 
+  #createAdyenEmbeddedConfig(
+    option: Record<string, unknown>,
+  ): PaymentMethodSelectorAdyenEmbeddedConfig | undefined {
+    if (this.#toText(option.gateway) !== "adyen_embedded") {
+      return undefined;
+    }
+
+    const sessionId = this.#toOptionalText(option.session_id);
+    const sessionData = this.#toOptionalText(option.session_data);
+    const environment = this.#toOptionalText(option.environment);
+    const clientKey = this.#toOptionalText(option.client_key);
+    const paymentMethodType = this.#toOptionalText(
+      option.adyen_payment_method_type,
+    );
+    const paymentMethod = this.#asRecord(
+      option.adyen_payment_method,
+    ) as AdyenEmbeddedPaymentMethodLike | null;
+    const componentName = this.#toOptionalText(option.adyen_component_name);
+
+    if (
+      !sessionId ||
+      !sessionData ||
+      !environment ||
+      !clientKey ||
+      !paymentMethodType ||
+      !paymentMethod ||
+      !componentName
+    ) {
+      return undefined;
+    }
+
+    return {
+      sessionId,
+      sessionData,
+      environment,
+      clientKey,
+      paymentMethodType,
+      paymentMethod,
+      componentName,
+    };
+  }
+
   #createSavedCardOptions(
     option: Record<string, unknown>,
     index: number,
@@ -1706,6 +1921,31 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
     if (type === "saved-card") {
       return this.#createSavedCardOptions(option, index, apiState);
+    }
+
+    if (gateway === "adyen_embedded") {
+      const adyenEmbedded = this.#createAdyenEmbeddedConfig(option);
+      if (!adyenEmbedded) {
+        return [];
+      }
+
+      const brands = Array.isArray(adyenEmbedded.paymentMethod.brands)
+        ? adyenEmbedded.paymentMethod.brands.filter(
+            (brand): brand is string => typeof brand === "string" && !!brand,
+          )
+        : undefined;
+
+      return [
+        {
+          id: optionId,
+          type,
+          label: this.#toText(adyenEmbedded.paymentMethod.name),
+          gateway,
+          disabled,
+          acceptedBrands: brands?.length ? brands : undefined,
+          adyenEmbedded,
+        },
+      ];
     }
 
     if (type === "klarna" && gateway === "klarna") {
@@ -2088,6 +2328,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     );
   }
 
+  #isAdyenOption(option: PaymentMethodSelectorOption | undefined): boolean {
+    return Boolean(option?.adyenEmbedded);
+  }
+
   #getStripeSlotName(optionId: string): string {
     const normalized = optionId.replace(/[^a-zA-Z0-9_-]/g, "-");
     return `foxy-stripe-slot-${normalized}`;
@@ -2201,6 +2445,101 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     for (const optionId of [...this.#lightDomStripeHosts.keys()]) {
       if (optionId !== selectedOptionId) {
         this.#cleanupStripeHost(optionId);
+      }
+    }
+  }
+
+  #getAdyenSlotName(optionId: string): string {
+    const normalized = optionId.replace(/[^a-zA-Z0-9_-]/g, "-");
+    return `foxy-adyen-slot-${normalized}`;
+  }
+
+  #ensureAdyenHost(optionId: string): HTMLDivElement {
+    const existing = this.#lightDomAdyenHosts.get(optionId);
+    if (existing) return existing;
+
+    const host = document.createElement("div");
+    host.setAttribute("slot", this.#getAdyenSlotName(optionId));
+    host.dataset.foxyAdyenHost = optionId;
+    this.append(host);
+    this.#lightDomAdyenHosts.set(optionId, host);
+
+    return host;
+  }
+
+  #renderAdyenOption(option: PaymentMethodSelectorOption) {
+    const host = this.#ensureAdyenHost(option.id);
+
+    let root = this.#lightDomAdyenRoots.get(option.id);
+    if (!root) {
+      root = createRoot(host);
+      this.#lightDomAdyenRoots.set(option.id, root);
+    }
+
+    root.render(
+      <AdyenEmbeddedOption
+        option={option}
+        onControllerReady={(controller) => {
+          if (controller) {
+            this.#controllers.set(option.id, controller);
+            return;
+          }
+
+          this.#controllers.delete(option.id);
+        }}
+      />,
+    );
+  }
+
+  #cleanupAdyenHost(optionId: string) {
+    this.#controllers.delete(optionId);
+
+    const root = this.#lightDomAdyenRoots.get(optionId);
+    if (root) {
+      root.unmount();
+      this.#lightDomAdyenRoots.delete(optionId);
+    }
+
+    const host = this.#lightDomAdyenHosts.get(optionId);
+    if (host) {
+      host.remove();
+      this.#lightDomAdyenHosts.delete(optionId);
+    }
+  }
+
+  #cleanupAllAdyenHosts() {
+    for (const optionId of this.#lightDomAdyenHosts.keys()) {
+      this.#cleanupAdyenHost(optionId);
+    }
+  }
+
+  #scheduleAdyenLightDomSync(selectedOptionId: string | undefined) {
+    const syncVersion = ++this.#adyenSyncVersion;
+
+    queueMicrotask(() => {
+      if (syncVersion !== this.#adyenSyncVersion) return;
+      this.#syncAdyenLightDomMount(selectedOptionId);
+    });
+  }
+
+  #syncAdyenLightDomMount(selectedOptionId: string | undefined) {
+    const options = this.#resolveOptions();
+    if (!selectedOptionId) {
+      this.#cleanupAllAdyenHosts();
+      return;
+    }
+
+    const selectedOption = options.find((opt) => opt.id === selectedOptionId);
+    if (!this.#isAdyenOption(selectedOption)) {
+      this.#cleanupAllAdyenHosts();
+      return;
+    }
+
+    this.#renderAdyenOption(selectedOption as PaymentMethodSelectorOption);
+
+    for (const optionId of [...this.#lightDomAdyenHosts.keys()]) {
+      if (optionId !== selectedOptionId) {
+        this.#cleanupAdyenHost(optionId);
       }
     }
   }

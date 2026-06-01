@@ -8,7 +8,9 @@ Payment method selector element that renders available checkout payment options,
 
 Required attributes: none. The element still requires checkout client state to be initialized before it can render payment options and tokenize.
 
-For the <code>paypal_platform</code> gateway, the selector renders the base PayPal option plus the SDK-discovered PayPal-supported methods as first-class entries instead of collapsing them into a generic fallback. The standalone PayPal examples now live under <code>examples/foxy-payment-method-selector/paypal_platform/</code> with buyer-country pages named <code>us.html</code>, <code>be.html</code>, <code>nl.html</code>, <code>at.html</code>, and <code>pl.html</code>, while the broader showcase moved to <code>examples/foxy-payment-method-selector/misc/all-payment-methods.html</code>.
+For the <code>paypal_platform</code> gateway, the selector renders the base PayPal option plus the SDK-discovered PayPal-supported methods as first-class entries instead of collapsing them into a generic fallback. The standalone PayPal examples live under <code>examples/paypal_platform/</code> with buyer-country pages named <code>us.html</code>, <code>be.html</code>, <code>nl.html</code>, <code>at.html</code>, and <code>pl.html</code>.
+
+For the <code>adyen_embedded</code> gateway, the selector reads the SDK-initialized Adyen Web instance exposed on <code>@foxy.io/sdk/checkout/client</code>, renders one selector entry per available Adyen payment method, and mounts only the selected Adyen Web Component. Calling <code>tokenize()</code> submits the selected Adyen Component and returns <code>&#123;&quot;adyenEmbedded&quot;:&#123;&quot;sessionId&quot;:&quot;...&quot;,&quot;paymentMethodType&quot;:&quot;...&quot;,&quot;paymentMethod&quot;:&#123;...&#125;,&quot;result&quot;:&#123;...&#125;&#125;&#125;</code>. Adyen Components inherit the selector's shadcn/Tailwind theme through Adyen's documented <code>--adyen-sdk-\*</code> CSS variables, while secured card iframes receive matching font, text, placeholder, and error colors through Adyen's secured-field styles config.
 
 PayPal Pay Later renders a <code>paypal-message</code> element in the option description. The selector only hydrates that element through the PayPal surface already exposed on <code>@foxy.io/sdk/checkout/client</code>; it does not load the PayPal SDK directly. In the standalone example pages, the light-DOM fallback description remains visible unless the shared checkout client already has a hydrated PayPal surface.
 
@@ -20,23 +22,20 @@ If checkout state is initialized but exposes no recognized payment methods, the 
 
 ## Examples
 
-Run <code>npm run localdev:examples</code> and open the standalone pages under <code>examples/foxy-payment-method-selector/</code>.
+Run <code>npm run localdev:examples</code> and open the standalone pages under <code>examples/</code>.
 
 - Gateway-named root pages cover the SDK payment gateway ids directly, including <code>authorize.html</code>, <code>authorize_cim.html</code>, <code>braintree_sdk.html</code>, <code>bluesnap.html</code>, <code>cybersource_rest.html</code>, <code>bank_of_america.html</code>, <code>eway.html</code>, <code>firstdata_e4.html</code>, <code>moneris.html</code>, <code>nmi_native.html</code>, <code>paytrace.html</code>, <code>quickbook_payments.html</code>, <code>vantiv_omnipay.html</code>, <code>sagepay.html</code>, <code>stripe_connect.html</code>, <code>stripe_connect_charge.html</code>, <code>stripe_v2.html</code>, <code>authorize_ach.html</code>, <code>ach_com.html</code>, <code>klarna.html</code>, <code>sezzle.html</code>, and <code>mollie_omnipay.html</code>.
-- <code>examples/foxy-payment-method-selector/paypal_platform/us.html</code>,
-  <code>be.html</code>, <code>nl.html</code>, <code>at.html</code>, and
+- <code>examples/paypal_platform/us.html</code>,<code>be.html</code>,
+  <code>nl.html</code>, <code>at.html</code>, and
   <code>pl.html</code> cover the PayPal Platform options by buyer market, and
   their setup notes now live in
-  <code>examples/foxy-payment-method-selector/paypal_platform/README.md</code>.
-- <code>examples/foxy-payment-method-selector/misc/uninitialized.html</code>
-  shows the empty client state.
-- <code>examples/foxy-payment-method-selector/misc/new-card.html</code>,
-  <code>misc/saved-card.html</code>, <code>misc/apple-pay.html</code>,
-  <code>misc/google-pay.html</code>, <code>misc/purchase-order.html</code>, and
-  <code>misc/all-payment-methods.html</code> are non-gateway demos for selector
-  states and composed payment flows.
+  <code>examples/paypal_platform/README.md</code>.
+- <code>examples/adyen_embedded/us.html</code>, <code>nl.html</code>,
+  <code>be.html</code>, and <code>pl.html</code> cover Adyen Embedded with real
+  Sessions data.
+- <code>examples/uninitialized.html</code> shows the empty client state.
 
-Stripe examples read <code>VITE_STRIPE_PUBLISHABLE_KEY</code> first and fall back to <code>VITE_STRIPE_DEMO_PUBLISHABLE_KEY</code> or a safe demo key. The PayPal country pages under <code>examples/foxy-payment-method-selector/paypal_platform/</code> use matching sandbox client IDs: <code>us.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_US</code>, <code>be.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_BE</code>, <code>nl.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_NL</code>, <code>at.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_AT</code>, and <code>pl.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_PL</code>. Each page seeds the matching locale, currency, and buyer-country hint. The per-market setup details and expected methods now live in <code>examples/foxy-payment-method-selector/paypal_platform/README.md</code>. Sezzle examples read <code>VITE_SEZZLE_PUBLIC_KEY</code> when it is available and otherwise install a lightweight local <code>window.Checkout</code> mock so the selector can keep rendering the Sezzle option without a live Sezzle checkout session. The SDK also includes <code>adyen_embedded</code> in its gateway list, but this examples folder does not currently include an Adyen page because the selector does not synthesize a standalone option from gateway-only fixture data.
+Stripe examples read <code>VITE_STRIPE_PUBLISHABLE_KEY</code> first and fall back to <code>VITE_STRIPE_DEMO_PUBLISHABLE_KEY</code> or a safe demo key. The PayPal country pages under <code>examples/paypal_platform/</code> use matching sandbox client IDs: <code>us.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_US</code>, <code>be.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_BE</code>, <code>nl.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_NL</code>, <code>at.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_AT</code>, and <code>pl.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_PL</code>. Each page seeds the matching locale, currency, and buyer-country hint. The per-market setup details and expected methods live in <code>examples/paypal_platform/README.md</code>. Adyen Embedded examples under <code>examples/adyen_embedded/</code> require real Adyen Session env vars and render only methods returned by Adyen for that session. Sezzle examples read <code>VITE_SEZZLE_PUBLIC_KEY</code> when it is available and otherwise install a lightweight local <code>window.Checkout</code> mock so the selector can keep rendering the Sezzle option without a live Sezzle checkout session.
 
 The standard card, Stripe, and PayPal example pages also seed a single saved payment method through <code>saved_payment_methods</code> so each supported example can demonstrate the saved-card option alongside the gateway-specific flow.
 
@@ -208,7 +207,7 @@ The standard card, Stripe, and PayPal example pages also seed a single saved pay
       <td>
         <code>theme-input-height</code>
       </td>
-      <td>Hosted card input height override token.</td>
+      <td>Hosted field and Adyen card input height override token.</td>
       <td>
         <code>40px</code>
       </td>
@@ -217,7 +216,7 @@ The standard card, Stripe, and PayPal example pages also seed a single saved pay
       <td>
         <code>theme-input-padding</code>
       </td>
-      <td>Hosted card input shorthand padding token.</td>
+      <td>Hosted field and Adyen card input shorthand padding token.</td>
       <td>
         <code>0 12px</code>
       </td>
@@ -226,7 +225,9 @@ The standard card, Stripe, and PayPal example pages also seed a single saved pay
       <td>
         <code>theme-input-padding-x</code>
       </td>
-      <td>Hosted card input horizontal padding override token.</td>
+      <td>
+        Hosted field and Adyen card input horizontal padding override token.
+      </td>
       <td>
         <code>12px</code>
       </td>
@@ -235,9 +236,47 @@ The standard card, Stripe, and PayPal example pages also seed a single saved pay
       <td>
         <code>theme-input-padding-y</code>
       </td>
-      <td>Hosted card input vertical padding override token.</td>
+      <td>
+        Hosted field and Adyen card input vertical padding override token.
+      </td>
       <td>
         <code>10px</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-placeholder-color</code>
+      </td>
+      <td>Hosted field and Adyen card placeholder color override token.</td>
+      <td>
+        <code>#64748b</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-text-color</code>
+      </td>
+      <td>Hosted field and Adyen card text color override token.</td>
+      <td>
+        <code>#0f172a</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-error-text-color</code>
+      </td>
+      <td>Hosted field and Adyen card error color override token.</td>
+      <td>
+        <code>#dc2626</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-input-font-size</code>
+      </td>
+      <td>Hosted field and Adyen card input font-size override token.</td>
+      <td>
+        <code>14px</code>
       </td>
     </tr>
   </tbody>
@@ -458,7 +497,8 @@ remain the inherited <code>HTMLElement</code> property.
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-input-height</code> for hosted card input height.
+        Reflects <code>theme-input-height</code> for hosted field and Adyen card
+        input height.
       </td>
     </tr>
     <tr>
@@ -469,8 +509,8 @@ remain the inherited <code>HTMLElement</code> property.
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-input-padding</code> for hosted card input
-        shorthand padding.
+        Reflects <code>theme-input-padding</code> for hosted field and Adyen
+        card input shorthand padding.
       </td>
     </tr>
     <tr>
@@ -481,8 +521,8 @@ remain the inherited <code>HTMLElement</code> property.
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-input-padding-x</code> for hosted card input
-        horizontal padding.
+        Reflects <code>theme-input-padding-x</code> for hosted field and Adyen
+        card input horizontal padding.
       </td>
     </tr>
     <tr>
@@ -493,8 +533,56 @@ remain the inherited <code>HTMLElement</code> property.
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-input-padding-y</code> for hosted card input
-        vertical padding.
+        Reflects <code>theme-input-padding-y</code> for hosted field and Adyen
+        card input vertical padding.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputPlaceholderColor</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-placeholder-color</code> for hosted field and
+        Adyen card placeholder color.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputTextColor</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-text-color</code> for hosted field and Adyen
+        card text color.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputErrorTextColor</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-error-text-color</code> for hosted field and
+        Adyen card error color.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeInputFontSize</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-input-font-size</code> for hosted field and Adyen
+        card input font size.
       </td>
     </tr>
   </tbody>
