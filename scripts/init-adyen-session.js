@@ -28,27 +28,6 @@ const PROFILE_CONFIGS = {
     currency: "USD",
     value: 1749,
   },
-  NL: {
-    page: "nl.html",
-    countryCode: "NL",
-    shopperLocale: "nl-NL",
-    currency: "EUR",
-    value: 1749,
-  },
-  BE: {
-    page: "be.html",
-    countryCode: "BE",
-    shopperLocale: "nl-BE",
-    currency: "EUR",
-    value: 1749,
-  },
-  PL: {
-    page: "pl.html",
-    countryCode: "PL",
-    shopperLocale: "pl-PL",
-    currency: "PLN",
-    value: 7499,
-  },
 };
 
 function toNonEmptyString(value) {
