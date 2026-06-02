@@ -6,6 +6,7 @@ import react from "@vitejs/plugin-react";
 import dts from "vite-plugin-dts";
 
 import { dependencies, peerDependencies } from "./package.json";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import {
@@ -63,9 +64,16 @@ export default defineConfig(({ mode }) => {
     entry.index = resolve(elementsDir, "./index.ts");
   }
 
+  const certFile = resolve(import.meta.dirname, ".certs/elements.foxy.test.pem");
+  const keyFile = resolve(import.meta.dirname, ".certs/elements.foxy.test-key.pem");
+  const hasLocalCerts = existsSync(certFile) && existsSync(keyFile);
+
   return {
     plugins,
     resolve: { alias: { "@": srcDir } },
+    server: hasLocalCerts
+      ? { https: { cert: readFileSync(certFile), key: readFileSync(keyFile) } }
+      : undefined,
     build: {
       rolldownOptions,
       sourcemap: !isCDN,

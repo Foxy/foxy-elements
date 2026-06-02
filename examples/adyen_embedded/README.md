@@ -2,7 +2,28 @@
 
 These pages require real Adyen Sessions data. They do not mock `paymentMethodsResponse`, so the selector only shows methods returned by Adyen for the session, country, amount, currency, and enabled merchant account methods.
 
-Run `npm run localdev:examples`, set the matching env vars in `.env.local`, restart Vite, and open the page.
+Run `npm run localdev:examples`, set the matching env vars in `.env.local`, restart Vite, and open the page at `https://elements.foxy.test:6007`.
+
+The dev server requires a local TLS certificate (for Apple Pay, which validates the page origin). Run once to generate it:
+
+```sh
+mkcert -cert-file .certs/elements.foxy.test.pem \
+       -key-file  .certs/elements.foxy.test-key.pem \
+       elements.foxy.test
+```
+
+And add the host to `/etc/hosts` if not already present:
+
+```sh
+sudo sh -c 'echo "127.0.0.1 elements.foxy.test" >> /etc/hosts'
+```
+
+When creating Adyen sessions for Apple Pay testing, set `ADYEN_RETURN_URL_BASE`:
+
+```sh
+ADYEN_RETURN_URL_BASE=https://elements.foxy.test/examples/adyen_embedded \
+npm run init:adyen
+```
 
 Each page mounts one selector for its Adyen Session. If you need multiple live selectors on the same page, create a separate Session for each one; Adyen Web Components can behave unpredictably when the same Session is mounted more than once.
 
@@ -45,7 +66,27 @@ The script writes `VITE_ADYEN_CLIENT_KEY_*`, `VITE_ADYEN_SESSION_ID_*`, and `VIT
 - Example page: `us.html`
 - Env vars: `VITE_ADYEN_CLIENT_KEY_US`, `VITE_ADYEN_SESSION_ID_US`, `VITE_ADYEN_SESSION_DATA_US`
 - Buyer profile: United States (`US`), locale `en-US`, currency `USD`
-- Expected methods depend on account setup, commonly card and wallets.
+
+### Supported US payment methods
+
+The following methods are returned by the Adyen test session and supported by the selector when enabled on your merchant account:
+
+| Method | Adyen type | Notes |
+|---|---|---|
+| Bank cards | `scheme` | Visa, Mastercard, Amex, etc. |
+| AliPay | `alipay` | Redirects to AliPay. Enable in your Adyen merchant account. |
+| Cash App Pay | `cashapp` | |
+| Google Pay | `googlepay` | |
+| Klarna | `klarna` | Pay later. |
+| Online Banking | `dragonpay_ebanking` | DragonPay-powered online banking redirect. |
+| Paysafecard | `paysafecard` | Redirects to Paysafecard. |
+| PayPal | `paypal` | |
+| WeChat Pay | `wechatpayQR` / `wechatpayWeb` / `wechatpayMiniProgram` | Three flow variants; all appear if enabled. |
+
+#### Methods intentionally omitted
+
+- **Zip** — Adyen's documentation lists Zip as available in the US, but their demo portal and merchant test environment only show it for Australia. Skipped until confirmed available for US accounts.
+- **Venmo** — Venmo is a PayPal funding source, not a standalone Adyen payment method. It is handled through the PayPal Platform integration, not Adyen Embedded.
 
 ## Creating Sessions Manually
 

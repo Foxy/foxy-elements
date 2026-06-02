@@ -108,7 +108,7 @@ export const messages = defineMessages({
   },
   optionDescriptionAdyenEmbedded: {
     id: "payment_option_description_adyen_embedded",
-    defaultMessage: "Enter your payment details below.",
+    defaultMessage: "Enter your payment details below and click the Submit button below the order summary to submit your order.",
   },
   optionDescriptionPurchaseOrder: {
     id: "payment_option_description_purchase_order",
@@ -192,6 +192,26 @@ export const messages = defineMessages({
     id: "payment_option_description_przelewy24",
     defaultMessage:
       "Click the Przelewy24 button under the order summary to submit your order.",
+  },
+  optionDescriptionAlipay: {
+    id: "payment_option_description_alipay",
+    defaultMessage:
+      "Click the Alipay button below the order summary to submit your order.",
+  },
+  optionDescriptionPaysafecard: {
+    id: "payment_option_description_paysafecard",
+    defaultMessage:
+      "Click the Paysafecard button below the order summary to submit your order.",
+  },
+  optionDescriptionCashApp: {
+    id: "payment_option_description_cash_app",
+    defaultMessage:
+      "Click the Cash App Pay button below the order summary to submit your order.",
+  },
+  optionDescriptionWeChat: {
+    id: "payment_option_description_we_chat",
+    defaultMessage:
+      "Click the WeChat Pay button below the order summary to submit your order.",
   },
   optionViaGateway: {
     id: "payment_option_via_gateway",
@@ -415,6 +435,10 @@ export const OPTION_DESCRIPTION_BY_TYPE: Partial<
   blik: messages.optionDescriptionBlik,
   ideal: messages.optionDescriptionIdeal,
   przelewy24: messages.optionDescriptionPrzelewy24,
+  alipay: messages.optionDescriptionAlipay,
+  paysafecard: messages.optionDescriptionPaysafecard,
+  "cash-app": messages.optionDescriptionCashApp,
+  "we-chat": messages.optionDescriptionWeChat,
 };
 
 export const BILLING_FIELD_LABEL_BY_ID: Partial<

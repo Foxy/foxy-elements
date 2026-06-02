@@ -36,7 +36,7 @@
   "payment_no_methods_available": "No payment methods are currently available.",
   "payment_no_methods_available_description": "Refresh checkout or choose a different payment flow before continuing.",
   "payment_option_description_ach": "Enter your bank account details below.",
-  "payment_option_description_adyen_embedded": "Enter your payment details below.",
+  "payment_option_description_adyen_embedded": "Enter your payment details below and click the Submit button below the order summary to submit your order.",
   "payment_option_description_apple_pay": "Click the Apple Pay button under the order summary to submit your order.",
   "payment_option_description_bancontact": "Click the Bancontact button under the order summary to submit your order.",
   "payment_option_description_blik": "Click the BLIK button under the order summary to submit your order.",

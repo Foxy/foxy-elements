@@ -128,6 +128,23 @@ const ADYEN_PAYMENT_METHOD_TYPE_MAP: Record<
   upi: { type: "upi", componentName: "UPI" },
   upi_qr: { type: "upi", componentName: "UPI" },
   upi_intent: { type: "upi", componentName: "UPI" },
+  dragonpay: { type: "dragonpay", componentName: "Dragonpay" },
+  dragonpay_ebanking: { type: "dragonpay", componentName: "Dragonpay" },
+  dragonpay_otc_banking: { type: "dragonpay", componentName: "Dragonpay" },
+  dragonpay_otc_non_banking: { type: "dragonpay", componentName: "Dragonpay" },
+  dragonpay_otc_philippines: { type: "dragonpay", componentName: "Dragonpay" },
+  wechatpayweb: { type: "we-chat", componentName: "Redirect" },
+  wechatpayminiprogram: { type: "we-chat", componentName: "Redirect" },
+  alipay: { type: "alipay", componentName: "Redirect" },
+  paysafecard: { type: "paysafecard", componentName: "Redirect" },
+  paybybank_ais_dd: { type: "pay-by-bank-us", componentName: "PayByBankUS" },
+  paybybank: { type: "pay-by-bank", componentName: "PayByBank" },
+  paybybank_pix: { type: "pay-by-bank-pix", componentName: "PayByBankPix" },
+  onlinebanking_pl: { type: "online-banking-pl", componentName: "OnlineBankingPL" },
+  onlinebanking_cz: { type: "online-banking-cz", componentName: "OnlineBankingCZ" },
+  onlinebanking_sk: { type: "online-banking-sk", componentName: "OnlineBankingSK" },
+  onlinebanking_in: { type: "online-banking-in", componentName: "OnlineBankingIN" },
+  ebanking_fi: { type: "online-banking-fi", componentName: "OnlineBankingFI" },
 };
 
 const PAYPAL_UNDOCUMENTED_APMS = [
@@ -994,7 +1011,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       return [];
     }
 
-    return paymentMethods.flatMap((rawPaymentMethod) => {
+    const entries = paymentMethods.flatMap((rawPaymentMethod) => {
       const paymentMethod = this.#asRecord(
         rawPaymentMethod,
       ) as AdyenEmbeddedPaymentMethodLike | null;
@@ -1018,6 +1035,49 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         },
       ];
     });
+
+    return this.#deduplicateWeChatEntries(entries);
+  }
+
+  // Adyen returns up to four WeChat Pay variants (wechatpay, wechatpayqr,
+  // wechatpayweb, wechatpayminiprogram) that all map to the same selector type
+  // "we-chat". Keep only the one best suited to the current device:
+  // touch/mobile → web redirect; mouse/desktop → QR code.
+  #deduplicateWeChatEntries(
+    entries: Record<string, unknown>[],
+  ): Record<string, unknown>[] {
+    // Ordered from most to least preferred per device class.
+    const isMobile =
+      typeof window !== "undefined" &&
+      window.matchMedia("(pointer: coarse)").matches;
+
+    const priority = isMobile
+      ? ["wechatpayweb", "wechatpayminiprogram", "wechatpayqr", "wechatpay"]
+      : ["wechatpayqr", "wechatpay", "wechatpayweb", "wechatpayminiprogram"];
+
+    const weChatKeys = new Set(priority);
+
+    const weChatEntries = entries.filter((e) =>
+      weChatKeys.has(this.#toAdyenPaymentMethodKey(e.adyen_payment_method_type)),
+    );
+
+    if (weChatEntries.length <= 1) return entries;
+
+    const best = priority
+      .map((key) =>
+        weChatEntries.find(
+          (e) =>
+            this.#toAdyenPaymentMethodKey(e.adyen_payment_method_type) === key,
+        ),
+      )
+      .find(Boolean);
+
+    return entries.filter(
+      (e) =>
+        !weChatKeys.has(
+          this.#toAdyenPaymentMethodKey(e.adyen_payment_method_type),
+        ) || e === best,
+    );
   }
 
   #toOptionKeySegment(value: unknown): string {

@@ -113,6 +113,26 @@ const ADYEN_EMBEDDED_STYLES = `
 .foxy-adyen-embedded .adyen-checkout-form-instruction {
   display: none;
 }
+
+.foxy-adyen-embedded .adyen-checkout__dropdown__list {
+  padding: calc(var(--foxy-adyen-spacing) * 1);
+}
+
+.foxy-adyen-embedded .adyen-checkout__dropdown__element {
+  border: none;
+  border-radius: var(--adyen-sdk-border-radius-s);
+  padding: calc(var(--foxy-adyen-spacing) * 1.5) calc(var(--foxy-adyen-spacing) * 2);
+}
+
+.foxy-adyen-embedded .adyen-checkout__dropdown__element:hover {
+  background: var(--adyen-sdk-color-background-secondary);
+  border-radius: var(--adyen-sdk-border-radius-s);
+}
+
+.foxy-adyen-embedded .adyen-checkout__dropdown__element.adyen-checkout__dropdown__element--active {
+  box-shadow: none;
+  border-radius: var(--adyen-sdk-border-radius-s);
+}
 `;
 
 type AdyenStatus = "loading" | "ready" | "unavailable" | "error";

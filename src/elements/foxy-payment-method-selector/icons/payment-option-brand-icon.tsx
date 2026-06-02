@@ -20,6 +20,10 @@ const SepaMarkIcon = lazy(() => import("./sepa"));
 const EpsMarkIcon = lazy(() => import("./eps"));
 const BlikMarkIcon = lazy(() => import("./blik"));
 const Przelewy24MarkIcon = lazy(() => import("./przelewy24"));
+const AlipayMarkIcon = lazy(() => import("./alipay"));
+const PaysafecardMarkIcon = lazy(() => import("./paysafecard"));
+const CashAppMarkIcon = lazy(() => import("./cash-app"));
+const WeChatMarkIcon = lazy(() => import("./we-chat"));
 const PaymentOptionCardBrandIcon = lazy(() => import("./card-brands"));
 
 export function PaymentOptionBrandIcon({
@@ -176,6 +180,40 @@ export function PaymentOptionBrandIcon({
   if (option.type === "ach") {
     return getGenericPaymentOptionIcon(
       <Landmark className="h-4 w-4 text-muted-foreground" />,
+    );
+  }
+
+  if (option.type === "alipay") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<AlipayMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "paysafecard") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(
+          <PaysafecardMarkIcon className="h-5 w-auto" />,
+        )}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "cash-app") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<CashAppMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "we-chat") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<WeChatMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
     );
   }
 

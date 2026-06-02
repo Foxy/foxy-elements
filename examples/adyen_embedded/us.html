@@ -11,6 +11,12 @@
     ></script>
     <script type="module">
       import { hydrateAdyenExample } from "./shared.js";
+      import { client } from "@foxy.io/sdk/checkout/client";
+
+      const env = import.meta.env.VITE_ADYEN_ENVIRONMENT || "test";
+      const clientKey = import.meta.env.VITE_ADYEN_CLIENT_KEY_US;
+      const sessionId = import.meta.env.VITE_ADYEN_SESSION_ID_US;
+      const sessionData = import.meta.env.VITE_ADYEN_SESSION_DATA_US;
 
       await hydrateAdyenExample({
         country: "US",
@@ -20,14 +26,43 @@
         locale: "en-US",
         currency: "USD",
         total: 17.49,
-        environment: import.meta.env.VITE_ADYEN_ENVIRONMENT,
-        clientKey: import.meta.env.VITE_ADYEN_CLIENT_KEY_US,
+        environment: env,
+        clientKey,
         clientKeyEnvName: "VITE_ADYEN_CLIENT_KEY_US",
-        sessionId: import.meta.env.VITE_ADYEN_SESSION_ID_US,
+        sessionId,
         sessionIdEnvName: "VITE_ADYEN_SESSION_ID_US",
-        sessionData: import.meta.env.VITE_ADYEN_SESSION_DATA_US,
+        sessionData,
         sessionDataEnvName: "VITE_ADYEN_SESSION_DATA_US",
       });
+
+      // Mount the Adyen Drop-In reusing the checkout instance that hydrateAdyenExample already created.
+      const dropinStatus = document.querySelector("[data-dropin-status]");
+      try {
+        const sdkBase = `https://checkoutshopper-${env}.cdn.adyen.com/checkoutshopper/sdk/6.36.0`;
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = `${sdkBase}/adyen.css`;
+        document.head.appendChild(link);
+
+        // Poll until client.adyenEmbedded is populated by hydrateAdyenExample.
+        const deadline = Date.now() + 15_000;
+        while (!client.adyenEmbedded) {
+          if (Date.now() > deadline) throw new Error("Adyen checkout timed out");
+          await new Promise((r) => setTimeout(r, 50));
+        }
+
+        new window.AdyenWeb.Dropin(client.adyenEmbedded, {
+          onPaymentCompleted: (result) => {
+            dropinStatus.textContent = `Payment result: ${result.resultCode}`;
+          },
+          onError: (error) => {
+            dropinStatus.textContent = `Error: ${error.message}`;
+          },
+        }).mount("#adyen-dropin-mount");
+        dropinStatus.textContent = "Adyen Drop-In loaded.";
+      } catch (e) {
+        dropinStatus.textContent = `Failed to load Drop-In: ${e.message}`;
+      }
     </script>
   </head>
   <body>
@@ -53,6 +88,18 @@
         </div>
         <div class="shell dark">
           <foxy-payment-method-selector></foxy-payment-method-selector>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div>
+          <h1>Adyen Drop-In</h1>
+          <p data-dropin-status aria-live="polite">
+            Waiting for Adyen session.
+          </p>
+        </div>
+        <div class="shell">
+          <div id="adyen-dropin-mount"></div>
         </div>
       </section>
     </main>

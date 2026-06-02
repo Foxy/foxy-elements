@@ -42,6 +42,7 @@ import {
 } from "./stripe/style-hooks";
 import { PaymentOptionBrandIcon as PaymentOptionBrandIconComponent } from "./icons/payment-option-brand-icon";
 import {
+  ADYEN_BUTTON_ONLY_OPTION_TYPES,
   BUTTON_CLICK_HINT_OPTION_TYPES,
   CARD_TYPES,
   FIELD_STYLE_PROBE_CLASS_NAME,
@@ -210,7 +211,7 @@ function getPaymentOptionDescriptionText(
     return intl.formatMessage(messages.optionDescriptionKlarna);
   }
 
-  if (option.adyenEmbedded) {
+  if (option.adyenEmbedded && !ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "")) {
     if (option.type === "new-card") {
       return intl.formatMessage(messages.optionDescriptionNewCard);
     }
@@ -336,7 +337,7 @@ function renderPaymentOptionDescription(
     );
 
   if (
-    option.adyenEmbedded ||
+    (option.adyenEmbedded && !ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "")) ||
     !option.type ||
     !BUTTON_CLICK_HINT_OPTION_TYPES.has(option.type)
   ) {
@@ -590,7 +591,7 @@ function PaymentOptionBody({
     );
   }
 
-  if (option.adyenEmbedded) {
+  if (option.adyenEmbedded && !ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "")) {
     if (renderAdyenContent) {
       return (
         <>
@@ -653,7 +654,8 @@ function hasBillingAddressContent(
     return false;
   }
 
-  if (option.klarna || option.adyenEmbedded) {
+  const isAdyenButtonOnly = ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "");
+  if (option.klarna || (option.adyenEmbedded && !isAdyenButtonOnly)) {
     return true;
   }
 
@@ -695,7 +697,8 @@ function hasPaymentOptionBodyContent(
     return true;
   }
 
-  if (option.klarna || option.adyenEmbedded) {
+  const isAdyenButtonOnly = ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "");
+  if (option.klarna || (option.adyenEmbedded && !isAdyenButtonOnly)) {
     return true;
   }
 
@@ -1015,6 +1018,10 @@ export function Payment({
               className={cn(
                 "gap-0 py-0 transition-colors rounded-[var(--radius)] border border-input ring-0",
                 !checked && !optionDisabled && "cursor-pointer hover:bg-muted",
+                // The Card's default overflow-hidden clips absolutely-positioned
+                // Adyen dropdowns (e.g. bank-selection lists). Override it when
+                // this option's Adyen form is expanded.
+                checked && option.adyenEmbedded && !ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "") && "overflow-visible",
               )}
               data-disabled={optionDisabled}
             >

@@ -1972,7 +1972,7 @@ describe("PaymentMethodSelectorElement", () => {
         ),
       ).toBeNull();
       expect(element.shadowRoot?.textContent).toContain(
-        "Enter your payment details below.",
+        "Enter your payment details below and click the Submit button below the order summary to submit your order.",
       );
     } finally {
       element.remove();
