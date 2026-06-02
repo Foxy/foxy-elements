@@ -17,7 +17,9 @@ import {
 } from "vite";
 import { readdirSync } from "node:fs";
 
-export default defineConfig(({ mode }) => {
+const EXAMPLES_DEV_HOST = "elements.foxy.test";
+
+export default defineConfig(({ mode, command }) => {
   const rolldownOptions: BuildEnvironmentOptions["rolldownOptions"] = {};
   const plugins: PluginOption[] = [react(), tailwindcss()];
   const externalPackages = [
@@ -67,13 +69,28 @@ export default defineConfig(({ mode }) => {
   const certFile = resolve(import.meta.dirname, ".certs/elements.foxy.test.pem");
   const keyFile = resolve(import.meta.dirname, ".certs/elements.foxy.test-key.pem");
   const hasLocalCerts = existsSync(certFile) && existsSync(keyFile);
+  const isServe = command === "serve";
 
   return {
     plugins,
     resolve: { alias: { "@": srcDir } },
-    server: hasLocalCerts
-      ? { https: { cert: readFileSync(certFile), key: readFileSync(keyFile) } }
-      : undefined,
+    ...(isServe
+      ? {
+          server: {
+            host: EXAMPLES_DEV_HOST,
+            port: hasLocalCerts ? 443 : 80,
+            strictPort: true,
+            ...(hasLocalCerts
+              ? {
+                  https: {
+                    cert: readFileSync(certFile),
+                    key: readFileSync(keyFile),
+                  },
+                }
+              : {}),
+          },
+        }
+      : {}),
     build: {
       rolldownOptions,
       sourcemap: !isCDN,

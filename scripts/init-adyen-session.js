@@ -9,7 +9,8 @@ const ENV_FILE_PATH = resolve(PROJECT_ROOT, ".env.local");
 const DEFAULT_ENVIRONMENT = "test";
 const DEFAULT_TEST_SESSIONS_URL =
   "https://checkout-test.adyen.com/v71/sessions";
-const DEFAULT_RETURN_URL_BASE = "http://localhost:6007/examples/adyen_embedded";
+const DEFAULT_RETURN_URL_BASE =
+  "https://elements.foxy.test/examples/adyen_embedded";
 const DEFAULT_REFERENCE_PREFIX = "foxy-elements-demo";
 const BLOCKED_PAYMENT_METHODS = [
   "ratepay",
@@ -27,6 +28,125 @@ const PROFILE_CONFIGS = {
     shopperLocale: "en-US",
     currency: "USD",
     value: 1749,
+  },
+  CA: {
+    page: "ca.html",
+    countryCode: "CA",
+    shopperLocale: "en-CA",
+    currency: "CAD",
+    value: 1749,
+  },
+  DE: {
+    page: "de.html",
+    countryCode: "DE",
+    shopperLocale: "de-DE",
+    currency: "EUR",
+    value: 1749,
+  },
+  NL: {
+    page: "nl.html",
+    countryCode: "NL",
+    shopperLocale: "nl-NL",
+    currency: "EUR",
+    value: 1749,
+  },
+  BE: {
+    page: "be.html",
+    countryCode: "BE",
+    shopperLocale: "nl-BE",
+    currency: "EUR",
+    value: 1749,
+  },
+  IE: {
+    page: "ie.html",
+    countryCode: "IE",
+    shopperLocale: "en-IE",
+    currency: "EUR",
+    value: 1749,
+  },
+  ES: {
+    page: "es.html",
+    countryCode: "ES",
+    shopperLocale: "es-ES",
+    currency: "EUR",
+    value: 1749,
+  },
+  FR: {
+    page: "fr.html",
+    countryCode: "FR",
+    shopperLocale: "fr-FR",
+    currency: "EUR",
+    value: 1749,
+  },
+  IT: {
+    page: "it.html",
+    countryCode: "IT",
+    shopperLocale: "it-IT",
+    currency: "EUR",
+    value: 1749,
+  },
+  GB: {
+    page: "gb.html",
+    countryCode: "GB",
+    shopperLocale: "en-GB",
+    currency: "GBP",
+    value: 1749,
+  },
+  CH: {
+    page: "ch.html",
+    countryCode: "CH",
+    shopperLocale: "de-CH",
+    currency: "CHF",
+    value: 1749,
+  },
+  AU: {
+    page: "au.html",
+    countryCode: "AU",
+    shopperLocale: "en-AU",
+    currency: "AUD",
+    value: 1749,
+  },
+  NZ: {
+    page: "nz.html",
+    countryCode: "NZ",
+    shopperLocale: "en-NZ",
+    currency: "NZD",
+    value: 1749,
+  },
+  SE: {
+    page: "se.html",
+    countryCode: "SE",
+    shopperLocale: "sv-SE",
+    currency: "SEK",
+    value: 14900,
+  },
+  PL: {
+    page: "pl.html",
+    countryCode: "PL",
+    shopperLocale: "pl-PL",
+    currency: "PLN",
+    value: 6900,
+  },
+  CZ: {
+    page: "cz.html",
+    countryCode: "CZ",
+    shopperLocale: "cs-CZ",
+    currency: "CZK",
+    value: 39900,
+  },
+  RS: {
+    page: "rs.html",
+    countryCode: "RS",
+    shopperLocale: "sr-RS",
+    currency: "RSD",
+    value: 174900,
+  },
+  NO: {
+    page: "no.html",
+    countryCode: "NO",
+    shopperLocale: "nb-NO",
+    currency: "NOK",
+    value: 14900,
   },
 };
 
@@ -61,6 +181,14 @@ function getOptionalProfileString(env, profile, name, fallback) {
     toNonEmptyString(env[`ADYEN_${name}`]) ||
     toNonEmptyString(env[`VITE_ADYEN_${name}`]) ||
     fallback
+  );
+}
+
+function getClientKey(env) {
+  return (
+    toNonEmptyString(env.ADYEN_CLIENT_KEY) ||
+    toNonEmptyString(env.VITE_ADYEN_CLIENT_KEY) ||
+    null
   );
 }
 
@@ -143,16 +271,19 @@ function getProfiles(env) {
   return profiles;
 }
 
-function createAdyenSessionRequest(env, profile, sessionsUrl, environment) {
+function createAdyenSessionRequest(
+  env,
+  profile,
+  sessionsUrl,
+  environment,
+  clientKey,
+) {
   const config = PROFILE_CONFIGS[profile];
   const merchantAccount = getRequiredString(env, "ADYEN_MERCHANT_ACCOUNT");
   const apiKey = getRequiredString(env, "ADYEN_API_KEY");
-  const clientKey = getOptionalProfileString(env, profile, "CLIENT_KEY", null);
 
   if (!clientKey) {
-    throw new Error(
-      `ADYEN_CLIENT_KEY or ADYEN_CLIENT_KEY_${profile} is required.`,
-    );
+    throw new Error("ADYEN_CLIENT_KEY is required.");
   }
 
   const returnUrlBase = ensureUrl(
@@ -200,6 +331,18 @@ function createAdyenSessionRequest(env, profile, sessionsUrl, environment) {
     shopperLocale,
     returnUrl: `${returnUrlBase}/${config.page}`,
     blockedPaymentMethods: BLOCKED_PAYMENT_METHODS,
+    // Required by BNPL methods (Zip, Afterpay, etc.) to appear in session paymentMethodsResponse.
+    lineItems: [
+      {
+        id: "demo-001",
+        description: "Demo product",
+        quantity: 1,
+        amountIncludingTax: value,
+        amountExcludingTax: value,
+        taxAmount: 0,
+        taxPercentage: 0,
+      },
+    ],
   };
   const shopperEmail = getOptionalString(env, "ADYEN_SHOPPER_EMAIL", null);
   const shopperReference = getOptionalString(
@@ -358,7 +501,16 @@ async function main() {
   ).toLowerCase();
   const sessionsUrl = getSessionsUrl(env, environment);
   const profiles = getProfiles(env);
-  const envEntries = [["VITE_ADYEN_ENVIRONMENT", environment]];
+  const clientKey = getClientKey(env);
+
+  if (!clientKey) {
+    throw new Error("ADYEN_CLIENT_KEY or VITE_ADYEN_CLIENT_KEY is required.");
+  }
+
+  const envEntries = [
+    ["VITE_ADYEN_ENVIRONMENT", environment],
+    ["VITE_ADYEN_CLIENT_KEY", clientKey],
+  ];
   const summaries = [];
 
   for (const profile of profiles) {
@@ -367,12 +519,12 @@ async function main() {
       profile,
       sessionsUrl,
       environment,
+      clientKey,
     );
     const session = await initiateAdyenSession(request);
     const { sessionId, sessionData } = validateAdyenSessionResponse(session);
 
     envEntries.push(
-      [`VITE_ADYEN_CLIENT_KEY_${profile}`, request.clientKey],
       [`VITE_ADYEN_SESSION_ID_${profile}`, sessionId],
       [`VITE_ADYEN_SESSION_DATA_${profile}`, sessionData],
     );

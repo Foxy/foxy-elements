@@ -20,6 +20,15 @@ export const BUTTON_CLICK_HINT_OPTION_TYPES = new Set([
   "paysafecard",
   "cash-app",
   "we-chat",
+  "we-chat-qr",
+  "we-chat-web",
+  "we-chat-mini-program",
+  "bank-transfer",
+  "bizum",
+  "swish",
+  "vipps",
+  "zip",
+  "zip-pos",
 ]);
 
 // Adyen payment methods that only render a payment button — no form fields.
@@ -32,6 +41,16 @@ export const ADYEN_BUTTON_ONLY_OPTION_TYPES = new Set([
   "paysafecard",
   "cash-app",
   "we-chat",
+  "we-chat-qr",
+  "we-chat-web",
+  "we-chat-mini-program",
+  "bank-transfer",
+  "bizum",
+  "ideal",
+  "swish",
+  "vipps",
+  "zip",
+  "zip-pos",
 ]);
 
 export const PURCHASE_ORDER_MAX_LENGTH = 32;
@@ -155,6 +174,24 @@ export const GATEWAY_NAME_BY_TYPE: Record<string, string> = {
   paypal_platform: "PayPal",
   klarna: "Klarna",
 };
+
+export const ONLINE_BANKING_OPTION_TYPES = new Set([
+  "dragonpay",
+  "online-banking-pl",
+  "online-banking-cz",
+  "online-banking-fi",
+  "online-banking-sk",
+  "online-banking-in",
+]);
+
+export const ONLINE_BANKING_COUNTRY_BY_TYPE: Partial<Record<string, string>> =
+  {
+    "online-banking-pl": "Poland",
+    "online-banking-cz": "Czech Republic",
+    "online-banking-fi": "Finland",
+    "online-banking-sk": "Slovakia",
+    "online-banking-in": "India",
+  };
 
 export const FIELD_STYLE_PROBE_CLASS_NAME =
   "h-8 px-2.5 py-1 text-base font-normal md:text-sm border border-transparent bg-card text-foreground placeholder:text-muted-foreground";

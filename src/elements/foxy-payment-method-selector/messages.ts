@@ -90,6 +90,10 @@ export const messages = defineMessages({
     id: "payment_option_label_purchase_order",
     defaultMessage: "Purchase Order",
   },
+  optionLabelOnlineBanking: {
+    id: "payment_option_label_online_banking",
+    defaultMessage: "Online Banking",
+  },
   optionDescriptionNewCard: {
     id: "payment_option_description_new_card",
     defaultMessage: "Enter your payment card details below.",
@@ -212,6 +216,36 @@ export const messages = defineMessages({
     id: "payment_option_description_we_chat",
     defaultMessage:
       "Click the WeChat Pay button below the order summary to submit your order.",
+  },
+  optionDescriptionBankTransfer: {
+    id: "payment_option_description_bank_transfer",
+    defaultMessage:
+      "Click the bank transfer button below the order summary to submit your order.",
+  },
+  optionDescriptionBizum: {
+    id: "payment_option_description_bizum",
+    defaultMessage:
+      "Click the Bizum button below the order summary to submit your order.",
+  },
+  optionDescriptionZip: {
+    id: "payment_option_description_zip",
+    defaultMessage:
+      "Click the Zip button below the order summary to submit your order.",
+  },
+  optionDescriptionSwish: {
+    id: "payment_option_description_swish",
+    defaultMessage:
+      "Click the Swish button below the order summary to submit your order.",
+  },
+  optionDescriptionVipps: {
+    id: "payment_option_description_vipps",
+    defaultMessage:
+      "Click the Vipps button below the order summary to submit your order.",
+  },
+  optionDescriptionZipPos: {
+    id: "payment_option_description_zip_pos",
+    defaultMessage:
+      "Click the Zip POS button below the order summary to submit your order.",
   },
   optionViaGateway: {
     id: "payment_option_via_gateway",
@@ -410,6 +444,12 @@ export const OPTION_LABEL_BY_TYPE: Partial<Record<string, MessageDescriptor>> =
     generic: messages.optionLabelRedirect,
     "stripe-card-element": messages.optionLabelStripeCardElement,
     "stripe-payment-element": messages.optionLabelStripePaymentElement,
+    dragonpay: messages.optionLabelOnlineBanking,
+    "online-banking-pl": messages.optionLabelOnlineBanking,
+    "online-banking-cz": messages.optionLabelOnlineBanking,
+    "online-banking-fi": messages.optionLabelOnlineBanking,
+    "online-banking-sk": messages.optionLabelOnlineBanking,
+    "online-banking-in": messages.optionLabelOnlineBanking,
   };
 
 export const OPTION_DESCRIPTION_BY_TYPE: Partial<
@@ -438,7 +478,16 @@ export const OPTION_DESCRIPTION_BY_TYPE: Partial<
   alipay: messages.optionDescriptionAlipay,
   paysafecard: messages.optionDescriptionPaysafecard,
   "cash-app": messages.optionDescriptionCashApp,
+  swish: messages.optionDescriptionSwish,
+  vipps: messages.optionDescriptionVipps,
   "we-chat": messages.optionDescriptionWeChat,
+  "we-chat-qr": messages.optionDescriptionWeChat,
+  "we-chat-web": messages.optionDescriptionWeChat,
+  "we-chat-mini-program": messages.optionDescriptionWeChat,
+  "bank-transfer": messages.optionDescriptionBankTransfer,
+  bizum: messages.optionDescriptionBizum,
+  zip: messages.optionDescriptionZip,
+  "zip-pos": messages.optionDescriptionZipPos,
 };
 
 export const BILLING_FIELD_LABEL_BY_ID: Partial<

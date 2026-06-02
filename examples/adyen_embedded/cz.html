@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en-US">
+<html lang="cs-CZ">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>foxy-payment-method-selector &bull; Adyen United States</title>
+    <title>foxy-payment-method-selector &bull; Adyen Czech Republic</title>
     <link rel="stylesheet" href="../example.css" />
     <script
       type="module"
@@ -35,15 +35,15 @@
               phone: "+1 555-123-4567",
               address1: "123 Main St",
               address2: "Apt 4B",
-              city: "New York",
-              region: "NY",
-              postal_code: "10001",
-              country: "US",
+              city: "Prague",
+              region: "Prague",
+              postal_code: "110 00",
+              country: "CZ",
               shipping_service_id: null,
               has_shippable_items: true,
               has_live_rate_shippable_items: false,
-              region_options: ["NY"],
-              country_options: ["US"],
+              region_options: ["Prague"],
+              country_options: ["CZ"],
               shipping_service_options: [],
             },
           ],
@@ -64,11 +64,11 @@
               quantity: 1,
               quantity_min: 1,
               quantity_max: 10,
-              base_price: 17.49,
-              price_each: 17.49,
-              price_each_with_tax: 17.49,
-              price: 17.49,
-              price_with_tax: 17.49,
+              base_price: 399,
+              price_each: 399,
+              price_each_with_tax: 399,
+              price: 399,
+              price_with_tax: 399,
               item_category_code: "DEFAULT",
               item_delivery_type: "shipped",
               delivery_type: "physical",
@@ -92,11 +92,11 @@
               total_shipping_with_tax: 0,
               total_shipping_value: 0,
               total_tax: 0,
-              total_item_price: 17.49,
-              total_item_price_with_tax: 17.49,
+              total_item_price: 399,
+              total_item_price_with_tax: 399,
               total_weight: 1,
               total_weight_shippable: 1,
-              total_order: 17.49,
+              total_order: 399,
             },
           ],
           billing_address: {
@@ -109,10 +109,10 @@
             phone: "+1 555-123-4567",
             address1: "123 Main St",
             address2: "Apt 4B",
-            city: "New York",
-            region: "NY",
-            postal_code: "10001",
-            country: "US",
+            city: "Prague",
+            region: "Prague",
+            postal_code: "110 00",
+            country: "CZ",
           },
           store: {
             id: 1,
@@ -140,8 +140,8 @@
           payment_gateways: [
             {
               type: "adyen_embedded",
-              session_id: import.meta.env.VITE_ADYEN_SESSION_ID_US,
-              session_data: import.meta.env.VITE_ADYEN_SESSION_DATA_US,
+              session_id: import.meta.env.VITE_ADYEN_SESSION_ID_CZ,
+              session_data: import.meta.env.VITE_ADYEN_SESSION_DATA_CZ,
               environment: import.meta.env.VITE_ADYEN_ENVIRONMENT || "test",
               client_key: import.meta.env.VITE_ADYEN_CLIENT_KEY,
             },
@@ -151,8 +151,8 @@
           custom_fields: {},
           format: {
             weight_unit: "pound",
-            locale_code: "en-US",
-            currency_code: "USD",
+            locale_code: "cs-CZ",
+            currency_code: "CZK",
             currency_display: "symbol",
             maximum_fraction_digits: 2,
           },

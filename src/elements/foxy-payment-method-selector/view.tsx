@@ -47,6 +47,8 @@ import {
   CARD_TYPES,
   FIELD_STYLE_PROBE_CLASS_NAME,
   GATEWAY_NAME_BY_TYPE,
+  ONLINE_BANKING_COUNTRY_BY_TYPE,
+  ONLINE_BANKING_OPTION_TYPES,
   PURCHASE_ORDER_MAX_LENGTH,
 } from "./constants";
 import {
@@ -170,15 +172,52 @@ function getBasePaymentOptionLabel(
 function getPaymentOptionLabel(
   option: PaymentMethodSelectorOption,
   typeCounts: Record<string, number>,
-  baseLabelCounts: Record<string, number>,
+  baseLabelGateways: Record<string, Set<string>>,
+  obGateways: Record<string, Set<string>>,
   intl: IntlShape,
 ): PaymentOptionLabel {
   const baseLabel = getBasePaymentOptionLabel(option, intl);
 
+  if (option.type && ONLINE_BANKING_OPTION_TYPES.has(option.type)) {
+    // True when the same OB subtype is available through multiple gateways.
+    const needsGateway = (obGateways[option.type]?.size ?? 0) > 1;
+    // True when at least one other OB option has a different subtype.
+    const hasDifferentSubtype = [...ONLINE_BANKING_OPTION_TYPES]
+      .filter((t) => t !== option.type)
+      .some((t) => (typeCounts[t] ?? 0) >= 1);
+
+    const gatewayName = option.gateway ? getGatewayName(option.gateway) : "";
+    let viaLabel = "";
+
+    if (option.type === "dragonpay") {
+      if (hasDifferentSubtype && needsGateway) {
+        viaLabel = `via DragonPay & ${gatewayName}`;
+      } else if (needsGateway) {
+        // Only DragonPay subtypes — gateway is the differentiator, DragonPay is context.
+        viaLabel = `via ${gatewayName} & DragonPay`;
+      } else if (hasDifferentSubtype) {
+        viaLabel = "via DragonPay";
+      }
+    } else {
+      const country =
+        ONLINE_BANKING_COUNTRY_BY_TYPE[option.type] ?? option.type;
+      if (hasDifferentSubtype && needsGateway) {
+        viaLabel = `in ${country} via ${gatewayName}`;
+      } else if (needsGateway) {
+        viaLabel = `via ${gatewayName}`;
+      } else if (hasDifferentSubtype) {
+        viaLabel = `in ${country}`;
+      }
+    }
+
+    if (!viaLabel) return { fullLabel: baseLabel, baseLabel };
+    return { fullLabel: `${baseLabel} ${viaLabel}`, baseLabel, viaLabel };
+  }
+
   const hasDuplicateType = option.type
     ? (typeCounts[option.type] ?? 0) >= 2
     : false;
-  const hasDuplicateBaseLabel = (baseLabelCounts[baseLabel] ?? 0) >= 2;
+  const hasDuplicateBaseLabel = (baseLabelGateways[baseLabel]?.size ?? 0) >= 2;
 
   if (!hasDuplicateType && !hasDuplicateBaseLabel) {
     return { fullLabel: baseLabel, baseLabel };
@@ -722,11 +761,12 @@ export function Payment({
   const intl = useIntl();
   const visibleOptions = options ?? [];
   const hasSingleOption = visibleOptions.length === 1;
-  const baseLabelCounts = useMemo(() => {
-    return visibleOptions.reduce<Record<string, number>>((counts, option) => {
+  const baseLabelGateways = useMemo(() => {
+    return visibleOptions.reduce<Record<string, Set<string>>>((map, option) => {
       const baseLabel = getBasePaymentOptionLabel(option, intl);
-      counts[baseLabel] = (counts[baseLabel] ?? 0) + 1;
-      return counts;
+      if (!map[baseLabel]) map[baseLabel] = new Set();
+      map[baseLabel].add(option.gateway ?? "");
+      return map;
     }, {});
   }, [intl, visibleOptions]);
   const optionTypeCounts = useMemo(() => {
@@ -735,6 +775,16 @@ export function Payment({
 
       counts[option.type] = (counts[option.type] ?? 0) + 1;
       return counts;
+    }, {});
+  }, [visibleOptions]);
+  // Maps each OB subtype → set of gateways that offer it, for cross-gateway detection.
+  const obGateways = useMemo(() => {
+    return visibleOptions.reduce<Record<string, Set<string>>>((map, option) => {
+      if (!option.type || !ONLINE_BANKING_OPTION_TYPES.has(option.type))
+        return map;
+      if (!map[option.type]) map[option.type] = new Set();
+      map[option.type].add(option.gateway ?? "");
+      return map;
     }, {});
   }, [visibleOptions]);
   const [selection, setSelection] = useState<string>(selectedOptionId ?? "");
@@ -905,7 +955,8 @@ export function Payment({
           const optionLabel = getPaymentOptionLabel(
             option,
             optionTypeCounts,
-            baseLabelCounts,
+            baseLabelGateways,
+            obGateways,
             intl,
           );
           const optionDescription = renderPaymentOptionDescription(

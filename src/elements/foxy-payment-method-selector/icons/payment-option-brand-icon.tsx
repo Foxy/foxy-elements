@@ -25,6 +25,17 @@ const PaysafecardMarkIcon = lazy(() => import("./paysafecard"));
 const CashAppMarkIcon = lazy(() => import("./cash-app"));
 const WeChatMarkIcon = lazy(() => import("./we-chat"));
 const PaymentOptionCardBrandIcon = lazy(() => import("./card-brands"));
+const BankTransferMarkIcon = lazy(() => import("./bank-transfer"));
+const BizumMarkIcon = lazy(() => import("./bizum"));
+const SwishMarkIcon = lazy(() => import("./swish"));
+const VippsMarkIcon = lazy(() => import("./vipps"));
+const TwintMarkIcon = lazy(() => import("./twint"));
+const ZipMarkIcon = lazy(() => import("./zip"));
+const ZipPosMarkIcon = lazy(() => import("./zip-pos"));
+const DragonpayMarkIcon = lazy(() => import("./dragonpay"));
+const BacsMarkIcon = lazy(() => import("./bacs"));
+const AchMarkIcon = lazy(() => import("./ach"));
+const EftMarkIcon = lazy(() => import("./eft"));
 
 export function PaymentOptionBrandIcon({
   option,
@@ -178,8 +189,106 @@ export function PaymentOptionBrandIcon({
   }
 
   if (option.type === "ach") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<AchMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "bank-transfer") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(
+          <BankTransferMarkIcon className="h-5 w-auto" />,
+        )}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "dragonpay") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(
+          <DragonpayMarkIcon className="h-5 w-auto" />,
+        )}
+      </Suspense>
+    );
+  }
+
+  if (
+    option.type === "online-banking-pl" ||
+    option.type === "online-banking-cz" ||
+    option.type === "online-banking-fi" ||
+    option.type === "online-banking-sk" ||
+    option.type === "online-banking-in"
+  ) {
     return getGenericPaymentOptionIcon(
       <Landmark className="h-4 w-4 text-muted-foreground" />,
+    );
+  }
+
+  if (option.type === "bacs-direct-debit") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<BacsMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "eft") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<EftMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "bizum") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<BizumMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "swish") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<SwishMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "vipps") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<VippsMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "twint") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<TwintMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "zip") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<ZipMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "zip-pos") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<ZipPosMarkIcon className="h-5 w-auto" />)}
+      </Suspense>
     );
   }
 
@@ -209,7 +318,12 @@ export function PaymentOptionBrandIcon({
     );
   }
 
-  if (option.type === "we-chat") {
+  if (
+    option.type === "we-chat" ||
+    option.type === "we-chat-qr" ||
+    option.type === "we-chat-web" ||
+    option.type === "we-chat-mini-program"
+  ) {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
         {getGenericPaymentOptionIcon(<WeChatMarkIcon className="h-5 w-auto" />)}

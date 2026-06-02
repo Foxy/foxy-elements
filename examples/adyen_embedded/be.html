@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en-US">
+<html lang="nl-BE">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>foxy-payment-method-selector &bull; Adyen United States</title>
+    <title>foxy-payment-method-selector &bull; Adyen Belgium</title>
     <link rel="stylesheet" href="../example.css" />
     <script
       type="module"
@@ -35,15 +35,15 @@
               phone: "+1 555-123-4567",
               address1: "123 Main St",
               address2: "Apt 4B",
-              city: "New York",
-              region: "NY",
-              postal_code: "10001",
-              country: "US",
+              city: "Brussels",
+              region: "Brussels",
+              postal_code: "1000",
+              country: "BE",
               shipping_service_id: null,
               has_shippable_items: true,
               has_live_rate_shippable_items: false,
-              region_options: ["NY"],
-              country_options: ["US"],
+              region_options: ["Brussels"],
+              country_options: ["BE"],
               shipping_service_options: [],
             },
           ],
@@ -109,10 +109,10 @@
             phone: "+1 555-123-4567",
             address1: "123 Main St",
             address2: "Apt 4B",
-            city: "New York",
-            region: "NY",
-            postal_code: "10001",
-            country: "US",
+            city: "Brussels",
+            region: "Brussels",
+            postal_code: "1000",
+            country: "BE",
           },
           store: {
             id: 1,
@@ -140,8 +140,8 @@
           payment_gateways: [
             {
               type: "adyen_embedded",
-              session_id: import.meta.env.VITE_ADYEN_SESSION_ID_US,
-              session_data: import.meta.env.VITE_ADYEN_SESSION_DATA_US,
+              session_id: import.meta.env.VITE_ADYEN_SESSION_ID_BE,
+              session_data: import.meta.env.VITE_ADYEN_SESSION_DATA_BE,
               environment: import.meta.env.VITE_ADYEN_ENVIRONMENT || "test",
               client_key: import.meta.env.VITE_ADYEN_CLIENT_KEY,
             },
@@ -151,8 +151,8 @@
           custom_fields: {},
           format: {
             weight_unit: "pound",
-            locale_code: "en-US",
-            currency_code: "USD",
+            locale_code: "nl-BE",
+            currency_code: "EUR",
             currency_display: "symbol",
             maximum_fraction_digits: 2,
           },
