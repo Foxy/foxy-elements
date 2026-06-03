@@ -71,6 +71,7 @@ const StripePaymentElementOption = lazy(
   () => import("./embeds/stripe-payment"),
 );
 const AdyenEmbeddedOption = lazy(() => import("./embeds/adyen-embedded"));
+const SquareWebPaymentsOption = lazy(() => import("./embeds/square-web-payments"));
 const PAYMENT_OPTION_BODY_FALLBACK = <Skeleton className="h-8 w-full" />;
 
 type PaymentProps = {
@@ -258,6 +259,14 @@ function getPaymentOptionDescriptionText(
     return intl.formatMessage(messages.optionDescriptionAdyenEmbedded);
   }
 
+  if (option.squareUp && option.type === "afterpay") {
+    return intl.formatMessage(messages.optionDescriptionSquareUpAfterpay);
+  }
+
+  if (option.squareUp && option.type === "ach") {
+    return intl.formatMessage(messages.optionDescriptionSquareUpAch);
+  }
+
   if (!option.type) return option.description;
   const descriptor = OPTION_DESCRIPTION_BY_TYPE[option.type];
   if (!descriptor) return option.description;
@@ -375,10 +384,12 @@ function renderPaymentOptionDescription(
       description
     );
 
+  const isSquareButtonOnly =
+    option.squareUp && (option.type === "ach" || option.type === "afterpay");
   if (
     (option.adyenEmbedded && !ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "")) ||
     !option.type ||
-    !BUTTON_CLICK_HINT_OPTION_TYPES.has(option.type)
+    (!BUTTON_CLICK_HINT_OPTION_TYPES.has(option.type) && !isSquareButtonOnly)
   ) {
     return content;
   }
@@ -658,6 +669,24 @@ function PaymentOptionBody({
     );
   }
 
+  if (option.squareUp && option.type === "new-card") {
+    return (
+      <>
+        <Suspense fallback={bodyFallback}>
+          <SquareWebPaymentsOption
+            option={option}
+            disabled={disabled}
+            onControllerReady={onControllerReady}
+            loadingMessage={intl.formatMessage(messages.squareUpLoading)}
+            loadErrorMessage={intl.formatMessage(messages.squareUpLoadError)}
+            submitErrorMessage={intl.formatMessage(messages.squareUpSubmitError)}
+          />
+        </Suspense>
+        {billingSection}
+      </>
+    );
+  }
+
   if (option.klarna) {
     return (
       <>
@@ -694,7 +723,8 @@ function hasBillingAddressContent(
   }
 
   const isAdyenButtonOnly = ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "");
-  if (option.klarna || (option.adyenEmbedded && !isAdyenButtonOnly)) {
+  const isSquareFormBased = option.type === "new-card";
+  if (option.klarna || (option.adyenEmbedded && !isAdyenButtonOnly) || (option.squareUp && isSquareFormBased)) {
     return true;
   }
 
@@ -737,7 +767,8 @@ function hasPaymentOptionBodyContent(
   }
 
   const isAdyenButtonOnly = ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "");
-  if (option.klarna || (option.adyenEmbedded && !isAdyenButtonOnly)) {
+  const isSquareFormBased = option.type === "new-card";
+  if (option.klarna || (option.adyenEmbedded && !isAdyenButtonOnly) || (option.squareUp && isSquareFormBased)) {
     return true;
   }
 

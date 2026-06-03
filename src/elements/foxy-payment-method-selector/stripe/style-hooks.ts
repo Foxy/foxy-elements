@@ -858,6 +858,18 @@ export function mergeStripeAppearance(
   };
 }
 
+export function resolveDesignTokens(probeElement: HTMLElement) {
+  return {
+    borderColor: resolveCssVariableColor(probeElement, "--border"),
+    borderRadius: resolveCssVariableLength(probeElement, "--radius", "borderRadius"),
+    focusRingColor:
+      resolveCssVariableColor(probeElement, "--ring") ??
+      resolveCssVariableColor(probeElement, "--primary"),
+    destructiveColor: resolveCssVariableColor(probeElement, "--destructive"),
+    inputBackgroundColor: resolveCssVariableColor(probeElement, "--card"),
+  };
+}
+
 export function useHostedFieldStyleAttributes() {
   const probeRef = useRef<HTMLInputElement | null>(null);
   const [styleAttributes, setStyleAttributes] =

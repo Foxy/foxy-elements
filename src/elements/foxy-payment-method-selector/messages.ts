@@ -94,6 +94,14 @@ export const messages = defineMessages({
     id: "payment_option_label_online_banking",
     defaultMessage: "Online Banking",
   },
+  optionLabelCashApp: {
+    id: "payment_option_label_cash_app",
+    defaultMessage: "Cash App Pay",
+  },
+  optionLabelAfterpay: {
+    id: "payment_option_label_afterpay",
+    defaultMessage: "Afterpay",
+  },
   optionDescriptionNewCard: {
     id: "payment_option_description_new_card",
     defaultMessage: "Enter your payment card details below.",
@@ -403,6 +411,29 @@ export const messages = defineMessages({
     id: "payment_adyen_submit_error",
     defaultMessage: "Unable to submit this payment method. Try again.",
   },
+  optionDescriptionSquareUpAfterpay: {
+    id: "payment_option_description_square_up_afterpay",
+    defaultMessage:
+      "Click the Afterpay button under the order summary to submit your order.",
+  },
+  optionDescriptionSquareUpAch: {
+    id: "payment_option_description_square_up_ach",
+    defaultMessage:
+      "Click the Submit button under the order summary to submit your order.",
+  },
+  squareUpLoading: {
+    id: "payment_square_up_loading",
+    defaultMessage: "Loading payment details...",
+  },
+  squareUpLoadError: {
+    id: "payment_square_up_load_error",
+    defaultMessage:
+      "Unable to load this payment method. Choose a different payment method or try again.",
+  },
+  squareUpSubmitError: {
+    id: "payment_square_up_submit_error",
+    defaultMessage: "Unable to submit this payment method. Try again.",
+  },
   billingAddressUpdateError: {
     id: "payment_billing_update_error",
     defaultMessage: "Unable to update billing address. Try again.",
@@ -450,6 +481,8 @@ export const OPTION_LABEL_BY_TYPE: Partial<Record<string, MessageDescriptor>> =
     "online-banking-fi": messages.optionLabelOnlineBanking,
     "online-banking-sk": messages.optionLabelOnlineBanking,
     "online-banking-in": messages.optionLabelOnlineBanking,
+    "cash-app": messages.optionLabelCashApp,
+    afterpay: messages.optionLabelAfterpay,
   };
 
 export const OPTION_DESCRIPTION_BY_TYPE: Partial<

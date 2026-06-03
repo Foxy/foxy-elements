@@ -173,7 +173,21 @@ export const GATEWAY_NAME_BY_TYPE: Record<string, string> = {
   stripe_v2: "Stripe",
   paypal_platform: "PayPal",
   klarna: "Klarna",
+  square_up: "Square",
 };
+
+export const SQUARE_UP_METHODS_BY_COUNTRY: Record<string, string[]> = {
+  US: ["new-card", "ach", "apple-pay", "google-pay", "cash-app", "afterpay"],
+  CA: ["new-card", "apple-pay", "google-pay", "afterpay"],
+  AU: ["new-card", "apple-pay", "google-pay", "afterpay"],
+  GB: ["new-card", "apple-pay", "google-pay", "afterpay"],
+
+  FR: ["new-card", "apple-pay", "google-pay"],
+  IE: ["new-card", "apple-pay", "google-pay"],
+  ES: ["new-card", "apple-pay", "google-pay"],
+};
+
+export const SQUARE_UP_DEFAULT_METHODS = ["new-card"];
 
 export const ONLINE_BANKING_OPTION_TYPES = new Set([
   "dragonpay",

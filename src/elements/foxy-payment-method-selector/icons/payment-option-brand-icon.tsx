@@ -22,6 +22,7 @@ const BlikMarkIcon = lazy(() => import("./blik"));
 const Przelewy24MarkIcon = lazy(() => import("./przelewy24"));
 const AlipayMarkIcon = lazy(() => import("./alipay"));
 const PaysafecardMarkIcon = lazy(() => import("./paysafecard"));
+const AfterpayMarkIcon = lazy(() => import("./afterpay"));
 const CashAppMarkIcon = lazy(() => import("./cash-app"));
 const WeChatMarkIcon = lazy(() => import("./we-chat"));
 const PaymentOptionCardBrandIcon = lazy(() => import("./card-brands"));
@@ -306,6 +307,14 @@ export function PaymentOptionBrandIcon({
         {getGenericPaymentOptionIcon(
           <PaysafecardMarkIcon className="h-5 w-auto" />,
         )}
+      </Suspense>
+    );
+  }
+
+  if (option.type === "afterpay") {
+    return (
+      <Suspense fallback={<PaymentOptionIconFallback />}>
+        {getGenericPaymentOptionIcon(<AfterpayMarkIcon className="h-5 w-auto" />)}
       </Suspense>
     );
   }

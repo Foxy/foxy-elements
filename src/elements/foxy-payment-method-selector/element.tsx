@@ -2,6 +2,7 @@ import type {
   PaymentMethodSelectorBillingError,
   PaymentController,
   PaymentMethodSelectorAdyenEmbeddedConfig,
+  PaymentMethodSelectorSquareUpConfig,
   PaymentMethodSelectorBillingAddress,
   PaymentMethodSelectorBillingField,
   PaymentMethodSelectorKlarnaCategory,
@@ -49,6 +50,7 @@ type CheckoutApiLike = EventTarget & {
   klarna?: unknown;
   sezzle?: unknown;
   adyenEmbedded?: unknown;
+  square?: unknown;
   updateBillingAddress?: (
     changes: Record<string, unknown>,
   ) => Promise<unknown> | void;
@@ -153,6 +155,18 @@ const ADYEN_PAYMENT_METHOD_TYPE_MAP: Record<
   zip: { type: "zip", componentName: "Redirect" },
   zip_pos: { type: "zip-pos", componentName: "Redirect" },
 };
+
+const SQUARE_UP_METHODS_BY_COUNTRY: Record<string, string[]> = {
+  US: ["new-card", "ach", "apple-pay", "google-pay", "cash-app", "afterpay"],
+  CA: ["new-card", "apple-pay", "google-pay", "afterpay"],
+  AU: ["new-card", "apple-pay", "google-pay", "afterpay"],
+  GB: ["new-card", "apple-pay", "google-pay", "afterpay"],
+  FR: ["new-card", "apple-pay", "google-pay"],
+  IE: ["new-card", "apple-pay", "google-pay"],
+  ES: ["new-card", "apple-pay", "google-pay"],
+};
+
+const SQUARE_UP_DEFAULT_METHODS = ["new-card"];
 
 const PAYPAL_UNDOCUMENTED_APMS = [
   {
@@ -399,6 +413,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       option.stripeCardElement ||
       option.stripePaymentElement ||
       option.adyenEmbedded ||
+      option.squareUp ||
       option.type === "purchase-order",
     );
   }
@@ -862,6 +877,20 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           paymentMethodType: selectedOption.adyenEmbedded.paymentMethodType,
           paymentMethod: selectedOption.adyenEmbedded.paymentMethod,
           result,
+        },
+      };
+    }
+
+    if (selectedOption.squareUp) {
+      const nonce = this.#requirePayloadString(
+        payload,
+        "token",
+        "Square tokenization response is missing a nonce.",
+      );
+      return {
+        squareUp: {
+          nonce,
+          methodType: selectedOption.type ?? "",
         },
       };
     }
@@ -1632,6 +1661,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       return this.#createAdyenEmbeddedGatewayEntries(config);
     }
 
+    if (gateway === "square_up") {
+      return this.#createSquareUpGatewayEntries(config, apiState);
+    }
+
     return this.#createStandardCardGatewayEntries(gateway, config);
   }
 
@@ -1875,6 +1908,58 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     };
   }
 
+  #createSquareUpGatewayEntries(
+    config: Record<string, unknown>,
+    apiState: Record<string, unknown>,
+  ): Record<string, unknown>[] {
+    const applicationId = this.#toOptionalText(config.application_id);
+    const locationId = this.#toOptionalText(config.location_id);
+    const environment = this.#toOptionalText(config.environment);
+
+    if (!applicationId || !locationId || !environment) {
+      return [];
+    }
+
+    const format = this.#asRecord(apiState.format);
+    const localeCode = this.#toOptionalText(format?.locale_code);
+    const country = localeCode?.includes("-")
+      ? localeCode.split("-").pop()?.toUpperCase()
+      : undefined;
+    const methods =
+      (country && SQUARE_UP_METHODS_BY_COUNTRY[country]) ??
+      SQUARE_UP_DEFAULT_METHODS;
+
+    return methods.map((type) => ({
+      type,
+      gateway: "square_up",
+      application_id: applicationId,
+      location_id: locationId,
+      environment,
+    }));
+  }
+
+  #createSquareUpConfig(
+    option: Record<string, unknown>,
+  ): PaymentMethodSelectorSquareUpConfig | undefined {
+    if (this.#toText(option.gateway) !== "square_up") {
+      return undefined;
+    }
+
+    const applicationId = this.#toOptionalText(option.application_id);
+    const locationId = this.#toOptionalText(option.location_id);
+    const rawEnvironment = this.#toOptionalText(option.environment);
+
+    if (!applicationId || !locationId || !rawEnvironment) {
+      return undefined;
+    }
+
+    if (rawEnvironment !== "sandbox" && rawEnvironment !== "production") {
+      return undefined;
+    }
+
+    return { applicationId, locationId, environment: rawEnvironment };
+  }
+
   #createSavedCardOptions(
     option: Record<string, unknown>,
     index: number,
@@ -1970,6 +2055,24 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           disabled,
           acceptedBrands: brands?.length ? brands : undefined,
           adyenEmbedded,
+        },
+      ];
+    }
+
+    if (gateway === "square_up") {
+      const squareUp = this.#createSquareUpConfig(option);
+      if (!squareUp) {
+        return [];
+      }
+
+      return [
+        {
+          id: optionId,
+          type,
+          label: "",
+          gateway,
+          disabled,
+          squareUp,
         },
       ];
     }

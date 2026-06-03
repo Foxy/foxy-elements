@@ -159,7 +159,17 @@ Use Node 22 for local development.
 
    If Klarna returns `HTTP 403 INVALID_OPERATION` during session creation, the most common cause is an endpoint or region mismatch for the MID. Start with `https://api.playground.klarna.com` unless Klarna gave you a different regional playground host for that account.
 
-   Run `npm run init:klarna` to open a sandbox Klarna session and write a Vite-safe encoded copy of the session response to `.env.local` as `VITE_KLARNA_INIT_RESPONSE`. Storybook and Vitest can read that generated value, and the Klarna stories will prefer it over the built-in fixture when present. Restart Storybook after refreshing the session because Vite reads env files at startup.
+   Run `npm run init:klarna` to open a sandbox Klarna session and write a Vite-safe encoded copy of the session response to `.env.local` as `VITE_KLARNA_INIT_RESPONSE`.
+
+   Optional Square Web Payments examples setup:
+
+   ```bash
+   VITE_SQUARE_APP_ID=sandbox-sq0idb-...
+   VITE_SQUARE_LOCATION_ID=...
+   VITE_SQUARE_ENVIRONMENT=sandbox
+   ```
+
+   These are client-safe credentials — Square embeds them in the page. Find them in the [Square Developer Dashboard](https://developer.squareup.com/apps) under **Credentials** (app ID) and **Locations** (location ID). Use `sandbox` for the environment unless you have a production Square account. See `examples/square_up/README.md` for the full per-country method availability table. Storybook and Vitest can read that generated value, and the Klarna stories will prefer it over the built-in fixture when present. Restart Storybook after refreshing the session because Vite reads env files at startup.
 
 3. Start local Storybook development:
 

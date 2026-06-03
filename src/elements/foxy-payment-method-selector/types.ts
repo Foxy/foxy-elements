@@ -133,6 +133,19 @@ export type PaymentMethodSelectorAdyenEmbeddedTokenizePayload = {
   };
 };
 
+export type PaymentMethodSelectorSquareUpConfig = {
+  applicationId: string;
+  locationId: string;
+  environment: "sandbox" | "production";
+};
+
+export type PaymentMethodSelectorSquareUpTokenizePayload = {
+  squareUp: {
+    nonce: string;
+    methodType: string;
+  };
+};
+
 export type PaymentMethodSelectorPayPalPlatformFlow =
   | "buttons"
   | "card-fields"
@@ -190,6 +203,7 @@ export type PaymentMethodSelectorTokenizePayload =
   | PaymentMethodSelectorKlarnaTokenizePayload
   | PaymentMethodSelectorSezzleTokenizePayload
   | PaymentMethodSelectorAdyenEmbeddedTokenizePayload
+  | PaymentMethodSelectorSquareUpTokenizePayload
   | PaymentMethodSelectorPayPalPlatformTokenizePayload
   | PaymentMethodSelectorApplePayTokenizePayload
   | PaymentMethodSelectorGooglePayTokenizePayload
@@ -211,6 +225,7 @@ export type PaymentMethodSelectorOption = {
   klarna?: PaymentMethodSelectorKlarnaConfig;
   sezzle?: PaymentMethodSelectorSezzleConfig;
   adyenEmbedded?: PaymentMethodSelectorAdyenEmbeddedConfig;
+  squareUp?: PaymentMethodSelectorSquareUpConfig;
   paypalPlatform?: PaymentMethodSelectorPayPalPlatformConfig;
   paypalMessage?: PaymentMethodSelectorPayPalMessage;
   savedPaymentMethodId?: string;
