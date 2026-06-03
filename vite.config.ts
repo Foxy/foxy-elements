@@ -6,7 +6,6 @@ import react from "@vitejs/plugin-react";
 import dts from "vite-plugin-dts";
 
 import { dependencies, peerDependencies } from "./package.json";
-import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import {
@@ -15,11 +14,10 @@ import {
   type PluginOption,
   defineConfig,
 } from "vite";
+
 import { readdirSync } from "node:fs";
 
-const EXAMPLES_DEV_HOST = "elements.foxy.test";
-
-export default defineConfig(({ mode, command }) => {
+export default defineConfig(({ mode }) => {
   const rolldownOptions: BuildEnvironmentOptions["rolldownOptions"] = {};
   const plugins: PluginOption[] = [react(), tailwindcss()];
   const externalPackages = [
@@ -66,31 +64,16 @@ export default defineConfig(({ mode, command }) => {
     entry.index = resolve(elementsDir, "./index.ts");
   }
 
-  const certFile = resolve(import.meta.dirname, ".certs/elements.foxy.test.pem");
-  const keyFile = resolve(import.meta.dirname, ".certs/elements.foxy.test-key.pem");
-  const hasLocalCerts = existsSync(certFile) && existsSync(keyFile);
-  const isServe = command === "serve";
-
   return {
     plugins,
     resolve: { alias: { "@": srcDir } },
-    ...(isServe
-      ? {
-          server: {
-            host: EXAMPLES_DEV_HOST,
-            port: hasLocalCerts ? 443 : 80,
-            strictPort: true,
-            ...(hasLocalCerts
-              ? {
-                  https: {
-                    cert: readFileSync(certFile),
-                    key: readFileSync(keyFile),
-                  },
-                }
-              : {}),
-          },
-        }
-      : {}),
+    server: {
+      allowedHosts: ["elements.foxy.test"],
+      host: "localhost",
+      port: 5173,
+      strictPort: true,
+      hmr: { protocol: "wss", clientPort: 443 },
+    },
     build: {
       rolldownOptions,
       sourcemap: !isCDN,

@@ -26,7 +26,7 @@
     "init:adyen": "node ./scripts/init-adyen-session.js",
     "init:klarna": "node ./scripts/init-klarna-session.js",
     "localdev:storybook": "storybook dev -p 6006 --no-open",
-    "localdev:examples": "vite --no-open",
+    "localdev:examples": "caddy start && vite --port 6007 --no-open",
     "build:npm": "tsc -b && vite build",
     "build:cdn": "tsc -b && vite build --mode=cdn",
     "build:storybook": "storybook build",

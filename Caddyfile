@@ -1,0 +1,4 @@
+elements.foxy.test {
+  tls internal
+	reverse_proxy localhost:6007
+}

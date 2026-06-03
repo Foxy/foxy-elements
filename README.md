@@ -164,10 +164,18 @@ Use Node 22 for local development.
 3. Start local Storybook development:
 
    ```bash
-   npm run localdev
+   npm run localdev:storybook
    ```
 
-4. Build outputs:
+4. Start local examples (requires Caddy to be installed):
+
+  ```bash
+  npm run localdev:examples
+  ```
+
+  Add `elements.foxy.test` to your hosts file and open `https://elements.foxy.test/examples/[path/to/example]`.
+
+5. Build outputs:
 
    ```bash
    npm run build:npm   # npm package build
@@ -175,7 +183,7 @@ Use Node 22 for local development.
    npm run build:storybook
    ```
 
-5. (Optional) Extract i18n messages:
+6. (Optional) Extract i18n messages:
 
    ```bash
    npm run extract
