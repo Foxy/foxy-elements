@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>foxy-payment-method-selector • stripe_connect</title>
+    <title>standard card gateways</title>
     <link rel="stylesheet" href="./example.css" />
     <script
       type="module"
@@ -15,10 +15,6 @@
     ></script>
     <script type="module">
       import { client } from "@foxy.io/sdk/checkout/client";
-
-      const stripePublishableKey =
-        import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim() ||
-        import.meta.env.VITE_STRIPE_DEMO_PUBLISHABLE_KEY?.trim();
 
       const apiState = {
         template_set: {
@@ -143,20 +139,15 @@
         },
         saved_payment_methods: [
           {
-            gateway: "stripe_connect",
+            gateway: "authorize",
             brand: "Visa",
             last_4: "4242",
             expiry_month: "12",
             expiry_year: "2030",
-            id: "pt_saved_4242",
+            id: "pm_authorize_saved_4242",
           },
         ],
-        payment_gateways: [
-          {
-            type: "stripe_connect",
-            publishable_key: stripePublishableKey,
-          },
-        ],
+        payment_gateways: [{ type: "authorize" }],
         messages: [],
         language_strings: {},
         custom_fields: {},
@@ -194,8 +185,13 @@
           <p>Unstyled selector using the component defaults.</p>
         </div>
         <div class="shell">
-          <foxy-payment-method-selector button="pay-btn-default"></foxy-payment-method-selector>
-          <foxy-payment-button id="pay-btn-default" style="margin-top: 1rem;"></foxy-payment-button>
+          <foxy-payment-method-selector
+            button="pay-btn-default"
+          ></foxy-payment-method-selector>
+          <foxy-payment-button
+            id="pay-btn-default"
+            style="margin-top: 1rem"
+          ></foxy-payment-button>
         </div>
       </section>
 
@@ -205,8 +201,13 @@
           <p>Selector themed with a custom dark preset.</p>
         </div>
         <div class="shell dark">
-          <foxy-payment-method-selector button="pay-btn-themed"></foxy-payment-method-selector>
-          <foxy-payment-button id="pay-btn-themed" style="margin-top: 1rem;"></foxy-payment-button>
+          <foxy-payment-method-selector
+            button="pay-btn-themed"
+          ></foxy-payment-method-selector>
+          <foxy-payment-button
+            id="pay-btn-themed"
+            style="margin-top: 1rem"
+          ></foxy-payment-button>
         </div>
       </section>
     </main>
