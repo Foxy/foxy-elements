@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pl-PL">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>foxy-payment-method-selector &bull; Klarna Poland</title>
+    <link rel="stylesheet" href="../../example.css" />
+    <script
+      type="module"
+      src="/src/elements/foxy-payment-method-selector/index.ts"
+    ></script>
+    <script
+      type="module"
+      src="/src/elements/foxy-payment-button/index.ts"
+    ></script>
+    <script type="module">
+      import { client } from "@foxy.io/sdk/checkout/client";
+      import { getKlarnaInitPaymentOptionFromEnv } from "/src/lib/klarna-init-response.ts";
+
+      await client.hydrateJson(
+        {
+          template_set: { code: "checkout", id: 100 },
+          session: { name: "fcsid", id: "session_123" },
+          debug: false,
+          customer: {
+            first_name: "John",
+            last_name: "Doe",
+            email: "john.doe@example.com",
+            type: "guest",
+            id: null,
+            token: null,
+          },
+          shipments: [
+            {
+              address_id: null,
+              address_name: "Home",
+              first_name: "John",
+              last_name: "Doe",
+              company: "",
+              phone: "+48 22 123 45 67",
+              address1: "ul. Nowy Świat 123",
+              address2: "",
+              city: "Warsaw",
+              region: "Masovian",
+              postal_code: "00-001",
+              country: "PL",
+              shipping_service_id: null,
+              has_shippable_items: true,
+              has_live_rate_shippable_items: false,
+              region_options: ["Masovian"],
+              country_options: ["PL"],
+              shipping_service_options: [],
+            },
+          ],
+          items: [
+            {
+              id: 186197199,
+              name: "Margherita Pizza",
+              code: "pizza-margherita",
+              parent_code: null,
+              image: "",
+              url: "",
+              length: null,
+              length_unit: "inch",
+              width: null,
+              height: null,
+              weight: 1,
+              weight_unit: "pound",
+              quantity: 1,
+              quantity_min: 1,
+              quantity_max: 10,
+              base_price: 17.49,
+              price_each: 17.49,
+              price_each_with_tax: 17.49,
+              price: 17.49,
+              price_with_tax: 17.49,
+              item_category_code: "DEFAULT",
+              item_delivery_type: "shipped",
+              delivery_type: "physical",
+              downloadable_id: null,
+              downloadable_url: null,
+              subscription_frequency: null,
+              subscription_start_date: null,
+              subscription_next_transaction_date: null,
+              subscription_end_date: null,
+              expires: null,
+            },
+          ],
+          totals: [
+            {
+              date: null,
+              taxes: [],
+              coupons: [],
+              gift_cards: [],
+              total_line_item_discount: 0,
+              total_shipping: 0,
+              total_shipping_with_tax: 0,
+              total_shipping_value: 0,
+              total_tax: 0,
+              total_item_price: 17.49,
+              total_item_price_with_tax: 17.49,
+              total_weight: 1,
+              total_weight_shippable: 1,
+              total_order: 17.49,
+            },
+          ],
+          billing_address: {
+            use_customer_shipping_address: true,
+            address_id: null,
+            address_name: "Home",
+            first_name: "John",
+            last_name: "Doe",
+            company: "",
+            phone: "+48 22 123 45 67",
+            address1: "ul. Nowy Świat 123",
+            address2: "",
+            city: "Warsaw",
+            region: "Masovian",
+            postal_code: "00-001",
+            country: "PL",
+          },
+          store: {
+            id: 1,
+            name: "Demo Store",
+            domain: "example.com",
+            logo_url:
+              "https://pub-e63b17b4d990438a83af58c15949f8a2.r2.dev/type/liva.png",
+            website_url: "https://example.com",
+            checkout_url: "https://example.com/checkout",
+            cancel_and_continue_url: "https://example.com",
+            has_location_dependent_taxes: true,
+            has_eligible_gift_cards: true,
+            has_eligible_coupons: true,
+            supported_payment_cards: ["visa", "mastercard", "amex"],
+          },
+          payment_gateways: [getKlarnaInitPaymentOptionFromEnv("PL")],
+          messages: [],
+          language_strings: {},
+          custom_fields: {},
+          format: {
+            weight_unit: "pound",
+            locale_code: "pl-PL",
+            currency_code: "PLN",
+            currency_display: "symbol",
+            maximum_fraction_digits: 2,
+          },
+          display: {
+            hidden_product_options: [],
+            required_form_fields: [],
+            hidden_form_fields: [],
+            use_readonly_cart_on_checkout: false,
+            use_tax_inclusive_pricing: false,
+            secure_data_transfer_consent: "optional",
+            checkout_flow: "default",
+            registration: "optional",
+          },
+          custom_config: {},
+          express_checkout_options: [],
+        },
+        { state: "idle" },
+      );
+    </script>
+  </head>
+  <body>
+    <main class="example">
+      <section class="panel">
+        <div class="shell dark">
+          <foxy-payment-method-selector
+            button="pay-btn-themed"
+          ></foxy-payment-method-selector>
+          <foxy-payment-button
+            id="pay-btn-themed"
+            style="margin-top: 1rem"
+          ></foxy-payment-button>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

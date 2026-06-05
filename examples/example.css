@@ -6,20 +6,18 @@ body {
   min-height: 100dvh;
   box-sizing: border-box;
   background: #f3f5f7;
+
+  &:has(.dark) {
+    background: #18211b;
+  }
 }
 
 .example {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  align-items: start;
-  gap: 24px;
-  width: min(1200px, 100%);
+  width: min(600px, 100%);
   margin: auto;
 
   & .panel {
     font-family: "IBM Plex Sans", "Geist", sans-serif;
-    display: grid;
-    gap: 12px;
 
     & > :first-child h1,
     & > :first-child p {
