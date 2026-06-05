@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "@foxy.io/design-system/styles.css";
 
+
 @custom-variant dark (&:is(.dark *));
 @custom-variant state-focused (&:state(focused));
 @custom-variant state-user-invalid (&:state(user-invalid));

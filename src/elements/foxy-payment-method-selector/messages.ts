@@ -129,7 +129,32 @@ export const messages = defineMessages({
   optionDescriptionKlarna: {
     id: "payment_option_description_klarna",
     defaultMessage:
-      "Click the Klarna button under the order summary to submit your order.",
+      "Pay now, in 30 days, in 4 payments of {installmentAmount}, or as low as {monthlyAmount}/month. Click Continue with Klarna under the order summary to place your order.",
+  },
+  optionDescriptionKlarnaDefault: {
+    id: "payment_option_description_klarna_default",
+    defaultMessage:
+      "Click Continue with Klarna under the order summary to place your order.",
+  },
+  optionDescriptionKlarnaPayLater: {
+    id: "payment_option_description_klarna_pay_later",
+    defaultMessage:
+      "Buy now, pay in 30 days. Click Continue with Klarna under the order summary to place your order.",
+  },
+  optionDescriptionKlarnaPayInX: {
+    id: "payment_option_description_klarna_pay_in_x",
+    defaultMessage:
+      "4 interest-free payments of {installmentAmount}. Click Continue with Klarna under the order summary to place your order.",
+  },
+  optionDescriptionKlarnaPayOverTime: {
+    id: "payment_option_description_klarna_pay_over_time",
+    defaultMessage:
+      "As low as {monthlyAmount}/month. Click Continue with Klarna under the order summary to place your order.",
+  },
+  optionDescriptionKlarnaPayNow: {
+    id: "payment_option_description_klarna_pay_now",
+    defaultMessage:
+      "Pay now. Click Continue with Klarna under the order summary to place your order.",
   },
   optionDescriptionAch: {
     id: "payment_option_description_ach",
@@ -148,7 +173,7 @@ export const messages = defineMessages({
   optionDescriptionMollie: {
     id: "payment_option_description_mollie",
     defaultMessage:
-      "Click the Submit button under the order summary to submit your order",
+      "Click Continue to Mollie under the order summary to pay.",
   },
   optionDescriptionSezzle: {
     id: "payment_option_description_sezzle",

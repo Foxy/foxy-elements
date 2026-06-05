@@ -6,15 +6,190 @@ import { fileURLToPath } from "node:url";
 
 const PROJECT_ROOT = fileURLToPath(new URL("../", import.meta.url));
 const ENV_FILE_PATH = resolve(PROJECT_ROOT, ".env.local");
-const KLARNA_ENV_KEY = "VITE_KLARNA_INIT_RESPONSE";
-const DEFAULT_API_URL = "https://api.playground.klarna.com";
 const DEFAULT_AUTHORIZATION_URL =
   "https://example.com/checkout/klarna/authorization";
-const DEFAULT_LOCALE = "en-US";
-const DEFAULT_PURCHASE_COUNTRY = "US";
-const DEFAULT_PURCHASE_CURRENCY = "USD";
-const DEFAULT_ORDER_AMOUNT = 2500;
-const DEFAULT_ORDER_TAX_AMOUNT = 500;
+
+// Klarna's regional playground API base URLs.
+// EU covers most markets; NA covers US/CA; OC covers AU/NZ.
+const REGION_API_URLS = {
+  EU: "https://api.playground.klarna.com",
+  NA: "https://api-na.playground.klarna.com",
+  OC: "https://api-oc.playground.klarna.com",
+};
+
+const PROFILE_CONFIGS = {
+  US: {
+    page: "us.html",
+    countryCode: "US",
+    locale: "en-US",
+    currency: "USD",
+    orderAmount: 1749,
+    orderTaxAmount: 0,
+    region: "NA",
+  },
+  CA: {
+    page: "ca.html",
+    countryCode: "CA",
+    locale: "en-CA",
+    currency: "CAD",
+    orderAmount: 1749,
+    orderTaxAmount: 0,
+    region: "NA",
+  },
+  GB: {
+    page: "gb.html",
+    countryCode: "GB",
+    locale: "en-GB",
+    currency: "GBP",
+    orderAmount: 1749,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  DE: {
+    page: "de.html",
+    countryCode: "DE",
+    locale: "de-DE",
+    currency: "EUR",
+    orderAmount: 1749,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  FR: {
+    page: "fr.html",
+    countryCode: "FR",
+    locale: "fr-FR",
+    currency: "EUR",
+    orderAmount: 1749,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  NL: {
+    page: "nl.html",
+    countryCode: "NL",
+    locale: "nl-NL",
+    currency: "EUR",
+    orderAmount: 1749,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  BE: {
+    page: "be.html",
+    countryCode: "BE",
+    locale: "nl-BE",
+    currency: "EUR",
+    orderAmount: 1749,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  IE: {
+    page: "ie.html",
+    countryCode: "IE",
+    locale: "en-IE",
+    currency: "EUR",
+    orderAmount: 1749,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  ES: {
+    page: "es.html",
+    countryCode: "ES",
+    locale: "es-ES",
+    currency: "EUR",
+    orderAmount: 1749,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  IT: {
+    page: "it.html",
+    countryCode: "IT",
+    locale: "it-IT",
+    currency: "EUR",
+    orderAmount: 1749,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  CH: {
+    page: "ch.html",
+    countryCode: "CH",
+    locale: "de-CH",
+    currency: "CHF",
+    orderAmount: 1749,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  AT: {
+    page: "at.html",
+    countryCode: "AT",
+    locale: "de-AT",
+    currency: "EUR",
+    orderAmount: 1749,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  SE: {
+    page: "se.html",
+    countryCode: "SE",
+    locale: "sv-SE",
+    currency: "SEK",
+    orderAmount: 14900,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  NO: {
+    page: "no.html",
+    countryCode: "NO",
+    locale: "nb-NO",
+    currency: "NOK",
+    orderAmount: 14900,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  PL: {
+    page: "pl.html",
+    countryCode: "PL",
+    locale: "pl-PL",
+    currency: "PLN",
+    orderAmount: 6900,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  CZ: {
+    page: "cz.html",
+    countryCode: "CZ",
+    locale: "cs-CZ",
+    currency: "CZK",
+    orderAmount: 39900,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  RS: {
+    page: "rs.html",
+    countryCode: "RS",
+    locale: "sr-RS",
+    currency: "RSD",
+    orderAmount: 174900,
+    orderTaxAmount: 0,
+    region: "EU",
+  },
+  AU: {
+    page: "au.html",
+    countryCode: "AU",
+    locale: "en-AU",
+    currency: "AUD",
+    orderAmount: 1749,
+    orderTaxAmount: 0,
+    region: "OC",
+  },
+  NZ: {
+    page: "nz.html",
+    countryCode: "NZ",
+    locale: "en-NZ",
+    currency: "NZD",
+    orderAmount: 1749,
+    orderTaxAmount: 0,
+    region: "OC",
+  },
+};
 
 function toNonEmptyString(value) {
   if (typeof value !== "string") {
@@ -90,13 +265,56 @@ function loadRuntimeEnv() {
   };
 }
 
-function createKlarnaSessionRequest(env) {
-  const apiUrl = ensureUrl(
-    getOptionalString(env, "KLARNA_API_URL", DEFAULT_API_URL),
-    "KLARNA_API_URL",
+function getProfiles(env) {
+  const rawProfiles = getOptionalString(env, "KLARNA_EXAMPLE_PROFILES", "all");
+  const profileKeys = Object.keys(PROFILE_CONFIGS);
+
+  if (rawProfiles.toLowerCase() === "all") {
+    return profileKeys;
+  }
+
+  const profiles = rawProfiles
+    .split(",")
+    .map((profile) => profile.trim().toUpperCase())
+    .filter(Boolean);
+
+  const unknownProfiles = profiles.filter(
+    (profile) => !Object.hasOwn(PROFILE_CONFIGS, profile),
   );
+
+  if (unknownProfiles.length > 0) {
+    throw new Error(
+      `Unknown KLARNA_EXAMPLE_PROFILES value: ${unknownProfiles.join(", ")}. ` +
+        `Valid profiles: ${profileKeys.join(", ")}.`,
+    );
+  }
+
+  if (profiles.length === 0) {
+    throw new Error(
+      "KLARNA_EXAMPLE_PROFILES must include at least one profile.",
+    );
+  }
+
+  return profiles;
+}
+
+function getApiUrl(env, region) {
+  // Per-region override takes highest priority.
+  const regionOverride = toNonEmptyString(env[`KLARNA_API_URL_${region}`]);
+  if (regionOverride) {
+    return ensureUrl(regionOverride, `KLARNA_API_URL_${region}`);
+  }
+
+  // Region-specific default URL — ignore KLARNA_API_URL so an EU credential
+  // stored under that key doesn't get applied to NA/OC profiles.
+  return REGION_API_URLS[region] ?? REGION_API_URLS.EU;
+}
+
+function createKlarnaSessionRequest(env, profile) {
+  const config = PROFILE_CONFIGS[profile];
   const username = getRequiredString(env, "KLARNA_USERNAME");
   const password = getRequiredString(env, "KLARNA_PASSWORD");
+  const apiUrl = getApiUrl(env, config.region);
   const authorizationUrl = ensureUrl(
     getOptionalString(
       env,
@@ -105,31 +323,21 @@ function createKlarnaSessionRequest(env) {
     ),
     "KLARNA_MERCHANT_URL_AUTHORIZATION",
   );
-  const locale = getOptionalString(env, "KLARNA_LOCALE", DEFAULT_LOCALE);
-  const purchaseCountry = getOptionalString(
-    env,
-    "KLARNA_PURCHASE_COUNTRY",
-    DEFAULT_PURCHASE_COUNTRY,
-  );
-  const purchaseCurrency = getOptionalString(
-    env,
-    "KLARNA_PURCHASE_CURRENCY",
-    DEFAULT_PURCHASE_CURRENCY,
-  );
+
   const orderAmount = getPositiveInteger(
     env,
-    "KLARNA_ORDER_AMOUNT",
-    DEFAULT_ORDER_AMOUNT,
+    `KLARNA_ORDER_AMOUNT_${profile}`,
+    getPositiveInteger(env, "KLARNA_ORDER_AMOUNT", config.orderAmount),
   );
   const orderTaxAmount = getNonNegativeInteger(
     env,
-    "KLARNA_ORDER_TAX_AMOUNT",
-    DEFAULT_ORDER_TAX_AMOUNT,
+    `KLARNA_ORDER_TAX_AMOUNT_${profile}`,
+    getNonNegativeInteger(env, "KLARNA_ORDER_TAX_AMOUNT", config.orderTaxAmount),
   );
 
   if (orderTaxAmount > orderAmount) {
     throw new Error(
-      "KLARNA_ORDER_TAX_AMOUNT must be less than or equal to KLARNA_ORDER_AMOUNT.",
+      `KLARNA_ORDER_TAX_AMOUNT for ${profile} must be less than or equal to the order amount.`,
     );
   }
 
@@ -138,15 +346,16 @@ function createKlarnaSessionRequest(env) {
     netAmount > 0 ? Math.round((orderTaxAmount / netAmount) * 10000) : 0;
 
   return {
+    profile,
     apiUrl,
     username,
     password,
     body: {
       acquiring_channel: "ECOMMERCE",
       intent: "buy",
-      locale,
-      purchase_country: purchaseCountry,
-      purchase_currency: purchaseCurrency,
+      locale: config.locale,
+      purchase_country: config.countryCode,
+      purchase_currency: config.currency,
       order_amount: orderAmount,
       order_tax_amount: orderTaxAmount,
       merchant_urls: {
@@ -155,8 +364,8 @@ function createKlarnaSessionRequest(env) {
       order_lines: [
         {
           type: "physical",
-          reference: "storybook-klarna-session",
-          name: "Storybook Klarna Test Order",
+          reference: `foxy-elements-demo-${profile.toLowerCase()}`,
+          name: "Demo Product",
           quantity: 1,
           unit_price: orderAmount,
           total_amount: orderAmount,
@@ -260,13 +469,10 @@ function validateKlarnaSessionResponse(payload) {
     );
   }
 
-  return {
-    sessionId,
-    categoryCount: categories.length,
-  };
+  return { sessionId, categories };
 }
 
-async function upsertEnvVar(filePath, name, value) {
+async function upsertEnvVars(filePath, entries) {
   let content = "";
 
   try {
@@ -277,40 +483,85 @@ async function upsertEnvVar(filePath, name, value) {
     }
   }
 
-  const nextLine = `${name}=${value}`;
+  const names = new Set(entries.map(([name]) => name));
   const lines = content ? content.split(/\r?\n/) : [];
-  const filteredLines = lines.filter((line) => !line.startsWith(`${name}=`));
+  const filteredLines = lines.filter((line) => {
+    const equalsIndex = line.indexOf("=");
+    const name = equalsIndex >= 0 ? line.slice(0, equalsIndex) : line;
+    return !names.has(name);
+  });
 
   while (filteredLines.length > 0 && filteredLines.at(-1) === "") {
     filteredLines.pop();
   }
 
-  filteredLines.push(nextLine, "");
+  for (const [name, value] of entries) {
+    filteredLines.push(`${name}=${value}`);
+  }
+
+  filteredLines.push("");
   await writeFile(filePath, filteredLines.join("\n"), "utf8");
 }
 
 async function main() {
   const env = loadRuntimeEnv();
-  const request = createKlarnaSessionRequest(env);
-  const session = await initiateKlarnaSession(request);
-  const summary = validateKlarnaSessionResponse(session);
-  const encodedSession = Buffer.from(JSON.stringify(session), "utf8").toString(
-    "base64",
-  );
+  const profiles = getProfiles(env);
+  const envEntries = [];
+  const summaries = [];
 
-  await upsertEnvVar(ENV_FILE_PATH, KLARNA_ENV_KEY, encodedSession);
+  const failures = [];
 
-  const categories = session.payment_method_categories
-    .map((category) => {
-      const identifier = toNonEmptyString(category?.identifier) || "unknown";
-      const name = toNonEmptyString(category?.name) || "unknown";
-      return `${identifier} (${name})`;
-    })
-    .join(", ");
+  for (const profile of profiles) {
+    try {
+      const request = createKlarnaSessionRequest(env, profile);
+      const session = await initiateKlarnaSession(request);
+      const { sessionId, categories } = validateKlarnaSessionResponse(session);
+      const encodedSession = Buffer.from(
+        JSON.stringify(session),
+        "utf8",
+      ).toString("base64");
 
-  console.log(`Stored ${KLARNA_ENV_KEY} in ${ENV_FILE_PATH}`);
-  console.log(`session_id: ${summary.sessionId}`);
-  console.log(`payment_method_categories: ${categories}`);
+      envEntries.push([`VITE_KLARNA_INIT_RESPONSE_${profile}`, encodedSession]);
+      summaries.push({ profile, sessionId, categories });
+    } catch (error) {
+      failures.push({
+        profile,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  await upsertEnvVars(ENV_FILE_PATH, envEntries);
+
+  console.log(`Stored Klarna demo session values in ${ENV_FILE_PATH}`);
+  console.log("");
+
+  for (const { profile, sessionId, categories } of summaries) {
+    const config = PROFILE_CONFIGS[profile];
+    const categoryNames = categories
+      .map((c) => {
+        const identifier = toNonEmptyString(c?.identifier) || "unknown";
+        const name = toNonEmptyString(c?.name) || "unknown";
+        return `${identifier} (${name})`;
+      })
+      .join(", ");
+
+    console.log(
+      `${profile} (${config.locale}, ${config.currency}): session_id=${sessionId} categories=${categoryNames}`,
+    );
+  }
+
+  if (failures.length > 0) {
+    console.log("");
+    console.error(`Failed profiles (${failures.length}):`);
+    for (const { profile, message } of failures) {
+      console.error(`  ${profile}: ${message}`);
+    }
+
+    if (summaries.length === 0) {
+      process.exitCode = 1;
+    }
+  }
 }
 
 main().catch((error) => {

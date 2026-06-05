@@ -280,6 +280,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     this.#render();
   }
 
+  get selectedOption(): PaymentMethodSelectorOption | undefined {
+    return this.#resolveSelectedOption();
+  }
+
   async tokenize(): Promise<PaymentMethodSelectorTokenizePayload> {
     if (!this.#resolveApiState()) {
       throw new Error("Checkout client is not initialized.");
@@ -323,6 +327,25 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
               detail: {
                 payload,
               },
+            },
+          ),
+        );
+
+        return payload;
+      }
+
+      if (selectedOption.klarna) {
+        this.#setLoading(true);
+        const tokenized = await this.#tokenizeKlarna(selectedOption);
+        const payload = this.#createTokenizePayload(selectedOption, tokenized);
+
+        this.dispatchEvent(
+          new CustomEvent<PaymentMethodSelectorTokenizationSuccessEventDetail>(
+            paymentMethodSelectorEvents.tokenizationSuccess,
+            {
+              bubbles: true,
+              composed: true,
+              detail: { payload },
             },
           ),
         );
@@ -405,9 +428,163 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return undefined;
   }
 
+  async #tokenizeKlarna(
+    option: PaymentMethodSelectorOption,
+  ): Promise<{ authorizationToken: string; sessionId: string; paymentMethodCategory: string }> {
+    const klarnaOption = option.klarna!;
+
+    type KlarnaPaymentsApi = {
+      authorize: (
+        opts: { payment_method_category: string },
+        data: Record<string, unknown>,
+        callback: (result: {
+          approved: boolean;
+          show_form: boolean;
+          authorization_token?: string;
+          finalize_required?: boolean;
+        }) => void,
+      ) => void;
+      finalize: (
+        opts: { payment_method_category: string },
+        data: Record<string, unknown>,
+        callback: (result: {
+          approved: boolean;
+          show_form: boolean;
+          authorization_token?: string;
+        }) => void,
+      ) => void;
+    };
+
+    const klarnaRaw = this.#checkoutClient.klarna as unknown as
+      | { Payments?: KlarnaPaymentsApi }
+      | null
+      | undefined;
+
+    if (!klarnaRaw?.Payments) {
+      throw new Error(
+        "Unable to load Klarna. Choose a different payment method or try again.",
+      );
+    }
+
+    const klarna = klarnaRaw.Payments;
+    const apiState = this.#resolveApiState();
+    const authorizationData = this.#createKlarnaAuthorizationData(apiState);
+    const category = klarnaOption.category.identifier;
+
+    const authorization = await new Promise<{
+      approved: boolean;
+      show_form: boolean;
+      authorization_token?: string;
+      finalize_required?: boolean;
+    }>((resolve) =>
+      klarna.authorize(
+        { payment_method_category: category },
+        authorizationData,
+        resolve,
+      ),
+    );
+
+    if (!authorization.approved) {
+      if (!authorization.show_form) {
+        throw new Error("This Klarna option is currently unavailable.");
+      }
+      throw new Error(
+        "Klarna couldn't authorize this payment. Review your details and try again.",
+      );
+    }
+
+    let authorizationToken = authorization.authorization_token;
+
+    if (authorization.finalize_required) {
+      const finalized = await new Promise<{
+        approved: boolean;
+        show_form: boolean;
+        authorization_token?: string;
+      }>((resolve) =>
+        klarna.finalize(
+          { payment_method_category: category },
+          authorizationData,
+          resolve,
+        ),
+      );
+
+      if (!finalized.approved) {
+        if (!finalized.show_form) {
+          throw new Error("This Klarna option is currently unavailable.");
+        }
+        throw new Error("Klarna couldn't finalize this payment. Try again.");
+      }
+
+      authorizationToken = finalized.authorization_token ?? authorizationToken;
+    }
+
+    if (!authorizationToken) {
+      throw new Error(
+        "Klarna authorization response is missing an authorization token.",
+      );
+    }
+
+    return {
+      authorizationToken,
+      sessionId: klarnaOption.sessionId,
+      paymentMethodCategory: category,
+    };
+  }
+
+  #createKlarnaAuthorizationData(
+    apiState: Record<string, unknown> | null,
+  ): Record<string, unknown> {
+    if (!apiState) return {};
+
+    const customer = this.#asRecord(apiState.customer);
+    const billingAddress = this.#asRecord(apiState.billing_address);
+    const shipments = Array.isArray(apiState.shipments)
+      ? apiState.shipments
+      : [];
+    const shippingAddress = this.#asRecord(shipments[0] ?? null);
+    const email = this.#toOptionalText(customer?.email);
+
+    const payload: Record<string, unknown> = {};
+
+    const billing = this.#buildKlarnaAddress(billingAddress, email);
+    if (billing) payload.billing_address = billing;
+
+    const shipping = this.#buildKlarnaAddress(shippingAddress);
+    if (shipping) payload.shipping_address = shipping;
+
+    return payload;
+  }
+
+  #buildKlarnaAddress(
+    source: Record<string, unknown> | null,
+    email?: string,
+  ): Record<string, string> | undefined {
+    if (!source) return undefined;
+
+    const address: Record<string, string> = {};
+    const pairs: [string, unknown][] = [
+      ["given_name", source.first_name],
+      ["family_name", source.last_name],
+      ["email", email ?? source.email],
+      ["phone", source.phone],
+      ["street_address", source.address1],
+      ["street_address2", source.address2],
+      ["postal_code", source.postal_code],
+      ["city", source.city],
+      ["region", source.region],
+      ["country", source.country],
+    ];
+
+    for (const [key, value] of pairs) {
+      const text = this.#toOptionalText(value);
+      if (text) address[key] = text;
+    }
+
+    return Object.keys(address).length ? address : undefined;
+  }
+
   #optionRequiresController(option: PaymentMethodSelectorOption): boolean {
     return Boolean(
-      option.klarna ||
       option.hostedCard ||
       option.hostedFields ||
       option.stripeCardElement ||
@@ -533,6 +710,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     const billingAddress = this.#resolveBillingAddress();
     const locale = this.#resolveLocale();
     const messages = this.#resolveMessages(locale);
+    const orderTotal = this.#resolveOrderTotal(apiState);
+    const orderCurrencyCode = this.#resolveOrderCurrencyCode(apiState);
 
     this.#root.render(
       <IntlProvider
@@ -547,6 +726,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           disabled={false}
           loading={this.#loading || this.#optionsLoading}
           billingAddress={billingAddress}
+          orderTotal={orderTotal}
+          orderCurrencyCode={orderCurrencyCode}
           billingError={
             selectedOptionId
               ? this.#billingErrorsByOption.get(selectedOptionId)
@@ -1138,6 +1319,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
       return {
         id: `klarna${suffix}`,
+        type: "klarna" as const,
         label: category.name,
         gateway: "klarna",
         disabled: option.disabled === true,
@@ -1697,6 +1879,25 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         ? this.#createNormalizedOption(option, index, apiState)
         : [];
     });
+  }
+
+  #resolveOrderTotal(apiState: Record<string, unknown>): number | undefined {
+    const totals = Array.isArray(apiState.totals) ? apiState.totals : [];
+    const total = this.#asRecord(totals[0]);
+    const totalOrder = total?.total_order;
+    if (typeof totalOrder === "number" && Number.isFinite(totalOrder) && totalOrder > 0) {
+      return totalOrder;
+    }
+    return undefined;
+  }
+
+  #resolveOrderCurrencyCode(apiState: Record<string, unknown>): string | undefined {
+    const format = this.#asRecord(apiState.format);
+    const currencyCode = format?.currency_code;
+    if (typeof currencyCode === "string" && currencyCode.trim()) {
+      return currencyCode.trim().toUpperCase();
+    }
+    return undefined;
   }
 
   #getStripePaymentElementAmount(

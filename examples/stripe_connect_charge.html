@@ -9,6 +9,10 @@
       type="module"
       src="/src/elements/foxy-payment-method-selector/index.ts"
     ></script>
+    <script
+      type="module"
+      src="/src/elements/foxy-payment-button/index.ts"
+    ></script>
     <script type="module">
       import { client } from "@foxy.io/sdk/checkout/client";
 
@@ -190,7 +194,8 @@
           <p>Unstyled selector using the component defaults.</p>
         </div>
         <div class="shell">
-          <foxy-payment-method-selector></foxy-payment-method-selector>
+          <foxy-payment-method-selector button="pay-btn-default"></foxy-payment-method-selector>
+          <foxy-payment-button id="pay-btn-default" style="margin-top: 1rem;"></foxy-payment-button>
         </div>
       </section>
 
@@ -200,7 +205,8 @@
           <p>Selector themed with a custom dark preset.</p>
         </div>
         <div class="shell dark">
-          <foxy-payment-method-selector></foxy-payment-method-selector>
+          <foxy-payment-method-selector button="pay-btn-themed"></foxy-payment-method-selector>
+          <foxy-payment-button id="pay-btn-themed" style="margin-top: 1rem;"></foxy-payment-button>
         </div>
       </section>
     </main>

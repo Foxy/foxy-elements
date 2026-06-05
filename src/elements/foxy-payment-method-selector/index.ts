@@ -1,4 +1,5 @@
 export { paymentMethodSelectorEvents } from "./events";
+export type { PaymentMethodSelectorOption } from "./types";
 export type {
   PaymentMethodSelectorAchTokenizePayload,
   PaymentMethodSelectorAdyenEmbeddedConfig,

@@ -134,6 +134,15 @@ export function parseKlarnaInitResponse(
   };
 }
 
-export function getKlarnaInitPaymentOptionFromEnv(): KlarnaServerPaymentOption | null {
+export function getKlarnaInitPaymentOptionFromEnv(
+  countryCode?: string,
+): KlarnaServerPaymentOption | null {
+  if (countryCode) {
+    const key = `VITE_KLARNA_INIT_RESPONSE_${countryCode.toUpperCase()}`;
+    return parseKlarnaInitResponse(
+      (import.meta.env as Record<string, string | undefined>)[key],
+    );
+  }
+
   return parseKlarnaInitResponse(import.meta.env.VITE_KLARNA_INIT_RESPONSE);
 }

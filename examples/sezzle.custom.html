@@ -3,45 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>foxy-payment-method-selector • Sezzle</title>
+    <title>foxy-payment-method-selector • Sezzle (Custom Theme)</title>
     <link rel="stylesheet" href="./example.css" />
     <script
       type="module"
       src="/src/elements/foxy-payment-method-selector/index.ts"
+    ></script>
+    <script
+      type="module"
+      src="/src/elements/foxy-payment-button/index.ts"
     ></script>
     <script type="module">
       import { client } from "@foxy.io/sdk/checkout/client";
 
       const sezzlePublicKey =
         import.meta.env.VITE_SEZZLE_PUBLIC_KEY?.trim() || "sezzle-public-key";
-
-      function ensureMockSezzleSdk() {
-        if (typeof window.Checkout === "function") {
-          return;
-        }
-
-        window.Checkout = class MockCheckout {
-          constructor(configuration) {
-            this.configuration = configuration;
-          }
-
-          init() {}
-
-          startCheckout() {}
-
-          renderSezzleButton() {}
-
-          capturePayment() {
-            return Promise.resolve({});
-          }
-
-          getInstallmentPlan() {
-            return Promise.resolve({});
-          }
-        };
-      }
-
-      ensureMockSezzleSdk();
 
       const apiState = {
         template_set: {
@@ -111,7 +87,6 @@
             downloadable_id: null,
             downloadable_url: null,
             subscription_frequency: null,
-            subscription_start_date: null,
             subscription_next_transaction_date: null,
             subscription_end_date: null,
             expires: null,
@@ -206,21 +181,12 @@
     <main class="example">
       <section class="panel">
         <div>
-          <h1>Default Theme</h1>
-          <p>Unstyled selector using the component defaults.</p>
-        </div>
-        <div class="shell">
-          <foxy-payment-method-selector></foxy-payment-method-selector>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div>
           <h1>Custom Theme</h1>
           <p>Selector themed with a custom dark preset.</p>
         </div>
         <div class="shell dark">
-          <foxy-payment-method-selector></foxy-payment-method-selector>
+          <foxy-payment-method-selector button="pay-btn-themed"></foxy-payment-method-selector>
+          <foxy-payment-button id="pay-btn-themed" style="margin-top: 1rem;"></foxy-payment-button>
         </div>
       </section>
     </main>

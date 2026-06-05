@@ -50,7 +50,8 @@ body {
         background: #05080a;
         font-family: monospace;
 
-        & foxy-payment-method-selector {
+        & foxy-payment-method-selector,
+        & foxy-payment-button {
           --background: #060b08;
           --foreground: #e7ffe8;
           --card: #0b120d;

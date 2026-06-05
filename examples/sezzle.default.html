@@ -3,47 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>foxy-payment-method-selector • Klarna</title>
+    <title>foxy-payment-method-selector • Sezzle (Default Theme)</title>
     <link rel="stylesheet" href="./example.css" />
     <script
       type="module"
       src="/src/elements/foxy-payment-method-selector/index.ts"
     ></script>
+    <script
+      type="module"
+      src="/src/elements/foxy-payment-button/index.ts"
+    ></script>
     <script type="module">
       import { client } from "@foxy.io/sdk/checkout/client";
-      import { getKlarnaInitPaymentOptionFromEnv } from "/src/lib/klarna-init-response.ts";
 
-      function createSvgLogoDataUri(text, fill) {
-        return `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="24" viewBox="0 0 80 24" fill="none"><rect width="80" height="24" rx="12" fill="${fill}"/><text x="40" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#111">${text}</text></svg>`)}`;
-      }
-
-      const defaultKlarnaPaymentOption = {
-        type: "klarna",
-        gateway: "klarna",
-        session_id: "klarna-session-id",
-        client_token: "klarna-client-token",
-        payment_method_categories: [
-          {
-            identifier: "pay_in_4",
-            name: "Pay in 4",
-            asset_urls: {
-              descriptive: createSvgLogoDataUri("Pay in 4", "#ffb3c7"),
-              standard: createSvgLogoDataUri("Pay in 4", "#ffb3c7"),
-            },
-          },
-          {
-            identifier: "pay_in_30_days",
-            name: "Pay in 30 Days",
-            asset_urls: {
-              descriptive: createSvgLogoDataUri("30 days", "#ffd8e4"),
-              standard: createSvgLogoDataUri("30 days", "#ffd8e4"),
-            },
-          },
-        ],
-      };
-
-      const klarnaPaymentOption =
-        getKlarnaInitPaymentOptionFromEnv() ?? defaultKlarnaPaymentOption;
+      const sezzlePublicKey =
+        import.meta.env.VITE_SEZZLE_PUBLIC_KEY?.trim() || "sezzle-public-key";
 
       const apiState = {
         template_set: {
@@ -166,7 +140,12 @@
           has_eligible_coupons: true,
           supported_payment_cards: ["visa", "mastercard", "amex"],
         },
-        payment_gateways: [klarnaPaymentOption],
+        payment_gateways: [
+          {
+            type: "sezzle",
+            public_key: sezzlePublicKey,
+          },
+        ],
         messages: [],
         language_strings: {},
         custom_fields: {},
@@ -187,7 +166,10 @@
           checkout_flow: "default",
           registration: "optional",
         },
-        custom_config: {},
+        custom_config: {
+          sezzleApiMode: "sandbox",
+          sezzleMode: "popup",
+        },
         express_checkout_options: [],
       };
 
@@ -204,17 +186,8 @@
           <p>Unstyled selector using the component defaults.</p>
         </div>
         <div class="shell">
-          <foxy-payment-method-selector></foxy-payment-method-selector>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div>
-          <h1>Custom Theme</h1>
-          <p>Selector themed with a custom dark preset.</p>
-        </div>
-        <div class="shell dark">
-          <foxy-payment-method-selector></foxy-payment-method-selector>
+          <foxy-payment-method-selector button="pay-btn-default"></foxy-payment-method-selector>
+          <foxy-payment-button id="pay-btn-default" style="margin-top: 1rem;"></foxy-payment-button>
         </div>
       </section>
     </main>

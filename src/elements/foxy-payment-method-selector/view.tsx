@@ -64,7 +64,6 @@ import type { IntlShape } from "react-intl";
 
 const CardOptionEmbed = lazy(() => import("./embeds/card-hosted"));
 const AchOptionEmbed = lazy(() => import("./embeds/ach-hosted"));
-const KlarnaOptionEmbed = lazy(() => import("./embeds/klarna"));
 const PurchaseOrderOptionEmbed = lazy(() => import("./embeds/purchase-order"));
 const StripeCardElementOption = lazy(() => import("./embeds/stripe-card"));
 const StripePaymentElementOption = lazy(
@@ -100,6 +99,8 @@ type PaymentProps = {
   }) => ReactNode;
   billingAddress?: PaymentMethodSelectorBillingAddress;
   billingError?: PaymentMethodSelectorBillingError;
+  orderTotal?: number;
+  orderCurrencyCode?: string;
   onBillingAddressChange?: (params: {
     optionId: string;
     useShippingAddress: boolean;
@@ -246,9 +247,52 @@ function getPaymentOptionLabel(
 function getPaymentOptionDescriptionText(
   option: PaymentMethodSelectorOption,
   intl: IntlShape,
+  orderTotal?: number,
+  orderCurrencyCode?: string,
 ): string | undefined {
   if (option.klarna) {
-    return intl.formatMessage(messages.optionDescriptionKlarna);
+    const identifier = option.klarna.category.identifier;
+
+    if (identifier === "pay_later") {
+      return intl.formatMessage(messages.optionDescriptionKlarnaPayLater);
+    }
+    if (identifier === "pay_now") {
+      return intl.formatMessage(messages.optionDescriptionKlarnaPayNow);
+    }
+
+    const hasAmounts =
+      typeof orderTotal === "number" &&
+      Number.isFinite(orderTotal) &&
+      orderTotal > 0 &&
+      orderCurrencyCode;
+
+    if (!hasAmounts) {
+      return intl.formatMessage(messages.optionDescriptionKlarnaDefault);
+    }
+
+    const fmt = (amount: number) =>
+      intl.formatNumber(amount, {
+        style: "currency",
+        currency: orderCurrencyCode,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+
+    if (identifier === "pay_in_x") {
+      return intl.formatMessage(messages.optionDescriptionKlarnaPayInX, {
+        installmentAmount: fmt(orderTotal / 4),
+      });
+    }
+    if (identifier === "pay_over_time") {
+      return intl.formatMessage(messages.optionDescriptionKlarnaPayOverTime, {
+        monthlyAmount: fmt(orderTotal / 24),
+      });
+    }
+
+    return intl.formatMessage(messages.optionDescriptionKlarna, {
+      installmentAmount: fmt(orderTotal / 4),
+      monthlyAmount: fmt(orderTotal / 24),
+    });
   }
 
   if (option.adyenEmbedded && !ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "")) {
@@ -370,8 +414,10 @@ function PayPalPayLaterDescription({
 function renderPaymentOptionDescription(
   option: PaymentMethodSelectorOption,
   intl: IntlShape,
+  orderTotal?: number,
+  orderCurrencyCode?: string,
 ): ReactNode {
-  const description = getPaymentOptionDescriptionText(option, intl);
+  const description = getPaymentOptionDescriptionText(option, intl, orderTotal, orderCurrencyCode);
 
   if (!description) {
     return null;
@@ -687,30 +733,6 @@ function PaymentOptionBody({
     );
   }
 
-  if (option.klarna) {
-    return (
-      <>
-        <Suspense fallback={bodyFallback}>
-          <KlarnaOptionEmbed
-            option={option}
-            disabled={disabled}
-            onControllerReady={onControllerReady}
-            loadingMessage={intl.formatMessage(messages.klarnaLoading)}
-            unavailableMessage={intl.formatMessage(messages.klarnaUnavailable)}
-            loadErrorMessage={intl.formatMessage(messages.klarnaLoadError)}
-            authorizeErrorMessage={intl.formatMessage(
-              messages.klarnaAuthorizeError,
-            )}
-            finalizeErrorMessage={intl.formatMessage(
-              messages.klarnaFinalizeError,
-            )}
-          />
-        </Suspense>
-        {billingSection}
-      </>
-    );
-  }
-
   return billingSection;
 }
 
@@ -768,7 +790,7 @@ function hasPaymentOptionBodyContent(
 
   const isAdyenButtonOnly = ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "");
   const isSquareFormBased = option.type === "new-card";
-  if (option.klarna || (option.adyenEmbedded && !isAdyenButtonOnly) || (option.squareUp && isSquareFormBased)) {
+  if ((option.adyenEmbedded && !isAdyenButtonOnly) || (option.squareUp && isSquareFormBased)) {
     return true;
   }
 
@@ -787,6 +809,8 @@ export function Payment({
   renderAdyenContent,
   billingAddress,
   billingError,
+  orderTotal,
+  orderCurrencyCode,
   onBillingAddressChange,
 }: PaymentProps) {
   const intl = useIntl();
@@ -993,6 +1017,8 @@ export function Payment({
           const optionDescription = renderPaymentOptionDescription(
             option,
             intl,
+            orderTotal,
+            orderCurrencyCode,
           );
           const optionBody = (
             <div className={cn(shouldUseCardChrome && "px-3 py-3")}>
