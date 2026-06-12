@@ -668,6 +668,9 @@ function buildStripeAppearanceFromTokens(
           ".Tab--selected": {
             border: `1px solid ${borderColor}`,
           },
+          ".CheckboxInput": {
+            border: `1px solid ${borderColor}`,
+          },
         }
       : undefined,
     cardBackgroundColor

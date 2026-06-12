@@ -139,11 +139,13 @@ function StripePaymentField({
   paymentElementOptions,
   onControllerReady,
   onError,
+  onPaymentMethodTypeChange,
 }: {
   disabled?: boolean;
   paymentElementOptions: PaymentElementOptionsMap;
   onControllerReady?: (controller: PaymentController | null) => void;
   onError: (message: string | null) => void;
+  onPaymentMethodTypeChange?: (type: string | null) => void;
 }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -201,7 +203,8 @@ function StripePaymentField({
         onControllerReady?.({ tokenize });
       }}
       onChange={(event) => {
-        const detail = event as { error?: { message?: string } };
+        const detail = event as { value?: { type?: string }; error?: { message?: string } };
+        onPaymentMethodTypeChange?.(detail.value?.type ?? null);
         onError(detail.error?.message ?? null);
       }}
       onLoadError={(event) => {
@@ -220,10 +223,12 @@ export function StripePaymentElementOption({
   option,
   disabled,
   onControllerReady,
+  onPaymentMethodTypeChange,
 }: {
   option: PaymentMethodSelectorOption;
   disabled?: boolean;
   onControllerReady?: (controller: PaymentController | null) => void;
+  onPaymentMethodTypeChange?: (type: string | null) => void;
 }) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const stripeConfig = option.stripePaymentElement;
@@ -288,6 +293,7 @@ export function StripePaymentElementOption({
           paymentElementOptions={paymentElementOptions}
           onControllerReady={onControllerReady}
           onError={setErrorMessage}
+          onPaymentMethodTypeChange={onPaymentMethodTypeChange}
         />
       </Elements>
 

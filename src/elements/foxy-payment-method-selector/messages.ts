@@ -36,7 +36,7 @@ export const messages = defineMessages({
   },
   optionLabelRedirect: {
     id: "payment_option_label_redirect",
-    defaultMessage: "Continue to Payment Provider",
+    defaultMessage: "Continue with Payment Provider",
   },
   optionLabelPayPal: {
     id: "payment_option_label_paypal",
@@ -102,6 +102,10 @@ export const messages = defineMessages({
     id: "payment_option_label_afterpay",
     defaultMessage: "Afterpay",
   },
+  optionLabelTwint: {
+    id: "payment_option_label_twint",
+    defaultMessage: "TWINT",
+  },
   optionDescriptionNewCard: {
     id: "payment_option_description_new_card",
     defaultMessage: "Enter your payment card details below.",
@@ -120,7 +124,8 @@ export const messages = defineMessages({
   },
   optionDescriptionAdyenEmbedded: {
     id: "payment_option_description_adyen_embedded",
-    defaultMessage: "Enter your payment details below and click the Submit button below the order summary to submit your order.",
+    defaultMessage:
+      "Enter your payment details below and click the Submit button below the order summary to submit your order.",
   },
   optionDescriptionPurchaseOrder: {
     id: "payment_option_description_purchase_order",
@@ -173,7 +178,7 @@ export const messages = defineMessages({
   optionDescriptionMollie: {
     id: "payment_option_description_mollie",
     defaultMessage:
-      "Click Continue to Mollie under the order summary to pay.",
+      "Click Continue with Mollie under the order summary to pay.",
   },
   optionDescriptionSezzle: {
     id: "payment_option_description_sezzle",
@@ -198,7 +203,7 @@ export const messages = defineMessages({
   optionDescriptionVenmo: {
     id: "payment_option_description_venmo",
     defaultMessage:
-      "Click the Venmo button under the order summary to submit your order.",
+      "Click Continue with Venmo under the order summary to submit your order.",
   },
   optionDescriptionSepa: {
     id: "payment_option_description_sepa",
@@ -208,27 +213,27 @@ export const messages = defineMessages({
   optionDescriptionBancontact: {
     id: "payment_option_description_bancontact",
     defaultMessage:
-      "Click the Bancontact button under the order summary to submit your order.",
+      "Click Continue with Bancontact under the order summary to submit your order.",
   },
   optionDescriptionEps: {
     id: "payment_option_description_eps",
     defaultMessage:
-      "Click the EPS button under the order summary to submit your order.",
+      "Click Continue with EPS under the order summary to submit your order.",
   },
   optionDescriptionBlik: {
     id: "payment_option_description_blik",
     defaultMessage:
-      "Click the BLIK button under the order summary to submit your order.",
+      "Click Continue with BLIK under the order summary to submit your order.",
   },
   optionDescriptionIdeal: {
     id: "payment_option_description_ideal",
     defaultMessage:
-      "Click the iDEAL button under the order summary to submit your order.",
+      "Click Continue with iDEAL under the order summary to submit your order.",
   },
   optionDescriptionPrzelewy24: {
     id: "payment_option_description_przelewy24",
     defaultMessage:
-      "Click the Przelewy24 button under the order summary to submit your order.",
+      "Click Continue with Przelewy24 under the order summary to submit your order.",
   },
   optionDescriptionAlipay: {
     id: "payment_option_description_alipay",
@@ -279,6 +284,11 @@ export const messages = defineMessages({
     id: "payment_option_description_zip_pos",
     defaultMessage:
       "Click the Zip POS button below the order summary to submit your order.",
+  },
+  optionDescriptionTwint: {
+    id: "payment_option_description_twint",
+    defaultMessage:
+      "Click Continue with TWINT below the order summary to submit your order.",
   },
   optionViaGateway: {
     id: "payment_option_via_gateway",
@@ -508,6 +518,7 @@ export const OPTION_LABEL_BY_TYPE: Partial<Record<string, MessageDescriptor>> =
     "online-banking-in": messages.optionLabelOnlineBanking,
     "cash-app": messages.optionLabelCashApp,
     afterpay: messages.optionLabelAfterpay,
+    twint: messages.optionLabelTwint,
   };
 
 export const OPTION_DESCRIPTION_BY_TYPE: Partial<
@@ -546,6 +557,7 @@ export const OPTION_DESCRIPTION_BY_TYPE: Partial<
   bizum: messages.optionDescriptionBizum,
   zip: messages.optionDescriptionZip,
   "zip-pos": messages.optionDescriptionZipPos,
+  twint: messages.optionDescriptionTwint,
 };
 
 export const BILLING_FIELD_LABEL_BY_ID: Partial<

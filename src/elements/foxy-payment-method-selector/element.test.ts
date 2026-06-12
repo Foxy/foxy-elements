@@ -1804,6 +1804,21 @@ describe("PaymentMethodSelectorElement", () => {
         "--adyen-sdk-color-background-primary",
       );
       expect(embeddedStyles?.textContent).toContain(
+        "--foxy-adyen-button-background: var(--primary, #00112c)",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        "--adyen-sdk-color-background-always-dark: var(--foxy-adyen-button-background)",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        ".foxy-adyen-embedded .adyen-checkout__button--pay",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        "background: var(--foxy-adyen-button-background)",
+      );
+      expect(embeddedStyles?.textContent).toContain(
+        "color: var(--foxy-adyen-button-foreground)",
+      );
+      expect(embeddedStyles?.textContent).toContain(
         "--foxy-adyen-input-text-size: var(--input-font-size, var(--text-sm, 0.875rem))",
       );
       expect(embeddedStyles?.textContent).toContain(
@@ -1836,7 +1851,9 @@ describe("PaymentMethodSelectorElement", () => {
       expect(embeddedStyles?.textContent).toContain(
         ".adyen-checkout-form-instruction",
       );
-      expect(embeddedStyles?.textContent).not.toContain(".adyen-checkout__");
+      expect(embeddedStyles?.textContent).toContain(
+        ".adyen-checkout__dropdown__list",
+      );
     } finally {
       element.remove();
       restoreClient();

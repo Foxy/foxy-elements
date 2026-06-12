@@ -34,6 +34,7 @@ import { Payment } from "./view";
 import { StripeCardElementOption } from "./stripe/card-option";
 import { StripePaymentElementOption } from "./stripe/payment-option";
 import AdyenEmbeddedOption from "./embeds/adyen-embedded";
+import { ADYEN_BUTTON_ONLY_OPTION_TYPES } from "./constants";
 import {
   ThemeMixin,
   type ThemeAttributeName,
@@ -136,16 +137,31 @@ const ADYEN_PAYMENT_METHOD_TYPE_MAP: Record<
   dragonpay_otc_non_banking: { type: "dragonpay", componentName: "Dragonpay" },
   dragonpay_otc_philippines: { type: "dragonpay", componentName: "Dragonpay" },
   wechatpayweb: { type: "we-chat-web", componentName: "Redirect" },
-  wechatpayminiprogram: { type: "we-chat-mini-program", componentName: "Redirect" },
+  wechatpayminiprogram: {
+    type: "we-chat-mini-program",
+    componentName: "Redirect",
+  },
   alipay: { type: "alipay", componentName: "Redirect" },
   paysafecard: { type: "paysafecard", componentName: "Redirect" },
   paybybank_ais_dd: { type: "pay-by-bank-us", componentName: "PayByBankUS" },
   paybybank: { type: "pay-by-bank", componentName: "PayByBank" },
   paybybank_pix: { type: "pay-by-bank-pix", componentName: "PayByBankPix" },
-  onlinebanking_pl: { type: "online-banking-pl", componentName: "OnlineBankingPL" },
-  onlinebanking_cz: { type: "online-banking-cz", componentName: "OnlineBankingCZ" },
-  onlinebanking_sk: { type: "online-banking-sk", componentName: "OnlineBankingSK" },
-  onlinebanking_in: { type: "online-banking-in", componentName: "OnlineBankingIN" },
+  onlinebanking_pl: {
+    type: "online-banking-pl",
+    componentName: "OnlineBankingPL",
+  },
+  onlinebanking_cz: {
+    type: "online-banking-cz",
+    componentName: "OnlineBankingCZ",
+  },
+  onlinebanking_sk: {
+    type: "online-banking-sk",
+    componentName: "OnlineBankingSK",
+  },
+  onlinebanking_in: {
+    type: "online-banking-in",
+    componentName: "OnlineBankingIN",
+  },
   ebanking_fi: { type: "online-banking-fi", componentName: "OnlineBankingFI" },
   // Bank transfer redirect (legacy directEbanking type returned by some EU sessions)
   directebanking: { type: "bank-transfer", componentName: "Redirect" },
@@ -167,7 +183,6 @@ const SQUARE_UP_METHODS_BY_COUNTRY: Record<string, string[]> = {
 };
 
 const SQUARE_UP_DEFAULT_METHODS = ["new-card"];
-
 const PAYPAL_UNDOCUMENTED_APMS = [
   {
     eligibilityKey: "bancontact",
@@ -215,6 +230,7 @@ const ThemeableHTMLElement = ThemeMixin(HTMLElement);
 
 export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #optionIndex: number | undefined;
+  #stripeActivePaymentMethodType: string | null = null;
   #loading = false;
   #canRenderUninitializedAlert = false;
   #uninitializedAlertTimer: ReturnType<typeof setTimeout> | undefined;
@@ -278,6 +294,18 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     this.#render();
+  }
+
+  setPaymentController(
+    optionId: string,
+    controller: PaymentController | null | undefined,
+  ): void {
+    if (controller) {
+      this.#controllers.set(optionId, controller);
+      return;
+    }
+
+    this.#controllers.delete(optionId);
   }
 
   get selectedOption(): PaymentMethodSelectorOption | undefined {
@@ -428,9 +456,11 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return undefined;
   }
 
-  async #tokenizeKlarna(
-    option: PaymentMethodSelectorOption,
-  ): Promise<{ authorizationToken: string; sessionId: string; paymentMethodCategory: string }> {
+  async #tokenizeKlarna(option: PaymentMethodSelectorOption): Promise<{
+    authorizationToken: string;
+    sessionId: string;
+    paymentMethodCategory: string;
+  }> {
     const klarnaOption = option.klarna!;
 
     type KlarnaPaymentsApi = {
@@ -1392,6 +1422,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     const apiState = this.#resolveApiState();
     const requestVersion = this.#optionsRequestVersion + 1;
     this.#optionsRequestVersion = requestVersion;
+    this.#stripeActivePaymentMethodType = null;
 
     if (!apiState) {
       this.#optionsLoading = false;
@@ -1885,13 +1916,19 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     const totals = Array.isArray(apiState.totals) ? apiState.totals : [];
     const total = this.#asRecord(totals[0]);
     const totalOrder = total?.total_order;
-    if (typeof totalOrder === "number" && Number.isFinite(totalOrder) && totalOrder > 0) {
+    if (
+      typeof totalOrder === "number" &&
+      Number.isFinite(totalOrder) &&
+      totalOrder > 0
+    ) {
       return totalOrder;
     }
     return undefined;
   }
 
-  #resolveOrderCurrencyCode(apiState: Record<string, unknown>): string | undefined {
+  #resolveOrderCurrencyCode(
+    apiState: Record<string, unknown>,
+  ): string | undefined {
     const format = this.#asRecord(apiState.format);
     const currencyCode = format?.currency_code;
     if (typeof currencyCode === "string" && currencyCode.trim()) {
@@ -2064,7 +2101,47 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       options.currency = currency;
     }
 
+    const defaultValues = this.#getStripePaymentElementDefaultValues(apiState);
+    if (defaultValues) {
+      options.defaultValues = defaultValues;
+    }
+
     return options;
+  }
+
+  #getStripePaymentElementDefaultValues(
+    apiState: Record<string, unknown>,
+  ): Record<string, unknown> | undefined {
+    const customer = this.#asRecord(apiState.customer);
+    const billingAddress = this.#asRecord(apiState.billing_address);
+
+    const firstName = this.#toOptionalText(billingAddress?.first_name);
+    const lastName = this.#toOptionalText(billingAddress?.last_name);
+    const name = [firstName, lastName].filter(Boolean).join(" ") || undefined;
+    const email = this.#toOptionalText(customer?.email);
+    const phone = this.#toOptionalText(billingAddress?.phone);
+    const line1 = this.#toOptionalText(billingAddress?.address1);
+    const line2 = this.#toOptionalText(billingAddress?.address2);
+    const city = this.#toOptionalText(billingAddress?.city);
+    const state = this.#toOptionalText(billingAddress?.region);
+    const postalCode = this.#toOptionalText(billingAddress?.postal_code);
+    const country = this.#toOptionalText(billingAddress?.country);
+
+    const address: Record<string, string> = {};
+    if (line1) address.line1 = line1;
+    if (line2) address.line2 = line2;
+    if (city) address.city = city;
+    if (state) address.state = state;
+    if (postalCode) address.postal_code = postalCode;
+    if (country) address.country = country;
+
+    const billingDetails: Record<string, unknown> = {};
+    if (name) billingDetails.name = name;
+    if (email) billingDetails.email = email;
+    if (phone) billingDetails.phone = phone;
+    if (Object.keys(address).length) billingDetails.address = address;
+
+    return Object.keys(billingDetails).length ? { billingDetails } : undefined;
   }
 
   #createAdyenEmbeddedConfig(
@@ -2659,7 +2736,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   }
 
   #isAdyenOption(option: PaymentMethodSelectorOption | undefined): boolean {
-    return Boolean(option?.adyenEmbedded);
+    return Boolean(
+      option?.adyenEmbedded &&
+      !ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? ""),
+    );
   }
 
   #getStripeSlotName(optionId: string): string {
@@ -2720,6 +2800,16 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             }
 
             this.#controllers.delete(option.id);
+          }}
+          onPaymentMethodTypeChange={(type) => {
+            this.#stripeActivePaymentMethodType = type;
+            this.dispatchEvent(
+              new CustomEvent("stripepaymentmethodtypechange", {
+                bubbles: true,
+                composed: true,
+                detail: { type },
+              }),
+            );
           }}
         />,
       );

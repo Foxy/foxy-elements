@@ -28,6 +28,7 @@ export const BUTTON_CLICK_HINT_OPTION_TYPES = new Set([
   "bizum",
   "swish",
   "vipps",
+  "twint",
   "zip",
   "zip-pos",
 ]);
@@ -46,10 +47,14 @@ export const ADYEN_BUTTON_ONLY_OPTION_TYPES = new Set([
   "we-chat-web",
   "we-chat-mini-program",
   "bank-transfer",
+  "bancontact",
   "bizum",
+  "eps",
   "ideal",
+  "przelewy24",
   "swish",
   "vipps",
+  "twint",
   "zip",
   "zip-pos",
 ]);

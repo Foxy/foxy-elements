@@ -23,13 +23,16 @@ const ADYEN_EMBEDDED_STYLES = `
   --foxy-adyen-input-text-size: var(--input-font-size, var(--text-sm, 0.875rem));
   --foxy-adyen-spacing: var(--spacing, 0.25rem);
   --foxy-adyen-radius: var(--radius, 0.625rem);
+  --foxy-adyen-button-background: var(--primary, #00112c);
+  --foxy-adyen-button-background-hover: color-mix(in srgb, var(--foxy-adyen-button-background) 90%, transparent);
+  --foxy-adyen-button-foreground: var(--primary-foreground, #ffffff);
   --adyen-sdk-color-label-primary: var(--input-text-color, var(--foreground, #00112c));
   --adyen-sdk-color-label-secondary: var(--muted-foreground, #5c687c);
   --adyen-sdk-color-label-tertiary: var(--muted-foreground, #8d95a3);
   --adyen-sdk-color-label-disabled: var(--muted-foreground, #8d95a3);
   --adyen-sdk-color-label-critical: var(--input-error-text-color, var(--destructive, #e22d2d));
   --adyen-sdk-color-label-highlight: var(--primary, #0070f5);
-  --adyen-sdk-color-label-on-color: var(--primary-foreground, #ffffff);
+  --adyen-sdk-color-label-on-color: var(--foxy-adyen-button-foreground);
   --adyen-sdk-color-background-primary: var(--card, var(--background, #ffffff));
   --adyen-sdk-color-background-primary-hover: var(--muted, #f7f7f8);
   --adyen-sdk-color-background-secondary: var(--muted, #f7f7f8);
@@ -40,8 +43,8 @@ const ADYEN_EMBEDDED_STYLES = `
   --adyen-sdk-color-background-critical-strong: var(--input-error-text-color, var(--destructive, #e22d2d));
   --adyen-sdk-color-background-inverse-primary: var(--foreground, #00112c);
   --adyen-sdk-color-background-inverse-primary-hover: var(--muted-foreground, #5c687c);
-  --adyen-sdk-color-background-always-dark: var(--primary, #00112c);
-  --adyen-sdk-color-background-always-dark-active: var(--primary, #8d95a3);
+  --adyen-sdk-color-background-always-dark: var(--foxy-adyen-button-background);
+  --adyen-sdk-color-background-always-dark-active: var(--foxy-adyen-button-background);
   --adyen-sdk-color-outline-primary: var(--input, var(--border, #dbdee2));
   --adyen-sdk-color-outline-primary-hover: var(--border, #c9cdd3);
   --adyen-sdk-color-outline-primary-active: var(--ring, var(--primary, #00112c));
@@ -112,6 +115,25 @@ const ADYEN_EMBEDDED_STYLES = `
 
 .foxy-adyen-embedded .adyen-checkout-form-instruction {
   display: none;
+}
+
+.foxy-adyen-embedded .adyen-checkout__button--pay {
+  background: var(--foxy-adyen-button-background);
+  border-color: var(--foxy-adyen-button-background);
+  border-radius: var(--foxy-adyen-radius);
+  color: var(--foxy-adyen-button-foreground);
+}
+
+.foxy-adyen-embedded .adyen-checkout__button--pay:not(:disabled):hover,
+.foxy-adyen-embedded .adyen-checkout__button--pay:not(:disabled):focus-visible {
+  background: var(--foxy-adyen-button-background-hover);
+  border-color: var(--foxy-adyen-button-background-hover);
+  color: var(--foxy-adyen-button-foreground);
+}
+
+.foxy-adyen-embedded .adyen-checkout__button--pay:not(:disabled):active {
+  background: var(--foxy-adyen-button-background);
+  border-color: var(--foxy-adyen-button-background);
 }
 
 .foxy-adyen-embedded .adyen-checkout__dropdown__list {

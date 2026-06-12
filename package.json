@@ -33,6 +33,7 @@
     "prepack": "npm run build:npm"
   },
   "dependencies": {
+    "@google-pay/button-element": "^3.2.1",
     "@stripe/react-stripe-js": "^6.0.0",
     "@stripe/stripe-js": "^9.0.0",
     "clsx": "^2.1.1",
