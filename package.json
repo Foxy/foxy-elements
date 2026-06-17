@@ -19,6 +19,7 @@
     "./foxy-ach-field": "./dist/npm/foxy-ach-field.js",
     "./foxy-express-checkout": "./dist/npm/foxy-express-checkout.js",
     "./foxy-payment-card-field": "./dist/npm/foxy-payment-card-field.js",
+    "./foxy-payment-button-v2": "./dist/npm/foxy-payment-button-v2.js",
     "./foxy-payment-method-selector": "./dist/npm/foxy-payment-method-selector.js"
   },
   "scripts": {

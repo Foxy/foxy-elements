@@ -230,7 +230,6 @@ const ThemeableHTMLElement = ThemeMixin(HTMLElement);
 
 export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #optionIndex: number | undefined;
-  #stripeActivePaymentMethodType: string | null = null;
   #loading = false;
   #canRenderUninitializedAlert = false;
   #uninitializedAlertTimer: ReturnType<typeof setTimeout> | undefined;
@@ -1084,7 +1083,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
       return {
         adyenEmbedded: {
-          sessionId: selectedOption.adyenEmbedded.sessionId,
           paymentMethodType: selectedOption.adyenEmbedded.paymentMethodType,
           paymentMethod: selectedOption.adyenEmbedded.paymentMethod,
           result,
@@ -1242,12 +1240,11 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #createAdyenEmbeddedGatewayEntries(
     config: Record<string, unknown>,
   ): Record<string, unknown>[] {
-    const sessionId = this.#toOptionalText(config.session_id);
     const sessionData = this.#toOptionalText(config.session_data);
     const environment = this.#toOptionalText(config.environment);
     const clientKey = this.#toOptionalText(config.client_key);
 
-    if (!sessionId || !sessionData || !environment || !clientKey) {
+    if (!sessionData || !environment || !clientKey) {
       return [];
     }
 
@@ -1272,7 +1269,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         {
           type: mapping.type,
           gateway: "adyen_embedded",
-          session_id: sessionId,
           session_data: sessionData,
           environment,
           client_key: clientKey,
@@ -1422,7 +1418,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     const apiState = this.#resolveApiState();
     const requestVersion = this.#optionsRequestVersion + 1;
     this.#optionsRequestVersion = requestVersion;
-    this.#stripeActivePaymentMethodType = null;
 
     if (!apiState) {
       this.#optionsLoading = false;
@@ -2151,7 +2146,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       return undefined;
     }
 
-    const sessionId = this.#toOptionalText(option.session_id);
     const sessionData = this.#toOptionalText(option.session_data);
     const environment = this.#toOptionalText(option.environment);
     const clientKey = this.#toOptionalText(option.client_key);
@@ -2164,7 +2158,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     const componentName = this.#toOptionalText(option.adyen_component_name);
 
     if (
-      !sessionId ||
       !sessionData ||
       !environment ||
       !clientKey ||
@@ -2176,7 +2169,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     return {
-      sessionId,
       sessionData,
       environment,
       clientKey,
@@ -2204,7 +2196,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       ? localeCode.split("-").pop()?.toUpperCase()
       : undefined;
     const methods =
-      (country && SQUARE_UP_METHODS_BY_COUNTRY[country]) ??
+      (!!country ? SQUARE_UP_METHODS_BY_COUNTRY[country] : null) ??
       SQUARE_UP_DEFAULT_METHODS;
 
     return methods.map((type) => ({
@@ -2802,7 +2794,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             this.#controllers.delete(option.id);
           }}
           onPaymentMethodTypeChange={(type) => {
-            this.#stripeActivePaymentMethodType = type;
             this.dispatchEvent(
               new CustomEvent("stripepaymentmethodtypechange", {
                 bubbles: true,

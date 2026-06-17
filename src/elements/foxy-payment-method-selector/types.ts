@@ -30,7 +30,6 @@ export type PaymentMethodSelectorAdyenEmbeddedPaymentMethod = {
 };
 
 export type PaymentMethodSelectorAdyenEmbeddedConfig = {
-  sessionId: string;
   sessionData: string;
   environment: string;
   clientKey: string;
@@ -126,7 +125,6 @@ export type PaymentMethodSelectorSezzleTokenizePayload = {
 
 export type PaymentMethodSelectorAdyenEmbeddedTokenizePayload = {
   adyenEmbedded: {
-    sessionId: string;
     paymentMethodType: string;
     paymentMethod: PaymentMethodSelectorAdyenEmbeddedPaymentMethod;
     result: Record<string, unknown>;

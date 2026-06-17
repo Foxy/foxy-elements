@@ -389,7 +389,6 @@ function createAdyenEmbeddedApiState() {
     payment_gateways: [
       {
         type: "adyen_embedded",
-        session_id: "adyen-session-id",
         session_data: "adyen-session-data",
         environment: "test",
         client_key: "adyen-client-key",
@@ -1945,7 +1944,6 @@ describe("PaymentMethodSelectorElement", () => {
 
       await expect(element.tokenize()).resolves.toEqual({
         adyenEmbedded: {
-          sessionId: "adyen-session-id",
           paymentMethodType: "scheme",
           paymentMethod: {
             type: "scheme",

@@ -411,13 +411,20 @@ function summarizeKlarnaError(status, payload, apiUrl) {
     lines.push(`error_messages: ${payload.error_messages.join(" | ")}`);
   }
 
+  if (status === 403 && payload.error_code === "INVALID_OPERATION") {
+    lines.push(
+      `hint: INVALID_OPERATION on create_session means the MID is not activated for this region. Verify your Klarna playground credentials support this endpoint (${apiUrl}).`,
+    );
+  }
+
   if (
-    status === 403 &&
-    payload.error_code === "INVALID_OPERATION" &&
-    typeof apiUrl === "string"
+    status === 400 &&
+    payload.error_code === "BAD_VALUE" &&
+    Array.isArray(payload.error_messages) &&
+    payload.error_messages.some((m) => String(m).includes("purchase_currency"))
   ) {
     lines.push(
-      `hint: INVALID_OPERATION on create_session usually means the MID is not enabled for this endpoint or region. Check KLARNA_API_URL for a region mismatch.`,
+      `hint: BAD_VALUE on purchase_currency usually means the MID does not support this currency. The EU playground endpoint typically only accepts EUR.`,
     );
   }
 
@@ -463,9 +470,15 @@ function validateKlarnaSessionResponse(payload) {
     ? payload.payment_method_categories
     : [];
 
-  if (!sessionId || !clientToken || categories.length === 0) {
+  if (!sessionId || !clientToken) {
     throw new Error(
-      "Klarna session response must include session_id, client_token, and payment_method_categories.",
+      "Klarna session response is missing session_id or client_token.",
+    );
+  }
+
+  if (categories.length === 0) {
+    throw new Error(
+      "Klarna session has no payment_method_categories — the MID may not be activated for this market.",
     );
   }
 
