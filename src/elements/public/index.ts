@@ -35,6 +35,7 @@ export { CustomerPortalSettingsForm } from './CustomerPortalSettingsForm/Custome
 export { CustomersTable } from './CustomersTable/CustomersTable';
 export { CustomFieldCard } from './CustomFieldCard/CustomFieldCard';
 export { CustomFieldForm } from './CustomFieldForm/CustomFieldForm';
+export { DataRetentionSettingsForm } from './DataRetentionSettingsForm/DataRetentionSettingsForm';
 export { DiscountBuilder } from './DiscountBuilder/DiscountBuilder';
 export { DiscountCard } from './DiscountCard/DiscountCard';
 export { DiscountDetailCard } from './DiscountDetailCard/DiscountDetailCard';
