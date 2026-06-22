@@ -758,7 +758,9 @@ describe("PaymentMethodSelectorElement", () => {
         ),
       ).toBeTruthy();
 
-      await expect(element.tokenize()).resolves.toEqual({});
+      await expect(element.tokenize()).resolves.toEqual({
+        requestId: expect.any(String),
+      });
     } finally {
       element.remove();
       restoreClient();
@@ -944,7 +946,13 @@ describe("PaymentMethodSelectorElement", () => {
   it("rejects ACH tokenization until owner confirmation is checked", async () => {
     const restoreClient = overrideClientState(createAchApiState());
     const tokenize = vi.fn(() =>
-      Promise.resolve({ token: "ach_token_123", requestId: "ach-req-1" }),
+      Promise.resolve({
+        token: "ach_token_123",
+        requestId: "ach-req-1",
+        last4: "6789",
+        routingNumber: "021000021",
+        accountType: "checking" as const,
+      }),
     );
     const element = document.createElement(
       "foxy-payment-method-selector",
@@ -991,6 +999,9 @@ describe("PaymentMethodSelectorElement", () => {
       expect(payload).toEqual({
         token: "ach_token_123",
         requestId: "ach-req-1",
+        last4: "6789",
+        routingNumber: "021000021",
+        accountType: "checking",
       });
     } finally {
       tokenizeSpy?.mockRestore();
@@ -1097,6 +1108,7 @@ describe("PaymentMethodSelectorElement", () => {
       const payload = await element.tokenize();
 
       expect(payload).toEqual({
+        requestId: expect.any(String),
         purchaseOrderNumber: "PO-123456",
       });
     } finally {
@@ -1212,6 +1224,8 @@ describe("PaymentMethodSelectorElement", () => {
         last4: "4242",
         expirationMonth: 12,
         expirationYear: 2030,
+        gateway: "authorize",
+        cardToken: "card_token_123",
       });
       expect(payload).not.toHaveProperty("billingAddress");
     } finally {
@@ -1579,27 +1593,16 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
-  it("renders Adyen Embedded payment methods from the SDK response", async () => {
-    const { Component: Card } = createAdyenComponentMock({
-      mountText: "Adyen card component",
+  it("renders a single Adyen Drop-in entry from the gateway config", async () => {
+    const { Component: Dropin } = createAdyenComponentMock({
+      mountText: "Adyen drop-in",
     });
-    const { Component: Redirect } = createAdyenComponentMock();
     const restoreClient = overrideClientState(
       createAdyenEmbeddedApiState(),
       undefined,
       {
         adyenEmbedded: {
-          Card,
-          Redirect,
-          paymentMethodsResponse: {
-            paymentMethods: [
-              { type: "scheme", name: "Credit Card", brands: ["visa"] },
-              { type: "ideal", name: "iDEAL" },
-              { type: "bcmc", name: "Bancontact" },
-              { type: "sepadirectdebit", name: "SEPA Direct Debit" },
-            ],
-            storedPaymentMethods: [{ type: "scheme", name: "Saved Visa" }],
-          },
+          Dropin,
         },
       },
     );
@@ -1609,42 +1612,30 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
-      await waitForText(() => element.shadowRoot?.textContent, "New Card");
+      await waitForText(() => element.shadowRoot?.textContent, "Adyen");
 
       const content = element.shadowRoot?.textContent ?? "";
-      expect(content).toContain("New Card");
-      expect(content).toContain("iDEAL");
-      expect(content).toContain("Bancontact");
-      expect(content).toContain("SEPA");
-      expect(content).not.toContain("Saved Visa");
-      await waitForTruthy(() => Card.mock.calls.length === 1, "Adyen card");
-      expect(Card).toHaveBeenCalledTimes(1);
+      expect(content).toContain("Adyen");
+      expect(content).not.toContain("New Card");
+      expect(content).not.toContain("iDEAL");
+      await waitForTruthy(() => Dropin.mock.calls.length === 1, "Adyen Drop-in");
+      expect(Dropin).toHaveBeenCalledTimes(1);
     } finally {
       element.remove();
       restoreClient();
     }
   });
 
-  it("mounts Adyen Embedded components in light DOM and cleans them up", async () => {
-    const { Component: Card, instances } = createAdyenComponentMock({
-      mountText: "Adyen card component",
-    });
-    const { Component: Redirect } = createAdyenComponentMock({
-      mountText: "Adyen redirect component",
+  it("mounts Adyen Drop-in in light DOM and cleans it up on removal", async () => {
+    const { Component: Dropin, instances } = createAdyenComponentMock({
+      mountText: "Adyen drop-in",
     });
     const restoreClient = overrideClientState(
       createAdyenEmbeddedApiState(),
       undefined,
       {
         adyenEmbedded: {
-          Card,
-          Redirect,
-          paymentMethodsResponse: {
-            paymentMethods: [
-              { type: "scheme", name: "Credit Card" },
-              { type: "ideal", name: "iDEAL" },
-            ],
-          },
+          Dropin,
         },
       },
     );
@@ -1659,21 +1650,12 @@ describe("PaymentMethodSelectorElement", () => {
         "Adyen light DOM host",
       );
 
-      await waitForText(() => host.textContent, "Adyen card component");
+      await waitForText(() => host.textContent, "Adyen drop-in");
 
-      expect(host.textContent).toContain("Adyen card component");
+      expect(host.textContent).toContain("Adyen drop-in");
       expect(instances[0]?.props).toMatchObject({
-        type: "scheme",
         showPayButton: false,
       });
-
-      element.optionIndex = 1;
-      await waitForText(() => element.textContent, "Adyen redirect component");
-
-      expect(element.querySelectorAll("[data-foxy-adyen-host]")).toHaveLength(
-        1,
-      );
-      expect(instances[0]?.unmount).toHaveBeenCalledTimes(1);
 
       element.remove();
       await waitForRender();
@@ -1684,27 +1666,33 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
-  it("continues remounting Adyen Embedded components when provider unmount throws", async () => {
-    const { Component: Card, instances } = createAdyenComponentMock({
-      mountText: "Adyen card component",
+  it("continues remounting Adyen Drop-in when provider unmount throws", async () => {
+    const { Component: Dropin, instances } = createAdyenComponentMock({
+      mountText: "Adyen drop-in",
       unmountError: new Error("Provider cleanup failed"),
     });
-    const { Component: Redirect } = createAdyenComponentMock({
-      mountText: "Adyen redirect component",
-    });
     const restoreClient = overrideClientState(
-      createAdyenEmbeddedApiState(),
+      {
+        ...createAdyenEmbeddedApiState(),
+        payment_gateways: [
+          {
+            type: "adyen_embedded",
+            session_data: "adyen-session-data-1",
+            environment: "test",
+            client_key: "adyen-client-key-1",
+          },
+          {
+            type: "adyen_embedded",
+            session_data: "adyen-session-data-2",
+            environment: "test",
+            client_key: "adyen-client-key-2",
+          },
+        ],
+      },
       undefined,
       {
         adyenEmbedded: {
-          Card,
-          Redirect,
-          paymentMethodsResponse: {
-            paymentMethods: [
-              { type: "scheme", name: "Credit Card" },
-              { type: "ideal", name: "iDEAL" },
-            ],
-          },
+          Dropin,
         },
       },
     );
@@ -1714,195 +1702,15 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
-      await waitForText(() => element.textContent, "Adyen card component");
+      await waitForText(() => element.textContent, "Adyen drop-in");
 
       element.optionIndex = 1;
-      await waitForText(() => element.textContent, "Adyen redirect component");
+      await waitForRender();
 
       expect(instances[0]?.unmount).toHaveBeenCalledTimes(1);
       expect(
         element.querySelector("[data-foxy-adyen-host]")?.textContent,
-      ).toContain("Adyen redirect component");
-    } finally {
-      element.remove();
-      restoreClient();
-    }
-  });
-
-  it("passes themed input styles to Adyen Embedded components", async () => {
-    const { Component: Card, instances } = createAdyenComponentMock({
-      mountText: "Adyen card component",
-    });
-    const restoreClient = overrideClientState(
-      createAdyenEmbeddedApiState(),
-      undefined,
-      {
-        adyenEmbedded: {
-          Card,
-          paymentMethodsResponse: {
-            paymentMethods: [{ type: "scheme", name: "Credit Card" }],
-          },
-        },
-      },
-    );
-    const element = document.createElement(
-      "foxy-payment-method-selector",
-    ) as PaymentMethodSelectorElement;
-
-    try {
-      element.setAttribute("theme-font-sans", "Figtree");
-      element.setAttribute("theme-input-font-size", "18px");
-      element.setAttribute("theme-input-padding", "6px 14px");
-      element.setAttribute("theme-input-text-color", "#123456");
-      element.setAttribute("theme-input-placeholder-color", "#654321");
-      element.setAttribute("theme-input-error-text-color", "#ff0000");
-      document.body.append(element);
-
-      await waitForText(() => element.textContent, "Adyen card component");
-
-      expect(instances[0]?.props.styles).toMatchObject({
-        base: expect.objectContaining({
-          caretColor: "rgb(18, 52, 86)",
-          color: "rgb(18, 52, 86)",
-          fontFamily: expect.stringContaining("Figtree"),
-          fontSmoothing: "antialiased",
-          fontSize: "18px",
-          mozOsxFontSmoothing: "grayscale",
-          padding: "6px 14px 6px 0px",
-          webkitFontSmoothing: "antialiased",
-        }),
-        error: {
-          caretColor: "rgb(255, 0, 0)",
-          color: "rgb(255, 0, 0)",
-        },
-        placeholder: { color: "rgb(101, 67, 33)" },
-        validated: {
-          caretColor: "rgb(18, 52, 86)",
-          color: "rgb(18, 52, 86)",
-        },
-      });
-
-      const embeddedStyles = document.head.querySelector(
-        'style[data-foxy-adyen-embedded-styles="true"]',
-      );
-      const embeddedRoot = element.querySelector<HTMLElement>(
-        ".foxy-adyen-embedded",
-      );
-
-      expect(
-        embeddedRoot?.style.getPropertyValue("--foxy-adyen-input-padding-x"),
-      ).toBe("14px");
-      expect(
-        embeddedRoot?.style.getPropertyValue("--foxy-adyen-input-padding-y"),
-      ).toBe("6px");
-
-      expect(embeddedStyles?.textContent).toContain(
-        "--adyen-sdk-color-label-primary",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "--adyen-sdk-color-background-primary",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "--foxy-adyen-button-background: var(--primary, #00112c)",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "--adyen-sdk-color-background-always-dark: var(--foxy-adyen-button-background)",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        ".foxy-adyen-embedded .adyen-checkout__button--pay",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "background: var(--foxy-adyen-button-background)",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "color: var(--foxy-adyen-button-foreground)",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "--foxy-adyen-input-text-size: var(--input-font-size, var(--text-sm, 0.875rem))",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "--foxy-adyen-input-height: var(--input-height, calc((var(--spacing, 0.25rem) * 8) - 2px))",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "--foxy-adyen-label-input-gap: calc(var(--foxy-adyen-spacing) * 2)",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "--adyen-sdk-spacer-020: var(--foxy-adyen-label-input-gap)",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "--adyen-sdk-spacer-060: var(--foxy-adyen-input-padding-x)",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "--adyen-sdk-border-radius-xs",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "--adyen-sdk-border-radius-s",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "--adyen-sdk-border-radius-m",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "--adyen-sdk-border-radius-l",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        "--adyen-sdk-border-radius-x",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        ".adyen-checkout-form-instruction",
-      );
-      expect(embeddedStyles?.textContent).toContain(
-        ".adyen-checkout__dropdown__list",
-      );
-    } finally {
-      element.remove();
-      restoreClient();
-    }
-  });
-
-  it("falls back to host text tokens for Adyen Embedded card field styles", async () => {
-    const { Component: Card, instances } = createAdyenComponentMock({
-      mountText: "Adyen card component",
-    });
-    const restoreClient = overrideClientState(
-      createAdyenEmbeddedApiState(),
-      undefined,
-      {
-        adyenEmbedded: {
-          Card,
-          paymentMethodsResponse: {
-            paymentMethods: [{ type: "scheme", name: "Credit Card" }],
-          },
-        },
-      },
-    );
-    const element = document.createElement(
-      "foxy-payment-method-selector",
-    ) as PaymentMethodSelectorElement;
-
-    try {
-      element.setAttribute("theme-foreground", "#e7ffe8");
-      element.setAttribute("theme-muted-foreground", "#92b39a");
-      element.setAttribute("theme-destructive", "#ff7d7d");
-      document.body.append(element);
-
-      await waitForText(() => element.textContent, "Adyen card component");
-
-      expect(instances[0]?.props.styles).toMatchObject({
-        base: expect.objectContaining({
-          caretColor: "rgb(231, 255, 232)",
-          color: "rgb(231, 255, 232)",
-          fontSize: "14px",
-        }),
-        error: {
-          caretColor: "rgb(255, 125, 125)",
-          color: "rgb(255, 125, 125)",
-        },
-        placeholder: { color: "rgb(146, 179, 154)" },
-        validated: {
-          caretColor: "rgb(231, 255, 232)",
-          color: "rgb(231, 255, 232)",
-        },
-      });
+      ).toContain("Adyen drop-in");
     } finally {
       element.remove();
       restoreClient();
@@ -1914,20 +1722,13 @@ describe("PaymentMethodSelectorElement", () => {
       resultCode: "Authorised",
       sessionData: "next-session-data",
     };
-    const { Component: Card } = createAdyenComponentMock({
-      result: adyenResult,
-    });
+    const { Component: Dropin } = createAdyenComponentMock({ result: adyenResult });
     const restoreClient = overrideClientState(
       createAdyenEmbeddedApiState(),
       undefined,
       {
         adyenEmbedded: {
-          Card,
-          paymentMethodsResponse: {
-            paymentMethods: [
-              { type: "scheme", name: "Credit Card", brands: ["visa"] },
-            ],
-          },
+          Dropin,
         },
       },
     );
@@ -1944,12 +1745,6 @@ describe("PaymentMethodSelectorElement", () => {
 
       await expect(element.tokenize()).resolves.toEqual({
         adyenEmbedded: {
-          paymentMethodType: "scheme",
-          paymentMethod: {
-            type: "scheme",
-            name: "Credit Card",
-            brands: ["visa"],
-          },
           result: adyenResult,
         },
       });
@@ -1959,17 +1754,14 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
-  it("does not render button click hints for Adyen Embedded mapped APMs", async () => {
-    const { Component: Redirect } = createAdyenComponentMock();
+  it("does not render button click hints for the Adyen Drop-in entry", async () => {
+    const { Component: Dropin } = createAdyenComponentMock();
     const restoreClient = overrideClientState(
       createAdyenEmbeddedApiState(),
       undefined,
       {
         adyenEmbedded: {
-          Redirect,
-          paymentMethodsResponse: {
-            paymentMethods: [{ type: "ideal", name: "iDEAL" }],
-          },
+          Dropin,
         },
       },
     );
@@ -1979,7 +1771,7 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
-      await waitForText(() => element.shadowRoot?.textContent, "iDEAL");
+      await waitForText(() => element.shadowRoot?.textContent, "Adyen");
 
       expect(
         element.shadowRoot?.querySelector(
