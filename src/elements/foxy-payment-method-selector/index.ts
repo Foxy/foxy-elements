@@ -3,7 +3,6 @@ export type { PaymentMethodSelectorOption } from "./types";
 export type {
   PaymentMethodSelectorAchTokenizePayload,
   PaymentMethodSelectorAdyenEmbeddedConfig,
-  PaymentMethodSelectorAdyenEmbeddedPaymentMethod,
   PaymentMethodSelectorAdyenEmbeddedTokenizePayload,
   PaymentMethodSelectorApplePayTokenizePayload,
   PaymentController,

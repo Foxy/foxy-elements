@@ -20,22 +20,14 @@ export type PaymentMethodSelectorKlarnaConfig = {
 
 export type PaymentMethodSelectorSezzleConfig = {
   publicKey: string;
-};
-
-export type PaymentMethodSelectorAdyenEmbeddedPaymentMethod = {
-  type: string;
-  name?: string;
-  brands?: string[];
-  [key: string]: unknown;
+  checkoutUrl?: string;
+  authOnly?: boolean;
 };
 
 export type PaymentMethodSelectorAdyenEmbeddedConfig = {
   sessionData: string;
   environment: string;
   clientKey: string;
-  paymentMethodType: string;
-  paymentMethod: PaymentMethodSelectorAdyenEmbeddedPaymentMethod;
-  componentName: string;
 };
 
 export type PaymentMethodSelectorBillingField = {
@@ -93,23 +85,30 @@ export type PaymentMethodSelectorSavedCardTokenizePayload =
 
 export type PaymentMethodSelectorNewCardTokenizePayload =
   PaymentMethodSelectorRequiredHostedCardTokenizePayload &
-    PaymentMethodSelectorCardTokenizeDetails;
+    PaymentMethodSelectorCardTokenizeDetails & {
+      gateway?: string;
+      cardToken?: string;
+    };
 
 export type PaymentMethodSelectorAchTokenizePayload = {
   token: string;
   requestId: string;
+  last4: string;
+  routingNumber: string;
+  accountType: 'checking' | 'savings';
 };
 
 export type PaymentMethodSelectorStripeCardElementTokenizePayload = {
-  paymentMethodId: string;
-} & PaymentMethodSelectorCardTokenizeDetails;
+  requestId: string;
+  card_token_id: string;
+};
 
-export type PaymentMethodSelectorStripePaymentElementTokenizePayload = {
-  paymentMethodId: string;
-  paymentMethodType: string;
-} & PaymentMethodSelectorOptionalCardTokenizeDetails;
+export type PaymentMethodSelectorStripePaymentElementTokenizePayload =
+  | { requestId: string; confirmation_token_id: string }
+  | { requestId: string; payment_intent_id: string };
 
 export type PaymentMethodSelectorPurchaseOrderTokenizePayload = {
+  requestId: string;
   purchaseOrderNumber: string;
 };
 
@@ -120,13 +119,13 @@ export type PaymentMethodSelectorKlarnaTokenizePayload = {
 };
 
 export type PaymentMethodSelectorSezzleTokenizePayload = {
-  sezzle: PaymentMethodSelectorSezzleConfig;
+  sezzle: {
+    orderUuid: string;
+  };
 };
 
 export type PaymentMethodSelectorAdyenEmbeddedTokenizePayload = {
   adyenEmbedded: {
-    paymentMethodType: string;
-    paymentMethod: PaymentMethodSelectorAdyenEmbeddedPaymentMethod;
     result: Record<string, unknown>;
   };
 };
@@ -166,6 +165,7 @@ export type PaymentMethodSelectorPayPalPlatformConfig = {
   clientId: string;
   flow: PaymentMethodSelectorPayPalPlatformFlow;
   fundingSources?: PaymentMethodSelectorPayPalPlatformFundingSource[];
+  orderId?: string;
 };
 
 export type PaymentMethodSelectorPayPalMessage = {
@@ -176,7 +176,9 @@ export type PaymentMethodSelectorPayPalMessage = {
 };
 
 export type PaymentMethodSelectorPayPalPlatformTokenizePayload = {
-  paypalPlatform: PaymentMethodSelectorPayPalPlatformConfig;
+  paypalPlatform: PaymentMethodSelectorPayPalPlatformConfig & {
+    orderId?: string;
+  };
 };
 
 export type PaymentMethodSelectorApplePayTokenizePayload = Record<
@@ -188,6 +190,10 @@ export type PaymentMethodSelectorGooglePayTokenizePayload = Record<
   string,
   never
 >;
+
+export type PaymentMethodSelectorRedirectTokenizePayload = {
+  requestId: string;
+};
 
 export type PaymentMethodSelectorGenericTokenizePayload = Record<string, never>;
 
@@ -205,6 +211,7 @@ export type PaymentMethodSelectorTokenizePayload =
   | PaymentMethodSelectorPayPalPlatformTokenizePayload
   | PaymentMethodSelectorApplePayTokenizePayload
   | PaymentMethodSelectorGooglePayTokenizePayload
+  | PaymentMethodSelectorRedirectTokenizePayload
   | PaymentMethodSelectorGenericTokenizePayload;
 
 export type PaymentController = {
@@ -244,6 +251,8 @@ export type PaymentMethodSelectorOption = {
     locale?: string;
     appearance?: Record<string, unknown>;
     paymentElementOptions?: Record<string, unknown>;
+    clientSecret?: string;
+    returnUrl?: string;
   };
   hostedFields?: {
     group?: string;
