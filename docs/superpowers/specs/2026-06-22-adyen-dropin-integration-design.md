@@ -127,7 +127,11 @@ No behavioral change. `AdyenStatus` state machine (`loading → ready / unavaila
 
 ## CSS
 
-No new rules required. The existing `.adyen-checkout__button--pay { display: none }` rule (via `--foxy-adyen-button-background` overrides) already hides the pay button. The Drop-in's method list inherits all `--adyen-sdk-*` CSS variable mappings set on `.foxy-adyen-embedded`.
+The pay button is hidden via `showPayButton: false` in the constructor config — it is never rendered, so no CSS rule is needed to hide it. The existing `.adyen-checkout__button--pay` CSS rules (which style the button when present) can be removed or left as dead code; they have no effect.
+
+The Drop-in's method list inherits all `--adyen-sdk-*` CSS variable mappings already set on `.foxy-adyen-embedded`. No new rules are required.
+
+The `stylesReady` probe (used by per-method components to compute hosted-field input styles before mounting) is removed. The Drop-in uses the `--adyen-sdk-*` CSS variables for all form styling natively; the computed-style probe is not needed.
 
 ## Testing
 
