@@ -42,7 +42,6 @@ import {
 } from "./stripe/style-hooks";
 import { PaymentOptionBrandIcon as PaymentOptionBrandIconComponent } from "./icons/payment-option-brand-icon";
 import {
-  ADYEN_BUTTON_ONLY_OPTION_TYPES,
   BUTTON_CLICK_HINT_OPTION_TYPES,
   CARD_TYPES,
   FIELD_STYLE_PROBE_CLASS_NAME,
@@ -295,11 +294,7 @@ function getPaymentOptionDescriptionText(
     });
   }
 
-  if (option.adyenEmbedded && !ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "")) {
-    if (option.type === "new-card") {
-      return intl.formatMessage(messages.optionDescriptionNewCard);
-    }
-
+  if (option.adyenEmbedded) {
     return intl.formatMessage(messages.optionDescriptionAdyenEmbedded);
   }
 
@@ -433,7 +428,7 @@ function renderPaymentOptionDescription(
   const isSquareButtonOnly =
     option.squareUp && (option.type === "ach" || option.type === "afterpay");
   if (
-    (option.adyenEmbedded && !ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "")) ||
+    option.adyenEmbedded ||
     !option.type ||
     (!BUTTON_CLICK_HINT_OPTION_TYPES.has(option.type) && !isSquareButtonOnly)
   ) {
@@ -687,7 +682,7 @@ function PaymentOptionBody({
     );
   }
 
-  if (option.adyenEmbedded && !ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "")) {
+  if (option.adyenEmbedded) {
     if (renderAdyenContent) {
       return (
         <>
@@ -744,9 +739,8 @@ function hasBillingAddressContent(
     return false;
   }
 
-  const isAdyenButtonOnly = ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "");
   const isSquareFormBased = option.type === "new-card";
-  if (option.klarna || (option.adyenEmbedded && !isAdyenButtonOnly) || (option.squareUp && isSquareFormBased)) {
+  if (option.klarna || option.adyenEmbedded || (option.squareUp && isSquareFormBased)) {
     return true;
   }
 
@@ -788,9 +782,8 @@ function hasPaymentOptionBodyContent(
     return true;
   }
 
-  const isAdyenButtonOnly = ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "");
   const isSquareFormBased = option.type === "new-card";
-  if ((option.adyenEmbedded && !isAdyenButtonOnly) || (option.squareUp && isSquareFormBased)) {
+  if (option.adyenEmbedded || (option.squareUp && isSquareFormBased)) {
     return true;
   }
 
@@ -1129,7 +1122,7 @@ export function Payment({
                 // The Card's default overflow-hidden clips absolutely-positioned
                 // Adyen dropdowns (e.g. bank-selection lists). Override it when
                 // this option's Adyen form is expanded.
-                checked && option.adyenEmbedded && !ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? "") && "overflow-visible",
+                checked && option.adyenEmbedded && "overflow-visible",
               )}
               data-disabled={optionDisabled}
             >
