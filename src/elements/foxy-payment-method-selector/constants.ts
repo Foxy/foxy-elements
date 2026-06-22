@@ -33,32 +33,6 @@ export const BUTTON_CLICK_HINT_OPTION_TYPES = new Set([
   "zip-pos",
 ]);
 
-// Adyen payment methods that only render a payment button — no form fields.
-// The selector shows a generic redirect UI for these; the actual button is
-// rendered by a separate component.
-export const ADYEN_BUTTON_ONLY_OPTION_TYPES = new Set([
-  "apple-pay",
-  "google-pay",
-  "alipay",
-  "paysafecard",
-  "cash-app",
-  "we-chat",
-  "we-chat-qr",
-  "we-chat-web",
-  "we-chat-mini-program",
-  "bank-transfer",
-  "bancontact",
-  "bizum",
-  "eps",
-  "ideal",
-  "przelewy24",
-  "swish",
-  "vipps",
-  "twint",
-  "zip",
-  "zip-pos",
-]);
-
 export const PURCHASE_ORDER_MAX_LENGTH = 32;
 
 export const GATEWAY_NAME_BY_TYPE: Record<string, string> = {
