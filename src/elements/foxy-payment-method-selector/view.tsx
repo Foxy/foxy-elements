@@ -70,6 +70,8 @@ const StripePaymentElementOption = lazy(
 );
 const AdyenEmbeddedOption = lazy(() => import("./embeds/adyen-embedded"));
 const SquareWebPaymentsOption = lazy(() => import("./embeds/square-web-payments"));
+import { SquareAchAvailabilityProbe, SquareWalletAvailabilityProbe, SquareWalletController } from "./embeds/square-web-payments";
+const SQUARE_WALLET_PROBE_TYPES = new Set(["apple-pay", "google-pay", "cash-app", "afterpay"]);
 const PAYMENT_OPTION_BODY_FALLBACK = <Skeleton className="h-8 w-full" />;
 
 type PaymentProps = {
@@ -710,7 +712,7 @@ function PaymentOptionBody({
     );
   }
 
-  if (option.squareUp && option.type === "new-card") {
+  if (option.squareUp && (option.type === "new-card" || option.type === "ach")) {
     return (
       <>
         <Suspense fallback={bodyFallback}>
@@ -723,6 +725,25 @@ function PaymentOptionBody({
             submitErrorMessage={intl.formatMessage(messages.squareUpSubmitError)}
           />
         </Suspense>
+        {billingSection}
+      </>
+    );
+  }
+
+  if (
+    option.squareUp &&
+    (option.type === "apple-pay" ||
+      option.type === "google-pay" ||
+      option.type === "cash-app" ||
+      option.type === "afterpay")
+  ) {
+    return (
+      <>
+        <SquareWalletController
+          option={option}
+          onControllerReady={onControllerReady}
+          submitErrorMessage={intl.formatMessage(messages.squareUpSubmitError)}
+        />
         {billingSection}
       </>
     );
@@ -807,7 +828,23 @@ export function Payment({
   onBillingAddressChange,
 }: PaymentProps) {
   const intl = useIntl();
-  const visibleOptions = options ?? [];
+  const allOptions = options ?? [];
+  const [optionAvailability, setOptionAvailability] = useState<
+    Record<string, "pending" | "available" | "unavailable">
+  >(() =>
+    Object.fromEntries(
+      allOptions
+        .filter((o) => o.squareUp && o.type === "ach")
+        .map((o) => [o.id, "pending" as const]),
+    ),
+  );
+  const isCheckingAvailability = Object.values(optionAvailability).some(
+    (s) => s === "pending",
+  );
+  const visibleOptions = useMemo(
+    () => allOptions.filter((o) => optionAvailability[o.id] !== "unavailable"),
+    [allOptions, optionAvailability],
+  );
   const hasSingleOption = visibleOptions.length === 1;
   const baseLabelGateways = useMemo(() => {
     return visibleOptions.reduce<Record<string, Set<string>>>((map, option) => {
@@ -887,14 +924,19 @@ export function Payment({
     onSelectionChangeRef.current?.(selected.id, selected.type);
   }, [selection, visibleOptions]);
 
-  const [mountedOptionIds, setMountedOptionIds] = useState<Set<string>>(
-    () =>
-      new Set(
-        [selection || selectedOptionId || visibleOptions[0]?.id].filter(
-          Boolean,
-        ),
-      ),
-  );
+  const [mountedOptionIds, setMountedOptionIds] = useState<Set<string>>(() => {
+    const initial = new Set<string>(
+      [selection || selectedOptionId || visibleOptions[0]?.id].filter(
+        Boolean,
+      ) as string[],
+    );
+    // Pre-mount Square ACH options so the availability probe runs before the
+    // user selects the option — otherwise we only hide it after first selection.
+    for (const option of allOptions) {
+      if (option.squareUp && option.type === "ach") initial.add(option.id);
+    }
+    return initial;
+  });
 
   useEffect(() => {
     if (!selection) return;
@@ -905,6 +947,57 @@ export function Payment({
       return next;
     });
   }, [selection]);
+
+  // Keep Square ACH options pre-mounted so SquareWebPaymentsOption can initialize
+  // early. Also track new ACH options that arrive after initial render.
+  useEffect(() => {
+    const squareAchIds = allOptions
+      .filter((o) => o.squareUp && o.type === "ach")
+      .map((o) => o.id);
+    if (!squareAchIds.length) return;
+    setMountedOptionIds((previous) => {
+      let changed = false;
+      const next = new Set(previous);
+      for (const id of squareAchIds) {
+        if (!next.has(id)) {
+          next.add(id);
+          changed = true;
+        }
+      }
+      return changed ? next : previous;
+    });
+    setOptionAvailability((previous) => {
+      let changed = false;
+      const next = { ...previous };
+      for (const id of squareAchIds) {
+        if (!(id in next)) {
+          next[id] = "pending";
+          changed = true;
+        }
+      }
+      return changed ? next : previous;
+    });
+  }, [allOptions]);
+
+  // Safety timeout: if the Square SDK never loads or the probe never resolves,
+  // unblock the UI after 8 seconds rather than showing a spinner indefinitely.
+  useEffect(() => {
+    if (!isCheckingAvailability) return;
+    const timer = setTimeout(() => {
+      setOptionAvailability((prev) => {
+        const next = { ...prev };
+        let changed = false;
+        for (const id of Object.keys(next)) {
+          if (next[id] === "pending") {
+            next[id] = "available";
+            changed = true;
+          }
+        }
+        return changed ? next : prev;
+      });
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [isCheckingAvailability]);
 
   useEffect(() => {
     const validOptionIds = new Set(visibleOptions.map((option) => option.id));
@@ -929,6 +1022,51 @@ export function Payment({
     });
   }, [selection, visibleOptions]);
 
+  // Wallet options default to visible; probes mark them unavailable if the SDK rejects.
+  // They are NOT "pending" — so they never block the skeleton.
+  const squareWalletOptions = allOptions.filter(
+    (o) => o.squareUp && SQUARE_WALLET_PROBE_TYPES.has(o.type ?? ""),
+  );
+  const onWalletUnavailable = (id: string) =>
+    setOptionAvailability((prev) => ({ ...prev, [id]: "unavailable" }));
+
+  if (loading || isCheckingAvailability) {
+    const pendingSquareAchOptions = allOptions.filter(
+      (o) => o.squareUp && o.type === "ach" && optionAvailability[o.id] === "pending",
+    );
+    return (
+      <>
+        {pendingSquareAchOptions.map((option) => (
+          <SquareAchAvailabilityProbe
+            key={option.id}
+            option={option}
+            onResolved={() =>
+              setOptionAvailability((prev) => ({ ...prev, [option.id]: "available" }))
+            }
+            onUnavailable={() =>
+              setOptionAvailability((prev) => ({ ...prev, [option.id]: "unavailable" }))
+            }
+          />
+        ))}
+        {squareWalletOptions.map((option) => (
+          <SquareWalletAvailabilityProbe
+            key={option.id}
+            option={option}
+            onResolved={() => {}}
+            onUnavailable={() => onWalletUnavailable(option.id)}
+          />
+        ))}
+        <div className="flex w-full flex-col gap-2.5" aria-live="polite">
+          <Skeleton className="h-9 w-full" />
+          <Skeleton className="h-22 w-full" />
+          <p className="m-0 text-sm text-muted-foreground">
+            {intl.formatMessage(messages.loadingOptions)}
+          </p>
+        </div>
+      </>
+    );
+  }
+
   if (!visibleOptions.length) {
     return (
       <div
@@ -946,23 +1084,19 @@ export function Payment({
     );
   }
 
-  if (loading) {
-    return (
-      <div className="flex w-full flex-col gap-2.5" aria-live="polite">
-        <Skeleton className="h-9 w-full" />
-        <Skeleton className="h-22 w-full" />
-        <p className="m-0 text-sm text-muted-foreground">
-          {intl.formatMessage(messages.loadingOptions)}
-        </p>
-      </div>
-    );
-  }
-
   return (
     <FieldSet
       aria-label={intl.formatMessage(messages.paymentMethodsLegend)}
       className="m-0 flex border-0 p-0"
     >
+      {squareWalletOptions.map((option) => (
+        <SquareWalletAvailabilityProbe
+          key={option.id}
+          option={option}
+          onResolved={() => {}}
+          onUnavailable={() => onWalletUnavailable(option.id)}
+        />
+      ))}
       <FieldLegend className="sr-only">
         {intl.formatMessage(messages.paymentMethodsLegend)}
       </FieldLegend>
