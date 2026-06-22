@@ -106,7 +106,7 @@ const ADYEN_EMBEDDED_STYLES = `
 }
 
 .foxy-adyen-embedded .adyen-checkout__payment-method__header {
-  padding: calc(var(--foxy-adyen-spacing) * 3);
+  padding: 9px calc(var(--foxy-adyen-spacing) * 3);
 }
 
 .foxy-adyen-embedded .adyen-checkout__dropdown__list {
