@@ -1270,18 +1270,12 @@ export function Payment({
         })}
       </RadioGroup>
 
-      {adyenOption !== null && (
-        <div className="flex flex-col gap-3">
-          <span className="text-sm font-medium">
-            {getBasePaymentOptionLabel(adyenOption, intl)}
-          </span>
-          {renderAdyenContent?.({
-            option: adyenOption,
-            onControllerReady: (controller) =>
-              onControllerReady?.(adyenOption.id, controller),
-          })}
-        </div>
-      )}
+      {adyenOption !== null &&
+        renderAdyenContent?.({
+          option: adyenOption,
+          onControllerReady: (controller) =>
+            onControllerReady?.(adyenOption.id, controller),
+        })}
     </FieldSet>
   );
 }

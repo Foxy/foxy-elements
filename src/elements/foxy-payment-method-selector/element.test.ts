@@ -1613,10 +1613,12 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
-      await waitForText(() => element.shadowRoot?.textContent, "Adyen");
+      await waitForTruthy(
+        () => element.querySelector("[data-foxy-adyen-host]"),
+        "Adyen light DOM host",
+      );
 
       const content = element.shadowRoot?.textContent ?? "";
-      expect(content).toContain("Adyen");
       expect(content).not.toContain("New Card");
       expect(content).not.toContain("iDEAL");
       await waitForTruthy(() => Dropin.mock.calls.length === 1, "Adyen Drop-in");
@@ -1640,7 +1642,10 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
-      await waitForText(() => element.shadowRoot?.textContent, "Adyen");
+      await waitForTruthy(
+        () => element.querySelector("[data-foxy-adyen-host]"),
+        "Adyen light DOM host",
+      );
 
       // No native radio items — Adyen-only configuration renders no RadioGroup items
       expect(
@@ -1899,14 +1904,16 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
-      await waitForText(() => element.shadowRoot?.textContent, "Adyen");
+      await waitForTruthy(
+        () => element.querySelector("[data-foxy-adyen-host]"),
+        "Adyen light DOM host",
+      );
 
       expect(
         element.shadowRoot?.querySelector(
           '[data-payment-option-click-hint="true"]',
         ),
       ).toBeNull();
-      expect(element.shadowRoot?.textContent).toContain("Adyen");
     } finally {
       element.remove();
       restoreClient();
