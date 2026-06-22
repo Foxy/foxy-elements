@@ -31,10 +31,11 @@ import {
 } from "./events";
 import { messages } from "./messages";
 import { Payment } from "./view";
+import { loadStripe } from "@stripe/stripe-js";
 import { StripeCardElementOption } from "./stripe/card-option";
 import { StripePaymentElementOption } from "./stripe/payment-option";
+import { resolveStripePublishableKey } from "./stripe/shared";
 import AdyenEmbeddedOption from "./embeds/adyen-embedded";
-import { ADYEN_BUTTON_ONLY_OPTION_TYPES } from "./constants";
 import {
   ThemeMixin,
   type ThemeAttributeName,
@@ -57,120 +58,6 @@ type CheckoutApiLike = EventTarget & {
   ) => Promise<unknown> | void;
 };
 
-type AdyenEmbeddedPaymentMethodLike = {
-  type: string;
-  name?: string;
-  brands?: string[];
-  [key: string]: unknown;
-};
-
-type AdyenEmbeddedSdkLike = {
-  paymentMethodsResponse?: {
-    paymentMethods?: unknown[];
-    storedPaymentMethods?: unknown[];
-    [key: string]: unknown;
-  };
-};
-
-const ADYEN_PAYMENT_METHOD_TYPE_MAP: Record<
-  string,
-  { type: string; componentName: string }
-> = {
-  card: { type: "new-card", componentName: "Card" },
-  scheme: { type: "new-card", componentName: "Card" },
-  bcmc: { type: "bancontact", componentName: "Bancontact" },
-  bcmc_mobile: { type: "bancontact", componentName: "BcmcMobile" },
-  bcmc_mobile_qr: { type: "bancontact", componentName: "BcmcMobile" },
-  sepadirectdebit: { type: "sepa", componentName: "SepaDirectDebit" },
-  applepay: { type: "apple-pay", componentName: "ApplePay" },
-  googlepay: { type: "google-pay", componentName: "GooglePay" },
-  paywithgoogle: { type: "google-pay", componentName: "GooglePay" },
-  eps: { type: "eps", componentName: "Eps" },
-  blik: { type: "blik", componentName: "Blik" },
-  ideal: { type: "ideal", componentName: "Redirect" },
-  p24: { type: "przelewy24", componentName: "Redirect" },
-  redirect: { type: "generic", componentName: "Redirect" },
-  paypal: { type: "paypal", componentName: "PayPal" },
-  klarna: { type: "klarna", componentName: "Klarna" },
-  klarna_account: { type: "klarna", componentName: "Klarna" },
-  klarna_paynow: { type: "klarna", componentName: "Klarna" },
-  ach: { type: "ach", componentName: "Ach" },
-  directdebit_gb: {
-    type: "bacs-direct-debit",
-    componentName: "BacsDirectDebit",
-  },
-  eft_directdebit_ca: {
-    type: "eft",
-    componentName: "PreAuthorizedDebitCanada",
-  },
-  affirm: { type: "affirm", componentName: "Affirm" },
-  afterpay: { type: "afterpay", componentName: "AfterPay" },
-  afterpay_default: { type: "afterpay", componentName: "AfterPay" },
-  afterpay_b2b: { type: "afterpay", componentName: "AfterPayB2B" },
-  atome: { type: "atome", componentName: "Atome" },
-  amazonpay: { type: "amazon-pay", componentName: "AmazonPay" },
-  cashapp: { type: "cash-app", componentName: "CashAppPay" },
-  clicktopay: { type: "click-to-pay", componentName: "ClickToPay" },
-  boletobancario: { type: "boleto-bancario", componentName: "Boleto" },
-  oxxo: { type: "oxxo", componentName: "Oxxo" },
-  dotpay: { type: "dotpay", componentName: "Dotpay" },
-  giropay: { type: "giropay", componentName: "Giropay" },
-  multibanco: { type: "multibanco", componentName: "Multibanco" },
-  twint: { type: "twint", componentName: "Twint" },
-  vipps: { type: "vipps", componentName: "Vipps" },
-  trustly: { type: "trustly", componentName: "Trustly" },
-  pix: { type: "pix", componentName: "Pix" },
-  swish: { type: "swish", componentName: "Swish" },
-  wechatpay: { type: "we-chat", componentName: "WeChat" },
-  wechatpayqr: { type: "we-chat-qr", componentName: "WeChat" },
-  promptpay: { type: "prompt-pay", componentName: "PromptPay" },
-  paynow: { type: "pay-now", componentName: "PayNow" },
-  duitnow: { type: "duit-now", componentName: "DuitNow" },
-  mbway: { type: "mbway", componentName: "MBWay" },
-  payto: { type: "payto", componentName: "PayTo" },
-  upi: { type: "upi", componentName: "UPI" },
-  upi_qr: { type: "upi", componentName: "UPI" },
-  upi_intent: { type: "upi", componentName: "UPI" },
-  dragonpay: { type: "dragonpay", componentName: "Dragonpay" },
-  dragonpay_ebanking: { type: "dragonpay", componentName: "Dragonpay" },
-  dragonpay_otc_banking: { type: "dragonpay", componentName: "Dragonpay" },
-  dragonpay_otc_non_banking: { type: "dragonpay", componentName: "Dragonpay" },
-  dragonpay_otc_philippines: { type: "dragonpay", componentName: "Dragonpay" },
-  wechatpayweb: { type: "we-chat-web", componentName: "Redirect" },
-  wechatpayminiprogram: {
-    type: "we-chat-mini-program",
-    componentName: "Redirect",
-  },
-  alipay: { type: "alipay", componentName: "Redirect" },
-  paysafecard: { type: "paysafecard", componentName: "Redirect" },
-  paybybank_ais_dd: { type: "pay-by-bank-us", componentName: "PayByBankUS" },
-  paybybank: { type: "pay-by-bank", componentName: "PayByBank" },
-  paybybank_pix: { type: "pay-by-bank-pix", componentName: "PayByBankPix" },
-  onlinebanking_pl: {
-    type: "online-banking-pl",
-    componentName: "OnlineBankingPL",
-  },
-  onlinebanking_cz: {
-    type: "online-banking-cz",
-    componentName: "OnlineBankingCZ",
-  },
-  onlinebanking_sk: {
-    type: "online-banking-sk",
-    componentName: "OnlineBankingSK",
-  },
-  onlinebanking_in: {
-    type: "online-banking-in",
-    componentName: "OnlineBankingIN",
-  },
-  ebanking_fi: { type: "online-banking-fi", componentName: "OnlineBankingFI" },
-  // Bank transfer redirect (legacy directEbanking type returned by some EU sessions)
-  directebanking: { type: "bank-transfer", componentName: "Redirect" },
-  // Bizum — mobile bank payment in Spain
-  bizum: { type: "bizum", componentName: "Redirect" },
-  // Zip — buy-now-pay-later in Australia / New Zealand
-  zip: { type: "zip", componentName: "Redirect" },
-  zip_pos: { type: "zip-pos", componentName: "Redirect" },
-};
 
 const SQUARE_UP_METHODS_BY_COUNTRY: Record<string, string[]> = {
   US: ["new-card", "ach", "apple-pay", "google-pay", "cash-app", "afterpay"],
@@ -341,9 +228,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         throw new Error("Tokenization start was canceled.");
       }
 
-      if (selectedOption.paypalPlatform) {
+      if (selectedOption.paypalPlatform?.flow === "buttons") {
         this.#setLoading(true);
-        const payload = this.#createTokenizePayload(selectedOption, {});
+        const tokenized = await this.#tokenizePayPalPlatformButtons(selectedOption);
+        const payload = this.#createTokenizePayload(selectedOption, tokenized);
 
         this.dispatchEvent(
           new CustomEvent<PaymentMethodSelectorTokenizationSuccessEventDetail>(
@@ -364,6 +252,25 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       if (selectedOption.klarna) {
         this.#setLoading(true);
         const tokenized = await this.#tokenizeKlarna(selectedOption);
+        const payload = this.#createTokenizePayload(selectedOption, tokenized);
+
+        this.dispatchEvent(
+          new CustomEvent<PaymentMethodSelectorTokenizationSuccessEventDetail>(
+            paymentMethodSelectorEvents.tokenizationSuccess,
+            {
+              bubbles: true,
+              composed: true,
+              detail: { payload },
+            },
+          ),
+        );
+
+        return payload;
+      }
+
+      if (selectedOption.sezzle) {
+        this.#setLoading(true);
+        const tokenized = await this.#tokenizeSezzle(selectedOption);
         const payload = this.#createTokenizePayload(selectedOption, tokenized);
 
         this.dispatchEvent(
@@ -417,6 +324,53 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       );
 
       throw error;
+    } finally {
+      this.#setLoading(false);
+    }
+  }
+
+  async handleNextAction(
+    clientSecret: string,
+  ): Promise<{ payment_intent_id: string }> {
+    const apiState = this.#resolveApiState();
+    if (!apiState) {
+      throw new Error("Checkout client is not initialized.");
+    }
+
+    this.#setLoading(true);
+
+    try {
+      const gatewayConfig = this.#getArrayRecords(apiState.payment_gateways).find(
+        (c) => this.#toText(c.type) === "stripe_v2",
+      );
+
+      if (!gatewayConfig) {
+        throw new Error("No stripe_v2 payment gateway is configured.");
+      }
+
+      const publishableKey = resolveStripePublishableKey(
+        this.#toOptionalText(gatewayConfig.publishable_key),
+      );
+
+      if (!publishableKey) {
+        throw new Error("Stripe publishable key is not configured.");
+      }
+
+      const stripe = await loadStripe(publishableKey);
+      if (!stripe) {
+        throw new Error("Failed to initialize Stripe.");
+      }
+
+      const result = await stripe.handleNextAction({ clientSecret });
+
+      if (result.error || !result.paymentIntent?.id) {
+        throw new Error(
+          result.error?.message ??
+            "Stripe next action did not return a payment intent.",
+        );
+      }
+
+      return { payment_intent_id: result.paymentIntent.id };
     } finally {
       this.#setLoading(false);
     }
@@ -558,6 +512,139 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       sessionId: klarnaOption.sessionId,
       paymentMethodCategory: category,
     };
+  }
+
+  async #tokenizeSezzle(option: PaymentMethodSelectorOption): Promise<{
+    orderUuid: string;
+  }> {
+    const sezzleOption = option.sezzle!;
+
+    if (!sezzleOption.checkoutUrl) {
+      throw new Error(
+        "Sezzle checkout URL is missing. The backend must create a checkout session first.",
+      );
+    }
+
+    type SezzleSdkInstance = {
+      init(options: {
+        onComplete?: (event: { data?: Record<string, unknown>; [key: string]: unknown }) => void;
+        onCancel?: () => void;
+        onFailure?: () => void;
+      }): void;
+      openModal(): void;
+      startCheckout(options: { checkout_url: string }): void;
+    };
+
+    const sezzle = this.#checkoutClient.sezzle as unknown as SezzleSdkInstance | null | undefined;
+
+    if (!sezzle) {
+      throw new Error(
+        "Unable to load Sezzle. Choose a different payment method or try again.",
+      );
+    }
+
+    // init() stores callbacks; openModal() opens the popup window (must be called while
+    // user-activation is still live — Chrome preserves it through microtask awaits);
+    // startCheckout() then navigates the already-open popup to the checkout URL.
+    return new Promise<{ orderUuid: string }>((resolve, reject) => {
+      sezzle.init({
+        onComplete: (event) => {
+          const orderUuid = event?.data?.order_uuid;
+          if (typeof orderUuid !== "string" || !orderUuid) {
+            reject(new Error("Sezzle checkout response is missing an order UUID."));
+            return;
+          }
+          resolve({ orderUuid });
+        },
+        onCancel: () => {
+          reject(new Error("Sezzle checkout was cancelled."));
+        },
+        onFailure: () => {
+          reject(new Error("Sezzle checkout failed. Review your details and try again."));
+        },
+      });
+
+      sezzle.openModal();
+      sezzle.startCheckout({ checkout_url: sezzleOption.checkoutUrl! });
+    });
+  }
+
+  #getPayPalButtonsSessionCreatorName(type: string | undefined): string | undefined {
+    switch (type) {
+      case "paypal": return "createPayPalOneTimePaymentSession";
+      case "paypal-pay-later": return "createPayLaterOneTimePaymentSession";
+      case "paypal-credit": return "createPayPalCreditOneTimePaymentSession";
+      case "venmo": return "createVenmoOneTimePaymentSession";
+      case "sepa": return "createSepaOneTimePaymentSession";
+      case "bancontact": return "createBancontactOneTimePaymentSession";
+      case "ideal": return "createIdealOneTimePaymentSession";
+      case "eps": return "createEpsOneTimePaymentSession";
+      case "blik": return "createBlikOneTimePaymentSession";
+      case "przelewy24": return "createP24OneTimePaymentSession";
+      default: return undefined;
+    }
+  }
+
+  async #tokenizePayPalPlatformButtons(
+    option: PaymentMethodSelectorOption,
+  ): Promise<{ orderId: string }> {
+    type PayPalSdkLike = Record<string, unknown>;
+    type PayPalLikeSession = {
+      start: (opts: { presentationMode: string }) => Promise<unknown>;
+    };
+    type PayPalLikeSessionOptions = {
+      orderId?: string;
+      onApprove: (data: { orderId: string }) => Promise<void>;
+      onCancel?: () => void;
+      onError?: (data: { message?: string }) => void;
+    };
+
+    const paypal = this.#checkoutClient.paypal as PayPalSdkLike | null | undefined;
+
+    if (!paypal) {
+      throw new Error(
+        "Unable to load PayPal. Choose a different payment method or try again.",
+      );
+    }
+
+    const creatorName = this.#getPayPalButtonsSessionCreatorName(option.type);
+    const sessionCreator = creatorName ? paypal[creatorName] : undefined;
+
+    if (typeof sessionCreator !== "function") {
+      throw new Error(
+        "This PayPal payment method is not available. Choose a different payment method or try again.",
+      );
+    }
+
+    const genericError = "PayPal checkout failed. Review your details and try again.";
+
+    return new Promise<{ orderId: string }>((resolve, reject) => {
+      const sessionOptions: PayPalLikeSessionOptions = {
+        onApprove: async (data) => {
+          resolve({ orderId: data.orderId });
+        },
+        onCancel: () => {
+          reject(new Error("PayPal checkout was cancelled."));
+        },
+        onError: (data) => {
+          reject(new Error(data?.message?.trim() || genericError));
+        },
+      };
+
+      const paypalOrderId = option.paypalPlatform?.orderId;
+      if (paypalOrderId) {
+        sessionOptions.orderId = paypalOrderId;
+      }
+
+      const session = (
+        sessionCreator as (opts: PayPalLikeSessionOptions) => PayPalLikeSession
+      )(sessionOptions);
+
+      session.start({ presentationMode: "popup" }).catch((err: unknown) => {
+        const message = err instanceof Error ? err.message.trim() : String(err).trim();
+        reject(new Error(message || genericError));
+      });
+    });
   }
 
   #createKlarnaAuthorizationData(
@@ -752,8 +839,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           options={options}
           selectedOptionId={selectedOptionId}
           lang={locale}
-          disabled={false}
-          loading={this.#loading || this.#optionsLoading}
+          disabled={this.#loading}
+          loading={this.#optionsLoading}
           billingAddress={billingAddress}
           orderTotal={orderTotal}
           orderCurrencyCode={orderCurrencyCode}
@@ -1055,20 +1142,27 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     if (selectedOption.paypalPlatform) {
+      const orderId = this.#readPayloadString(payload, "orderId");
       return {
         paypalPlatform: {
           ...selectedOption.paypalPlatform,
           fundingSources: selectedOption.paypalPlatform.fundingSources
             ? [...selectedOption.paypalPlatform.fundingSources]
             : undefined,
+          ...(orderId ? { orderId } : {}),
         },
       };
     }
 
     if (selectedOption.sezzle) {
+      const orderUuid = this.#requirePayloadString(
+        payload,
+        "orderUuid",
+        "Sezzle checkout response is missing an order UUID.",
+      );
       return {
         sezzle: {
-          publicKey: selectedOption.sezzle.publicKey,
+          orderUuid,
         },
       };
     }
@@ -1083,8 +1177,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
       return {
         adyenEmbedded: {
-          paymentMethodType: selectedOption.adyenEmbedded.paymentMethodType,
-          paymentMethod: selectedOption.adyenEmbedded.paymentMethod,
           result,
         },
       };
@@ -1123,12 +1215,22 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     if (selectedOption.type === "new-card") {
+      const token = this.#requirePayloadString(
+        payload,
+        "token",
+        "Card tokenization response is missing a token.",
+      );
+
+      const isStandardCard =
+        !!selectedOption.gateway &&
+        !selectedOption.paypalPlatform &&
+        !selectedOption.stripeCardElement &&
+        !selectedOption.stripePaymentElement &&
+        !selectedOption.adyenEmbedded &&
+        !selectedOption.squareUp;
+
       return {
-        token: this.#requirePayloadString(
-          payload,
-          "token",
-          "Card tokenization response is missing a token.",
-        ),
+        token,
         requestId: this.#requirePayloadString(
           payload,
           "requestId",
@@ -1138,10 +1240,18 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         last4: this.#readPayloadString(payload, "last4"),
         expirationMonth: this.#readPayloadNumber(payload, "expirationMonth"),
         expirationYear: this.#readPayloadNumber(payload, "expirationYear"),
+        ...(isStandardCard && {
+          gateway: selectedOption.gateway,
+          cardToken: token,
+        }),
       };
     }
 
     if (selectedOption.type === "ach") {
+      const accountType = this.#readPayloadString(payload, "accountType");
+      if (accountType !== "checking" && accountType !== "savings") {
+        throw new Error("ACH tokenization response has an invalid account type.");
+      }
       return {
         token: this.#requirePayloadString(
           payload,
@@ -1153,50 +1263,64 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           "requestId",
           "ACH tokenization response is missing a request id.",
         ),
+        last4: this.#requirePayloadString(
+          payload,
+          "last4",
+          "ACH tokenization response is missing last 4 digits.",
+        ),
+        routingNumber: this.#requirePayloadString(
+          payload,
+          "routingNumber",
+          "ACH tokenization response is missing routing number.",
+        ),
+        accountType,
       };
     }
 
     if (selectedOption.type === "stripe-card-element") {
       return {
-        paymentMethodId: this.#requirePayloadString(
+        requestId: crypto.randomUUID(),
+        card_token_id: this.#requirePayloadString(
           payload,
           "paymentMethodId",
           "Stripe Card Element tokenization response is missing a payment method id.",
         ),
-        cardBrand: this.#readPayloadString(payload, "cardBrand"),
-        last4: this.#readPayloadString(payload, "last4"),
-        expirationMonth: this.#readPayloadNumber(payload, "expirationMonth"),
-        expirationYear: this.#readPayloadNumber(payload, "expirationYear"),
       };
     }
 
     if (selectedOption.type === "stripe-payment-element") {
+      const requestId = crypto.randomUUID();
+      const paymentIntentId = this.#readPayloadString(payload, "paymentIntentId");
+      if (paymentIntentId) {
+        return { requestId, payment_intent_id: paymentIntentId };
+      }
       return {
-        paymentMethodId: this.#requirePayloadString(
+        requestId,
+        confirmation_token_id: this.#requirePayloadString(
           payload,
-          "paymentMethodId",
-          "Stripe Payment Element tokenization response is missing a payment method id.",
+          "confirmationTokenId",
+          "Stripe Payment Element tokenization response is missing a confirmation token id.",
         ),
-        paymentMethodType: this.#requirePayloadString(
-          payload,
-          "paymentMethodType",
-          "Stripe Payment Element tokenization response is missing a payment method type.",
-        ),
-        cardBrand: this.#readPayloadString(payload, "cardBrand"),
-        last4: this.#readPayloadString(payload, "last4"),
-        expirationMonth: this.#readPayloadNumber(payload, "expirationMonth"),
-        expirationYear: this.#readPayloadNumber(payload, "expirationYear"),
       };
     }
 
     if (selectedOption.type === "purchase-order") {
       return {
+        requestId: this.#requirePayloadString(
+          payload,
+          "requestId",
+          "Purchase order tokenization response is missing a request id.",
+        ),
         purchaseOrderNumber: this.#requirePayloadString(
           payload,
           "purchaseOrderNumber",
           "Purchase order tokenization response is missing a purchase order number.",
         ),
       };
+    }
+
+    if (selectedOption.type === "mollie" || selectedOption.type === "generic") {
+      return { requestId: crypto.randomUUID() };
     }
 
     return {};
@@ -1219,24 +1343,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return normalized;
   }
 
-  #toAdyenPaymentMethodKey(value: unknown): string {
-    return this.#toText(value).trim().toLowerCase();
-  }
-
-  #getAdyenPaymentMethodMapping(
-    paymentMethodType: string,
-  ): { type: string; componentName: string } | undefined {
-    return ADYEN_PAYMENT_METHOD_TYPE_MAP[
-      this.#toAdyenPaymentMethodKey(paymentMethodType)
-    ];
-  }
-
-  #getAdyenEmbeddedSdk(): AdyenEmbeddedSdkLike | null {
-    return this.#asRecord(
-      this.#checkoutClient.adyenEmbedded,
-    ) as AdyenEmbeddedSdkLike | null;
-  }
-
   #createAdyenEmbeddedGatewayEntries(
     config: Record<string, unknown>,
   ): Record<string, unknown>[] {
@@ -1248,38 +1354,15 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       return [];
     }
 
-    const sdk = this.#getAdyenEmbeddedSdk();
-    const paymentMethods = sdk?.paymentMethodsResponse?.paymentMethods;
-
-    if (!Array.isArray(paymentMethods)) {
-      return [];
-    }
-
-    const entries = paymentMethods.flatMap((rawPaymentMethod) => {
-      const paymentMethod = this.#asRecord(
-        rawPaymentMethod,
-      ) as AdyenEmbeddedPaymentMethodLike | null;
-      const paymentMethodType = this.#toOptionalText(paymentMethod?.type);
-      if (!paymentMethod || !paymentMethodType) return [];
-
-      const mapping = this.#getAdyenPaymentMethodMapping(paymentMethodType);
-      if (!mapping) return [];
-
-      return [
-        {
-          type: mapping.type,
-          gateway: "adyen_embedded",
-          session_data: sessionData,
-          environment,
-          client_key: clientKey,
-          adyen_payment_method_type: paymentMethodType,
-          adyen_payment_method: paymentMethod,
-          adyen_component_name: mapping.componentName,
-        },
-      ];
-    });
-
-    return entries;
+    return [
+      {
+        type: "adyen-embedded",
+        gateway: "adyen_embedded",
+        session_data: sessionData,
+        environment,
+        client_key: clientKey,
+      },
+    ];
   }
 
   #toOptionKeySegment(value: unknown): string {
@@ -1653,11 +1736,14 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       return [];
     }
 
+    const orderId = this.#toOptionalText(config.order_id);
+
     const entries: Record<string, unknown>[] = [
       {
         type: "paypal",
         gateway: "paypal_platform",
         client_id: clientId,
+        order_id: orderId,
       },
     ];
     const paypal = this.#getPayPalDiscoveryRecord();
@@ -1691,6 +1777,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         type: "new-card",
         gateway: "paypal_platform",
         client_id: clientId,
+        order_id: orderId,
       });
     }
 
@@ -1705,6 +1792,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         type: "apple-pay",
         gateway: "paypal_platform",
         client_id: clientId,
+        order_id: orderId,
       });
     }
 
@@ -1726,6 +1814,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         type: "google-pay",
         gateway: "paypal_platform",
         client_id: clientId,
+        order_id: orderId,
         merchant_id: this.#toOptionalText(merchantInfo?.merchantId),
         gateway_parameters: this.#getGooglePayGatewayParameters(details),
       });
@@ -1742,6 +1831,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         type: "paypal-pay-later",
         gateway: "paypal_platform",
         client_id: clientId,
+        order_id: orderId,
       });
     }
 
@@ -1756,6 +1846,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         type: "paypal-credit",
         gateway: "paypal_platform",
         client_id: clientId,
+        order_id: orderId,
       });
     }
 
@@ -1767,6 +1858,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         type: "venmo",
         gateway: "paypal_platform",
         client_id: clientId,
+        order_id: orderId,
       });
     }
 
@@ -1779,6 +1871,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           type: apm.type,
           gateway: "paypal_platform",
           client_id: clientId,
+          order_id: orderId,
         });
       }
     }
@@ -1825,6 +1918,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         {
           type: "sezzle",
           public_key: this.#toOptionalText(config.public_key),
+          checkout_url: this.#toOptionalText(config.checkout_url),
+          auth_only: typeof config.auth_only === "boolean" ? config.auth_only : undefined,
         },
       ];
     }
@@ -1840,6 +1935,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           gateway,
           publishable_key: this.#toOptionalText(config.publishable_key),
           locale: this.#toOptionalText(config.locale),
+          client_secret: this.#toOptionalText(config.client_secret),
+          return_url: this.#toOptionalText(config.return_url),
         },
       ];
     }
@@ -2073,11 +2170,13 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     const fundingSource = this.#getPayPalFundingSource(type);
+    const orderId = this.#toOptionalText(option.order_id);
 
     return {
       clientId,
       flow: "buttons",
       fundingSources: fundingSource ? [fundingSource] : undefined,
+      ...(orderId ? { orderId } : {}),
     };
   }
 
@@ -2149,33 +2248,12 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     const sessionData = this.#toOptionalText(option.session_data);
     const environment = this.#toOptionalText(option.environment);
     const clientKey = this.#toOptionalText(option.client_key);
-    const paymentMethodType = this.#toOptionalText(
-      option.adyen_payment_method_type,
-    );
-    const paymentMethod = this.#asRecord(
-      option.adyen_payment_method,
-    ) as AdyenEmbeddedPaymentMethodLike | null;
-    const componentName = this.#toOptionalText(option.adyen_component_name);
 
-    if (
-      !sessionData ||
-      !environment ||
-      !clientKey ||
-      !paymentMethodType ||
-      !paymentMethod ||
-      !componentName
-    ) {
+    if (!sessionData || !environment || !clientKey) {
       return undefined;
     }
 
-    return {
-      sessionData,
-      environment,
-      clientKey,
-      paymentMethodType,
-      paymentMethod,
-      componentName,
-    };
+    return { sessionData, environment, clientKey };
   }
 
   #createSquareUpGatewayEntries(
@@ -2310,20 +2388,13 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         return [];
       }
 
-      const brands = Array.isArray(adyenEmbedded.paymentMethod.brands)
-        ? adyenEmbedded.paymentMethod.brands.filter(
-            (brand): brand is string => typeof brand === "string" && !!brand,
-          )
-        : undefined;
-
       return [
         {
           id: optionId,
           type,
-          label: this.#toText(adyenEmbedded.paymentMethod.name),
+          label: "Adyen",
           gateway,
           disabled,
-          acceptedBrands: brands?.length ? brands : undefined,
           adyenEmbedded,
         },
       ];
@@ -2440,6 +2511,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     if (type === "stripe-payment-element") {
+      const clientSecret = this.#toOptionalText(option.client_secret) || undefined;
+      const returnUrl = this.#toOptionalText(option.return_url) || undefined;
       return [
         {
           id: optionId,
@@ -2452,6 +2525,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             locale: this.#toText(option.locale) || undefined,
             paymentElementOptions:
               this.#createStripePaymentElementOptions(apiState),
+            ...(clientSecret ? { clientSecret } : {}),
+            ...(returnUrl ? { returnUrl } : {}),
           },
         },
       ];
@@ -2511,6 +2586,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         return [];
       }
 
+      const checkoutUrl = this.#toOptionalText(option.checkout_url);
+      const authOnly = typeof option.auth_only === "boolean" ? option.auth_only : undefined;
+
       return [
         {
           id: optionId,
@@ -2519,6 +2597,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           disabled,
           sezzle: {
             publicKey,
+            ...(checkoutUrl !== undefined ? { checkoutUrl } : {}),
+            ...(authOnly !== undefined ? { authOnly } : {}),
           },
         },
       ];
@@ -2728,10 +2808,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   }
 
   #isAdyenOption(option: PaymentMethodSelectorOption | undefined): boolean {
-    return Boolean(
-      option?.adyenEmbedded &&
-      !ADYEN_BUTTON_ONLY_OPTION_TYPES.has(option.type ?? ""),
-    );
+    return Boolean(option?.adyenEmbedded);
   }
 
   #getStripeSlotName(optionId: string): string {
