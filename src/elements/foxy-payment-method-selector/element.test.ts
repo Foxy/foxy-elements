@@ -1642,10 +1642,10 @@ describe("PaymentMethodSelectorElement", () => {
       document.body.append(element);
       await waitForText(() => element.shadowRoot?.textContent, "Adyen");
 
-      // No native radio button — Adyen is not a RadioGroup item
+      // No native radio items — Adyen-only configuration renders no RadioGroup items
       expect(
-        element.shadowRoot?.querySelector('input[type="radio"]'),
-      ).toBeNull();
+        element.shadowRoot?.querySelectorAll('[role="radio"]').length,
+      ).toBe(0);
     } finally {
       element.remove();
       restoreClient();
