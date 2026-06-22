@@ -87,12 +87,6 @@ const ADYEN_EMBEDDED_STYLES = `
   gap: calc(var(--spacing, 0.25rem) * 2);
 }
 
-.foxy-adyen-embedded__probe {
-  opacity: 0;
-  pointer-events: none;
-  position: absolute;
-}
-
 .foxy-adyen-embedded__message {
   color: var(--muted-foreground, #64748b);
   font-size: 0.875rem;

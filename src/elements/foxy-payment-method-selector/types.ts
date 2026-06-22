@@ -72,13 +72,6 @@ type PaymentMethodSelectorRequiredHostedCardTokenizePayload = {
   requestId: string;
 };
 
-type PaymentMethodSelectorOptionalCardTokenizeDetails = {
-  cardBrand?: string;
-  last4?: string;
-  expirationMonth?: number;
-  expirationYear?: number;
-};
-
 export type PaymentMethodSelectorSavedCardTokenizePayload =
   PaymentMethodSelectorOptionalHostedCardTokenizePayload &
     PaymentMethodSelectorCardTokenizeDetails;
