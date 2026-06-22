@@ -1095,7 +1095,7 @@ export function Payment({
   return (
     <FieldSet
       aria-label={intl.formatMessage(messages.paymentMethodsLegend)}
-      className="m-0 flex gap-2 border-0 p-0"
+      className="m-0 flex !gap-2 border-0 p-0"
     >
       {squareWalletOptions.map((option) => (
         <SquareWalletAvailabilityProbe
