@@ -97,6 +97,10 @@ const ADYEN_EMBEDDED_STYLES = `
   color: var(--destructive, #b91c1c);
 }
 
+.foxy-adyen-embedded .adyen-checkout-brand-wrapper {
+  order: 2;
+}
+
 .foxy-adyen-embedded .adyen-checkout__dropdown__list {
   padding: calc(var(--foxy-adyen-spacing) * 1);
 }
