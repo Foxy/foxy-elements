@@ -101,6 +101,14 @@ const ADYEN_EMBEDDED_STYLES = `
   order: 2;
 }
 
+.foxy-adyen-embedded .adyen-checkout__payment-methods-list {
+  gap: calc(var(--foxy-adyen-spacing) * 2);
+}
+
+.foxy-adyen-embedded .adyen-checkout__payment-method__header {
+  padding: calc(var(--foxy-adyen-spacing) * 3);
+}
+
 .foxy-adyen-embedded .adyen-checkout__dropdown__list {
   padding: calc(var(--foxy-adyen-spacing) * 1);
 }
