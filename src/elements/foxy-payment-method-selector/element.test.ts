@@ -401,6 +401,7 @@ type AdyenComponentProps = Record<string, unknown> & {
   type?: string;
   onPaymentCompleted?: (result: unknown) => void;
   onPaymentFailed?: (result: unknown) => void;
+  onSelect?: () => void;
 };
 
 type AdyenComponentInstance = {
@@ -1626,6 +1627,131 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
+  it("renders Adyen Drop-in outside RadioGroup when it is the only option", async () => {
+    const { Component: Dropin } = createAdyenComponentMock();
+    const restoreClient = overrideClientState(
+      createAdyenEmbeddedApiState(),
+      undefined,
+      { adyenEmbedded: { Dropin } },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "Adyen");
+
+      // No native radio button — Adyen is not a RadioGroup item
+      expect(
+        element.shadowRoot?.querySelector('input[type="radio"]'),
+      ).toBeNull();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("keeps Adyen Drop-in mounted when a native option is selected", async () => {
+    const { Component: Dropin, instances } = createAdyenComponentMock({
+      mountText: "Adyen drop-in",
+    });
+    const restoreClient = overrideClientState(
+      {
+        ...createAdyenEmbeddedApiState(),
+        payment_gateways: [
+          { type: "authorize" },
+          {
+            type: "adyen_embedded",
+            session_data: "adyen-session-data",
+            environment: "test",
+            client_key: "adyen-client-key",
+          },
+        ],
+      },
+      undefined,
+      { adyenEmbedded: { Dropin } },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      const host = await waitForTruthy(
+        () => element.querySelector("[data-foxy-adyen-host]"),
+        "Adyen light DOM host",
+      );
+      await waitForText(() => host.textContent, "Adyen drop-in");
+
+      // Select native option by index (index 0 = authorize/new-card)
+      element.optionIndex = 0;
+      await waitForRender();
+
+      // Drop-in stays mounted — unmount not called
+      expect(instances[0]?.unmount).not.toHaveBeenCalled();
+      expect(element.querySelector("[data-foxy-adyen-host]")).not.toBeNull();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("clears native radio selection when Adyen Drop-in's onSelect fires", async () => {
+    const { Component: Dropin, instances } = createAdyenComponentMock({
+      mountText: "Adyen drop-in",
+    });
+    const restoreClient = overrideClientState(
+      {
+        ...createAdyenEmbeddedApiState(),
+        payment_gateways: [
+          { type: "authorize" },
+          {
+            type: "adyen_embedded",
+            session_data: "adyen-session-data",
+            environment: "test",
+            client_key: "adyen-client-key",
+          },
+        ],
+      },
+      undefined,
+      { adyenEmbedded: { Dropin } },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      const host = await waitForTruthy(
+        () => element.querySelector("[data-foxy-adyen-host]") as HTMLElement | null,
+        "Adyen light DOM host",
+      );
+      await waitForText(() => host.textContent, "Adyen drop-in");
+      await waitForTruthy(
+        () => element.shadowRoot?.querySelector('[role="radio"][aria-checked="true"]'),
+        "checked native radio",
+      );
+
+      // Initially the native radio is checked
+      expect(
+        element.shadowRoot?.querySelector('[role="radio"][aria-checked="true"]'),
+      ).not.toBeNull();
+
+      // Simulate user selecting a method inside the Drop-in
+      instances[0]?.props.onSelect?.();
+      await waitForRender();
+
+      // No native radio should remain checked
+      expect(
+        element.shadowRoot?.querySelector('[role="radio"][aria-checked="true"]'),
+      ).toBeNull();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
   it("mounts Adyen Drop-in in light DOM and cleans it up on removal", async () => {
     const { Component: Dropin, instances } = createAdyenComponentMock({
       mountText: "Adyen drop-in",
@@ -1780,9 +1906,7 @@ describe("PaymentMethodSelectorElement", () => {
           '[data-payment-option-click-hint="true"]',
         ),
       ).toBeNull();
-      expect(element.shadowRoot?.textContent).toContain(
-        "Enter your payment details below and click the Submit button below the order summary to submit your order.",
-      );
+      expect(element.shadowRoot?.textContent).toContain("Adyen");
     } finally {
       element.remove();
       restoreClient();

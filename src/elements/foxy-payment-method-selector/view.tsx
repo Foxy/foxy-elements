@@ -845,7 +845,15 @@ export function Payment({
     () => allOptions.filter((o) => optionAvailability[o.id] !== "unavailable"),
     [allOptions, optionAvailability],
   );
-  const hasSingleOption = visibleOptions.length === 1;
+  const nativeOptions = useMemo(
+    () => visibleOptions.filter((o) => !o.adyenEmbedded),
+    [visibleOptions],
+  );
+  const adyenOption = useMemo(
+    () => visibleOptions.find((o) => Boolean(o.adyenEmbedded)) ?? null,
+    [visibleOptions],
+  );
+  const hasSingleOption = nativeOptions.length === 1 && !adyenOption;
   const baseLabelGateways = useMemo(() => {
     return visibleOptions.reduce<Record<string, Set<string>>>((map, option) => {
       const baseLabel = getBasePaymentOptionLabel(option, intl);
@@ -1119,7 +1127,7 @@ export function Payment({
         }}
         className="w-full"
       >
-        {visibleOptions.map((option) => {
+        {nativeOptions.map((option) => {
           const checked = option.id === selection;
           const mounted = mountedOptionIds.has(option.id);
           const optionDisabled = Boolean(disabled || option.disabled);
@@ -1253,10 +1261,6 @@ export function Payment({
               className={cn(
                 "gap-0 py-0 transition-colors rounded-[var(--radius)] border border-input ring-0",
                 !checked && !optionDisabled && "cursor-pointer hover:bg-muted",
-                // The Card's default overflow-hidden clips absolutely-positioned
-                // Adyen dropdowns (e.g. bank-selection lists). Override it when
-                // this option's Adyen form is expanded.
-                checked && option.adyenEmbedded && "overflow-visible",
               )}
               data-disabled={optionDisabled}
             >
@@ -1265,6 +1269,19 @@ export function Payment({
           );
         })}
       </RadioGroup>
+
+      {adyenOption !== null && (
+        <div className="flex flex-col gap-3">
+          <span className="text-sm font-medium">
+            {getBasePaymentOptionLabel(adyenOption, intl)}
+          </span>
+          {renderAdyenContent?.({
+            option: adyenOption,
+            onControllerReady: (controller) =>
+              onControllerReady?.(adyenOption.id, controller),
+          })}
+        </div>
+      )}
     </FieldSet>
   );
 }
