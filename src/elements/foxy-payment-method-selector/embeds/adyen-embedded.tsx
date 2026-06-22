@@ -1,17 +1,7 @@
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
 import type { PaymentController, PaymentMethodSelectorOption } from "../types";
 
-import {
-  type CSSProperties,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import {
-  type HostedFieldStyleAttributes,
-  useResolvedHostedFieldStyleAttributes,
-} from "../stripe/style-hooks";
+import { useEffect, useRef, useState } from "react";
 
 const ADYEN_WEB_VERSION = "6.36.0";
 const ADYEN_EMBEDDED_STYLES = `
@@ -175,13 +165,6 @@ type AdyenComponentConstructor = new (
   props?: Record<string, unknown>,
 ) => AdyenComponent;
 
-type AdyenInputStyles = Record<string, Record<string, string>>;
-
-type AdyenEmbeddedCssProperties = CSSProperties & {
-  "--foxy-adyen-input-padding-x"?: string;
-  "--foxy-adyen-input-padding-y"?: string;
-};
-
 type CheckoutClientLike = {
   adyenEmbedded?: AdyenCheckoutLike | null;
 };
@@ -321,60 +304,6 @@ function cleanupAdyenComponent(
   container?.replaceChildren();
 }
 
-function createAdyenInputStyles(
-  styleAttributes: HostedFieldStyleAttributes,
-): AdyenInputStyles {
-  const inputPadding =
-    styleAttributes.inputPaddingY && styleAttributes.inputPaddingX
-      ? `${styleAttributes.inputPaddingY} ${styleAttributes.inputPaddingX} ${styleAttributes.inputPaddingY} 0px`
-      : styleAttributes.inputPaddingY
-        ? `${styleAttributes.inputPaddingY} 0px`
-        : styleAttributes.inputPaddingX
-          ? `0px ${styleAttributes.inputPaddingX} 0px 0px`
-          : undefined;
-  const base: Record<string, string> = {
-    fontSmoothing: "antialiased",
-    fontWeight: "400",
-    mozOsxFontSmoothing: "grayscale",
-    webkitFontSmoothing: "antialiased",
-  };
-
-  if (styleAttributes.inputBackground) {
-    base.background = styleAttributes.inputBackground;
-  }
-  if (styleAttributes.inputFont) base.fontFamily = styleAttributes.inputFont;
-  if (styleAttributes.inputTextSize) {
-    base.fontSize = styleAttributes.inputTextSize;
-  }
-  if (styleAttributes.inputLineHeight) {
-    base.lineHeight = styleAttributes.inputLineHeight;
-  }
-  if (styleAttributes.inputTextColor) {
-    base.caretColor = styleAttributes.inputTextColor;
-    base.color = styleAttributes.inputTextColor;
-  }
-  if (inputPadding) base.padding = inputPadding;
-
-  return {
-    base,
-    error: styleAttributes.inputTextColorError
-      ? {
-          caretColor: styleAttributes.inputTextColorError,
-          color: styleAttributes.inputTextColorError,
-        }
-      : {},
-    placeholder: styleAttributes.inputPlaceholderColor
-      ? { color: styleAttributes.inputPlaceholderColor }
-      : {},
-    validated: styleAttributes.inputTextColor
-      ? {
-          caretColor: styleAttributes.inputTextColor,
-          color: styleAttributes.inputTextColor,
-        }
-      : {},
-  };
-}
-
 export default function AdyenEmbeddedOption({
   option,
   disabled,
@@ -392,32 +321,6 @@ export default function AdyenEmbeddedOption({
   const statusRef = useRef<AdyenStatus>("loading");
   const errorRef = useRef<string | null>(null);
   const tokenizationRequestRef = useRef<TokenizationRequest | null>(null);
-  const {
-    probeRef,
-    ready: stylesReady,
-    styleAttributes,
-  } = useResolvedHostedFieldStyleAttributes({
-    inputTextColorFallbackVariable: "--foreground",
-    inputTextSizeFallbackVariable: "--text-sm",
-  });
-  const inputStyles = useMemo(
-    () => createAdyenInputStyles(styleAttributes),
-    [styleAttributes],
-  );
-  const inputStylesSignature = useMemo(
-    () => JSON.stringify(inputStyles),
-    [inputStyles],
-  );
-  const adyenStyleVariables = useMemo<AdyenEmbeddedCssProperties>(() => {
-    return {
-      ...(styleAttributes.inputPaddingX
-        ? { "--foxy-adyen-input-padding-x": styleAttributes.inputPaddingX }
-        : {}),
-      ...(styleAttributes.inputPaddingY
-        ? { "--foxy-adyen-input-padding-y": styleAttributes.inputPaddingY }
-        : {}),
-    };
-  }, [styleAttributes.inputPaddingX, styleAttributes.inputPaddingY]);
 
   useEffect(() => {
     statusRef.current = status;
@@ -438,11 +341,11 @@ export default function AdyenEmbeddedOption({
     setStatus("loading");
     setError(null);
 
-    if (!adyenOption || !container || !stylesReady) return;
+    if (!adyenOption || !container) return;
 
     const checkout = (checkoutClient as CheckoutClientLike).adyenEmbedded;
     const Component = checkout
-      ? getAdyenComponentConstructor(checkout, adyenOption.componentName)
+      ? getAdyenComponentConstructor(checkout, "Dropin")
       : undefined;
 
     if (!checkout || !Component) {
@@ -456,10 +359,6 @@ export default function AdyenEmbeddedOption({
 
     let cancelled = false;
     const component = new Component(checkout, {
-      type: adyenOption.paymentMethodType,
-      paymentMethodType: adyenOption.paymentMethodType,
-      paymentMethod: adyenOption.paymentMethod,
-      styles: inputStyles,
       showPayButton: false,
       readOnly: Boolean(disabled),
       onPaymentCompleted: (result: unknown) => {
@@ -569,13 +468,10 @@ export default function AdyenEmbeddedOption({
     };
   }, [
     disabled,
-    inputStyles,
-    inputStylesSignature,
     loadErrorMessage,
     onControllerReady,
     option.adyenEmbedded,
     option.id,
-    stylesReady,
     submitErrorMessage,
     unavailableMessage,
   ]);
@@ -585,12 +481,7 @@ export default function AdyenEmbeddedOption({
   }
 
   return (
-    <div className="foxy-adyen-embedded" style={adyenStyleVariables}>
-      <div
-        ref={probeRef}
-        className="foxy-adyen-embedded__probe"
-        aria-hidden="true"
-      />
+    <div className="foxy-adyen-embedded">
       <div
         ref={containerRef}
         data-adyen-embedded-component="true"
