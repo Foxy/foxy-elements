@@ -97,29 +97,6 @@ const ADYEN_EMBEDDED_STYLES = `
   color: var(--destructive, #b91c1c);
 }
 
-.foxy-adyen-embedded .adyen-checkout-form-instruction {
-  display: none;
-}
-
-.foxy-adyen-embedded .adyen-checkout__button--pay {
-  background: var(--foxy-adyen-button-background);
-  border-color: var(--foxy-adyen-button-background);
-  border-radius: var(--foxy-adyen-radius);
-  color: var(--foxy-adyen-button-foreground);
-}
-
-.foxy-adyen-embedded .adyen-checkout__button--pay:not(:disabled):hover,
-.foxy-adyen-embedded .adyen-checkout__button--pay:not(:disabled):focus-visible {
-  background: var(--foxy-adyen-button-background-hover);
-  border-color: var(--foxy-adyen-button-background-hover);
-  color: var(--foxy-adyen-button-foreground);
-}
-
-.foxy-adyen-embedded .adyen-checkout__button--pay:not(:disabled):active {
-  background: var(--foxy-adyen-button-background);
-  border-color: var(--foxy-adyen-button-background);
-}
-
 .foxy-adyen-embedded .adyen-checkout__dropdown__list {
   padding: calc(var(--foxy-adyen-spacing) * 1);
 }
@@ -176,6 +153,7 @@ type AdyenEmbeddedOptionProps = {
   unavailableMessage?: string;
   loadErrorMessage?: string;
   submitErrorMessage?: string;
+  onSelect?: () => void;
 };
 
 type AdyenWindow = Window & {
@@ -306,6 +284,7 @@ export default function AdyenEmbeddedOption({
   unavailableMessage = "This payment method is currently unavailable.",
   loadErrorMessage = "Unable to load this payment method. Choose a different payment method or try again.",
   submitErrorMessage = "Unable to submit this payment method. Try again.",
+  onSelect,
 }: AdyenEmbeddedOptionProps) {
   const [status, setStatus] = useState<AdyenStatus>("loading");
   const [error, setError] = useState<string | null>(null);
@@ -352,100 +331,117 @@ export default function AdyenEmbeddedOption({
     ensureAdyenEmbeddedStyles();
 
     let cancelled = false;
-    const component = new Component(checkout, {
-      showPayButton: false,
-      readOnly: Boolean(disabled),
-      onPaymentCompleted: (result: unknown) => {
-        const request = tokenizationRequestRef.current;
-        tokenizationRequestRef.current = null;
-        const resultRecord = asRecord(result) ?? { value: result };
-        settleRequest(request, resultRecord);
-      },
-      onPaymentFailed: (result: unknown) => {
-        const request = tokenizationRequestRef.current;
-        tokenizationRequestRef.current = null;
-        const normalizedError = toError(result, submitErrorMessage);
-        setError(normalizedError.message);
-        settleRequest(request, normalizedError);
-      },
-      onError: (error: unknown) => {
-        const request = tokenizationRequestRef.current;
-        tokenizationRequestRef.current = null;
-        const normalizedError = toError(error, submitErrorMessage);
-        setStatus("error");
-        setError(normalizedError.message);
-        settleRequest(request, normalizedError);
-      },
-    });
+    let localComponent: AdyenComponent | null = null;
 
-    componentRef.current = component;
+    // showPayButton must be set on the AdyenCheckout instance in Sessions flow,
+    // not on the Drop-in constructor. update() is async, so setup lives in an IIFE.
+    (async () => {
+      const update = (checkout as Record<string, unknown>).update;
+      if (typeof update === "function") {
+        await (update as (props: Record<string, unknown>) => Promise<unknown>).call(checkout, { showPayButton: false });
+      }
 
-    const controller: PaymentController = {
-      tokenize: async () => {
-        if (statusRef.current === "loading" && readyPromiseRef.current) {
-          await readyPromiseRef.current;
-        }
+      if (cancelled) return;
 
-        if (statusRef.current === "unavailable") {
-          throw new Error(unavailableMessage);
-        }
-
-        if (statusRef.current === "error") {
-          throw new Error(errorRef.current ?? loadErrorMessage);
-        }
-
-        const mountedComponent = componentRef.current;
-        if (!mountedComponent?.submit) {
-          throw new Error(loadErrorMessage);
-        }
-
-        return await new Promise((resolve, reject) => {
-          tokenizationRequestRef.current = {
-            resolve,
-            reject,
-          };
-
-          try {
-            mountedComponent.submit?.();
-          } catch (error) {
-            tokenizationRequestRef.current = null;
-            reject(toError(error, submitErrorMessage));
-          }
-        });
-      },
-    };
-
-    onControllerReady?.(controller);
-
-    try {
-      component.mount?.(container);
-    } catch (error) {
-      componentRef.current = null;
-      cleanupAdyenComponent(component, container);
-      onControllerReady?.(null);
-      setStatus("error");
-      setError(toError(error, loadErrorMessage).message);
-      return;
-    }
-
-    const readyPromise = Promise.resolve(component.isAvailable?.())
-      .then(() => {
-        if (cancelled) return;
-        setStatus("ready");
-        setError(null);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setStatus("unavailable");
-        setError(unavailableMessage);
-      })
-      .finally(() => {
-        if (readyPromiseRef.current === readyPromise) {
-          readyPromiseRef.current = null;
-        }
+      const component = new Component(checkout, {
+        showRadioButton: true,
+        disableFinalAnimation: true,
+        readOnly: Boolean(disabled),
+        onSelect: () => { onSelect?.(); },
+        onPaymentCompleted: (result: unknown) => {
+          const request = tokenizationRequestRef.current;
+          tokenizationRequestRef.current = null;
+          const resultRecord = asRecord(result) ?? { value: result };
+          settleRequest(request, resultRecord);
+        },
+        onPaymentFailed: (result: unknown) => {
+          const request = tokenizationRequestRef.current;
+          tokenizationRequestRef.current = null;
+          const normalizedError = toError(result, submitErrorMessage);
+          setError(normalizedError.message);
+          settleRequest(request, normalizedError);
+        },
+        onError: (error: unknown) => {
+          const request = tokenizationRequestRef.current;
+          tokenizationRequestRef.current = null;
+          const normalizedError = toError(error, submitErrorMessage);
+          setStatus("error");
+          setError(normalizedError.message);
+          settleRequest(request, normalizedError);
+        },
       });
 
-    readyPromiseRef.current = readyPromise;
+      localComponent = component;
+      componentRef.current = component;
+
+      const controller: PaymentController = {
+        tokenize: async () => {
+          if (statusRef.current === "loading" && readyPromiseRef.current) {
+            await readyPromiseRef.current;
+          }
+
+          if (statusRef.current === "unavailable") {
+            throw new Error(unavailableMessage);
+          }
+
+          if (statusRef.current === "error") {
+            throw new Error(errorRef.current ?? loadErrorMessage);
+          }
+
+          const mountedComponent = componentRef.current;
+          if (!mountedComponent?.submit) {
+            throw new Error(loadErrorMessage);
+          }
+
+          return await new Promise((resolve, reject) => {
+            tokenizationRequestRef.current = {
+              resolve,
+              reject,
+            };
+
+            try {
+              mountedComponent.submit?.();
+            } catch (error) {
+              tokenizationRequestRef.current = null;
+              reject(toError(error, submitErrorMessage));
+            }
+          });
+        },
+      };
+
+      onControllerReady?.(controller);
+
+      try {
+        component.mount?.(container);
+      } catch (error) {
+        localComponent = null;
+        componentRef.current = null;
+        cleanupAdyenComponent(component, container);
+        onControllerReady?.(null);
+        setStatus("error");
+        setError(toError(error, loadErrorMessage).message);
+        return;
+      }
+
+      const readyPromise = Promise.resolve(component.isAvailable?.())
+        .then(() => {
+          if (cancelled) return;
+          setStatus("ready");
+          setError(null);
+        })
+        .catch(() => {
+          if (cancelled) return;
+          setStatus("unavailable");
+          setError(unavailableMessage);
+        })
+        .finally(() => {
+          if (readyPromiseRef.current === readyPromise) {
+            readyPromiseRef.current = null;
+          }
+        });
+
+      readyPromiseRef.current = readyPromise;
+    })();
 
     return () => {
       cancelled = true;
@@ -453,10 +449,10 @@ export default function AdyenEmbeddedOption({
       const request = tokenizationRequestRef.current;
       tokenizationRequestRef.current = null;
       settleRequest(request, new Error(submitErrorMessage));
-      cleanupAdyenComponent(component, container);
+      cleanupAdyenComponent(localComponent, container);
       onControllerReady?.(null);
 
-      if (componentRef.current === component) {
+      if (componentRef.current === localComponent) {
         componentRef.current = null;
       }
     };
@@ -464,6 +460,7 @@ export default function AdyenEmbeddedOption({
     disabled,
     loadErrorMessage,
     onControllerReady,
+    onSelect,
     option.adyenEmbedded,
     option.id,
     submitErrorMessage,

@@ -1654,7 +1654,9 @@ describe("PaymentMethodSelectorElement", () => {
 
       expect(host.textContent).toContain("Adyen drop-in");
       expect(instances[0]?.props).toMatchObject({
-        showPayButton: false,
+        showRadioButton: true,
+        disableFinalAnimation: true,
+        onSelect: expect.any(Function),
       });
 
       element.remove();
