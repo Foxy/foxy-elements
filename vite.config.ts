@@ -27,7 +27,8 @@ export default defineConfig(({ mode }) => {
   const srcDir = resolve(import.meta.dirname, "./src");
   const isCDN = mode === "cdn";
   const elementsDir = resolve(srcDir, "./elements");
-  const sdkBase = "https://cdn-js.foxy.io/sdk@2";
+  const sdkHost = process.env.SDK_HOST ?? "cdn-js.foxy.io";
+  const sdkBase = `https://${sdkHost}/sdk@2`;
 
   const entry: LibraryOptions["entry"] = Object.fromEntries(
     readdirSync(elementsDir, { withFileTypes: true })
@@ -74,6 +75,7 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       hmr: { protocol: "wss", clientPort: 443 },
     },
+    define: isCDN ? { "process.env.NODE_ENV": '"production"' } : undefined,
     build: {
       rolldownOptions,
       sourcemap: !isCDN,
