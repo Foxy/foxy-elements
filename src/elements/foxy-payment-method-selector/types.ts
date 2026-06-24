@@ -25,7 +25,7 @@ export type PaymentMethodSelectorSezzleConfig = {
 };
 
 export type PaymentMethodSelectorAdyenEmbeddedConfig = {
-  sessionData: string;
+  paymentMethodsResponse: Record<string, unknown>;
   environment: string;
   clientKey: string;
 };
@@ -211,6 +211,12 @@ export type PaymentController = {
   tokenize: (
     requestId?: string,
   ) => Promise<PaymentMethodSelectorTokenizePayload | Record<string, unknown>>;
+  /**
+   * Optional. Called when the host selects a different (non-Adyen) payment
+   * option so the controller can deselect/collapse any internally selected
+   * payment method (e.g. the Adyen Drop-in's active payment method).
+   */
+  deselect?: () => void;
 };
 
 export type PaymentMethodSelectorOption = {

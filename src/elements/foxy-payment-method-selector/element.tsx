@@ -131,6 +131,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #stripeSyncVersion = 0;
   #lightDomAdyenHosts = new Map<string, HTMLDivElement>();
   #lightDomAdyenRoots = new Map<string, Root>();
+  #lightDomAdyenCallbacks = new Map<
+    string,
+    { onSelect: () => void; onControllerReady: (c: PaymentController | null) => void }
+  >();
   #adyenSyncVersion = 0;
   #checkoutClient = checkoutClient as CheckoutApiLike;
   #options: PaymentMethodSelectorOption[] = [];
@@ -855,6 +859,22 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
               return;
             }
 
+            // When switching away from an Adyen option to a native option,
+            // deselect any internally-selected Adyen Drop-in payment method so
+            // the Drop-in doesn't appear to remain selected/open.
+            const nextOption = options.find((o) => o.id === optionId);
+            if (
+              previousSelectedOption &&
+              this.#isAdyenOption(previousSelectedOption) &&
+              nextOption &&
+              !this.#isAdyenOption(nextOption)
+            ) {
+              const controller = this.#controllers.get(
+                previousSelectedOption.id,
+              );
+              controller?.deselect?.();
+            }
+
             const nextOptionIndex = options.findIndex(
               (option) => option.id === optionId,
             );
@@ -1346,11 +1366,16 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #createAdyenEmbeddedGatewayEntries(
     config: Record<string, unknown>,
   ): Record<string, unknown>[] {
-    const sessionData = this.#toOptionalText(config.session_data);
+    const paymentMethodsResponse = config.payment_methods_response;
     const environment = this.#toOptionalText(config.environment);
     const clientKey = this.#toOptionalText(config.client_key);
 
-    if (!sessionData || !environment || !clientKey) {
+    if (
+      !paymentMethodsResponse ||
+      typeof paymentMethodsResponse !== "object" ||
+      !environment ||
+      !clientKey
+    ) {
       return [];
     }
 
@@ -1358,7 +1383,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       {
         type: "adyen-embedded",
         gateway: "adyen_embedded",
-        session_data: sessionData,
+        payment_methods_response: paymentMethodsResponse,
         environment,
         client_key: clientKey,
       },
@@ -2245,15 +2270,24 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       return undefined;
     }
 
-    const sessionData = this.#toOptionalText(option.session_data);
+    const paymentMethodsResponse = option.payment_methods_response;
     const environment = this.#toOptionalText(option.environment);
     const clientKey = this.#toOptionalText(option.client_key);
 
-    if (!sessionData || !environment || !clientKey) {
+    if (
+      !paymentMethodsResponse ||
+      typeof paymentMethodsResponse !== "object" ||
+      !environment ||
+      !clientKey
+    ) {
       return undefined;
     }
 
-    return { sessionData, environment, clientKey };
+    return {
+      paymentMethodsResponse: paymentMethodsResponse as Record<string, unknown>,
+      environment,
+      clientKey,
+    };
   }
 
   #createSquareUpGatewayEntries(
@@ -2964,17 +2998,37 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       this.#lightDomAdyenRoots.set(option.id, root);
     }
 
-    root.render(
-      <AdyenEmbeddedOption
-        option={option}
-        onControllerReady={(controller) => {
+    // Stable callback references: create once per option, reuse on re-renders.
+    // Inline arrow functions would change identity on every render and cause the
+    // useEffect inside AdyenEmbeddedOption to re-run, tearing down and re-creating
+    // the Adyen Drop-in component unnecessarily.
+    let callbacks = this.#lightDomAdyenCallbacks.get(option.id);
+    if (!callbacks) {
+      callbacks = {
+        onSelect: () => {
+          const options = this.#resolveOptions();
+          const nextOptionIndex = options.findIndex((o) => o.id === option.id);
+          if (nextOptionIndex >= 0) {
+            this.optionIndex = nextOptionIndex;
+          }
+        },
+        onControllerReady: (controller: PaymentController | null) => {
           if (controller) {
             this.#controllers.set(option.id, controller);
             return;
           }
 
           this.#controllers.delete(option.id);
-        }}
+        },
+      };
+      this.#lightDomAdyenCallbacks.set(option.id, callbacks);
+    }
+
+    root.render(
+      <AdyenEmbeddedOption
+        option={option}
+        onSelect={callbacks.onSelect}
+        onControllerReady={callbacks.onControllerReady}
       />,
     );
   }
@@ -2993,6 +3047,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       host.remove();
       this.#lightDomAdyenHosts.delete(optionId);
     }
+
+    this.#lightDomAdyenCallbacks.delete(optionId);
   }
 
   #cleanupAllAdyenHosts() {
@@ -3012,21 +3068,51 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
   #syncAdyenLightDomMount(selectedOptionId: string | undefined) {
     const options = this.#resolveOptions();
-    if (!selectedOptionId) {
+    const adyenOptions = options.filter((opt) => this.#isAdyenOption(opt));
+
+    if (!adyenOptions.length) {
       this.#cleanupAllAdyenHosts();
       return;
     }
 
-    const selectedOption = options.find((opt) => opt.id === selectedOptionId);
-    if (!this.#isAdyenOption(selectedOption)) {
-      this.#cleanupAllAdyenHosts();
-      return;
+    const nativeOptions = options.filter((opt) => !this.#isAdyenOption(opt));
+    const hasNativeOptions = nativeOptions.length > 0;
+
+    if (hasNativeOptions) {
+      // Adyen is always visible below the RadioGroup — keep all adyen hosts mounted
+      // regardless of which native option is currently selected.
+      for (const option of adyenOptions) {
+        this.#renderAdyenOption(option as PaymentMethodSelectorOption);
+      }
+    } else {
+      // Pure-adyen configuration: only mount the selected adyen option so that
+      // switching between multiple adyen methods unmounts the previous one.
+      if (!selectedOptionId) {
+        this.#cleanupAllAdyenHosts();
+        return;
+      }
+
+      const selectedOption = adyenOptions.find(
+        (opt) => opt.id === selectedOptionId,
+      );
+      if (!selectedOption) {
+        this.#cleanupAllAdyenHosts();
+        return;
+      }
+
+      this.#renderAdyenOption(selectedOption as PaymentMethodSelectorOption);
     }
 
-    this.#renderAdyenOption(selectedOption as PaymentMethodSelectorOption);
+    const mountedIds = new Set(
+      hasNativeOptions
+        ? adyenOptions.map((o) => o.id)
+        : selectedOptionId
+          ? [selectedOptionId]
+          : [],
+    );
 
     for (const optionId of [...this.#lightDomAdyenHosts.keys()]) {
-      if (optionId !== selectedOptionId) {
+      if (!mountedIds.has(optionId)) {
         this.#cleanupAdyenHost(optionId);
       }
     }

@@ -389,7 +389,9 @@ function createAdyenEmbeddedApiState() {
     payment_gateways: [
       {
         type: "adyen_embedded",
-        session_data: "adyen-session-data",
+        payment_methods_response: {
+          paymentMethods: [{ type: "scheme", name: "Cards" }],
+        },
         environment: "test",
         client_key: "adyen-client-key",
       },
@@ -399,8 +401,11 @@ function createAdyenEmbeddedApiState() {
 
 type AdyenComponentProps = Record<string, unknown> & {
   type?: string;
+  onSubmit?: (state: unknown, component: unknown, actions: unknown) => void;
+  onAdditionalDetails?: (state: unknown, component: unknown, actions: unknown) => void;
   onPaymentCompleted?: (result: unknown) => void;
   onPaymentFailed?: (result: unknown) => void;
+  onError?: (error: unknown) => void;
   onSelect?: () => void;
 };
 
@@ -417,6 +422,7 @@ function createAdyenComponentMock(params?: {
   mountText?: string;
   result?: Record<string, unknown>;
   unmountError?: Error;
+  submitData?: Record<string, unknown>;
 }) {
   const instances: AdyenComponentInstance[] = [];
   const Component = vi.fn(function AdyenComponent(
@@ -439,12 +445,18 @@ function createAdyenComponentMock(params?: {
       params?.available === false ? Promise.reject() : Promise.resolve(),
     );
     this.submit = vi.fn(() => {
-      componentProps.onPaymentCompleted?.(
-        params?.result ?? {
-          resultCode: "Authorised",
-          sessionData: "next-session-data",
+      const state = { data: params?.submitData ?? { paymentMethod: { type: "scheme" } } };
+      const actions = {
+        resolve: (response: unknown) => {
+          componentProps.onPaymentCompleted?.(
+            response ?? params?.result ?? { resultCode: "Authorised" },
+          );
         },
-      );
+        reject: () => {
+          componentProps.onPaymentFailed?.({ resultCode: "Refused" });
+        },
+      };
+      componentProps.onSubmit?.(state, this, actions);
     });
     instances.push(this);
   });
@@ -1668,7 +1680,7 @@ describe("PaymentMethodSelectorElement", () => {
           { type: "authorize" },
           {
             type: "adyen_embedded",
-            session_data: "adyen-session-data",
+            payment_methods_response: { paymentMethods: [{ type: "scheme", name: "Cards" }] },
             environment: "test",
             client_key: "adyen-client-key",
           },
@@ -1713,7 +1725,7 @@ describe("PaymentMethodSelectorElement", () => {
           { type: "authorize" },
           {
             type: "adyen_embedded",
-            session_data: "adyen-session-data",
+            payment_methods_response: { paymentMethods: [{ type: "scheme", name: "Cards" }] },
             environment: "test",
             client_key: "adyen-client-key",
           },
@@ -1810,13 +1822,13 @@ describe("PaymentMethodSelectorElement", () => {
         payment_gateways: [
           {
             type: "adyen_embedded",
-            session_data: "adyen-session-data-1",
+            payment_methods_response: { paymentMethods: [{ type: "scheme", name: "Cards" }] },
             environment: "test",
             client_key: "adyen-client-key-1",
           },
           {
             type: "adyen_embedded",
-            session_data: "adyen-session-data-2",
+            payment_methods_response: { paymentMethods: [{ type: "scheme", name: "Cards" }] },
             environment: "test",
             client_key: "adyen-client-key-2",
           },
@@ -1850,19 +1862,16 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
-  it("returns a wrapped Adyen Embedded session result from tokenize()", async () => {
-    const adyenResult = {
-      resultCode: "Authorised",
-      sessionData: "next-session-data",
-    };
+  it("returns the Adyen payment result from tokenize()", async () => {
+    const adyenResult = { resultCode: "Authorised", pspReference: "PSP123" };
+    const submitAdyenEmbeddedPayment = vi.fn().mockResolvedValue(adyenResult);
     const { Component: Dropin } = createAdyenComponentMock({ result: adyenResult });
     const restoreClient = overrideClientState(
       createAdyenEmbeddedApiState(),
       undefined,
       {
-        adyenEmbedded: {
-          Dropin,
-        },
+        adyenEmbedded: { Dropin },
+        submitAdyenEmbeddedPayment,
       },
     );
     const element = document.createElement(
@@ -1881,6 +1890,8 @@ describe("PaymentMethodSelectorElement", () => {
           result: adyenResult,
         },
       });
+      expect(submitAdyenEmbeddedPayment).toHaveBeenCalledOnce();
+      expect(submitAdyenEmbeddedPayment).toHaveBeenCalledWith({ paymentMethod: { type: "scheme" } });
     } finally {
       element.remove();
       restoreClient();
