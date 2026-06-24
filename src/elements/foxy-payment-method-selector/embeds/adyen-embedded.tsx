@@ -389,6 +389,10 @@ export default function AdyenEmbeddedOption({
 
     const component = new Component(checkout, {
       showRadioButton: true,
+      showPayButton: false,
+      paymentMethodsConfiguration: new Proxy({} as Record<string, unknown>, {
+        get: () => ({ showPayButton: false }),
+      }),
       disableFinalAnimation: true,
       readOnly: Boolean(disabled),
       onSelect: () => {
