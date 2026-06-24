@@ -3,7 +3,7 @@ import type {
   PaymentMethodSelectorOption,
 } from "../types";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Elements,
   PaymentElement,
@@ -43,6 +43,7 @@ function parseElementsOptions(
   locale: StripeElementsOptions["locale"],
   appearance: StripeElementsOptions["appearance"],
   config: PaymentElementOptionsMap | undefined,
+  nativeClientSecret: string | undefined,
 ): {
   elementsOptions: StripeElementsOptions;
   paymentElementOptions: PaymentElementOptionsMap;
@@ -87,9 +88,10 @@ function parseElementsOptions(
   };
 
   const clientSecret =
-    typeof paymentElementOptions.clientSecret === "string"
+    nativeClientSecret ??
+    (typeof paymentElementOptions.clientSecret === "string"
       ? paymentElementOptions.clientSecret
-      : undefined;
+      : undefined);
   const mode =
     typeof paymentElementOptions.mode === "string"
       ? (paymentElementOptions.mode as StripeElementsOptions["mode"])
@@ -137,22 +139,52 @@ function parseElementsOptions(
 function StripePaymentField({
   disabled,
   paymentElementOptions,
+  clientSecret,
+  returnUrl,
   onControllerReady,
   onError,
   onPaymentMethodTypeChange,
 }: {
   disabled?: boolean;
   paymentElementOptions: PaymentElementOptionsMap;
+  clientSecret?: string;
+  returnUrl?: string;
   onControllerReady?: (controller: PaymentController | null) => void;
   onError: (message: string | null) => void;
   onPaymentMethodTypeChange?: (type: string | null) => void;
 }) {
   const stripe = useStripe();
   const elements = useElements();
+  const paymentElementOptionsRef = useRef(paymentElementOptions);
+  paymentElementOptionsRef.current = paymentElementOptions;
+  const clientSecretRef = useRef(clientSecret);
+  clientSecretRef.current = clientSecret;
+  const returnUrlRef = useRef(returnUrl);
+  returnUrlRef.current = returnUrl;
 
   const tokenize = useCallback(async () => {
     if (!stripe || !elements) {
       throw new Error("Stripe Payment Element is not ready yet.");
+    }
+
+    const currentClientSecret = clientSecretRef.current;
+
+    if (currentClientSecret) {
+      const result = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: returnUrlRef.current ?? window.location.href,
+        },
+        redirect: "if_required",
+      });
+
+      if (result.error || !result.paymentIntent?.id) {
+        throw new Error(
+          result.error?.message ?? "Unable to confirm Stripe payment.",
+        );
+      }
+
+      return { paymentIntentId: result.paymentIntent.id };
     }
 
     if (typeof elements.submit === "function") {
@@ -164,25 +196,40 @@ function StripePaymentField({
       }
     }
 
-    const result = await stripe.createPaymentMethod({
+    const defaultValues = paymentElementOptionsRef.current.defaultValues as
+      | {
+          billingDetails?: {
+            name?: string;
+            email?: string;
+            phone?: string;
+            address?: {
+              city?: string;
+              country?: string;
+              line1?: string;
+              line2?: string;
+              postal_code?: string;
+              state?: string;
+            };
+          };
+        }
+      | undefined;
+    const billingDetails = defaultValues?.billingDetails;
+
+    const result = await stripe.createConfirmationToken({
       elements,
-      params: {},
+      ...(billingDetails
+        ? { params: { payment_method_data: { billing_details: billingDetails } } }
+        : {}),
     });
 
-    if (result.error || !result.paymentMethod?.id) {
+    if (result.error || !result.confirmationToken?.id) {
       throw new Error(
-        result.error?.message ?? "Unable to create Stripe payment method.",
+        result.error?.message ?? "Unable to create Stripe confirmation token.",
       );
     }
 
-    const card = result.paymentMethod.card;
     return {
-      paymentMethodId: result.paymentMethod.id,
-      paymentMethodType: result.paymentMethod.type,
-      cardBrand: card?.brand,
-      last4: card?.last4,
-      expirationMonth: card?.exp_month,
-      expirationYear: card?.exp_year,
+      confirmationTokenId: result.confirmationToken.id,
     };
   }, [elements, stripe]);
 
@@ -230,6 +277,15 @@ export function StripePaymentElementOption({
   onControllerReady?: (controller: PaymentController | null) => void;
   onPaymentMethodTypeChange?: (type: string | null) => void;
 }) {
+  const onControllerReadyRef = useRef(onControllerReady);
+  onControllerReadyRef.current = onControllerReady;
+  const stableOnControllerReady = useCallback(
+    (controller: PaymentController | null) => {
+      onControllerReadyRef.current?.(controller);
+    },
+    [],
+  );
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const stripeConfig = option.stripePaymentElement;
   const publishableKey = resolveStripePublishableKey(
@@ -263,8 +319,9 @@ export function StripePaymentElementOption({
         stripeLocale,
         mergedAppearance,
         stripeConfig?.paymentElementOptions,
+        stripeConfig?.clientSecret,
       ),
-    [mergedAppearance, stripeConfig?.paymentElementOptions, stripeLocale],
+    [mergedAppearance, stripeConfig?.clientSecret, stripeConfig?.paymentElementOptions, stripeLocale],
   );
 
   if (!stripePromise || !publishableKey || !stripeConfig) {
@@ -291,7 +348,9 @@ export function StripePaymentElementOption({
         <StripePaymentField
           disabled={disabled}
           paymentElementOptions={paymentElementOptions}
-          onControllerReady={onControllerReady}
+          clientSecret={stripeConfig.clientSecret}
+          returnUrl={stripeConfig.returnUrl}
+          onControllerReady={stableOnControllerReady}
           onError={setErrorMessage}
           onPaymentMethodTypeChange={onPaymentMethodTypeChange}
         />

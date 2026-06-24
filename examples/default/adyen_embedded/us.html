@@ -9,10 +9,7 @@
       type="module"
       src="/src/elements/foxy-payment-method-selector/index.ts"
     ></script>
-    <script
-      type="module"
-      src="/src/elements/foxy-payment-button/index.ts"
-    ></script>
+
     <script type="module">
       import { client } from "@foxy.io/sdk/checkout/client";
 
@@ -122,7 +119,8 @@
             id: 1,
             name: "Demo Store",
             domain: "example.com",
-            logo_url: "https://pub-e63b17b4d990438a83af58c15949f8a2.r2.dev/type/liva.png",
+            logo_url:
+              "https://pub-e63b17b4d990438a83af58c15949f8a2.r2.dev/type/liva.png",
             website_url: "https://example.com",
             checkout_url: "https://example.com/checkout",
             cancel_and_continue_url: "https://example.com",
@@ -132,6 +130,14 @@
             supported_payment_cards: ["visa", "mastercard", "amex"],
           },
           saved_payment_methods: [
+            {
+              gateway: "paypal_platform",
+              brand: "Visa",
+              last_4: "4242",
+              expiry_month: "12",
+              expiry_year: "2030",
+              id: "pt_saved_4242",
+            },
             {
               gateway: "paypal_platform",
               brand: "Visa",
@@ -182,14 +188,40 @@
       <section class="panel">
         <div class="shell">
           <foxy-payment-method-selector
-            button="pay-btn-default"
+            id="selector-default"
           ></foxy-payment-method-selector>
-          <foxy-payment-button
-            id="pay-btn-default"
-            style="margin-top: 1rem"
-          ></foxy-payment-button>
+          <button
+            id="tokenize-btn-default"
+            style="margin-top: 1rem; width: 100%"
+          >
+            Tokenize
+          </button>
+          <pre
+            id="tokenize-result-default"
+            style="
+              margin-top: 0.5rem;
+              white-space: pre-wrap;
+              word-break: break-all;
+              font-size: 12px;
+            "
+          ></pre>
         </div>
       </section>
     </main>
+    <script type="module">
+      const btn = document.getElementById("tokenize-btn-default");
+      const pre = document.getElementById("tokenize-result-default");
+      const selector = document.getElementById("selector-default");
+
+      btn.addEventListener("click", async () => {
+        pre.textContent = "";
+        try {
+          const result = await selector.tokenize();
+          pre.textContent = JSON.stringify(result, null, 2);
+        } catch (err) {
+          pre.textContent = String(err);
+        }
+      });
+    </script>
   </body>
 </html>

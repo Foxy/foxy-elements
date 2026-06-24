@@ -92,6 +92,14 @@ export function StripeCardElementOption({
   onControllerReady?: (controller: PaymentController | null) => void;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const onControllerReadyRef = useRef(onControllerReady);
+  onControllerReadyRef.current = onControllerReady;
+  const stableOnControllerReady = useCallback(
+    (controller: PaymentController | null) => {
+      onControllerReadyRef.current?.(controller);
+    },
+    [],
+  );
   const [isShadowContext, setIsShadowContext] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState(false);
@@ -110,6 +118,7 @@ export function StripeCardElementOption({
         ...(stripeConfig?.cardElementOptions as
           | StripeCardElementOptions
           | undefined),
+        hidePostalCode: true,
         disabled: Boolean(disabled),
       }) satisfies StripeCardElementOptions,
     [disabled, stripeConfig?.cardElementOptions],
@@ -144,9 +153,9 @@ export function StripeCardElementOption({
 
     if (isShadow) {
       setIsFocused(false);
-      onControllerReady?.(null);
+      stableOnControllerReady(null);
     }
-  }, [onControllerReady]);
+  }, [stableOnControllerReady]);
 
   useEffect(() => {
     if (isShadowContext !== false) {
@@ -255,7 +264,7 @@ export function StripeCardElementOption({
         >
           <StripeCardField
             cardOptions={cardOptions}
-            onControllerReady={onControllerReady}
+            onControllerReady={stableOnControllerReady}
             onError={setErrorMessage}
           />
         </Elements>

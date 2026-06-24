@@ -10,3 +10,4 @@ foxy.io-elements-0.0.0.tgz
 __screenshots__
 .tmp
 .certs
+.playwright-mcp

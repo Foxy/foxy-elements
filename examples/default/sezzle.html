@@ -9,15 +9,14 @@
       type="module"
       src="/src/elements/foxy-payment-method-selector/index.ts"
     ></script>
-    <script
-      type="module"
-      src="/src/elements/foxy-payment-button/index.ts"
-    ></script>
+
     <script type="module">
       import { client } from "@foxy.io/sdk/checkout/client";
 
       const sezzlePublicKey =
         import.meta.env.VITE_SEZZLE_PUBLIC_KEY?.trim() || "sezzle-public-key";
+      const sezzleCheckoutUrl =
+        import.meta.env.VITE_SEZZLE_CHECKOUT_URL?.trim() || "";
 
       const apiState = {
         template_set: {
@@ -144,6 +143,7 @@
           {
             type: "sezzle",
             public_key: sezzlePublicKey,
+            ...(sezzleCheckoutUrl ? { checkout_url: sezzleCheckoutUrl } : {}),
           },
         ],
         messages: [],
@@ -183,14 +183,40 @@
       <section class="panel">
         <div class="shell">
           <foxy-payment-method-selector
-            button="pay-btn-default"
+            id="selector-default"
           ></foxy-payment-method-selector>
-          <foxy-payment-button
-            id="pay-btn-default"
-            style="margin-top: 1rem"
-          ></foxy-payment-button>
+          <button
+            id="tokenize-btn-default"
+            style="margin-top: 1rem; width: 100%"
+          >
+            Tokenize
+          </button>
+          <pre
+            id="tokenize-result-default"
+            style="
+              margin-top: 0.5rem;
+              white-space: pre-wrap;
+              word-break: break-all;
+              font-size: 12px;
+            "
+          ></pre>
         </div>
       </section>
     </main>
+    <script type="module">
+      const btn = document.getElementById("tokenize-btn-default");
+      const pre = document.getElementById("tokenize-result-default");
+      const selector = document.getElementById("selector-default");
+
+      btn.addEventListener("click", async () => {
+        pre.textContent = "";
+        try {
+          const result = await selector.tokenize();
+          pre.textContent = JSON.stringify(result, null, 2);
+        } catch (err) {
+          pre.textContent = String(err);
+        }
+      });
+    </script>
   </body>
 </html>

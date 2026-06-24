@@ -9,10 +9,7 @@
       type="module"
       src="/src/elements/foxy-payment-method-selector/index.ts"
     ></script>
-    <script
-      type="module"
-      src="/src/elements/foxy-payment-button/index.ts"
-    ></script>
+
     <script type="module">
       import { client } from "@foxy.io/sdk/checkout/client";
 
@@ -122,7 +119,8 @@
             id: 7,
             name: "Demo Store IE",
             domain: "example.ie",
-            logo_url: "https://pub-e63b17b4d990438a83af58c15949f8a2.r2.dev/type/liva.png",
+            logo_url:
+              "https://pub-e63b17b4d990438a83af58c15949f8a2.r2.dev/type/liva.png",
             website_url: "https://example.ie",
             checkout_url: "https://example.ie/checkout",
             cancel_and_continue_url: "https://example.ie",
@@ -171,8 +169,8 @@
     <main class="example">
       <section class="panel">
         <div class="shell">
-          <foxy-payment-method-selector button="pay-btn"></foxy-payment-method-selector>
-          <foxy-payment-button id="pay-btn" style="margin-top: 1rem"></foxy-payment-button>
+          <foxy-payment-method-selector
+          ></foxy-payment-method-selector>
         </div>
       </section>
     </main>

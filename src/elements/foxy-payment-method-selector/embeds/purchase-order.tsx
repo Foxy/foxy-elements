@@ -70,6 +70,7 @@ export default function PurchaseOrderOptionEmbed({
         setError(null);
 
         return {
+          requestId: crypto.randomUUID(),
           purchaseOrderNumber: purchaseOrderNumberRef.current.trim(),
         };
       },

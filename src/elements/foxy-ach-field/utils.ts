@@ -317,7 +317,7 @@ export function dispatchTokenizationSuccess(
     type: "tokenization_response",
     id: requestId,
     token,
-    last4Digits: token.slice(-4).padStart(4, "0"),
+    last4: token.slice(-4).padStart(4, "0"),
   });
 }
 

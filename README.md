@@ -7,12 +7,14 @@ Embeddable Foxy checkout web components for collecting ACH and card payment deta
 Package exports:
 
 - `@foxy.io/elements/foxy-ach-field`
+- `@foxy.io/elements/foxy-express-checkout`
 - `@foxy.io/elements/foxy-payment-card-field`
 - `@foxy.io/elements/foxy-payment-method-selector`
 
 Custom elements registered by these modules:
 
 - `foxy-ach-field`
+- `foxy-express-checkout`
 - `foxy-payment-card-field`
 - `foxy-payment-method-selector`
 
@@ -36,7 +38,7 @@ Then load one or more elements directly from a CDN build and then use them in ma
   type="module"
   src="https://cdn-js.foxy.io/elements@2/foxy-ach-field.js"
 ></script>
-<foxy-ach-field type="routing_number"></foxy-ach-field>
+<foxy-ach-field type="routing-number"></foxy-ach-field>
 ```
 
 ## npm Usage
@@ -97,6 +99,7 @@ shared theme properties and matching dashed attributes are:
 - `themeCardForeground` / `theme-card-foreground`
 - `themePrimary` / `theme-primary`
 - `themePrimaryForeground` / `theme-primary-foreground`
+- `themeMuted` / `theme-muted`
 - `themeMutedForeground` / `theme-muted-foreground`
 - `themeDestructive` / `theme-destructive`
 - `themeBorder` / `theme-border`

@@ -13,6 +13,19 @@ type SquarePaymentComponent = {
   }>;
 };
 
+// Square's wallet SDK methods are not fully reflected in the foxy-sdk types.
+type SquareWalletMethods = {
+  paymentRequest(opts: {
+    countryCode: string;
+    currencyCode: string;
+    total: { amount: string; label: string };
+  }): unknown;
+  applePay(req: unknown): Promise<SquarePaymentComponent>;
+  googlePay(req: unknown): Promise<SquarePaymentComponent>;
+  cashApp(req: unknown): Promise<SquarePaymentComponent>;
+  afterpayClearpay(req: unknown): Promise<SquarePaymentComponent>;
+};
+
 import { useEffect, useRef, useState } from "react";
 import {
   useResolvedHostedFieldStyleAttributes,
@@ -137,6 +150,8 @@ export default function SquareWebPaymentsOption({
   const errorRef = useRef<string | null>(null);
   const tokenizationRequestRef = useRef<TokenizationRequest | null>(null);
   const attachedRef = useRef<Promise<void> | null>(null);
+  const onControllerReadyRef = useRef(onControllerReady);
+  onControllerReadyRef.current = onControllerReady;
   const {
     probeRef,
     ready: stylesReady,
@@ -180,7 +195,7 @@ export default function SquareWebPaymentsOption({
     const squareUpOption = option.squareUp;
     const placeholder = placeholderRef.current;
 
-    onControllerReady?.(null);
+    onControllerReadyRef.current?.(null);
     tokenizationRequestRef.current = null;
 
     const prevComponent = componentRef.current;
@@ -207,6 +222,22 @@ export default function SquareWebPaymentsOption({
     const syncPosition = () => syncMountPosition(placeholder, mountDiv);
     window.addEventListener("scroll", syncPosition, { capture: true, passive: true });
     window.addEventListener("resize", syncPosition, { passive: true });
+
+    // Hide the fixed overlay when the option body is hidden (option not selected),
+    // show and re-sync position when it becomes visible again.
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return;
+        if (entry.isIntersecting) {
+          syncMountPosition(placeholder, mountDiv);
+          mountDiv.style.display = "";
+        } else {
+          mountDiv.style.display = "none";
+        }
+      },
+      { threshold: 0 },
+    );
+    io.observe(placeholder);
 
     // Keep placeholder height in sync with the Square iframe height.
     const ro = new ResizeObserver(() => {
@@ -270,9 +301,22 @@ export default function SquareWebPaymentsOption({
       squareStyle[".message-icon.is-error"] = { color: tokens.destructiveColor };
     }
 
+    // Resolve the effective billing postal code. Square's card form requires a postal
+    // code and will reject tokenization if the field is empty. Passing postalCode to
+    // card() pre-populates Square's internal field so tokenize() works without SCA args.
+    const apiJson = checkoutClient.json;
+    const billingAddress = apiJson?.billing_address;
+    const shipment = apiJson?.shipments?.[0];
+    const resolvedPostalCode = (billingAddress?.use_customer_shipping_address
+      ? shipment?.postal_code
+      : billingAddress?.postal_code) ?? "";
+
     const cardOptions: Record<string, unknown> = {};
     if (Object.keys(squareStyle).length > 0) {
       cardOptions.style = squareStyle;
+    }
+    if (resolvedPostalCode) {
+      cardOptions.postalCode = resolvedPostalCode;
     }
 
     const factoryMethod =
@@ -290,6 +334,8 @@ export default function SquareWebPaymentsOption({
         componentRef.current = component;
         prevComponent?.destroy().catch(() => {});
 
+        const isAch = option.type === "ach";
+
         const controller: PaymentController = {
           tokenize: async () => {
             if (attachedRef.current) await attachedRef.current;
@@ -301,11 +347,25 @@ export default function SquareWebPaymentsOption({
             const mountedComponent = componentRef.current;
             if (!mountedComponent) throw new Error(loadErrorMessage);
 
+            // ACH tokenize opens the Plaid Link flow and requires the account holder name.
+            // Card tokenize uses no options — postal code is pre-set at card() construction.
+            const tokenizeOptions: Record<string, unknown> = {};
+            if (isAch) {
+              const apiJson = checkoutClient.json;
+              const billing = apiJson?.billing_address;
+              const shipment = apiJson?.shipments?.[0];
+              const addr = billing?.use_customer_shipping_address ? shipment : billing;
+              const firstName = addr?.first_name ?? "";
+              const lastName = addr?.last_name ?? "";
+              const accountHolderName = `${firstName} ${lastName}`.trim();
+              if (accountHolderName) tokenizeOptions.accountHolderName = accountHolderName;
+            }
+
             return await new Promise((resolve, reject) => {
               tokenizationRequestRef.current = { resolve, reject };
 
               mountedComponent
-                .tokenize()
+                .tokenize(Object.keys(tokenizeOptions).length ? tokenizeOptions : undefined)
                 .then((result) => {
                   const request = tokenizationRequestRef.current;
                   tokenizationRequestRef.current = null;
@@ -332,7 +392,16 @@ export default function SquareWebPaymentsOption({
           },
         };
 
-        onControllerReady?.(controller);
+        if (isAch) {
+          onControllerReadyRef.current?.(controller);
+          if (!cancelled) {
+            setStatus("ready");
+            setError(null);
+          }
+          return;
+        }
+
+        onControllerReadyRef.current?.(controller);
 
         const attached = component.attach(mountDiv).then(() => {
           if (cancelled) return;
@@ -348,7 +417,7 @@ export default function SquareWebPaymentsOption({
         const normalizedError = toError(err, loadErrorMessage);
         setStatus("error");
         setError(normalizedError.message);
-        onControllerReady?.(null);
+        onControllerReadyRef.current?.(null);
       });
 
     void attachPromise;
@@ -359,6 +428,7 @@ export default function SquareWebPaymentsOption({
 
       window.removeEventListener("scroll", syncPosition, { capture: true });
       window.removeEventListener("resize", syncPosition);
+      io.disconnect();
       ro.disconnect();
 
       document.body.removeChild(mountDiv);
@@ -371,13 +441,13 @@ export default function SquareWebPaymentsOption({
       componentRef.current = null;
       if (component) component.destroy().catch(() => {});
 
-      onControllerReady?.(null);
+      onControllerReadyRef.current?.(null);
     };
   }, [
-    disabled,
     loadErrorMessage,
-    onControllerReady,
-    option.squareUp,
+    option.squareUp?.applicationId,
+    option.squareUp?.locationId,
+    option.squareUp?.environment,
     option.type,
     option.id,
     squareInstance,
@@ -417,4 +487,384 @@ export default function SquareWebPaymentsOption({
       ) : null}
     </div>
   );
+}
+
+type SquareAchAvailabilityProbeProps = {
+  option: PaymentMethodSelectorOption;
+  onResolved: () => void;
+  onUnavailable: () => void;
+};
+
+export function SquareAchAvailabilityProbe({
+  option,
+  onResolved,
+  onUnavailable,
+}: SquareAchAvailabilityProbeProps) {
+  const [squareInstance, setSquareInstance] = useState<SquareInstance | null>(
+    () => checkoutClient.square,
+  );
+  const onResolvedRef = useRef(onResolved);
+  onResolvedRef.current = onResolved;
+  const onUnavailableRef = useRef(onUnavailable);
+  onUnavailableRef.current = onUnavailable;
+
+  useEffect(() => {
+    if (checkoutClient.square) {
+      setSquareInstance(checkoutClient.square);
+      return;
+    }
+    const handle = () => {
+      if (checkoutClient.square) setSquareInstance(checkoutClient.square);
+    };
+    checkoutClient.addEventListener("afterStateChange", handle);
+    checkoutClient.addEventListener("update", handle);
+    return () => {
+      checkoutClient.removeEventListener("afterStateChange", handle);
+      checkoutClient.removeEventListener("update", handle);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!squareInstance || !option.squareUp) return;
+    let cancelled = false;
+    let probeComponent: SquarePaymentComponent | null = null;
+
+    squareInstance
+      .ach()
+      .then((component) => {
+        probeComponent = component;
+        if (cancelled) {
+          component.destroy().catch(() => {});
+          probeComponent = null;
+          return;
+        }
+        return component.tokenize({}).then(
+          () => {
+            // tokenize({}) resolved — ACH is enabled (would only happen if accountHolderName
+            // became optional in future SDK versions; treat as available).
+            component.destroy().catch(() => {});
+            probeComponent = null;
+            if (!cancelled) onResolvedRef.current();
+          },
+          (err: unknown) => {
+            component.destroy().catch(() => {});
+            probeComponent = null;
+            if (cancelled) return;
+            if (String(err).includes("Invalid parameter format for ACH tokenize")) {
+              // SDK checks can_use_ach_auth flag before validating options. This error
+              // means the flag is not SUPPORTED — ACH is disabled for this merchant.
+              onUnavailableRef.current();
+            } else {
+              // Different validation error means the flag check passed — ACH is enabled.
+              // tokenize({}) just rejected because accountHolderName is required.
+              onResolvedRef.current();
+            }
+          },
+        );
+      })
+      .catch((err: unknown) => {
+        probeComponent = null;
+        if (cancelled) return;
+        if (String(err).includes("Wallet is not available")) {
+          // ACH is not supported in this merchant's country.
+          onUnavailableRef.current();
+        } else {
+          // Unexpected init error — fail open so SquareWebPaymentsOption can surface it.
+          onResolvedRef.current();
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      if (probeComponent) {
+        probeComponent.destroy().catch(() => {});
+        probeComponent = null;
+      }
+    };
+  }, [
+    squareInstance,
+    option.squareUp?.applicationId,
+    option.squareUp?.locationId,
+    option.squareUp?.environment,
+    option.id,
+  ]);
+
+  return null;
+}
+
+type SquareWalletAvailabilityProbeProps = {
+  option: PaymentMethodSelectorOption;
+  onResolved: () => void;
+  onUnavailable: () => void;
+};
+
+export function SquareWalletAvailabilityProbe({
+  option,
+  onResolved,
+  onUnavailable,
+}: SquareWalletAvailabilityProbeProps) {
+  const [squareInstance, setSquareInstance] = useState<SquareInstance | null>(
+    () => checkoutClient.square,
+  );
+  const onResolvedRef = useRef(onResolved);
+  onResolvedRef.current = onResolved;
+  const onUnavailableRef = useRef(onUnavailable);
+  onUnavailableRef.current = onUnavailable;
+
+  useEffect(() => {
+    if (checkoutClient.square) {
+      setSquareInstance(checkoutClient.square);
+      return;
+    }
+    const handle = () => {
+      if (checkoutClient.square) setSquareInstance(checkoutClient.square);
+    };
+    checkoutClient.addEventListener("afterStateChange", handle);
+    checkoutClient.addEventListener("update", handle);
+    return () => {
+      checkoutClient.removeEventListener("afterStateChange", handle);
+      checkoutClient.removeEventListener("update", handle);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!squareInstance || !option.squareUp) return;
+
+    const apiJson = checkoutClient.json as Record<string, unknown> | null | undefined;
+    const format = (apiJson?.format ?? {}) as Record<string, unknown>;
+    const billing = (apiJson?.billing_address ?? {}) as Record<string, unknown>;
+    const totals = Array.isArray(apiJson?.totals)
+      ? (apiJson.totals as Record<string, unknown>[])
+      : [];
+    const totalOrder = totals[0]?.total_order;
+    const maximumFractionDigits =
+      typeof format.maximum_fraction_digits === "number"
+        ? format.maximum_fraction_digits
+        : 2;
+
+    if (typeof totalOrder !== "number" || !Number.isFinite(totalOrder)) {
+      onResolvedRef.current();
+      return;
+    }
+
+    const sq = squareInstance as SquareInstance & SquareWalletMethods;
+    let paymentRequest: unknown;
+    try {
+      paymentRequest = sq.paymentRequest({
+        countryCode: (billing.country as string) || "US",
+        currencyCode: (format.currency_code as string) || "USD",
+        total: { amount: totalOrder.toFixed(maximumFractionDigits), label: "Total" },
+      });
+    } catch {
+      onResolvedRef.current();
+      return;
+    }
+
+    let walletFactory: Promise<SquarePaymentComponent>;
+    try {
+      switch (option.type) {
+        case "apple-pay":
+          walletFactory = sq.applePay(paymentRequest);
+          break;
+        case "google-pay":
+          walletFactory = sq.googlePay(paymentRequest);
+          break;
+        case "cash-app":
+          walletFactory = sq.cashApp(paymentRequest);
+          break;
+        case "afterpay":
+          walletFactory = sq.afterpayClearpay(paymentRequest);
+          break;
+        default:
+          onResolvedRef.current();
+          return;
+      }
+    } catch {
+      // Method undefined on this SDK version — treat as unavailable.
+      onUnavailableRef.current();
+      return;
+    }
+
+    let cancelled = false;
+    let probeComponent: SquarePaymentComponent | null = null;
+
+    walletFactory
+      .then((component) => {
+        probeComponent = component;
+        component.destroy().catch(() => {});
+        probeComponent = null;
+        if (!cancelled) onResolvedRef.current();
+      })
+      .catch((err: unknown) => {
+        probeComponent = null;
+        if (cancelled) return;
+        const msg = String(err);
+        if (
+          msg.includes("Wallet is not available") ||
+          msg.includes("Method unsupported") ||
+          msg.includes("not registered") ||
+          msg.includes("PaymentMethodUnsupportedError")
+        ) {
+          onUnavailableRef.current();
+        } else {
+          onResolvedRef.current();
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      if (probeComponent) {
+        probeComponent.destroy().catch(() => {});
+        probeComponent = null;
+      }
+    };
+  }, [
+    squareInstance,
+    option.squareUp?.applicationId,
+    option.squareUp?.locationId,
+    option.squareUp?.environment,
+    option.type,
+    option.id,
+  ]);
+
+  return null;
+}
+
+type SquareWalletControllerProps = {
+  option: PaymentMethodSelectorOption;
+  onControllerReady?: (controller: PaymentController | null) => void;
+  submitErrorMessage?: string;
+};
+
+// Afterpay and Cash App render as a button and must be attached to a DOM element
+// before tokenize() can be called. Apple Pay and Google Pay open native sheets
+// and do not need attachment.
+const SQUARE_WALLET_ATTACH_TYPES = new Set(["afterpay", "cash-app"]);
+
+export function SquareWalletController({
+  option,
+  onControllerReady,
+  submitErrorMessage = "Unable to submit this payment method. Try again.",
+}: SquareWalletControllerProps) {
+  const [squareInstance, setSquareInstance] = useState<SquareInstance | null>(
+    () => checkoutClient.square,
+  );
+  const onControllerReadyRef = useRef(onControllerReady);
+  onControllerReadyRef.current = onControllerReady;
+
+  useEffect(() => {
+    if (checkoutClient.square) { setSquareInstance(checkoutClient.square); return; }
+    const handle = () => { if (checkoutClient.square) setSquareInstance(checkoutClient.square); };
+    checkoutClient.addEventListener("afterStateChange", handle);
+    checkoutClient.addEventListener("update", handle);
+    return () => {
+      checkoutClient.removeEventListener("afterStateChange", handle);
+      checkoutClient.removeEventListener("update", handle);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!squareInstance || !option.squareUp) {
+      onControllerReadyRef.current?.(null);
+      return;
+    }
+
+    const apiJson = checkoutClient.json as Record<string, unknown> | null | undefined;
+    const format = (apiJson?.format ?? {}) as Record<string, unknown>;
+    const billing = (apiJson?.billing_address ?? {}) as Record<string, unknown>;
+    const totals = Array.isArray(apiJson?.totals) ? (apiJson.totals as Record<string, unknown>[]) : [];
+    const totalOrder = totals[0]?.total_order;
+    const maximumFractionDigits = typeof format.maximum_fraction_digits === "number" ? format.maximum_fraction_digits : 2;
+
+    if (typeof totalOrder !== "number" || !Number.isFinite(totalOrder)) {
+      onControllerReadyRef.current?.(null);
+      return;
+    }
+
+    const sq = squareInstance as SquareInstance & SquareWalletMethods;
+    let paymentRequest: unknown;
+    try {
+      paymentRequest = sq.paymentRequest({
+        countryCode: (billing.country as string) || "US",
+        currencyCode: (format.currency_code as string) || "USD",
+        total: { amount: totalOrder.toFixed(maximumFractionDigits), label: "Total" },
+      });
+    } catch {
+      onControllerReadyRef.current?.(null);
+      return;
+    }
+
+    let walletFactory: Promise<SquarePaymentComponent>;
+    try {
+      switch (option.type) {
+        case "apple-pay": walletFactory = sq.applePay(paymentRequest); break;
+        case "google-pay": walletFactory = sq.googlePay(paymentRequest); break;
+        case "cash-app": walletFactory = sq.cashApp(paymentRequest); break;
+        case "afterpay": walletFactory = sq.afterpayClearpay(paymentRequest); break;
+        default: onControllerReadyRef.current?.(null); return;
+      }
+    } catch {
+      onControllerReadyRef.current?.(null);
+      return;
+    }
+
+    // Square requires the attachment container to be in document.body — it uses
+    // document.body.contains() to validate the element. Components inside shadow
+    // DOM fail that check, so we create the mount node at the body level.
+    let mountDiv: HTMLDivElement | null = null;
+    if (SQUARE_WALLET_ATTACH_TYPES.has(option.type ?? "")) {
+      mountDiv = document.createElement("div");
+      mountDiv.style.cssText = "position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none";
+      document.body.appendChild(mountDiv);
+    }
+
+    let cancelled = false;
+    let walletComponent: SquarePaymentComponent | null = null;
+
+    walletFactory
+      .then(async (component) => {
+        walletComponent = component;
+        if (cancelled) { component.destroy().catch(() => {}); walletComponent = null; return; }
+
+        if (mountDiv) {
+          await component.attach(mountDiv);
+          if (cancelled) { component.destroy().catch(() => {}); walletComponent = null; return; }
+        }
+
+        const controller: PaymentController = {
+          tokenize: async () => {
+            const result = await component.tokenize();
+            if (result.status !== "OK" || !result.token) {
+              throw new Error(result.errors?.[0]?.message ?? submitErrorMessage);
+            }
+            return { token: result.token };
+          },
+        };
+        onControllerReadyRef.current?.(controller);
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        const message = (err instanceof Error ? err.message : String(err)) || submitErrorMessage;
+        onControllerReadyRef.current?.({ tokenize: async () => { throw new Error(message); } });
+      });
+
+    return () => {
+      cancelled = true;
+      const c = walletComponent;
+      walletComponent = null;
+      onControllerReadyRef.current?.(null);
+      if (c) c.destroy().catch(() => {});
+      if (mountDiv) { mountDiv.remove(); mountDiv = null; }
+    };
+  }, [
+    squareInstance,
+    option.squareUp?.applicationId,
+    option.squareUp?.locationId,
+    option.squareUp?.environment,
+    option.type,
+    option.id,
+    submitErrorMessage,
+  ]);
+
+  return null;
 }

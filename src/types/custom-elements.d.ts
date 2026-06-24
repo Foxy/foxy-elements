@@ -1,7 +1,6 @@
 import type { CSSProperties, DetailedHTMLProps, HTMLAttributes } from "react";
 import type { AchFieldElement } from "@/elements/foxy-ach-field/element";
 import type { ExpressCheckoutElement } from "@/elements/foxy-express-checkout/element";
-import type { PaymentButtonV2Element } from "@/elements/foxy-payment-button-v2/element";
 import type { PaymentCardFieldElement } from "@/elements/foxy-payment-card-field/element";
 import type { PaymentMethodSelectorElement } from "@/elements/foxy-payment-method-selector/element";
 import type { ThemeAttributeName, ThemePropertyName } from "@/lib/theme-mixin";
@@ -63,14 +62,6 @@ type PaymentMethodSelectorElementProps = Omit<
   lang?: string;
   optionIndex?: number;
   "option-index"?: string | number;
-} & SharedThemeProps;
-
-type PaymentButtonV2ElementProps = Omit<
-  DetailedHTMLProps<HTMLAttributes<PaymentButtonV2Element>, PaymentButtonV2Element>,
-  "style"
-> & {
-  style?: CSSProperties & Record<`--${string}`, string | number>;
-  lang?: string;
 } & SharedThemeProps;
 
 type ExpressCheckoutElementProps = Omit<
@@ -138,7 +129,6 @@ declare module "react" {
     interface IntrinsicElements {
       "foxy-ach-field": AchFieldElementProps;
       "foxy-express-checkout": ExpressCheckoutElementProps;
-      "foxy-payment-button-v2": PaymentButtonV2ElementProps;
       "foxy-payment-card-field": CardEmbedElementProps;
       "foxy-payment-method-selector": PaymentMethodSelectorElementProps;
       "apple-pay-button": ApplePayButtonElementProps;
@@ -152,7 +142,6 @@ declare module "react/jsx-runtime" {
     interface IntrinsicElements {
       "foxy-ach-field": AchFieldElementProps;
       "foxy-express-checkout": ExpressCheckoutElementProps;
-      "foxy-payment-button-v2": PaymentButtonV2ElementProps;
       "foxy-payment-card-field": CardEmbedElementProps;
       "foxy-payment-method-selector": PaymentMethodSelectorElementProps;
       "apple-pay-button": ApplePayButtonElementProps;

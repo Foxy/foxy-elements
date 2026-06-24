@@ -38,9 +38,17 @@ type AchFieldState = {
   touched?: boolean;
 };
 
+type AchTokenizeResult = {
+  token: string;
+  requestId: string;
+  last4: string;
+  routingNumber: string;
+  accountType: 'checking' | 'savings';
+};
+
 type TokenizeDeferred = {
   owner: AchFieldElement;
-  resolve: (value: { token: string; requestId?: string }) => void;
+  resolve: (value: AchTokenizeResult) => void;
   reject: (error: Error) => void;
   timeoutId: number;
 };
@@ -83,7 +91,10 @@ export type AchLoadEventDetail = Record<string, never>;
 
 export type AchTokenizationSuccessEventDetail = {
   token: string;
-  requestId?: string;
+  requestId: string;
+  last4: string;
+  routingNumber: string;
+  accountType: 'checking' | 'savings';
 };
 
 export type AchEmbedTokenizeErrorCode =
@@ -385,19 +396,56 @@ export class AchFieldElement extends ThemeableHTMLElement {
             : undefined;
 
       if (typeof token === "string" && token) {
-        this._broadcast(achFieldEvents.tokenizationSuccess, {
+        const last4 = payload["last4"];
+        const routingNumber = payload["routingNumber"];
+        const rawAccountType = payload["accountType"];
+
+        if (typeof last4 !== "string" || !last4) {
+          const error = this._emitTokenizationError("tokenization_failed", normalizedRequestId, "ACH tokenization response is missing last 4 digits.");
+          if (normalizedRequestId) {
+            const pending = entry.pendingTokenizes.get(normalizedRequestId);
+            if (pending) { entry.pendingTokenizes.delete(normalizedRequestId); window.clearTimeout(pending.timeoutId); pending.reject(error); }
+          }
+          return;
+        }
+        if (typeof routingNumber !== "string" || !routingNumber) {
+          const error = this._emitTokenizationError("tokenization_failed", normalizedRequestId, "ACH tokenization response is missing routing number.");
+          if (normalizedRequestId) {
+            const pending = entry.pendingTokenizes.get(normalizedRequestId);
+            if (pending) { entry.pendingTokenizes.delete(normalizedRequestId); window.clearTimeout(pending.timeoutId); pending.reject(error); }
+          }
+          return;
+        }
+        if (rawAccountType !== "checking" && rawAccountType !== "savings") {
+          const error = this._emitTokenizationError("tokenization_failed", normalizedRequestId, "ACH tokenization response has an invalid account type.");
+          if (normalizedRequestId) {
+            const pending = entry.pendingTokenizes.get(normalizedRequestId);
+            if (pending) { entry.pendingTokenizes.delete(normalizedRequestId); window.clearTimeout(pending.timeoutId); pending.reject(error); }
+          }
+          return;
+        }
+
+        if (!normalizedRequestId) {
+          this._emitTokenizationError("tokenization_failed", undefined, "ACH tokenization response is missing a request id.");
+          return;
+        }
+
+        const successDetail: AchTokenizationSuccessEventDetail = {
           token,
           requestId: normalizedRequestId,
-        });
+          last4,
+          routingNumber,
+          accountType: rawAccountType,
+        };
 
-        if (normalizedRequestId) {
-          const pending = entry.pendingTokenizes.get(normalizedRequestId);
-          if (!pending) return;
+        this._broadcast(achFieldEvents.tokenizationSuccess, successDetail);
 
-          entry.pendingTokenizes.delete(normalizedRequestId);
-          window.clearTimeout(pending.timeoutId);
-          pending.resolve({ token, requestId: normalizedRequestId });
-        }
+        const pending = entry.pendingTokenizes.get(normalizedRequestId);
+        if (!pending) return;
+
+        entry.pendingTokenizes.delete(normalizedRequestId);
+        window.clearTimeout(pending.timeoutId);
+        pending.resolve(successDetail);
 
         return;
       }
@@ -666,16 +714,46 @@ export class AchFieldElement extends ThemeableHTMLElement {
     this._postMessage({ type: "clear" });
   }
 
-  tokenize(requestId?: string): Promise<{ token: string; requestId?: string }> {
+  async tokenize(requestId?: string): Promise<AchTokenizeResult> {
     const entry = this._registryEntry;
     if (!entry?.controllerIframe?.contentWindow) {
-      return Promise.reject(
-        this._emitTokenizationError(
-          "invalid_state",
-          requestId,
-          "ACH controller iframe is not mounted.",
-        ),
+      throw this._emitTokenizationError(
+        "invalid_state",
+        requestId,
+        "ACH controller iframe is not mounted.",
       );
+    }
+
+    const requiredFields = Object.values(EMBED_TO_PUBLIC);
+    const hasAllFields = () => requiredFields.every((f) => entry.registeredFields.has(f));
+
+    if (!hasAllFields()) {
+      await new Promise<void>((resolve, reject) => {
+        if (hasAllFields()) { resolve(); return; }
+
+        let timeoutId: ReturnType<typeof window.setTimeout>;
+
+        const onLoad = () => {
+          if (hasAllFields()) {
+            window.clearTimeout(timeoutId);
+            this.removeEventListener(achFieldEvents.load, onLoad);
+            resolve();
+          }
+        };
+
+        timeoutId = window.setTimeout(() => {
+          this.removeEventListener(achFieldEvents.load, onLoad);
+          reject(
+            this._emitTokenizationError(
+              "invalid_state",
+              requestId,
+              "ACH fields did not register in time.",
+            ),
+          );
+        }, 10000);
+
+        this.addEventListener(achFieldEvents.load, onLoad);
+      });
     }
 
     const normalizedRequestId =

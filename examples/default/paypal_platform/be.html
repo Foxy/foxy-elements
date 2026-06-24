@@ -9,10 +9,7 @@
       type="module"
       src="/src/elements/foxy-payment-method-selector/index.ts"
     ></script>
-    <script
-      type="module"
-      src="/src/elements/foxy-payment-button/index.ts"
-    ></script>
+
     <script type="module">
       import { client } from "@foxy.io/sdk/checkout/client";
 
@@ -152,6 +149,7 @@
             {
               type: "paypal_platform",
               client_id: import.meta.env.VITE_PAYPAL_SANDBOX_CLIENT_ID_BE,
+              order_id: import.meta.env.VITE_PAYPAL_SANDBOX_ORDER_ID_BE,
             },
           ],
           messages: [],
@@ -192,10 +190,42 @@
     <main class="example">
       <section class="panel">
         <div class="shell">
-          <foxy-payment-method-selector button="pay-btn"></foxy-payment-method-selector>
-          <foxy-payment-button id="pay-btn" style="margin-top: 1rem"></foxy-payment-button>
+          <foxy-payment-method-selector
+            id="selector"
+          ></foxy-payment-method-selector>
+          <button
+            id="tokenize-btn"
+            style="margin-top: 1rem; width: 100%"
+          >
+            Tokenize
+          </button>
+          <pre
+            id="tokenize-result"
+            style="
+              margin-top: 0.5rem;
+              white-space: pre-wrap;
+              word-break: break-all;
+              font-size: 12px;
+              color: #e7ffe8;
+            "
+          ></pre>
         </div>
       </section>
     </main>
+    <script type="module">
+      const btn = document.getElementById("tokenize-btn");
+      const pre = document.getElementById("tokenize-result");
+      const selector = document.getElementById("selector");
+
+      btn.addEventListener("click", async () => {
+        pre.textContent = "";
+        try {
+          const result = await selector.tokenize();
+          pre.textContent = JSON.stringify(result, null, 2);
+        } catch (err) {
+          pre.textContent = String(err);
+        }
+      });
+    </script>
   </body>
 </html>

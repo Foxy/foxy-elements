@@ -74,15 +74,7 @@ export default function AchOptionEmbed({
           throw new Error(ownerConfirmationErrorMessage);
         }
 
-        const payload = await firstMounted.tokenize(requestId);
-        if (!payload.requestId) {
-          throw new Error("ACH tokenization response is missing a request id.");
-        }
-
-        return {
-          token: payload.token,
-          requestId: payload.requestId,
-        };
+        return await firstMounted.tokenize(requestId);
       },
     };
 

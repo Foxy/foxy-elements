@@ -48,8 +48,7 @@ body {
         background: #05080a;
         font-family: monospace;
 
-        & foxy-payment-method-selector,
-        & foxy-payment-button {
+        & foxy-payment-method-selector {
           --background: #060b08;
           --foreground: #e7ffe8;
           --card: #0b120d;
@@ -71,6 +70,15 @@ body {
       & foxy-payment-method-selector {
         width: min(640px, 100%);
         margin: 0 auto;
+      }
+
+      & [id^="tokenize-btn"] {
+        height: 3rem;
+        border-radius: 0.3rem;
+        font: 500 1rem monospace;
+        background: #8dff72;
+        color: #071108;
+        border: none;
       }
     }
   }

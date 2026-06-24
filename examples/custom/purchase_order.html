@@ -9,10 +9,7 @@
       type="module"
       src="/src/elements/foxy-payment-method-selector/index.ts"
     ></script>
-    <script
-      type="module"
-      src="/src/elements/foxy-payment-button/index.ts"
-    ></script>
+
     <script type="module">
       import { client } from "@foxy.io/sdk/checkout/client";
 
@@ -172,14 +169,41 @@
       <section class="panel">
         <div class="shell dark">
           <foxy-payment-method-selector
-            button="pay-btn-themed"
+            id="selector-themed"
           ></foxy-payment-method-selector>
-          <foxy-payment-button
-            id="pay-btn-themed"
-            style="margin-top: 1rem"
-          ></foxy-payment-button>
+          <button
+            id="tokenize-btn-themed"
+            style="margin-top: 1rem; width: 100%"
+          >
+            Tokenize
+          </button>
+          <pre
+            id="tokenize-result-themed"
+            style="
+              margin-top: 0.5rem;
+              white-space: pre-wrap;
+              word-break: break-all;
+              font-size: 12px;
+              color: #e7ffe8;
+            "
+          ></pre>
         </div>
       </section>
     </main>
+    <script type="module">
+      const btn = document.getElementById("tokenize-btn-themed");
+      const pre = document.getElementById("tokenize-result-themed");
+      const selector = document.getElementById("selector-themed");
+
+      btn.addEventListener("click", async () => {
+        pre.textContent = "";
+        try {
+          const result = await selector.tokenize();
+          pre.textContent = JSON.stringify(result, null, 2);
+        } catch (err) {
+          pre.textContent = String(err);
+        }
+      });
+    </script>
   </body>
 </html>
