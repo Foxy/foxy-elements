@@ -1,6 +1,5 @@
 import type { CSSProperties, DetailedHTMLProps, HTMLAttributes } from "react";
 import type { AchFieldElement } from "@/elements/foxy-ach-field/element";
-import type { ExpressCheckoutElement } from "@/elements/foxy-express-checkout/element";
 import type { PaymentCardFieldElement } from "@/elements/foxy-payment-card-field/element";
 import type { PaymentMethodSelectorElement } from "@/elements/foxy-payment-method-selector/element";
 import type { ThemeAttributeName, ThemePropertyName } from "@/lib/theme-mixin";
@@ -128,7 +127,6 @@ declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
       "foxy-ach-field": AchFieldElementProps;
-      "foxy-express-checkout": ExpressCheckoutElementProps;
       "foxy-payment-card-field": CardEmbedElementProps;
       "foxy-payment-method-selector": PaymentMethodSelectorElementProps;
       "apple-pay-button": ApplePayButtonElementProps;
@@ -141,7 +139,6 @@ declare module "react/jsx-runtime" {
   namespace JSX {
     interface IntrinsicElements {
       "foxy-ach-field": AchFieldElementProps;
-      "foxy-express-checkout": ExpressCheckoutElementProps;
       "foxy-payment-card-field": CardEmbedElementProps;
       "foxy-payment-method-selector": PaymentMethodSelectorElementProps;
       "apple-pay-button": ApplePayButtonElementProps;

@@ -7,14 +7,12 @@ Embeddable Foxy checkout web components for collecting ACH and card payment deta
 Package exports:
 
 - `@foxy.io/elements/foxy-ach-field`
-- `@foxy.io/elements/foxy-express-checkout`
 - `@foxy.io/elements/foxy-payment-card-field`
 - `@foxy.io/elements/foxy-payment-method-selector`
 
 Custom elements registered by these modules:
 
 - `foxy-ach-field`
-- `foxy-express-checkout`
 - `foxy-payment-card-field`
 - `foxy-payment-method-selector`
 
