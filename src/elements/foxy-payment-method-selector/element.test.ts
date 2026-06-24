@@ -415,6 +415,7 @@ type AdyenComponentInstance = {
   unmount: ReturnType<typeof vi.fn>;
   isAvailable: ReturnType<typeof vi.fn>;
   submit: ReturnType<typeof vi.fn>;
+  submitDetails: ReturnType<typeof vi.fn>;
 };
 
 function createAdyenComponentMock(params?: {
@@ -444,19 +445,33 @@ function createAdyenComponentMock(params?: {
     this.isAvailable = vi.fn(() =>
       params?.available === false ? Promise.reject() : Promise.resolve(),
     );
+    const makeActions = (completionCallback: (response: unknown) => void) => ({
+      resolve: (response: unknown) => {
+        const resolved = response ?? params?.result ?? { resultCode: "Authorised" };
+        // Only fire onPaymentCompleted when there is no pending action (e.g. 3DS).
+        // When an action is present the Drop-in parks and waits for onAdditionalDetails.
+        const hasAction =
+          resolved !== null &&
+          typeof resolved === "object" &&
+          "action" in (resolved as Record<string, unknown>);
+        if (!hasAction) {
+          completionCallback(resolved);
+        }
+      },
+      reject: () => {
+        componentProps.onPaymentFailed?.({ resultCode: "Refused" });
+      },
+    });
+
     this.submit = vi.fn(() => {
       const state = { data: params?.submitData ?? { paymentMethod: { type: "scheme" } } };
-      const actions = {
-        resolve: (response: unknown) => {
-          componentProps.onPaymentCompleted?.(
-            response ?? params?.result ?? { resultCode: "Authorised" },
-          );
-        },
-        reject: () => {
-          componentProps.onPaymentFailed?.({ resultCode: "Refused" });
-        },
-      };
+      const actions = makeActions((response) => componentProps.onPaymentCompleted?.(response));
       componentProps.onSubmit?.(state, this, actions);
+    });
+    this.submitDetails = vi.fn(() => {
+      const state = { data: {} };
+      const actions = makeActions((response) => componentProps.onPaymentCompleted?.(response));
+      componentProps.onAdditionalDetails?.(state, this, actions);
     });
     instances.push(this);
   });
@@ -1892,6 +1907,93 @@ describe("PaymentMethodSelectorElement", () => {
       });
       expect(submitAdyenEmbeddedPayment).toHaveBeenCalledOnce();
       expect(submitAdyenEmbeddedPayment).toHaveBeenCalledWith({ paymentMethod: { type: "scheme" } });
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("rejects tokenize() when submitAdyenEmbeddedPayment throws", async () => {
+    const paymentError = new Error("Backend unavailable");
+    const submitAdyenEmbeddedPayment = vi.fn().mockRejectedValue(paymentError);
+    const { Component: Dropin } = createAdyenComponentMock();
+    const restoreClient = overrideClientState(
+      createAdyenEmbeddedApiState(),
+      undefined,
+      {
+        adyenEmbedded: { Dropin },
+        submitAdyenEmbeddedPayment,
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForTruthy(
+        () => element.querySelector("[data-foxy-adyen-host]"),
+        "Adyen light DOM host",
+      );
+
+      await expect(element.tokenize()).rejects.toThrow();
+      expect(submitAdyenEmbeddedPayment).toHaveBeenCalledOnce();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("calls submitAdyenEmbeddedPaymentDetails from onAdditionalDetails", async () => {
+    const detailsResult = { resultCode: "Authorised", pspReference: "PSP-3DS" };
+    const submitAdyenEmbeddedPaymentDetails = vi.fn().mockResolvedValue(detailsResult);
+    // Return a response with an action to simulate a 3DS redirect; the mock
+    // will not fire onPaymentCompleted for this response and will instead
+    // wait for submitDetails() → onAdditionalDetails to complete the flow.
+    const submitAdyenEmbeddedPayment = vi.fn().mockResolvedValue({
+      resultCode: "Pending",
+      action: { type: "threeDS2" },
+    });
+    const { Component: Dropin, instances } = createAdyenComponentMock();
+    const restoreClient = overrideClientState(
+      createAdyenEmbeddedApiState(),
+      undefined,
+      {
+        adyenEmbedded: { Dropin },
+        submitAdyenEmbeddedPayment,
+        submitAdyenEmbeddedPaymentDetails,
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForTruthy(
+        () => element.querySelector("[data-foxy-adyen-host]"),
+        "Adyen light DOM host",
+      );
+
+      // Start tokenize — it won't resolve until onPaymentCompleted fires.
+      // The initial submit returns a 3DS action so the Drop-in parks here.
+      const tokenizePromise = element.tokenize();
+
+      // Allow the initial submit to complete (submitAdyenEmbeddedPayment resolves).
+      await waitForRender();
+
+      // Simulate the 3DS additional-details step.
+      await instances[0]?.submitDetails?.();
+
+      // Verify submitAdyenEmbeddedPaymentDetails was called.
+      expect(submitAdyenEmbeddedPaymentDetails).toHaveBeenCalledOnce();
+
+      // tokenize() should now resolve with the details result.
+      await expect(tokenizePromise).resolves.toEqual({
+        adyenEmbedded: {
+          result: detailsResult,
+        },
+      });
     } finally {
       element.remove();
       restoreClient();
