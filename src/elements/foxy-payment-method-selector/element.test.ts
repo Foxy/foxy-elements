@@ -1983,7 +1983,7 @@ describe("PaymentMethodSelectorElement", () => {
       await waitForRender();
 
       // Simulate the 3DS additional-details step.
-      await instances[0]?.submitDetails?.();
+      await (instances[0]?.submitDetails as (() => unknown) | undefined)?.();
 
       // Verify submitAdyenEmbeddedPaymentDetails was called.
       expect(submitAdyenEmbeddedPaymentDetails).toHaveBeenCalledOnce();

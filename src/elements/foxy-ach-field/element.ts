@@ -731,7 +731,7 @@ export class AchFieldElement extends ThemeableHTMLElement {
       await new Promise<void>((resolve, reject) => {
         if (hasAllFields()) { resolve(); return; }
 
-        let timeoutId: ReturnType<typeof window.setTimeout>;
+        let timeoutId: number;
 
         const onLoad = () => {
           if (hasAllFields()) {

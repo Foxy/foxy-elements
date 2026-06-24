@@ -39,10 +39,6 @@ function clampFontSizeForSquare(value: string | undefined): string | undefined {
   return Number.isFinite(px) ? `${Math.min(px, 16)}px` : undefined;
 }
 
-function isTransparentColor(color: string): boolean {
-  const c = color.replace(/\s/g, "");
-  return c === "transparent" || c === "rgba(0,0,0,0)";
-}
 
 const SQUARE_WEB_PAYMENTS_STYLES = `
 .foxy-square-web-payments {
@@ -251,7 +247,7 @@ export default function SquareWebPaymentsOption({
 
     // Resolve design tokens from the probe element (converts oklch → rgb for compatibility).
     const probe = probeRef.current;
-    const tokens = probe ? resolveDesignTokens(probe) : {};
+    const tokens: ReturnType<typeof resolveDesignTokens> = probe ? resolveDesignTokens(probe) : { borderColor: undefined, borderRadius: undefined, focusRingColor: undefined, destructiveColor: undefined, inputBackgroundColor: undefined };
 
     const squareStyle: Record<string, Record<string, string>> = {};
 
@@ -325,7 +321,7 @@ export default function SquareWebPaymentsOption({
         : () => squareInstance.card(cardOptions);
 
     const attachPromise = factoryMethod()
-      .then((component) => {
+      .then((component: SquarePaymentComponent) => {
         if (cancelled) {
           component.destroy().catch(() => {});
           return;
@@ -531,7 +527,7 @@ export function SquareAchAvailabilityProbe({
 
     squareInstance
       .ach()
-      .then((component) => {
+      .then((component: SquarePaymentComponent) => {
         probeComponent = component;
         if (cancelled) {
           component.destroy().catch(() => {});
