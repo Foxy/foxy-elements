@@ -80,7 +80,6 @@ export type PaymentMethodSelectorNewCardTokenizePayload =
   PaymentMethodSelectorRequiredHostedCardTokenizePayload &
     PaymentMethodSelectorCardTokenizeDetails & {
       gateway?: string;
-      cardToken?: string;
     };
 
 export type PaymentMethodSelectorAchTokenizePayload = {

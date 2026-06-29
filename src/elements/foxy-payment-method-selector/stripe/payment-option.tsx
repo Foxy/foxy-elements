@@ -10,7 +10,8 @@ import {
   useElements,
   useStripe,
 } from "@stripe/react-stripe-js";
-import { loadStripe, type StripeElementsOptions } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
+import type { StripeElementsOptions } from "@stripe/stripe-js";
 import {
   resolveStripeLocale,
   resolveStripePublishableKey,

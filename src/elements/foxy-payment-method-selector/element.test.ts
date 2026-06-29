@@ -1253,7 +1253,6 @@ describe("PaymentMethodSelectorElement", () => {
         expirationMonth: 12,
         expirationYear: 2030,
         gateway: "authorize",
-        cardToken: "card_token_123",
       });
       expect(payload).not.toHaveProperty("billingAddress");
     } finally {

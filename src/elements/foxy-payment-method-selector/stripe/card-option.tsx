@@ -7,11 +7,8 @@ import {
   useElements,
   useStripe,
 } from "@stripe/react-stripe-js";
-import {
-  loadStripe,
-  type StripeCardElementOptions,
-  type StripeElementsOptions,
-} from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
+import type { StripeCardElementOptions, StripeElementsOptions } from "@stripe/stripe-js";
 import { resolveStripeLocale, resolveStripePublishableKey } from "./shared";
 import {
   getStripeFontsForAppearance,

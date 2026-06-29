@@ -29,9 +29,10 @@ import {
   type PaymentMethodSelectorTokenizationStartEventDetail,
   type PaymentMethodSelectorTokenizationSuccessEventDetail,
 } from "./events";
+import { ACH_GATEWAY_TYPES } from "./constants";
 import { messages } from "./messages";
 import { Payment } from "./view";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
 import { StripeCardElementOption } from "./stripe/card-option";
 import { StripePaymentElementOption } from "./stripe/payment-option";
 import { resolveStripePublishableKey } from "./stripe/shared";
@@ -1262,7 +1263,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         expirationYear: this.#readPayloadNumber(payload, "expirationYear"),
         ...(isStandardCard && {
           gateway: selectedOption.gateway,
-          cardToken: token,
         }),
       };
     }
@@ -1976,13 +1976,13 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       ];
     }
 
-    if (Array.isArray(config.fields) && Array.isArray(config.account_types)) {
+    if (ACH_GATEWAY_TYPES.has(gateway) || (Array.isArray(config.fields) && Array.isArray(config.account_types))) {
       return [
         {
           type: "ach",
           gateway,
-          fields: config.fields,
-          account_types: config.account_types,
+          fields: Array.isArray(config.fields) ? config.fields : undefined,
+          account_types: Array.isArray(config.account_types) ? config.account_types : undefined,
         },
       ];
     }
