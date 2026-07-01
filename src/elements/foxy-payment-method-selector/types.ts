@@ -18,11 +18,6 @@ export type PaymentMethodSelectorKlarnaConfig = {
   category: PaymentMethodSelectorKlarnaCategory;
 };
 
-export type PaymentMethodSelectorSezzleConfig = {
-  publicKey: string;
-  checkoutUrl?: string;
-  authOnly?: boolean;
-};
 
 export type PaymentMethodSelectorAdyenEmbeddedConfig = {
   paymentMethodsResponse: Record<string, unknown>;
@@ -110,11 +105,6 @@ export type PaymentMethodSelectorKlarnaTokenizePayload = {
   paymentMethodCategory: string;
 };
 
-export type PaymentMethodSelectorSezzleTokenizePayload = {
-  sezzle: {
-    orderUuid: string;
-  };
-};
 
 export type PaymentMethodSelectorAdyenEmbeddedTokenizePayload = {
   adyenEmbedded: {
@@ -197,7 +187,6 @@ export type PaymentMethodSelectorTokenizePayload =
   | PaymentMethodSelectorStripePaymentElementTokenizePayload
   | PaymentMethodSelectorPurchaseOrderTokenizePayload
   | PaymentMethodSelectorKlarnaTokenizePayload
-  | PaymentMethodSelectorSezzleTokenizePayload
   | PaymentMethodSelectorAdyenEmbeddedTokenizePayload
   | PaymentMethodSelectorSquareUpTokenizePayload
   | PaymentMethodSelectorPayPalPlatformTokenizePayload
@@ -226,7 +215,6 @@ export type PaymentMethodSelectorOption = {
   gateway?: string;
   disabled?: boolean;
   klarna?: PaymentMethodSelectorKlarnaConfig;
-  sezzle?: PaymentMethodSelectorSezzleConfig;
   adyenEmbedded?: PaymentMethodSelectorAdyenEmbeddedConfig;
   squareUp?: PaymentMethodSelectorSquareUpConfig;
   paypalPlatform?: PaymentMethodSelectorPayPalPlatformConfig;
