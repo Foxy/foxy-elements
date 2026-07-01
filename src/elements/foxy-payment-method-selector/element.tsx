@@ -51,7 +51,6 @@ type CheckoutApiLike = EventTarget & {
   json?: unknown;
   paypal?: unknown;
   klarna?: unknown;
-  sezzle?: unknown;
   adyenEmbedded?: unknown;
   square?: unknown;
   updateBillingAddress?: (
@@ -257,25 +256,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       if (selectedOption.klarna) {
         this.#setLoading(true);
         const tokenized = await this.#tokenizeKlarna(selectedOption);
-        const payload = this.#createTokenizePayload(selectedOption, tokenized);
-
-        this.dispatchEvent(
-          new CustomEvent<PaymentMethodSelectorTokenizationSuccessEventDetail>(
-            paymentMethodSelectorEvents.tokenizationSuccess,
-            {
-              bubbles: true,
-              composed: true,
-              detail: { payload },
-            },
-          ),
-        );
-
-        return payload;
-      }
-
-      if (selectedOption.sezzle) {
-        this.#setLoading(true);
-        const tokenized = await this.#tokenizeSezzle(selectedOption);
         const payload = this.#createTokenizePayload(selectedOption, tokenized);
 
         this.dispatchEvent(
@@ -517,61 +497,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       sessionId: klarnaOption.sessionId,
       paymentMethodCategory: category,
     };
-  }
-
-  async #tokenizeSezzle(option: PaymentMethodSelectorOption): Promise<{
-    orderUuid: string;
-  }> {
-    const sezzleOption = option.sezzle!;
-
-    if (!sezzleOption.checkoutUrl) {
-      throw new Error(
-        "Sezzle checkout URL is missing. The backend must create a checkout session first.",
-      );
-    }
-
-    type SezzleSdkInstance = {
-      init(options: {
-        onComplete?: (event: { data?: Record<string, unknown>; [key: string]: unknown }) => void;
-        onCancel?: () => void;
-        onFailure?: () => void;
-      }): void;
-      openModal(): void;
-      startCheckout(options: { checkout_url: string }): void;
-    };
-
-    const sezzle = this.#checkoutClient.sezzle as unknown as SezzleSdkInstance | null | undefined;
-
-    if (!sezzle) {
-      throw new Error(
-        "Unable to load Sezzle. Choose a different payment method or try again.",
-      );
-    }
-
-    // init() stores callbacks; openModal() opens the popup window (must be called while
-    // user-activation is still live — Chrome preserves it through microtask awaits);
-    // startCheckout() then navigates the already-open popup to the checkout URL.
-    return new Promise<{ orderUuid: string }>((resolve, reject) => {
-      sezzle.init({
-        onComplete: (event) => {
-          const orderUuid = event?.data?.order_uuid;
-          if (typeof orderUuid !== "string" || !orderUuid) {
-            reject(new Error("Sezzle checkout response is missing an order UUID."));
-            return;
-          }
-          resolve({ orderUuid });
-        },
-        onCancel: () => {
-          reject(new Error("Sezzle checkout was cancelled."));
-        },
-        onFailure: () => {
-          reject(new Error("Sezzle checkout failed. Review your details and try again."));
-        },
-      });
-
-      sezzle.openModal();
-      sezzle.startCheckout({ checkout_url: sezzleOption.checkoutUrl! });
-    });
   }
 
   #getPayPalButtonsSessionCreatorName(type: string | undefined): string | undefined {
@@ -1175,19 +1100,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       };
     }
 
-    if (selectedOption.sezzle) {
-      const orderUuid = this.#requirePayloadString(
-        payload,
-        "orderUuid",
-        "Sezzle checkout response is missing an order UUID.",
-      );
-      return {
-        sezzle: {
-          orderUuid,
-        },
-      };
-    }
-
     if (selectedOption.adyenEmbedded) {
       const result = this.#asRecord(payload.result);
       if (!result) {
@@ -1339,7 +1251,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       };
     }
 
-    if (selectedOption.type === "mollie" || selectedOption.type === "generic") {
+    if (selectedOption.type === "mollie" || selectedOption.type === "sezzle" || selectedOption.type === "generic") {
       return { requestId: crypto.randomUUID() };
     }
 
@@ -1939,14 +1851,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     if (gateway === "sezzle") {
-      return [
-        {
-          type: "sezzle",
-          public_key: this.#toOptionalText(config.public_key),
-          checkout_url: this.#toOptionalText(config.checkout_url),
-          auth_only: typeof config.auth_only === "boolean" ? config.auth_only : undefined,
-        },
-      ];
+      return [{ type: "sezzle", gateway }];
     }
 
     if (gateway === "mollie_omnipay") {
@@ -2615,25 +2520,13 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     if (type === "sezzle") {
-      const publicKey = this.#toOptionalText(option.public_key);
-      if (!publicKey) {
-        return [];
-      }
-
-      const checkoutUrl = this.#toOptionalText(option.checkout_url);
-      const authOnly = typeof option.auth_only === "boolean" ? option.auth_only : undefined;
-
       return [
         {
           id: optionId,
           type: "sezzle",
           label: "",
+          gateway: gateway || undefined,
           disabled,
-          sezzle: {
-            publicKey,
-            ...(checkoutUrl !== undefined ? { checkoutUrl } : {}),
-            ...(authOnly !== undefined ? { authOnly } : {}),
-          },
         },
       ];
     }
