@@ -25,7 +25,6 @@
     "init:adyen": "node ./scripts/init-adyen-payment-methods.js",
     "init:klarna": "node ./scripts/init-klarna-session.js",
     "init:paypal": "node ./scripts/init-paypal-order.js",
-    "init:sezzle": "node ./scripts/init-sezzle-session.js",
     "localdev:deploy:cdn": "SDK_HOST=cdn-js.foxy.test sh -c 'tsc -b && vite build --mode=cdn' && rm -rf ../foxy-docker-env-build/src/cdn-js/elements@2 && cp -r dist/cdn ../foxy-docker-env-build/src/cdn-js/elements@2",
     "localdev:storybook": "storybook dev -p 6006 --no-open",
     "localdev:examples": "caddy start && vite --port 6007 --no-open",

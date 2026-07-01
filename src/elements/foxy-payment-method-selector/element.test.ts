@@ -359,7 +359,6 @@ function createSezzleApiState() {
     payment_gateways: [
       {
         type: "sezzle",
-        public_key: "sezzle-public-key",
       },
     ],
   };
@@ -741,9 +740,7 @@ describe("PaymentMethodSelectorElement", () => {
       ).toBeTruthy();
 
       await expect(element.tokenize()).resolves.toEqual({
-        sezzle: {
-          publicKey: "sezzle-public-key",
-        },
+        requestId: expect.any(String),
       });
     } finally {
       element.remove();
@@ -1512,7 +1509,6 @@ describe("PaymentMethodSelectorElement", () => {
       payment_gateways: [
         {
           type: "sezzle",
-          public_key: "sezzle-public-key",
         },
         {
           type: "purchase_order",
