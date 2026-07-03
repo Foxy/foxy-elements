@@ -113,6 +113,10 @@ const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
   en: enUsMessages as Record<string, string>,
 };
 
+export function toBcp47Locale(value: string): string {
+  return value.replace(/_/g, "-");
+}
+
 const ThemeableHTMLElement = ThemeMixin(HTMLElement);
 
 export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
@@ -992,7 +996,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   }
 
   #resolveMessages(locale: string): Record<string, string> {
-    const normalized = locale.trim();
+    const normalized = toBcp47Locale(locale.trim());
     if (MESSAGES_BY_LOCALE[normalized]) return MESSAGES_BY_LOCALE[normalized];
 
     const baseLocale = normalized.split("-")[0];
@@ -2208,7 +2212,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     const format = this.#asRecord(apiState.format);
-    const localeCode = this.#toOptionalText(format?.locale_code);
+    const rawLocaleCode = this.#toOptionalText(format?.locale_code);
+    const localeCode = rawLocaleCode ? toBcp47Locale(rawLocaleCode) : undefined;
     const country = localeCode?.includes("-")
       ? localeCode.split("-").pop()?.toUpperCase()
       : undefined;

@@ -5,7 +5,7 @@ import {
   THEME_PROPERTY_TO_ATTRIBUTE,
 } from "@/lib/theme-mixin";
 
-import { PaymentMethodSelectorElement } from "./element";
+import { PaymentMethodSelectorElement, toBcp47Locale } from "./element";
 
 type PayPalPlatformTestOptionType =
   | "paypal"
@@ -2255,5 +2255,15 @@ describe("PaymentMethodSelectorElement", () => {
       element.remove();
       restoreClient();
     }
+  });
+});
+
+describe("toBcp47Locale", () => {
+  it("converts a POSIX-form locale code to BCP 47 form", () => {
+    expect(toBcp47Locale("en_US")).toBe("en-US");
+  });
+
+  it("leaves an already-BCP-47 locale code unchanged", () => {
+    expect(toBcp47Locale("en-US")).toBe("en-US");
   });
 });
