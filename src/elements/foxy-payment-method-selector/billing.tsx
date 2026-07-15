@@ -122,6 +122,7 @@ function renderBillingField(
 
   return (
     <Input
+      id={field.id}
       type={field.type === "tel" ? "tel" : "text"}
       value={value}
       placeholder={field.placeholder}

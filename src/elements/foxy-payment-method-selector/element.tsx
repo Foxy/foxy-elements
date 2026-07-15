@@ -835,15 +835,16 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             useShippingAddress,
             values,
           }) => {
-            const patch = this.#toBillingAddressPatch({
+            const fullSnapshot = this.#toBillingAddressPatch({
               useShippingAddress,
               values,
             });
+            const patch = this.#diffBillingAddressPatch(fullSnapshot);
 
             const requestVersion = this.#nextBillingRequestVersion(optionId);
             this.#setBillingAddressError(optionId, undefined);
 
-            if (!this.#hasBillingAddressChanges(patch)) {
+            if (Object.keys(patch).length === 0) {
               return;
             }
 
@@ -2685,20 +2686,29 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     };
   }
 
-  #hasBillingAddressChanges(patch: Record<string, unknown>): boolean {
+  // The billing address API validates only the keys present in a patch —
+  // present-but-empty means "the shopper just cleared this field," so a
+  // full-form snapshot makes every not-yet-typed required field look
+  // cleared on every keystroke. Diffing against the last confirmed backend
+  // state keeps the patch to what actually changed.
+  #diffBillingAddressPatch(
+    patch: Record<string, unknown>,
+  ): Record<string, unknown> {
     const state = this.#resolveApiState();
     const current = this.#asRecord(state?.billing_address);
-    if (!current) return true;
+    if (!current) return patch;
 
-    return Object.entries(patch).some(([key, value]) => {
-      const currentValue = current[key];
+    return Object.fromEntries(
+      Object.entries(patch).filter(([key, value]) => {
+        const currentValue = current[key];
 
-      if (typeof value === "boolean") {
-        return Boolean(currentValue) !== value;
-      }
+        if (typeof value === "boolean") {
+          return Boolean(currentValue) !== value;
+        }
 
-      return this.#toText(currentValue) !== this.#toText(value);
-    });
+        return this.#toText(currentValue) !== this.#toText(value);
+      }),
+    );
   }
 
   #nextBillingRequestVersion(optionId: string): number {

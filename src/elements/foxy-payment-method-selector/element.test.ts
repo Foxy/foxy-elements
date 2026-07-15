@@ -1167,18 +1167,63 @@ describe("PaymentMethodSelectorElement", () => {
       checkbox?.click();
       await waitForRender();
 
+      // Only the field that actually changed (the shipping-address toggle)
+      // is sent — the address text fields are untouched, so they must not
+      // be resent as if the shopper had just cleared them.
       expect(updateBillingAddress).toHaveBeenCalledWith({
         use_customer_shipping_address: false,
-        first_name: "Taylor",
-        last_name: "Morgan",
-        company: "",
-        address1: "123 Main Street",
-        address2: "",
-        city: "Minneapolis",
-        region: "MN",
-        postal_code: "55401",
-        country: "US",
-        phone: "6125550100",
+      });
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("only sends the billing-address field the shopper actually edited", async () => {
+    const updateBillingAddress = vi.fn(() => Promise.resolve());
+    const restoreClient = overrideClientState(
+      {
+        billing_address: {
+          use_customer_shipping_address: false,
+          first_name: "",
+          last_name: "",
+          company: "",
+          address1: "",
+          address2: "",
+          city: "",
+          region: "",
+          postal_code: "",
+          country: "",
+          phone: "",
+        },
+        shipments: [
+          {
+            country_options: ["US", "CA"],
+            region_options: ["MN", "WI"],
+          },
+        ],
+        payment_gateways: [{ type: "authorize" }],
+      },
+      undefined,
+      { updateBillingAddress },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const firstNameInput = element.shadowRoot?.querySelector(
+        "#billing-first-name",
+      ) as HTMLInputElement | null;
+      expect(firstNameInput).toBeTruthy();
+
+      await setTextInputValue(firstNameInput!, "J");
+
+      expect(updateBillingAddress).toHaveBeenCalledWith({
+        first_name: "J",
       });
     } finally {
       element.remove();
