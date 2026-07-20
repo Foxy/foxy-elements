@@ -8,13 +8,76 @@ import type { HostedFieldStyleAttributes } from "../stripe/style-hooks";
 import type { PaymentController, PaymentMethodSelectorOption } from "../types";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Checkbox } from "@foxy.io/design-system/ui/checkbox";
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "@foxy.io/design-system/ui/field";
+import { Checkbox } from "@foxy.io/design-system/checkbox";
+import { Field } from "@foxy.io/design-system/field";
+import { styled } from "styled-components";
+
+const AchFieldsRoot = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.tokens.space.sm};
+`;
+
+const AchFieldGrid = styled(Field.Group)`
+  grid-template-columns: 1fr;
+  column-gap: ${(props) => props.theme.tokens.space.md};
+
+  @media (min-width: 640px) {
+    grid-template-columns: 1fr 1fr;
+  }
+`;
+
+// Field.Root's own base styles are \`display: grid\` (label stacked above
+// control). This section only ever needs the old shadcn Field's
+// \`orientation="horizontal"\` layout (checkbox beside its label), which the
+// new Field.Root has no equivalent prop for, so it's baked in here instead
+// (same gap already found for billing.tsx's ShippingToggleField).
+const AchOwnerConfirmationField = styled(Field.Root)`
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.tokens.space.sm};
+`;
+
+const ErrorText = styled.p`
+  all: unset;
+  display: block;
+  margin: 0;
+  font: ${(props) => props.theme.tokens.font.body};
+  font-size: 0.875rem;
+  color: ${(props) => props.theme.tokens.color.error};
+`;
+
+const AchOwnerConfirmationError = styled(ErrorText)`
+  grid-column: 1 / -1;
+`;
+
+const StyledAchField = styled("foxy-ach-field")`
+  border: ${(props) => props.theme.tokens.border.field};
+  border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
+  display: block;
+  width: 100%;
+  min-height: ${(props) => props.theme.tokens.size.control};
+  overflow: hidden;
+  position: relative;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+
+  &:state(focused) {
+    border: ${(props) => props.theme.tokens.border.fieldFocus};
+    outline: ${(props) => props.theme.tokens.outline.primary};
+  }
+
+  &:state(user-invalid) {
+    border: ${(props) => props.theme.tokens.border.fieldInvalid};
+    outline: ${(props) => props.theme.tokens.outline.error};
+  }
+
+  &:state(disabled) {
+    background: ${(props) => props.theme.tokens.background.disabledField};
+    opacity: 0.5;
+  }
+`;
 
 const ACH_FIELDS: AchHostedFieldName[] = [
   "routing-number",
@@ -112,9 +175,9 @@ export default function AchOptionEmbed({
   }
 
   return (
-    <div className="flex flex-col gap-2.5">
-      <FieldSet>
-        <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
+    <AchFieldsRoot>
+      <Field.Set>
+        <AchFieldGrid>
           {ACH_FIELDS.map((fieldName) => {
             const label =
               option.hostedFields?.labels?.[fieldName] ??
@@ -122,9 +185,9 @@ export default function AchOptionEmbed({
               "";
 
             return (
-              <Field key={fieldName}>
-                <FieldLabel>{label}</FieldLabel>
-                <foxy-ach-field
+              <Field.Root key={fieldName}>
+                <Field.Label>{label}</Field.Label>
+                <StyledAchField
                   type={fieldName}
                   group={group}
                   lang={lang}
@@ -135,29 +198,19 @@ export default function AchOptionEmbed({
                       : undefined
                   }
                   disabled={disabled || undefined}
-                  className="border-input dark:bg-input/30 state-focused:border-ring state-focused:ring-ring/50 state-user-invalid:border-destructive state-user-invalid:ring-destructive/20 dark:state-user-invalid:ring-destructive/40 state-user-invalid:ring-3 state-focused:ring-3 state-disabled:bg-input/50 dark:state-disabled:bg-input/80 state-disabled:opacity-50 rounded-lg border transition-colors relative flex w-full min-w-0 items-center overflow-hidden outline-none block min-h-8"
-                  theme-input-height={styleAttributes.inputHeight}
-                  theme-input-padding={styleAttributes.inputPadding}
-                  theme-input-padding-x={styleAttributes.inputPaddingX}
-                  theme-input-padding-y={styleAttributes.inputPaddingY}
-                  theme-input-placeholder-color={
-                    styleAttributes.inputPlaceholderColor
-                  }
-                  theme-font-sans={styleAttributes.inputFont}
-                  theme-input-text-color={styleAttributes.inputTextColor}
-                  theme-input-error-text-color={
-                    styleAttributes.inputTextColorError
-                  }
-                  theme-input-font-size={styleAttributes.inputTextSize}
+                  theme-color-secondary={styleAttributes.inputPlaceholderColor}
+                  theme-font-body={styleAttributes.inputFont}
+                  theme-color-body={styleAttributes.inputTextColor}
+                  theme-color-error={styleAttributes.inputTextColorError}
                   ref={(node: Element | null) => {
                     refs.current[fieldName] = node as AchFieldElement | null;
                   }}
                 />
-              </Field>
+              </Field.Root>
             );
           })}
-          <Field orientation="horizontal" className="sm:col-span-2">
-            <Checkbox
+          <AchOwnerConfirmationField>
+            <Checkbox.Root
               id={`ach-owner-confirmation-${option.id}`}
               checked={ownerConfirmed}
               disabled={disabled}
@@ -170,21 +223,21 @@ export default function AchOptionEmbed({
                 }
               }}
               aria-label={ownerConfirmationLabel}
-            />
-            <FieldLabel htmlFor={`ach-owner-confirmation-${option.id}`}>
+            >
+              <Checkbox.Indicator />
+            </Checkbox.Root>
+            <Field.Label htmlFor={`ach-owner-confirmation-${option.id}`}>
               {ownerConfirmationLabel}
-            </FieldLabel>
-          </Field>
+            </Field.Label>
+          </AchOwnerConfirmationField>
           {ownerConfirmationError ? (
-            <p className="m-0 text-sm text-destructive sm:col-span-2">
+            <AchOwnerConfirmationError>
               {ownerConfirmationErrorMessage}
-            </p>
+            </AchOwnerConfirmationError>
           ) : null}
-        </FieldGroup>
-      </FieldSet>
-      {error ? (
-        <p className="m-0 text-sm text-destructive">{tokenizeErrorMessage}</p>
-      ) : null}
-    </div>
+        </AchFieldGrid>
+      </Field.Set>
+      {error ? <ErrorText>{tokenizeErrorMessage}</ErrorText> : null}
+    </AchFieldsRoot>
   );
 }
