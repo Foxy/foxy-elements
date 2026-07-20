@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { THEME_PROPERTY_TO_ATTRIBUTE } from "@/lib/theme-mixin";
+import { deriveInputMetrics } from "@/lib/theme-attribute-sync";
+import { defaultTheme } from "@foxy.io/design-system/theme";
 
 import {
   ACH_FIELD_ELEMENT_TAG,
@@ -157,12 +159,14 @@ describe("AchFieldElement events", () => {
     document.body.innerHTML = "";
     document.documentElement.style.removeProperty("--font-body");
     document.documentElement.style.removeProperty("--size-control");
+    document.documentElement.style.removeProperty("--size-border-width");
   });
 
   afterEach(() => {
     document.body.innerHTML = "";
     document.documentElement.style.removeProperty("--font-body");
     document.documentElement.style.removeProperty("--size-control");
+    document.documentElement.style.removeProperty("--size-border-width");
     vi.useRealTimers();
     vi.restoreAllMocks();
   });
@@ -488,5 +492,25 @@ describe("AchFieldElement events", () => {
     const url = new URL(src, window.location.origin);
     expect(url.searchParams.get("input_font")).toBe("Figtree, sans-serif");
     expect(url.searchParams.get("input_height")).toBe("48px");
+  });
+
+  it("derives the outer iframe's initial height from defaultTheme when no theme is configured at all", () => {
+    const field = createField("routing-number");
+
+    const iframe = field.shadowRoot?.querySelector(
+      "iframe:not([data-role='controller'])",
+    ) as HTMLIFrameElement | null;
+    expect(iframe).toBeTruthy();
+
+    const expectedMetrics = deriveInputMetrics({
+      controlSize: defaultTheme.size.control,
+      borderWidth: defaultTheme.size.borderWidth,
+      fontBody: defaultTheme.font.body,
+    });
+    const expectedHeight = `${expectedMetrics.heightPx}px`;
+
+    const computedStyle = getComputedStyle(iframe as HTMLIFrameElement);
+    expect(computedStyle.height).toBe(expectedHeight);
+    expect(computedStyle.minHeight).toBe(expectedHeight);
   });
 });

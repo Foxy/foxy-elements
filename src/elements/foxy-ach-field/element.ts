@@ -7,7 +7,10 @@ import {
   type ThemeMixinMethods,
   type ThemePropertyValues,
 } from "@/lib/theme-mixin";
-import { deriveInputMetrics } from "@/lib/theme-attribute-sync";
+import {
+  deriveInputMetrics,
+  type DerivedInputMetrics,
+} from "@/lib/theme-attribute-sync";
 import { defaultTheme } from "@foxy.io/design-system/theme";
 
 export const ACH_FIELD_ELEMENT_TAG = "foxy-ach-field";
@@ -15,7 +18,6 @@ export const ACH_FIELD_ELEMENT_TAG = "foxy-ach-field";
 const DEFAULT_ACH_SECURE_ORIGIN =
   import.meta.env.VITE_EMBED_ORIGIN?.trim() || "https://embed.foxy.io";
 const DEFAULT_EMBED_PATH = "/v2.html";
-const DEFAULT_FIELD_HEIGHT = "52px";
 
 const DEFAULT_LABELS = {
   "routing-number": "Routing number",
@@ -1071,12 +1073,7 @@ export class AchFieldElement extends ThemeableHTMLElement {
         );
       }
 
-      const metrics = deriveInputMetrics({
-        controlSize: theme["--size-control"] || defaultTheme.size.control,
-        borderWidth:
-          theme["--size-border-width"] || defaultTheme.size.borderWidth,
-        fontBody: theme["--font-body"] || defaultTheme.font.body,
-      });
+      const metrics = this._resolveThemeMetrics();
 
       url.searchParams.set("input_height", `${metrics.heightPx}px`);
       url.searchParams.set(
@@ -1132,19 +1129,20 @@ export class AchFieldElement extends ThemeableHTMLElement {
     return new Error(`ACH tokenization failed with code: ${code}`);
   }
 
-  private _resolveInitialIframeHeight(): string {
-    const controlSize = this.getThemeProperty("themeSizeControl");
-    const borderWidth = this.getThemeProperty("themeSizeBorderWidth");
-    const fontBody = this.getThemeProperty("themeFontBody");
-
-    if (!controlSize && !borderWidth && !fontBody) return DEFAULT_FIELD_HEIGHT;
-
-    const metrics = deriveInputMetrics({
-      controlSize: controlSize || defaultTheme.size.control,
-      borderWidth: borderWidth || defaultTheme.size.borderWidth,
-      fontBody: fontBody || defaultTheme.font.body,
+  private _resolveThemeMetrics(): DerivedInputMetrics {
+    return deriveInputMetrics({
+      controlSize:
+        this.getThemeProperty("themeSizeControl") || defaultTheme.size.control,
+      borderWidth:
+        this.getThemeProperty("themeSizeBorderWidth") ||
+        defaultTheme.size.borderWidth,
+      fontBody:
+        this.getThemeProperty("themeFontBody") || defaultTheme.font.body,
     });
+  }
 
+  private _resolveInitialIframeHeight(): string {
+    const metrics = this._resolveThemeMetrics();
     return `${metrics.heightPx}px`;
   }
 
