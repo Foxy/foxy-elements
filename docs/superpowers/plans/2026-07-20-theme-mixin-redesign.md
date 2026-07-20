@@ -152,7 +152,7 @@ This is the old-to-new mapping this replaces (for reference — not code to writ
 
 - [ ] **Step 3: Typecheck**
 
-Run: `npx tsc --noEmit -p .` (or the repo's equivalent — check `package.json`'s `scripts` for a `typecheck`/`check` entry first and prefer that)
+Run: `npx tsc --noEmit -p tsconfig.app.json` (or the repo's equivalent — check `package.json`'s `scripts` for a `typecheck`/`check` entry first and prefer that)
 
 Expected: FAILS at this point — every consumer (`foxy-ach-field`, `foxy-payment-card-field`, and their tests/stories) still references the old property/attribute names (`themeInputHeight`, `theme-input-height`, etc.), which no longer exist on the `ThemeElement`/`ThemePropertyValues` types. This is expected and will be fixed by Tasks 3-6. Confirm the errors are all in the expected files (`foxy-ach-field/*`, `foxy-payment-card-field/*`) and not in `theme-mixin.ts` itself.
 
@@ -1349,7 +1349,7 @@ Expected: no matches anywhere in `src/`.
 
 - [ ] **Step 2: Full typecheck and test run**
 
-Run: `npx tsc --noEmit -p .` (or this repo's `check`/`typecheck` script) and `npx vitest run`.
+Run: `npx tsc --noEmit -p tsconfig.app.json` (or this repo's `check`/`typecheck` script) and `npx vitest run`.
 Expected: both pass with zero errors.
 
 - [ ] **Step 3: No commit needed — verification only.**

@@ -267,7 +267,7 @@ Remove the `import defaultShadowStyles from "@/index.css?inline";` import (line 
 
 - [ ] **Step 7: Typecheck and run this element's tests**
 
-Run: `npx tsc --noEmit -p .` — expected to still show errors in `view.tsx`/`billing.tsx`/embeds (not yet migrated, Tasks 3-5) but **zero** errors specific to `element.tsx` itself.
+Run: `npx tsc --noEmit -p tsconfig.app.json` — expected to still show errors in `view.tsx`/`billing.tsx`/embeds (not yet migrated, Tasks 3-5) but **zero** errors specific to `element.tsx` itself.
 
 Run: `npx vitest run src/elements/foxy-payment-method-selector/element.test.ts`
 Expected: FAILS at this point (the test file imports `./view`, which still has broken `/ui/*` imports until Task 3) — confirm the failure is an import/module-resolution error from `view.tsx`, not a new error inside `element.tsx`'s own logic.
@@ -748,7 +748,7 @@ to:
 
 - [ ] **Step 8: Typecheck**
 
-Run: `npx tsc --noEmit -p .`
+Run: `npx tsc --noEmit -p tsconfig.app.json`
 Expected: `view.tsx` itself has zero errors (errors in `billing.tsx` and the embeds are expected until Tasks 4-6 land — confirm the remaining errors are all in those other files).
 
 - [ ] **Step 9: Commit**
@@ -1213,7 +1213,7 @@ becomes:
 
 - [ ] **Step 10: Typecheck and run tests**
 
-Run: `npx tsc --noEmit -p .`
+Run: `npx tsc --noEmit -p tsconfig.app.json`
 Expected: `billing.tsx` and `view.tsx` are now both clean; remaining errors (if any) should only be in the not-yet-migrated embeds (Tasks 5-6-7).
 
 Run: `npx vitest run src/elements/foxy-payment-method-selector`
@@ -1488,7 +1488,7 @@ Note the `styleAttributes` prop object (`inputHeight`/`inputPadding`/`inputPaddi
 
 - [ ] **Step 4: Typecheck**
 
-Run: `npx tsc --noEmit -p .`
+Run: `npx tsc --noEmit -p tsconfig.app.json`
 Expected: this file is now clean.
 
 - [ ] **Step 5: Commit**
@@ -1669,7 +1669,7 @@ with:
 
 - [ ] **Step 4: Typecheck**
 
-Run: `npx tsc --noEmit -p .`
+Run: `npx tsc --noEmit -p tsconfig.app.json`
 Expected: this file is now clean.
 
 - [ ] **Step 5: Commit**
@@ -1808,7 +1808,7 @@ with:
 
 - [ ] **Step 4: Typecheck and run the whole element's tests**
 
-Run: `npx tsc --noEmit -p .`
+Run: `npx tsc --noEmit -p tsconfig.app.json`
 Expected: zero errors anywhere in `foxy-payment-method-selector` now.
 
 Run: `npx vitest run src/elements/foxy-payment-method-selector`
@@ -2117,7 +2117,7 @@ No `probeRef` is returned anymore — Tasks 9/10 remove the corresponding `ref={
 
 - [ ] **Step 8: Typecheck**
 
-Run: `npx tsc --noEmit -p .`
+Run: `npx tsc --noEmit -p tsconfig.app.json`
 Expected: errors remain in `card-option.tsx`, `payment-option.tsx`, `square-web-payments.tsx`, `view.tsx` (all still destructure a `probeRef` this file no longer returns) — confirm errors are confined to those files, fixed in Tasks 9-11 and 14.
 
 - [ ] **Step 9: Commit**
@@ -2327,7 +2327,7 @@ Replace with:
 
 - [ ] **Step 3: Typecheck**
 
-Run: `npx tsc --noEmit -p .`
+Run: `npx tsc --noEmit -p tsconfig.app.json`
 Expected: this file is now clean (aside from pre-existing errors in files not yet migrated in this task list).
 
 - [ ] **Step 4: Commit**
@@ -2383,7 +2383,7 @@ Add `const { tokens } = useTheme();` near the top of the component (import `useT
 
 - [ ] **Step 4: Typecheck**
 
-Run: `npx tsc --noEmit -p .`
+Run: `npx tsc --noEmit -p tsconfig.app.json`
 Expected: clean.
 
 - [ ] **Step 5: Commit**
@@ -2453,7 +2453,7 @@ This is a runtime-injected `<style>` template literal (same pattern as `ADYEN_EM
 
 - [ ] **Step 5: Typecheck**
 
-Run: `npx tsc --noEmit -p .`
+Run: `npx tsc --noEmit -p tsconfig.app.json`
 Expected: clean.
 
 - [ ] **Step 6: Commit**
@@ -2688,7 +2688,7 @@ Find every call site of `ensureAdyenEmbeddedStyles()` (`grep -n "ensureAdyenEmbe
 
 - [ ] **Step 3: Typecheck and visual check**
 
-Run: `npx tsc --noEmit -p .` — expected clean.
+Run: `npx tsc --noEmit -p tsconfig.app.json` — expected clean.
 
 Run `npm run localdev:storybook`, open an Adyen-embedded story, confirm the Adyen Drop-in's colors/spacing match the new design system's tokens (not the old shadcn hex fallbacks).
 
@@ -2804,7 +2804,7 @@ Expected: after Steps 1-3, this should show zero remaining consumers (or list th
 
 - [ ] **Step 5: Typecheck**
 
-Run: `npx tsc --noEmit -p .`
+Run: `npx tsc --noEmit -p tsconfig.app.json`
 Expected: clean (aside from anything left for Task 14).
 
 - [ ] **Step 6: Commit**
@@ -2879,7 +2879,7 @@ Expected: no matches (Tasks 8/9/10/11 already removed the other two consumers �
 
 - [ ] **Step 6: Typecheck and run the full element test suite**
 
-Run: `npx tsc --noEmit -p .`
+Run: `npx tsc --noEmit -p tsconfig.app.json`
 Expected: zero errors anywhere in `foxy-payment-method-selector` now — this is the point where every file in the element compiles clean against the new design system with no Tailwind-dependent code remaining.
 
 Run: `npx vitest run src/elements/foxy-payment-method-selector`
@@ -3069,7 +3069,7 @@ grep -rn "@foxy.io/design-system/ui\|getShadcnInputMetrics\|tailwindcss\|SHADCN_
 ```
 Expected: zero matches anywhere in the repo.
 
-Run: `npx tsc --noEmit -p . && npx vitest run`
+Run: `npx tsc --noEmit -p tsconfig.app.json && npx vitest run`
 Expected: both pass cleanly.
 
 - [ ] **Step 5: Commit**
