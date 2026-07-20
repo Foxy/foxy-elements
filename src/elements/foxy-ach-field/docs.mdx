@@ -80,83 +80,65 @@ The themed elements in this package support a broader shared set of theme attrib
     </tr>
     <tr>
       <td>
-        <code>theme-input-placeholder-color</code>
+        <code>theme-color-secondary</code>
       </td>
       <td>Placeholder text color token.</td>
       <td>
-        <code>#94a3b8</code>
+        <code>#635C67</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-input-height</code>
+        <code>theme-font-body</code>
       </td>
-      <td>Hosted input height.</td>
       <td>
-        <code>44px</code>
+        Font shorthand (weight/size/line-height/family) for the hosted input
+        text.
       </td>
-    </tr>
-    <tr>
       <td>
-        <code>theme-input-padding</code>
-      </td>
-      <td>Hosted input shorthand padding.</td>
-      <td>
-        <code>0 12px</code>
+        <code>400 1rem/1.25 Albert Sans, sans-serif</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-input-padding-x</code>
-      </td>
-      <td>Hosted input horizontal padding override.</td>
-      <td>
-        <code>12px</code>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>theme-input-padding-y</code>
-      </td>
-      <td>Hosted input vertical padding override.</td>
-      <td>
-        <code>10px</code>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>theme-font-sans</code>
-      </td>
-      <td>Hosted input font family token.</td>
-      <td>
-        <code>"IBM Plex Sans", sans-serif</code>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>theme-input-text-color</code>
+        <code>theme-color-body</code>
       </td>
       <td>Hosted input text color token.</td>
       <td>
-        <code>#0f172a</code>
+        <code>#1C1A1D</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-input-error-text-color</code>
+        <code>theme-color-error</code>
       </td>
-      <td>Error-state text color token.</td>
+      <td>Hosted input error-state text color token.</td>
       <td>
-        <code>#dc2626</code>
+        <code>#C1272D</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-input-font-size</code>
+        <code>theme-size-control</code>
       </td>
-      <td>Hosted input font size token.</td>
       <td>
-        <code>16px</code>
+        Overall control height; hosted input height and horizontal padding are
+        both derived from this.
+      </td>
+      <td>
+        <code>2.5rem</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-size-border-width</code>
+      </td>
+      <td>
+        Border width used to compute the hosted input's content height from
+        theme-size-control.
+      </td>
+      <td>
+        <code>0.125rem</code>
       </td>
     </tr>
   </tbody>
@@ -232,105 +214,74 @@ The themed elements in this package support a broader shared set of theme attrib
     </tr>
     <tr>
       <td>
-        <code>themeInputPlaceholderColor</code>
+        <code>themeColorSecondary</code>
       </td>
       <td>
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-input-placeholder-color</code> for hosted
-        placeholder text color.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeInputHeight</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-input-height</code> for hosted input height.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeInputPadding</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-input-padding</code> for hosted input padding
-        shorthand.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeInputPaddingX</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-input-padding-x</code> for horizontal padding.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeInputPaddingY</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-input-padding-y</code> for vertical padding.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeFontSans</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-font-sans</code> for the hosted font family.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeInputTextColor</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-input-text-color</code> for hosted input text
+        Reflects <code>theme-color-secondary</code> for hosted placeholder text
         color.
       </td>
     </tr>
     <tr>
       <td>
-        <code>themeInputErrorTextColor</code>
+        <code>themeFontBody</code>
       </td>
       <td>
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-input-error-text-color</code> for error-state text
-        color.
+        Reflects <code>theme-font-body</code> for the hosted input font
+        shorthand (weight/size/line-height/family).
       </td>
     </tr>
     <tr>
       <td>
-        <code>themeInputFontSize</code>
+        <code>themeColorBody</code>
       </td>
       <td>
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-input-font-size</code> for hosted input font size.
+        Reflects <code>theme-color-body</code> for hosted input text color.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeColorError</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-color-error</code> for hosted input error-state
+        text color.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeSizeControl</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-size-control</code>; overall control height that
+        hosted input height and horizontal padding are derived from.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeSizeBorderWidth</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-size-border-width</code>; border width used to
+        compute the hosted input's content height from
+        <code>theme-size-control</code>.
       </td>
     </tr>
   </tbody>
@@ -490,7 +441,7 @@ Reset semantics follow native form-associated behavior: resetting a parent <code
     type="routing-number"
     group="checkout-ach"
     placeholder="123456789"
-    theme-input-height="44px"
+    theme-size-control="2.75rem"
   ></foxy-ach-field>
 
   <label for="ach-account">Account number</label>

@@ -32,10 +32,8 @@ type AchStoryArgs = {
   themeTextColor: string;
   themePlaceholderColor: string;
   themeErrorTextColor: string;
-  themeHeight: string;
-  themePadding: string;
-  themeFontSize: string;
-  themeFontSans: string;
+  themeControlSize: string;
+  themeFontBody: string;
 };
 
 const meta = {
@@ -72,10 +70,8 @@ const meta = {
     themeTextColor: "#111827",
     themePlaceholderColor: "#6b7280",
     themeErrorTextColor: "#dc2626",
-    themeHeight: "",
-    themePadding: "",
-    themeFontSize: "14px",
-    themeFontSans: "ui-sans-serif, system-ui, sans-serif",
+    themeControlSize: "",
+    themeFontBody: "14px ui-sans-serif, system-ui, sans-serif",
   },
 } satisfies Meta<AchStoryArgs>;
 
@@ -619,10 +615,8 @@ export const ThemeAttributeControls: Story = {
         "themeTextColor",
         "themePlaceholderColor",
         "themeErrorTextColor",
-        "themeHeight",
-        "themePadding",
-        "themeFontSize",
-        "themeFontSans",
+        "themeControlSize",
+        "themeFontBody",
       ],
     },
     docs: {
@@ -636,20 +630,16 @@ export const ThemeAttributeControls: Story = {
     themeTextColor: { control: "color" },
     themePlaceholderColor: { control: "color" },
     themeErrorTextColor: { control: "color" },
-    themeHeight: { control: "text" },
-    themePadding: { control: "text" },
-    themeFontSize: { control: "text" },
-    themeFontSans: { control: "text" },
+    themeControlSize: { control: "text" },
+    themeFontBody: { control: "text" },
   },
   render: ({
     group,
     themeTextColor,
     themePlaceholderColor,
     themeErrorTextColor,
-    themeHeight,
-    themePadding,
-    themeFontSize,
-    themeFontSans,
+    themeControlSize,
+    themeFontBody,
   }) => {
     const surface = createAchSurface();
     const item = createLabeledField({
@@ -662,10 +652,8 @@ export const ThemeAttributeControls: Story = {
         textColor: themeTextColor,
         placeholderColor: themePlaceholderColor,
         errorTextColor: themeErrorTextColor,
-        height: themeHeight,
-        padding: themePadding,
-        fontSize: themeFontSize,
-        fontSans: themeFontSans,
+        controlSize: themeControlSize,
+        fontBody: themeFontBody,
       },
     });
 
