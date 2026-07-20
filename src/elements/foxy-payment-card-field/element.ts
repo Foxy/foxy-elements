@@ -7,7 +7,10 @@ import {
   type ThemeMixinMethods,
   type ThemePropertyValues,
 } from "@/lib/theme-mixin";
-import { deriveInputMetrics } from "@/lib/theme-attribute-sync";
+import {
+  deriveInputMetrics,
+  type DerivedInputMetrics,
+} from "@/lib/theme-attribute-sync";
 import { defaultTheme } from "@foxy.io/design-system/theme";
 
 export const PAYMENT_CARD_FIELD_ELEMENT_TAG = "foxy-payment-card-field";
@@ -545,8 +548,8 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
     this._iframe = iframe;
   }
 
-  private _resolveInitialIframeHeight(): string {
-    const metrics = deriveInputMetrics({
+  private _resolveThemeMetrics(): DerivedInputMetrics {
+    return deriveInputMetrics({
       controlSize:
         this.getThemeProperty("themeSizeControl") ?? defaultTheme.size.control,
       borderWidth:
@@ -555,6 +558,10 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
       fontBody:
         this.getThemeProperty("themeFontBody") ?? defaultTheme.font.body,
     });
+  }
+
+  private _resolveInitialIframeHeight(): string {
+    const metrics = this._resolveThemeMetrics();
     return `${metrics.heightPx}px`;
   }
 
@@ -614,15 +621,7 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
       url.searchParams.set(THEME_ATTR_TO_QUERY_KEY[attrName], value);
     }
 
-    const metrics = deriveInputMetrics({
-      controlSize:
-        this.getThemeProperty("themeSizeControl") ?? defaultTheme.size.control,
-      borderWidth:
-        this.getThemeProperty("themeSizeBorderWidth") ??
-        defaultTheme.size.borderWidth,
-      fontBody:
-        this.getThemeProperty("themeFontBody") ?? defaultTheme.font.body,
-    });
+    const metrics = this._resolveThemeMetrics();
 
     url.searchParams.set("theme_input_height", `${metrics.heightPx}px`);
     url.searchParams.set(
