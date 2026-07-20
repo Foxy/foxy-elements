@@ -155,14 +155,14 @@ describe("AchFieldElement events", () => {
   beforeEach(() => {
     installFakeInternals();
     document.body.innerHTML = "";
-    document.documentElement.style.removeProperty("--font-sans");
-    document.documentElement.style.removeProperty("--input-height");
+    document.documentElement.style.removeProperty("--font-body");
+    document.documentElement.style.removeProperty("--size-control");
   });
 
   afterEach(() => {
     document.body.innerHTML = "";
-    document.documentElement.style.removeProperty("--font-sans");
-    document.documentElement.style.removeProperty("--input-height");
+    document.documentElement.style.removeProperty("--font-body");
+    document.documentElement.style.removeProperty("--size-control");
     vi.useRealTimers();
     vi.restoreAllMocks();
   });
@@ -461,8 +461,8 @@ describe("AchFieldElement events", () => {
       expect(field.hasAttribute(attributeName)).toBe(false);
     }
 
-    field.themeInputHeight = " 44px ";
-    expect(field.getAttribute("theme-input-height")).toBe("44px");
+    field.themeSizeControl = " 3rem ";
+    expect(field.getAttribute("theme-size-control")).toBe("3rem");
   });
 
   it("uses CSS custom properties as default theme values", () => {
@@ -471,12 +471,13 @@ describe("AchFieldElement events", () => {
     ) as AchFieldElement;
     field.type = "routing-number";
     field.group = "ach-unit-group";
-    field.style.setProperty("--font-sans", "Figtree");
-    field.style.setProperty("--input-height", "48px");
+    field.style.setProperty("--font-body", "400 1rem/1.25 Figtree, sans-serif");
+    field.style.setProperty("--size-control", "3rem");
+    field.style.setProperty("--size-border-width", "0px");
     document.body.append(field);
 
-    expect(field.themeFontSans).toBe("Figtree");
-    expect(field.themeInputHeight).toBe("48px");
+    expect(field.themeFontBody).toBe("400 1rem/1.25 Figtree, sans-serif");
+    expect(field.themeSizeControl).toBe("3rem");
 
     const iframe = field.shadowRoot?.querySelector(
       "iframe:not([data-role='controller'])",
@@ -485,7 +486,7 @@ describe("AchFieldElement events", () => {
 
     const src = iframe?.getAttribute("src") ?? "";
     const url = new URL(src, window.location.origin);
-    expect(url.searchParams.get("input_font")).toBe("Figtree");
+    expect(url.searchParams.get("input_font")).toBe("Figtree, sans-serif");
     expect(url.searchParams.get("input_height")).toBe("48px");
   });
 });
