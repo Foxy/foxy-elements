@@ -14,12 +14,13 @@ import type {
 import "../foxy-ach-field/element";
 import "../foxy-payment-card-field/element";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
-import { Alert, AlertDescription } from "@foxy.io/design-system/ui/alert";
+import { Alert } from "@foxy.io/design-system/alert";
+import { defaultTheme } from "@foxy.io/design-system/theme";
+import { StyleSheetManager, ThemeProvider } from "styled-components";
 
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import { IntlProvider } from "react-intl";
-import defaultShadowStyles from "@/index.css?inline";
 import enUsMessages from "@/locales/en-US.json";
 import {
   type PaymentMethodSelectorBillingAddressErrorEventDetail,
@@ -158,8 +159,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     super();
     this.#shadowRootRef = this.attachShadow({ mode: "open" });
     this.#container = document.createElement("div");
-    this.#container.style.fontFamily = "var(--font-sans)";
-    this.#container.style.color = "var(--foreground)";
     this.#shadowRootRef.append(this.#container);
   }
 
@@ -739,7 +738,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       }
       this.#scheduleStripeLightDomSync(undefined);
       this.#scheduleAdyenLightDomSync(undefined);
-      this.#applyStylesheet();
       return;
     }
 
@@ -752,7 +750,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       this.#renderLoadingState();
       this.#scheduleStripeLightDomSync(undefined);
       this.#scheduleAdyenLightDomSync(undefined);
-      this.#applyStylesheet();
       return;
     }
 
@@ -764,154 +761,157 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     const orderCurrencyCode = this.#resolveOrderCurrencyCode(apiState);
 
     this.#root.render(
-      <IntlProvider
-        locale={locale}
-        defaultLocale={DEFAULT_LOCALE}
-        messages={messages}
-      >
-        <Payment
-          options={options}
-          selectedOptionId={selectedOptionId}
-          lang={locale}
-          disabled={this.#loading}
-          loading={this.#optionsLoading}
-          billingAddress={billingAddress}
-          orderTotal={orderTotal}
-          orderCurrencyCode={orderCurrencyCode}
-          billingError={
-            selectedOptionId
-              ? this.#billingErrorsByOption.get(selectedOptionId)
-              : undefined
-          }
-          onSelectionChange={(optionId) => {
-            const previousSelectedOption = this.#resolveSelectedOption();
-            if (previousSelectedOption?.id === optionId) {
-              return;
-            }
-
-            // When switching away from an Adyen option to a native option,
-            // deselect any internally-selected Adyen Drop-in payment method so
-            // the Drop-in doesn't appear to remain selected/open.
-            const nextOption = options.find((o) => o.id === optionId);
-            if (
-              previousSelectedOption &&
-              this.#isAdyenOption(previousSelectedOption) &&
-              nextOption &&
-              !this.#isAdyenOption(nextOption)
-            ) {
-              const controller = this.#controllers.get(
-                previousSelectedOption.id,
-              );
-              controller?.deselect?.();
-            }
-
-            const nextOptionIndex = options.findIndex(
-              (option) => option.id === optionId,
-            );
-            const optionIndex =
-              nextOptionIndex >= 0 ? nextOptionIndex : undefined;
-
-            this.optionIndex = optionIndex;
-
-            if (optionIndex === undefined) {
-              return;
-            }
-
-            this.dispatchEvent(
-              new CustomEvent<PaymentMethodSelectorChangeEventDetail>(
-                paymentMethodSelectorEvents.optionIndexChange,
-                {
-                  bubbles: true,
-                  composed: true,
-                  detail: {
-                    optionIndex,
-                  },
-                },
-              ),
-            );
-          }}
-          onBillingAddressChange={({
-            optionId,
-            useShippingAddress,
-            values,
-          }) => {
-            const fullSnapshot = this.#toBillingAddressPatch({
-              useShippingAddress,
-              values,
-            });
-            const patch = this.#diffBillingAddressPatch(fullSnapshot);
-
-            const requestVersion = this.#nextBillingRequestVersion(optionId);
-            this.#setBillingAddressError(optionId, undefined);
-
-            if (Object.keys(patch).length === 0) {
-              return;
-            }
-
-            const handleFailure = (error: unknown) => {
-              if (
-                this.#billingRequestVersionByOption.get(optionId) !==
-                requestVersion
-              ) {
-                return;
+      <StyleSheetManager target={this.#shadowRootRef}>
+        <ThemeProvider theme={{ tokens: this.#buildThemeTokens() }}>
+          <IntlProvider
+            locale={locale}
+            defaultLocale={DEFAULT_LOCALE}
+            messages={messages}
+          >
+            <Payment
+              options={options}
+              selectedOptionId={selectedOptionId}
+              lang={locale}
+              disabled={this.#loading}
+              loading={this.#optionsLoading}
+              billingAddress={billingAddress}
+              orderTotal={orderTotal}
+              orderCurrencyCode={orderCurrencyCode}
+              portalContainer={this.#shadowRootRef}
+              billingError={
+                selectedOptionId
+                  ? this.#billingErrorsByOption.get(selectedOptionId)
+                  : undefined
               }
+              onSelectionChange={(optionId) => {
+                const previousSelectedOption = this.#resolveSelectedOption();
+                if (previousSelectedOption?.id === optionId) {
+                  return;
+                }
 
-              this.#setBillingAddressError(optionId, {
-                message: this.#getErrorMessage(error),
-              });
-              this.dispatchEvent(
-                new CustomEvent<PaymentMethodSelectorBillingAddressErrorEventDetail>(
-                  paymentMethodSelectorEvents.billingAddressError,
-                  {
-                    bubbles: true,
-                    composed: true,
-                    detail: {
-                      error,
-                      optionId,
-                      useShippingAddress,
-                      values,
+                // When switching away from an Adyen option to a native option,
+                // deselect any internally-selected Adyen Drop-in payment method so
+                // the Drop-in doesn't appear to remain selected/open.
+                const nextOption = options.find((o) => o.id === optionId);
+                if (
+                  previousSelectedOption &&
+                  this.#isAdyenOption(previousSelectedOption) &&
+                  nextOption &&
+                  !this.#isAdyenOption(nextOption)
+                ) {
+                  const controller = this.#controllers.get(
+                    previousSelectedOption.id,
+                  );
+                  controller?.deselect?.();
+                }
+
+                const nextOptionIndex = options.findIndex(
+                  (option) => option.id === optionId,
+                );
+                const optionIndex =
+                  nextOptionIndex >= 0 ? nextOptionIndex : undefined;
+
+                this.optionIndex = optionIndex;
+
+                if (optionIndex === undefined) {
+                  return;
+                }
+
+                this.dispatchEvent(
+                  new CustomEvent<PaymentMethodSelectorChangeEventDetail>(
+                    paymentMethodSelectorEvents.optionIndexChange,
+                    {
+                      bubbles: true,
+                      composed: true,
+                      detail: {
+                        optionIndex,
+                      },
                     },
-                  },
-                ),
-              );
-            };
+                  ),
+                );
+              }}
+              onBillingAddressChange={({
+                optionId,
+                useShippingAddress,
+                values,
+              }) => {
+                const fullSnapshot = this.#toBillingAddressPatch({
+                  useShippingAddress,
+                  values,
+                });
+                const patch = this.#diffBillingAddressPatch(fullSnapshot);
 
-            try {
-              const result = this.#checkoutClient.updateBillingAddress?.(patch);
-              if (
-                result &&
-                typeof (result as Promise<unknown>).catch === "function"
-              ) {
-                void (result as Promise<unknown>).catch(handleFailure);
-              }
-            } catch (error) {
-              handleFailure(error);
-            }
-          }}
-          onControllerReady={(optionId, controller) => {
-            if (controller) {
-              this.#controllers.set(optionId, controller);
-              return;
-            }
+                const requestVersion = this.#nextBillingRequestVersion(optionId);
+                this.#setBillingAddressError(optionId, undefined);
 
-            this.#controllers.delete(optionId);
-          }}
-          renderStripeContent={({ option }) => {
-            const slotName = this.#getStripeSlotName(option.id);
-            return <slot name={slotName} />;
-          }}
-          renderAdyenContent={({ option }) => {
-            const slotName = this.#getAdyenSlotName(option.id);
-            return <slot name={slotName} />;
-          }}
-        />
-      </IntlProvider>,
+                if (Object.keys(patch).length === 0) {
+                  return;
+                }
+
+                const handleFailure = (error: unknown) => {
+                  if (
+                    this.#billingRequestVersionByOption.get(optionId) !==
+                    requestVersion
+                  ) {
+                    return;
+                  }
+
+                  this.#setBillingAddressError(optionId, {
+                    message: this.#getErrorMessage(error),
+                  });
+                  this.dispatchEvent(
+                    new CustomEvent<PaymentMethodSelectorBillingAddressErrorEventDetail>(
+                      paymentMethodSelectorEvents.billingAddressError,
+                      {
+                        bubbles: true,
+                        composed: true,
+                        detail: {
+                          error,
+                          optionId,
+                          useShippingAddress,
+                          values,
+                        },
+                      },
+                    ),
+                  );
+                };
+
+                try {
+                  const result = this.#checkoutClient.updateBillingAddress?.(patch);
+                  if (
+                    result &&
+                    typeof (result as Promise<unknown>).catch === "function"
+                  ) {
+                    void (result as Promise<unknown>).catch(handleFailure);
+                  }
+                } catch (error) {
+                  handleFailure(error);
+                }
+              }}
+              onControllerReady={(optionId, controller) => {
+                if (controller) {
+                  this.#controllers.set(optionId, controller);
+                  return;
+                }
+
+                this.#controllers.delete(optionId);
+              }}
+              renderStripeContent={({ option }) => {
+                const slotName = this.#getStripeSlotName(option.id);
+                return <slot name={slotName} />;
+              }}
+              renderAdyenContent={({ option }) => {
+                const slotName = this.#getAdyenSlotName(option.id);
+                return <slot name={slotName} />;
+              }}
+            />
+          </IntlProvider>
+        </ThemeProvider>
+      </StyleSheetManager>,
     );
 
     this.#scheduleStripeLightDomSync(selectedOptionId);
     this.#scheduleAdyenLightDomSync(selectedOptionId);
-
-    this.#applyStylesheet();
   }
 
   #handleApiStateChange = () => {
@@ -956,9 +956,13 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       messages.loadingOptions.defaultMessage;
 
     this.#root.render(
-      <Alert aria-live="polite">
-        <AlertDescription>{loadingText}</AlertDescription>
-      </Alert>,
+      <StyleSheetManager target={this.#shadowRootRef}>
+        <ThemeProvider theme={{ tokens: this.#buildThemeTokens() }}>
+          <Alert.Root aria-live="polite">
+            <Alert.Description>{loadingText}</Alert.Description>
+          </Alert.Root>
+        </ThemeProvider>
+      </StyleSheetManager>,
     );
   }
 
@@ -966,13 +970,17 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     if (!this.#root) return;
 
     this.#root.render(
-      <Alert variant="destructive" aria-live="polite">
-        <AlertDescription>
-          Checkout client is not initialized. Load the checkout SDK loader or
-          configure the client from @foxy.io/sdk/checkout/client before
-          rendering this element.
-        </AlertDescription>
-      </Alert>,
+      <StyleSheetManager target={this.#shadowRootRef}>
+        <ThemeProvider theme={{ tokens: this.#buildThemeTokens() }}>
+          <Alert.Root $variant="destructive" aria-live="polite">
+            <Alert.Description>
+              Checkout client is not initialized. Load the checkout SDK loader
+              or configure the client from @foxy.io/sdk/checkout/client before
+              rendering this element.
+            </Alert.Description>
+          </Alert.Root>
+        </ThemeProvider>
+      </StyleSheetManager>,
     );
   }
 
@@ -984,6 +992,79 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
   #syncThemeAttributesToHostStyles() {
     this.syncThemeCssVarsToStyle();
+  }
+
+  #buildThemeTokens() {
+    return {
+      letterSpacing: defaultTheme.letterSpacing,
+      textTransform: defaultTheme.textTransform,
+      font: {
+        ...defaultTheme.font,
+        body: this.getThemeProperty("themeFontBody") ?? defaultTheme.font.body,
+      },
+      color: {
+        ...defaultTheme.color,
+        body: this.getThemeProperty("themeColorBody") ?? defaultTheme.color.body,
+        error: this.getThemeProperty("themeColorError") ?? defaultTheme.color.error,
+        primary:
+          this.getThemeProperty("themeColorPrimary") ?? defaultTheme.color.primary,
+        secondary:
+          this.getThemeProperty("themeColorSecondary") ??
+          defaultTheme.color.secondary,
+        onPrimary:
+          this.getThemeProperty("themeColorOnPrimary") ??
+          defaultTheme.color.onPrimary,
+      },
+      outline: {
+        ...defaultTheme.outline,
+        primary:
+          this.getThemeProperty("themeOutlinePrimary") ??
+          defaultTheme.outline.primary,
+      },
+      background: {
+        ...defaultTheme.background,
+        surface:
+          this.getThemeProperty("themeBackgroundSurface") ??
+          defaultTheme.background.surface,
+        field:
+          this.getThemeProperty("themeBackgroundField") ??
+          defaultTheme.background.field,
+        disabledField:
+          this.getThemeProperty("themeBackgroundDisabledField") ??
+          defaultTheme.background.disabledField,
+        buttonPrimary:
+          this.getThemeProperty("themeBackgroundButtonPrimary") ??
+          defaultTheme.background.buttonPrimary,
+        error:
+          this.getThemeProperty("themeBackgroundError") ??
+          defaultTheme.background.error,
+      },
+      border: {
+        ...defaultTheme.border,
+        field:
+          this.getThemeProperty("themeBorderField") ?? defaultTheme.border.field,
+      },
+      borderRadius: {
+        ...defaultTheme.borderRadius,
+        sm:
+          this.getThemeProperty("themeBorderRadiusSm") ??
+          defaultTheme.borderRadius.sm,
+      },
+      space: {
+        ...defaultTheme.space,
+        md: this.getThemeProperty("themeSpaceMd") ?? defaultTheme.space.md,
+      },
+      size: {
+        ...defaultTheme.size,
+        control:
+          this.getThemeProperty("themeSizeControl") ?? defaultTheme.size.control,
+        borderWidth:
+          this.getThemeProperty("themeSizeBorderWidth") ??
+          defaultTheme.size.borderWidth,
+      },
+      shadow: defaultTheme.shadow,
+      zIndex: defaultTheme.zIndex,
+    };
   }
 
   #resolveLocale(): string {
@@ -3072,22 +3153,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     if (!Number.isInteger(value)) return undefined;
     if (value < 0) return undefined;
     return value;
-  }
-
-  #applyStylesheet() {
-    const shadow = this.#shadowRootRef;
-    const injectedStyle = shadow.querySelector(
-      "style[data-foxy-payment-styles]",
-    ) as HTMLStyleElement | null;
-
-    let style = injectedStyle;
-    if (!style) {
-      style = document.createElement("style");
-      style.setAttribute("data-foxy-payment-styles", "");
-      shadow.insertBefore(style, shadow.firstChild);
-    }
-
-    style.textContent = defaultShadowStyles;
   }
 }
 
