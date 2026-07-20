@@ -86,7 +86,9 @@ const OptionRadioGroup = styled(Radio.Group)`
 `;
 
 const OptionRow = styled.div<{ $padded?: boolean }>`
-  ${(props) => props.$padded && `padding: ${props.theme.tokens.space.sm} 0;`}
+  ${(props) =>
+    props.$padded &&
+    `padding: ${props.theme.tokens.space.sm} ${props.theme.tokens.space.md};`}
 `;
 
 // Field.Root's own base styles are \`display: grid\` (label stacked above
