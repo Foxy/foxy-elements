@@ -9,6 +9,7 @@ import type {
 
 import { useEffect, useRef, useState } from "react";
 import { useIntl } from "react-intl";
+import { Check, ChevronDown } from "lucide-react";
 import { Button } from "@foxy.io/design-system/button";
 import { Checkbox } from "@foxy.io/design-system/checkbox";
 import { Field } from "@foxy.io/design-system/field";
@@ -189,6 +190,9 @@ function renderBillingField(
       >
         <FullWidthSelectTrigger id={field.id}>
           <Select.Value placeholder={intl.formatMessage(selectPlaceholder)} />
+          <Select.Icon>
+            <ChevronDown size="1rem" />
+          </Select.Icon>
         </FullWidthSelectTrigger>
         <Select.Portal container={portalContainer}>
           <Select.Positioner>
@@ -198,6 +202,9 @@ function renderBillingField(
                   {(field.options ?? []).map((option) => (
                     <Select.Item key={option.value} value={option.value}>
                       <Select.ItemText>{option.label}</Select.ItemText>
+                      <Select.ItemIndicator>
+                        <Check size="1rem" />
+                      </Select.ItemIndicator>
                     </Select.Item>
                   ))}
                 </Select.Group>
