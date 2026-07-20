@@ -29,8 +29,8 @@ type CardStoryArgs = {
   themePlaceholderColor: string;
   themeErrorTextColor: string;
   themeBackground: string;
-  themeFontSize: string;
-  themeFontSans: string;
+  themeControlSize: string;
+  themeFontBody: string;
 };
 
 const meta = {
@@ -58,8 +58,8 @@ const meta = {
     themePlaceholderColor: "#6b7280",
     themeErrorTextColor: "#dc2626",
     themeBackground: "#ffffff",
-    themeFontSize: "14px",
-    themeFontSans: "ui-sans-serif, system-ui, sans-serif",
+    themeControlSize: "",
+    themeFontBody: "14px ui-sans-serif, system-ui, sans-serif",
   },
 } satisfies Meta<CardStoryArgs>;
 
@@ -244,8 +244,8 @@ export const ThemeAttributeControls: Story = {
         "themePlaceholderColor",
         "themeErrorTextColor",
         "themeBackground",
-        "themeFontSize",
-        "themeFontSans",
+        "themeControlSize",
+        "themeFontBody",
       ],
     },
     docs: {
@@ -260,8 +260,8 @@ export const ThemeAttributeControls: Story = {
     themePlaceholderColor: { control: "color" },
     themeErrorTextColor: { control: "color" },
     themeBackground: { control: "color" },
-    themeFontSize: { control: "text" },
-    themeFontSans: { control: "text" },
+    themeControlSize: { control: "text" },
+    themeFontBody: { control: "text" },
   },
   render: ({
     mode,
@@ -269,8 +269,8 @@ export const ThemeAttributeControls: Story = {
     themePlaceholderColor,
     themeErrorTextColor,
     themeBackground,
-    themeFontSize,
-    themeFontSans,
+    themeControlSize,
+    themeFontBody,
   }) => {
     const surface = createCardSurface();
     const item = createLabeledField({
@@ -282,8 +282,8 @@ export const ThemeAttributeControls: Story = {
         placeholderColor: themePlaceholderColor,
         errorTextColor: themeErrorTextColor,
         background: themeBackground,
-        fontSize: themeFontSize,
-        fontSans: themeFontSans,
+        controlSize: themeControlSize,
+        fontBody: themeFontBody,
       },
     });
 
