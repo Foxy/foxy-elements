@@ -39,6 +39,19 @@ const FULL_WIDTH_BILLING_FIELD_IDS = new Set([
   "billing-address2",
 ]);
 
+// How long to wait after the last edit before reporting billing-address
+// changes upstream (and thus hitting the API) — avoids a network call per
+// keystroke. Flushed early on blur so a field is never left unsent.
+const BILLING_ADDRESS_REPORT_DEBOUNCE_MS = 500;
+
+// TEMPORARY: the backend's use_different_addresses handling is broken (it
+// gets forced back to false for carts with no shippable products, and the
+// toggle's persisted value isn't reliable), so the "use shipping address
+// for billing" checkbox doesn't actually do anything trustworthy server
+// side right now. Hiding it and always collecting the full billing form
+// until that's fixed. Revert by flipping this back to true.
+const SHOW_USE_SHIPPING_ADDRESS_CHECKBOX = false;
+
 function getBillingAddressSignature(
   billingAddress: PaymentMethodSelectorBillingAddress | undefined,
 ): string {
@@ -168,41 +181,91 @@ export function BillingAddressSection({
   );
   const onBillingAddressChangeRef = useRef(onBillingAddressChange);
   const lastReportedChangeRef = useRef<string | null>(null);
+  const reportTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingReportRef = useRef<{
+    optionId: string;
+    useShippingAddress: boolean;
+    values: Record<string, string>;
+  } | null>(null);
   onBillingAddressChangeRef.current = onBillingAddressChange;
   const billingAddressSignature = getBillingAddressSignature(billingAddress);
+
+  function flushBillingAddressReport() {
+    if (reportTimeoutRef.current) {
+      clearTimeout(reportTimeoutRef.current);
+      reportTimeoutRef.current = null;
+    }
+
+    const pending = pendingReportRef.current;
+    if (!pending) return;
+    pendingReportRef.current = null;
+
+    const nextChangeSignature = JSON.stringify(pending);
+    if (lastReportedChangeRef.current === nextChangeSignature) {
+      return;
+    }
+
+    lastReportedChangeRef.current = nextChangeSignature;
+    onBillingAddressChangeRef.current?.(pending);
+  }
 
   const supportsBillingAddress = option.type
     ? BILLING_ADDRESS_SUPPORTED_TYPES.has(option.type)
     : false;
 
+  const prevOptionIdRef = useRef(option.id);
+  const hasBillingAddressDataRef = useRef(Boolean(billingAddress?.fields.length));
+
   useEffect(() => {
+    const optionChanged = prevOptionIdRef.current !== option.id;
+    const hasBillingAddressDataNow = Boolean(billingAddress?.fields.length);
+    const becameAvailable =
+      hasBillingAddressDataNow && !hasBillingAddressDataRef.current;
+
+    prevOptionIdRef.current = option.id;
+    hasBillingAddressDataRef.current = hasBillingAddressDataNow;
+
+    // Reset local form state only when switching payment options, or the
+    // first time real billing-address data arrives for this option (e.g.
+    // once hydration completes post-mount). Later billingAddress changes
+    // are usually echoes of this component's own in-flight edits (see
+    // #diffBillingAddressPatch in element.tsx) — resetting on those would
+    // clobber whatever the shopper is mid-typing with a stale snapshot.
+    if (!optionChanged && !becameAvailable) return;
+
+    if (reportTimeoutRef.current) {
+      clearTimeout(reportTimeoutRef.current);
+      reportTimeoutRef.current = null;
+    }
+    pendingReportRef.current = null;
+
     setUseShippingAddress(
       billingAddress?.useDefaultShippingAddress === "yes-by-default",
     );
     setShowSummaryEditor(false);
     setValues(buildInitialBillingValues(billingAddress));
     lastReportedChangeRef.current = null;
-  }, [billingAddressSignature, option.id]);
+  }, [billingAddress, option.id]);
 
   useEffect(() => {
     if (!supportsBillingAddress || !billingAddress) return;
 
-    const nextChangeSignature = JSON.stringify({
-      optionId: option.id,
-      useShippingAddress,
-      values,
-    });
-    if (lastReportedChangeRef.current === nextChangeSignature) {
-      return;
+    pendingReportRef.current = { optionId: option.id, useShippingAddress, values };
+
+    if (reportTimeoutRef.current) {
+      clearTimeout(reportTimeoutRef.current);
     }
+    reportTimeoutRef.current = setTimeout(
+      flushBillingAddressReport,
+      BILLING_ADDRESS_REPORT_DEBOUNCE_MS,
+    );
 
-    lastReportedChangeRef.current = nextChangeSignature;
-
-    onBillingAddressChangeRef.current?.({
-      optionId: option.id,
-      useShippingAddress,
-      values,
-    });
+    return () => {
+      if (reportTimeoutRef.current) {
+        clearTimeout(reportTimeoutRef.current);
+        reportTimeoutRef.current = null;
+      }
+    };
   }, [
     billingAddressSignature,
     option.id,
@@ -259,7 +322,7 @@ export function BillingAddressSection({
   if (option.type === "saved-card") {
     if (showSummaryEditor) {
       return (
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-2.5" onBlur={flushBillingAddressReport}>
           {fieldsMarkup}
           {errorMarkup}
         </div>
@@ -298,10 +361,12 @@ export function BillingAddressSection({
     );
   }
 
-  const hasShippingToggle = Boolean(billingAddress.useDefaultShippingAddress);
+  const hasShippingToggle =
+    SHOW_USE_SHIPPING_ADDRESS_CHECKBOX &&
+    Boolean(billingAddress.useDefaultShippingAddress);
 
   return (
-    <div className="flex flex-col gap-2.5">
+    <div className="flex flex-col gap-2.5" onBlur={flushBillingAddressReport}>
       {hasShippingToggle ? (
         <Field orientation="horizontal">
           <Checkbox

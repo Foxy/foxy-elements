@@ -97,6 +97,15 @@ async function waitForRender(): Promise<void> {
   await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 }
 
+async function waitForBillingAddressReport(): Promise<void> {
+  // Billing-address edits are debounced (BILLING_ADDRESS_REPORT_DEBOUNCE_MS
+  // in billing.tsx) before they're reported upstream, so tests asserting on
+  // updateBillingAddress must wait past that window rather than a single
+  // render tick.
+  await new Promise<void>((resolve) => setTimeout(resolve, 600));
+  await waitForRender();
+}
+
 async function waitForText(
   getText: () => string | null | undefined,
   expected: string,
@@ -1159,19 +1168,19 @@ describe("PaymentMethodSelectorElement", () => {
       document.body.append(element);
       await waitForRender();
 
-      const checkbox = element.shadowRoot?.querySelector(
-        '[data-slot="checkbox"]',
-      ) as HTMLElement | null;
-      expect(checkbox).toBeTruthy();
+      const firstNameInput = element.shadowRoot?.querySelector(
+        "#billing-first-name",
+      ) as HTMLInputElement | null;
+      expect(firstNameInput).toBeTruthy();
 
-      checkbox?.click();
-      await waitForRender();
+      await setTextInputValue(firstNameInput!, "Jordan");
+      await waitForBillingAddressReport();
 
-      // Only the field that actually changed (the shipping-address toggle)
-      // is sent — the address text fields are untouched, so they must not
-      // be resent as if the shopper had just cleared them.
+      // Only the field that actually changed is sent — the other address
+      // fields are untouched, so they must not be resent as if the
+      // shopper had just cleared them.
       expect(updateBillingAddress).toHaveBeenCalledWith({
-        use_customer_shipping_address: false,
+        first_name: "Jordan",
       });
     } finally {
       element.remove();
@@ -1221,6 +1230,128 @@ describe("PaymentMethodSelectorElement", () => {
       expect(firstNameInput).toBeTruthy();
 
       await setTextInputValue(firstNameInput!, "J");
+      await waitForBillingAddressReport();
+
+      expect(updateBillingAddress).toHaveBeenCalledWith({
+        first_name: "J",
+      });
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("coalesces rapid keystrokes into a single debounced update", async () => {
+    const updateBillingAddress = vi.fn(() => Promise.resolve());
+    const restoreClient = overrideClientState(
+      {
+        billing_address: {
+          use_customer_shipping_address: false,
+          first_name: "",
+          last_name: "",
+          company: "",
+          address1: "",
+          address2: "",
+          city: "",
+          region: "",
+          postal_code: "",
+          country: "",
+          phone: "",
+        },
+        shipments: [
+          {
+            country_options: ["US", "CA"],
+            region_options: ["MN", "WI"],
+          },
+        ],
+        payment_gateways: [{ type: "authorize" }],
+      },
+      undefined,
+      { updateBillingAddress },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const firstNameInput = element.shadowRoot?.querySelector(
+        "#billing-first-name",
+      ) as HTMLInputElement | null;
+      expect(firstNameInput).toBeTruthy();
+
+      await setTextInputValue(firstNameInput!, "J");
+      await setTextInputValue(firstNameInput!, "Jo");
+      await setTextInputValue(firstNameInput!, "Joh");
+      await setTextInputValue(firstNameInput!, "John");
+
+      // Immediately after typing, still inside the debounce window: no
+      // network call yet.
+      expect(updateBillingAddress).not.toHaveBeenCalled();
+
+      await waitForBillingAddressReport();
+
+      // Only one call fires, carrying the final value.
+      expect(updateBillingAddress).toHaveBeenCalledTimes(1);
+      expect(updateBillingAddress).toHaveBeenCalledWith({
+        first_name: "John",
+      });
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("flushes a pending billing-address edit on blur instead of waiting out the debounce", async () => {
+    const updateBillingAddress = vi.fn(() => Promise.resolve());
+    const restoreClient = overrideClientState(
+      {
+        billing_address: {
+          use_customer_shipping_address: false,
+          first_name: "",
+          last_name: "",
+          company: "",
+          address1: "",
+          address2: "",
+          city: "",
+          region: "",
+          postal_code: "",
+          country: "",
+          phone: "",
+        },
+        shipments: [
+          {
+            country_options: ["US", "CA"],
+            region_options: ["MN", "WI"],
+          },
+        ],
+        payment_gateways: [{ type: "authorize" }],
+      },
+      undefined,
+      { updateBillingAddress },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const firstNameInput = element.shadowRoot?.querySelector(
+        "#billing-first-name",
+      ) as HTMLInputElement | null;
+      expect(firstNameInput).toBeTruthy();
+
+      await setTextInputValue(firstNameInput!, "J");
+      expect(updateBillingAddress).not.toHaveBeenCalled();
+
+      firstNameInput!.dispatchEvent(
+        new FocusEvent("focusout", { bubbles: true, composed: true }),
+      );
+      await waitForRender();
 
       expect(updateBillingAddress).toHaveBeenCalledWith({
         first_name: "J",
@@ -1276,13 +1407,13 @@ describe("PaymentMethodSelectorElement", () => {
       document.body.append(element);
       await waitForRender();
 
-      const checkbox = element.shadowRoot?.querySelector(
-        '[data-slot="checkbox"]',
-      ) as HTMLElement | null;
-      expect(checkbox).toBeTruthy();
+      const firstNameInput = element.shadowRoot?.querySelector(
+        "#billing-first-name",
+      ) as HTMLInputElement | null;
+      expect(firstNameInput).toBeTruthy();
 
-      checkbox?.click();
-      await waitForRender();
+      await setTextInputValue(firstNameInput!, "Jordan");
+      await waitForBillingAddressReport();
 
       const payload = await element.tokenize();
 
@@ -1324,14 +1455,13 @@ describe("PaymentMethodSelectorElement", () => {
       document.body.append(element);
       await waitForRender();
 
-      const checkbox = element.shadowRoot?.querySelector(
-        '[data-slot="checkbox"]',
-      ) as HTMLElement | null;
-      expect(checkbox).toBeTruthy();
+      const firstNameInput = element.shadowRoot?.querySelector(
+        "#billing-first-name",
+      ) as HTMLInputElement | null;
+      expect(firstNameInput).toBeTruthy();
 
-      checkbox?.click();
-      await Promise.resolve();
-      await waitForRender();
+      await setTextInputValue(firstNameInput!, "Jordan");
+      await waitForBillingAddressReport();
 
       expect(onBillingAddressError).toHaveBeenCalledTimes(1);
 
