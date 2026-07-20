@@ -14,16 +14,6 @@ type ThemeAttributeFallbackEntry = {
   fallback: string;
 };
 
-type ShadcnInputMetrics = {
-  outerHeightPx: number;
-  paddingX: string;
-  paddingY: string;
-  fontSize: string;
-};
-
-const SHADCN_INPUT_PROBE_CLASS_NAME =
-  "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40";
-
 function readCssVarValue(
   styles: CSSStyleDeclaration,
   cssVariable: `--${string}`,
@@ -31,6 +21,61 @@ function readCssVarValue(
 ): string {
   const value = styles.getPropertyValue(cssVariable).trim();
   return value || fallback;
+}
+
+export type ParsedFontShorthand = {
+  fontSize: string;
+  fontFamily: string;
+};
+
+export function parseFontShorthand(shorthand: string): ParsedFontShorthand {
+  const match = shorthand.match(/([\d.]+(?:px|rem|em))(?:\/[\d.]+)?\s+(.+)$/);
+  if (!match) return { fontSize: "1rem", fontFamily: shorthand };
+  return { fontSize: match[1], fontFamily: match[2] };
+}
+
+export function getRootFontSizePx(): number {
+  if (typeof document === "undefined") return 16;
+  const parsed = Number.parseFloat(
+    getComputedStyle(document.documentElement).fontSize,
+  );
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 16;
+}
+
+export function remToPx(value: string, rootFontSizePx = getRootFontSizePx()): string {
+  const match = value.match(/^([\d.]+)rem$/);
+  if (!match) return value;
+  return `${Number.parseFloat(match[1]) * rootFontSizePx}px`;
+}
+
+export type DerivedInputMetrics = {
+  heightPx: number;
+  paddingX: string;
+  paddingY: string;
+  fontSize: string;
+  fontFamily: string;
+};
+
+export function deriveInputMetrics(options: {
+  controlSize: string;
+  borderWidth: string;
+  fontBody: string;
+  rootFontSizePx?: number;
+}): DerivedInputMetrics {
+  const rootFontSizePx = options.rootFontSizePx ?? getRootFontSizePx();
+  const controlPx = Number.parseFloat(remToPx(options.controlSize, rootFontSizePx));
+  const borderWidthPx = Number.parseFloat(remToPx(options.borderWidth, rootFontSizePx));
+  const heightPx = Math.max(Math.round(controlPx - 2 * borderWidthPx), 0);
+  const paddingXPx = Math.round(controlPx / 4);
+  const { fontSize, fontFamily } = parseFontShorthand(options.fontBody);
+
+  return {
+    heightPx,
+    paddingX: `${paddingXPx}px`,
+    paddingY: "0px",
+    fontSize: remToPx(fontSize, rootFontSizePx),
+    fontFamily,
+  };
 }
 
 export function applyThemeAttributeMap(
@@ -120,33 +165,4 @@ export function bindThemeAttributes<T extends HTMLElement>(
   reapply();
 }
 
-export function getShadcnInputMetrics(): ShadcnInputMetrics {
-  const probe = document.createElement("input");
-  probe.type = "text";
-  probe.className = SHADCN_INPUT_PROBE_CLASS_NAME;
-  probe.tabIndex = -1;
-  probe.setAttribute("aria-hidden", "true");
-  probe.style.position = "absolute";
-  probe.style.opacity = "0";
-  probe.style.pointerEvents = "none";
-  probe.style.left = "-10000px";
-  probe.style.top = "0";
-
-  document.body.append(probe);
-
-  const computed = getComputedStyle(probe);
-  const height = probe.getBoundingClientRect().height;
-  const heightPx = `${Math.max(Math.round(height), 0)}px`;
-
-  const metrics: ShadcnInputMetrics = {
-    outerHeightPx: Number.parseInt(heightPx, 10),
-    paddingX: computed.paddingLeft,
-    paddingY: computed.paddingTop,
-    fontSize: computed.fontSize,
-  };
-
-  probe.remove();
-  return metrics;
-}
-
-export type { ThemeAttributeMapEntry, ShadcnInputMetrics };
+export type { ThemeAttributeMapEntry };
