@@ -64,6 +64,7 @@ import type { IntlShape } from "react-intl";
 const CardOptionEmbed = lazy(() => import("./embeds/card-hosted"));
 const AchOptionEmbed = lazy(() => import("./embeds/ach-hosted"));
 const PurchaseOrderOptionEmbed = lazy(() => import("./embeds/purchase-order"));
+const KlarnaOptionEmbed = lazy(() => import("./embeds/klarna"));
 const StripeCardElementOption = lazy(() => import("./embeds/stripe-card"));
 const StripePaymentElementOption = lazy(
   () => import("./embeds/stripe-payment"),
@@ -88,6 +89,7 @@ type PaymentProps = {
     optionId: string,
     controller: PaymentController | null,
   ) => void;
+  onKlarnaAvailabilityChange?: (category: string, available: boolean) => void;
   renderStripeContent?: (params: {
     option: PaymentMethodSelectorOption;
     disabled?: boolean;
@@ -515,6 +517,7 @@ function PaymentOptionBody({
   disabled,
   styleAttributes,
   onControllerReady,
+  onKlarnaAvailabilityChange,
   renderStripeContent,
   renderAdyenContent,
   billingAddress,
@@ -526,6 +529,7 @@ function PaymentOptionBody({
   disabled?: boolean;
   styleAttributes: HostedFieldStyleAttributes;
   onControllerReady?: (controller: PaymentController | null) => void;
+  onKlarnaAvailabilityChange?: (category: string, available: boolean) => void;
   renderStripeContent?: (params: {
     option: PaymentMethodSelectorOption;
     disabled?: boolean;
@@ -749,6 +753,24 @@ function PaymentOptionBody({
     );
   }
 
+  if (option.klarna) {
+    return (
+      <>
+        <Suspense fallback={bodyFallback}>
+          <KlarnaOptionEmbed
+            option={option}
+            disabled={disabled}
+            onAvailabilityChange={onKlarnaAvailabilityChange}
+            loadingMessage={intl.formatMessage(messages.klarnaLoading)}
+            unavailableMessage={intl.formatMessage(messages.klarnaUnavailable)}
+            loadErrorMessage={intl.formatMessage(messages.klarnaLoadError)}
+          />
+        </Suspense>
+        {billingSection}
+      </>
+    );
+  }
+
   return billingSection;
 }
 
@@ -804,7 +826,7 @@ function hasPaymentOptionBodyContent(
   }
 
   const isSquareFormBased = option.type === "new-card";
-  if (option.adyenEmbedded || (option.squareUp && isSquareFormBased)) {
+  if (option.klarna || option.adyenEmbedded || (option.squareUp && isSquareFormBased)) {
     return true;
   }
 
@@ -819,6 +841,7 @@ export function Payment({
   loading,
   onSelectionChange,
   onControllerReady,
+  onKlarnaAvailabilityChange,
   renderStripeContent,
   renderAdyenContent,
   billingAddress,
@@ -1237,6 +1260,7 @@ export function Payment({
                           onControllerReady={(controller) =>
                             onControllerReady?.(option.id, controller)
                           }
+                          onKlarnaAvailabilityChange={onKlarnaAvailabilityChange}
                           renderStripeContent={renderStripeContent}
                           renderAdyenContent={renderAdyenContent}
                           billingAddress={billingAddress}

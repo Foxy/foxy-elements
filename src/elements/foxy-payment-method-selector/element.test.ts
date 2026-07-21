@@ -109,8 +109,9 @@ async function waitForBillingAddressReport(): Promise<void> {
 async function waitForText(
   getText: () => string | null | undefined,
   expected: string,
+  maxAttempts = 10,
 ): Promise<void> {
-  for (let attempt = 0; attempt < 10; attempt += 1) {
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     if (getText()?.includes(expected)) {
       return;
     }
@@ -2248,9 +2249,14 @@ describe("PaymentMethodSelectorElement", () => {
         () => element.shadowRoot?.textContent,
         "Pay in 30 Days",
       );
+      // The Klarna widget is mounted via a lazy()/Suspense chunk; on this
+      // machine the first-load commit lands around ~300ms (~10 render-tick
+      // iterations), which is right at this helper's default budget. Widen
+      // just this call so the test isn't racing chunk-load latency.
       await waitForText(
         () => element.shadowRoot?.textContent,
         "Klarna widget pay_in_4",
+        60,
       );
 
       const images = Array.from(
