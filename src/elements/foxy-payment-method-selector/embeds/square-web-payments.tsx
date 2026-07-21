@@ -27,6 +27,8 @@ type SquareWalletMethods = {
 };
 
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "styled-components";
+import type { DesignSystemTheme } from "@foxy.io/design-system/theme";
 import {
   useResolvedHostedFieldStyleAttributes,
   resolveDesignTokens,
@@ -40,17 +42,15 @@ function clampFontSizeForSquare(value: string | undefined): string | undefined {
 }
 
 
-const SQUARE_WEB_PAYMENTS_STYLES = `
+// Built from the current theme tokens and re-injected on every mount effect run
+// (this stylesheet targets a light-DOM node in document.body, so it can't read
+// theme values via styled-components/useTheme() at the point Square renders them).
+function buildSquareWebPaymentsStyles(themeTokens: DesignSystemTheme): string {
+  return `
 .foxy-square-web-payments {
   display: grid;
-  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
-  gap: calc(var(--spacing, 0.25rem) * 2);
-}
-
-.foxy-square-web-payments__probe {
-  opacity: 0;
-  pointer-events: none;
-  position: absolute;
+  font: ${themeTokens.font.body};
+  gap: calc(${themeTokens.space.md} * 2);
 }
 
 .foxy-square-web-payments__placeholder {
@@ -58,19 +58,20 @@ const SQUARE_WEB_PAYMENTS_STYLES = `
 }
 
 .foxy-square-web-payments__message {
-  color: var(--muted-foreground, #64748b);
+  color: ${themeTokens.color.secondary};
   font-size: 0.875rem;
   margin: 0;
 }
 
 .foxy-square-web-payments__message--error {
-  color: var(--destructive, #b91c1c);
+  color: ${themeTokens.color.error};
 }
 
 .sq-card-message:not(.sq-visible) {
   display: none;
 }
 `;
+}
 
 type SquareStatus = "loading" | "ready" | "error";
 
@@ -88,16 +89,17 @@ type SquareWebPaymentsOptionProps = {
   submitErrorMessage?: string;
 };
 
-function ensureSquareWebPaymentsStyles(): void {
+function ensureSquareWebPaymentsStyles(themeTokens: DesignSystemTheme): void {
   if (typeof document === "undefined") return;
-  const existing = document.head.querySelector(
+  let style = document.head.querySelector<HTMLStyleElement>(
     'style[data-foxy-square-web-payments-styles="true"]',
   );
-  if (existing) return;
-  const style = document.createElement("style");
-  style.dataset.foxySquareWebPaymentsStyles = "true";
-  style.textContent = SQUARE_WEB_PAYMENTS_STYLES;
-  document.head.append(style);
+  if (!style) {
+    style = document.createElement("style");
+    style.dataset.foxySquareWebPaymentsStyles = "true";
+    document.head.append(style);
+  }
+  style.textContent = buildSquareWebPaymentsStyles(themeTokens);
 }
 
 function toError(value: unknown, fallback: string): Error {
@@ -148,14 +150,8 @@ export default function SquareWebPaymentsOption({
   const attachedRef = useRef<Promise<void> | null>(null);
   const onControllerReadyRef = useRef(onControllerReady);
   onControllerReadyRef.current = onControllerReady;
-  const {
-    probeRef,
-    ready: stylesReady,
-    styleAttributes,
-  } = useResolvedHostedFieldStyleAttributes({
-    inputTextColorFallbackVariable: "--foreground",
-    inputTextSizeFallbackVariable: "--text-sm",
-  });
+  const { styleAttributes } = useResolvedHostedFieldStyleAttributes();
+  const { tokens: themeTokens } = useTheme() as { tokens: DesignSystemTheme };
 
   useEffect(() => {
     statusRef.current = status;
@@ -201,14 +197,14 @@ export default function SquareWebPaymentsOption({
     setStatus("loading");
     setError(null);
 
-    if (!squareUpOption || !placeholder || !stylesReady) return;
+    if (!squareUpOption || !placeholder) return;
 
     if (!squareInstance) {
       // Wait for afterStateChange to set squareInstance.
       return;
     }
 
-    ensureSquareWebPaymentsStyles();
+    ensureSquareWebPaymentsStyles(themeTokens);
 
     // Square's attach() requires document.contains(element) === true, which is always
     // false for shadow DOM nodes. We create the real mount target in document.body.
@@ -245,26 +241,26 @@ export default function SquareWebPaymentsOption({
 
     let cancelled = false;
 
-    // Resolve design tokens from the probe element (converts oklch → rgb for compatibility).
-    const probe = probeRef.current;
-    const tokens: ReturnType<typeof resolveDesignTokens> = probe ? resolveDesignTokens(probe) : { borderColor: undefined, borderRadius: undefined, focusRingColor: undefined, destructiveColor: undefined, inputBackgroundColor: undefined };
+    // Resolve design tokens from the current theme (values are already literal —
+    // no DOM measurement or oklch → rgb conversion needed).
+    const tokens = resolveDesignTokens(themeTokens);
 
     const squareStyle: Record<string, Record<string, string>> = {};
 
     // .input-container — border color and radius only (backgroundColor is not a valid property here)
     const containerStyle: Record<string, string> = {};
-    if (tokens.borderColor) containerStyle.borderColor = tokens.borderColor;
-    if (tokens.borderRadius) containerStyle.borderRadius = tokens.borderRadius;
+    if (tokens.border) containerStyle.borderColor = tokens.border;
+    if (tokens.radius) containerStyle.borderRadius = tokens.radius;
     if (Object.keys(containerStyle).length) squareStyle[".input-container"] = containerStyle;
 
     // .input-container.is-focus — highlight border on focus
-    if (tokens.focusRingColor) {
-      squareStyle[".input-container.is-focus"] = { borderColor: tokens.focusRingColor };
+    if (tokens.primary) {
+      squareStyle[".input-container.is-focus"] = { borderColor: tokens.primary };
     }
 
     // .input-container.is-error — error border
-    if (tokens.destructiveColor) {
-      squareStyle[".input-container.is-error"] = { borderColor: tokens.destructiveColor };
+    if (tokens.destructive) {
+      squareStyle[".input-container.is-error"] = { borderColor: tokens.destructive };
     }
 
     // input — text color, font size, background (fontFamily always uses Square's default)
@@ -272,7 +268,7 @@ export default function SquareWebPaymentsOption({
     if (styleAttributes.inputTextColor) inputStyle.color = styleAttributes.inputTextColor;
     const clampedFontSize = clampFontSizeForSquare(styleAttributes.inputTextSize);
     if (clampedFontSize) inputStyle.fontSize = clampedFontSize;
-    if (tokens.inputBackgroundColor) inputStyle.backgroundColor = tokens.inputBackgroundColor;
+    if (tokens.background) inputStyle.backgroundColor = tokens.background;
     if (Object.keys(inputStyle).length) squareStyle["input"] = inputStyle;
 
     // input::placeholder
@@ -281,7 +277,7 @@ export default function SquareWebPaymentsOption({
     }
 
     // input.is-error — error text color
-    const errorTextColor = styleAttributes.inputTextColorError ?? tokens.destructiveColor;
+    const errorTextColor = styleAttributes.inputTextColorError ?? tokens.destructive;
     if (errorTextColor) squareStyle["input.is-error"] = { color: errorTextColor };
 
     // .message-text / .message-icon — informational messages use muted foreground
@@ -292,9 +288,9 @@ export default function SquareWebPaymentsOption({
     }
 
     // .message-text.is-error / .message-icon.is-error
-    if (tokens.destructiveColor) {
-      squareStyle[".message-text.is-error"] = { color: tokens.destructiveColor };
-      squareStyle[".message-icon.is-error"] = { color: tokens.destructiveColor };
+    if (tokens.destructive) {
+      squareStyle[".message-text.is-error"] = { color: tokens.destructive };
+      squareStyle[".message-icon.is-error"] = { color: tokens.destructive };
     }
 
     // Resolve the effective billing postal code. Square's card form requires a postal
@@ -451,7 +447,14 @@ export default function SquareWebPaymentsOption({
     styleAttributes.inputTextColor,
     styleAttributes.inputTextColorError,
     styleAttributes.inputTextSize,
-    stylesReady,
+    themeTokens.background.field,
+    themeTokens.border.field,
+    themeTokens.borderRadius.sm,
+    themeTokens.color.error,
+    themeTokens.color.primary,
+    themeTokens.color.secondary,
+    themeTokens.font.body,
+    themeTokens.space.md,
     submitErrorMessage,
   ]);
 
@@ -461,11 +464,6 @@ export default function SquareWebPaymentsOption({
 
   return (
     <div className="foxy-square-web-payments">
-      <div
-        ref={probeRef}
-        className="foxy-square-web-payments__probe"
-        aria-hidden="true"
-      />
       {/* Placeholder occupies layout space; the actual Square form mounts in document.body. */}
       <div
         ref={placeholderRef}
