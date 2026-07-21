@@ -556,11 +556,15 @@ describe("PaymentMethodSelectorElement", () => {
       "foxy-payment-method-selector",
     ) as PaymentMethodSelectorElement;
 
-    element.setAttribute("theme-background", "#fafafa");
-    element.setAttribute("theme-radius", "0.75rem");
+    element.setAttribute("theme-background-surface", "#fafafa");
+    element.setAttribute("theme-border-radius-sm", "0.75rem");
 
-    expect(element.style.getPropertyValue("--background")).toBe("#fafafa");
-    expect(element.style.getPropertyValue("--radius")).toBe("0.75rem");
+    expect(element.style.getPropertyValue("--background-surface")).toBe(
+      "#fafafa",
+    );
+    expect(element.style.getPropertyValue("--border-radius-sm")).toBe(
+      "0.75rem",
+    );
   });
 
   it("removes host CSS variables when theme attributes are removed", () => {
@@ -568,11 +572,11 @@ describe("PaymentMethodSelectorElement", () => {
       "foxy-payment-method-selector",
     ) as PaymentMethodSelectorElement;
 
-    element.setAttribute("theme-input-padding", "8px 12px");
-    expect(element.style.getPropertyValue("--input-padding")).toBe("8px 12px");
+    element.setAttribute("theme-color-error", "#b91c1c");
+    expect(element.style.getPropertyValue("--color-error")).toBe("#b91c1c");
 
-    element.removeAttribute("theme-input-padding");
-    expect(element.style.getPropertyValue("--input-padding")).toBe("");
+    element.removeAttribute("theme-color-error");
+    expect(element.style.getPropertyValue("--color-error")).toBe("");
   });
 
   it("ignores unknown theme-like attributes", () => {
@@ -580,12 +584,16 @@ describe("PaymentMethodSelectorElement", () => {
       "foxy-payment-method-selector",
     ) as PaymentMethodSelectorElement;
 
-    element.setAttribute("theme-background", "#fff");
-    expect(element.style.getPropertyValue("--background")).toBe("#fff");
+    element.setAttribute("theme-background-surface", "#fff");
+    expect(element.style.getPropertyValue("--background-surface")).toBe(
+      "#fff",
+    );
 
     element.setAttribute("theme-unknown-token", "123");
     expect(element.style.getPropertyValue("--unknown-token")).toBe("");
-    expect(element.style.getPropertyValue("--background")).toBe("#fff");
+    expect(element.style.getPropertyValue("--background-surface")).toBe(
+      "#fff",
+    );
   });
 
   it("uses CSS custom properties as default theme values", () => {
