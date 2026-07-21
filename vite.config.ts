@@ -1,7 +1,6 @@
 /// <reference types="vitest/config" />
 
 import pluginExternal from "vite-plugin-external";
-import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import dts from "vite-plugin-dts";
 
@@ -19,7 +18,7 @@ import { readdirSync } from "node:fs";
 
 export default defineConfig(({ mode }) => {
   const rolldownOptions: BuildEnvironmentOptions["rolldownOptions"] = {};
-  const plugins: PluginOption[] = [react(), tailwindcss()];
+  const plugins: PluginOption[] = [react()];
   const externalPackages = [
     ...Object.keys(dependencies),
     ...Object.keys(peerDependencies ?? {}),

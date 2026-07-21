@@ -190,6 +190,50 @@ const Stack = styled.div<{ $gap: "xs" | "sm" | "md" }>`
   gap: ${(props) => props.theme.tokens.space[props.$gap]};
 `;
 
+// min-width: 0 wrapper for text content sitting beside the click-hint icon,
+// so long descriptions can still shrink/wrap inside the flex row instead of
+// forcing an overflow (was the Tailwind "min-w-0" utility).
+const MinWidthZeroBox = styled.div`
+  min-width: 0;
+`;
+
+const LoadingOptionsWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: ${(props) => props.theme.tokens.space.sm};
+`;
+
+const MutedFootnote = styled.p`
+  all: unset;
+  display: block;
+  margin: 0;
+  font: ${(props) => props.theme.tokens.font.body};
+  font-size: 0.875rem;
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
+const EmptyStateBanner = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
+  border: ${(props) => props.theme.tokens.border.field};
+  background: ${(props) => props.theme.tokens.background.surface};
+  padding: 0.75rem 1rem;
+`;
+
+const EmptyStateTitle = styled.p`
+  all: unset;
+  display: block;
+  margin: 0;
+  font: ${(props) => props.theme.tokens.font.body};
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: ${(props) => props.theme.tokens.color.body};
+`;
+
 const PAYMENT_OPTION_BODY_FALLBACK = <SkeletonBlock $height="2rem" />;
 
 type PaymentProps = {
@@ -499,7 +543,7 @@ function PayPalPayLaterDescription({
       ref: (node: Element | null) => {
         elementRef.current = node as HTMLElement | null;
       },
-      class: "block min-h-5",
+      style: { display: "block", minHeight: "1.25rem" },
       "data-paypal-paylater-label": "true",
       "data-pp-page-type": "checkout",
       "data-pp-style-layout": "text",
@@ -543,16 +587,12 @@ function renderPaymentOptionDescription(
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="min-w-0">{content}</div>
-      <span
-        aria-hidden="true"
-        data-payment-option-click-hint="true"
-        className="text-muted-foreground"
-      >
+    <Stack $gap="xs">
+      <MinWidthZeroBox>{content}</MinWidthZeroBox>
+      <span aria-hidden="true" data-payment-option-click-hint="true">
         <ClickHintIcon as={CursorClickButtonIcon} />
       </span>
-    </div>
+    </Stack>
   );
 }
 
@@ -568,7 +608,7 @@ function renderPaymentOptionBodyFallback(
 ): ReactNode {
   if (option.type === "ach") {
     return (
-      <div className="flex flex-col gap-2.5">
+      <Stack $gap="sm">
         <OptionField>
           <Checkbox.Root
             id={`ach-owner-confirmation-${option.id}`}
@@ -583,7 +623,7 @@ function renderPaymentOptionBodyFallback(
             {intl.formatMessage(messages.achOwnerConfirmationLabel)}
           </Field.Label>
         </OptionField>
-      </div>
+      </Stack>
     );
   }
 
@@ -1175,31 +1215,27 @@ export function Payment({
             onUnavailable={() => onWalletUnavailable(option.id)}
           />
         ))}
-        <div className="flex w-full flex-col gap-2.5" aria-live="polite">
+        <LoadingOptionsWrapper aria-live="polite">
           <SkeletonBlock $height="2.25rem" />
           <SkeletonBlock $height="5.5rem" />
-          <p className="m-0 text-sm text-muted-foreground">
+          <MutedFootnote>
             {intl.formatMessage(messages.loadingOptions)}
-          </p>
-        </div>
+          </MutedFootnote>
+        </LoadingOptionsWrapper>
       </>
     );
   }
 
   if (!visibleOptions.length) {
     return (
-      <div
-        role="status"
-        aria-live="polite"
-        className="flex w-full flex-col gap-1 rounded-[var(--radius)] border border-input bg-card px-4 py-3"
-      >
-        <p className="m-0 text-sm font-medium">
+      <EmptyStateBanner role="status" aria-live="polite">
+        <EmptyStateTitle>
           {intl.formatMessage(messages.noPaymentMethods)}
-        </p>
-        <p className="m-0 text-sm text-muted-foreground">
+        </EmptyStateTitle>
+        <MutedFootnote>
           {intl.formatMessage(messages.noPaymentMethodsDescription)}
-        </p>
-      </div>
+        </MutedFootnote>
+      </EmptyStateBanner>
     );
   }
 
