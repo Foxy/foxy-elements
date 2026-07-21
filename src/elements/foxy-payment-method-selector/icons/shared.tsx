@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
-import { cn } from "@/lib/utils";
+import { styled } from "styled-components";
+
+const FillCurrentIcon = styled.svg`
+  fill: currentColor;
+`;
 
 export function CursorClickButtonIcon({
   className,
@@ -7,8 +11,8 @@ export function CursorClickButtonIcon({
   className?: string;
 }): ReactNode {
   return (
-    <svg
-      className={cn("fill-current", className)}
+    <FillCurrentIcon
+      className={className}
       width="64"
       height="33"
       viewBox="0 0 64 33"
@@ -20,16 +24,19 @@ export function CursorClickButtonIcon({
       <path d="M23.117 12.8881C22.5836 12.7451 22.267 12.1968 22.4099 11.6633C22.5529 11.1298 23.1012 10.8133 23.6347 10.9562L27.4984 11.9915C28.0318 12.1344 28.3484 12.6828 28.2055 13.2162C28.0625 13.7497 27.5142 14.0663 26.9807 13.9233L23.117 12.8881Z" />
       <path d="M36.1214 6.33133C36.5119 5.9408 37.1451 5.9408 37.5356 6.33133C37.9261 6.72185 37.9261 7.35502 37.5356 7.74554L34.7071 10.574C34.3166 10.9645 33.6835 10.9645 33.2929 10.574C32.9024 10.1834 32.9024 9.55028 33.2929 9.15975L36.1214 6.33133Z" />
       <path d="M27.0743 6.07106C26.8409 5.57052 27.0574 4.97554 27.558 4.74213C28.0585 4.50873 28.6535 4.72528 28.8869 5.22582L30.5774 8.85105C30.8108 9.35159 30.5942 9.94657 30.0937 10.18C29.5932 10.4134 28.9982 10.1968 28.7648 9.69629L27.0743 6.07106Z" />
-    </svg>
+    </FillCurrentIcon>
   );
 }
 
+export const IconSlot = styled.span`
+  display: inline-flex;
+  height: 1.25rem;
+  flex-shrink: 0;
+  align-items: center;
+`;
+
 export function getGenericPaymentOptionIcon(icon: ReactNode): ReactNode {
-  return (
-    <span className="inline-flex h-5 shrink-0 items-center" aria-hidden>
-      {icon}
-    </span>
-  );
+  return <IconSlot aria-hidden>{icon}</IconSlot>;
 }
 
 export function toInlineSvgDataUri(svg: string): string {
@@ -37,14 +44,9 @@ export function toInlineSvgDataUri(svg: string): string {
 }
 
 export function PaymentOptionIconFallback({
-  wrapperClassName,
+  className,
 }: {
-  wrapperClassName?: string;
+  className?: string;
 }): ReactNode {
-  return (
-    <span
-      className={cn("inline-flex h-5 shrink-0 items-center", wrapperClassName)}
-      aria-hidden
-    />
-  );
+  return <IconSlot className={className} aria-hidden />;
 }

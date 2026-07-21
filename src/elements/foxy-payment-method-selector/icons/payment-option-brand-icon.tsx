@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
 import { Suspense, lazy } from "react";
 import { CreditCard, FileText, Landmark, Wallet } from "lucide-react";
+import { styled } from "styled-components";
 import type { PaymentMethodSelectorOption } from "../types";
 import SezzleMarkIcon from "./sezzle";
 import {
   CursorClickButtonIcon,
+  IconSlot,
   PaymentOptionIconFallback,
   getGenericPaymentOptionIcon,
 } from "./shared";
@@ -38,6 +40,43 @@ const BacsMarkIcon = lazy(() => import("./bacs"));
 const AchMarkIcon = lazy(() => import("./ach"));
 const EftMarkIcon = lazy(() => import("./eft"));
 
+// One shared wrapper reused (via the polymorphic `as` prop) across every
+// lazily-loaded mark icon below rather than a `styled(...)` call per icon:
+// each call site's icon component is statically known here, but a wrapper
+// per icon would mint 28 near-identical stylesheet rules for the same two
+// declarations.
+const SizedMarkIcon = styled.svg`
+  height: 1.25rem;
+  width: auto;
+`;
+
+// Klarna's logo is a remote-hosted <img>, not a bundled SVG component, and
+// needs the extra sizing/fit rules the original className carried
+// (`max-w-24 object-contain`) so arbitrary logo aspect ratios don't blow out
+// the row.
+const KlarnaMarkImage = styled.img`
+  height: 1.25rem;
+  width: auto;
+  max-width: 6rem;
+  object-fit: contain;
+`;
+
+// Shared "muted, 16px glyph" treatment for the lucide-react icons (and the
+// local CursorClickButtonIcon) used as generic-payment-type fallbacks.
+const MutedGlyph = styled.svg`
+  height: 1rem;
+  width: 1rem;
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
+const TightIconSlot = styled(IconSlot)`
+  margin-right: -0.1em;
+`;
+
+const TightPaymentOptionIconFallback = styled(PaymentOptionIconFallback)`
+  margin-right: -0.1em;
+`;
+
 export function PaymentOptionBrandIcon({
   option,
 }: {
@@ -53,12 +92,7 @@ export function PaymentOptionBrandIcon({
     }
 
     return getGenericPaymentOptionIcon(
-      <img
-        src={logoUrl}
-        alt=""
-        loading="lazy"
-        className="h-5 w-auto max-w-24 object-contain"
-      />,
+      <KlarnaMarkImage src={logoUrl} alt="" loading="lazy" />,
     );
   }
 
@@ -69,7 +103,7 @@ export function PaymentOptionBrandIcon({
   ) {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<PayPalMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={PayPalMarkIcon} />)}
       </Suspense>
     );
   }
@@ -77,7 +111,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "venmo") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<VenmoMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={VenmoMarkIcon} />)}
       </Suspense>
     );
   }
@@ -85,7 +119,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "sepa") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<SepaMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={SepaMarkIcon} />)}
       </Suspense>
     );
   }
@@ -94,7 +128,7 @@ export function PaymentOptionBrandIcon({
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
         {getGenericPaymentOptionIcon(
-          <BancontactMarkIcon className="h-5 w-auto" />,
+          <SizedMarkIcon as={BancontactMarkIcon} />,
         )}
       </Suspense>
     );
@@ -103,7 +137,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "eps") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<EpsMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={EpsMarkIcon} />)}
       </Suspense>
     );
   }
@@ -111,7 +145,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "blik") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<BlikMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={BlikMarkIcon} />)}
       </Suspense>
     );
   }
@@ -119,7 +153,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "ideal") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<IdealMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={IdealMarkIcon} />)}
       </Suspense>
     );
   }
@@ -128,7 +162,7 @@ export function PaymentOptionBrandIcon({
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
         {getGenericPaymentOptionIcon(
-          <Przelewy24MarkIcon className="h-5 w-auto" />,
+          <SizedMarkIcon as={Przelewy24MarkIcon} />,
         )}
       </Suspense>
     );
@@ -136,31 +170,26 @@ export function PaymentOptionBrandIcon({
 
   if (option.type === "sezzle") {
     return getGenericPaymentOptionIcon(
-      <SezzleMarkIcon className="h-5 w-auto" />,
+      <SizedMarkIcon as={SezzleMarkIcon} />,
     );
   }
 
   if (option.type === "apple-pay") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        <span className="inline-flex h-5 shrink-0 items-center" aria-hidden>
-          <ApplePayMarkIcon className="h-5 w-auto" />
-        </span>
+        <IconSlot aria-hidden>
+          <SizedMarkIcon as={ApplePayMarkIcon} />
+        </IconSlot>
       </Suspense>
     );
   }
 
   if (option.type === "google-pay") {
     return (
-      <Suspense
-        fallback={<PaymentOptionIconFallback wrapperClassName="-mr-[0.1em]" />}
-      >
-        <span
-          className="inline-flex h-5 shrink-0 items-center -mr-[0.1em]"
-          aria-hidden
-        >
-          <GooglePayMarkIcon className="h-5 w-auto" />
-        </span>
+      <Suspense fallback={<TightPaymentOptionIconFallback />}>
+        <TightIconSlot aria-hidden>
+          <SizedMarkIcon as={GooglePayMarkIcon} />
+        </TightIconSlot>
       </Suspense>
     );
   }
@@ -168,9 +197,9 @@ export function PaymentOptionBrandIcon({
   if (option.type === "mollie") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        <span className="inline-flex h-5 shrink-0 items-center" aria-hidden>
-          <MollieMarkIcon className="h-5 w-auto" />
-        </span>
+        <IconSlot aria-hidden>
+          <SizedMarkIcon as={MollieMarkIcon} />
+        </IconSlot>
       </Suspense>
     );
   }
@@ -184,15 +213,13 @@ export function PaymentOptionBrandIcon({
   }
 
   if (option.type === "stripe-card-element") {
-    return getGenericPaymentOptionIcon(
-      <CreditCard className="h-4 w-4 text-muted-foreground" />,
-    );
+    return getGenericPaymentOptionIcon(<MutedGlyph as={CreditCard} />);
   }
 
   if (option.type === "ach") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<AchMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={AchMarkIcon} />)}
       </Suspense>
     );
   }
@@ -201,7 +228,7 @@ export function PaymentOptionBrandIcon({
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
         {getGenericPaymentOptionIcon(
-          <BankTransferMarkIcon className="h-5 w-auto" />,
+          <SizedMarkIcon as={BankTransferMarkIcon} />,
         )}
       </Suspense>
     );
@@ -211,7 +238,7 @@ export function PaymentOptionBrandIcon({
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
         {getGenericPaymentOptionIcon(
-          <DragonpayMarkIcon className="h-5 w-auto" />,
+          <SizedMarkIcon as={DragonpayMarkIcon} />,
         )}
       </Suspense>
     );
@@ -224,15 +251,13 @@ export function PaymentOptionBrandIcon({
     option.type === "online-banking-sk" ||
     option.type === "online-banking-in"
   ) {
-    return getGenericPaymentOptionIcon(
-      <Landmark className="h-4 w-4 text-muted-foreground" />,
-    );
+    return getGenericPaymentOptionIcon(<MutedGlyph as={Landmark} />);
   }
 
   if (option.type === "bacs-direct-debit") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<BacsMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={BacsMarkIcon} />)}
       </Suspense>
     );
   }
@@ -240,7 +265,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "eft") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<EftMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={EftMarkIcon} />)}
       </Suspense>
     );
   }
@@ -248,7 +273,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "bizum") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<BizumMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={BizumMarkIcon} />)}
       </Suspense>
     );
   }
@@ -256,7 +281,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "swish") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<SwishMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={SwishMarkIcon} />)}
       </Suspense>
     );
   }
@@ -264,7 +289,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "vipps") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<VippsMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={VippsMarkIcon} />)}
       </Suspense>
     );
   }
@@ -272,7 +297,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "twint") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<TwintMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={TwintMarkIcon} />)}
       </Suspense>
     );
   }
@@ -280,7 +305,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "zip") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<ZipMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={ZipMarkIcon} />)}
       </Suspense>
     );
   }
@@ -288,7 +313,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "zip-pos") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<ZipPosMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={ZipPosMarkIcon} />)}
       </Suspense>
     );
   }
@@ -296,7 +321,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "alipay") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<AlipayMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={AlipayMarkIcon} />)}
       </Suspense>
     );
   }
@@ -305,7 +330,7 @@ export function PaymentOptionBrandIcon({
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
         {getGenericPaymentOptionIcon(
-          <PaysafecardMarkIcon className="h-5 w-auto" />,
+          <SizedMarkIcon as={PaysafecardMarkIcon} />,
         )}
       </Suspense>
     );
@@ -314,7 +339,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "afterpay") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<AfterpayMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={AfterpayMarkIcon} />)}
       </Suspense>
     );
   }
@@ -322,7 +347,7 @@ export function PaymentOptionBrandIcon({
   if (option.type === "cash-app") {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<CashAppMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={CashAppMarkIcon} />)}
       </Suspense>
     );
   }
@@ -335,27 +360,23 @@ export function PaymentOptionBrandIcon({
   ) {
     return (
       <Suspense fallback={<PaymentOptionIconFallback />}>
-        {getGenericPaymentOptionIcon(<WeChatMarkIcon className="h-5 w-auto" />)}
+        {getGenericPaymentOptionIcon(<SizedMarkIcon as={WeChatMarkIcon} />)}
       </Suspense>
     );
   }
 
   if (option.type === "generic") {
     return getGenericPaymentOptionIcon(
-      <CursorClickButtonIcon className="h-4 w-4 text-muted-foreground" />,
+      <MutedGlyph as={CursorClickButtonIcon} />,
     );
   }
 
   if (option.type === "stripe-payment-element") {
-    return getGenericPaymentOptionIcon(
-      <Wallet className="h-4 w-4 text-muted-foreground" />,
-    );
+    return getGenericPaymentOptionIcon(<MutedGlyph as={Wallet} />);
   }
 
   if (option.type === "purchase-order") {
-    return getGenericPaymentOptionIcon(
-      <FileText className="h-4 w-4 text-muted-foreground" />,
-    );
+    return getGenericPaymentOptionIcon(<MutedGlyph as={FileText} />);
   }
 
   return null;
