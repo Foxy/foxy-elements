@@ -3014,11 +3014,13 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     root.render(
-      <AdyenEmbeddedOption
-        option={option}
-        onSelect={callbacks.onSelect}
-        onControllerReady={callbacks.onControllerReady}
-      />,
+      <ThemeProvider theme={{ tokens: this.#buildThemeTokens() }}>
+        <AdyenEmbeddedOption
+          option={option}
+          onSelect={callbacks.onSelect}
+          onControllerReady={callbacks.onControllerReady}
+        />
+      </ThemeProvider>,
     );
   }
 

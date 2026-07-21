@@ -1,48 +1,63 @@
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
 import type { PaymentController, PaymentMethodSelectorOption } from "../types";
+import type { DesignSystemTheme } from "@foxy.io/design-system/theme";
 
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "styled-components";
+import { deriveInputMetrics, parseFontShorthand } from "@/lib/theme-attribute-sync";
+import { extractColorFromShorthand } from "../stripe/style-hooks";
 
 const ADYEN_WEB_VERSION = "6.36.0";
-const ADYEN_EMBEDDED_STYLES = `
+
+function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
+  const metrics = deriveInputMetrics({
+    controlSize: theme.size.control,
+    borderWidth: theme.size.borderWidth,
+    fontBody: theme.font.body,
+  });
+  const { fontFamily } = parseFontShorthand(theme.font.body);
+  const inputColor = extractColorFromShorthand(theme.border.field) ?? theme.color.secondary;
+  const ringColor = extractColorFromShorthand(theme.outline.primary) ?? theme.color.primary;
+
+  return `
 .foxy-adyen-embedded {
-  --foxy-adyen-input-height: var(--input-height, calc((var(--spacing, 0.25rem) * 8) - 2px));
-  --foxy-adyen-input-padding-x: var(--input-padding-x, 0.625rem);
-  --foxy-adyen-input-padding-y: var(--input-padding-y, 0.25rem);
+  --foxy-adyen-input-height: ${metrics.heightPx}px;
+  --foxy-adyen-input-padding-x: ${metrics.paddingX};
+  --foxy-adyen-input-padding-y: ${metrics.paddingY};
   --foxy-adyen-label-input-gap: calc(var(--foxy-adyen-spacing) * 2);
-  --foxy-adyen-input-text-size: var(--input-font-size, var(--text-sm, 0.875rem));
-  --foxy-adyen-spacing: var(--spacing, 0.25rem);
-  --foxy-adyen-radius: var(--radius, 0.625rem);
-  --foxy-adyen-button-background: var(--primary, #00112c);
+  --foxy-adyen-input-text-size: ${metrics.fontSize};
+  --foxy-adyen-spacing: ${theme.space.md};
+  --foxy-adyen-radius: ${theme.borderRadius.sm};
+  --foxy-adyen-button-background: ${theme.background.buttonPrimary};
   --foxy-adyen-button-background-hover: color-mix(in srgb, var(--foxy-adyen-button-background) 90%, transparent);
-  --foxy-adyen-button-foreground: var(--primary-foreground, #ffffff);
-  --adyen-sdk-color-label-primary: var(--input-text-color, var(--foreground, #00112c));
-  --adyen-sdk-color-label-secondary: var(--muted-foreground, #5c687c);
-  --adyen-sdk-color-label-tertiary: var(--muted-foreground, #8d95a3);
-  --adyen-sdk-color-label-disabled: var(--muted-foreground, #8d95a3);
-  --adyen-sdk-color-label-critical: var(--input-error-text-color, var(--destructive, #e22d2d));
-  --adyen-sdk-color-label-highlight: var(--primary, #0070f5);
+  --foxy-adyen-button-foreground: ${theme.color.onPrimary};
+  --adyen-sdk-color-label-primary: ${theme.color.body};
+  --adyen-sdk-color-label-secondary: ${theme.color.secondary};
+  --adyen-sdk-color-label-tertiary: ${theme.color.secondary};
+  --adyen-sdk-color-label-disabled: ${theme.color.secondary};
+  --adyen-sdk-color-label-critical: ${theme.color.error};
+  --adyen-sdk-color-label-highlight: ${theme.color.primary};
   --adyen-sdk-color-label-on-color: var(--foxy-adyen-button-foreground);
-  --adyen-sdk-color-background-primary: var(--card, var(--background, #ffffff));
-  --adyen-sdk-color-background-primary-hover: var(--muted, #f7f7f8);
-  --adyen-sdk-color-background-secondary: var(--muted, #f7f7f8);
-  --adyen-sdk-color-background-secondary-hover: var(--muted, #eeeff1);
-  --adyen-sdk-color-background-secondary-active: var(--muted, #e3e5e9);
-  --adyen-sdk-color-background-tertiary: var(--muted, #eeeff1);
-  --adyen-sdk-color-background-disabled: var(--muted, #eeeff1);
-  --adyen-sdk-color-background-critical-strong: var(--input-error-text-color, var(--destructive, #e22d2d));
-  --adyen-sdk-color-background-inverse-primary: var(--foreground, #00112c);
-  --adyen-sdk-color-background-inverse-primary-hover: var(--muted-foreground, #5c687c);
+  --adyen-sdk-color-background-primary: ${theme.background.surface};
+  --adyen-sdk-color-background-primary-hover: ${theme.background.disabledField};
+  --adyen-sdk-color-background-secondary: ${theme.background.disabledField};
+  --adyen-sdk-color-background-secondary-hover: ${theme.background.disabledField};
+  --adyen-sdk-color-background-secondary-active: ${theme.background.disabledField};
+  --adyen-sdk-color-background-tertiary: ${theme.background.disabledField};
+  --adyen-sdk-color-background-disabled: ${theme.background.disabledField};
+  --adyen-sdk-color-background-critical-strong: ${theme.color.error};
+  --adyen-sdk-color-background-inverse-primary: ${theme.color.body};
+  --adyen-sdk-color-background-inverse-primary-hover: ${theme.color.secondary};
   --adyen-sdk-color-background-always-dark: var(--foxy-adyen-button-background);
   --adyen-sdk-color-background-always-dark-active: var(--foxy-adyen-button-background);
-  --adyen-sdk-color-outline-primary: var(--input, var(--border, #dbdee2));
-  --adyen-sdk-color-outline-primary-hover: var(--border, #c9cdd3);
-  --adyen-sdk-color-outline-primary-active: var(--ring, var(--primary, #00112c));
-  --adyen-sdk-color-outline-secondary: var(--border, #c9cdd3);
-  --adyen-sdk-color-outline-tertiary: var(--muted-foreground, #8d95a3);
-  --adyen-sdk-color-outline-disabled: var(--border, #dbdee2);
-  --adyen-sdk-color-outline-critical: var(--input-error-text-color, var(--destructive, #e22d2d));
-  --adyen-sdk-color-separator-primary: var(--border, #dbdee2);
+  --adyen-sdk-color-outline-primary: ${inputColor};
+  --adyen-sdk-color-outline-primary-hover: ${inputColor};
+  --adyen-sdk-color-outline-primary-active: ${ringColor};
+  --adyen-sdk-color-outline-secondary: ${inputColor};
+  --adyen-sdk-color-outline-tertiary: ${theme.color.secondary};
+  --adyen-sdk-color-outline-disabled: ${inputColor};
+  --adyen-sdk-color-outline-critical: ${theme.color.error};
+  --adyen-sdk-color-separator-primary: ${inputColor};
   --adyen-sdk-text-caption-font-size: 0.75rem;
   --adyen-sdk-text-caption-line-height: 1.125rem;
   --adyen-sdk-text-body-font-size: var(--foxy-adyen-input-text-size);
@@ -80,21 +95,21 @@ const ADYEN_EMBEDDED_STYLES = `
   --adyen-sdk-border-width-m: 2px;
   --adyen-sdk-border-width-l: 3px;
   --adyen-sdk-shadow-low: none;
-  --adyen-sdk-focus-ring-color: var(--ring, rgba(0, 112, 245, 0.8));
-  color: var(--foreground, #020817);
+  --adyen-sdk-focus-ring-color: ${ringColor};
+  color: ${theme.color.body};
   display: grid;
-  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
-  gap: calc(var(--spacing, 0.25rem) * 2);
+  font-family: ${fontFamily};
+  gap: calc(var(--foxy-adyen-spacing) * 2);
 }
 
 .foxy-adyen-embedded__message {
-  color: var(--muted-foreground, #64748b);
+  color: ${theme.color.secondary};
   font-size: 0.875rem;
   margin: 0;
 }
 
 .foxy-adyen-embedded__message--error {
-  color: var(--destructive, #b91c1c);
+  color: ${theme.color.error};
 }
 
 .foxy-adyen-embedded .adyen-checkout-brand-wrapper {
@@ -110,12 +125,12 @@ const ADYEN_EMBEDDED_STYLES = `
 }
 
 .foxy-adyen-embedded .adyen-checkout__payment-method__header__details {
-  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  font-family: ${fontFamily};
 }
 
 .foxy-adyen-embedded .adyen-checkout__payment-method__radio {
   background: transparent !important;
-  border: 1px solid var(--input, var(--border, #dbdee2)) !important;
+  border: 1px solid ${inputColor} !important;
   border-radius: 50% !important;
   inset: auto !important;
   position: relative;
@@ -127,7 +142,7 @@ const ADYEN_EMBEDDED_STYLES = `
 
 .foxy-adyen-embedded .adyen-checkout__payment-method__radio--selected {
   background: transparent !important;
-  border: 1px solid var(--input, var(--border, #dbdee2)) !important;
+  border: 1px solid ${inputColor} !important;
 }
 
 .foxy-adyen-embedded .adyen-checkout__payment-method__radio--selected::after {
@@ -139,7 +154,7 @@ const ADYEN_EMBEDDED_STYLES = `
   width: 50%;
   height: 50%;
   border-radius: 50%;
-  background: var(--primary, currentColor);
+  background: ${theme.color.primary};
 }
 
 .foxy-adyen-embedded .adyen-checkout__dropdown__list {
@@ -162,6 +177,7 @@ const ADYEN_EMBEDDED_STYLES = `
   border-radius: var(--adyen-sdk-border-radius-s);
 }
 `;
+}
 
 type AdyenStatus = "loading" | "ready" | "unavailable" | "error";
 
@@ -245,18 +261,23 @@ function ensureAdyenCss(environment: string): void {
   document.head.append(link);
 }
 
-function ensureAdyenEmbeddedStyles(): void {
+function ensureAdyenEmbeddedStyles(theme: DesignSystemTheme): void {
   if (typeof document === "undefined") return;
 
-  const existing = document.head.querySelector(
+  const css = buildAdyenEmbeddedStyles(theme);
+  let style = document.head.querySelector(
     'style[data-foxy-adyen-embedded-styles="true"]',
-  );
-  if (existing) return;
+  ) as HTMLStyleElement | null;
 
-  const style = document.createElement("style");
-  style.dataset.foxyAdyenEmbeddedStyles = "true";
-  style.textContent = ADYEN_EMBEDDED_STYLES;
-  document.head.append(style);
+  if (!style) {
+    style = document.createElement("style");
+    style.dataset.foxyAdyenEmbeddedStyles = "true";
+    document.head.append(style);
+  }
+
+  if (style.textContent !== css) {
+    style.textContent = css;
+  }
 }
 
 function getAdyenWindow(): AdyenWindow | undefined {
@@ -338,6 +359,7 @@ export default function AdyenEmbeddedOption({
   submitErrorMessage = "Unable to submit this payment method. Try again.",
   onSelect,
 }: AdyenEmbeddedOptionProps) {
+  const { tokens } = useTheme() as { tokens: DesignSystemTheme };
   const [status, setStatus] = useState<AdyenStatus>("loading");
   const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -354,6 +376,17 @@ export default function AdyenEmbeddedOption({
   useEffect(() => {
     errorRef.current = error;
   }, [error]);
+
+  // Kept as its own effect (not folded into the mount/unmount effect below):
+  // `tokens` is a fresh object identity on every parent re-render (see
+  // element.tsx's #buildThemeTokens()), so if this effect's dependency array
+  // included `tokens`, the Drop-in mount effect would tear down and recreate
+  // the Adyen SDK component on every theme-unrelated re-render too. This
+  // effect only re-injects CSS text (idempotent, guarded by ensureAdyenEmbeddedStyles's
+  // own textContent comparison) and never touches the mounted component.
+  useEffect(() => {
+    ensureAdyenEmbeddedStyles(tokens);
+  }, [tokens]);
 
   useEffect(() => {
     const adyenOption = option.adyenEmbedded;
@@ -380,7 +413,10 @@ export default function AdyenEmbeddedOption({
     }
 
     ensureAdyenCss(adyenOption.environment);
-    ensureAdyenEmbeddedStyles();
+    ensureAdyenEmbeddedStyles(tokens);
+    // Note: CSS re-injection on theme changes alone is handled by the
+    // dedicated effect above; this call only guarantees the styles exist
+    // before this effect proceeds to mount the Drop-in.
 
     let cancelled = false;
     let localComponent: AdyenComponent | null = null;
