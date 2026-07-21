@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { THEME_PROPERTY_TO_ATTRIBUTE } from "@/lib/theme-mixin";
+import { deriveInputMetrics } from "@/lib/theme-attribute-sync";
+import { defaultTheme } from "@foxy.io/design-system/theme";
 
 import {
   ACH_FIELD_ELEMENT_TAG,
@@ -146,6 +148,28 @@ function dispatchTokenizationError(
   } as unknown as MessageEvent);
 }
 
+function dispatchHostedReady(
+  host: AchFieldElement,
+  registeredFields: AchFieldElement["type"][],
+): void {
+  const source = attachFakeControllerSource(host);
+
+  const onWindowMessage = (
+    host as unknown as { _onWindowMessage: (event: MessageEvent) => void }
+  )._onWindowMessage;
+
+  onWindowMessage({
+    data: {
+      type: "ready",
+      registeredFields: registeredFields.map((fieldName) =>
+        fieldName.replace(/-/g, "_"),
+      ),
+    },
+    origin: getExpectedOrigin(host),
+    source,
+  } as unknown as MessageEvent);
+}
+
 const THEME_PROPERTY_MAPPINGS = Object.entries(THEME_PROPERTY_TO_ATTRIBUTE) as [
   string,
   string,
@@ -155,14 +179,16 @@ describe("AchFieldElement events", () => {
   beforeEach(() => {
     installFakeInternals();
     document.body.innerHTML = "";
-    document.documentElement.style.removeProperty("--font-sans");
-    document.documentElement.style.removeProperty("--input-height");
+    document.documentElement.style.removeProperty("--font-body");
+    document.documentElement.style.removeProperty("--size-control");
+    document.documentElement.style.removeProperty("--size-border-width");
   });
 
   afterEach(() => {
     document.body.innerHTML = "";
-    document.documentElement.style.removeProperty("--font-sans");
-    document.documentElement.style.removeProperty("--input-height");
+    document.documentElement.style.removeProperty("--font-body");
+    document.documentElement.style.removeProperty("--size-control");
+    document.documentElement.style.removeProperty("--size-border-width");
     vi.useRealTimers();
     vi.restoreAllMocks();
   });
@@ -369,6 +395,12 @@ describe("AchFieldElement events", () => {
 
     const routing = createField("routing-number");
     attachFakeControllerSource(routing);
+    dispatchHostedReady(routing, [
+      "routing-number",
+      "account-number",
+      "account-type",
+      "account-holder-name",
+    ]);
 
     const onTokenizationError = vi.fn();
     routing.addEventListener(
@@ -430,9 +462,10 @@ describe("AchFieldElement events", () => {
     );
   });
 
-  it("passes lang through iframe URL params", () => {
+  it("passes lang through iframe URL params", async () => {
     const field = createField("routing-number");
     field.lang = "fr-CA";
+    await Promise.resolve();
 
     const iframe = field.shadowRoot?.querySelector(
       "iframe:not([data-role='controller'])",
@@ -461,22 +494,24 @@ describe("AchFieldElement events", () => {
       expect(field.hasAttribute(attributeName)).toBe(false);
     }
 
-    field.themeInputHeight = " 44px ";
-    expect(field.getAttribute("theme-input-height")).toBe("44px");
+    field.themeSizeControl = " 3rem ";
+    expect(field.getAttribute("theme-size-control")).toBe("3rem");
   });
 
-  it("uses CSS custom properties as default theme values", () => {
+  it("uses CSS custom properties as default theme values", async () => {
     const field = document.createElement(
       ACH_FIELD_ELEMENT_TAG,
     ) as AchFieldElement;
     field.type = "routing-number";
     field.group = "ach-unit-group";
-    field.style.setProperty("--font-sans", "Figtree");
-    field.style.setProperty("--input-height", "48px");
+    field.style.setProperty("--font-body", "400 1rem/1.25 Figtree, sans-serif");
+    field.style.setProperty("--size-control", "3rem");
+    field.style.setProperty("--size-border-width", "0px");
     document.body.append(field);
+    await Promise.resolve();
 
-    expect(field.themeFontSans).toBe("Figtree");
-    expect(field.themeInputHeight).toBe("48px");
+    expect(field.themeFontBody).toBe("400 1rem/1.25 Figtree, sans-serif");
+    expect(field.themeSizeControl).toBe("3rem");
 
     const iframe = field.shadowRoot?.querySelector(
       "iframe:not([data-role='controller'])",
@@ -485,7 +520,28 @@ describe("AchFieldElement events", () => {
 
     const src = iframe?.getAttribute("src") ?? "";
     const url = new URL(src, window.location.origin);
-    expect(url.searchParams.get("input_font")).toBe("Figtree");
+    expect(url.searchParams.get("input_font")).toBe("Figtree, sans-serif");
     expect(url.searchParams.get("input_height")).toBe("48px");
+  });
+
+  it("derives the outer iframe's initial height from defaultTheme when no theme is configured at all", async () => {
+    const field = createField("routing-number");
+    await Promise.resolve();
+
+    const iframe = field.shadowRoot?.querySelector(
+      "iframe:not([data-role='controller'])",
+    ) as HTMLIFrameElement | null;
+    expect(iframe).toBeTruthy();
+
+    const expectedMetrics = deriveInputMetrics({
+      controlSize: defaultTheme.size.control,
+      borderWidth: defaultTheme.size.borderWidth,
+      fontBody: defaultTheme.font.body,
+    });
+    const expectedHeight = `${expectedMetrics.heightPx}px`;
+
+    const computedStyle = getComputedStyle(iframe as HTMLIFrameElement);
+    expect(computedStyle.height).toBe(expectedHeight);
+    expect(computedStyle.minHeight).toBe(expectedHeight);
   });
 });

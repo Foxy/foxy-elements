@@ -10,8 +10,9 @@ import {
   applyThemeAttributeMap,
   bindThemeAttributes,
   createThemeAttributeMap,
-  getShadcnInputMetrics,
+  deriveInputMetrics,
 } from "../../lib/theme-attribute-sync";
+import { defaultTheme } from "@foxy.io/design-system/theme";
 
 const FIELD_TO_EMBED: Record<AchHostedFieldName, string> = {
   "routing-number": "routing_number",
@@ -62,20 +63,20 @@ export const ACH_ACCOUNT_TYPE_VALUES_OPTIONS = [
 
 const ACH_THEME_ATTRIBUTE_MAP = createThemeAttributeMap([
   {
-    attribute: "theme-font-sans",
-    fallback: "ui-sans-serif, system-ui, sans-serif",
+    attribute: "theme-font-body",
+    fallback: defaultTheme.font.body,
   },
   {
-    attribute: "theme-input-text-color",
-    fallback: "#111827",
+    attribute: "theme-color-body",
+    fallback: defaultTheme.color.body,
   },
   {
-    attribute: "theme-input-placeholder-color",
-    fallback: "#6b7280",
+    attribute: "theme-color-secondary",
+    fallback: defaultTheme.color.secondary,
   },
   {
-    attribute: "theme-input-error-text-color",
-    fallback: "#dc2626",
+    attribute: "theme-color-error",
+    fallback: defaultTheme.color.error,
   },
 ] as const);
 
@@ -85,8 +86,8 @@ export function createAchSurface(width = "460px"): HTMLDivElement {
   element.style.display = "grid";
   element.style.gap = "0.75rem";
   element.style.padding = "1rem";
-  element.style.background = "var(--card, #ffffff)";
-  element.style.color = "var(--card-foreground, #111827)";
+  element.style.background = defaultTheme.background.surface;
+  element.style.color = defaultTheme.color.body;
 
   injectFieldInteractionStyles(element);
   return element;
@@ -113,7 +114,7 @@ export function createStoryNote(text: string): HTMLParagraphElement {
   note.textContent = text;
   note.style.margin = "0";
   note.style.fontSize = "0.8125rem";
-  note.style.color = "var(--muted-foreground, #6b7280)";
+  note.style.color = defaultTheme.color.secondary;
   return note;
 }
 
@@ -123,10 +124,10 @@ export function createButton(label: string): HTMLButtonElement {
   button.textContent = label;
   button.style.height = "40px";
   button.style.width = "fit-content";
-  button.style.border = "1px solid var(--input, #d1d5db)";
-  button.style.borderRadius = "calc(var(--radius, 0.625rem) - 2px)";
-  button.style.background = "var(--primary, #111827)";
-  button.style.color = "var(--primary-foreground, #ffffff)";
+  button.style.border = defaultTheme.border.field;
+  button.style.borderRadius = defaultTheme.borderRadius.sm;
+  button.style.background = defaultTheme.background.buttonPrimary;
+  button.style.color = defaultTheme.color.onPrimary;
   button.style.fontSize = "0.875rem";
   button.style.fontWeight = "500";
   button.style.padding = "0 0.875rem";
@@ -154,10 +155,8 @@ export function createLabeledField(options: {
     textColor?: string;
     placeholderColor?: string;
     errorTextColor?: string;
-    height?: string;
-    padding?: string;
-    fontSize?: string;
-    fontSans?: string;
+    fontBody?: string;
+    controlSize?: string;
   };
   role?: string;
 }): { wrapper: HTMLDivElement; field: AchFieldElement } {
@@ -192,37 +191,26 @@ export function createLabeledField(options: {
     applyAchThemeAttributes(target);
 
     if (options.theme?.textColor) {
-      target.setAttribute("theme-input-text-color", options.theme.textColor);
+      target.setAttribute("theme-color-body", options.theme.textColor);
     }
 
     if (options.theme?.placeholderColor) {
       target.setAttribute(
-        "theme-input-placeholder-color",
+        "theme-color-secondary",
         options.theme.placeholderColor,
       );
     }
 
-    if (options.theme?.fontSize) {
-      target.setAttribute("theme-input-font-size", options.theme.fontSize);
-    }
-
     if (options.theme?.errorTextColor) {
-      target.setAttribute(
-        "theme-input-error-text-color",
-        options.theme.errorTextColor,
-      );
+      target.setAttribute("theme-color-error", options.theme.errorTextColor);
     }
 
-    if (options.theme?.height) {
-      target.setAttribute("theme-input-height", options.theme.height);
+    if (options.theme?.controlSize) {
+      target.setAttribute("theme-size-control", options.theme.controlSize);
     }
 
-    if (options.theme?.padding) {
-      target.setAttribute("theme-input-padding", options.theme.padding);
-    }
-
-    if (options.theme?.fontSans) {
-      target.setAttribute("theme-font-sans", options.theme.fontSans);
+    if (options.theme?.fontBody) {
+      target.setAttribute("theme-font-body", options.theme.fontBody);
     }
   };
 
@@ -318,6 +306,8 @@ export function dispatchTokenizationSuccess(
     id: requestId,
     token,
     last4: token.slice(-4).padStart(4, "0"),
+    routingNumber: "021000021",
+    accountType: "checking",
   });
 }
 
@@ -331,6 +321,18 @@ export function dispatchTokenizationError(
     id: requestId,
     token: null,
     code,
+  });
+}
+
+export function dispatchHostedReady(
+  field: AchFieldElement,
+  registeredFields: AchHostedFieldName[],
+): void {
+  dispatchControllerMessage(field, {
+    type: "ready",
+    registeredFields: registeredFields.map(
+      (fieldName) => FIELD_TO_EMBED[fieldName],
+    ),
   });
 }
 
@@ -373,13 +375,17 @@ function ensureControllerSource(field: AchFieldElement): WindowProxy {
 }
 
 function styleFieldHost(element: HTMLElement): void {
-  const metrics = getShadcnInputMetrics();
+  const metrics = deriveInputMetrics({
+    controlSize: defaultTheme.size.control,
+    borderWidth: defaultTheme.size.borderWidth,
+    fontBody: defaultTheme.font.body,
+  });
   element.style.display = "block";
   element.style.width = "100%";
-  element.style.minHeight = `${metrics.outerHeightPx}px`;
-  element.style.border = "1px solid var(--input, #d1d5db)";
-  element.style.borderRadius = "calc(var(--radius, 0.625rem) - 2px)";
-  element.style.background = "var(--background, #ffffff)";
+  element.style.minHeight = `${metrics.heightPx}px`;
+  element.style.border = defaultTheme.border.field;
+  element.style.borderRadius = defaultTheme.borderRadius.sm;
+  element.style.background = defaultTheme.background.field;
   element.style.overflow = "hidden";
   element.style.transition = "border-color 150ms ease, box-shadow 150ms ease";
 }
@@ -393,17 +399,17 @@ function injectFieldInteractionStyles(container: HTMLElement): void {
   style.setAttribute("data-story-field-interactions", "ach");
   style.textContent = `
     ${ACH_FIELD_ELEMENT_TAG}:state(focused) {
-      border-color: var(--ring, #94a3b8) !important;
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring, #94a3b8) 35%, transparent);
+      border-color: ${defaultTheme.color.primary} !important;
+      box-shadow: 0 0 0 3px color-mix(in srgb, ${defaultTheme.color.primary} 35%, transparent);
     }
 
     ${ACH_FIELD_ELEMENT_TAG}:state(user-invalid) {
-      border-color: var(--destructive, #dc2626) !important;
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--destructive, #dc2626) 20%, transparent);
+      border-color: ${defaultTheme.color.error} !important;
+      box-shadow: 0 0 0 3px color-mix(in srgb, ${defaultTheme.color.error} 20%, transparent);
     }
 
     ${ACH_FIELD_ELEMENT_TAG}:state(disabled) {
-      background: var(--muted, #f3f4f6) !important;
+      background: ${defaultTheme.background.disabledField} !important;
       opacity: 0.75;
     }
   `;
@@ -412,16 +418,5 @@ function injectFieldInteractionStyles(container: HTMLElement): void {
 }
 
 function applyAchThemeAttributes(element: AchFieldElement): void {
-  const metrics = getShadcnInputMetrics();
-  const hostBorderTotalPx = 2;
-  const hostedInputHeightPx = Math.max(
-    metrics.outerHeightPx - hostBorderTotalPx,
-    0,
-  );
-  const hostedInputPadding = `${metrics.paddingY} ${metrics.paddingX}`;
-
-  element.setAttribute("theme-input-height", `${hostedInputHeightPx}px`);
-  element.setAttribute("theme-input-padding", hostedInputPadding);
-  element.setAttribute("theme-input-font-size", metrics.fontSize);
   applyThemeAttributeMap(element, ACH_THEME_ATTRIBUTE_MAP);
 }

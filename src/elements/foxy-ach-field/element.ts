@@ -7,13 +7,17 @@ import {
   type ThemeMixinMethods,
   type ThemePropertyValues,
 } from "@/lib/theme-mixin";
+import {
+  deriveInputMetrics,
+  type DerivedInputMetrics,
+} from "@/lib/theme-attribute-sync";
+import { defaultTheme } from "@foxy.io/design-system/theme";
 
 export const ACH_FIELD_ELEMENT_TAG = "foxy-ach-field";
 
 const DEFAULT_ACH_SECURE_ORIGIN =
   import.meta.env.VITE_EMBED_ORIGIN?.trim() || "https://embed.foxy.io";
 const DEFAULT_EMBED_PATH = "/v2.html";
-const DEFAULT_FIELD_HEIGHT = "52px";
 
 const DEFAULT_LABELS = {
   "routing-number": "Routing number",
@@ -72,15 +76,12 @@ const DISABLED_ATTRIBUTE = "disabled";
 const LANG_ATTRIBUTE = "lang";
 
 const ACH_IFRAME_THEME_ATTRIBUTE_NAMES = [
-  "theme-input-placeholder-color",
-  "theme-input-height",
-  "theme-input-padding",
-  "theme-input-padding-x",
-  "theme-input-padding-y",
-  "theme-font-sans",
-  "theme-input-text-color",
-  "theme-input-error-text-color",
-  "theme-input-font-size",
+  "theme-color-secondary",
+  "theme-font-body",
+  "theme-color-body",
+  "theme-color-error",
+  "theme-size-control",
+  "theme-size-border-width",
 ] as const satisfies readonly ThemeAttributeName[];
 
 const ACH_IFRAME_THEME_DEFINITIONS = getThemeDefinitionsByAttributeNames(
@@ -1072,38 +1073,32 @@ export class AchFieldElement extends ThemeableHTMLElement {
         );
       }
 
-      if (theme["--input-height"]) {
-        url.searchParams.set("input_height", theme["--input-height"]);
-      }
-      if (theme["--input-padding"]) {
-        url.searchParams.set("input_padding", theme["--input-padding"]);
-      }
-      if (theme["--input-padding-x"]) {
-        url.searchParams.set("input_padding_x", theme["--input-padding-x"]);
-      }
-      if (theme["--input-padding-y"]) {
-        url.searchParams.set("input_padding_y", theme["--input-padding-y"]);
-      }
-      if (theme["--input-placeholder-color"]) {
+      const metrics = this._resolveThemeMetrics();
+
+      url.searchParams.set("input_height", `${metrics.heightPx}px`);
+      url.searchParams.set(
+        "input_padding",
+        `${metrics.paddingY} ${metrics.paddingX}`,
+      );
+      url.searchParams.set("input_padding_x", metrics.paddingX);
+      url.searchParams.set("input_padding_y", metrics.paddingY);
+      url.searchParams.set("input_font", metrics.fontFamily);
+      url.searchParams.set("input_text_size", metrics.fontSize);
+
+      if (theme["--color-secondary"]) {
         url.searchParams.set(
           "input_placeholder_color",
-          theme["--input-placeholder-color"],
+          theme["--color-secondary"],
         );
       }
-      if (theme["--font-sans"]) {
-        url.searchParams.set("input_font", theme["--font-sans"]);
+      if (theme["--color-body"]) {
+        url.searchParams.set("input_text_color", theme["--color-body"]);
       }
-      if (theme["--input-text-color"]) {
-        url.searchParams.set("input_text_color", theme["--input-text-color"]);
-      }
-      if (theme["--input-error-text-color"]) {
+      if (theme["--color-error"]) {
         url.searchParams.set(
           "input_text_color_error",
-          theme["--input-error-text-color"],
+          theme["--color-error"],
         );
-      }
-      if (theme["--input-font-size"]) {
-        url.searchParams.set("input_text_size", theme["--input-font-size"]);
       }
     }
 
@@ -1134,9 +1129,21 @@ export class AchFieldElement extends ThemeableHTMLElement {
     return new Error(`ACH tokenization failed with code: ${code}`);
   }
 
+  private _resolveThemeMetrics(): DerivedInputMetrics {
+    return deriveInputMetrics({
+      controlSize:
+        this.getThemeProperty("themeSizeControl") || defaultTheme.size.control,
+      borderWidth:
+        this.getThemeProperty("themeSizeBorderWidth") ||
+        defaultTheme.size.borderWidth,
+      fontBody:
+        this.getThemeProperty("themeFontBody") || defaultTheme.font.body,
+    });
+  }
+
   private _resolveInitialIframeHeight(): string {
-    const configuredHeight = this.getThemeProperty("themeInputHeight");
-    return configuredHeight || DEFAULT_FIELD_HEIGHT;
+    const metrics = this._resolveThemeMetrics();
+    return `${metrics.heightPx}px`;
   }
 
   private _render(): void {

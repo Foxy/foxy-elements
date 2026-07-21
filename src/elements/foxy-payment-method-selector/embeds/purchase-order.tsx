@@ -1,8 +1,9 @@
 import type { PaymentController, PaymentMethodSelectorOption } from "../types";
 
 import { useEffect, useRef, useState } from "react";
-import { Field, FieldLabel } from "@foxy.io/design-system/ui/field";
-import { Input } from "@foxy.io/design-system/ui/input";
+import { Field } from "@foxy.io/design-system/field";
+import { Input } from "@foxy.io/design-system/input";
+import { styled } from "styled-components";
 
 type PurchaseOrderEmbedProps = {
   option: PaymentMethodSelectorOption;
@@ -33,6 +34,21 @@ function getPurchaseOrderErrorMessage(
 
   return null;
 }
+
+const PurchaseOrderRoot = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.tokens.space.xs};
+`;
+
+const ErrorText = styled.p`
+  all: unset;
+  display: block;
+  margin: 0;
+  font: ${(props) => props.theme.tokens.font.body};
+  font-size: 0.875rem;
+  color: ${(props) => props.theme.tokens.color.error};
+`;
 
 export default function PurchaseOrderOptionEmbed({
   option,
@@ -92,9 +108,9 @@ export default function PurchaseOrderOptionEmbed({
   const fieldId = `purchase-order-number-${option.id}`;
 
   return (
-    <div className="flex flex-col gap-2">
-      <Field>
-        <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>
+    <PurchaseOrderRoot>
+      <Field.Root>
+        <Field.Label htmlFor={fieldId}>{label}</Field.Label>
         <Input
           id={fieldId}
           data-purchase-order-number="true"
@@ -104,7 +120,6 @@ export default function PurchaseOrderOptionEmbed({
           placeholder={placeholder}
           disabled={disabled}
           aria-invalid={Boolean(error)}
-          className="text-foreground"
           required
           onChange={(event) => {
             const nextValue = event.target.value;
@@ -123,8 +138,8 @@ export default function PurchaseOrderOptionEmbed({
             }
           }}
         />
-      </Field>
-      {error ? <p className="m-0 text-sm text-destructive">{error}</p> : null}
-    </div>
+      </Field.Root>
+      {error ? <ErrorText>{error}</ErrorText> : null}
+    </PurchaseOrderRoot>
   );
 }

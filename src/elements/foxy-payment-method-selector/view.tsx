@@ -16,35 +16,23 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-} from "@foxy.io/design-system/ui/card";
+import { Card } from "@foxy.io/design-system/card";
 import { BillingAddressSection } from "./billing";
-import { Checkbox } from "@foxy.io/design-system/ui/checkbox";
-import {
-  Field,
-  FieldContent,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
-} from "@foxy.io/design-system/ui/field";
-import { Input } from "@foxy.io/design-system/ui/input";
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from "@foxy.io/design-system/ui/radio-group";
-import { Skeleton } from "@foxy.io/design-system/ui/skeleton";
+import { Checkbox } from "@foxy.io/design-system/checkbox";
+import { Field } from "@foxy.io/design-system/field";
+import { Input } from "@foxy.io/design-system/input";
+import { Radio } from "@foxy.io/design-system/radio";
+import { Skeleton } from "@foxy.io/design-system/skeleton";
+import { styled, useTheme } from "styled-components";
 import {
   type HostedFieldStyleAttributes,
   useHostedFieldStyleAttributes,
 } from "./stripe/style-hooks";
 import { PaymentOptionBrandIcon as PaymentOptionBrandIconComponent } from "./icons/payment-option-brand-icon";
+import { CursorClickButtonIcon } from "./icons/shared";
 import {
   BUTTON_CLICK_HINT_OPTION_TYPES,
   CARD_TYPES,
-  FIELD_STYLE_PROBE_CLASS_NAME,
   GATEWAY_NAME_BY_TYPE,
   ONLINE_BANKING_COUNTRY_BY_TYPE,
   ONLINE_BANKING_OPTION_TYPES,
@@ -57,7 +45,6 @@ import {
   OPTION_LABEL_BY_TYPE,
   messages,
 } from "./messages";
-import { cn } from "@/lib/utils";
 import { useIntl } from "react-intl";
 import type { IntlShape } from "react-intl";
 
@@ -73,7 +60,182 @@ const AdyenEmbeddedOption = lazy(() => import("./embeds/adyen-embedded"));
 const SquareWebPaymentsOption = lazy(() => import("./embeds/square-web-payments"));
 import { SquareAchAvailabilityProbe, SquareWalletAvailabilityProbe, SquareWalletController } from "./embeds/square-web-payments";
 const SQUARE_WALLET_PROBE_TYPES = new Set(["apple-pay", "google-pay", "cash-app", "afterpay"]);
-const PAYMENT_OPTION_BODY_FALLBACK = <Skeleton className="h-8 w-full" />;
+
+const PaymentOptionsFieldSet = styled(Field.Set)`
+  margin: 0;
+  display: flex;
+  gap: ${(props) => props.theme.tokens.space.sm};
+  border: 0;
+  padding: 0;
+`;
+
+const VisuallyHiddenLegend = styled(Field.Legend)`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+`;
+
+const OptionRadioGroup = styled(Radio.Group)`
+  width: 100%;
+`;
+
+const OptionRow = styled.div<{ $padded?: boolean }>`
+  ${(props) =>
+    props.$padded &&
+    `padding: ${props.theme.tokens.space.sm} ${props.theme.tokens.space.md};`}
+`;
+
+// Field.Root's own base styles are \`display: grid\` (label stacked above
+// control). This file only ever needs the old shadcn Field's
+// \`orientation="horizontal"\` layout (control beside content), which the new
+// Field.Root has no equivalent prop for, so it's baked in here instead.
+const OptionField = styled(Field.Root)`
+  display: flex;
+  align-items: flex-start;
+`;
+
+const OptionRadioIndicatorWrapper = styled(Radio.Root)`
+  margin-top: 0.125rem;
+`;
+
+const OptionFieldContent = styled(Field.Content)<{ $withBrandIcon?: boolean }>`
+  min-width: 0;
+  flex: 1;
+
+  ${(props) =>
+    props.$withBrandIcon &&
+    `
+      display: grid;
+      grid-template-columns: max-content minmax(0, 1fr);
+      align-items: start;
+      column-gap: ${props.theme.tokens.space.sm};
+      row-gap: ${props.theme.tokens.space.xs};
+    `}
+`;
+
+const BrandIconSlot = styled.div`
+  grid-row: span 3;
+  padding-top: 0.125rem;
+`;
+
+const OptionFieldLabel = styled(Field.Label)<{
+  $withBrandIcon?: boolean;
+  $clickable?: boolean;
+}>`
+  font-size: 0.875rem;
+  width: 100%;
+  display: flex;
+  ${(props) =>
+    props.$withBrandIcon
+      ? `min-width: 0; grid-column: 2;`
+      : `justify-content: space-between;`}
+  ${(props) => props.$clickable && "cursor: pointer;"}
+`;
+
+const OptionViaLabel = styled.span`
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
+const OptionDescription = styled(Card.Description)<{
+  $withBrandIcon?: boolean;
+  $hidden?: boolean;
+}>`
+  font-size: 0.875rem;
+  ${(props) => props.$withBrandIcon && "grid-column: 2;"}
+  ${(props) => props.$hidden && "display: none;"}
+`;
+
+const OptionContent = styled(Card.Content)<{
+  $withBrandIcon?: boolean;
+  $hidden?: boolean;
+  $topSpacing: "single" | "multi";
+}>`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.tokens.space.sm};
+  padding: 0;
+  ${(props) => props.$withBrandIcon && "grid-column: 2;"}
+  ${(props) => props.$hidden && "display: none;"}
+  margin-top: ${(props) =>
+    props.$topSpacing === "single"
+      ? props.theme.tokens.space.md
+      : props.theme.tokens.space.md};
+  ${(props) => props.$topSpacing === "multi" && `padding-bottom: ${props.theme.tokens.space.sm};`}
+`;
+
+const OptionCard = styled(Card.Root)<{ $clickable?: boolean }>`
+  gap: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  transition: background-color 150ms ease;
+  ${(props) => props.$clickable && "cursor: pointer;"}
+  ${(props) =>
+    props.$clickable &&
+    `&:hover { background: ${props.theme.tokens.background.disabledField}; }`}
+`;
+
+const SkeletonBlock = styled(Skeleton)<{ $height: string }>`
+  width: 100%;
+  height: ${(props) => props.$height};
+`;
+
+const Stack = styled.div<{ $gap: "xs" | "sm" | "md" }>`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.tokens.space[props.$gap]};
+`;
+
+// min-width: 0 wrapper for text content sitting beside the click-hint icon,
+// so long descriptions can still shrink/wrap inside the flex row instead of
+// forcing an overflow (was the Tailwind "min-w-0" utility).
+const MinWidthZeroBox = styled.div`
+  min-width: 0;
+`;
+
+const LoadingOptionsWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: ${(props) => props.theme.tokens.space.sm};
+`;
+
+const MutedFootnote = styled.p`
+  all: unset;
+  display: block;
+  margin: 0;
+  font: ${(props) => props.theme.tokens.font.body};
+  font-size: 0.875rem;
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
+const EmptyStateBanner = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
+  border: ${(props) => props.theme.tokens.border.field};
+  background: ${(props) => props.theme.tokens.background.surface};
+  padding: 0.75rem 1rem;
+`;
+
+const EmptyStateTitle = styled.p`
+  all: unset;
+  display: block;
+  margin: 0;
+  font: ${(props) => props.theme.tokens.font.body};
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: ${(props) => props.theme.tokens.color.body};
+`;
+
+const PAYMENT_OPTION_BODY_FALLBACK = <SkeletonBlock $height="2rem" />;
 
 type PaymentProps = {
   options: PaymentMethodSelectorOption[];
@@ -109,6 +271,7 @@ type PaymentProps = {
     useShippingAddress: boolean;
     values: Record<string, string>;
   }) => void;
+  portalContainer: ShadowRoot;
 };
 
 type CheckoutClientLike = {
@@ -316,28 +479,14 @@ function getPaymentOptionDescriptionText(
   return intl.formatMessage(descriptor);
 }
 
-function CursorClickButtonIcon({
-  className,
-}: {
-  className?: string;
-}): ReactNode {
-  return (
-    <svg
-      className={cn("fill-current", className)}
-      width="64"
-      height="33"
-      viewBox="0 0 64 33"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M32.6709 13.5104C32.0279 12.929 31 13.3857 31 14.2526V27.0299C31.0003 27.8897 32.0141 28.3483 32.6602 27.7809L35.5498 25.2419L38.6396 32.1022C38.8642 32.6001 39.4469 32.8258 39.9482 32.609L40.4482 32.3932C40.9681 32.1685 41.1974 31.557 40.9541 31.0456L37.7441 24.3014L41.7158 23.9538C42.5856 23.8775 42.9464 22.802 42.2988 22.2165L32.6709 13.5104Z" />
-      <path d="M64 6C64 2.68629 61.3137 0 58 0H6C2.68629 0 0 2.68629 0 6V18C0 21.3137 2.68629 24 6 24H28C28.5523 24 29 23.5523 29 23C29 22.4477 28.5523 22 28 22H6C3.79086 22 2 20.2091 2 18V6C2 3.79086 3.79086 2 6 2H58C60.2091 2 62 3.79086 62 6V18C62 20.2091 60.2091 22 58 22H45.4795C44.9272 22 44.4795 22.4477 44.4795 23C44.4795 23.5523 44.9272 24 45.4795 24H58C61.3137 24 64 21.3137 64 18V6Z" />
-      <path d="M23.117 12.8881C22.5836 12.7451 22.267 12.1968 22.4099 11.6633C22.5529 11.1298 23.1012 10.8133 23.6347 10.9562L27.4984 11.9915C28.0318 12.1344 28.3484 12.6828 28.2055 13.2162C28.0625 13.7497 27.5142 14.0663 26.9807 13.9233L23.117 12.8881Z" />
-      <path d="M36.1214 6.33133C36.5119 5.9408 37.1451 5.9408 37.5356 6.33133C37.9261 6.72185 37.9261 7.35502 37.5356 7.74554L34.7071 10.574C34.3166 10.9645 33.6835 10.9645 33.2929 10.574C32.9024 10.1834 32.9024 9.55028 33.2929 9.15975L36.1214 6.33133Z" />
-      <path d="M27.0743 6.07106C26.8409 5.57052 27.0574 4.97554 27.558 4.74213C28.0585 4.50873 28.6535 4.72528 28.8869 5.22582L30.5774 8.85105C30.8108 9.35159 30.5942 9.94657 30.0937 10.18C29.5932 10.4134 28.9982 10.1968 28.7648 9.69629L27.0743 6.07106Z" />
-    </svg>
-  );
-}
+// Shared "muted, 48px glyph" treatment for the click-hint icon, mirroring
+// icons/payment-option-brand-icon.tsx's MutedGlyph pattern (styled wrapper
+// sized/colored from theme tokens) but at this call site's larger size.
+const ClickHintIcon = styled.svg`
+  height: 3rem;
+  width: 3rem;
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
 
 function PayPalPayLaterDescription({
   option,
@@ -396,7 +545,7 @@ function PayPalPayLaterDescription({
       ref: (node: Element | null) => {
         elementRef.current = node as HTMLElement | null;
       },
-      class: "block min-h-5",
+      style: { display: "block", minHeight: "1.25rem" },
       "data-paypal-paylater-label": "true",
       "data-pp-page-type": "checkout",
       "data-pp-style-layout": "text",
@@ -440,16 +589,12 @@ function renderPaymentOptionDescription(
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="min-w-0">{content}</div>
-      <span
-        aria-hidden="true"
-        data-payment-option-click-hint="true"
-        className="text-muted-foreground"
-      >
-        <CursorClickButtonIcon className="h-12 w-12 text-muted-foreground" />
+    <Stack $gap="xs">
+      <MinWidthZeroBox>{content}</MinWidthZeroBox>
+      <span aria-hidden="true" data-payment-option-click-hint="true">
+        <ClickHintIcon as={CursorClickButtonIcon} />
       </span>
-    </div>
+    </Stack>
   );
 }
 
@@ -465,20 +610,22 @@ function renderPaymentOptionBodyFallback(
 ): ReactNode {
   if (option.type === "ach") {
     return (
-      <div className="flex flex-col gap-2.5">
-        <Field orientation="horizontal" className="sm:col-span-2">
-          <Checkbox
+      <Stack $gap="sm">
+        <OptionField>
+          <Checkbox.Root
             id={`ach-owner-confirmation-${option.id}`}
             checked={false}
             disabled
             data-ach-owner-confirmation="true"
             aria-label={intl.formatMessage(messages.achOwnerConfirmationLabel)}
-          />
-          <FieldLabel htmlFor={`ach-owner-confirmation-${option.id}`}>
+          >
+            <Checkbox.Indicator />
+          </Checkbox.Root>
+          <Field.Label htmlFor={`ach-owner-confirmation-${option.id}`}>
             {intl.formatMessage(messages.achOwnerConfirmationLabel)}
-          </FieldLabel>
-        </Field>
-      </div>
+          </Field.Label>
+        </OptionField>
+      </Stack>
     );
   }
 
@@ -486,11 +633,11 @@ function renderPaymentOptionBodyFallback(
     const fieldId = `purchase-order-number-${option.id}`;
 
     return (
-      <div className="flex flex-col gap-2">
-        <Field>
-          <FieldLabel htmlFor={fieldId}>
+      <Stack $gap="sm">
+        <Field.Root>
+          <Field.Label htmlFor={fieldId}>
             {intl.formatMessage(messages.purchaseOrderNumberLabel)}
-          </FieldLabel>
+          </Field.Label>
           <Input
             id={fieldId}
             data-purchase-order-number="true"
@@ -498,13 +645,12 @@ function renderPaymentOptionBodyFallback(
             disabled
             value=""
             readOnly
-            className="text-foreground"
             placeholder={intl.formatMessage(
               messages.purchaseOrderNumberPlaceholder,
             )}
           />
-        </Field>
-      </div>
+        </Field.Root>
+      </Stack>
     );
   }
 
@@ -523,6 +669,7 @@ function PaymentOptionBody({
   billingAddress,
   billingError,
   onBillingAddressChange,
+  portalContainer,
 }: {
   option: PaymentMethodSelectorOption;
   lang?: string;
@@ -547,6 +694,7 @@ function PaymentOptionBody({
     useShippingAddress: boolean;
     values: Record<string, string>;
   }) => void;
+  portalContainer: ShadowRoot;
 }) {
   const intl = useIntl();
   const isCard = option.type ? CARD_TYPES.has(option.type) : false;
@@ -566,6 +714,7 @@ function PaymentOptionBody({
       onBillingAddressChange={onBillingAddressChange}
       fieldLabelById={BILLING_FIELD_LABEL_BY_ID}
       messages={BILLING_SECTION_MESSAGES}
+      portalContainer={portalContainer}
     />
   );
 
@@ -849,8 +998,10 @@ export function Payment({
   orderTotal,
   orderCurrencyCode,
   onBillingAddressChange,
+  portalContainer,
 }: PaymentProps) {
   const intl = useIntl();
+  const theme = useTheme();
   const allOptions = options ?? [];
   const [optionAvailability, setOptionAvailability] = useState<
     Record<string, "pending" | "available" | "unavailable">
@@ -904,7 +1055,7 @@ export function Payment({
     }, {});
   }, [visibleOptions]);
   const [selection, setSelection] = useState<string>(selectedOptionId ?? "");
-  const { probeRef, styleAttributes } = useHostedFieldStyleAttributes();
+  const styleAttributes = useHostedFieldStyleAttributes();
   const pendingSelectionChangeRef = useRef<string | null>(null);
 
   // Keep a ref so the notify effect doesn't re-fire just because the parent
@@ -1087,38 +1238,33 @@ export function Payment({
             onUnavailable={() => onWalletUnavailable(option.id)}
           />
         ))}
-        <div className="flex w-full flex-col gap-2.5" aria-live="polite">
-          <Skeleton className="h-9 w-full" />
-          <Skeleton className="h-22 w-full" />
-          <p className="m-0 text-sm text-muted-foreground">
+        <LoadingOptionsWrapper aria-live="polite">
+          <SkeletonBlock $height="2.25rem" />
+          <SkeletonBlock $height="5.5rem" />
+          <MutedFootnote>
             {intl.formatMessage(messages.loadingOptions)}
-          </p>
-        </div>
+          </MutedFootnote>
+        </LoadingOptionsWrapper>
       </>
     );
   }
 
   if (!visibleOptions.length) {
     return (
-      <div
-        role="status"
-        aria-live="polite"
-        className="flex w-full flex-col gap-1 rounded-[var(--radius)] border border-input bg-card px-4 py-3"
-      >
-        <p className="m-0 text-sm font-medium">
+      <EmptyStateBanner role="status" aria-live="polite">
+        <EmptyStateTitle>
           {intl.formatMessage(messages.noPaymentMethods)}
-        </p>
-        <p className="m-0 text-sm text-muted-foreground">
+        </EmptyStateTitle>
+        <MutedFootnote>
           {intl.formatMessage(messages.noPaymentMethodsDescription)}
-        </p>
-      </div>
+        </MutedFootnote>
+      </EmptyStateBanner>
     );
   }
 
   return (
-    <FieldSet
+    <PaymentOptionsFieldSet
       aria-label={intl.formatMessage(messages.paymentMethodsLegend)}
-      className="m-0 flex !gap-2 border-0 p-0"
     >
       {squareWalletOptions.map((option) => (
         <SquareWalletAvailabilityProbe
@@ -1128,27 +1274,18 @@ export function Payment({
           onUnavailable={() => onWalletUnavailable(option.id)}
         />
       ))}
-      <FieldLegend className="sr-only">
+
+      <VisuallyHiddenLegend>
         {intl.formatMessage(messages.paymentMethodsLegend)}
-      </FieldLegend>
-      <input
-        ref={probeRef}
-        data-foxy-field-style-probe="true"
-        tabIndex={-1}
-        aria-hidden="true"
-        readOnly
-        placeholder=""
-        value=""
-        style={{ fontFamily: "var(--font-sans)" }}
-        className={`${FIELD_STYLE_PROBE_CLASS_NAME} pointer-events-none absolute z-[-1] opacity-0`}
-      />
-      <RadioGroup
+      </VisuallyHiddenLegend>
+
+      <OptionRadioGroup
         value={selection}
         onValueChange={(value) => {
-          pendingSelectionChangeRef.current = value;
-          setSelection(value);
+          const nextValue = value as string;
+          pendingSelectionChangeRef.current = nextValue;
+          setSelection(nextValue);
         }}
-        className="w-full"
       >
         {nativeOptions.map((option) => {
           const checked = option.id === selection;
@@ -1179,78 +1316,63 @@ export function Payment({
             orderCurrencyCode,
           );
           const optionBody = (
-            <div className={cn(shouldUseCardChrome && "px-3 py-3")}>
-              <Field orientation="horizontal" data-disabled={optionDisabled}>
+            <OptionRow $padded={shouldUseCardChrome}>
+              <OptionField data-disabled={optionDisabled}>
                 {!hasSingleOption ? (
-                  <RadioGroupItem
+                  <OptionRadioIndicatorWrapper
                     id={`payment-option-${option.id}`}
                     value={option.id}
                     disabled={optionDisabled}
                     aria-label={optionLabel.fullLabel}
-                    className="mt-0.5"
-                  />
+                  >
+                    <Radio.Indicator />
+                  </OptionRadioIndicatorWrapper>
                 ) : null}
-                <FieldContent
+                <OptionFieldContent
+                  $withBrandIcon={hasLeadingBrandIcon}
                   style={
                     hasLeadingBrandIcon
                       ? {
-                          columnGap: "calc(var(--spacing) * 3)",
-                          rowGap: "calc(var(--spacing) * 0.5)",
+                          columnGap: theme.tokens.space.md,
+                          rowGap: theme.tokens.space.xs,
                         }
                       : undefined
                   }
-                  className={cn(
-                    "min-w-0 flex-1",
-                    hasLeadingBrandIcon &&
-                      "grid grid-cols-[max-content_minmax(0,1fr)] items-start",
-                  )}
                 >
                   {hasLeadingBrandIcon ? (
-                    <div className="row-span-3 pt-0.5">{brandIcon}</div>
+                    <BrandIconSlot>{brandIcon}</BrandIconSlot>
                   ) : null}
-                  <FieldLabel
+                  <OptionFieldLabel
                     htmlFor={`payment-option-${option.id}`}
-                    className={cn(
-                      "text-sm w-full",
-                      hasLeadingBrandIcon
-                        ? "min-w-0 col-start-2"
-                        : "justify-between",
-                      !hasSingleOption &&
-                        !checked &&
-                        !optionDisabled &&
-                        "cursor-pointer",
-                    )}
+                    $withBrandIcon={hasLeadingBrandIcon}
+                    $clickable={
+                      !hasSingleOption && !checked && !optionDisabled
+                    }
                   >
-                    <span className="min-w-0">
+                    <span style={{ minWidth: 0 }}>
                       {optionLabel.baseLabel}
                       {optionLabel.viaLabel ? (
-                        <span className="text-muted-foreground">
+                        <OptionViaLabel>
                           {` ${optionLabel.viaLabel}`}
-                        </span>
+                        </OptionViaLabel>
                       ) : null}
                     </span>
                     {!hasLeadingBrandIcon ? brandIcon : null}
-                  </FieldLabel>
+                  </OptionFieldLabel>
                   {mounted ? (
                     <>
                       {optionDescription ? (
-                        <CardDescription
-                          className={cn(
-                            "text-sm",
-                            hasLeadingBrandIcon && "col-start-2",
-                            !checked && "hidden",
-                          )}
+                        <OptionDescription
+                          $withBrandIcon={hasLeadingBrandIcon}
+                          $hidden={!checked}
                         >
                           {optionDescription}
-                        </CardDescription>
+                        </OptionDescription>
                       ) : null}
-                      <CardContent
-                        className={cn(
-                          "flex flex-col gap-3 p-0 empty:hidden",
-                          hasLeadingBrandIcon && "col-start-2",
-                          !checked && "hidden",
-                          hasSingleOption ? "mt-3" : "mt-3 py-3",
-                        )}
+                      <OptionContent
+                        $withBrandIcon={hasLeadingBrandIcon}
+                        $hidden={!checked}
+                        $topSpacing={hasSingleOption ? "single" : "multi"}
                       >
                         <PaymentOptionBody
                           option={option}
@@ -1266,13 +1388,14 @@ export function Payment({
                           billingAddress={billingAddress}
                           billingError={checked ? billingError : undefined}
                           onBillingAddressChange={onBillingAddressChange}
+                          portalContainer={portalContainer}
                         />
-                      </CardContent>
+                      </OptionContent>
                     </>
                   ) : null}
-                </FieldContent>
-              </Field>
-            </div>
+                </OptionFieldContent>
+              </OptionField>
+            </OptionRow>
           );
 
           if (!shouldUseCardChrome) {
@@ -1280,19 +1403,16 @@ export function Payment({
           }
 
           return (
-            <Card
+            <OptionCard
               key={option.id}
-              className={cn(
-                "gap-0 py-0 transition-colors rounded-[var(--radius)] border border-input ring-0",
-                !checked && !optionDisabled && "cursor-pointer hover:bg-muted",
-              )}
+              $clickable={!checked && !optionDisabled}
               data-disabled={optionDisabled}
             >
               {optionBody}
-            </Card>
+            </OptionCard>
           );
         })}
-      </RadioGroup>
+      </OptionRadioGroup>
 
       {adyenOption !== null &&
         renderAdyenContent?.({
@@ -1300,6 +1420,6 @@ export function Payment({
           onControllerReady: (controller) =>
             onControllerReady?.(adyenOption.id, controller),
         })}
-    </FieldSet>
+    </PaymentOptionsFieldSet>
   );
 }

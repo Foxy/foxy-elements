@@ -4,6 +4,7 @@ import type {
 } from "../types";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { styled, useTheme } from "styled-components";
 import {
   Elements,
   PaymentElement,
@@ -21,6 +22,11 @@ import {
   mergeStripeAppearance,
   useStripeTokenAppearance,
 } from "./style-hooks";
+
+const PaymentElementLayout = styled.div`
+  display: grid;
+  gap: ${(props) => props.theme.tokens.space.md};
+`;
 
 type PaymentElementOptionsMap = Record<string, unknown>;
 
@@ -302,8 +308,10 @@ export function StripePaymentElementOption({
     return loadStripe(publishableKey);
   }, [publishableKey]);
 
-  const { probeRef, appearance, appearanceSignature } =
-    useStripeTokenAppearance(Boolean(stripeConfig && publishableKey));
+  const { appearance, appearanceSignature } = useStripeTokenAppearance(
+    Boolean(stripeConfig && publishableKey),
+  );
+  const { tokens } = useTheme();
 
   const mergedAppearance = useMemo(
     () =>
@@ -329,7 +337,7 @@ export function StripePaymentElementOption({
     return (
       <p
         style={{
-          color: "var(--destructive, #b91c1c)",
+          color: tokens.color.error,
           fontSize: "0.875rem",
           margin: 0,
         }}
@@ -340,7 +348,7 @@ export function StripePaymentElementOption({
   }
 
   return (
-    <div className="grid gap-5" ref={probeRef}>
+    <PaymentElementLayout>
       <Elements
         key={appearanceSignature}
         stripe={stripePromise}
@@ -360,7 +368,7 @@ export function StripePaymentElementOption({
       {errorMessage ? (
         <p
           style={{
-            color: "var(--destructive, #b91c1c)",
+            color: tokens.color.error,
             fontSize: "0.875rem",
             margin: 0,
           }}
@@ -368,6 +376,6 @@ export function StripePaymentElementOption({
           {errorMessage}
         </p>
       ) : null}
-    </div>
+    </PaymentElementLayout>
   );
 }

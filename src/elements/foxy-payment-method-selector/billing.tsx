@@ -9,23 +9,93 @@ import type {
 
 import { useEffect, useRef, useState } from "react";
 import { useIntl } from "react-intl";
-import { Button } from "@foxy.io/design-system/ui/button";
-import { Checkbox } from "@foxy.io/design-system/ui/checkbox";
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "@foxy.io/design-system/ui/field";
-import { Input } from "@foxy.io/design-system/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@foxy.io/design-system/ui/select";
+import { Check, ChevronDown } from "lucide-react";
+import { Button } from "@foxy.io/design-system/button";
+import { Checkbox } from "@foxy.io/design-system/checkbox";
+import { Field } from "@foxy.io/design-system/field";
+import { Input } from "@foxy.io/design-system/input";
+import { Select } from "@foxy.io/design-system/select";
+import { styled } from "styled-components";
+
+const FullWidthSelectTrigger = styled(Select.Trigger)`
+  width: 100%;
+`;
+
+const BillingFieldSet = styled(Field.Set)`
+  margin-top: ${(props) => props.theme.tokens.space.md};
+`;
+
+const BillingFieldGrid = styled(Field.Group)`
+  grid-template-columns: 1fr;
+  column-gap: ${(props) => props.theme.tokens.space.md};
+
+  @media (min-width: 640px) {
+    grid-template-columns: 1fr 1fr;
+  }
+`;
+
+const BillingFieldItem = styled(Field.Root)<{ $fullWidth?: boolean }>`
+  ${(props) => props.$fullWidth && "grid-column: 1 / -1;"}
+`;
+
+const ErrorText = styled.p`
+  all: unset;
+  display: block;
+  margin: 0;
+  font: ${(props) => props.theme.tokens.font.body};
+  font-size: 0.875rem;
+  color: ${(props) => props.theme.tokens.color.error};
+`;
+
+const BillingRoot = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.tokens.space.sm};
+`;
+
+const SummaryButtonBody = styled.span`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.tokens.space.xs};
+  text-align: left;
+`;
+
+const SummaryButtonTitle = styled.span`
+  font-weight: 600;
+`;
+
+const SummaryButtonLine = styled.span`
+  font: ${(props) => props.theme.tokens.font.body};
+  font-size: 0.875rem;
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
+const SummaryButton = styled(Button)`
+  height: auto;
+  width: 100%;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: ${(props) => props.theme.tokens.space.sm} ${(props) => props.theme.tokens.space.md};
+  background: transparent;
+  color: ${(props) => props.theme.tokens.color.body};
+  border: ${(props) => props.theme.tokens.border.field};
+
+  &:hover {
+    background: ${(props) => props.theme.tokens.background.disabledField};
+  }
+`;
+
+// Field.Root's own base styles are \`display: grid\` (label stacked above
+// control). This section only ever needs the old shadcn Field's
+// \`orientation="horizontal"\` layout (checkbox beside its label), which the
+// new Field.Root has no equivalent prop for, so it's baked in here instead
+// (same gap the design system already found for foxy-payment-method-selector's
+// own view.tsx OptionField, see the comment there).
+const ShippingToggleField = styled(Field.Root)`
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.tokens.space.sm};
+`;
 
 const BILLING_ADDRESS_SUPPORTED_TYPES = new Set([
   "new-card",
@@ -104,32 +174,45 @@ function renderBillingField(
   setValues: Dispatch<SetStateAction<Record<string, string>>>,
   intl: IntlShape,
   selectPlaceholder: MessageDescriptor,
+  portalContainer: ShadowRoot,
 ) {
   const value = values[field.id] ?? "";
   const fieldDisabled = disabled || Boolean(field.disabled);
 
   if (field.type === "select") {
     return (
-      <Select
+      <Select.Root
         value={value}
         disabled={fieldDisabled}
         onValueChange={(nextValue) => {
           setValues((prev) => ({ ...prev, [field.id]: nextValue ?? "" }));
         }}
       >
-        <SelectTrigger id={field.id} className="w-full text-foreground">
-          <SelectValue placeholder={intl.formatMessage(selectPlaceholder)} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            {(field.options ?? []).map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+        <FullWidthSelectTrigger id={field.id}>
+          <Select.Value placeholder={intl.formatMessage(selectPlaceholder)} />
+          <Select.Icon>
+            <ChevronDown size="1rem" />
+          </Select.Icon>
+        </FullWidthSelectTrigger>
+        <Select.Portal container={portalContainer}>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.List>
+                <Select.Group>
+                  {(field.options ?? []).map((option) => (
+                    <Select.Item key={option.value} value={option.value}>
+                      <Select.ItemText>{option.label}</Select.ItemText>
+                      <Select.ItemIndicator>
+                        <Check size="1rem" />
+                      </Select.ItemIndicator>
+                    </Select.Item>
+                  ))}
+                </Select.Group>
+              </Select.List>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>
     );
   }
 
@@ -140,7 +223,6 @@ function renderBillingField(
       value={value}
       placeholder={field.placeholder}
       disabled={fieldDisabled}
-      className="text-foreground"
       required={field.required}
       onChange={(event) => {
         const nextValue = event.target.value;
@@ -158,6 +240,7 @@ export function BillingAddressSection({
   onBillingAddressChange,
   fieldLabelById,
   messages,
+  portalContainer,
 }: {
   option: PaymentMethodSelectorOption;
   disabled?: boolean;
@@ -170,6 +253,7 @@ export function BillingAddressSection({
   }) => void;
   fieldLabelById: Partial<Record<string, MessageDescriptor>>;
   messages: BillingSectionMessages;
+  portalContainer: ShadowRoot;
 }) {
   const intl = useIntl();
   const [useShippingAddress, setUseShippingAddress] = useState(
@@ -283,20 +367,18 @@ export function BillingAddressSection({
   }
 
   const fieldsMarkup = (
-    <FieldSet className="mt-4">
-      <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
+    <BillingFieldSet>
+      <BillingFieldGrid>
         {billingAddress.fields.map((field) => {
           const labelDescriptor = fieldLabelById[field.id];
           const label = labelDescriptor
             ? intl.formatMessage(labelDescriptor)
             : field.label;
-          const fieldClassName = FULL_WIDTH_BILLING_FIELD_IDS.has(field.id)
-            ? "sm:col-span-2"
-            : undefined;
+          const isFullWidth = FULL_WIDTH_BILLING_FIELD_IDS.has(field.id);
 
           return (
-            <Field key={field.id} className={fieldClassName}>
-              <FieldLabel htmlFor={field.id}>{label}</FieldLabel>
+            <BillingFieldItem key={field.id} $fullWidth={isFullWidth}>
+              <Field.Label htmlFor={field.id}>{label}</Field.Label>
               {renderBillingField(
                 field,
                 Boolean(disabled),
@@ -304,60 +386,57 @@ export function BillingAddressSection({
                 setValues,
                 intl,
                 messages.selectPlaceholder,
+                portalContainer,
               )}
-            </Field>
+            </BillingFieldItem>
           );
         })}
-      </FieldGroup>
-    </FieldSet>
+      </BillingFieldGrid>
+    </BillingFieldSet>
   );
 
   const errorMarkup = billingError ? (
-    <p className="m-0 text-sm text-destructive">
+    <ErrorText>
       {billingError.message ||
         intl.formatMessage(messages.billingAddressUpdateError)}
-    </p>
+    </ErrorText>
   ) : null;
 
   if (option.type === "saved-card") {
     if (showSummaryEditor) {
       return (
-        <div className="flex flex-col gap-2.5" onBlur={flushBillingAddressReport}>
+        <BillingRoot onBlur={flushBillingAddressReport}>
           {fieldsMarkup}
           {errorMarkup}
-        </div>
+        </BillingRoot>
       );
     }
 
     const summaryLines = getBillingSummaryLines(values);
     return (
-      <div className="flex flex-col gap-2.5">
-        <Button
+      <BillingRoot>
+        <SummaryButton
           type="button"
-          variant="outline"
           disabled={disabled}
           onClick={() => setShowSummaryEditor(true)}
-          className="h-auto w-full items-start justify-start px-3 py-3 text-left"
         >
-          <span className="flex flex-col gap-1">
-            <span className="font-semibold">
+          <SummaryButtonBody>
+            <SummaryButtonTitle>
               {intl.formatMessage(messages.billingAddressTitle)}
-            </span>
+            </SummaryButtonTitle>
             {summaryLines.length ? (
               summaryLines.map((line) => (
-                <span key={line} className="text-sm text-muted-foreground">
-                  {line}
-                </span>
+                <SummaryButtonLine key={line}>{line}</SummaryButtonLine>
               ))
             ) : (
-              <span className="text-sm text-muted-foreground">
+              <SummaryButtonLine>
                 {intl.formatMessage(messages.addBillingAddress)}
-              </span>
+              </SummaryButtonLine>
             )}
-          </span>
-        </Button>
+          </SummaryButtonBody>
+        </SummaryButton>
         {errorMarkup}
-      </div>
+      </BillingRoot>
     );
   }
 
@@ -366,10 +445,10 @@ export function BillingAddressSection({
     Boolean(billingAddress.useDefaultShippingAddress);
 
   return (
-    <div className="flex flex-col gap-2.5" onBlur={flushBillingAddressReport}>
+    <BillingRoot onBlur={flushBillingAddressReport}>
       {hasShippingToggle ? (
-        <Field orientation="horizontal">
-          <Checkbox
+        <ShippingToggleField>
+          <Checkbox.Root
             id={`use-shipping-address-${option.id}`}
             checked={useShippingAddress}
             disabled={disabled}
@@ -377,15 +456,17 @@ export function BillingAddressSection({
               setUseShippingAddress(Boolean(checked))
             }
             aria-label={intl.formatMessage(messages.useShippingForBilling)}
-          />
-          <FieldLabel htmlFor={`use-shipping-address-${option.id}`}>
+          >
+            <Checkbox.Indicator />
+          </Checkbox.Root>
+          <Field.Label htmlFor={`use-shipping-address-${option.id}`}>
             {intl.formatMessage(messages.useShippingForBilling)}
-          </FieldLabel>
-        </Field>
+          </Field.Label>
+        </ShippingToggleField>
       ) : null}
 
       {(!hasShippingToggle || !useShippingAddress) && fieldsMarkup}
       {errorMarkup}
-    </div>
+    </BillingRoot>
   );
 }

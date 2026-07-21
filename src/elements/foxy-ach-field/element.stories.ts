@@ -15,6 +15,7 @@ import {
   createLabeledField,
   createStoryNote,
   dispatchHostedChange,
+  dispatchHostedReady,
   dispatchTokenizationError,
   dispatchTokenizationSuccess,
 } from "./utils";
@@ -32,10 +33,8 @@ type AchStoryArgs = {
   themeTextColor: string;
   themePlaceholderColor: string;
   themeErrorTextColor: string;
-  themeHeight: string;
-  themePadding: string;
-  themeFontSize: string;
-  themeFontSans: string;
+  themeControlSize: string;
+  themeFontBody: string;
 };
 
 const meta = {
@@ -72,10 +71,8 @@ const meta = {
     themeTextColor: "#111827",
     themePlaceholderColor: "#6b7280",
     themeErrorTextColor: "#dc2626",
-    themeHeight: "",
-    themePadding: "",
-    themeFontSize: "14px",
-    themeFontSans: "ui-sans-serif, system-ui, sans-serif",
+    themeControlSize: "",
+    themeFontBody: "14px ui-sans-serif, system-ui, sans-serif",
   },
 } satisfies Meta<AchStoryArgs>;
 
@@ -463,32 +460,50 @@ export const TokenizeSuccess: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const field = getPrimaryField(canvasElement);
-    let eventDetail: { token: string; requestId?: string } | undefined;
+    let eventDetail:
+      | {
+          token: string;
+          requestId?: string;
+          last4: string;
+          routingNumber: string;
+          accountType: string;
+        }
+      | undefined;
 
     field.addEventListener(
       "tokenizationsuccess",
       (event) => {
         eventDetail = (
-          event as CustomEvent<{ token: string; requestId?: string }>
+          event as CustomEvent<{
+            token: string;
+            requestId?: string;
+            last4: string;
+            routingNumber: string;
+            accountType: string;
+          }>
         ).detail;
       },
       { once: true },
     );
 
+    dispatchHostedReady(field, ACH_FIELD_TYPE_OPTIONS);
+
     const resultPromise = field.tokenize(args.requestId);
 
     dispatchTokenizationSuccess(field, args.token, args.requestId);
 
-    await expect(resultPromise).resolves.toEqual({
+    const expectedResult = {
       token: args.token,
       requestId: args.requestId,
-    });
+      last4: args.token.slice(-4).padStart(4, "0"),
+      routingNumber: "021000021",
+      accountType: "checking",
+    };
+
+    await expect(resultPromise).resolves.toEqual(expectedResult);
 
     await waitFor(() => {
-      expect(eventDetail).toEqual({
-        token: args.token,
-        requestId: args.requestId,
-      });
+      expect(eventDetail).toEqual(expectedResult);
     });
   },
 };
@@ -549,6 +564,8 @@ export const TokenizeErrorMatrix: Story = {
       },
       { once: true },
     );
+
+    dispatchHostedReady(field, ACH_FIELD_TYPE_OPTIONS);
 
     const resultPromise = field.tokenize(args.requestId);
 
@@ -619,10 +636,8 @@ export const ThemeAttributeControls: Story = {
         "themeTextColor",
         "themePlaceholderColor",
         "themeErrorTextColor",
-        "themeHeight",
-        "themePadding",
-        "themeFontSize",
-        "themeFontSans",
+        "themeControlSize",
+        "themeFontBody",
       ],
     },
     docs: {
@@ -636,20 +651,16 @@ export const ThemeAttributeControls: Story = {
     themeTextColor: { control: "color" },
     themePlaceholderColor: { control: "color" },
     themeErrorTextColor: { control: "color" },
-    themeHeight: { control: "text" },
-    themePadding: { control: "text" },
-    themeFontSize: { control: "text" },
-    themeFontSans: { control: "text" },
+    themeControlSize: { control: "text" },
+    themeFontBody: { control: "text" },
   },
   render: ({
     group,
     themeTextColor,
     themePlaceholderColor,
     themeErrorTextColor,
-    themeHeight,
-    themePadding,
-    themeFontSize,
-    themeFontSans,
+    themeControlSize,
+    themeFontBody,
   }) => {
     const surface = createAchSurface();
     const item = createLabeledField({
@@ -662,10 +673,8 @@ export const ThemeAttributeControls: Story = {
         textColor: themeTextColor,
         placeholderColor: themePlaceholderColor,
         errorTextColor: themeErrorTextColor,
-        height: themeHeight,
-        padding: themePadding,
-        fontSize: themeFontSize,
-        fontSans: themeFontSans,
+        controlSize: themeControlSize,
+        fontBody: themeFontBody,
       },
     });
 
@@ -796,12 +805,17 @@ export const FormIntegrationInteraction: Story = {
 
     await userEvent.click(submit);
 
+    dispatchHostedReady(primaryField, ACH_FIELD_TYPE_OPTIONS);
+
     const tokenizePromise = primaryField.tokenize(args.requestId);
     dispatchTokenizationSuccess(primaryField, args.token, args.requestId);
 
     await expect(tokenizePromise).resolves.toEqual({
       token: args.token,
       requestId: args.requestId,
+      last4: args.token.slice(-4).padStart(4, "0"),
+      routingNumber: "021000021",
+      accountType: "checking",
     });
 
     const status = canvasElement.querySelector(

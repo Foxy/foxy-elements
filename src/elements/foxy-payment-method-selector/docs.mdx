@@ -10,13 +10,13 @@ Required attributes: none. The element still requires checkout client state to b
 
 For the <code>paypal_platform</code> gateway, the selector renders the base PayPal option plus the SDK-discovered PayPal-supported methods as first-class entries instead of collapsing them into a generic fallback. The standalone PayPal examples live under <code>examples/paypal_platform/</code> with buyer-country pages named <code>us.html</code>, <code>be.html</code>, <code>nl.html</code>, <code>at.html</code>, and <code>pl.html</code>.
 
-For the <code>adyen_embedded</code> gateway, the selector reads the SDK-initialized Adyen Web instance exposed on <code>@foxy.io/sdk/checkout/client</code> and renders a single Adyen Drop-in selector entry that handles all available Adyen payment methods. Calling <code>tokenize()</code> submits the selected payment method to the Drop-in component and returns <code>&#123;&quot;adyenEmbedded&quot;:&#123;&quot;result&quot;:&#123;...&#125;&#125;&#125;</code>. Adyen Components inherit the selector's shadcn/Tailwind theme through Adyen's documented <code>--adyen-sdk-\*</code> CSS variables, while secured card iframes receive matching font, text, placeholder, and error colors through Adyen's secured-field styles config.
+For the <code>adyen_embedded</code> gateway, the selector reads the SDK-initialized Adyen Web instance exposed on <code>@foxy.io/sdk/checkout/client</code> and renders a single Adyen Drop-in selector entry that handles all available Adyen payment methods. Calling <code>tokenize()</code> submits the selected payment method to the Drop-in component and returns <code>&#123;&quot;adyenEmbedded&quot;:&#123;&quot;result&quot;:&#123;...&#125;&#125;&#125;</code>. Adyen Components inherit the selector's foxy-design-system theme tokens through Adyen's documented <code>--adyen-sdk-\*</code> CSS variables, while secured card iframes receive matching font, text, placeholder, and error colors through Adyen's secured-field styles config.
 
 PayPal Pay Later renders a <code>paypal-message</code> element in the option description. The selector only hydrates that element through the PayPal surface already exposed on <code>@foxy.io/sdk/checkout/client</code>; it does not load the PayPal SDK directly. In the standalone example pages, the light-DOM fallback description remains visible unless the shared checkout client already has a hydrated PayPal surface.
 
 Sezzle is exposed as a first-class selector option. It is a redirect gateway — the backend creates the Sezzle checkout session and handles the redirect. Calling <code>tokenize()</code> on a Sezzle option returns <code>&#123;&quot;requestId&quot;:&quot;…&quot;&#125;</code>, identical to <code>mollie_omnipay</code>.
 
-The themed elements in this package support a broader shared set of theme attributes and properties. This page documents only the theme tokens that currently affect <code>foxy-payment-method-selector</code>. Additional shared theme tokens may be accepted for API consistency, but they do not currently change this element.
+The themed elements in this package support a shared set of theme attributes and properties. Unlike the other themed elements, which each consume only a subset, <code>foxy-payment-method-selector</code> consumes the full shared theme token vocabulary.
 
 If checkout state is initialized but exposes no recognized payment methods, the element renders an unavailable state instead of fabricating a fallback option. In that state, <code>tokenize()</code> rejects because no payment method is selected.
 
@@ -69,213 +69,164 @@ The standard card, Stripe, and PayPal example pages also seed a single saved pay
     </tr>
     <tr>
       <td>
-        <code>theme-background</code>
+        <code>theme-background-surface</code>
       </td>
-      <td>Background token for selector and embedded payment surfaces.</td>
+      <td>Background color token for the selector's own surface.</td>
       <td>
-        <code>#ffffff</code>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>theme-foreground</code>
-      </td>
-      <td>Default text color token.</td>
-      <td>
-        <code>#0f172a</code>
+        <code>#FFFFFF</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-card</code>
+        <code>theme-background-field</code>
       </td>
-      <td>Card surface token for option containers.</td>
+      <td>Background color token for embedded input fields.</td>
       <td>
-        <code>#f8fafc</code>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>theme-card-foreground</code>
-      </td>
-      <td>Text color token for card surfaces.</td>
-      <td>
-        <code>#0f172a</code>
+        <code>#FFFFFF</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-primary</code>
+        <code>theme-color-body</code>
       </td>
-      <td>Primary accent token for selected controls.</td>
+      <td>Body text color token.</td>
       <td>
-        <code>#111827</code>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>theme-primary-foreground</code>
-      </td>
-      <td>Foreground color token on primary surfaces.</td>
-      <td>
-        <code>#ffffff</code>
+        <code>#1C1A1D</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-muted</code>
+        <code>theme-color-primary</code>
       </td>
-      <td>Muted surface token used for hover and subdued backgrounds.</td>
+      <td>Primary accent color token for selected controls and active states.</td>
       <td>
-        <code>#f1f5f9</code>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>theme-muted-foreground</code>
-      </td>
-      <td>Muted text and placeholder token.</td>
-      <td>
-        <code>#64748b</code>
+        <code>#7A2E86</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-destructive</code>
+        <code>theme-background-button-primary</code>
       </td>
-      <td>Error and destructive state token.</td>
+      <td>Background color token for primary buttons.</td>
       <td>
-        <code>#dc2626</code>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>theme-border</code>
-      </td>
-      <td>Border color token for containers and controls.</td>
-      <td>
-        <code>#cbd5e1</code>
+        <code>#7A2E86</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-input</code>
+        <code>theme-color-on-primary</code>
       </td>
-      <td>Input outline/background token.</td>
+      <td>Text and icon color token for content on primary-colored surfaces.</td>
       <td>
-        <code>#e2e8f0</code>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>theme-ring</code>
-      </td>
-      <td>Focus ring token.</td>
-      <td>
-        <code>#2563eb</code>
+        <code>#FFFFFF</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-font-sans</code>
+        <code>theme-background-disabled-field</code>
       </td>
-      <td>Sans font family token for selector and embedded fields.</td>
+      <td>Background color token for disabled input fields.</td>
       <td>
-        <code>"IBM Plex Sans", sans-serif</code>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>theme-radius</code>
-      </td>
-      <td>Border radius token.</td>
-      <td>
-        <code>0.75rem</code>
+        <code>#F1EEF2</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-spacing</code>
+        <code>theme-color-secondary</code>
       </td>
-      <td>Spacing scale token used by embedded appearances.</td>
+      <td>Placeholder text color token.</td>
       <td>
-        <code>4px</code>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>theme-input-height</code>
-      </td>
-      <td>Hosted field and Adyen card input height override token.</td>
-      <td>
-        <code>40px</code>
+        <code>#635C67</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-input-padding</code>
+        <code>theme-color-error</code>
       </td>
-      <td>Hosted field and Adyen card input shorthand padding token.</td>
+      <td>Error-state text color token.</td>
       <td>
-        <code>0 12px</code>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>theme-input-padding-x</code>
-      </td>
-      <td>
-        Hosted field and Adyen card input horizontal padding override token.
-      </td>
-      <td>
-        <code>12px</code>
+        <code>#C1272D</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-input-padding-y</code>
+        <code>theme-background-error</code>
       </td>
+      <td>Background color token for error-state surfaces and alerts.</td>
       <td>
-        Hosted field and Adyen card input vertical padding override token.
-      </td>
-      <td>
-        <code>10px</code>
+        <code>rgba(193, 39, 45, 0.08)</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-input-placeholder-color</code>
+        <code>theme-border-field</code>
       </td>
-      <td>Hosted field and Adyen card placeholder color override token.</td>
+      <td>Border shorthand token for input fields.</td>
       <td>
-        <code>#64748b</code>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>theme-input-text-color</code>
-      </td>
-      <td>Hosted field and Adyen card text color override token.</td>
-      <td>
-        <code>#0f172a</code>
+        <code>0.125rem solid #CCC7CE</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-input-error-text-color</code>
+        <code>theme-outline-primary</code>
       </td>
-      <td>Hosted field and Adyen card error color override token.</td>
+      <td>Focus outline shorthand token for primary and selected controls.</td>
       <td>
-        <code>#dc2626</code>
+        <code>0.1875rem solid #DCC1E0</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>theme-input-font-size</code>
+        <code>theme-font-body</code>
       </td>
-      <td>Hosted field and Adyen card input font-size override token.</td>
       <td>
-        <code>14px</code>
+        Font shorthand (weight/size/line-height/family) for the selector and
+        embedded fields.
+      </td>
+      <td>
+        <code>400 1rem/1.25 Albert Sans, sans-serif</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-border-radius-sm</code>
+      </td>
+      <td>Small border radius token used for controls and containers.</td>
+      <td>
+        <code>0.5rem</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-space-md</code>
+      </td>
+      <td>Medium spacing scale token used by embedded appearances.</td>
+      <td>
+        <code>0.5625rem</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-size-control</code>
+      </td>
+      <td>
+        Overall control height; hosted input height and horizontal padding are
+        both derived from this.
+      </td>
+      <td>
+        <code>2.5rem</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>theme-size-border-width</code>
+      </td>
+      <td>
+        Border width used to compute the hosted input's content height from
+        theme-size-control.
+      </td>
+      <td>
+        <code>0.125rem</code>
       </td>
     </tr>
   </tbody>
@@ -284,9 +235,9 @@ The standard card, Stripe, and PayPal example pages also seed a single saved pay
 ## Properties
 
 All custom theme attributes above are also available as camelCase properties.
-For example, <code>theme-primary</code> is also available as
+For example, <code>theme-color-primary</code> is also available as
 
-<code>themePrimary</code>. Native DOM properties such as <code>lang</code>
+<code>themeColorPrimary</code>. Native DOM properties such as <code>lang</code>
 remain the inherited <code>HTMLElement</code> property.
 
 <table>
@@ -318,270 +269,204 @@ remain the inherited <code>HTMLElement</code> property.
     </tr>
     <tr>
       <td>
-        <code>themeBackground</code>
+        <code>themeBackgroundSurface</code>
       </td>
       <td>
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-background</code> for the selector background
-        token.
+        Reflects <code>theme-background-surface</code> for the selector's own
+        surface background.
       </td>
     </tr>
     <tr>
       <td>
-        <code>themeForeground</code>
+        <code>themeBackgroundField</code>
       </td>
       <td>
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-foreground</code> for the default text color token.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeCard</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-card</code> for option container surfaces.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeCardForeground</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-card-foreground</code> for card surface text color.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themePrimary</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-primary</code> for primary accent styling.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themePrimaryForeground</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-primary-foreground</code> for text on primary
-        surfaces.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeMuted</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-muted</code> for hover surfaces and subdued
+        Reflects <code>theme-background-field</code> for embedded input field
         backgrounds.
       </td>
     </tr>
     <tr>
       <td>
-        <code>themeMutedForeground</code>
+        <code>themeColorBody</code>
       </td>
       <td>
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-muted-foreground</code> for muted text and
-        placeholder styling.
+        Reflects <code>theme-color-body</code> for body text color.
       </td>
     </tr>
     <tr>
       <td>
-        <code>themeDestructive</code>
+        <code>themeColorPrimary</code>
       </td>
       <td>
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-destructive</code> for error and destructive
-        states.
+        Reflects <code>theme-color-primary</code> for primary accent styling on
+        selected controls and active states.
       </td>
     </tr>
     <tr>
       <td>
-        <code>themeBorder</code>
+        <code>themeBackgroundButtonPrimary</code>
       </td>
       <td>
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-border</code> for control and container borders.
+        Reflects <code>theme-background-button-primary</code> for primary
+        button backgrounds.
       </td>
     </tr>
     <tr>
       <td>
-        <code>themeInput</code>
+        <code>themeColorOnPrimary</code>
       </td>
       <td>
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-input</code> for input outline and background
+        Reflects <code>theme-color-on-primary</code> for text and icon color on
+        primary-colored surfaces.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeBackgroundDisabledField</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-background-disabled-field</code> for disabled
+        input field backgrounds.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeColorSecondary</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-color-secondary</code> for placeholder text color.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeColorError</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-color-error</code> for error-state text color.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeBackgroundError</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-background-error</code> for error-state surface
+        and alert backgrounds.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeBorderField</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-border-field</code> for the input field border
+        shorthand.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeOutlinePrimary</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-outline-primary</code> for the focus outline
+        shorthand on primary and selected controls.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeFontBody</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-font-body</code> for the selector and embedded
+        field font shorthand (weight/size/line-height/family).
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>themeBorderRadiusSm</code>
+      </td>
+      <td>
+        <code>string | undefined</code>
+      </td>
+      <td>
+        Reflects <code>theme-border-radius-sm</code> for small border radius
         styling.
       </td>
     </tr>
     <tr>
       <td>
-        <code>themeRing</code>
+        <code>themeSpaceMd</code>
       </td>
       <td>
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-ring</code> for focus ring styling.
+        Reflects <code>theme-space-md</code> for the medium embedded spacing
+        scale.
       </td>
     </tr>
     <tr>
       <td>
-        <code>themeFontSans</code>
+        <code>themeSizeControl</code>
       </td>
       <td>
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-font-sans</code> for selector and embedded field
-        typography.
+        Reflects <code>theme-size-control</code>; overall control height that
+        hosted input height and horizontal padding are derived from.
       </td>
     </tr>
     <tr>
       <td>
-        <code>themeRadius</code>
+        <code>themeSizeBorderWidth</code>
       </td>
       <td>
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-radius</code> for border radius styling.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeSpacing</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-spacing</code> for embedded spacing scale.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeInputHeight</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-input-height</code> for hosted field and Adyen card
-        input height.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeInputPadding</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-input-padding</code> for hosted field and Adyen
-        card input shorthand padding.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeInputPaddingX</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-input-padding-x</code> for hosted field and Adyen
-        card input horizontal padding.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeInputPaddingY</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-input-padding-y</code> for hosted field and Adyen
-        card input vertical padding.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeInputPlaceholderColor</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-input-placeholder-color</code> for hosted field and
-        Adyen card placeholder color.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeInputTextColor</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-input-text-color</code> for hosted field and Adyen
-        card text color.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeInputErrorTextColor</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-input-error-text-color</code> for hosted field and
-        Adyen card error color.
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <code>themeInputFontSize</code>
-      </td>
-      <td>
-        <code>string | undefined</code>
-      </td>
-      <td>
-        Reflects <code>theme-input-font-size</code> for hosted field and Adyen
-        card input font size.
+        Reflects <code>theme-size-border-width</code>; border width used to
+        compute the hosted input's content height from
+        <code>theme-size-control</code>.
       </td>
     </tr>
   </tbody>
@@ -901,8 +786,8 @@ Payload fields by selected option:
   id="payment-selector"
   lang="en-US"
   option-index="0"
-  theme-primary="#111827"
-  theme-radius="0.75rem"
+  theme-color-primary="#7A2E86"
+  theme-border-radius-sm="0.75rem"
 ></foxy-payment-method-selector>
 
 <button type="button" id="selector-tokenize">Tokenize Selection</button>

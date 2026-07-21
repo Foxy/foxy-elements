@@ -5,7 +5,47 @@ import type { HostedFieldStyleAttributes } from "../stripe/style-hooks";
 import type { PaymentController, PaymentMethodSelectorOption } from "../types";
 
 import { useEffect, useRef, useState } from "react";
-import { Field, FieldLabel } from "@foxy.io/design-system/ui/field";
+import { Field } from "@foxy.io/design-system/field";
+import { styled } from "styled-components";
+
+const CardFieldRoot = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.tokens.space.xs};
+`;
+
+const ErrorText = styled.p`
+  all: unset;
+  display: block;
+  margin: 0;
+  font: ${(props) => props.theme.tokens.font.body};
+  font-size: 0.875rem;
+  color: ${(props) => props.theme.tokens.color.error};
+`;
+
+const StyledPaymentCardField = styled("foxy-payment-card-field")`
+  border: ${(props) => props.theme.tokens.border.field};
+  border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+
+  &:state(focused) {
+    border: ${(props) => props.theme.tokens.border.fieldFocus};
+    outline: ${(props) => props.theme.tokens.outline.primary};
+  }
+
+  &:state(user-invalid) {
+    border: ${(props) => props.theme.tokens.border.fieldInvalid};
+    outline: ${(props) => props.theme.tokens.outline.error};
+  }
+
+  &:state(disabled) {
+    background: ${(props) => props.theme.tokens.background.disabledField};
+    opacity: 0.5;
+  }
+`;
 
 type CardHostedEmbedProps = {
   option: PaymentMethodSelectorOption;
@@ -86,11 +126,11 @@ export default function CardOptionEmbed({
     option.hostedCard.mode === "card_csc" ? cscFieldLabel : fullFieldLabel;
 
   return (
-    <div className="flex flex-col gap-2">
-      <Field>
-        <FieldLabel htmlFor={fieldId}>{fieldLabel}</FieldLabel>
-      </Field>
-      <foxy-payment-card-field
+    <CardFieldRoot>
+      <Field.Root>
+        <Field.Label htmlFor={fieldId}>{fieldLabel}</Field.Label>
+      </Field.Root>
+      <StyledPaymentCardField
         id={fieldId}
         lang={lang}
         mode={option.hostedCard.mode}
@@ -110,24 +150,16 @@ export default function CardOptionEmbed({
         translation-card-csc-placeholder={
           option.hostedCard.translationCardCscPlaceholder
         }
-        className="border-input dark:bg-input/30 [&:state(focused)]:border-ring [&:state(focused)]:ring-ring/50 [&:state(user-invalid)]:border-destructive [&:state(user-invalid)]:ring-destructive/20 dark:[&:state(user-invalid)]:ring-destructive/40 [&:state(user-invalid)]:ring-3 [&:state(focused)]:ring-3 [&:state(disabled)]:bg-input/50 dark:[&:state(disabled)]:bg-input/80 [&:state(disabled)]:opacity-50 rounded-[var(--radius)] border transition-colors block w-full overflow-hidden"
-        theme-background={styleAttributes.inputBackground}
-        theme-input-placeholder-color={styleAttributes.inputPlaceholderColor}
-        theme-input-height={styleAttributes.inputHeight}
-        theme-input-padding={styleAttributes.inputPadding}
-        theme-input-padding-x={styleAttributes.inputPaddingX}
-        theme-input-padding-y={styleAttributes.inputPaddingY}
-        theme-font-sans={styleAttributes.inputFont}
-        theme-input-text-color={styleAttributes.inputTextColor}
-        theme-input-error-text-color={styleAttributes.inputTextColorError}
-        theme-input-font-size={styleAttributes.inputTextSize}
+        theme-background-field={styleAttributes.inputBackground}
+        theme-color-secondary={styleAttributes.inputPlaceholderColor}
+        theme-font-body={styleAttributes.inputFont}
+        theme-color-body={styleAttributes.inputTextColor}
+        theme-color-error={styleAttributes.inputTextColorError}
         ref={(node: Element | null) => {
           elementRef.current = node as PaymentCardFieldElement | null;
         }}
       />
-      {error ? (
-        <p className="m-0 text-sm text-destructive">{tokenizeErrorMessage}</p>
-      ) : null}
-    </div>
+      {error ? <ErrorText>{tokenizeErrorMessage}</ErrorText> : null}
+    </CardFieldRoot>
   );
 }

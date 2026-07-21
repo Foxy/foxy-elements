@@ -7,6 +7,11 @@ import {
   type ThemeMixinMethods,
   type ThemePropertyValues,
 } from "@/lib/theme-mixin";
+import {
+  deriveInputMetrics,
+  type DerivedInputMetrics,
+} from "@/lib/theme-attribute-sync";
+import { defaultTheme } from "@foxy.io/design-system/theme";
 
 export const PAYMENT_CARD_FIELD_ELEMENT_TAG = "foxy-payment-card-field";
 
@@ -72,16 +77,10 @@ type PaymentCardFieldEventMap = HTMLElementEventMap & {
 };
 
 const THEME_ATTR_TO_QUERY_KEY = {
-  "theme-background": "theme_background",
-  "theme-input-placeholder-color": "theme_input_placeholder_color",
-  "theme-input-height": "theme_input_height",
-  "theme-input-padding": "theme_input_padding",
-  "theme-input-padding-x": "theme_input_padding_x",
-  "theme-input-padding-y": "theme_input_padding_y",
-  "theme-font-sans": "theme_font_sans",
-  "theme-input-text-color": "theme_input_text_color",
-  "theme-input-error-text-color": "theme_input_error_text_color",
-  "theme-input-font-size": "theme_input_font_size",
+  "theme-background-field": "theme_background",
+  "theme-color-secondary": "theme_input_placeholder_color",
+  "theme-color-body": "theme_input_text_color",
+  "theme-color-error": "theme_input_error_text_color",
 } as const satisfies Partial<Record<ThemeAttributeName, string>>;
 
 type ThemeQueryAttributeName = keyof typeof THEME_ATTR_TO_QUERY_KEY;
@@ -549,9 +548,21 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
     this._iframe = iframe;
   }
 
+  private _resolveThemeMetrics(): DerivedInputMetrics {
+    return deriveInputMetrics({
+      controlSize:
+        this.getThemeProperty("themeSizeControl") ?? defaultTheme.size.control,
+      borderWidth:
+        this.getThemeProperty("themeSizeBorderWidth") ??
+        defaultTheme.size.borderWidth,
+      fontBody:
+        this.getThemeProperty("themeFontBody") ?? defaultTheme.font.body,
+    });
+  }
+
   private _resolveInitialIframeHeight(): string {
-    const styleHeight = this.getThemeProperty("themeInputHeight");
-    return styleHeight || "52px";
+    const metrics = this._resolveThemeMetrics();
+    return `${metrics.heightPx}px`;
   }
 
   private _onIframeFocus = (): void => {
@@ -609,6 +620,18 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
       if (!value) continue;
       url.searchParams.set(THEME_ATTR_TO_QUERY_KEY[attrName], value);
     }
+
+    const metrics = this._resolveThemeMetrics();
+
+    url.searchParams.set("theme_input_height", `${metrics.heightPx}px`);
+    url.searchParams.set(
+      "theme_input_padding",
+      `${metrics.paddingY} ${metrics.paddingX}`,
+    );
+    url.searchParams.set("theme_input_padding_x", metrics.paddingX);
+    url.searchParams.set("theme_input_padding_y", metrics.paddingY);
+    url.searchParams.set("theme_font_sans", metrics.fontFamily);
+    url.searchParams.set("theme_input_font_size", metrics.fontSize);
 
     for (const attrName of TRANSLATION_ATTRIBUTE_NAMES) {
       const value = this.getAttribute(attrName)?.trim();

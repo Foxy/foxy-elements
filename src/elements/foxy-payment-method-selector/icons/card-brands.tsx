@@ -1,6 +1,7 @@
 import type { PaymentMethodSelectorOption } from "../types";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ComponentType, ReactNode, SVGProps } from "react";
+import { styled } from "styled-components";
 import {
   AmericanExpressFlatRoundedIcon,
   DinersClubFlatRoundedIcon,
@@ -11,8 +12,22 @@ import {
   UnionPayFlatRoundedIcon,
   VisaFlatRoundedIcon,
 } from "react-svg-credit-card-payment-icons";
+import { IconSlot } from "./shared";
 
 type CardBrandIconComponent = ComponentType<SVGProps<SVGSVGElement>>;
+
+// `BrandIcon` below is resolved at render time (cycling index or label
+// lookup), so it varies across renders of the same component instance.
+// Wrapping it with `styled(BrandIcon)` inside the render body would call
+// `styled()` on every render/re-render (the cycler re-renders on its own
+// interval), minting a new component + injected stylesheet rule each time
+// instead of reusing one. Using the polymorphic `as` prop on a single
+// module-scoped styled component avoids that: the CSS is generated once,
+// and `as` only swaps which element/component it renders as.
+const SizedBrandIcon = styled.svg`
+  height: 1.25rem;
+  width: auto;
+`;
 
 const NEW_CARD_BRAND_ICONS: CardBrandIconComponent[] = [
   VisaFlatRoundedIcon,
@@ -79,7 +94,7 @@ function NewCardBrandCycler({ acceptedBrands }: { acceptedBrands?: string[] }) {
   const BrandIcon = icons[index];
 
   return (
-    <span className="inline-flex h-5 shrink-0 items-center" aria-hidden>
+    <IconSlot aria-hidden>
       <span
         style={{
           opacity: visible ? 1 : 0,
@@ -87,9 +102,9 @@ function NewCardBrandCycler({ acceptedBrands }: { acceptedBrands?: string[] }) {
           display: "inline-flex",
         }}
       >
-        <BrandIcon className="h-5 w-auto" />
+        <SizedBrandIcon as={BrandIcon} />
       </span>
-    </span>
+    </IconSlot>
   );
 }
 
@@ -104,9 +119,9 @@ function getSavedCardBrandIcon(option: PaymentMethodSelectorOption): ReactNode {
   if (!BrandIcon) return null;
 
   return (
-    <span className="inline-flex h-5 shrink-0 items-center" aria-hidden>
-      <BrandIcon className="h-5 w-auto" />
-    </span>
+    <IconSlot aria-hidden>
+      <SizedBrandIcon as={BrandIcon} />
+    </IconSlot>
   );
 }
 

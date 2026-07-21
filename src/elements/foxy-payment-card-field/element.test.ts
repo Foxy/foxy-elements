@@ -237,23 +237,27 @@ describe("PaymentCardFieldElement", () => {
     const element = document.createElement(
       PAYMENT_CARD_FIELD_ELEMENT_TAG,
     ) as PaymentCardFieldElement;
-    element.style.setProperty("--font-sans", "Figtree");
-    element.style.setProperty("--input-height", "64px");
+    element.style.setProperty("--font-body", "400 1rem/1.25 Figtree, sans-serif");
+    element.style.setProperty("--size-control", "4rem");
     document.body.append(element);
 
-    expect(element.themeFontSans).toBe("Figtree");
-    expect(element.themeInputHeight).toBe("64px");
+    expect(element.themeFontBody).toBe("400 1rem/1.25 Figtree, sans-serif");
+    expect(element.themeSizeControl).toBe("4rem");
+
+    // 4rem = 64px at the default 16px root font size; border width falls
+    // back to the design system's default (0.125rem = 2px each side).
+    const expectedHeightPx = 64 - 2 * 2;
 
     const iframe = element.shadowRoot?.querySelector("iframe");
     expect(iframe).toBeTruthy();
-    expect(iframe?.style.height).toBe("64px");
+    expect(iframe?.style.height).toBe(`${expectedHeightPx}px`);
 
     const url = new URL(
       iframe?.getAttribute("src") ?? "",
       window.location.origin,
     );
-    expect(url.searchParams.get("theme_font_sans")).toBe("Figtree");
-    expect(url.searchParams.get("theme_input_height")).toBe("64px");
+    expect(url.searchParams.get("theme_font_sans")).toBe("Figtree, sans-serif");
+    expect(url.searchParams.get("theme_input_height")).toBe(`${expectedHeightPx}px`);
   });
 
   it("falls back to card mode for unsupported mode values", () => {
