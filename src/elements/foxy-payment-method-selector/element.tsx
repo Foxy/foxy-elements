@@ -2863,17 +2863,19 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
     if (option.type === "stripe-card-element" && option.stripeCardElement) {
       root.render(
-        <StripeCardElementOption
-          option={option}
-          onControllerReady={(controller) => {
-            if (controller) {
-              this.#controllers.set(option.id, controller);
-              return;
-            }
+        <ThemeProvider theme={{ tokens: this.#buildThemeTokens() }}>
+          <StripeCardElementOption
+            option={option}
+            onControllerReady={(controller) => {
+              if (controller) {
+                this.#controllers.set(option.id, controller);
+                return;
+              }
 
-            this.#controllers.delete(option.id);
-          }}
-        />,
+              this.#controllers.delete(option.id);
+            }}
+          />
+        </ThemeProvider>,
       );
       return;
     }
@@ -2883,26 +2885,28 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       option.stripePaymentElement
     ) {
       root.render(
-        <StripePaymentElementOption
-          option={option}
-          onControllerReady={(controller) => {
-            if (controller) {
-              this.#controllers.set(option.id, controller);
-              return;
-            }
+        <ThemeProvider theme={{ tokens: this.#buildThemeTokens() }}>
+          <StripePaymentElementOption
+            option={option}
+            onControllerReady={(controller) => {
+              if (controller) {
+                this.#controllers.set(option.id, controller);
+                return;
+              }
 
-            this.#controllers.delete(option.id);
-          }}
-          onPaymentMethodTypeChange={(type) => {
-            this.dispatchEvent(
-              new CustomEvent("stripepaymentmethodtypechange", {
-                bubbles: true,
-                composed: true,
-                detail: { type },
-              }),
-            );
-          }}
-        />,
+              this.#controllers.delete(option.id);
+            }}
+            onPaymentMethodTypeChange={(type) => {
+              this.dispatchEvent(
+                new CustomEvent("stripepaymentmethodtypechange", {
+                  bubbles: true,
+                  composed: true,
+                  detail: { type },
+                }),
+              );
+            }}
+          />
+        </ThemeProvider>,
       );
     }
   }

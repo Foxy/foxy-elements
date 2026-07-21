@@ -860,6 +860,13 @@ describe("PaymentMethodSelectorElement", () => {
   });
 
   it("mounts and cleans up stripe light DOM hosts when the selected option changes", async () => {
+    // Force the "configuration is missing" branch deterministically: a
+    // developer's local .env.local may define VITE_STRIPE_DEMO_PUBLISHABLE_KEY
+    // as a fallback publishable key, which would otherwise make this test's
+    // outcome depend on the machine it runs on.
+    vi.stubEnv("VITE_STRIPE_PUBLISHABLE_KEY", "");
+    vi.stubEnv("VITE_STRIPE_DEMO_PUBLISHABLE_KEY", "");
+
     const restoreClient = overrideClientState({
       payment_gateways: [
         {
@@ -879,9 +886,24 @@ describe("PaymentMethodSelectorElement", () => {
       document.body.append(element);
       await waitForRender();
 
-      expect(
-        element.querySelector('[data-foxy-stripe-host="stripe-card-element"]'),
-      ).toBeTruthy();
+      const host = element.querySelector(
+        '[data-foxy-stripe-host="stripe-card-element"]',
+      );
+      expect(host).toBeTruthy();
+
+      // Regression guard: StripeCardElementOption calls useTheme() from
+      // styled-components (directly, and via useStripeTokenAppearance). That
+      // hook throws "Accessing 'useTheme' hook outside of a '<ThemeProvider>'
+      // element" when the light-DOM React root it's mounted into (a separate
+      // root from the shadow-DOM tree that owns the <ThemeProvider>) isn't
+      // itself wrapped in one. When it throws, React unmounts the failed
+      // render and the host div is left empty, so merely asserting the host
+      // div exists (as above) does NOT catch the crash — asserting on
+      // content the component only produces after a successful render does.
+      await waitForText(
+        () => host?.textContent,
+        "Stripe configuration is missing for this payment option.",
+      );
 
       element.optionIndex = 1;
       await waitForRender();
@@ -897,6 +919,50 @@ describe("PaymentMethodSelectorElement", () => {
     } finally {
       element.remove();
       restoreClient();
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it("renders stripe payment element content without throwing outside a ThemeProvider", async () => {
+    // Companion regression guard for StripePaymentElementOption, the sibling
+    // light-DOM component rendered for the "stripe_v2" gateway. It also
+    // calls useTheme() directly (and via useStripeTokenAppearance), and its
+    // styled(...) layout component reads props.theme.tokens from styled-
+    // components' theme context, both of which throw/crash without a
+    // ThemeProvider ancestor in the light-DOM React root.
+    vi.stubEnv("VITE_STRIPE_PUBLISHABLE_KEY", "");
+    vi.stubEnv("VITE_STRIPE_DEMO_PUBLISHABLE_KEY", "");
+
+    const restoreClient = overrideClientState({
+      payment_gateways: [
+        {
+          type: "stripe_v2",
+          publishable_key: "",
+        },
+        {
+          type: "purchase_order",
+        },
+      ],
+    });
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const host = element.querySelector("[data-foxy-stripe-host]");
+      expect(host).toBeTruthy();
+
+      await waitForText(
+        () => host?.textContent,
+        "Stripe Payment Element configuration is missing for this payment option.",
+      );
+    } finally {
+      element.remove();
+      restoreClient();
+      vi.unstubAllEnvs();
     }
   });
 
