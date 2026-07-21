@@ -1,6 +1,7 @@
 import type { PaymentController, PaymentMethodSelectorOption } from "../types";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTheme } from "styled-components";
 import {
   CardElement,
   Elements,
@@ -9,8 +10,10 @@ import {
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js/pure";
 import type { StripeCardElementOptions, StripeElementsOptions } from "@stripe/stripe-js";
+import { deriveInputMetrics } from "@/lib/theme-attribute-sync";
 import { resolveStripeLocale, resolveStripePublishableKey } from "./shared";
 import {
+  extractColorFromShorthand,
   getStripeFontsForAppearance,
   mergeStripeAppearance,
   useStripeTokenAppearance,
@@ -126,8 +129,15 @@ export function StripeCardElementOption({
     return loadStripe(publishableKey);
   }, [publishableKey]);
 
-  const { probeRef, appearance, appearanceSignature } =
-    useStripeTokenAppearance(Boolean(stripeConfig && publishableKey));
+  const { appearance, appearanceSignature } = useStripeTokenAppearance(
+    Boolean(stripeConfig && publishableKey),
+  );
+  const { tokens } = useTheme();
+  const metrics = deriveInputMetrics({
+    controlSize: tokens.size.control,
+    borderWidth: tokens.size.borderWidth,
+    fontBody: tokens.font.body,
+  });
 
   const mergedAppearance = useMemo(
     () =>
@@ -196,10 +206,9 @@ export function StripeCardElementOption({
   if (isShadowContext === true) {
     return (
       <div ref={containerRef} style={{ display: "grid", gap: "0.5rem" }}>
-        <div ref={probeRef} className="sr-only" aria-hidden />
         <p
           style={{
-            color: "var(--destructive, #b91c1c)",
+            color: tokens.color.error,
             fontSize: "0.875rem",
             margin: 0,
           }}
@@ -218,7 +227,7 @@ export function StripeCardElementOption({
     return (
       <p
         style={{
-          color: "var(--destructive, #b91c1c)",
+          color: tokens.color.error,
           fontSize: "0.875rem",
           margin: 0,
         }}
@@ -230,20 +239,16 @@ export function StripeCardElementOption({
 
   return (
     <div ref={containerRef} style={{ display: "grid", gap: "0.5rem" }}>
-      <div ref={probeRef} className="sr-only" aria-hidden />
       <div
         style={{
-          border: `1px solid ${
-            isFocused ? "var(--ring, #9ca3af)" : "var(--input, #d1d5db)"
-          }`,
-          borderRadius: "var(--radius, 0.625rem)",
+          border: isFocused ? tokens.border.fieldFocus : tokens.border.field,
+          borderRadius: tokens.borderRadius.sm,
           boxSizing: "border-box",
           boxShadow: isFocused
-            ? "0 0 0 3px color-mix(in oklab, var(--ring, #9ca3af) 50%, transparent)"
+            ? `0 0 0 3px ${extractColorFromShorthand(tokens.outline.primary) ?? tokens.color.primary}`
             : "none",
-          padding:
-            "var(--input-padding, var(--input-padding-y, 0.25rem) var(--input-padding-x, 0.625rem))",
-          minHeight: "calc(var(--input-height, calc(2rem - 2px)) + 2px)",
+          padding: `${metrics.paddingY} ${metrics.paddingX}`,
+          minHeight: tokens.size.control,
           display: "grid",
           alignItems: "center",
           transition:
@@ -270,7 +275,7 @@ export function StripeCardElementOption({
       {errorMessage ? (
         <p
           style={{
-            color: "var(--destructive, #b91c1c)",
+            color: tokens.color.error,
             fontSize: "0.875rem",
             margin: 0,
           }}
