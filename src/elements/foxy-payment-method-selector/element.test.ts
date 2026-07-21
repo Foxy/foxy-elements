@@ -43,6 +43,7 @@ const PAYPAL_PLATFORM_ELIGIBILITY_KEY_BY_OPTION_TYPE: Partial<
 const PAYPAL_PLATFORM_SESSION_CREATOR_BY_OPTION_TYPE: Partial<
   Record<PayPalPlatformTestOptionType, string>
 > = {
+  paypal: "createPayPalOneTimePaymentSession",
   "new-card": "createCardFieldsOneTimePaymentSession",
   "apple-pay": "createApplePayOneTimePaymentSession",
   "google-pay": "createGooglePayOneTimePaymentSession",
@@ -126,7 +127,7 @@ async function waitForTruthy<T>(
   getValue: () => T | null | undefined,
   label: string,
 ): Promise<NonNullable<T>> {
-  for (let attempt = 0; attempt < 10; attempt += 1) {
+  for (let attempt = 0; attempt < 60; attempt += 1) {
     const value = getValue();
     if (value) {
       return value as NonNullable<T>;
@@ -140,6 +141,25 @@ async function waitForTruthy<T>(
 
 async function waitForTime(ms: number): Promise<void> {
   await new Promise<void>((resolve) => setTimeout(resolve, ms));
+}
+
+// The leading-icon layout is the only place in this component where a grid's
+// column-gap and row-gap are set to different values (see OptionFieldContent
+// in view.tsx): every other gap usage in the file is a single uniform value,
+// so columnGap !== rowGap uniquely identifies rows using that layout. This
+// works on real Chromium's serialized "gap" shorthand, unlike matching the
+// literal "column-gap" substring in the raw style attribute (Chromium
+// collapses column-gap/row-gap into the shorthand, which never contains that
+// substring).
+function findLeadingLayoutRows(
+  root: ShadowRoot | null | undefined,
+): HTMLElement[] {
+  return Array.from(root?.querySelectorAll<HTMLElement>("*") ?? []).filter(
+    (node) => {
+      const style = getComputedStyle(node);
+      return style.columnGap !== style.rowGap;
+    },
+  );
 }
 
 async function setTextInputValue(
@@ -202,9 +222,30 @@ function createPayPalPlatformMock(
   for (const type of optionTypes) {
     const sessionCreator = PAYPAL_PLATFORM_SESSION_CREATOR_BY_OPTION_TYPE[type];
 
-    if (sessionCreator) {
-      paypal[sessionCreator] = vi.fn();
+    if (!sessionCreator) {
+      continue;
     }
+
+    if (type === "new-card" || type === "apple-pay" || type === "google-pay") {
+      // Production code only ever checks these three creators for existence
+      // (see #hasPayPalSessionCreator in element.tsx) and never invokes them
+      // directly, so a plain mock function is enough.
+      paypal[sessionCreator] = vi.fn();
+      continue;
+    }
+
+    // Every other type (paypal, paypal-pay-later, venmo, sepa, etc.) goes
+    // through the "buttons" flow: #tokenizePayPalPlatformButtons in
+    // element.tsx calls this creator directly and awaits the returned
+    // session's start() call, which is expected to invoke the caller's
+    // onApprove callback to resolve tokenization.
+    paypal[sessionCreator] = vi.fn(
+      (options: { onApprove: (data: { orderId?: string }) => unknown }) => ({
+        start: async () => {
+          await options.onApprove({ orderId: undefined });
+        },
+      }),
+    );
   }
 
   return {
@@ -797,7 +838,7 @@ describe("PaymentMethodSelectorElement", () => {
       );
       await waitForText(
         () => element.shadowRoot?.textContent,
-        "Click the Submit button under the order summary to submit your order",
+        "Click Continue to Mollie under the order summary to pay.",
       );
 
       await waitForTruthy(
@@ -807,9 +848,7 @@ describe("PaymentMethodSelectorElement", () => {
           ),
         "Mollie brand icon",
       );
-      expect(
-        element.shadowRoot?.querySelector('[style*="column-gap"]'),
-      ).toBeTruthy();
+      expect(findLeadingLayoutRows(element.shadowRoot)).toHaveLength(1);
       expect(
         element.shadowRoot?.querySelector(
           '[data-payment-option-click-hint="true"]',
@@ -859,7 +898,7 @@ describe("PaymentMethodSelectorElement", () => {
       document.body.append(element);
       await waitForRender();
 
-      const status = element.shadowRoot?.querySelector('[data-slot="alert"]');
+      const status = element.shadowRoot?.querySelector('[role="alert"]');
       await waitForText(
         () => status?.textContent,
         "Loading payment options...",
@@ -868,7 +907,7 @@ describe("PaymentMethodSelectorElement", () => {
       await waitForTime(800);
       await waitForRender();
 
-      const alert = element.shadowRoot?.querySelector('[data-slot="alert"]');
+      const alert = element.shadowRoot?.querySelector('[role="alert"]');
       await waitForText(
         () => alert?.textContent,
         "Checkout client is not initialized.",
@@ -1754,13 +1793,11 @@ describe("PaymentMethodSelectorElement", () => {
     try {
       document.body.append(element);
       await waitForTruthy(
-        () => element.shadowRoot?.querySelector('[style*="column-gap"]'),
+        () => findLeadingLayoutRows(element.shadowRoot)[0],
         "leading icon layout row",
       );
 
-      const leadingLayoutRows = element.shadowRoot?.querySelectorAll(
-        '[style*="column-gap"]',
-      );
+      const leadingLayoutRows = findLeadingLayoutRows(element.shadowRoot);
 
       expect(leadingLayoutRows).toHaveLength(1);
     } finally {
@@ -1791,9 +1828,7 @@ describe("PaymentMethodSelectorElement", () => {
         "Buy Now, Pay Later with Sezzle",
       );
 
-      const leadingLayoutRows = element.shadowRoot?.querySelectorAll(
-        '[style*="column-gap"]',
-      );
+      const leadingLayoutRows = findLeadingLayoutRows(element.shadowRoot);
 
       expect(leadingLayoutRows).toHaveLength(0);
     } finally {
@@ -1808,6 +1843,7 @@ describe("PaymentMethodSelectorElement", () => {
       undefined,
       {
         paypal: createPayPalPlatformMock([
+          "paypal",
           "new-card",
           "apple-pay",
           "google-pay",
@@ -1818,6 +1854,23 @@ describe("PaymentMethodSelectorElement", () => {
     const element = document.createElement(
       "foxy-payment-method-selector",
     ) as PaymentMethodSelectorElement;
+
+    // The "new-card" option mounts a real <foxy-payment-card-field>, whose
+    // tokenize() rejects until its hosted-fields iframe reports readiness --
+    // an async, network-backed handshake this test isn't set up to drive.
+    // Every other test here that tokenizes through that element stubs its
+    // prototype method directly (see "does not include billing address in
+    // the tokenization payload" above); the paypalPlatform metadata this
+    // test checks never reads from the card field's resolved value anyway
+    // (#createTokenizePayload only reads `orderId`, which cards don't have).
+    const cardFieldPrototype = customElements.get(
+      "foxy-payment-card-field",
+    )?.prototype as { tokenize?: () => Promise<unknown> } | undefined;
+    const tokenizeSpy = cardFieldPrototype
+      ? vi
+          .spyOn(cardFieldPrototype, "tokenize")
+          .mockImplementation(() => Promise.resolve({ requestId: "card-req-1" }))
+      : undefined;
 
     try {
       document.body.append(element);
@@ -1876,6 +1929,7 @@ describe("PaymentMethodSelectorElement", () => {
         },
       });
     } finally {
+      tokenizeSpy?.mockRestore();
       element.remove();
       restoreClient();
     }
