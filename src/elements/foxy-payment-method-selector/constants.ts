@@ -191,6 +191,3 @@ export const ACH_GATEWAY_TYPES = new Set([
   "authorize_ach",
   "ach_com"
 ]);
-
-export const FIELD_STYLE_PROBE_CLASS_NAME =
-  "h-8 px-2.5 py-1 text-base font-normal md:text-sm border border-transparent bg-card text-foreground placeholder:text-muted-foreground";

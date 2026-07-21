@@ -598,7 +598,7 @@ describe("PaymentMethodSelectorElement", () => {
     expect(element.style.getPropertyValue("--font-sans")).toBe("Figtree");
   });
 
-  it("binds internal content and probes to --font-sans", async () => {
+  it("binds internal content to --font-sans", async () => {
     const restoreClient = overrideClientState(createBillingApiState());
     const element = document.createElement(
       "foxy-payment-method-selector",
@@ -611,13 +611,9 @@ describe("PaymentMethodSelectorElement", () => {
 
       const shadowContainer = element.shadowRoot
         ?.children[1] as HTMLDivElement | null;
-      const probe = element.shadowRoot?.querySelector(
-        '[data-foxy-field-style-probe="true"]',
-      ) as HTMLInputElement | null;
 
       expect(element.style.getPropertyValue("--font-sans")).toBe("Figtree");
       expect(shadowContainer?.style.fontFamily).toBe("var(--font-sans)");
-      expect(probe?.style.fontFamily).toBe("var(--font-sans)");
     } finally {
       element.remove();
       restoreClient();
