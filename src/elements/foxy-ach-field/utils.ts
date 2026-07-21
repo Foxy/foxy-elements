@@ -306,6 +306,8 @@ export function dispatchTokenizationSuccess(
     id: requestId,
     token,
     last4: token.slice(-4).padStart(4, "0"),
+    routingNumber: "021000021",
+    accountType: "checking",
   });
 }
 
@@ -319,6 +321,18 @@ export function dispatchTokenizationError(
     id: requestId,
     token: null,
     code,
+  });
+}
+
+export function dispatchHostedReady(
+  field: AchFieldElement,
+  registeredFields: AchHostedFieldName[],
+): void {
+  dispatchControllerMessage(field, {
+    type: "ready",
+    registeredFields: registeredFields.map(
+      (fieldName) => FIELD_TO_EMBED[fieldName],
+    ),
   });
 }
 

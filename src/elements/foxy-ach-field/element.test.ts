@@ -148,6 +148,28 @@ function dispatchTokenizationError(
   } as unknown as MessageEvent);
 }
 
+function dispatchHostedReady(
+  host: AchFieldElement,
+  registeredFields: AchFieldElement["type"][],
+): void {
+  const source = attachFakeControllerSource(host);
+
+  const onWindowMessage = (
+    host as unknown as { _onWindowMessage: (event: MessageEvent) => void }
+  )._onWindowMessage;
+
+  onWindowMessage({
+    data: {
+      type: "ready",
+      registeredFields: registeredFields.map((fieldName) =>
+        fieldName.replace(/-/g, "_"),
+      ),
+    },
+    origin: getExpectedOrigin(host),
+    source,
+  } as unknown as MessageEvent);
+}
+
 const THEME_PROPERTY_MAPPINGS = Object.entries(THEME_PROPERTY_TO_ATTRIBUTE) as [
   string,
   string,
@@ -373,6 +395,12 @@ describe("AchFieldElement events", () => {
 
     const routing = createField("routing-number");
     attachFakeControllerSource(routing);
+    dispatchHostedReady(routing, [
+      "routing-number",
+      "account-number",
+      "account-type",
+      "account-holder-name",
+    ]);
 
     const onTokenizationError = vi.fn();
     routing.addEventListener(
@@ -434,9 +462,10 @@ describe("AchFieldElement events", () => {
     );
   });
 
-  it("passes lang through iframe URL params", () => {
+  it("passes lang through iframe URL params", async () => {
     const field = createField("routing-number");
     field.lang = "fr-CA";
+    await Promise.resolve();
 
     const iframe = field.shadowRoot?.querySelector(
       "iframe:not([data-role='controller'])",
@@ -469,7 +498,7 @@ describe("AchFieldElement events", () => {
     expect(field.getAttribute("theme-size-control")).toBe("3rem");
   });
 
-  it("uses CSS custom properties as default theme values", () => {
+  it("uses CSS custom properties as default theme values", async () => {
     const field = document.createElement(
       ACH_FIELD_ELEMENT_TAG,
     ) as AchFieldElement;
@@ -479,6 +508,7 @@ describe("AchFieldElement events", () => {
     field.style.setProperty("--size-control", "3rem");
     field.style.setProperty("--size-border-width", "0px");
     document.body.append(field);
+    await Promise.resolve();
 
     expect(field.themeFontBody).toBe("400 1rem/1.25 Figtree, sans-serif");
     expect(field.themeSizeControl).toBe("3rem");
@@ -494,8 +524,9 @@ describe("AchFieldElement events", () => {
     expect(url.searchParams.get("input_height")).toBe("48px");
   });
 
-  it("derives the outer iframe's initial height from defaultTheme when no theme is configured at all", () => {
+  it("derives the outer iframe's initial height from defaultTheme when no theme is configured at all", async () => {
     const field = createField("routing-number");
+    await Promise.resolve();
 
     const iframe = field.shadowRoot?.querySelector(
       "iframe:not([data-role='controller'])",

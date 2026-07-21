@@ -15,6 +15,7 @@ import {
   createLabeledField,
   createStoryNote,
   dispatchHostedChange,
+  dispatchHostedReady,
   dispatchTokenizationError,
   dispatchTokenizationSuccess,
 } from "./utils";
@@ -459,32 +460,50 @@ export const TokenizeSuccess: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const field = getPrimaryField(canvasElement);
-    let eventDetail: { token: string; requestId?: string } | undefined;
+    let eventDetail:
+      | {
+          token: string;
+          requestId?: string;
+          last4: string;
+          routingNumber: string;
+          accountType: string;
+        }
+      | undefined;
 
     field.addEventListener(
       "tokenizationsuccess",
       (event) => {
         eventDetail = (
-          event as CustomEvent<{ token: string; requestId?: string }>
+          event as CustomEvent<{
+            token: string;
+            requestId?: string;
+            last4: string;
+            routingNumber: string;
+            accountType: string;
+          }>
         ).detail;
       },
       { once: true },
     );
 
+    dispatchHostedReady(field, ACH_FIELD_TYPE_OPTIONS);
+
     const resultPromise = field.tokenize(args.requestId);
 
     dispatchTokenizationSuccess(field, args.token, args.requestId);
 
-    await expect(resultPromise).resolves.toEqual({
+    const expectedResult = {
       token: args.token,
       requestId: args.requestId,
-    });
+      last4: args.token.slice(-4).padStart(4, "0"),
+      routingNumber: "021000021",
+      accountType: "checking",
+    };
+
+    await expect(resultPromise).resolves.toEqual(expectedResult);
 
     await waitFor(() => {
-      expect(eventDetail).toEqual({
-        token: args.token,
-        requestId: args.requestId,
-      });
+      expect(eventDetail).toEqual(expectedResult);
     });
   },
 };
@@ -545,6 +564,8 @@ export const TokenizeErrorMatrix: Story = {
       },
       { once: true },
     );
+
+    dispatchHostedReady(field, ACH_FIELD_TYPE_OPTIONS);
 
     const resultPromise = field.tokenize(args.requestId);
 
@@ -784,12 +805,17 @@ export const FormIntegrationInteraction: Story = {
 
     await userEvent.click(submit);
 
+    dispatchHostedReady(primaryField, ACH_FIELD_TYPE_OPTIONS);
+
     const tokenizePromise = primaryField.tokenize(args.requestId);
     dispatchTokenizationSuccess(primaryField, args.token, args.requestId);
 
     await expect(tokenizePromise).resolves.toEqual({
       token: args.token,
       requestId: args.requestId,
+      last4: args.token.slice(-4).padStart(4, "0"),
+      routingNumber: "021000021",
+      accountType: "checking",
     });
 
     const status = canvasElement.querySelector(
