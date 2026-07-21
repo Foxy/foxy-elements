@@ -603,22 +603,36 @@ describe("PaymentMethodSelectorElement", () => {
     );
   });
 
-  it("binds internal content to --font-sans", async () => {
+  it("renders shadow DOM content styled from the theme-font-body token", async () => {
     const restoreClient = overrideClientState(createBillingApiState());
     const element = document.createElement(
       "foxy-payment-method-selector",
     ) as PaymentMethodSelectorElement;
 
     try {
-      element.setAttribute("theme-font-sans", "Figtree");
+      element.setAttribute(
+        "theme-font-body",
+        "400 1rem/1.25 Figtree, sans-serif",
+      );
       document.body.append(element);
       await waitForText(() => element.shadowRoot?.textContent, "New Card");
 
-      const shadowContainer = element.shadowRoot
-        ?.children[1] as HTMLDivElement | null;
+      // The billing address fields render through the design system's
+      // Field.Control, which is styled from `theme.tokens.font.body` (see
+      // #buildThemeTokens() in element.tsx). If the theme-font-body attribute
+      // is actually threaded through StyleSheetManager/ThemeProvider into the
+      // rendered shadow DOM, this input's computed font picks up "Figtree"
+      // instead of the design system's default ("Albert Sans").
+      const input = element.shadowRoot?.querySelector(
+        "#billing-first-name",
+      ) as HTMLElement | null;
 
-      expect(element.style.getPropertyValue("--font-sans")).toBe("Figtree");
-      expect(shadowContainer?.style.fontFamily).toBe("var(--font-sans)");
+      expect(input).not.toBeNull();
+
+      const computed = getComputedStyle(input!);
+      expect(computed.fontFamily).toBe("Figtree, sans-serif");
+      expect(computed.fontWeight).toBe("400");
+      expect(computed.fontSize).toBe("16px");
     } finally {
       element.remove();
       restoreClient();
