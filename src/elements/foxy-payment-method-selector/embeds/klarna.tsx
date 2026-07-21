@@ -3,6 +3,7 @@ import type { KlarnaSdkInstance } from "@foxy.io/sdk/checkout";
 import type { PaymentMethodSelectorOption } from "../types";
 
 import { useEffect, useRef, useState } from "react";
+import { styled } from "styled-components";
 
 type KlarnaOptionEmbedProps = {
   option: PaymentMethodSelectorOption;
@@ -45,6 +46,36 @@ function loadKlarnaWidget(
     );
   });
 }
+
+const KlarnaWidgetRoot = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.tokens.space.xs};
+`;
+
+const KlarnaWidgetContainer = styled.div`
+  border: ${(props) => props.theme.tokens.border.field};
+  border-radius: ${(props) => props.theme.tokens.borderRadius.xs};
+  background: ${(props) => props.theme.tokens.background.surface};
+  width: 100%;
+  padding: ${(props) => props.theme.tokens.space.sm};
+`;
+
+const LoadingText = styled.p`
+  all: unset;
+  display: block;
+  margin: 0;
+  font-size: 0.875rem;
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
+const ErrorText = styled.p`
+  all: unset;
+  display: block;
+  margin: 0;
+  font-size: 0.875rem;
+  color: ${(props) => props.theme.tokens.color.error};
+`;
 
 export default function KlarnaOptionEmbed({
   option,
@@ -124,18 +155,15 @@ export default function KlarnaOptionEmbed({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div
+    <KlarnaWidgetRoot>
+      <KlarnaWidgetContainer
         ref={containerRef}
         data-klarna-widget="true"
         data-klarna-widget-status={status}
         aria-disabled={disabled ? "true" : undefined}
-        className="border rounded bg-white w-full p-2"
       />
-      {status === "loading" ? (
-        <p className="m-0 text-sm text-muted-foreground">{loadingMessage}</p>
-      ) : null}
-      {error ? <p className="m-0 text-sm text-destructive">{error}</p> : null}
-    </div>
+      {status === "loading" ? <LoadingText>{loadingMessage}</LoadingText> : null}
+      {error ? <ErrorText>{error}</ErrorText> : null}
+    </KlarnaWidgetRoot>
   );
 }
