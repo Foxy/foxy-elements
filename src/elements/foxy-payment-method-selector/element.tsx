@@ -128,6 +128,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #root: Root | null = null;
   #container: HTMLDivElement;
   #controllers = new Map<string, PaymentController>();
+  #klarnaAvailabilityByCategory = new Map<string, boolean>();
   #billingErrorsByOption = new Map<string, PaymentMethodSelectorBillingError>();
   #billingRequestVersionByOption = new Map<string, number>();
   #lightDomStripeHosts = new Map<string, HTMLDivElement>();
@@ -398,6 +399,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return undefined;
   }
 
+  #setKlarnaAvailability = (category: string, available: boolean): void => {
+    this.#klarnaAvailabilityByCategory.set(category, available);
+  };
+
   async #tokenizeKlarna(option: PaymentMethodSelectorOption): Promise<{
     authorizationToken: string;
     sessionId: string;
@@ -442,6 +447,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     const apiState = this.#resolveApiState();
     const authorizationData = this.#createKlarnaAuthorizationData(apiState);
     const category = klarnaOption.category.identifier;
+
+    if (this.#klarnaAvailabilityByCategory.get(category) === false) {
+      throw new Error("This Klarna option is currently unavailable.");
+    }
 
     const authorization = await new Promise<{
       approved: boolean;
@@ -896,6 +905,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
             this.#controllers.delete(optionId);
           }}
+          onKlarnaAvailabilityChange={this.#setKlarnaAvailability}
           renderStripeContent={({ option }) => {
             const slotName = this.#getStripeSlotName(option.id);
             return <slot name={slotName} />;
