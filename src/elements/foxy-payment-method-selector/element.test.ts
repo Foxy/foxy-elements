@@ -1907,6 +1907,57 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
+  it("sanitizes customer-controlled theme-* attributes before injecting Adyen CSS into document.head", async () => {
+    // Regression test for a CSS-injection vulnerability: `buildAdyenEmbeddedStyles`
+    // used to interpolate `theme-*` attribute values (public, customer-controllable)
+    // directly into CSS *source text* written to a <style> tag in document.head —
+    // global page scope, not this element's shadow DOM. A value containing `}`
+    // closes the current declaration/rule early and lets an attacker open a new
+    // top-level rule (no `;` required), e.g. targeting `body` or exfiltrating via
+    // `url(...)`. This proves that vector is now blocked and degrades to the
+    // design system's default color instead of leaking the payload verbatim.
+    const maliciousPayload = "red} body{display:none} .x{color:red";
+    const { Component: Dropin } = createAdyenComponentMock({
+      mountText: "Adyen drop-in",
+    });
+    const restoreClient = overrideClientState(
+      createAdyenEmbeddedApiState(),
+      undefined,
+      { adyenEmbedded: { Dropin } },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      element.setAttribute("theme-color-body", maliciousPayload);
+      document.body.append(element);
+      await waitForTruthy(
+        () => element.querySelector("[data-foxy-adyen-host]"),
+        "Adyen light DOM host",
+      );
+      await waitForTruthy(() => Dropin.mock.calls.length === 1, "Adyen Drop-in");
+
+      const style = document.head.querySelector(
+        'style[data-foxy-adyen-embedded-styles="true"]',
+      );
+      const css = style?.textContent ?? "";
+
+      expect(css).not.toBe("");
+      expect(css).not.toContain(maliciousPayload);
+      expect(css).not.toContain("body{display:none}");
+      // Sanitize-or-default: an unsafe override falls back to the design
+      // system's default color rather than dropping the declaration.
+      expect(css).toContain("#1C1A1D");
+    } finally {
+      element.remove();
+      restoreClient();
+      document.head
+        .querySelector('style[data-foxy-adyen-embedded-styles="true"]')
+        ?.remove();
+    }
+  });
+
   it("renders Adyen Drop-in outside RadioGroup when it is the only option", async () => {
     const { Component: Dropin } = createAdyenComponentMock();
     const restoreClient = overrideClientState(

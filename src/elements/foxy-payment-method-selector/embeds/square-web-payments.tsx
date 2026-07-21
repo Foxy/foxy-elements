@@ -28,10 +28,11 @@ type SquareWalletMethods = {
 
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "styled-components";
-import type { DesignSystemTheme } from "@foxy.io/design-system/theme";
+import { defaultTheme, type DesignSystemTheme } from "@foxy.io/design-system/theme";
 import {
   useResolvedHostedFieldStyleAttributes,
   resolveDesignTokens,
+  sanitizeCssValueOrDefault,
 } from "../stripe/style-hooks";
 
 // Square enforces a 16px maximum on fontSize.
@@ -45,12 +46,26 @@ function clampFontSizeForSquare(value: string | undefined): string | undefined {
 // Built from the current theme tokens and re-injected on every mount effect run
 // (this stylesheet targets a light-DOM node in document.body, so it can't read
 // theme values via styled-components/useTheme() at the point Square renders them).
-function buildSquareWebPaymentsStyles(themeTokens: DesignSystemTheme): string {
+//
+// Theme tokens are customer-controllable (public `theme-*` HTML attributes,
+// see `theme-mixin.ts`) and get interpolated directly into this file's CSS
+// *source text*, not into a CSS custom property reference — so every token
+// value must be sanitized before interpolation. `color.secondary`/`color.error`
+// reuse `resolveDesignTokens`'s already-sanitized `mutedForeground`/`destructive`
+// fields (computed elsewhere from the same theme tokens for Square's own style
+// config) instead of re-reading the raw fields a second time unsanitized.
+export function buildSquareWebPaymentsStyles(themeTokens: DesignSystemTheme): string {
+  const tokens = resolveDesignTokens(themeTokens);
+  const font = sanitizeCssValueOrDefault(themeTokens.font.body, defaultTheme.font.body);
+  const spaceMd = sanitizeCssValueOrDefault(themeTokens.space.md, defaultTheme.space.md);
+  const colorSecondary = tokens.mutedForeground ?? defaultTheme.color.secondary;
+  const colorError = tokens.destructive ?? defaultTheme.color.error;
+
   return `
 .foxy-square-web-payments {
   display: grid;
-  font: ${themeTokens.font.body};
-  gap: calc(${themeTokens.space.md} * 2);
+  font: ${font};
+  gap: calc(${spaceMd} * 2);
 }
 
 .foxy-square-web-payments__placeholder {
@@ -58,13 +73,13 @@ function buildSquareWebPaymentsStyles(themeTokens: DesignSystemTheme): string {
 }
 
 .foxy-square-web-payments__message {
-  color: ${themeTokens.color.secondary};
+  color: ${colorSecondary};
   font-size: 0.875rem;
   margin: 0;
 }
 
 .foxy-square-web-payments__message--error {
-  color: ${themeTokens.color.error};
+  color: ${colorError};
 }
 
 .sq-card-message:not(.sq-visible) {

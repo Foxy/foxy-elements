@@ -31,9 +31,25 @@ const DEFAULT_STRIPE_APPEARANCE: StripeAppearance = {
 export function sanitizeCssValue(value: string): string | undefined {
   const normalized = value.trim();
   if (!normalized) return undefined;
-  if (/(url\s*\(|@import|expression\s*\(|;)/i.test(normalized))
+  // `;` and `{`/`}` let a value that is interpolated into raw CSS source text
+  // (as opposed to a structured config object or a `var(--name, fallback)`
+  // reference) break out of the declaration it was meant to fill and inject
+  // new rules — e.g. `red}body{display:none` closes the current rule and
+  // opens a new one, with no semicolon involved. No legitimate theme value
+  // (colors, font shorthands, spacing/radius lengths) needs any of these
+  // characters, so rejecting them outright is safe.
+  if (/(url\s*\(|@import|expression\s*\(|[;{}])/i.test(normalized))
     return undefined;
   return normalized;
+}
+
+// For call sites that interpolate a theme-derived value directly into raw CSS
+// source text (e.g. a `<style>` tag's textContent), rather than into a
+// structured config object whose fields are dropped individually when unset.
+// A value that fails sanitization degrades to the given safe default instead
+// of leaving a hole in the stylesheet or aborting the whole build.
+export function sanitizeCssValueOrDefault(value: string, fallback: string): string {
+  return sanitizeCssValue(value) ?? fallback;
 }
 
 function mergeStripeRules(

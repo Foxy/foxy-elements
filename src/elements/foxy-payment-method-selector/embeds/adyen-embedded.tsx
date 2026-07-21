@@ -1,23 +1,61 @@
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
 import type { PaymentController, PaymentMethodSelectorOption } from "../types";
-import type { DesignSystemTheme } from "@foxy.io/design-system/theme";
+import { defaultTheme, type DesignSystemTheme } from "@foxy.io/design-system/theme";
 
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "styled-components";
 import { deriveInputMetrics, parseFontShorthand } from "@/lib/theme-attribute-sync";
-import { extractColorFromShorthand } from "../stripe/style-hooks";
+import { extractColorFromShorthand, sanitizeCssValueOrDefault } from "../stripe/style-hooks";
+
+// Theme tokens are customer-controllable (public `theme-*` HTML attributes,
+// see `theme-mixin.ts`) and get interpolated directly into this file's CSS
+// *source text*, not into a CSS custom property reference — so every token
+// value must be sanitized before interpolation. A value that fails
+// sanitization (e.g. contains `;`, `}`, `url(`, or `@import`) falls back to
+// the corresponding default-theme value rather than breaking the stylesheet.
+const DEFAULT_FONT_FAMILY = parseFontShorthand(defaultTheme.font.body).fontFamily;
 
 const ADYEN_WEB_VERSION = "6.36.0";
 
-function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
+export function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
   const metrics = deriveInputMetrics({
     controlSize: theme.size.control,
     borderWidth: theme.size.borderWidth,
     fontBody: theme.font.body,
   });
-  const { fontFamily } = parseFontShorthand(theme.font.body);
-  const inputColor = extractColorFromShorthand(theme.border.field) ?? theme.color.secondary;
-  const ringColor = extractColorFromShorthand(theme.outline.primary) ?? theme.color.primary;
+  const { fontFamily: rawFontFamily } = parseFontShorthand(theme.font.body);
+  const fontFamily = sanitizeCssValueOrDefault(rawFontFamily, DEFAULT_FONT_FAMILY);
+
+  const rawInputColor = extractColorFromShorthand(theme.border.field) ?? theme.color.secondary;
+  const rawRingColor = extractColorFromShorthand(theme.outline.primary) ?? theme.color.primary;
+  const inputColor = sanitizeCssValueOrDefault(rawInputColor, defaultTheme.color.secondary);
+  const ringColor = sanitizeCssValueOrDefault(rawRingColor, defaultTheme.color.primary);
+
+  const spacing = sanitizeCssValueOrDefault(theme.space.md, defaultTheme.space.md);
+  const radius = sanitizeCssValueOrDefault(theme.borderRadius.sm, defaultTheme.borderRadius.sm);
+  const buttonBackground = sanitizeCssValueOrDefault(
+    theme.background.buttonPrimary,
+    defaultTheme.background.buttonPrimary,
+  );
+  const buttonForeground = sanitizeCssValueOrDefault(
+    theme.color.onPrimary,
+    defaultTheme.color.onPrimary,
+  );
+  const colorBody = sanitizeCssValueOrDefault(theme.color.body, defaultTheme.color.body);
+  const colorSecondary = sanitizeCssValueOrDefault(
+    theme.color.secondary,
+    defaultTheme.color.secondary,
+  );
+  const colorError = sanitizeCssValueOrDefault(theme.color.error, defaultTheme.color.error);
+  const colorPrimary = sanitizeCssValueOrDefault(theme.color.primary, defaultTheme.color.primary);
+  const backgroundSurface = sanitizeCssValueOrDefault(
+    theme.background.surface,
+    defaultTheme.background.surface,
+  );
+  const backgroundDisabledField = sanitizeCssValueOrDefault(
+    theme.background.disabledField,
+    defaultTheme.background.disabledField,
+  );
 
   return `
 .foxy-adyen-embedded {
@@ -26,37 +64,37 @@ function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
   --foxy-adyen-input-padding-y: ${metrics.paddingY};
   --foxy-adyen-label-input-gap: calc(var(--foxy-adyen-spacing) * 2);
   --foxy-adyen-input-text-size: ${metrics.fontSize};
-  --foxy-adyen-spacing: ${theme.space.md};
-  --foxy-adyen-radius: ${theme.borderRadius.sm};
-  --foxy-adyen-button-background: ${theme.background.buttonPrimary};
+  --foxy-adyen-spacing: ${spacing};
+  --foxy-adyen-radius: ${radius};
+  --foxy-adyen-button-background: ${buttonBackground};
   --foxy-adyen-button-background-hover: color-mix(in srgb, var(--foxy-adyen-button-background) 90%, transparent);
-  --foxy-adyen-button-foreground: ${theme.color.onPrimary};
-  --adyen-sdk-color-label-primary: ${theme.color.body};
-  --adyen-sdk-color-label-secondary: ${theme.color.secondary};
-  --adyen-sdk-color-label-tertiary: ${theme.color.secondary};
-  --adyen-sdk-color-label-disabled: ${theme.color.secondary};
-  --adyen-sdk-color-label-critical: ${theme.color.error};
-  --adyen-sdk-color-label-highlight: ${theme.color.primary};
+  --foxy-adyen-button-foreground: ${buttonForeground};
+  --adyen-sdk-color-label-primary: ${colorBody};
+  --adyen-sdk-color-label-secondary: ${colorSecondary};
+  --adyen-sdk-color-label-tertiary: ${colorSecondary};
+  --adyen-sdk-color-label-disabled: ${colorSecondary};
+  --adyen-sdk-color-label-critical: ${colorError};
+  --adyen-sdk-color-label-highlight: ${colorPrimary};
   --adyen-sdk-color-label-on-color: var(--foxy-adyen-button-foreground);
-  --adyen-sdk-color-background-primary: ${theme.background.surface};
-  --adyen-sdk-color-background-primary-hover: ${theme.background.disabledField};
-  --adyen-sdk-color-background-secondary: ${theme.background.disabledField};
-  --adyen-sdk-color-background-secondary-hover: ${theme.background.disabledField};
-  --adyen-sdk-color-background-secondary-active: ${theme.background.disabledField};
-  --adyen-sdk-color-background-tertiary: ${theme.background.disabledField};
-  --adyen-sdk-color-background-disabled: ${theme.background.disabledField};
-  --adyen-sdk-color-background-critical-strong: ${theme.color.error};
-  --adyen-sdk-color-background-inverse-primary: ${theme.color.body};
-  --adyen-sdk-color-background-inverse-primary-hover: ${theme.color.secondary};
+  --adyen-sdk-color-background-primary: ${backgroundSurface};
+  --adyen-sdk-color-background-primary-hover: ${backgroundDisabledField};
+  --adyen-sdk-color-background-secondary: ${backgroundDisabledField};
+  --adyen-sdk-color-background-secondary-hover: ${backgroundDisabledField};
+  --adyen-sdk-color-background-secondary-active: ${backgroundDisabledField};
+  --adyen-sdk-color-background-tertiary: ${backgroundDisabledField};
+  --adyen-sdk-color-background-disabled: ${backgroundDisabledField};
+  --adyen-sdk-color-background-critical-strong: ${colorError};
+  --adyen-sdk-color-background-inverse-primary: ${colorBody};
+  --adyen-sdk-color-background-inverse-primary-hover: ${colorSecondary};
   --adyen-sdk-color-background-always-dark: var(--foxy-adyen-button-background);
   --adyen-sdk-color-background-always-dark-active: var(--foxy-adyen-button-background);
   --adyen-sdk-color-outline-primary: ${inputColor};
   --adyen-sdk-color-outline-primary-hover: ${inputColor};
   --adyen-sdk-color-outline-primary-active: ${ringColor};
   --adyen-sdk-color-outline-secondary: ${inputColor};
-  --adyen-sdk-color-outline-tertiary: ${theme.color.secondary};
+  --adyen-sdk-color-outline-tertiary: ${colorSecondary};
   --adyen-sdk-color-outline-disabled: ${inputColor};
-  --adyen-sdk-color-outline-critical: ${theme.color.error};
+  --adyen-sdk-color-outline-critical: ${colorError};
   --adyen-sdk-color-separator-primary: ${inputColor};
   --adyen-sdk-text-caption-font-size: 0.75rem;
   --adyen-sdk-text-caption-line-height: 1.125rem;
@@ -96,20 +134,20 @@ function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
   --adyen-sdk-border-width-l: 3px;
   --adyen-sdk-shadow-low: none;
   --adyen-sdk-focus-ring-color: ${ringColor};
-  color: ${theme.color.body};
+  color: ${colorBody};
   display: grid;
   font-family: ${fontFamily};
   gap: calc(var(--foxy-adyen-spacing) * 2);
 }
 
 .foxy-adyen-embedded__message {
-  color: ${theme.color.secondary};
+  color: ${colorSecondary};
   font-size: 0.875rem;
   margin: 0;
 }
 
 .foxy-adyen-embedded__message--error {
-  color: ${theme.color.error};
+  color: ${colorError};
 }
 
 .foxy-adyen-embedded .adyen-checkout-brand-wrapper {
@@ -154,7 +192,7 @@ function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
   width: 50%;
   height: 50%;
   border-radius: 50%;
-  background: ${theme.color.primary};
+  background: ${colorPrimary};
 }
 
 .foxy-adyen-embedded .adyen-checkout__dropdown__list {
