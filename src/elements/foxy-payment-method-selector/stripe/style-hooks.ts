@@ -39,13 +39,24 @@ export function sanitizeCssValue(value: string): string | undefined {
   // (colors, font shorthands, spacing/radius lengths) needs any of these
   // characters, so rejecting them outright is safe.
   //
-  // `image-set(`/`-webkit-image-set(`/`image(`/`element(` are CSS
-  // image-valued functions that can reference an external resource (a bare
-  // quoted URL, not wrapped in `url(...)`) and are valid wherever `url(...)`
-  // is valid (e.g. a `background:` sink) — so they must be blocked alongside
-  // `url(` for the same reason. No legitimate theme value needs them either.
+  // `image-set(`/`-webkit-image-set(`/`image(`/`element(`/`src(` are all
+  // <url>-equivalent or image-valued CSS functions that can reference an
+  // external resource (a bare quoted URL, not necessarily wrapped in
+  // `url(...)`) and are valid wherever `url(...)` is valid (e.g. a
+  // `background:` sink) — so they must be blocked alongside `url(` for the
+  // same reason. `src()` isn't supported in image contexts by any shipping
+  // browser today, but per the CSS Values spec it's a defined `<url>`
+  // equivalent, so it's blocked pre-emptively rather than waiting for that
+  // to change. No legitimate theme value needs any of these.
+  //
+  // This is a blocklist, not an allowlist, and blocklists for CSS-function
+  // syntax are inherently prone to missing the next url-equivalent the spec
+  // adds. Do not treat this list as closed — if this sanitizer is going to
+  // be relied on long-term, it should be replaced with an allowlist keyed to
+  // expected value shape (color / length / a fixed set of known-safe
+  // functions), not extended indefinitely one function name at a time.
   if (
-    /(url\s*\(|@import|expression\s*\(|-webkit-image-set\s*\(|image-set\s*\(|image\s*\(|element\s*\(|[;{}])/i.test(
+    /(url\s*\(|@import|expression\s*\(|-webkit-image-set\s*\(|image-set\s*\(|image\s*\(|element\s*\(|src\s*\(|[;{}])/i.test(
       normalized,
     )
   )
