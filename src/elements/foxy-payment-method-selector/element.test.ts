@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
+import { defaultTheme } from "@foxy.io/design-system/theme";
 import {
   THEME_ATTRIBUTE_NAMES,
   THEME_PROPERTY_TO_ATTRIBUTE,
@@ -1949,6 +1950,60 @@ describe("PaymentMethodSelectorElement", () => {
       // Sanitize-or-default: an unsafe override falls back to the design
       // system's default color rather than dropping the declaration.
       expect(css).toContain("#1C1A1D");
+    } finally {
+      element.remove();
+      restoreClient();
+      document.head
+        .querySelector('style[data-foxy-adyen-embedded-styles="true"]')
+        ?.remove();
+    }
+  });
+
+  it("blocks an image-set() payload in a customer-controlled theme-* attribute before injecting Adyen CSS into document.head", async () => {
+    // Regression test for the residual CSS-injection bypass found in the
+    // adversarial re-review of the fix above: `image-set(...)` (and
+    // `-webkit-image-set(...)`) is a CSS image-valued function that accepts a
+    // bare, non-`url(...)`-wrapped string URL and is valid wherever
+    // `url(...)` is valid — including `buildAdyenEmbeddedStyles`'s
+    // `background: ${colorPrimary}` sink (see adyen-embedded.tsx). The prior
+    // fix blocked `url(`/`@import`/`expression(`/`;`/`{`/`}` but not this
+    // equivalent vector, so a `theme-color-primary` payload built from it
+    // used to survive sanitization and reach document.head verbatim, causing
+    // Chromium to fetch an attacker-controlled-origin resource on render.
+    const maliciousPayload = 'image-set("https://evil.example/x" 1x)';
+    const { Component: Dropin } = createAdyenComponentMock({
+      mountText: "Adyen drop-in",
+    });
+    const restoreClient = overrideClientState(
+      createAdyenEmbeddedApiState(),
+      undefined,
+      { adyenEmbedded: { Dropin } },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      element.setAttribute("theme-color-primary", maliciousPayload);
+      document.body.append(element);
+      await waitForTruthy(
+        () => element.querySelector("[data-foxy-adyen-host]"),
+        "Adyen light DOM host",
+      );
+      await waitForTruthy(() => Dropin.mock.calls.length === 1, "Adyen Drop-in");
+
+      const style = document.head.querySelector(
+        'style[data-foxy-adyen-embedded-styles="true"]',
+      );
+      const css = style?.textContent ?? "";
+
+      expect(css).not.toBe("");
+      expect(css).not.toContain(maliciousPayload);
+      expect(css).not.toContain("image-set(");
+      expect(css).not.toContain("evil.example");
+      // Sanitize-or-default: an unsafe override falls back to the design
+      // system's default color rather than dropping the declaration.
+      expect(css).toContain(defaultTheme.color.primary);
     } finally {
       element.remove();
       restoreClient();

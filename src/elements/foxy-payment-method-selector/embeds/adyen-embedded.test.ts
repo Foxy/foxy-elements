@@ -43,6 +43,26 @@ describe("buildAdyenEmbeddedStyles", () => {
     }
   });
 
+  // Regression test: `image-set()`/`element()` are CSS image-valued functions
+  // that accept a bare (non-`url(...)`-wrapped) string URL and are valid
+  // wherever `url(...)` is valid, e.g. this file's `background: ${colorPrimary}`
+  // sink. A prior fix blocked `url(`/`@import`/`expression(`/`;`/`{`/`}` but
+  // missed this equivalent exfiltration/fetch vector.
+  it("blocks image-set(), -webkit-image-set(), image(), and element() payloads", () => {
+    const payloads = [
+      'image-set("https://evil.example/x" 1x)',
+      '-webkit-image-set("https://evil.example/x" 1x)',
+      'image("https://evil.example/x")',
+      "element(#evil)",
+    ];
+
+    for (const payload of payloads) {
+      const css = buildAdyenEmbeddedStyles(themeWith({ primary: payload }));
+      expect(css).not.toContain(payload);
+      expect(css).toContain(defaultTheme.color.primary);
+    }
+  });
+
   it("passes a legitimate custom color through unchanged", () => {
     const css = buildAdyenEmbeddedStyles(themeWith({ body: "#112233" }));
 

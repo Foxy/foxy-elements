@@ -38,7 +38,17 @@ export function sanitizeCssValue(value: string): string | undefined {
   // opens a new one, with no semicolon involved. No legitimate theme value
   // (colors, font shorthands, spacing/radius lengths) needs any of these
   // characters, so rejecting them outright is safe.
-  if (/(url\s*\(|@import|expression\s*\(|[;{}])/i.test(normalized))
+  //
+  // `image-set(`/`-webkit-image-set(`/`image(`/`element(` are CSS
+  // image-valued functions that can reference an external resource (a bare
+  // quoted URL, not wrapped in `url(...)`) and are valid wherever `url(...)`
+  // is valid (e.g. a `background:` sink) — so they must be blocked alongside
+  // `url(` for the same reason. No legitimate theme value needs them either.
+  if (
+    /(url\s*\(|@import|expression\s*\(|-webkit-image-set\s*\(|image-set\s*\(|image\s*\(|element\s*\(|[;{}])/i.test(
+      normalized,
+    )
+  )
     return undefined;
   return normalized;
 }
