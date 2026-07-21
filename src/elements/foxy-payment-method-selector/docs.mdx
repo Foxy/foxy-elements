@@ -177,11 +177,14 @@ The standard card, Stripe, and PayPal example pages also seed a single saved pay
     </tr>
     <tr>
       <td>
-        <code>theme-font-sans</code>
+        <code>theme-font-body</code>
       </td>
-      <td>Sans font family token for selector and embedded fields.</td>
       <td>
-        <code>"IBM Plex Sans", sans-serif</code>
+        Font shorthand (weight/size/line-height/family) for the selector and
+        embedded fields.
+      </td>
+      <td>
+        <code>400 1rem/1.25 Albert Sans, sans-serif</code>
       </td>
     </tr>
     <tr>
@@ -456,14 +459,14 @@ remain the inherited <code>HTMLElement</code> property.
     </tr>
     <tr>
       <td>
-        <code>themeFontSans</code>
+        <code>themeFontBody</code>
       </td>
       <td>
         <code>string | undefined</code>
       </td>
       <td>
-        Reflects <code>theme-font-sans</code> for selector and embedded field
-        typography.
+        Reflects <code>theme-font-body</code> for the selector and embedded
+        field font shorthand (weight/size/line-height/family).
       </td>
     </tr>
     <tr>

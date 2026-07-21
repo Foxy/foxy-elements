@@ -591,11 +591,16 @@ describe("PaymentMethodSelectorElement", () => {
     const element = document.createElement(
       "foxy-payment-method-selector",
     ) as PaymentMethodSelectorElement;
-    element.style.setProperty("--font-sans", "Figtree");
+    element.style.setProperty(
+      "--font-body",
+      "400 1rem/1.25 Figtree, sans-serif",
+    );
     document.body.append(element);
 
-    expect(element.themeFontSans).toBe("Figtree");
-    expect(element.style.getPropertyValue("--font-sans")).toBe("Figtree");
+    expect(element.themeFontBody).toBe("400 1rem/1.25 Figtree, sans-serif");
+    expect(element.style.getPropertyValue("--font-body")).toBe(
+      "400 1rem/1.25 Figtree, sans-serif",
+    );
   });
 
   it("binds internal content to --font-sans", async () => {
