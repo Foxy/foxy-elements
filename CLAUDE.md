@@ -23,8 +23,9 @@
 
 ## UI System
 
-- Use `@foxy.io/design-system` as the shared UI layer. Import UI components from `@foxy.io/design-system/ui/*` and styles from `@foxy.io/design-system/styles.css` instead of adding local `src/components/ui` copies.
-- The design system is built on top of shadcn/ui. When extending or reasoning about its components, apply shadcn/ui conventions and patterns to the design system's public API instead of re-implementing local shadcn/ui variants.
+- Use `@foxy.io/design-system` (Base UI + styled-components) as the shared UI layer. Import components from their per-component subpaths, e.g. `@foxy.io/design-system/field` (compound: `Field.Root`, `Field.Label`, …), `@foxy.io/design-system/button`. There is no `/ui/*` namespace and no shipped `styles.css`. Do not add local `src/components/ui` copies.
+- Style with `styled-components`, reading tokens via `props.theme.tokens.*`; wrap React roots in `ThemeProvider theme={{ tokens: defaultTheme }}` (from `@foxy.io/design-system/theme`).
+- `styled-components`, `@foxy.io/design-system`, and `@foxy.io/sdk` are externalized from the build (see `vite.config.ts` externals). Keep `styled-components` externalized — bundling it gives elements its own instance, so DS components elements renders can't see the consumer's `ThemeProvider` (theme becomes undefined).
 
 ## API Conventions
 
