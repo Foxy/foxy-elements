@@ -4,8 +4,22 @@
   href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Geist:wght@100..900&family=Poppins:wght@400;500;600&display=swap"
   rel="stylesheet"
 />
+<!-- Foxy design-system brand typefaces (Albert Sans display + Inter body). The
+     shadcn-style demo themes above use their own --font-sans; these are the
+     faces the DS's own font tokens reference. -->
+<link
+  href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
 
 <style>
+  /* Story scaffolding (labels, notes, section wrappers) doesn't set its own
+     font-family; default it to the DS body face so it renders in the brand
+     Inter instead of the browser serif. */
+  body {
+    font-family: "Inter", sans-serif;
+  }
+
   :root.demo-theme-one {
     --background: oklch(1 0 0);
     --foreground: oklch(0 0 0);

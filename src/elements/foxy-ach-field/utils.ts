@@ -127,7 +127,9 @@ export function createButton(label: string): HTMLButtonElement {
   button.style.border = defaultTheme.border.field;
   button.style.borderRadius = defaultTheme.borderRadius.sm;
   button.style.background = defaultTheme.background.buttonPrimary;
-  button.style.color = defaultTheme.color.onPrimary;
+  // Amber CTA needs near-black text (onButtonPrimary); onPrimary is white and
+  // fails contrast on amber.
+  button.style.color = defaultTheme.color.onButtonPrimary;
   button.style.fontSize = "0.875rem";
   button.style.fontWeight = "500";
   button.style.padding = "0 0.875rem";

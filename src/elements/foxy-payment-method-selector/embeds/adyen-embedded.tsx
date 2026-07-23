@@ -37,9 +37,12 @@ export function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
     theme.background.buttonPrimary,
     defaultTheme.background.buttonPrimary,
   );
+  // The Adyen pay button uses the amber CTA background (buttonPrimary), so its
+  // text must be onButtonPrimary (near-black) — onPrimary is white and fails
+  // contrast on amber.
   const buttonForeground = sanitizeCssValueOrDefault(
-    theme.color.onPrimary,
-    defaultTheme.color.onPrimary,
+    theme.color.onButtonPrimary,
+    defaultTheme.color.onButtonPrimary,
   );
   const colorBody = sanitizeCssValueOrDefault(theme.color.body, defaultTheme.color.body);
   const colorSecondary = sanitizeCssValueOrDefault(

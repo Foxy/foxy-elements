@@ -45,7 +45,7 @@
     "styled-components": "^6.4.3"
   },
   "peerDependencies": {
-    "@foxy.io/design-system": "0.0.0",
+    "@foxy.io/design-system": "file:foxy.io-design-system-0.0.0.tgz",
     "@foxy.io/sdk": "file:foxy.io-sdk-0.0.0.tgz"
   },
   "devDependencies": {

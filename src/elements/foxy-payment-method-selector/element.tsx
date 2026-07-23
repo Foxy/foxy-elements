@@ -1073,6 +1073,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           defaultTheme.size.borderWidth,
       },
       shadow: defaultTheme.shadow,
+      easing: defaultTheme.easing,
+      duration: defaultTheme.duration,
       zIndex: defaultTheme.zIndex,
     };
   }
