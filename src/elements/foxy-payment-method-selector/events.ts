@@ -27,6 +27,6 @@ export type PaymentMethodSelectorTokenizationErrorEventDetail = {
 export type PaymentMethodSelectorBillingAddressErrorEventDetail = {
   error: unknown;
   optionId: string;
-  useShippingAddress: boolean;
+  useSeparateBillingAddress: boolean;
   values: Record<string, string>;
 };

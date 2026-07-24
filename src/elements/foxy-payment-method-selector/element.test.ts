@@ -258,7 +258,7 @@ function createPayPalPlatformMock(
 function createBillingApiState() {
   return {
     billing_address: {
-      use_customer_shipping_address: true,
+      use_separate_billing_address: false,
       first_name: "Taylor",
       last_name: "Morgan",
       company: "",
@@ -310,7 +310,7 @@ function createPurchaseOrderApiState() {
 function createPayPalPlatformApiState() {
   return {
     billing_address: {
-      use_customer_shipping_address: true,
+      use_separate_billing_address: false,
       first_name: "Taylor",
       last_name: "Morgan",
       company: "",
@@ -350,7 +350,7 @@ function createKlarnaApiState() {
       email: "taylor@example.com",
     },
     billing_address: {
-      use_customer_shipping_address: false,
+      use_separate_billing_address: true,
       first_name: "Taylor",
       last_name: "Morgan",
       company: "",
@@ -419,7 +419,7 @@ function createSezzleApiState() {
 function createAdyenEmbeddedApiState() {
   return {
     billing_address: {
-      use_customer_shipping_address: true,
+      use_separate_billing_address: false,
       first_name: "Taylor",
       last_name: "Morgan",
       company: "",
@@ -839,7 +839,7 @@ describe("PaymentMethodSelectorElement", () => {
       );
       await waitForText(
         () => element.shadowRoot?.textContent,
-        "Click Continue to Mollie under the order summary to pay.",
+        "Click Continue with Mollie under the order summary to pay.",
       );
 
       await waitForTruthy(
@@ -1199,6 +1199,49 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
+  it("renders the billing address for purchase order when the checkout provides one", async () => {
+    const restoreClient = overrideClientState({
+      ...createPurchaseOrderApiState(),
+      billing_address: {
+        use_separate_billing_address: true,
+        first_name: "Taylor",
+        last_name: "Morgan",
+        company: "",
+        address1: "123 Main Street",
+        address2: "",
+        city: "Minneapolis",
+        region: "MN",
+        postal_code: "55401",
+        country: "US",
+        phone: "6125550100",
+      },
+    });
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      // The purchase-order body still renders its own field...
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Purchase order number",
+      );
+
+      // ...and, because the checkout provides a billing address, the billing
+      // form renders alongside it (previously omitted for purchase-order).
+      const billingInput = element.shadowRoot?.querySelector(
+        "#billing-first-name",
+      ) as HTMLElement | null;
+      expect(billingInput).not.toBeNull();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
   it("rejects purchase-order tokenization when the field is empty", async () => {
     const restoreClient = overrideClientState(createPurchaseOrderApiState());
     const element = document.createElement(
@@ -1323,7 +1366,7 @@ describe("PaymentMethodSelectorElement", () => {
     const restoreClient = overrideClientState(
       {
         billing_address: {
-          use_customer_shipping_address: false,
+          use_separate_billing_address: true,
           first_name: "",
           last_name: "",
           company: "",
@@ -1376,7 +1419,7 @@ describe("PaymentMethodSelectorElement", () => {
     const restoreClient = overrideClientState(
       {
         billing_address: {
-          use_customer_shipping_address: false,
+          use_separate_billing_address: true,
           first_name: "",
           last_name: "",
           company: "",
@@ -1439,7 +1482,7 @@ describe("PaymentMethodSelectorElement", () => {
     const restoreClient = overrideClientState(
       {
         billing_address: {
-          use_customer_shipping_address: false,
+          use_separate_billing_address: true,
           first_name: "",
           last_name: "",
           company: "",
@@ -2680,6 +2723,84 @@ describe("PaymentMethodSelectorElement", () => {
       );
       await expect(element.tokenize()).rejects.toThrow(
         "This Klarna option is currently unavailable.",
+      );
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("shows the separate-billing toggle and reveals fields when checked", async () => {
+    const restoreClient = overrideClientState({
+      ...createBillingApiState(),
+      billing_address: {
+        ...createBillingApiState().billing_address,
+        use_separate_billing_address: false,
+      },
+      // a shippable shipment so there's a shipping address to differ from
+      shipments: [{ has_shippable_items: true, country_options: ["US"], region_options: ["MN"] }],
+    });
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "Use separate billing address");
+
+      const checkbox = element.shadowRoot?.querySelector(
+        '[id^="use-separate-billing-address-"]',
+      ) as HTMLElement | null;
+      expect(checkbox).not.toBeNull();
+
+      // unchecked (use shipping) → billing fields hidden
+      expect(element.shadowRoot?.querySelector("#billing-first-name")).toBeNull();
+
+      checkbox!.click();
+      await waitForRender();
+      // checked (separate) → billing fields shown
+      expect(element.shadowRoot?.querySelector("#billing-first-name")).not.toBeNull();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("sends use_separate_billing_address: true when the separate-billing toggle is checked", async () => {
+    const updateBillingAddress = vi.fn(() => Promise.resolve());
+    const restoreClient = overrideClientState(
+      {
+        ...createBillingApiState(),
+        billing_address: {
+          ...createBillingApiState().billing_address,
+          use_separate_billing_address: false,
+        },
+        // a shippable shipment so there's a shipping address to differ from
+        shipments: [{ has_shippable_items: true, country_options: ["US"], region_options: ["MN"] }],
+      },
+      undefined,
+      {
+        updateBillingAddress,
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "Use separate billing address");
+
+      const checkbox = element.shadowRoot?.querySelector(
+        '[id^="use-separate-billing-address-"]',
+      ) as HTMLElement | null;
+      expect(checkbox).not.toBeNull();
+
+      checkbox!.click();
+      await waitForBillingAddressReport();
+
+      expect(updateBillingAddress).toHaveBeenCalledWith(
+        expect.objectContaining({ use_separate_billing_address: true }),
       );
     } finally {
       element.remove();

@@ -97,13 +97,6 @@ const ShippingToggleField = styled(Field.Root)`
   gap: ${(props) => props.theme.tokens.space.sm};
 `;
 
-const BILLING_ADDRESS_SUPPORTED_TYPES = new Set([
-  "new-card",
-  "saved-card",
-  "stripe-card-element",
-  "stripe-payment-element",
-]);
-
 const FULL_WIDTH_BILLING_FIELD_IDS = new Set([
   "billing-address1",
   "billing-address2",
@@ -114,13 +107,7 @@ const FULL_WIDTH_BILLING_FIELD_IDS = new Set([
 // keystroke. Flushed early on blur so a field is never left unsent.
 const BILLING_ADDRESS_REPORT_DEBOUNCE_MS = 500;
 
-// TEMPORARY: the backend's use_different_addresses handling is broken (it
-// gets forced back to false for carts with no shippable products, and the
-// toggle's persisted value isn't reliable), so the "use shipping address
-// for billing" checkbox doesn't actually do anything trustworthy server
-// side right now. Hiding it and always collecting the full billing form
-// until that's fixed. Revert by flipping this back to true.
-const SHOW_USE_SHIPPING_ADDRESS_CHECKBOX = false;
+const SHOW_SEPARATE_BILLING_ADDRESS_TOGGLE = true;
 
 function getBillingAddressSignature(
   billingAddress: PaymentMethodSelectorBillingAddress | undefined,
@@ -131,7 +118,7 @@ function getBillingAddressSignature(
 type BillingSectionMessages = {
   billingAddressTitle: MessageDescriptor;
   addBillingAddress: MessageDescriptor;
-  useShippingForBilling: MessageDescriptor;
+  useSeparateBillingAddress: MessageDescriptor;
   selectPlaceholder: MessageDescriptor;
   billingAddressUpdateError: MessageDescriptor;
 };
@@ -248,7 +235,7 @@ export function BillingAddressSection({
   billingError?: PaymentMethodSelectorBillingError;
   onBillingAddressChange?: (params: {
     optionId: string;
-    useShippingAddress: boolean;
+    useSeparateBillingAddress: boolean;
     values: Record<string, string>;
   }) => void;
   fieldLabelById: Partial<Record<string, MessageDescriptor>>;
@@ -256,8 +243,8 @@ export function BillingAddressSection({
   portalContainer: ShadowRoot;
 }) {
   const intl = useIntl();
-  const [useShippingAddress, setUseShippingAddress] = useState(
-    billingAddress?.useDefaultShippingAddress === "yes-by-default",
+  const [useSeparateBillingAddress, setUseSeparateBillingAddress] = useState(
+    Boolean(billingAddress?.useSeparateBillingAddress),
   );
   const [showSummaryEditor, setShowSummaryEditor] = useState(false);
   const [values, setValues] = useState<Record<string, string>>(() =>
@@ -268,7 +255,7 @@ export function BillingAddressSection({
   const reportTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingReportRef = useRef<{
     optionId: string;
-    useShippingAddress: boolean;
+    useSeparateBillingAddress: boolean;
     values: Record<string, string>;
   } | null>(null);
   onBillingAddressChangeRef.current = onBillingAddressChange;
@@ -293,9 +280,12 @@ export function BillingAddressSection({
     onBillingAddressChangeRef.current?.(pending);
   }
 
-  const supportsBillingAddress = option.type
-    ? BILLING_ADDRESS_SUPPORTED_TYPES.has(option.type)
-    : false;
+  // Billing address is collected whenever the checkout provides billing
+  // fields, regardless of payment type — the backend decides what to collect
+  // (see #resolveBillingAddress in element.tsx). Gating by payment type here
+  // previously dropped billing for purchase-order, ACH, and other non-card
+  // gateways even when the store was configured to collect it.
+  const supportsBillingAddress = Boolean(billingAddress?.fields.length);
 
   const prevOptionIdRef = useRef(option.id);
   const hasBillingAddressDataRef = useRef(Boolean(billingAddress?.fields.length));
@@ -323,8 +313,8 @@ export function BillingAddressSection({
     }
     pendingReportRef.current = null;
 
-    setUseShippingAddress(
-      billingAddress?.useDefaultShippingAddress === "yes-by-default",
+    setUseSeparateBillingAddress(
+      Boolean(billingAddress?.useSeparateBillingAddress),
     );
     setShowSummaryEditor(false);
     setValues(buildInitialBillingValues(billingAddress));
@@ -334,7 +324,7 @@ export function BillingAddressSection({
   useEffect(() => {
     if (!supportsBillingAddress || !billingAddress) return;
 
-    pendingReportRef.current = { optionId: option.id, useShippingAddress, values };
+    pendingReportRef.current = { optionId: option.id, useSeparateBillingAddress, values };
 
     if (reportTimeoutRef.current) {
       clearTimeout(reportTimeoutRef.current);
@@ -354,7 +344,7 @@ export function BillingAddressSection({
     billingAddressSignature,
     option.id,
     supportsBillingAddress,
-    useShippingAddress,
+    useSeparateBillingAddress,
     values,
   ]);
 
@@ -441,31 +431,31 @@ export function BillingAddressSection({
   }
 
   const hasShippingToggle =
-    SHOW_USE_SHIPPING_ADDRESS_CHECKBOX &&
-    Boolean(billingAddress.useDefaultShippingAddress);
+    SHOW_SEPARATE_BILLING_ADDRESS_TOGGLE &&
+    Boolean(billingAddress.hasShippingAddress);
 
   return (
     <BillingRoot onBlur={flushBillingAddressReport}>
       {hasShippingToggle ? (
         <ShippingToggleField>
           <Checkbox.Root
-            id={`use-shipping-address-${option.id}`}
-            checked={useShippingAddress}
+            id={`use-separate-billing-address-${option.id}`}
+            checked={useSeparateBillingAddress}
             disabled={disabled}
             onCheckedChange={(checked) =>
-              setUseShippingAddress(Boolean(checked))
+              setUseSeparateBillingAddress(Boolean(checked))
             }
-            aria-label={intl.formatMessage(messages.useShippingForBilling)}
+            aria-label={intl.formatMessage(messages.useSeparateBillingAddress)}
           >
             <Checkbox.Indicator />
           </Checkbox.Root>
-          <Field.Label htmlFor={`use-shipping-address-${option.id}`}>
-            {intl.formatMessage(messages.useShippingForBilling)}
+          <Field.Label htmlFor={`use-separate-billing-address-${option.id}`}>
+            {intl.formatMessage(messages.useSeparateBillingAddress)}
           </Field.Label>
         </ShippingToggleField>
       ) : null}
 
-      {(!hasShippingToggle || !useShippingAddress) && fieldsMarkup}
+      {(!hasShippingToggle || useSeparateBillingAddress) && fieldsMarkup}
       {errorMarkup}
     </BillingRoot>
   );

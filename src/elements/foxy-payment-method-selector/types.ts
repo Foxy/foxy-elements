@@ -37,12 +37,13 @@ export type PaymentMethodSelectorBillingField = {
 };
 
 export type PaymentMethodSelectorBillingAddress = {
-  useDefaultShippingAddress?: "yes-by-default" | "no-by-default";
+  useSeparateBillingAddress?: boolean;
+  hasShippingAddress?: boolean;
   fields: PaymentMethodSelectorBillingField[];
 };
 
 export type PaymentMethodSelectorBillingPayload = {
-  useShippingAddress: boolean;
+  useSeparateBillingAddress: boolean;
   values: Record<string, string>;
 };
 

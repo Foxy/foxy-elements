@@ -841,11 +841,11 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
               }}
               onBillingAddressChange={({
                 optionId,
-                useShippingAddress,
+                useSeparateBillingAddress,
                 values,
               }) => {
                 const fullSnapshot = this.#toBillingAddressPatch({
-                  useShippingAddress,
+                  useSeparateBillingAddress,
                   values,
                 });
                 const patch = this.#diffBillingAddressPatch(fullSnapshot);
@@ -877,7 +877,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
                         detail: {
                           error,
                           optionId,
-                          useShippingAddress,
+                          useSeparateBillingAddress,
                           values,
                         },
                       },
@@ -2752,20 +2752,20 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     ];
 
     return {
-      useDefaultShippingAddress:
-        billingAddress.use_customer_shipping_address === true
-          ? "yes-by-default"
-          : "no-by-default",
+      useSeparateBillingAddress: billingAddress.use_separate_billing_address === true,
+      hasShippingAddress: shipments.some(
+        (s) => (s as Record<string, unknown>).has_shippable_items === true,
+      ),
       fields,
     };
   }
 
   #toBillingAddressPatch(params: {
-    useShippingAddress: boolean;
+    useSeparateBillingAddress: boolean;
     values: Record<string, string>;
   }): Record<string, unknown> {
     return {
-      use_customer_shipping_address: params.useShippingAddress,
+      use_separate_billing_address: params.useSeparateBillingAddress,
       first_name: params.values["billing-first-name"] ?? "",
       last_name: params.values["billing-last-name"] ?? "",
       company: params.values["billing-company"] ?? "",

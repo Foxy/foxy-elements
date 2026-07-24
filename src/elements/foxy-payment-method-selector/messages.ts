@@ -306,9 +306,9 @@ export const messages = defineMessages({
     id: "payment_add_billing_address",
     defaultMessage: "Add billing address",
   },
-  useShippingForBilling: {
-    id: "checkout_use_shipping_address_for_billing",
-    defaultMessage: "Use shipping address for billing",
+  useSeparateBillingAddress: {
+    id: "checkout_use_separate_billing_address",
+    defaultMessage: "Use separate billing address",
   },
   billingFirstName: {
     id: "payment_billing_first_name_label",
@@ -578,7 +578,7 @@ export const BILLING_FIELD_LABEL_BY_ID: Partial<
 export const BILLING_SECTION_MESSAGES = {
   billingAddressTitle: messages.billingAddressTitle,
   addBillingAddress: messages.addBillingAddress,
-  useShippingForBilling: messages.useShippingForBilling,
+  useSeparateBillingAddress: messages.useSeparateBillingAddress,
   selectPlaceholder: messages.selectPlaceholder,
   billingAddressUpdateError: messages.billingAddressUpdateError,
 };

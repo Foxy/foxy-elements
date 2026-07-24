@@ -268,7 +268,7 @@ type PaymentProps = {
   orderCurrencyCode?: string;
   onBillingAddressChange?: (params: {
     optionId: string;
-    useShippingAddress: boolean;
+    useSeparateBillingAddress: boolean;
     values: Record<string, string>;
   }) => void;
   portalContainer: ShadowRoot;
@@ -691,7 +691,7 @@ function PaymentOptionBody({
   billingError?: PaymentMethodSelectorBillingError;
   onBillingAddressChange?: (params: {
     optionId: string;
-    useShippingAddress: boolean;
+    useSeparateBillingAddress: boolean;
     values: Record<string, string>;
   }) => void;
   portalContainer: ShadowRoot;
@@ -815,25 +815,28 @@ function PaymentOptionBody({
 
   if (option.type === "purchase-order") {
     return (
-      <Suspense fallback={bodyFallback}>
-        <PurchaseOrderOptionEmbed
-          option={option}
-          disabled={disabled}
-          onControllerReady={onControllerReady}
-          label={intl.formatMessage(messages.purchaseOrderNumberLabel)}
-          placeholder={intl.formatMessage(
-            messages.purchaseOrderNumberPlaceholder,
-          )}
-          requiredErrorMessage={intl.formatMessage(
-            messages.purchaseOrderNumberRequired,
-          )}
-          tooLongErrorMessage={intl.formatMessage(
-            messages.purchaseOrderNumberTooLong,
-            { maxLength: PURCHASE_ORDER_MAX_LENGTH },
-          )}
-          maxLength={PURCHASE_ORDER_MAX_LENGTH}
-        />
-      </Suspense>
+      <>
+        <Suspense fallback={bodyFallback}>
+          <PurchaseOrderOptionEmbed
+            option={option}
+            disabled={disabled}
+            onControllerReady={onControllerReady}
+            label={intl.formatMessage(messages.purchaseOrderNumberLabel)}
+            placeholder={intl.formatMessage(
+              messages.purchaseOrderNumberPlaceholder,
+            )}
+            requiredErrorMessage={intl.formatMessage(
+              messages.purchaseOrderNumberRequired,
+            )}
+            tooLongErrorMessage={intl.formatMessage(
+              messages.purchaseOrderNumberTooLong,
+              { maxLength: PURCHASE_ORDER_MAX_LENGTH },
+            )}
+            maxLength={PURCHASE_ORDER_MAX_LENGTH}
+          />
+        </Suspense>
+        {billingSection}
+      </>
     );
   }
 
@@ -923,29 +926,14 @@ function PaymentOptionBody({
   return billingSection;
 }
 
+// Billing address is shown whenever the checkout provides billing fields,
+// regardless of payment type — the backend decides what to collect (see
+// #resolveBillingAddress in element.tsx). This used to be gated to card-type
+// options, which silently dropped billing for purchase-order, ACH, etc.
 function hasBillingAddressContent(
-  option: PaymentMethodSelectorOption,
   billingAddress: PaymentMethodSelectorBillingAddress | undefined,
 ): boolean {
-  if (!billingAddress?.fields.length) {
-    return false;
-  }
-
-  const isSquareFormBased = option.type === "new-card";
-  if (option.klarna || option.adyenEmbedded || (option.squareUp && isSquareFormBased)) {
-    return true;
-  }
-
-  if (!option.type) {
-    return false;
-  }
-
-  return (
-    option.type === "new-card" ||
-    option.type === "saved-card" ||
-    option.type === "stripe-card-element" ||
-    option.type === "stripe-payment-element"
-  );
+  return Boolean(billingAddress?.fields.length);
 }
 
 function hasPaymentOptionBodyContent(
@@ -979,7 +967,7 @@ function hasPaymentOptionBodyContent(
     return true;
   }
 
-  return hasBillingAddressContent(option, billingAddress);
+  return hasBillingAddressContent(billingAddress);
 }
 
 export function Payment({
