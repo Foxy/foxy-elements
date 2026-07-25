@@ -1072,7 +1072,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           this.getThemeProperty("themeSizeBorderWidth") ??
           defaultTheme.size.borderWidth,
       },
-      shadow: defaultTheme.shadow,
       easing: defaultTheme.easing,
       duration: defaultTheme.duration,
       zIndex: defaultTheme.zIndex,
