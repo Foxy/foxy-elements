@@ -142,8 +142,7 @@
           payment_gateways: [
             {
               type: "adyen_embedded",
-              session_id: import.meta.env.VITE_ADYEN_SESSION_ID_NL,
-              session_data: import.meta.env.VITE_ADYEN_SESSION_DATA_NL,
+              payment_methods_response: JSON.parse(import.meta.env.VITE_ADYEN_PAYMENT_METHODS_RESPONSE_NL ?? "{}"),
               environment: import.meta.env.VITE_ADYEN_ENVIRONMENT || "test",
               client_key: import.meta.env.VITE_ADYEN_CLIENT_KEY,
             },

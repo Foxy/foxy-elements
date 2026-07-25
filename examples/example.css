@@ -48,22 +48,29 @@ body {
         background: #05080a;
         font-family: monospace;
 
+        /* These names are the theme contract in src/lib/theme-mixin.ts — the
+           CSS-variable form of the public `theme-*` attributes. They used to be
+           shadcn-era names (--background, --primary, --ring, --font-sans, …),
+           which no longer match anything, so this page rendered in the default
+           light theme and the whole custom/ tree was a no-op as a theming test. */
         & foxy-payment-method-selector {
-          --background: #060b08;
-          --foreground: #e7ffe8;
-          --card: #0b120d;
-          --card-foreground: #ecffed;
-          --primary: #8dff72;
-          --primary-foreground: #071108;
-          --muted: #101713;
-          --muted-foreground: #92b39a;
-          --destructive: #ff7d7d;
-          --border: #4f8c5c;
-          --input: #4f8c5c;
-          --ring: #8dff72;
-          --font-sans: monospace;
-          --radius: 0.3rem;
-          --spacing: 0.3rem;
+          --background-surface: #0b120d;
+          --background-field: #060b08;
+          --background-disabled-field: #101713;
+          --background-button-primary: #8dff72;
+          --background-error: rgba(255, 125, 125, 0.12);
+          --color-body: #e7ffe8;
+          --color-secondary: #92b39a;
+          --color-primary: #8dff72;
+          --color-on-primary: #071108;
+          --color-error: #ff7d7d;
+          --border-field: 0.125rem solid #4f8c5c;
+          --outline-primary: 0.1875rem solid #8dff72;
+          --font-body: 400 1rem/1.5 monospace;
+          --border-radius-sm: 0.3rem;
+          --space-md: 0.75rem;
+          --size-control: 2.5rem;
+          --size-border-width: 0.125rem;
         }
       }
 
