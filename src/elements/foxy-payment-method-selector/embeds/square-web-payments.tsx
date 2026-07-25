@@ -34,12 +34,24 @@ import {
   resolveDesignTokens,
   sanitizeCssValueOrDefault,
 } from "../stripe/style-hooks";
+import { remToPx } from "@/lib/theme-attribute-sync";
 
 // Square enforces a 16px maximum on fontSize.
 function clampFontSizeForSquare(value: string | undefined): string | undefined {
   if (!value) return undefined;
   const px = parseFloat(value);
   return Number.isFinite(px) ? `${Math.min(px, 16)}px` : undefined;
+}
+
+// Square's style validator rejects any length it doesn't recognise and throws
+// out the *whole* style object when it does, replacing the card form with an
+// error message ("Invalid style value '0.5rem' for property 'borderRadius'").
+// `rem` is one of the units it rejects, and every DS length token is in rem, so
+// theme-derived lengths have to be resolved against the root font size first.
+export function normalizeLengthForSquare(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const px = parseFloat(remToPx(value.trim()));
+  return Number.isFinite(px) ? `${px}px` : undefined;
 }
 
 
@@ -265,7 +277,8 @@ export default function SquareWebPaymentsOption({
     // .input-container — border color and radius only (backgroundColor is not a valid property here)
     const containerStyle: Record<string, string> = {};
     if (tokens.border) containerStyle.borderColor = tokens.border;
-    if (tokens.radius) containerStyle.borderRadius = tokens.radius;
+    const containerRadius = normalizeLengthForSquare(tokens.radius);
+    if (containerRadius) containerStyle.borderRadius = containerRadius;
     if (Object.keys(containerStyle).length) squareStyle[".input-container"] = containerStyle;
 
     // .input-container.is-focus — highlight border on focus

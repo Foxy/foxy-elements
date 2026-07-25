@@ -2,6 +2,7 @@ import type { PaymentController, PaymentMethodSelectorOption } from "../types";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTheme } from "styled-components";
+import type { DesignSystemTheme } from "@foxy.io/design-system/theme";
 import {
   CardElement,
   Elements,
@@ -13,6 +14,7 @@ import type { StripeCardElementOptions, StripeElementsOptions } from "@stripe/st
 import { deriveInputMetrics } from "@/lib/theme-attribute-sync";
 import { resolveStripeLocale, resolveStripePublishableKey } from "./shared";
 import {
+  buildStripeCardElementStyle,
   extractColorFromShorthand,
   getStripeFontsForAppearance,
   mergeStripeAppearance,
@@ -112,16 +114,19 @@ export function StripeCardElementOption({
     [stripeConfig?.locale],
   );
 
+  const { tokens } = useTheme() as { tokens: DesignSystemTheme };
+
   const cardOptions = useMemo(
     () =>
       ({
+        style: buildStripeCardElementStyle(tokens),
         ...(stripeConfig?.cardElementOptions as
           | StripeCardElementOptions
           | undefined),
         hidePostalCode: true,
         disabled: Boolean(disabled),
       }) satisfies StripeCardElementOptions,
-    [disabled, stripeConfig?.cardElementOptions],
+    [disabled, stripeConfig?.cardElementOptions, tokens],
   );
 
   const stripePromise = useMemo(() => {
@@ -132,7 +137,6 @@ export function StripeCardElementOption({
   const { appearance, appearanceSignature } = useStripeTokenAppearance(
     Boolean(stripeConfig && publishableKey),
   );
-  const { tokens } = useTheme();
   const metrics = deriveInputMetrics({
     controlSize: tokens.size.control,
     borderWidth: tokens.size.borderWidth,
@@ -243,6 +247,7 @@ export function StripeCardElementOption({
         style={{
           border: isFocused ? tokens.border.fieldFocus : tokens.border.field,
           borderRadius: tokens.borderRadius.sm,
+          background: tokens.background.field,
           boxSizing: "border-box",
           boxShadow: isFocused
             ? `0 0 0 3px ${extractColorFromShorthand(tokens.outline.primary) ?? tokens.color.primary}`

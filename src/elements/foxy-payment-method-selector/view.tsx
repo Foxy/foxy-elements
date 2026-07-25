@@ -61,9 +61,13 @@ const SquareWebPaymentsOption = lazy(() => import("./embeds/square-web-payments"
 import { SquareAchAvailabilityProbe, SquareWalletAvailabilityProbe, SquareWalletController } from "./embeds/square-web-payments";
 const SQUARE_WALLET_PROBE_TYPES = new Set(["apple-pay", "google-pay", "cash-app", "afterpay"]);
 
+// `flex-direction` matters even though this usually has a single child: an
+// Adyen Drop-in is slotted in as a *sibling* of the radio group, and the
+// default `row` puts it beside the native options instead of below them.
 const PaymentOptionsFieldSet = styled(Field.Set)`
   margin: 0;
   display: flex;
+  flex-direction: column;
   gap: ${(props) => props.theme.tokens.space.sm};
   border: 0;
   padding: 0;

@@ -1,6 +1,11 @@
 import { useTheme } from "styled-components";
 import type { StripeElementsOptions } from "@stripe/stripe-js";
-import { deriveInputMetrics, parseFontShorthand } from "@/lib/theme-attribute-sync";
+import {
+  deriveInputMetrics,
+  parseFontShorthand,
+  remToPx,
+  type DerivedInputMetrics,
+} from "@/lib/theme-attribute-sync";
 import type { DesignSystemTheme } from "@foxy.io/design-system/theme";
 
 export type HostedFieldStyleAttributes = {
@@ -92,6 +97,28 @@ function mergeStripeRules(
   return merged as StripeRules;
 }
 
+// Stripe renders in a cross-origin iframe, so a font the host page has loaded
+// is not available to it — the family name has to be paired with a stylesheet
+// passed through `Elements`' `fonts` option. This is an allowlist rather than a
+// generic name→URL builder because `theme-font-body` is customer-controllable
+// and would otherwise be interpolated straight into a request URL.
+//
+// `foxy-tokenization-embed`'s `applyFont.ts` does the same job for the hosted
+// fields against the full Google Fonts catalogue; if this list needs to grow
+// much beyond the families the DS itself ships, share that one instead of
+// extending this.
+const STRIPE_WEBFONT_CSS_SRC_BY_FAMILY: Record<string, string> = {
+  "albert sans":
+    "https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&display=swap",
+  inter:
+    "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+};
+
+function getPrimaryFontFamilyName(value: string | undefined): string | undefined {
+  const first = value?.split(",")[0]?.trim().replace(/^['"]|['"]$/g, "");
+  return first ? first.toLowerCase() : undefined;
+}
+
 function normalizeFontFamilyForStripe(
   value: string | undefined,
 ): string | undefined {
@@ -100,6 +127,8 @@ function normalizeFontFamilyForStripe(
   const normalized = value.trim();
   if (!normalized) return undefined;
 
+  // `@fontsource-variable/inter` registers the family as "Inter Variable"; the
+  // hosted webfont is plain "Inter".
   if (/inter\s*variable/i.test(normalized)) {
     return "Inter, sans-serif";
   }
@@ -136,7 +165,27 @@ export function buildHostedFieldStyleAttributes(
   };
 }
 
-function buildStripeAppearanceFromTokens(theme: DesignSystemTheme): StripeAppearance {
+const STRIPE_INPUT_LINE_HEIGHT = 1.25;
+
+function deriveStripeInputPaddingY(
+  theme: DesignSystemTheme,
+  metrics: DerivedInputMetrics,
+): string {
+  const controlPx = Number.parseFloat(remToPx(theme.size.control));
+  const borderPx = Number.parseFloat(remToPx(theme.size.borderWidth));
+  const fontPx = Number.parseFloat(metrics.fontSize);
+
+  if (![controlPx, borderPx, fontPx].every(Number.isFinite)) return "0px";
+
+  const lineBoxPx = fontPx * STRIPE_INPUT_LINE_HEIGHT;
+  const paddingPx = (controlPx - 2 * borderPx - lineBoxPx) / 2;
+
+  return `${Math.max(Math.round(paddingPx), 0)}px`;
+}
+
+export function buildStripeAppearanceFromTokens(
+  theme: DesignSystemTheme,
+): StripeAppearance {
   const metrics = deriveInputMetrics({
     controlSize: theme.size.control,
     borderWidth: theme.size.borderWidth,
@@ -147,6 +196,10 @@ function buildStripeAppearanceFromTokens(theme: DesignSystemTheme): StripeAppear
 
   const colorPrimary = sanitizeCssValue(theme.color.primary);
   const colorBackground = sanitizeCssValue(theme.background.surface);
+  // Stripe's `.Input` is a form field, not a surface — it has to track
+  // `background.field` so it matches the native inputs beside it. `.Block` and
+  // the `colorBackground` variable stay on `background.surface`.
+  const fieldBackgroundColor = sanitizeCssValue(theme.background.field);
   const colorText = sanitizeCssValue(theme.color.body);
   const colorDanger = sanitizeCssValue(theme.color.error);
   const colorTextSecondary = sanitizeCssValue(theme.color.secondary);
@@ -161,13 +214,21 @@ function buildStripeAppearanceFromTokens(theme: DesignSystemTheme): StripeAppear
 
   const fontSizeBase = metrics.fontSize;
   const labelFontSize = metrics.fontSize;
-  const spacingUnit = sanitizeCssValue(theme.space.md) ?? "0.5625rem";
-  const gridSpacing = spacingUnit.replace(
-    /^([\d.]+)(.*)$/,
-    (_, n, u) => `${Number.parseFloat(n) * 5}${u}`,
-  );
+  // `spacingUnit` is the *base* unit Stripe multiplies throughout the Payment
+  // Element, so it takes the DS 4px grid unit. Feeding it `space.md` (a 12px
+  // mid-scale semantic gap) inflated every derived measurement 3x — 290px-tall
+  // tabs, ~120px between field rows, and a tab row wide enough to clip.
+  const spacingUnit = sanitizeCssValue(theme.space.xs) ?? "0.25rem";
+  // The gap between fields in Stripe's grid is a layout gap, not a multiple of
+  // the base unit, so it comes straight from the DS field-grid token.
+  const gridSpacing = sanitizeCssValue(theme.space.md) ?? "0.75rem";
   const borderRadius = sanitizeCssValue(theme.borderRadius.sm);
-  const inputPadding = `${metrics.paddingY} ${metrics.paddingX}`;
+  const borderWidth = sanitizeCssValue(theme.size.borderWidth) ?? "0.125rem";
+  // Stripe's rule set has no `height`, so the field is sized by padding.
+  // Vertical padding is whatever is left over after the border box and the
+  // text's own line box are subtracted from the DS control height, which lands
+  // `.Input` on the same height as a native DS input.
+  const inputPadding = `${deriveStripeInputPaddingY(theme, metrics)} ${metrics.paddingX}`;
 
   const variables: NonNullable<StripeAppearance["variables"]> = {
     ...(colorPrimary ? { colorPrimary } : {}),
@@ -230,18 +291,20 @@ function buildStripeAppearanceFromTokens(theme: DesignSystemTheme): StripeAppear
     },
     borderColor
       ? {
-          ".Tab": { border: `1px solid ${borderColor}` },
-          ".Input": { border: `1px solid ${borderColor}` },
-          ".Tab--selected": { border: `1px solid ${borderColor}` },
-          ".CheckboxInput": { border: `1px solid ${borderColor}` },
+          ".Tab": { border: `${borderWidth} solid ${borderColor}` },
+          ".Input": { border: `${borderWidth} solid ${borderColor}` },
+          ".Tab--selected": { border: `${borderWidth} solid ${borderColor}` },
+          ".CheckboxInput": { border: `${borderWidth} solid ${borderColor}` },
         }
       : undefined,
     cardBackgroundColor
       ? {
           ".Block": { backgroundColor: cardBackgroundColor },
           ".Tab": { backgroundColor: cardBackgroundColor },
-          ".Input": { backgroundColor: cardBackgroundColor },
         }
+      : undefined,
+    fieldBackgroundColor
+      ? { ".Input": { backgroundColor: fieldBackgroundColor } }
       : undefined,
     borderColor
       ? {
@@ -306,16 +369,10 @@ function getStripeFonts(
 ): StripeFonts | undefined {
   if (configuredFonts && configuredFonts.length) return configuredFonts;
 
-  if (appearanceFontFamily?.toLowerCase().includes("inter")) {
-    return [
-      {
-        cssSrc:
-          "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
-      },
-    ];
-  }
+  const family = getPrimaryFontFamilyName(appearanceFontFamily);
+  const cssSrc = family ? STRIPE_WEBFONT_CSS_SRC_BY_FAMILY[family] : undefined;
 
-  return undefined;
+  return cssSrc ? [{ cssSrc }] : undefined;
 }
 
 export function getStripeFontsForAppearance(
@@ -347,6 +404,44 @@ export function mergeStripeAppearance(
     rules: {
       ...(baseAppearance.rules ?? {}),
       ...(configuredAppearance.rules ?? {}),
+    },
+  };
+}
+
+export type StripeCardElementStyle = {
+  base: Record<string, unknown>;
+  invalid: Record<string, unknown>;
+};
+
+// The `appearance` API only covers the newer Elements (Payment, Address,
+// Express Checkout, Link Authentication). The legacy Card Element ignores it
+// and is styled through its own `style` option, so without this its text is
+// Stripe's default colour and font no matter what the theme says.
+export function buildStripeCardElementStyle(
+  theme: DesignSystemTheme,
+): StripeCardElementStyle {
+  const metrics = deriveInputMetrics({
+    controlSize: theme.size.control,
+    borderWidth: theme.size.borderWidth,
+    fontBody: theme.font.body,
+  });
+  const fontFamily = normalizeFontFamilyForStripe(
+    sanitizeCssValue(metrics.fontFamily),
+  );
+  const color = sanitizeCssValue(theme.color.body);
+  const placeholderColor = sanitizeCssValue(theme.color.secondary);
+  const errorColor = sanitizeCssValue(theme.color.error);
+
+  return {
+    base: {
+      ...(color ? { color } : {}),
+      ...(fontFamily ? { fontFamily } : {}),
+      fontSize: metrics.fontSize,
+      fontSmoothing: "antialiased",
+      ...(placeholderColor ? { "::placeholder": { color: placeholderColor } } : {}),
+    },
+    invalid: {
+      ...(errorColor ? { color: errorColor, iconColor: errorColor } : {}),
     },
   };
 }

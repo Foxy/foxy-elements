@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { defaultTheme, type DesignSystemTheme } from "@foxy.io/design-system/theme";
 
-import { buildSquareWebPaymentsStyles } from "./square-web-payments";
+import {
+  buildSquareWebPaymentsStyles,
+  normalizeLengthForSquare,
+} from "./square-web-payments";
 
 function themeWith(overrides: {
   color?: Partial<Record<keyof DesignSystemTheme["color"], string>>;
@@ -102,5 +105,27 @@ describe("buildSquareWebPaymentsStyles", () => {
     expect(css).toContain("#334455");
     expect(css).toContain("400 1rem/1.25 Figtree, sans-serif");
     expect(css).toContain("calc(0.75rem * 2)");
+  });
+});
+
+describe("normalizeLengthForSquare", () => {
+  // Regression test: Square's style validator rejects lengths it doesn't
+  // recognise and discards the *whole* style object when it hits one, replacing
+  // the card form with "Invalid style value '0.5rem' for property
+  // 'borderRadius'". Every DS length token is in rem, so `borderRadius.sm` took
+  // the entire Square card entry UI down under the default theme.
+  it("resolves rem lengths to px", () => {
+    expect(normalizeLengthForSquare("0.5rem")).toBe("8px");
+    expect(normalizeLengthForSquare("1rem")).toBe("16px");
+  });
+
+  it("passes px through and drops empty values", () => {
+    expect(normalizeLengthForSquare("8px")).toBe("8px");
+    expect(normalizeLengthForSquare(undefined)).toBeUndefined();
+    expect(normalizeLengthForSquare("")).toBeUndefined();
+  });
+
+  it("drops values it cannot resolve to a number", () => {
+    expect(normalizeLengthForSquare("auto")).toBeUndefined();
   });
 });

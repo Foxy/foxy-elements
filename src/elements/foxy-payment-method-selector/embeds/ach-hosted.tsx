@@ -198,6 +198,7 @@ export default function AchOptionEmbed({
                       : undefined
                   }
                   disabled={disabled || undefined}
+                  theme-background-field={styleAttributes.inputBackground}
                   theme-color-secondary={styleAttributes.inputPlaceholderColor}
                   theme-font-body={styleAttributes.inputFont}
                   theme-color-body={styleAttributes.inputTextColor}

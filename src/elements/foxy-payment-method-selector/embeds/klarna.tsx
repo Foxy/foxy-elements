@@ -55,7 +55,7 @@ const KlarnaWidgetRoot = styled.div`
 
 const KlarnaWidgetContainer = styled.div`
   border: ${(props) => props.theme.tokens.border.field};
-  border-radius: ${(props) => props.theme.tokens.borderRadius.xs};
+  border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
   background: ${(props) => props.theme.tokens.background.surface};
   width: 100%;
   padding: ${(props) => props.theme.tokens.space.sm};

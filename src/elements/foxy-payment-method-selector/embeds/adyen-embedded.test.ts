@@ -66,7 +66,13 @@ describe("buildAdyenEmbeddedStyles", () => {
   it("passes a legitimate custom color through unchanged", () => {
     const css = buildAdyenEmbeddedStyles(themeWith({ body: "#112233" }));
 
-    expect(css).toContain("#112233");
-    expect(css).not.toContain(defaultTheme.color.body);
+    // Asserted on the specific declaration rather than the whole stylesheet:
+    // other tokens legitimately resolve to the same literal as the default
+    // `color.body` (`color.onButtonPrimary` is also #1C1A1D), so a bare
+    // `not.toContain(defaultTheme.color.body)` fails on an untouched theme.
+    expect(css).toContain(`--adyen-sdk-color-label-primary: #112233;`);
+    expect(css).not.toContain(
+      `--adyen-sdk-color-label-primary: ${defaultTheme.color.body};`,
+    );
   });
 });

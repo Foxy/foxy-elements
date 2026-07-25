@@ -31,7 +31,13 @@ export function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
   const inputColor = sanitizeCssValueOrDefault(rawInputColor, defaultTheme.color.secondary);
   const ringColor = sanitizeCssValueOrDefault(rawRingColor, defaultTheme.color.primary);
 
-  const spacing = sanitizeCssValueOrDefault(theme.space.md, defaultTheme.space.md);
+  // Adyen's `--adyen-sdk-spacer-*` scale is a set of multiples of a single 4px
+  // base unit, and the multipliers below (0.5 … 16) are written against that
+  // base. `space.xs` is the DS 4px grid unit and is the correct token to feed
+  // it — `space.md` (12px) is a mid-scale *semantic* gap, and passing it here
+  // inflates every derived Adyen measurement 3x (the payment-method radio, for
+  // one, lands at 48px against a 20px DS radio).
+  const spacing = sanitizeCssValueOrDefault(theme.space.xs, defaultTheme.space.xs);
   const radius = sanitizeCssValueOrDefault(theme.borderRadius.sm, defaultTheme.borderRadius.sm);
   const buttonBackground = sanitizeCssValueOrDefault(
     theme.background.buttonPrimary,
@@ -59,6 +65,26 @@ export function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
     theme.background.disabledField,
     defaultTheme.background.disabledField,
   );
+  const backgroundItemHighlighted = sanitizeCssValueOrDefault(
+    theme.background.itemHighlighted,
+    defaultTheme.background.itemHighlighted,
+  );
+  const borderWidth = sanitizeCssValueOrDefault(
+    theme.size.borderWidth,
+    defaultTheme.size.borderWidth,
+  );
+  // Adyen's payment-method rows are the counterpart of the DS option cards the
+  // native options render as, which use the larger `md` radius — not the `sm`
+  // field radius the rest of the Adyen scale is built from.
+  const cardRadius = sanitizeCssValueOrDefault(
+    theme.borderRadius.md,
+    defaultTheme.borderRadius.md,
+  );
+  const radioSize = sanitizeCssValueOrDefault(theme.size.radio, defaultTheme.size.radio);
+  const radioIndicatorSize = sanitizeCssValueOrDefault(
+    theme.size.radioIndicator,
+    defaultTheme.size.radioIndicator,
+  );
 
   return `
 .foxy-adyen-embedded {
@@ -80,10 +106,13 @@ export function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
   --adyen-sdk-color-label-highlight: ${colorPrimary};
   --adyen-sdk-color-label-on-color: var(--foxy-adyen-button-foreground);
   --adyen-sdk-color-background-primary: ${backgroundSurface};
-  --adyen-sdk-color-background-primary-hover: ${backgroundDisabledField};
-  --adyen-sdk-color-background-secondary: ${backgroundDisabledField};
-  --adyen-sdk-color-background-secondary-hover: ${backgroundDisabledField};
-  --adyen-sdk-color-background-secondary-active: ${backgroundDisabledField};
+  --adyen-sdk-color-background-primary-hover: ${backgroundItemHighlighted};
+  /* Adyen paints the expanded/selected payment-method panel with the secondary
+     background. disabledField makes the *selected* method read as disabled, so
+     these track the normal surface and the DS list-hover fill instead. */
+  --adyen-sdk-color-background-secondary: ${backgroundSurface};
+  --adyen-sdk-color-background-secondary-hover: ${backgroundItemHighlighted};
+  --adyen-sdk-color-background-secondary-active: ${backgroundItemHighlighted};
   --adyen-sdk-color-background-tertiary: ${backgroundDisabledField};
   --adyen-sdk-color-background-disabled: ${backgroundDisabledField};
   --adyen-sdk-color-background-critical-strong: ${colorError};
@@ -132,9 +161,12 @@ export function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
   --adyen-sdk-border-radius-m: calc(var(--foxy-adyen-radius) * 1);
   --adyen-sdk-border-radius-l: calc(var(--foxy-adyen-radius) * 1.5);
   --adyen-sdk-border-radius-xl: calc(var(--foxy-adyen-radius) * 1.75);
-  --adyen-sdk-border-width-s: 1px;
-  --adyen-sdk-border-width-m: 2px;
-  --adyen-sdk-border-width-l: 3px;
+  /* width-s is Adyen's resting element border and has to match the DS one so
+     its rows and fields don't sit as hairlines next to 2px native ones;
+     width-m and width-l are emphasis steps above it. */
+  --adyen-sdk-border-width-s: ${borderWidth};
+  --adyen-sdk-border-width-m: calc(${borderWidth} + 1px);
+  --adyen-sdk-border-width-l: calc(${borderWidth} + 2px);
   --adyen-sdk-shadow-low: none;
   --adyen-sdk-focus-ring-color: ${ringColor};
   color: ${colorBody};
@@ -161,6 +193,10 @@ export function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
   gap: calc(var(--foxy-adyen-spacing) * 2);
 }
 
+.foxy-adyen-embedded .adyen-checkout__payment-method {
+  border-radius: ${cardRadius};
+}
+
 .foxy-adyen-embedded .adyen-checkout__payment-method__header {
   padding: 9px calc(var(--foxy-adyen-spacing) * 3);
 }
@@ -169,10 +205,16 @@ export function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
   font-family: ${fontFamily};
 }
 
+/* Sized and weighted off the DS radio tokens rather than left to Adyen's own
+   spacer scale, so it matches the native radios it sits next to. */
 .foxy-adyen-embedded .adyen-checkout__payment-method__radio {
   background: transparent !important;
-  border: 1px solid ${inputColor} !important;
+  border: ${borderWidth} solid ${inputColor} !important;
   border-radius: 50% !important;
+  box-sizing: border-box !important;
+  width: ${radioSize} !important;
+  height: ${radioSize} !important;
+  flex: none !important;
   inset: auto !important;
   position: relative;
 }
@@ -183,7 +225,7 @@ export function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
 
 .foxy-adyen-embedded .adyen-checkout__payment-method__radio--selected {
   background: transparent !important;
-  border: 1px solid ${inputColor} !important;
+  border: ${borderWidth} solid ${colorPrimary} !important;
 }
 
 .foxy-adyen-embedded .adyen-checkout__payment-method__radio--selected::after {
@@ -192,8 +234,8 @@ export function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 50%;
-  height: 50%;
+  width: ${radioIndicatorSize};
+  height: ${radioIndicatorSize};
   border-radius: 50%;
   background: ${colorPrimary};
 }
@@ -218,6 +260,40 @@ export function buildAdyenEmbeddedStyles(theme: DesignSystemTheme): string {
   border-radius: var(--adyen-sdk-border-radius-s);
 }
 `;
+}
+
+// Adyen's card fields are cross-origin iframes ("secured fields") that the
+// stylesheet above cannot reach — they take their text styling from this
+// `styles` config instead. Without it the card number, expiry and CVC render in
+// Adyen's default face and colour regardless of the theme.
+export function buildAdyenSecuredFieldStyles(
+  theme: DesignSystemTheme,
+): Record<string, Record<string, string>> {
+  const metrics = deriveInputMetrics({
+    controlSize: theme.size.control,
+    borderWidth: theme.size.borderWidth,
+    fontBody: theme.font.body,
+  });
+  const { fontFamily: rawFontFamily } = parseFontShorthand(theme.font.body);
+
+  const base = {
+    color: sanitizeCssValueOrDefault(theme.color.body, defaultTheme.color.body),
+    fontFamily: sanitizeCssValueOrDefault(rawFontFamily, DEFAULT_FONT_FAMILY),
+    fontSize: metrics.fontSize,
+    fontSmoothing: "antialiased",
+  };
+  const secondary = sanitizeCssValueOrDefault(
+    theme.color.secondary,
+    defaultTheme.color.secondary,
+  );
+  const error = sanitizeCssValueOrDefault(theme.color.error, defaultTheme.color.error);
+
+  return {
+    base,
+    placeholder: { ...base, color: secondary },
+    error: { ...base, color: error },
+    validated: base,
+  };
 }
 
 type AdyenStatus = "loading" | "ready" | "unavailable" | "error";
@@ -468,7 +544,13 @@ export default function AdyenEmbeddedOption({
       showRadioButton: true,
       showPayButton: false,
       paymentMethodsConfiguration: new Proxy({} as Record<string, unknown>, {
-        get: () => ({ showPayButton: false }),
+        // `styles` is only meaningful to the card-family components; the rest
+        // ignore the key, so it's simpler to hand every component the same
+        // config than to enumerate Adyen's component names here.
+        get: () => ({
+          showPayButton: false,
+          styles: buildAdyenSecuredFieldStyles(tokens),
+        }),
       }),
       disableFinalAnimation: true,
       readOnly: Boolean(disabled),
