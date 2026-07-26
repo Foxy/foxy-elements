@@ -6,7 +6,11 @@ import {
   THEME_PROPERTY_TO_ATTRIBUTE,
 } from "@/lib/theme-mixin";
 
-import { PaymentMethodSelectorElement, toBcp47Locale } from "./element";
+import {
+  PaymentMethodSelectorElement,
+  toBcp47Locale,
+  getCachedCountryOptions,
+} from "./element";
 
 type PayPalPlatformTestOptionType =
   | "paypal"
@@ -2816,5 +2820,179 @@ describe("toBcp47Locale", () => {
 
   it("leaves an already-BCP-47 locale code unchanged", () => {
     expect(toBcp47Locale("en-US")).toBe("en-US");
+  });
+});
+
+describe("billing country options", () => {
+  // Billing allows GB/FR; shipping allows US/CA. The two lists are disjoint,
+  // so any cross-read shows up immediately.
+  function createBillingCountryApiState(includeBillingOptions = true) {
+    return {
+      billing_address: {
+        use_separate_billing_address: true,
+        first_name: "",
+        last_name: "",
+        company: "",
+        address1: "",
+        address2: "",
+        city: "",
+        region: "",
+        postal_code: "",
+        country: "GB",
+        phone: "",
+        ...(includeBillingOptions ? { country_options: ["GB", "FR"] } : {}),
+      },
+      shipments: [
+        {
+          has_shippable_items: true,
+          country_options: ["US", "CA"],
+          region_options: ["MN", "WI"],
+        },
+      ],
+      payment_gateways: [{ type: "authorize" }],
+    };
+  }
+
+  it("labels the billing country with a localized name from its own options", async () => {
+    const restoreClient = overrideClientState(createBillingCountryApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const trigger = element.shadowRoot?.querySelector("#billing-country");
+
+      expect(trigger?.tagName).toBe("BUTTON");
+      // "United Kingdom", not "GB" — and GB is absent from the shipment's
+      // list, so this also proves the shipment's options are not being read.
+      expect(trigger?.textContent).toContain("United Kingdom");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("offers only the billing countries, sorted by localized name", async () => {
+    const restoreClient = overrideClientState(createBillingCountryApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const trigger = element.shadowRoot?.querySelector(
+        "#billing-country",
+      ) as HTMLButtonElement | null;
+      trigger?.click();
+      await waitForRender();
+
+      // The popup is portaled into the element's own shadow root, never into
+      // document.body — escaping the shadow root would lose all theme context.
+      const popup = element.shadowRoot?.querySelector('[role="listbox"]');
+      expect(popup?.getRootNode()).toBe(element.shadowRoot);
+      expect(document.body.querySelector('[role="listbox"]')).toBeNull();
+
+      const options = Array.from(
+        element.shadowRoot?.querySelectorAll("[role='option']") ?? [],
+      ).map((option) => option.textContent);
+
+      expect(options).toEqual(["France", "United Kingdom"]);
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("falls back to a text input when billing country_options is absent", async () => {
+    const restoreClient = overrideClientState(createBillingCountryApiState(false));
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      expect(element.shadowRoot?.querySelector("#billing-country")?.tagName).toBe(
+        "INPUT",
+      );
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+});
+
+describe("getCachedCountryOptions", () => {
+  // `#resolveBillingAddress` rebuilds this list on every render, and
+  // `SearchableSelect`'s `items` contract asks for a referentially stable
+  // array, so the memo below has to actually return the same reference for
+  // unchanged input — not just equal content.
+
+  it("returns the same array reference for unchanged codes and locale", () => {
+    const a = getCachedCountryOptions(["gc-stability-us", "gc-stability-ca"], "en-US");
+    const b = getCachedCountryOptions(["gc-stability-us", "gc-stability-ca"], "en-US");
+
+    expect(a).toBe(b);
+  });
+
+  it("returns a different array reference when the codes change", () => {
+    const a = getCachedCountryOptions(["gc-codes-us"], "en-US");
+    const b = getCachedCountryOptions(["gc-codes-gb"], "en-US");
+
+    expect(a).not.toBe(b);
+  });
+
+  it("returns a different array reference when the locale changes", () => {
+    const a = getCachedCountryOptions(["gc-locale-us"], "en-US");
+    const b = getCachedCountryOptions(["gc-locale-us"], "fr-FR");
+
+    expect(a).not.toBe(b);
+  });
+
+  it("does not collide a comma-containing single code with a two-code list", () => {
+    // ["AB,CD"] and ["AB", "CD"] must not share a cache key: `codes.join(",")`
+    // would encode both as the string "AB,CD". `toCountryOptions` also
+    // treats them differently — a single malformed code maps to no options,
+    // while ["AB", "CD"] maps to two (an unrecognized code falls back to its
+    // raw value as the label; "CD" is a real ISO code) — so a collision
+    // would be visible in content, not just identity.
+    const single = getCachedCountryOptions(["AB,CD"], "en-US");
+    const pair = getCachedCountryOptions(["AB", "CD"], "en-US");
+
+    expect(single).not.toBe(pair);
+    expect(single).toEqual([]);
+    expect(pair.map((option) => option.value)).toEqual(["AB", "CD"]);
+  });
+
+  it("keeps the entry currently on screen alive across eviction (LRU, not FIFO)", () => {
+    const locale = "en-US";
+    const firstKeyCodes = ["gc-lru-seed-0"];
+    const first = getCachedCountryOptions(firstKeyCodes, locale);
+
+    // Fill the cache with 19 more distinct entries (cache holds 20 total),
+    // so the first entry is now the oldest by insertion order.
+    for (let i = 1; i < 20; i += 1) {
+      getCachedCountryOptions([`gc-lru-seed-${i}`], locale);
+    }
+
+    // Re-read the first entry — under plain FIFO-by-insertion this wouldn't
+    // matter (the read doesn't reorder anything), but it must not have been
+    // evicted yet, and re-reading it should bump its recency.
+    expect(getCachedCountryOptions(firstKeyCodes, locale)).toBe(first);
+
+    // One more distinct entry pushes the cache over its bound. Under FIFO
+    // eviction, the first entry (oldest insertion) would be dropped even
+    // though it was just read. Under LRU (delete-then-reinsert on hit), the
+    // entry inserted-but-never-re-read at step "seed-1" is the oldest now,
+    // so that one gets evicted instead.
+    getCachedCountryOptions(["gc-lru-overflow"], locale);
+
+    expect(getCachedCountryOptions(firstKeyCodes, locale)).toBe(first);
   });
 });

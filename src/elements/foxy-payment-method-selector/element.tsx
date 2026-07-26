@@ -14,6 +14,7 @@ import type {
 import "../foxy-ach-field/element";
 import "../foxy-payment-card-field/element";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
+import { toCountryOptions, type CountryOption } from "@foxy.io/sdk/checkout";
 import { Alert } from "@foxy.io/design-system/alert";
 import { defaultTheme } from "@foxy.io/design-system/theme";
 import { StyleSheetManager, ThemeProvider } from "styled-components";
@@ -116,6 +117,57 @@ const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
 
 export function toBcp47Locale(value: string): string {
   return value.replace(/_/g, "-");
+}
+
+// `#resolveBillingAddress` rebuilds the billing field list on every state
+// change, and `toCountryOptions` returns a fresh array each call. The
+// design-system `SearchableSelect` control's documented contract asks for a
+// referentially stable `items` array, so handing it a new array every cycle
+// would defeat that memo — noticeable at ~250 countries. Cache by the exact
+// (codes, locale) pair so unchanged input keeps returning the same array
+// reference. Bounded and evicted least-recently-used so a page that legitimately
+// cycles through many locales/lists can't grow this without limit, and so the
+// entry currently on screen (read on every render) is never the one dropped.
+//
+// The cached array is shared across every caller that hits the same key —
+// treat it as read-only. `billing.tsx` only ever `.map()`s over
+// `field.options`, so this holds; an in-place mutation would corrupt the
+// cache for every subsequent read.
+const MAX_CACHED_COUNTRY_OPTION_LISTS = 20;
+const countryOptionsCache = new Map<string, CountryOption[]>();
+
+// Exported (like `toBcp47Locale` above) so `element.test.ts` can unit-test
+// the memo/eviction behavior directly; `#resolveBillingAddress` stays
+// private and untested-through-accessor, per this file's existing
+// through-the-shadow-DOM test convention.
+export function getCachedCountryOptions(
+  codes: unknown,
+  locale: string,
+): CountryOption[] {
+  // Unconditional JSON.stringify of the whole (locale, codes) pair — not
+  // `codes.join(",")` — so no two distinct inputs can ever produce the same
+  // key. `codes.join(",")` collides a single element containing a literal
+  // comma with a distinct multi-element list: `["AB,CD"]` and `["AB","CD"]`
+  // join to the identical string.
+  const key = JSON.stringify([locale, codes]);
+  const cached = countryOptionsCache.get(key);
+  if (cached) {
+    // Bump recency: delete-then-reinsert moves this key to the end of the
+    // Map's iteration order, which is what eviction below reads as "most
+    // recently used". Without this, eviction is FIFO by insertion order and
+    // can drop the entry that's still being read on every render.
+    countryOptionsCache.delete(key);
+    countryOptionsCache.set(key, cached);
+    return cached;
+  }
+
+  const options = toCountryOptions(codes, locale);
+  if (countryOptionsCache.size >= MAX_CACHED_COUNTRY_OPTION_LISTS) {
+    const oldestKey = countryOptionsCache.keys().next().value;
+    if (oldestKey !== undefined) countryOptionsCache.delete(oldestKey);
+  }
+  countryOptionsCache.set(key, options);
+  return options;
 }
 
 const ThemeableHTMLElement = ThemeMixin(HTMLElement);
@@ -2659,10 +2711,12 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
     const shipments = Array.isArray(apiJson.shipments) ? apiJson.shipments : [];
     const shipment = shipments[0];
-    const countryOptions = this.#toSelectOptions(
-      shipment && typeof shipment === "object"
-        ? (shipment as Record<string, unknown>).country_options
-        : undefined,
+    // Billing restrictions are resolved independently of shipping ones. This
+    // previously read the shipment's list, so a store restricting shipping
+    // also restricted billing.
+    const countryOptions = getCachedCountryOptions(
+      (apiJson.billing_address as Record<string, unknown>).country_options,
+      toBcp47Locale(this.#resolveLocale()),
     );
     const regionOptions = this.#toSelectOptions(
       shipment && typeof shipment === "object"
@@ -2696,11 +2750,11 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         type: "text",
         value: this.#toText(billingAddress.address2),
       },
-      countryOptions
+      countryOptions.length
         ? {
             id: "billing-country",
             label: "Country",
-            type: "select",
+            type: "searchable-select",
             value: this.#toText(billingAddress.country),
             options: countryOptions,
           }
