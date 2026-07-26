@@ -334,10 +334,6 @@ export const messages = defineMessages({
     id: "payment_billing_city_label",
     defaultMessage: "City",
   },
-  billingRegion: {
-    id: "payment_billing_region_label",
-    defaultMessage: "Region",
-  },
   billingPostalCode: {
     id: "payment_billing_postal_code_label",
     defaultMessage: "Postal code",
@@ -568,6 +564,15 @@ export const OPTION_DESCRIPTION_BY_TYPE: Partial<
   twint: messages.optionDescriptionTwint,
 };
 
+// "billing-region" is deliberately absent here: `billing.tsx` prefers this
+// map's `MessageDescriptor` over the field's own `label` string whenever an
+// entry exists (see `renderBillingField`'s caller), so keeping a static
+// entry for it would silently shadow the country-aware label
+// `#resolveBillingAddress` now computes per render via `#formatMessage` —
+// every country would show the literal defaultMessage "Region" instead of
+// "State"/"Prefecture"/etc., with no failing test to catch it (the field
+// would still render, just with the wrong, fixed text). Every other billing
+// field's label is genuinely static, so this map still serves them.
 export const BILLING_FIELD_LABEL_BY_ID: Partial<
   Record<string, MessageDescriptor>
 > = {
@@ -577,7 +582,6 @@ export const BILLING_FIELD_LABEL_BY_ID: Partial<
   "billing-address1": messages.billingAddress1,
   "billing-address2": messages.billingAddress2,
   "billing-city": messages.billingCity,
-  "billing-region": messages.billingRegion,
   "billing-postal-code": messages.billingPostalCode,
   "billing-country": messages.billingCountry,
   "billing-phone": messages.billingPhone,

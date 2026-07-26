@@ -6,6 +6,24 @@ import {
   THEME_PROPERTY_TO_ATTRIBUTE,
 } from "@/lib/theme-mixin";
 
+// Real dynamic imports resolve near-instantly in this test bundler (the
+// region-catalog chunk is already built and in the module graph, not
+// fetched over a network), so there is no reliably observable "before the
+// catalog lands" window using real timing alone — awaiting a render tick or
+// two after mount can already race past resolution. Wrapping
+// `loadRegionMessages` in a `vi.fn` that defers to the real implementation
+// by default (so every other test in this file is unaffected) lets the one
+// test that needs a controlled window override it for a single call via
+// `mockReturnValueOnce`.
+vi.mock("@foxy.io/sdk/checkout", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@foxy.io/sdk/checkout")>();
+  return { ...actual, loadRegionMessages: vi.fn(actual.loadRegionMessages) };
+});
+
+import {
+  loadRegionMessages,
+  regionMessageId,
+} from "@foxy.io/sdk/checkout";
 import {
   PaymentMethodSelectorElement,
   toBcp47Locale,
@@ -3330,7 +3348,7 @@ describe("billing region options", () => {
     };
   }
 
-  it("offers only the billing regions, sourced from billing_address.region_options", async () => {
+  it("offers only the billing regions, sourced from billing_address.region_options, as a searchable select with localized names", async () => {
     const restoreClient = overrideClientState(createBillingRegionApiState());
     const element = document.createElement(
       "foxy-payment-method-selector",
@@ -3339,19 +3357,20 @@ describe("billing region options", () => {
     try {
       document.body.append(element);
       await waitForRender();
+      // The region catalog is a lazily imported chunk; give it a tick to land.
+      await waitForTime(50);
+      await waitForRender();
 
       const trigger = element.shadowRoot?.querySelector(
         "#billing-region",
       ) as HTMLButtonElement | null;
 
-      // Still a plain "select" — region UI is deliberately out of scope for
-      // the searchable-select conversion that country options went through.
-      // `trigger?.tagName === "BUTTON"` alone would not prove this: the
-      // country field's searchable-select trigger is a BUTTON too (see the
-      // "billing country options" tests above). The real discriminator is
-      // the search box a searchable-select renders inside its popup —
-      // capture the input count before opening and confirm no new `<input>`
-      // appears after.
+      // Region UI now goes through the same searchable-select conversion the
+      // country field already went through. `trigger?.tagName === "BUTTON"`
+      // alone would not prove that: a plain "select" trigger is a BUTTON too.
+      // The real discriminator is the search box a searchable-select renders
+      // inside its popup — capture the input count before opening and
+      // confirm a new `<input>` appears after.
       expect(trigger?.tagName).toBe("BUTTON");
       const inputCountBeforeOpen =
         element.shadowRoot?.querySelectorAll("input").length ?? 0;
@@ -3362,15 +3381,286 @@ describe("billing region options", () => {
         element.shadowRoot?.querySelectorAll("[role='option']") ?? [],
       ).map((option) => option.textContent);
 
-      // Raw region codes as labels (via #toSelectOptions, not
-      // toCountryOptions) — "MN"/"WI" (the shipment's list) must be absent.
-      expect(options).toEqual(["ON", "QC"]);
+      // Localized names (via toRegionOptions), not raw codes — and "MN"/"WI"
+      // (the shipment's list) must be absent.
+      expect(options).toEqual(["Ontario", "Quebec"]);
 
       // A searchable-select adds a search `<input>` inside its popup when
       // opened; a plain "select" adds none.
       const inputCountAfterOpen =
         element.shadowRoot?.querySelectorAll("input").length ?? 0;
-      expect(inputCountAfterOpen).toBe(inputCountBeforeOpen);
+      expect(inputCountAfterOpen).toBeGreaterThan(inputCountBeforeOpen);
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  // Billing allows MN/WI; shipping allows CA/TX. Disjoint, so any cross-read
+  // shows up immediately.
+  // No default for `regionOptions`: a default value would apply even when a
+  // caller explicitly passes `undefined` (JS defaulting triggers on the
+  // argument being `undefined`, not on the argument being omitted), which
+  // would silently defeat the "region_options is absent" fallback fixture
+  // below — it needs `regionOptions === undefined` to reach the body as
+  // `undefined`, not get rewritten to `["MN", "WI"]` before that check runs.
+  function createBillingRegionUpgradeApiState(
+    regionOptions: unknown,
+    country = "US",
+    languageStrings?: Record<string, string>,
+  ) {
+    return {
+      billing_address: {
+        use_separate_billing_address: true,
+        first_name: "",
+        last_name: "",
+        company: "",
+        address1: "",
+        address2: "",
+        city: "",
+        region: "",
+        postal_code: "",
+        country,
+        phone: "",
+        country_options: ["US", "ES"],
+        ...(regionOptions === undefined ? {} : { region_options: regionOptions }),
+      },
+      shipments: [
+        {
+          has_shippable_items: true,
+          country_options: ["US"],
+          region_options: ["CA", "TX"],
+        },
+      ],
+      payment_gateways: [{ type: "authorize" }],
+      // Real checkout payloads always include `language_strings` (Foxy's
+      // full store-string set, hundreds of entries) — omitted by default
+      // here since most of these fixtures don't exercise it, and included
+      // only where a test needs a specific id resolvable.
+      ...(languageStrings ? { language_strings: languageStrings } : {}),
+    };
+  }
+
+  it("upgrades the region option labels from codes to localized names once the catalog resolves", async () => {
+    // A real dynamic import resolves near-instantly in this test bundler
+    // (the chunk is already in the module graph, not fetched over a
+    // network), so awaiting a render tick or two is not a reliable "before
+    // the catalog lands" window — it can already race past resolution. A
+    // manually controlled deferred promise makes the two moments (pending,
+    // then resolved) explicit and deterministic, which is the only way to
+    // prove the label actually changes rather than merely that the right
+    // message id was requested — a render that ignored the catalog entirely
+    // and always showed raw codes would pass a "was `loadRegionMessages`
+    // called with the right locale" assertion just as easily.
+    let resolveCatalog!: (value: Record<string, string>) => void;
+    const controlled = new Promise<Record<string, string>>((resolve) => {
+      resolveCatalog = resolve;
+    });
+    vi.mocked(loadRegionMessages).mockReturnValueOnce(controlled);
+
+    const restoreClient = overrideClientState(
+      createBillingRegionUpgradeApiState(["MN", "WI"]),
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      // Before the controlled promise resolves, labels must show the raw
+      // codes — proving the render actually depends on catalog state, not
+      // just on `toRegionOptions`'s shape.
+      const trigger = element.shadowRoot?.querySelector("#billing-region");
+      trigger?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await waitForRender();
+
+      const beforeCatalog = Array.from(
+        element.shadowRoot?.querySelectorAll("[role='option']") ?? [],
+      ).map((option) => option.textContent);
+      expect(beforeCatalog).toEqual(["MN", "WI"]);
+
+      // Resolve the catalog now and let the element re-render.
+      resolveCatalog({
+        [regionMessageId("US", "MN")]: "Minnesota",
+        [regionMessageId("US", "WI")]: "Wisconsin",
+      });
+      await waitForRender();
+      await waitForRender();
+
+      const afterCatalog = Array.from(
+        element.shadowRoot?.querySelectorAll("[role='option']") ?? [],
+      ).map((option) => option.textContent);
+      expect(afterCatalog).toEqual(["Minnesota", "Wisconsin"]);
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  // `regionLabelMessageId("JP")` is "checkout_location_prefecture" — an id
+  // that lives in Foxy's `language_strings` (present in every real checkout
+  // payload, verified against the running store: 737 strings, all five
+  // `checkout_location_*` label ids among them), not in the region-*name*
+  // catalog `loadRegionMessages` returns (that catalog holds only `region_*`
+  // name keys, e.g. `region_jp_23`) and not in this element's static
+  // `en-US.json` either. `#formatMessage` reads `apiJson.language_strings`
+  // via `#resolveLanguageStrings()` for exactly this reason.
+  it("labels the field from the country's region type", async () => {
+    const restoreClient = overrideClientState(
+      createBillingRegionUpgradeApiState(["23"], "JP", {
+        checkout_location_prefecture: "Prefecture",
+      }),
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+      await waitForTime(50);
+      await waitForRender();
+
+      const label = element.shadowRoot?.querySelector(
+        "label[for='billing-region']",
+      );
+      expect(label?.textContent).toBe("Prefecture");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  // Older or non-standard payloads might omit `language_strings` entirely
+  // (or omit this particular id from it). Either way `#formatMessage` must
+  // degrade to the plain default rather than throwing or showing a raw
+  // message id.
+  it("falls back to the generic 'Region' label when language_strings lacks the country's region-type id", async () => {
+    const restoreClient = overrideClientState(
+      createBillingRegionUpgradeApiState(["23"], "JP"),
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+      await waitForTime(50);
+      await waitForRender();
+
+      const label = element.shadowRoot?.querySelector(
+        "label[for='billing-region']",
+      );
+      expect(label?.textContent).toBe("Region");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("falls back to a text input when billing region_options is absent", async () => {
+    const restoreClient = overrideClientState(
+      createBillingRegionUpgradeApiState(undefined),
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      expect(element.shadowRoot?.querySelector("#billing-region")?.tagName).toBe(
+        "INPUT",
+      );
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("falls back to a text input when no billing region_options entry is usable", async () => {
+    const restoreClient = overrideClientState(
+      createBillingRegionUpgradeApiState(["", null]),
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      expect(element.shadowRoot?.querySelector("#billing-region")?.tagName).toBe(
+        "INPUT",
+      );
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("keeps the region popup inside the shadow root", async () => {
+    const restoreClient = overrideClientState(
+      createBillingRegionUpgradeApiState(["MN", "WI"]),
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+      await waitForTime(50);
+      await waitForRender();
+
+      const trigger = element.shadowRoot?.querySelector("#billing-region");
+      trigger?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await waitForRender();
+
+      const popup = element.shadowRoot?.querySelector("[role='listbox']");
+      expect(popup).toBeTruthy();
+      expect(popup?.getRootNode()).toBe(element.shadowRoot);
+      expect(document.body.querySelector("[role='listbox']")).toBeNull();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("commits a spaced region code unchanged", async () => {
+    const updateBillingAddress = vi.fn(() => Promise.resolve());
+    const restoreClient = overrideClientState(
+      createBillingRegionUpgradeApiState(["A Coruna", "Barcelona"], "ES"),
+      undefined,
+      { updateBillingAddress },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+      await waitForTime(50);
+      await waitForRender();
+
+      const trigger = element.shadowRoot?.querySelector("#billing-region");
+      trigger?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await waitForRender();
+
+      const option = Array.from(
+        element.shadowRoot?.querySelectorAll("[role='option']") ?? [],
+      ).find((candidate) => candidate.textContent === "A Coruna");
+      option?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await waitForBillingAddressReport();
+
+      expect(updateBillingAddress).toHaveBeenCalledWith(
+        expect.objectContaining({ region: "A Coruna" }),
+      );
     } finally {
       element.remove();
       restoreClient();

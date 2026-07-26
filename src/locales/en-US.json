@@ -24,7 +24,6 @@
   "payment_billing_last_name_label": "Last name",
   "payment_billing_phone_label": "Phone",
   "payment_billing_postal_code_label": "Postal code",
-  "payment_billing_region_label": "Region",
   "payment_billing_update_error": "Unable to update billing address. Try again.",
   "payment_card_field_label_csc": "Security code",
   "payment_card_field_label_full": "Card details",

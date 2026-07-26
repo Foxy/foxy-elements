@@ -14,7 +14,13 @@ import type {
 import "../foxy-ach-field/element";
 import "../foxy-payment-card-field/element";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
-import { toCountryOptions, type CountryOption } from "@foxy.io/sdk/checkout";
+import {
+  loadRegionMessages,
+  regionLabelMessageId,
+  toCountryOptions,
+  toRegionOptions,
+  type CountryOption,
+} from "@foxy.io/sdk/checkout";
 import { Alert } from "@foxy.io/design-system/alert";
 import { defaultTheme } from "@foxy.io/design-system/theme";
 import { StyleSheetManager, ThemeProvider } from "styled-components";
@@ -132,8 +138,10 @@ export function toBcp47Locale(value: string): string {
 // The cached array is shared across every caller that hits the same key —
 // treat it as read-only. `billing.tsx` passes it straight through as the
 // `searchable-select` branch's `items` prop into Base UI's `Combobox.Root`
-// (the `select` branch's `.map()` source is `regionOptions`, built by
-// `#toSelectOptions` and never cached). Today, no code path in the
+// (the billing region field is also a `searchable-select`, but its options
+// come from `toRegionOptions` and are rebuilt, uncached, on every render —
+// region lists top out around 54 entries, far below where this matters).
+// Today, no code path in the
 // design-system `SearchableSelect` wrapper or in `Combobox.Root`
 // writes to `items` in place — the one filtering path in `Combobox.Root`
 // builds results with `Array#filter`, which copies rather than mutates. No
@@ -187,6 +195,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #shadowRootRef: ShadowRoot;
   #root: Root | null = null;
   #container: HTMLDivElement;
+  #regionMessages: Record<string, string> = {};
+  #regionMessagesLocale: string | null = null;
   #controllers = new Map<string, PaymentController>();
   #klarnaAvailabilityByCategory = new Map<string, boolean>();
   #billingErrorsByOption = new Map<string, PaymentMethodSelectorBillingError>();
@@ -825,6 +835,20 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     const billingAddress = this.#resolveBillingAddress();
     const locale = this.#resolveLocale();
     const messages = this.#resolveMessages(locale);
+
+    // The region-name catalog is a lazily imported chunk, so locales the
+    // shopper never sees are never downloaded. Kick it off once per locale and
+    // re-render when it lands; until then region labels show their codes,
+    // which is the pre-existing behavior.
+    if (this.#regionMessagesLocale !== locale) {
+      this.#regionMessagesLocale = locale;
+      void loadRegionMessages(locale).then((loaded) => {
+        if (this.#regionMessagesLocale !== locale) return;
+        this.#regionMessages = loaded;
+        this.#render();
+      });
+    }
+
     const orderTotal = this.#resolveOrderTotal(apiState);
     const orderCurrencyCode = this.#resolveOrderCurrencyCode(apiState);
 
@@ -834,7 +858,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           <IntlProvider
             locale={locale}
             defaultLocale={DEFAULT_LOCALE}
-            messages={messages}
+            messages={{ ...this.#regionMessages, ...messages }}
           >
             <Payment
               options={options}
@@ -1163,6 +1187,38 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     if (typeof value === "string") return value;
     if (typeof value === "number") return String(value);
     return "";
+  }
+
+  // `regionLabelMessageId` ids (e.g. "checkout_location_prefecture") are not
+  // in the region-name catalog (`#regionMessages` holds only region *name*
+  // ids like "region_jp_23") and not in this element's static message
+  // bundle either — they live in Foxy's `language_strings`, which every
+  // checkout payload includes specifically so these already-translated,
+  // store-overridable strings don't need a second copy baked into this
+  // element. Read directly off the live API state rather than threading it
+  // through `#render()`'s locals, since this is the one caller that needs it.
+  #resolveLanguageStrings(): Record<string, string> {
+    const raw = this.#resolveApiState()?.language_strings;
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+
+    return Object.fromEntries(
+      Object.entries(raw as Record<string, unknown>).filter(
+        (entry): entry is [string, string] => typeof entry[1] === "string",
+      ),
+    );
+  }
+
+  // Billing field labels are plain strings in the field contract, so resolve
+  // region message ids here rather than deferring to react-intl in the view.
+  // Falls back to the supplied default when none of the sources have the id.
+  #formatMessage(id: string, fallback: string): string {
+    const locale = this.#resolveLocale();
+    return (
+      this.#resolveLanguageStrings()[id] ??
+      this.#regionMessages[id] ??
+      this.#resolveMessages(locale)[id] ??
+      fallback
+    );
   }
 
   #toOptionalText(value: unknown): string | undefined {
@@ -1554,20 +1610,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return value && typeof value === "object" && !Array.isArray(value)
       ? (value as Record<string, unknown>)
       : null;
-  }
-
-  #toSelectOptions(
-    values: unknown,
-  ): Array<{ label: string; value: string }> | undefined {
-    if (!Array.isArray(values)) return undefined;
-
-    const options = values
-      .filter(
-        (value): value is string => typeof value === "string" && Boolean(value),
-      )
-      .map((value) => ({ label: value, value }));
-
-    return options.length ? options : undefined;
   }
 
   #resolveSupportedPaymentCards(
@@ -2724,8 +2766,12 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       (apiJson.billing_address as Record<string, unknown>).country_options,
       toBcp47Locale(this.#resolveLocale()),
     );
-    const regionOptions = this.#toSelectOptions(
+    const billingCountry = this.#toText(
+      (apiJson.billing_address as Record<string, unknown>).country,
+    );
+    const regionOptions = toRegionOptions(
       (apiJson.billing_address as Record<string, unknown>).region_options,
+      billingCountry,
     );
 
     const billingAddress = apiJson.billing_address as Record<string, unknown>;
@@ -2782,17 +2828,20 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         type: "text",
         value: this.#toText(billingAddress.postal_code),
       },
-      regionOptions
+      regionOptions.length
         ? {
             id: "billing-region",
-            label: "Region",
-            type: "select",
+            label: this.#formatMessage(regionLabelMessageId(billingCountry), "Region"),
+            type: "searchable-select",
             value: this.#toText(billingAddress.region),
-            options: regionOptions,
+            options: regionOptions.map((option) => ({
+              value: option.value,
+              label: this.#formatMessage(option.messageId, option.value),
+            })),
           }
         : {
             id: "billing-region",
-            label: "Region",
+            label: this.#formatMessage(regionLabelMessageId(billingCountry), "Region"),
             type: "text",
             value: this.#toText(billingAddress.region),
           },
