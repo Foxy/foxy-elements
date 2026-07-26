@@ -130,9 +130,15 @@ export function toBcp47Locale(value: string): string {
 // entry currently on screen (read on every render) is never the one dropped.
 //
 // The cached array is shared across every caller that hits the same key —
-// treat it as read-only. `billing.tsx` only ever `.map()`s over
-// `field.options`, so this holds; an in-place mutation would corrupt the
-// cache for every subsequent read.
+// treat it as read-only. `billing.tsx` passes it straight through as both
+// the `select` branch's `.map()` source and the `searchable-select`
+// branch's `items` prop into Base UI's `Combobox.Root`. Today, no code path
+// in the design-system `SearchableSelect` wrapper or in `Combobox.Root`
+// writes to `items` in place — the one filtering path in `Combobox.Root`
+// builds results with `Array#filter`, which copies rather than mutates. No
+// caller currently needs to sort or filter this array itself — if one ever
+// does, it must copy first, since an in-place mutation here would corrupt
+// the cache for every other consumer holding the same reference.
 const MAX_CACHED_COUNTRY_OPTION_LISTS = 20;
 const countryOptionsCache = new Map<string, CountryOption[]>();
 
@@ -2755,7 +2761,15 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             id: "billing-country",
             label: "Country",
             type: "searchable-select",
-            value: this.#toText(billingAddress.country),
+            // `toCountryOptions` uppercases every option value (see
+            // countryOptions.ts), and `SearchableSelect` resolves the
+            // selection with `items.find(item => item.value === value)` — an
+            // exact string match. Normalize the same way so a saved
+            // lowercase (or mixed-case) country still resolves instead of
+            // silently rendering the placeholder. `#toText` already returns
+            // `""` for a missing/non-string `country`, so no extra guard is
+            // needed here.
+            value: this.#toText(billingAddress.country).trim().toUpperCase(),
             options: countryOptions,
           }
         : {
@@ -2850,6 +2864,19 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
         if (typeof value === "boolean") {
           return Boolean(currentValue) !== value;
+        }
+
+        // The "country" field is seeded from `#resolveBillingAddress` in
+        // uppercase (to match `toCountryOptions`'s option values, see
+        // there), while `currentValue` here is the raw, un-normalized API
+        // value. Comparing them case-sensitively would report a change for
+        // every render of a lowercase (or mixed-case) saved country, even
+        // though the shopper never touched the field.
+        if (key === "country") {
+          return (
+            this.#toText(currentValue).trim().toUpperCase() !==
+            this.#toText(value).trim().toUpperCase()
+          );
         }
 
         return this.#toText(currentValue) !== this.#toText(value);

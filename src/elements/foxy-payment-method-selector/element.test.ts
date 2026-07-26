@@ -2908,6 +2908,167 @@ describe("billing country options", () => {
     }
   });
 
+  it("shows the localized name for a lowercase saved country against lowercase options", async () => {
+    const restoreClient = overrideClientState({
+      billing_address: {
+        use_separate_billing_address: true,
+        first_name: "",
+        last_name: "",
+        company: "",
+        address1: "",
+        address2: "",
+        city: "",
+        region: "",
+        postal_code: "",
+        country: "gb",
+        phone: "",
+        country_options: ["gb", "fr"],
+      },
+      shipments: [
+        {
+          has_shippable_items: true,
+          country_options: ["us", "ca"],
+          region_options: ["MN", "WI"],
+        },
+      ],
+      payment_gateways: [{ type: "authorize" }],
+    });
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const trigger = element.shadowRoot?.querySelector("#billing-country");
+
+      // `toCountryOptions` uppercases every option value; a saved lowercase
+      // `country` must still resolve against those uppercase values instead
+      // of falling through to the untranslated placeholder.
+      expect(trigger?.textContent).toContain("United Kingdom");
+      expect(trigger?.textContent?.trim()).not.toBe("Select");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("does not send a spurious billing-address update when the saved country is already lowercase", async () => {
+    const updateBillingAddress = vi.fn(() => Promise.resolve());
+    const restoreClient = overrideClientState(
+      {
+        billing_address: {
+          use_separate_billing_address: true,
+          first_name: "",
+          last_name: "",
+          company: "",
+          address1: "",
+          address2: "",
+          city: "",
+          region: "",
+          postal_code: "",
+          country: "gb",
+          phone: "",
+          country_options: ["gb", "fr"],
+        },
+        shipments: [
+          {
+            has_shippable_items: true,
+            country_options: ["us", "ca"],
+            region_options: ["MN", "WI"],
+          },
+        ],
+        payment_gateways: [{ type: "authorize" }],
+      },
+      undefined,
+      { updateBillingAddress },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+      await waitForBillingAddressReport();
+
+      // Normalizing the displayed value to uppercase must not make it look
+      // like the shopper edited the field the moment it's rendered — the
+      // field is only seeded from, never diffed against, its normalized
+      // display form.
+      expect(updateBillingAddress).not.toHaveBeenCalled();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("still reports a real country edit against a lowercase saved country", async () => {
+    const updateBillingAddress = vi.fn(() => Promise.resolve());
+    const restoreClient = overrideClientState(
+      {
+        billing_address: {
+          use_separate_billing_address: true,
+          first_name: "",
+          last_name: "",
+          company: "",
+          address1: "",
+          address2: "",
+          city: "",
+          region: "",
+          postal_code: "",
+          country: "gb",
+          phone: "",
+          country_options: ["gb", "fr"],
+        },
+        shipments: [
+          {
+            has_shippable_items: true,
+            country_options: ["us", "ca"],
+            region_options: ["MN", "WI"],
+          },
+        ],
+        payment_gateways: [{ type: "authorize" }],
+      },
+      undefined,
+      { updateBillingAddress },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const trigger = element.shadowRoot?.querySelector(
+        "#billing-country",
+      ) as HTMLButtonElement | null;
+      trigger?.click();
+      await waitForRender();
+
+      const options = Array.from(
+        element.shadowRoot?.querySelectorAll("[role='option']") ?? [],
+      );
+      const franceOption = options.find((option) =>
+        option.textContent?.includes("France"),
+      ) as HTMLElement | undefined;
+      expect(franceOption).toBeTruthy();
+      franceOption!.click();
+      await waitForRender();
+      await waitForBillingAddressReport();
+
+      // The case-insensitive comparison added for the no-op case above must
+      // not swallow a genuine edit: picking a different country still has
+      // to reach the backend, with the normalized (uppercase) value.
+      expect(updateBillingAddress).toHaveBeenCalledWith({ country: "FR" });
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
   it("falls back to a text input when billing country_options is absent", async () => {
     const restoreClient = overrideClientState(createBillingCountryApiState(false));
     const element = document.createElement(
@@ -2926,6 +3087,107 @@ describe("billing country options", () => {
       restoreClient();
     }
   });
+
+  it("localizes the option label using the element's own locale, not a hardcoded default", async () => {
+    const restoreClient = overrideClientState({
+      billing_address: {
+        use_separate_billing_address: true,
+        first_name: "",
+        last_name: "",
+        company: "",
+        address1: "",
+        address2: "",
+        city: "",
+        region: "",
+        postal_code: "",
+        country: "GB",
+        phone: "",
+        country_options: ["GB", "FR"],
+      },
+      shipments: [
+        {
+          has_shippable_items: true,
+          country_options: ["US", "CA"],
+          region_options: ["MN", "WI"],
+        },
+      ],
+      payment_gateways: [{ type: "authorize" }],
+    });
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      // Set before append: `#resolveLocale` reads the attribute/property
+      // first, so this is deterministic regardless of connection timing.
+      element.lang = "fr-FR";
+      document.body.append(element);
+      await waitForRender();
+
+      const trigger = element.shadowRoot?.querySelector("#billing-country");
+
+      // French for "United Kingdom" — only resolves if the element's own
+      // locale (not a hardcoded "en-US") reaches `toCountryOptions`.
+      expect(trigger?.textContent).toContain("Royaume-Uni");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("sorts billing countries by localized name, not by code", async () => {
+    const restoreClient = overrideClientState({
+      billing_address: {
+        use_separate_billing_address: true,
+        first_name: "",
+        last_name: "",
+        company: "",
+        address1: "",
+        address2: "",
+        city: "",
+        region: "",
+        postal_code: "",
+        country: "CH",
+        phone: "",
+        // By code, "CH" < "DE" sorts Switzerland before Germany. By
+        // localized English name, "Germany" < "Switzerland" sorts the other
+        // way — the two orderings disagree, so this fixture actually pins
+        // the sort key.
+        country_options: ["CH", "DE"],
+      },
+      shipments: [
+        {
+          has_shippable_items: true,
+          country_options: ["US", "CA"],
+          region_options: ["MN", "WI"],
+        },
+      ],
+      payment_gateways: [{ type: "authorize" }],
+    });
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const trigger = element.shadowRoot?.querySelector(
+        "#billing-country",
+      ) as HTMLButtonElement | null;
+      trigger?.click();
+      await waitForRender();
+
+      const options = Array.from(
+        element.shadowRoot?.querySelectorAll("[role='option']") ?? [],
+      ).map((option) => option.textContent);
+
+      expect(options).toEqual(["Germany", "Switzerland"]);
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
 });
 
 describe("getCachedCountryOptions", () => {
@@ -2933,52 +3195,94 @@ describe("getCachedCountryOptions", () => {
   // `SearchableSelect`'s `items` contract asks for a referentially stable
   // array, so the memo below has to actually return the same reference for
   // unchanged input — not just equal content.
+  //
+  // Every fixture below uses real ISO 3166-1 alpha-2 codes on lists of a few
+  // countries each (never the single-letter-pair placeholders like
+  // "gc-stability-us" this block used to use) — `toCountryOptions` drops
+  // anything that doesn't match `/^[A-Za-z]{2}$/`-shaped *and* resolve to a
+  // usable code, and a placeholder like that silently maps to `[]`, which
+  // would make every "same reference" assertion below compare `[]` to `[]`
+  // regardless of whether the cache does anything at all.
 
   it("returns the same array reference for unchanged codes and locale", () => {
-    const a = getCachedCountryOptions(["gc-stability-us", "gc-stability-ca"], "en-US");
-    const b = getCachedCountryOptions(["gc-stability-us", "gc-stability-ca"], "en-US");
+    const a = getCachedCountryOptions(["NO", "SE", "FI", "IS", "DK"], "en-US");
+    const b = getCachedCountryOptions(["NO", "SE", "FI", "IS", "DK"], "en-US");
 
     expect(a).toBe(b);
+    // Guards against the reference check passing only because both calls
+    // happen to return the same empty array.
+    expect(a.length).toBe(5);
   });
 
-  it("returns a different array reference when the codes change", () => {
-    const a = getCachedCountryOptions(["gc-codes-us"], "en-US");
-    const b = getCachedCountryOptions(["gc-codes-gb"], "en-US");
+  it("returns a different array reference when the codes change, without losing the prior entry", () => {
+    const codesA = ["AR", "BR", "CL", "CO", "PE"];
+    const codesB = ["MX", "GT", "HN", "PA", "CR"];
+    const a1 = getCachedCountryOptions(codesA, "en-US");
+    const b1 = getCachedCountryOptions(codesB, "en-US");
+    // Re-reading `codesA` only reddens if the cache is actually keeping the
+    // first entry alive — with no cache, distinct inputs always produce
+    // distinct arrays, so `b1` differing from `a1` proves nothing on its
+    // own; this second read of `codesA` is what a cache-deletion mutation
+    // breaks.
+    const a2 = getCachedCountryOptions(codesA, "en-US");
 
-    expect(a).not.toBe(b);
+    expect(b1).not.toBe(a1);
+    expect(b1.map((option) => option.value)).not.toEqual(
+      a1.map((option) => option.value),
+    );
+    expect(a2).toBe(a1);
   });
 
-  it("returns a different array reference when the locale changes", () => {
-    const a = getCachedCountryOptions(["gc-locale-us"], "en-US");
-    const b = getCachedCountryOptions(["gc-locale-us"], "fr-FR");
+  it("returns a different array reference when the locale changes, without losing the prior entry", () => {
+    const codes = ["JP", "KR", "CN", "TW", "HK"];
+    const a1 = getCachedCountryOptions(codes, "en-US");
+    const b1 = getCachedCountryOptions(codes, "fr-FR");
+    // Same shape as the codes-change test above: re-reading the original
+    // locale is what actually exercises the cache.
+    const a2 = getCachedCountryOptions(codes, "en-US");
 
-    expect(a).not.toBe(b);
+    expect(b1).not.toBe(a1);
+    expect(b1.map((option) => option.label)).not.toEqual(
+      a1.map((option) => option.label),
+    );
+    expect(a2).toBe(a1);
   });
 
   it("does not collide a comma-containing single code with a two-code list", () => {
-    // ["AB,CD"] and ["AB", "CD"] must not share a cache key: `codes.join(",")`
-    // would encode both as the string "AB,CD". `toCountryOptions` also
-    // treats them differently — a single malformed code maps to no options,
-    // while ["AB", "CD"] maps to two (an unrecognized code falls back to its
-    // raw value as the label; "CD" is a real ISO code) — so a collision
-    // would be visible in content, not just identity.
-    const single = getCachedCountryOptions(["AB,CD"], "en-US");
-    const pair = getCachedCountryOptions(["AB", "CD"], "en-US");
+    // ["GB,FR"] and ["GB", "FR"] must not share a cache key: `codes.join(",")`
+    // would encode both as the string "GB,FR". This is a key-*encoding*
+    // guard, not a cache-presence one — it reddens under a key-format
+    // mutation (e.g. building the key from `codes.join(",")`), not under
+    // cache deletion: the two calls are distinct inputs either way, so
+    // `single` and `pair` would differ by reference with no cache at all.
+    // Content still discriminates: "GB,FR" fails the alpha-2 shape check
+    // (5 characters) and maps to no options, while ["GB", "FR"] maps to two
+    // real countries, sorted by localized name ("France" before "United
+    // Kingdom").
+    const single = getCachedCountryOptions(["GB,FR"], "en-US");
+    const pair = getCachedCountryOptions(["GB", "FR"], "en-US");
 
     expect(single).not.toBe(pair);
     expect(single).toEqual([]);
-    expect(pair.map((option) => option.value)).toEqual(["AB", "CD"]);
+    expect(pair.map((option) => option.value)).toEqual(["FR", "GB"]);
   });
 
   it("keeps the entry currently on screen alive across eviction (LRU, not FIFO)", () => {
     const locale = "en-US";
-    const firstKeyCodes = ["gc-lru-seed-0"];
+    // 20 distinct single-country lists — the cache holds 20 entries total.
+    const codeLists = [
+      ["GB"], ["FR"], ["DE"], ["IT"], ["ES"],
+      ["PT"], ["NL"], ["BE"], ["SE"], ["NO"],
+      ["DK"], ["FI"], ["PL"], ["AT"], ["CH"],
+      ["IE"], ["GR"], ["CZ"], ["HU"], ["RO"],
+    ];
+    const firstKeyCodes = codeLists[0];
     const first = getCachedCountryOptions(firstKeyCodes, locale);
 
-    // Fill the cache with 19 more distinct entries (cache holds 20 total),
-    // so the first entry is now the oldest by insertion order.
-    for (let i = 1; i < 20; i += 1) {
-      getCachedCountryOptions([`gc-lru-seed-${i}`], locale);
+    // Fill the cache with 19 more distinct entries, so the first entry is
+    // now the oldest by insertion order.
+    for (let i = 1; i < codeLists.length; i += 1) {
+      getCachedCountryOptions(codeLists[i], locale);
     }
 
     // Re-read the first entry — under plain FIFO-by-insertion this wouldn't
@@ -2989,9 +3293,9 @@ describe("getCachedCountryOptions", () => {
     // One more distinct entry pushes the cache over its bound. Under FIFO
     // eviction, the first entry (oldest insertion) would be dropped even
     // though it was just read. Under LRU (delete-then-reinsert on hit), the
-    // entry inserted-but-never-re-read at step "seed-1" is the oldest now,
-    // so that one gets evicted instead.
-    getCachedCountryOptions(["gc-lru-overflow"], locale);
+    // entry inserted-but-never-re-read right after it (codeLists[1], "FR")
+    // is the oldest now, so that one gets evicted instead.
+    getCachedCountryOptions(["BG"], locale);
 
     expect(getCachedCountryOptions(firstKeyCodes, locale)).toBe(first);
   });
