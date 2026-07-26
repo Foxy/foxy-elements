@@ -858,7 +858,18 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           <IntlProvider
             locale={locale}
             defaultLocale={DEFAULT_LOCALE}
-            messages={{ ...this.#regionMessages, ...messages }}
+            // `messages` is `MESSAGES_BY_LOCALE[locale]` — a stable
+            // module-level reference. react-intl's `createIntl` compares
+            // `messages` by reference and skips recreating the intl object
+            // when it hasn't changed, so this must stay the same object
+            // across renders for an unchanged locale. Region-name lookups
+            // (`#regionMessages`) are resolved directly in `#formatMessage`
+            // instead of through react-intl — no component in this tree
+            // reads a dynamic-id `FormattedMessage`/`intl.formatMessage`
+            // against the region catalog — so merging it in here would only
+            // cost a fresh object (and therefore a fresh `createIntl`) on
+            // every render for no reader.
+            messages={messages}
           >
             <Payment
               options={options}
@@ -1211,10 +1222,23 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   // Billing field labels are plain strings in the field contract, so resolve
   // region message ids here rather than deferring to react-intl in the view.
   // Falls back to the supplied default when none of the sources have the id.
-  #formatMessage(id: string, fallback: string): string {
+  //
+  // `languageStrings` is a caller-supplied argument rather than a fresh
+  // `#resolveLanguageStrings()` call per invocation: this is called once per
+  // region option (Spain alone has 54) plus once for the field label, and
+  // `#resolveLanguageStrings()` rebuilds its whole map (`Object.entries` +
+  // `filter` + `fromEntries` over the store's entire `language_strings` set,
+  // easily 700+ entries) from scratch every time. Resolving it once per
+  // render in `#resolveBillingAddress` and threading it through here keeps
+  // the per-render cost independent of the region-option count.
+  #formatMessage(
+    id: string,
+    fallback: string,
+    languageStrings: Record<string, string>,
+  ): string {
     const locale = this.#resolveLocale();
     return (
-      this.#resolveLanguageStrings()[id] ??
+      languageStrings[id] ??
       this.#regionMessages[id] ??
       this.#resolveMessages(locale)[id] ??
       fallback
@@ -2773,6 +2797,14 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       (apiJson.billing_address as Record<string, unknown>).region_options,
       billingCountry,
     );
+    // Resolved once per render (not once per region option/label call) — see
+    // `#formatMessage`'s doc comment for why that matters.
+    const languageStrings = this.#resolveLanguageStrings();
+    const regionLabel = this.#formatMessage(
+      regionLabelMessageId(billingCountry),
+      "Region",
+      languageStrings,
+    );
 
     const billingAddress = apiJson.billing_address as Record<string, unknown>;
     const fields: PaymentMethodSelectorBillingField[] = [
@@ -2831,17 +2863,27 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       regionOptions.length
         ? {
             id: "billing-region",
-            label: this.#formatMessage(regionLabelMessageId(billingCountry), "Region"),
+            label: regionLabel,
             type: "searchable-select",
-            value: this.#toText(billingAddress.region),
+            // `toRegionOptions` trims its values (see checkout.ts), and
+            // `SearchableSelect` resolves the selection with
+            // `items.find(item => item.value === value)` — an exact string
+            // match. Trim the same way so a saved region with surrounding
+            // whitespace still resolves instead of silently rendering the
+            // placeholder. Never uppercase this: unlike country codes,
+            // region codes are not uniformly cased (Spain's are
+            // human-readable names containing spaces, Japan's and Norway's
+            // are numeric) — uppercasing would make them unmatchable against
+            // the very list they came from.
+            value: this.#toText(billingAddress.region).trim(),
             options: regionOptions.map((option) => ({
               value: option.value,
-              label: this.#formatMessage(option.messageId, option.value),
+              label: this.#formatMessage(option.messageId, option.value, languageStrings),
             })),
           }
         : {
             id: "billing-region",
-            label: this.#formatMessage(regionLabelMessageId(billingCountry), "Region"),
+            label: regionLabel,
             type: "text",
             value: this.#toText(billingAddress.region),
           },
@@ -2923,6 +2965,19 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           return (
             this.#toText(currentValue).trim().toUpperCase() !==
             this.#toText(value).trim().toUpperCase()
+          );
+        }
+
+        // The "region" field is seeded from `#resolveBillingAddress` trimmed
+        // (to match the searchable-select option values, see there), while
+        // `currentValue` here is the raw, un-normalized API value. Comparing
+        // case-sensitively-but-untrimmed would report a change for every
+        // render of a region with surrounding whitespace, even though the
+        // shopper never touched the field. Trim only — never change case:
+        // unlike country, region codes are not uniformly cased.
+        if (key === "region") {
+          return (
+            this.#toText(currentValue).trim() !== this.#toText(value).trim()
           );
         }
 

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
 import { defaultTheme } from "@foxy.io/design-system/theme";
 import {
@@ -18,6 +18,21 @@ import {
 vi.mock("@foxy.io/sdk/checkout", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@foxy.io/sdk/checkout")>();
   return { ...actual, loadRegionMessages: vi.fn(actual.loadRegionMessages) };
+});
+
+// Captured independently of the `vi.mock` factory above (rather than
+// assigned from inside it) so the "billing region options" describe below
+// can restore the pass-through default after `mockReset()`, without any
+// dependency on vi.mock's hoisting/closure timing.
+let realLoadRegionMessages:
+  | typeof import("@foxy.io/sdk/checkout").loadRegionMessages
+  | undefined;
+
+beforeAll(async () => {
+  const actual = await vi.importActual<typeof import("@foxy.io/sdk/checkout")>(
+    "@foxy.io/sdk/checkout",
+  );
+  realLoadRegionMessages = actual.loadRegionMessages;
 });
 
 import {
@@ -3319,6 +3334,24 @@ describe("billing country options", () => {
 });
 
 describe("billing region options", () => {
+  // The "upgrades the region option labels..." test below queues a single
+  // controlled promise on the shared `loadRegionMessages` mock via
+  // `mockReturnValueOnce`. If a test in this describe threw before the
+  // element mounted and consumed it, that queued value would stay pending
+  // and leak into the next test that mounts an element, handing it a
+  // catalog load that never resolves. `mockReset()` drains any such leftover
+  // queued value regardless of how the previous test ended, but it also
+  // clears the mock's default pass-through implementation — restore that
+  // immediately after so every other test in this file keeps getting the
+  // real `loadRegionMessages` behavior.
+  afterEach(() => {
+    const mock = vi.mocked(loadRegionMessages);
+    mock.mockReset();
+    if (realLoadRegionMessages) {
+      mock.mockImplementation(realLoadRegionMessages);
+    }
+  });
+
   // Billing allows ON/QC; shipping allows MN/WI. The two lists are disjoint,
   // so a cross-read (offering the shipment's regions for billing) is
   // unmistakable.
@@ -3661,6 +3694,137 @@ describe("billing region options", () => {
       expect(updateBillingAddress).toHaveBeenCalledWith(
         expect.objectContaining({ region: "A Coruna" }),
       );
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("resolves a padded stored region against its trimmed options", async () => {
+    const state = createBillingRegionApiState();
+    state.billing_address.region = "  ON  ";
+    const restoreClient = overrideClientState(state);
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+      await waitForTime(50);
+      await waitForRender();
+
+      const trigger = element.shadowRoot?.querySelector("#billing-region");
+
+      // `toRegionOptions` trims its values, and `SearchableSelect` resolves
+      // the current selection with an exact `items.find(item => item.value
+      // === value)`. A saved region with surrounding whitespace must still
+      // resolve to its localized name instead of falling through to the
+      // untranslated placeholder.
+      expect(trigger?.textContent).toContain("Ontario");
+      expect(trigger?.textContent?.trim()).not.toBe("Select");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  // Trimming the displayed/selected value (above) seeds the form with "ON"
+  // while the raw stored value is "  ON  " — the same shape of mismatch the
+  // country field's diff already special-cases (see
+  // #diffBillingAddressPatch's "country" branch and "does not send a
+  // spurious billing-address update when the saved country is already
+  // lowercase" above). Left unguarded, every render of a padded stored
+  // region would look like the shopper just edited the field.
+  it("does not send a spurious billing-address update when the saved region has surrounding whitespace", async () => {
+    const updateBillingAddress = vi.fn(() => Promise.resolve());
+    const state = createBillingRegionApiState();
+    state.billing_address.region = "  ON  ";
+    const restoreClient = overrideClientState(state, undefined, {
+      updateBillingAddress,
+    });
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+      await waitForBillingAddressReport();
+
+      expect(updateBillingAddress).not.toHaveBeenCalled();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+});
+
+describe("language_strings resolution", () => {
+  // `#resolveLanguageStrings()` rebuilds the whole `language_strings` map
+  // (`Object.entries` + `filter` + `fromEntries` over the store's entire
+  // string set — easily 700+ entries in a real payload) from scratch on
+  // every call. `#formatMessage` is called once per region option plus once
+  // for the field label, so an unhoisted resolution multiplies full rebuilds
+  // by the region-option count on every render (Spain's 54 regions would
+  // mean 55 rebuilds per render, and `#render()` has 15 call sites).
+  //
+  // `#resolveLanguageStrings` is private, so it cannot be spied on directly
+  // from outside the class. Counting accesses to the `language_strings`
+  // property it reads is an equivalent black-box measurement: that property
+  // has exactly one reader in this file (see `#resolveLanguageStrings`,
+  // element.tsx), so the access count IS the call count.
+  it("reads language_strings a bounded number of times per render, not once per region option", async () => {
+    let accessCount = 0;
+    const regionOptions = Array.from({ length: 20 }, (_, index) => `R${index}`);
+    const apiState: Record<string, unknown> = {
+      billing_address: {
+        use_separate_billing_address: true,
+        first_name: "",
+        last_name: "",
+        company: "",
+        address1: "",
+        address2: "",
+        city: "",
+        region: "",
+        postal_code: "",
+        country: "US",
+        phone: "",
+        region_options: regionOptions,
+      },
+      shipments: [{ has_shippable_items: true }],
+      payment_gateways: [{ type: "authorize" }],
+    };
+
+    Object.defineProperty(apiState, "language_strings", {
+      configurable: true,
+      enumerable: true,
+      get() {
+        accessCount += 1;
+        return { checkout_location_state: "State" };
+      },
+    });
+
+    const restoreClient = overrideClientState(apiState);
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+      await waitForTime(50);
+      await waitForRender();
+
+      // Under the per-option rebuild bug, 20 region options drive this past
+      // 20 accesses on the very first render alone (21: one per option plus
+      // one for the label) — and every subsequent render (there are at
+      // least two here: the initial mount and the post-catalog-load
+      // re-render) adds that many more. Resolving once per render instead
+      // caps this far below the option count regardless of how many renders
+      // happened.
+      expect(accessCount).toBeGreaterThan(0);
+      expect(accessCount).toBeLessThan(regionOptions.length);
     } finally {
       element.remove();
       restoreClient();
