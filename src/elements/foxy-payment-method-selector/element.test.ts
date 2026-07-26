@@ -3300,6 +3300,84 @@ describe("billing country options", () => {
   });
 });
 
+describe("billing region options", () => {
+  // Billing allows ON/QC; shipping allows MN/WI. The two lists are disjoint,
+  // so a cross-read (offering the shipment's regions for billing) is
+  // unmistakable.
+  function createBillingRegionApiState() {
+    return {
+      billing_address: {
+        use_separate_billing_address: true,
+        first_name: "",
+        last_name: "",
+        company: "",
+        address1: "",
+        address2: "",
+        city: "",
+        region: "ON",
+        postal_code: "",
+        country: "CA",
+        phone: "",
+        region_options: ["ON", "QC"],
+      },
+      shipments: [
+        {
+          has_shippable_items: true,
+          region_options: ["MN", "WI"],
+        },
+      ],
+      payment_gateways: [{ type: "authorize" }],
+    };
+  }
+
+  it("offers only the billing regions, sourced from billing_address.region_options", async () => {
+    const restoreClient = overrideClientState(createBillingRegionApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const trigger = element.shadowRoot?.querySelector(
+        "#billing-region",
+      ) as HTMLButtonElement | null;
+
+      // Still a plain "select" — region UI is deliberately out of scope for
+      // the searchable-select conversion that country options went through.
+      // `trigger?.tagName === "BUTTON"` alone would not prove this: the
+      // country field's searchable-select trigger is a BUTTON too (see the
+      // "billing country options" tests above). The real discriminator is
+      // the search box a searchable-select renders inside its popup —
+      // capture the input count before opening and confirm no new `<input>`
+      // appears after.
+      expect(trigger?.tagName).toBe("BUTTON");
+      const inputCountBeforeOpen =
+        element.shadowRoot?.querySelectorAll("input").length ?? 0;
+      trigger?.click();
+      await waitForRender();
+
+      const options = Array.from(
+        element.shadowRoot?.querySelectorAll("[role='option']") ?? [],
+      ).map((option) => option.textContent);
+
+      // Raw region codes as labels (via #toSelectOptions, not
+      // toCountryOptions) — "MN"/"WI" (the shipment's list) must be absent.
+      expect(options).toEqual(["ON", "QC"]);
+
+      // A searchable-select adds a search `<input>` inside its popup when
+      // opened; a plain "select" adds none.
+      const inputCountAfterOpen =
+        element.shadowRoot?.querySelectorAll("input").length ?? 0;
+      expect(inputCountAfterOpen).toBe(inputCountBeforeOpen);
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+});
+
 describe("getCachedCountryOptions", () => {
   // `#resolveBillingAddress` rebuilds this list on every render, and
   // `SearchableSelect`'s `items` contract asks for a referentially stable

@@ -2717,7 +2717,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     const shipments = Array.isArray(apiJson.shipments) ? apiJson.shipments : [];
-    const shipment = shipments[0];
     // Billing restrictions are resolved independently of shipping ones. This
     // previously read the shipment's list, so a store restricting shipping
     // also restricted billing.
@@ -2726,9 +2725,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       toBcp47Locale(this.#resolveLocale()),
     );
     const regionOptions = this.#toSelectOptions(
-      shipment && typeof shipment === "object"
-        ? (shipment as Record<string, unknown>).region_options
-        : undefined,
+      (apiJson.billing_address as Record<string, unknown>).region_options,
     );
 
     const billingAddress = apiJson.billing_address as Record<string, unknown>;
