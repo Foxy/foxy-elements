@@ -1,6 +1,8 @@
 {
   "checkout_billing_address_label": "Billing Address",
   "checkout_use_separate_billing_address": "Use separate billing address",
+  "generic_no_results": "No results",
+  "generic_search_placeholder": "Search...",
   "generic_select_placeholder": "Select",
   "payment_ach_account_holder_name_label": "Name on account",
   "payment_ach_account_number_label": "Account number",

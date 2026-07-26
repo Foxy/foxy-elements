@@ -486,6 +486,14 @@ export const messages = defineMessages({
     id: "generic_select_placeholder",
     defaultMessage: "Select",
   },
+  searchPlaceholder: {
+    id: "generic_search_placeholder",
+    defaultMessage: "Search...",
+  },
+  noResults: {
+    id: "generic_no_results",
+    defaultMessage: "No results",
+  },
 });
 
 export const OPTION_LABEL_BY_TYPE: Partial<Record<string, MessageDescriptor>> =
@@ -580,5 +588,7 @@ export const BILLING_SECTION_MESSAGES = {
   addBillingAddress: messages.addBillingAddress,
   useSeparateBillingAddress: messages.useSeparateBillingAddress,
   selectPlaceholder: messages.selectPlaceholder,
+  searchPlaceholder: messages.searchPlaceholder,
+  noResults: messages.noResults,
   billingAddressUpdateError: messages.billingAddressUpdateError,
 };

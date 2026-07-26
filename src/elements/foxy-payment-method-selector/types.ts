@@ -28,7 +28,7 @@ export type PaymentMethodSelectorAdyenEmbeddedConfig = {
 export type PaymentMethodSelectorBillingField = {
   id: string;
   label: string;
-  type: "text" | "tel" | "select";
+  type: "text" | "tel" | "select" | "searchable-select";
   value?: string;
   placeholder?: string;
   required?: boolean;

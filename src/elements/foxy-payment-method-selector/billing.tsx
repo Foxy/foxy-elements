@@ -14,6 +14,7 @@ import { Button } from "@foxy.io/design-system/button";
 import { Checkbox } from "@foxy.io/design-system/checkbox";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
+import { SearchableSelect } from "@foxy.io/design-system/searchable-select";
 import { Select } from "@foxy.io/design-system/select";
 import { styled } from "styled-components";
 
@@ -120,6 +121,8 @@ type BillingSectionMessages = {
   addBillingAddress: MessageDescriptor;
   useSeparateBillingAddress: MessageDescriptor;
   selectPlaceholder: MessageDescriptor;
+  searchPlaceholder: MessageDescriptor;
+  noResults: MessageDescriptor;
   billingAddressUpdateError: MessageDescriptor;
 };
 
@@ -161,10 +164,33 @@ function renderBillingField(
   setValues: Dispatch<SetStateAction<Record<string, string>>>,
   intl: IntlShape,
   selectPlaceholder: MessageDescriptor,
+  searchPlaceholder: MessageDescriptor,
+  noResults: MessageDescriptor,
   portalContainer: ShadowRoot,
 ) {
   const value = values[field.id] ?? "";
   const fieldDisabled = disabled || Boolean(field.disabled);
+
+  if (field.type === "searchable-select") {
+    return (
+      <SearchableSelect
+        id={field.id}
+        items={field.options ?? []}
+        value={value}
+        disabled={fieldDisabled}
+        required={field.required}
+        placeholder={intl.formatMessage(selectPlaceholder)}
+        searchPlaceholder={intl.formatMessage(searchPlaceholder)}
+        emptyMessage={intl.formatMessage(noResults)}
+        // The element renders into a shadow root, so the popup has to be
+        // portaled there rather than to document.body — same as Select below.
+        portalContainer={portalContainer}
+        onValueChange={(nextValue) => {
+          setValues((prev) => ({ ...prev, [field.id]: nextValue ?? "" }));
+        }}
+      />
+    );
+  }
 
   if (field.type === "select") {
     return (
@@ -376,6 +402,8 @@ export function BillingAddressSection({
                 setValues,
                 intl,
                 messages.selectPlaceholder,
+                messages.searchPlaceholder,
+                messages.noResults,
                 portalContainer,
               )}
             </BillingFieldItem>
