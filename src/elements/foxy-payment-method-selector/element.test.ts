@@ -3069,6 +3069,116 @@ describe("billing country options", () => {
     }
   });
 
+  it("reports a case-only edit to a non-country billing field", async () => {
+    const updateBillingAddress = vi.fn(() => Promise.resolve());
+    const restoreClient = overrideClientState(
+      {
+        billing_address: {
+          use_separate_billing_address: true,
+          first_name: "john",
+          last_name: "",
+          company: "",
+          address1: "",
+          address2: "",
+          city: "",
+          region: "",
+          postal_code: "",
+          country: "",
+          phone: "",
+        },
+        shipments: [
+          {
+            country_options: ["US", "CA"],
+            region_options: ["MN", "WI"],
+          },
+        ],
+        payment_gateways: [{ type: "authorize" }],
+      },
+      undefined,
+      { updateBillingAddress },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const firstNameInput = element.shadowRoot?.querySelector(
+        "#billing-first-name",
+      ) as HTMLInputElement | null;
+      expect(firstNameInput).toBeTruthy();
+
+      // The case-insensitive comparison in #diffBillingAddressPatch is
+      // scoped to the "country" key only (see the comment there) — every
+      // other billing field must still compare case-sensitively. A shopper
+      // correcting "john" to "John" is a real edit and has to reach the
+      // backend, not get silently dropped as a no-op the way an unscoped
+      // case-insensitive comparison would drop it.
+      await setTextInputValue(firstNameInput!, "John");
+      await waitForBillingAddressReport();
+
+      expect(updateBillingAddress).toHaveBeenCalledWith({
+        first_name: "John",
+      });
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("renders a placeholder with no spurious update when billing country is absent but options are present", async () => {
+    const updateBillingAddress = vi.fn(() => Promise.resolve());
+    const restoreClient = overrideClientState(
+      {
+        billing_address: {
+          use_separate_billing_address: true,
+          first_name: "",
+          last_name: "",
+          company: "",
+          address1: "",
+          address2: "",
+          city: "",
+          region: "",
+          postal_code: "",
+          phone: "",
+          country_options: ["US", "CA"],
+          // `country` is intentionally omitted — the API can return options
+          // without a saved value (e.g. a brand-new billing address).
+        },
+        shipments: [
+          {
+            has_shippable_items: true,
+            country_options: ["GB", "FR"],
+            region_options: ["MN", "WI"],
+          },
+        ],
+        payment_gateways: [{ type: "authorize" }],
+      },
+      undefined,
+      { updateBillingAddress },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const trigger = element.shadowRoot?.querySelector("#billing-country");
+      expect(trigger?.tagName).toBe("BUTTON");
+      expect(trigger?.textContent?.trim()).toBe("Select");
+
+      await waitForBillingAddressReport();
+      expect(updateBillingAddress).not.toHaveBeenCalled();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
   it("falls back to a text input when billing country_options is absent", async () => {
     const restoreClient = overrideClientState(createBillingCountryApiState(false));
     const element = document.createElement(

@@ -130,10 +130,11 @@ export function toBcp47Locale(value: string): string {
 // entry currently on screen (read on every render) is never the one dropped.
 //
 // The cached array is shared across every caller that hits the same key —
-// treat it as read-only. `billing.tsx` passes it straight through as both
-// the `select` branch's `.map()` source and the `searchable-select`
-// branch's `items` prop into Base UI's `Combobox.Root`. Today, no code path
-// in the design-system `SearchableSelect` wrapper or in `Combobox.Root`
+// treat it as read-only. `billing.tsx` passes it straight through as the
+// `searchable-select` branch's `items` prop into Base UI's `Combobox.Root`
+// (the `select` branch's `.map()` source is `regionOptions`, built by
+// `#toSelectOptions` and never cached). Today, no code path in the
+// design-system `SearchableSelect` wrapper or in `Combobox.Root`
 // writes to `items` in place — the one filtering path in `Combobox.Root`
 // builds results with `Array#filter`, which copies rather than mutates. No
 // caller currently needs to sort or filter this array itself — if one ever
