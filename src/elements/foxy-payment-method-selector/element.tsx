@@ -121,6 +121,28 @@ const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
   en: enUsMessages as Record<string, string>,
 };
 
+// Natural JS-level default for each of the five `checkout_location_*` ids
+// `regionLabelMessageId` can return (@foxy.io/sdk/checkout). Used only when
+// neither the store's `language_strings` nor this element's static bundle
+// has the id — matches foxy-checkout's `regionLocationLabels` defaults
+// (builders/messages.ts) so the two consumers never show different words
+// for the same concept. Keep in sync with `REGION_TYPE_BY_COUNTRY` in the
+// SDK if a sixth region type is ever added.
+const REGION_LABEL_FALLBACKS: Record<string, string> = {
+  checkout_location_state: "State",
+  checkout_location_province: "Province",
+  checkout_location_county: "County",
+  checkout_location_canton: "Canton",
+  checkout_location_prefecture: "Prefecture",
+};
+
+// The plain-text region field's label when the country has no known region
+// type at all (242 of 254 countries) — generic, not tied to any one
+// country's region type. Matches `checkout_region_label`'s default in
+// foxy-checkout (builders/messages.ts).
+const GENERIC_REGION_LABEL_ID = "checkout_region_label";
+const GENERIC_REGION_LABEL_DEFAULT = "State / Province";
+
 export function toBcp47Locale(value: string): string {
   return value.replace(/_/g, "-");
 }
@@ -2800,9 +2822,25 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     // Resolved once per render (not once per region option/label call) — see
     // `#formatMessage`'s doc comment for why that matters.
     const languageStrings = this.#resolveLanguageStrings();
-    const regionLabel = this.#formatMessage(
-      regionLabelMessageId(billingCountry),
-      "Region",
+    // Country-specific label ("State" for the US, "Prefecture" for Japan) —
+    // used ONLY on the dropdown branch below, where the country's region
+    // type is actually being asked for. Reusing this on the plain-text
+    // branch too (as this used to) mislabels the 242 of 254 countries with
+    // no known region type: `regionLabelMessageId` defaults every one of
+    // them to the "state" id, so with no store override every one of them
+    // showed literally "State".
+    const dropdownRegionLabelId = regionLabelMessageId(billingCountry);
+    const dropdownRegionLabel = this.#formatMessage(
+      dropdownRegionLabelId,
+      REGION_LABEL_FALLBACKS[dropdownRegionLabelId] ?? REGION_LABEL_FALLBACKS.checkout_location_state,
+      languageStrings,
+    );
+    // Generic label for the plain-text branch — the common case, since only
+    // 12 of 254 countries have regions at all. Matches foxy-checkout's
+    // `checkout_region_label` (builders/messages.ts).
+    const textRegionLabel = this.#formatMessage(
+      GENERIC_REGION_LABEL_ID,
+      GENERIC_REGION_LABEL_DEFAULT,
       languageStrings,
     );
 
@@ -2863,7 +2901,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       regionOptions.length
         ? {
             id: "billing-region",
-            label: regionLabel,
+            label: dropdownRegionLabel,
             type: "searchable-select",
             // `toRegionOptions` trims its values (see checkout.ts), and
             // `SearchableSelect` resolves the selection with
@@ -2883,7 +2921,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           }
         : {
             id: "billing-region",
-            label: regionLabel,
+            label: textRegionLabel,
             type: "text",
             value: this.#toText(billingAddress.region),
           },

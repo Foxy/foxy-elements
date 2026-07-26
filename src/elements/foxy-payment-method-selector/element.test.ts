@@ -3570,7 +3570,12 @@ describe("billing region options", () => {
   // (or omit this particular id from it). Either way `#formatMessage` must
   // degrade to the plain default rather than throwing or showing a raw
   // message id.
-  it("falls back to the generic 'Region' label when language_strings lacks the country's region-type id", async () => {
+  it("falls back to the natural per-type default ('Prefecture') when language_strings lacks the country's region-type id", async () => {
+    // Every region-type id gets its own natural default now (state/province/
+    // county/canton/prefecture), not one shared generic "Region" — see
+    // REGION_LABEL_FALLBACKS. The store's language_strings still wins when
+    // present (see "labels the field from the country's region type" above);
+    // this only covers what shows before that arrives, or when it's absent.
     const restoreClient = overrideClientState(
       createBillingRegionUpgradeApiState(["23"], "JP"),
     );
@@ -3587,7 +3592,44 @@ describe("billing region options", () => {
       const label = element.shadowRoot?.querySelector(
         "label[for='billing-region']",
       );
-      expect(label?.textContent).toBe("Region");
+      expect(label?.textContent).toBe("Prefecture");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  // A country with no known region type (e.g. France — 242 of 254 countries
+  // have none) must never show a region-type-specific label like "State" on
+  // its plain-text region field: the field is generic, not US-specific.
+  // Regression test for the bug where the dropdown branch's country-aware
+  // label was reused verbatim on the text branch. `checkout_location_state`
+  // is included in `language_strings` here because real store payloads
+  // always carry it (verified against the live store) — the bug is
+  // invisible without it, since `regionLabelMessageId` defaults every
+  // unmapped country to the "state" type, and only a store override turns
+  // that id into the word "State" rather than the JS-level fallback.
+  it("labels the plaintext region field with the generic 'State / Province' string for a country with no known region type", async () => {
+    const restoreClient = overrideClientState(
+      createBillingRegionUpgradeApiState(undefined, "FR", {
+        checkout_location_state: "State",
+      }),
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForRender();
+
+      const input = element.shadowRoot?.querySelector("#billing-region");
+      expect(input?.tagName).toBe("INPUT");
+
+      const label = element.shadowRoot?.querySelector(
+        "label[for='billing-region']",
+      );
+      expect(label?.textContent).toBe("State / Province");
     } finally {
       element.remove();
       restoreClient();
