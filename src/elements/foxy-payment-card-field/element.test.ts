@@ -105,7 +105,7 @@ describe("PaymentCardFieldElement", () => {
     },
   );
 
-  it("observes explicit translation attributes and omits demo attributes", () => {
+  it("observes explicit translation and template-set-id attributes and omits demo attributes", () => {
     expect(PaymentCardFieldElement.observedAttributes).toContain(
       "translation-card-number-label",
     );
@@ -113,6 +113,11 @@ describe("PaymentCardFieldElement", () => {
       "translation-card-csc-placeholder",
     );
     expect(PaymentCardFieldElement.observedAttributes).toContain("disabled");
+    // INTERIM: template-set-id is now a real observed attribute. Removed by
+    // docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
+    expect(PaymentCardFieldElement.observedAttributes).toContain(
+      "template-set-id",
+    );
     expect(PaymentCardFieldElement.observedAttributes).not.toContain(
       "demo-mode",
     );
