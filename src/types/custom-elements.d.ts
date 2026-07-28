@@ -36,6 +36,10 @@ type CardEmbedElementProps = Omit<
   mode?: "card" | "card_csc";
   disabled?: boolean;
   lang?: string;
+  // INTERIM: forwarded to the embed so it can fetch its gateway_id. Removed by
+  // docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
+  templateSetId?: number;
+  "template-set-id"?: string | number;
   translationCardNumberLabel?: string;
   translationCardNumberPlaceholder?: string;
   translationCardExpirationLabel?: string;

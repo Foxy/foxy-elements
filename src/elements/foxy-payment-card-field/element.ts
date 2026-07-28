@@ -36,6 +36,9 @@ type EmbedValidationCode =
 
 export type PaymentCardFieldOption = {
   mode: PaymentCardFieldMode;
+  // INTERIM: forwarded to the embed so it can fetch its gateway_id. Removed by
+  // docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
+  templateSetId?: number;
   translationCardNumberLabel?: string;
   translationCardNumberPlaceholder?: string;
   translationCardExpirationLabel?: string;
@@ -92,6 +95,7 @@ const THEME_QUERY_ATTRIBUTE_NAMES = Object.keys(
 const MODE_ATTRIBUTE = "mode";
 const DISABLED_ATTRIBUTE = "disabled";
 const LANG_ATTRIBUTE = "lang";
+const TEMPLATE_SET_ID_ATTRIBUTE = "template-set-id";
 const TRANSLATION_CARD_NUMBER_LABEL_ATTRIBUTE = "translation-card-number-label";
 const TRANSLATION_CARD_NUMBER_PLACEHOLDER_ATTRIBUTE =
   "translation-card-number-placeholder";
@@ -202,6 +206,14 @@ function normalizeMode(value: string | null | undefined): PaymentCardFieldMode {
   return value === "card_csc" ? "card_csc" : "card";
 }
 
+function normalizeTemplateSetId(
+  value: string | null | undefined,
+): number | undefined {
+  if (value === null || value === undefined) return undefined;
+  const parsed = Number.parseInt(value.trim(), 10);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
 const ThemeableHTMLElement = ThemeMixin(HTMLElement);
 
 export class PaymentCardFieldElement extends ThemeableHTMLElement {
@@ -212,6 +224,7 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
       MODE_ATTRIBUTE,
       DISABLED_ATTRIBUTE,
       LANG_ATTRIBUTE,
+      TEMPLATE_SET_ID_ATTRIBUTE,
       ...TRANSLATION_ATTRIBUTE_NAMES,
       ...ThemeableHTMLElement.themeAttributeNames,
     ];
@@ -220,6 +233,7 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
   private _disabled = false;
   private _mode: PaymentCardFieldMode = "card";
   private _lang: string | undefined;
+  private _templateSetId: number | undefined;
   private _iframe: HTMLIFrameElement | null = null;
   private _port: MessagePort | null = null;
   private _fallbackRequestCounter = 0;
@@ -245,6 +259,9 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
     this._disabled = this.hasAttribute(DISABLED_ATTRIBUTE);
     this._mode = normalizeMode(this.getAttribute(MODE_ATTRIBUTE));
     this._lang = this.getAttribute(LANG_ATTRIBUTE)?.trim() || undefined;
+    this._templateSetId = normalizeTemplateSetId(
+      this.getAttribute(TEMPLATE_SET_ID_ATTRIBUTE),
+    );
     this._syncPublicStates();
   }
 
@@ -304,6 +321,23 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
     }
 
     this._syncAggregateValidity();
+    if (this.isConnected) this._mountIframe();
+  }
+
+  get templateSetId(): number | undefined {
+    return this._templateSetId;
+  }
+
+  set templateSetId(value: number | undefined) {
+    if (this._templateSetId === value) return;
+
+    this._templateSetId = value;
+    if (value === undefined) {
+      this.removeAttribute(TEMPLATE_SET_ID_ATTRIBUTE);
+    } else if (this.getAttribute(TEMPLATE_SET_ID_ATTRIBUTE) !== String(value)) {
+      this.setAttribute(TEMPLATE_SET_ID_ATTRIBUTE, String(value));
+    }
+
     if (this.isConnected) this._mountIframe();
   }
 
@@ -418,6 +452,12 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
 
     if (name === LANG_ATTRIBUTE) {
       this._lang = newValue?.trim() || undefined;
+      if (this.isConnected) this._mountIframe();
+      return;
+    }
+
+    if (name === TEMPLATE_SET_ID_ATTRIBUTE) {
+      this._templateSetId = normalizeTemplateSetId(newValue);
       if (this.isConnected) this._mountIframe();
       return;
     }
@@ -611,6 +651,12 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
 
     if (this._lang) {
       url.searchParams.set("lang", this._lang);
+    }
+
+    // INTERIM: lets the embed fetch its gateway_id. Removed by
+    // docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
+    if (this._templateSetId !== undefined) {
+      url.searchParams.set("template_set_id", String(this._templateSetId));
     }
 
     for (const attrName of THEME_QUERY_ATTRIBUTE_NAMES) {

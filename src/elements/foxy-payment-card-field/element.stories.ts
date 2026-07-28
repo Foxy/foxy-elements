@@ -22,6 +22,7 @@ type CardStoryArgs = {
   mode: (typeof CARD_MODE_OPTIONS)[number];
   lang: string;
   disabled: boolean;
+  templateSetId: number;
   requestId: string;
   token: string;
   errorCode: CardEmbedTokenizeErrorCode;
@@ -51,6 +52,7 @@ const meta = {
     mode: "card",
     lang: "en-US",
     disabled: false,
+    templateSetId: 1857,
     requestId: "card-story-request-1",
     token: "tok_story_card_12345",
     errorCode: "tokenization_failed",
@@ -76,7 +78,7 @@ function getPrimaryField(canvasElement: HTMLElement): PaymentCardFieldElement {
 export const ApiPlayground: Story = {
   parameters: {
     controls: {
-      include: ["mode", "lang", "disabled"],
+      include: ["mode", "lang", "disabled", "templateSetId"],
     },
     docs: {
       description: {
@@ -96,8 +98,13 @@ export const ApiPlayground: Story = {
         "Optional BCP 47 locale tag forwarded to the hosted card iframe (for example, en-US).",
     },
     disabled: { control: "boolean" },
+    templateSetId: {
+      control: "number",
+      description:
+        "Template set id forwarded to the hosted card iframe as template_set_id, which the embed uses to fetch its gateway config.",
+    },
   },
-  render: ({ mode, lang, disabled }) => {
+  render: ({ mode, lang, disabled, templateSetId }) => {
     const surface = createCardSurface();
     const item = createLabeledField({
       id: "card-api-playground",
@@ -106,6 +113,7 @@ export const ApiPlayground: Story = {
       role: "primary",
     });
     item.field.lang = lang;
+    item.field.templateSetId = templateSetId;
 
     attachActionLogging(item.field, "api-playground");
     surface.append(

@@ -76,6 +76,8 @@ export default function CardOptionEmbed({
     if (!element || !option.hostedCard) return;
 
     element.mode = option.hostedCard.mode;
+    // INTERIM: see docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
+    element.templateSetId = option.hostedCard.templateSetId;
     element.disabled = Boolean(disabled);
 
     const controller: PaymentController = {

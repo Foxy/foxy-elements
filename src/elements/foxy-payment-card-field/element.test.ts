@@ -105,7 +105,7 @@ describe("PaymentCardFieldElement", () => {
     },
   );
 
-  it("observes explicit translation attributes and omits demo/template attributes", () => {
+  it("observes explicit translation attributes and omits demo attributes", () => {
     expect(PaymentCardFieldElement.observedAttributes).toContain(
       "translation-card-number-label",
     );
@@ -113,9 +113,6 @@ describe("PaymentCardFieldElement", () => {
       "translation-card-csc-placeholder",
     );
     expect(PaymentCardFieldElement.observedAttributes).toContain("disabled");
-    expect(PaymentCardFieldElement.observedAttributes).not.toContain(
-      "template-set-id",
-    );
     expect(PaymentCardFieldElement.observedAttributes).not.toContain(
       "demo-mode",
     );
