@@ -1671,6 +1671,15 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return cards.length ? cards : undefined;
   }
 
+  // INTERIM: the card embed needs its store's gateway_id, which it fetches using
+  // template_set_id. Removed by
+  // docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
+  #resolveTemplateSetId(
+    apiState: Record<string, unknown> | null,
+  ): number | undefined {
+    return this.#toNumber(this.#asRecord(apiState?.template_set)?.id);
+  }
+
   #resolveApiState(): Record<string, unknown> | null {
     const state = this.#asRecord(this.#checkoutClient?.state);
     if (state) return state;
@@ -2630,6 +2639,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             type === "new-card"
               ? {
                   mode: "card",
+                  templateSetId: this.#resolveTemplateSetId(apiState),
                 }
               : undefined,
           paypalPlatform,
@@ -2654,6 +2664,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           acceptedBrands: acceptedBrands?.length ? acceptedBrands : undefined,
           hostedCard: {
             mode: "card",
+            templateSetId: this.#resolveTemplateSetId(apiState),
           },
         },
       ];
