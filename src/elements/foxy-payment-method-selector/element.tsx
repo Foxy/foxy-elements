@@ -2639,6 +2639,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             type === "new-card"
               ? {
                   mode: "card",
+                  // INTERIM: see docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
                   templateSetId: this.#resolveTemplateSetId(apiState),
                 }
               : undefined,
@@ -2664,6 +2665,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           acceptedBrands: acceptedBrands?.length ? acceptedBrands : undefined,
           hostedCard: {
             mode: "card",
+            // INTERIM: see docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
             templateSetId: this.#resolveTemplateSetId(apiState),
           },
         },
