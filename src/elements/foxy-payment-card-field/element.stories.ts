@@ -22,6 +22,9 @@ type CardStoryArgs = {
   mode: (typeof CARD_MODE_OPTIONS)[number];
   lang: string;
   disabled: boolean;
+  // INTERIM: exercises the story harness for the embed's gateway_id lookup.
+  // Removed by
+  // docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
   templateSetId: number;
   requestId: string;
   token: string;
