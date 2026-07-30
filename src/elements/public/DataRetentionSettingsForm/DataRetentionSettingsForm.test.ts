@@ -42,19 +42,19 @@ describe('DataRetentionSettingsForm', () => {
 
     it('produces "auto-anonymize-days:v8n_too_small" when below 90', () => {
       const element = new Form();
-      element.edit({ auto_anonymize_days: 89 });
+      element.edit({ data_retention: { auto_anonymize: false, auto_anonymize_days: 89 } });
       expect(element.errors).to.include('auto-anonymize-days:v8n_too_small');
 
-      element.edit({ auto_anonymize_days: 90 });
+      element.edit({ data_retention: { auto_anonymize: false, auto_anonymize_days: 90 } });
       expect(element.errors).to.not.include('auto-anonymize-days:v8n_too_small');
     });
 
     it('requires days when auto_anonymize is enabled', () => {
       const element = new Form();
-      element.edit({ auto_anonymize: true });
+      element.edit({ data_retention: { auto_anonymize: true, auto_anonymize_days: null } });
       expect(element.errors).to.include('auto-anonymize-days:v8n_required');
 
-      element.edit({ auto_anonymize_days: 365 });
+      element.edit({ data_retention: { auto_anonymize: true, auto_anonymize_days: 365 } });
       expect(element.errors).to.not.include('auto-anonymize-days:v8n_required');
     });
   });
@@ -74,7 +74,7 @@ describe('DataRetentionSettingsForm', () => {
         html`<foxy-data-retention-settings-form></foxy-data-retention-settings-form>`
       );
 
-      element.edit({ auto_anonymize: false });
+      element.edit({ data_retention: { auto_anonymize: false, auto_anonymize_days: null } });
       expect(element.hiddenSelector.matches('general:auto-anonymize-days', true)).to.be.true;
     });
 
@@ -83,7 +83,7 @@ describe('DataRetentionSettingsForm', () => {
         html`<foxy-data-retention-settings-form></foxy-data-retention-settings-form>`
       );
 
-      element.edit({ auto_anonymize: true });
+      element.edit({ data_retention: { auto_anonymize: true, auto_anonymize_days: 365 } });
       expect(element.hiddenSelector.matches('general:auto-anonymize-days', true)).to.be.false;
     });
   });
@@ -105,7 +105,7 @@ describe('DataRetentionSettingsForm', () => {
       html`<foxy-data-retention-settings-form></foxy-data-retention-settings-form>`
     );
 
-    element.edit({ auto_anonymize: true });
+    element.edit({ data_retention: { auto_anonymize: true, auto_anonymize_days: 365 } });
     await element.requestUpdate();
 
     const control = element.renderRoot.querySelector(
@@ -114,5 +114,26 @@ describe('DataRetentionSettingsForm', () => {
 
     expect(control).to.exist;
     expect(control).to.have.attribute('min', '90');
+  });
+
+  it('reads and writes auto_anonymize via the store data_retention field', async () => {
+    const element = await fixture<Form>(
+      html`<foxy-data-retention-settings-form></foxy-data-retention-settings-form>`
+    );
+
+    element.edit({ data_retention: { auto_anonymize: true, auto_anonymize_days: 120 } });
+    await element.requestUpdate();
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-switch-control[infer="auto-anonymize"]'
+    ) as HTMLElement & { getValue: () => unknown; setValue: (v: unknown) => void };
+
+    expect(control.getValue()).to.equal(true);
+
+    control.setValue(false);
+    expect(element.form.data_retention).to.deep.equal({
+      auto_anonymize: false,
+      auto_anonymize_days: 120,
+    });
   });
 });

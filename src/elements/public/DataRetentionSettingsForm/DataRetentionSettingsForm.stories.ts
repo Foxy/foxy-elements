@@ -5,8 +5,8 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.api/hapi/data_retention_settings/0',
-  parent: 'https://demo.api/hapi/data_retention_settings',
+  href: 'https://demo.api/hapi/stores/0',
+  parent: 'https://demo.api/hapi/stores',
   nucleon: true,
   localName: 'foxy-data-retention-settings-form',
   translatable: true,
