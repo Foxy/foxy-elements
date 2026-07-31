@@ -11,3 +11,5 @@ __screenshots__
 .tmp
 .certs
 .playwright-mcp
+.superpowers
+docs/superpowers
