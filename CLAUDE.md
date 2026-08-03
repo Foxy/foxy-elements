@@ -26,6 +26,8 @@
 - Use `@foxy.io/design-system` (Base UI + styled-components) as the shared UI layer. Import components from their per-component subpaths, e.g. `@foxy.io/design-system/field` (compound: `Field.Root`, `Field.Label`, …), `@foxy.io/design-system/button`. There is no `/ui/*` namespace and no shipped `styles.css`. Do not add local `src/components/ui` copies.
 - Style with `styled-components`, reading tokens via `props.theme.tokens.*`; wrap React roots in `ThemeProvider theme={{ tokens: defaultTheme }}` (from `@foxy.io/design-system/theme`).
 - `styled-components`, `@foxy.io/design-system`, and `@foxy.io/sdk` are externalized from the build (see `vite.config.ts` externals). Keep `styled-components` externalized — bundling it gives elements its own instance, so DS components elements renders can't see the consumer's `ThemeProvider` (theme becomes undefined).
+- When styling a hosted-field custom element (`foxy-payment-card-field`, `foxy-ach-field`) with a border, set `box-sizing: border-box`. DS controls are border-box, but these hosts default to content-box, so `width: 100%` / `min-height: size.control` puts the border outside the box and the field renders taller (and wider) than a DS control.
+- `Field.Set` + a visible `Field.Legend` is the DS section-heading pairing. `Field.Set`'s grid `gap` never applies to the legend (a `<legend>` is the fieldset's rendered legend, outside the grid), so space below the heading comes only from `Field.Legend`'s own `margin-bottom` — don't zero it expecting the gap to cover it.
 
 ## API Conventions
 

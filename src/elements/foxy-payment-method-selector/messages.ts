@@ -122,173 +122,13 @@ export const messages = defineMessages({
     id: "payment_option_description_stripe_payment_element",
     defaultMessage: "Select a payment method and enter your details below.",
   },
-  optionDescriptionAdyenEmbedded: {
-    id: "payment_option_description_adyen_embedded",
-    defaultMessage:
-      "Enter your payment details below and click the Submit button below the order summary to submit your order.",
-  },
   optionDescriptionPurchaseOrder: {
     id: "payment_option_description_purchase_order",
     defaultMessage: "Enter your purchase order number below.",
   },
-  optionDescriptionKlarna: {
-    id: "payment_option_description_klarna",
-    defaultMessage:
-      "Pay now, in 30 days, in 4 payments of {installmentAmount}, or as low as {monthlyAmount}/month. Click Continue with Klarna under the order summary to place your order.",
-  },
-  optionDescriptionKlarnaDefault: {
-    id: "payment_option_description_klarna_default",
-    defaultMessage:
-      "Click Continue with Klarna under the order summary to place your order.",
-  },
-  optionDescriptionKlarnaPayLater: {
-    id: "payment_option_description_klarna_pay_later",
-    defaultMessage:
-      "Buy now, pay in 30 days. Click Continue with Klarna under the order summary to place your order.",
-  },
-  optionDescriptionKlarnaPayInX: {
-    id: "payment_option_description_klarna_pay_in_x",
-    defaultMessage:
-      "4 interest-free payments of {installmentAmount}. Click Continue with Klarna under the order summary to place your order.",
-  },
-  optionDescriptionKlarnaPayOverTime: {
-    id: "payment_option_description_klarna_pay_over_time",
-    defaultMessage:
-      "As low as {monthlyAmount}/month. Click Continue with Klarna under the order summary to place your order.",
-  },
-  optionDescriptionKlarnaPayNow: {
-    id: "payment_option_description_klarna_pay_now",
-    defaultMessage:
-      "Pay now. Click Continue with Klarna under the order summary to place your order.",
-  },
   optionDescriptionAch: {
     id: "payment_option_description_ach",
     defaultMessage: "Enter your bank account details below.",
-  },
-  optionDescriptionApplePay: {
-    id: "payment_option_description_apple_pay",
-    defaultMessage:
-      "Click the Apple Pay button under the order summary to submit your order.",
-  },
-  optionDescriptionGooglePay: {
-    id: "payment_option_description_google_pay",
-    defaultMessage:
-      "Click the Google Pay button under the order summary to submit your order.",
-  },
-  optionDescriptionMollie: {
-    id: "payment_option_description_mollie",
-    defaultMessage:
-      "Click Continue with Mollie under the order summary to pay.",
-  },
-  optionDescriptionSezzle: {
-    id: "payment_option_description_sezzle",
-    defaultMessage:
-      "Click the Sezzle button under the order summary to submit your order.",
-  },
-  optionDescriptionPayPal: {
-    id: "payment_option_description_paypal",
-    defaultMessage:
-      "Click the PayPal button under the order summary to submit your order.",
-  },
-  optionDescriptionPayPalPayLater: {
-    id: "payment_option_description_paypal_pay_later",
-    defaultMessage:
-      "Click the PayPal Pay Later button under the order summary to submit your order.",
-  },
-  optionDescriptionPayPalCredit: {
-    id: "payment_option_description_paypal_credit",
-    defaultMessage:
-      "Click the PayPal Credit button under the order summary to submit your order.",
-  },
-  optionDescriptionVenmo: {
-    id: "payment_option_description_venmo",
-    defaultMessage:
-      "Click Continue with Venmo under the order summary to submit your order.",
-  },
-  optionDescriptionSepa: {
-    id: "payment_option_description_sepa",
-    defaultMessage:
-      "Click the SEPA button under the order summary to submit your order.",
-  },
-  optionDescriptionBancontact: {
-    id: "payment_option_description_bancontact",
-    defaultMessage:
-      "Click Continue with Bancontact under the order summary to submit your order.",
-  },
-  optionDescriptionEps: {
-    id: "payment_option_description_eps",
-    defaultMessage:
-      "Click Continue with EPS under the order summary to submit your order.",
-  },
-  optionDescriptionBlik: {
-    id: "payment_option_description_blik",
-    defaultMessage:
-      "Click Continue with BLIK under the order summary to submit your order.",
-  },
-  optionDescriptionIdeal: {
-    id: "payment_option_description_ideal",
-    defaultMessage:
-      "Click Continue with iDEAL under the order summary to submit your order.",
-  },
-  optionDescriptionPrzelewy24: {
-    id: "payment_option_description_przelewy24",
-    defaultMessage:
-      "Click Continue with Przelewy24 under the order summary to submit your order.",
-  },
-  optionDescriptionAlipay: {
-    id: "payment_option_description_alipay",
-    defaultMessage:
-      "Click the Alipay button below the order summary to submit your order.",
-  },
-  optionDescriptionPaysafecard: {
-    id: "payment_option_description_paysafecard",
-    defaultMessage:
-      "Click the Paysafecard button below the order summary to submit your order.",
-  },
-  optionDescriptionCashApp: {
-    id: "payment_option_description_cash_app",
-    defaultMessage:
-      "Click the Cash App Pay button below the order summary to submit your order.",
-  },
-  optionDescriptionWeChat: {
-    id: "payment_option_description_we_chat",
-    defaultMessage:
-      "Click the WeChat Pay button below the order summary to submit your order.",
-  },
-  optionDescriptionBankTransfer: {
-    id: "payment_option_description_bank_transfer",
-    defaultMessage:
-      "Click the bank transfer button below the order summary to submit your order.",
-  },
-  optionDescriptionBizum: {
-    id: "payment_option_description_bizum",
-    defaultMessage:
-      "Click the Bizum button below the order summary to submit your order.",
-  },
-  optionDescriptionZip: {
-    id: "payment_option_description_zip",
-    defaultMessage:
-      "Click the Zip button below the order summary to submit your order.",
-  },
-  optionDescriptionSwish: {
-    id: "payment_option_description_swish",
-    defaultMessage:
-      "Click the Swish button below the order summary to submit your order.",
-  },
-  optionDescriptionVipps: {
-    id: "payment_option_description_vipps",
-    defaultMessage:
-      "Click the Vipps button below the order summary to submit your order.",
-  },
-  optionDescriptionZipPos: {
-    id: "payment_option_description_zip_pos",
-    defaultMessage:
-      "Click the Zip POS button below the order summary to submit your order.",
-  },
-  optionDescriptionTwint: {
-    id: "payment_option_description_twint",
-    defaultMessage:
-      "Click Continue with TWINT below the order summary to submit your order.",
   },
   optionViaGateway: {
     id: "payment_option_via_gateway",
@@ -300,15 +140,13 @@ export const messages = defineMessages({
   },
   billingAddressTitle: {
     id: "checkout_billing_address_label",
-    defaultMessage: "Billing Address",
+    defaultMessage: "Billing address",
   },
-  addBillingAddress: {
-    id: "payment_add_billing_address",
-    defaultMessage: "Add billing address",
-  },
-  useSeparateBillingAddress: {
-    id: "checkout_use_separate_billing_address",
-    defaultMessage: "Use separate billing address",
+  // Inverted on purpose: the control offers the default (reuse shipping), while
+  // the value reported upstream stays `use_separate_billing_address`.
+  useShippingAddressForBilling: {
+    id: "checkout_use_shipping_address_for_billing",
+    defaultMessage: "Use shipping address for billing",
   },
   billingFirstName: {
     id: "payment_billing_first_name_label",
@@ -442,16 +280,6 @@ export const messages = defineMessages({
     id: "payment_adyen_submit_error",
     defaultMessage: "Unable to submit this payment method. Try again.",
   },
-  optionDescriptionSquareUpAfterpay: {
-    id: "payment_option_description_square_up_afterpay",
-    defaultMessage:
-      "Click the Afterpay button under the order summary to submit your order.",
-  },
-  optionDescriptionSquareUpAch: {
-    id: "payment_option_description_square_up_ach",
-    defaultMessage:
-      "Click the Submit button under the order summary to submit your order.",
-  },
   squareUpLoading: {
     id: "payment_square_up_loading",
     defaultMessage: "Loading payment details...",
@@ -534,34 +362,6 @@ export const OPTION_DESCRIPTION_BY_TYPE: Partial<
   "stripe-payment-element": messages.optionDescriptionStripePaymentElement,
   "purchase-order": messages.optionDescriptionPurchaseOrder,
   ach: messages.optionDescriptionAch,
-  "apple-pay": messages.optionDescriptionApplePay,
-  "google-pay": messages.optionDescriptionGooglePay,
-  mollie: messages.optionDescriptionMollie,
-  sezzle: messages.optionDescriptionSezzle,
-  paypal: messages.optionDescriptionPayPal,
-  "paypal-pay-later": messages.optionDescriptionPayPalPayLater,
-  "paypal-credit": messages.optionDescriptionPayPalCredit,
-  venmo: messages.optionDescriptionVenmo,
-  sepa: messages.optionDescriptionSepa,
-  bancontact: messages.optionDescriptionBancontact,
-  eps: messages.optionDescriptionEps,
-  blik: messages.optionDescriptionBlik,
-  ideal: messages.optionDescriptionIdeal,
-  przelewy24: messages.optionDescriptionPrzelewy24,
-  alipay: messages.optionDescriptionAlipay,
-  paysafecard: messages.optionDescriptionPaysafecard,
-  "cash-app": messages.optionDescriptionCashApp,
-  swish: messages.optionDescriptionSwish,
-  vipps: messages.optionDescriptionVipps,
-  "we-chat": messages.optionDescriptionWeChat,
-  "we-chat-qr": messages.optionDescriptionWeChat,
-  "we-chat-web": messages.optionDescriptionWeChat,
-  "we-chat-mini-program": messages.optionDescriptionWeChat,
-  "bank-transfer": messages.optionDescriptionBankTransfer,
-  bizum: messages.optionDescriptionBizum,
-  zip: messages.optionDescriptionZip,
-  "zip-pos": messages.optionDescriptionZipPos,
-  twint: messages.optionDescriptionTwint,
 };
 
 // "billing-region" is deliberately absent here: `billing.tsx` prefers this
@@ -589,8 +389,7 @@ export const BILLING_FIELD_LABEL_BY_ID: Partial<
 
 export const BILLING_SECTION_MESSAGES = {
   billingAddressTitle: messages.billingAddressTitle,
-  addBillingAddress: messages.addBillingAddress,
-  useSeparateBillingAddress: messages.useSeparateBillingAddress,
+  useShippingAddressForBilling: messages.useShippingAddressForBilling,
   selectPlaceholder: messages.selectPlaceholder,
   searchPlaceholder: messages.searchPlaceholder,
   noResults: messages.noResults,

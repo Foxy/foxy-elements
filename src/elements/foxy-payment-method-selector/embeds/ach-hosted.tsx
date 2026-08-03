@@ -8,14 +8,18 @@ import type { HostedFieldStyleAttributes } from "../stripe/style-hooks";
 import type { PaymentController, PaymentMethodSelectorOption } from "../types";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Check } from "lucide-react";
 import { Checkbox } from "@foxy.io/design-system/checkbox";
 import { Field } from "@foxy.io/design-system/field";
 import { styled } from "styled-components";
 
+// space.md is the rhythm the design system's Field.Group uses between fields,
+// and what billing.tsx uses between its own rows and error text. This was sm,
+// which put the tokenization error closer to the fields than anywhere else.
 const AchFieldsRoot = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${(props) => props.theme.tokens.space.sm};
+  gap: ${(props) => props.theme.tokens.space.md};
 `;
 
 const AchFieldGrid = styled(Field.Group)`
@@ -57,6 +61,10 @@ const StyledAchField = styled("foxy-ach-field")`
   border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
   display: block;
   width: 100%;
+  /* Without this, min-height sizes the content box, so the 2px border adds on
+     top of it: the field renders 4px taller than a design system control and
+     leaves 4px of dead space below the 36px hosted iframe. */
+  box-sizing: border-box;
   min-height: ${(props) => props.theme.tokens.size.control};
   overflow: hidden;
   position: relative;
@@ -225,7 +233,9 @@ export default function AchOptionEmbed({
               }}
               aria-label={ownerConfirmationLabel}
             >
-              <Checkbox.Indicator />
+              <Checkbox.Indicator>
+                <Check size="0.875rem" />
+              </Checkbox.Indicator>
             </Checkbox.Root>
             <Field.Label htmlFor={`ach-owner-confirmation-${option.id}`}>
               {ownerConfirmationLabel}

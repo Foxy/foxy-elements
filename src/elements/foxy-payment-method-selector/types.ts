@@ -151,13 +151,6 @@ export type PaymentMethodSelectorPayPalPlatformConfig = {
   orderId?: string;
 };
 
-export type PaymentMethodSelectorPayPalMessage = {
-  amount?: string;
-  currencyCode?: string;
-  buyerCountry?: string;
-  locale?: string;
-};
-
 export type PaymentMethodSelectorPayPalPlatformTokenizePayload = {
   paypalPlatform: PaymentMethodSelectorPayPalPlatformConfig & {
     orderId?: string;
@@ -219,7 +212,6 @@ export type PaymentMethodSelectorOption = {
   adyenEmbedded?: PaymentMethodSelectorAdyenEmbeddedConfig;
   squareUp?: PaymentMethodSelectorSquareUpConfig;
   paypalPlatform?: PaymentMethodSelectorPayPalPlatformConfig;
-  paypalMessage?: PaymentMethodSelectorPayPalMessage;
   savedPaymentMethodId?: string;
   cardBrand?: string;
   last4?: string;

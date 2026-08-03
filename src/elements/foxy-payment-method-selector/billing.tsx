@@ -10,7 +10,6 @@ import type {
 import { useEffect, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { Check, ChevronDown } from "lucide-react";
-import { Button } from "@foxy.io/design-system/button";
 import { Checkbox } from "@foxy.io/design-system/checkbox";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
@@ -22,8 +21,12 @@ const FullWidthSelectTrigger = styled(Select.Trigger)`
   width: 100%;
 `;
 
-const BillingFieldSet = styled(Field.Set)`
-  margin-top: ${(props) => props.theme.tokens.space.md};
+// Uniform space.md rhythm inside the section: the fieldset's grid gap spaces
+// the toggle, the fields, and the error from each other, while the legend keeps
+// the design system's own margin-bottom — a `<legend>` is the fieldset's
+// rendered legend, so it sits outside the grid and the gap never applies to it.
+const BillingSection = styled(Field.Set)`
+  gap: ${(props) => props.theme.tokens.space.md};
 `;
 
 const BillingFieldGrid = styled(Field.Group)`
@@ -46,44 +49,6 @@ const ErrorText = styled.p`
   font: ${(props) => props.theme.tokens.font.body};
   font-size: 0.875rem;
   color: ${(props) => props.theme.tokens.color.error};
-`;
-
-const BillingRoot = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${(props) => props.theme.tokens.space.sm};
-`;
-
-const SummaryButtonBody = styled.span`
-  display: flex;
-  flex-direction: column;
-  gap: ${(props) => props.theme.tokens.space.xs};
-  text-align: left;
-`;
-
-const SummaryButtonTitle = styled.span`
-  font-weight: 600;
-`;
-
-const SummaryButtonLine = styled.span`
-  font: ${(props) => props.theme.tokens.font.body};
-  font-size: 0.875rem;
-  color: ${(props) => props.theme.tokens.color.secondary};
-`;
-
-const SummaryButton = styled(Button)`
-  height: auto;
-  width: 100%;
-  justify-content: flex-start;
-  align-items: flex-start;
-  padding: ${(props) => props.theme.tokens.space.sm} ${(props) => props.theme.tokens.space.md};
-  background: transparent;
-  color: ${(props) => props.theme.tokens.color.body};
-  border: ${(props) => props.theme.tokens.border.field};
-
-  &:hover {
-    background: ${(props) => props.theme.tokens.background.disabledField};
-  }
 `;
 
 // Field.Root's own base styles are \`display: grid\` (label stacked above
@@ -118,8 +83,7 @@ function getBillingAddressSignature(
 
 type BillingSectionMessages = {
   billingAddressTitle: MessageDescriptor;
-  addBillingAddress: MessageDescriptor;
-  useSeparateBillingAddress: MessageDescriptor;
+  useShippingAddressForBilling: MessageDescriptor;
   selectPlaceholder: MessageDescriptor;
   searchPlaceholder: MessageDescriptor;
   noResults: MessageDescriptor;
@@ -135,26 +99,6 @@ function buildInitialBillingValues(
       field.value ?? "",
     ]),
   );
-}
-
-function getBillingSummaryLines(values: Record<string, string>) {
-  const name = [values["billing-first-name"], values["billing-last-name"]]
-    .filter(Boolean)
-    .join(" ");
-  const company = values["billing-company"];
-  const address1 = values["billing-address1"];
-  const address2 = values["billing-address2"];
-  const cityLine = [
-    values["billing-city"],
-    values["billing-region"],
-    values["billing-postal-code"],
-    values["billing-country"],
-  ]
-    .filter(Boolean)
-    .join(", ");
-  const phone = values["billing-phone"];
-
-  return [name, company, address1, address2, cityLine, phone].filter(Boolean);
 }
 
 function renderBillingField(
@@ -272,7 +216,6 @@ export function BillingAddressSection({
   const [useSeparateBillingAddress, setUseSeparateBillingAddress] = useState(
     Boolean(billingAddress?.useSeparateBillingAddress),
   );
-  const [showSummaryEditor, setShowSummaryEditor] = useState(false);
   const [values, setValues] = useState<Record<string, string>>(() =>
     buildInitialBillingValues(billingAddress),
   );
@@ -342,7 +285,6 @@ export function BillingAddressSection({
     setUseSeparateBillingAddress(
       Boolean(billingAddress?.useSeparateBillingAddress),
     );
-    setShowSummaryEditor(false);
     setValues(buildInitialBillingValues(billingAddress));
     lastReportedChangeRef.current = null;
   }, [billingAddress, option.id]);
@@ -383,8 +325,7 @@ export function BillingAddressSection({
   }
 
   const fieldsMarkup = (
-    <BillingFieldSet>
-      <BillingFieldGrid>
+    <BillingFieldGrid>
         {billingAddress.fields.map((field) => {
           const labelDescriptor = fieldLabelById[field.id];
           const label = labelDescriptor
@@ -409,8 +350,7 @@ export function BillingAddressSection({
             </BillingFieldItem>
           );
         })}
-      </BillingFieldGrid>
-    </BillingFieldSet>
+    </BillingFieldGrid>
   );
 
   const errorMarkup = billingError ? (
@@ -420,71 +360,43 @@ export function BillingAddressSection({
     </ErrorText>
   ) : null;
 
-  if (option.type === "saved-card") {
-    if (showSummaryEditor) {
-      return (
-        <BillingRoot onBlur={flushBillingAddressReport}>
-          {fieldsMarkup}
-          {errorMarkup}
-        </BillingRoot>
-      );
-    }
-
-    const summaryLines = getBillingSummaryLines(values);
-    return (
-      <BillingRoot>
-        <SummaryButton
-          type="button"
-          disabled={disabled}
-          onClick={() => setShowSummaryEditor(true)}
-        >
-          <SummaryButtonBody>
-            <SummaryButtonTitle>
-              {intl.formatMessage(messages.billingAddressTitle)}
-            </SummaryButtonTitle>
-            {summaryLines.length ? (
-              summaryLines.map((line) => (
-                <SummaryButtonLine key={line}>{line}</SummaryButtonLine>
-              ))
-            ) : (
-              <SummaryButtonLine>
-                {intl.formatMessage(messages.addBillingAddress)}
-              </SummaryButtonLine>
-            )}
-          </SummaryButtonBody>
-        </SummaryButton>
-        {errorMarkup}
-      </BillingRoot>
-    );
-  }
-
   const hasShippingToggle =
     SHOW_SEPARATE_BILLING_ADDRESS_TOGGLE &&
     Boolean(billingAddress.hasShippingAddress);
 
   return (
-    <BillingRoot onBlur={flushBillingAddressReport}>
+    <BillingSection onBlur={flushBillingAddressReport}>
+      <Field.Legend>
+        {intl.formatMessage(messages.billingAddressTitle)}
+      </Field.Legend>
+
       {hasShippingToggle ? (
         <ShippingToggleField>
           <Checkbox.Root
-            id={`use-separate-billing-address-${option.id}`}
-            checked={useSeparateBillingAddress}
+            id={`use-shipping-address-for-billing-${option.id}`}
+            checked={!useSeparateBillingAddress}
             disabled={disabled}
             onCheckedChange={(checked) =>
-              setUseSeparateBillingAddress(Boolean(checked))
+              setUseSeparateBillingAddress(!checked)
             }
-            aria-label={intl.formatMessage(messages.useSeparateBillingAddress)}
+            aria-label={intl.formatMessage(
+              messages.useShippingAddressForBilling,
+            )}
           >
-            <Checkbox.Indicator />
+            <Checkbox.Indicator>
+              <Check size="0.875rem" />
+            </Checkbox.Indicator>
           </Checkbox.Root>
-          <Field.Label htmlFor={`use-separate-billing-address-${option.id}`}>
-            {intl.formatMessage(messages.useSeparateBillingAddress)}
+          <Field.Label
+            htmlFor={`use-shipping-address-for-billing-${option.id}`}
+          >
+            {intl.formatMessage(messages.useShippingAddressForBilling)}
           </Field.Label>
         </ShippingToggleField>
       ) : null}
 
       {(!hasShippingToggle || useSeparateBillingAddress) && fieldsMarkup}
       {errorMarkup}
-    </BillingRoot>
+    </BillingSection>
   );
 }

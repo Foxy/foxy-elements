@@ -28,6 +28,9 @@ const StyledPaymentCardField = styled("foxy-payment-card-field")`
   border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
   display: block;
   width: 100%;
+  /* Without this the 2px border sits outside the 100% width, so the field
+     overhangs its container by 4px and a max-width means 4px more than asked. */
+  box-sizing: border-box;
   overflow: hidden;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 
@@ -44,6 +47,16 @@ const StyledPaymentCardField = styled("foxy-payment-card-field")`
   &:state(disabled) {
     background: ${(props) => props.theme.tokens.background.disabledField};
     opacity: 0.5;
+  }
+
+  /* A security-code-only field holds three or four digits, so it stops growing
+     well before the full card field (number + expiry + CSC in one row) does.
+     Driven by an attribute this file sets rather than a styled-components prop
+     (adding a generic to styled("foxy-payment-card-field") drops the custom
+     element's own JSX attribute typings) and rather than the element's own
+     reflected \`mode\` (which stays absent when the mode is the default). */
+  &[data-csc-only] {
+    max-width: 20rem;
   }
 `;
 
@@ -133,6 +146,9 @@ export default function CardOptionEmbed({
         <Field.Label htmlFor={fieldId}>{fieldLabel}</Field.Label>
       </Field.Root>
       <StyledPaymentCardField
+        data-csc-only={
+          option.hostedCard.mode === "card_csc" ? "true" : undefined
+        }
         id={fieldId}
         lang={lang}
         mode={option.hostedCard.mode}

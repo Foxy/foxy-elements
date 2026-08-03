@@ -1,4 +1,3 @@
-import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
 import type { ReactNode } from "react";
 import type {
   PaymentMethodSelectorBillingError,
@@ -9,7 +8,6 @@ import type {
 
 import {
   Suspense,
-  createElement,
   lazy,
   useEffect,
   useMemo,
@@ -21,17 +19,16 @@ import { BillingAddressSection } from "./billing";
 import { Checkbox } from "@foxy.io/design-system/checkbox";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
+import { Check } from "lucide-react";
 import { Radio } from "@foxy.io/design-system/radio";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
-import { styled, useTheme } from "styled-components";
+import { styled } from "styled-components";
 import {
   type HostedFieldStyleAttributes,
   useHostedFieldStyleAttributes,
 } from "./stripe/style-hooks";
-import { PaymentOptionBrandIcon as PaymentOptionBrandIconComponent } from "./icons/payment-option-brand-icon";
-import { CursorClickButtonIcon } from "./icons/shared";
+import { PaymentOptionBrandIcon } from "./icons/payment-option-brand-icon";
 import {
-  BUTTON_CLICK_HINT_OPTION_TYPES,
   CARD_TYPES,
   GATEWAY_NAME_BY_TYPE,
   ONLINE_BANKING_COUNTRY_BY_TYPE,
@@ -57,9 +54,20 @@ const StripePaymentElementOption = lazy(
   () => import("./embeds/stripe-payment"),
 );
 const AdyenEmbeddedOption = lazy(() => import("./embeds/adyen-embedded"));
-const SquareWebPaymentsOption = lazy(() => import("./embeds/square-web-payments"));
-import { SquareAchAvailabilityProbe, SquareWalletAvailabilityProbe, SquareWalletController } from "./embeds/square-web-payments";
-const SQUARE_WALLET_PROBE_TYPES = new Set(["apple-pay", "google-pay", "cash-app", "afterpay"]);
+const SquareWebPaymentsOption = lazy(
+  () => import("./embeds/square-web-payments"),
+);
+import {
+  SquareAchAvailabilityProbe,
+  SquareWalletAvailabilityProbe,
+  SquareWalletController,
+} from "./embeds/square-web-payments";
+const SQUARE_WALLET_PROBE_TYPES = new Set([
+  "apple-pay",
+  "google-pay",
+  "cash-app",
+  "afterpay",
+]);
 
 // `flex-direction` matters even though this usually has a single child: an
 // Adyen Drop-in is slotted in as a *sibling* of the radio group, and the
@@ -71,6 +79,16 @@ const PaymentOptionsFieldSet = styled(Field.Set)`
   gap: ${(props) => props.theme.tokens.space.sm};
   border: 0;
   padding: 0;
+`;
+
+// The option list and the billing address form are separate blocks: billing is
+// no longer inside an option, and it must not sit inside the options fieldset
+// either, whose legend labels its contents as payment methods. The gap is wider
+// than the one between options so the two read as distinct sections.
+const PaymentLayout = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.tokens.space.xl};
 `;
 
 const VisuallyHiddenLegend = styled(Field.Legend)`
@@ -89,10 +107,9 @@ const OptionRadioGroup = styled(Radio.Group)`
   width: 100%;
 `;
 
-const OptionRow = styled.div<{ $padded?: boolean }>`
-  ${(props) =>
-    props.$padded &&
-    `padding: ${props.theme.tokens.space.sm} ${props.theme.tokens.space.md};`}
+const OptionRow = styled.div`
+  padding: ${(props) => props.theme.tokens.space.sm}
+    ${(props) => props.theme.tokens.space.md};
 `;
 
 // Field.Root's own base styles are \`display: grid\` (label stacked above
@@ -102,75 +119,73 @@ const OptionRow = styled.div<{ $padded?: boolean }>`
 const OptionField = styled(Field.Root)`
   display: flex;
   align-items: flex-start;
+  gap: ${(props) => props.theme.tokens.space.sm};
 `;
 
 const OptionRadioIndicatorWrapper = styled(Radio.Root)`
   margin-top: 0.125rem;
 `;
 
-const OptionFieldContent = styled(Field.Content)<{ $withBrandIcon?: boolean }>`
+const OptionFieldContent = styled(Field.Content)`
   min-width: 0;
   flex: 1;
-
-  ${(props) =>
-    props.$withBrandIcon &&
-    `
-      display: grid;
-      grid-template-columns: max-content minmax(0, 1fr);
-      align-items: start;
-      column-gap: ${props.theme.tokens.space.sm};
-      row-gap: ${props.theme.tokens.space.xs};
-    `}
-`;
-
-const BrandIconSlot = styled.div`
-  grid-row: span 3;
-  padding-top: 0.125rem;
 `;
 
 const OptionFieldLabel = styled(Field.Label)<{
-  $withBrandIcon?: boolean;
   $clickable?: boolean;
 }>`
-  font-size: 0.875rem;
   width: 100%;
   display: flex;
-  ${(props) =>
-    props.$withBrandIcon
-      ? `min-width: 0; grid-column: 2;`
-      : `justify-content: space-between;`}
+  justify-content: space-between;
+  /* A label long enough to fill the row would otherwise butt up against the
+     brand mark, which space-between alone does not prevent. */
+  gap: ${(props) => props.theme.tokens.space.sm};
   ${(props) => props.$clickable && "cursor: pointer;"}
+`;
+
+// Brand marks are shorter than the label's line box, and as bare flex children
+// they stretched to the top of it. This slot is exactly one line tall
+// (font.label is 1rem/1.5) and pinned to the start, so the mark centres on the
+// label's first line and stays there when a long label wraps.
+const OptionBrandMarkSlot = styled.span`
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: 1.5em;
+  flex-shrink: 0;
 `;
 
 const OptionViaLabel = styled.span`
   color: ${(props) => props.theme.tokens.color.secondary};
 `;
 
+const OPTION_BODY_RIGHT_INSET = "xl" as const;
+
 const OptionDescription = styled(Card.Description)<{
-  $withBrandIcon?: boolean;
   $hidden?: boolean;
 }>`
-  font-size: 0.875rem;
-  ${(props) => props.$withBrandIcon && "grid-column: 2;"}
+  padding-right: ${(props) => props.theme.tokens.space[OPTION_BODY_RIGHT_INSET]};
   ${(props) => props.$hidden && "display: none;"}
 `;
 
 const OptionContent = styled(Card.Content)<{
-  $withBrandIcon?: boolean;
   $hidden?: boolean;
-  $topSpacing: "single" | "multi";
 }>`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.theme.tokens.space.sm};
   padding: 0;
-  ${(props) => props.$withBrandIcon && "grid-column: 2;"}
+  padding-right: ${(props) => props.theme.tokens.space[OPTION_BODY_RIGHT_INSET]};
   ${(props) => props.$hidden && "display: none;"}
-  margin-top: ${(props) =>
-    props.$topSpacing === "single"
-      ? props.theme.tokens.space.md
-      : props.theme.tokens.space.md};
-  ${(props) => props.$topSpacing === "multi" && `padding-bottom: ${props.theme.tokens.space.sm};`}
+  margin-top: ${(props) => props.theme.tokens.space.md};
+  padding-bottom: ${(props) => props.theme.tokens.space.sm};
+
+  /* Button-driven options carry no description and no embedded form, so this
+     body is empty unless the checkout also collects a billing address. Without
+     this, the spacing above would show up as an orphaned gap inside the card. */
+  &:empty {
+    display: none;
+  }
 `;
 
 const OptionCard = styled(Card.Root)<{ $clickable?: boolean }>`
@@ -178,10 +193,11 @@ const OptionCard = styled(Card.Root)<{ $clickable?: boolean }>`
   padding-top: 0;
   padding-bottom: 0;
   transition: background-color 150ms ease;
+  border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
   ${(props) => props.$clickable && "cursor: pointer;"}
   ${(props) =>
     props.$clickable &&
-    `&:hover { background: ${props.theme.tokens.background.disabledField}; }`}
+    `&:hover { background: ${props.theme.tokens.background.disabledField}; }`};
 `;
 
 const SkeletonBlock = styled(Skeleton)<{ $height: string }>`
@@ -193,13 +209,6 @@ const Stack = styled.div<{ $gap: "xs" | "sm" | "md" }>`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.theme.tokens.space[props.$gap]};
-`;
-
-// min-width: 0 wrapper for text content sitting beside the click-hint icon,
-// so long descriptions can still shrink/wrap inside the flex row instead of
-// forcing an overflow (was the Tailwind "min-w-0" utility).
-const MinWidthZeroBox = styled.div`
-  min-width: 0;
 `;
 
 const LoadingOptionsWrapper = styled.div`
@@ -268,28 +277,12 @@ type PaymentProps = {
   }) => ReactNode;
   billingAddress?: PaymentMethodSelectorBillingAddress;
   billingError?: PaymentMethodSelectorBillingError;
-  orderTotal?: number;
-  orderCurrencyCode?: string;
   onBillingAddressChange?: (params: {
     optionId: string;
     useSeparateBillingAddress: boolean;
     values: Record<string, string>;
   }) => void;
   portalContainer: ShadowRoot;
-};
-
-type CheckoutClientLike = {
-  paypal?: unknown;
-};
-
-type PayPalMessagesRenderer = {
-  render?: (element: HTMLElement) => Promise<unknown> | unknown;
-};
-
-type PayPalMessagesSdk = {
-  createPayPalMessages?: () =>
-    | PayPalMessagesRenderer
-    | Promise<PayPalMessagesRenderer>;
 };
 
 function getGatewayName(gateway: string): string {
@@ -417,195 +410,26 @@ function getPaymentOptionLabel(
 function getPaymentOptionDescriptionText(
   option: PaymentMethodSelectorOption,
   intl: IntlShape,
-  orderTotal?: number,
-  orderCurrencyCode?: string,
 ): string | undefined {
-  if (option.klarna) {
-    const identifier = option.klarna.category.identifier;
-
-    if (identifier === "pay_later") {
-      return intl.formatMessage(messages.optionDescriptionKlarnaPayLater);
-    }
-    if (identifier === "pay_now") {
-      return intl.formatMessage(messages.optionDescriptionKlarnaPayNow);
-    }
-
-    const hasAmounts =
-      typeof orderTotal === "number" &&
-      Number.isFinite(orderTotal) &&
-      orderTotal > 0 &&
-      orderCurrencyCode;
-
-    if (!hasAmounts) {
-      return intl.formatMessage(messages.optionDescriptionKlarnaDefault);
-    }
-
-    const fmt = (amount: number) =>
-      intl.formatNumber(amount, {
-        style: "currency",
-        currency: orderCurrencyCode,
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
-
-    if (identifier === "pay_in_x") {
-      return intl.formatMessage(messages.optionDescriptionKlarnaPayInX, {
-        installmentAmount: fmt(orderTotal / 4),
-      });
-    }
-    if (identifier === "pay_over_time") {
-      return intl.formatMessage(messages.optionDescriptionKlarnaPayOverTime, {
-        monthlyAmount: fmt(orderTotal / 24),
-      });
-    }
-
-    return intl.formatMessage(messages.optionDescriptionKlarna, {
-      installmentAmount: fmt(orderTotal / 4),
-      monthlyAmount: fmt(orderTotal / 24),
-    });
+  // Klarna, the Adyen Drop-in, and Square's button-driven flows describe
+  // themselves through their own embedded UI. They must not fall through to the
+  // type map either, which would show a form-oriented line that does not match
+  // them (Square ACH would read "Enter your bank account details below.").
+  if (option.klarna || option.adyenEmbedded) {
+    return undefined;
   }
 
-  if (option.adyenEmbedded) {
-    return intl.formatMessage(messages.optionDescriptionAdyenEmbedded);
-  }
-
-  if (option.squareUp && option.type === "afterpay") {
-    return intl.formatMessage(messages.optionDescriptionSquareUpAfterpay);
-  }
-
-  if (option.squareUp && option.type === "ach") {
-    return intl.formatMessage(messages.optionDescriptionSquareUpAch);
+  if (
+    option.squareUp &&
+    (option.type === "ach" || option.type === "afterpay")
+  ) {
+    return undefined;
   }
 
   if (!option.type) return option.description;
   const descriptor = OPTION_DESCRIPTION_BY_TYPE[option.type];
   if (!descriptor) return option.description;
   return intl.formatMessage(descriptor);
-}
-
-// Shared "muted, 48px glyph" treatment for the click-hint icon, mirroring
-// icons/payment-option-brand-icon.tsx's MutedGlyph pattern (styled wrapper
-// sized/colored from theme tokens) but at this call site's larger size.
-const ClickHintIcon = styled.svg`
-  height: 3rem;
-  width: 3rem;
-  color: ${(props) => props.theme.tokens.color.secondary};
-`;
-
-function PayPalPayLaterDescription({
-  option,
-  fallbackText,
-}: {
-  option: PaymentMethodSelectorOption;
-  fallbackText: string;
-}) {
-  const elementRef = useRef<HTMLElement | null>(null);
-  const payPalMessage = option.paypalMessage;
-
-  useEffect(() => {
-    const element = elementRef.current;
-
-    if (!element || !payPalMessage) {
-      return;
-    }
-
-    const paypal = (checkoutClient as CheckoutClientLike).paypal as
-      | PayPalMessagesSdk
-      | null
-      | undefined;
-
-    if (!paypal?.createPayPalMessages) {
-      return;
-    }
-
-    let cancelled = false;
-
-    void Promise.resolve(paypal.createPayPalMessages())
-      .then((messagesRenderer) => {
-        if (cancelled || !messagesRenderer?.render) {
-          return;
-        }
-
-        return messagesRenderer.render(element);
-      })
-      .catch(() => {
-        // Keep the light-DOM fallback visible when PayPal messages are unavailable.
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    payPalMessage,
-    payPalMessage?.amount,
-    payPalMessage?.buyerCountry,
-    payPalMessage?.currencyCode,
-    payPalMessage?.locale,
-  ]);
-
-  return createElement(
-    "paypal-message",
-    {
-      ref: (node: Element | null) => {
-        elementRef.current = node as HTMLElement | null;
-      },
-      style: { display: "block", minHeight: "1.25rem" },
-      "data-paypal-paylater-label": "true",
-      "data-pp-page-type": "checkout",
-      "data-pp-style-layout": "text",
-      "data-pp-style-logo-type": "inline",
-      "data-pp-amount": payPalMessage?.amount,
-      "data-pp-currency": payPalMessage?.currencyCode,
-      "data-pp-buyercountry": payPalMessage?.buyerCountry,
-      "data-pp-locale": payPalMessage?.locale,
-    },
-    fallbackText,
-  );
-}
-
-function renderPaymentOptionDescription(
-  option: PaymentMethodSelectorOption,
-  intl: IntlShape,
-  orderTotal?: number,
-  orderCurrencyCode?: string,
-): ReactNode {
-  const description = getPaymentOptionDescriptionText(option, intl, orderTotal, orderCurrencyCode);
-
-  if (!description) {
-    return null;
-  }
-
-  const content =
-    option.type === "paypal-pay-later" && option.paypalMessage ? (
-      <PayPalPayLaterDescription option={option} fallbackText={description} />
-    ) : (
-      description
-    );
-
-  const isSquareButtonOnly =
-    option.squareUp && (option.type === "ach" || option.type === "afterpay");
-  if (
-    option.adyenEmbedded ||
-    !option.type ||
-    (!BUTTON_CLICK_HINT_OPTION_TYPES.has(option.type) && !isSquareButtonOnly)
-  ) {
-    return content;
-  }
-
-  return (
-    <Stack $gap="xs">
-      <MinWidthZeroBox>{content}</MinWidthZeroBox>
-      <span aria-hidden="true" data-payment-option-click-hint="true">
-        <ClickHintIcon as={CursorClickButtonIcon} />
-      </span>
-    </Stack>
-  );
-}
-
-function getPaymentOptionBrandIcon(
-  option: PaymentMethodSelectorOption,
-): ReactNode {
-  return <PaymentOptionBrandIconComponent option={option} />;
 }
 
 function renderPaymentOptionBodyFallback(
@@ -623,7 +447,9 @@ function renderPaymentOptionBodyFallback(
             data-ach-owner-confirmation="true"
             aria-label={intl.formatMessage(messages.achOwnerConfirmationLabel)}
           >
-            <Checkbox.Indicator />
+            <Checkbox.Indicator>
+              <Check size="0.875rem" />
+            </Checkbox.Indicator>
           </Checkbox.Root>
           <Field.Label htmlFor={`ach-owner-confirmation-${option.id}`}>
             {intl.formatMessage(messages.achOwnerConfirmationLabel)}
@@ -670,10 +496,6 @@ function PaymentOptionBody({
   onKlarnaAvailabilityChange,
   renderStripeContent,
   renderAdyenContent,
-  billingAddress,
-  billingError,
-  onBillingAddressChange,
-  portalContainer,
 }: {
   option: PaymentMethodSelectorOption;
   lang?: string;
@@ -691,14 +513,6 @@ function PaymentOptionBody({
     disabled?: boolean;
     onControllerReady?: (controller: PaymentController | null) => void;
   }) => ReactNode;
-  billingAddress?: PaymentMethodSelectorBillingAddress;
-  billingError?: PaymentMethodSelectorBillingError;
-  onBillingAddressChange?: (params: {
-    optionId: string;
-    useSeparateBillingAddress: boolean;
-    values: Record<string, string>;
-  }) => void;
-  portalContainer: ShadowRoot;
 }) {
   const intl = useIntl();
   const isCard = option.type ? CARD_TYPES.has(option.type) : false;
@@ -709,184 +523,140 @@ function PaymentOptionBody({
     "account-type": intl.formatMessage(messages.achAccountType),
     "account-holder-name": intl.formatMessage(messages.achAccountHolderName),
   };
-  const billingSection = (
-    <BillingAddressSection
-      option={option}
-      disabled={disabled}
-      billingAddress={billingAddress}
-      billingError={billingError}
-      onBillingAddressChange={onBillingAddressChange}
-      fieldLabelById={BILLING_FIELD_LABEL_BY_ID}
-      messages={BILLING_SECTION_MESSAGES}
-      portalContainer={portalContainer}
-    />
-  );
-
   if (isCard && option.hostedCard) {
     return (
-      <>
-        <Suspense fallback={bodyFallback}>
-          <CardOptionEmbed
-            option={option}
-            lang={lang}
-            disabled={disabled}
-            styleAttributes={styleAttributes}
-            onControllerReady={onControllerReady}
-            fullFieldLabel={intl.formatMessage(messages.cardFieldLabelFull)}
-            cscFieldLabel={intl.formatMessage(messages.cardFieldLabelCsc)}
-            tokenizeErrorMessage={intl.formatMessage(
-              messages.tokenizeCardError,
-            )}
-          />
-        </Suspense>
-        {billingSection}
-      </>
+      <Suspense fallback={bodyFallback}>
+        <CardOptionEmbed
+          option={option}
+          lang={lang}
+          disabled={disabled}
+          styleAttributes={styleAttributes}
+          onControllerReady={onControllerReady}
+          fullFieldLabel={intl.formatMessage(messages.cardFieldLabelFull)}
+          cscFieldLabel={intl.formatMessage(messages.cardFieldLabelCsc)}
+          tokenizeErrorMessage={intl.formatMessage(
+            messages.tokenizeCardError,
+          )}
+        />
+      </Suspense>
     );
   }
 
   if (option.type === "ach" && option.hostedFields) {
     return (
-      <>
-        <Suspense fallback={bodyFallback}>
-          <AchOptionEmbed
-            option={option}
-            lang={lang}
-            disabled={disabled}
-            styleAttributes={styleAttributes}
-            onControllerReady={onControllerReady}
-            defaultLabelsByField={achDefaultLabels}
-            ownerConfirmationLabel={intl.formatMessage(
-              messages.achOwnerConfirmationLabel,
-            )}
-            ownerConfirmationErrorMessage={intl.formatMessage(
-              messages.achOwnerConfirmationError,
-            )}
-            tokenizeErrorMessage={intl.formatMessage(messages.tokenizeAchError)}
-          />
-        </Suspense>
-        {billingSection}
-      </>
+      <Suspense fallback={bodyFallback}>
+        <AchOptionEmbed
+          option={option}
+          lang={lang}
+          disabled={disabled}
+          styleAttributes={styleAttributes}
+          onControllerReady={onControllerReady}
+          defaultLabelsByField={achDefaultLabels}
+          ownerConfirmationLabel={intl.formatMessage(
+            messages.achOwnerConfirmationLabel,
+          )}
+          ownerConfirmationErrorMessage={intl.formatMessage(
+            messages.achOwnerConfirmationError,
+          )}
+          tokenizeErrorMessage={intl.formatMessage(messages.tokenizeAchError)}
+        />
+      </Suspense>
     );
   }
 
   if (option.type === "stripe-card-element" && option.stripeCardElement) {
     if (renderStripeContent) {
-      return (
-        <>
-          {renderStripeContent({ option, disabled, onControllerReady })}
-          {billingSection}
-        </>
-      );
+      return renderStripeContent({ option, disabled, onControllerReady });
     }
 
     return (
-      <>
-        <Suspense fallback={bodyFallback}>
-          <StripeCardElementOption
-            option={option}
-            disabled={disabled}
-            onControllerReady={onControllerReady}
-          />
-        </Suspense>
-        {billingSection}
-      </>
+      <Suspense fallback={bodyFallback}>
+        <StripeCardElementOption
+          option={option}
+          disabled={disabled}
+          onControllerReady={onControllerReady}
+        />
+      </Suspense>
     );
   }
 
   if (option.type === "stripe-payment-element" && option.stripePaymentElement) {
     if (renderStripeContent) {
-      return (
-        <>
-          {renderStripeContent({ option, disabled, onControllerReady })}
-          {billingSection}
-        </>
-      );
+      return renderStripeContent({ option, disabled, onControllerReady });
     }
 
     return (
-      <>
-        <Suspense fallback={bodyFallback}>
-          <StripePaymentElementOption
-            option={option}
-            disabled={disabled}
-            onControllerReady={onControllerReady}
-          />
-        </Suspense>
-        {billingSection}
-      </>
+      <Suspense fallback={bodyFallback}>
+        <StripePaymentElementOption
+          option={option}
+          disabled={disabled}
+          onControllerReady={onControllerReady}
+        />
+      </Suspense>
     );
   }
 
   if (option.type === "purchase-order") {
     return (
-      <>
-        <Suspense fallback={bodyFallback}>
-          <PurchaseOrderOptionEmbed
-            option={option}
-            disabled={disabled}
-            onControllerReady={onControllerReady}
-            label={intl.formatMessage(messages.purchaseOrderNumberLabel)}
-            placeholder={intl.formatMessage(
-              messages.purchaseOrderNumberPlaceholder,
-            )}
-            requiredErrorMessage={intl.formatMessage(
-              messages.purchaseOrderNumberRequired,
-            )}
-            tooLongErrorMessage={intl.formatMessage(
-              messages.purchaseOrderNumberTooLong,
-              { maxLength: PURCHASE_ORDER_MAX_LENGTH },
-            )}
-            maxLength={PURCHASE_ORDER_MAX_LENGTH}
-          />
-        </Suspense>
-        {billingSection}
-      </>
+      <Suspense fallback={bodyFallback}>
+        <PurchaseOrderOptionEmbed
+          option={option}
+          disabled={disabled}
+          onControllerReady={onControllerReady}
+          label={intl.formatMessage(messages.purchaseOrderNumberLabel)}
+          placeholder={intl.formatMessage(
+            messages.purchaseOrderNumberPlaceholder,
+          )}
+          requiredErrorMessage={intl.formatMessage(
+            messages.purchaseOrderNumberRequired,
+          )}
+          tooLongErrorMessage={intl.formatMessage(
+            messages.purchaseOrderNumberTooLong,
+            { maxLength: PURCHASE_ORDER_MAX_LENGTH },
+          )}
+          maxLength={PURCHASE_ORDER_MAX_LENGTH}
+        />
+      </Suspense>
     );
   }
 
   if (option.adyenEmbedded) {
     if (renderAdyenContent) {
-      return (
-        <>
-          {renderAdyenContent({ option, disabled, onControllerReady })}
-          {billingSection}
-        </>
-      );
+      return renderAdyenContent({ option, disabled, onControllerReady });
     }
 
     return (
-      <>
-        <Suspense fallback={bodyFallback}>
-          <AdyenEmbeddedOption
-            option={option}
-            disabled={disabled}
-            onControllerReady={onControllerReady}
-            loadingMessage={intl.formatMessage(messages.adyenLoading)}
-            unavailableMessage={intl.formatMessage(messages.adyenUnavailable)}
-            loadErrorMessage={intl.formatMessage(messages.adyenLoadError)}
-            submitErrorMessage={intl.formatMessage(messages.adyenSubmitError)}
-          />
-        </Suspense>
-        {billingSection}
-      </>
+      <Suspense fallback={bodyFallback}>
+        <AdyenEmbeddedOption
+          option={option}
+          disabled={disabled}
+          onControllerReady={onControllerReady}
+          loadingMessage={intl.formatMessage(messages.adyenLoading)}
+          unavailableMessage={intl.formatMessage(messages.adyenUnavailable)}
+          loadErrorMessage={intl.formatMessage(messages.adyenLoadError)}
+          submitErrorMessage={intl.formatMessage(messages.adyenSubmitError)}
+        />
+      </Suspense>
     );
   }
 
-  if (option.squareUp && (option.type === "new-card" || option.type === "ach")) {
+  if (
+    option.squareUp &&
+    (option.type === "new-card" || option.type === "ach")
+  ) {
     return (
-      <>
-        <Suspense fallback={bodyFallback}>
-          <SquareWebPaymentsOption
-            option={option}
-            disabled={disabled}
-            onControllerReady={onControllerReady}
-            loadingMessage={intl.formatMessage(messages.squareUpLoading)}
-            loadErrorMessage={intl.formatMessage(messages.squareUpLoadError)}
-            submitErrorMessage={intl.formatMessage(messages.squareUpSubmitError)}
-          />
-        </Suspense>
-        {billingSection}
-      </>
+      <Suspense fallback={bodyFallback}>
+        <SquareWebPaymentsOption
+          option={option}
+          disabled={disabled}
+          onControllerReady={onControllerReady}
+          loadingMessage={intl.formatMessage(messages.squareUpLoading)}
+          loadErrorMessage={intl.formatMessage(messages.squareUpLoadError)}
+          submitErrorMessage={intl.formatMessage(
+            messages.squareUpSubmitError,
+          )}
+        />
+      </Suspense>
     );
   }
 
@@ -898,80 +668,32 @@ function PaymentOptionBody({
       option.type === "afterpay")
   ) {
     return (
-      <>
-        <SquareWalletController
-          option={option}
-          onControllerReady={onControllerReady}
-          submitErrorMessage={intl.formatMessage(messages.squareUpSubmitError)}
-        />
-        {billingSection}
-      </>
+      <SquareWalletController
+        option={option}
+        onControllerReady={onControllerReady}
+        submitErrorMessage={intl.formatMessage(messages.squareUpSubmitError)}
+      />
     );
   }
 
   if (option.klarna) {
     return (
-      <>
-        <Suspense fallback={bodyFallback}>
-          <KlarnaOptionEmbed
-            option={option}
-            disabled={disabled}
-            onAvailabilityChange={onKlarnaAvailabilityChange}
-            loadingMessage={intl.formatMessage(messages.klarnaLoading)}
-            unavailableMessage={intl.formatMessage(messages.klarnaUnavailable)}
-            loadErrorMessage={intl.formatMessage(messages.klarnaLoadError)}
-          />
-        </Suspense>
-        {billingSection}
-      </>
+      <Suspense fallback={bodyFallback}>
+        <KlarnaOptionEmbed
+          option={option}
+          disabled={disabled}
+          onAvailabilityChange={onKlarnaAvailabilityChange}
+          loadingMessage={intl.formatMessage(messages.klarnaLoading)}
+          unavailableMessage={intl.formatMessage(messages.klarnaUnavailable)}
+          loadErrorMessage={intl.formatMessage(messages.klarnaLoadError)}
+        />
+      </Suspense>
     );
   }
 
-  return billingSection;
-}
-
-// Billing address is shown whenever the checkout provides billing fields,
-// regardless of payment type — the backend decides what to collect (see
-// #resolveBillingAddress in element.tsx). This used to be gated to card-type
-// options, which silently dropped billing for purchase-order, ACH, etc.
-function hasBillingAddressContent(
-  billingAddress: PaymentMethodSelectorBillingAddress | undefined,
-): boolean {
-  return Boolean(billingAddress?.fields.length);
-}
-
-function hasPaymentOptionBodyContent(
-  option: PaymentMethodSelectorOption,
-  billingAddress: PaymentMethodSelectorBillingAddress | undefined,
-): boolean {
-  const isCard = option.type ? CARD_TYPES.has(option.type) : false;
-
-  if (isCard && option.hostedCard) {
-    return true;
-  }
-
-  if (option.type === "ach" && option.hostedFields) {
-    return true;
-  }
-
-  if (option.type === "stripe-card-element" && option.stripeCardElement) {
-    return true;
-  }
-
-  if (option.type === "stripe-payment-element" && option.stripePaymentElement) {
-    return true;
-  }
-
-  if (option.type === "purchase-order") {
-    return true;
-  }
-
-  const isSquareFormBased = option.type === "new-card";
-  if (option.klarna || option.adyenEmbedded || (option.squareUp && isSquareFormBased)) {
-    return true;
-  }
-
-  return hasBillingAddressContent(billingAddress);
+  // Options with no embedded form render nothing here: the billing address form
+  // is a single instance below the option list, not per-option.
+  return null;
 }
 
 export function Payment({
@@ -987,13 +709,10 @@ export function Payment({
   renderAdyenContent,
   billingAddress,
   billingError,
-  orderTotal,
-  orderCurrencyCode,
   onBillingAddressChange,
   portalContainer,
 }: PaymentProps) {
   const intl = useIntl();
-  const theme = useTheme();
   const allOptions = options ?? [];
   const [optionAvailability, setOptionAvailability] = useState<
     Record<string, "pending" | "available" | "unavailable">
@@ -1019,7 +738,6 @@ export function Payment({
     () => visibleOptions.find((o) => Boolean(o.adyenEmbedded)) ?? null,
     [visibleOptions],
   );
-  const hasSingleOption = nativeOptions.length === 1 && !adyenOption;
   const baseLabelGateways = useMemo(() => {
     return visibleOptions.reduce<Record<string, Set<string>>>((map, option) => {
       const baseLabel = getBasePaymentOptionLabel(option, intl);
@@ -1206,7 +924,10 @@ export function Payment({
 
   if (loading || isCheckingAvailability) {
     const pendingSquareAchOptions = allOptions.filter(
-      (o) => o.squareUp && o.type === "ach" && optionAvailability[o.id] === "pending",
+      (o) =>
+        o.squareUp &&
+        o.type === "ach" &&
+        optionAvailability[o.id] === "pending",
     );
     return (
       <>
@@ -1215,10 +936,16 @@ export function Payment({
             key={option.id}
             option={option}
             onResolved={() =>
-              setOptionAvailability((prev) => ({ ...prev, [option.id]: "available" }))
+              setOptionAvailability((prev) => ({
+                ...prev,
+                [option.id]: "available",
+              }))
             }
             onUnavailable={() =>
-              setOptionAvailability((prev) => ({ ...prev, [option.id]: "unavailable" }))
+              setOptionAvailability((prev) => ({
+                ...prev,
+                [option.id]: "unavailable",
+              }))
             }
           />
         ))}
@@ -1254,7 +981,10 @@ export function Payment({
     );
   }
 
-  return (
+  const selectedOption =
+    visibleOptions.find((option) => option.id === selection) ?? null;
+
+  const optionList = (
     <PaymentOptionsFieldSet
       aria-label={intl.formatMessage(messages.paymentMethodsLegend)}
     >
@@ -1283,17 +1013,6 @@ export function Payment({
           const checked = option.id === selection;
           const mounted = mountedOptionIds.has(option.id);
           const optionDisabled = Boolean(disabled || option.disabled);
-          const hasLeadingBrandIcon = Boolean(
-            hasSingleOption &&
-            option.type &&
-            BUTTON_CLICK_HINT_OPTION_TYPES.has(option.type),
-          );
-          const hasBodyContent = hasPaymentOptionBodyContent(
-            option,
-            billingAddress,
-          );
-          const shouldUseCardChrome = !hasSingleOption || !hasBodyContent;
-          const brandIcon = getPaymentOptionBrandIcon(option);
           const optionLabel = getPaymentOptionLabel(
             option,
             optionTypeCounts,
@@ -1301,45 +1020,25 @@ export function Payment({
             obGateways,
             intl,
           );
-          const optionDescription = renderPaymentOptionDescription(
+          const optionDescription = getPaymentOptionDescriptionText(
             option,
             intl,
-            orderTotal,
-            orderCurrencyCode,
           );
           const optionBody = (
-            <OptionRow $padded={shouldUseCardChrome}>
+            <OptionRow>
               <OptionField data-disabled={optionDisabled}>
-                {!hasSingleOption ? (
-                  <OptionRadioIndicatorWrapper
-                    id={`payment-option-${option.id}`}
-                    value={option.id}
-                    disabled={optionDisabled}
-                    aria-label={optionLabel.fullLabel}
-                  >
-                    <Radio.Indicator />
-                  </OptionRadioIndicatorWrapper>
-                ) : null}
-                <OptionFieldContent
-                  $withBrandIcon={hasLeadingBrandIcon}
-                  style={
-                    hasLeadingBrandIcon
-                      ? {
-                          columnGap: theme.tokens.space.md,
-                          rowGap: theme.tokens.space.xs,
-                        }
-                      : undefined
-                  }
+                <OptionRadioIndicatorWrapper
+                  id={`payment-option-${option.id}`}
+                  value={option.id}
+                  disabled={optionDisabled}
+                  aria-label={optionLabel.fullLabel}
                 >
-                  {hasLeadingBrandIcon ? (
-                    <BrandIconSlot>{brandIcon}</BrandIconSlot>
-                  ) : null}
+                  <Radio.Indicator />
+                </OptionRadioIndicatorWrapper>
+                <OptionFieldContent>
                   <OptionFieldLabel
                     htmlFor={`payment-option-${option.id}`}
-                    $withBrandIcon={hasLeadingBrandIcon}
-                    $clickable={
-                      !hasSingleOption && !checked && !optionDisabled
-                    }
+                    $clickable={!checked && !optionDisabled}
                   >
                     <span style={{ minWidth: 0 }}>
                       {optionLabel.baseLabel}
@@ -1349,23 +1048,18 @@ export function Payment({
                         </OptionViaLabel>
                       ) : null}
                     </span>
-                    {!hasLeadingBrandIcon ? brandIcon : null}
+                    <OptionBrandMarkSlot>
+                      <PaymentOptionBrandIcon option={option} />
+                    </OptionBrandMarkSlot>
                   </OptionFieldLabel>
                   {mounted ? (
                     <>
                       {optionDescription ? (
-                        <OptionDescription
-                          $withBrandIcon={hasLeadingBrandIcon}
-                          $hidden={!checked}
-                        >
+                        <OptionDescription $hidden={!checked}>
                           {optionDescription}
                         </OptionDescription>
                       ) : null}
-                      <OptionContent
-                        $withBrandIcon={hasLeadingBrandIcon}
-                        $hidden={!checked}
-                        $topSpacing={hasSingleOption ? "single" : "multi"}
-                      >
+                      <OptionContent $hidden={!checked}>
                         <PaymentOptionBody
                           option={option}
                           lang={lang}
@@ -1374,13 +1068,11 @@ export function Payment({
                           onControllerReady={(controller) =>
                             onControllerReady?.(option.id, controller)
                           }
-                          onKlarnaAvailabilityChange={onKlarnaAvailabilityChange}
+                          onKlarnaAvailabilityChange={
+                            onKlarnaAvailabilityChange
+                          }
                           renderStripeContent={renderStripeContent}
                           renderAdyenContent={renderAdyenContent}
-                          billingAddress={billingAddress}
-                          billingError={checked ? billingError : undefined}
-                          onBillingAddressChange={onBillingAddressChange}
-                          portalContainer={portalContainer}
                         />
                       </OptionContent>
                     </>
@@ -1389,10 +1081,6 @@ export function Payment({
               </OptionField>
             </OptionRow>
           );
-
-          if (!shouldUseCardChrome) {
-            return <div key={option.id}>{optionBody}</div>;
-          }
 
           return (
             <OptionCard
@@ -1413,5 +1101,27 @@ export function Payment({
             onControllerReady?.(adyenOption.id, controller),
         })}
     </PaymentOptionsFieldSet>
+  );
+
+  return (
+    <PaymentLayout>
+      {optionList}
+      {/* One instance for the whole selector, below the options — not one per
+          option. `selectedOption` still drives it: the form's shape depends on
+          the payment type (saved cards show a summary), and every change is
+          reported against the option it belongs to. */}
+      {selectedOption ? (
+        <BillingAddressSection
+          option={selectedOption}
+          disabled={Boolean(disabled || selectedOption.disabled)}
+          billingAddress={billingAddress}
+          billingError={billingError}
+          onBillingAddressChange={onBillingAddressChange}
+          fieldLabelById={BILLING_FIELD_LABEL_BY_ID}
+          messages={BILLING_SECTION_MESSAGES}
+          portalContainer={portalContainer}
+        />
+      ) : null}
+    </PaymentLayout>
   );
 }

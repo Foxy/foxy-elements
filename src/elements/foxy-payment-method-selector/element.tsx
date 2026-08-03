@@ -7,7 +7,6 @@ import type {
   PaymentMethodSelectorBillingField,
   PaymentMethodSelectorKlarnaCategory,
   PaymentMethodSelectorOption,
-  PaymentMethodSelectorPayPalMessage,
   PaymentMethodSelectorPayPalPlatformConfig,
   PaymentMethodSelectorTokenizePayload,
 } from "./types";
@@ -65,7 +64,6 @@ type CheckoutApiLike = EventTarget & {
     changes: Record<string, unknown>,
   ) => Promise<unknown> | void;
 };
-
 
 const SQUARE_UP_METHODS_BY_COUNTRY: Record<string, string[]> = {
   US: ["new-card", "ach", "apple-pay", "google-pay", "cash-app", "afterpay"],
@@ -230,7 +228,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #lightDomAdyenRoots = new Map<string, Root>();
   #lightDomAdyenCallbacks = new Map<
     string,
-    { onSelect: () => void; onControllerReady: (c: PaymentController | null) => void }
+    {
+      onSelect: () => void;
+      onControllerReady: (c: PaymentController | null) => void;
+    }
   >();
   #adyenSyncVersion = 0;
   #checkoutClient = checkoutClient as CheckoutApiLike;
@@ -329,7 +330,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
       if (selectedOption.paypalPlatform?.flow === "buttons") {
         this.#setLoading(true);
-        const tokenized = await this.#tokenizePayPalPlatformButtons(selectedOption);
+        const tokenized =
+          await this.#tokenizePayPalPlatformButtons(selectedOption);
         const payload = this.#createTokenizePayload(selectedOption, tokenized);
 
         this.dispatchEvent(
@@ -420,9 +422,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     this.#setLoading(true);
 
     try {
-      const gatewayConfig = this.#getArrayRecords(apiState.payment_gateways).find(
-        (c) => this.#toText(c.type) === "stripe_v2",
-      );
+      const gatewayConfig = this.#getArrayRecords(
+        apiState.payment_gateways,
+      ).find((c) => this.#toText(c.type) === "stripe_v2");
 
       if (!gatewayConfig) {
         throw new Error("No stripe_v2 payment gateway is configured.");
@@ -523,9 +525,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     };
 
     const klarnaRaw = this.#checkoutClient.klarna as unknown as
-      | { Payments?: KlarnaPaymentsApi }
-      | null
-      | undefined;
+      { Payments?: KlarnaPaymentsApi } | null | undefined;
 
     if (!klarnaRaw?.Payments) {
       throw new Error(
@@ -602,19 +602,32 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     };
   }
 
-  #getPayPalButtonsSessionCreatorName(type: string | undefined): string | undefined {
+  #getPayPalButtonsSessionCreatorName(
+    type: string | undefined,
+  ): string | undefined {
     switch (type) {
-      case "paypal": return "createPayPalOneTimePaymentSession";
-      case "paypal-pay-later": return "createPayLaterOneTimePaymentSession";
-      case "paypal-credit": return "createPayPalCreditOneTimePaymentSession";
-      case "venmo": return "createVenmoOneTimePaymentSession";
-      case "sepa": return "createSepaOneTimePaymentSession";
-      case "bancontact": return "createBancontactOneTimePaymentSession";
-      case "ideal": return "createIdealOneTimePaymentSession";
-      case "eps": return "createEpsOneTimePaymentSession";
-      case "blik": return "createBlikOneTimePaymentSession";
-      case "przelewy24": return "createP24OneTimePaymentSession";
-      default: return undefined;
+      case "paypal":
+        return "createPayPalOneTimePaymentSession";
+      case "paypal-pay-later":
+        return "createPayLaterOneTimePaymentSession";
+      case "paypal-credit":
+        return "createPayPalCreditOneTimePaymentSession";
+      case "venmo":
+        return "createVenmoOneTimePaymentSession";
+      case "sepa":
+        return "createSepaOneTimePaymentSession";
+      case "bancontact":
+        return "createBancontactOneTimePaymentSession";
+      case "ideal":
+        return "createIdealOneTimePaymentSession";
+      case "eps":
+        return "createEpsOneTimePaymentSession";
+      case "blik":
+        return "createBlikOneTimePaymentSession";
+      case "przelewy24":
+        return "createP24OneTimePaymentSession";
+      default:
+        return undefined;
     }
   }
 
@@ -632,7 +645,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       onError?: (data: { message?: string }) => void;
     };
 
-    const paypal = this.#checkoutClient.paypal as PayPalSdkLike | null | undefined;
+    const paypal = this.#checkoutClient.paypal as
+      PayPalSdkLike | null | undefined;
 
     if (!paypal) {
       throw new Error(
@@ -649,7 +663,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       );
     }
 
-    const genericError = "PayPal checkout failed. Review your details and try again.";
+    const genericError =
+      "PayPal checkout failed. Review your details and try again.";
 
     return new Promise<{ orderId: string }>((resolve, reject) => {
       const sessionOptions: PayPalLikeSessionOptions = {
@@ -674,7 +689,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       )(sessionOptions);
 
       session.start({ presentationMode: "popup" }).catch((err: unknown) => {
-        const message = err instanceof Error ? err.message.trim() : String(err).trim();
+        const message =
+          err instanceof Error ? err.message.trim() : String(err).trim();
         reject(new Error(message || genericError));
       });
     });
@@ -871,9 +887,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       });
     }
 
-    const orderTotal = this.#resolveOrderTotal(apiState);
-    const orderCurrencyCode = this.#resolveOrderCurrencyCode(apiState);
-
     this.#root.render(
       <StyleSheetManager target={this.#shadowRootRef}>
         <ThemeProvider theme={{ tokens: this.#buildThemeTokens() }}>
@@ -900,8 +913,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
               disabled={this.#loading}
               loading={this.#optionsLoading}
               billingAddress={billingAddress}
-              orderTotal={orderTotal}
-              orderCurrencyCode={orderCurrencyCode}
               portalContainer={this.#shadowRootRef}
               billingError={
                 selectedOptionId
@@ -966,7 +977,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
                 });
                 const patch = this.#diffBillingAddressPatch(fullSnapshot);
 
-                const requestVersion = this.#nextBillingRequestVersion(optionId);
+                const requestVersion =
+                  this.#nextBillingRequestVersion(optionId);
                 this.#setBillingAddressError(optionId, undefined);
 
                 if (Object.keys(patch).length === 0) {
@@ -1002,7 +1014,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
                 };
 
                 try {
-                  const result = this.#checkoutClient.updateBillingAddress?.(patch);
+                  const result =
+                    this.#checkoutClient.updateBillingAddress?.(patch);
                   if (
                     result &&
                     typeof (result as Promise<unknown>).catch === "function"
@@ -1100,9 +1113,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         <ThemeProvider theme={{ tokens: this.#buildThemeTokens() }}>
           <Alert.Root $variant="destructive" aria-live="polite">
             <Alert.Description>
-              Checkout client is not initialized. Load the checkout SDK loader
-              or configure the client from @foxy.io/sdk/checkout/client before
-              rendering this element.
+              Error: Checkout API client is not initialized. Include the
+              Checkout API loader script or configure the client before
+              rendering payment options.
             </Alert.Description>
           </Alert.Root>
         </ThemeProvider>
@@ -1130,10 +1143,13 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       },
       color: {
         ...defaultTheme.color,
-        body: this.getThemeProperty("themeColorBody") ?? defaultTheme.color.body,
-        error: this.getThemeProperty("themeColorError") ?? defaultTheme.color.error,
+        body:
+          this.getThemeProperty("themeColorBody") ?? defaultTheme.color.body,
+        error:
+          this.getThemeProperty("themeColorError") ?? defaultTheme.color.error,
         primary:
-          this.getThemeProperty("themeColorPrimary") ?? defaultTheme.color.primary,
+          this.getThemeProperty("themeColorPrimary") ??
+          defaultTheme.color.primary,
         secondary:
           this.getThemeProperty("themeColorSecondary") ??
           defaultTheme.color.secondary,
@@ -1168,7 +1184,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       border: {
         ...defaultTheme.border,
         field:
-          this.getThemeProperty("themeBorderField") ?? defaultTheme.border.field,
+          this.getThemeProperty("themeBorderField") ??
+          defaultTheme.border.field,
       },
       borderRadius: {
         ...defaultTheme.borderRadius,
@@ -1183,7 +1200,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       size: {
         ...defaultTheme.size,
         control:
-          this.getThemeProperty("themeSizeControl") ?? defaultTheme.size.control,
+          this.getThemeProperty("themeSizeControl") ??
+          defaultTheme.size.control,
         borderWidth:
           this.getThemeProperty("themeSizeBorderWidth") ??
           defaultTheme.size.borderWidth,
@@ -1440,7 +1458,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     if (selectedOption.type === "ach") {
       const accountType = this.#readPayloadString(payload, "accountType");
       if (accountType !== "checking" && accountType !== "savings") {
-        throw new Error("ACH tokenization response has an invalid account type.");
+        throw new Error(
+          "ACH tokenization response has an invalid account type.",
+        );
       }
       return {
         token: this.#requirePayloadString(
@@ -1480,7 +1500,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
     if (selectedOption.type === "stripe-payment-element") {
       const requestId = crypto.randomUUID();
-      const paymentIntentId = this.#readPayloadString(payload, "paymentIntentId");
+      const paymentIntentId = this.#readPayloadString(
+        payload,
+        "paymentIntentId",
+      );
       if (paymentIntentId) {
         return { requestId, payment_intent_id: paymentIntentId };
       }
@@ -1509,7 +1532,11 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       };
     }
 
-    if (selectedOption.type === "mollie" || selectedOption.type === "sezzle" || selectedOption.type === "generic") {
+    if (
+      selectedOption.type === "mollie" ||
+      selectedOption.type === "sezzle" ||
+      selectedOption.type === "generic"
+    ) {
       return { requestId: crypto.randomUUID() };
     }
 
@@ -2134,13 +2161,18 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       ];
     }
 
-    if (ACH_GATEWAY_TYPES.has(gateway) || (Array.isArray(config.fields) && Array.isArray(config.account_types))) {
+    if (
+      ACH_GATEWAY_TYPES.has(gateway) ||
+      (Array.isArray(config.fields) && Array.isArray(config.account_types))
+    ) {
       return [
         {
           type: "ach",
           gateway,
           fields: Array.isArray(config.fields) ? config.fields : undefined,
-          account_types: Array.isArray(config.account_types) ? config.account_types : undefined,
+          account_types: Array.isArray(config.account_types)
+            ? config.account_types
+            : undefined,
         },
       ];
     }
@@ -2187,30 +2219,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     });
   }
 
-  #resolveOrderTotal(apiState: Record<string, unknown>): number | undefined {
-    const totals = Array.isArray(apiState.totals) ? apiState.totals : [];
-    const total = this.#asRecord(totals[0]);
-    const totalOrder = total?.total_order;
-    if (
-      typeof totalOrder === "number" &&
-      Number.isFinite(totalOrder) &&
-      totalOrder > 0
-    ) {
-      return totalOrder;
-    }
-    return undefined;
-  }
 
-  #resolveOrderCurrencyCode(
-    apiState: Record<string, unknown>,
-  ): string | undefined {
-    const format = this.#asRecord(apiState.format);
-    const currencyCode = format?.currency_code;
-    if (typeof currencyCode === "string" && currencyCode.trim()) {
-      return currencyCode.trim().toUpperCase();
-    }
-    return undefined;
-  }
 
   #getStripePaymentElementAmount(
     apiState: Record<string, unknown>,
@@ -2263,28 +2272,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     );
 
     return totalOrder.toFixed(maximumFractionDigits);
-  }
-
-  #getPayPalMessageConfig(
-    apiState: Record<string, unknown>,
-  ): PaymentMethodSelectorPayPalMessage | undefined {
-    const format = this.#asRecord(apiState.format);
-    const billingAddress = this.#asRecord(apiState.billing_address);
-    const amount = this.#getPayPalMessageAmount(apiState);
-    const currencyCode = this.#toOptionalText(format?.currency_code);
-    const locale = this.#toOptionalText(format?.locale_code);
-    const buyerCountry = this.#toOptionalText(billingAddress?.country);
-
-    if (!(amount || currencyCode || locale || buyerCountry)) {
-      return undefined;
-    }
-
-    return {
-      amount,
-      currencyCode,
-      locale,
-      buyerCountry,
-    };
   }
 
   #getPayPalFundingSource(
@@ -2644,10 +2631,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
                 }
               : undefined,
           paypalPlatform,
-          paypalMessage:
-            type === "paypal-pay-later"
-              ? this.#getPayPalMessageConfig(apiState)
-              : undefined,
         },
       ];
     }
@@ -2708,7 +2691,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     if (type === "stripe-payment-element") {
-      const clientSecret = this.#toOptionalText(option.client_secret) || undefined;
+      const clientSecret =
+        this.#toOptionalText(option.client_secret) || undefined;
       const returnUrl = this.#toOptionalText(option.return_url) || undefined;
       return [
         {
@@ -2845,7 +2829,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     const dropdownRegionLabelId = regionLabelMessageId(billingCountry);
     const dropdownRegionLabel = this.#formatMessage(
       dropdownRegionLabelId,
-      REGION_LABEL_FALLBACKS[dropdownRegionLabelId] ?? REGION_LABEL_FALLBACKS.checkout_location_state,
+      REGION_LABEL_FALLBACKS[dropdownRegionLabelId] ??
+        REGION_LABEL_FALLBACKS.checkout_location_state,
       languageStrings,
     );
     // Generic label for the plain-text branch — the common case, since only
@@ -2929,7 +2914,11 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             value: this.#toText(billingAddress.region).trim(),
             options: regionOptions.map((option) => ({
               value: option.value,
-              label: this.#formatMessage(option.messageId, option.value, languageStrings),
+              label: this.#formatMessage(
+                option.messageId,
+                option.value,
+                languageStrings,
+              ),
             })),
           }
         : {
@@ -2959,7 +2948,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     ];
 
     return {
-      useSeparateBillingAddress: billingAddress.use_separate_billing_address === true,
+      useSeparateBillingAddress:
+        billingAddress.use_separate_billing_address === true,
       hasShippingAddress: shipments.some(
         (s) => (s as Record<string, unknown>).has_shippable_items === true,
       ),

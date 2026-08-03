@@ -1,38 +1,5 @@
 export const CARD_TYPES = new Set(["new-card", "saved-card", "card"]);
 
-export const BUTTON_CLICK_HINT_OPTION_TYPES = new Set([
-  "apple-pay",
-  "google-pay",
-  "klarna",
-  "mollie",
-  "sezzle",
-  "paypal",
-  "paypal-pay-later",
-  "paypal-credit",
-  "venmo",
-  "sepa",
-  "bancontact",
-  "eps",
-  "blik",
-  "ideal",
-  "przelewy24",
-  "generic",
-  "alipay",
-  "paysafecard",
-  "cash-app",
-  "we-chat",
-  "we-chat-qr",
-  "we-chat-web",
-  "we-chat-mini-program",
-  "bank-transfer",
-  "bizum",
-  "swish",
-  "vipps",
-  "twint",
-  "zip",
-  "zip-pos",
-]);
-
 export const PURCHASE_ORDER_MAX_LENGTH = 32;
 
 export const GATEWAY_NAME_BY_TYPE: Record<string, string> = {

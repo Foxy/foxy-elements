@@ -181,25 +181,6 @@ async function waitForTime(ms: number): Promise<void> {
   await new Promise<void>((resolve) => setTimeout(resolve, ms));
 }
 
-// The leading-icon layout is the only place in this component where a grid's
-// column-gap and row-gap are set to different values (see OptionFieldContent
-// in view.tsx): every other gap usage in the file is a single uniform value,
-// so columnGap !== rowGap uniquely identifies rows using that layout. This
-// works on real Chromium's serialized "gap" shorthand, unlike matching the
-// literal "column-gap" substring in the raw style attribute (Chromium
-// collapses column-gap/row-gap into the shorthand, which never contains that
-// substring).
-function findLeadingLayoutRows(
-  root: ShadowRoot | null | undefined,
-): HTMLElement[] {
-  return Array.from(root?.querySelectorAll<HTMLElement>("*") ?? []).filter(
-    (node) => {
-      const style = getComputedStyle(node);
-      return style.columnGap !== style.rowGap;
-    },
-  );
-}
-
 async function setTextInputValue(
   input: HTMLInputElement,
   value: string,
@@ -833,11 +814,6 @@ describe("PaymentMethodSelectorElement", () => {
         () => element.shadowRoot?.textContent,
         "Buy Now, Pay Later with Sezzle",
       );
-      await waitForText(
-        () => element.shadowRoot?.textContent,
-        "Click the Sezzle button under the order summary to submit your order.",
-      );
-
       await waitForTruthy(
         () =>
           element.shadowRoot?.querySelector(
@@ -845,11 +821,6 @@ describe("PaymentMethodSelectorElement", () => {
           ),
         "Sezzle brand icon",
       );
-      expect(
-        element.shadowRoot?.querySelector(
-          '[data-payment-option-click-hint="true"]',
-        ),
-      ).toBeTruthy();
 
       await expect(element.tokenize()).resolves.toEqual({
         requestId: expect.any(String),
@@ -874,24 +845,68 @@ describe("PaymentMethodSelectorElement", () => {
         () => element.shadowRoot?.textContent,
         "Pay via Mollie",
       );
-      await waitForText(
-        () => element.shadowRoot?.textContent,
-        "Click Continue with Mollie under the order summary to pay.",
-      );
-
-      await waitForTruthy(
+      const brandIcon = await waitForTruthy(
         () =>
           element.shadowRoot?.querySelector(
             '[data-payment-option-brand="mollie"]',
           ),
         "Mollie brand icon",
       );
-      expect(findLeadingLayoutRows(element.shadowRoot)).toHaveLength(1);
+
+      // The label row is full-bleed: the brand mark sits as far from the card's
+      // right edge as the radio does from its left. Padding meant for the body
+      // below must not push the mark inwards.
+      const radio = element.shadowRoot?.querySelector(
+        '[role="radio"]',
+      ) as HTMLElement;
+      const card = Array.from(
+        element.shadowRoot?.querySelectorAll<HTMLElement>("*") ?? [],
+      ).find(
+        (node) =>
+          node !== radio &&
+          node.contains(radio) &&
+          getComputedStyle(node).borderTopWidth !== "0px",
+      ) as HTMLElement;
+      const cardBox = card.getBoundingClientRect();
+
       expect(
-        element.shadowRoot?.querySelector(
-          '[data-payment-option-click-hint="true"]',
+        Math.round(cardBox.right - brandIcon.getBoundingClientRect().right),
+      ).toBe(Math.round(radio.getBoundingClientRect().left - cardBox.left));
+
+      // ...and it is centred on the label's first line: the mark is shorter than
+      // the line box, so as a bare flex child it rode up against the top of it.
+      const labelText = brandIcon.closest("label")?.children[0] as HTMLElement;
+      const lineHeight = parseFloat(getComputedStyle(labelText).lineHeight);
+      const markBox = brandIcon.getBoundingClientRect();
+      const textBox = labelText.getBoundingClientRect();
+
+      expect(
+        Math.round(
+          markBox.top + markBox.height / 2 - (textBox.top + lineHeight / 2),
         ),
-      ).toBeTruthy();
+      ).toBe(0);
+
+      // Still the *first* line once the label wraps, rather than drifting to the
+      // middle of the wrapped block.
+      element.style.display = "block";
+      element.style.width = "200px";
+      await waitForRender();
+
+      const wrappedText = brandIcon.closest("label")
+        ?.children[0] as HTMLElement;
+      const wrappedTextBox = wrappedText.getBoundingClientRect();
+      const wrappedMarkBox = brandIcon.getBoundingClientRect();
+
+      expect(wrappedTextBox.height).toBeGreaterThan(lineHeight);
+      expect(
+        Math.round(
+          wrappedMarkBox.top +
+            wrappedMarkBox.height / 2 -
+            (wrappedTextBox.top + lineHeight / 2),
+        ),
+      ).toBe(0);
+      element.style.removeProperty("width");
+      element.style.removeProperty("display");
 
       await expect(element.tokenize()).resolves.toEqual({
         requestId: expect.any(String),
@@ -946,9 +961,11 @@ describe("PaymentMethodSelectorElement", () => {
       await waitForRender();
 
       const alert = element.shadowRoot?.querySelector('[role="alert"]');
+      // The rendered alert copy is deliberately more explicit than the thrown
+      // error asserted below ("Checkout client is not initialized.").
       await waitForText(
         () => alert?.textContent,
-        "Checkout client is not initialized.",
+        "Checkout API client is not initialized.",
       );
       expect(alert?.getAttribute("role")).toBe("alert");
       await expect(element.tokenize()).rejects.toThrow(
@@ -1144,6 +1161,33 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
+  // The hosted iframe inside is 36px; with content-box sizing the 2px border
+  // added on top of the 40px min-height, so the field stood 4px taller than a
+  // design system control with 4px of dead space under the iframe.
+  it("renders ACH fields at the standard control height", async () => {
+    const restoreClient = overrideClientState(createAchApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      const field = await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector(
+            "foxy-ach-field",
+          ) as HTMLElement | null,
+        "ACH field",
+      );
+
+      expect(getComputedStyle(field).boxSizing).toBe("border-box");
+      expect(field.getBoundingClientRect().height).toBe(40);
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
   it("rejects ACH tokenization until owner confirmation is checked", async () => {
     const restoreClient = overrideClientState(createAchApiState());
     const tokenize = vi.fn(() =>
@@ -1273,6 +1317,13 @@ describe("PaymentMethodSelectorElement", () => {
         "#billing-first-name",
       ) as HTMLElement | null;
       expect(billingInput).not.toBeNull();
+
+      // The form is a single block below the option list, not part of an
+      // option: it must sit outside the radio group entirely.
+      expect(billingInput?.closest('[role="radiogroup"]')).toBeNull();
+      expect(
+        element.shadowRoot?.querySelectorAll("#billing-first-name"),
+      ).toHaveLength(1);
     } finally {
       element.remove();
       restoreClient();
@@ -1769,53 +1820,59 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
-  it("renders and hydrates the paypal-message fallback for PayPal Pay Later", async () => {
-    const render = vi.fn(() => Promise.resolve());
-    const createPayPalMessages = vi.fn(() => ({ render }));
-    const restoreClient = overrideClientState(
-      createPayPalPlatformApiState(),
-      undefined,
-      {
-        paypal: createPayPalPlatformMock(["paypal-pay-later"], {
-          createPayPalMessages,
-        }),
-      },
-    );
+  it("caps the security-code field at 20rem and leaves the full card field unconstrained", async () => {
+    const restoreClient = overrideClientState({
+      payment_gateways: [{ type: "authorize" }],
+      saved_payment_methods: [
+        {
+          gateway: "authorize",
+          brand: "Visa",
+          last_4: "4242",
+          expiry_month: "12",
+          expiry_year: "2030",
+          id: "pm_saved_4242",
+        },
+      ],
+    });
     const element = document.createElement(
       "foxy-payment-method-selector",
     ) as PaymentMethodSelectorElement;
 
     try {
       document.body.append(element);
-      await waitForText(
-        () => element.shadowRoot?.textContent,
-        "PayPal Pay Later",
-      );
-      element.optionIndex = 1;
-      await waitForRender();
-
-      const payLaterMessage = await waitForTruthy(
+      const cscField = await waitForTruthy(
         () =>
           element.shadowRoot?.querySelector(
-            '[data-paypal-paylater-label="true"]',
+            'foxy-payment-card-field[mode="card_csc"]',
           ) as HTMLElement | null,
-        "PayPal Pay Later fallback message",
+        "security code field",
       );
 
-      expect(payLaterMessage).toBeTruthy();
-      await waitForText(
-        () => payLaterMessage?.textContent,
-        "Click the PayPal Pay Later button under the order summary to submit your order.",
+      expect(getComputedStyle(cscField).maxWidth).toBe("320px");
+      expect(cscField.getBoundingClientRect().width).toBeLessThanOrEqual(320);
+
+      // The full card field (number + expiry + CSC in one row) still fills its
+      // container.
+      element.optionIndex = 1;
+      const fullField = await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector(
+            'foxy-payment-card-field:not([mode="card_csc"])',
+          ) as HTMLElement | null,
+        "full card field",
       );
-      expect(createPayPalMessages).toHaveBeenCalledTimes(1);
-      expect(render).toHaveBeenCalledWith(payLaterMessage);
+
+      expect(getComputedStyle(fullField).maxWidth).toBe("none");
     } finally {
       element.remove();
       restoreClient();
     }
   });
 
-  it("shows the click-hint icon in expanded content for button-driven payment options", async () => {
+  // Button-driven options are submitted from the order summary's own button, but
+  // the selector no longer says so: no click-instruction copy and no click-hint
+  // glyph for any of them.
+  it("renders no click-instruction copy or click-hint glyph for button-driven payment options", async () => {
     const optionTypes: PayPalPlatformTestOptionType[] = [
       "paypal",
       "paypal-pay-later",
@@ -1832,9 +1889,7 @@ describe("PaymentMethodSelectorElement", () => {
       createPayPalPlatformApiState(),
       undefined,
       {
-        paypal: createPayPalPlatformMock(optionTypes, {
-          createPayPalMessages: vi.fn(() => ({ render: vi.fn() })),
-        }),
+        paypal: createPayPalPlatformMock(optionTypes),
       },
     );
     const element = document.createElement(
@@ -1849,15 +1904,18 @@ describe("PaymentMethodSelectorElement", () => {
         element.shadowRoot?.querySelectorAll('[id^="payment-option-"]') ?? [],
       );
 
+      expect(renderedOptions.length).toBeGreaterThan(0);
+
       for (const [index] of renderedOptions.entries()) {
         element.optionIndex = index;
         await waitForRender();
 
-        const clickHintIcon = element.shadowRoot?.querySelector(
-          '[data-payment-option-click-hint="true"]',
-        );
-
-        expect(clickHintIcon).toBeTruthy();
+        expect(
+          element.shadowRoot?.querySelector(
+            '[data-payment-option-click-hint="true"]',
+          ),
+        ).toBeNull();
+        expect(element.shadowRoot?.textContent).not.toContain("order summary");
       }
     } finally {
       element.remove();
@@ -1865,7 +1923,9 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
-  it("uses the leading-icon layout for a single button-driven payment option", async () => {
+  // Every option uses the same layout — radio indicator plus bordered card —
+  // no matter how many options there are, so a single option is not special-cased.
+  it("renders the radio and bordered card layout for a single payment option", async () => {
     const restoreClient = overrideClientState(createSezzleApiState());
     const element = document.createElement(
       "foxy-payment-method-selector",
@@ -1873,45 +1933,33 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
-      await waitForTruthy(
-        () => findLeadingLayoutRows(element.shadowRoot)[0],
-        "leading icon layout row",
+      const radio = await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector<HTMLElement>(
+            '[id^="payment-option-"]',
+          ),
+        "payment option radio",
       );
 
-      const leadingLayoutRows = findLeadingLayoutRows(element.shadowRoot);
+      expect(
+        element.shadowRoot?.querySelectorAll('[role="radio"]'),
+      ).toHaveLength(1);
 
-      expect(leadingLayoutRows).toHaveLength(1);
-    } finally {
-      element.remove();
-      restoreClient();
-    }
-  });
+      // The bordered card wraps both the radio and its label.
+      const borderedWrapper = Array.from(
+        element.shadowRoot?.querySelectorAll<HTMLElement>("*") ?? [],
+      ).find(
+        (node) =>
+          node !== radio &&
+          node.contains(radio) &&
+          getComputedStyle(node).borderTopWidth !== "0px",
+      );
 
-  it("does not use the leading-icon layout when multiple payment options are present", async () => {
-    const restoreClient = overrideClientState({
-      payment_gateways: [
-        {
-          type: "sezzle",
-        },
-        {
-          type: "purchase_order",
-        },
-      ],
-    });
-    const element = document.createElement(
-      "foxy-payment-method-selector",
-    ) as PaymentMethodSelectorElement;
-
-    try {
-      document.body.append(element);
-      await waitForText(
-        () => element.shadowRoot?.textContent,
+      expect(borderedWrapper?.textContent).toContain(
         "Buy Now, Pay Later with Sezzle",
       );
-
-      const leadingLayoutRows = findLeadingLayoutRows(element.shadowRoot);
-
-      expect(leadingLayoutRows).toHaveLength(0);
+      // The border comes from the option's own card, not the surrounding fieldset.
+      expect(borderedWrapper).not.toBe(radio.closest("fieldset"));
     } finally {
       element.remove();
       restoreClient();
@@ -2500,39 +2548,6 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
-  it("does not render button click hints for the Adyen Drop-in entry", async () => {
-    const { Component: Dropin } = createAdyenComponentMock();
-    const restoreClient = overrideClientState(
-      createAdyenEmbeddedApiState(),
-      undefined,
-      {
-        adyenEmbedded: {
-          Dropin,
-        },
-      },
-    );
-    const element = document.createElement(
-      "foxy-payment-method-selector",
-    ) as PaymentMethodSelectorElement;
-
-    try {
-      document.body.append(element);
-      await waitForTruthy(
-        () => element.querySelector("[data-foxy-adyen-host]"),
-        "Adyen light DOM host",
-      );
-
-      expect(
-        element.shadowRoot?.querySelector(
-          '[data-payment-option-click-hint="true"]',
-        ),
-      ).toBeNull();
-    } finally {
-      element.remove();
-      restoreClient();
-    }
-  });
-
   it("flattens Klarna categories into separate selector entries with API logos", async () => {
     const load = vi.fn(
       (
@@ -2676,10 +2691,21 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
-      await waitForRender();
+      // The Klarna widget arrives through a lazy()/Suspense chunk, so each
+      // load() lands a few hundred ms after the render that triggers it. Wait
+      // for the call itself instead of a fixed number of render ticks —
+      // otherwise this test only passes when a neighbouring test happens to
+      // have warmed the chunk first (see the test above).
+      await waitForTruthy(
+        () => load.mock.calls.length >= 1 || null,
+        "initial Klarna widget load",
+      );
 
       element.optionIndex = 1;
-      await waitForRender();
+      await waitForTruthy(
+        () => load.mock.calls.length >= 2 || null,
+        "Klarna widget load for the newly selected category",
+      );
 
       const payload = await element.tokenize();
       const authorizeData = authorize.mock.calls[0]?.[1] as
@@ -2767,7 +2793,7 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
-  it("shows the separate-billing toggle and reveals fields when checked", async () => {
+  it("shows the shipping-address toggle and reveals billing fields when it is unchecked", async () => {
     const restoreClient = overrideClientState({
       ...createBillingApiState(),
       billing_address: {
@@ -2783,27 +2809,146 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
-      await waitForText(() => element.shadowRoot?.textContent, "Use separate billing address");
+      await waitForText(() => element.shadowRoot?.textContent, "Use shipping address for billing");
 
       const checkbox = element.shadowRoot?.querySelector(
-        '[id^="use-separate-billing-address-"]',
+        '[id^="use-shipping-address-for-billing-"]',
       ) as HTMLElement | null;
       expect(checkbox).not.toBeNull();
 
-      // unchecked (use shipping) → billing fields hidden
+      // The control is inverted relative to the stored value: with
+      // use_separate_billing_address false it starts checked ("reuse shipping"),
+      // and the billing fields stay hidden.
+      // `checkbox` above is the hidden native input the label points at; the
+      // visual box is the element carrying role="checkbox".
+      const checkedBox = await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector(
+            '[role="checkbox"][aria-label="Use shipping address for billing"][data-checked]',
+          ),
+        "checked shipping-address toggle",
+      );
+
+      // The design system's Checkbox.Indicator renders only its children, so a
+      // checked box without a glyph is just a filled square.
+      expect(checkedBox.querySelector("svg")).not.toBeNull();
+
+      // The section is a labelled fieldset of its own, outside the option list.
+      const billingLegend = Array.from(
+        element.shadowRoot?.querySelectorAll("legend") ?? [],
+      ).find((legend) => legend.textContent === "Billing address");
+
+      expect(billingLegend).toBeTruthy();
+      expect(billingLegend?.closest('[role="radiogroup"]')).toBeNull();
       expect(element.shadowRoot?.querySelector("#billing-first-name")).toBeNull();
 
       checkbox!.click();
       await waitForRender();
-      // checked (separate) → billing fields shown
+      // unchecked (separate billing address) → billing fields shown
       expect(element.shadowRoot?.querySelector("#billing-first-name")).not.toBeNull();
+      expect(
+        element.shadowRoot?.querySelector(
+          '[role="checkbox"][aria-label="Use shipping address for billing"][data-checked]',
+        ),
+      ).toBeNull();
     } finally {
       element.remove();
       restoreClient();
     }
   });
 
-  it("sends use_separate_billing_address: true when the separate-billing toggle is checked", async () => {
+  // The opposite polarity of the test above: without this, inverting the
+  // checkbox back would still pass, since that fixture stores `false`.
+  it("starts the shipping-address toggle unchecked when a separate billing address is stored", async () => {
+    const restoreClient = overrideClientState({
+      ...createBillingApiState(),
+      billing_address: {
+        ...createBillingApiState().billing_address,
+        use_separate_billing_address: true,
+      },
+      shipments: [
+        { has_shippable_items: true, country_options: ["US"], region_options: ["MN"] },
+      ],
+    });
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Use shipping address for billing",
+      );
+
+      const box = await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector(
+            '[role="checkbox"][aria-label="Use shipping address for billing"]',
+          ),
+        "shipping-address toggle",
+      );
+
+      expect(box.getAttribute("data-checked")).toBeNull();
+      expect(box.querySelector("svg")).toBeNull();
+      expect(
+        element.shadowRoot?.querySelector("#billing-first-name"),
+      ).not.toBeNull();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  // Saved cards used to get their own summary-card treatment (a button showing
+  // the address, opening an editor). They now use the same form as every other
+  // payment option.
+  it("renders the standard billing form for saved cards, not a summary card", async () => {
+    const restoreClient = overrideClientState({
+      ...createBillingApiState(),
+      saved_payment_methods: [
+        {
+          gateway: "authorize",
+          brand: "Visa",
+          last_4: "4242",
+          expiry_month: "12",
+          expiry_year: "2030",
+          id: "pm_saved_4242",
+        },
+      ],
+      shipments: [
+        { has_shippable_items: true, country_options: ["US"], region_options: ["MN"] },
+      ],
+    });
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "4242");
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Use shipping address for billing",
+      );
+
+      const summaryButtons = Array.from(
+        element.shadowRoot?.querySelectorAll("button") ?? [],
+      ).filter((button) =>
+        button.textContent?.toLowerCase().includes("billing address"),
+      );
+
+      expect(summaryButtons).toHaveLength(0);
+      expect(
+        element.shadowRoot?.querySelector('[id^="use-shipping-address-for-billing-"]'),
+      ).not.toBeNull();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("sends use_separate_billing_address: true when the shipping-address toggle is unchecked", async () => {
     const updateBillingAddress = vi.fn(() => Promise.resolve());
     const restoreClient = overrideClientState(
       {
@@ -2826,10 +2971,10 @@ describe("PaymentMethodSelectorElement", () => {
 
     try {
       document.body.append(element);
-      await waitForText(() => element.shadowRoot?.textContent, "Use separate billing address");
+      await waitForText(() => element.shadowRoot?.textContent, "Use shipping address for billing");
 
       const checkbox = element.shadowRoot?.querySelector(
-        '[id^="use-separate-billing-address-"]',
+        '[id^="use-shipping-address-for-billing-"]',
       ) as HTMLElement | null;
       expect(checkbox).not.toBeNull();
 
