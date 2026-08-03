@@ -27,7 +27,7 @@
     "init:paypal": "node ./scripts/init-paypal-order.js",
     "localdev:deploy:cdn": "SDK_HOST=cdn-js.foxy.test sh -c 'tsc -b && vite build --mode=cdn' && rm -rf ../foxy-docker-env-build/src/cdn-js/elements@2 && cp -r dist/cdn ../foxy-docker-env-build/src/cdn-js/elements@2",
     "localdev:storybook": "storybook dev -p 6006 --no-open",
-    "localdev:examples": "caddy start && vite --port 6007 --no-open",
+    "localdev:examples": "vite",
     "build:npm": "tsc -b && vite build",
     "build:cdn": "tsc -b && vite build --mode=cdn",
     "build:storybook": "storybook build",
