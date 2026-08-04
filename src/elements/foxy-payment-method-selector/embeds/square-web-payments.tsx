@@ -327,9 +327,7 @@ export default function SquareWebPaymentsOption({
     const apiJson = checkoutClient.json;
     const billingAddress = apiJson?.billing_address;
     const shipment = apiJson?.shipments?.[0];
-    const useSeparateBilling = (
-      billingAddress as { use_separate_billing_address?: boolean } | undefined
-    )?.use_separate_billing_address;
+    const useSeparateBilling = apiJson?.use_separate_billing_address;
     const resolvedPostalCode = (useSeparateBilling
       ? billingAddress?.postal_code
       : shipment?.postal_code) ?? "";
@@ -377,9 +375,7 @@ export default function SquareWebPaymentsOption({
               const apiJson = checkoutClient.json;
               const billing = apiJson?.billing_address;
               const shipment = apiJson?.shipments?.[0];
-              const useSeparateBilling = (
-                billing as { use_separate_billing_address?: boolean } | undefined
-              )?.use_separate_billing_address;
+              const useSeparateBilling = apiJson?.use_separate_billing_address;
               const addr = useSeparateBilling ? billing : shipment;
               const firstName = addr?.first_name ?? "";
               const lastName = addr?.last_name ?? "";
