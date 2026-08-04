@@ -256,18 +256,6 @@ export const messages = defineMessages({
     defaultMessage:
       "Refresh checkout or choose a different payment flow before continuing.",
   },
-  selectPlaceholder: {
-    id: "generic_select_placeholder",
-    defaultMessage: "Select",
-  },
-  searchPlaceholder: {
-    id: "generic_search_placeholder",
-    defaultMessage: "Search...",
-  },
-  noResults: {
-    id: "generic_no_results",
-    defaultMessage: "No results",
-  },
 });
 
 export const OPTION_LABEL_BY_TYPE: Partial<Record<string, MessageDescriptor>> =

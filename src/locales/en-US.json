@@ -1,7 +1,4 @@
 {
-  "generic_no_results": "No results",
-  "generic_search_placeholder": "Search...",
-  "generic_select_placeholder": "Select",
   "payment_ach_account_holder_name_label": "Name on account",
   "payment_ach_account_number_label": "Account number",
   "payment_ach_account_type_label": "Account type",
