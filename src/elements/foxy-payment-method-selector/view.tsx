@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
 import type {
-  PaymentMethodSelectorBillingError,
   PaymentController,
-  PaymentMethodSelectorBillingAddress,
   PaymentMethodSelectorOption,
 } from "./types";
 
@@ -15,7 +13,6 @@ import {
   useState,
 } from "react";
 import { Card } from "@foxy.io/design-system/card";
-import { BillingAddressSection } from "./billing";
 import { Checkbox } from "@foxy.io/design-system/checkbox";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
@@ -36,8 +33,6 @@ import {
   PURCHASE_ORDER_MAX_LENGTH,
 } from "./constants";
 import {
-  BILLING_FIELD_LABEL_BY_ID,
-  BILLING_SECTION_MESSAGES,
   OPTION_DESCRIPTION_BY_TYPE,
   OPTION_LABEL_BY_TYPE,
   messages,
@@ -79,16 +74,6 @@ const PaymentOptionsFieldSet = styled(Field.Set)`
   gap: ${(props) => props.theme.tokens.space.sm};
   border: 0;
   padding: 0;
-`;
-
-// The option list and the billing address form are separate blocks: billing is
-// no longer inside an option, and it must not sit inside the options fieldset
-// either, whose legend labels its contents as payment methods. The gap is wider
-// than the one between options so the two read as distinct sections.
-const PaymentLayout = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${(props) => props.theme.tokens.space.xl};
 `;
 
 const VisuallyHiddenLegend = styled(Field.Legend)`
@@ -181,8 +166,8 @@ const OptionContent = styled(Card.Content)<{
   padding-bottom: ${(props) => props.theme.tokens.space.sm};
 
   /* Button-driven options carry no description and no embedded form, so this
-     body is empty unless the checkout also collects a billing address. Without
-     this, the spacing above would show up as an orphaned gap inside the card. */
+     body is empty. Without this, the spacing above would show up as an
+     orphaned gap inside the card. */
   &:empty {
     display: none;
   }
@@ -275,14 +260,6 @@ type PaymentProps = {
     disabled?: boolean;
     onControllerReady?: (controller: PaymentController | null) => void;
   }) => ReactNode;
-  billingAddress?: PaymentMethodSelectorBillingAddress;
-  billingError?: PaymentMethodSelectorBillingError;
-  onBillingAddressChange?: (params: {
-    optionId: string;
-    useSeparateBillingAddress: boolean;
-    values: Record<string, string>;
-  }) => void;
-  portalContainer: ShadowRoot;
 };
 
 function getGatewayName(gateway: string): string {
@@ -691,8 +668,7 @@ function PaymentOptionBody({
     );
   }
 
-  // Options with no embedded form render nothing here: the billing address form
-  // is a single instance below the option list, not per-option.
+  // Options with no embedded form render nothing here.
   return null;
 }
 
@@ -707,10 +683,6 @@ export function Payment({
   onKlarnaAvailabilityChange,
   renderStripeContent,
   renderAdyenContent,
-  billingAddress,
-  billingError,
-  onBillingAddressChange,
-  portalContainer,
 }: PaymentProps) {
   const intl = useIntl();
   const allOptions = options ?? [];
@@ -981,9 +953,6 @@ export function Payment({
     );
   }
 
-  const selectedOption =
-    visibleOptions.find((option) => option.id === selection) ?? null;
-
   const optionList = (
     <PaymentOptionsFieldSet
       aria-label={intl.formatMessage(messages.paymentMethodsLegend)}
@@ -1103,25 +1072,5 @@ export function Payment({
     </PaymentOptionsFieldSet>
   );
 
-  return (
-    <PaymentLayout>
-      {optionList}
-      {/* One instance for the whole selector, below the options — not one per
-          option. `selectedOption` still drives it: the form's shape depends on
-          the payment type (saved cards show a summary), and every change is
-          reported against the option it belongs to. */}
-      {selectedOption ? (
-        <BillingAddressSection
-          option={selectedOption}
-          disabled={Boolean(disabled || selectedOption.disabled)}
-          billingAddress={billingAddress}
-          billingError={billingError}
-          onBillingAddressChange={onBillingAddressChange}
-          fieldLabelById={BILLING_FIELD_LABEL_BY_ID}
-          messages={BILLING_SECTION_MESSAGES}
-          portalContainer={portalContainer}
-        />
-      ) : null}
-    </PaymentLayout>
-  );
+  return optionList;
 }

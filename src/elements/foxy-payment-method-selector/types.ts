@@ -25,32 +25,6 @@ export type PaymentMethodSelectorAdyenEmbeddedConfig = {
   clientKey: string;
 };
 
-export type PaymentMethodSelectorBillingField = {
-  id: string;
-  label: string;
-  type: "text" | "tel" | "select" | "searchable-select";
-  value?: string;
-  placeholder?: string;
-  required?: boolean;
-  disabled?: boolean;
-  options?: Array<{ label: string; value: string }>;
-};
-
-export type PaymentMethodSelectorBillingAddress = {
-  useSeparateBillingAddress?: boolean;
-  hasShippingAddress?: boolean;
-  fields: PaymentMethodSelectorBillingField[];
-};
-
-export type PaymentMethodSelectorBillingPayload = {
-  useSeparateBillingAddress: boolean;
-  values: Record<string, string>;
-};
-
-export type PaymentMethodSelectorBillingError = {
-  message?: string;
-};
-
 type PaymentMethodSelectorCardTokenizeDetails = {
   cardBrand: string | undefined;
   last4: string | undefined;

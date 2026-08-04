@@ -138,52 +138,6 @@ export const messages = defineMessages({
     id: "payment_saved_card_expires_label",
     defaultMessage: "expires {month}/{year}",
   },
-  billingAddressTitle: {
-    id: "checkout_billing_address_label",
-    defaultMessage: "Billing address",
-  },
-  // Inverted on purpose: the control offers the default (reuse shipping), while
-  // the value reported upstream stays `use_separate_billing_address`.
-  useShippingAddressForBilling: {
-    id: "checkout_use_shipping_address_for_billing",
-    defaultMessage: "Use shipping address for billing",
-  },
-  billingFirstName: {
-    id: "payment_billing_first_name_label",
-    defaultMessage: "First name",
-  },
-  billingLastName: {
-    id: "payment_billing_last_name_label",
-    defaultMessage: "Last name",
-  },
-  billingCompany: {
-    id: "payment_billing_company_label",
-    defaultMessage: "Company",
-  },
-  billingAddress1: {
-    id: "payment_billing_address1_label",
-    defaultMessage: "Address",
-  },
-  billingAddress2: {
-    id: "payment_billing_address2_label",
-    defaultMessage: "Address 2",
-  },
-  billingCity: {
-    id: "payment_billing_city_label",
-    defaultMessage: "City",
-  },
-  billingPostalCode: {
-    id: "payment_billing_postal_code_label",
-    defaultMessage: "Postal code",
-  },
-  billingCountry: {
-    id: "payment_billing_country_label",
-    defaultMessage: "Country",
-  },
-  billingPhone: {
-    id: "payment_billing_phone_label",
-    defaultMessage: "Phone",
-  },
   achRoutingNumber: {
     id: "payment_ach_routing_number_label",
     defaultMessage: "Routing number",
@@ -293,10 +247,6 @@ export const messages = defineMessages({
     id: "payment_square_up_submit_error",
     defaultMessage: "Unable to submit this payment method. Try again.",
   },
-  billingAddressUpdateError: {
-    id: "payment_billing_update_error",
-    defaultMessage: "Unable to update billing address. Try again.",
-  },
   noPaymentMethods: {
     id: "payment_no_methods_available",
     defaultMessage: "No payment methods are currently available.",
@@ -362,36 +312,4 @@ export const OPTION_DESCRIPTION_BY_TYPE: Partial<
   "stripe-payment-element": messages.optionDescriptionStripePaymentElement,
   "purchase-order": messages.optionDescriptionPurchaseOrder,
   ach: messages.optionDescriptionAch,
-};
-
-// "billing-region" is deliberately absent here: `billing.tsx` prefers this
-// map's `MessageDescriptor` over the field's own `label` string whenever an
-// entry exists (see `renderBillingField`'s caller), so keeping a static
-// entry for it would silently shadow the country-aware label
-// `#resolveBillingAddress` now computes per render via `#formatMessage` —
-// every country would show the literal defaultMessage "Region" instead of
-// "State"/"Prefecture"/etc., with no failing test to catch it (the field
-// would still render, just with the wrong, fixed text). Every other billing
-// field's label is genuinely static, so this map still serves them.
-export const BILLING_FIELD_LABEL_BY_ID: Partial<
-  Record<string, MessageDescriptor>
-> = {
-  "billing-first-name": messages.billingFirstName,
-  "billing-last-name": messages.billingLastName,
-  "billing-company": messages.billingCompany,
-  "billing-address1": messages.billingAddress1,
-  "billing-address2": messages.billingAddress2,
-  "billing-city": messages.billingCity,
-  "billing-postal-code": messages.billingPostalCode,
-  "billing-country": messages.billingCountry,
-  "billing-phone": messages.billingPhone,
-};
-
-export const BILLING_SECTION_MESSAGES = {
-  billingAddressTitle: messages.billingAddressTitle,
-  useShippingAddressForBilling: messages.useShippingAddressForBilling,
-  selectPlaceholder: messages.selectPlaceholder,
-  searchPlaceholder: messages.searchPlaceholder,
-  noResults: messages.noResults,
-  billingAddressUpdateError: messages.billingAddressUpdateError,
 };

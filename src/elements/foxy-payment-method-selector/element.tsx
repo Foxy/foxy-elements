@@ -1,10 +1,7 @@
 import type {
-  PaymentMethodSelectorBillingError,
   PaymentController,
   PaymentMethodSelectorAdyenEmbeddedConfig,
   PaymentMethodSelectorSquareUpConfig,
-  PaymentMethodSelectorBillingAddress,
-  PaymentMethodSelectorBillingField,
   PaymentMethodSelectorKlarnaCategory,
   PaymentMethodSelectorOption,
   PaymentMethodSelectorPayPalPlatformConfig,
@@ -13,13 +10,6 @@ import type {
 import "../foxy-ach-field/element";
 import "../foxy-payment-card-field/element";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
-import {
-  loadRegionMessages,
-  regionLabelMessageId,
-  toCountryOptions,
-  toRegionOptions,
-  type CountryOption,
-} from "@foxy.io/sdk/checkout";
 import { Alert } from "@foxy.io/design-system/alert";
 import { defaultTheme } from "@foxy.io/design-system/theme";
 import { StyleSheetManager, ThemeProvider } from "styled-components";
@@ -29,7 +19,6 @@ import { createRoot } from "react-dom/client";
 import { IntlProvider } from "react-intl";
 import enUsMessages from "@/locales/en-US.json";
 import {
-  type PaymentMethodSelectorBillingAddressErrorEventDetail,
   paymentMethodSelectorEvents,
   type PaymentMethodSelectorChangeEventDetail,
   type PaymentMethodSelectorTokenizationErrorEventDetail,
@@ -60,9 +49,6 @@ type CheckoutApiLike = EventTarget & {
   klarna?: unknown;
   adyenEmbedded?: unknown;
   square?: unknown;
-  updateBillingAddress?: (
-    changes: Record<string, unknown>,
-  ) => Promise<unknown> | void;
 };
 
 const SQUARE_UP_METHODS_BY_COUNTRY: Record<string, string[]> = {
@@ -119,90 +105,8 @@ const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
   en: enUsMessages as Record<string, string>,
 };
 
-// Natural JS-level default for each of the five `checkout_location_*` ids
-// `regionLabelMessageId` can return (@foxy.io/sdk/checkout). Used only when
-// neither the store's `language_strings` nor this element's static bundle
-// has the id — matches foxy-checkout's `regionLocationLabels` defaults
-// (builders/messages.ts) so the two consumers never show different words
-// for the same concept. Keep in sync with `REGION_TYPE_BY_COUNTRY` in the
-// SDK if a sixth region type is ever added.
-const REGION_LABEL_FALLBACKS: Record<string, string> = {
-  checkout_location_state: "State",
-  checkout_location_province: "Province",
-  checkout_location_county: "County",
-  checkout_location_canton: "Canton",
-  checkout_location_prefecture: "Prefecture",
-};
-
-// The plain-text region field's label when the country has no known region
-// type at all (242 of 254 countries) — generic, not tied to any one
-// country's region type. Matches `checkout_region_label`'s default in
-// foxy-checkout (builders/messages.ts).
-const GENERIC_REGION_LABEL_ID = "checkout_region_label";
-const GENERIC_REGION_LABEL_DEFAULT = "State / Province";
-
 export function toBcp47Locale(value: string): string {
   return value.replace(/_/g, "-");
-}
-
-// `#resolveBillingAddress` rebuilds the billing field list on every state
-// change, and `toCountryOptions` returns a fresh array each call. The
-// design-system `SearchableSelect` control's documented contract asks for a
-// referentially stable `items` array, so handing it a new array every cycle
-// would defeat that memo — noticeable at ~250 countries. Cache by the exact
-// (codes, locale) pair so unchanged input keeps returning the same array
-// reference. Bounded and evicted least-recently-used so a page that legitimately
-// cycles through many locales/lists can't grow this without limit, and so the
-// entry currently on screen (read on every render) is never the one dropped.
-//
-// The cached array is shared across every caller that hits the same key —
-// treat it as read-only. `billing.tsx` passes it straight through as the
-// `searchable-select` branch's `items` prop into Base UI's `Combobox.Root`
-// (the billing region field is also a `searchable-select`, but its options
-// come from `toRegionOptions` and are rebuilt, uncached, on every render —
-// region lists top out around 54 entries, far below where this matters).
-// Today, no code path in the
-// design-system `SearchableSelect` wrapper or in `Combobox.Root`
-// writes to `items` in place — the one filtering path in `Combobox.Root`
-// builds results with `Array#filter`, which copies rather than mutates. No
-// caller currently needs to sort or filter this array itself — if one ever
-// does, it must copy first, since an in-place mutation here would corrupt
-// the cache for every other consumer holding the same reference.
-const MAX_CACHED_COUNTRY_OPTION_LISTS = 20;
-const countryOptionsCache = new Map<string, CountryOption[]>();
-
-// Exported (like `toBcp47Locale` above) so `element.test.ts` can unit-test
-// the memo/eviction behavior directly; `#resolveBillingAddress` stays
-// private and untested-through-accessor, per this file's existing
-// through-the-shadow-DOM test convention.
-export function getCachedCountryOptions(
-  codes: unknown,
-  locale: string,
-): CountryOption[] {
-  // Unconditional JSON.stringify of the whole (locale, codes) pair — not
-  // `codes.join(",")` — so no two distinct inputs can ever produce the same
-  // key. `codes.join(",")` collides a single element containing a literal
-  // comma with a distinct multi-element list: `["AB,CD"]` and `["AB","CD"]`
-  // join to the identical string.
-  const key = JSON.stringify([locale, codes]);
-  const cached = countryOptionsCache.get(key);
-  if (cached) {
-    // Bump recency: delete-then-reinsert moves this key to the end of the
-    // Map's iteration order, which is what eviction below reads as "most
-    // recently used". Without this, eviction is FIFO by insertion order and
-    // can drop the entry that's still being read on every render.
-    countryOptionsCache.delete(key);
-    countryOptionsCache.set(key, cached);
-    return cached;
-  }
-
-  const options = toCountryOptions(codes, locale);
-  if (countryOptionsCache.size >= MAX_CACHED_COUNTRY_OPTION_LISTS) {
-    const oldestKey = countryOptionsCache.keys().next().value;
-    if (oldestKey !== undefined) countryOptionsCache.delete(oldestKey);
-  }
-  countryOptionsCache.set(key, options);
-  return options;
 }
 
 const ThemeableHTMLElement = ThemeMixin(HTMLElement);
@@ -215,12 +119,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #shadowRootRef: ShadowRoot;
   #root: Root | null = null;
   #container: HTMLDivElement;
-  #regionMessages: Record<string, string> = {};
-  #regionMessagesLocale: string | null = null;
   #controllers = new Map<string, PaymentController>();
   #klarnaAvailabilityByCategory = new Map<string, boolean>();
-  #billingErrorsByOption = new Map<string, PaymentMethodSelectorBillingError>();
-  #billingRequestVersionByOption = new Map<string, number>();
   #lightDomStripeHosts = new Map<string, HTMLDivElement>();
   #lightDomStripeRoots = new Map<string, Root>();
   #stripeSyncVersion = 0;
@@ -782,8 +682,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     this.#root?.unmount();
     this.#root = null;
     this.#controllers.clear();
-    this.#billingErrorsByOption.clear();
-    this.#billingRequestVersionByOption.clear();
     this.#stripeSyncVersion += 1;
     this.#adyenSyncVersion += 1;
     this.#optionsRequestVersion += 1;
@@ -870,22 +768,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     const selectedOptionId = this.#resolveSelectedOptionId(options);
-    const billingAddress = this.#resolveBillingAddress();
     const locale = this.#resolveLocale();
     const messages = this.#resolveMessages(locale);
-
-    // The region-name catalog is a lazily imported chunk, so locales the
-    // shopper never sees are never downloaded. Kick it off once per locale and
-    // re-render when it lands; until then region labels show their codes,
-    // which is the pre-existing behavior.
-    if (this.#regionMessagesLocale !== locale) {
-      this.#regionMessagesLocale = locale;
-      void loadRegionMessages(locale).then((loaded) => {
-        if (this.#regionMessagesLocale !== locale) return;
-        this.#regionMessages = loaded;
-        this.#render();
-      });
-    }
 
     this.#root.render(
       <StyleSheetManager target={this.#shadowRootRef}>
@@ -897,13 +781,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             // module-level reference. react-intl's `createIntl` compares
             // `messages` by reference and skips recreating the intl object
             // when it hasn't changed, so this must stay the same object
-            // across renders for an unchanged locale. Region-name lookups
-            // (`#regionMessages`) are resolved directly in `#formatMessage`
-            // instead of through react-intl — no component in this tree
-            // reads a dynamic-id `FormattedMessage`/`intl.formatMessage`
-            // against the region catalog — so merging it in here would only
-            // cost a fresh object (and therefore a fresh `createIntl`) on
-            // every render for no reader.
+            // across renders for an unchanged locale.
             messages={messages}
           >
             <Payment
@@ -912,13 +790,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
               lang={locale}
               disabled={this.#loading}
               loading={this.#optionsLoading}
-              billingAddress={billingAddress}
-              portalContainer={this.#shadowRootRef}
-              billingError={
-                selectedOptionId
-                  ? this.#billingErrorsByOption.get(selectedOptionId)
-                  : undefined
-              }
               onSelectionChange={(optionId) => {
                 const previousSelectedOption = this.#resolveSelectedOption();
                 if (previousSelectedOption?.id === optionId) {
@@ -965,66 +836,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
                     },
                   ),
                 );
-              }}
-              onBillingAddressChange={({
-                optionId,
-                useSeparateBillingAddress,
-                values,
-              }) => {
-                const fullSnapshot = this.#toBillingAddressPatch({
-                  useSeparateBillingAddress,
-                  values,
-                });
-                const patch = this.#diffBillingAddressPatch(fullSnapshot);
-
-                const requestVersion =
-                  this.#nextBillingRequestVersion(optionId);
-                this.#setBillingAddressError(optionId, undefined);
-
-                if (Object.keys(patch).length === 0) {
-                  return;
-                }
-
-                const handleFailure = (error: unknown) => {
-                  if (
-                    this.#billingRequestVersionByOption.get(optionId) !==
-                    requestVersion
-                  ) {
-                    return;
-                  }
-
-                  this.#setBillingAddressError(optionId, {
-                    message: this.#getErrorMessage(error),
-                  });
-                  this.dispatchEvent(
-                    new CustomEvent<PaymentMethodSelectorBillingAddressErrorEventDetail>(
-                      paymentMethodSelectorEvents.billingAddressError,
-                      {
-                        bubbles: true,
-                        composed: true,
-                        detail: {
-                          error,
-                          optionId,
-                          useSeparateBillingAddress,
-                          values,
-                        },
-                      },
-                    ),
-                  );
-                };
-
-                try {
-                  const result =
-                    this.#checkoutClient.updateBillingAddress?.(patch);
-                  if (
-                    result &&
-                    typeof (result as Promise<unknown>).catch === "function"
-                  ) {
-                    void (result as Promise<unknown>).catch(handleFailure);
-                  }
-                } catch (error) {
-                  handleFailure(error);
-                }
               }}
               onControllerReady={(optionId, controller) => {
                 if (controller) {
@@ -1240,71 +1051,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return "";
   }
 
-  // `regionLabelMessageId` ids (e.g. "checkout_location_prefecture") are not
-  // in the region-name catalog (`#regionMessages` holds only region *name*
-  // ids like "region_jp_23") and not in this element's static message
-  // bundle either — they live in Foxy's `language_strings`, which every
-  // checkout payload includes specifically so these already-translated,
-  // store-overridable strings don't need a second copy baked into this
-  // element. Read directly off the live API state rather than threading it
-  // through `#render()`'s locals, since this is the one caller that needs it.
-  #resolveLanguageStrings(): Record<string, string> {
-    const raw = this.#resolveApiState()?.language_strings;
-    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
-
-    return Object.fromEntries(
-      Object.entries(raw as Record<string, unknown>).filter(
-        (entry): entry is [string, string] => typeof entry[1] === "string",
-      ),
-    );
-  }
-
-  // Billing field labels are plain strings in the field contract, so resolve
-  // region message ids here rather than deferring to react-intl in the view.
-  // Falls back to the supplied default when none of the sources have the id.
-  //
-  // `languageStrings` is a caller-supplied argument rather than a fresh
-  // `#resolveLanguageStrings()` call per invocation: this is called once per
-  // region option (Spain alone has 54) plus once for the field label, and
-  // `#resolveLanguageStrings()` rebuilds its whole map (`Object.entries` +
-  // `filter` + `fromEntries` over the store's entire `language_strings` set,
-  // easily 700+ entries) from scratch every time. Resolving it once per
-  // render in `#resolveBillingAddress` and threading it through here keeps
-  // the per-render cost independent of the region-option count.
-  #formatMessage(
-    id: string,
-    fallback: string,
-    languageStrings: Record<string, string>,
-  ): string {
-    const locale = this.#resolveLocale();
-    return (
-      languageStrings[id] ??
-      this.#regionMessages[id] ??
-      this.#resolveMessages(locale)[id] ??
-      fallback
-    );
-  }
-
   #toOptionalText(value: unknown): string | undefined {
     const normalized = this.#toText(value).trim();
     return normalized || undefined;
-  }
-
-  #getErrorMessage(error: unknown): string | undefined {
-    if (typeof error === "string") {
-      return error.trim() || undefined;
-    }
-
-    if (error instanceof Error) {
-      return error.message.trim() || undefined;
-    }
-
-    const errorRecord = this.#asRecord(error);
-    if (typeof errorRecord?.message === "string") {
-      return errorRecord.message.trim() || undefined;
-    }
-
-    return undefined;
   }
 
   #toNumber(value: unknown): number | undefined {
@@ -2792,269 +2541,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return this.#options;
   }
 
-  #resolveBillingAddress(): PaymentMethodSelectorBillingAddress | undefined {
-    const apiJson = this.#resolveApiState();
-    if (
-      !apiJson?.billing_address ||
-      typeof apiJson.billing_address !== "object"
-    ) {
-      return undefined;
-    }
-
-    const shipments = Array.isArray(apiJson.shipments) ? apiJson.shipments : [];
-    // Billing restrictions are resolved independently of shipping ones. This
-    // previously read the shipment's list, so a store restricting shipping
-    // also restricted billing.
-    const countryOptions = getCachedCountryOptions(
-      (apiJson.billing_address as Record<string, unknown>).country_options,
-      toBcp47Locale(this.#resolveLocale()),
-    );
-    const billingCountry = this.#toText(
-      (apiJson.billing_address as Record<string, unknown>).country,
-    );
-    const regionOptions = toRegionOptions(
-      (apiJson.billing_address as Record<string, unknown>).region_options,
-      billingCountry,
-    );
-    // Resolved once per render (not once per region option/label call) — see
-    // `#formatMessage`'s doc comment for why that matters.
-    const languageStrings = this.#resolveLanguageStrings();
-    // Country-specific label ("State" for the US, "Prefecture" for Japan) —
-    // used ONLY on the dropdown branch below, where the country's region
-    // type is actually being asked for. Reusing this on the plain-text
-    // branch too (as this used to) mislabels the 242 of 254 countries with
-    // no known region type: `regionLabelMessageId` defaults every one of
-    // them to the "state" id, so with no store override every one of them
-    // showed literally "State".
-    const dropdownRegionLabelId = regionLabelMessageId(billingCountry);
-    const dropdownRegionLabel = this.#formatMessage(
-      dropdownRegionLabelId,
-      REGION_LABEL_FALLBACKS[dropdownRegionLabelId] ??
-        REGION_LABEL_FALLBACKS.checkout_location_state,
-      languageStrings,
-    );
-    // Generic label for the plain-text branch — the common case, since only
-    // 12 of 254 countries have regions at all. Matches foxy-checkout's
-    // `checkout_region_label` (builders/messages.ts).
-    const textRegionLabel = this.#formatMessage(
-      GENERIC_REGION_LABEL_ID,
-      GENERIC_REGION_LABEL_DEFAULT,
-      languageStrings,
-    );
-
-    const billingAddress = apiJson.billing_address as Record<string, unknown>;
-    const fields: PaymentMethodSelectorBillingField[] = [
-      {
-        id: "billing-first-name",
-        label: "First name",
-        type: "text",
-        value: this.#toText(billingAddress.first_name),
-      },
-      {
-        id: "billing-last-name",
-        label: "Last name",
-        type: "text",
-        value: this.#toText(billingAddress.last_name),
-      },
-      {
-        id: "billing-address1",
-        label: "Address",
-        type: "text",
-        value: this.#toText(billingAddress.address1),
-      },
-      {
-        id: "billing-address2",
-        label: "Address 2",
-        type: "text",
-        value: this.#toText(billingAddress.address2),
-      },
-      countryOptions.length
-        ? {
-            id: "billing-country",
-            label: "Country",
-            type: "searchable-select",
-            // `toCountryOptions` uppercases every option value (see
-            // countryOptions.ts), and `SearchableSelect` resolves the
-            // selection with `items.find(item => item.value === value)` — an
-            // exact string match. Normalize the same way so a saved
-            // lowercase (or mixed-case) country still resolves instead of
-            // silently rendering the placeholder. `#toText` already returns
-            // `""` for a missing/non-string `country`, so no extra guard is
-            // needed here.
-            value: this.#toText(billingAddress.country).trim().toUpperCase(),
-            options: countryOptions,
-          }
-        : {
-            id: "billing-country",
-            label: "Country",
-            type: "text",
-            value: this.#toText(billingAddress.country),
-          },
-      {
-        id: "billing-postal-code",
-        label: "Postal code",
-        type: "text",
-        value: this.#toText(billingAddress.postal_code),
-      },
-      regionOptions.length
-        ? {
-            id: "billing-region",
-            label: dropdownRegionLabel,
-            type: "searchable-select",
-            // `toRegionOptions` trims its values (see checkout.ts), and
-            // `SearchableSelect` resolves the selection with
-            // `items.find(item => item.value === value)` — an exact string
-            // match. Trim the same way so a saved region with surrounding
-            // whitespace still resolves instead of silently rendering the
-            // placeholder. Never uppercase this: unlike country codes,
-            // region codes are not uniformly cased (Spain's are
-            // human-readable names containing spaces, Japan's and Norway's
-            // are numeric) — uppercasing would make them unmatchable against
-            // the very list they came from.
-            value: this.#toText(billingAddress.region).trim(),
-            options: regionOptions.map((option) => ({
-              value: option.value,
-              label: this.#formatMessage(
-                option.messageId,
-                option.value,
-                languageStrings,
-              ),
-            })),
-          }
-        : {
-            id: "billing-region",
-            label: textRegionLabel,
-            type: "text",
-            value: this.#toText(billingAddress.region),
-          },
-      {
-        id: "billing-city",
-        label: "City",
-        type: "text",
-        value: this.#toText(billingAddress.city),
-      },
-      {
-        id: "billing-phone",
-        label: "Phone",
-        type: "tel",
-        value: this.#toText(billingAddress.phone),
-      },
-      {
-        id: "billing-company",
-        label: "Company",
-        type: "text",
-        value: this.#toText(billingAddress.company),
-      },
-    ];
-
-    return {
-      useSeparateBillingAddress:
-        billingAddress.use_separate_billing_address === true,
-      hasShippingAddress: shipments.some(
-        (s) => (s as Record<string, unknown>).has_shippable_items === true,
-      ),
-      fields,
-    };
-  }
-
-  #toBillingAddressPatch(params: {
-    useSeparateBillingAddress: boolean;
-    values: Record<string, string>;
-  }): Record<string, unknown> {
-    return {
-      use_separate_billing_address: params.useSeparateBillingAddress,
-      first_name: params.values["billing-first-name"] ?? "",
-      last_name: params.values["billing-last-name"] ?? "",
-      company: params.values["billing-company"] ?? "",
-      address1: params.values["billing-address1"] ?? "",
-      address2: params.values["billing-address2"] ?? "",
-      city: params.values["billing-city"] ?? "",
-      region: params.values["billing-region"] ?? "",
-      postal_code: params.values["billing-postal-code"] ?? "",
-      country: params.values["billing-country"] ?? "",
-      phone: params.values["billing-phone"] ?? "",
-    };
-  }
-
-  // The billing address API validates only the keys present in a patch —
-  // present-but-empty means "the shopper just cleared this field," so a
-  // full-form snapshot makes every not-yet-typed required field look
-  // cleared on every keystroke. Diffing against the last confirmed backend
-  // state keeps the patch to what actually changed.
-  #diffBillingAddressPatch(
-    patch: Record<string, unknown>,
-  ): Record<string, unknown> {
-    const state = this.#resolveApiState();
-    const current = this.#asRecord(state?.billing_address);
-    if (!current) return patch;
-
-    return Object.fromEntries(
-      Object.entries(patch).filter(([key, value]) => {
-        const currentValue = current[key];
-
-        if (typeof value === "boolean") {
-          return Boolean(currentValue) !== value;
-        }
-
-        // The "country" field is seeded from `#resolveBillingAddress` in
-        // uppercase (to match `toCountryOptions`'s option values, see
-        // there), while `currentValue` here is the raw, un-normalized API
-        // value. Comparing them case-sensitively would report a change for
-        // every render of a lowercase (or mixed-case) saved country, even
-        // though the shopper never touched the field.
-        if (key === "country") {
-          return (
-            this.#toText(currentValue).trim().toUpperCase() !==
-            this.#toText(value).trim().toUpperCase()
-          );
-        }
-
-        // The "region" field is seeded from `#resolveBillingAddress` trimmed
-        // (to match the searchable-select option values, see there), while
-        // `currentValue` here is the raw, un-normalized API value. Comparing
-        // case-sensitively-but-untrimmed would report a change for every
-        // render of a region with surrounding whitespace, even though the
-        // shopper never touched the field. Trim only — never change case:
-        // unlike country, region codes are not uniformly cased.
-        if (key === "region") {
-          return (
-            this.#toText(currentValue).trim() !== this.#toText(value).trim()
-          );
-        }
-
-        return this.#toText(currentValue) !== this.#toText(value);
-      }),
-    );
-  }
-
-  #nextBillingRequestVersion(optionId: string): number {
-    const nextVersion =
-      (this.#billingRequestVersionByOption.get(optionId) ?? 0) + 1;
-    this.#billingRequestVersionByOption.set(optionId, nextVersion);
-    return nextVersion;
-  }
-
-  #setBillingAddressError(
-    optionId: string,
-    error: PaymentMethodSelectorBillingError | undefined,
-  ) {
-    const previous = this.#billingErrorsByOption.get(optionId);
-
-    if (!error) {
-      if (!this.#billingErrorsByOption.has(optionId)) return;
-      this.#billingErrorsByOption.delete(optionId);
-      this.#render();
-      return;
-    }
-
-    if (previous?.message === error.message) {
-      return;
-    }
-
-    this.#billingErrorsByOption.set(optionId, error);
-    this.#render();
-  }
-
   #isStripeOption(option: PaymentMethodSelectorOption | undefined): boolean {
     if (!option) return false;
     return (
@@ -3437,13 +2923,6 @@ export interface PaymentMethodSelectorElement {
     options?: boolean | AddEventListenerOptions,
   ): void;
   addEventListener(
-    type: "billingaddresserror",
-    listener: (
-      ev: CustomEvent<PaymentMethodSelectorBillingAddressErrorEventDetail>,
-    ) => void,
-    options?: boolean | AddEventListenerOptions,
-  ): void;
-  addEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
     options?: boolean | AddEventListenerOptions,
@@ -3468,13 +2947,6 @@ export interface PaymentMethodSelectorElement {
   removeEventListener(
     type: "tokenizationerror",
     listener: (ev: CustomEvent<{ error: unknown }>) => void,
-    options?: boolean | EventListenerOptions,
-  ): void;
-  removeEventListener(
-    type: "billingaddresserror",
-    listener: (
-      ev: CustomEvent<PaymentMethodSelectorBillingAddressErrorEventDetail>,
-    ) => void,
     options?: boolean | EventListenerOptions,
   ): void;
   removeEventListener(

@@ -588,11 +588,6 @@ type PaymentMethodSelectorTokenizePayload =
   | PaymentMethodSelectorGenericTokenizePayload;
 ```
 
-Billing address edits are sent directly to the checkout client through
-
-<code>updateBillingAddress(...)</code> as fields change. They are not included
-in the tokenization payload.
-
 Purchase order selections render a single required purchase order number field.
 The selector enforces a 32-character maximum and returns the entered value in
 the tokenization payload.
@@ -757,22 +752,6 @@ Payload fields by selected option:
         <code>CustomEvent&lt;&#123; optionIndex: number &#125;&gt;</code>
       </td>
       <td>Fires after user selection changes to a new option.</td>
-    </tr>
-    <tr>
-      <td>
-        <code>billingaddresserror</code>
-      </td>
-      <td>
-        <code>
-          CustomEvent&lt;&#123; error: unknown; optionId: string;
-          useSeparateBillingAddress: boolean; values: Record&lt;string, string&gt;
-          &#125;&gt;
-        </code>
-      </td>
-      <td>
-        Fires when a billing-address update fails after the user changes billing
-        details or toggles the separate-billing-address option.
-      </td>
     </tr>
   </tbody>
 </table>

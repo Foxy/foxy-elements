@@ -13,9 +13,9 @@ import { Checkbox } from "@foxy.io/design-system/checkbox";
 import { Field } from "@foxy.io/design-system/field";
 import { styled } from "styled-components";
 
-// space.md is the rhythm the design system's Field.Group uses between fields,
-// and what billing.tsx uses between its own rows and error text. This was sm,
-// which put the tokenization error closer to the fields than anywhere else.
+// space.md is the rhythm the design system's Field.Group uses between fields.
+// This was sm, which put the tokenization error closer to the fields than
+// anywhere else.
 const AchFieldsRoot = styled.div`
   display: flex;
   flex-direction: column;
@@ -34,8 +34,7 @@ const AchFieldGrid = styled(Field.Group)`
 // Field.Root's own base styles are \`display: grid\` (label stacked above
 // control). This section only ever needs the old shadcn Field's
 // \`orientation="horizontal"\` layout (checkbox beside its label), which the
-// new Field.Root has no equivalent prop for, so it's baked in here instead
-// (same gap already found for billing.tsx's ShippingToggleField).
+// new Field.Root has no equivalent prop for, so it's baked in here instead.
 const AchOwnerConfirmationField = styled(Field.Root)`
   grid-column: 1 / -1;
   display: flex;
