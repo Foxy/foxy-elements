@@ -255,8 +255,8 @@ function createPurchaseOrderApiState() {
 
 function createPayPalPlatformApiState() {
   return {
+    use_separate_billing_address: false,
     billing_address: {
-      use_separate_billing_address: false,
       first_name: "Taylor",
       last_name: "Morgan",
       company: "",
@@ -295,8 +295,8 @@ function createKlarnaApiState() {
     customer: {
       email: "taylor@example.com",
     },
+    use_separate_billing_address: true,
     billing_address: {
-      use_separate_billing_address: true,
       first_name: "Taylor",
       last_name: "Morgan",
       company: "",
@@ -364,8 +364,8 @@ function createSezzleApiState() {
 
 function createAdyenEmbeddedApiState() {
   return {
+    use_separate_billing_address: false,
     billing_address: {
-      use_separate_billing_address: false,
       first_name: "Taylor",
       last_name: "Morgan",
       company: "",
