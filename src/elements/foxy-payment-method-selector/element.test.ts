@@ -2344,6 +2344,234 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
+  describe("stripe_v2 confirm_intent flow", () => {
+    // The Payment Element itself needs a real publishable key to mount, so
+    // these drive the element through its controller seam instead: the same
+    // one StripePaymentField registers on ready.
+    async function mountStripeV2Selector(
+      controller: Partial<{
+        tokenize: () => Promise<Record<string, unknown>>;
+        confirm: (params: { clientSecret: string }) => Promise<void>;
+      }> | null,
+      apiStateOverrides: Record<string, unknown> = {},
+    ) {
+      vi.stubEnv("VITE_STRIPE_PUBLISHABLE_KEY", "");
+      vi.stubEnv("VITE_STRIPE_DEMO_PUBLISHABLE_KEY", "");
+
+      const restoreClient = overrideClientState({
+        customer: { email: "taylor@example.com", type: "guest" },
+        totals: [{ total_order: 22.04 }],
+        format: { currency_code: "USD", maximum_fraction_digits: 2 },
+        payment_gateways: [{ type: "stripe_v2", publishable_key: "" }],
+        ...apiStateOverrides,
+      });
+
+      const element = document.createElement(
+        "foxy-payment-method-selector",
+      ) as PaymentMethodSelectorElement;
+
+      document.body.append(element);
+      await waitForRender();
+
+      element.optionIndex = 0;
+      await waitForRender();
+
+      if (controller) {
+        element.setPaymentController("stripe-payment-element", {
+          tokenize: controller.tokenize ?? (async () => ({ ready: true })),
+          ...(controller.confirm ? { confirm: controller.confirm } : {}),
+        });
+      }
+
+      return {
+        element,
+        cleanup: () => {
+          element.remove();
+          restoreClient();
+          vi.unstubAllEnvs();
+        },
+      };
+    }
+
+    it("mounts deferred, with the intent's capture and card-saving settings mirrored", async () => {
+      // Stripe compares these against the PaymentIntent it is asked to confirm:
+      // an auth-only gateway creates a manual-capture intent, and the backend
+      // attaches a Stripe customer for anyone not checking out as a guest.
+      const { element, cleanup } = await mountStripeV2Selector(null, {
+        customer: { email: "taylor@example.com", type: "registered" },
+        payment_gateways: [
+          { type: "stripe_v2", publishable_key: "", auth_only: true },
+        ],
+      });
+
+      try {
+        const options = element.selectedOption?.stripePaymentElement
+          ?.paymentElementOptions as Record<string, unknown>;
+
+        expect(options).toMatchObject({
+          mode: "payment",
+          amount: 2204,
+          currency: "usd",
+          captureMethod: "manual",
+          setupFutureUsage: "off_session",
+        });
+        // No pre-created intent to mount against on this path.
+        expect(options.clientSecret).toBeUndefined();
+      } finally {
+        cleanup();
+      }
+    });
+
+    it("sizes the amount by the currency, not by how the store displays prices", async () => {
+      // The backend converts with the locale's frac_digits, so a zero-decimal
+      // currency has to come out as 2204 and not 220400 — an amount that
+      // disagrees with the intent's cannot be confirmed.
+      const { element, cleanup } = await mountStripeV2Selector(null, {
+        totals: [{ total_order: 2204 }],
+        format: { currency_code: "JPY", maximum_fraction_digits: 2 },
+      });
+
+      try {
+        expect(
+          element.selectedOption?.stripePaymentElement?.paymentElementOptions,
+        ).toMatchObject({ amount: 2204, currency: "jpy" });
+      } finally {
+        cleanup();
+      }
+    });
+
+    it("keeps the amount intact for a store that hides decimals", async () => {
+      // `maximum_fraction_digits` drops to 0 for those stores, which would bill
+      // $22.04 as 22 minor units.
+      const { element, cleanup } = await mountStripeV2Selector(null, {
+        format: { currency_code: "USD", maximum_fraction_digits: 0 },
+      });
+
+      try {
+        expect(
+          element.selectedOption?.stripePaymentElement?.paymentElementOptions,
+        ).toMatchObject({ amount: 2204, currency: "usd" });
+      } finally {
+        cleanup();
+      }
+    });
+
+    it("omits card saving for a guest, matching what the backend asks Stripe for", async () => {
+      const { element, cleanup } = await mountStripeV2Selector(null);
+
+      try {
+        const options = element.selectedOption?.stripePaymentElement
+          ?.paymentElementOptions as Record<string, unknown>;
+
+        expect(options.setupFutureUsage).toBeUndefined();
+        expect(options.captureMethod).toBeUndefined();
+      } finally {
+        cleanup();
+      }
+    });
+
+    it("tokenizes to a request id only — the card is never turned into a token", async () => {
+      const tokenize = vi.fn(async () => ({ ready: true }));
+      const { element, cleanup } = await mountStripeV2Selector({ tokenize });
+
+      try {
+        const payload = await element.tokenize();
+
+        expect(tokenize).toHaveBeenCalledTimes(1);
+        expect(Object.keys(payload)).toEqual(["requestId"]);
+      } finally {
+        cleanup();
+      }
+    });
+
+    it("refuses to submit when the Payment Element never validated the details", async () => {
+      // Without this the submission would look like every other stripe_v2 one,
+      // and the backend would create a PaymentIntent that nothing on the page
+      // can confirm — leaving the transaction locked.
+      const { element, cleanup } = await mountStripeV2Selector({
+        tokenize: async () => ({}),
+      });
+
+      try {
+        await expect(element.tokenize()).rejects.toThrow(
+          "Stripe Payment Element is not ready yet.",
+        );
+      } finally {
+        cleanup();
+      }
+    });
+
+    it("confirms a confirm_intent next action with the mounted payment method", async () => {
+      const confirm = vi.fn(async () => undefined);
+      const { element, cleanup } = await mountStripeV2Selector({ confirm });
+
+      try {
+        await element.handleNextAction({
+          type: "confirm_intent",
+          gateway: "stripe_v2",
+          params: { client_secret: "pi_123_secret_abc" },
+        });
+
+        expect(confirm).toHaveBeenCalledWith({
+          clientSecret: "pi_123_secret_abc",
+        });
+      } finally {
+        cleanup();
+      }
+    });
+
+    it("rejects a next action of an unsupported type", async () => {
+      const confirm = vi.fn(async () => undefined);
+      const { element, cleanup } = await mountStripeV2Selector({ confirm });
+
+      try {
+        await expect(
+          element.handleNextAction({
+            type: "three_ds_challenge",
+            gateway: "stripe_v2",
+            params: { client_secret: "pi_123_secret_abc" },
+          }),
+        ).rejects.toThrow("Unsupported checkout next action");
+        expect(confirm).not.toHaveBeenCalled();
+      } finally {
+        cleanup();
+      }
+    });
+
+    it("rejects a confirm_intent next action with no client secret", async () => {
+      const confirm = vi.fn(async () => undefined);
+      const { element, cleanup } = await mountStripeV2Selector({ confirm });
+
+      try {
+        await expect(
+          element.handleNextAction({
+            type: "confirm_intent",
+            gateway: "stripe_v2",
+            params: {},
+          }),
+        ).rejects.toThrow("missing a client secret");
+        expect(confirm).not.toHaveBeenCalled();
+      } finally {
+        cleanup();
+      }
+    });
+
+    it("rejects when the selected payment method cannot confirm", async () => {
+      const { element, cleanup } = await mountStripeV2Selector({});
+
+      try {
+        await expect(
+          element.handleNextAction({
+            type: "confirm_intent",
+            gateway: "stripe_v2",
+            params: { client_secret: "pi_123_secret_abc" },
+          }),
+        ).rejects.toThrow("cannot complete this confirmation step");
+      } finally {
+        cleanup();
+      }
+    });
+  });
 });
 
 describe("toBcp47Locale", () => {

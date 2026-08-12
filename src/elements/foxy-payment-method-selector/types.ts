@@ -65,9 +65,14 @@ export type PaymentMethodSelectorStripeCardElementTokenizePayload = {
   card_token_id: string;
 };
 
-export type PaymentMethodSelectorStripePaymentElementTokenizePayload =
-  | { requestId: string; confirmation_token_id: string }
-  | { requestId: string; payment_intent_id: string };
+/**
+ * Stripe Payment Element (stripe_v2) carries no token. The submit request only
+ * names the gateway; the backend answers with a `confirm_intent` next action
+ * whose client secret is confirmed via {@link PaymentController.confirm}.
+ */
+export type PaymentMethodSelectorStripePaymentElementTokenizePayload = {
+  requestId: string;
+};
 
 export type PaymentMethodSelectorPurchaseOrderTokenizePayload = {
   requestId: string;
@@ -168,6 +173,14 @@ export type PaymentController = {
     requestId?: string,
   ) => Promise<PaymentMethodSelectorTokenizePayload | Record<string, unknown>>;
   /**
+   * Optional. Completes a client-side confirmation step the checkout API asked
+   * for after submit (`next_action.type === "confirm_intent"`), using the SDK
+   * instance that holds the shopper's payment details. Resolves once the
+   * gateway has been given the details; the outcome is then verified
+   * server-side via `POST /checkout?action=continue`.
+   */
+  confirm?: (params: { clientSecret: string }) => Promise<void>;
+  /**
    * Optional. Called when the host selects a different (non-Adyen) payment
    * option so the controller can deselect/collapse any internally selected
    * payment method (e.g. the Adyen Drop-in's active payment method).
@@ -204,7 +217,6 @@ export type PaymentMethodSelectorOption = {
     locale?: string;
     appearance?: Record<string, unknown>;
     paymentElementOptions?: Record<string, unknown>;
-    clientSecret?: string;
     returnUrl?: string;
   };
   hostedFields?: {

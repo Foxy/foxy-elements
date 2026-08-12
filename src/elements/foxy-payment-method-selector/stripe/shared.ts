@@ -73,6 +73,33 @@ export function resolveStripeLocale(
   return "en";
 }
 
+/**
+ * Digits after the decimal point in a currency's smallest unit, which is the
+ * exponent Stripe amounts are expressed in (2 for USD, 0 for JPY, 3 for KWD).
+ *
+ * Deliberately not the checkout JSON's `format.maximum_fraction_digits`: that
+ * is a display setting (2, or 0 when the store hides decimals) and says nothing
+ * about the currency. The backend converts with the locale's `frac_digits`, and
+ * an amount that disagrees with the PaymentIntent's cannot be confirmed.
+ *
+ * @returns undefined for a currency code Intl does not recognize
+ */
+export function getCurrencyMinorUnitExponent(
+  currencyCode: string,
+): number | undefined {
+  const normalized = currencyCode.trim().toUpperCase();
+  if (!/^[A-Z]{3}$/.test(normalized)) return undefined;
+
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: normalized,
+    }).resolvedOptions().maximumFractionDigits;
+  } catch {
+    return undefined;
+  }
+}
+
 export function resolveStripePublishableKey(
   explicitKey: string | undefined,
 ): string | undefined {
