@@ -28,10 +28,9 @@ import {
 import { ACH_GATEWAY_TYPES } from "./constants";
 import { messages } from "./messages";
 import { Payment } from "./view";
-import { loadStripe } from "@stripe/stripe-js/pure";
 import { StripeCardElementOption } from "./stripe/card-option";
 import { StripePaymentElementOption } from "./stripe/payment-option";
-import { resolveStripePublishableKey } from "./stripe/shared";
+import { getCurrencyMinorUnitExponent } from "./stripe/shared";
 import AdyenEmbeddedOption from "./embeds/adyen-embedded";
 import {
   ThemeMixin,
@@ -311,48 +310,67 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
   }
 
-  async handleNextAction(
-    clientSecret: string,
-  ): Promise<{ payment_intent_id: string }> {
-    const apiState = this.#resolveApiState();
-    if (!apiState) {
+  /**
+   * Completes a client-side step the checkout API asked for on a submit
+   * response (`next_action`), using the selected payment method's own SDK
+   * instance — the shopper's details never leave it, so nothing else can
+   * confirm on its behalf.
+   *
+   * Resolving means the gateway has the details, not that the payment
+   * succeeded: the caller must resume with `POST /checkout?action=continue`,
+   * which is where the outcome is established server-to-server.
+   */
+  async handleNextAction(nextAction: {
+    type: string;
+    gateway?: string;
+    params?: Record<string, unknown>;
+  }): Promise<void> {
+    if (!this.#resolveApiState()) {
       throw new Error("Checkout client is not initialized.");
+    }
+
+    if (nextAction.type !== "confirm_intent") {
+      throw new Error(
+        `Unsupported checkout next action: ${nextAction.type || "(none)"}.`,
+      );
+    }
+
+    const clientSecret = this.#toOptionalText(nextAction.params?.client_secret);
+    if (!clientSecret) {
+      throw new Error("Checkout next action is missing a client secret.");
+    }
+
+    const options = await this.#waitForOptions();
+    const optionIndex = this.#resolveSelectedOptionIndex(options);
+    const selectedOption =
+      optionIndex === undefined ? undefined : options[optionIndex];
+
+    if (!selectedOption) {
+      throw new Error("No payment method is selected.");
+    }
+
+    if (
+      nextAction.gateway &&
+      selectedOption.gateway &&
+      nextAction.gateway !== selectedOption.gateway
+    ) {
+      throw new Error(
+        `Checkout next action is for ${nextAction.gateway}, but ${selectedOption.gateway} is selected.`,
+      );
     }
 
     this.#setLoading(true);
 
     try {
-      const gatewayConfig = this.#getArrayRecords(
-        apiState.payment_gateways,
-      ).find((c) => this.#toText(c.type) === "stripe_v2");
+      const controller = await this.#awaitController(selectedOption.id);
 
-      if (!gatewayConfig) {
-        throw new Error("No stripe_v2 payment gateway is configured.");
-      }
-
-      const publishableKey = resolveStripePublishableKey(
-        this.#toOptionalText(gatewayConfig.publishable_key),
-      );
-
-      if (!publishableKey) {
-        throw new Error("Stripe publishable key is not configured.");
-      }
-
-      const stripe = await loadStripe(publishableKey);
-      if (!stripe) {
-        throw new Error("Failed to initialize Stripe.");
-      }
-
-      const result = await stripe.handleNextAction({ clientSecret });
-
-      if (result.error || !result.paymentIntent?.id) {
+      if (!controller?.confirm) {
         throw new Error(
-          result.error?.message ??
-            "Stripe next action did not return a payment intent.",
+          "The selected payment method cannot complete this confirmation step.",
         );
       }
 
-      return { payment_intent_id: result.paymentIntent.id };
+      await controller.confirm({ clientSecret });
     } finally {
       this.#setLoading(false);
     }
@@ -1247,23 +1265,16 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       };
     }
 
+    // No token: the checkout submission names the gateway and nothing else.
+    // The only thing to check is that the Payment Element really validated the
+    // shopper's details — submitting without it creates a PaymentIntent that
+    // nothing on the page can confirm.
     if (selectedOption.type === "stripe-payment-element") {
-      const requestId = crypto.randomUUID();
-      const paymentIntentId = this.#readPayloadString(
-        payload,
-        "paymentIntentId",
-      );
-      if (paymentIntentId) {
-        return { requestId, payment_intent_id: paymentIntentId };
+      if (payload.ready !== true) {
+        throw new Error("Stripe Payment Element is not ready yet.");
       }
-      return {
-        requestId,
-        confirmation_token_id: this.#requirePayloadString(
-          payload,
-          "confirmationTokenId",
-          "Stripe Payment Element tokenization response is missing a confirmation token id.",
-        ),
-      };
+
+      return { requestId: crypto.randomUUID() };
     }
 
     if (selectedOption.type === "purchase-order") {
@@ -1894,8 +1905,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           gateway,
           publishable_key: this.#toOptionalText(config.publishable_key),
           locale: this.#toOptionalText(config.locale),
-          client_secret: this.#toOptionalText(config.client_secret),
-          return_url: this.#toOptionalText(config.return_url),
+          auth_only: config.auth_only === true,
         },
       ];
     }
@@ -1970,21 +1980,31 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
 
 
+  /**
+   * The order total in the currency's smallest unit, which has to come out as
+   * the same integer the backend puts on the PaymentIntent — Stripe compares
+   * the two when confirming, and `total_order` is the same
+   * `getTotalAmountToCharge()` the intent is built from.
+   */
   #getStripePaymentElementAmount(
     apiState: Record<string, unknown>,
   ): number | undefined {
     const totals = Array.isArray(apiState.totals) ? apiState.totals : [];
     const total = this.#asRecord(totals[0]);
     const totalOrder = total?.total_order;
-    if (typeof totalOrder !== "number") return undefined;
+    if (typeof totalOrder !== "number" || !Number.isFinite(totalOrder)) {
+      return undefined;
+    }
 
-    const format = this.#asRecord(apiState.format);
-    const maximumFractionDigits =
-      typeof format?.maximum_fraction_digits === "number"
-        ? format.maximum_fraction_digits
-        : 2;
+    const currency = this.#getStripePaymentElementCurrency(apiState);
+    if (!currency) return undefined;
 
-    return Math.round(totalOrder * 10 ** maximumFractionDigits);
+    const exponent = getCurrencyMinorUnitExponent(currency);
+    if (exponent === undefined) return undefined;
+
+    const amount = Math.round(totalOrder * 10 ** exponent);
+
+    return Number.isSafeInteger(amount) && amount >= 0 ? amount : undefined;
   }
 
   #getStripePaymentElementCurrency(
@@ -2101,6 +2121,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
   #createStripePaymentElementOptions(
     apiState: Record<string, unknown>,
+    authOnly: boolean,
   ): Record<string, unknown> {
     const options: Record<string, unknown> = { mode: "payment" };
 
@@ -2114,12 +2135,64 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       options.currency = currency;
     }
 
+    // Both must match the PaymentIntent the backend creates on submit, or
+    // Stripe refuses to confirm it. An auth-only gateway makes the intent
+    // manual-capture, and the backend attaches a Stripe customer with
+    // `setup_future_usage: off_session` for everyone who is not checking out as
+    // a guest — so the card stays reusable.
+    if (authOnly) {
+      options.captureMethod = "manual";
+    }
+
+    if (this.#stripeIntentSavesPaymentMethod(apiState)) {
+      options.setupFutureUsage = "off_session";
+    }
+
     const defaultValues = this.#getStripePaymentElementDefaultValues(apiState);
     if (defaultValues) {
       options.defaultValues = defaultValues;
     }
 
     return options;
+  }
+
+  /**
+   * Whether the backend will ask Stripe to keep the payment method on file.
+   * Mirrors its own condition, which is the customer's guest-vs-account
+   * preference — not whether they already have an account, since a first-time
+   * buyer creating one still has no customer id at submit time.
+   */
+  #stripeIntentSavesPaymentMethod(apiState: Record<string, unknown>): boolean {
+    const customer = this.#asRecord(apiState.customer);
+
+    return this.#toOptionalText(customer?.type) !== "guest";
+  }
+
+  /**
+   * Where Stripe sends a shopper who was taken offsite to authenticate (3DS, or
+   * a redirect-based payment method).
+   *
+   * Their own checkout page, rather than the gateway config's `return_url`:
+   * that one is only rewritten to the v3 `?action=return` landing for
+   * full-page-redirect gateways, so on this path it still points at the legacy
+   * endpoint. Coming back to the checkout keeps the shopper somewhere that can
+   * resolve the attempt.
+   */
+  #getStripeReturnUrl(apiState: Record<string, unknown>): string | undefined {
+    const store = this.#asRecord(apiState.store);
+    const checkoutUrl = this.#toOptionalText(store?.checkout_url);
+    if (!checkoutUrl) return undefined;
+
+    const session = this.#asRecord(apiState.session);
+    const sessionId = this.#toOptionalText(session?.id);
+
+    try {
+      const url = new URL(checkoutUrl);
+      if (sessionId) url.searchParams.set("session_id", sessionId);
+      return url.toString();
+    } catch {
+      return undefined;
+    }
   }
 
   #getStripePaymentElementDefaultValues(
@@ -2440,9 +2513,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     if (type === "stripe-payment-element") {
-      const clientSecret =
-        this.#toOptionalText(option.client_secret) || undefined;
-      const returnUrl = this.#toOptionalText(option.return_url) || undefined;
+      const returnUrl = this.#getStripeReturnUrl(apiState);
       return [
         {
           id: optionId,
@@ -2453,9 +2524,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           stripePaymentElement: {
             publishableKey: this.#toText(option.publishable_key),
             locale: this.#toText(option.locale) || undefined,
-            paymentElementOptions:
-              this.#createStripePaymentElementOptions(apiState),
-            ...(clientSecret ? { clientSecret } : {}),
+            paymentElementOptions: this.#createStripePaymentElementOptions(
+              apiState,
+              option.auth_only === true,
+            ),
             ...(returnUrl ? { returnUrl } : {}),
           },
         },

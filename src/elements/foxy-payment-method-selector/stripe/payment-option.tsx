@@ -50,9 +50,9 @@ function parseElementsOptions(
   locale: StripeElementsOptions["locale"],
   appearance: StripeElementsOptions["appearance"],
   config: PaymentElementOptionsMap | undefined,
-  nativeClientSecret: string | undefined,
 ): {
-  elementsOptions: StripeElementsOptions;
+  /** null when the order cannot be described to Stripe — see below. */
+  elementsOptions: StripeElementsOptions | null;
   paymentElementOptions: PaymentElementOptionsMap;
 } {
   const paymentElementOptions = { ...(config ?? {}) };
@@ -94,15 +94,11 @@ function parseElementsOptions(
     },
   };
 
-  const clientSecret =
-    nativeClientSecret ??
-    (typeof paymentElementOptions.clientSecret === "string"
-      ? paymentElementOptions.clientSecret
-      : undefined);
   const mode =
-    typeof paymentElementOptions.mode === "string"
-      ? (paymentElementOptions.mode as StripeElementsOptions["mode"])
-      : undefined;
+    paymentElementOptions.mode === "setup" ||
+    paymentElementOptions.mode === "subscription"
+      ? paymentElementOptions.mode
+      : ("payment" as const);
   const amount =
     typeof paymentElementOptions.amount === "number"
       ? paymentElementOptions.amount
@@ -111,6 +107,19 @@ function parseElementsOptions(
     typeof paymentElementOptions.currency === "string"
       ? paymentElementOptions.currency
       : undefined;
+  // Both mirror the PaymentIntent the backend creates on submit. Stripe
+  // compares them against the fetched intent when confirming a deferred one,
+  // and they also change which payment methods the element offers.
+  const captureMethod =
+    paymentElementOptions.captureMethod === "manual"
+      ? ("manual" as const)
+      : undefined;
+  const setupFutureUsage =
+    paymentElementOptions.setupFutureUsage === "off_session"
+      ? ("off_session" as const)
+      : paymentElementOptions.setupFutureUsage === "on_session"
+        ? ("on_session" as const)
+        : undefined;
   const configuredFonts = Array.isArray(paymentElementOptions.fonts)
     ? (paymentElementOptions.fonts as NonNullable<
         StripeElementsOptions["fonts"]
@@ -118,35 +127,71 @@ function parseElementsOptions(
     : undefined;
   const fonts = getStripeFontsForAppearance(appearance, configuredFonts);
 
-  delete paymentElementOptions.clientSecret;
   delete paymentElementOptions.mode;
   delete paymentElementOptions.amount;
   delete paymentElementOptions.currency;
+  delete paymentElementOptions.captureMethod;
+  delete paymentElementOptions.setupFutureUsage;
   delete paymentElementOptions.fonts;
   delete paymentElementOptions.excludedPaymentMethodTypes;
 
-  const elementsOptions: StripeElementsOptions = {
+  // Always deferred: the intent does not exist until the shopper submits, so
+  // there is no client secret to create Elements with. It arrives later, on the
+  // `confirm_intent` next action, and is passed to `confirmPayment` alone —
+  // never back into these options, which would remount Elements and destroy the
+  // instance holding the shopper's card.
+  const sharedOptions = {
     locale,
     appearance,
     ...(fonts ? { fonts } : {}),
-    ...(clientSecret
-      ? { clientSecret }
-      : mode
-        ? {
-            mode,
-            amount: amount ?? 2204,
-            currency: currency ?? "usd",
-          }
-        : {}),
+    ...(captureMethod ? { captureMethod } : {}),
+    ...(setupFutureUsage ? { setupFutureUsage } : {}),
   };
 
+  // No placeholder amount or currency. Stripe checks both against the
+  // PaymentIntent when confirming, and by then the intent exists and the
+  // transaction is locked — a guessed value turns a missing total into a failed
+  // payment. Refusing to mount fails it at the payment form instead.
+  if (!currency || (mode !== "setup" && amount === undefined)) {
+    return { elementsOptions: null, paymentElementOptions };
+  }
+
+  const elementsOptions: StripeElementsOptions =
+    mode === "setup"
+      ? { ...sharedOptions, mode, currency }
+      : { ...sharedOptions, mode, amount: amount as number, currency };
+
   return { elementsOptions, paymentElementOptions };
+}
+
+type StripeBillingDetails = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: {
+    city?: string;
+    country?: string;
+    line1?: string;
+    line2?: string;
+    postal_code?: string;
+    state?: string;
+  };
+};
+
+/** The billing details the checkout collected, as the element was given them. */
+function readBillingDetails(
+  paymentElementOptions: PaymentElementOptionsMap,
+): StripeBillingDetails | undefined {
+  const defaultValues = paymentElementOptions.defaultValues as
+    | { billingDetails?: StripeBillingDetails }
+    | undefined;
+
+  return defaultValues?.billingDetails;
 }
 
 function StripePaymentField({
   disabled,
   paymentElementOptions,
-  clientSecret,
   returnUrl,
   onControllerReady,
   onError,
@@ -154,7 +199,6 @@ function StripePaymentField({
 }: {
   disabled?: boolean;
   paymentElementOptions: PaymentElementOptionsMap;
-  clientSecret?: string;
   returnUrl?: string;
   onControllerReady?: (controller: PaymentController | null) => void;
   onError: (message: string | null) => void;
@@ -164,34 +208,26 @@ function StripePaymentField({
   const elements = useElements();
   const paymentElementOptionsRef = useRef(paymentElementOptions);
   paymentElementOptionsRef.current = paymentElementOptions;
-  const clientSecretRef = useRef(clientSecret);
-  clientSecretRef.current = clientSecret;
   const returnUrlRef = useRef(returnUrl);
   returnUrlRef.current = returnUrl;
 
+  // Nothing is tokenized on this path: the card stays in the iframe until the
+  // backend hands back the intent to confirm. All this does is validate the
+  // form and let wallets collect their data, which Stripe requires before a
+  // deferred intent can be confirmed — and doing it before the submit request
+  // means an incomplete form fails without creating an intent at all.
   const tokenize = useCallback(async () => {
     if (!stripe || !elements) {
       throw new Error("Stripe Payment Element is not ready yet.");
     }
 
-    const currentClientSecret = clientSecretRef.current;
-
-    if (currentClientSecret) {
-      const result = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: returnUrlRef.current ?? window.location.href,
-        },
-        redirect: "if_required",
-      });
-
-      if (result.error || !result.paymentIntent?.id) {
-        throw new Error(
-          result.error?.message ?? "Unable to confirm Stripe payment.",
-        );
-      }
-
-      return { paymentIntentId: result.paymentIntent.id };
+    // Every billing field is set to "never" (the checkout collects them
+    // itself), so Stripe requires their values at confirmation time. Checked
+    // here rather than there: by confirmation the intent exists and the
+    // transaction is locked, so the same missing data costs the shopper a
+    // retry instead of a corrected form.
+    if (!readBillingDetails(paymentElementOptionsRef.current)) {
+      throw new Error("Billing details are required to pay with Stripe.");
     }
 
     if (typeof elements.submit === "function") {
@@ -203,42 +239,42 @@ function StripePaymentField({
       }
     }
 
-    const defaultValues = paymentElementOptionsRef.current.defaultValues as
-      | {
-          billingDetails?: {
-            name?: string;
-            email?: string;
-            phone?: string;
-            address?: {
-              city?: string;
-              country?: string;
-              line1?: string;
-              line2?: string;
-              postal_code?: string;
-              state?: string;
-            };
-          };
-        }
-      | undefined;
-    const billingDetails = defaultValues?.billingDetails;
-
-    const result = await stripe.createConfirmationToken({
-      elements,
-      ...(billingDetails
-        ? { params: { payment_method_data: { billing_details: billingDetails } } }
-        : {}),
-    });
-
-    if (result.error || !result.confirmationToken?.id) {
-      throw new Error(
-        result.error?.message ?? "Unable to create Stripe confirmation token.",
-      );
-    }
-
-    return {
-      confirmationTokenId: result.confirmationToken.id,
-    };
+    // Proof that this ran, which the selector requires before it will let the
+    // checkout submit: without it, a Payment Element that never mounted would
+    // submit as an empty payload and only fail once the intent exists.
+    return { ready: true };
   }, [elements, stripe]);
+
+  const confirm = useCallback(
+    async ({ clientSecret }: { clientSecret: string }) => {
+      if (!stripe || !elements) {
+        throw new Error("Stripe Payment Element is not ready yet.");
+      }
+
+      const billingDetails = readBillingDetails(
+        paymentElementOptionsRef.current,
+      );
+
+      // `elements` — not a bare client secret — is what carries the shopper's
+      // card: the intent the backend created has no payment method attached.
+      const result = await stripe.confirmPayment({
+        elements,
+        clientSecret,
+        confirmParams: {
+          return_url: returnUrlRef.current ?? window.location.href,
+          ...(billingDetails ? { payment_method_data: { billing_details: billingDetails } } : {}),
+        },
+        redirect: "if_required",
+      });
+
+      if (result.error) {
+        throw new Error(
+          result.error.message ?? "Unable to confirm Stripe payment.",
+        );
+      }
+    },
+    [elements, stripe],
+  );
 
   useEffect(() => {
     onControllerReady?.(null);
@@ -254,7 +290,7 @@ function StripePaymentField({
         readOnly: Boolean(disabled),
       }}
       onReady={() => {
-        onControllerReady?.({ tokenize });
+        onControllerReady?.({ tokenize, confirm });
       }}
       onChange={(event) => {
         const detail = event as { value?: { type?: string }; error?: { message?: string } };
@@ -328,12 +364,11 @@ export function StripePaymentElementOption({
         stripeLocale,
         mergedAppearance,
         stripeConfig?.paymentElementOptions,
-        stripeConfig?.clientSecret,
       ),
-    [mergedAppearance, stripeConfig?.clientSecret, stripeConfig?.paymentElementOptions, stripeLocale],
+    [mergedAppearance, stripeConfig?.paymentElementOptions, stripeLocale],
   );
 
-  if (!stripePromise || !publishableKey || !stripeConfig) {
+  if (!stripePromise || !publishableKey || !stripeConfig || !elementsOptions) {
     return (
       <p
         style={{
@@ -357,7 +392,6 @@ export function StripePaymentElementOption({
         <StripePaymentField
           disabled={disabled}
           paymentElementOptions={paymentElementOptions}
-          clientSecret={stripeConfig.clientSecret}
           returnUrl={stripeConfig.returnUrl}
           onControllerReady={stableOnControllerReady}
           onError={setErrorMessage}

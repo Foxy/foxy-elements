@@ -14,6 +14,8 @@ For the <code>adyen_embedded</code> gateway, the selector reads the SDK-initiali
 
 Sezzle is exposed as a first-class selector option. It is a redirect gateway — the backend creates the Sezzle checkout session and handles the redirect. Calling <code>tokenize()</code> on a Sezzle option returns <code>&#123;&quot;requestId&quot;:&quot;…&quot;&#125;</code>, identical to <code>mollie_omnipay</code>.
 
+The <code>stripe_v2</code> gateway takes two steps, because the card is never tokenized for us to send. <code>tokenize()</code> only validates the Payment Element (and lets wallets collect their data), resolving with a bare <code>requestId</code>; the checkout submission that follows names the gateway and carries no payment data at all. The backend answers it with a <code>next_action</code> of type <code>confirm_intent</code>, whose <code>params.client_secret</code> belongs to a PaymentIntent it created but did not confirm. Passing that next action to <code>handleNextAction()</code> confirms it from inside the mounted Payment Element — the only place the card exists — after which the caller resumes the transaction with <code>POST /checkout?action=continue</code>. A resolved <code>handleNextAction()</code> means Stripe has the card, not that the payment succeeded: the outcome is established by that resume leg, server-to-server.
+
 The themed elements in this package support a shared set of theme attributes and properties. Unlike the other themed elements, which each consume only a subset, <code>foxy-payment-method-selector</code> consumes the full shared theme token vocabulary.
 
 If checkout state is initialized but exposes no recognized payment methods, the element renders an unavailable state instead of fabricating a fallback option. In that state, <code>tokenize()</code> rejects because no payment method is selected.
@@ -540,12 +542,7 @@ type PaymentMethodSelectorStripeCardElementTokenizePayload = {
 };
 
 type PaymentMethodSelectorStripePaymentElementTokenizePayload = {
-  paymentMethodId: string;
-  paymentMethodType: string;
-  cardBrand?: string;
-  last4?: string;
-  expirationMonth?: number;
-  expirationYear?: number;
+  requestId: string;
 };
 
 type PaymentMethodSelectorPurchaseOrderTokenizePayload = {
@@ -672,10 +669,7 @@ Payload fields by selected option:
         <code>PaymentMethodSelectorStripePaymentElementTokenizePayload</code>
       </td>
       <td>
-        <code>paymentMethodId: string</code>,{" "}
-        <code>paymentMethodType: string</code>, <code>cardBrand?: string</code>,{" "}
-        <code>last4?: string</code>, <code>expirationMonth?: number</code>,{" "}
-        <code>expirationYear?: number</code>
+        <code>requestId: string</code>
       </td>
     </tr>
     <tr>
