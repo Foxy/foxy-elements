@@ -1,0 +1,8 @@
+#!/bin/sh
+# Runs the same checks a CI job would, before anything leaves this machine.
+# Activated by `git config core.hooksPath .githooks`, which the package's
+# `prepare` script sets on npm install.
+#
+# Bypass with `git push --no-verify` when you need to push known-red work.
+
+exec npm run verify

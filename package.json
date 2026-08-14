@@ -21,6 +21,11 @@
     "./foxy-payment-method-selector": "./dist/npm/foxy-payment-method-selector.js"
   },
   "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -b",
+    "verify": "npm run typecheck && npm test",
+    "prepare": "git config core.hooksPath .githooks || true",
     "extract": "formatjs extract 'src/**/*.ts*' --ignore='**/*.d.ts' --out-file src/locales/en-US.json --id-interpolation-pattern '[sha512:contenthash:base64:6]' --format simple",
     "init:adyen": "node ./scripts/init-adyen-payment-methods.js",
     "init:klarna": "node ./scripts/init-klarna-session.js",
