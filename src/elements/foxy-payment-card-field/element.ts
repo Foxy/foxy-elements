@@ -36,8 +36,8 @@ type EmbedValidationCode =
 
 export type PaymentCardFieldOption = {
   mode: PaymentCardFieldMode;
-  // INTERIM: forwarded to the embed so it can fetch its gateway_id. Removed by
-  // docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
+  // INTERIM: forwarded to the embed so it can fetch its gateway_id. Removed
+  // when card token vaulting lands.
   templateSetId?: number;
   translationCardNumberLabel?: string;
   translationCardNumberPlaceholder?: string;
@@ -653,8 +653,8 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
       url.searchParams.set("lang", this._lang);
     }
 
-    // INTERIM: lets the embed fetch its gateway_id. Removed by
-    // docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
+    // INTERIM: lets the embed fetch its gateway_id. Removed when card token
+    // vaulting lands.
     if (this._templateSetId !== undefined) {
       url.searchParams.set("template_set_id", String(this._templateSetId));
     }

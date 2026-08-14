@@ -23,8 +23,7 @@ type CardStoryArgs = {
   lang: string;
   disabled: boolean;
   // INTERIM: exercises the story harness for the embed's gateway_id lookup.
-  // Removed by
-  // docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
+  // Removed when card token vaulting lands.
   templateSetId: number;
   requestId: string;
   token: string;
