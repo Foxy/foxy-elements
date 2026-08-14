@@ -898,3 +898,82 @@ export function createPayPalSdk(
 }
 
 export const SEZZLE_GATEWAY: StoryGateway = { type: "sezzle" };
+
+/**
+ * Square resolves nothing through an SDK handle to build its option list: the
+ * element derives the buyer country from `format.locale_code` and looks the
+ * available methods up in a static table. So this fixture needs no stub — but
+ * `application_id`, `location_id` and a valid `environment` are all mandatory,
+ * and the option is dropped silently if any is missing.
+ */
+export const SQUARE_UP_GATEWAY: StoryGateway = {
+  type: "square_up",
+  application_id: "sandbox-sq0idb-story-fixture",
+  location_id: "square-location-id",
+  environment: "sandbox",
+};
+
+/**
+ * Expected Square methods per market, mirroring the table the element uses.
+ * Markets absent here fall back to card-only. Kept beside the story so it can
+ * assert the market-dependent list rather than a fixed count.
+ */
+export const SQUARE_UP_STORY_METHODS_BY_COUNTRY: Partial<
+  Record<StoryCountry, string[]>
+> = {
+  US: ["new-card", "ach", "apple-pay", "google-pay", "cash-app", "afterpay"],
+  CA: ["new-card", "apple-pay", "google-pay", "afterpay"],
+  AU: ["new-card", "apple-pay", "google-pay", "afterpay"],
+  GB: ["new-card", "apple-pay", "google-pay", "afterpay"],
+  FR: ["new-card", "apple-pay", "google-pay"],
+  IE: ["new-card", "apple-pay", "google-pay"],
+  ES: ["new-card", "apple-pay", "google-pay"],
+};
+
+export const SQUARE_UP_STORY_DEFAULT_METHODS = ["new-card"];
+
+export function expectedSquareMethods(country: StoryCountry): string[] {
+  return (
+    SQUARE_UP_STORY_METHODS_BY_COUNTRY[country] ??
+    SQUARE_UP_STORY_DEFAULT_METHODS
+  );
+}
+
+/**
+ * Stubs Square's Web Payments SDK.
+ *
+ * Unlike the other gateways this shape is derived from the embed's own type
+ * definitions in `embeds/square-web-payments.tsx` rather than from an existing
+ * test fixture, because nothing in the suite mounts a Square component. Each
+ * factory resolves to a component whose `attach` paints the container, so the
+ * story shows where the real widget would render.
+ *
+ * It also keeps the story fast. The embed polls for `checkoutClient.square`
+ * rather than failing when it is absent, and without the stub the US option
+ * list took over three seconds to appear (it did still appear — this is a
+ * delay, not a deadlock).
+ */
+export function createSquareSdk(): Record<string, unknown> {
+  const createComponent = (label: string) => ({
+    attach: async (target: string | HTMLElement) => {
+      const container =
+        typeof target === "string" ? document.querySelector(target) : target;
+
+      if (container instanceof HTMLElement) {
+        container.textContent = `Square ${label}`;
+      }
+    },
+    destroy: async () => undefined,
+    tokenize: async () => ({ status: "OK", token: `square-token-${label}` }),
+  });
+
+  return {
+    card: async () => createComponent("card"),
+    ach: async () => createComponent("ach"),
+    paymentRequest: () => ({}),
+    applePay: async () => createComponent("apple-pay"),
+    googlePay: async () => createComponent("google-pay"),
+    cashApp: async () => createComponent("cash-app"),
+    afterpayClearpay: async () => createComponent("afterpay"),
+  };
+}

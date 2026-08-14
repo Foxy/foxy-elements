@@ -11,6 +11,7 @@ import {
   PURCHASE_ORDER_GATEWAY,
   REDIRECT_GATEWAY,
   SEZZLE_GATEWAY,
+  SQUARE_UP_GATEWAY,
   STORY_COUNTRY_CODES,
   STRIPE_CONNECT_SAVED_CARD,
   STRIPE_SAVED_CARD,
@@ -26,7 +27,9 @@ import {
   createSelectorSurface,
   createStoryNote,
   createStripeConnectGateway,
+  createSquareSdk,
   createStripeV2Gateway,
+  expectedSquareMethods,
   getPrimarySelector,
   readSelectorText,
   waitForOptionCount,
@@ -572,5 +575,56 @@ export const Sezzle: Story = {
 
     await waitForOptionCount(selector, 1);
     await waitForSelectorText(selector, "Sezzle");
+  },
+};
+
+export const SquareUp: Story = {
+  parameters: {
+    controls: { include: ["country"] },
+    docs: {
+      description: {
+        story:
+          "Square, parameterised by buyer market. Square is the one gateway whose option list is market-dependent without asking any SDK: the element reads the country out of `format.locale_code` and looks up the available methods. The US offers the full set; most markets fall back to card only. Switch Country to see the list change.",
+      },
+    },
+  },
+  argTypes: {
+    country: {
+      control: "select",
+      options: STORY_COUNTRY_CODES,
+      description:
+        "Buyer market. Square supports different methods per market; unlisted markets get card only.",
+    },
+  },
+  args: { country: "US" },
+  beforeEach: ({ args }) =>
+    applyStoryApiState(
+      createApiState({
+        gateways: [SQUARE_UP_GATEWAY],
+        country: args.country as StoryCountry,
+      }),
+      { square: createSquareSdk() },
+    ),
+  render: ({ lang, country }) => {
+    const expected = expectedSquareMethods(country as StoryCountry);
+
+    return renderScenario({
+      id: "selector-square-up",
+      lang,
+      note: `Square in ${country}: ${expected.length} method(s) — ${expected.join(", ")}.`,
+    });
+  },
+  play: async ({ canvasElement, args }) => {
+    const selector = getPrimarySelector(canvasElement);
+    const expected = expectedSquareMethods(args.country as StoryCountry);
+
+    // The whole point of the market table is that the count varies, so assert
+    // against it rather than against a number baked into the story.
+    const radios = await waitForOptionCount(selector, expected.length);
+    expect(radios).toHaveLength(expected.length);
+
+    if (expected.includes("cash-app")) {
+      await waitForSelectorText(selector, "Cash App Pay");
+    }
   },
 };
