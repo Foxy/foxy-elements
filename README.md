@@ -149,6 +149,10 @@ Use Node 22 for local development.
    VITE_EMBED_ORIGIN=https://embed.foxy.io
    ```
 
+   Copy `.env.example` to get started. Every `.env*` file except `.env.example` is gitignored, so local credentials cannot be committed by accident.
+
+   These are a precondition for the test suites, not just for local development: without `VITE_EMBED_ORIGIN` the card field module throws `VITE_EMBED_ORIGIN is required.` at import time, and both vitest projects fail before running a single test.
+
    Optional Klarna Storybook setup:
 
    ```bash
@@ -162,6 +166,8 @@ Use Node 22 for local development.
 
    Run `npm run init:klarna` to open a sandbox Klarna session and write a Vite-safe encoded copy of the session response to `.env.local` as `VITE_KLARNA_INIT_RESPONSE`.
 
+   Storybook and Vitest read that generated value. There is no bundled fallback: `getKlarnaInitPaymentOptionFromEnv` in `src/lib/klarna-init-response.ts` returns `null` when the variable is absent or stale, so Klarna renders no payment option until you refresh the session. Restart Storybook afterwards, because Vite reads env files at startup.
+
    Optional Square Web Payments examples setup:
 
    ```bash
@@ -170,7 +176,7 @@ Use Node 22 for local development.
    VITE_SQUARE_ENVIRONMENT=sandbox
    ```
 
-   These are client-safe credentials — Square embeds them in the page. Find them in the [Square Developer Dashboard](https://developer.squareup.com/apps) under **Credentials** (app ID) and **Locations** (location ID). Use `sandbox` for the environment unless you have a production Square account. See `examples/square_up/README.md` for the full per-country method availability table. Storybook and Vitest can read that generated value, and the Klarna stories will prefer it over the built-in fixture when present. Restart Storybook after refreshing the session because Vite reads env files at startup.
+   These are client-safe credentials — Square embeds them in the page. Find them in the [Square Developer Dashboard](https://developer.squareup.com/apps) under **Credentials** (app ID) and **Locations** (location ID). Use `sandbox` for the environment unless you have a production Square account. See `examples/default/square_up/README.md` for the full per-country method availability table.
 
 3. Start local Storybook development:
 
