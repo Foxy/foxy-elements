@@ -25,7 +25,11 @@ import {
   type PaymentMethodSelectorTokenizationStartEventDetail,
   type PaymentMethodSelectorTokenizationSuccessEventDetail,
 } from "./events";
-import { ACH_GATEWAY_TYPES } from "./constants";
+import {
+  ACH_GATEWAY_TYPES,
+  SQUARE_UP_DEFAULT_METHODS,
+  SQUARE_UP_METHODS_BY_COUNTRY,
+} from "./constants";
 import { messages } from "./messages";
 import { Payment } from "./view";
 import { StripeCardElementOption } from "./stripe/card-option";
@@ -50,17 +54,6 @@ type CheckoutApiLike = EventTarget & {
   square?: unknown;
 };
 
-const SQUARE_UP_METHODS_BY_COUNTRY: Record<string, string[]> = {
-  US: ["new-card", "ach", "apple-pay", "google-pay", "cash-app", "afterpay"],
-  CA: ["new-card", "apple-pay", "google-pay", "afterpay"],
-  AU: ["new-card", "apple-pay", "google-pay", "afterpay"],
-  GB: ["new-card", "apple-pay", "google-pay", "afterpay"],
-  FR: ["new-card", "apple-pay", "google-pay"],
-  IE: ["new-card", "apple-pay", "google-pay"],
-  ES: ["new-card", "apple-pay", "google-pay"],
-};
-
-const SQUARE_UP_DEFAULT_METHODS = ["new-card"];
 const PAYPAL_UNDOCUMENTED_APMS = [
   {
     eligibilityKey: "bancontact",
