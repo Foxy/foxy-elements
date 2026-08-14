@@ -9,7 +9,7 @@ Payment method selector element that renders available checkout payment options,
 
 Required attributes: none. The element still requires checkout client state to be initialized before it can render payment options and tokenize.
 
-For the <code>paypal_platform</code> gateway, the selector renders the base PayPal option plus the SDK-discovered PayPal-supported methods as first-class entries instead of collapsing them into a generic fallback. The standalone PayPal examples live under <code>examples/paypal_platform/</code> with buyer-country pages named <code>us.html</code>, <code>be.html</code>, <code>nl.html</code>, <code>at.html</code>, and <code>pl.html</code>.
+For the <code>paypal_platform</code> gateway, the selector renders the base PayPal option plus the SDK-discovered PayPal-supported methods as first-class entries instead of collapsing them into a generic fallback. See the <strong>Pay Pal Platform</strong> story.
 
 For the <code>adyen_embedded</code> gateway, the selector reads the SDK-initialized Adyen Web instance exposed on <code>@foxy.io/sdk/checkout/client</code> and renders a single Adyen Drop-in selector entry that handles all available Adyen payment methods. Calling <code>tokenize()</code> submits the selected payment method to the Drop-in component and returns <code>&#123;&quot;adyenEmbedded&quot;:&#123;&quot;result&quot;:&#123;...&#125;&#125;&#125;</code>. Adyen Components inherit the selector's foxy-design-system theme tokens through Adyen's documented <code>--adyen-sdk-\*</code> CSS variables, while secured card iframes receive matching font, text, placeholder, and error colors through Adyen's secured-field styles config.
 
@@ -21,23 +21,32 @@ The themed elements in this package support a shared set of theme attributes and
 
 If checkout state is initialized but exposes no recognized payment methods, the element renders an unavailable state instead of fabricating a fallback option. In that state, <code>tokenize()</code> rejects because no payment method is selected.
 
-## Examples
+## Scenarios
 
-Run <code>npm run localdev:examples</code> and open the standalone pages under <code>examples/</code>.
+Every scenario is a story in this sidebar entry. Each one hydrates its own checkout state, so they run against fixtures rather than a live session — no gateway credentials, no sandbox setup, and no network.
 
-- Gateway-named root pages cover the SDK payment gateway ids directly, including <code>authorize.html</code>, <code>authorize_cim.html</code>, <code>braintree_sdk.html</code>, <code>bluesnap.html</code>, <code>cybersource_rest.html</code>, <code>bank_of_america.html</code>, <code>eway.html</code>, <code>firstdata_e4.html</code>, <code>moneris.html</code>, <code>nmi_native.html</code>, <code>paytrace.html</code>, <code>quickbook_payments.html</code>, <code>vantiv_omnipay.html</code>, <code>sagepay.html</code>, <code>stripe_connect.html</code>, <code>stripe_connect_charge.html</code>, <code>stripe_v2.html</code>, <code>authorize_ach.html</code>, <code>ach_com.html</code>, <code>klarna.html</code>, and <code>mollie_omnipay.html</code>. Sezzle example pages have been removed (Sezzle no longer requires a browser-side setup script).
-- <code>examples/paypal_platform/us.html</code>,<code>be.html</code>,
-  <code>nl.html</code>, <code>at.html</code>, and
-  <code>pl.html</code> cover the PayPal Platform options by buyer market, and
-  their setup notes now live in
-  <code>examples/paypal_platform/README.md</code>.
-- <code>examples/adyen_embedded/us.html</code>, <code>nl.html</code>,
-  <code>be.html</code>, and <code>pl.html</code> cover Adyen Embedded with real
-  Sessions data.
-- <code>examples/uninitialized.html</code> shows the empty client state.
+Gateway coverage:
 
-Stripe examples read <code>VITE_STRIPE_PUBLISHABLE_KEY</code> first and fall back to <code>VITE_STRIPE_DEMO_PUBLISHABLE_KEY</code> or a safe demo key. The PayPal country pages under <code>examples/paypal_platform/</code> use matching sandbox client IDs: <code>us.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_US</code>, <code>be.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_BE</code>, <code>nl.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_NL</code>, <code>at.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_AT</code>, and <code>pl.html</code> reads <code>VITE_PAYPAL_SANDBOX_CLIENT_ID_PL</code>. Each page seeds the matching locale, currency, and buyer-country hint. The per-market setup details and expected methods live in <code>examples/paypal_platform/README.md</code>. Adyen Embedded examples under <code>examples/adyen_embedded/</code> require real Adyen Session env vars and render only methods returned by Adyen for that session.
-The standard card, Stripe, and PayPal example pages also seed a single saved payment method through <code>saved_payment_methods</code> so each supported example can demonstrate the saved-card option alongside the gateway-specific flow.
+- <strong>Standard Card</strong> — a card gateway with a saved card, showing the saved method alongside the option to enter a new one.
+- <strong>Standard Ach</strong> — an ACH gateway for a guest customer, with the fields the gateway advertises.
+- <strong>Purchase Order</strong> — collects a PO number instead of payment credentials.
+- <strong>Standard Redirect</strong> — a redirect gateway that hands the buyer off to the provider.
+- <strong>Stripe V 2</strong> and <strong>Stripe Connect Or Charge</strong> — the two Stripe paths, each with a saved payment token.
+- <strong>Klarna</strong> — one option per method category the session advertises. Parameterised by buyer market through the <code>Country</code> control.
+- <strong>Adyen Embedded</strong> — mounts the Drop-in rather than rendering a radio option.
+- <strong>Pay Pal Platform</strong> — the base PayPal entry plus one option per eligible funding source.
+- <strong>Sezzle</strong> — a single buy-now-pay-later option, needing no gateway configuration beyond its type.
+- <strong>Square Up</strong> — market-dependent method list, also parameterised by <code>Country</code>. Square is the one gateway whose options are derived from <code>format.locale_code</code> rather than from an SDK, so the control changes the list directly.
+
+Behavioural scenarios:
+
+- <strong>Uninitialized</strong> — the empty client state, where <code>tokenize()</code> rejects.
+- <strong>Option Selection</strong> — verifies <code>optionIndex</code> reflection and the <code>optionindexchange</code> event.
+- <strong>Tokenize From Button</strong> — drives <code>tokenize()</code> from a button the way an integration would.
+
+The Stripe stories read <code>VITE_STRIPE_PUBLISHABLE_KEY</code> first and fall back to <code>VITE_STRIPE_DEMO_PUBLISHABLE_KEY</code>, then to a fixture key, so setting either variable points them at your own Stripe account. The remaining gateways stub the SDK handle the element reads off <code>@foxy.io/sdk/checkout/client</code>, which is what lets Klarna, Adyen, PayPal and Square render offline. Their fixtures are deliberately fixed: in production these lists vary by market and by account, so treat the stories as a view of the element's rendering, not as a source of truth for what a given merchant is eligible for.
+
+The card, Stripe and saved-card scenarios seed a single entry through <code>saved_payment_methods</code>, so each shows the saved-card option alongside the gateway-specific flow.
 
 ## Attributes
 
