@@ -205,3 +205,20 @@ Use Node 22 for local development.
    ```bash
    npm run extract
    ```
+
+## Testing
+
+Two vitest projects are configured in `vitest.config.ts`, and both run in real Chromium via Playwright:
+
+```bash
+npx vitest run --project=unit        # src/**/*.test.ts
+npx vitest run --project=storybook   # every story, headless
+```
+
+Omit `--project` to run both. If Playwright reports a missing browser, install it with `npx playwright install chromium`.
+
+The environment variables from step 2 above are a precondition for the suites, not just for the dev server. `foxy-payment-card-field` reads `VITE_EMBED_ORIGIN` at module scope, so without it the module throws `VITE_EMBED_ORIGIN is required.` as soon as vitest imports it, and both projects fail before running a single test. A red suite on a fresh checkout usually means the env file, not the branch.
+
+Gateway credentials are **not** required. Stories and unit tests supply their own checkout state rather than opening real sessions, so both projects pass with no sandbox credentials configured. `npm run init:klarna` and friends matter only when you are checking that a gateway renders correctly in Storybook or in the standalone examples.
+
+If a run fails with `[vitest] Vite unexpectedly reloaded a test` followed by `Failed to fetch dynamically imported module`, the dependency cache predates a file you just added: Vite re-optimizes mid-run and reloads the browser. Re-running passes, which makes it look like a flaky suite. To stop it recurring, add whatever the run lists under `dependencies optimized: …` to `optimizeDeps.include` in `vitest.config.ts`.
