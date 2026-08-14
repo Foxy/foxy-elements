@@ -505,6 +505,30 @@ export default function AdyenEmbeddedOption({
     ensureAdyenEmbeddedStyles(tokens);
   }, [tokens]);
 
+  // Same reasoning as `tokens` above, one level down: `option.adyenEmbedded` is
+  // rebuilt from the API state on every options refresh (see element.tsx's
+  // #createAdyenEmbeddedConfig), so its identity changes whenever *anything*
+  // about the checkout changes — a billing address edit included. Keying the
+  // mount effect on the config's values instead keeps the Drop-in, and whatever
+  // the shopper has already typed into it, alive across those refreshes.
+  const adyenConfigKey = option.adyenEmbedded
+    ? JSON.stringify([
+        option.adyenEmbedded.environment,
+        option.adyenEmbedded.clientKey,
+        option.adyenEmbedded.paymentMethodsResponse,
+      ])
+    : "";
+
+  // Read during render rather than sampled inside the effect below. The gateway
+  // config reaches this element through the API JSON before the Adyen SDK
+  // instance finishes resolving, so the first mount can land while this is still
+  // null — and an effect that only sampled it would latch the load error for the
+  // rest of the session. As a dependency it re-runs the mount when the SDK
+  // arrives instead. The SDK caches the instance per configuration, so this does
+  // not reintroduce the identity churn `adyenConfigKey` exists to avoid.
+  const checkout =
+    (checkoutClient as CheckoutClientLike).adyenEmbedded ?? null;
+
   useEffect(() => {
     const adyenOption = option.adyenEmbedded;
     const container = containerRef.current;
@@ -518,7 +542,6 @@ export default function AdyenEmbeddedOption({
 
     if (!adyenOption || !container) return;
 
-    const checkout = (checkoutClient as CheckoutClientLike).adyenEmbedded;
     const Component = checkout
       ? getAdyenComponentConstructor(checkout, "Dropin")
       : undefined;
@@ -709,11 +732,12 @@ export default function AdyenEmbeddedOption({
       }
     };
   }, [
+    adyenConfigKey,
+    checkout,
     disabled,
     loadErrorMessage,
     onControllerReady,
     onSelect,
-    option.adyenEmbedded,
     option.id,
     submitErrorMessage,
     unavailableMessage,

@@ -1650,6 +1650,100 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
+  // The gateway config arrives in the API JSON before the Adyen SDK instance
+  // finishes resolving, so the first mount can land while
+  // `checkoutClient.adyenEmbedded` is still null. Sampling it once and giving up
+  // leaves the shopper looking at the load-error message for the rest of the
+  // session; the Drop-in has to appear when the SDK does.
+  it("mounts the Adyen Drop-in once the SDK instance becomes available", async () => {
+    const { Component: Dropin } = createAdyenComponentMock({
+      mountText: "Adyen drop-in",
+    });
+    const restoreClient = overrideClientState(
+      createAdyenEmbeddedApiState(),
+      undefined,
+      {
+        adyenEmbedded: null,
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForTruthy(
+        () => element.querySelector('[data-adyen-embedded-status="error"]'),
+        "Adyen load error before the SDK resolves",
+      );
+      expect(Dropin).toHaveBeenCalledTimes(0);
+
+      Object.defineProperty(checkoutClient, "adyenEmbedded", {
+        configurable: true,
+        value: { Dropin },
+      });
+      checkoutClient.dispatchEvent(new Event("update"));
+
+      await waitForTruthy(
+        () => Dropin.mock.calls.length === 1,
+        "Adyen Drop-in after the SDK resolves",
+      );
+      expect(Dropin).toHaveBeenCalledTimes(1);
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  // A checkout state change the Adyen config does not depend on — a billing
+  // address edit — still rebuilds the option list, and with it a fresh
+  // `adyenEmbedded` config object. If the Drop-in's mount effect keys on that
+  // object's identity it tears down and remounts, throwing away whatever the
+  // shopper has already typed into the card fields.
+  it("does not remount the Adyen Drop-in when unrelated checkout state changes", async () => {
+    const { Component: Dropin } = createAdyenComponentMock({
+      mountText: "Adyen drop-in",
+    });
+    const restoreClient = overrideClientState(
+      createAdyenEmbeddedApiState(),
+      undefined,
+      {
+        adyenEmbedded: {
+          Dropin,
+        },
+      },
+    );
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForTruthy(
+        () => element.querySelector("[data-foxy-adyen-host]"),
+        "Adyen light DOM host",
+      );
+      await waitForTruthy(() => Dropin.mock.calls.length === 1, "Adyen Drop-in");
+
+      const nextApiState = createAdyenEmbeddedApiState();
+      nextApiState.billing_address.city = "Saint Paul";
+      Object.defineProperty(checkoutClient, "state", {
+        configurable: true,
+        value: nextApiState,
+      });
+      checkoutClient.dispatchEvent(new Event("update"));
+
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        await waitForRender();
+      }
+
+      expect(Dropin).toHaveBeenCalledTimes(1);
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
   it("sanitizes customer-controlled theme-* attributes before injecting Adyen CSS into document.head", async () => {
     // Regression test for a CSS-injection vulnerability: `buildAdyenEmbeddedStyles`
     // used to interpolate `theme-*` attribute values (public, customer-controllable)
