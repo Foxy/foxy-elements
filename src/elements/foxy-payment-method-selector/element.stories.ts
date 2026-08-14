@@ -30,7 +30,9 @@ type SelectorStoryArgs = {
 };
 
 const meta = {
-  title: "Universal/foxy-payment-method-selector",
+  // Keeps the element in the sidebar section its docs page already used. The
+  // two hosted-field elements are Universal; this one is checkout-specific.
+  title: "Checkout/foxy-payment-method-selector",
   parameters: {
     layout: "centered",
     actions: {
