@@ -113,8 +113,8 @@ describe("PaymentCardFieldElement", () => {
       "translation-card-csc-placeholder",
     );
     expect(PaymentCardFieldElement.observedAttributes).toContain("disabled");
-    // INTERIM: template-set-id is now a real observed attribute. Removed by
-    // docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
+    // INTERIM: template-set-id is now a real observed attribute. Removed when
+    // card token vaulting lands.
     expect(PaymentCardFieldElement.observedAttributes).toContain(
       "template-set-id",
     );

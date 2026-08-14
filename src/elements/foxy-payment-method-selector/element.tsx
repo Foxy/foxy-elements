@@ -1459,8 +1459,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   }
 
   // INTERIM: the card embed needs its store's gateway_id, which it fetches using
-  // template_set_id. Removed by
-  // docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
+  // template_set_id. Removed when card token vaulting lands.
   #resolveTemplateSetId(
     apiState: Record<string, unknown> | null,
   ): number | undefined {
@@ -2448,7 +2447,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             type === "new-card"
               ? {
                   mode: "card",
-                  // INTERIM: see docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
+                  // INTERIM: removed when card token vaulting lands.
                   templateSetId: this.#resolveTemplateSetId(apiState),
                 }
               : undefined,
@@ -2470,7 +2469,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           acceptedBrands: acceptedBrands?.length ? acceptedBrands : undefined,
           hostedCard: {
             mode: "card",
-            // INTERIM: see docs/superpowers/specs/2026-07-27-card-token-vaulting-design.md
+            // INTERIM: removed when card token vaulting lands.
             templateSetId: this.#resolveTemplateSetId(apiState),
           },
         },
