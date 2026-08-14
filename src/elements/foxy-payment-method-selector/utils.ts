@@ -104,6 +104,8 @@ export type StoryApiStateOptions = {
   gateways?: StoryGateway[];
   savedPaymentMethods?: StorySavedPaymentMethod[];
   customerType?: StoryCustomerType;
+  /** Buyer market. Drives the address, locale and currency in the fixture. */
+  country?: StoryCountry;
 };
 
 const REGISTERED_CUSTOMER = {
@@ -138,6 +140,192 @@ const DEMO_ADDRESS = {
 };
 
 /**
+ * Buyer markets, transcribed from the per-country example pages.
+ *
+ * Those pages differed only by address, locale and currency, which is why they
+ * collapse into one parameterised story instead of one story per country.
+ */
+export const STORY_COUNTRIES = {
+  AT: {
+    locale: "de-AT",
+    currency: "EUR",
+    address1: "Kärntner Straße 123",
+    city: "Vienna",
+    region: "Vienna",
+    postalCode: "1010",
+    phone: "+43 1 123 4567",
+  },
+  AU: {
+    locale: "en-AU",
+    currency: "AUD",
+    address1: "123 George Street",
+    city: "Sydney",
+    region: "NSW",
+    postalCode: "2000",
+    phone: "+61 2 1234 5678",
+  },
+  BE: {
+    locale: "nl-BE",
+    currency: "EUR",
+    address1: "Rue de la Loi 123",
+    city: "Brussels",
+    region: "Brussels",
+    postalCode: "1000",
+    phone: "+32 2 123 45 67",
+  },
+  CA: {
+    locale: "en-CA",
+    currency: "CAD",
+    address1: "123 Main St",
+    city: "Toronto",
+    region: "Ontario",
+    postalCode: "M5H 2N2",
+    phone: "+1 416-555-1234",
+  },
+  CH: {
+    locale: "de-CH",
+    currency: "CHF",
+    address1: "Bahnhofstrasse 123",
+    city: "Zurich",
+    region: "Zurich",
+    postalCode: "8001",
+    phone: "+41 44 123 45 67",
+  },
+  CZ: {
+    locale: "cs-CZ",
+    currency: "CZK",
+    address1: "Václavské náměstí 123",
+    city: "Prague",
+    region: "Prague",
+    postalCode: "110 00",
+    phone: "+420 222 123 456",
+  },
+  DE: {
+    locale: "de-DE",
+    currency: "EUR",
+    address1: "Hauptstraße 123",
+    city: "Berlin",
+    region: "Berlin",
+    postalCode: "10115",
+    phone: "+49 30 12345678",
+  },
+  ES: {
+    locale: "es-ES",
+    currency: "EUR",
+    address1: "Calle de Alcalá 123",
+    city: "Madrid",
+    region: "Madrid",
+    postalCode: "28001",
+    phone: "+34 91 123 45 67",
+  },
+  FR: {
+    locale: "fr-FR",
+    currency: "EUR",
+    address1: "123 Rue de Rivoli",
+    city: "Paris",
+    region: "Île-de-France",
+    postalCode: "75001",
+    phone: "+33 1 23 45 67 89",
+  },
+  GB: {
+    locale: "en-GB",
+    currency: "GBP",
+    address1: "123 High Street",
+    city: "London",
+    region: "ENG",
+    postalCode: "EC1A 1BB",
+    phone: "+44 20 7946 0958",
+  },
+  IE: {
+    locale: "en-IE",
+    currency: "EUR",
+    address1: "123 O'Connell Street",
+    city: "Dublin",
+    region: "Leinster",
+    postalCode: "D01 T6F0",
+    phone: "+353 1 234 5678",
+  },
+  IT: {
+    locale: "it-IT",
+    currency: "EUR",
+    address1: "Via del Corso 123",
+    city: "Rome",
+    region: "Lazio",
+    postalCode: "00100",
+    phone: "+39 06 1234 5678",
+  },
+  NL: {
+    locale: "nl-NL",
+    currency: "EUR",
+    address1: "Damrak 123",
+    city: "Amsterdam",
+    region: "Noord-Holland",
+    postalCode: "1012 AB",
+    phone: "+31 20 123 4567",
+  },
+  NO: {
+    locale: "nb-NO",
+    currency: "NOK",
+    address1: "Karl Johans gate 123",
+    city: "Oslo",
+    region: "Oslo",
+    postalCode: "0150",
+    phone: "+47 22 12 34 56",
+  },
+  NZ: {
+    locale: "en-NZ",
+    currency: "NZD",
+    address1: "123 Queen Street",
+    city: "Auckland",
+    region: "Auckland",
+    postalCode: "1010",
+    phone: "+64 9 123 4567",
+  },
+  PL: {
+    locale: "pl-PL",
+    currency: "PLN",
+    address1: "ul. Nowy Świat 123",
+    city: "Warsaw",
+    region: "Masovian",
+    postalCode: "00-001",
+    phone: "+48 22 123 45 67",
+  },
+  RS: {
+    locale: "sr-RS",
+    currency: "RSD",
+    address1: "Knez Mihailova 123",
+    city: "Belgrade",
+    region: "Belgrade",
+    postalCode: "11000",
+    phone: "+381 11 123 4567",
+  },
+  SE: {
+    locale: "sv-SE",
+    currency: "SEK",
+    address1: "Drottninggatan 123",
+    city: "Stockholm",
+    region: "Stockholm",
+    postalCode: "111 51",
+    phone: "+46 8 123 456 78",
+  },
+  US: {
+    locale: "en-US",
+    currency: "USD",
+    address1: "123 Main St",
+    city: "New York",
+    region: "NY",
+    postalCode: "10001",
+    phone: "+1 555-123-4567",
+  },
+} as const;
+
+export type StoryCountry = keyof typeof STORY_COUNTRIES;
+
+export const STORY_COUNTRY_CODES = Object.keys(
+  STORY_COUNTRIES,
+) as StoryCountry[];
+
+/**
  * Builds the checkout state the example pages hydrated. Returns a fresh object
  * every call so one story cannot mutate the fixture another story reads.
  */
@@ -148,7 +336,20 @@ export function createApiState(
     gateways = [AUTHORIZE_GATEWAY],
     savedPaymentMethods = [],
     customerType = "registered",
+    country = "US",
   } = options;
+
+  const market = STORY_COUNTRIES[country];
+  const address = {
+    ...DEMO_ADDRESS,
+    phone: market.phone,
+    address1: market.address1,
+    address2: "",
+    city: market.city,
+    region: market.region,
+    postal_code: market.postalCode,
+    country,
+  };
 
   return {
     template_set: { code: "checkout", id: 100 },
@@ -162,12 +363,12 @@ export function createApiState(
       {
         address_id: null,
         address_name: "Home",
-        ...DEMO_ADDRESS,
+        ...address,
         shipping_service_id: null,
         has_shippable_items: true,
         has_live_rate_shippable_items: false,
-        region_options: ["NY", "CA", "TX"],
-        country_options: ["US", "CA"],
+        region_options: [market.region],
+        country_options: [country],
         shipping_service_options: [],
       },
     ],
@@ -227,7 +428,7 @@ export function createApiState(
       use_customer_shipping_address: true,
       address_id: null,
       address_name: "",
-      ...DEMO_ADDRESS,
+      ...address,
     },
     store: {
       id: 1,
@@ -249,8 +450,8 @@ export function createApiState(
     custom_fields: {},
     format: {
       weight_unit: "pound",
-      locale_code: "en-US",
-      currency_code: "USD",
+      locale_code: market.locale,
+      currency_code: market.currency,
       currency_display: "symbol",
       maximum_fraction_digits: 2,
     },
@@ -270,36 +471,61 @@ export function createApiState(
 }
 
 /**
- * Points the shared checkout client at a story fixture and returns a cleanup
- * function that restores the previous descriptor.
+ * Replaces properties on the shared checkout client and returns a cleanup
+ * function that restores every previous descriptor.
  *
- * The example pages called `client.hydrateJson(...)`, which resolves PayPal
- * eligibility over the network and leaves the singleton hydrated for whatever
- * renders next. Stories run in one page, so they instead swap the `json`
- * property the element reads. That keeps every story independent of network
- * reachability and of the story that ran before it.
+ * Gateway-backed options do not come from `json` alone: the element also reads
+ * resolved SDK handles off the client (`klarna`, `adyenEmbedded`, `paypal`,
+ * `square`). Every one of them has to be restored, or a gateway story leaks its
+ * stub into whatever renders next and the following story passes for the wrong
+ * reason.
  */
-export function applyStoryApiState(
-  json: Record<string, unknown> | null,
+export function overrideCheckoutClient(
+  properties: Record<string, unknown>,
 ): () => void {
-  const descriptor = Object.getOwnPropertyDescriptor(checkoutClient, "json");
+  const descriptors = new Map<string, PropertyDescriptor | undefined>();
 
-  Object.defineProperty(checkoutClient, "json", {
-    configurable: true,
-    value: json,
-  });
+  for (const [key, value] of Object.entries(properties)) {
+    descriptors.set(key, Object.getOwnPropertyDescriptor(checkoutClient, key));
+    Object.defineProperty(checkoutClient, key, {
+      configurable: true,
+      value,
+    });
+  }
 
   checkoutClient.dispatchEvent(new Event("update"));
 
   return () => {
-    if (descriptor) {
-      Object.defineProperty(checkoutClient, "json", descriptor);
-    } else {
-      delete (checkoutClient as unknown as Record<string, unknown>).json;
+    for (const [key, descriptor] of descriptors.entries()) {
+      if (descriptor) {
+        Object.defineProperty(checkoutClient, key, descriptor);
+      } else {
+        delete (checkoutClient as unknown as Record<string, unknown>)[key];
+      }
     }
 
     checkoutClient.dispatchEvent(new Event("update"));
   };
+}
+
+/**
+ * Points the shared checkout client at a story fixture and returns a cleanup
+ * function.
+ *
+ * The example pages called `client.hydrateJson(...)`, which resolves PayPal
+ * eligibility over the network and leaves the singleton hydrated for whatever
+ * renders next. Stories run in one page, so they instead swap the properties
+ * the element reads. That keeps every story independent of network
+ * reachability and of the story that ran before it.
+ *
+ * Pass `sdk` for gateways whose options come from a resolved SDK handle rather
+ * than from checkout state alone.
+ */
+export function applyStoryApiState(
+  json: Record<string, unknown> | null,
+  sdk: Record<string, unknown> = {},
+): () => void {
+  return overrideCheckoutClient({ json, ...sdk });
 }
 
 export function createSelectorSurface(width = "600px"): HTMLDivElement {
@@ -498,3 +724,177 @@ export async function waitForSelectorText(
     { timeout: SELECTOR_WAIT_TIMEOUT_MS },
   );
 }
+
+// ---------------------------------------------------------------------------
+// Gateway fixtures
+//
+// These gateways resolve their options through an SDK handle on the checkout
+// client rather than from checkout state alone. The example pages got those
+// handles by opening real sandbox sessions, which is why the pages needed
+// credentials and went stale. The stubs below expose the same surface the
+// element calls, so the stories render the identical option list offline.
+// Shapes follow the fixtures element.test.ts already exercises.
+// ---------------------------------------------------------------------------
+
+function createSvgLogoDataUri(text: string, fill: string): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="24" viewBox="0 0 80 24" fill="none"><rect width="80" height="24" rx="12" fill="${fill}"/><text x="40" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#111">${text}</text></svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+const KLARNA_PAY_IN_FOUR_LOGO = createSvgLogoDataUri("Pay in 4", "#ffb3c7");
+const KLARNA_PAY_IN_30_DAYS_LOGO = createSvgLogoDataUri("30 days", "#ffd8e4");
+
+export function createKlarnaGateway(): StoryGateway {
+  return {
+    type: "klarna",
+    session_id: "klarna-session-id",
+    client_token: "klarna-client-token",
+    payment_method_categories: [
+      {
+        identifier: "pay_in_4",
+        name: "Pay in 4",
+        asset_urls: {
+          descriptive: KLARNA_PAY_IN_FOUR_LOGO,
+          standard: KLARNA_PAY_IN_FOUR_LOGO,
+        },
+      },
+      {
+        identifier: "pay_in_30_days",
+        name: "Pay in 30 Days",
+        asset_urls: {
+          descriptive: KLARNA_PAY_IN_30_DAYS_LOGO,
+          standard: KLARNA_PAY_IN_30_DAYS_LOGO,
+        },
+      },
+    ],
+  };
+}
+
+/**
+ * Stubs `Klarna.Payments`. `load` reports every category as available and
+ * paints the container so the mounted widget is visible in the story.
+ */
+export function createKlarnaSdk(): Record<string, unknown> {
+  return {
+    Payments: {
+      load: (
+        options: { container?: string; payment_method_category?: string },
+        _data: unknown,
+        callback?: (response: { show_form: boolean }) => void,
+      ) => {
+        const container =
+          typeof options?.container === "string"
+            ? document.querySelector(options.container)
+            : null;
+
+        if (container instanceof HTMLElement) {
+          container.textContent = `Klarna widget: ${
+            options.payment_method_category ?? "unknown"
+          }`;
+        }
+
+        callback?.({ show_form: true });
+      },
+      authorize: (
+        _options: unknown,
+        _data: unknown,
+        callback?: (response: Record<string, unknown>) => void,
+      ) => callback?.({ approved: true, authorization_token: "klarna-token" }),
+      finalize: () => undefined,
+      on: () => undefined,
+      off: () => undefined,
+    },
+  };
+}
+
+export const ADYEN_EMBEDDED_GATEWAY: StoryGateway = {
+  type: "adyen_embedded",
+  payment_methods_response: {
+    paymentMethods: [{ type: "scheme", name: "Cards" }],
+  },
+  environment: "test",
+  client_key: "adyen-client-key",
+};
+
+/**
+ * Stubs the Adyen `Dropin` constructor. `mount` writes into the host element,
+ * which is what the story asserts on: the Drop-in is mounted by the element
+ * rather than rendered as a plain radio option.
+ */
+export function createAdyenSdk(): Record<string, unknown> {
+  function Dropin(
+    this: Record<string, unknown>,
+    _checkout: unknown,
+    props?: Record<string, unknown>,
+  ) {
+    const componentProps = props ?? {};
+    this.props = componentProps;
+    this.mount = (container: HTMLElement) => {
+      container.textContent = `Adyen ${componentProps.type ?? "dropin"}`;
+      return this;
+    };
+    this.unmount = () => undefined;
+    this.isAvailable = () => Promise.resolve();
+    this.submit = () => undefined;
+  }
+
+  return { Dropin };
+}
+
+export const PAYPAL_PLATFORM_GATEWAY: StoryGateway = {
+  type: "paypal_platform",
+  client_id: "paypal-client-id",
+};
+
+/**
+ * Session creator per eligibility key. An option needs both: the SDK reporting
+ * the funding source eligible, and a matching create*Session function. Listing
+ * a funding source without its creator silently drops the option.
+ */
+const PAYPAL_SESSION_CREATOR_BY_FUNDING_SOURCE: Record<string, string> = {
+  advanced_cards: "createCardFieldsOneTimePaymentSession",
+  applepay: "createApplePayOneTimePaymentSession",
+  googlepay: "createGooglePayOneTimePaymentSession",
+  paylater: "createPayLaterOneTimePaymentSession",
+  credit: "createPayPalCreditOneTimePaymentSession",
+  venmo: "createVenmoOneTimePaymentSession",
+  sepa: "createSepaOneTimePaymentSession",
+  bancontact: "createBancontactOneTimePaymentSession",
+  eps: "createEpsOneTimePaymentSession",
+  blik: "createBlikOneTimePaymentSession",
+  ideal: "createIdealOneTimePaymentSession",
+  p24: "createP24OneTimePaymentSession",
+};
+
+export const PAYPAL_DEFAULT_FUNDING_SOURCES = ["paylater", "venmo"];
+
+/**
+ * Stubs the PayPal SDK. The selector renders the base PayPal entry plus one
+ * option per eligible funding source, so the list is driven by this set.
+ */
+export function createPayPalSdk(
+  fundingSources: string[] = PAYPAL_DEFAULT_FUNDING_SOURCES,
+): Record<string, unknown> {
+  const eligible = new Set(fundingSources);
+  const createSession = async () => ({ id: "paypal-session-id" });
+
+  const paypal: Record<string, unknown> = {
+    findEligibleMethods: async () => ({
+      isEligible: (fundingSource: string) => eligible.has(fundingSource),
+      getDetails: () => null,
+    }),
+    // The base PayPal entry is always offered when the gateway is configured.
+    createPayPalOneTimePaymentSession: createSession,
+  };
+
+  for (const fundingSource of eligible) {
+    const creator = PAYPAL_SESSION_CREATOR_BY_FUNDING_SOURCE[fundingSource];
+    if (creator) {
+      paypal[creator] = createSession;
+    }
+  }
+
+  return paypal;
+}
+
+export const SEZZLE_GATEWAY: StoryGateway = { type: "sezzle" };

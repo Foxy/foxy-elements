@@ -1,18 +1,27 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import "./element";
+import type { StoryCountry } from "./utils";
 import {
+  ADYEN_EMBEDDED_GATEWAY,
   AUTHORIZE_ACH_GATEWAY,
   AUTHORIZE_GATEWAY,
   AUTHORIZE_SAVED_CARD,
+  PAYPAL_PLATFORM_GATEWAY,
   PURCHASE_ORDER_GATEWAY,
   REDIRECT_GATEWAY,
+  SEZZLE_GATEWAY,
+  STORY_COUNTRY_CODES,
   STRIPE_CONNECT_SAVED_CARD,
   STRIPE_SAVED_CARD,
   appendTokenizeControls,
   applyStoryApiState,
   attachActionLogging,
+  createAdyenSdk,
   createApiState,
+  createKlarnaGateway,
+  createKlarnaSdk,
+  createPayPalSdk,
   createSelector,
   createSelectorSurface,
   createStoryNote,
@@ -27,6 +36,7 @@ import {
 type SelectorStoryArgs = {
   lang: string;
   optionIndex: number;
+  country: StoryCountry;
 };
 
 const meta = {
@@ -53,6 +63,7 @@ const meta = {
   args: {
     lang: "en-US",
     optionIndex: 0,
+    country: "US",
   },
 } satisfies Meta<SelectorStoryArgs>;
 
@@ -409,5 +420,157 @@ export const TokenizeFromButton: Story = {
     await waitFor(() => {
       expect(panel?.textContent?.trim()).not.toBe("");
     });
+  },
+};
+
+export const Klarna: Story = {
+  parameters: {
+    controls: { include: ["country"] },
+    docs: {
+      description: {
+        story:
+          "Klarna, parameterised by buyer market. The standalone examples shipped one page per country that differed only by address, locale and currency, so the Country control replaces all of them. Klarna returns different method categories per market in production; the fixture keeps them fixed so the story stays deterministic.",
+      },
+    },
+  },
+  argTypes: {
+    country: {
+      control: "select",
+      options: STORY_COUNTRY_CODES,
+      description: "Buyer market seeded into the address, locale and currency.",
+    },
+  },
+  args: { country: "US" },
+  beforeEach: ({ args }) =>
+    applyStoryApiState(
+      createApiState({
+        gateways: [createKlarnaGateway()],
+        country: args.country as StoryCountry,
+      }),
+      { klarna: createKlarnaSdk() },
+    ),
+  render: ({ lang, country }) =>
+    renderScenario({
+      id: "selector-klarna",
+      lang,
+      note: `Klarna for ${country}. One option per payment method category returned by the session.`,
+    }),
+  play: async ({ canvasElement }) => {
+    const selector = getPrimarySelector(canvasElement);
+
+    // One option per category the session advertises.
+    await waitForOptionCount(selector, 2);
+    await waitForSelectorText(selector, "Pay in 4");
+
+    expect(readSelectorText(selector)).toContain("Pay in 30 Days");
+  },
+};
+
+export const AdyenEmbedded: Story = {
+  parameters: {
+    controls: { include: ["country"] },
+    docs: {
+      description: {
+        story:
+          "Adyen Embedded mounts its own Drop-in rather than rendering a radio option, so this story asserts the Drop-in is constructed and mounted into the host element the selector creates.",
+      },
+    },
+  },
+  argTypes: {
+    country: { control: "select", options: STORY_COUNTRY_CODES },
+  },
+  args: { country: "NL" },
+  beforeEach: ({ args }) =>
+    applyStoryApiState(
+      createApiState({
+        gateways: [ADYEN_EMBEDDED_GATEWAY],
+        country: args.country as StoryCountry,
+      }),
+      { adyenEmbedded: createAdyenSdk() },
+    ),
+  render: ({ lang, country }) =>
+    renderScenario({
+      id: "selector-adyen-embedded",
+      lang,
+      note: `Adyen Embedded for ${country}. The Drop-in replaces the option list when it is the only gateway.`,
+    }),
+  play: async ({ canvasElement }) => {
+    const selector = getPrimarySelector(canvasElement);
+
+    // The Drop-in host lives in the light DOM so Adyen can reach it.
+    const host = await waitFor(
+      () => {
+        const found = selector.querySelector("[data-foxy-adyen-host]");
+        if (!found) throw new Error("Adyen host not rendered yet.");
+        return found;
+      },
+      { timeout: 3000 },
+    );
+
+    await waitFor(() => {
+      expect(host.textContent).toContain("Adyen");
+    });
+  },
+};
+
+export const PayPalPlatform: Story = {
+  parameters: {
+    controls: { include: ["country"] },
+    docs: {
+      description: {
+        story:
+          "PayPal Platform renders one entry per funding source the SDK reports as eligible, instead of collapsing them into a single PayPal button. Eligibility is fixed here; in production it varies by buyer country and account.",
+      },
+    },
+  },
+  argTypes: {
+    country: { control: "select", options: STORY_COUNTRY_CODES },
+  },
+  args: { country: "US" },
+  beforeEach: ({ args }) =>
+    applyStoryApiState(
+      createApiState({
+        gateways: [PAYPAL_PLATFORM_GATEWAY],
+        country: args.country as StoryCountry,
+      }),
+      { paypal: createPayPalSdk() },
+    ),
+  render: ({ lang, country }) =>
+    renderScenario({
+      id: "selector-paypal-platform",
+      lang,
+      note: `PayPal Platform for ${country}, with Pay Later and Venmo reported eligible alongside the base PayPal entry.`,
+    }),
+  play: async ({ canvasElement }) => {
+    const selector = getPrimarySelector(canvasElement);
+
+    await waitForOptionCount(selector, 2);
+    await waitForSelectorText(selector, "PayPal");
+  },
+};
+
+export const Sezzle: Story = {
+  parameters: {
+    controls: { include: [] },
+    docs: {
+      description: {
+        story:
+          "Sezzle needs no gateway configuration beyond its type, so it renders as a single buy-now-pay-later option.",
+      },
+    },
+  },
+  beforeEach: () =>
+    applyStoryApiState(createApiState({ gateways: [SEZZLE_GATEWAY] })),
+  render: ({ lang }) =>
+    renderScenario({
+      id: "selector-sezzle",
+      lang,
+      note: "Sezzle as the only configured gateway.",
+    }),
+  play: async ({ canvasElement }) => {
+    const selector = getPrimarySelector(canvasElement);
+
+    await waitForOptionCount(selector, 1);
+    await waitForSelectorText(selector, "Sezzle");
   },
 };
