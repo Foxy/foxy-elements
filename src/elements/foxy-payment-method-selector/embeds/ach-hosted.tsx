@@ -129,6 +129,15 @@ export default function AchOptionEmbed({
     [option.hostedFields?.group],
   );
 
+  // `option.hostedFields` is rebuilt on every options refresh, so its identity
+  // changes whenever anything about the checkout changes. Unlike the Adyen
+  // embed this effect only re-registers listeners — nothing visible is torn
+  // down — but keying on the config's values keeps that true if it ever grows
+  // teardown logic.
+  const hostedFieldsKey = option.hostedFields
+    ? JSON.stringify(option.hostedFields)
+    : "";
+
   useEffect(() => {
     if (!option.hostedFields) return;
 
@@ -171,8 +180,8 @@ export default function AchOptionEmbed({
       onControllerReady?.(null);
     };
   }, [
+    hostedFieldsKey,
     onControllerReady,
-    option.hostedFields,
     ownerConfirmed,
     ownerConfirmationErrorMessage,
   ]);
