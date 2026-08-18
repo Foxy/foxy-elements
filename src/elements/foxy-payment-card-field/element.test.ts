@@ -239,7 +239,10 @@ describe("PaymentCardFieldElement", () => {
     const element = document.createElement(
       PAYMENT_CARD_FIELD_ELEMENT_TAG,
     ) as PaymentCardFieldElement;
-    element.style.setProperty("--font-body", "400 1rem/1.25 Figtree, sans-serif");
+    element.style.setProperty(
+      "--font-body",
+      "400 1rem/1.25 Figtree, sans-serif",
+    );
     element.style.setProperty("--size-control", "4rem");
     document.body.append(element);
 
@@ -259,7 +262,9 @@ describe("PaymentCardFieldElement", () => {
       window.location.origin,
     );
     expect(url.searchParams.get("theme_font_sans")).toBe("Figtree, sans-serif");
-    expect(url.searchParams.get("theme_input_height")).toBe(`${expectedHeightPx}px`);
+    expect(url.searchParams.get("theme_input_height")).toBe(
+      `${expectedHeightPx}px`,
+    );
   });
 
   it("falls back to card mode for unsupported mode values", () => {
@@ -271,6 +276,67 @@ describe("PaymentCardFieldElement", () => {
 
     expect(element.mode).toBe("card");
     expect(element.getAttribute("mode")).toBe("card");
+  });
+
+  // FX-264: the setter returned early when the assigned value already matched
+  // the element's state, before it reached `setAttribute`. `card` is the
+  // default, so assigning it reflected nothing and the field stayed unreachable
+  // by `foxy-payment-card-field[mode="card"]`.
+  it("reflects mode to an attribute even when the value is the element's default", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    element.mode = "card";
+
+    expect(element.getAttribute("mode")).toBe("card");
+    expect(
+      document.querySelectorAll('foxy-payment-card-field[mode="card"]'),
+    ).toHaveLength(1);
+  });
+
+  it("reflects mode before the element is connected", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+
+    element.mode = "card";
+
+    expect(element.isConnected).toBe(false);
+    expect(element.getAttribute("mode")).toBe("card");
+  });
+
+  // Reflecting the no-op assignment must not cost a second iframe mount: the
+  // attribute write reaches attributeChangedCallback, which remounts whenever
+  // it sees a genuinely new mode.
+  it("does not remount the iframe when mode is reassigned its current value", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const before = element.shadowRoot?.querySelector("iframe");
+    expect(before).toBeTruthy();
+
+    element.mode = "card";
+
+    expect(element.shadowRoot?.querySelector("iframe")).toBe(before);
+  });
+
+  it("keeps reflecting a mode change away from and back to the default", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    element.mode = "card_csc";
+    expect(element.getAttribute("mode")).toBe("card_csc");
+    expect(element.mode).toBe("card_csc");
+
+    element.mode = "card";
+    expect(element.getAttribute("mode")).toBe("card");
+    expect(element.mode).toBe("card");
   });
 
   it("uses VITE_EMBED_ORIGIN to build the iframe URL", () => {

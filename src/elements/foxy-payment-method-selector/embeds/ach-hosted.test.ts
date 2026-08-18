@@ -214,21 +214,24 @@ describe("AchOptionEmbed", () => {
     await mounted.unmount();
   });
 
-  // Documents current behaviour rather than endorsing it: `foxy-ach-field`'s
-  // `type` setter returns early when the value already matches, and the field
-  // defaults to `routing-number`, so React assigning that same value never
-  // reaches `setAttribute`. The result is one field out of four with no `type`
-  // attribute, which an attribute selector cannot see. Update this test when
-  // the reflection is made unconditional; do not delete it.
-  it("reflects type to an attribute for every field except the default one", async () => {
+  // The routing-number field is the one that used to be missing its attribute:
+  // it is `foxy-ach-field`'s default type, and the setter returned early on a
+  // matching value before it reached `setAttribute`, so React assigning that
+  // same value reflected nothing (FX-264).
+  it("reflects type to an attribute for every field, including the default one", async () => {
     const mounted = await mountEmbed(embed());
 
     expect(
-      fieldIn(mounted.container, "routing-number").hasAttribute("type"),
-    ).toBe(false);
+      fieldIn(mounted.container, "routing-number").getAttribute("type"),
+    ).toBe("routing-number");
     expect(
       fieldIn(mounted.container, "account-number").getAttribute("type"),
     ).toBe("account-number");
+    // The reason the attribute matters: this is how a stylesheet or a test
+    // reaches one specific field.
+    expect(
+      mounted.container.querySelectorAll("foxy-ach-field[type]"),
+    ).toHaveLength(4);
 
     await mounted.unmount();
   });
