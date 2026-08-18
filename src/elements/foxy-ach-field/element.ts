@@ -640,9 +640,16 @@ export class AchFieldElement extends ThemeableHTMLElement {
 
   set type(value: AchHostedFieldName) {
     const normalized = isAchFieldName(value) ? value : "routing-number";
-    if (normalized === this._type) return;
+    const changed = normalized !== this._type;
 
-    this._type = normalized;
+    if (changed) this._type = normalized;
+
+    // Reflected even when the state did not change. `routing-number` is this
+    // element's own default, so assigning it is a no-op for state — and
+    // returning here would leave the field with no `type` attribute at all,
+    // invisible to attribute selectors, CSS and devtools. Assigned before the
+    // write so attributeChangedCallback sees the state it is about to be told
+    // about and stops.
     if (this.getAttribute(TYPE_ATTRIBUTE) !== normalized) {
       this.setAttribute(TYPE_ATTRIBUTE, normalized);
     }
