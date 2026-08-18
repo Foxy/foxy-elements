@@ -313,12 +313,21 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
 
   set mode(value: PaymentCardFieldMode) {
     const normalized = normalizeMode(value);
-    if (this._mode === normalized) return;
+    const changed = this._mode !== normalized;
 
-    this._mode = normalized;
+    if (changed) this._mode = normalized;
+
+    // Reflected even when the state did not change. `card` is this element's
+    // own default, so assigning it is a no-op for state — and returning here
+    // would leave the field with no `mode` attribute at all, invisible to
+    // attribute selectors, CSS and devtools. Assigned before the write so
+    // attributeChangedCallback sees the state it is about to be told about and
+    // stops, which is what keeps the iframe from mounting twice.
     if (this.getAttribute(MODE_ATTRIBUTE) !== normalized) {
       this.setAttribute(MODE_ATTRIBUTE, normalized);
     }
+
+    if (!changed) return;
 
     this._syncAggregateValidity();
     if (this.isConnected) this._mountIframe();

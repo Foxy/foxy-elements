@@ -193,6 +193,54 @@ describe("AchFieldElement events", () => {
     vi.restoreAllMocks();
   });
 
+  // FX-264: the setter returned early when the assigned value already matched
+  // the element's state, before it reached `setAttribute`. `routing-number` is
+  // the default, so assigning it reflected nothing and the field stayed
+  // unreachable by `foxy-ach-field[type="routing-number"]`.
+  it("reflects type to an attribute even when the value is the element's default", () => {
+    const field = createField("routing-number");
+
+    expect(field.getAttribute("type")).toBe("routing-number");
+    expect(
+      document.querySelectorAll('foxy-ach-field[type="routing-number"]'),
+    ).toHaveLength(1);
+  });
+
+  it("reflects type before the element is connected", () => {
+    const field = document.createElement(
+      ACH_FIELD_ELEMENT_TAG,
+    ) as AchFieldElement;
+
+    field.type = "routing-number";
+
+    expect(field.isConnected).toBe(false);
+    expect(field.getAttribute("type")).toBe("routing-number");
+  });
+
+  it("keeps reflecting a type change away from and back to the default", () => {
+    const field = createField("routing-number");
+
+    field.type = "account-number";
+    expect(field.getAttribute("type")).toBe("account-number");
+    expect(field.type).toBe("account-number");
+
+    field.type = "routing-number";
+    expect(field.getAttribute("type")).toBe("routing-number");
+    expect(field.type).toBe("routing-number");
+  });
+
+  // An unrecognised value falls back to the default, which is exactly the case
+  // the old early return swallowed: state and attribute both have to end up on
+  // the fallback.
+  it("reflects the fallback type when the assigned value is not a field name", () => {
+    const field = createField("account-number");
+
+    field.type = "not-a-field" as AchFieldElement["type"];
+
+    expect(field.type).toBe("routing-number");
+    expect(field.getAttribute("type")).toBe("routing-number");
+  });
+
   it("dispatches change only for field instances whose values changed", () => {
     const routing = createField("routing-number");
     const account = createField("account-number", routing.group);
