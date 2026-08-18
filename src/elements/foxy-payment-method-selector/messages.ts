@@ -208,15 +208,6 @@ export const messages = defineMessages({
     defaultMessage:
       "Unable to load Klarna. Choose a different payment method or try again.",
   },
-  klarnaAuthorizeError: {
-    id: "payment_klarna_authorize_error",
-    defaultMessage:
-      "Klarna couldn't authorize this payment. Review your details and try again.",
-  },
-  klarnaFinalizeError: {
-    id: "payment_klarna_finalize_error",
-    defaultMessage: "Klarna couldn't finalize this payment. Try again.",
-  },
   adyenLoading: {
     id: "payment_adyen_loading",
     defaultMessage: "Loading payment details...",
