@@ -192,6 +192,25 @@ function toValidationMessage(
   return "Card details are invalid.";
 }
 
+// The embed already knows why a field failed, so report it as the matching
+// constraint rather than collapsing everything onto customError. That is what
+// lets a consumer reading `validity` tell a blank field from a malformed one
+// and pick its own wording. `card_brand_unsupported` and `invalid_state` have
+// no native equivalent -- they are business rules, not format problems -- so
+// they stay customError, as does an invalid field that sent no code.
+function toValidityFlags(code: EmbedValidationCode | null): ValidityStateFlags {
+  switch (code) {
+    case "value_missing":
+      return { valueMissing: true };
+    case "pattern_mismatch":
+      return { patternMismatch: true };
+    case "range_underflow":
+      return { rangeUnderflow: true };
+    default:
+      return { customError: true };
+  }
+}
+
 function toErrorMessage(code: CardEmbedTokenizeErrorCode): string {
   switch (code) {
     case "invalid_state":
@@ -242,7 +261,7 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
   private _ready = false;
   private _fieldValidation = new Map<
     EmbedValidationField,
-    { valid: boolean; message: string | null }
+    { valid: boolean; message: string | null; code: EmbedValidationCode | null }
   >();
   private _focused = false;
   private _touched = false;
@@ -886,21 +905,26 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
     )
       return;
 
-    const message =
+    const validationCode =
       valid || typeof code !== "string"
         ? null
-        : toValidationMessage(field, code as EmbedValidationCode);
-    this._fieldValidation.set(field, { valid, message });
+        : (code as EmbedValidationCode);
+    const message = toValidationMessage(field, validationCode);
+    this._fieldValidation.set(field, { valid, message, code: validationCode });
 
     if (field === "form") {
-      this._updateFormValidity(valid, message);
+      this._updateFormValidity(valid, message, validationCode);
       return;
     }
 
     this._syncAggregateValidity();
   }
 
-  private _updateFormValidity(valid: boolean, message: string | null): void {
+  private _updateFormValidity(
+    valid: boolean,
+    message: string | null,
+    code: EmbedValidationCode | null,
+  ): void {
     this._invalid = !valid;
     this._syncPublicStates();
 
@@ -912,7 +936,7 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
     }
 
     this._internals.setValidity(
-      { customError: true },
+      toValidityFlags(code),
       message?.trim() || "Card details are invalid.",
     );
   }
@@ -946,17 +970,18 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
         ): state is {
           valid: boolean;
           message: string | null;
+          code: EmbedValidationCode | null;
         } => state !== undefined,
       );
     const invalid = activeStates.find((state) => !state.valid);
 
     if (invalid) {
-      this._updateFormValidity(false, invalid.message ?? null);
+      this._updateFormValidity(false, invalid.message ?? null, invalid.code);
       return;
     }
 
     if (activeStates.length > 0) {
-      this._updateFormValidity(true, null);
+      this._updateFormValidity(true, null, null);
       return;
     }
 
@@ -964,6 +989,7 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
     this._updateFormValidity(
       formState?.valid ?? true,
       formState?.message ?? null,
+      formState?.code ?? null,
     );
   }
 
