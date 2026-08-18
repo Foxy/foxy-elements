@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ALWAYS_VALID } from "@/lib/validity";
 import {
   THEME_ATTRIBUTE_NAMES,
   THEME_PROPERTY_TO_ATTRIBUTE,
@@ -15,6 +16,9 @@ type FakeInternals = {
   reportValidity: ReturnType<typeof vi.fn>;
   setValidity: ReturnType<typeof vi.fn>;
   states: Set<string>;
+  validationMessage: string;
+  validity: ValidityState;
+  willValidate: boolean;
 };
 
 const internalsByElement = new WeakMap<HTMLElement, FakeInternals>();
@@ -29,7 +33,20 @@ function installFakeInternals(): void {
         reportValidity: vi.fn(() => true),
         setValidity: vi.fn(),
         states: new Set<string>(),
+        validationMessage: "",
+        validity: { ...ALWAYS_VALID },
+        willValidate: true,
       };
+
+      // Record what `setValidity` was given, so the element's `validity` and
+      // `validationMessage` getters have real internals state to forward.
+      internals.setValidity.mockImplementation(
+        (flags?: ValidityStateFlags, message?: string) => {
+          const valid = !flags || Object.keys(flags).length === 0;
+          internals.validity = { ...ALWAYS_VALID, ...flags, valid };
+          internals.validationMessage = valid ? "" : (message ?? "");
+        },
+      );
       internalsByElement.set(this, internals);
       return internals;
     },
@@ -429,6 +446,66 @@ describe("PaymentCardFieldElement", () => {
       token: "tok_test_card",
       requestId: "card-request-duplicate",
     });
+  });
+
+  it("exposes validity and validationMessage to consumers", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const privateElement = element as unknown as {
+      _handlePortMessage: (event: MessageEvent<string>) => void;
+    };
+
+    expect(element.validity.valid).toBe(true);
+    expect(element.validationMessage).toBe("");
+
+    privateElement._handlePortMessage({
+      data: JSON.stringify({
+        type: "validation",
+        field: "form",
+        valid: false,
+        code: "value_missing",
+      }),
+    } as MessageEvent<string>);
+
+    expect(element.validity.valid).toBe(false);
+    expect(element.validationMessage).toBe("Card details are invalid.");
+
+    // NOTE: every embed validation code collapses onto `customError` here,
+    // unlike the ACH field, which distinguishes valueMissing from badInput.
+    // The embed's own code is more specific than what `validity` can express
+    // today -- mapping the two is a separate change from exposing them.
+    expect(element.validity.customError).toBe(true);
+    expect(element.validity.valueMissing).toBe(false);
+
+    privateElement._handlePortMessage({
+      data: JSON.stringify({
+        type: "validation",
+        field: "form",
+        valid: true,
+        code: null,
+      }),
+    } as MessageEvent<string>);
+
+    expect(element.validity.valid).toBe(true);
+    expect(element.validationMessage).toBe("");
+  });
+
+  it("reports valid when element internals are unavailable", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    // Mirrors `checkValidity()`, which already answers true without internals.
+    Reflect.set(element, "_internals", null);
+
+    expect(element.validity).toEqual(ALWAYS_VALID);
+    expect(element.validationMessage).toBe("");
+    expect(element.willValidate).toBe(false);
+    expect(element.checkValidity()).toBe(true);
   });
 
   it("restores previously known invalid state when re-enabled", () => {

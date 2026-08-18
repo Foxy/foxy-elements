@@ -1,5 +1,6 @@
 import type { CardEmbedTokenizeErrorCode } from "@foxy.io/sdk/checkout";
 import { getRequiredEnvVar } from "@/lib/required-env";
+import { ALWAYS_VALID } from "@/lib/validity";
 import {
   THEME_DEFINITION_BY_ATTRIBUTE,
   ThemeMixin,
@@ -407,6 +408,20 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
 
   formDisabledCallback(disabled: boolean): void {
     this.disabled = disabled;
+  }
+
+  // `ElementInternals` does not mirror these onto the element, so a consumer
+  // reading which constraint failed needs them forwarded explicitly.
+  get validity(): ValidityState {
+    return this._internals?.validity ?? ALWAYS_VALID;
+  }
+
+  get validationMessage(): string {
+    return this._internals?.validationMessage ?? "";
+  }
+
+  get willValidate(): boolean {
+    return this._internals?.willValidate ?? false;
   }
 
   checkValidity(): boolean {
