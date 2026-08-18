@@ -11,8 +11,6 @@
   "payment_adyen_unavailable": "This payment method is currently unavailable.",
   "payment_card_field_label_csc": "Security code",
   "payment_card_field_label_full": "Card details",
-  "payment_klarna_authorize_error": "Klarna couldn't authorize this payment. Review your details and try again.",
-  "payment_klarna_finalize_error": "Klarna couldn't finalize this payment. Try again.",
   "payment_klarna_load_error": "Unable to load Klarna. Choose a different payment method or try again.",
   "payment_klarna_loading": "Loading Klarna...",
   "payment_klarna_unavailable": "This Klarna option is currently unavailable.",
