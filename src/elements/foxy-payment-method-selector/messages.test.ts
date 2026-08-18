@@ -1,34 +1,53 @@
+import type { MessageDescriptor } from "react-intl";
 import { describe, expect, it } from "vitest";
 import catalog from "@/locales/en-US.json";
-import { messages } from "./messages";
 
 const MESSAGES_MODULE = "/messages.ts";
 const TEST_MODULE = "/messages.test.ts";
 
+// A namespace shared across components is the legacy pattern: it makes one
+// string edit reach every component that borrowed the key. Identical text under
+// separate per-component keys is deliberate, because that is what lets a
+// consumer override one option's copy without touching the rest -- so do not
+// collapse duplicate strings onto a single key to shorten the catalog.
+const SHARED_NAMESPACE_PREFIXES = ["shared_", "common_", "global_"];
+
+// Every element that owns strings exports `messages` from its own
+// `messages.ts`, and `extract` writes all of them into the one catalog. Collect
+// the modules rather than importing a single one, so a second element's
+// descriptors are covered here the day it is added.
+const descriptorModules = import.meta.glob("@/**/messages.ts", {
+  eager: true,
+  import: "messages",
+}) as Record<string, Record<string, MessageDescriptor> | undefined>;
+
+const descriptors = Object.entries(descriptorModules).flatMap(
+  ([path, moduleMessages]) => {
+    return Object.entries(moduleMessages ?? {}).map(([name, descriptor]) => ({
+      path,
+      name,
+      id: descriptor.id as string,
+      defaultMessage: descriptor.defaultMessage as string,
+    }));
+  },
+);
+
 // `npm run extract` regenerates the catalog but never fails, so drift between
 // the descriptors and the committed JSON is silent, and a descriptor nothing
 // reads stays in the catalog indefinitely. These check both.
-const descriptors = Object.entries(messages).map(([name, descriptor]) => ({
-  name,
-  id: descriptor.id as string,
-  defaultMessage: descriptor.defaultMessage as string,
-}));
-
-// Raw sources, so a descriptor's users are found without importing the modules
-// that read them.
 const sources = import.meta.glob("@/**/*.{ts,tsx}", {
   query: "?raw",
   import: "default",
   eager: true,
 }) as Record<string, string>;
 
-// `messages.x` references count from the descriptor module too -- the option
-// maps below `defineMessages` are a legitimate user. Only this test is excluded.
+// `messages.x` references count from a descriptor module too -- the option maps
+// below `defineMessages` are a legitimate user. Only this test is excluded.
 const references = Object.entries(sources)
   .filter(([path]) => !path.endsWith(TEST_MODULE))
   .map(([, source]) => source);
 
-// Bare id literals must NOT count from the descriptor module: every id appears
+// Bare id literals must NOT count from a descriptor module: every id appears
 // there by definition, which would make the unused-key check below pass for
 // anything. Consumers that look a key up by string are the point of this one.
 const idReferences = Object.entries(sources)
@@ -38,11 +57,11 @@ const idReferences = Object.entries(sources)
   .map(([, source]) => source);
 
 describe("messages", () => {
-  it("scanned the source tree", () => {
-    // Everything below reads as passing if the glob resolves to nothing, so
+  it("scanned the source tree and found some descriptors", () => {
+    // Everything below reads as passing if either glob resolves to nothing, so
     // fail loudly instead of silently checking an empty corpus.
     expect(references.length).toBeGreaterThan(50);
-    expect(idReferences.length).toBe(references.length - 1);
+    expect(idReferences.length).toBeGreaterThan(50);
     expect(descriptors.length).toBeGreaterThan(0);
   });
 
@@ -92,14 +111,11 @@ describe("messages", () => {
 });
 
 describe("catalog", () => {
-  it("keeps every key under the payment_ namespace", () => {
-    // Per-component namespacing: duplicated text across options is deliberate,
-    // because it is what lets a consumer override one option's copy without
-    // touching the rest. Do not collapse identical strings onto one key.
-    const foreign = Object.keys(catalog).filter((key) => {
-      return !key.startsWith("payment_");
+  it("keeps every key out of a shared namespace", () => {
+    const shared = Object.keys(catalog).filter((key) => {
+      return SHARED_NAMESPACE_PREFIXES.some((prefix) => key.startsWith(prefix));
     });
 
-    expect(foreign).toEqual([]);
+    expect(shared).toEqual([]);
   });
 });
