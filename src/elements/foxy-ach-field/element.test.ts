@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ALWAYS_VALID } from "@/lib/validity";
 import { THEME_PROPERTY_TO_ATTRIBUTE } from "@/lib/theme-mixin";
 import { deriveInputMetrics } from "@/lib/theme-attribute-sync";
 import { defaultTheme } from "@foxy.io/design-system/theme";
@@ -15,6 +16,9 @@ type FakeInternals = {
   reportValidity: ReturnType<typeof vi.fn>;
   setValidity: ReturnType<typeof vi.fn>;
   states: Set<string>;
+  validationMessage: string;
+  validity: ValidityState;
+  willValidate: boolean;
 };
 
 type HostedFieldState = {
@@ -37,7 +41,20 @@ function installFakeInternals(): void {
         reportValidity: vi.fn(() => true),
         setValidity: vi.fn(),
         states: new Set<string>(),
+        validationMessage: "",
+        validity: { ...ALWAYS_VALID },
+        willValidate: true,
       };
+
+      // Record what `setValidity` was given, so the element's `validity` and
+      // `validationMessage` getters have real internals state to forward.
+      internals.setValidity.mockImplementation(
+        (flags?: ValidityStateFlags, message?: string) => {
+          const valid = !flags || Object.keys(flags).length === 0;
+          internals.validity = { ...ALWAYS_VALID, ...flags, valid };
+          internals.validationMessage = valid ? "" : (message ?? "");
+        },
+      );
       internalsByElement.set(this, internals);
       return internals;
     },
@@ -349,6 +366,59 @@ describe("AchFieldElement events", () => {
     );
 
     expect(onChange).toHaveBeenCalledTimes(1);
+  });
+
+  it("exposes the failing constraint through validity and validationMessage", () => {
+    const routing = createField("routing-number");
+
+    // `ElementInternals` keeps `validity` to itself, so without the element
+    // forwarding it a consumer can only learn that something is wrong, not
+    // which constraint failed -- and cannot substitute its own localized copy.
+    // A pristine field is already incomplete, so it starts out valueMissing.
+    expect(routing.validity.valueMissing).toBe(true);
+    expect(routing.validity.valid).toBe(false);
+
+    dispatchHostedChange(routing, {
+      "routing-number": { complete: false, empty: true, errorCode: null },
+    });
+
+    expect(routing.validity.valueMissing).toBe(true);
+    expect(routing.validity.badInput).toBe(false);
+    expect(routing.validity.valid).toBe(false);
+    expect(routing.validationMessage).toBe("Please complete routing number.");
+
+    dispatchHostedChange(routing, {
+      "routing-number": {
+        complete: true,
+        empty: false,
+        errorCode: "invalid_routing_number",
+      },
+    });
+
+    // The distinction is the point: a consumer can render one message for a
+    // blank field and another for a malformed one.
+    expect(routing.validity.badInput).toBe(true);
+    expect(routing.validity.valueMissing).toBe(false);
+    expect(routing.validationMessage).toBe("Please check routing number.");
+
+    dispatchHostedChange(routing, {
+      "routing-number": { complete: true, empty: false, errorCode: null },
+    });
+
+    expect(routing.validity.valid).toBe(true);
+    expect(routing.validationMessage).toBe("");
+  });
+
+  it("reports valid when element internals are unavailable", () => {
+    const routing = createField("routing-number");
+    // Mirrors `checkValidity()`, which already answers true without internals.
+    Reflect.set(routing, "_internals", null);
+
+    expect(routing.validity).toEqual(ALWAYS_VALID);
+    expect(routing.validity.valid).toBe(true);
+    expect(routing.validationMessage).toBe("");
+    expect(routing.willValidate).toBe(false);
+    expect(routing.checkValidity()).toBe(true);
   });
 
   it("uses built-in validity flags for incomplete and invalid hosted state", () => {

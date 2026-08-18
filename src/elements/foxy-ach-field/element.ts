@@ -1,5 +1,6 @@
 import type { AchHostedFieldsPublicState } from "@foxy.io/sdk/checkout";
 import type { AchHostedFieldsTokenizeErrorCode } from "@foxy.io/sdk/checkout";
+import { ALWAYS_VALID } from "@/lib/validity";
 import {
   getThemeDefinitionsByAttributeNames,
   ThemeMixin,
@@ -795,6 +796,20 @@ export class AchFieldElement extends ThemeableHTMLElement {
         id: normalizedRequestId,
       });
     });
+  }
+
+  // `ElementInternals` does not mirror these onto the element, so a consumer
+  // reading which constraint failed needs them forwarded explicitly.
+  get validity(): ValidityState {
+    return this._internals?.validity ?? ALWAYS_VALID;
+  }
+
+  get validationMessage(): string {
+    return this._internals?.validationMessage ?? "";
+  }
+
+  get willValidate(): boolean {
+    return this._internals?.willValidate ?? false;
   }
 
   checkValidity(): boolean {

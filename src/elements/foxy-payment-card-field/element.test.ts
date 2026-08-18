@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ALWAYS_VALID } from "@/lib/validity";
 import {
   THEME_ATTRIBUTE_NAMES,
   THEME_PROPERTY_TO_ATTRIBUTE,
@@ -15,6 +16,9 @@ type FakeInternals = {
   reportValidity: ReturnType<typeof vi.fn>;
   setValidity: ReturnType<typeof vi.fn>;
   states: Set<string>;
+  validationMessage: string;
+  validity: ValidityState;
+  willValidate: boolean;
 };
 
 const internalsByElement = new WeakMap<HTMLElement, FakeInternals>();
@@ -29,7 +33,20 @@ function installFakeInternals(): void {
         reportValidity: vi.fn(() => true),
         setValidity: vi.fn(),
         states: new Set<string>(),
+        validationMessage: "",
+        validity: { ...ALWAYS_VALID },
+        willValidate: true,
       };
+
+      // Record what `setValidity` was given, so the element's `validity` and
+      // `validationMessage` getters have real internals state to forward.
+      internals.setValidity.mockImplementation(
+        (flags?: ValidityStateFlags, message?: string) => {
+          const valid = !flags || Object.keys(flags).length === 0;
+          internals.validity = { ...ALWAYS_VALID, ...flags, valid };
+          internals.validationMessage = valid ? "" : (message ?? "");
+        },
+      );
       internalsByElement.set(this, internals);
       return internals;
     },
@@ -497,6 +514,122 @@ describe("PaymentCardFieldElement", () => {
     });
   });
 
+  it("exposes validity and validationMessage to consumers", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const privateElement = element as unknown as {
+      _handlePortMessage: (event: MessageEvent<string>) => void;
+    };
+
+    expect(element.validity.valid).toBe(true);
+    expect(element.validationMessage).toBe("");
+
+    privateElement._handlePortMessage({
+      data: JSON.stringify({
+        type: "validation",
+        field: "form",
+        valid: false,
+        code: "value_missing",
+      }),
+    } as MessageEvent<string>);
+
+    expect(element.validity.valid).toBe(false);
+    expect(element.validationMessage).toBe("Card details are invalid.");
+
+    // The embed's code decides the constraint, so a consumer can tell this
+    // apart from a malformed value and word the two differently.
+    expect(element.validity.valueMissing).toBe(true);
+    expect(element.validity.customError).toBe(false);
+
+    privateElement._handlePortMessage({
+      data: JSON.stringify({
+        type: "validation",
+        field: "form",
+        valid: true,
+        code: null,
+      }),
+    } as MessageEvent<string>);
+
+    expect(element.validity.valid).toBe(true);
+    expect(element.validationMessage).toBe("");
+  });
+
+  // `card_brand_unsupported` and `invalid_state` are business rules with no
+  // native constraint to match, so they stay on customError by design.
+  it.each([
+    ["value_missing", "valueMissing"],
+    ["pattern_mismatch", "patternMismatch"],
+    ["range_underflow", "rangeUnderflow"],
+    ["card_brand_unsupported", "customError"],
+    ["invalid_state", "customError"],
+  ] as const)("maps the %s embed code onto %s", (code, flag) => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const internals = getInternals(element);
+    const privateElement = element as unknown as {
+      _handlePortMessage: (event: MessageEvent<string>) => void;
+    };
+
+    privateElement._handlePortMessage({
+      data: JSON.stringify({
+        type: "validation",
+        field: "form",
+        valid: false,
+        code,
+      }),
+    } as MessageEvent<string>);
+
+    expect(internals.setValidity).toHaveBeenLastCalledWith(
+      { [flag]: true },
+      "Card details are invalid.",
+    );
+    expect(element.validity[flag]).toBe(true);
+    expect(element.validity.valid).toBe(false);
+  });
+
+  it("falls back to customError when an invalid field sends no code", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const internals = getInternals(element);
+    const privateElement = element as unknown as {
+      _handlePortMessage: (event: MessageEvent<string>) => void;
+    };
+
+    privateElement._handlePortMessage({
+      data: JSON.stringify({ type: "validation", field: "form", valid: false }),
+    } as MessageEvent<string>);
+
+    expect(internals.setValidity).toHaveBeenLastCalledWith(
+      { customError: true },
+      "Card details are invalid.",
+    );
+    expect(element.validity.customError).toBe(true);
+  });
+
+  it("reports valid when element internals are unavailable", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    // Mirrors `checkValidity()`, which already answers true without internals.
+    Reflect.set(element, "_internals", null);
+
+    expect(element.validity).toEqual(ALWAYS_VALID);
+    expect(element.validationMessage).toBe("");
+    expect(element.willValidate).toBe(false);
+    expect(element.checkValidity()).toBe(true);
+  });
+
   it("restores previously known invalid state when re-enabled", () => {
     const element = document.createElement(
       PAYMENT_CARD_FIELD_ELEMENT_TAG,
@@ -518,7 +651,7 @@ describe("PaymentCardFieldElement", () => {
     } as MessageEvent<string>);
 
     expect(internals.setValidity).toHaveBeenLastCalledWith(
-      { customError: true },
+      { patternMismatch: true },
       "Please enter a valid card number.",
     );
 
@@ -527,7 +660,7 @@ describe("PaymentCardFieldElement", () => {
 
     element.disabled = false;
     expect(internals.setValidity).toHaveBeenLastCalledWith(
-      { customError: true },
+      { patternMismatch: true },
       "Please enter a valid card number.",
     );
   });
