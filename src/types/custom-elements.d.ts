@@ -1,5 +1,6 @@
 import type { CSSProperties, DetailedHTMLProps, HTMLAttributes } from "react";
 import type { AchFieldElement } from "@/elements/foxy-ach-field/element";
+import type { CustomerPortalElement } from "@/elements/foxy-customer-portal/element";
 import type { PaymentCardFieldElement } from "@/elements/foxy-payment-card-field/element";
 import type { PaymentMethodSelectorElement } from "@/elements/foxy-payment-method-selector/element";
 import type { ThemeAttributeName, ThemePropertyName } from "@/lib/theme-mixin";
@@ -67,6 +68,25 @@ type PaymentMethodSelectorElementProps = Omit<
   "option-index"?: string | number;
 } & SharedThemeProps;
 
+type CustomerPortalElementProps = Omit<
+  DetailedHTMLProps<
+    HTMLAttributes<CustomerPortalElement>,
+    CustomerPortalElement
+  >,
+  "style"
+> & {
+  style?: CSSProperties & Record<`--${string}`, string | number>;
+  storeDomain?: string;
+  "store-domain"?: string;
+  templateSetId?: string;
+  "template-set-id"?: string;
+  fullNameTemplate?: string;
+  "full-name-template"?: string;
+  skipPasswordReset?: boolean;
+  "skip-password-reset"?: boolean;
+  lang?: string;
+} & SharedThemeProps;
+
 type ExpressCheckoutElementProps = Omit<
   DetailedHTMLProps<
     HTMLAttributes<ExpressCheckoutElement>,
@@ -131,6 +151,7 @@ declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
       "foxy-ach-field": AchFieldElementProps;
+      "foxy-customer-portal": CustomerPortalElementProps;
       "foxy-payment-card-field": CardEmbedElementProps;
       "foxy-payment-method-selector": PaymentMethodSelectorElementProps;
       "apple-pay-button": ApplePayButtonElementProps;
@@ -143,6 +164,7 @@ declare module "react/jsx-runtime" {
   namespace JSX {
     interface IntrinsicElements {
       "foxy-ach-field": AchFieldElementProps;
+      "foxy-customer-portal": CustomerPortalElementProps;
       "foxy-payment-card-field": CardEmbedElementProps;
       "foxy-payment-method-selector": PaymentMethodSelectorElementProps;
       "apple-pay-button": ApplePayButtonElementProps;

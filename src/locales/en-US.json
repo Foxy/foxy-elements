@@ -58,5 +58,7 @@
   "payment_square_up_loading": "Loading payment details...",
   "payment_square_up_submit_error": "Unable to submit this payment method. Try again.",
   "payment_tokenize_ach_error": "Unable to tokenize bank details.",
-  "payment_tokenize_card_error": "Unable to tokenize card details."
+  "payment_tokenize_card_error": "Unable to tokenize card details.",
+  "portal_loading": "Loading...",
+  "portal_missing_store_domain": "Set the store-domain attribute to use this element."
 }
