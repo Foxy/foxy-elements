@@ -107,7 +107,27 @@ export function useCollection<T>(
   query?: Record<string, unknown>,
 ) {
   const limit = (query?.limit as number | undefined) ?? 20;
-  const [offset, setOffset] = useState(0);
+  const [pagedHref, setPagedHref] = useState(link?.href ?? null);
+  const [rawOffset, setRawOffset] = useState(0);
+
+  const currentHref = link?.href ?? null;
+  const hrefChanged = currentHref !== pagedHref;
+
+  // The offset belongs to the collection it was paged through. When the link
+  // changes — FX-275's Active/Inactive toggle is exactly this — page 3 of the
+  // old collection is not page 3 of the new one, and may not exist at all.
+  //
+  // `offset` is *derived* rather than read back from state on purpose. Calling
+  // a setter during render re-runs the component, but the rest of this render
+  // body still executes first — so reading `rawOffset` here would let
+  // `useEntry` below fire a request for the stale page before the re-run
+  // corrects it. Deriving means the very first pass already uses 0.
+  const offset = hrefChanged ? 0 : rawOffset;
+
+  if (hrefChanged) {
+    setPagedHref(currentHref);
+    setRawOffset(0);
+  }
 
   const pageQuery = useMemo(
     () => ({ ...query, limit, offset }),
@@ -137,13 +157,13 @@ export function useCollection<T>(
     limit,
     loadNext: useCallback(
       () =>
-        setOffset((current) =>
+        setRawOffset((current) =>
           current + limit < totalItems ? current + limit : current,
         ),
       [limit, totalItems],
     ),
     loadPrev: useCallback(
-      () => setOffset((current) => Math.max(0, current - limit)),
+      () => setRawOffset((current) => Math.max(0, current - limit)),
       [limit],
     ),
     refresh: useCallback(() => {

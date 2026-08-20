@@ -363,3 +363,100 @@ describe("useCollection", () => {
     expect(host!.textContent).toBe("9");
   });
 });
+
+describe("useCollection offset", () => {
+  it("returns to the first page when the link changes", async () => {
+    const page = {
+      total_items: 100,
+      _embedded: { "fx:subscriptions": [{ id: 1 }] },
+    };
+
+    const activeSpy = vi.fn() as any;
+    const inactiveSpy = vi.fn() as any;
+
+    function Probe({ href, spy }: { href: string; spy: any }) {
+      const { offset, loadNext } = useCollection<{ id: number }>(
+        link(href, page, spy),
+        { limit: 20 },
+      );
+
+      return (
+        <button type="button" onClick={loadNext}>
+          {offset}
+        </button>
+      );
+    }
+
+    render(
+      <ApiProvider api={{} as never} cache={new RequestCache()}>
+        <Probe href="/subscriptions?is_active=true" spy={activeSpy} />
+      </ApiProvider>,
+    );
+    await flush();
+
+    act(() => host!.querySelector("button")!.click());
+    await flush();
+    expect(host!.textContent).toBe("20");
+
+    // Same component, different collection — the offset belongs to the old one.
+    act(() =>
+      root!.render(
+        <ApiProvider api={{} as never} cache={new RequestCache()}>
+          <Probe href="/subscriptions?is_active=false" spy={inactiveSpy} />
+        </ApiProvider>,
+      ),
+    );
+    await flush();
+
+    expect(host!.textContent).toBe("0");
+
+    // The displayed number is not enough. A naive fix that corrects the state
+    // after the fact still lets this render fire a request for the stale page
+    // first, so assert on what was actually requested: every call for the new
+    // collection must ask for offset 0.
+    expect(inactiveSpy).toHaveBeenCalled();
+    for (const [query] of inactiveSpy.mock.calls) {
+      expect(query).toMatchObject({ offset: 0 });
+    }
+  });
+
+  it("keeps the offset when the link is unchanged", async () => {
+    const page = { total_items: 100, _embedded: { "fx:x": [{ id: 1 }] } };
+
+    function Probe() {
+      const { offset, loadNext } = useCollection<{ id: number }>(
+        link("/same", page),
+        { limit: 20 },
+      );
+
+      return (
+        <button type="button" onClick={loadNext}>
+          {offset}
+        </button>
+      );
+    }
+
+    render(
+      <ApiProvider api={{} as never} cache={new RequestCache()}>
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    act(() => host!.querySelector("button")!.click());
+    await flush();
+    expect(host!.textContent).toBe("20");
+
+    // A re-render with an equal href must not throw the customer back to page 1.
+    act(() =>
+      root!.render(
+        <ApiProvider api={{} as never} cache={new RequestCache()}>
+          <Probe />
+        </ApiProvider>,
+      ),
+    );
+    await flush();
+
+    expect(host!.textContent).toBe("20");
+  });
+});
