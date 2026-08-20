@@ -2,12 +2,11 @@ import { useId, useState } from "react";
 import { useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
-import { Dialog } from "@foxy.io/design-system/dialog";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
 import { WriteError, useApi, type FollowableLink } from "@/lib/customer-api";
 import { messages } from "../messages";
-import { usePortalContainer } from "../portal-container";
+import { PortalDialog } from "../portal-dialog";
 import { patchResource } from "../write";
 import type { CustomerProps } from "./header";
 
@@ -20,7 +19,6 @@ type Props = { customer: CustomerResource; open: boolean; onClose: () => void };
 export function ProfileDialog({ customer, open, onClose }: Props) {
   const intl = useIntl();
   const { onUnauthenticated } = useApi();
-  const portalContainer = usePortalContainer();
   const firstNameId = useId();
   const lastNameId = useId();
   const emailId = useId();
@@ -66,99 +64,82 @@ export function ProfileDialog({ customer, open, onClose }: Props) {
   }
 
   return (
-    <Dialog.Root
+    <PortalDialog
       open={open}
       onOpenChange={(next: boolean) => !next && onClose()}
+      title={intl.formatMessage(messages.profileHeading)}
     >
-      {/* Portal/Backdrop/Viewport are required Base UI parts — Popup does not
-          render without them. `container` keeps the dialog inside the shadow
-          root. Base UI's `FloatingPortal` treats an explicit `null` as "the
-          container ref hasn't resolved yet" and renders nothing forever, so
-          the context's `null` default (no shadow root, e.g. in tests) is
-          coerced to `undefined` here, which is what actually falls back to
-          `<body>`. */}
-      <Dialog.Portal container={portalContainer ?? undefined}>
-        <Dialog.Backdrop />
-        <Dialog.Viewport>
-          <Dialog.Popup>
-            <Dialog.Title>
-              {intl.formatMessage(messages.profileHeading)}
-            </Dialog.Title>
+      <form onSubmit={handleSubmit}>
+        {hasFailed && (
+          <Alert.Root $variant="destructive">
+            <Alert.Description>
+              {intl.formatMessage(messages.errorUnknown)}
+            </Alert.Description>
+          </Alert.Root>
+        )}
 
-            <form onSubmit={handleSubmit}>
-              {hasFailed && (
-                <Alert.Root $variant="destructive">
-                  <Alert.Description>
-                    {intl.formatMessage(messages.errorUnknown)}
-                  </Alert.Description>
-                </Alert.Root>
-              )}
+        <Field.Root>
+          <Field.Label htmlFor={firstNameId}>
+            {intl.formatMessage(messages.profileFirstName)}
+          </Field.Label>
+          <Input
+            id={firstNameId}
+            type="text"
+            autoComplete="given-name"
+            value={firstName}
+            onChange={(event) => setFirstName(event.target.value)}
+          />
+        </Field.Root>
 
-              <Field.Root>
-                <Field.Label htmlFor={firstNameId}>
-                  {intl.formatMessage(messages.profileFirstName)}
-                </Field.Label>
-                <Input
-                  id={firstNameId}
-                  type="text"
-                  autoComplete="given-name"
-                  value={firstName}
-                  onChange={(event) => setFirstName(event.target.value)}
-                />
-              </Field.Root>
+        <Field.Root>
+          <Field.Label htmlFor={lastNameId}>
+            {intl.formatMessage(messages.profileLastName)}
+          </Field.Label>
+          <Input
+            id={lastNameId}
+            type="text"
+            autoComplete="family-name"
+            value={lastName}
+            onChange={(event) => setLastName(event.target.value)}
+          />
+        </Field.Root>
 
-              <Field.Root>
-                <Field.Label htmlFor={lastNameId}>
-                  {intl.formatMessage(messages.profileLastName)}
-                </Field.Label>
-                <Input
-                  id={lastNameId}
-                  type="text"
-                  autoComplete="family-name"
-                  value={lastName}
-                  onChange={(event) => setLastName(event.target.value)}
-                />
-              </Field.Root>
+        <Field.Root>
+          <Field.Label htmlFor={emailId}>
+            {intl.formatMessage(messages.signInEmail)}
+          </Field.Label>
+          <Input
+            id={emailId}
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        </Field.Root>
 
-              <Field.Root>
-                <Field.Label htmlFor={emailId}>
-                  {intl.formatMessage(messages.signInEmail)}
-                </Field.Label>
-                <Input
-                  id={emailId}
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                />
-              </Field.Root>
+        <Field.Root>
+          <Field.Label htmlFor={taxIdId}>
+            {intl.formatMessage(messages.profileTaxId)}
+          </Field.Label>
+          <Input
+            id={taxIdId}
+            type="text"
+            value={taxId}
+            onChange={(event) => setTaxId(event.target.value)}
+          />
+        </Field.Root>
 
-              <Field.Root>
-                <Field.Label htmlFor={taxIdId}>
-                  {intl.formatMessage(messages.profileTaxId)}
-                </Field.Label>
-                <Input
-                  id={taxIdId}
-                  type="text"
-                  value={taxId}
-                  onChange={(event) => setTaxId(event.target.value)}
-                />
-              </Field.Root>
+        <Button type="submit" disabled={isBusy}>
+          {intl.formatMessage(
+            isBusy ? messages.profileSaving : messages.profileSave,
+          )}
+        </Button>
 
-              <Button type="submit" disabled={isBusy}>
-                {intl.formatMessage(
-                  isBusy ? messages.profileSaving : messages.profileSave,
-                )}
-              </Button>
-
-              <Button type="button" $variant="outline" onClick={onClose}>
-                {intl.formatMessage(messages.profileCancel)}
-              </Button>
-            </form>
-          </Dialog.Popup>
-        </Dialog.Viewport>
-      </Dialog.Portal>
-    </Dialog.Root>
+        <Button type="button" $variant="outline" onClick={onClose}>
+          {intl.formatMessage(messages.profileCancel)}
+        </Button>
+      </form>
+    </PortalDialog>
   );
 }
