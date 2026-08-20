@@ -54,4 +54,24 @@ export const messages = defineMessages({
     id: "portal_recover_back",
     defaultMessage: "Back to sign in",
   },
+  passwordResetHeading: {
+    id: "portal_password_reset_heading",
+    defaultMessage: "Choose a new password",
+  },
+  passwordResetHint: {
+    id: "portal_password_reset_hint",
+    defaultMessage: "You signed in with a temporary password.",
+  },
+  passwordNew: { id: "portal_password_new", defaultMessage: "New password" },
+  passwordConfirm: {
+    id: "portal_password_confirm",
+    defaultMessage: "Confirm password",
+  },
+  passwordMismatch: {
+    id: "portal_password_mismatch",
+    defaultMessage: "Passwords do not match.",
+  },
+  passwordSave: { id: "portal_password_save", defaultMessage: "Save password" },
+  passwordSaving: { id: "portal_password_saving", defaultMessage: "Saving..." },
+  passwordSkip: { id: "portal_password_skip", defaultMessage: "Skip for now" },
 });
