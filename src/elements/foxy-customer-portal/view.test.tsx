@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import { API } from "@foxy.io/sdk/customer";
 import { mountScreen, setInputValue, type MountedScreen } from "./test-utils";
+import { resetHCaptchaLoaderForTests } from "./hcaptcha";
 import { Portal } from "./view";
 
 let screen: MountedScreen | null = null;
@@ -20,8 +21,24 @@ type SettingsResponse = {
 
 let settingsResponse: SettingsResponse;
 let fetchMock: ReturnType<typeof vi.fn>;
+let solveCaptcha: ((token: string) => void) | null = null;
 
 beforeEach(() => {
+  // The sign-up screen renders an hCaptcha widget on mount. Same stub shape as
+  // `screens/sign-up.test.tsx`: no test may load the real script.
+  resetHCaptchaLoaderForTests();
+  solveCaptcha = null;
+  (window as { hcaptcha?: unknown }).hcaptcha = {
+    render: (
+      _host: HTMLElement,
+      options: { callback(token: string): void },
+    ) => {
+      solveCaptcha = options.callback;
+      return "widget-1";
+    },
+    reset: vi.fn(),
+  };
+
   settingsResponse = {
     sign_up: {
       enabled: false,
@@ -38,6 +55,8 @@ beforeEach(() => {
 afterEach(() => {
   screen?.unmount();
   screen = null;
+  delete (window as { hcaptcha?: unknown }).hcaptcha;
+  solveCaptcha = null;
   vi.unstubAllGlobals();
 });
 
@@ -429,6 +448,95 @@ describe("Portal", () => {
     expect(screen!.host.textContent).toMatch(/Bob Kahn/);
     expect(screen!.host.textContent).not.toMatch(/Ada Lovelace/);
     expect(screen!.host.textContent).not.toMatch(/ada@example\.com/);
+  });
+
+  it("fires no signin when sign-up leaves the password blank", async () => {
+    // `signUp` stores no session, so there is nothing to sign in with here. The
+    // event has to stay unfired at the element boundary, not just at the
+    // screen's callback — this is the wiring in `afterSignIn` that decides it.
+    settingsResponse = {
+      sign_up: {
+        enabled: true,
+        verification: { type: "hcaptcha", site_key: "key" },
+      },
+    };
+
+    const signIn = vi.fn(async () => {});
+    const signUp = vi.fn(async () => {});
+    const onEvent = vi.fn();
+    render(fakeApi({ signIn, signUp }), { onEvent });
+    await flush();
+    await flush();
+
+    clickButtonMatching(/create an account/i);
+    await flush();
+
+    const host = screen!.host;
+    const email = host.querySelector<HTMLInputElement>('input[type="email"]')!;
+    act(() => setInputValue(email, "ada@example.com"));
+    act(() => solveCaptcha!("captcha-token"));
+
+    act(() => {
+      host
+        .querySelector("form")!
+        .dispatchEvent(
+          new Event("submit", { bubbles: true, cancelable: true }),
+        );
+    });
+    await flush();
+    await flush();
+
+    expect(signUp).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: "ada@example.com",
+        password: undefined,
+      }),
+    );
+    expect(signIn).not.toHaveBeenCalled();
+    expect(onEvent).not.toHaveBeenCalled();
+    expect(screen!.host.textContent).toMatch(/check your email/i);
+  });
+
+  it("fires signin when sign-up supplies a password", async () => {
+    settingsResponse = {
+      sign_up: {
+        enabled: true,
+        verification: { type: "hcaptcha", site_key: "key" },
+      },
+    };
+
+    const signUp = vi.fn(async () => {});
+    const onEvent = vi.fn();
+    render(fakeApi({ signUp }), { onEvent });
+    await flush();
+    await flush();
+
+    clickButtonMatching(/create an account/i);
+    await flush();
+
+    const host = screen!.host;
+    const email = host.querySelector<HTMLInputElement>('input[type="email"]')!;
+    const password = host.querySelector<HTMLInputElement>(
+      'input[type="password"]',
+    )!;
+    act(() => {
+      setInputValue(email, "ada@example.com");
+      setInputValue(password, "hunter2");
+    });
+    act(() => solveCaptcha!("captcha-token"));
+
+    act(() => {
+      host
+        .querySelector("form")!
+        .dispatchEvent(
+          new Event("submit", { bubbles: true, cancelable: true }),
+        );
+    });
+    await flush();
+    await flush();
+
+    expect(onEvent.mock.calls[0]).toEqual(["signin"]);
+    expect(screen!.host.textContent).toMatch(/Ada Lovelace/);
   });
 
   it("requests portal settings from inside the customer base path", async () => {

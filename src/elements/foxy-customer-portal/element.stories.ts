@@ -62,10 +62,14 @@ function stubStore(): () => void {
   };
 }
 
-/** Seeds a live session so the story opens on the account screen. */
+/**
+ * Seeds a live session so the story opens on the account screen.
+ *
+ * Deliberately does not stub `fetch`: the meta-level `beforeEach` already did,
+ * and nesting a second stub would make the restore order decide whether the
+ * real `fetch` or the outer stub is left in place afterwards.
+ */
 function withSession(): () => void {
-  const restoreFetch = stubStore();
-
   localStorage.setItem(
     SESSION_KEY,
     JSON.stringify({
@@ -77,7 +81,6 @@ function withSession(): () => void {
 
   return () => {
     localStorage.removeItem(SESSION_KEY);
-    restoreFetch();
   };
 }
 
