@@ -70,7 +70,11 @@ describe("useResource", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );
@@ -91,7 +95,11 @@ describe("useResource", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );
@@ -114,7 +122,11 @@ describe("useResource", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );
@@ -143,7 +155,11 @@ describe("useResource", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );
@@ -168,7 +184,11 @@ describe("useResource", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );
@@ -193,7 +213,11 @@ describe("useResource", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );
@@ -220,7 +244,11 @@ describe("useResource", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );
@@ -254,7 +282,11 @@ describe("useCollection", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );
@@ -273,7 +305,11 @@ describe("useCollection", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );
@@ -303,7 +339,11 @@ describe("useCollection", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );
@@ -325,7 +365,11 @@ describe("useCollection", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );
@@ -359,7 +403,11 @@ describe("useCollection", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );
@@ -398,7 +446,11 @@ describe("useCollection offset", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe href="/subscriptions?is_active=true" spy={activeSpy} />
       </ApiProvider>,
     );
@@ -411,7 +463,11 @@ describe("useCollection offset", () => {
     // Same component, different collection — the offset belongs to the old one.
     act(() =>
       root!.render(
-        <ApiProvider api={{} as never} cache={new RequestCache()}>
+        <ApiProvider
+          api={{} as never}
+          cache={new RequestCache()}
+          onUnauthenticated={() => {}}
+        >
           <Probe href="/subscriptions?is_active=false" spy={inactiveSpy} />
         </ApiProvider>,
       ),
@@ -447,7 +503,11 @@ describe("useCollection offset", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );
@@ -460,7 +520,11 @@ describe("useCollection offset", () => {
     // A re-render with an equal href must not throw the customer back to page 1.
     act(() =>
       root!.render(
-        <ApiProvider api={{} as never} cache={new RequestCache()}>
+        <ApiProvider
+          api={{} as never}
+          cache={new RequestCache()}
+          onUnauthenticated={() => {}}
+        >
           <Probe />
         </ApiProvider>,
       ),
@@ -493,7 +557,11 @@ describe("useResource read guards", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );
@@ -509,7 +577,11 @@ describe("useResource read guards", () => {
     }
 
     render(
-      <ApiProvider api={{} as never} cache={new RequestCache()}>
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
         <Probe />
       </ApiProvider>,
     );

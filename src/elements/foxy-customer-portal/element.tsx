@@ -6,7 +6,6 @@ import { API } from "@foxy.io/sdk/customer";
 
 import enUsMessages from "@/locales/en-US.json";
 import {
-  ApiProvider,
   RequestCache,
   createScopedStorage,
   resolveBaseUrl,
@@ -185,21 +184,21 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
               messages={messages}
             >
               {api ? (
-                <ApiProvider api={api} cache={this.#cache}>
-                  <Portal
-                    fullNameTemplate={this.fullNameTemplate}
-                    skipPasswordReset={this.skipPasswordReset}
-                    onEvent={(type, detail) =>
-                      this.dispatchEvent(
-                        new CustomEvent(type, {
-                          detail,
-                          bubbles: true,
-                          composed: true,
-                        }),
-                      )
-                    }
-                  />
-                </ApiProvider>
+                <Portal
+                  api={api}
+                  cache={this.#cache}
+                  fullNameTemplate={this.fullNameTemplate}
+                  skipPasswordReset={this.skipPasswordReset}
+                  onEvent={(type, detail) =>
+                    this.dispatchEvent(
+                      new CustomEvent(type, {
+                        detail,
+                        bubbles: true,
+                        composed: true,
+                      }),
+                    )
+                  }
+                />
               ) : (
                 <MissingStoreDomain />
               )}

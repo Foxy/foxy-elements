@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
+import type { API } from "@foxy.io/sdk/customer";
 import { Alert } from "@foxy.io/design-system/alert";
 import {
+  ApiProvider,
   hasValidSession,
-  useApi,
   useResource,
   type FollowableLink,
+  type RequestCache,
 } from "@/lib/customer-api";
 import { customerPortalEvents } from "./events";
 import { messages } from "./messages";
@@ -47,9 +49,7 @@ type PortalSettings = {
  * (`` `${this.base}customer_portal_settings` ``) — both resolve here, not one
  * level up.
  */
-function useSettingsLink(): FollowableLink<PortalSettings> | null {
-  const { api } = useApi();
-
+function useSettingsLink(api: API): FollowableLink<PortalSettings> | null {
   return useMemo(() => {
     const href = new URL("./customer_portal_settings", api.base).toString();
     return {
@@ -68,28 +68,98 @@ function useSettingsLink(): FollowableLink<PortalSettings> | null {
 }
 
 /**
- * Portal root: routes between the five screens and dispatches the element's
- * public events. `element.tsx` turns `onEvent` into real `CustomEvent`s.
+ * Portal root: owns the API context and the screen state that both
+ * `onUnauthenticated` (below) and `PortalScreens` need, then hands the rest of
+ * the routing to `PortalScreens`.
+ *
+ * `ApiProvider` lives here rather than in `element.tsx` so `handleUnauthenticated`
+ * — which needs `setScreen` — can be part of the context value every write in
+ * the tree reads through `useApi()`. `useSettingsLink` and `useResource` (used
+ * by `PortalScreens`) both require that context, so they cannot run in this
+ * component itself; they run one level down, inside the provider.
  */
 export function Portal({
+  api,
+  cache,
   fullNameTemplate,
   skipPasswordReset,
   onEvent,
 }: {
+  api: API;
+  cache: RequestCache;
   fullNameTemplate: string;
   skipPasswordReset: boolean;
   onEvent: (type: string, detail?: unknown) => void;
 }) {
-  const { api, cache } = useApi();
-  const settingsLink = useSettingsLink();
-  const { data: settings } = useResource<PortalSettings>(settingsLink);
-
   // Presence of the session key is not enough — see `hasValidSession`. An
   // expired session would otherwise open on the account screen, whose first
   // request clears the session and comes back 401.
   const [screen, setScreen] = useState<PortalScreen>(() =>
     hasValidSession(api) ? "account" : "sign-in",
   );
+
+  /**
+   * A request came back 401 or 403: the session is gone or was never valid.
+   * Drop it so `hasValidSession` cannot route back here on the next mount, and
+   * return to sign-in. No `signout` event — the customer did not sign out, and
+   * firing one would tell integrators a session was cleared on request.
+   *
+   * Reads route here through `UnauthenticatedError`; writes call it directly
+   * from `useApi().onUnauthenticated` — see `ApiProvider`'s doc comment for why
+   * that has to be the caller's choice rather than a rule in the hook.
+   */
+  const handleUnauthenticated = useCallback(() => {
+    api.storage.clear();
+    setScreen("sign-in");
+  }, [api]);
+
+  return (
+    <ApiProvider
+      api={api}
+      cache={cache}
+      onUnauthenticated={handleUnauthenticated}
+    >
+      <PortalScreens
+        api={api}
+        cache={cache}
+        screen={screen}
+        setScreen={setScreen}
+        fullNameTemplate={fullNameTemplate}
+        skipPasswordReset={skipPasswordReset}
+        onEvent={onEvent}
+        onUnauthenticated={handleUnauthenticated}
+      />
+    </ApiProvider>
+  );
+}
+
+/**
+ * Routes between the five screens and dispatches the element's public events.
+ * `element.tsx` turns `onEvent` into real `CustomEvent`s. Split out of `Portal`
+ * so this can sit inside `ApiProvider` and use `useResource` for the settings
+ * read, while `Portal` itself stays outside it and owns the provider.
+ */
+function PortalScreens({
+  api,
+  cache,
+  screen,
+  setScreen,
+  fullNameTemplate,
+  skipPasswordReset,
+  onEvent,
+  onUnauthenticated,
+}: {
+  api: API;
+  cache: RequestCache;
+  screen: PortalScreen;
+  setScreen: (screen: PortalScreen) => void;
+  fullNameTemplate: string;
+  skipPasswordReset: boolean;
+  onEvent: (type: string, detail?: unknown) => void;
+  onUnauthenticated: () => void;
+}) {
+  const settingsLink = useSettingsLink(api);
+  const { data: settings } = useResource<PortalSettings>(settingsLink);
 
   const canSignUp = settings?.sign_up?.enabled === true;
   const siteKey = settings?.sign_up?.verification?.site_key ?? "";
@@ -129,17 +199,6 @@ export function Portal({
       cache.clear();
     }
   }, [screen, cache]);
-
-  /**
-   * A request came back 401 or 403: the session is gone or was never valid.
-   * Drop it so `hasValidSession` cannot route back here on the next mount, and
-   * return to sign-in. No `signout` event — the customer did not sign out, and
-   * firing one would tell integrators a session was cleared on request.
-   */
-  const handleUnauthenticated = useCallback(() => {
-    api.storage.clear();
-    setScreen("sign-in");
-  }, [api]);
 
   if (screen === "sign-in") {
     return (
@@ -189,7 +248,7 @@ export function Portal({
         onEvent(customerPortalEvents.signOut);
         setScreen("sign-in");
       }}
-      onUnauthenticated={handleUnauthenticated}
+      onUnauthenticated={onUnauthenticated}
     />
   );
 }

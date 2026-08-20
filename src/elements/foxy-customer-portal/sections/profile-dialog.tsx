@@ -5,7 +5,7 @@ import { Button } from "@foxy.io/design-system/button";
 import { Dialog } from "@foxy.io/design-system/dialog";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
-import type { FollowableLink } from "@/lib/customer-api";
+import { WriteError, useApi, type FollowableLink } from "@/lib/customer-api";
 import { messages } from "../messages";
 import { usePortalContainer } from "../portal-container";
 import { patchResource } from "../write";
@@ -19,6 +19,7 @@ type Props = { customer: CustomerResource; open: boolean; onClose: () => void };
 
 export function ProfileDialog({ customer, open, onClose }: Props) {
   const intl = useIntl();
+  const { onUnauthenticated } = useApi();
   const portalContainer = usePortalContainer();
   const firstNameId = useId();
   const lastNameId = useId();
@@ -49,7 +50,15 @@ export function ProfileDialog({ customer, open, onClose }: Props) {
       });
 
       onClose();
-    } catch {
+    } catch (caught) {
+      // This dialog sends no credentials, so a 401/403 can only mean the
+      // session died. The password dialog is the one place where 401 means
+      // "the value you typed was wrong" — it must not route.
+      if (caught instanceof WriteError && caught.isUnauthorized) {
+        onUnauthenticated();
+        return;
+      }
+
       setHasFailed(true);
     } finally {
       setIsBusy(false);

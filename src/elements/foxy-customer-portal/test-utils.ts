@@ -54,8 +54,14 @@ export type MountedScreen = {
  *
  * Each screen takes different props and a different API double, so only the
  * rendered `node` and the `api` it should see are parameters here.
+ * `onUnauthenticated` defaults to a no-op; pass one to assert a write routed
+ * to sign-in on a 401/403.
  */
-export function mountScreen(node: ReactNode, api: unknown): MountedScreen {
+export function mountScreen(
+  node: ReactNode,
+  api: unknown,
+  onUnauthenticated: () => void = () => {},
+): MountedScreen {
   const host = document.createElement("div");
   document.body.append(host);
 
@@ -75,6 +81,7 @@ export function mountScreen(node: ReactNode, api: unknown): MountedScreen {
           createElement(ApiProvider, {
             api: api as never,
             cache: new RequestCache(),
+            onUnauthenticated,
             children: node,
           }),
         ),

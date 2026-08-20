@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import { API } from "@foxy.io/sdk/customer";
+import { RequestCache } from "@/lib/customer-api";
 import { mountScreen, setInputValue, type MountedScreen } from "./test-utils";
 import { resetHCaptchaLoaderForTests } from "./hcaptcha";
 import { Portal } from "./view";
@@ -132,6 +133,8 @@ function fakeApi(overrides: Record<string, unknown> = {}) {
 function render(api: unknown, props: Record<string, unknown> = {}) {
   screen = mountScreen(
     <Portal
+      api={api as never}
+      cache={new RequestCache()}
       fullNameTemplate={
         (props.fullNameTemplate as string) ?? "{first_name} {last_name}"
       }
@@ -355,6 +358,46 @@ describe("Portal", () => {
     // an account screen that cannot load.
     expect(api.storage.getItem(API.SESSION)).toBeNull();
     // Nobody signed out, so no `signout` event.
+    expect(onEvent).not.toHaveBeenCalled();
+  });
+
+  it("routes to sign-in when a write comes back unauthorized", async () => {
+    // Mirrors the read-side test above, but through the profile dialog's save
+    // instead of the initial account load — this is the wiring
+    // `ApiProvider`'s `onUnauthenticated` exists for.
+    const onEvent = vi.fn();
+    const patch = vi.fn(async () => ({ ok: false, status: 401 }));
+    const customer = { ...ada, _links: { self: { href: "/c", patch } } };
+    const api = fakeApi({
+      get: vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => customer,
+      })),
+    });
+    api.storage.setItem(API.SESSION, session());
+    render(api, { onEvent });
+    await flush();
+    await flush();
+
+    clickButtonMatching(/edit profile/i);
+    // The dialog portals into `document.body`, not `screen.host` — see
+    // `profile-dialog.test.tsx` — and needs a flush before Base UI finishes
+    // opening it.
+    await flush();
+
+    act(() => {
+      document
+        .querySelector("form")!
+        .dispatchEvent(
+          new Event("submit", { bubbles: true, cancelable: true }),
+        );
+    });
+    await flush();
+
+    expect(screen!.host.textContent).toMatch(/sign in/i);
+    expect(api.storage.getItem(API.SESSION)).toBeNull();
+    // The customer did not sign out, so no `signout` event either.
     expect(onEvent).not.toHaveBeenCalled();
   });
 

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi, type Mock } from "vitest";
 import { act } from "react";
 import { mountScreen, setInputValue, type MountedScreen } from "../test-utils";
 import { ProfileDialog } from "./profile-dialog";
@@ -23,10 +23,17 @@ const flush = () =>
 const ok = () => ({ ok: true, status: 200 });
 const rejected = (status: number) => () => ({ ok: false, status });
 
-async function render(
+async function renderDialog({
   patch = vi.fn(async (_body: Record<string, unknown>) => ok()),
   onClose = vi.fn(),
-) {
+  onUnauthenticated = vi.fn(),
+}: {
+  patch?: Mock<
+    (body: Record<string, unknown>) => Promise<{ ok: boolean; status: number }>
+  >;
+  onClose?: () => void;
+  onUnauthenticated?: () => void;
+} = {}) {
   const customer = {
     first_name: "Ada",
     last_name: "Lovelace",
@@ -38,10 +45,11 @@ async function render(
   screen = mountScreen(
     <ProfileDialog customer={customer as never} open onClose={onClose} />,
     {},
+    onUnauthenticated,
   );
   await flush();
 
-  return { patch, onClose };
+  return { patch, onClose, onUnauthenticated };
 }
 
 afterEach(() => {
@@ -51,7 +59,7 @@ afterEach(() => {
 
 describe("ProfileDialog", () => {
   it("prefills from the customer resource", async () => {
-    await render();
+    await renderDialog();
     const first = document.querySelector<HTMLInputElement>(
       'input[autocomplete="given-name"]',
     )!;
@@ -59,7 +67,7 @@ describe("ProfileDialog", () => {
   });
 
   it("patches only the profile fields, never the password", async () => {
-    const { patch } = await render();
+    const { patch } = await renderDialog();
     const first = document.querySelector<HTMLInputElement>(
       'input[autocomplete="given-name"]',
     )!;
@@ -85,7 +93,7 @@ describe("ProfileDialog", () => {
   });
 
   it("closes after a successful save", async () => {
-    const { onClose } = await render();
+    const { onClose } = await renderDialog();
 
     act(() => {
       document
@@ -101,7 +109,7 @@ describe("ProfileDialog", () => {
 
   it("stays open and shows an error when the API rejects the save", async () => {
     const patch = vi.fn(async () => rejected(422)());
-    const { onClose } = await render(patch);
+    const { onClose } = await renderDialog({ patch });
 
     act(() => {
       document
@@ -113,6 +121,46 @@ describe("ProfileDialog", () => {
     await flush();
 
     expect(onClose).not.toHaveBeenCalled();
+    expect(document.body.textContent).toMatch(/something went wrong/i);
+  });
+
+  it("routes to sign-in when the session is gone", async () => {
+    const onUnauthenticated = vi.fn();
+    const patch = vi.fn(async () => ({ ok: false, status: 401 }));
+    const onClose = vi.fn();
+
+    await renderDialog({ patch, onClose, onUnauthenticated });
+
+    act(() => {
+      document
+        .querySelector("form")!
+        .dispatchEvent(
+          new Event("submit", { bubbles: true, cancelable: true }),
+        );
+    });
+    await flush();
+
+    expect(onUnauthenticated).toHaveBeenCalled();
+    // The dialog must not also claim the save failed for some other reason.
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("does not route to sign-in on an ordinary rejection", async () => {
+    const onUnauthenticated = vi.fn();
+    const patch = vi.fn(async () => ({ ok: false, status: 422 }));
+
+    await renderDialog({ patch, onUnauthenticated });
+
+    act(() => {
+      document
+        .querySelector("form")!
+        .dispatchEvent(
+          new Event("submit", { bubbles: true, cancelable: true }),
+        );
+    });
+    await flush();
+
+    expect(onUnauthenticated).not.toHaveBeenCalled();
     expect(document.body.textContent).toMatch(/something went wrong/i);
   });
 });

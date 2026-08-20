@@ -26,18 +26,33 @@ export type FollowableLink<T> = {
   patch?(body: unknown): Promise<WriteResponse>;
 };
 
-type ApiContextValue = { api: API; cache: RequestCache };
+type ApiContextValue = {
+  api: API;
+  cache: RequestCache;
+  /**
+   * Called when the API refuses a request because the session is gone. Reads
+   * route through `UnauthenticatedError`; writes call this directly, because a
+   * 401 on a write carrying a password means the password was wrong, not the
+   * session — only the caller knows which it sent.
+   */
+  onUnauthenticated: () => void;
+};
 
 const ApiContext = createContext<ApiContextValue | null>(null);
 
 export function ApiProvider(props: {
   api: API;
   cache: RequestCache;
+  onUnauthenticated: () => void;
   children: React.ReactNode;
 }) {
   const value = useMemo(
-    () => ({ api: props.api, cache: props.cache }),
-    [props.api, props.cache],
+    () => ({
+      api: props.api,
+      cache: props.cache,
+      onUnauthenticated: props.onUnauthenticated,
+    }),
+    [props.api, props.cache, props.onUnauthenticated],
   );
 
   return <ApiContext value={value}>{props.children}</ApiContext>;
