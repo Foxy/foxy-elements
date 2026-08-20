@@ -26,6 +26,7 @@ export class RequestCache {
   readonly #entries = new Map<string, CacheEntry<unknown>>();
   readonly #listeners = new Map<string, Set<() => void>>();
   readonly #generations = new Map<string, number>();
+  #epoch = 0;
 
   read<T>(key: string, load: () => Promise<T>): CacheEntry<T> {
     const existing = this.#entries.get(key) as CacheEntry<T> | undefined;
@@ -34,10 +35,16 @@ export class RequestCache {
     this.#entries.set(key, EMPTY);
     const generation = (this.#generations.get(key) ?? 0) + 1;
     this.#generations.set(key, generation);
+    const epoch = this.#epoch;
 
     void load().then(
       (data) =>
-        this.#settle(key, { data, error: null, isLoading: false }, generation),
+        this.#settle(
+          key,
+          { data, error: null, isLoading: false },
+          generation,
+          epoch,
+        ),
       (error: unknown) =>
         this.#settle(
           key,
@@ -47,6 +54,7 @@ export class RequestCache {
             isLoading: false,
           },
           generation,
+          epoch,
         ),
     );
 
@@ -74,13 +82,23 @@ export class RequestCache {
   clear(): void {
     const keys = [...this.#entries.keys()];
     this.#entries.clear();
+    this.#generations.clear();
+    this.#epoch++;
     for (const key of keys) this.#notify(key);
   }
 
-  #settle(key: string, entry: CacheEntry<unknown>, generation: number): void {
+  #settle(
+    key: string,
+    entry: CacheEntry<unknown>,
+    generation: number,
+    epoch: number,
+  ): void {
     // Only settle if this is still the active load for this key.
-    // A stale load from before an invalidate() must not overwrite a newer load.
-    if (this.#generations.get(key) !== generation) return;
+    // A stale load from before an invalidate() or clear() must not
+    // resurrect stale data.
+    if (this.#generations.get(key) !== generation || this.#epoch !== epoch) {
+      return;
+    }
     this.#entries.set(key, entry);
     this.#notify(key);
   }

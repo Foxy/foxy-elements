@@ -112,4 +112,21 @@ describe("RequestCache", () => {
       isLoading: false,
     });
   });
+
+  it("does not resurrect stale data after clear", async () => {
+    const cache = new RequestCache();
+    const delay = (ms: number, value: string) =>
+      new Promise((resolve) => setTimeout(() => resolve(value), ms));
+
+    cache.read("k", async () => delay(50, "STALE-AFTER-CLEAR"));
+    cache.clear();
+    await delay(100, undefined);
+
+    // Cache should remain empty, not repopulated by the stale load
+    expect(cache.read("k", async () => "new")).toEqual({
+      data: null,
+      error: null,
+      isLoading: true,
+    });
+  });
 });
