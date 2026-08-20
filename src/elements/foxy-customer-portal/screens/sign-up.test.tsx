@@ -7,9 +7,11 @@ import { SignUpScreen } from "./sign-up";
 let screen: MountedScreen | null = null;
 let solve: ((token: string) => void) | null = null;
 let renderedInto: HTMLElement | null = null;
+let resetWidget = vi.fn();
 
 beforeEach(() => {
   resetHCaptchaLoaderForTests();
+  resetWidget = vi.fn();
   (window as { hcaptcha?: unknown }).hcaptcha = {
     render: (
       container: HTMLElement,
@@ -19,7 +21,7 @@ beforeEach(() => {
       solve = options.callback;
       return "widget-1";
     },
-    reset: vi.fn(),
+    reset: resetWidget,
   };
 });
 
@@ -142,6 +144,32 @@ describe("SignUpScreen", () => {
     await flush();
 
     expect(screen!.host.textContent).toMatch(/already registered/i);
+  });
+
+  it("resets the widget and clears the token after a failed submit", async () => {
+    const signUp = vi.fn(async () => {
+      throw Object.assign(new Error("taken"), { code: "UNAVAILABLE" });
+    });
+    render({ signUp });
+    await flush();
+
+    fill();
+    act(() => solve!("captcha-token"));
+    submitForm();
+    await flush();
+
+    expect(resetWidget).toHaveBeenCalledWith("widget-1");
+    expect(screen!.host.textContent).toMatch(/already registered/i);
+
+    // Retrying without solving a fresh challenge must not resend the stale
+    // token: the token was cleared, so this submit is blocked exactly like
+    // the very first, unsolved one.
+    signUp.mockClear();
+    submitForm();
+    await flush();
+
+    expect(signUp).not.toHaveBeenCalled();
+    expect(screen!.host.textContent).toMatch(/verification challenge/i);
   });
 
   it("reports an invalid form on INVALID_FORM", async () => {

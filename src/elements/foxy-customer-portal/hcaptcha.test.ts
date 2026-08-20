@@ -3,6 +3,7 @@ import {
   HCAPTCHA_SCRIPT_URL,
   loadHCaptcha,
   resetHCaptchaLoaderForTests,
+  setHCaptchaScriptLoaderForTests,
 } from "./hcaptcha";
 
 declare global {
@@ -11,13 +12,30 @@ declare global {
   }
 }
 
-beforeEach(() => resetHCaptchaLoaderForTests());
+let loadCalls: string[];
+let resolveLoad: (() => void) | null;
+let rejectLoad: ((error: Error) => void) | null;
+
+beforeEach(() => {
+  resetHCaptchaLoaderForTests();
+  loadCalls = [];
+  resolveLoad = null;
+  rejectLoad = null;
+
+  // Fake script loader: no test may create a DOM node pointing at a real
+  // external URL, since the `unit` project runs in real Chromium with no
+  // network interception configured.
+  setHCaptchaScriptLoaderForTests((src) => {
+    loadCalls.push(src);
+    return new Promise((resolve, reject) => {
+      resolveLoad = resolve;
+      rejectLoad = reject;
+    });
+  });
+});
 
 afterEach(() => {
   delete window.hcaptcha;
-  document
-    .querySelectorAll(`script[src="${HCAPTCHA_SCRIPT_URL}"]`)
-    .forEach((n) => n.remove());
 });
 
 describe("loadHCaptcha", () => {
@@ -26,24 +44,18 @@ describe("loadHCaptcha", () => {
     window.hcaptcha = api;
 
     await expect(loadHCaptcha()).resolves.toBe(api);
-    expect(
-      document.querySelector(`script[src="${HCAPTCHA_SCRIPT_URL}"]`),
-    ).toBeNull();
+    expect(loadCalls).toHaveLength(0);
   });
 
   it("injects the script once for concurrent callers", async () => {
     const first = loadHCaptcha();
     const second = loadHCaptcha();
 
-    expect(
-      document.querySelectorAll(`script[src="${HCAPTCHA_SCRIPT_URL}"]`),
-    ).toHaveLength(1);
+    expect(loadCalls).toEqual([HCAPTCHA_SCRIPT_URL]);
 
     const api = { render: vi.fn(), reset: vi.fn() };
     window.hcaptcha = api;
-    document
-      .querySelector(`script[src="${HCAPTCHA_SCRIPT_URL}"]`)!
-      .dispatchEvent(new Event("load"));
+    resolveLoad!();
 
     await expect(first).resolves.toBe(api);
     await expect(second).resolves.toBe(api);
@@ -51,9 +63,7 @@ describe("loadHCaptcha", () => {
 
   it("rejects when the script fails to load", async () => {
     const pending = loadHCaptcha();
-    document
-      .querySelector(`script[src="${HCAPTCHA_SCRIPT_URL}"]`)!
-      .dispatchEvent(new Event("error"));
+    rejectLoad!(new Error("hCaptcha failed to load."));
 
     await expect(pending).rejects.toThrow(/hcaptcha/i);
   });

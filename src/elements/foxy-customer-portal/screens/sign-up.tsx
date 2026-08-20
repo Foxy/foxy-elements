@@ -5,7 +5,7 @@ import { Button } from "@foxy.io/design-system/button";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
 import { useApi } from "@/lib/customer-api";
-import { loadHCaptcha } from "../hcaptcha";
+import { loadHCaptcha, type HCaptchaApi } from "../hcaptcha";
 import { messages } from "../messages";
 
 type Props = {
@@ -25,6 +25,7 @@ export function SignUpScreen({ siteKey, onSignedUp, onBack }: Props) {
   const passwordId = useId();
 
   const captchaHost = useRef<HTMLDivElement>(null);
+  const widget = useRef<{ api: HCaptchaApi; id: string } | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -38,10 +39,11 @@ export function SignUpScreen({ siteKey, onSignedUp, onBack }: Props) {
 
     void loadHCaptcha().then((hcaptcha) => {
       if (cancelled || !captchaHost.current) return;
-      hcaptcha.render(captchaHost.current, {
+      const id = hcaptcha.render(captchaHost.current, {
         sitekey: siteKey,
         callback: setToken,
       });
+      widget.current = { api: hcaptcha, id };
     });
 
     return () => {
@@ -77,6 +79,14 @@ export function SignUpScreen({ siteKey, onSignedUp, onBack }: Props) {
       if (code === "UNAVAILABLE") setError("taken");
       else if (code === "INVALID_FORM") setError("invalid");
       else setError("unknown");
+
+      // hCaptcha tokens are single-use and expire, so a stale token can
+      // never satisfy signUp() again. Clear it and reset the widget so the
+      // customer solves a fresh challenge before retrying; `error` above is
+      // already set to the real reason, so this alone won't be read back as
+      // "no challenge attempted".
+      setToken(null);
+      if (widget.current) widget.current.api.reset(widget.current.id);
     } finally {
       setIsBusy(false);
     }
