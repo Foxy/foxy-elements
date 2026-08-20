@@ -1,0 +1,44 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Elements/foxy-customer-portal/Docs" />
+
+# foxy-customer-portal
+
+A drop-in customer portal: sign-in, access recovery, self-registration,
+temporary-password reset, and account management.
+
+```html
+<foxy-customer-portal
+  store-domain="demo"
+  template-set-id="123"
+></foxy-customer-portal>
+```
+
+## Attributes
+
+| Attribute             | Required | Default                    | Notes                                                                                                 |
+| --------------------- | -------- | -------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `store-domain`        | yes      | —                          | `demo` becomes `demo.foxycart.com`; a value with a dot is used as-is, so custom domains work.         |
+| `template-set-id`     | no       | —                          | Enables payment-method editing through the card embed. Without it the method is view-and-delete only. |
+| `full-name-template`  | no       | `{first_name} {last_name}` | Plain token substitution, not ICU. Use it for salutations or name order.                              |
+| `skip-password-reset` | no       | `false`                    | Suppresses the forced reset screen after signing in with a temporary password.                        |
+| `lang`                | no       | `en-US`                    | BCP 47. Underscores are normalised to hyphens.                                                        |
+
+The embed origin is not an attribute — it comes from `VITE_EMBED_ORIGIN` at
+build time.
+
+## Events
+
+| Event           | Detail                                 |
+| --------------- | -------------------------------------- |
+| `signin`        | none                                   |
+| `signout`       | none                                   |
+| `passwordreset` | `{ result: "skipped" \| "completed" }` |
+
+## Notes
+
+Session data is stored under a key namespaced by store domain, so two Foxy
+stores served from one origin do not share a session.
+
+Self-registration appears only when the store enables it. It requires an
+hCaptcha challenge, which loads a script from `js.hcaptcha.com`.
