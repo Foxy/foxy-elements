@@ -277,12 +277,12 @@ describe("Portal", () => {
     expect(screen!.host.textContent).toMatch(/sign in/i);
   });
 
-  it("requests portal settings from outside the customer graph", async () => {
+  it("requests portal settings from inside the customer base path", async () => {
     render(fakeApi());
     await flush();
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://demo.foxycart.com/s/customer_portal_settings",
+      "https://demo.foxycart.com/s/customer/customer_portal_settings",
     );
   });
 });

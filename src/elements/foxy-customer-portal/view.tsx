@@ -34,15 +34,20 @@ type PortalSettings = {
 };
 
 /**
- * Portal settings live one level above the customer base (outside the
- * customer graph) and are public, so this is the one place in the element
- * that reaches for `fetch` directly instead of going through the SDK.
+ * Portal settings live inside the customer base path, at
+ * `<base>customer_portal_settings` (e.g. `.../s/customer/customer_portal_settings`),
+ * and are public, so this is the one place in the element that reaches for
+ * `fetch` directly instead of going through the SDK. Confirmed against two
+ * real consumers of the live Customer API: v1's portal
+ * (`new URL('./customer_portal_settings', this.base)`) and Inflow
+ * (`` `${this.base}customer_portal_settings` ``) — both resolve here, not one
+ * level up.
  */
 function useSettingsLink(): FollowableLink<PortalSettings> | null {
   const { api } = useApi();
 
   return useMemo(() => {
-    const href = new URL("../customer_portal_settings", api.base).toString();
+    const href = new URL("./customer_portal_settings", api.base).toString();
     return {
       href,
       get: async () => {
