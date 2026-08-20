@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { RequestCache, serialiseQuery } from "./cache";
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe("serialiseQuery", () => {
   it("is stable across key order", () => {
@@ -104,7 +105,7 @@ describe("RequestCache", () => {
     cache.read("k", loadA);
     cache.invalidate("k");
     cache.read("k", loadB);
-    await delay(100, undefined);
+    await wait(100);
 
     expect(cache.read("k", async () => "unused")).toEqual({
       data: "FRESH-B",
@@ -120,7 +121,7 @@ describe("RequestCache", () => {
 
     cache.read("k", async () => delay(50, "STALE-AFTER-CLEAR"));
     cache.clear();
-    await delay(100, undefined);
+    await wait(100);
 
     // Cache should remain empty, not repopulated by the stale load
     expect(cache.read("k", async () => "new")).toEqual({
