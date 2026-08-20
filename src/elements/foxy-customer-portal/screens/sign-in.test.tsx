@@ -1,57 +1,31 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
-import { IntlProvider } from "react-intl";
-import { ThemeProvider } from "styled-components";
-import { defaultTheme } from "@foxy.io/design-system/theme";
-import enUsMessages from "@/locales/en-US.json";
-import { ApiProvider, RequestCache } from "@/lib/customer-api";
-import { setInputValue } from "../test-utils";
+import { mountScreen, setInputValue, type MountedScreen } from "../test-utils";
 import { SignInScreen } from "./sign-in";
 
-// React only allows `act` outside a test renderer when this is set, and warns
-// on every update otherwise. Mounting the screen renders React.
-(
-  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
-
-let root: Root | null = null;
-let host: HTMLDivElement | null = null;
+let screen: MountedScreen | null = null;
 
 function render(
   api: unknown,
   props: Partial<React.ComponentProps<typeof SignInScreen>> = {},
 ) {
-  host = document.createElement("div");
-  document.body.append(host);
-  root = createRoot(host);
-
-  act(() =>
-    root!.render(
-      <ThemeProvider theme={{ tokens: defaultTheme }}>
-        <IntlProvider
-          locale="en-US"
-          messages={enUsMessages as Record<string, string>}
-        >
-          <ApiProvider api={api as never} cache={new RequestCache()}>
-            <SignInScreen
-              onSignedIn={props.onSignedIn ?? vi.fn()}
-              onRecoverAccess={props.onRecoverAccess ?? vi.fn()}
-              onSignUp={props.onSignUp ?? vi.fn()}
-              canSignUp={props.canSignUp ?? false}
-            />
-          </ApiProvider>
-        </IntlProvider>
-      </ThemeProvider>,
-    ),
+  screen = mountScreen(
+    <SignInScreen
+      onSignedIn={props.onSignedIn ?? vi.fn()}
+      onRecoverAccess={props.onRecoverAccess ?? vi.fn()}
+      onSignUp={props.onSignUp ?? vi.fn()}
+      canSignUp={props.canSignUp ?? false}
+    />,
+    api,
   );
 }
 
 function submit(email: string, password: string) {
-  const emailInput = host!.querySelector<HTMLInputElement>(
+  const host = screen!.host;
+  const emailInput = host.querySelector<HTMLInputElement>(
     'input[type="email"]',
   )!;
-  const passwordInput = host!.querySelector<HTMLInputElement>(
+  const passwordInput = host.querySelector<HTMLInputElement>(
     'input[type="password"]',
   )!;
 
@@ -61,7 +35,7 @@ function submit(email: string, password: string) {
   });
 
   act(() => {
-    host!
+    host
       .querySelector("form")!
       .dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
   });
@@ -73,8 +47,8 @@ const flush = () =>
   });
 
 afterEach(() => {
-  act(() => root?.unmount());
-  host?.remove();
+  screen?.unmount();
+  screen = null;
 });
 
 describe("SignInScreen", () => {
@@ -111,16 +85,16 @@ describe("SignInScreen", () => {
     submit("ada@example.com", "wrong");
     await flush();
 
-    expect(host!.textContent).toMatch(/wrong email or password/i);
+    expect(screen!.host.textContent).toMatch(/wrong email or password/i);
   });
 
   it("hides the create-account link unless sign-up is enabled", () => {
     render({ signIn: async () => {} }, { canSignUp: false });
-    expect(host!.textContent).not.toMatch(/create an account/i);
+    expect(screen!.host.textContent).not.toMatch(/create an account/i);
   });
 
   it("shows the create-account link when sign-up is enabled", () => {
     render({ signIn: async () => {} }, { canSignUp: true });
-    expect(host!.textContent).toMatch(/create an account/i);
+    expect(screen!.host.textContent).toMatch(/create an account/i);
   });
 });
