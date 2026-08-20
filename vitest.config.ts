@@ -29,7 +29,6 @@ export default defineConfig({
   optimizeDeps: {
     include: [
       "@foxy.io/design-system/alert",
-      "@foxy.io/design-system/badge",
       "@foxy.io/design-system/button",
       "@foxy.io/design-system/card",
       "@foxy.io/design-system/checkbox",
