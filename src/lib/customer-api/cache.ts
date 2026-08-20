@@ -25,21 +25,29 @@ export function serialiseQuery(query: unknown): string {
 export class RequestCache {
   readonly #entries = new Map<string, CacheEntry<unknown>>();
   readonly #listeners = new Map<string, Set<() => void>>();
+  readonly #generations = new Map<string, number>();
 
   read<T>(key: string, load: () => Promise<T>): CacheEntry<T> {
     const existing = this.#entries.get(key) as CacheEntry<T> | undefined;
     if (existing) return existing;
 
     this.#entries.set(key, EMPTY);
+    const generation = (this.#generations.get(key) ?? 0) + 1;
+    this.#generations.set(key, generation);
 
     void load().then(
-      (data) => this.#settle(key, { data, error: null, isLoading: false }),
+      (data) =>
+        this.#settle(key, { data, error: null, isLoading: false }, generation),
       (error: unknown) =>
-        this.#settle(key, {
-          data: null,
-          error: error instanceof Error ? error : new Error(String(error)),
-          isLoading: false,
-        }),
+        this.#settle(
+          key,
+          {
+            data: null,
+            error: error instanceof Error ? error : new Error(String(error)),
+            isLoading: false,
+          },
+          generation,
+        ),
     );
 
     return EMPTY as CacheEntry<T>;
@@ -58,6 +66,8 @@ export class RequestCache {
 
   invalidate(key: string): void {
     this.#entries.delete(key);
+    const generation = (this.#generations.get(key) ?? 0) + 1;
+    this.#generations.set(key, generation);
     this.#notify(key);
   }
 
@@ -67,9 +77,10 @@ export class RequestCache {
     for (const key of keys) this.#notify(key);
   }
 
-  #settle(key: string, entry: CacheEntry<unknown>): void {
-    // A concurrent invalidate() drops the entry; don't resurrect a stale load.
-    if (!this.#entries.has(key)) return;
+  #settle(key: string, entry: CacheEntry<unknown>, generation: number): void {
+    // Only settle if this is still the active load for this key.
+    // A stale load from before an invalidate() must not overwrite a newer load.
+    if (this.#generations.get(key) !== generation) return;
     this.#entries.set(key, entry);
     this.#notify(key);
   }

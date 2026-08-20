@@ -92,4 +92,24 @@ describe("RequestCache", () => {
 
     expect(listener).not.toHaveBeenCalled();
   });
+
+  it("does not clobber fresh value with stale load that settles late", async () => {
+    const cache = new RequestCache();
+    const delay = (ms: number, value: string) =>
+      new Promise((resolve) => setTimeout(() => resolve(value), ms));
+
+    const loadA = vi.fn(async () => delay(50, "STALE-A"));
+    const loadB = vi.fn(async () => delay(10, "FRESH-B"));
+
+    cache.read("k", loadA);
+    cache.invalidate("k");
+    cache.read("k", loadB);
+    await delay(100, undefined);
+
+    expect(cache.read("k", async () => "unused")).toEqual({
+      data: "FRESH-B",
+      error: null,
+      isLoading: false,
+    });
+  });
 });
