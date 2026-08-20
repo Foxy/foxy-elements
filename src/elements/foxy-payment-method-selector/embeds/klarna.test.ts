@@ -45,7 +45,7 @@ function useKlarnaInstance(klarna: unknown): void {
     if (descriptor) {
       Object.defineProperty(checkoutClient, "klarna", descriptor);
     } else {
-      delete (checkoutClient as Record<string, unknown>).klarna;
+      delete (checkoutClient as unknown as Record<string, unknown>).klarna;
     }
   };
 }

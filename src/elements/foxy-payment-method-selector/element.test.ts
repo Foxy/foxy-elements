@@ -73,7 +73,7 @@ function overrideCheckoutClient(properties: Record<string, unknown>) {
       if (descriptor) {
         Object.defineProperty(checkoutClient, key, descriptor);
       } else {
-        delete (checkoutClient as Record<string, unknown>)[key];
+        delete (checkoutClient as unknown as Record<string, unknown>)[key];
       }
     }
   };
