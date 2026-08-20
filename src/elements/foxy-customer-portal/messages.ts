@@ -36,4 +36,22 @@ export const messages = defineMessages({
     id: "portal_error_unknown",
     defaultMessage: "Something went wrong. Please try again.",
   },
+  recoverHeading: {
+    id: "portal_recover_heading",
+    defaultMessage: "Recover access",
+  },
+  recoverHint: {
+    id: "portal_recover_hint",
+    defaultMessage: "We'll email you a link to get back into your account.",
+  },
+  recoverSubmit: { id: "portal_recover_submit", defaultMessage: "Send email" },
+  recoverBusy: { id: "portal_recover_busy", defaultMessage: "Sending..." },
+  recoverDone: {
+    id: "portal_recover_done",
+    defaultMessage: "If that email is registered, a message is on its way.",
+  },
+  recoverBack: {
+    id: "portal_recover_back",
+    defaultMessage: "Back to sign in",
+  },
 });
