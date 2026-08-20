@@ -5,10 +5,6 @@ export const messages = defineMessages({
     id: "portal_missing_store_domain",
     defaultMessage: "Set the store-domain attribute to use this element.",
   },
-  loading: {
-    id: "portal_loading",
-    defaultMessage: "Loading...",
-  },
   signInHeading: { id: "portal_sign_in_heading", defaultMessage: "Sign in" },
   signInEmail: { id: "portal_sign_in_email", defaultMessage: "Email" },
   signInPassword: {
@@ -110,4 +106,46 @@ export const messages = defineMessages({
     id: "portal_error_invalid_form",
     defaultMessage: "Please check the form and try again.",
   },
+  headerEditProfile: {
+    id: "portal_header_edit_profile",
+    defaultMessage: "Edit profile",
+  },
+  headerSignOut: { id: "portal_header_sign_out", defaultMessage: "Sign out" },
+  headerTaxId: {
+    id: "portal_header_tax_id",
+    defaultMessage: "Tax ID: {taxId}",
+  },
+  profileHeading: {
+    id: "portal_profile_heading",
+    defaultMessage: "Edit profile",
+  },
+  profileFirstName: {
+    id: "portal_profile_first_name",
+    defaultMessage: "First name",
+  },
+  profileLastName: {
+    id: "portal_profile_last_name",
+    defaultMessage: "Last name",
+  },
+  profileTaxId: { id: "portal_profile_tax_id", defaultMessage: "Tax ID" },
+  profileSave: { id: "portal_profile_save", defaultMessage: "Save" },
+  profileSaving: { id: "portal_profile_saving", defaultMessage: "Saving..." },
+  profileCancel: { id: "portal_profile_cancel", defaultMessage: "Cancel" },
+  profileChangePassword: {
+    id: "portal_profile_change_password",
+    defaultMessage: "Change password",
+  },
+  passwordCurrent: {
+    id: "portal_password_current",
+    defaultMessage: "Current password",
+  },
+  errorWrongCurrentPassword: {
+    id: "portal_error_wrong_current_password",
+    defaultMessage: "That is not your current password.",
+  },
+  accountLoadFailed: {
+    id: "portal_account_load_failed",
+    defaultMessage: "We couldn't load your account. Please try again.",
+  },
+  retry: { id: "portal_retry", defaultMessage: "Try again" },
 });

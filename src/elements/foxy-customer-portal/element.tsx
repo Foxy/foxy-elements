@@ -171,7 +171,19 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
             >
               {api ? (
                 <ApiProvider api={api} cache={this.#cache}>
-                  <Portal />
+                  <Portal
+                    fullNameTemplate={this.fullNameTemplate}
+                    skipPasswordReset={this.skipPasswordReset}
+                    onEvent={(type, detail) =>
+                      this.dispatchEvent(
+                        new CustomEvent(type, {
+                          detail,
+                          bubbles: true,
+                          composed: true,
+                        }),
+                      )
+                    }
+                  />
                 </ApiProvider>
               ) : (
                 <MissingStoreDomain />

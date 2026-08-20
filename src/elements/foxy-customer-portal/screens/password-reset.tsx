@@ -6,6 +6,7 @@ import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
 import { useApi, type FollowableLink } from "@/lib/customer-api";
 import { messages } from "../messages";
+import { patchResource } from "../write";
 
 type Props = {
   onCompleted: () => void;
@@ -59,13 +60,7 @@ export function PasswordResetScreen({
     setError(null);
 
     try {
-      if (typeof self?.patch !== "function") {
-        // An unexpected API shape, not a normal outcome — treat it the same
-        // as a rejected request rather than silently reporting success.
-        throw new Error("This resource is not writable.");
-      }
-
-      await self.patch({ password });
+      await patchResource(self, { password });
       api.usesTemporaryPassword = false;
       onCompleted();
     } catch {
