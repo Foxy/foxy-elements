@@ -8,20 +8,21 @@ import {
 import { useSyncExternalStore } from "react";
 import type { API } from "@foxy.io/sdk/customer";
 import { RequestCache, serialiseQuery, type CacheEntry } from "./cache";
+import { assertReadSucceeded, type ReadResponse } from "./read";
 import { assertWriteSucceeded, WriteError, type WriteResponse } from "./write";
 
 /**
  * The shape link enrichment gives every `_links` entry: the original `href`
  * plus request methods bound to an already-resolved node.
  *
- * `patch` resolves with the SDK's `Response`, which extends the native one and
- * therefore reports `ok` and `status`. The type says so because the status is
- * the only thing that distinguishes a saved write from a rejected one — the
- * SDK never throws on a 4xx.
+ * `get` and `patch` resolve with the SDK's `Response`, which extends the
+ * native one and therefore reports `ok` and `status`. The type says so
+ * because the status is the only thing that distinguishes a resolved read or
+ * a saved write from a rejected one — the SDK never throws on a 4xx.
  */
 export type FollowableLink<T> = {
   href: string;
-  get(query?: Record<string, unknown>): Promise<{ json(): Promise<T> }>;
+  get(query?: Record<string, unknown>): Promise<ReadResponse<T>>;
   patch?(body: unknown): Promise<WriteResponse>;
 };
 
@@ -64,7 +65,13 @@ function useEntry<T>(
 
   const getSnapshot = useCallback(() => {
     if (!link || !key) return IDLE as CacheEntry<T>;
-    return cache.read<T>(key, async () => (await link.get(query)).json());
+    return cache.read<T>(key, async () => {
+      const response = await link.get(query);
+      // The SDK resolves on a 4xx, so the status is the only thing that
+      // distinguishes a resource from an error body.
+      assertReadSucceeded(response);
+      return response.json();
+    });
     // `query` is read through `key`, which already encodes it.
   }, [cache, key, link, query]);
 

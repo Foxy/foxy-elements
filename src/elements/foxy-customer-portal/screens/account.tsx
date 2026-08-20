@@ -8,6 +8,7 @@ import {
   useApi,
   useResource,
   type FollowableLink,
+  type ReadResponse,
 } from "@/lib/customer-api";
 import { PortalHeader, type SignOutState } from "../sections/header";
 import { PasswordDialog } from "../sections/password-dialog";
@@ -36,34 +37,13 @@ export function AccountScreen({
   const { api } = useApi();
 
   // The customer API's root graph *is* the customer, so `api.get()` returns it.
-  // Wrap it as a link rather than casting the API: `API` has no `href`, and the
-  // cache keys on `href` — casting would key every read on `undefined`.
-  // The SDK types nullable customer fields as `string | null`; our screens use
-  // `undefined` for "absent" throughout (see `CustomerProps`), so the cast at
-  // this boundary is deliberate, not a type-safety shortcut.
-  //
-  // The status check is this element's job: the SDK never looks at it, and
-  // `json()` happily parses a 401 body. Without it an expired session renders
-  // a header full of blanks, or a retry loop that can never succeed.
+  // Wrapped as a link rather than cast: `API` has no `href`, and the cache keys
+  // on `href`. Status checking lives in the hook — see `assertReadSucceeded`.
   const rootLink = useMemo<FollowableLink<CustomerResource>>(
     () => ({
       href: api.base.toString(),
-      get: async () => {
-        const response = await api.get();
-
-        if (response.status === 401 || response.status === 403) {
-          throw new UnauthenticatedError();
-        }
-
-        if (!response.ok) {
-          throw new Error("Failed to load the customer resource.");
-        }
-
-        return {
-          json: async () =>
-            (await response.json()) as unknown as CustomerResource,
-        };
-      },
+      get: () =>
+        api.get() as unknown as Promise<ReadResponse<CustomerResource>>,
     }),
     [api],
   );

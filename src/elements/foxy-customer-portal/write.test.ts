@@ -13,7 +13,11 @@ type Body = Record<string, string>;
 function link(response: unknown) {
   return {
     href: "/c",
-    get: vi.fn(async () => ({ json: async () => ({}) as Body })),
+    get: vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({}) as Body,
+    })),
     patch: vi.fn(async () => response as never),
   } satisfies FollowableLink<Body>;
 }
@@ -86,7 +90,11 @@ describe("patchResource", () => {
       patchResource(
         {
           href: "/c",
-          get: vi.fn(async () => ({ json: async () => ({}) as Body })),
+          get: vi.fn(async () => ({
+            ok: true,
+            status: 200,
+            json: async () => ({}) as Body,
+          })),
         },
         { tax_id: "1" },
       ),

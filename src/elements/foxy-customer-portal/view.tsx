@@ -54,10 +54,14 @@ function useSettingsLink(): FollowableLink<PortalSettings> | null {
     const href = new URL("./customer_portal_settings", api.base).toString();
     return {
       href,
+      // Status checking lives in the hook — see `assertReadSucceeded`.
       get: async () => {
         const response = await fetch(href);
-        if (!response.ok) throw new Error("Failed to load portal settings.");
-        return { json: async () => (await response.json()) as PortalSettings };
+        return {
+          ok: response.ok,
+          status: response.status,
+          json: async () => (await response.json()) as PortalSettings,
+        };
       },
     };
   }, [api]);

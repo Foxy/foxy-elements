@@ -38,7 +38,7 @@ function link<T>(href: string, json: T, spy = vi.fn()) {
     href,
     get: async (query?: unknown) => {
       spy(query);
-      return { json: async () => json };
+      return { ok: true, status: 200, json: async () => json };
     },
     patch: vi.fn(async () => ({ ok: true, status: 200 })),
   };
@@ -47,7 +47,7 @@ function link<T>(href: string, json: T, spy = vi.fn()) {
 function failingLink<T>(href: string, json: T, status: number) {
   return {
     href,
-    get: async () => ({ json: async () => json }),
+    get: async () => ({ ok: true, status: 200, json: async () => json }),
     patch: vi.fn(async () => ({ ok: false, status })),
   };
 }
@@ -127,7 +127,11 @@ describe("useResource", () => {
     let name = "Ada";
     const target = {
       href: "/c",
-      get: async () => ({ json: async () => ({ first_name: name }) }),
+      get: async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({ first_name: name }),
+      }),
     };
 
     let refresh = () => {};
@@ -206,7 +210,11 @@ describe("useResource", () => {
     function Probe() {
       patch = useResource({
         href: "/c",
-        get: async () => ({ json: async () => ({ x: 1 }) }),
+        get: async () => ({
+          ok: true,
+          status: 200,
+          json: async () => ({ x: 1 }),
+        }),
       }).patch;
       return null;
     }
@@ -331,6 +339,8 @@ describe("useCollection", () => {
     const target = {
       href: "/t",
       get: async () => ({
+        ok: true,
+        status: 200,
         json: async () => ({
           total_items: total,
           _embedded: { "fx:transactions": [{ id: 1 }] },
@@ -458,5 +468,53 @@ describe("useCollection offset", () => {
     await flush();
 
     expect(host!.textContent).toBe("20");
+  });
+});
+
+describe("useResource read guards", () => {
+  function failingLink(status: number) {
+    return {
+      href: "/c",
+      get: async () => ({
+        ok: false,
+        status,
+        json: async () => ({ first_name: "leaked" }),
+      }),
+    };
+  }
+
+  it("surfaces UnauthenticatedError on a 401 instead of the parsed body", async () => {
+    function Probe() {
+      const { data, error } = useResource<{ first_name: string }>(
+        failingLink(401),
+      );
+      if (error) return <span>{error.name}</span>;
+      return <span>{data?.first_name ?? "loading"}</span>;
+    }
+
+    render(
+      <ApiProvider api={{} as never} cache={new RequestCache()}>
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    expect(host!.textContent).toBe("UnauthenticatedError");
+  });
+
+  it("surfaces a plain error on other failures", async () => {
+    function Probe() {
+      const { error } = useResource<{ first_name: string }>(failingLink(500));
+      return <span>{error ? error.name : "none"}</span>;
+    }
+
+    render(
+      <ApiProvider api={{} as never} cache={new RequestCache()}>
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    expect(host!.textContent).toBe("Error");
   });
 });
