@@ -68,7 +68,7 @@ export function SignUpScreen({ siteKey, onSignedUp, onBack }: Props) {
         first_name: firstName || undefined,
         last_name: lastName || undefined,
         email,
-        password,
+        password: password || undefined,
       });
 
       onSignedUp();

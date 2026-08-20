@@ -105,6 +105,29 @@ describe("SignUpScreen", () => {
     );
   });
 
+  it("omits the password when the field is left blank", async () => {
+    const signUp = vi.fn(async () => {});
+    render({ signUp });
+    await flush();
+
+    const email = screen!.host.querySelector<HTMLInputElement>(
+      'input[type="email"]',
+    )!;
+    act(() => setInputValue(email, "ada@example.com"));
+
+    act(() => solve!("captcha-token"));
+    submitForm();
+    await flush();
+
+    expect(signUp).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: "ada@example.com",
+        password: undefined,
+        verification: { type: "hcaptcha", token: "captcha-token" },
+      }),
+    );
+  });
+
   it("reports a taken email on UNAVAILABLE", async () => {
     render({
       signUp: async () => {
