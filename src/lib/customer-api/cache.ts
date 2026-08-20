@@ -1,0 +1,80 @@
+export type CacheEntry<T> = {
+  data: T | null;
+  error: Error | null;
+  isLoading: boolean;
+};
+
+const EMPTY: CacheEntry<never> = { data: null, error: null, isLoading: true };
+
+/** Stable string for a query object, so key order never splits the cache. */
+export function serialiseQuery(query: unknown): string {
+  if (query === undefined || query === null) return "";
+  if (typeof query !== "object") return String(query);
+
+  const entries = Object.entries(query as Record<string, unknown>)
+    .filter(([, value]) => value !== undefined)
+    .sort(([a], [b]) => a.localeCompare(b));
+
+  return JSON.stringify(entries);
+}
+
+/**
+ * Shared request store. Two components reading the same key get one request
+ * and one invalidation — the job Rumour's `group` did across elements in v1.
+ */
+export class RequestCache {
+  readonly #entries = new Map<string, CacheEntry<unknown>>();
+  readonly #listeners = new Map<string, Set<() => void>>();
+
+  read<T>(key: string, load: () => Promise<T>): CacheEntry<T> {
+    const existing = this.#entries.get(key) as CacheEntry<T> | undefined;
+    if (existing) return existing;
+
+    this.#entries.set(key, EMPTY);
+
+    void load().then(
+      (data) => this.#settle(key, { data, error: null, isLoading: false }),
+      (error: unknown) =>
+        this.#settle(key, {
+          data: null,
+          error: error instanceof Error ? error : new Error(String(error)),
+          isLoading: false,
+        }),
+    );
+
+    return EMPTY as CacheEntry<T>;
+  }
+
+  subscribe(key: string, listener: () => void): () => void {
+    const listeners = this.#listeners.get(key) ?? new Set();
+    listeners.add(listener);
+    this.#listeners.set(key, listeners);
+
+    return () => {
+      listeners.delete(listener);
+      if (listeners.size === 0) this.#listeners.delete(key);
+    };
+  }
+
+  invalidate(key: string): void {
+    this.#entries.delete(key);
+    this.#notify(key);
+  }
+
+  clear(): void {
+    const keys = [...this.#entries.keys()];
+    this.#entries.clear();
+    for (const key of keys) this.#notify(key);
+  }
+
+  #settle(key: string, entry: CacheEntry<unknown>): void {
+    // A concurrent invalidate() drops the entry; don't resurrect a stale load.
+    if (!this.#entries.has(key)) return;
+    this.#entries.set(key, entry);
+    this.#notify(key);
+  }
+
+  #notify(key: string): void {
+    for (const listener of this.#listeners.get(key) ?? []) listener();
+  }
+}
