@@ -52,7 +52,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: "unit",
-          include: ["src/**/*.test.ts"],
+          include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
           browser: {
             enabled: true,
             headless: true,
