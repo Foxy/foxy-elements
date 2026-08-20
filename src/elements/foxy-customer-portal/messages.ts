@@ -74,4 +74,40 @@ export const messages = defineMessages({
   passwordSave: { id: "portal_password_save", defaultMessage: "Save password" },
   passwordSaving: { id: "portal_password_saving", defaultMessage: "Saving..." },
   passwordSkip: { id: "portal_password_skip", defaultMessage: "Skip for now" },
+  signUpHeading: {
+    id: "portal_sign_up_heading",
+    defaultMessage: "Create an account",
+  },
+  signUpFirstName: {
+    id: "portal_sign_up_first_name",
+    defaultMessage: "First name",
+  },
+  signUpLastName: {
+    id: "portal_sign_up_last_name",
+    defaultMessage: "Last name",
+  },
+  signUpSubmit: {
+    id: "portal_sign_up_submit",
+    defaultMessage: "Create account",
+  },
+  signUpBusy: {
+    id: "portal_sign_up_busy",
+    defaultMessage: "Creating account...",
+  },
+  signUpBack: {
+    id: "portal_sign_up_back",
+    defaultMessage: "Back to sign in",
+  },
+  signUpVerificationPending: {
+    id: "portal_sign_up_verification_pending",
+    defaultMessage: "Complete the verification challenge to continue.",
+  },
+  errorEmailTaken: {
+    id: "portal_error_email_taken",
+    defaultMessage: "That email is already registered.",
+  },
+  errorInvalidForm: {
+    id: "portal_error_invalid_form",
+    defaultMessage: "Please check the form and try again.",
+  },
 });

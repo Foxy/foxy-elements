@@ -59,6 +59,8 @@
   "payment_square_up_submit_error": "Unable to submit this payment method. Try again.",
   "payment_tokenize_ach_error": "Unable to tokenize bank details.",
   "payment_tokenize_card_error": "Unable to tokenize card details.",
+  "portal_error_email_taken": "That email is already registered.",
+  "portal_error_invalid_form": "Please check the form and try again.",
   "portal_error_unauthorized": "Wrong email or password.",
   "portal_error_unknown": "Something went wrong. Please try again.",
   "portal_loading": "Loading...",
@@ -83,5 +85,12 @@
   "portal_sign_in_heading": "Sign in",
   "portal_sign_in_password": "Password",
   "portal_sign_in_recover": "Forgot password?",
-  "portal_sign_in_submit": "Sign in"
+  "portal_sign_in_submit": "Sign in",
+  "portal_sign_up_back": "Back to sign in",
+  "portal_sign_up_busy": "Creating account...",
+  "portal_sign_up_first_name": "First name",
+  "portal_sign_up_heading": "Create an account",
+  "portal_sign_up_last_name": "Last name",
+  "portal_sign_up_submit": "Create account",
+  "portal_sign_up_verification_pending": "Complete the verification challenge to continue."
 }
