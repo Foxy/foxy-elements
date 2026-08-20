@@ -87,7 +87,16 @@ function withSession(): () => void {
 const meta: Meta = {
   title: "Elements/foxy-customer-portal",
   parameters: { layout: "centered" },
-  beforeEach: () => stubStore(),
+  beforeEach: () => {
+    // Clear the session on the way in, not just on the way out. Storybook runs
+    // a story's `beforeEach` teardown under the test runner, but not when you
+    // navigate between stories in the interactive UI — so the session seeded by
+    // `WithSalutation` survives into `SignedOut`, which then renders an account
+    // screen instead of the sign-in form. Tests never saw it because each story
+    // runs isolated there; only the preview lied.
+    localStorage.removeItem(SESSION_KEY);
+    return stubStore();
+  },
 };
 
 export default meta;
