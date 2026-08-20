@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import { mountScreen, type MountedScreen } from "../test-utils";
-import { PortalHeader } from "./header";
+import { PortalHeader, type SignOutState } from "./header";
 
 let screen: MountedScreen | null = null;
 
@@ -17,7 +17,7 @@ function render(
       }
       onEditProfile={(props.onEditProfile as () => void) ?? vi.fn()}
       onSignOut={(props.onSignOut as () => void) ?? vi.fn()}
-      isSigningOut={(props.isSigningOut as boolean) ?? false}
+      signOutState={(props.signOutState as SignOutState) ?? "idle"}
     />,
     {},
   );
@@ -74,12 +74,23 @@ describe("PortalHeader", () => {
   });
 
   it("disables sign out while signing out", () => {
-    render(ada, { isSigningOut: true });
-    const buttons = [...screen!.host.querySelectorAll("button")];
-    const signOut = buttons.find((b) =>
-      /sign out/i.test(b.getAttribute("aria-label") ?? b.textContent ?? ""),
-    )! as HTMLButtonElement;
+    render(ada, { signOutState: "busy" });
 
-    expect(signOut.disabled).toBe(true);
+    expect(signOutButton().disabled).toBe(true);
+  });
+
+  it("shows a failure state that is still clickable", () => {
+    render(ada, { signOutState: "error" });
+
+    expect(signOutButton().getAttribute("aria-label")).toMatch(/failed/i);
+    expect(signOutButton().disabled).toBe(false);
   });
 });
+
+function signOutButton(): HTMLButtonElement {
+  const buttons = [...screen!.host.querySelectorAll("button")];
+
+  return buttons.find((b) =>
+    /sign out/i.test(b.getAttribute("aria-label") ?? b.textContent ?? ""),
+  )!;
+}

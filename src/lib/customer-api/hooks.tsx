@@ -8,15 +8,21 @@ import {
 import { useSyncExternalStore } from "react";
 import type { API } from "@foxy.io/sdk/customer";
 import { RequestCache, serialiseQuery, type CacheEntry } from "./cache";
+import { assertWriteSucceeded, WriteError, type WriteResponse } from "./write";
 
 /**
  * The shape link enrichment gives every `_links` entry: the original `href`
  * plus request methods bound to an already-resolved node.
+ *
+ * `patch` resolves with the SDK's `Response`, which extends the native one and
+ * therefore reports `ok` and `status`. The type says so because the status is
+ * the only thing that distinguishes a saved write from a rejected one — the
+ * SDK never throws on a 4xx.
  */
 export type FollowableLink<T> = {
   href: string;
   get(query?: Record<string, unknown>): Promise<{ json(): Promise<T> }>;
-  patch?(body: unknown): Promise<unknown>;
+  patch?(body: unknown): Promise<WriteResponse>;
 };
 
 type ApiContextValue = { api: API; cache: RequestCache };
@@ -77,8 +83,10 @@ export function useResource<T>(
 
   const patch = useCallback(
     async (body: Partial<T>) => {
-      if (!link?.patch) throw new Error("This resource is not writable.");
-      await link.patch(body);
+      if (!link?.patch) throw new WriteError("This resource is not writable.");
+      // The SDK resolves on a 4xx, so the response has to be inspected before
+      // this can report a save.
+      assertWriteSucceeded(await link.patch(body));
       refresh();
     },
     [link, refresh],
@@ -117,8 +125,12 @@ export function useCollection<T>(
 
   const totalItems = entry.data?.total_items ?? 0;
 
+  // `error` and `isLoading` are listed rather than spread: spreading `entry`
+  // would also publish `data`, the raw HAL page, which is not part of this
+  // hook's surface and would become a contract the moment anything read it.
   return {
-    ...entry,
+    error: entry.error,
+    isLoading: entry.isLoading,
     items,
     totalItems,
     offset,

@@ -27,6 +27,12 @@ afterEach(() => {
   host = null;
 });
 
+/**
+ * A link double shaped like the real client: `patch` resolves with a response
+ * carrying `ok` and `status`, never rejects. The SDK's `AuthError` is thrown
+ * only by `signIn`, `signUp`, `sendPasswordResetEmail` and `signOut`; a link's
+ * `patch` reports failure through the status alone.
+ */
 function link<T>(href: string, json: T, spy = vi.fn()) {
   return {
     href,
@@ -34,7 +40,15 @@ function link<T>(href: string, json: T, spy = vi.fn()) {
       spy(query);
       return { json: async () => json };
     },
-    patch: vi.fn(async () => ({})),
+    patch: vi.fn(async () => ({ ok: true, status: 200 })),
+  };
+}
+
+function failingLink<T>(href: string, json: T, status: number) {
+  return {
+    href,
+    get: async () => ({ json: async () => json }),
+    patch: vi.fn(async () => ({ ok: false, status })),
   };
 }
 
@@ -83,6 +97,128 @@ describe("useResource", () => {
     );
 
     expect(host!.textContent).toBe("false:null");
+  });
+
+  it("exposes the failure when the load rejects", async () => {
+    const broken = {
+      href: "/c",
+      get: async () => {
+        throw new Error("boom");
+      },
+    };
+
+    function Probe() {
+      const { error, isLoading } = useResource<{ x: number }>(broken);
+      if (isLoading) return <span>loading</span>;
+      return <span>{error?.message}</span>;
+    }
+
+    render(
+      <ApiProvider api={{} as never} cache={new RequestCache()}>
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    expect(host!.textContent).toBe("boom");
+  });
+
+  it("re-reads the resource after refresh()", async () => {
+    let name = "Ada";
+    const target = {
+      href: "/c",
+      get: async () => ({ json: async () => ({ first_name: name }) }),
+    };
+
+    let refresh = () => {};
+
+    function Probe() {
+      const resource = useResource(target);
+      refresh = resource.refresh;
+      return <span>{resource.data?.first_name ?? "loading"}</span>;
+    }
+
+    render(
+      <ApiProvider api={{} as never} cache={new RequestCache()}>
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+    expect(host!.textContent).toBe("Ada");
+
+    name = "Augusta";
+    act(() => refresh());
+    await flush();
+
+    expect(host!.textContent).toBe("Augusta");
+  });
+
+  it("patches through the link and re-reads the resource", async () => {
+    const target = link("/c", { first_name: "Ada" });
+    let patch: (body: { first_name: string }) => Promise<void> = async () => {};
+
+    function Probe() {
+      const resource = useResource(target);
+      patch = resource.patch;
+      return <span>{resource.data?.first_name ?? "loading"}</span>;
+    }
+
+    render(
+      <ApiProvider api={{} as never} cache={new RequestCache()}>
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    await act(async () => {
+      await patch({ first_name: "Augusta" });
+    });
+
+    expect(target.patch).toHaveBeenCalledWith({ first_name: "Augusta" });
+  });
+
+  it("rejects when the API refuses the patch", async () => {
+    // The SDK resolves on a 4xx, so a hook that only awaited the call would
+    // report this rejected write as a save.
+    const target = failingLink("/c", { first_name: "Ada" }, 401);
+    let patch: (body: { first_name: string }) => Promise<void> = async () => {};
+
+    function Probe() {
+      patch = useResource(target).patch;
+      return null;
+    }
+
+    render(
+      <ApiProvider api={{} as never} cache={new RequestCache()}>
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    await expect(patch({ first_name: "Augusta" })).rejects.toMatchObject({
+      status: 401,
+    });
+  });
+
+  it("rejects a patch on a link that cannot be written to", async () => {
+    let patch: (body: { x: number }) => Promise<void> = async () => {};
+
+    function Probe() {
+      patch = useResource({
+        href: "/c",
+        get: async () => ({ json: async () => ({ x: 1 }) }),
+      }).patch;
+      return null;
+    }
+
+    render(
+      <ApiProvider api={{} as never} cache={new RequestCache()}>
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    await expect(patch({ x: 2 })).rejects.toThrow(/not writable/i);
   });
 });
 
@@ -138,5 +274,92 @@ describe("useCollection", () => {
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({ limit: 5, offset: 0 }),
     );
+  });
+
+  it("exposes the failure when the page fails to load", async () => {
+    const broken = {
+      href: "/t",
+      get: async () => {
+        throw new Error("boom");
+      },
+    };
+
+    function Probe() {
+      const { error, isLoading, items } = useCollection<{ id: number }>(broken);
+      if (isLoading) return <span>loading</span>;
+      return (
+        <span>
+          {error?.message}:{items.length}
+        </span>
+      );
+    }
+
+    render(
+      <ApiProvider api={{} as never} cache={new RequestCache()}>
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    expect(host!.textContent).toBe("boom:0");
+  });
+
+  it("does not publish the raw HAL page", async () => {
+    const page = {
+      total_items: 1,
+      _embedded: { "fx:transactions": [{ id: 1 }] },
+    };
+    let result: Record<string, unknown> = {};
+
+    function Probe() {
+      result = useCollection<{ id: number }>(link("/t", page)) as never;
+      return null;
+    }
+
+    render(
+      <ApiProvider api={{} as never} cache={new RequestCache()}>
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    expect(result).not.toHaveProperty("data");
+  });
+
+  it("re-reads the page after refresh()", async () => {
+    let total = 1;
+    const target = {
+      href: "/t",
+      get: async () => ({
+        json: async () => ({
+          total_items: total,
+          _embedded: { "fx:transactions": [{ id: 1 }] },
+        }),
+      }),
+    };
+
+    let refresh = () => {};
+
+    function Probe() {
+      const collection = useCollection<{ id: number }>(target);
+      refresh = collection.refresh;
+      return (
+        <span>{collection.isLoading ? "loading" : collection.totalItems}</span>
+      );
+    }
+
+    render(
+      <ApiProvider api={{} as never} cache={new RequestCache()}>
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+    expect(host!.textContent).toBe("1");
+
+    total = 9;
+    act(() => refresh());
+    await flush();
+
+    expect(host!.textContent).toBe("9");
   });
 });

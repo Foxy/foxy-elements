@@ -46,12 +46,35 @@ const ada = {
   last_name: "Lovelace",
   email: "ada@example.com",
   tax_id: "",
-  _links: { self: { href: "/c", patch: vi.fn(async () => ({})) } },
+  _links: {
+    self: { href: "/c", patch: vi.fn(async () => ({ ok: true, status: 200 })) },
+  },
 };
+
+/** A stored session shaped the way the SDK writes one. */
+function session(overrides: Record<string, unknown> = {}) {
+  return JSON.stringify({
+    session_token: "t",
+    expires_in: 3600,
+    date_created: new Date().toISOString(),
+    ...overrides,
+  });
+}
+
+/** A session the SDK's own expiry check would already have thrown away. */
+function expiredSession() {
+  return session({
+    expires_in: 60,
+    date_created: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+  });
+}
 
 // A minimal double of `@foxy.io/sdk/customer`'s `API`: `storage` is a real
 // Map-backed Storage so `API.SESSION` round-trips exactly like production,
 // and every method the router or a routed screen touches is stubbed.
+// `get` resolves with `ok` and `status` because the real client does, and
+// because those are the only thing that distinguishes a signed-in read from a
+// 401 — the SDK parses either body without complaint.
 function fakeApi(overrides: Record<string, unknown> = {}) {
   const store = new Map<string, string>();
 
@@ -74,12 +97,15 @@ function fakeApi(overrides: Record<string, unknown> = {}) {
     base: new URL("https://demo.foxycart.com/s/customer/"),
     storage,
     usesTemporaryPassword: false,
-    signIn: vi.fn(async () => {}),
+    signIn: vi.fn(async () => {
+      store.set(API.SESSION, session());
+    }),
+    signUp: vi.fn(async () => {}),
     signOut: vi.fn(async () => {
       store.delete(API.SESSION);
     }),
     sendPasswordResetEmail: vi.fn(async () => {}),
-    get: vi.fn(async () => ({ json: async () => ada })),
+    get: vi.fn(async () => ({ ok: true, status: 200, json: async () => ada })),
     ...overrides,
   };
 }
@@ -141,7 +167,7 @@ describe("Portal", () => {
 
   it("shows account directly when a session already exists", async () => {
     const api = fakeApi();
-    api.storage.setItem(API.SESSION, "token");
+    api.storage.setItem(API.SESSION, session());
     render(api);
     await flush();
     await flush();
@@ -239,7 +265,7 @@ describe("Portal", () => {
 
   it("fires signout with no detail and returns to sign-in", async () => {
     const api = fakeApi();
-    api.storage.setItem(API.SESSION, "token");
+    api.storage.setItem(API.SESSION, session());
     const onEvent = vi.fn();
     render(api, { onEvent });
     await flush();
@@ -275,6 +301,134 @@ describe("Portal", () => {
 
     clickButtonMatching(/back to sign in/i);
     expect(screen!.host.textContent).toMatch(/sign in/i);
+  });
+
+  it("starts at sign-in when the stored session has expired", async () => {
+    // The SDK checks expiry inside its own `__fetch`, so presence of the key is
+    // not enough: starting on `account` would fire a request that clears the
+    // session and comes back 401.
+    const api = fakeApi();
+    api.storage.setItem(API.SESSION, expiredSession());
+    render(api);
+    await flush();
+    await flush();
+
+    expect(screen!.host.textContent).toMatch(/sign in/i);
+    expect(api.get).not.toHaveBeenCalled();
+  });
+
+  it("returns to sign-in when the API says the customer is not authenticated", async () => {
+    const onEvent = vi.fn();
+    const api = fakeApi({
+      get: vi.fn(async () => ({
+        ok: false,
+        status: 401,
+        json: async () => ({}),
+      })),
+    });
+    api.storage.setItem(API.SESSION, session());
+    render(api, { onEvent });
+    await flush();
+    await flush();
+
+    expect(screen!.host.textContent).toMatch(/sign in/i);
+    // The stale session is dropped, or the next mount routes straight back to
+    // an account screen that cannot load.
+    expect(api.storage.getItem(API.SESSION)).toBeNull();
+    // Nobody signed out, so no `signout` event.
+    expect(onEvent).not.toHaveBeenCalled();
+  });
+
+  it("does not dead-end on the retry loop when the session is gone", async () => {
+    const api = fakeApi({
+      get: vi.fn(async () => ({
+        ok: false,
+        status: 403,
+        json: async () => ({}),
+      })),
+    });
+    api.storage.setItem(API.SESSION, session());
+    render(api);
+    await flush();
+    await flush();
+
+    expect(screen!.host.textContent).not.toMatch(/couldn't load your account/i);
+  });
+
+  it("shows a failure state on the sign-out button when signing out fails", async () => {
+    const api = fakeApi({
+      signOut: vi.fn(async () => {
+        throw Object.assign(new Error("nope"), { code: "UNKNOWN" });
+      }),
+    });
+    api.storage.setItem(API.SESSION, session());
+    const onEvent = vi.fn();
+    render(api, { onEvent });
+    await flush();
+    await flush();
+
+    clickButtonMatching(/sign out/i);
+    await flush();
+
+    // `API.signOut` throws before clearing local state, so the customer is
+    // still signed in and must stay on the account screen.
+    expect(screen!.host.textContent).toMatch(/Ada Lovelace/);
+    expect(onEvent).not.toHaveBeenCalled();
+
+    const signOut = [...screen!.host.querySelectorAll("button")].find((b) =>
+      /sign out/i.test(b.getAttribute("aria-label") ?? ""),
+    )!;
+    expect(signOut.getAttribute("aria-label")).toMatch(/failed/i);
+    expect(signOut.disabled).toBe(false);
+  });
+
+  it("does not show one customer's data to the next on the same page load", async () => {
+    // The account resource is keyed on the store's base URL, which is the same
+    // for every customer, so an un-cleared cache serves the first customer's
+    // name, email and tax ID — and their `self` link — to the second.
+    const bob = {
+      first_name: "Bob",
+      last_name: "Kahn",
+      email: "bob@example.com",
+      tax_id: "",
+      _links: {
+        self: {
+          href: "/c-bob",
+          patch: vi.fn(async () => ({ ok: true, status: 200 })),
+        },
+      },
+    };
+
+    let current = ada;
+    const api = fakeApi({
+      get: vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => current,
+      })),
+    });
+
+    render(api);
+    await flush();
+
+    submitSignIn("ada@example.com", "hunter2");
+    await flush();
+    await flush();
+    expect(screen!.host.textContent).toMatch(/Ada Lovelace/);
+
+    clickButtonMatching(/sign out/i);
+    await flush();
+    await flush();
+    expect(screen!.host.textContent).toMatch(/sign in/i);
+
+    current = bob;
+    submitSignIn("bob@example.com", "hunter3");
+    await flush();
+    await flush();
+
+    expect(screen!.host.textContent).toMatch(/Bob Kahn/);
+    expect(screen!.host.textContent).not.toMatch(/Ada Lovelace/);
+    expect(screen!.host.textContent).not.toMatch(/ada@example\.com/);
   });
 
   it("requests portal settings from inside the customer base path", async () => {

@@ -14,8 +14,17 @@ const flush = () =>
 // a frame to compute positioning), so callers must flush once before the
 // popup's contents exist in the document — unlike a plain component, which
 // is fully rendered synchronously by `mountScreen`.
+/**
+ * The `patch` doubles resolve with a response and never reject, because that
+ * is what the real client does: `Node.patch` hands back the SDK `Response`
+ * whatever the status, and only `signIn`, `signUp`, `sendPasswordResetEmail`
+ * and `signOut` ever throw an `AuthError`.
+ */
+const ok = () => ({ ok: true, status: 200 });
+const rejected = (status: number) => () => ({ ok: false, status });
+
 async function render(
-  patch = vi.fn(async (_body: Record<string, unknown>) => ({})),
+  patch = vi.fn(async (_body: Record<string, unknown>) => ok()),
   onClose = vi.fn(),
 ) {
   const customer = {
@@ -90,10 +99,8 @@ describe("ProfileDialog", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it("stays open and shows an error when the save fails", async () => {
-    const patch = vi.fn(async () => {
-      throw new Error("nope");
-    });
+  it("stays open and shows an error when the API rejects the save", async () => {
+    const patch = vi.fn(async () => rejected(422)());
     const { onClose } = await render(patch);
 
     act(() => {

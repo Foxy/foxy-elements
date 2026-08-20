@@ -148,4 +148,18 @@ export const messages = defineMessages({
     defaultMessage: "We couldn't load your account. Please try again.",
   },
   retry: { id: "portal_retry", defaultMessage: "Try again" },
+  headerSignOutFailed: {
+    id: "portal_header_sign_out_failed",
+    defaultMessage: "Sign out failed",
+  },
+  signUpCheckEmail: {
+    id: "portal_sign_up_check_email",
+    defaultMessage:
+      "Your account is ready. Check your email for the password we generated for you, then sign in.",
+  },
+  errorSignInAfterSignUp: {
+    id: "portal_error_sign_in_after_sign_up",
+    defaultMessage:
+      "Your account was created, but we couldn't sign you in. Please sign in with your new password.",
+  },
 });

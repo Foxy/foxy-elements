@@ -1,8 +1,12 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
-import { API } from "@foxy.io/sdk/customer";
-import { useApi, useResource, type FollowableLink } from "@/lib/customer-api";
+import {
+  hasValidSession,
+  useApi,
+  useResource,
+  type FollowableLink,
+} from "@/lib/customer-api";
 import { customerPortalEvents } from "./events";
 import { messages } from "./messages";
 import type { PortalScreen } from "./types";
@@ -72,22 +76,66 @@ export function Portal({
   skipPasswordReset: boolean;
   onEvent: (type: string, detail?: unknown) => void;
 }) {
-  const { api } = useApi();
+  const { api, cache } = useApi();
   const settingsLink = useSettingsLink();
   const { data: settings } = useResource<PortalSettings>(settingsLink);
 
+  // Presence of the session key is not enough — see `hasValidSession`. An
+  // expired session would otherwise open on the account screen, whose first
+  // request clears the session and comes back 401.
   const [screen, setScreen] = useState<PortalScreen>(() =>
-    api.storage.getItem(API.SESSION) ? "account" : "sign-in",
+    hasValidSession(api) ? "account" : "sign-in",
   );
 
   const canSignUp = settings?.sign_up?.enabled === true;
-  const siteKey = settings?.sign_up?.verification.site_key ?? "";
+  const siteKey = settings?.sign_up?.verification?.site_key ?? "";
 
+  /**
+   * The account resource is keyed on the store's base URL, which is identical
+   * for every customer of that store, so a warm cache serves one customer's
+   * name, email and tax ID to the next one on a shared computer — and seeds the
+   * profile dialog with the first customer's `self` link, so a save would PATCH
+   * their href. Both ends of a session therefore drop the cache.
+   *
+   * The two directions cannot use the same mechanism:
+   *
+   * - Entering a session, this runs while the sign-in screen is still the only
+   *   thing mounted, so clearing here starts nothing.
+   * - Leaving one, the account screen is still mounted and subscribed, and a
+   *   synchronous clear would make it re-read the customer with no session. The
+   *   effect below runs after the commit that unmounted it.
+   */
   function afterSignIn() {
+    cache.clear();
     onEvent(customerPortalEvents.signIn);
     const needsReset = api.usesTemporaryPassword && !skipPasswordReset;
     setScreen(needsReset ? "password-reset" : "account");
   }
+
+  const previousScreen = useRef(screen);
+
+  useEffect(() => {
+    const from = previousScreen.current;
+    previousScreen.current = screen;
+
+    if (
+      screen === "sign-in" &&
+      (from === "account" || from === "password-reset")
+    ) {
+      cache.clear();
+    }
+  }, [screen, cache]);
+
+  /**
+   * A request came back 401 or 403: the session is gone or was never valid.
+   * Drop it so `hasValidSession` cannot route back here on the next mount, and
+   * return to sign-in. No `signout` event — the customer did not sign out, and
+   * firing one would tell integrators a session was cleared on request.
+   */
+  const handleUnauthenticated = useCallback(() => {
+    api.storage.clear();
+    setScreen("sign-in");
+  }, [api]);
 
   if (screen === "sign-in") {
     return (
@@ -108,7 +156,7 @@ export function Portal({
     return (
       <SignUpScreen
         siteKey={siteKey}
-        onSignedUp={afterSignIn}
+        onSignedIn={afterSignIn}
         onBack={() => setScreen("sign-in")}
       />
     );
@@ -137,6 +185,7 @@ export function Portal({
         onEvent(customerPortalEvents.signOut);
         setScreen("sign-in");
       }}
+      onUnauthenticated={handleUnauthenticated}
     />
   );
 }

@@ -11,12 +11,19 @@ export type CustomerProps = {
   tax_id?: string;
 };
 
+/**
+ * Sign-out has three visible states, matching v1: idle, in flight, and a
+ * one-second error state after a failed request (spec 7.1). A boolean cannot
+ * express the third, so the parent drives this instead.
+ */
+export type SignOutState = "idle" | "busy" | "error";
+
 type Props = {
   customer: CustomerProps;
   fullNameTemplate: string;
   onEditProfile: () => void;
   onSignOut: () => void;
-  isSigningOut: boolean;
+  signOutState: SignOutState;
 };
 
 export function PortalHeader({
@@ -24,7 +31,7 @@ export function PortalHeader({
   fullNameTemplate,
   onEditProfile,
   onSignOut,
-  isSigningOut,
+  signOutState,
 }: Props) {
   const intl = useIntl();
   const fullName = formatFullName(fullNameTemplate, customer);
@@ -51,11 +58,21 @@ export function PortalHeader({
         <Button
           type="button"
           $variant="ghost"
-          aria-label={intl.formatMessage(messages.headerSignOut)}
-          disabled={isSigningOut}
+          aria-label={intl.formatMessage(
+            signOutState === "error"
+              ? messages.headerSignOutFailed
+              : messages.headerSignOut,
+          )}
+          disabled={signOutState === "busy"}
           onClick={onSignOut}
         >
-          {isSigningOut ? <Spinner /> : "→"}
+          {signOutState === "busy" ? (
+            <Spinner />
+          ) : signOutState === "error" ? (
+            "!"
+          ) : (
+            "→"
+          )}
         </Button>
       </div>
     </header>

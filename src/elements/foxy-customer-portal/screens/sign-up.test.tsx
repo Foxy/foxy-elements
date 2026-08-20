@@ -33,11 +33,11 @@ afterEach(() => {
   renderedInto = null;
 });
 
-function render(api: unknown, onSignedUp = vi.fn()) {
+function render(api: unknown, onSignedIn = vi.fn()) {
   screen = mountScreen(
     <SignUpScreen
       siteKey="site-key"
-      onSignedUp={onSignedUp}
+      onSignedIn={onSignedIn}
       onBack={vi.fn()}
     />,
     api,
@@ -73,7 +73,7 @@ const flush = () =>
 describe("SignUpScreen", () => {
   it("refuses to submit before the captcha is solved", async () => {
     const signUp = vi.fn(async () => {});
-    render({ signUp });
+    render({ signUp, signIn: vi.fn(async () => {}) });
     await flush();
 
     fill();
@@ -86,7 +86,7 @@ describe("SignUpScreen", () => {
 
   it("sends the captcha token with the sign-up request", async () => {
     const signUp = vi.fn(async () => {});
-    render({ signUp });
+    render({ signUp, signIn: vi.fn(async () => {}) });
     await flush();
 
     // The widget must render inside this component's DOM, not document.body.
@@ -109,7 +109,7 @@ describe("SignUpScreen", () => {
 
   it("omits the password when the field is left blank", async () => {
     const signUp = vi.fn(async () => {});
-    render({ signUp });
+    render({ signUp, signIn: vi.fn(async () => {}) });
     await flush();
 
     const email = screen!.host.querySelector<HTMLInputElement>(
@@ -132,6 +132,7 @@ describe("SignUpScreen", () => {
 
   it("reports a taken email on UNAVAILABLE", async () => {
     render({
+      signIn: vi.fn(async () => {}),
       signUp: async () => {
         throw Object.assign(new Error("taken"), { code: "UNAVAILABLE" });
       },
@@ -150,7 +151,7 @@ describe("SignUpScreen", () => {
     const signUp = vi.fn(async () => {
       throw Object.assign(new Error("taken"), { code: "UNAVAILABLE" });
     });
-    render({ signUp });
+    render({ signUp, signIn: vi.fn(async () => {}) });
     await flush();
 
     fill();
@@ -174,6 +175,7 @@ describe("SignUpScreen", () => {
 
   it("reports an invalid form on INVALID_FORM", async () => {
     render({
+      signIn: vi.fn(async () => {}),
       signUp: async () => {
         throw Object.assign(new Error("bad"), { code: "INVALID_FORM" });
       },
@@ -186,5 +188,98 @@ describe("SignUpScreen", () => {
     await flush();
 
     expect(screen!.host.textContent).toMatch(/check the form/i);
+  });
+
+  // `signUp` only POSTs and stores nothing, so registration on its own leaves
+  // the customer with no session. These four cover what happens next.
+
+  it("signs in with the supplied password before reporting success", async () => {
+    const signUp = vi.fn(async () => {});
+    const signIn = vi.fn(async () => {});
+    const onSignedIn = vi.fn();
+    render({ signUp, signIn }, onSignedIn);
+    await flush();
+
+    fill();
+    act(() => solve!("captcha-token"));
+    submitForm();
+    await flush();
+
+    expect(signIn).toHaveBeenCalledWith({
+      email: "ada@example.com",
+      password: "hunter2",
+    });
+    expect(onSignedIn).toHaveBeenCalled();
+  });
+
+  it("confirms by email and reports nothing when the password was left blank", async () => {
+    const signUp = vi.fn(async () => {});
+    const signIn = vi.fn(async () => {});
+    const onSignedIn = vi.fn();
+    render({ signUp, signIn }, onSignedIn);
+    await flush();
+
+    const email = screen!.host.querySelector<HTMLInputElement>(
+      'input[type="email"]',
+    )!;
+    act(() => setInputValue(email, "ada@example.com"));
+    act(() => solve!("captcha-token"));
+    submitForm();
+    await flush();
+
+    expect(signUp).toHaveBeenCalled();
+    // No password to sign in with, so no session, so no success callback —
+    // reporting one here would fire the public `signin` event for a customer
+    // who is not signed in.
+    expect(signIn).not.toHaveBeenCalled();
+    expect(onSignedIn).not.toHaveBeenCalled();
+    expect(screen!.host.textContent).toMatch(/check your email/i);
+  });
+
+  it("does not sign in when registration failed", async () => {
+    const signIn = vi.fn(async () => {});
+    const onSignedIn = vi.fn();
+    render(
+      {
+        signIn,
+        signUp: async () => {
+          throw Object.assign(new Error("taken"), { code: "UNAVAILABLE" });
+        },
+      },
+      onSignedIn,
+    );
+    await flush();
+
+    fill();
+    act(() => solve!("captcha-token"));
+    submitForm();
+    await flush();
+
+    expect(signIn).not.toHaveBeenCalled();
+    expect(onSignedIn).not.toHaveBeenCalled();
+  });
+
+  it("says the account exists but sign-in failed, and keeps the captcha", async () => {
+    const onSignedIn = vi.fn();
+    render(
+      {
+        signUp: vi.fn(async () => {}),
+        signIn: async () => {
+          throw Object.assign(new Error("nope"), { code: "UNAUTHORIZED" });
+        },
+      },
+      onSignedIn,
+    );
+    await flush();
+
+    fill();
+    act(() => solve!("captcha-token"));
+    submitForm();
+    await flush();
+
+    expect(onSignedIn).not.toHaveBeenCalled();
+    expect(screen!.host.textContent).toMatch(/couldn't sign you in/i);
+    // Re-solving the challenge would only invite a duplicate registration.
+    expect(resetWidget).not.toHaveBeenCalled();
   });
 });

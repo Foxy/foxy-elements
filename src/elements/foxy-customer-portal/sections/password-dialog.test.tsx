@@ -13,8 +13,17 @@ const flush = () =>
 // Base UI's `Dialog.Root` finishes opening in an effect after mount, so the
 // popup's contents don't exist in the document until after a flush — see
 // `profile-dialog.test.tsx` for the same note.
+/**
+ * As in `profile-dialog.test.tsx`: the real client reports a rejected write
+ * through the response status, never by throwing. A fake that threw an
+ * `AuthError`-shaped object would be testing a code path production can never
+ * reach.
+ */
+const ok = () => ({ ok: true, status: 200 });
+const rejected = (status: number) => () => ({ ok: false, status });
+
 async function render(
-  patch = vi.fn(async (_body: Record<string, unknown>) => ({})),
+  patch = vi.fn(async (_body: Record<string, unknown>) => ok()),
   onClose = vi.fn(),
 ) {
   const customer = {
@@ -78,10 +87,8 @@ describe("PasswordDialog", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it("shows a field-level error on the current password and stays open on UNAUTHORIZED", async () => {
-    const patch = vi.fn(async () => {
-      throw Object.assign(new Error("nope"), { code: "UNAUTHORIZED" });
-    });
+  it("shows a field-level error on the current password and stays open on a 401", async () => {
+    const patch = vi.fn(async () => rejected(401)());
     const { onClose } = await render(patch);
 
     fill("wrong", "new-secret");
@@ -91,16 +98,24 @@ describe("PasswordDialog", () => {
     expect(document.body.textContent).toMatch(/not your current password/i);
   });
 
+  it("treats a 403 as a wrong current password too", async () => {
+    const { onClose } = await render(vi.fn(async () => rejected(403)()));
+
+    fill("wrong", "new-secret");
+    await flush();
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(document.body.textContent).toMatch(/not your current password/i);
+  });
+
   it("stays open and shows a generic error on any other failure", async () => {
-    const patch = vi.fn(async () => {
-      throw new Error("nope");
-    });
-    const { onClose } = await render(patch);
+    const { onClose } = await render(vi.fn(async () => rejected(500)()));
 
     fill("old-secret", "new-secret");
     await flush();
 
     expect(onClose).not.toHaveBeenCalled();
     expect(document.body.textContent).toMatch(/something went wrong/i);
+    expect(document.body.textContent).not.toMatch(/not your current password/i);
   });
 });

@@ -1,11 +1,18 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { ScopedStorage } from "./scoped-storage";
+import {
+  MemoryStorage,
+  ScopedStorage,
+  createScopedStorage,
+} from "./scoped-storage";
 
 describe("ScopedStorage", () => {
   beforeEach(() => localStorage.clear());
 
   it("namespaces keys by scope", () => {
-    new ScopedStorage("https://a.foxycart.com/s/customer/").setItem("session", "A");
+    new ScopedStorage("https://a.foxycart.com/s/customer/").setItem(
+      "session",
+      "A",
+    );
     expect(
       localStorage.getItem("foxy:https://a.foxycart.com/s/customer/:session"),
     ).toBe("A");
@@ -59,5 +66,80 @@ describe("ScopedStorage", () => {
     expect(a.length).toBe(1);
     expect(a.key(0)).toBe("session");
     expect(a.key(1)).toBeNull();
+  });
+});
+
+describe("MemoryStorage", () => {
+  it("round-trips values without touching localStorage", () => {
+    const storage = new MemoryStorage();
+    storage.setItem("session", "A");
+
+    expect(storage.getItem("session")).toBe("A");
+    expect(storage.length).toBe(1);
+    expect(storage.key(0)).toBe("session");
+    expect(localStorage.getItem("session")).toBeNull();
+
+    storage.removeItem("session");
+    expect(storage.getItem("session")).toBeNull();
+
+    storage.setItem("a", "1");
+    storage.clear();
+    expect(storage.length).toBe(0);
+  });
+});
+
+describe("createScopedStorage", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("uses localStorage when it works", () => {
+    createScopedStorage("https://a.foxycart.com/s/customer/").setItem(
+      "session",
+      "A",
+    );
+
+    expect(
+      localStorage.getItem("foxy:https://a.foxycart.com/s/customer/:session"),
+    ).toBe("A");
+  });
+
+  it("falls back to memory when the browser blocks storage", () => {
+    // What a third-party iframe or a cookie-blocking mode does: reading the
+    // property itself throws, before any key is touched.
+    const descriptor = Object.getOwnPropertyDescriptor(
+      window,
+      "localStorage",
+    ) as PropertyDescriptor;
+
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      get() {
+        throw new DOMException("The operation is insecure.", "SecurityError");
+      },
+    });
+
+    try {
+      const storage = createScopedStorage("https://a.foxycart.com/s/customer/");
+      storage.setItem("session", "A");
+      expect(storage.getItem("session")).toBe("A");
+    } finally {
+      Object.defineProperty(window, "localStorage", descriptor);
+    }
+  });
+
+  it("falls back to memory when writes throw, not just reads", () => {
+    const backing = window.localStorage;
+    const setItem = backing.setItem.bind(backing);
+
+    backing.setItem = () => {
+      throw new DOMException("Quota exceeded.", "QuotaExceededError");
+    };
+
+    try {
+      const storage = createScopedStorage("https://a.foxycart.com/s/customer/");
+      storage.setItem("session", "A");
+      expect(storage.getItem("session")).toBe("A");
+    } finally {
+      backing.setItem = setItem;
+    }
   });
 });

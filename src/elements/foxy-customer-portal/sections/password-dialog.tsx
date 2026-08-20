@@ -5,6 +5,7 @@ import { Button } from "@foxy.io/design-system/button";
 import { Dialog } from "@foxy.io/design-system/dialog";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
+import { WriteError } from "@/lib/customer-api";
 import { messages } from "../messages";
 import { usePortalContainer } from "../portal-container";
 import { patchResource } from "../write";
@@ -38,8 +39,14 @@ export function PasswordDialog({ customer, open, onClose }: Props) {
     } catch (caught) {
       // A wrong current password is a field-level problem, not a form-level
       // one — that is the reason this is its own dialog.
-      const code = (caught as { code?: string }).code;
-      setError(code === "UNAUTHORIZED" ? "current" : "unknown");
+      //
+      // The status is what says so. A link's `patch` never throws the SDK's
+      // `AuthError`, so there is no `code` to read here: `AuthError` comes only
+      // from `signIn`, `signUp`, `sendPasswordResetEmail` and `signOut`.
+      const isWrongPassword =
+        caught instanceof WriteError && caught.isUnauthorized;
+
+      setError(isWrongPassword ? "current" : "unknown");
     } finally {
       setIsBusy(false);
     }

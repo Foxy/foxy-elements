@@ -1,10 +1,15 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
-import { useApi, useResource, type FollowableLink } from "@/lib/customer-api";
-import { PortalHeader } from "../sections/header";
+import {
+  UnauthenticatedError,
+  useApi,
+  useResource,
+  type FollowableLink,
+} from "@/lib/customer-api";
+import { PortalHeader, type SignOutState } from "../sections/header";
 import { PasswordDialog } from "../sections/password-dialog";
 import {
   ProfileDialog,
@@ -12,9 +17,21 @@ import {
 } from "../sections/profile-dialog";
 import { messages } from "../messages";
 
-type Props = { fullNameTemplate: string; onSignedOut: () => void };
+/** How long the sign-out button stays in its error state. Matches v1. */
+const SIGN_OUT_ERROR_MS = 1000;
 
-export function AccountScreen({ fullNameTemplate, onSignedOut }: Props) {
+type Props = {
+  fullNameTemplate: string;
+  onSignedOut: () => void;
+  /** Called when the API says this customer is not signed in any more. */
+  onUnauthenticated: () => void;
+};
+
+export function AccountScreen({
+  fullNameTemplate,
+  onSignedOut,
+  onUnauthenticated,
+}: Props) {
   const intl = useIntl();
   const { api } = useApi();
 
@@ -24,11 +41,24 @@ export function AccountScreen({ fullNameTemplate, onSignedOut }: Props) {
   // The SDK types nullable customer fields as `string | null`; our screens use
   // `undefined` for "absent" throughout (see `CustomerProps`), so the cast at
   // this boundary is deliberate, not a type-safety shortcut.
+  //
+  // The status check is this element's job: the SDK never looks at it, and
+  // `json()` happily parses a 401 body. Without it an expired session renders
+  // a header full of blanks, or a retry loop that can never succeed.
   const rootLink = useMemo<FollowableLink<CustomerResource>>(
     () => ({
       href: api.base.toString(),
       get: async () => {
         const response = await api.get();
+
+        if (response.status === 401 || response.status === 403) {
+          throw new UnauthenticatedError();
+        }
+
+        if (!response.ok) {
+          throw new Error("Failed to load the customer resource.");
+        }
+
         return {
           json: async () =>
             (await response.json()) as unknown as CustomerResource,
@@ -43,20 +73,44 @@ export function AccountScreen({ fullNameTemplate, onSignedOut }: Props) {
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
-  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [signOutState, setSignOutState] = useState<SignOutState>("idle");
+  const errorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  async function handleSignOut() {
-    setIsSigningOut(true);
+  useEffect(() => {
+    return () => {
+      if (errorTimer.current !== null) clearTimeout(errorTimer.current);
+    };
+  }, []);
+
+  const handleSignOut = useCallback(async () => {
+    setSignOutState("busy");
 
     try {
       await api.signOut();
       onSignedOut();
-    } finally {
-      setIsSigningOut(false);
+    } catch {
+      // `API.signOut` throws before clearing local session state, so the
+      // customer is still signed in here. Show the failure for a second and go
+      // back to idle so they can try again — same behaviour as v1.
+      setSignOutState("error");
+      errorTimer.current = setTimeout(
+        () => setSignOutState("idle"),
+        SIGN_OUT_ERROR_MS,
+      );
     }
-  }
+  }, [api, onSignedOut]);
 
-  if (isLoading) return <Skeleton />;
+  // Routing has to happen in an effect: `error` is read during render, and
+  // switching screens from there would update the parent mid-render.
+  const isUnauthenticated = error instanceof UnauthenticatedError;
+
+  useEffect(() => {
+    if (isUnauthenticated) onUnauthenticated();
+  }, [isUnauthenticated, onUnauthenticated]);
+
+  // Hold the loading shape rather than flashing "we couldn't load your
+  // account" on the way back to sign in.
+  if (isLoading || isUnauthenticated) return <Skeleton />;
 
   if (error || !data) {
     return (
@@ -78,7 +132,7 @@ export function AccountScreen({ fullNameTemplate, onSignedOut }: Props) {
         fullNameTemplate={fullNameTemplate}
         onEditProfile={() => setIsProfileOpen(true)}
         onSignOut={handleSignOut}
-        isSigningOut={isSigningOut}
+        signOutState={signOutState}
       />
 
       <Button

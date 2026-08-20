@@ -42,7 +42,9 @@ const flush = () =>
     await new Promise((r) => setTimeout(r, 0));
   });
 
-function fakeApi(patch = vi.fn(async () => ({}))) {
+// `patch` resolves with a response, exactly like the real client: it never
+// throws, so the status is the only signal that a write was refused.
+function fakeApi(patch = vi.fn(async () => ({ ok: true, status: 200 }))) {
   return {
     usesTemporaryPassword: true,
     get: async () => ({
@@ -58,7 +60,7 @@ afterEach(() => {
 
 describe("PasswordResetScreen", () => {
   it("rejects a mismatched confirmation without calling the API", async () => {
-    const patch = vi.fn(async () => ({}));
+    const patch = vi.fn(async () => ({ ok: true, status: 200 }));
     render(fakeApi(patch));
     await flush();
 
@@ -70,7 +72,7 @@ describe("PasswordResetScreen", () => {
   });
 
   it("patches the customer with the new password", async () => {
-    const patch = vi.fn(async () => ({}));
+    const patch = vi.fn(async () => ({ ok: true, status: 200 }));
     render(fakeApi(patch));
     await flush();
 
@@ -100,6 +102,23 @@ describe("PasswordResetScreen", () => {
         json: async () => ({ _links: { self: { href: "/c" } } }),
       }),
     };
+    const onCompleted = vi.fn();
+    render(api, { onCompleted });
+    await flush();
+
+    fill("hunter2", "hunter2");
+    await flush();
+
+    expect(api.usesTemporaryPassword).toBe(true);
+    expect(onCompleted).not.toHaveBeenCalled();
+    expect(screen!.host.textContent).toMatch(/something went wrong/i);
+  });
+
+  it("keeps the temporary password and reports nothing when the API refuses", async () => {
+    // The whole point of the status check: without it this resolves, clears
+    // `usesTemporaryPassword` and fires `passwordreset` with
+    // `{ result: "completed" }` for a password that was never changed.
+    const api = fakeApi(vi.fn(async () => ({ ok: false, status: 422 })));
     const onCompleted = vi.fn();
     render(api, { onCompleted });
     await flush();

@@ -10,13 +10,15 @@ import { messages } from "../messages";
 
 type Props = {
   siteKey: string;
-  onSignedUp: () => void;
+  /** Called once registration is complete *and* a session exists. */
+  onSignedIn: () => void;
   onBack: () => void;
 };
 
-type SignUpError = "taken" | "invalid" | "unknown" | "verification";
+type SignUpError =
+  "taken" | "invalid" | "unknown" | "verification" | "sign-in-failed";
 
-export function SignUpScreen({ siteKey, onSignedUp, onBack }: Props) {
+export function SignUpScreen({ siteKey, onSignedIn, onBack }: Props) {
   const intl = useIntl();
   const { api } = useApi();
   const firstNameId = useId();
@@ -32,6 +34,7 @@ export function SignUpScreen({ siteKey, onSignedUp, onBack }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isBusy, setIsBusy] = useState(false);
+  const [isDone, setIsDone] = useState(false);
   const [error, setError] = useState<SignUpError | null>(null);
 
   useEffect(() => {
@@ -72,8 +75,6 @@ export function SignUpScreen({ siteKey, onSignedUp, onBack }: Props) {
         email,
         password: password || undefined,
       });
-
-      onSignedUp();
     } catch (caught) {
       const code = (caught as { code?: string }).code;
       if (code === "UNAVAILABLE") setError("taken");
@@ -87,6 +88,32 @@ export function SignUpScreen({ siteKey, onSignedUp, onBack }: Props) {
       // "no challenge attempted".
       setToken(null);
       if (widget.current) widget.current.api.reset(widget.current.id);
+      setIsBusy(false);
+      return;
+    }
+
+    // Past this point the account exists. `signUp` only POSTs — it stores no
+    // session — so registration on its own leaves the customer unauthenticated,
+    // and routing to the account screen here would render it with no session.
+
+    // A blank password is supported and means Foxy generates one and emails it,
+    // so there is nothing to sign in with. Confirm and stop: no session, no
+    // `signin` event, no account screen.
+    if (!password) {
+      setIsDone(true);
+      setIsBusy(false);
+      return;
+    }
+
+    try {
+      await api.signIn({ email, password });
+      onSignedIn();
+    } catch {
+      // The account was created, so this is a sign-in problem, not a sign-up
+      // one. The captcha is deliberately not reset: re-submitting this form
+      // would try to register the same email twice and come back "already
+      // registered", which reads as though nothing worked.
+      setError("sign-in-failed");
     } finally {
       setIsBusy(false);
     }
@@ -99,7 +126,30 @@ export function SignUpScreen({ siteKey, onSignedUp, onBack }: Props) {
         ? messages.errorInvalidForm
         : error === "verification"
           ? messages.signUpVerificationPending
-          : messages.errorUnknown;
+          : error === "sign-in-failed"
+            ? messages.errorSignInAfterSignUp
+            : messages.errorUnknown;
+
+  // Registration without a password succeeded: same shape as the "done" state
+  // in `access-recovery.tsx` — a confirmation in place of the form, with the
+  // way back to sign in still available.
+  if (isDone) {
+    return (
+      <div>
+        <h1>{intl.formatMessage(messages.signUpHeading)}</h1>
+
+        <Alert.Root>
+          <Alert.Description>
+            {intl.formatMessage(messages.signUpCheckEmail)}
+          </Alert.Description>
+        </Alert.Root>
+
+        <Button type="button" $variant="link" onClick={onBack}>
+          {intl.formatMessage(messages.signUpBack)}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit}>

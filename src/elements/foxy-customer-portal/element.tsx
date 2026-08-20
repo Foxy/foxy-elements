@@ -8,7 +8,7 @@ import enUsMessages from "@/locales/en-US.json";
 import {
   ApiProvider,
   RequestCache,
-  ScopedStorage,
+  createScopedStorage,
   resolveBaseUrl,
 } from "@/lib/customer-api";
 import { ThemeMixin } from "@/lib/theme-mixin";
@@ -26,6 +26,16 @@ const LANG_ATTRIBUTE = "lang";
 
 const DEFAULT_FULL_NAME_TEMPLATE = "{first_name} {last_name}";
 const DEFAULT_LOCALE = "en-US";
+
+/**
+ * Consola numbering: errors and warnings only.
+ *
+ * The SDK's default is Info, at which `_resolve()` writes every resolved hAPI
+ * URL to the console. Some of those URLs carry credentials — `fx:sub_token_url`
+ * embeds a cart-access token — and a customer portal runs on a page the store's
+ * customers can open a console on.
+ */
+const LOG_LEVEL = 1;
 
 const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
   "en-US": enUsMessages as Record<string, string>,
@@ -129,7 +139,8 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
   /**
    * Builds the API lazily and reuses it while `store-domain` is unchanged.
    * Session storage is scoped by base URL — never raw `localStorage`, or two
-   * stores on one origin share a session slot.
+   * stores on one origin share a session slot — and `createScopedStorage`
+   * keeps a browser that blocks storage from throwing out of `#render`.
    */
   #resolveApi(): API | null {
     const storeDomain = this.storeDomain;
@@ -145,7 +156,11 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
     if (this.#api && this.#apiBase === base.toString()) return this.#api;
 
     this.#apiBase = base.toString();
-    this.#api = new API({ base, storage: new ScopedStorage(base.toString()) });
+    this.#api = new API({
+      base,
+      level: LOG_LEVEL,
+      storage: createScopedStorage(base.toString()),
+    });
 
     return this.#api;
   }
