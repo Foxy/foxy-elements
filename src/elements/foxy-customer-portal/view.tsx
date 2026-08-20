@@ -5,6 +5,7 @@ import { Alert } from "@foxy.io/design-system/alert";
 import {
   ApiProvider,
   hasValidSession,
+  useApi,
   useResource,
   type FollowableLink,
   type RequestCache,
@@ -120,8 +121,6 @@ export function Portal({
       onUnauthenticated={handleUnauthenticated}
     >
       <PortalScreens
-        api={api}
-        cache={cache}
         screen={screen}
         setScreen={setScreen}
         fullNameTemplate={fullNameTemplate}
@@ -138,10 +137,13 @@ export function Portal({
  * `element.tsx` turns `onEvent` into real `CustomEvent`s. Split out of `Portal`
  * so this can sit inside `ApiProvider` and use `useResource` for the settings
  * read, while `Portal` itself stays outside it and owns the provider.
+ *
+ * `api` and `cache` come from `useApi()` rather than props: this component
+ * only ever renders inside the `ApiProvider` `Portal` sets up with the same
+ * values, so threading them through as props too would just be a second,
+ * redundant source of truth.
  */
 function PortalScreens({
-  api,
-  cache,
   screen,
   setScreen,
   fullNameTemplate,
@@ -149,8 +151,6 @@ function PortalScreens({
   onEvent,
   onUnauthenticated,
 }: {
-  api: API;
-  cache: RequestCache;
   screen: PortalScreen;
   setScreen: (screen: PortalScreen) => void;
   fullNameTemplate: string;
@@ -158,6 +158,7 @@ function PortalScreens({
   onEvent: (type: string, detail?: unknown) => void;
   onUnauthenticated: () => void;
 }) {
+  const { api, cache } = useApi();
   const settingsLink = useSettingsLink(api);
   const { data: settings } = useResource<PortalSettings>(settingsLink);
 

@@ -39,6 +39,14 @@ export function AccountScreen({
   // The customer API's root graph *is* the customer, so `api.get()` returns it.
   // Wrapped as a link rather than cast: `API` has no `href`, and the cache keys
   // on `href`. Status checking lives in the hook — see `assertReadSucceeded`.
+  //
+  // The cast below covers the whole response, not just the parsed body: the
+  // SDK's `get()` resolves a `Response` whose `ok`/`status` are real inherited
+  // members (safe as-is), but whose `json()` resolves a `FollowableResource`,
+  // not `CustomerResource` — the SDK types nullable customer fields as
+  // `string | null`, while our screens use `undefined` for "absent"
+  // throughout (see `CustomerProps`). The cast is widening the type to match
+  // that, not papering over a runtime mismatch.
   const rootLink = useMemo<FollowableLink<CustomerResource>>(
     () => ({
       href: api.base.toString(),

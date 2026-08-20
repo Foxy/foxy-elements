@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import { API } from "@foxy.io/sdk/customer";
-import { RequestCache } from "@/lib/customer-api";
+import { RequestCache, serialiseQuery } from "@/lib/customer-api";
 import { mountScreen, setInputValue, type MountedScreen } from "./test-utils";
 import { resetHCaptchaLoaderForTests } from "./hcaptcha";
 import { Portal } from "./view";
@@ -134,7 +134,7 @@ function render(api: unknown, props: Record<string, unknown> = {}) {
   screen = mountScreen(
     <Portal
       api={api as never}
-      cache={new RequestCache()}
+      cache={(props.cache as RequestCache) ?? new RequestCache()}
       fullNameTemplate={
         (props.fullNameTemplate as string) ?? "{first_name} {last_name}"
       }
@@ -365,9 +365,20 @@ describe("Portal", () => {
     // Mirrors the read-side test above, but through the profile dialog's save
     // instead of the initial account load — this is the wiring
     // `ApiProvider`'s `onUnauthenticated` exists for.
+    //
+    // Routing alone doesn't prove the cache got cleared, which is the actual
+    // PII guard (see the doc comment above the effect in view.tsx): the
+    // account resource is keyed on the store's base URL, the same for every
+    // customer, so a stale entry would still hand the next customer Ada's
+    // name, email and `self` link. A swap-to-a-second-customer assertion
+    // can't pin that down here: `afterSignIn` clears the cache unconditionally
+    // on every sign-in, so it would mask a missing clear on this path in any
+    // test that goes on to sign someone else in. So this probes the cache
+    // directly, before anyone signs back in.
     const onEvent = vi.fn();
     const patch = vi.fn(async () => ({ ok: false, status: 401 }));
     const customer = { ...ada, _links: { self: { href: "/c", patch } } };
+    const cache = new RequestCache();
     const api = fakeApi({
       get: vi.fn(async () => ({
         ok: true,
@@ -376,7 +387,7 @@ describe("Portal", () => {
       })),
     });
     api.storage.setItem(API.SESSION, session());
-    render(api, { onEvent });
+    render(api, { onEvent, cache });
     await flush();
     await flush();
 
@@ -399,6 +410,20 @@ describe("Portal", () => {
     expect(api.storage.getItem(API.SESSION)).toBeNull();
     // The customer did not sign out, so no `signout` event either.
     expect(onEvent).not.toHaveBeenCalled();
+
+    // The account resource's cache key: `AccountScreen`'s `rootLink` uses
+    // `api.base.toString()` as `href` and `useResource` calls it with no
+    // query. A lingering entry here returns Ada's data synchronously and
+    // never touches `probe`; a cleared cache returns the empty entry and
+    // starts loading through `probe` instead.
+    const accountKey = `${api.base.toString()}|${serialiseQuery(undefined)}`;
+    const probe = vi.fn(async () => "probe");
+    const probedEntry = cache.read(accountKey, probe);
+
+    expect(probedEntry.data).toBeNull();
+    expect(probe).toHaveBeenCalled();
+
+    await flush();
   });
 
   it("does not dead-end on the retry loop when the session is gone", async () => {
