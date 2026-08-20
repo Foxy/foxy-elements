@@ -93,6 +93,25 @@ describe("PasswordResetScreen", () => {
     expect(onCompleted).toHaveBeenCalled();
   });
 
+  it("shows a generic error when the self link has no patch method", async () => {
+    const api = {
+      usesTemporaryPassword: true,
+      get: async () => ({
+        json: async () => ({ _links: { self: { href: "/c" } } }),
+      }),
+    };
+    const onCompleted = vi.fn();
+    render(api, { onCompleted });
+    await flush();
+
+    fill("hunter2", "hunter2");
+    await flush();
+
+    expect(api.usesTemporaryPassword).toBe(true);
+    expect(onCompleted).not.toHaveBeenCalled();
+    expect(screen!.host.textContent).toMatch(/something went wrong/i);
+  });
+
   it("hides the skip button when skipping is not allowed", async () => {
     render(fakeApi(), { canSkip: false });
     await flush();

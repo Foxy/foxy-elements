@@ -59,7 +59,13 @@ export function PasswordResetScreen({
     setError(null);
 
     try {
-      await self?.patch?.({ password });
+      if (typeof self?.patch !== "function") {
+        // An unexpected API shape, not a normal outcome — treat it the same
+        // as a rejected request rather than silently reporting success.
+        throw new Error("This resource is not writable.");
+      }
+
+      await self.patch({ password });
       api.usesTemporaryPassword = false;
       onCompleted();
     } catch {
