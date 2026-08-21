@@ -240,4 +240,16 @@ export const messages = defineMessages({
     id: "portal_manage_next_payment",
     defaultMessage: "Next payment date",
   },
+  paymentsHeading: {
+    id: "portal_payments_heading",
+    defaultMessage: "Payments",
+  },
+  paymentsEmpty: {
+    id: "portal_payments_empty",
+    defaultMessage: "No payments yet.",
+  },
+  paymentsReceipt: {
+    id: "portal_payments_receipt",
+    defaultMessage: "Receipt",
+  },
 });

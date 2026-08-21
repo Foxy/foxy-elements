@@ -128,6 +128,25 @@ describe("SubscriptionsSection", () => {
     expect(screen!.host.textContent).not.toMatch(/nothing here yet/i);
   });
 
+  it("opens the payments dialog for a card without disturbing the manage dialog", async () => {
+    // The stubbed subscriptions here carry no `fx:transactions` link, so this
+    // also proves the missing-link path degrades to the empty state instead
+    // of throwing.
+    screen = mountScreen(
+      <SubscriptionsSection customer={customer() as never} />,
+      {},
+    );
+    await flush();
+
+    act(() => {
+      const buttons = [...screen!.host.querySelectorAll("button")];
+      buttons.find((b) => /^payments$/i.test(b.textContent ?? ""))!.click();
+    });
+    await flush();
+
+    expect(document.body.textContent).toMatch(/no payments yet/i);
+  });
+
   it("resets to offset 0 when the toggle changes the collection mid-page", async () => {
     // 15 active subscriptions (more than the page size of 10, so paging
     // forward is possible) and 3 inactive ones. The customer pages forward on

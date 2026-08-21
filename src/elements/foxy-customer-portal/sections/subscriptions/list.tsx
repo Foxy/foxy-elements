@@ -8,6 +8,7 @@ import { useCollection, type FollowableLink } from "@/lib/customer-api";
 import { messages } from "../../messages";
 import { SubscriptionCard, type SubscriptionResource } from "./card";
 import { ManageDialog, type PortalSettings } from "./manage-dialog";
+import { PaymentsDialog } from "./payments-dialog";
 
 type CustomerWithLinks = {
   _links: Record<string, FollowableLink<never> & { href: string }>;
@@ -22,6 +23,7 @@ export function SubscriptionsSection({ customer, settings }: Props) {
   const intl = useIntl();
   const [showActive, setShowActive] = useState(true);
   const [managed, setManaged] = useState<SubscriptionResource | null>(null);
+  const [paid, setPaid] = useState<SubscriptionResource | null>(null);
 
   const link = customer._links["fx:subscriptions"];
 
@@ -89,7 +91,7 @@ export function SubscriptionsSection({ customer, settings }: Props) {
           key={subscription._links.self.href}
           subscription={subscription}
           onManage={() => setManaged(subscription)}
-          onPayments={() => {}}
+          onPayments={() => setPaid(subscription)}
         />
       ))}
 
@@ -106,6 +108,20 @@ export function SubscriptionsSection({ customer, settings }: Props) {
           settings={settings ?? null}
           open
           onClose={() => setManaged(null)}
+        />
+      ) : null}
+
+      {/* Mount-only-while-open, matching ManageDialog above, for consistency
+          rather than necessity: `useCollection` already keys its page state
+          on `href + serialiseQuery(query)` (Task 4/FX-288), so a different
+          subscription's `fx:transactions` link resets paging on its own even
+          without the `key`. */}
+      {paid ? (
+        <PaymentsDialog
+          key={paid._links.self.href}
+          subscription={paid}
+          open
+          onClose={() => setPaid(null)}
         />
       ) : null}
 
