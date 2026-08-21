@@ -4,7 +4,12 @@ import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
-import { useApi, type FollowableLink } from "@/lib/customer-api";
+import {
+  assertReadSucceeded,
+  useApi,
+  UnauthenticatedError,
+  type FollowableLink,
+} from "@/lib/customer-api";
 import { messages } from "../messages";
 import { patchResource } from "../write";
 
@@ -24,7 +29,7 @@ export function PasswordResetScreen({
   canSkip,
 }: Props) {
   const intl = useIntl();
-  const { api } = useApi();
+  const { api, onUnauthenticated } = useApi();
   const newId = useId();
   const confirmId = useId();
 
@@ -35,18 +40,30 @@ export function PasswordResetScreen({
   const [error, setError] = useState<"mismatch" | "unknown" | null>(null);
 
   // The customer's own `self` link is the write target for the password.
+  // This screen is only reached from `afterSignIn` (view.tsx) -- there is no
+  // session-less path to it -- so a 401/403 here can only mean the session
+  // died between sign-in and this screen mounting, same reasoning
+  // `ManageDialog` already applies to its own `WriteError.isUnauthorized`
+  // check. A non-auth failure leaves `self` null and the Save button
+  // disabled, same as before this check existed.
   useEffect(() => {
     let cancelled = false;
 
     void (async () => {
-      const resource = (await (await api.get()).json()) as CustomerWithSelfLink;
-      if (!cancelled) setSelf(resource._links.self);
+      try {
+        const response = await api.get();
+        assertReadSucceeded(response);
+        const resource = (await response.json()) as CustomerWithSelfLink;
+        if (!cancelled) setSelf(resource._links.self);
+      } catch (caught) {
+        if (caught instanceof UnauthenticatedError) onUnauthenticated();
+      }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [api]);
+  }, [api, onUnauthenticated]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();

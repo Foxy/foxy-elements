@@ -8,6 +8,7 @@ let screen: MountedScreen | null = null;
 function render(
   api: unknown,
   props: Partial<React.ComponentProps<typeof PasswordResetScreen>> = {},
+  onUnauthenticated: () => void = vi.fn(),
 ) {
   screen = mountScreen(
     <PasswordResetScreen
@@ -16,6 +17,7 @@ function render(
       canSkip={props.canSkip ?? true}
     />,
     api,
+    onUnauthenticated,
   );
 }
 
@@ -42,12 +44,15 @@ const flush = () =>
     await new Promise((r) => setTimeout(r, 0));
   });
 
-// `patch` resolves with a response, exactly like the real client: it never
-// throws, so the status is the only signal that a write was refused.
+// `patch` and `get` both resolve with a response, exactly like the real
+// client: neither throws, so status is the only signal of a rejected read or
+// write -- see `assertReadSucceeded`/`assertWriteSucceeded`.
 function fakeApi(patch = vi.fn(async () => ({ ok: true, status: 200 }))) {
   return {
     usesTemporaryPassword: true,
     get: async () => ({
+      ok: true,
+      status: 200,
       json: async () => ({ _links: { self: { href: "/c", patch } } }),
     }),
   };
@@ -99,6 +104,8 @@ describe("PasswordResetScreen", () => {
     const api = {
       usesTemporaryPassword: true,
       get: async () => ({
+        ok: true,
+        status: 200,
         json: async () => ({ _links: { self: { href: "/c" } } }),
       }),
     };
@@ -112,6 +119,35 @@ describe("PasswordResetScreen", () => {
     expect(api.usesTemporaryPassword).toBe(true);
     expect(onCompleted).not.toHaveBeenCalled();
     expect(screen!.host.textContent).toMatch(/something went wrong/i);
+  });
+
+  it("routes to sign-in when the initial read comes back unauthenticated", async () => {
+    // This screen is only reached from `afterSignIn` (view.tsx), right after
+    // a real sign-in -- there is no session-less path to it, so a 401/403
+    // reading the customer's own `self` link can only mean the session died
+    // between sign-in and this screen mounting, exactly like ManageDialog's
+    // write-side `WriteError.isUnauthorized` case.
+    const api = {
+      usesTemporaryPassword: true,
+      get: async () => ({ ok: false, status: 401, json: async () => ({}) }),
+    };
+    const onUnauthenticated = vi.fn();
+    render(api, {}, onUnauthenticated);
+    await flush();
+
+    expect(onUnauthenticated).toHaveBeenCalled();
+  });
+
+  it("does not route to sign-in on a non-auth read failure", async () => {
+    const api = {
+      usesTemporaryPassword: true,
+      get: async () => ({ ok: false, status: 500, json: async () => ({}) }),
+    };
+    const onUnauthenticated = vi.fn();
+    render(api, {}, onUnauthenticated);
+    await flush();
+
+    expect(onUnauthenticated).not.toHaveBeenCalled();
   });
 
   it("keeps the temporary password and reports nothing when the API refuses", async () => {
