@@ -84,9 +84,39 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).toMatch(/\$42/);
   });
 
-  it("shows the status", () => {
+  it("shows the status with the date it carries", () => {
+    // The default subscription is active, already started, with no end date
+    // and a future next_transaction_date -- getSubscriptionStatus's
+    // "next_payment". The bare "Active" badge this used to render told the
+    // customer nothing about *when* -- the date has to be in the text.
     render(subscription());
-    expect(screen!.host.textContent).toMatch(/active/i);
+    expect(screen!.host.textContent).toMatch(/next payment on/i);
+  });
+
+  it("shows the actual start date for a subscription starting well in the future, not a vague label", () => {
+    // Regression for the bug this commit fixes: "Starting soon" used to
+    // render even for a subscription starting years out.
+    render(subscription({ start_date: storeDate(2000) }));
+    expect(screen!.host.textContent).toMatch(/starts on/i);
+    expect(screen!.host.textContent).not.toMatch(/starting soon/i);
+  });
+
+  it("shows the date a failed payment happened", () => {
+    // first_failed_transaction_date used to be consumed only as a boolean by
+    // status.ts and rendered nowhere -- a customer whose payment failed had
+    // no way to see when.
+    render(
+      subscription({ first_failed_transaction_date: storeDate(-2) }),
+    );
+    expect(screen!.host.textContent).toMatch(/failed on/i);
+  });
+
+  it("shows a date-free label instead of the raw date when the store turned the matching flag off", () => {
+    render(subscription({ start_date: storeDate(2000) }), {
+      cartDisplayConfig: { show_sub_startdate: false },
+    });
+    expect(screen!.host.textContent).toMatch(/scheduled to start/i);
+    expect(screen!.host.textContent).not.toMatch(/starts on/i);
   });
 
   it("shows an error message when the subscription has one", () => {

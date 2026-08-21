@@ -180,25 +180,60 @@ export const messages = defineMessages({
   },
   statusWillStart: {
     id: "portal_status_will_start",
-    defaultMessage: "Starting soon",
+    defaultMessage: "Starts on {start_date}",
   },
-  statusWillEnd: { id: "portal_status_will_end", defaultMessage: "Ending" },
+  statusWillStartNoStartdate: {
+    id: "portal_status_will_start_no_startdate",
+    defaultMessage: "Scheduled to start",
+  },
+  statusWillEnd: {
+    id: "portal_status_will_end",
+    defaultMessage: "Ends on {end_date}",
+  },
+  statusWillEndNoEnddate: {
+    id: "portal_status_will_end_no_enddate",
+    defaultMessage: "Active, scheduled to end",
+  },
   statusWillEndAfterPayment: {
     id: "portal_status_will_end_after_payment",
-    defaultMessage: "Ending after next payment",
+    defaultMessage: "Next payment on {next_transaction_date}, ending {end_date}",
+  },
+  statusWillEndAfterPaymentNoNextdate: {
+    id: "portal_status_will_end_after_payment_no_nextdate",
+    defaultMessage: "Active, ending {end_date}",
+  },
+  statusWillEndAfterPaymentNoEnddate: {
+    id: "portal_status_will_end_after_payment_no_enddate",
+    defaultMessage: "Next payment on {next_transaction_date}",
   },
   statusNextPayment: {
     id: "portal_status_next_payment",
+    defaultMessage: "Next payment on {next_transaction_date}",
+  },
+  statusNextPaymentNoNextdate: {
+    id: "portal_status_next_payment_no_nextdate",
     defaultMessage: "Active",
   },
-  statusEnded: { id: "portal_status_ended", defaultMessage: "Ended" },
+  statusEnded: {
+    id: "portal_status_ended",
+    defaultMessage: "Ended on {end_date}",
+  },
+  statusEndedNoEnddate: {
+    id: "portal_status_ended_no_enddate",
+    defaultMessage: "Ended",
+  },
   statusFailed: {
     id: "portal_status_failed",
-    defaultMessage: "Payment failed",
+    defaultMessage: "Failed on {first_failed_transaction_date}",
   },
   statusFailedAndEnded: {
     id: "portal_status_failed_and_ended",
-    defaultMessage: "Failed and ended",
+    defaultMessage:
+      "Ended on {end_date} (failed on {first_failed_transaction_date})",
+  },
+  statusFailedAndEndedNoEnddate: {
+    id: "portal_status_failed_and_ended_no_enddate",
+    defaultMessage: "Ended (failed on {first_failed_transaction_date})",
   },
   statusInactive: { id: "portal_status_inactive", defaultMessage: "Inactive" },
   subscriptionsHeading: {
