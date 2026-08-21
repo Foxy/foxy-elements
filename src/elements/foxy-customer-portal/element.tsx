@@ -164,6 +164,94 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
     return this.#api;
   }
 
+  /**
+   * Overrides `defaultTheme`'s leaves with whatever `theme-*` attribute or
+   * `--`-prefixed CSS custom property the host page set (see
+   * `ThemeMixin`/`getThemeProperty`), falling back to the default for
+   * anything unset. Same shape as `foxy-payment-method-selector`'s
+   * `#buildThemeTokens` — this element observes the same
+   * `themeAttributeNames` in `observedAttributes` above, so it needs to
+   * actually read them, not just re-render when they change.
+   */
+  #buildThemeTokens() {
+    return {
+      letterSpacing: defaultTheme.letterSpacing,
+      textTransform: defaultTheme.textTransform,
+      font: {
+        ...defaultTheme.font,
+        body: this.getThemeProperty("themeFontBody") ?? defaultTheme.font.body,
+      },
+      color: {
+        ...defaultTheme.color,
+        body:
+          this.getThemeProperty("themeColorBody") ?? defaultTheme.color.body,
+        error:
+          this.getThemeProperty("themeColorError") ?? defaultTheme.color.error,
+        primary:
+          this.getThemeProperty("themeColorPrimary") ??
+          defaultTheme.color.primary,
+        secondary:
+          this.getThemeProperty("themeColorSecondary") ??
+          defaultTheme.color.secondary,
+        onPrimary:
+          this.getThemeProperty("themeColorOnPrimary") ??
+          defaultTheme.color.onPrimary,
+      },
+      outline: {
+        ...defaultTheme.outline,
+        primary:
+          this.getThemeProperty("themeOutlinePrimary") ??
+          defaultTheme.outline.primary,
+      },
+      background: {
+        ...defaultTheme.background,
+        surface:
+          this.getThemeProperty("themeBackgroundSurface") ??
+          defaultTheme.background.surface,
+        field:
+          this.getThemeProperty("themeBackgroundField") ??
+          defaultTheme.background.field,
+        disabledField:
+          this.getThemeProperty("themeBackgroundDisabledField") ??
+          defaultTheme.background.disabledField,
+        buttonPrimary:
+          this.getThemeProperty("themeBackgroundButtonPrimary") ??
+          defaultTheme.background.buttonPrimary,
+        error:
+          this.getThemeProperty("themeBackgroundError") ??
+          defaultTheme.background.error,
+      },
+      border: {
+        ...defaultTheme.border,
+        field:
+          this.getThemeProperty("themeBorderField") ??
+          defaultTheme.border.field,
+      },
+      borderRadius: {
+        ...defaultTheme.borderRadius,
+        sm:
+          this.getThemeProperty("themeBorderRadiusSm") ??
+          defaultTheme.borderRadius.sm,
+      },
+      space: {
+        ...defaultTheme.space,
+        md: this.getThemeProperty("themeSpaceMd") ?? defaultTheme.space.md,
+      },
+      size: {
+        ...defaultTheme.size,
+        control:
+          this.getThemeProperty("themeSizeControl") ??
+          defaultTheme.size.control,
+        borderWidth:
+          this.getThemeProperty("themeSizeBorderWidth") ??
+          defaultTheme.size.borderWidth,
+      },
+      easing: defaultTheme.easing,
+      duration: defaultTheme.duration,
+      zIndex: defaultTheme.zIndex,
+    };
+  }
+
   #render() {
     if (!this.#root) return;
 
@@ -171,10 +259,29 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
     const messages =
       MESSAGES_BY_LOCALE[locale] ?? MESSAGES_BY_LOCALE[DEFAULT_LOCALE];
     const api = this.#resolveApi();
+    const tokens = this.#buildThemeTokens();
+
+    // The DS's own styled components (`Button`, `Item`, `Field`, ...) all
+    // read color/font from `theme.tokens`, but the portal's screens use
+    // plain semantic HTML for structure -- `<h1>`, `<h2>`, `<p>` in
+    // `header.tsx`, `view.tsx`'s screens, etc. -- which the browser renders
+    // in its default black with no color rule of its own. That was
+    // indistinguishable from `defaultTheme.color.body` (`#1C1A1D`,
+    // near-black) until a theme set `color.body` to something light: every
+    // heading/paragraph stayed black, invisible against a dark
+    // `background.surface`. `#container` -- not a React-rendered wrapper --
+    // is the fix's anchor: `PortalContainerContext` below portals dialogs
+    // into this same node (see its own comment), so it is the one real DOM
+    // ancestor common to both the main tree and anything Base UI portals
+    // into it; a React-rendered `<div>` inside `ThemeProvider` would sit as
+    // a *sibling* of portaled dialog content, not an ancestor, and wouldn't
+    // reach it.
+    this.#container.style.color = tokens.color.body;
+    this.#container.style.font = tokens.font.body;
 
     this.#root.render(
       <StyleSheetManager target={this.#shadowRootRef}>
-        <ThemeProvider theme={{ tokens: defaultTheme }}>
+        <ThemeProvider theme={{ tokens }}>
           {/* Dialogs portal into this container, not <body>, so they stay
               inside the shadow root where our styles live. */}
           <PortalContainerContext value={this.#container}>

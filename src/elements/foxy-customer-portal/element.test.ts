@@ -112,6 +112,32 @@ describe("foxy-customer-portal", () => {
     expect(element.shadowRoot?.textContent).toMatch(/store-domain/i);
   });
 
+  it("threads the theme-font-body attribute into rendered shadow DOM", async () => {
+    // The element observes every `theme-*` attribute (see
+    // `observedAttributes`) but, before `#buildThemeTokens()`, never read
+    // them back into the tokens handed to `ThemeProvider` -- so a store could
+    // set `theme-color-primary` and see zero effect. This proves the
+    // attribute actually reaches a rendered DS component, the same way
+    // `foxy-payment-method-selector`'s equivalent test does for
+    // `theme-font-body`: the sign-in form's email `Input` is styled from
+    // `theme.tokens.font.body`, so its computed font picks up "Figtree"
+    // instead of the design system's default ("Albert Sans") only if the
+    // attribute is genuinely threaded through StyleSheetManager/ThemeProvider.
+    const element = await mount({
+      "store-domain": "demo",
+      "theme-font-body": "400 1rem/1.25 Figtree, sans-serif",
+    });
+
+    const input = element.shadowRoot?.querySelector(
+      'input[type="email"]',
+    ) as HTMLElement | null;
+    expect(input).not.toBeNull();
+
+    const computed = getComputedStyle(input!);
+    expect(computed.fontFamily).toBe("Figtree, sans-serif");
+    expect(computed.fontWeight).toBe("400");
+  });
+
   it("only ever asks for portal settings inside the store base path", async () => {
     await mount({ "store-domain": "demo" });
 
