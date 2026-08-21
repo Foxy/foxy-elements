@@ -167,6 +167,35 @@ describe("PaymentsDialog", () => {
     expect(document.body.textContent).toMatch(/no payments yet/i);
   });
 
+  it("tells a failed payments read from an empty one", async () => {
+    // A rejected read settles as `{ data: null, error, isLoading: false }`
+    // (see `cache.ts`), which is indistinguishable from a genuinely empty
+    // collection unless `error` is checked. A 500 here must not read as "no
+    // payments yet" -- that tells the customer something false.
+    const broken = {
+      _links: {
+        self: { href: "/s/1" },
+        "fx:transactions": {
+          href: "/t",
+          get: async () => ({
+            ok: false,
+            status: 500,
+            json: async () => ({}),
+          }),
+        },
+      },
+    };
+
+    screen = mountScreen(
+      <PaymentsDialog subscription={broken as never} open onClose={vi.fn()} />,
+      {},
+    );
+    await flush();
+
+    expect(document.body.textContent).not.toMatch(/no payments yet/i);
+    expect(document.body.textContent).toMatch(/something went wrong/i);
+  });
+
   it("omits the date description line instead of rendering it blank when the date can't be parsed", async () => {
     // `SummaryTable.Entry` maps every array element in `description` --
     // `null` included -- into its own paragraph. `card.tsx` and

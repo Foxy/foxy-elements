@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { FormattedDate, FormattedNumber, useIntl } from "react-intl";
+import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
 import { SummaryTable } from "@foxy.io/design-system/summary-table";
@@ -39,8 +40,16 @@ export function PaymentsDialog({ subscription, open, onClose }: Props) {
   // charged at the time of each payment.
   const query = useMemo(() => ({ zoom: "items", limit: 10 }), []);
 
-  const { items, isLoading, totalItems, offset, limit, loadNext, loadPrev } =
-    useCollection<Payment>(link as never, query);
+  const {
+    items,
+    error,
+    isLoading,
+    totalItems,
+    offset,
+    limit,
+    loadNext,
+    loadPrev,
+  } = useCollection<Payment>(link as never, query);
 
   return (
     <PortalDialog
@@ -50,7 +59,19 @@ export function PaymentsDialog({ subscription, open, onClose }: Props) {
     >
       {isLoading ? <Skeleton /> : null}
 
-      {!isLoading && items.length === 0 ? (
+      {/* A rejected read settles as `{ data: null, error, isLoading: false }`
+          (see `cache.ts`), which looks exactly like a genuinely empty
+          collection unless `error` is checked first -- a 500 must not read
+          as "no payments yet". Mirrors `list.tsx`'s error handling. */}
+      {error ? (
+        <Alert.Root $variant="destructive">
+          <Alert.Description>
+            {intl.formatMessage(messages.errorUnknown)}
+          </Alert.Description>
+        </Alert.Root>
+      ) : null}
+
+      {!isLoading && !error && items.length === 0 ? (
         <p>{intl.formatMessage(messages.paymentsEmpty)}</p>
       ) : null}
 
