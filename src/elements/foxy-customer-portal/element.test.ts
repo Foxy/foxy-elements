@@ -273,3 +273,45 @@ describe("foxy-customer-portal timezone precondition", () => {
     expect(text).not.toMatch(/Feb 12, 2023/);
   });
 });
+
+/**
+ * `calendar-date.ts` fixes the third of three shipped UTC/local date bugs by
+ * building dates from local components, which renders the store's calendar day
+ * back out only while nothing hands `Intl` an explicit `timeZone`. Two earlier
+ * date bugs survived their first review because a comment asserted a mechanism
+ * nobody had verified, so this is a test rather than another comment.
+ *
+ * It is a source scan, deliberately. The behavioural alternative -- asserting
+ * rendered digits -- cannot cover this: `toCalendarDate` always builds local
+ * midnight, and formatting local midnight in zone Z yields the same calendar
+ * day for every Z at or east of the runner's own zone. So a digits test goes
+ * red only for an explicit zone *west* of wherever it happens to run, and is
+ * blind to `timeZone="UTC"` on a UTC or UTC-3 runner -- both likely, and "UTC"
+ * being the likeliest value anyone would add. A scan is direction-agnostic.
+ *
+ * Scoped to the element's own non-test sources so it also covers every
+ * `FormattedDate`/`formatDate` call site, not just the two `IntlProvider`s.
+ */
+describe("timezone precondition", () => {
+  const sources = import.meta.glob("./**/*.{ts,tsx}", {
+    eager: true,
+    query: "?raw",
+    import: "default",
+  }) as Record<string, string>;
+
+  // Comments discuss `timeZone` on purpose (`date-constraints.ts` documents
+  // that DayPicker must never be given one), so only real code is scanned.
+  const stripComments = (source: string) =>
+    source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+
+  it("sets no explicit timeZone in any source file", () => {
+    const offenders = Object.entries(sources)
+      .filter(([path]) => !/\.(test|stories)\.[tj]sx?$/.test(path))
+      .filter(([, source]) => stripComments(source).includes("timeZone"))
+      .map(([path]) => path);
+
+    // Guard the guard: a glob that silently matched nothing would pass.
+    expect(Object.keys(sources).length).toBeGreaterThan(5);
+    expect(offenders).toEqual([]);
+  });
+});
