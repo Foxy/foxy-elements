@@ -91,7 +91,7 @@ export function PaymentsDialog({ subscription, open, onClose }: Props) {
                 (payment._embedded?.["fx:items"] ?? [])
                   .map((item) => `${item.name} ×${item.quantity}`)
                   .join(", "),
-              ]}
+              ].filter((line) => line !== null)}
               action={
                 payment._links["fx:receipt"] ? (
                   <a href={payment._links["fx:receipt"].href}>

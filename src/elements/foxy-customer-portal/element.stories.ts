@@ -2,6 +2,10 @@ import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { expect, waitFor } from "storybook/test";
 import { html } from "lit";
 import "./element";
+import {
+  resetHCaptchaLoaderForTests,
+  setHCaptchaScriptLoaderForTests,
+} from "./hcaptcha";
 
 const STORE_BASE = "https://demo.foxycart.com/s/customer/";
 const SESSION_KEY = `foxy:${STORE_BASE}:session`;
@@ -77,8 +81,18 @@ function json(body: unknown): Response {
  * that let three stories reach `demo.foxycart.com` for real, unnoticed,
  * because `useResource` swallows rejections.
  */
-function stubStore(): () => void {
+export function stubStore(): () => void {
   const original = globalThis.fetch;
+
+  // No story here reaches the sign-up screen today, but `SETTINGS.sign_up.enabled`
+  // is already `true`, so a future one would call `loadHCaptcha()`, which
+  // appends a real `<script src="https://js.hcaptcha.com/...">` to
+  // `document.head` -- invisible to the fetch stub below, since it never goes
+  // through `fetch`. Guard it the same way: throw loudly instead of letting a
+  // story quietly load the real script.
+  setHCaptchaScriptLoaderForTests(() =>
+    Promise.reject(new Error("A story tried to load hCaptcha.")),
+  );
 
   globalThis.fetch = async (input, init) => {
     const url =
@@ -120,6 +134,7 @@ function stubStore(): () => void {
 
   return () => {
     globalThis.fetch = original;
+    resetHCaptchaLoaderForTests();
   };
 }
 
@@ -148,6 +163,11 @@ function withSession(): () => void {
 const meta: Meta = {
   title: "Elements/foxy-customer-portal",
   parameters: { layout: "centered" },
+  // `stubStore` is exported so `element.stories.test.ts` can guard its
+  // hCaptcha-script hole directly -- without this, Storybook's CSF indexer
+  // treats every named export as a candidate story and errors trying to
+  // render it as one. Add any future non-story export here too.
+  excludeStories: ["stubStore"],
   beforeEach: () => {
     // Clear the session on the way in, not just on the way out. Storybook runs
     // a story's `beforeEach` teardown under the test runner, but not when you

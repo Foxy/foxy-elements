@@ -166,4 +166,18 @@ describe("PaymentsDialog", () => {
 
     expect(document.body.textContent).toMatch(/no payments yet/i);
   });
+
+  it("omits the date description line instead of rendering it blank when the date can't be parsed", async () => {
+    // `SummaryTable.Entry` maps every array element in `description` --
+    // `null` included -- into its own paragraph. `card.tsx` and
+    // `manage-dialog.tsx` both omit the block entirely instead of passing
+    // `null` through; this keeps the four date sites consistent.
+    render(subscription(vi.fn(), "captured", "0000-00-00"));
+    await flush();
+
+    const paragraphs = [...document.querySelectorAll("p")].filter(
+      (p) => p.textContent === "",
+    );
+    expect(paragraphs).toHaveLength(0);
+  });
 });

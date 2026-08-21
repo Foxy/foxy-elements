@@ -138,3 +138,138 @@ describe("foxy-customer-portal", () => {
     expect(element.shadowRoot?.textContent).toBe("");
   });
 });
+
+/**
+ * `calendar-date.ts` documents that the fix for three shipped UTC/local date
+ * bugs holds only as long as nothing gives `IntlProvider` (or a
+ * `FormattedDate`/`intl.formatDate` call) an explicit `timeZone`. This is the
+ * only test in the suite that renders a date through the production
+ * `<IntlProvider>` in `#render()` below (`test-utils.test.ts` guards the
+ * separate, structurally identical provider `mountScreen` sets up for every
+ * other screen test) -- it drives the real custom element through sign-in
+ * state all the way to a rendered subscription, the same fixture shapes
+ * `element.stories.ts`'s `WithSubscriptions` story already proves reach the
+ * DOM.
+ */
+describe("foxy-customer-portal timezone precondition", () => {
+  const STORE_BASE = "https://demo.foxycart.com/s/customer/";
+  const SESSION_KEY = `foxy:${STORE_BASE}:session`;
+  const SUBSCRIPTIONS_HREF = `${STORE_BASE}subscriptions`;
+
+  const CUSTOMER = {
+    first_name: "Ada",
+    last_name: "Lovelace",
+    email: "ada@example.com",
+    _links: {
+      self: { href: `${STORE_BASE}customer` },
+      "fx:subscriptions": { href: SUBSCRIPTIONS_HREF },
+    },
+  };
+
+  function subscriptionsPage(nextTransactionDate: string) {
+    return {
+      total_items: 1,
+      _embedded: {
+        "fx:subscriptions": [
+          {
+            frequency: "1m",
+            start_date: "2020-01-01T00:00:00-0800",
+            next_transaction_date: nextTransactionDate,
+            end_date: null,
+            is_active: true,
+            error_message: "",
+            first_failed_transaction_date: null,
+            _links: { self: { href: `${SUBSCRIPTIONS_HREF}/0` } },
+            _embedded: {
+              "fx:transaction_template": {
+                currency_code: "USD",
+                total_order: 42,
+                _embedded: { "fx:items": [{ name: "Coffee", quantity: 1 }] },
+              },
+            },
+          },
+        ],
+      },
+    };
+  }
+
+  // A real `Response`, not a plain `{ ok, status, json }` literal: the SDK's
+  // own `API.get()` (unlike the fake `FollowableLink`s screen tests hand
+  // `useResource` directly) is a real HTTP client and expects a real
+  // `Response` back from `fetch`. Matches `element.stories.ts`'s `json()`.
+  function json(body: unknown): Response {
+    return new Response(JSON.stringify(body), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  /** Polls instead of a fixed flush count -- settings, customer and
+   * subscriptions each resolve as a separate round trip. */
+  async function waitForShadowText(
+    element: CustomerPortalElement,
+    pattern: RegExp,
+    timeoutMs = 2000,
+  ): Promise<string> {
+    const start = Date.now();
+    let text = "";
+    while (Date.now() - start < timeoutMs) {
+      text = element.shadowRoot?.textContent ?? "";
+      if (pattern.test(text)) return text;
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      });
+    }
+    throw new Error(
+      `Timed out waiting for ${pattern} in: ${JSON.stringify(text)}`,
+    );
+  }
+
+  async function mountSignedIn(nextTransactionDate: string) {
+    localStorage.setItem(
+      SESSION_KEY,
+      JSON.stringify({
+        session_token: "t",
+        expires_in: 3600,
+        date_created: new Date().toISOString(),
+      }),
+    );
+
+    fetchMock.mockImplementation(async (input: unknown) => {
+      const url =
+        typeof input === "string"
+          ? input
+          : input instanceof URL
+            ? input.toString()
+            : (input as { url: string }).url;
+
+      if (url.endsWith("customer_portal_settings")) return json({});
+      if (url === STORE_BASE) return json(CUSTOMER);
+      if (
+        new URL(url).pathname === new URL(SUBSCRIPTIONS_HREF).pathname &&
+        url.includes("is_active=true")
+      ) {
+        return json(subscriptionsPage(nextTransactionDate));
+      }
+
+      return json({});
+    });
+
+    return mount({ "store-domain": "demo" });
+  }
+
+  it("shows the store's calendar day for a subscription's next payment date", async () => {
+    // '2023-02-11T22:45:01-0700' is 05:45:01Z on Feb 12 -- naively parsing
+    // and formatting in a viewer timezone at or east of the store's rolls
+    // the displayed date forward to Feb 12.
+    const element = await mountSignedIn("2023-02-11T22:45:01-0700");
+    // Wait on something the date's own value can't affect -- "Coffee" proves
+    // the subscription card actually rendered. Waiting on the date pattern
+    // itself would turn a wrong-day mutation into a 2-second timeout instead
+    // of a clean assertion failure naming the actual mismatch.
+    const text = await waitForShadowText(element, /Coffee/);
+
+    expect(text).toMatch(/Feb 11, 2023/);
+    expect(text).not.toMatch(/Feb 12, 2023/);
+  });
+});
