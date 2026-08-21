@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
@@ -52,6 +52,22 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
 
   const selectedCountry = COUNTRIES.find((c) => c.code === country);
   const hasRegionList = (selectedCountry?.regions.length ?? 0) > 0;
+
+  // Without an `items` map, Base UI's closed-trigger `Select.Value` falls
+  // back to rendering the raw stored value (the country/region code)
+  // instead of looking up its display name.
+  const countryItems = useMemo(
+    () => Object.fromEntries(COUNTRIES.map((c) => [c.code, c.name])),
+    [],
+  );
+
+  const regionItems = useMemo(
+    () =>
+      Object.fromEntries(
+        (selectedCountry?.regions ?? []).map((r) => [r.code, r.name]),
+      ),
+    [selectedCountry],
+  );
 
   // A customer switching e.g. US -> Canada must not keep a stale US state
   // code silently mislabeled as a Canadian province -- v1's AddressForm.ts:49
@@ -123,6 +139,8 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
           <Input
             id={labelId}
             type="text"
+            required
+            maxLength={100}
             value={addressName}
             onChange={(event) => setAddressName(event.target.value)}
           />
@@ -136,6 +154,7 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
             id={firstNameId}
             type="text"
             autoComplete="given-name"
+            maxLength={50}
             value={firstName}
             onChange={(event) => setFirstName(event.target.value)}
           />
@@ -149,6 +168,7 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
             id={lastNameId}
             type="text"
             autoComplete="family-name"
+            maxLength={50}
             value={lastName}
             onChange={(event) => setLastName(event.target.value)}
           />
@@ -162,6 +182,7 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
             id={companyId}
             type="text"
             autoComplete="organization"
+            maxLength={50}
             value={company}
             onChange={(event) => setCompany(event.target.value)}
           />
@@ -175,6 +196,7 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
             id={phoneId}
             type="tel"
             autoComplete="tel"
+            maxLength={50}
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
           />
@@ -188,6 +210,8 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
             id={line1Id}
             type="text"
             autoComplete="address-line1"
+            required
+            maxLength={100}
             value={address1}
             onChange={(event) => setAddress1(event.target.value)}
           />
@@ -201,6 +225,7 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
             id={line2Id}
             type="text"
             autoComplete="address-line2"
+            maxLength={100}
             value={address2}
             onChange={(event) => setAddress2(event.target.value)}
           />
@@ -210,7 +235,11 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
           <Field.Label htmlFor={countryId}>
             {intl.formatMessage(messages.addressCountry)}
           </Field.Label>
-          <Select.Root value={country} onValueChange={handleCountryChange}>
+          <Select.Root
+            value={country}
+            onValueChange={handleCountryChange}
+            items={countryItems}
+          >
             <Select.Trigger id={countryId}>
               <Select.Value />
             </Select.Trigger>
@@ -242,9 +271,14 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
             <Select.Root
               value={region}
               onValueChange={(next: string | null) => next && setRegion(next)}
+              items={regionItems}
             >
               <Select.Trigger id={regionId}>
-                <Select.Value />
+                <Select.Value
+                  placeholder={intl.formatMessage(
+                    messages.addressRegionPlaceholder,
+                  )}
+                />
               </Select.Trigger>
               <Select.Portal container={portalContainer ?? undefined}>
                 <Select.Positioner>
@@ -265,6 +299,7 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
               id={regionId}
               type="text"
               autoComplete="address-level1"
+              maxLength={50}
               value={region}
               onChange={(event) => setRegion(event.target.value)}
             />
@@ -279,6 +314,7 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
             id={cityId}
             type="text"
             autoComplete="address-level2"
+            maxLength={50}
             value={city}
             onChange={(event) => setCity(event.target.value)}
           />
@@ -292,6 +328,7 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
             id={postalCodeId}
             type="text"
             autoComplete="postal-code"
+            maxLength={50}
             value={postalCode}
             onChange={(event) => setPostalCode(event.target.value)}
           />

@@ -454,4 +454,8 @@ export const messages = defineMessages({
     id: "portal_address_region",
     defaultMessage: "Region",
   },
+  addressRegionPlaceholder: {
+    id: "portal_address_region_placeholder",
+    defaultMessage: "Select a region",
+  },
 });

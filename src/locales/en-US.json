@@ -76,6 +76,7 @@
   "portal_address_phone": "Phone",
   "portal_address_postal_code": "Postal code",
   "portal_address_region": "Region",
+  "portal_address_region_placeholder": "Select a region",
   "portal_address_save": "Save",
   "portal_address_saving": "Saving...",
   "portal_addresses_heading": "Addresses",

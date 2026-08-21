@@ -326,4 +326,82 @@ describe("AddressEditDialog", () => {
     expect(onClose).toHaveBeenCalled();
     expect(patch).not.toHaveBeenCalled();
   });
+
+  // Regression coverage for the closed-trigger label bug: Base UI's
+  // `Select.Value` falls back to rendering the raw stored value when the
+  // `Select.Root` isn't given an `items` map, so these assert the *closed*
+  // trigger's own text -- not option `aria-selected`, which the pre-existing
+  // tests above already cover and which passed even with the bug present.
+  it("shows the display name, not the raw code, in the closed Country trigger", async () => {
+    await renderDialog({ addressOverrides: { country: "GB" } });
+
+    const trigger = getControlByLabelText("Country");
+    expect(trigger.textContent).toBe("United Kingdom");
+    expect(trigger.textContent).not.toBe("GB");
+  });
+
+  it("shows the display name, not the raw code, in the closed Region trigger", async () => {
+    await renderDialog({ addressOverrides: { country: "AU", region: "NSW" } });
+
+    const trigger = getControlByLabelText("Region");
+    expect(trigger.textContent).toBe("New South Wales");
+    expect(trigger.textContent).not.toBe("NSW");
+  });
+
+  // Field-level validation: matches v1's AddressForm, which required only
+  // `address_name` and `address1`, and capped every text field's length.
+  describe("validation", () => {
+    it("marks only Address label and Address line 1 as required", async () => {
+      await renderDialog();
+
+      expect(getInputByLabelText("Address label").required).toBe(true);
+      expect(getInputByLabelText("Address line 1").required).toBe(true);
+
+      expect(getInputByLabelText("First name").required).toBe(false);
+      expect(getInputByLabelText("Last name").required).toBe(false);
+      expect(getInputByLabelText("Company").required).toBe(false);
+      expect(getInputByLabelText("Phone").required).toBe(false);
+      expect(getInputByLabelText("Address line 2").required).toBe(false);
+      expect(getInputByLabelText("City").required).toBe(false);
+      expect(getInputByLabelText("Postal code").required).toBe(false);
+    });
+
+    it("caps address_name, address1, and address2 at 100 characters", async () => {
+      await renderDialog();
+
+      expect(getInputByLabelText("Address label").maxLength).toBe(100);
+      expect(getInputByLabelText("Address line 1").maxLength).toBe(100);
+      expect(getInputByLabelText("Address line 2").maxLength).toBe(100);
+    });
+
+    it("caps the other text fields at 50 characters", async () => {
+      await renderDialog({
+        addressOverrides: { country: "AF", region: "Kabul Province" },
+      });
+
+      expect(getInputByLabelText("First name").maxLength).toBe(50);
+      expect(getInputByLabelText("Last name").maxLength).toBe(50);
+      expect(getInputByLabelText("Company").maxLength).toBe(50);
+      expect(getInputByLabelText("Phone").maxLength).toBe(50);
+      expect(getInputByLabelText("City").maxLength).toBe(50);
+      expect(getInputByLabelText("Postal code").maxLength).toBe(50);
+      // Free-text Region input, rendered only for a country with no region
+      // list (AF here).
+      expect(getInputByLabelText("Region").maxLength).toBe(50);
+    });
+  });
+
+  it("shows a placeholder in the Region trigger when the region is blank after a country switch", async () => {
+    await renderDialog(); // default: country "US", region "IL"
+
+    const countryTrigger = getControlByLabelText("Country");
+    act(() => countryTrigger.click());
+    act(() => selectOption(getOptionByText("Australia")!));
+
+    // AU has a region list, so the Region control is now a Select; its
+    // value was just reset to "" by the country switch.
+    const regionTrigger = getControlByLabelText("Region");
+    expect(regionTrigger.textContent).not.toBe("");
+    expect(regionTrigger.textContent).toMatch(/select a region/i);
+  });
 });
