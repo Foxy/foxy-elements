@@ -23,8 +23,23 @@ function toJsWeekday(foxyDay: number): number {
   return foxyDay === 7 ? 0 : foxyDay;
 }
 
+/**
+ * `react-day-picker`, when no `timeZone` option is set on `DayPicker`, builds
+ * every calendar cell as local midnight (`new Date(year, monthIndex, date)`)
+ * and matches disable-matchers against local calendar days (`isSameDay`,
+ * `differenceInCalendarDays`, `date.getDay()`). This module targets that
+ * default local-day contract throughout. If a caller ever configures
+ * `DayPicker` with a `timeZone`, every date built here has to change with it.
+ * Task 6 wires up the picker and must not set `timeZone`.
+ */
 function parseDate(value: string): Date {
-  return new Date(`${value}T00:00:00.000Z`);
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+/** Rounds down to local midnight of the same calendar day. */
+function toLocalMidnight(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
 /**
@@ -36,10 +51,16 @@ function parseDate(value: string): Date {
  * re-validates on save, and would not be fine for computing a billing date.
  * It throws on malformed input, and a store with one bad rule must not blank
  * the whole dialog.
+ *
+ * The result is normalised to local midnight: adding milliseconds can land an
+ * hour either side of a calendar-day edge (e.g. across a DST transition), and
+ * `before`/`after` matchers must line up with DayPicker's local-day cells.
  */
 function offsetBy(from: Date, frequency: string): Date | undefined {
   try {
-    return new Date(from.getTime() + getTimeFromFrequency(frequency));
+    return toLocalMidnight(
+      new Date(from.getTime() + getTimeFromFrequency(frequency)),
+    );
   } catch {
     return undefined;
   }
@@ -83,7 +104,7 @@ export function toDatePickerBounds(
 
   if (constraints.allowedDaysOfMonth?.length) {
     const allowed = new Set(constraints.allowedDaysOfMonth);
-    disabled.push((date: Date) => !allowed.has(date.getUTCDate()));
+    disabled.push((date: Date) => !allowed.has(date.getDate()));
   }
 
   return { startMonth, endMonth, disabled };
