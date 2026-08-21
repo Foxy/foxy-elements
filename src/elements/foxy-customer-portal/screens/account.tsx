@@ -24,6 +24,7 @@ import {
 } from "../sections/profile-dialog";
 import {
   SubscriptionsSection,
+  type CartDisplayConfig,
   type PortalSettings as SubscriptionsSettings,
 } from "../sections/subscriptions";
 import { messages } from "../messages";
@@ -46,6 +47,15 @@ export type PortalSettings = {
     enabled: boolean;
     verification: { type: "hcaptcha"; site_key: string };
   };
+  /**
+   * Declared independently of `SubscriptionsSettings` below, not folded into
+   * it: that type's `subscriptions` field is a separate key on the same
+   * `customer_portal_settings` response, and a payload can carry one without
+   * the other. Gating this behind the `subscriptions` presence check the way
+   * `subscriptionsSettings` does below would silently drop the store's
+   * display flags whenever a response omits `subscriptions`.
+   */
+  cart_display_config?: CartDisplayConfig;
 } & Partial<SubscriptionsSettings>;
 
 type Props = {
@@ -125,6 +135,12 @@ export function AccountScreen({
   const subscriptionsSettings: SubscriptionsSettings | null =
     settings?.subscriptions ? (settings as SubscriptionsSettings) : null;
 
+  // Read off `settings` directly, not through `subscriptionsSettings` above --
+  // see `PortalSettings`'s doc comment on this field for why the two need
+  // separate gates.
+  const cartDisplayConfig: CartDisplayConfig | null =
+    settings?.cart_display_config ?? null;
+
   // `useResource` already fires `onUnauthenticated` (from `useApi()`, the
   // same callback this screen used to be handed as a prop) from an effect
   // the moment `error` is an `UnauthenticatedError` -- see `hooks.tsx`'s
@@ -193,6 +209,7 @@ export function AccountScreen({
           >["customer"]
         }
         settings={subscriptionsSettings}
+        cartDisplayConfig={cartDisplayConfig}
       />
 
       {/* FX-276 orders, FX-277 payment methods and addresses mount here, in

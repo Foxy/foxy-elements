@@ -16,6 +16,7 @@ import { messages } from "../../messages";
 import { PortalDialog } from "../../portal-dialog";
 import { usePortalContainer } from "../../portal-container";
 import { patchResource } from "../../write";
+import type { CartDisplayConfig } from "./cart-display-config";
 import { toDatePickerBounds, toLocalDateString } from "./date-constraints";
 import type { SubscriptionResource } from "./card";
 
@@ -48,6 +49,16 @@ export type PortalSettings = {
 type Props = {
   subscription: SubscriptionResource;
   settings: PortalSettings | null;
+  /**
+   * The store's `cart_display_config`. Kept separate from `settings` above
+   * rather than added to it: `settings` is derived in `account.tsx` by
+   * checking `settings.subscriptions` specifically, and `cart_display_config`
+   * is an independent key on the same `customer_portal_settings` response --
+   * a payload could carry one without the other, and gating this on the
+   * `subscriptions` check would silently drop the store's display flags in
+   * that case.
+   */
+  cartDisplayConfig?: CartDisplayConfig | null;
   open: boolean;
   onClose: () => void;
   /**
@@ -75,6 +86,7 @@ function tokenLink(href: string, params: Record<string, string>): string {
 export function ManageDialog({
   subscription,
   settings,
+  cartDisplayConfig,
   open,
   onClose,
   onSaved,
@@ -158,6 +170,12 @@ export function ManageDialog({
   // `null` and the `'0000-00-00'` unset sentinel.
   const hasEndDate = !!endsAt;
 
+  // Absent config -- settings still loading, or a store on an older template
+  // config -- defaults both rows on, so neither ever regresses for a store
+  // that never opted out.
+  const showStartDate = cartDisplayConfig?.show_sub_startdate ?? true;
+  const showEndDate = cartDisplayConfig?.show_sub_enddate ?? true;
+
   async function handleSave() {
     // Only the fields the customer actually touched go in the body. Sending
     // `frequency` unconditionally regressed past v1, which serialised only
@@ -222,15 +240,17 @@ export function ManageDialog({
           title={intl.formatMessage(messages.manageId)}
           subtitle={subscriptionId}
         />
-        <SummaryTable.Entry
-          title={intl.formatMessage(messages.manageStarted)}
-          value={
-            startedAt ? (
-              <FormattedDate value={startedAt} dateStyle="medium" />
-            ) : null
-          }
-        />
-        {endsAt ? (
+        {showStartDate ? (
+          <SummaryTable.Entry
+            title={intl.formatMessage(messages.manageStarted)}
+            value={
+              startedAt ? (
+                <FormattedDate value={startedAt} dateStyle="medium" />
+              ) : null
+            }
+          />
+        ) : null}
+        {endsAt && showEndDate ? (
           <SummaryTable.Entry
             title={intl.formatMessage(messages.manageEnds)}
             value={<FormattedDate value={endsAt} dateStyle="medium" />}

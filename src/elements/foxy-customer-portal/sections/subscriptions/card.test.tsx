@@ -114,6 +114,25 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).not.toMatch(/Feb 12, 2023/);
   });
 
+  it("shows the frequency line by default, with no cart_display_config at all", () => {
+    render(subscription());
+    expect(screen!.host.textContent).toMatch(/every/i);
+  });
+
+  it("hides the frequency line when the store turned show_sub_frequency off", () => {
+    render(subscription(), {
+      cartDisplayConfig: { show_sub_frequency: false },
+    });
+    expect(screen!.host.textContent).not.toMatch(/every/i);
+  });
+
+  it("hides the next-payment line when the store turned show_sub_nextdate off", () => {
+    render(subscription(), {
+      cartDisplayConfig: { show_sub_nextdate: false },
+    });
+    expect(screen!.host.textContent).not.toMatch(/next payment/i);
+  });
+
   it("calls onManage", () => {
     const onManage = vi.fn();
     render(subscription(), { onManage });

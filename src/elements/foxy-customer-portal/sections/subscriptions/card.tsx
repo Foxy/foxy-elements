@@ -5,6 +5,7 @@ import { Button } from "@foxy.io/design-system/button";
 import { Item } from "@foxy.io/design-system/item";
 import { toCalendarDate } from "../../calendar-date";
 import { messages } from "../../messages";
+import type { CartDisplayConfig } from "./cart-display-config";
 import { getSubscriptionStatus, type SubscriptionStatus } from "./status";
 
 type TemplateItem = { name: string; quantity: number };
@@ -44,18 +45,28 @@ type Props = {
   subscription: SubscriptionResource;
   onManage: () => void;
   onPayments: () => void;
+  /**
+   * The store's `cart_display_config`, from the same `customer_portal_settings`
+   * response `manage-dialog.tsx` already reads. `null`/`undefined` (settings
+   * still loading, or a store on an older template config that omits the key)
+   * means every flag defaults to `true` -- see each flag's read below.
+   */
+  cartDisplayConfig?: CartDisplayConfig | null;
 };
 
 export function SubscriptionCard({
   subscription,
   onManage,
   onPayments,
+  cartDisplayConfig,
 }: Props) {
   const intl = useIntl();
   const template = subscription._embedded?.["fx:transaction_template"];
   const items = template?._embedded?.["fx:items"] ?? [];
   const status = getSubscriptionStatus(subscription);
   const nextPaymentDate = toCalendarDate(subscription.next_transaction_date);
+  const showFrequency = cartDisplayConfig?.show_sub_frequency ?? true;
+  const showNextDate = cartDisplayConfig?.show_sub_nextdate ?? true;
 
   const summary = items
     .map((item) => `${item.name} ×${item.quantity}`)
@@ -66,13 +77,15 @@ export function SubscriptionCard({
       <Item.Content>
         <Item.Title>{summary}</Item.Title>
 
-        <Item.Description>
-          {intl.formatMessage(messages.subscriptionFrequency, {
-            frequency: subscription.frequency,
-          })}
-        </Item.Description>
+        {showFrequency ? (
+          <Item.Description>
+            {intl.formatMessage(messages.subscriptionFrequency, {
+              frequency: subscription.frequency,
+            })}
+          </Item.Description>
+        ) : null}
 
-        {nextPaymentDate ? (
+        {showNextDate && nextPaymentDate ? (
           <Item.Description>
             {intl.formatMessage(messages.subscriptionNextPayment, {
               // A plain formatted string, not a `<FormattedDate>` element:

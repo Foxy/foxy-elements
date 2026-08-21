@@ -4,3 +4,4 @@ export { getSubscriptionStatus, type SubscriptionStatus } from "./status";
 export { toDatePickerBounds, type DatePickerBounds } from "./date-constraints";
 export { ManageDialog, type PortalSettings } from "./manage-dialog";
 export { PaymentsDialog } from "./payments-dialog";
+export type { CartDisplayConfig } from "./cart-display-config";

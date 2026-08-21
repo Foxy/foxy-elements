@@ -6,6 +6,7 @@ import { ButtonGroup } from "@foxy.io/design-system/button-group";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
 import { useCollection, type FollowableLink } from "@/lib/customer-api";
 import { messages } from "../../messages";
+import type { CartDisplayConfig } from "./cart-display-config";
 import { SubscriptionCard, type SubscriptionResource } from "./card";
 import { ManageDialog, type PortalSettings } from "./manage-dialog";
 import { PaymentsDialog } from "./payments-dialog";
@@ -17,9 +18,19 @@ type CustomerWithLinks = {
 type Props = {
   customer: CustomerWithLinks;
   settings?: PortalSettings | null;
+  /**
+   * The store's `cart_display_config`, threaded independently of `settings`
+   * above -- see `manage-dialog.tsx`'s `Props` doc comment for why the two
+   * cannot share one gate.
+   */
+  cartDisplayConfig?: CartDisplayConfig | null;
 };
 
-export function SubscriptionsSection({ customer, settings }: Props) {
+export function SubscriptionsSection({
+  customer,
+  settings,
+  cartDisplayConfig,
+}: Props) {
   const intl = useIntl();
   const [showActive, setShowActive] = useState(true);
   const [managed, setManaged] = useState<SubscriptionResource | null>(null);
@@ -96,6 +107,7 @@ export function SubscriptionsSection({ customer, settings }: Props) {
         <SubscriptionCard
           key={subscription._links.self.href}
           subscription={subscription}
+          cartDisplayConfig={cartDisplayConfig}
           onManage={() => setManaged(subscription)}
           onPayments={() => setPaid(subscription)}
         />
@@ -112,6 +124,7 @@ export function SubscriptionsSection({ customer, settings }: Props) {
           key={managed._links.self.href}
           subscription={managed}
           settings={settings ?? null}
+          cartDisplayConfig={cartDisplayConfig}
           open
           onClose={() => setManaged(null)}
           // Only a successful save invalidates the cache -- a dismissed

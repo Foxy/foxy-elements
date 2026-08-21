@@ -56,11 +56,13 @@ function render(
   sub = subscription(),
   settings: unknown = SETTINGS,
   onClose = vi.fn(),
+  cartDisplayConfig: unknown = undefined,
 ) {
   screen = mountScreen(
     <ManageDialog
       subscription={sub as never}
       settings={settings as never}
+      cartDisplayConfig={cartDisplayConfig as never}
       open
       onClose={onClose}
     />,
@@ -125,6 +127,21 @@ describe("ManageDialog", () => {
     render(subscription({ end_date: "2023-02-11T22:45:01-0700" }));
     expect(document.body.textContent).toMatch(/Feb 11, 2023/);
     expect(document.body.textContent).not.toMatch(/Feb 12, 2023/);
+  });
+
+  it("hides the Started row when the store turned show_sub_startdate off", () => {
+    render(subscription(), SETTINGS, vi.fn(), { show_sub_startdate: false });
+    expect(document.body.textContent).not.toMatch(/started/i);
+  });
+
+  it("hides the Ends row when the store turned show_sub_enddate off, even though the subscription has an end date", () => {
+    render(
+      subscription({ end_date: "2099-06-01T00:00:00Z" }),
+      SETTINGS,
+      vi.fn(),
+      { show_sub_enddate: false },
+    );
+    expect(document.body.textContent).not.toMatch(/ends/i);
   });
 
   it("offers only the frequencies the store allows", () => {

@@ -22,6 +22,12 @@ type SettingsResponse = {
     allow_frequency_modification: unknown;
     allow_next_date_modification: unknown;
   };
+  cart_display_config?: {
+    show_sub_frequency?: boolean;
+    show_sub_startdate?: boolean;
+    show_sub_nextdate?: boolean;
+    show_sub_enddate?: boolean;
+  };
 };
 
 let settingsResponse: SettingsResponse;
@@ -650,6 +656,82 @@ describe("Portal", () => {
   // fetching it again. A customer local to this test (not the shared `ada`,
   // which ~15 other tests here reuse) carries one subscription so the account
   // screen actually mounts the section.
+  // `account.tsx` used to gate `cart_display_config` behind the same check
+  // that derives `subscriptionsSettings` from `settings.subscriptions` --
+  // so a settings payload that carries `cart_display_config` but happens to
+  // omit `subscriptions` (both are independent keys on the same resource)
+  // would silently ignore the store's display flags. The two must be threaded
+  // independently.
+  it("honours cart_display_config even when the settings payload has no subscriptions key", async () => {
+    settingsResponse = {
+      sign_up: {
+        enabled: false,
+        verification: { type: "hcaptcha", site_key: "" },
+      },
+      // Deliberately no `subscriptions` key.
+      cart_display_config: { show_sub_nextdate: false },
+    };
+
+    const customerWithSubscription = {
+      ...ada,
+      _links: {
+        ...ada._links,
+        "fx:subscriptions": {
+          href: "https://demo.foxycart.com/s/customer/subscriptions",
+          get: async () => ({
+            ok: true,
+            status: 200,
+            json: async () => ({
+              total_items: 1,
+              _embedded: {
+                "fx:subscriptions": [
+                  {
+                    frequency: "1m",
+                    start_date: "2020-01-01T00:00:00Z",
+                    next_transaction_date: "2099-01-01T00:00:00Z",
+                    end_date: null,
+                    is_active: true,
+                    error_message: "",
+                    first_failed_transaction_date: null,
+                    _links: {
+                      self: {
+                        href: "https://demo.foxycart.com/s/customer/subscriptions/1",
+                      },
+                    },
+                    _embedded: {
+                      "fx:transaction_template": {
+                        currency_code: "USD",
+                        total_order: 10,
+                        _embedded: {
+                          "fx:items": [{ name: "Coffee", quantity: 1 }],
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+            }),
+          }),
+        },
+      },
+    };
+
+    const api = fakeApi({
+      get: vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => customerWithSubscription,
+      })),
+    });
+    api.storage.setItem(API.SESSION, session());
+    render(api);
+    await flush();
+    await flush();
+
+    expect(screen!.host.textContent).toMatch(/Coffee/);
+    expect(screen!.host.textContent).not.toMatch(/next payment/i);
+  });
+
   it("carries the settings response down to the subscription manage dialog", async () => {
     settingsResponse = {
       sign_up: {
