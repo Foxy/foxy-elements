@@ -65,6 +65,20 @@ const Summary = styled.span`
   white-space: nowrap;
 `;
 
+// On the two-row mobile grid (`grid-template-columns: 1fr auto`), auto-
+// placement puts this span in the `1fr` track and `Summary` in the `auto`
+// track. `auto` sizes toward max-content, and this span had no
+// `white-space: nowrap`, so a long item name let the date wrap across
+// multiple lines instead of `Summary` ellipsizing -- turning the intended
+// two-line row into three or four. Scoped to the media query only: on the
+// desktop grid this span sits in a fixed `6rem` column, where a global
+// `nowrap` risks silently overflowing that column instead.
+const DateLabel = styled.span`
+  @media (max-width: 480px) {
+    white-space: nowrap;
+  }
+`;
+
 export function OrderRow({ order, onOpen }: Props) {
   const intl = useIntl();
   const date = toCalendarDate(order.transaction_date);
@@ -76,7 +90,9 @@ export function OrderRow({ order, onOpen }: Props) {
 
   return (
     <Row type="button" onClick={onOpen}>
-      <span>{date ? intl.formatDate(date, { dateStyle: "medium" }) : ""}</span>
+      <DateLabel>
+        {date ? intl.formatDate(date, { dateStyle: "medium" }) : ""}
+      </DateLabel>
 
       <Summary>
         {intl.formatMessage(messages.orderSummary, {
