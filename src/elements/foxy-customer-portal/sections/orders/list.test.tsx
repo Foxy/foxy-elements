@@ -38,10 +38,13 @@ function order(id: number) {
     display_id: id,
     transaction_date: "2023-02-11T22:45:01-0700",
     total_order: 10,
+    total_item_price: "10.00",
+    total_tax: "0.00",
+    total_shipping: "0.00",
     currency_code: "USD",
     status: "captured",
     _links: { self: { href: `/s/${id}` } },
-    _embedded: { "fx:items": [{ name: "Widget", quantity: 1 }] },
+    _embedded: { "fx:items": [{ name: "Widget", quantity: 1, price: 10 }] },
   };
 }
 
@@ -108,7 +111,12 @@ describe("OrdersSection", () => {
       document.querySelector("button")?.click();
     });
 
-    expect(document.body.textContent).toMatch(/98213/);
+    // The row itself already renders "#98213 · Widget ×1" before any click --
+    // matching only /98213/ here would pass even if the click did nothing and
+    // the dialog never mounted (row.test.tsx asserts the same pattern against
+    // the row alone). Assert on text only `OrderDetailDialog` renders: its
+    // title, built from `messages.orderDetailHeading` as "Order #{id}".
+    expect(document.body.textContent).toMatch(/Order #98213/);
   });
 
   it("shows an error, not an empty section, when the read fails", async () => {
