@@ -50,6 +50,17 @@ type Props = {
   settings: PortalSettings | null;
   open: boolean;
   onClose: () => void;
+  /**
+   * Fired once a save actually wrote through `patchResource`, just before
+   * `onClose`. `onClose` alone cannot tell the parent a save happened -- it
+   * fires identically on save-success, on the backdrop/Escape dismissal via
+   * `onOpenChange`, and on the Close button -- so a parent that needs to
+   * react only to a real write (`list.tsx` refreshing the cached collection)
+   * needs this second, optional callback rather than overloading `onClose`'s
+   * signature, which `PortalDialog`'s `onOpenChange={(next) => !next &&
+   * onClose()}` already calls with zero arguments.
+   */
+  onSaved?: () => void;
 };
 
 /** Builds a hosted-cart link from the subscription's token URL. */
@@ -61,7 +72,13 @@ function tokenLink(href: string, params: Record<string, string>): string {
   return url.toString();
 }
 
-export function ManageDialog({ subscription, settings, open, onClose }: Props) {
+export function ManageDialog({
+  subscription,
+  settings,
+  open,
+  onClose,
+  onSaved,
+}: Props) {
   const intl = useIntl();
   const { onUnauthenticated } = useApi();
   const portalContainer = usePortalContainer();
@@ -147,6 +164,7 @@ export function ManageDialog({ subscription, settings, open, onClose }: Props) {
           ? { next_transaction_date: toLocalDateString(nextDate) }
           : {}),
       });
+      onSaved?.();
       onClose();
     } catch (caught) {
       // This dialog sends no credentials, so 401/403 can only mean the session

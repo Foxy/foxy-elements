@@ -51,6 +51,7 @@ export function SubscriptionsSection({ customer, settings }: Props) {
     limit,
     loadNext,
     loadPrev,
+    refresh,
   } = useCollection<SubscriptionResource>(link as never, query);
 
   const toggle = (
@@ -113,6 +114,16 @@ export function SubscriptionsSection({ customer, settings }: Props) {
           settings={settings ?? null}
           open
           onClose={() => setManaged(null)}
+          // Only a successful save invalidates the cache -- a dismissed
+          // dialog must not refetch. `refresh()` here invalidates only this
+          // *page's* cache key (`href + serialiseQuery(query)`, see
+          // `useCollection`), not the whole collection. That is sufficient:
+          // this dialog only ever edits `frequency` and
+          // `next_transaction_date`, and neither moves a subscription between
+          // the `is_active=true` and `is_active=false` collections, so no
+          // other cached page could contain the row that changed. Other pages
+          // stay stale, but they cannot be stale about this edit.
+          onSaved={refresh}
         />
       ) : null}
 
