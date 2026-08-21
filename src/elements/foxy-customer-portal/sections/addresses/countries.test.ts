@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-import type { Country } from './countries';
 import { COUNTRIES } from './countries';
 
 describe('Countries', () => {
