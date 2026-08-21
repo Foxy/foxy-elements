@@ -156,7 +156,6 @@
   "portal_status_will_start_no_startdate": "Scheduled to start",
   "portal_subscription_frequency": "Every {frequency}",
   "portal_subscription_manage": "Manage",
-  "portal_subscription_next_payment": "Next payment {date}",
   "portal_subscription_payments": "Payments",
   "portal_subscriptions_active": "Active",
   "portal_subscriptions_heading": "Subscriptions",

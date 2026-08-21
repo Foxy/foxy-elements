@@ -93,6 +93,19 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).toMatch(/next payment on/i);
   });
 
+  it("shows the next payment date only once, not once as a description line and again in the badge", () => {
+    // Regression: a commit that put the date back on the status badge
+    // collided with an existing "Next payment {date}" description line --
+    // the default subscription (active, started, no end date, future
+    // next_transaction_date) rendered both "Next payment ..." and "Next
+    // payment on ..." on the same card. v1's card has no such description
+    // line (SubscriptionCard.ts renders summary, status and price only) --
+    // the badge is the one place this belongs.
+    render(subscription());
+    const matches = screen!.host.textContent?.match(/next payment/gi) ?? [];
+    expect(matches).toHaveLength(1);
+  });
+
   it("shows the actual start date for a subscription starting well in the future, not a vague label", () => {
     // Regression for the bug this commit fixes: "Starting soon" used to
     // render even for a subscription starting years out.
@@ -129,7 +142,11 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).not.toMatch(/declined/i);
   });
 
-  it("omits the next-payment line when the date is the API's unset sentinel", () => {
+  it("falls back to a date-free badge when the date is the API's unset sentinel", () => {
+    // There is no separate next-payment description line (see item 1) --
+    // this now exercises `getExtendedSubscriptionStatus`'s own fallback,
+    // which drops to "next_payment_no_nextdate" ("Active") whenever the
+    // date can't be shown.
     render(subscription({ next_transaction_date: "0000-00-00" }));
     expect(screen!.host.textContent).not.toMatch(/next payment/i);
   });
@@ -138,7 +155,9 @@ describe("SubscriptionCard", () => {
     // '2023-02-11T22:45:01-0700' is 05:45:01Z on Feb 12 -- naively parsing
     // and formatting in a viewer timezone at or east of the store's rolls
     // the displayed day forward to Feb 12, a day after what the store (and
-    // the customer's receipt) considers the payment date.
+    // the customer's receipt) considers the payment date. The status badge
+    // is the only place this date renders (see item 1) -- there is no
+    // separate next-payment description line to satisfy this independently.
     render(subscription({ next_transaction_date: "2023-02-11T22:45:01-0700" }));
     expect(screen!.host.textContent).toMatch(/Feb 11, 2023/);
     expect(screen!.host.textContent).not.toMatch(/Feb 12, 2023/);
@@ -156,7 +175,10 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).not.toMatch(/every/i);
   });
 
-  it("hides the next-payment line when the store turned show_sub_nextdate off", () => {
+  it("hides the next-payment date from the badge when the store turned show_sub_nextdate off", () => {
+    // Gated in `getExtendedSubscriptionStatus` (status.ts), not here -- there
+    // is no separate next-payment description line for card.tsx itself to
+    // gate (see item 1).
     render(subscription(), {
       cartDisplayConfig: { show_sub_nextdate: false },
     });

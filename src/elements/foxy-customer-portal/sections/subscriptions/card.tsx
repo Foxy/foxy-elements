@@ -84,7 +84,6 @@ export function SubscriptionCard({
   );
   const nextPaymentDate = toCalendarDate(subscription.next_transaction_date);
   const showFrequency = cartDisplayConfig?.show_sub_frequency ?? true;
-  const showNextDate = cartDisplayConfig?.show_sub_nextdate ?? true;
 
   // Every date `STATUS_MESSAGES` might reference, pre-formatted through
   // `toCalendarDate` -- never the raw API string -- so the badge renders the
@@ -126,25 +125,6 @@ export function SubscriptionCard({
           <Item.Description>
             {intl.formatMessage(messages.subscriptionFrequency, {
               frequency: subscription.frequency,
-            })}
-          </Item.Description>
-        ) : null}
-
-        {showNextDate && nextPaymentDate ? (
-          <Item.Description>
-            {intl.formatMessage(messages.subscriptionNextPayment, {
-              // A plain formatted string, not a `<FormattedDate>` element:
-              // interpolating a React element here made react-intl emit an
-              // unkeyed array of chunks, which React then warned about.
-              //
-              // `nextPaymentDate` is a `Date` built from the store's calendar
-              // day (see `toCalendarDate`), not the raw API string -- passing
-              // the raw string here would let `formatDate` parse it as an
-              // instant and re-render it in the viewer's timezone, shifting
-              // the day for any viewer east of the store.
-              date: intl.formatDate(nextPaymentDate, {
-                dateStyle: "medium",
-              }),
             })}
           </Item.Description>
         ) : null}

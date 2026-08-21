@@ -174,10 +174,6 @@ export const messages = defineMessages({
     id: "portal_subscription_frequency",
     defaultMessage: "Every {frequency}",
   },
-  subscriptionNextPayment: {
-    id: "portal_subscription_next_payment",
-    defaultMessage: "Next payment {date}",
-  },
   statusWillStart: {
     id: "portal_status_will_start",
     defaultMessage: "Starts on {start_date}",

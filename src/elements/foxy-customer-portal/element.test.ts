@@ -261,7 +261,10 @@ describe("foxy-customer-portal timezone precondition", () => {
   it("shows the store's calendar day for a subscription's next payment date", async () => {
     // '2023-02-11T22:45:01-0700' is 05:45:01Z on Feb 12 -- naively parsing
     // and formatting in a viewer timezone at or east of the store's rolls
-    // the displayed date forward to Feb 12.
+    // the displayed date forward to Feb 12. The status badge is the only
+    // place this date renders in the card (there is no separate next-payment
+    // description line -- see card.tsx / FX-275's final review, item 1), so
+    // this is exercising the badge's calendar-day derivation end to end.
     const element = await mountSignedIn("2023-02-11T22:45:01-0700");
     // Wait on something the date's own value can't affect -- "Coffee" proves
     // the subscription card actually rendered. Waiting on the date pattern
