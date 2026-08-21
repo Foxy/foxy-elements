@@ -396,4 +396,56 @@ export const messages = defineMessages({
     id: "portal_address_edit",
     defaultMessage: "Edit",
   },
+  addressEditHeading: {
+    id: "portal_address_edit_heading",
+    defaultMessage: "Edit address",
+  },
+  addressLabel: {
+    id: "portal_address_label",
+    defaultMessage: "Address label",
+  },
+  addressFirstName: {
+    id: "portal_address_first_name",
+    defaultMessage: "First name",
+  },
+  addressLastName: {
+    id: "portal_address_last_name",
+    defaultMessage: "Last name",
+  },
+  addressCompany: {
+    id: "portal_address_company",
+    defaultMessage: "Company",
+  },
+  addressPhone: {
+    id: "portal_address_phone",
+    defaultMessage: "Phone",
+  },
+  addressLine1: {
+    id: "portal_address_line1",
+    defaultMessage: "Address line 1",
+  },
+  addressLine2: {
+    id: "portal_address_line2",
+    defaultMessage: "Address line 2",
+  },
+  addressCity: {
+    id: "portal_address_city",
+    defaultMessage: "City",
+  },
+  addressPostalCode: {
+    id: "portal_address_postal_code",
+    defaultMessage: "Postal code",
+  },
+  addressSave: {
+    id: "portal_address_save",
+    defaultMessage: "Save",
+  },
+  addressSaving: {
+    id: "portal_address_saving",
+    defaultMessage: "Saving...",
+  },
+  addressCancel: {
+    id: "portal_address_cancel",
+    defaultMessage: "Cancel",
+  },
 });
