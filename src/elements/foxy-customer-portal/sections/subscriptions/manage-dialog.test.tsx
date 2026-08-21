@@ -247,6 +247,32 @@ describe("ManageDialog", () => {
       expect(anchor.getAttribute("aria-disabled")).toBe("true");
     }
   });
+
+  it("disables cancel for a subscription already scheduled to end, even though the end date hasn't passed yet", () => {
+    // A subscription that was already cancelled has an end date a month out
+    // -- it has an end date, but hasn't "ended" yet. Sending the customer to
+    // the hosted cancel flow again is the bug: cancel must gate on *having*
+    // an end date, not on that date being in the past.
+    render(subscription({ end_date: "2099-06-01T00:00:00Z" }));
+
+    const cancel = links().find((a) => /cancel/i.test(a.textContent ?? ""));
+    const modify = links().find((a) => /modify/i.test(a.textContent ?? ""));
+    const billing = links().find((a) => /billing/i.test(a.textContent ?? ""));
+
+    expect(cancel?.getAttribute("aria-disabled")).toBe("true");
+    // Modify and update-billing stay gated on `hasEnded`, not `hasEndDate` --
+    // a subscription that hasn't ended yet can still have its items or
+    // billing updated even after cancellation is scheduled.
+    expect(modify?.getAttribute("aria-disabled")).toBeNull();
+    expect(billing?.getAttribute("aria-disabled")).toBeNull();
+  });
+
+  it("does not disable cancel when the end date is the API's unset sentinel", () => {
+    render(subscription({ end_date: "0000-00-00" }));
+
+    const cancel = links().find((a) => /cancel/i.test(a.textContent ?? ""));
+    expect(cancel?.getAttribute("aria-disabled")).toBeNull();
+  });
 });
 
 describe("ManageDialog next payment date", () => {

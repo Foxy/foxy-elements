@@ -153,6 +153,11 @@ export function ManageDialog({
   const endsAt = toCalendarDate(subscription.end_date);
   const startedAt = toCalendarDate(subscription.start_date);
 
+  // Doubles as the "does this subscription have an end date" check `endsAt`'s
+  // own comment above describes -- `toCalendarDate` already excludes both
+  // `null` and the `'0000-00-00'` unset sentinel.
+  const hasEndDate = !!endsAt;
+
   async function handleSave() {
     // Only the fields the customer actually touched go in the body. Sending
     // `frequency` unconditionally regressed past v1, which serialised only
@@ -288,10 +293,17 @@ export function ManageDialog({
           all three, and this section keeps that. */}
       {tokenHref ? (
         <a
+          // Cancel gates on *having* an end date (`hasEndDate`), not on that
+          // date having passed (`hasEnded`, used below for modify/billing).
+          // A subscription already scheduled to end still has `hasEnded ===
+          // false` right up until that date arrives, and sending it into the
+          // hosted cancel flow again is the bug this guards against.
           href={
-            hasEnded ? undefined : tokenLink(tokenHref, { sub_cancel: "true" })
+            hasEndDate
+              ? undefined
+              : tokenLink(tokenHref, { sub_cancel: "true" })
           }
-          aria-disabled={hasEnded ? "true" : undefined}
+          aria-disabled={hasEndDate ? "true" : undefined}
         >
           {intl.formatMessage(messages.manageCancel)}
         </a>
