@@ -30,7 +30,10 @@ function subscription(
 ) {
   return {
     frequency: "1m",
-    start_date: "2026-01-01T00:00:00Z",
+    // Offset-carrying with a late time-of-day, not UTC midnight -- the shape
+    // the API actually sends. See the "shows the store's calendar day..."
+    // tests below for why this matters.
+    start_date: "2026-01-01T22:45:01-0700",
     next_transaction_date: "2099-01-01T00:00:00Z",
     end_date: null,
     is_active: true,
@@ -107,6 +110,21 @@ describe("ManageDialog", () => {
     act(() => screen?.unmount());
     render(subscription({ end_date: "2099-06-01T00:00:00Z" }));
     expect(document.body.textContent).toMatch(/ends/i);
+  });
+
+  it("shows the store's calendar day for the start date, not the viewer's UTC-shifted one", () => {
+    // Same shift as the payments dialog: an offset-carrying timestamp late
+    // in the store's day rolls forward to the next day for a viewer at or
+    // east of the store's timezone if parsed and formatted naively.
+    render(subscription({ start_date: "2023-02-11T22:45:01-0700" }));
+    expect(document.body.textContent).toMatch(/Feb 11, 2023/);
+    expect(document.body.textContent).not.toMatch(/Feb 12, 2023/);
+  });
+
+  it("shows the store's calendar day for the end date, not the viewer's UTC-shifted one", () => {
+    render(subscription({ end_date: "2023-02-11T22:45:01-0700" }));
+    expect(document.body.textContent).toMatch(/Feb 11, 2023/);
+    expect(document.body.textContent).not.toMatch(/Feb 12, 2023/);
   });
 
   it("offers only the frequencies the store allows", () => {

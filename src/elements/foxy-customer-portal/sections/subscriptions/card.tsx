@@ -3,6 +3,7 @@ import type { MessageDescriptor } from "react-intl";
 import { Badge } from "@foxy.io/design-system/badge";
 import { Button } from "@foxy.io/design-system/button";
 import { Item } from "@foxy.io/design-system/item";
+import { toCalendarDate } from "../../calendar-date";
 import { messages } from "../../messages";
 import { getSubscriptionStatus, type SubscriptionStatus } from "./status";
 
@@ -54,6 +55,7 @@ export function SubscriptionCard({
   const template = subscription._embedded?.["fx:transaction_template"];
   const items = template?._embedded?.["fx:items"] ?? [];
   const status = getSubscriptionStatus(subscription);
+  const nextPaymentDate = toCalendarDate(subscription.next_transaction_date);
 
   const summary = items
     .map((item) => `${item.name} ×${item.quantity}`)
@@ -70,14 +72,19 @@ export function SubscriptionCard({
           })}
         </Item.Description>
 
-        {subscription.next_transaction_date &&
-        subscription.next_transaction_date !== "0000-00-00" ? (
+        {nextPaymentDate ? (
           <Item.Description>
             {intl.formatMessage(messages.subscriptionNextPayment, {
               // A plain formatted string, not a `<FormattedDate>` element:
               // interpolating a React element here made react-intl emit an
               // unkeyed array of chunks, which React then warned about.
-              date: intl.formatDate(subscription.next_transaction_date, {
+              //
+              // `nextPaymentDate` is a `Date` built from the store's calendar
+              // day (see `toCalendarDate`), not the raw API string -- passing
+              // the raw string here would let `formatDate` parse it as an
+              // instant and re-render it in the viewer's timezone, shifting
+              // the day for any viewer east of the store.
+              date: intl.formatDate(nextPaymentDate, {
                 dateStyle: "medium",
               }),
             })}

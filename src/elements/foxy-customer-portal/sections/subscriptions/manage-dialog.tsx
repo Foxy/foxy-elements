@@ -11,6 +11,7 @@ import {
   getNextTransactionDateConstraints,
 } from "@foxy.io/sdk/customer";
 import { useApi, WriteError } from "@/lib/customer-api";
+import { toCalendarDate } from "../../calendar-date";
 import { messages } from "../../messages";
 import { PortalDialog } from "../../portal-dialog";
 import { usePortalContainer } from "../../portal-container";
@@ -127,10 +128,13 @@ export function ManageDialog({ subscription, settings, open, onClose }: Props) {
     .split("/")
     .pop();
 
-  const endsAt =
-    subscription.end_date && subscription.end_date !== "0000-00-00"
-      ? subscription.end_date
-      : null;
+  // `toCalendarDate` -- not the raw `end_date` string -- so `<FormattedDate>`
+  // renders the store's calendar day instead of re-deriving it from the
+  // instant and shifting it for a viewer east of the store's timezone. It
+  // already returns null for both `null` and the `'0000-00-00'` sentinel, so
+  // it doubles as the "does this subscription have an end date" check below.
+  const endsAt = toCalendarDate(subscription.end_date);
+  const startedAt = toCalendarDate(subscription.start_date);
 
   async function handleSave() {
     setIsBusy(true);
@@ -188,7 +192,9 @@ export function ManageDialog({ subscription, settings, open, onClose }: Props) {
         <SummaryTable.Entry
           title={intl.formatMessage(messages.manageStarted)}
           value={
-            <FormattedDate value={subscription.start_date} dateStyle="medium" />
+            startedAt ? (
+              <FormattedDate value={startedAt} dateStyle="medium" />
+            ) : null
           }
         />
         {endsAt ? (

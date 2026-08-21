@@ -4,6 +4,7 @@ import { Button } from "@foxy.io/design-system/button";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
 import { SummaryTable } from "@foxy.io/design-system/summary-table";
 import { useCollection } from "@/lib/customer-api";
+import { toCalendarDate } from "../../calendar-date";
 import { messages } from "../../messages";
 import { PortalDialog } from "../../portal-dialog";
 import { getTransactionStatusMessage } from "../../transaction-status";
@@ -56,6 +57,8 @@ export function PaymentsDialog({ subscription, open, onClose }: Props) {
       <SummaryTable.Root>
         {items.map((payment) => {
           const statusMessage = getTransactionStatusMessage(payment.status);
+          // The store's calendar day, not the viewer's -- see `calendar-date.ts`.
+          const transactionDate = toCalendarDate(payment.transaction_date);
 
           return (
             <SummaryTable.Entry
@@ -78,11 +81,13 @@ export function PaymentsDialog({ subscription, open, onClose }: Props) {
                 />
               }
               description={[
-                <FormattedDate
-                  key="date"
-                  value={payment.transaction_date}
-                  dateStyle="medium"
-                />,
+                transactionDate ? (
+                  <FormattedDate
+                    key="date"
+                    value={transactionDate}
+                    dateStyle="medium"
+                  />
+                ) : null,
                 (payment._embedded?.["fx:items"] ?? [])
                   .map((item) => `${item.name} ×${item.quantity}`)
                   .join(", "),

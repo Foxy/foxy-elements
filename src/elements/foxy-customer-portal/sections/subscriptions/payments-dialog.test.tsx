@@ -15,7 +15,14 @@ const flush = () =>
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
-function subscription(spy = vi.fn(), status = "captured") {
+function subscription(
+  spy = vi.fn(),
+  status = "captured",
+  // Offset-carrying with a late time-of-day, not UTC midnight -- the shape
+  // the API actually sends. See the "shows the store's calendar day..." test
+  // below for why this matters.
+  transactionDate = "2026-08-14T22:45:01-0700",
+) {
   return {
     _links: {
       self: { href: "/s/1" },
@@ -32,7 +39,7 @@ function subscription(spy = vi.fn(), status = "captured") {
                 "fx:transactions": [
                   {
                     id: 98213,
-                    transaction_date: "2026-08-14T00:00:00Z",
+                    transaction_date: transactionDate,
                     total_order: 42,
                     currency_code: "USD",
                     status,
@@ -78,6 +85,17 @@ describe("PaymentsDialog", () => {
     expect(document.body.textContent).toMatch(/98213/);
     expect(document.body.textContent).toMatch(/\$42/);
     expect(document.body.textContent).toMatch(/Coffee/);
+  });
+
+  it("shows the store's calendar day, not the viewer's UTC-shifted one", async () => {
+    // '2023-02-11T22:45:01-0700' is 05:45:01Z on Feb 12 -- naively parsing
+    // and formatting in a viewer timezone at or east of the store's rolls
+    // the displayed payment date forward to Feb 12.
+    render(subscription(vi.fn(), "captured", "2023-02-11T22:45:01-0700"));
+    await flush();
+
+    expect(document.body.textContent).toMatch(/Feb 11, 2023/);
+    expect(document.body.textContent).not.toMatch(/Feb 12, 2023/);
   });
 
   it("links to the receipt", async () => {
