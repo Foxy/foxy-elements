@@ -4,10 +4,13 @@ import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
+import { Select } from "@foxy.io/design-system/select";
 import { WriteError, useApi } from "@/lib/customer-api";
 import { messages } from "../../messages";
 import { PortalDialog } from "../../portal-dialog";
+import { usePortalContainer } from "../../portal-container";
 import { patchResource } from "../../write";
+import { COUNTRIES } from "./countries";
 import type { AddressResource } from "./card";
 
 type Props = {
@@ -29,6 +32,9 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
   const line2Id = useId();
   const cityId = useId();
   const postalCodeId = useId();
+  const countryId = useId();
+  const regionId = useId();
+  const portalContainer = usePortalContainer();
 
   const [addressName, setAddressName] = useState(address.address_name);
   const [firstName, setFirstName] = useState(address.first_name);
@@ -39,8 +45,22 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
   const [address2, setAddress2] = useState(address.address2);
   const [city, setCity] = useState(address.city);
   const [postalCode, setPostalCode] = useState(address.postal_code);
+  const [country, setCountry] = useState(address.country);
+  const [region, setRegion] = useState(address.region);
   const [isBusy, setIsBusy] = useState(false);
   const [hasFailed, setHasFailed] = useState(false);
+
+  const selectedCountry = COUNTRIES.find((c) => c.code === country);
+  const hasRegionList = (selectedCountry?.regions.length ?? 0) > 0;
+
+  // A customer switching e.g. US -> Canada must not keep a stale US state
+  // code silently mislabeled as a Canadian province -- v1's AddressForm.ts:49
+  // does the same reset for the same reason.
+  function handleCountryChange(next: string | null) {
+    if (!next) return;
+    setCountry(next);
+    setRegion("");
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -61,6 +81,8 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
         phone,
         address1,
         address2,
+        country,
+        region,
         city,
         postal_code: postalCode,
       });
@@ -184,8 +206,70 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
           />
         </Field.Root>
 
-        {/* Task 4 inserts the country and region controls here, between
-            address line 2 and city -- matching v1's AddressForm field order. */}
+        <Field.Root>
+          <Field.Label htmlFor={countryId}>
+            {intl.formatMessage(messages.addressCountry)}
+          </Field.Label>
+          <Select.Root value={country} onValueChange={handleCountryChange}>
+            <Select.Trigger id={countryId}>
+              <Select.Value />
+            </Select.Trigger>
+            {/* Select.Portal defaults to <body>, which is outside this
+                element's shadow root -- the popup would render unstyled.
+                `?? undefined` because Base UI reads an explicit null as
+                "container unresolved" and never renders. */}
+            <Select.Portal container={portalContainer ?? undefined}>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.List>
+                    {COUNTRIES.map((c) => (
+                      <Select.Item key={c.code} value={c.code}>
+                        <Select.ItemText>{c.name}</Select.ItemText>
+                      </Select.Item>
+                    ))}
+                  </Select.List>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Field.Root>
+
+        <Field.Root>
+          <Field.Label htmlFor={regionId}>
+            {intl.formatMessage(messages.addressRegion)}
+          </Field.Label>
+          {hasRegionList ? (
+            <Select.Root
+              value={region}
+              onValueChange={(next: string | null) => next && setRegion(next)}
+            >
+              <Select.Trigger id={regionId}>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal container={portalContainer ?? undefined}>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.List>
+                      {selectedCountry!.regions.map((r) => (
+                        <Select.Item key={r.code} value={r.code}>
+                          <Select.ItemText>{r.name}</Select.ItemText>
+                        </Select.Item>
+                      ))}
+                    </Select.List>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          ) : (
+            <Input
+              id={regionId}
+              type="text"
+              autoComplete="address-level1"
+              value={region}
+              onChange={(event) => setRegion(event.target.value)}
+            />
+          )}
+        </Field.Root>
 
         <Field.Root>
           <Field.Label htmlFor={cityId}>

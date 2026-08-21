@@ -32,6 +32,43 @@ function getInputByLabelText(text: string): HTMLInputElement {
   return input as HTMLInputElement;
 }
 
+// Same lookup as `getInputByLabelText`, but untyped: the Region field is a
+// `Select.Trigger` (a `<button role="combobox">`) for countries with a
+// predefined region list, and a plain `<input>` otherwise. Both variants
+// carry the same `id`, so this is what lets a single helper follow the
+// control across that branch.
+function getControlByLabelText(text: string): HTMLElement {
+  const label = Array.from(document.querySelectorAll("label")).find(
+    (el) => el.textContent === text,
+  );
+
+  if (!label) throw new Error(`No label found with text "${text}"`);
+
+  const forId = label.getAttribute("for");
+  const control = forId && document.getElementById(forId);
+
+  if (!control) throw new Error(`No control found for label "${text}"`);
+
+  return control;
+}
+
+function getOptionByText(text: string): HTMLElement | undefined {
+  return [...document.querySelectorAll('[role="option"]')].find(
+    (o) => o.textContent === text,
+  ) as HTMLElement | undefined;
+}
+
+// Base UI's Select.Item only commits a mouse click when a prior pointerdown
+// marked it as a real (non-virtual) mouse interaction -- a bare synthetic
+// `click` is treated as an invalid mouse click and ignored (same rationale as
+// manage-dialog.test.tsx's option selection).
+function selectOption(option: HTMLElement) {
+  option.dispatchEvent(
+    new PointerEvent("pointerdown", { bubbles: true, pointerType: "mouse" }),
+  );
+  option.click();
+}
+
 function address(
   overrides: Partial<AddressResource> = {},
   patch: Mock<
@@ -119,7 +156,7 @@ describe("AddressEditDialog", () => {
     expect(getInputByLabelText("Postal code").value).toBe("62701");
   });
 
-  it("patches exactly the 9 owned fields, and never the default flags", async () => {
+  it("patches exactly the 11 owned fields, and never the default flags", async () => {
     const { patch } = await renderDialog();
 
     act(() => setInputValue(getInputByLabelText("City"), "Shelbyville"));
@@ -134,6 +171,8 @@ describe("AddressEditDialog", () => {
       phone: "555-1234",
       address1: "123 Main St",
       address2: "Suite 2",
+      country: "US",
+      region: "IL",
       city: "Shelbyville",
       postal_code: "62701",
     });
@@ -141,6 +180,97 @@ describe("AddressEditDialog", () => {
     const body = patch.mock.calls[0][0];
     expect(body).not.toHaveProperty("is_default_billing");
     expect(body).not.toHaveProperty("is_default_shipping");
+  });
+
+  it("pre-selects the stored country in the Country select", async () => {
+    await renderDialog();
+
+    const trigger = getControlByLabelText("Country");
+    act(() => trigger.click());
+
+    const option = getOptionByText("United States");
+    expect(option?.getAttribute("aria-selected")).toBe("true");
+  });
+
+  it("renders the region control as a Select pre-selected to the stored region, for a country with a predefined region list", async () => {
+    await renderDialog({ addressOverrides: { country: "AU", region: "NSW" } });
+
+    const trigger = getControlByLabelText("Region");
+    expect(trigger.getAttribute("role")).toBe("combobox");
+
+    act(() => trigger.click());
+
+    const option = getOptionByText("New South Wales");
+    expect(option?.getAttribute("aria-selected")).toBe("true");
+  });
+
+  it("renders the region control as a free-text input pre-filled with the stored value, for a country with no region list", async () => {
+    await renderDialog({
+      addressOverrides: { country: "AF", region: "Kabul Province" },
+    });
+
+    expect(getInputByLabelText("Region").value).toBe("Kabul Province");
+  });
+
+  it("clears the region when switching into a country with a region list", async () => {
+    await renderDialog({
+      addressOverrides: { country: "AF", region: "Somewhere Custom" },
+    });
+
+    // Sanity check on the starting shape: free text, not a Select.
+    expect(getInputByLabelText("Region").value).toBe("Somewhere Custom");
+
+    const countryTrigger = getControlByLabelText("Country");
+    act(() => countryTrigger.click());
+    act(() => selectOption(getOptionByText("Australia")!));
+
+    // The region control has switched to a Select (AU has a region list) and
+    // must not carry over the old free-text value as a selection.
+    const regionTrigger = getControlByLabelText("Region");
+    expect(regionTrigger.getAttribute("role")).toBe("combobox");
+
+    act(() => regionTrigger.click());
+
+    // Scope to this trigger's own listbox (via aria-controls), not a global
+    // `[role="option"]` query -- the Country select's now-closing popup can
+    // still have its old "Australia" option (now aria-selected, since it
+    // matches the just-picked country) lingering in the DOM at this point.
+    const listId = regionTrigger.getAttribute("aria-controls");
+    const list = listId && document.getElementById(listId);
+    if (!list) throw new Error("Region select's listbox did not open");
+
+    const options = [...list.querySelectorAll('[role="option"]')];
+    expect(options.length).toBeGreaterThan(0);
+    for (const option of options) {
+      expect(option.getAttribute("aria-selected")).toBe("false");
+    }
+  });
+
+  it("clears the region when switching out of a country with a region list", async () => {
+    await renderDialog(); // default: country "US", region "IL"
+
+    const countryTrigger = getControlByLabelText("Country");
+    act(() => countryTrigger.click());
+    act(() => selectOption(getOptionByText("Afghanistan")!));
+
+    // AF has no region list, so the region control is now free text -- and
+    // must not carry over the stale "IL" state code.
+    expect(getInputByLabelText("Region").value).toBe("");
+  });
+
+  it("sends the newly selected country and cleared region in the patch body", async () => {
+    const { patch } = await renderDialog(); // default: country "US", region "IL"
+
+    const countryTrigger = getControlByLabelText("Country");
+    act(() => countryTrigger.click());
+    act(() => selectOption(getOptionByText("Afghanistan")!));
+
+    submitForm();
+    await flush();
+
+    expect(patch).toHaveBeenCalledWith(
+      expect.objectContaining({ country: "AF", region: "" }),
+    );
   });
 
   it("calls onSaved then onClose after a successful save", async () => {

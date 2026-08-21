@@ -448,4 +448,12 @@ export const messages = defineMessages({
     id: "portal_address_cancel",
     defaultMessage: "Cancel",
   },
+  addressCountry: {
+    id: "portal_address_country",
+    defaultMessage: "Country",
+  },
+  addressRegion: {
+    id: "portal_address_region",
+    defaultMessage: "Region",
+  },
 });
