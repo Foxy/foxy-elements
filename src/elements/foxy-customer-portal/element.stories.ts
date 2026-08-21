@@ -21,6 +21,7 @@ const SETTINGS = {
 };
 
 const SUBSCRIPTIONS_HREF = `${STORE_BASE}subscriptions`;
+const TRANSACTIONS_HREF = `${STORE_BASE}transactions`;
 
 const CUSTOMER = {
   first_name: "Ada",
@@ -30,6 +31,7 @@ const CUSTOMER = {
   _links: {
     self: { href: `${STORE_BASE}customer` },
     "fx:subscriptions": { href: SUBSCRIPTIONS_HREF },
+    "fx:transactions": { href: TRANSACTIONS_HREF },
   },
 };
 
@@ -56,6 +58,31 @@ const SUBSCRIPTIONS_PAGE = {
               "fx:items": [{ name: "Coffee", quantity: 1 }],
             },
           },
+        },
+      },
+    ],
+  },
+};
+
+const ORDERS_PAGE = {
+  total_items: 1,
+  _embedded: {
+    "fx:transactions": [
+      {
+        id: 100,
+        display_id: 100,
+        transaction_date: "2024-01-01T00:00:00-0800",
+        total_order: 25,
+        total_item_price: "25.00",
+        total_tax: "0.00",
+        total_shipping: "0.00",
+        currency_code: "USD",
+        status: "approved",
+        _links: {
+          self: { href: `${TRANSACTIONS_HREF}/100` },
+        },
+        _embedded: {
+          "fx:items": [{ name: "Widget", quantity: 1, price: 25 }],
         },
       },
     ],
@@ -116,6 +143,22 @@ export function stubStore(): () => void {
         url.includes("is_active=true")
       ) {
         return json(SUBSCRIPTIONS_PAGE);
+      }
+
+      // Matches the orders collection request. `OrdersSection` sends
+      // `filters: ["type:in=transaction,subscription_modification,subscription_cancellation"]`,
+      // which the SDK's `Node.get()` turns into a query param by splitting
+      // the filter on its first `=` and appending the halves via
+      // `URLSearchParams` -- `type:in` as the key, the comma-joined type
+      // list as the value -- so the colon and commas come out percent-encoded
+      // (confirmed against the SDK's actual request: `?type%3Ain=transaction%2C...`).
+      // The substring below is checked literally against the URL, not decoded,
+      // the same way `is_active=true` is above.
+      if (
+        new URL(url).pathname === new URL(TRANSACTIONS_HREF).pathname &&
+        url.includes("type%3Ain=transaction")
+      ) {
+        return json(ORDERS_PAGE);
       }
 
       return json({});
@@ -219,6 +262,15 @@ export const WithSubscriptions: StoryObj = {
     html`<foxy-customer-portal store-domain="demo"></foxy-customer-portal>`,
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(portalText(canvasElement)).toMatch(/Coffee/));
+  },
+};
+
+export const WithOrders: StoryObj = {
+  beforeEach: () => withSession(),
+  render: () =>
+    html`<foxy-customer-portal store-domain="demo"></foxy-customer-portal>`,
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(portalText(canvasElement)).toMatch(/Widget/));
   },
 };
 

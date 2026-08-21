@@ -17,6 +17,7 @@ import {
   type ReadResponse,
 } from "@/lib/customer-api";
 import { PortalHeader, type SignOutState } from "../sections/header";
+import { OrdersSection } from "../sections/orders";
 import { PasswordDialog } from "../sections/password-dialog";
 import {
   ProfileDialog,
@@ -212,8 +213,13 @@ export function AccountScreen({
         cartDisplayConfig={cartDisplayConfig}
       />
 
-      {/* FX-276 orders, FX-277 payment methods and addresses mount here, in
-          this order. */}
+      <OrdersSection
+        customer={
+          data as unknown as ComponentProps<typeof OrdersSection>["customer"]
+        }
+      />
+
+      {/* FX-277 payment methods and addresses mount here, in this order. */}
     </div>
   );
 }
