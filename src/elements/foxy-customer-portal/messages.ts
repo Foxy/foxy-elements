@@ -201,4 +201,16 @@ export const messages = defineMessages({
     defaultMessage: "Failed and ended",
   },
   statusInactive: { id: "portal_status_inactive", defaultMessage: "Inactive" },
+  subscriptionsHeading: {
+    id: "portal_subscriptions_heading",
+    defaultMessage: "Subscriptions",
+  },
+  subscriptionsActive: {
+    id: "portal_subscriptions_active",
+    defaultMessage: "Active",
+  },
+  subscriptionsInactive: {
+    id: "portal_subscriptions_inactive",
+    defaultMessage: "Inactive",
+  },
 });

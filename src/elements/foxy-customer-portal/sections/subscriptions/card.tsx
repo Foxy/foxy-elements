@@ -70,7 +70,8 @@ export function SubscriptionCard({
           })}
         </Item.Description>
 
-        {subscription.next_transaction_date ? (
+        {subscription.next_transaction_date &&
+        subscription.next_transaction_date !== "0000-00-00" ? (
           <Item.Description>
             {intl.formatMessage(messages.subscriptionNextPayment, {
               // A plain formatted string, not a `<FormattedDate>` element:

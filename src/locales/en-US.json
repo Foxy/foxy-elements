@@ -121,5 +121,8 @@
   "portal_subscription_frequency": "Every {frequency}",
   "portal_subscription_manage": "Manage",
   "portal_subscription_next_payment": "Next payment {date}",
-  "portal_subscription_payments": "Payments"
+  "portal_subscription_payments": "Payments",
+  "portal_subscriptions_active": "Active",
+  "portal_subscriptions_heading": "Subscriptions",
+  "portal_subscriptions_inactive": "Inactive"
 }

@@ -82,6 +82,11 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).not.toMatch(/declined/i);
   });
 
+  it("omits the next-payment line when the date is the API's unset sentinel", () => {
+    render(subscription({ next_transaction_date: "0000-00-00" }));
+    expect(screen!.host.textContent).not.toMatch(/next payment/i);
+  });
+
   it("calls onManage", () => {
     const onManage = vi.fn();
     render(subscription(), { onManage });
