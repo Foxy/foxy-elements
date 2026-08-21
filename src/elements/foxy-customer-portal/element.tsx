@@ -54,6 +54,7 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
   #api: API | null = null;
   #apiBase: string | null = null;
   #cache = new RequestCache();
+  #renderScheduled = false;
 
   static get observedAttributes(): string[] {
     return [
@@ -132,7 +133,37 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
       this.#cache.clear();
     }
 
-    this.#render();
+    this.#scheduleRender();
+  }
+
+  /**
+   * A caller that sets several `theme-*` attributes in a row -- exactly
+   * what applying a whole theme preset means, one attribute per token --
+   * fires `attributeChangedCallback` once per attribute, synchronously, in
+   * a tight loop. Calling `this.#root.render(...)` that many times in one
+   * synchronous burst is calling a React 18 concurrent root far more often
+   * than it's meant to be: root.render() is a top-level "reconcile this
+   * tree" call, not a batched state update, and this many of them back to
+   * back left the DS component tree rendered from an intermediate, no
+   * longer current set of tokens -- reproduced concretely by clearing every
+   * `theme-*` attribute at once (the Storybook demo's "Default" theme):
+   * every attribute read back as unset immediately afterward, but the
+   * previously-themed colors stayed on screen until something wholly
+   * unrelated (e.g. a `lang` change) triggered one more render. Scheduling
+   * through a microtask coalesces every attribute change from the same
+   * synchronous burst into the single `#render()` call that runs after it,
+   * by which point every attribute in the burst has already been applied --
+   * so that one render reads the fully-settled final state, the same way a
+   * `root.render()` called once per meaningful update always should.
+   */
+  #scheduleRender() {
+    if (this.#renderScheduled) return;
+    this.#renderScheduled = true;
+
+    queueMicrotask(() => {
+      this.#renderScheduled = false;
+      this.#render();
+    });
   }
 
   /**

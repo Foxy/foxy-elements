@@ -292,16 +292,24 @@ const preview: Preview = {
     (storyFn, context) => {
       const themeName = (context.globals as { theme?: string }).theme ?? "Default";
 
-      // No dependency array: this must re-run on every story mount, not only
-      // when `themeName` changes. Navigating to a *different* story while a
-      // theme is already selected mounts a brand-new themeable element with
-      // none of the previous one's attributes -- deps-gated on `themeName`
-      // alone would skip it, since the theme itself didn't change. The cost
-      // of running unconditionally is a handful of attribute sets on at most
-      // a few custom elements per story.
+      // Depends on both `themeName` *and* `context.id`: a bare `[themeName]`
+      // would skip re-applying on navigation to a different story while a
+      // theme is already selected, since a fresh themeable element mounts
+      // with none of the previous one's attributes but the theme name itself
+      // hasn't changed. (The actual "switching to Default doesn't visually
+      // reset" bug this session hit turned out to be unrelated to this
+      // effect's dependency array -- see `foxy-customer-portal/element.tsx`'s
+      // `#scheduleRender` doc comment for the real cause and fix, in the
+      // element itself: React 18's concurrent root doesn't handle
+      // `root.render()` called many times synchronously in one burst the
+      // way a single `setThemeProperty` call's test suggested it would.)
+      // Precise dependencies here are still worth keeping on their own
+      // merits -- avoids re-applying the same preset on every unrelated
+      // Storybook UI re-render, even though that turned out not to be
+      // what caused the bug above.
       useEffect(() => {
         applyThemePreset(themeName);
-      });
+      }, [themeName, context.id]);
 
       return storyFn();
     },

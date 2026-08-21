@@ -1,5 +1,6 @@
 import { act } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { THEME_ATTRIBUTE_NAMES } from "@/lib/theme-mixin";
 import { CUSTOMER_PORTAL_ELEMENT_TAG, CustomerPortalElement } from "./element";
 
 // React only allows `act` outside a test renderer when this is set, and warns
@@ -96,8 +97,12 @@ describe("foxy-customer-portal", () => {
     });
     expect(element.skipPasswordReset).toBe(true);
 
-    act(() => {
+    // `attributeChangedCallback` now defers `#render()` to a microtask (see
+    // its own doc comment) -- await it, or React logs an act() warning for
+    // the update this property setter's attribute change still schedules.
+    await act(async () => {
       element.skipPasswordReset = false;
+      await Promise.resolve();
     });
     expect(element.hasAttribute("skip-password-reset")).toBe(false);
   });
@@ -219,6 +224,58 @@ describe("foxy-customer-portal", () => {
     ) as HTMLElement | null;
     expect(popup).not.toBeNull();
     expect(getComputedStyle(popup!).backgroundColor).toBe("rgb(10, 20, 30)");
+  });
+
+  it("reflects the fully-settled state when many theme attributes change synchronously", async () => {
+    // A caller that applies a whole theme preset -- exactly what Storybook's
+    // demo switcher does, and what a real store applying a saved theme would
+    // do too -- sets every `theme-*` attribute in one synchronous loop. Each
+    // one independently fires `attributeChangedCallback`, which is what
+    // motivated `#scheduleRender` (see its own doc comment): calling the
+    // React 18 concurrent root's `.render()` up to 17 times in a single
+    // synchronous burst, once per attribute, reliably left the DS tree
+    // painted from a stale set of tokens in a real, un-instrumented browser
+    // -- reproduced manually in Storybook (switching to a theme with every
+    // attribute cleared kept showing the previous theme's colors). This
+    // test does NOT reproduce that race: neither wrapped in `act()` nor
+    // without it did this exact sequence reproduce a stale paint under
+    // vitest's real-Chromium environment, tried both ways while diagnosing
+    // this. It still asserts a real, worth-having guarantee -- that setting
+    // and then clearing every theme attribute ends at the correct final
+    // token values -- just not a regression guard for the specific timing
+    // bug `#scheduleRender` fixes. That fix is verified by manual
+    // browser reproduction only; record here so a future reader doesn't
+    // assume this test would catch a regression of it.
+    const element = await mount({ "store-domain": "demo" });
+
+    await act(async () => {
+      for (const attribute of THEME_ATTRIBUTE_NAMES) {
+        element.setAttribute(
+          attribute,
+          attribute === "theme-background-button-primary"
+            ? "rgb(1, 2, 3)"
+            : "1px solid rgb(4, 5, 6)",
+        );
+      }
+      // `#scheduleRender` defers to a microtask; nothing longer is needed.
+      await Promise.resolve();
+    });
+
+    const button = element.shadowRoot?.querySelector("button");
+    expect(button).not.toBeNull();
+    expect(getComputedStyle(button!).backgroundColor).toBe("rgb(1, 2, 3)");
+
+    await act(async () => {
+      for (const attribute of THEME_ATTRIBUTE_NAMES) {
+        element.removeAttribute(attribute);
+      }
+      await Promise.resolve();
+    });
+
+    const buttonAfterClear = element.shadowRoot?.querySelector("button");
+    expect(getComputedStyle(buttonAfterClear!).backgroundColor).toBe(
+      "rgb(255, 174, 0)",
+    );
   });
 
   it("only ever asks for portal settings inside the store base path", async () => {
