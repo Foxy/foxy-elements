@@ -78,6 +78,21 @@ describe("toDatePickerBounds", () => {
     expect(matcher).not.toEqual(localDay(2026, 2, 16));
   });
 
+  it("disables every day of the week when the store's allow-list is empty", () => {
+    // The SDK builds `allowedDaysOfWeek` by spreading `rule.allowedDays.days`,
+    // so `allowed_days: { type: 'day', days: [] }` arrives here as `[]` --
+    // falsy `.length`, indistinguishable from "no rule at all" if this
+    // guards on truthiness instead of `!== undefined`. An empty allow-list is
+    // taken at its literal reading: no day is allowed, so every day disables.
+    const bounds = toDatePickerBounds({ allowedDaysOfWeek: [] }, FROM);
+    const matcher = bounds.disabled.find(
+      (entry): entry is { dayOfWeek: number[] } =>
+        typeof entry === "object" && entry !== null && "dayOfWeek" in entry,
+    );
+
+    expect(matcher?.dayOfWeek).toEqual([0, 1, 2, 3, 4, 5, 6]);
+  });
+
   it("inverts allowed weekdays into a disable matcher", () => {
     // Foxy: 1 = Monday .. 7 = Sunday. Date.getDay(): 0 = Sunday, local.
     // Allowing Monday and Wednesday must disable the other five.
@@ -99,6 +114,17 @@ describe("toDatePickerBounds", () => {
     expect(predicate?.(localDay(2026, 2, 15))).toBe(false); // allowed
     expect(predicate?.(localDay(2026, 2, 1))).toBe(false); // allowed
     expect(predicate?.(localDay(2026, 2, 16))).toBe(true); // disallowed
+  });
+
+  it("disables every day of the month when the store's allow-list is empty", () => {
+    const bounds = toDatePickerBounds({ allowedDaysOfMonth: [] }, FROM);
+    const predicate = bounds.disabled.find(
+      (entry): entry is (date: Date) => boolean => typeof entry === "function",
+    );
+
+    expect(predicate?.(localDay(2026, 2, 1))).toBe(true);
+    expect(predicate?.(localDay(2026, 2, 15))).toBe(true);
+    expect(predicate?.(localDay(2026, 2, 31))).toBe(true);
   });
 
   it("ignores an unparseable frequency rather than throwing", () => {

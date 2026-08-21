@@ -100,14 +100,20 @@ export function toDatePickerBounds(
     else disabled.push(parseDate(start));
   }
 
-  if (constraints.allowedDaysOfWeek?.length) {
+  // `!== undefined`, not truthy length: the SDK builds these arrays by
+  // spreading `rule.allowedDays.days`, so `allowed_days: { type: 'day', days:
+  // [] }` arrives here as `[]`. A truthy-length check treats that the same as
+  // "no rule at all" and silently permits every day. An empty allow-list is
+  // taken at its literal reading instead: nothing is allowed, so every day in
+  // that dimension is disabled.
+  if (constraints.allowedDaysOfWeek !== undefined) {
     const allowed = constraints.allowedDaysOfWeek.map(toJsWeekday);
     disabled.push({
       dayOfWeek: ALL_WEEKDAYS.filter((day) => !allowed.includes(day)),
     });
   }
 
-  if (constraints.allowedDaysOfMonth?.length) {
+  if (constraints.allowedDaysOfMonth !== undefined) {
     const allowed = new Set(constraints.allowedDaysOfMonth);
     disabled.push((date: Date) => !allowed.has(date.getDate()));
   }
