@@ -162,4 +162,43 @@ export const messages = defineMessages({
     defaultMessage:
       "Your account was created, but we couldn't sign you in. Please sign in with your new password.",
   },
+  subscriptionManage: {
+    id: "portal_subscription_manage",
+    defaultMessage: "Manage",
+  },
+  subscriptionPayments: {
+    id: "portal_subscription_payments",
+    defaultMessage: "Payments",
+  },
+  subscriptionFrequency: {
+    id: "portal_subscription_frequency",
+    defaultMessage: "Every {frequency}",
+  },
+  subscriptionNextPayment: {
+    id: "portal_subscription_next_payment",
+    defaultMessage: "Next payment {date}",
+  },
+  statusWillStart: {
+    id: "portal_status_will_start",
+    defaultMessage: "Starting soon",
+  },
+  statusWillEnd: { id: "portal_status_will_end", defaultMessage: "Ending" },
+  statusWillEndAfterPayment: {
+    id: "portal_status_will_end_after_payment",
+    defaultMessage: "Ending after next payment",
+  },
+  statusNextPayment: {
+    id: "portal_status_next_payment",
+    defaultMessage: "Active",
+  },
+  statusEnded: { id: "portal_status_ended", defaultMessage: "Ended" },
+  statusFailed: {
+    id: "portal_status_failed",
+    defaultMessage: "Payment failed",
+  },
+  statusFailedAndEnded: {
+    id: "portal_status_failed_and_ended",
+    defaultMessage: "Failed and ended",
+  },
+  statusInactive: { id: "portal_status_inactive", defaultMessage: "Inactive" },
 });

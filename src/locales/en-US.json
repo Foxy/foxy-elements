@@ -109,5 +109,17 @@
   "portal_sign_up_heading": "Create an account",
   "portal_sign_up_last_name": "Last name",
   "portal_sign_up_submit": "Create account",
-  "portal_sign_up_verification_pending": "Complete the verification challenge to continue."
+  "portal_sign_up_verification_pending": "Complete the verification challenge to continue.",
+  "portal_status_ended": "Ended",
+  "portal_status_failed": "Payment failed",
+  "portal_status_failed_and_ended": "Failed and ended",
+  "portal_status_inactive": "Inactive",
+  "portal_status_next_payment": "Active",
+  "portal_status_will_end": "Ending",
+  "portal_status_will_end_after_payment": "Ending after next payment",
+  "portal_status_will_start": "Starting soon",
+  "portal_subscription_frequency": "Every {frequency}",
+  "portal_subscription_manage": "Manage",
+  "portal_subscription_next_payment": "Next payment {date}",
+  "portal_subscription_payments": "Payments"
 }
