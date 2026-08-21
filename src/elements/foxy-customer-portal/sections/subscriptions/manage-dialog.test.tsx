@@ -167,19 +167,41 @@ describe("ManageDialog", () => {
     const patch = vi.fn(async () => ({ ok: true, status: 200 }));
     render(subscription({}, patch));
 
+    // The default frequency is "1m" (see `subscription()` above) -- open the
+    // Select and pick a different allowed value so this actually exercises a
+    // change, rather than clicking Save on an untouched form.
+    act(() => {
+      document
+        .querySelector<HTMLElement>(
+          '[role="combobox"], [aria-haspopup="listbox"]',
+        )
+        ?.click();
+    });
+    act(() => {
+      const option = [...document.querySelectorAll('[role="option"]')].find(
+        (o) => o.textContent === "1y",
+      ) as HTMLElement | undefined;
+      // Base UI's Select.Item only commits a mouse click when a prior
+      // pointerdown marked it as a real (non-virtual) mouse interaction --
+      // a bare synthetic `click` is treated as an invalid mouse click and
+      // ignored. Fire the pointerdown first, then click natively.
+      option?.dispatchEvent(
+        new PointerEvent("pointerdown", { bubbles: true, pointerType: "mouse" }),
+      );
+      option?.click();
+    });
+
     act(() => {
       const buttons = [...document.querySelectorAll("button")];
       buttons.find((b) => /^save$/i.test(b.textContent ?? ""))!.click();
     });
     await flush();
 
-    expect(patch).toHaveBeenCalledWith(
-      expect.objectContaining({ frequency: expect.any(String) }),
-    );
+    expect(patch).toHaveBeenCalledWith({ frequency: "1y" });
   });
 
-  it("stays open and shows an error when the save is rejected", async () => {
-    const patch = vi.fn(async () => ({ ok: false, status: 422 }));
+  it("does not patch, and simply closes, when nothing was changed", async () => {
+    const patch = vi.fn(async () => ({ ok: true, status: 200 }));
     const onClose = vi.fn();
     render(subscription({}, patch), SETTINGS, onClose);
 
@@ -189,6 +211,31 @@ describe("ManageDialog", () => {
     });
     await flush();
 
+    expect(patch).not.toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it("stays open and shows an error when the save is rejected", async () => {
+    const patch = vi.fn(async () => ({ ok: false, status: 422 }));
+    const onClose = vi.fn();
+    render(subscription({}, patch), SETTINGS, onClose);
+
+    // A rejected save has to actually be attempted -- pick a day so Save has
+    // a changed field to send.
+    act(() => {
+      const day = document.querySelector<HTMLButtonElement>(
+        "button[data-day]:not([disabled])",
+      );
+      day?.click();
+    });
+
+    act(() => {
+      const buttons = [...document.querySelectorAll("button")];
+      buttons.find((b) => /^save$/i.test(b.textContent ?? ""))!.click();
+    });
+    await flush();
+
+    expect(patch).toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
     expect(document.body.textContent).toMatch(/something went wrong/i);
   });
@@ -243,9 +290,11 @@ describe("ManageDialog next payment date", () => {
     });
     await flush();
 
-    expect(patch).toHaveBeenCalledWith(
-      expect.objectContaining({ next_transaction_date: expect.any(String) }),
-    );
+    // Exact body, not objectContaining: the frequency Select was never
+    // touched, so an unconditional `frequency` key must not ride along.
+    expect(patch).toHaveBeenCalledWith({
+      next_transaction_date: expect.any(String),
+    });
   });
 
   it("sends the local calendar day the customer clicked, not a UTC-shifted neighbour", async () => {

@@ -154,16 +154,26 @@ export function ManageDialog({
   const startedAt = toCalendarDate(subscription.start_date);
 
   async function handleSave() {
+    // Only the fields the customer actually touched go in the body. Sending
+    // `frequency` unconditionally regressed past v1, which serialised only
+    // its `edits` (`NucleonElement._sendPatch`) -- and it is the one field
+    // this dialog can offer with nothing to change: when the store allows no
+    // frequency modification, the Select doesn't render at all, yet a save
+    // would still have PATCHed the untouched value.
+    const changes: Partial<SubscriptionResource> = {};
+    if (frequency !== subscription.frequency) changes.frequency = frequency;
+    if (nextDate) changes.next_transaction_date = toLocalDateString(nextDate);
+
+    if (Object.keys(changes).length === 0) {
+      onClose();
+      return;
+    }
+
     setIsBusy(true);
     setHasFailed(false);
 
     try {
-      await patchResource(subscription._links.self as never, {
-        frequency,
-        ...(nextDate
-          ? { next_transaction_date: toLocalDateString(nextDate) }
-          : {}),
-      });
+      await patchResource(subscription._links.self as never, changes);
       onSaved?.();
       onClose();
     } catch (caught) {
