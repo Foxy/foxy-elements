@@ -91,6 +91,7 @@
   "portal_order_summary": "#{id} · {summary}",
   "portal_order_tax": "Tax",
   "portal_order_total": "Total",
+  "portal_orders_heading": "Orders",
   "portal_password_confirm": "Confirm password",
   "portal_password_current": "Current password",
   "portal_password_mismatch": "Passwords do not match.",

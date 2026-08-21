@@ -371,4 +371,8 @@ export const messages = defineMessages({
     id: "portal_order_receipt",
     defaultMessage: "Receipt",
   },
+  ordersHeading: {
+    id: "portal_orders_heading",
+    defaultMessage: "Orders",
+  },
 });
