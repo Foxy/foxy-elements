@@ -114,6 +114,30 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).not.toMatch(/starting soon/i);
   });
 
+  it("substitutes the actual date into the badge, not the raw ICU pattern", () => {
+    // Mutation this guards against: dropping the values argument at card.tsx's
+    // `intl.formatMessage(STATUS_MESSAGES[status], statusDates)` call.
+    // react-intl doesn't throw on a missing value -- it renders the pattern's
+    // placeholder literally ("Starts on {start_date}"), so every prefix-only
+    // assertion in this file (/starts on/i, /failed on/i, /next payment on/i,
+    // /scheduled to start/i) stays green regardless. Only asserting the
+    // actual formatted digits catches it.
+    //
+    // A `will_start` fixture isolates the badge specifically: card.tsx has no
+    // description line that ever rendered `start_date` (only `frequency` and,
+    // before item 1, `next_transaction_date` did), so these digits can only
+    // have come from the badge's own substitution.
+    const startDate = storeDate(2000);
+    const [, year, month, day] = /^(\d{4})-(\d{2})-(\d{2})/.exec(startDate)!;
+    const expected = new Intl.DateTimeFormat("en-US", {
+      dateStyle: "medium",
+    }).format(new Date(Number(year), Number(month) - 1, Number(day)));
+
+    render(subscription({ start_date: startDate }));
+
+    expect(screen!.host.textContent).toContain(expected);
+  });
+
   it("shows the date a failed payment happened", () => {
     // first_failed_transaction_date used to be consumed only as a boolean by
     // status.ts and rendered nowhere -- a customer whose payment failed had
