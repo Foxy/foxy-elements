@@ -213,4 +213,27 @@ export const messages = defineMessages({
     id: "portal_subscriptions_inactive",
     defaultMessage: "Inactive",
   },
+  manageHeading: {
+    id: "portal_manage_heading",
+    defaultMessage: "Manage subscription",
+  },
+  manageFrequency: {
+    id: "portal_manage_frequency",
+    defaultMessage: "Frequency",
+  },
+  manageCancel: {
+    id: "portal_manage_cancel",
+    defaultMessage: "Cancel subscription",
+  },
+  manageModify: { id: "portal_manage_modify", defaultMessage: "Modify items" },
+  manageUpdateBilling: {
+    id: "portal_manage_update_billing",
+    defaultMessage: "Update billing",
+  },
+  manageId: { id: "portal_manage_id", defaultMessage: "Subscription ID" },
+  manageStarted: { id: "portal_manage_started", defaultMessage: "Started" },
+  manageEnds: { id: "portal_manage_ends", defaultMessage: "Ends" },
+  manageSave: { id: "portal_manage_save", defaultMessage: "Save" },
+  manageSaving: { id: "portal_manage_saving", defaultMessage: "Saving..." },
+  manageClose: { id: "portal_manage_close", defaultMessage: "Close" },
 });

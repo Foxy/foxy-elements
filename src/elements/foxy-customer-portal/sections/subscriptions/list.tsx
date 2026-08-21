@@ -7,23 +7,29 @@ import { Skeleton } from "@foxy.io/design-system/skeleton";
 import { useCollection, type FollowableLink } from "@/lib/customer-api";
 import { messages } from "../../messages";
 import { SubscriptionCard, type SubscriptionResource } from "./card";
+import { ManageDialog, type PortalSettings } from "./manage-dialog";
 
 type CustomerWithLinks = {
   _links: Record<string, FollowableLink<never> & { href: string }>;
 };
 
-type Props = { customer: CustomerWithLinks };
+type Props = {
+  customer: CustomerWithLinks;
+  settings?: PortalSettings | null;
+};
 
-export function SubscriptionsSection({ customer }: Props) {
+export function SubscriptionsSection({ customer, settings }: Props) {
   const intl = useIntl();
   const [showActive, setShowActive] = useState(true);
+  const [managed, setManaged] = useState<SubscriptionResource | null>(null);
 
   const link = customer._links["fx:subscriptions"];
 
   // Both states are separate server-side queries. Partitioning one result set
   // in the browser would make `total_items` describe the wrong collection.
-  // Changing `filters` changes the cache key, and `useCollection` resets its
-  // offset when the href changes — that reset exists for this toggle.
+  // The href never changes here — only `query` does — so the reset that
+  // matters for this toggle is the one keyed on `href + serialiseQuery(query)`,
+  // not the href-only reset.
   const query = useMemo(
     () => ({
       filters: [`is_active=${showActive}`],
@@ -82,10 +88,26 @@ export function SubscriptionsSection({ customer }: Props) {
         <SubscriptionCard
           key={subscription._links.self.href}
           subscription={subscription}
-          onManage={() => {}}
+          onManage={() => setManaged(subscription)}
           onPayments={() => {}}
         />
       ))}
+
+      {/* Mounted only while a subscription is being managed, rather than kept
+          mounted with a nullable subscription: `ManageDialog` seeds its
+          frequency state from `subscription` once, on mount, so reusing one
+          instance across different subscriptions would leak the previous
+          subscription's frequency into the next. The `key` guards the same
+          case if a card is ever managed while another dialog is still up. */}
+      {managed ? (
+        <ManageDialog
+          key={managed._links.self.href}
+          subscription={managed}
+          settings={settings ?? null}
+          open
+          onClose={() => setManaged(null)}
+        />
+      ) : null}
 
       {totalItems > limit ? (
         <div>
