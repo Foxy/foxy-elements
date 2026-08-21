@@ -18,6 +18,10 @@ type SettingsResponse = {
     enabled: boolean;
     verification: { type: "hcaptcha"; site_key: string };
   };
+  subscriptions?: {
+    allow_frequency_modification: unknown;
+    allow_next_date_modification: unknown;
+  };
 };
 
 let settingsResponse: SettingsResponse;
@@ -614,5 +618,105 @@ describe("Portal", () => {
     expect(fetchMock).toHaveBeenCalledWith(
       "https://demo.foxycart.com/s/customer/customer_portal_settings",
     );
+  });
+
+  // FX-275's mount point: `PortalScreens` already fetches
+  // `customer_portal_settings` for sign-up gating, and `account.tsx` forwards
+  // that same object to `SubscriptionsSection` -> `ManageDialog` rather than
+  // fetching it again. A customer local to this test (not the shared `ada`,
+  // which ~15 other tests here reuse) carries one subscription so the account
+  // screen actually mounts the section.
+  it("carries the settings response down to the subscription manage dialog", async () => {
+    settingsResponse = {
+      sign_up: {
+        enabled: false,
+        verification: { type: "hcaptcha", site_key: "" },
+      },
+      subscriptions: {
+        allow_frequency_modification: [
+          { jsonata_query: "*", values: ["1m", "2m", "1y"] },
+        ],
+        allow_next_date_modification: true,
+      },
+    };
+
+    const customerWithSubscription = {
+      ...ada,
+      _links: {
+        ...ada._links,
+        "fx:subscriptions": {
+          href: "https://demo.foxycart.com/s/customer/subscriptions",
+          get: async () => ({
+            ok: true,
+            status: 200,
+            json: async () => ({
+              total_items: 1,
+              _embedded: {
+                "fx:subscriptions": [
+                  {
+                    frequency: "1m",
+                    start_date: "2020-01-01T00:00:00Z",
+                    next_transaction_date: "2099-01-01T00:00:00Z",
+                    end_date: null,
+                    is_active: true,
+                    error_message: "",
+                    first_failed_transaction_date: null,
+                    _links: {
+                      self: {
+                        href: "https://demo.foxycart.com/s/customer/subscriptions/1",
+                      },
+                    },
+                    _embedded: {
+                      "fx:transaction_template": {
+                        currency_code: "USD",
+                        total_order: 10,
+                        _embedded: {
+                          "fx:items": [{ name: "Coffee", quantity: 1 }],
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+            }),
+          }),
+        },
+      },
+    };
+
+    const api = fakeApi({
+      get: vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => customerWithSubscription,
+      })),
+    });
+    api.storage.setItem(API.SESSION, session());
+    render(api);
+    await flush();
+    await flush();
+
+    clickButtonMatching(/manage/i);
+    await flush();
+
+    // Base UI renders a `Select`'s options only once its popup is open, so
+    // asserting against a closed one would pass whether or not the frequency
+    // rule ever arrived.
+    act(() => {
+      document
+        .querySelector<HTMLElement>(
+          '[role="combobox"], [aria-haspopup="listbox"]',
+        )
+        ?.click();
+    });
+
+    const options = [...document.querySelectorAll('[role="option"]')].map(
+      (option) => option.textContent,
+    );
+
+    // If `account.tsx` dropped `settings` on the way to `SubscriptionsSection`,
+    // `getAllowedFrequencies` would see no rule, `frequencies` would be `[]`,
+    // and the Select would never render at all — this list would be empty.
+    expect(options.join(" ")).toMatch(/1y/);
   });
 });

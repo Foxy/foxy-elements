@@ -52,9 +52,14 @@ function toLocalMidnight(date: Date): Date {
  * It throws on malformed input, and a store with one bad rule must not blank
  * the whole dialog.
  *
- * The result is normalised to local midnight: adding milliseconds can land an
- * hour either side of a calendar-day edge (e.g. across a DST transition), and
- * `before`/`after` matchers must line up with DayPicker's local-day cells.
+ * The result is rounded down to local midnight so it lines up with
+ * DayPicker's local-day cells. That rounding is not DST-safe: adding raw
+ * milliseconds and then flooring to local midnight is one-sided across a
+ * fall-back transition, so a window that straddles one can land one calendar
+ * day earlier than intended (e.g. America/New_York, Oct 25 + 14d truncates to
+ * Nov 7, not Nov 8). That error is bounded to one day, at most twice a year,
+ * and is smaller than the imprecision `getTimeFromFrequency` already accepts
+ * (a "month" is 31 days) — so it is left as is rather than special-cased.
  */
 function offsetBy(from: Date, frequency: string): Date | undefined {
   try {

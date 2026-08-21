@@ -14,7 +14,7 @@ import { customerPortalEvents } from "./events";
 import { messages } from "./messages";
 import type { PortalScreen } from "./types";
 import { AccessRecoveryScreen } from "./screens/access-recovery";
-import { AccountScreen } from "./screens/account";
+import { AccountScreen, type PortalSettings } from "./screens/account";
 import { PasswordResetScreen } from "./screens/password-reset";
 import { SignInScreen } from "./screens/sign-in";
 import { SignUpScreen } from "./screens/sign-up";
@@ -31,14 +31,10 @@ export function MissingStoreDomain() {
   );
 }
 
-// Only the slice of `fx:customer_portal_settings` this task reads — FX-275
-// widens it.
-type PortalSettings = {
-  sign_up?: {
-    enabled: boolean;
-    verification: { type: "hcaptcha"; site_key: string };
-  };
-};
+// `PortalSettings` (imported above) is `account.tsx`'s widened view of the
+// full `customer_portal_settings` payload — FX-275 did the widening there,
+// since that is where the `subscriptions` key it added is actually consumed.
+// This screen only reads `sign_up` off the same object.
 
 /**
  * Portal settings live inside the customer base path, at
@@ -250,6 +246,7 @@ function PortalScreens({
         setScreen("sign-in");
       }}
       onUnauthenticated={onUnauthenticated}
+      settings={settings}
     />
   );
 }

@@ -32,6 +32,14 @@ build time.
 | `signout`       | none                                   |
 | `passwordreset` | `{ result: "skipped" \| "completed" }` |
 
+## Sections
+
+The account screen adds one section per resource type. Today that is:
+
+| Section       | Shows                                                                                                                           | Notes                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Subscriptions | Every subscription as a card: items, price, frequency, next payment date, status and any error, with an Active/Inactive toggle. | Active and Inactive are two separate server-side requests, not a client-side filter of one list. Manage opens a dialog for the frequency and next payment date the store allows changing; Cancel, Modify items and Update billing navigate to hosted Foxy pages rather than editing in place. Payments opens a dialog listing that subscription's transaction history. |
+
 ## Notes
 
 Session data is stored under a key namespaced by store domain, so two Foxy

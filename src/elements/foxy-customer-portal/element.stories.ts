@@ -16,12 +16,46 @@ const SETTINGS = {
   },
 };
 
+const SUBSCRIPTIONS_HREF = `${STORE_BASE}subscriptions`;
+
 const CUSTOMER = {
   first_name: "Ada",
   last_name: "Lovelace",
   email: "ada@example.com",
   tax_id: "GB123456789",
-  _links: { self: { href: `${STORE_BASE}customer` } },
+  _links: {
+    self: { href: `${STORE_BASE}customer` },
+    "fx:subscriptions": { href: SUBSCRIPTIONS_HREF },
+  },
+};
+
+const SUBSCRIPTIONS_PAGE = {
+  total_items: 1,
+  _embedded: {
+    "fx:subscriptions": [
+      {
+        frequency: "1m",
+        start_date: "2020-01-01T00:00:00-0800",
+        next_transaction_date: "2099-01-01T00:00:00-0800",
+        end_date: null,
+        is_active: true,
+        error_message: "",
+        first_failed_transaction_date: null,
+        _links: {
+          self: { href: `${SUBSCRIPTIONS_HREF}/0` },
+        },
+        _embedded: {
+          "fx:transaction_template": {
+            currency_code: "USD",
+            total_order: 42,
+            _embedded: {
+              "fx:items": [{ name: "Coffee", quantity: 1 }],
+            },
+          },
+        },
+      },
+    ],
+  },
 };
 
 function json(body: unknown): Response {
@@ -36,8 +70,12 @@ function json(body: unknown): Response {
  *
  * Stories run in the same Chromium as the `unit` project, with no network
  * interception, so a story that reaches `demo.foxycart.com` makes a genuine
- * outbound request from CI. Anything not aimed at the store is passed through
- * untouched, so Storybook's own requests keep working.
+ * outbound request from CI. Anything aimed at this page's own origin (or a
+ * relative URL, e.g. Storybook's manifest/HMR requests) is passed through
+ * untouched; anything else now throws rather than going out silently — the
+ * previous passthrough (`!url.startsWith(STORE_BASE)`) was exactly the hole
+ * that let three stories reach `demo.foxycart.com` for real, unnoticed,
+ * because `useResource` swallows rejections.
  */
 function stubStore(): () => void {
   const original = globalThis.fetch;
@@ -50,11 +88,34 @@ function stubStore(): () => void {
           ? input.toString()
           : input.url;
 
-    if (!url.startsWith(STORE_BASE)) return original(input, init);
-    if (url.endsWith("customer_portal_settings")) return json(SETTINGS);
-    if (url === STORE_BASE) return json(CUSTOMER);
+    if (url.startsWith(STORE_BASE)) {
+      if (url.endsWith("customer_portal_settings")) return json(SETTINGS);
+      if (url === STORE_BASE) return json(CUSTOMER);
+      // Matches only the active-subscriptions collection request, not e.g. a
+      // subscription's `fx:transactions` sub-path (no story here opens the
+      // Payments dialog) or the Inactive tab (no story here switches it).
+      // `is_active=true` is checked literally against the URL, not decoded —
+      // confirmed against what the real SDK sends for `filters: ["is_active=true"]`:
+      // `?is_active=true&offset=0&limit=10&zoom=transaction_template%3Aitems`.
+      if (
+        new URL(url).pathname === new URL(SUBSCRIPTIONS_HREF).pathname &&
+        url.includes("is_active=true")
+      ) {
+        return json(SUBSCRIPTIONS_PAGE);
+      }
 
-    return json({});
+      return json({});
+    }
+
+    const isLocal =
+      url.startsWith("/") ||
+      url.startsWith("blob:") ||
+      url.startsWith("data:") ||
+      url.startsWith(window.location.origin);
+
+    if (isLocal) return original(input, init);
+
+    throw new Error(`A story tried to reach the network: ${url}`);
   };
 
   return () => {
@@ -129,6 +190,15 @@ export const WithSalutation: StoryObj = {
     await waitFor(() =>
       expect(portalText(canvasElement)).toMatch(/Dr\. Ada Lovelace/),
     );
+  },
+};
+
+export const WithSubscriptions: StoryObj = {
+  beforeEach: () => withSession(),
+  render: () =>
+    html`<foxy-customer-portal store-domain="demo"></foxy-customer-portal>`,
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(portalText(canvasElement)).toMatch(/Coffee/));
   },
 };
 
