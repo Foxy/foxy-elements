@@ -129,25 +129,29 @@ export function useCollection<T>(
   query?: Record<string, unknown>,
 ) {
   const limit = (query?.limit as number | undefined) ?? 20;
-  const [pagedHref, setPagedHref] = useState(link?.href ?? null);
+
+  // A page belongs to a (link, query) pair, not to the link alone: a caller
+  // that keeps the same link and swaps only the query — FX-275's
+  // Active/Inactive toggle changes `filters` but not `fx:subscriptions` —
+  // points at a different collection just as surely as a different href, and
+  // page 3 of one may not exist in the other. `query` here is the caller's
+  // query, before `offset`/`limit` are folded in below, so paging within one
+  // collection never changes this key.
+  const collection = `${link?.href ?? ""}|${serialiseQuery(query)}`;
+  const [pagedCollection, setPagedCollection] = useState(collection);
   const [rawOffset, setRawOffset] = useState(0);
 
-  const currentHref = link?.href ?? null;
-  const hrefChanged = currentHref !== pagedHref;
+  const collectionChanged = collection !== pagedCollection;
 
-  // The offset belongs to the collection it was paged through. When the link
-  // changes — FX-275's Active/Inactive toggle is exactly this — page 3 of the
-  // old collection is not page 3 of the new one, and may not exist at all.
-  //
   // `offset` is *derived* rather than read back from state on purpose. Calling
   // a setter during render re-runs the component, but the rest of this render
   // body still executes first — so reading `rawOffset` here would let
   // `useEntry` below fire a request for the stale page before the re-run
   // corrects it. Deriving means the very first pass already uses 0.
-  const offset = hrefChanged ? 0 : rawOffset;
+  const offset = collectionChanged ? 0 : rawOffset;
 
-  if (hrefChanged) {
-    setPagedHref(currentHref);
+  if (collectionChanged) {
+    setPagedCollection(collection);
     setRawOffset(0);
   }
 

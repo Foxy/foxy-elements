@@ -533,6 +533,86 @@ describe("useCollection offset", () => {
 
     expect(host!.textContent).toBe("20");
   });
+
+  it("returns to the first page when only the query changes, same href", async () => {
+    const page = {
+      total_items: 100,
+      _embedded: { "fx:subscriptions": [{ id: 1 }] },
+    };
+
+    const activeSpy = vi.fn() as any;
+    const inactiveSpy = vi.fn() as any;
+
+    // Same link object every render — only `filters` changes, exactly like
+    // FX-275's Active/Inactive toggle, which keeps `fx:subscriptions` and
+    // swaps the query instead of the href.
+    const sharedLink = link("/subscriptions", page, activeSpy);
+
+    function Probe({
+      filters,
+      spy,
+    }: {
+      filters: string;
+      spy: (query?: unknown) => void;
+    }) {
+      const { offset, loadNext } = useCollection<{ id: number }>(
+        {
+          ...sharedLink,
+          get: async (query?: unknown) => {
+            spy(query);
+            return sharedLink.get(query);
+          },
+        },
+        { limit: 20, filters: [filters] },
+      );
+
+      return (
+        <button type="button" onClick={loadNext}>
+          {offset}
+        </button>
+      );
+    }
+
+    render(
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
+        <Probe filters="is_active=true" spy={activeSpy} />
+      </ApiProvider>,
+    );
+    await flush();
+
+    act(() => host!.querySelector("button")!.click());
+    await flush();
+    expect(host!.textContent).toBe("20");
+
+    // Same href, same component — only the query's `filters` changes.
+    act(() =>
+      root!.render(
+        <ApiProvider
+          api={{} as never}
+          cache={new RequestCache()}
+          onUnauthenticated={() => {}}
+        >
+          <Probe filters="is_active=false" spy={inactiveSpy} />
+        </ApiProvider>,
+      ),
+    );
+    await flush();
+
+    expect(host!.textContent).toBe("0");
+
+    // The displayed number is not enough: a fix that only corrects state
+    // after the fact would still let this render fire one stale request at
+    // the old offset before the correction lands. Assert on what every
+    // request for the new filters actually asked for.
+    expect(inactiveSpy).toHaveBeenCalled();
+    for (const [query] of inactiveSpy.mock.calls) {
+      expect(query).toMatchObject({ offset: 0 });
+    }
+  });
 });
 
 describe("useResource read guards", () => {
