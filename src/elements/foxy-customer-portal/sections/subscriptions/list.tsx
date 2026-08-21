@@ -45,6 +45,7 @@ export function SubscriptionsSection({ customer, settings }: Props) {
     items,
     error,
     isLoading,
+    isUnauthenticated,
     totalItems,
     offset,
     limit,
@@ -76,9 +77,13 @@ export function SubscriptionsSection({ customer, settings }: Props) {
       <h2>{intl.formatMessage(messages.subscriptionsHeading)}</h2>
       {toggle}
 
-      {isLoading ? <Skeleton /> : null}
+      {/* `isUnauthenticated` holds the loading shape rather than flashing an
+          error on the way back to sign-in -- `useCollection` already fired
+          `onUnauthenticated` for this in an effect; see `account.tsx` for
+          the same pattern on the account resource. */}
+      {isLoading || isUnauthenticated ? <Skeleton /> : null}
 
-      {error ? (
+      {error && !isUnauthenticated ? (
         <Alert.Root $variant="destructive">
           <Alert.Description>
             {intl.formatMessage(messages.errorUnknown)}

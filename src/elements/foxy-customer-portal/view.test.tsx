@@ -365,6 +365,30 @@ describe("Portal", () => {
     expect(onEvent).not.toHaveBeenCalled();
   });
 
+  it("does not route to sign-in when the public settings read comes back unauthorized", async () => {
+    // `customer_portal_settings` (fetched by `view.tsx`'s `useSettingsLink`)
+    // is public and unrelated to the customer's session -- a misconfigured
+    // store, WAF or proxy answering it 401/403 says nothing about whether
+    // the customer is still signed in. This read also runs on every screen,
+    // so routing on it here would be far more disruptive than on any one
+    // customer-scoped resource.
+    fetchMock.mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: async () => ({}),
+    });
+    const onEvent = vi.fn();
+    const api = fakeApi();
+    api.storage.setItem(API.SESSION, session());
+    render(api, { onEvent });
+    await flush();
+    await flush();
+
+    expect(screen!.host.textContent).not.toMatch(/sign in/i);
+    expect(screen!.host.textContent).toMatch(ada.first_name);
+    expect(api.storage.getItem(API.SESSION)).not.toBeNull();
+  });
+
   it("routes to sign-in when a write comes back unauthorized", async () => {
     // Mirrors the read-side test above, but through the profile dialog's save
     // instead of the initial account load — this is the wiring

@@ -670,3 +670,218 @@ describe("useResource read guards", () => {
     expect(host!.textContent).toBe("Error");
   });
 });
+
+describe("routing an expired session back to sign-in", () => {
+  function failingLink(status: number) {
+    return {
+      href: "/c",
+      get: async () => ({
+        ok: false,
+        status,
+        json: async () => ({}) as never,
+      }),
+    };
+  }
+
+  function failingCollectionLink(status: number) {
+    return {
+      href: "/t",
+      get: async () => ({
+        ok: false,
+        status,
+        json: async () => ({}) as never,
+      }),
+    };
+  }
+
+  it("fires onUnauthenticated when useResource's read is unauthenticated", async () => {
+    const onUnauthenticated = vi.fn();
+
+    function Probe() {
+      useResource<{ x: number }>(failingLink(401));
+      return null;
+    }
+
+    render(
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={onUnauthenticated}
+      >
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    expect(onUnauthenticated).toHaveBeenCalledTimes(1);
+  });
+
+  it("fires onUnauthenticated when useCollection's read is unauthenticated", async () => {
+    const onUnauthenticated = vi.fn();
+
+    function Probe() {
+      useCollection<{ id: number }>(failingCollectionLink(403));
+      return null;
+    }
+
+    render(
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={onUnauthenticated}
+      >
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    expect(onUnauthenticated).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not fire onUnauthenticated for a non-auth failure", async () => {
+    const onUnauthenticated = vi.fn();
+
+    function Probe() {
+      useResource<{ x: number }>(failingLink(500));
+      return null;
+    }
+
+    render(
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={onUnauthenticated}
+      >
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    expect(onUnauthenticated).not.toHaveBeenCalled();
+  });
+
+  it("does not re-fire on repeated renders with the same error", async () => {
+    const onUnauthenticated = vi.fn();
+    const target = failingLink(401);
+    // Same `api`/`cache` across every render below, on purpose: a fresh
+    // `RequestCache` per render would reset the entry to IDLE and manufacture
+    // a spurious true->false->true transition that has nothing to do with
+    // the thing under test — whether one *stable* rejected entry re-fires.
+    const api = {} as never;
+    const cache = new RequestCache();
+
+    function Probe({ tick }: { tick: number }) {
+      useResource<{ x: number }>(target);
+      return <span>{tick}</span>;
+    }
+
+    render(
+      <ApiProvider
+        api={api}
+        cache={cache}
+        onUnauthenticated={onUnauthenticated}
+      >
+        <Probe tick={0} />
+      </ApiProvider>,
+    );
+    await flush();
+    expect(onUnauthenticated).toHaveBeenCalledTimes(1);
+
+    // Three more commits with the same still-unauthenticated error must not
+    // fire it again — a routing callback that fires per render would loop
+    // the moment the parent it drives (a screen switch) re-renders anything
+    // downstream.
+    for (let tick = 1; tick <= 3; tick++) {
+      act(() =>
+        root!.render(
+          <ApiProvider
+            api={api}
+            cache={cache}
+            onUnauthenticated={onUnauthenticated}
+          >
+            <Probe tick={tick} />
+          </ApiProvider>,
+        ),
+      );
+      await flush();
+    }
+
+    expect(onUnauthenticated).toHaveBeenCalledTimes(1);
+  });
+
+  it("exposes isUnauthenticated from useResource so consumers can suppress error UI", async () => {
+    function Probe() {
+      const { isUnauthenticated } = useResource<{ x: number }>(
+        failingLink(401),
+      );
+      return <span>{String(isUnauthenticated)}</span>;
+    }
+
+    render(
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    expect(host!.textContent).toBe("true");
+  });
+
+  it("exposes isUnauthenticated from useCollection so consumers can suppress error UI", async () => {
+    function Probe() {
+      const { isUnauthenticated } = useCollection<{ id: number }>(
+        failingCollectionLink(401),
+      );
+      return <span>{String(isUnauthenticated)}</span>;
+    }
+
+    render(
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    expect(host!.textContent).toBe("true");
+  });
+
+  it("does not route to sign-in for a resource opted out of session routing", async () => {
+    // `customer_portal_settings` (view.tsx's `useSettingsLink`) is public and
+    // unauthenticated -- a 401/403 from it says nothing about the customer's
+    // session, and must not clear storage or bounce every screen (including
+    // sign-in, where it's also fetched) back to sign-in.
+    const onUnauthenticated = vi.fn();
+
+    function Probe() {
+      const { isUnauthenticated } = useResource<{ x: number }>(
+        failingLink(401),
+        undefined,
+        { skipUnauthenticatedRouting: true },
+      );
+      return <span>{String(isUnauthenticated)}</span>;
+    }
+
+    render(
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={onUnauthenticated}
+      >
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    expect(onUnauthenticated).not.toHaveBeenCalled();
+    // The error itself is still surfaced -- only the routing is suppressed.
+    expect(host!.textContent).toBe("true");
+  });
+});

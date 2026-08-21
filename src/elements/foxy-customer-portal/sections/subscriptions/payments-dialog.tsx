@@ -44,6 +44,7 @@ export function PaymentsDialog({ subscription, open, onClose }: Props) {
     items,
     error,
     isLoading,
+    isUnauthenticated,
     totalItems,
     offset,
     limit,
@@ -57,13 +58,17 @@ export function PaymentsDialog({ subscription, open, onClose }: Props) {
       onOpenChange={(next) => !next && onClose()}
       title={intl.formatMessage(messages.paymentsHeading)}
     >
-      {isLoading ? <Skeleton /> : null}
+      {/* `isUnauthenticated` holds the loading shape rather than flashing an
+          error on the way back to sign-in -- `useCollection` already fired
+          `onUnauthenticated` for this in an effect; see `account.tsx` for
+          the same pattern on the account resource. */}
+      {isLoading || isUnauthenticated ? <Skeleton /> : null}
 
       {/* A rejected read settles as `{ data: null, error, isLoading: false }`
           (see `cache.ts`), which looks exactly like a genuinely empty
           collection unless `error` is checked first -- a 500 must not read
           as "no payments yet". Mirrors `list.tsx`'s error handling. */}
-      {error ? (
+      {error && !isUnauthenticated ? (
         <Alert.Root $variant="destructive">
           <Alert.Description>
             {intl.formatMessage(messages.errorUnknown)}

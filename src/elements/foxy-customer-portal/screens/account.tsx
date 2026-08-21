@@ -11,7 +11,6 @@ import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
 import {
-  UnauthenticatedError,
   useApi,
   useResource,
   type FollowableLink,
@@ -52,8 +51,6 @@ export type PortalSettings = {
 type Props = {
   fullNameTemplate: string;
   onSignedOut: () => void;
-  /** Called when the API says this customer is not signed in any more. */
-  onUnauthenticated: () => void;
   /** `null` while the settings request is still in flight. */
   settings: PortalSettings | null;
 };
@@ -61,7 +58,6 @@ type Props = {
 export function AccountScreen({
   fullNameTemplate,
   onSignedOut,
-  onUnauthenticated,
   settings,
 }: Props) {
   const intl = useIntl();
@@ -87,7 +83,7 @@ export function AccountScreen({
     [api],
   );
 
-  const { data, error, isLoading, refresh } =
+  const { data, error, isLoading, isUnauthenticated, refresh } =
     useResource<CustomerResource>(rootLink);
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -129,14 +125,12 @@ export function AccountScreen({
   const subscriptionsSettings: SubscriptionsSettings | null =
     settings?.subscriptions ? (settings as SubscriptionsSettings) : null;
 
-  // Routing has to happen in an effect: `error` is read during render, and
-  // switching screens from there would update the parent mid-render.
-  const isUnauthenticated = error instanceof UnauthenticatedError;
-
-  useEffect(() => {
-    if (isUnauthenticated) onUnauthenticated();
-  }, [isUnauthenticated, onUnauthenticated]);
-
+  // `useResource` already fires `onUnauthenticated` (from `useApi()`, the
+  // same callback this screen used to be handed as a prop) from an effect
+  // the moment `error` is an `UnauthenticatedError` -- see `hooks.tsx`'s
+  // `useEntry`. Routing centralised there so every resource and collection
+  // in the element inherits it, not just this one.
+  //
   // Hold the loading shape rather than flashing "we couldn't load your
   // account" on the way back to sign in.
   if (isLoading || isUnauthenticated) return <Skeleton />;

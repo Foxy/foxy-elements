@@ -122,7 +122,6 @@ export function Portal({
         fullNameTemplate={fullNameTemplate}
         skipPasswordReset={skipPasswordReset}
         onEvent={onEvent}
-        onUnauthenticated={handleUnauthenticated}
       />
     </ApiProvider>
   );
@@ -145,18 +144,24 @@ function PortalScreens({
   fullNameTemplate,
   skipPasswordReset,
   onEvent,
-  onUnauthenticated,
 }: {
   screen: PortalScreen;
   setScreen: (screen: PortalScreen) => void;
   fullNameTemplate: string;
   skipPasswordReset: boolean;
   onEvent: (type: string, detail?: unknown) => void;
-  onUnauthenticated: () => void;
 }) {
   const { api, cache } = useApi();
   const settingsLink = useSettingsLink(api);
-  const { data: settings } = useResource<PortalSettings>(settingsLink);
+  // `customer_portal_settings` is public and unrelated to the customer's
+  // session (see `useSettingsLink`'s doc comment) and this runs on every
+  // screen, including sign-in -- a 401/403 from a misconfigured store must
+  // not clear a signed-in customer's session and bounce them out.
+  const { data: settings } = useResource<PortalSettings>(
+    settingsLink,
+    undefined,
+    { skipUnauthenticatedRouting: true },
+  );
 
   const canSignUp = settings?.sign_up?.enabled === true;
   const siteKey = settings?.sign_up?.verification?.site_key ?? "";
@@ -245,7 +250,6 @@ function PortalScreens({
         onEvent(customerPortalEvents.signOut);
         setScreen("sign-in");
       }}
-      onUnauthenticated={onUnauthenticated}
       settings={settings}
     />
   );

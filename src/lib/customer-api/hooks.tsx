@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -9,6 +10,7 @@ import { useSyncExternalStore } from "react";
 import type { API } from "@foxy.io/sdk/customer";
 import { RequestCache, serialiseQuery, type CacheEntry } from "./cache";
 import { assertReadSucceeded, type ReadResponse } from "./read";
+import { UnauthenticatedError } from "./session";
 import { assertWriteSucceeded, WriteError, type WriteResponse } from "./write";
 
 /**
@@ -66,11 +68,28 @@ export function useApi(): ApiContextValue {
 
 const IDLE: CacheEntry<never> = { data: null, error: null, isLoading: false };
 
+/**
+ * `skipUnauthenticatedRouting` opts a read out of the routing effect below.
+ * The one read this exists for is `view.tsx`'s `customer_portal_settings`
+ * fetch: it is public and unrelated to the customer's session (see that
+ * file's doc comment), it runs on every screen including sign-in, and a
+ * misconfigured store answering it with 401/403 must not clear a signed-in
+ * customer's session and bounce them out.
+ */
+type EntryOptions = { skipUnauthenticatedRouting?: boolean };
+
 function useEntry<T>(
   link: FollowableLink<T> | null,
   query: Record<string, unknown> | undefined,
-): { entry: CacheEntry<T>; key: string | null; cache: RequestCache } {
-  const { cache } = useApi();
+  options?: EntryOptions,
+): {
+  entry: CacheEntry<T>;
+  key: string | null;
+  cache: RequestCache;
+  isUnauthenticated: boolean;
+} {
+  const { cache, onUnauthenticated } = useApi();
+  const skipRouting = options?.skipUnauthenticatedRouting ?? false;
   const key = link ? `${link.href}|${serialiseQuery(query)}` : null;
 
   const subscribe = useCallback(
@@ -90,14 +109,38 @@ function useEntry<T>(
     // `query` is read through `key`, which already encodes it.
   }, [cache, key, link, query]);
 
-  return { entry: useSyncExternalStore(subscribe, getSnapshot), key, cache };
+  const entry = useSyncExternalStore(subscribe, getSnapshot);
+  const isUnauthenticated = entry.error instanceof UnauthenticatedError;
+
+  // Centralised so every `useResource`/`useCollection` consumer inherits
+  // this — FX-276 and FX-277 will add more collections, and this used to be
+  // wired up only for the account screen's own resource (see `account.tsx`),
+  // which left every other read stuck retrying a session that can never come
+  // back. Routing has to happen in an effect, never during render: `error`
+  // is read during render, and calling `onUnauthenticated` from there would
+  // update the ancestor that owns the current screen mid-render.
+  //
+  // `isUnauthenticated` only flips true->false again when the cache entry
+  // itself changes (a new key, or a `refresh()`/`invalidate()` that produces
+  // a fresh entry object) -- not on every render -- so this fires once per
+  // rejection rather than looping.
+  useEffect(() => {
+    if (isUnauthenticated && !skipRouting) onUnauthenticated();
+  }, [isUnauthenticated, skipRouting, onUnauthenticated]);
+
+  return { entry, key, cache, isUnauthenticated };
 }
 
 export function useResource<T>(
   link: FollowableLink<T> | null,
   query?: Record<string, unknown>,
+  options?: EntryOptions,
 ) {
-  const { entry, key, cache } = useEntry<T>(link, query);
+  const { entry, key, cache, isUnauthenticated } = useEntry<T>(
+    link,
+    query,
+    options,
+  );
 
   const refresh = useCallback(() => {
     if (key) cache.invalidate(key);
@@ -114,7 +157,7 @@ export function useResource<T>(
     [link, refresh],
   );
 
-  return { ...entry, refresh, patch };
+  return { ...entry, refresh, patch, isUnauthenticated };
 }
 
 type CollectionPage = {
@@ -160,7 +203,10 @@ export function useCollection<T>(
     [query, limit, offset],
   );
 
-  const { entry, key, cache } = useEntry<CollectionPage>(link, pageQuery);
+  const { entry, key, cache, isUnauthenticated } = useEntry<CollectionPage>(
+    link,
+    pageQuery,
+  );
 
   // The customer API returns exactly one embedded collection per page, and its
   // curie varies by resource. Take the first rather than hardcoding curies.
@@ -177,6 +223,7 @@ export function useCollection<T>(
   return {
     error: entry.error,
     isLoading: entry.isLoading,
+    isUnauthenticated,
     items,
     totalItems,
     offset,

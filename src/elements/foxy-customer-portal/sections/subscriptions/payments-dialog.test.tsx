@@ -196,6 +196,36 @@ describe("PaymentsDialog", () => {
     expect(document.body.textContent).toMatch(/something went wrong/i);
   });
 
+  it("routes to sign-in instead of flashing an error when the session has expired", async () => {
+    const onUnauthenticated = vi.fn();
+    const expired = {
+      _links: {
+        self: { href: "/s/1" },
+        "fx:transactions": {
+          href: "/t",
+          get: async () => ({
+            ok: false,
+            status: 401,
+            json: async () => ({}),
+          }),
+        },
+      },
+    };
+
+    screen = mountScreen(
+      <PaymentsDialog subscription={expired as never} open onClose={vi.fn()} />,
+      {},
+      onUnauthenticated,
+    );
+    await flush();
+
+    expect(onUnauthenticated).toHaveBeenCalledTimes(1);
+    // Neither the generic error nor the empty state -- both would flash
+    // false information for the instant before routing away.
+    expect(document.body.textContent).not.toMatch(/something went wrong/i);
+    expect(document.body.textContent).not.toMatch(/no payments yet/i);
+  });
+
   it("omits the date description line instead of rendering it blank when the date can't be parsed", async () => {
     // `SummaryTable.Entry` maps every array element in `description` --
     // `null` included -- into its own paragraph. `card.tsx` and
