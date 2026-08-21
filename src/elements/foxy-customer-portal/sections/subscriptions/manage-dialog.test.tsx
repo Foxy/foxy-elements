@@ -183,3 +183,50 @@ describe("ManageDialog", () => {
     }
   });
 });
+
+describe("ManageDialog next payment date", () => {
+  it("hides the date control when the store forbids changes", () => {
+    render(subscription(), {
+      subscriptions: {
+        allow_frequency_modification: [{ jsonata_query: "*", values: ["1m"] }],
+        allow_next_date_modification: false,
+      },
+    });
+
+    expect(document.body.textContent).not.toMatch(/next payment date/i);
+  });
+
+  it("shows the date control when the store allows any date", () => {
+    render(subscription(), {
+      subscriptions: {
+        allow_frequency_modification: [{ jsonata_query: "*", values: ["1m"] }],
+        allow_next_date_modification: true,
+      },
+    });
+
+    expect(document.body.textContent).toMatch(/next payment date/i);
+  });
+
+  it("saves a changed date through patchResource", async () => {
+    const patch = vi.fn(async () => ({ ok: true, status: 200 }));
+    render(subscription({}, patch));
+
+    // Pick any enabled day cell the picker rendered.
+    act(() => {
+      const day = document.querySelector<HTMLButtonElement>(
+        "button[data-day]:not([disabled])",
+      );
+      day?.click();
+    });
+
+    act(() => {
+      const buttons = [...document.querySelectorAll("button")];
+      buttons.find((b) => /^save$/i.test(b.textContent ?? ""))!.click();
+    });
+    await flush();
+
+    expect(patch).toHaveBeenCalledWith(
+      expect.objectContaining({ next_transaction_date: expect.any(String) }),
+    );
+  });
+});

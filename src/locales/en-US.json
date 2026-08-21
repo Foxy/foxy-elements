@@ -77,6 +77,7 @@
   "portal_manage_heading": "Manage subscription",
   "portal_manage_id": "Subscription ID",
   "portal_manage_modify": "Modify items",
+  "portal_manage_next_payment": "Next payment date",
   "portal_manage_save": "Save",
   "portal_manage_saving": "Saving...",
   "portal_manage_started": "Started",

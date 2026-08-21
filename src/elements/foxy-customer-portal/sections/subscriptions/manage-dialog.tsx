@@ -3,20 +3,44 @@ import { FormattedDate, useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
 import { SummaryTable } from "@foxy.io/design-system/summary-table";
 import { Button } from "@foxy.io/design-system/button";
+import { Calendar } from "@foxy.io/design-system/calendar";
 import { Field } from "@foxy.io/design-system/field";
 import { Select } from "@foxy.io/design-system/select";
-import { getAllowedFrequencies } from "@foxy.io/sdk/customer";
+import {
+  getAllowedFrequencies,
+  getNextTransactionDateConstraints,
+} from "@foxy.io/sdk/customer";
 import { useApi, WriteError } from "@/lib/customer-api";
 import { messages } from "../../messages";
 import { PortalDialog } from "../../portal-dialog";
 import { usePortalContainer } from "../../portal-container";
 import { patchResource } from "../../write";
+import { toDatePickerBounds } from "./date-constraints";
 import type { SubscriptionResource } from "./card";
+
+/**
+ * Raw (snake_case) shape of a single next-date modification rule, as the API
+ * returns it. Mirrors `CustomerPortalSettings['props']['subscriptions']
+ * ['allow_next_date_modification']` from `@foxy.io/sdk`, which is not
+ * exported from any public subpath, so the shape is declared here instead of
+ * cast through `unknown` at the call site.
+ */
+type NextDateModificationRule = {
+  min?: string;
+  max?: string;
+  jsonata_query: string;
+  disallowed_dates?: string[];
+  allowed_days?:
+    { type: "day"; days: number[] } | { type: "month"; days: number[] };
+};
+
+/** False disables modification, true lifts all constraints, an array defines custom rules. */
+type NextDateModificationRules = boolean | NextDateModificationRule[];
 
 export type PortalSettings = {
   subscriptions: {
     allow_frequency_modification: unknown;
-    allow_next_date_modification: unknown;
+    allow_next_date_modification: NextDateModificationRules;
   };
 };
 
@@ -43,6 +67,7 @@ export function ManageDialog({ subscription, settings, open, onClose }: Props) {
   const frequencyId = useId();
 
   const [frequency, setFrequency] = useState(subscription.frequency);
+  const [nextDate, setNextDate] = useState<Date | undefined>(undefined);
   const [isBusy, setIsBusy] = useState(false);
   const [hasFailed, setHasFailed] = useState(false);
 
@@ -68,6 +93,28 @@ export function ManageDialog({ subscription, settings, open, onClose }: Props) {
     }
   }, [settings, subscription]);
 
+  // Three shapes: `false` means the store switched this off entirely, `true`
+  // means any date, an object means translate the rules into picker bounds.
+  const dateRules = useMemo(() => {
+    if (!settings) return false;
+    try {
+      return getNextTransactionDateConstraints(
+        subscription as never,
+        settings.subscriptions.allow_next_date_modification,
+      );
+    } catch {
+      return false;
+    }
+  }, [settings, subscription]);
+
+  const bounds = useMemo(
+    () =>
+      typeof dateRules === "object"
+        ? toDatePickerBounds(dateRules)
+        : { disabled: [] as never[] },
+    [dateRules],
+  );
+
   const tokenHref = subscription._links["fx:sub_token_url"]?.href;
   const modifyHref = subscription._links["fx:sub_modification_url"]?.href;
 
@@ -90,7 +137,12 @@ export function ManageDialog({ subscription, settings, open, onClose }: Props) {
     setHasFailed(false);
 
     try {
-      await patchResource(subscription._links.self as never, { frequency });
+      await patchResource(subscription._links.self as never, {
+        frequency,
+        ...(nextDate
+          ? { next_transaction_date: nextDate.toISOString().slice(0, 10) }
+          : {}),
+      });
       onClose();
     } catch (caught) {
       // This dialog sends no credentials, so 401/403 can only mean the session
@@ -179,6 +231,22 @@ export function ManageDialog({ subscription, settings, open, onClose }: Props) {
               </Select.Positioner>
             </Select.Portal>
           </Select.Root>
+        </Field.Root>
+      ) : null}
+
+      {dateRules !== false ? (
+        <Field.Root>
+          <Field.Label>
+            {intl.formatMessage(messages.manageNextPayment)}
+          </Field.Label>
+          <Calendar
+            mode="single"
+            selected={nextDate}
+            onSelect={setNextDate}
+            startMonth={"startMonth" in bounds ? bounds.startMonth : undefined}
+            endMonth={"endMonth" in bounds ? bounds.endMonth : undefined}
+            disabled={bounds.disabled}
+          />
         </Field.Root>
       ) : null}
 
