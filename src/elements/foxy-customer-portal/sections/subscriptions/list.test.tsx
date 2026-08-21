@@ -181,7 +181,15 @@ describe("SubscriptionsSection", () => {
     expect(screen!.host.textContent).not.toMatch(/Coffee/);
   });
 
-  it("renders nothing at all when the customer has no subscriptions", async () => {
+  it("still shows the heading and the toggle when the customer has no subscriptions on either tab", async () => {
+    // The decided contract: an empty Active tab does not mean an empty
+    // section. The heading and the Active/Inactive toggle always render
+    // whenever the customer has a fx:subscriptions link, so a customer whose
+    // only subscriptions are inactive is not stranded looking at a section
+    // that hid itself. (There used to be a test here asserting the opposite
+    // -- that the section "renders nothing at all" -- checked only that a
+    // deleted message string was absent, which no code path could ever
+    // produce; it could not fail and it named the wrong contract.)
     const empty = {
       _links: {
         "fx:subscriptions": {
@@ -201,10 +209,14 @@ describe("SubscriptionsSection", () => {
     );
     await flush();
 
-    // The spec is explicit: a section with nothing to show renders nothing —
-    // no empty heading. Only the toggle may remain, so the customer can look
-    // at the other tab.
-    expect(screen!.host.textContent).not.toMatch(/nothing here yet/i);
+    expect(screen!.host.querySelector("h2")).not.toBeNull();
+    const buttons = [...screen!.host.querySelectorAll("button")];
+    expect(buttons.some((b) => /active/i.test(b.textContent ?? ""))).toBe(
+      true,
+    );
+    expect(buttons.some((b) => /inactive/i.test(b.textContent ?? ""))).toBe(
+      true,
+    );
   });
 
   it("opens the payments dialog for a card without disturbing the manage dialog", async () => {
