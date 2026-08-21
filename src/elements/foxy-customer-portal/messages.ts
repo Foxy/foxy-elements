@@ -339,4 +339,8 @@ export const messages = defineMessages({
     id: "portal_payment_status_verified",
     defaultMessage: "Verified",
   },
+  orderSummary: {
+    id: "portal_order_summary",
+    defaultMessage: "#{id} · {summary}",
+  },
 });

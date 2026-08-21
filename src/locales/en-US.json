@@ -83,6 +83,7 @@
   "portal_manage_started": "Started",
   "portal_manage_update_billing": "Update billing",
   "portal_missing_store_domain": "Set the store-domain attribute to use this element.",
+  "portal_order_summary": "#{id} · {summary}",
   "portal_password_confirm": "Confirm password",
   "portal_password_current": "Current password",
   "portal_password_mismatch": "Passwords do not match.",
