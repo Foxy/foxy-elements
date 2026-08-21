@@ -22,6 +22,7 @@ const SETTINGS = {
 
 const SUBSCRIPTIONS_HREF = `${STORE_BASE}subscriptions`;
 const TRANSACTIONS_HREF = `${STORE_BASE}transactions`;
+const ADDRESSES_HREF = `${STORE_BASE}customer_addresses`;
 
 const CUSTOMER = {
   first_name: "Ada",
@@ -32,6 +33,7 @@ const CUSTOMER = {
     self: { href: `${STORE_BASE}customer` },
     "fx:subscriptions": { href: SUBSCRIPTIONS_HREF },
     "fx:transactions": { href: TRANSACTIONS_HREF },
+    "fx:customer_addresses": { href: ADDRESSES_HREF },
   },
 };
 
@@ -83,6 +85,34 @@ const ORDERS_PAGE = {
         },
         _embedded: {
           "fx:items": [{ name: "Widget", quantity: 1, price: 25 }],
+        },
+      },
+    ],
+  },
+};
+
+const ADDRESSES_PAGE = {
+  total_items: 1,
+  _embedded: {
+    "fx:customer_addresses": [
+      {
+        address_name: "Home",
+        first_name: "Ada",
+        last_name: "Lovelace",
+        company: "",
+        phone: "",
+        address1: "12 Analytical Engine Way",
+        address2: "",
+        city: "London",
+        region: "",
+        postal_code: "SW1A 1AA",
+        country: "GB",
+        is_default_billing: true,
+        is_default_shipping: true,
+        date_created: "2020-01-01T00:00:00-0800",
+        date_modified: "2020-01-01T00:00:00-0800",
+        _links: {
+          self: { href: `${ADDRESSES_HREF}/0` },
         },
       },
     ],
@@ -159,6 +189,14 @@ export function stubStore(): () => void {
         url.includes("type%3Ain=transaction")
       ) {
         return json(ORDERS_PAGE);
+      }
+
+      // Matches the addresses collection request. Unlike the two branches
+      // above, there is only one query shape here (no toggle, no filter), so
+      // a pathname check alone is enough to discriminate it from the store's
+      // other collections.
+      if (new URL(url).pathname === new URL(ADDRESSES_HREF).pathname) {
+        return json(ADDRESSES_PAGE);
       }
 
       return json({});
@@ -271,6 +309,19 @@ export const WithOrders: StoryObj = {
     html`<foxy-customer-portal store-domain="demo"></foxy-customer-portal>`,
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(portalText(canvasElement)).toMatch(/Widget/));
+  },
+};
+
+export const WithAddresses: StoryObj = {
+  beforeEach: () => withSession(),
+  render: () =>
+    html`<foxy-customer-portal store-domain="demo"></foxy-customer-portal>`,
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(portalText(canvasElement)).toMatch(/12 Analytical Engine Way/),
+    );
+    expect(portalText(canvasElement)).toMatch(/Default billing/);
+    expect(portalText(canvasElement)).toMatch(/Default shipping/);
   },
 };
 

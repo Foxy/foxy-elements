@@ -16,6 +16,7 @@ import {
   type FollowableLink,
   type ReadResponse,
 } from "@/lib/customer-api";
+import { AddressesSection } from "../sections/addresses";
 import { PortalHeader, type SignOutState } from "../sections/header";
 import { OrdersSection } from "../sections/orders";
 import { PasswordDialog } from "../sections/password-dialog";
@@ -219,7 +220,15 @@ export function AccountScreen({
         }
       />
 
-      {/* FX-277 payment methods and addresses mount here, in this order. */}
+      <AddressesSection
+        customer={
+          data as unknown as ComponentProps<
+            typeof AddressesSection
+          >["customer"]
+        }
+      />
+
+      {/* FX-289 payment methods mount here, once built. */}
     </div>
   );
 }

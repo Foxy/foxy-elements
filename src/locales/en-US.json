@@ -78,6 +78,7 @@
   "portal_address_region": "Region",
   "portal_address_save": "Save",
   "portal_address_saving": "Saving...",
+  "portal_addresses_heading": "Addresses",
   "portal_error_email_taken": "That email is already registered.",
   "portal_error_invalid_form": "Please check the form and try again.",
   "portal_error_sign_in_after_sign_up": "Your account was created, but we couldn't sign you in. Please sign in with your new password.",
