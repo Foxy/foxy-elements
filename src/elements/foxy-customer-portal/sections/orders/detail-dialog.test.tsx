@@ -1,14 +1,28 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import { mountScreen, type MountedScreen } from "../../test-utils";
 import { OrderDetailDialog } from "./detail-dialog";
 import type { OrderResource } from "./row";
 
 let screen: MountedScreen | null = null;
+const capturedFormattedNumberValues: unknown[] = [];
+
+// Mock react-intl's FormattedNumber to capture what values are passed to it
+vi.mock("react-intl", async () => {
+  const actual = await vi.importActual<typeof import("react-intl")>("react-intl");
+  return {
+    ...actual,
+    FormattedNumber: (props: Record<string, unknown> & { value: number | string | bigint }) => {
+      capturedFormattedNumberValues.push(props.value);
+      return actual.FormattedNumber(props as never);
+    },
+  };
+});
 
 afterEach(() => {
   act(() => screen?.unmount());
   screen = null;
+  capturedFormattedNumberValues.length = 0;
 });
 
 function order(overrides: Partial<OrderResource> = {}): OrderResource {
@@ -83,5 +97,24 @@ describe("OrderDetailDialog", () => {
     );
 
     expect(receipt?.getAttribute("href")).toBeNull();
+  });
+
+  it("passes string totals as numbers to FormattedNumber, not raw strings", () => {
+    // This test verifies the Number(...) conversion that the brief calls out.
+    // FormattedNumber receives the three string totals converted to numbers.
+    // Without this test, we'd only verify the final formatted output, which
+    // Intl.NumberFormat coerces strings to numbers anyway, making the test
+    // pass even if Number(...) were deleted from the implementation.
+    render();
+
+    // Verify the numeric values (from Number(...) conversion) are in the calls
+    expect(capturedFormattedNumberValues).toContain(40);
+    expect(capturedFormattedNumberValues).toContain(2.5);
+    expect(capturedFormattedNumberValues).toContain(5);
+
+    // Verify none of the string totals reached FormattedNumber unconverted
+    expect(capturedFormattedNumberValues).not.toContain("40.00");
+    expect(capturedFormattedNumberValues).not.toContain("2.50");
+    expect(capturedFormattedNumberValues).not.toContain("5.00");
   });
 });
