@@ -6,6 +6,7 @@ import { SummaryTable } from "@foxy.io/design-system/summary-table";
 import { useCollection } from "@/lib/customer-api";
 import { messages } from "../../messages";
 import { PortalDialog } from "../../portal-dialog";
+import { getTransactionStatusMessage } from "../../transaction-status";
 import type { SubscriptionResource } from "./card";
 
 type Payment = {
@@ -13,6 +14,10 @@ type Payment = {
   transaction_date: string;
   total_order: number;
   currency_code: string;
+  // Not narrowed to the SDK's status union: this value comes straight off
+  // the wire, and `getTransactionStatusMessage` is what stays honest about
+  // that by falling back to the raw string instead of assuming the union is
+  // exhaustive.
   status: string;
   _links: { "fx:receipt"?: { href: string } };
   _embedded?: { "fx:items"?: { name: string; quantity: number }[] };
@@ -49,37 +54,49 @@ export function PaymentsDialog({ subscription, open, onClose }: Props) {
       ) : null}
 
       <SummaryTable.Root>
-        {items.map((payment) => (
-          <SummaryTable.Entry
-            key={payment.id}
-            title={`#${payment.id}`}
-            subtitle={payment.status}
-            value={
-              <FormattedNumber
-                value={payment.total_order}
-                style="currency"
-                currency={payment.currency_code}
-              />
-            }
-            description={[
-              <FormattedDate
-                key="date"
-                value={payment.transaction_date}
-                dateStyle="medium"
-              />,
-              (payment._embedded?.["fx:items"] ?? [])
-                .map((item) => `${item.name} ×${item.quantity}`)
-                .join(", "),
-            ]}
-            action={
-              payment._links["fx:receipt"] ? (
-                <a href={payment._links["fx:receipt"].href}>
-                  {intl.formatMessage(messages.paymentsReceipt)}
-                </a>
-              ) : null
-            }
-          />
-        ))}
+        {items.map((payment) => {
+          const statusMessage = getTransactionStatusMessage(payment.status);
+
+          return (
+            <SummaryTable.Entry
+              key={payment.id}
+              title={`#${payment.id}`}
+              // A status this build doesn't recognize falls back to the raw
+              // API value rather than a cheerful default -- claiming
+              // "Completed" for an unknown state would be a worse lie than an
+              // unfamiliar word.
+              subtitle={
+                statusMessage
+                  ? intl.formatMessage(statusMessage)
+                  : payment.status
+              }
+              value={
+                <FormattedNumber
+                  value={payment.total_order}
+                  style="currency"
+                  currency={payment.currency_code}
+                />
+              }
+              description={[
+                <FormattedDate
+                  key="date"
+                  value={payment.transaction_date}
+                  dateStyle="medium"
+                />,
+                (payment._embedded?.["fx:items"] ?? [])
+                  .map((item) => `${item.name} ×${item.quantity}`)
+                  .join(", "),
+              ]}
+              action={
+                payment._links["fx:receipt"] ? (
+                  <a href={payment._links["fx:receipt"].href}>
+                    {intl.formatMessage(messages.paymentsReceipt)}
+                  </a>
+                ) : null
+              }
+            />
+          );
+        })}
       </SummaryTable.Root>
 
       {totalItems > limit ? (

@@ -252,4 +252,60 @@ export const messages = defineMessages({
     id: "portal_payments_receipt",
     defaultMessage: "Receipt",
   },
+  paymentStatusCompleted: {
+    id: "portal_payment_status_completed",
+    defaultMessage: "Completed",
+  },
+  paymentStatusProcessing: {
+    id: "portal_payment_status_processing",
+    defaultMessage: "Processing",
+  },
+  paymentStatusPaid: {
+    id: "portal_payment_status_paid",
+    defaultMessage: "Paid",
+  },
+  paymentStatusApproved: {
+    id: "portal_payment_status_approved",
+    defaultMessage: "Approved",
+  },
+  paymentStatusAuthorized: {
+    id: "portal_payment_status_authorized",
+    defaultMessage: "Authorized",
+  },
+  paymentStatusPending: {
+    id: "portal_payment_status_pending",
+    defaultMessage: "Pending",
+  },
+  paymentStatusProblem: {
+    id: "portal_payment_status_problem",
+    defaultMessage: "Payment issue",
+  },
+  paymentStatusUnderReview: {
+    id: "portal_payment_status_under_review",
+    defaultMessage: "Under review",
+  },
+  paymentStatusRejected: {
+    id: "portal_payment_status_rejected",
+    defaultMessage: "Rejected",
+  },
+  paymentStatusDeclined: {
+    id: "portal_payment_status_declined",
+    defaultMessage: "Declined",
+  },
+  paymentStatusRefunding: {
+    id: "portal_payment_status_refunding",
+    defaultMessage: "Refund in progress",
+  },
+  paymentStatusRefunded: {
+    id: "portal_payment_status_refunded",
+    defaultMessage: "Refunded",
+  },
+  paymentStatusVoided: {
+    id: "portal_payment_status_voided",
+    defaultMessage: "Voided",
+  },
+  paymentStatusVerified: {
+    id: "portal_payment_status_verified",
+    defaultMessage: "Verified",
+  },
 });

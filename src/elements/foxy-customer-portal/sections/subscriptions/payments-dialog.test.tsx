@@ -15,7 +15,7 @@ const flush = () =>
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
-function subscription(spy = vi.fn()) {
+function subscription(spy = vi.fn(), status = "captured") {
   return {
     _links: {
       self: { href: "/s/1" },
@@ -35,7 +35,7 @@ function subscription(spy = vi.fn()) {
                     transaction_date: "2026-08-14T00:00:00Z",
                     total_order: 42,
                     currency_code: "USD",
-                    status: "captured",
+                    status,
                     _links: {
                       "fx:receipt": { href: "https://example.test/r" },
                     },
@@ -89,6 +89,40 @@ describe("PaymentsDialog", () => {
     );
 
     expect(receipt?.href).toBe("https://example.test/r");
+  });
+
+  it("shows an empty API status as completed, not blank", async () => {
+    // The SDK documents '' as: a normal gateway was used, so the transaction
+    // should be considered completed. A source change that would satisfy
+    // this alone (e.g. hardcoding the subtitle to a fixed string) is ruled
+    // out by the next test, which requires a *different* status to render
+    // *different* text.
+    render(subscription(vi.fn(), ""));
+    await flush();
+
+    expect(document.body.textContent).toMatch(/completed/i);
+  });
+
+  it("translates a raw API status into customer-readable text", async () => {
+    // Guards both defects at once: the raw enum value must never reach the
+    // customer, and it must resolve to calm, non-alarming wording -- not
+    // "pending_fraud_review" verbatim.
+    render(subscription(vi.fn(), "pending_fraud_review"));
+    await flush();
+
+    const text = document.body.textContent ?? "";
+    expect(text).not.toMatch(/pending_fraud_review/);
+    expect(text).toMatch(/under review/i);
+  });
+
+  it("falls back to the raw status instead of crashing when it's unrecognized", async () => {
+    // The SDK's status union is a claim about the API, not a runtime
+    // guarantee -- a value outside the 15 known statuses must degrade to
+    // the raw string, not throw and take down the whole dialog.
+    render(subscription(vi.fn(), "some_future_status"));
+    await flush();
+
+    expect(document.body.textContent).toMatch(/some_future_status/);
   });
 
   it("says so when there are no payments", async () => {
