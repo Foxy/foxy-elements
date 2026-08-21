@@ -378,4 +378,22 @@ export const messages = defineMessages({
     id: "portal_orders_heading",
     defaultMessage: "Orders",
   },
+  // `addressesHeading` is deferred to the task that creates
+  // `sections/addresses/list.tsx` (per the plan's pre-flight scan, that's
+  // Task 5) -- adding it here with no consumer would fail
+  // `messages.test.ts`'s "has a user for every descriptor" check, the same
+  // way `ordersHeading`/`subscriptionsHeading` are only ever declared
+  // alongside the `list.tsx` that reads them.
+  addressDefaultBilling: {
+    id: "portal_address_default_billing",
+    defaultMessage: "Default billing",
+  },
+  addressDefaultShipping: {
+    id: "portal_address_default_shipping",
+    defaultMessage: "Default shipping",
+  },
+  addressEdit: {
+    id: "portal_address_edit",
+    defaultMessage: "Edit",
+  },
 });
