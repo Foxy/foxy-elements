@@ -56,12 +56,17 @@ function render(props: Partial<Parameters<typeof OrderDetailDialog>[0]> = {}) {
 }
 
 describe("OrderDetailDialog", () => {
-  it("lists every item with its quantity and price", () => {
+  it("lists every item with its name and its unit price, not a line total", () => {
     render();
 
+    // `item.price` is the SDK-documented *unit* price (before option
+    // modifiers), not a line amount -- there is no line total available,
+    // since this section's `zoom=items` never fetches `fx:item_options`.
+    // Folding quantity and unit price into one "N × $X each" subtitle is
+    // the fix: a bare "$20.00" next to a "Total" row below would read as
+    // "this line cost $20", which is wrong for a quantity of 2.
     expect(document.body.textContent).toMatch(/Coffee/);
-    expect(document.body.textContent).toMatch(/2/);
-    expect(document.body.textContent).toMatch(/\$20\.00/);
+    expect(document.body.textContent).toMatch(/2 × \$20\.00 each/);
   });
 
   it("shows the item price, tax, shipping and order total as numbers, not raw strings", () => {

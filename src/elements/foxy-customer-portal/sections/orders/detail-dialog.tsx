@@ -30,16 +30,20 @@ export function OrderDetailDialog({ order, open, onClose }: Props) {
             // list is never reordered or filtered client-side.
             key={index}
             title={item.name}
+            // `item.price` is the SDK-documented *unit* price (before item
+            // option modifiers), never a line total -- and this section's
+            // `zoom=items` never fetches `fx:item_options`, so there is no
+            // reliable line total to compute here. Folding quantity and
+            // unit price into one subtitle, with no separate `value` column,
+            // avoids presenting a number that reads as "what this line cost"
+            // when it is actually "what one unit costs".
             subtitle={intl.formatMessage(messages.orderItemQuantity, {
               quantity: item.quantity,
+              price: intl.formatNumber(item.price, {
+                style: "currency",
+                currency: order.currency_code,
+              }),
             })}
-            value={
-              <FormattedNumber
-                value={item.price}
-                style="currency"
-                currency={order.currency_code}
-              />
-            }
           />
         ))}
       </SummaryTable.Root>

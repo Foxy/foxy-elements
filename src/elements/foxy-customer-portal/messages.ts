@@ -347,9 +347,12 @@ export const messages = defineMessages({
     id: "portal_order_detail_heading",
     defaultMessage: "Order #{id}",
   },
+  // `price` is the item's already-formatted unit price (not a line total --
+  // see `detail-dialog.tsx`), so this reads as "2 × $20.00 each" rather than
+  // implying the number is what the line cost.
   orderItemQuantity: {
     id: "portal_order_item_quantity",
-    defaultMessage: "Qty {quantity}",
+    defaultMessage: "{quantity} × {price} each",
   },
   orderItemsTotal: {
     id: "portal_order_items_total",
