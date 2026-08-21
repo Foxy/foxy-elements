@@ -144,6 +144,42 @@ describe("ManageDialog", () => {
     expect(document.body.textContent).not.toMatch(/ends/i);
   });
 
+  it("hides the frequency control when the store turned show_sub_frequency off, even though modification is allowed", () => {
+    // The card already hides the frequency line for this flag (card.tsx) --
+    // this dialog must not offer an editable control for a field the
+    // customer was just told the store doesn't show.
+    render(subscription(), SETTINGS, vi.fn(), { show_sub_frequency: false });
+    expect(document.body.textContent).not.toMatch(/frequency/i);
+  });
+
+  it("never sends the untouched frequency when its control is hidden by show_sub_frequency", async () => {
+    // The trap this guards against: hiding a control is not the same as
+    // making it un-writable. `frequency` state is seeded from
+    // `subscription.frequency` and mutated only by the (now hidden) Select,
+    // so it can never diverge -- but that's an invariant worth a test, not
+    // just a hidden `<Select>`.
+    const patch = vi.fn(async () => ({ ok: true, status: 200 }));
+    render(subscription({}, patch), SETTINGS, vi.fn(), {
+      show_sub_frequency: false,
+    });
+
+    act(() => {
+      const day = document.querySelector<HTMLButtonElement>(
+        "button[data-day]:not([disabled])",
+      );
+      day?.click();
+    });
+    act(() => {
+      const buttons = [...document.querySelectorAll("button")];
+      buttons.find((b) => /^save$/i.test(b.textContent ?? ""))!.click();
+    });
+    await flush();
+
+    expect(patch).toHaveBeenCalledWith({
+      next_transaction_date: expect.any(String),
+    });
+  });
+
   it("offers only the frequencies the store allows", () => {
     render();
 
@@ -313,6 +349,15 @@ describe("ManageDialog next payment date", () => {
     });
 
     expect(document.body.textContent).toMatch(/next payment date/i);
+  });
+
+  it("hides the date control when the store turned show_sub_nextdate off, even though modification is allowed", () => {
+    // The card already hides the next-date line for this flag (card.tsx,
+    // status.ts) -- this dialog must not offer an editable control for a
+    // field the customer was just told the store doesn't show.
+    render(subscription(), SETTINGS, vi.fn(), { show_sub_nextdate: false });
+    expect(document.body.textContent).not.toMatch(/next payment date/i);
+    expect(document.querySelector("button[data-day]")).toBeNull();
   });
 
   it("saves a changed date through patchResource", async () => {

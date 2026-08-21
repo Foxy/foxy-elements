@@ -171,10 +171,15 @@ export function ManageDialog({
   const hasEndDate = !!endsAt;
 
   // Absent config -- settings still loading, or a store on an older template
-  // config -- defaults both rows on, so neither ever regresses for a store
-  // that never opted out.
+  // config -- defaults every row/control on, so none ever regresses for a
+  // store that never opted out. Ported from v1's `SubscriptionForm.ts`
+  // (`__isStartDateVisible`, `__isEndDateVisible`, `__isFrequencyVisible`,
+  // `__isNextTransactionDateVisible`), which all test `=== false` rather than
+  // falsy for the same reason.
   const showStartDate = cartDisplayConfig?.show_sub_startdate ?? true;
   const showEndDate = cartDisplayConfig?.show_sub_enddate ?? true;
+  const showFrequency = cartDisplayConfig?.show_sub_frequency ?? true;
+  const showNextDate = cartDisplayConfig?.show_sub_nextdate ?? true;
 
   async function handleSave() {
     // Only the fields the customer actually touched go in the body. Sending
@@ -258,7 +263,7 @@ export function ManageDialog({
         ) : null}
       </SummaryTable.Root>
 
-      {frequencies.length > 0 ? (
+      {showFrequency && frequencies.length > 0 ? (
         <Field.Root>
           <Field.Label htmlFor={frequencyId}>
             {intl.formatMessage(messages.manageFrequency)}
@@ -293,7 +298,7 @@ export function ManageDialog({
         </Field.Root>
       ) : null}
 
-      {dateRules !== false ? (
+      {showNextDate && dateRules !== false ? (
         <Field.Root>
           <Field.Label>
             {intl.formatMessage(messages.manageNextPayment)}
