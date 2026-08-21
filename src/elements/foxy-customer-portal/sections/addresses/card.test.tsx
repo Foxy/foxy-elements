@@ -116,4 +116,37 @@ describe("AddressCard", () => {
 
     expect(onEdit).toHaveBeenCalledTimes(1);
   });
+
+  // Regression: the title falls back through address_name -> fullName ->
+  // formatFullAddress(address), but a separate description line used to
+  // unconditionally re-render fullName (and another unconditionally
+  // re-rendered the full address), so whichever value won the title fallback
+  // also showed up a second time as its own description line. See 56c7c951,
+  // which fixed the same class of bug for SubscriptionCard.
+  it("shows the name only once when address_name is blank and the title falls back to it", () => {
+    render({
+      address: address({
+        address_name: "",
+        first_name: "Jane",
+        last_name: "Doe",
+      }),
+    });
+
+    const occurrences = screen!.host.textContent!.split("Jane Doe").length - 1;
+    expect(occurrences).toBe(1);
+  });
+
+  it("shows the full address only once when address_name and the name are both blank", () => {
+    render({
+      address: address({
+        address_name: "",
+        first_name: "",
+        last_name: "",
+      }),
+    });
+
+    const occurrences =
+      screen!.host.textContent!.split("123 Main St").length - 1;
+    expect(occurrences).toBe(1);
+  });
 });

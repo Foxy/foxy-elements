@@ -51,15 +51,23 @@ export function AddressCard({ address, onEdit }: Props) {
   const fullName = [address.first_name, address.last_name]
     .filter((part) => part && part.trim().length > 0)
     .join(" ");
+  const fullAddress = formatFullAddress(address);
+  // The title falls back through address_name -> fullName -> fullAddress.
+  // Whichever one wins the title must not also repeat as its own
+  // description line below -- see 56c7c951, which fixed this exact class of
+  // duplicate-text bug for SubscriptionCard's status badge/description pair.
+  const title = address.address_name || fullName || fullAddress;
 
   return (
     <Item.Root $variant="outline">
       <Item.Content>
-        <Item.Title>
-          {address.address_name || fullName || formatFullAddress(address)}
-        </Item.Title>
-        {fullName ? <Item.Description>{fullName}</Item.Description> : null}
-        <Item.Description>{formatFullAddress(address)}</Item.Description>
+        <Item.Title>{title}</Item.Title>
+        {fullName && title !== fullName ? (
+          <Item.Description>{fullName}</Item.Description>
+        ) : null}
+        {title !== fullAddress ? (
+          <Item.Description>{fullAddress}</Item.Description>
+        ) : null}
         {address.company ? (
           <Item.Description>{address.company}</Item.Description>
         ) : null}
