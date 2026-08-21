@@ -122,4 +122,26 @@ describe("OrderDetailDialog", () => {
     expect(capturedFormattedNumberValues).not.toContain("2.50");
     expect(capturedFormattedNumberValues).not.toContain("5.00");
   });
+
+  it("sets the order total apart from items/tax/shipping instead of listing it as a fourth running-sum line", () => {
+    // total_order can legitimately differ from
+    // total_item_price + total_tax + total_shipping (e.g. a coupon
+    // discount, which this resource graph has no field for) -- so Total
+    // must not read as "the sum of the three lines above it". Lock in that
+    // it lives in its own <dl>, separate from the other three.
+    render();
+
+    const lists = [...document.querySelectorAll("dl")];
+    const totalList = lists.find((dl) => /Total/.test(dl.textContent ?? ""));
+    const linesList = lists.find((dl) => /Items/.test(dl.textContent ?? ""));
+
+    expect(totalList).toBeDefined();
+    expect(linesList).toBeDefined();
+    expect(totalList).not.toBe(linesList);
+
+    // The three reconcilable lines stay together, away from Total.
+    expect(linesList?.textContent).toMatch(/Tax/);
+    expect(linesList?.textContent).toMatch(/Shipping/);
+    expect(linesList?.textContent).not.toMatch(/Total/);
+  });
 });

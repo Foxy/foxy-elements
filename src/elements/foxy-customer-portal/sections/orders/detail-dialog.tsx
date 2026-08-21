@@ -1,8 +1,25 @@
+import styled from "styled-components";
 import { FormattedNumber, useIntl } from "react-intl";
 import { SummaryTable } from "@foxy.io/design-system/summary-table";
 import { messages } from "../../messages";
 import { PortalDialog } from "../../portal-dialog";
 import type { OrderResource } from "./row";
+
+// Its own block, set apart with a divider and heavier weight, rather than a
+// fourth line in the `<dl>` above: see the comment at its call site.
+const GrandTotal = styled.dl`
+  display: flex;
+  justify-content: space-between;
+  margin-top: ${(props) => props.theme.tokens.space.sm};
+  padding-top: ${(props) => props.theme.tokens.space.sm};
+  border-top: ${(props) => props.theme.tokens.border.default};
+  font: ${(props) => props.theme.tokens.font.bodyEmphasis};
+
+  dt,
+  dd {
+    margin: 0;
+  }
+`;
 
 type Props = {
   order: OrderResource;
@@ -75,7 +92,15 @@ export function OrderDetailDialog({ order, open, onClose }: Props) {
             currency={order.currency_code}
           />
         </dd>
+      </dl>
 
+      {/* total_order, total_item_price, total_tax and total_shipping are
+          each reported independently by the API and are not guaranteed to
+          sum -- a coupon discount is the known reason a gap can appear, and
+          this resource graph has no field to label it, so Total is its own
+          authoritative figure here, not a fourth line implying a running
+          sum of the three above. Do not "fix" this back into one flat list. */}
+      <GrandTotal>
         <dt>{intl.formatMessage(messages.orderTotal)}</dt>
         <dd>
           <FormattedNumber
@@ -84,7 +109,7 @@ export function OrderDetailDialog({ order, open, onClose }: Props) {
             currency={order.currency_code}
           />
         </dd>
-      </dl>
+      </GrandTotal>
 
       {/* Withheld entirely, not merely disabled, when the link is absent --
           matching `payments-dialog.tsx` and `manage-dialog.tsx`'s existing
