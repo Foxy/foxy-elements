@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { toDatePickerBounds } from "./date-constraints";
+import { toDatePickerBounds, toLocalDateString } from "./date-constraints";
 
 // react-day-picker, with no `timeZone` option (Task 6 must not set one), builds
 // each calendar cell as local midnight: `new Date(year, monthIndex, date)`. Every
@@ -110,5 +110,36 @@ describe("toDatePickerBounds", () => {
     expect(
       toDatePickerBounds({ min: "not-a-frequency" }, FROM).startMonth,
     ).toBeUndefined();
+  });
+});
+
+describe("toLocalDateString", () => {
+  it("keeps the local calendar day instead of shifting to UTC's", () => {
+    // Choose an hour where the local calendar day and the UTC calendar day
+    // differ, whichever side of UTC this runner sits on. A fixed hour like
+    // midnight would only fail this test in zones east of UTC, and this
+    // sandbox is west of UTC — the bug this guards against was invisible here
+    // precisely because a naive `toISOString().slice(0, 10)` happened to
+    // agree with the local day in that direction.
+    const offsetMinutes = new Date().getTimezoneOffset(); // > 0 west of UTC, < 0 east.
+
+    if (offsetMinutes === 0) {
+      // The runner is at UTC itself: local and UTC calendar days can never
+      // differ here, so this test cannot discriminate either implementation.
+      return;
+    }
+
+    const hour = offsetMinutes > 0 ? 23 : 0;
+    const picked = new Date(2026, 2, 15, hour);
+
+    expect(toLocalDateString(picked)).toBe("2026-03-15");
+    // Prove the naive `toISOString()` form really does disagree here, so this
+    // test cannot quietly stop discriminating if someone "simplifies" the
+    // helper back to it.
+    expect(picked.toISOString().slice(0, 10)).not.toBe("2026-03-15");
+  });
+
+  it("zero-pads single-digit months and days", () => {
+    expect(toLocalDateString(new Date(2026, 0, 5))).toBe("2026-01-05");
   });
 });

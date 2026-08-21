@@ -15,7 +15,7 @@ import { messages } from "../../messages";
 import { PortalDialog } from "../../portal-dialog";
 import { usePortalContainer } from "../../portal-container";
 import { patchResource } from "../../write";
-import { toDatePickerBounds } from "./date-constraints";
+import { toDatePickerBounds, toLocalDateString } from "./date-constraints";
 import type { SubscriptionResource } from "./card";
 
 /**
@@ -140,7 +140,7 @@ export function ManageDialog({ subscription, settings, open, onClose }: Props) {
       await patchResource(subscription._links.self as never, {
         frequency,
         ...(nextDate
-          ? { next_transaction_date: nextDate.toISOString().slice(0, 10) }
+          ? { next_transaction_date: toLocalDateString(nextDate) }
           : {}),
       });
       onClose();

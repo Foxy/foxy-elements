@@ -109,3 +109,16 @@ export function toDatePickerBounds(
 
   return { startMonth, endMonth, disabled };
 }
+
+const pad = (n: number) => String(n).padStart(2, "0");
+
+/**
+ * Formats a picker date as the API's `YYYY-MM-DD`, in local terms.
+ *
+ * react-day-picker (no `timeZone` set) hands back local-midnight dates, so
+ * `toISOString()` would convert to UTC and move the calendar day for any
+ * customer east of UTC — sending a date one day before the one they clicked.
+ */
+export function toLocalDateString(date: Date): string {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}

@@ -229,4 +229,46 @@ describe("ManageDialog next payment date", () => {
       expect.objectContaining({ next_transaction_date: expect.any(String) }),
     );
   });
+
+  it("sends the local calendar day the customer clicked, not a UTC-shifted neighbour", async () => {
+    // Fixing "now" pins the month DayPicker shows by default (it defaults to
+    // today when nothing is selected), so the test can target a specific,
+    // known day instead of an arbitrary one and assert an exact value —
+    // `expect.any(String)` above would not have caught a date that shifted a
+    // day east of UTC.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 2, 1)); // March 1, 2026, local midnight.
+
+    try {
+      const patch = vi.fn(async () => ({ ok: true, status: 200 }));
+      render(subscription({}, patch));
+
+      act(() => {
+        // `data-outside` is always present (React renders custom data-*
+        // attributes literally, even when `false`), so its value has to be
+        // compared rather than treated as a presence flag.
+        const day = [
+          ...document.querySelectorAll<HTMLButtonElement>("button[data-day]"),
+        ].find(
+          (b) =>
+            b.textContent === "15" &&
+            !b.disabled &&
+            b.getAttribute("data-outside") !== "true",
+        );
+        day?.click();
+      });
+
+      act(() => {
+        const buttons = [...document.querySelectorAll("button")];
+        buttons.find((b) => /^save$/i.test(b.textContent ?? ""))!.click();
+      });
+      await flush();
+
+      expect(patch).toHaveBeenCalledWith(
+        expect.objectContaining({ next_transaction_date: "2026-03-15" }),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
