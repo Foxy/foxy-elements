@@ -343,4 +343,32 @@ export const messages = defineMessages({
     id: "portal_order_summary",
     defaultMessage: "#{id} · {summary}",
   },
+  orderDetailHeading: {
+    id: "portal_order_detail_heading",
+    defaultMessage: "Order #{id}",
+  },
+  orderItemQuantity: {
+    id: "portal_order_item_quantity",
+    defaultMessage: "Qty {quantity}",
+  },
+  orderItemsTotal: {
+    id: "portal_order_items_total",
+    defaultMessage: "Items",
+  },
+  orderTax: {
+    id: "portal_order_tax",
+    defaultMessage: "Tax",
+  },
+  orderShipping: {
+    id: "portal_order_shipping",
+    defaultMessage: "Shipping",
+  },
+  orderTotal: {
+    id: "portal_order_total",
+    defaultMessage: "Total",
+  },
+  orderReceipt: {
+    id: "portal_order_receipt",
+    defaultMessage: "Receipt",
+  },
 });
