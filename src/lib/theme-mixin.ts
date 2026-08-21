@@ -56,6 +56,11 @@ const THEME_DEFINITIONS = [
     cssVariable: "--background-error",
   },
   {
+    property: "themeBackgroundPopup",
+    attribute: "theme-background-popup",
+    cssVariable: "--background-popup",
+  },
+  {
     property: "themeBorderField",
     attribute: "theme-border-field",
     cssVariable: "--border-field",

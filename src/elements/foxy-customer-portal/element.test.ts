@@ -138,6 +138,89 @@ describe("foxy-customer-portal", () => {
     expect(computed.fontWeight).toBe("400");
   });
 
+  it("threads the theme-background-popup attribute into a rendered dialog", async () => {
+    // `background.popup` (unlike `font.body` above) isn't a component's own
+    // fill -- it's what `Dialog.Popup`/`Select.Popup` render on top of
+    // everything else, so a wrong or unthemed value is invisible until a
+    // dialog is actually open. Reaches the account screen (customer +
+    // settings both stubbed, session seeded) and opens the Change Password
+    // dialog -- the simplest one requiring no subscription/order/address
+    // fixtures -- to prove the attribute reaches `PortalDialog`'s
+    // `Dialog.Popup`, not just an inline field like the font-body case.
+    const storeBase = "https://demo.foxycart.com/s/customer/";
+
+    localStorage.setItem(
+      `foxy:${storeBase}:session`,
+      JSON.stringify({
+        session_token: "t",
+        expires_in: 3600,
+        date_created: new Date().toISOString(),
+      }),
+    );
+
+    // A real `Response`, not a plain `{ ok, status, json }` literal: the
+    // SDK's own `API.get()` (called by `account.tsx`'s `rootLink`, unlike the
+    // fake `FollowableLink`s screen tests hand `useResource` directly) is a
+    // real HTTP client and expects a real `Response` back from `fetch`.
+    function json(body: unknown): Response {
+      return new Response(JSON.stringify(body), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    fetchMock.mockImplementation(async (input: unknown) => {
+      const url =
+        typeof input === "string"
+          ? input
+          : input instanceof URL
+            ? input.toString()
+            : (input as { url: string }).url;
+
+      if (url.endsWith("customer_portal_settings")) return json({});
+      if (url === storeBase) {
+        return json({
+          first_name: "Ada",
+          last_name: "Lovelace",
+          email: "ada@example.com",
+          _links: { self: { href: storeBase } },
+        });
+      }
+      return json({});
+    });
+
+    const element = await mount({
+      "store-domain": "demo",
+      "theme-background-popup": "rgb(10, 20, 30)",
+    });
+
+    // Settle the customer fetch that reaching the account screen requires --
+    // polling rather than a fixed flush count, since the account resource
+    // resolves as its own round trip after the initial settings fetch.
+    const start = Date.now();
+    while (
+      Date.now() - start < 2000 &&
+      !/change password/i.test(element.shadowRoot?.textContent ?? "")
+    ) {
+      await flush();
+    }
+
+    const changePasswordButton = [
+      ...(element.shadowRoot?.querySelectorAll("button") ?? []),
+    ].find((button) => /change password/i.test(button.textContent ?? ""));
+    expect(changePasswordButton).not.toBeUndefined();
+
+    await act(async () => {
+      changePasswordButton!.click();
+    });
+
+    const popup = element.shadowRoot?.querySelector(
+      '[role="dialog"]',
+    ) as HTMLElement | null;
+    expect(popup).not.toBeNull();
+    expect(getComputedStyle(popup!).backgroundColor).toBe("rgb(10, 20, 30)");
+  });
+
   it("only ever asks for portal settings inside the store base path", async () => {
     await mount({ "store-domain": "demo" });
 

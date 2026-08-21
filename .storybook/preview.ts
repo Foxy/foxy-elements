@@ -24,7 +24,7 @@ type ThemePreset = Partial<Record<ThemePropertyName, string>>;
 
 /**
  * Values for each demo theme, expressed as `ThemeMixin` property overrides
- * (same 17 tokens `.storybook/preview-head.html`'s CSS custom properties set
+ * (same tokens `.storybook/preview-head.html`'s CSS custom properties set
  * on `:root`) rather than relying on that CSS to reach a themeable element on
  * its own. It would, eventually -- `getThemeProperty` does fall back to a
  * `--`-prefixed custom property on `document.documentElement` -- but
@@ -48,6 +48,7 @@ const THEME_PRESETS: Record<string, ThemePreset> = {
   "Neo Brutalism": {
     themeBackgroundSurface: "#ffffff",
     themeBackgroundField: "#ffffff",
+    themeBackgroundPopup: "#ffffff",
     themeBackgroundDisabledField: "#e5e5e5",
     themeColorBody: "#000000",
     themeColorPrimary: "#ff3b30",
@@ -67,6 +68,7 @@ const THEME_PRESETS: Record<string, ThemePreset> = {
   "Quantum Rose": {
     themeBackgroundSurface: "#fdf2f8",
     themeBackgroundField: "#fff5fa",
+    themeBackgroundPopup: "#fff5fa",
     themeBackgroundDisabledField: "#f5e4ed",
     themeColorBody: "#4a1942",
     themeColorPrimary: "#e0115f",
@@ -86,6 +88,7 @@ const THEME_PRESETS: Record<string, ThemePreset> = {
   "Amethyst Haze": {
     themeBackgroundSurface: "#f7f5fb",
     themeBackgroundField: "#ffffff",
+    themeBackgroundPopup: "#ffffff",
     themeBackgroundDisabledField: "#eae6f0",
     themeColorBody: "#3a3348",
     themeColorPrimary: "#8b7bae",
@@ -105,6 +108,7 @@ const THEME_PRESETS: Record<string, ThemePreset> = {
   "Midnight Slate": {
     themeBackgroundSurface: "#23262f",
     themeBackgroundField: "#2b2e38",
+    themeBackgroundPopup: "#2b2e38",
     themeBackgroundDisabledField: "#363a46",
     themeColorBody: "#edf1f7",
     themeColorPrimary: "#6fb3e0",
@@ -124,6 +128,7 @@ const THEME_PRESETS: Record<string, ThemePreset> = {
   "High Contrast Dark": {
     themeBackgroundSurface: "#0a0b10",
     themeBackgroundField: "#17181f",
+    themeBackgroundPopup: "#17181f",
     themeBackgroundDisabledField: "#24262e",
     themeColorBody: "#ffffff",
     themeColorPrimary: "#7ec8ff",

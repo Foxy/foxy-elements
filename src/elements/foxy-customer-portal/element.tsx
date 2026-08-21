@@ -220,6 +220,9 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
         error:
           this.getThemeProperty("themeBackgroundError") ??
           defaultTheme.background.error,
+        popup:
+          this.getThemeProperty("themeBackgroundPopup") ??
+          defaultTheme.background.popup,
       },
       border: {
         ...defaultTheme.border,
