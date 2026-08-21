@@ -57,9 +57,15 @@ describe("OrdersSection", () => {
     await flush();
 
     const [query] = spy.mock.calls.at(-1) ?? [];
-    expect(String(query?.filters)).toMatch(
-      /type:in=transaction,subscription_modification,subscription_cancellation/,
-    );
+    // Exact equality, not a substring match: this is the one test guarding
+    // the allow-list-over-deny-list distinction the whole task exists for.
+    // A loose match here would pass just as well for a filter with an extra
+    // type appended, or for a second filter entry alongside this one -- the
+    // exact failure mode the live store silently accepts (full unfiltered
+    // set, still a 200) instead of rejecting.
+    expect(query?.filters).toEqual([
+      "type:in=transaction,subscription_modification,subscription_cancellation",
+    ]);
     expect(String(query?.zoom)).toBe("items");
   });
 
