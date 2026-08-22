@@ -131,7 +131,6 @@ export const messages = defineMessages({
   profileTaxId: { id: "portal_profile_tax_id", defaultMessage: "Tax ID" },
   profileSave: { id: "portal_profile_save", defaultMessage: "Save" },
   profileSaving: { id: "portal_profile_saving", defaultMessage: "Saving..." },
-  profileCancel: { id: "portal_profile_cancel", defaultMessage: "Cancel" },
   profileChangePassword: {
     id: "portal_profile_change_password",
     defaultMessage: "Change password",

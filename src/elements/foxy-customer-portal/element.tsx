@@ -21,6 +21,7 @@ const STORE_DOMAIN_ATTRIBUTE = "store-domain";
 const TEMPLATE_SET_ID_ATTRIBUTE = "template-set-id";
 const FULL_NAME_TEMPLATE_ATTRIBUTE = "full-name-template";
 const SKIP_PASSWORD_RESET_ATTRIBUTE = "skip-password-reset";
+const URL_SYNC_ATTRIBUTE = "url-sync";
 const LANG_ATTRIBUTE = "lang";
 
 const DEFAULT_FULL_NAME_TEMPLATE = "{first_name} {last_name}";
@@ -62,6 +63,7 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
       TEMPLATE_SET_ID_ATTRIBUTE,
       FULL_NAME_TEMPLATE_ATTRIBUTE,
       SKIP_PASSWORD_RESET_ATTRIBUTE,
+      URL_SYNC_ATTRIBUTE,
       LANG_ATTRIBUTE,
       ...ThemeableHTMLElement.themeAttributeNames,
     ];
@@ -110,6 +112,15 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
   set skipPasswordReset(value: boolean) {
     if (value) this.setAttribute(SKIP_PASSWORD_RESET_ATTRIBUTE, "");
     else this.removeAttribute(SKIP_PASSWORD_RESET_ATTRIBUTE);
+  }
+
+  get urlSync(): boolean {
+    return this.hasAttribute(URL_SYNC_ATTRIBUTE);
+  }
+
+  set urlSync(value: boolean) {
+    if (value) this.setAttribute(URL_SYNC_ATTRIBUTE, "");
+    else this.removeAttribute(URL_SYNC_ATTRIBUTE);
   }
 
   connectedCallback() {
@@ -330,6 +341,7 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
                   cache={this.#cache}
                   fullNameTemplate={this.fullNameTemplate}
                   skipPasswordReset={this.skipPasswordReset}
+                  urlSync={this.urlSync}
                   onEvent={(type, detail) =>
                     this.dispatchEvent(
                       new CustomEvent(type, {

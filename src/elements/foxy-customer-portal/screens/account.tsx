@@ -16,14 +16,16 @@ import {
   type FollowableLink,
   type ReadResponse,
 } from "@/lib/customer-api";
+import type { AccountPage } from "../account-page";
+import { AccountPageLayout } from "../account-page-layout";
 import { AddressesSection } from "../sections/addresses";
 import { PortalHeader, type SignOutState } from "../sections/header";
 import { OrdersSection } from "../sections/orders";
-import { PasswordDialog } from "../sections/password-dialog";
+import { PasswordPage } from "../sections/password-page";
 import {
-  ProfileDialog,
+  ProfilePage,
   type CustomerResource,
-} from "../sections/profile-dialog";
+} from "../sections/profile-page";
 import {
   SubscriptionsSection,
   type CartDisplayConfig,
@@ -65,12 +67,16 @@ type Props = {
   onSignedOut: () => void;
   /** `null` while the settings request is still in flight. */
   settings: PortalSettings | null;
+  accountPage: AccountPage;
+  onNavigate: (page: AccountPage) => void;
 };
 
 export function AccountScreen({
   fullNameTemplate,
   onSignedOut,
   settings,
+  accountPage,
+  onNavigate,
 }: Props) {
   const intl = useIntl();
   const { api } = useApi();
@@ -78,14 +84,6 @@ export function AccountScreen({
   // The customer API's root graph *is* the customer, so `api.get()` returns it.
   // Wrapped as a link rather than cast: `API` has no `href`, and the cache keys
   // on `href`. Status checking lives in the hook — see `assertReadSucceeded`.
-  //
-  // The cast below covers the whole response, not just the parsed body: the
-  // SDK's `get()` resolves a `Response` whose `ok`/`status` are real inherited
-  // members (safe as-is), but whose `json()` resolves a `FollowableResource`,
-  // not `CustomerResource` — the SDK types nullable customer fields as
-  // `string | null`, while our screens use `undefined` for "absent"
-  // throughout (see `CustomerProps`). The cast is widening the type to match
-  // that, not papering over a runtime mismatch.
   const rootLink = useMemo<FollowableLink<CustomerResource>>(
     () => ({
       href: api.base.toString(),
@@ -98,8 +96,6 @@ export function AccountScreen({
   const { data, error, isLoading, isUnauthenticated, refresh } =
     useResource<CustomerResource>(rootLink);
 
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isPasswordOpen, setIsPasswordOpen] = useState(false);
   const [signOutState, setSignOutState] = useState<SignOutState>("idle");
   const errorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -127,34 +123,30 @@ export function AccountScreen({
     }
   }, [api, onSignedOut]);
 
-  // `settings.subscriptions` may be missing even though `SubscriptionsSettings`
-  // requires it: the settings request may still be in flight (`settings` is
-  // `null` then), or this store's `customer_portal_settings` response may omit
-  // the key. `getAllowedFrequencies`/`getNextTransactionDateConstraints`
-  // downstream only survive that by throwing inside their own try/catch, which
-  // silently drops the frequency and date controls — checking here instead
-  // makes the fallback to "no settings yet" explicit rather than incidental.
   const subscriptionsSettings: SubscriptionsSettings | null =
     settings?.subscriptions ? (settings as SubscriptionsSettings) : null;
 
-  // Read off `settings` directly, not through `subscriptionsSettings` above --
-  // see `PortalSettings`'s doc comment on this field for why the two need
-  // separate gates.
   const cartDisplayConfig: CartDisplayConfig | null =
     settings?.cart_display_config ?? null;
 
-  // `useResource` already fires `onUnauthenticated` (from `useApi()`, the
-  // same callback this screen used to be handed as a prop) from an effect
-  // the moment `error` is an `UnauthenticatedError` -- see `hooks.tsx`'s
-  // `useEntry`. Routing centralised there so every resource and collection
-  // in the element inherits it, not just this one.
-  //
-  // Hold the loading shape rather than flashing "we couldn't load your
-  // account" on the way back to sign in.
-  if (isLoading || isUnauthenticated) return <Skeleton />;
+  const goHome = useCallback(() => onNavigate({ type: "home" }), [onNavigate]);
+
+  // Both the loading and error states below stay Back-aware for any non-home
+  // page: a deep link (or a browser Back/Forward) that lands here while the
+  // root customer resource is still loading, or fails to load, must not
+  // strand the customer on a bare skeleton or an alert with no way out.
+  if (isLoading || isUnauthenticated) {
+    return accountPage.type === "home" ? (
+      <Skeleton />
+    ) : (
+      <AccountPageLayout onBack={goHome}>
+        <Skeleton />
+      </AccountPageLayout>
+    );
+  }
 
   if (error || !data) {
-    return (
+    const body = (
       <Alert.Root $variant="destructive">
         <Alert.Description>
           {intl.formatMessage(messages.accountLoadFailed)}
@@ -164,46 +156,56 @@ export function AccountScreen({
         </Button>
       </Alert.Root>
     );
+
+    return accountPage.type === "home" ? (
+      body
+    ) : (
+      <AccountPageLayout onBack={goHome}>{body}</AccountPageLayout>
+    );
+  }
+
+  if (accountPage.type === "profile") {
+    return <ProfilePage customer={data} onBack={goHome} />;
+  }
+
+  if (accountPage.type === "password") {
+    return <PasswordPage customer={data} onBack={goHome} />;
   }
 
   return (
     <div>
-      <PortalHeader
-        customer={data}
-        fullNameTemplate={fullNameTemplate}
-        onEditProfile={() => setIsProfileOpen(true)}
-        onSignOut={handleSignOut}
-        signOutState={signOutState}
-      />
+      {accountPage.type === "home" ? (
+        <>
+          <PortalHeader
+            customer={data}
+            fullNameTemplate={fullNameTemplate}
+            onEditProfile={() => onNavigate({ type: "profile" })}
+            onSignOut={handleSignOut}
+            signOutState={signOutState}
+          />
 
-      <Button
-        type="button"
-        $variant="link"
-        onClick={() => setIsPasswordOpen(true)}
-      >
-        {intl.formatMessage(messages.profileChangePassword)}
-      </Button>
-
-      <ProfileDialog
-        customer={data}
-        open={isProfileOpen}
-        onClose={() => {
-          setIsProfileOpen(false);
-          refresh();
-        }}
-      />
-
-      <PasswordDialog
-        customer={data}
-        open={isPasswordOpen}
-        onClose={() => setIsPasswordOpen(false)}
-      />
+          <Button
+            type="button"
+            $variant="link"
+            onClick={() => onNavigate({ type: "password" })}
+          >
+            {intl.formatMessage(messages.profileChangePassword)}
+          </Button>
+        </>
+      ) : null}
 
       {/* `CustomerResource` types `_links` down to just `self`, because that's
-          the only link the two dialogs above read. The SDK's real response
+          the only link the two pages above read. The SDK's real response
           enriches every link on the resource the same way (FollowableResource,
           see `Response.json()`), so this cast widens the type to say so,
-          rather than papering over a runtime mismatch. */}
+          rather than papering over a runtime mismatch.
+
+          Tasks 4/5/6 give `subscription`/`order`/`address` their own page
+          instead of falling back to these home sections -- until then, a
+          deep link or Back/Forward landing on one of those three types
+          simply shows the home sections (without the header above, since
+          `accountPage.type` is not literally `"home"`) rather than crashing
+          on an AccountPage variant this task doesn't handle yet. */}
       <SubscriptionsSection
         customer={
           data as unknown as ComponentProps<

@@ -149,6 +149,7 @@ function render(api: unknown, props: Record<string, unknown> = {}) {
         (props.fullNameTemplate as string) ?? "{first_name} {last_name}"
       }
       skipPasswordReset={(props.skipPasswordReset as boolean) ?? false}
+      urlSync={(props.urlSync as boolean) ?? false}
       onEvent={
         (props.onEvent as (type: string, detail?: unknown) => void) ?? vi.fn()
       }
@@ -426,9 +427,8 @@ describe("Portal", () => {
     await flush();
 
     clickButtonMatching(/edit profile/i);
-    // The dialog portals into `document.body`, not `screen.host` — see
-    // `profile-dialog.test.tsx` — and needs a flush before Base UI finishes
-    // opening it.
+    // ProfilePage renders inline now, not through a portal, but a flush is
+    // still needed for the async patch below to settle.
     await flush();
 
     act(() => {

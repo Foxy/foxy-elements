@@ -10,6 +10,11 @@ import {
   type FollowableLink,
   type RequestCache,
 } from "@/lib/customer-api";
+import {
+  accountPageToSearchParams,
+  parseAccountPageFromSearch,
+  type AccountPage,
+} from "./account-page";
 import { customerPortalEvents } from "./events";
 import { messages } from "./messages";
 import type { PortalScreen } from "./types";
@@ -80,12 +85,14 @@ export function Portal({
   cache,
   fullNameTemplate,
   skipPasswordReset,
+  urlSync,
   onEvent,
 }: {
   api: API;
   cache: RequestCache;
   fullNameTemplate: string;
   skipPasswordReset: boolean;
+  urlSync: boolean;
   onEvent: (type: string, detail?: unknown) => void;
 }) {
   // Presence of the session key is not enough — see `hasValidSession`. An
@@ -94,6 +101,60 @@ export function Portal({
   const [screen, setScreen] = useState<PortalScreen>(() =>
     hasValidSession(api) ? "account" : "sign-in",
   );
+
+  // Lives here, alongside `screen` rather than inside `AccountScreen`, so a
+  // deep link queued while signed out (`screen` starts at `"sign-in"`
+  // regardless) survives the transition to `"account"` once `afterSignIn`
+  // flips `screen` — no special "resume" code needed, this falls out of the
+  // two states changing independently.
+  const [accountPage, setAccountPageState] = useState<AccountPage>(() =>
+    urlSync ? parseAccountPageFromSearch(window.location.search) : { type: "home" },
+  );
+
+  const navigateAccountPage = useCallback(
+    (page: AccountPage) => {
+      setAccountPageState(page);
+      if (!urlSync) return;
+      const url = new URL(window.location.href);
+      url.search = accountPageToSearchParams(page).toString();
+      history.pushState({ fcAccountPage: true }, "", url);
+    },
+    [urlSync],
+  );
+
+  // Sign-out uses this, not `navigateAccountPage`: a customer signing in
+  // again on a shared computer must not land on a stale sub-page from the
+  // previous session, and `replaceState` (not `pushState`) keeps that reset
+  // from adding a spurious Back stop on top of everything the previous
+  // session actually navigated through.
+  const resetAccountPage = useCallback(() => {
+    setAccountPageState({ type: "home" });
+    if (!urlSync) return;
+    const url = new URL(window.location.href);
+    url.search = accountPageToSearchParams({ type: "home" }).toString();
+    history.replaceState({ fcAccountPage: true }, "", url);
+  }, [urlSync]);
+
+  // Registered only while `urlSync` is on, and torn down the moment it turns
+  // off or this unmounts -- the listener lives on `window`, not on this
+  // element, so it would otherwise outlive the element's own lifecycle.
+  // Re-parses on *every* popstate, including one that lands on a URL with no
+  // `fc_page` at all (the customer backed past every portal-related entry
+  // into the host page's own prior state) -- `parseAccountPageFromSearch`'s
+  // fallback to `home` is what makes that safe rather than a case to handle
+  // here. Calls `setAccountPageState` directly, never `navigateAccountPage`
+  // -- that would push a fresh entry on top of the one the browser just
+  // popped to, breaking Back.
+  useEffect(() => {
+    if (!urlSync) return;
+
+    function handlePopState() {
+      setAccountPageState(parseAccountPageFromSearch(window.location.search));
+    }
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [urlSync]);
 
   /**
    * A request came back 401 or 403: the session is gone or was never valid.
@@ -119,6 +180,9 @@ export function Portal({
       <PortalScreens
         screen={screen}
         setScreen={setScreen}
+        accountPage={accountPage}
+        onNavigateAccountPage={navigateAccountPage}
+        onResetAccountPage={resetAccountPage}
         fullNameTemplate={fullNameTemplate}
         skipPasswordReset={skipPasswordReset}
         onEvent={onEvent}
@@ -141,12 +205,18 @@ export function Portal({
 function PortalScreens({
   screen,
   setScreen,
+  accountPage,
+  onNavigateAccountPage,
+  onResetAccountPage,
   fullNameTemplate,
   skipPasswordReset,
   onEvent,
 }: {
   screen: PortalScreen;
   setScreen: (screen: PortalScreen) => void;
+  accountPage: AccountPage;
+  onNavigateAccountPage: (page: AccountPage) => void;
+  onResetAccountPage: () => void;
   fullNameTemplate: string;
   skipPasswordReset: boolean;
   onEvent: (type: string, detail?: unknown) => void;
@@ -249,8 +319,11 @@ function PortalScreens({
       onSignedOut={() => {
         onEvent(customerPortalEvents.signOut);
         setScreen("sign-in");
+        onResetAccountPage();
       }}
       settings={settings}
+      accountPage={accountPage}
+      onNavigate={onNavigateAccountPage}
     />
   );
 }

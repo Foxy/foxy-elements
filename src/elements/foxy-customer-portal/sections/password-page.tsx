@@ -4,16 +4,17 @@ import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
-import { WriteError } from "@/lib/customer-api";
+import { useApi, WriteError } from "@/lib/customer-api";
+import { AccountPageLayout } from "../account-page-layout";
 import { messages } from "../messages";
-import { PortalDialog } from "../portal-dialog";
 import { patchResource } from "../write";
-import type { CustomerResource } from "./profile-dialog";
+import type { CustomerResource } from "./profile-page";
 
-type Props = { customer: CustomerResource; open: boolean; onClose: () => void };
+type Props = { customer: CustomerResource; onBack: () => void };
 
-export function PasswordDialog({ customer, open, onClose }: Props) {
+export function PasswordPage({ customer, onBack }: Props) {
   const intl = useIntl();
+  const { cache } = useApi();
   const currentId = useId();
   const nextId = useId();
 
@@ -33,10 +34,11 @@ export function PasswordDialog({ customer, open, onClose }: Props) {
         password_old: current,
       });
 
-      onClose();
+      cache.clear();
+      onBack();
     } catch (caught) {
       // A wrong current password is a field-level problem, not a form-level
-      // one — that is the reason this is its own dialog.
+      // one — that is the reason this is its own page.
       //
       // The status is what says so. A link's `patch` never throws the SDK's
       // `AuthError`, so there is no `code` to read here: `AuthError` comes only
@@ -51,10 +53,9 @@ export function PasswordDialog({ customer, open, onClose }: Props) {
   }
 
   return (
-    <PortalDialog
-      open={open}
-      onOpenChange={(isOpen: boolean) => !isOpen && onClose()}
+    <AccountPageLayout
       title={intl.formatMessage(messages.profileChangePassword)}
+      onBack={onBack}
     >
       <form onSubmit={handleSubmit}>
         {error === "unknown" && (
@@ -103,11 +104,7 @@ export function PasswordDialog({ customer, open, onClose }: Props) {
             isBusy ? messages.passwordSaving : messages.passwordSave,
           )}
         </Button>
-
-        <Button type="button" $variant="outline" onClick={onClose}>
-          {intl.formatMessage(messages.profileCancel)}
-        </Button>
       </form>
-    </PortalDialog>
+    </AccountPageLayout>
   );
 }

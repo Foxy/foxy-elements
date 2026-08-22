@@ -5,8 +5,8 @@ import { Button } from "@foxy.io/design-system/button";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
 import { WriteError, useApi, type FollowableLink } from "@/lib/customer-api";
+import { AccountPageLayout } from "../account-page-layout";
 import { messages } from "../messages";
-import { PortalDialog } from "../portal-dialog";
 import { patchResource } from "../write";
 import type { CustomerProps } from "./header";
 
@@ -14,11 +14,11 @@ export type CustomerResource = CustomerProps & {
   _links: { self: FollowableLink<unknown> };
 };
 
-type Props = { customer: CustomerResource; open: boolean; onClose: () => void };
+type Props = { customer: CustomerResource; onBack: () => void };
 
-export function ProfileDialog({ customer, open, onClose }: Props) {
+export function ProfilePage({ customer, onBack }: Props) {
   const intl = useIntl();
-  const { onUnauthenticated } = useApi();
+  const { onUnauthenticated, cache } = useApi();
   const firstNameId = useId();
   const lastNameId = useId();
   const emailId = useId();
@@ -37,9 +37,9 @@ export function ProfileDialog({ customer, open, onClose }: Props) {
     setHasFailed(false);
 
     try {
-      // Password is deliberately absent — it has its own dialog.
+      // Password is deliberately absent — it has its own page.
       // patchResource, not patch?.(), so an unwritable link fails instead of
-      // closing the dialog as though the save succeeded.
+      // navigating back as though the save succeeded.
       await patchResource(customer._links.self, {
         first_name: firstName,
         last_name: lastName,
@@ -47,10 +47,11 @@ export function ProfileDialog({ customer, open, onClose }: Props) {
         tax_id: taxId,
       });
 
-      onClose();
+      cache.clear();
+      onBack();
     } catch (caught) {
-      // This dialog sends no credentials, so a 401/403 can only mean the
-      // session died. The password dialog is the one place where 401 means
+      // This page sends no credentials, so a 401/403 can only mean the
+      // session died. The password page is the one place where 401 means
       // "the value you typed was wrong" — it must not route.
       if (caught instanceof WriteError && caught.isUnauthorized) {
         onUnauthenticated();
@@ -64,10 +65,9 @@ export function ProfileDialog({ customer, open, onClose }: Props) {
   }
 
   return (
-    <PortalDialog
-      open={open}
-      onOpenChange={(next: boolean) => !next && onClose()}
+    <AccountPageLayout
       title={intl.formatMessage(messages.profileHeading)}
+      onBack={onBack}
     >
       <form onSubmit={handleSubmit}>
         {hasFailed && (
@@ -135,11 +135,7 @@ export function ProfileDialog({ customer, open, onClose }: Props) {
             isBusy ? messages.profileSaving : messages.profileSave,
           )}
         </Button>
-
-        <Button type="button" $variant="outline" onClick={onClose}>
-          {intl.formatMessage(messages.profileCancel)}
-        </Button>
       </form>
-    </PortalDialog>
+    </AccountPageLayout>
   );
 }
