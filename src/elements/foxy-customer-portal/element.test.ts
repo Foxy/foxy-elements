@@ -249,10 +249,8 @@ describe("foxy-customer-portal", () => {
     const start = Date.now();
     while (
       Date.now() - start < 2000 &&
-      !/^edit$/i.test(
-        [...(element.shadowRoot?.querySelectorAll("button") ?? [])]
-          .map((button) => button.textContent ?? "")
-          .find((text) => /^edit$/i.test(text)) ?? "",
+      ![...(element.shadowRoot?.querySelectorAll("button") ?? [])].some(
+        (button) => /^edit$/i.test(button.textContent ?? ""),
       )
     ) {
       await flush();

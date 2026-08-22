@@ -396,6 +396,54 @@ describe("Portal", () => {
     expect(api.storage.getItem(API.SESSION)).not.toBeNull();
   });
 
+  it("shows the customer's updated name after a profile save", async () => {
+    // `ProfilePage` calls `cache.clear()` then `onBack()` on a successful save
+    // (replacing the old dialog's `onSaved` callback -- see the plan's Global
+    // Constraints) instead of the screen re-fetching directly. This proves
+    // that end to end: `AccountScreen`'s `useResource` has to notice the
+    // cleared cache entry and re-read, not keep showing the pre-save name.
+    let current = ada;
+    const patch = vi.fn(async (body: Record<string, unknown>) => {
+      current = { ...current, ...body };
+      return { ok: true, status: 200 };
+    });
+    current = { ...ada, _links: { self: { href: "/c", patch } } };
+
+    const api = fakeApi({
+      get: vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => current,
+      })),
+    });
+    api.storage.setItem(API.SESSION, session());
+    render(api);
+    await flush();
+    await flush();
+
+    expect(screen!.host.textContent).toMatch(/Ada Lovelace/);
+
+    clickButtonMatching(/edit profile/i);
+    await flush();
+
+    const first = document.querySelector<HTMLInputElement>(
+      'input[autocomplete="given-name"]',
+    )!;
+    act(() => setInputValue(first, "Augusta"));
+
+    act(() => {
+      document
+        .querySelector("form")!
+        .dispatchEvent(
+          new Event("submit", { bubbles: true, cancelable: true }),
+        );
+    });
+    await flush();
+    await flush();
+
+    expect(screen!.host.textContent).toMatch(/Augusta Lovelace/);
+  });
+
   it("routes to sign-in when a write comes back unauthorized", async () => {
     // Mirrors the read-side test above, but through the profile dialog's save
     // instead of the initial account load — this is the wiring
@@ -458,6 +506,62 @@ describe("Portal", () => {
     expect(probe).toHaveBeenCalled();
 
     await flush();
+  });
+
+  it("keeps the URL in sync when urlSync is enabled: pushes on navigate, routes back on popstate, and clears on sign-out", async () => {
+    // Task 3's actual deliverable -- `navigateAccountPage`/`resetAccountPage`/
+    // the `popstate` listener in `view.tsx` -- has no other test exercising it
+    // end to end; every other test in this file renders with the default
+    // `urlSync: false`. Runs in the suite's real Chromium page, so the
+    // original URL is restored in `finally` rather than leaking into later
+    // tests.
+    const originalUrl = window.location.href;
+
+    try {
+      const api = fakeApi();
+      api.storage.setItem(API.SESSION, session());
+      render(api, { urlSync: true });
+      await flush();
+      await flush();
+
+      clickButtonMatching(/edit profile/i);
+      await flush();
+
+      expect(window.location.search).toBe("?fc_page=profile");
+
+      // Simulate the browser's Back button landing on the pre-portal URL --
+      // no `fc_page` at all -- which `parseAccountPageFromSearch`'s fallback
+      // must read as home, not crash or stay on the profile page.
+      history.pushState({}, "", originalUrl);
+      act(() => {
+        window.dispatchEvent(new PopStateEvent("popstate"));
+      });
+      await flush();
+
+      expect(screen!.host.textContent).toMatch(/Ada Lovelace/);
+      expect(window.location.search).not.toMatch(/fc_page/);
+
+      // Sign-out goes through `resetAccountPage` (`replaceState`, not
+      // `pushState`) so a stale sub-page query never survives into the next
+      // session on a shared computer.
+      clickButtonMatching(/edit profile/i);
+      await flush();
+      expect(window.location.search).toBe("?fc_page=profile");
+
+      act(() => {
+        const buttons = [...screen!.host.querySelectorAll("button")];
+        buttons.find((b) => /^back$/i.test(b.textContent ?? ""))!.click();
+      });
+      await flush();
+
+      clickButtonMatching(/sign out/i);
+      await flush();
+
+      expect(screen!.host.textContent).toMatch(/sign in/i);
+      expect(window.location.search).toBe("");
+    } finally {
+      history.replaceState({}, "", originalUrl);
+    }
   });
 
   it("does not dead-end on the retry loop when the session is gone", async () => {

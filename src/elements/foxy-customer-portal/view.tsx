@@ -108,7 +108,9 @@ export function Portal({
   // flips `screen` — no special "resume" code needed, this falls out of the
   // two states changing independently.
   const [accountPage, setAccountPageState] = useState<AccountPage>(() =>
-    urlSync ? parseAccountPageFromSearch(window.location.search) : { type: "home" },
+    urlSync
+      ? parseAccountPageFromSearch(window.location.search)
+      : { type: "home" },
   );
 
   const navigateAccountPage = useCallback(

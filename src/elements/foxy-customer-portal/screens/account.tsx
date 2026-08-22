@@ -22,10 +22,7 @@ import { AddressesSection } from "../sections/addresses";
 import { PortalHeader, type SignOutState } from "../sections/header";
 import { OrdersSection } from "../sections/orders";
 import { PasswordPage } from "../sections/password-page";
-import {
-  ProfilePage,
-  type CustomerResource,
-} from "../sections/profile-page";
+import { ProfilePage, type CustomerResource } from "../sections/profile-page";
 import {
   SubscriptionsSection,
   type CartDisplayConfig,
@@ -224,9 +221,7 @@ export function AccountScreen({
 
       <AddressesSection
         customer={
-          data as unknown as ComponentProps<
-            typeof AddressesSection
-          >["customer"]
+          data as unknown as ComponentProps<typeof AddressesSection>["customer"]
         }
       />
 
