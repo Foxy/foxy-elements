@@ -115,6 +115,7 @@ export const messages = defineMessages({
     id: "portal_header_tax_id",
     defaultMessage: "Tax ID: {taxId}",
   },
+  back: { id: "portal_back", defaultMessage: "Back" },
   profileHeading: {
     id: "portal_profile_heading",
     defaultMessage: "Edit profile",
