@@ -35,6 +35,18 @@ import { messages } from "../messages";
 const SIGN_OUT_ERROR_MS = 1000;
 
 /**
+ * `CustomerResource` types `_links` down to just `self`, so indexing it by
+ * any other rel (e.g. `fx:subscriptions`, `fx:transactions`) fails before the
+ * `as unknown as ComponentProps<...>[...]` cast at each call site ever
+ * applies -- that cast only widens the *result* type, not the property
+ * access itself. This widens `_links` to an indexable shape first.
+ */
+type CustomerLinks = Record<
+  string,
+  { href: string } & Partial<FollowableLink<unknown>>
+>;
+
+/**
  * The full `customer_portal_settings` payload, as `view.tsx` fetches it and
  * casts to this type (FX-275 widens it from a `sign_up`-only slice). Declared
  * with `subscriptions` optional — unlike `SubscriptionsSettings` below, which
@@ -176,7 +188,9 @@ export function AccountScreen({
         id={accountPage.id}
         resource={accountPage.resource}
         subscriptionsLink={
-          data._links["fx:subscriptions"] as unknown as ComponentProps<
+          (data._links as unknown as CustomerLinks)[
+            "fx:subscriptions"
+          ] as unknown as ComponentProps<
             typeof SubscriptionPageContainer
           >["subscriptionsLink"]
         }
@@ -193,7 +207,9 @@ export function AccountScreen({
         id={accountPage.id}
         resource={accountPage.resource}
         ordersLink={
-          data._links["fx:transactions"] as unknown as ComponentProps<
+          (data._links as unknown as CustomerLinks)[
+            "fx:transactions"
+          ] as unknown as ComponentProps<
             typeof OrderPageContainer
           >["ordersLink"]
         }

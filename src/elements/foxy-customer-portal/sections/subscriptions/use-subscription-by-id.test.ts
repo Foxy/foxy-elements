@@ -36,15 +36,12 @@ function renderHook(link: unknown, id: string) {
 
   act(() => {
     root!.render(
-      createElement(
-        ApiProvider,
-        {
-          api: {} as never,
-          cache: new RequestCache(),
-          onUnauthenticated: vi.fn(),
-        },
-        createElement(Probe),
-      ),
+      createElement(ApiProvider, {
+        api: {} as never,
+        cache: new RequestCache(),
+        onUnauthenticated: vi.fn(),
+        children: createElement(Probe),
+      }),
     );
   });
 

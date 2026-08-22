@@ -407,7 +407,7 @@ describe("Portal", () => {
       current = { ...current, ...body };
       return { ok: true, status: 200 };
     });
-    current = { ...ada, _links: { self: { href: "/c", patch } } };
+    current = { ...ada, _links: { self: { href: "/c", patch } } } as never;
 
     const api = fakeApi({
       get: vi.fn(async () => ({

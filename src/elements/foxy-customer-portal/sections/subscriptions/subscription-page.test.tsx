@@ -149,7 +149,7 @@ describe("SubscriptionPageContainer", () => {
   it("fetches by id when no resource was handed in", async () => {
     const link = {
       href: "/subs",
-      get: vi.fn(async (query?: Record<string, unknown>) => ({
+      get: vi.fn(async (_query?: Record<string, unknown>) => ({
         ok: true,
         status: 200,
         json: async () => ({
