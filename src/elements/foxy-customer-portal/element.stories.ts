@@ -220,7 +220,7 @@ const DEFAULT_ADDRESSES = [
  * *different* entries (indices 0 and 1) to show the badges are independent,
  * not a single "the default address" flag. Mixes a region-list country
  * (`US`, alternating with `CA`) with one free-text-region country (`AF`, the
- * last entry) so both `AddressCard`/`AddressEditDialog` region paths are
+ * last entry) so both `AddressCard`/`AddressPage` region paths are
  * visible in the same story.
  */
 function buildAddresses(count: number): typeof DEFAULT_ADDRESSES {

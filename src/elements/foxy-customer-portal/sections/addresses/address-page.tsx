@@ -5,24 +5,71 @@ import { Button } from "@foxy.io/design-system/button";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
 import { Select } from "@foxy.io/design-system/select";
-import { WriteError, useApi } from "@/lib/customer-api";
+import { Skeleton } from "@foxy.io/design-system/skeleton";
+import { useApi, WriteError, type FollowableLink } from "@/lib/customer-api";
 import { messages } from "../../messages";
-import { PortalDialog } from "../../portal-dialog";
+import { AccountPageLayout } from "../../account-page-layout";
 import { usePortalContainer } from "../../portal-container";
 import { patchResource } from "../../write";
 import { COUNTRIES } from "./countries";
 import type { AddressResource } from "./card";
+import { useAddressById } from "./use-address-by-id";
 
-type Props = {
-  address: AddressResource;
-  open: boolean;
-  onClose: () => void;
-  onSaved?: () => void;
+type CollectionPage = {
+  total_items?: number;
+  _embedded?: Record<string, unknown[]>;
 };
 
-export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
+type ContainerProps = {
+  id: string;
+  resource?: AddressResource;
+  addressesLink: FollowableLink<CollectionPage> | null;
+  onBack: () => void;
+};
+
+/**
+ * Resolves `resource` when navigation didn't already carry it -- same
+ * pattern as `subscriptions/subscription-page.tsx`'s
+ * `SubscriptionPageContainer`.
+ */
+export function AddressPageContainer({
+  id,
+  resource,
+  addressesLink,
+  onBack,
+}: ContainerProps) {
   const intl = useIntl();
-  const { onUnauthenticated } = useApi();
+  const fetched = useAddressById(resource ? null : addressesLink, id);
+  const address = resource ?? fetched.address;
+
+  if (!resource && (fetched.isLoading || fetched.isUnauthenticated)) {
+    return (
+      <AccountPageLayout onBack={onBack}>
+        <Skeleton />
+      </AccountPageLayout>
+    );
+  }
+
+  if (!address) {
+    return (
+      <AccountPageLayout onBack={onBack}>
+        <Alert.Root $variant="destructive">
+          <Alert.Description>
+            {intl.formatMessage(messages.errorUnknown)}
+          </Alert.Description>
+        </Alert.Root>
+      </AccountPageLayout>
+    );
+  }
+
+  return <AddressPage address={address} onBack={onBack} />;
+}
+
+type Props = { address: AddressResource; onBack: () => void };
+
+export function AddressPage({ address, onBack }: Props) {
+  const intl = useIntl();
+  const { onUnauthenticated, cache } = useApi();
   const labelId = useId();
   const firstNameId = useId();
   const lastNameId = useId();
@@ -87,7 +134,7 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
       // Every field here is one this form lets the customer edit. Neither
       // `is_default_billing` nor `is_default_shipping` is a state variable
       // above, so there is no way for this object to carry either -- that's
-      // what makes an unconditional full-object PATCH safe for this dialog
+      // what makes an unconditional full-object PATCH safe for this page
       // specifically (see the plan's Global Constraints).
       await patchResource(address._links.self as never, {
         address_name: addressName,
@@ -103,8 +150,8 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
         postal_code: postalCode,
       });
 
-      onSaved?.();
-      onClose();
+      cache.clear();
+      onBack();
     } catch (caught) {
       if (caught instanceof WriteError && caught.isUnauthorized) {
         onUnauthenticated();
@@ -118,10 +165,9 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
   }
 
   return (
-    <PortalDialog
-      open={open}
-      onOpenChange={(next: boolean) => !next && onClose()}
+    <AccountPageLayout
       title={intl.formatMessage(messages.addressEditHeading)}
+      onBack={onBack}
     >
       <form onSubmit={handleSubmit}>
         {hasFailed ? (
@@ -339,11 +385,7 @@ export function AddressEditDialog({ address, open, onClose, onSaved }: Props) {
             isBusy ? messages.addressSaving : messages.addressSave,
           )}
         </Button>
-
-        <Button type="button" $variant="outline" onClick={onClose}>
-          {intl.formatMessage(messages.addressCancel)}
-        </Button>
       </form>
-    </PortalDialog>
+    </AccountPageLayout>
   );
 }

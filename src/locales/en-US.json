@@ -60,7 +60,6 @@
   "payment_tokenize_ach_error": "Unable to tokenize bank details.",
   "payment_tokenize_card_error": "Unable to tokenize card details.",
   "portal_account_load_failed": "We couldn't load your account. Please try again.",
-  "portal_address_cancel": "Cancel",
   "portal_address_city": "City",
   "portal_address_company": "Company",
   "portal_address_country": "Country",

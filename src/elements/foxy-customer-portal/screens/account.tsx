@@ -18,7 +18,7 @@ import {
 } from "@/lib/customer-api";
 import type { AccountPage } from "../account-page";
 import { AccountPageLayout } from "../account-page-layout";
-import { AddressesSection } from "../sections/addresses";
+import { AddressesSection, AddressPageContainer } from "../sections/addresses";
 import { PortalHeader, type SignOutState } from "../sections/header";
 import { OrderPageContainer, OrdersSection } from "../sections/orders";
 import { PasswordPage } from "../sections/password-page";
@@ -218,6 +218,23 @@ export function AccountScreen({
     );
   }
 
+  if (accountPage.type === "address") {
+    return (
+      <AddressPageContainer
+        id={accountPage.id}
+        resource={accountPage.resource}
+        addressesLink={
+          (data._links as unknown as CustomerLinks)[
+            "fx:customer_addresses"
+          ] as unknown as ComponentProps<
+            typeof AddressPageContainer
+          >["addressesLink"]
+        }
+        onBack={goHome}
+      />
+    );
+  }
+
   return (
     <div>
       {accountPage.type === "home" ? (
@@ -244,14 +261,7 @@ export function AccountScreen({
           the only link the two pages above read. The SDK's real response
           enriches every link on the resource the same way (FollowableResource,
           see `Response.json()`), so this cast widens the type to say so,
-          rather than papering over a runtime mismatch.
-
-          Task 6 gives `address` its own page instead of falling back to
-          these home sections -- until then, a deep link or Back/Forward
-          landing on that type simply shows the home sections (without the
-          header, since `accountPage.type` is not literally `"home"`) rather
-          than crashing on an AccountPage variant this task doesn't handle
-          yet. */}
+          rather than papering over a runtime mismatch. */}
       <SubscriptionsSection
         customer={
           data as unknown as ComponentProps<
@@ -273,6 +283,7 @@ export function AccountScreen({
         customer={
           data as unknown as ComponentProps<typeof AddressesSection>["customer"]
         }
+        onNavigate={onNavigate}
       />
 
       {/* FX-289 payment methods mount here, once built. */}

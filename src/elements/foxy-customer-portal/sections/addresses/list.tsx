@@ -1,22 +1,30 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
 import { useCollection, type FollowableLink } from "@/lib/customer-api";
+import type { AccountPage } from "../../account-page";
 import { messages } from "../../messages";
 import { AddressCard, type AddressResource } from "./card";
-import { AddressEditDialog } from "./edit-dialog";
 
 type CustomerWithLinks = {
   _links: Record<string, FollowableLink<never> & { href: string }>;
 };
 
-type Props = { customer: CustomerWithLinks };
+type Props = {
+  customer: CustomerWithLinks;
+  onNavigate: (page: AccountPage) => void;
+};
 
-export function AddressesSection({ customer }: Props) {
+/** No top-level `id` on this resource; the last segment of its self link is
+ * the identifier the customer recognises. */
+function addressId(address: AddressResource): string {
+  return address._links.self.href.replace(/\/+$/, "").split("/").pop() ?? "";
+}
+
+export function AddressesSection({ customer, onNavigate }: Props) {
   const intl = useIntl();
-  const [editing, setEditing] = useState<AddressResource | null>(null);
 
   const link = customer._links["fx:customer_addresses"];
   const query = useMemo(() => ({ limit: 10 }), []);
@@ -31,7 +39,6 @@ export function AddressesSection({ customer }: Props) {
     limit,
     loadNext,
     loadPrev,
-    refresh,
   } = useCollection<AddressResource>(link as never, query);
 
   if (isLoading || isUnauthenticated) {
@@ -69,23 +76,15 @@ export function AddressesSection({ customer }: Props) {
         <AddressCard
           key={address._links.self.href}
           address={address}
-          onEdit={() => setEditing(address)}
+          onEdit={() =>
+            onNavigate({
+              type: "address",
+              id: addressId(address),
+              resource: address,
+            })
+          }
         />
       ))}
-
-      {/* Mounted only while editing, matching ManageDialog/OrderDetailDialog:
-          the dialog seeds its form state from `address` once, on mount, so
-          reusing one instance across different addresses would leak the
-          previous address's fields into the next. */}
-      {editing ? (
-        <AddressEditDialog
-          key={editing._links.self.href}
-          address={editing}
-          open
-          onClose={() => setEditing(null)}
-          onSaved={refresh}
-        />
-      ) : null}
 
       {totalItems > limit ? (
         <div>

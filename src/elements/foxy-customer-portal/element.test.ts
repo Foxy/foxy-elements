@@ -154,17 +154,21 @@ describe("foxy-customer-portal", () => {
     expect(computed.fontWeight).toBe("400");
   });
 
-  it("threads the theme-background-popup attribute into a rendered dialog", async () => {
+  it("threads the theme-background-popup attribute into a rendered Select popup", async () => {
     // `background.popup` (unlike `font.body` above) isn't a component's own
     // fill -- it's what `Dialog.Popup`/`Select.Popup` render on top of
     // everything else, so a wrong or unthemed value is invisible until a
-    // dialog is actually open. Reaches the account screen (customer +
-    // settings both stubbed, session seeded) and opens the address Edit
-    // dialog -- Task 3 converted Profile/Password into full pages with no
-    // dialog chrome at all, so the address editor (untouched by Task 3) is
-    // now the simplest remaining `PortalDialog` consumer -- to prove the
-    // attribute reaches `PortalDialog`'s `Dialog.Popup`, not just an inline
-    // field like the font-body case.
+    // popup is actually open. This element no longer has a `PortalDialog`
+    // consumer at all (Task 6 converted the last one, the address editor,
+    // into `AddressPage` and deleted `PortalDialog` outright), so this test
+    // now anchors on the Country `Select` that page renders instead --
+    // `Select.Popup` in `@foxy.io/design-system` reads the exact same
+    // `theme.tokens.background.popup` token `Dialog.Popup` did (verified in
+    // the design system's `select-*.mjs` bundle), so this still proves the
+    // attribute reaches a rendered popup surface, not just an inline field
+    // like the font-body case above. Reaches the account screen (customer +
+    // settings both stubbed, session seeded), clicks Edit on the one seeded
+    // address to reach `AddressPage`, then opens its Country select.
     const storeBase = "https://demo.foxycart.com/s/customer/";
     const addressesHref = `${storeBase}addresses`;
 
@@ -265,9 +269,38 @@ describe("foxy-customer-portal", () => {
       editButton!.click();
     });
 
-    const popup = element.shadowRoot?.querySelector(
-      '[role="dialog"]',
+    // Edit navigates to `AddressPage` in place (no dialog chrome) -- find its
+    // Country select trigger by the field's own label, the same way
+    // `address-page.test.tsx` does.
+    const countryLabel = [
+      ...(element.shadowRoot?.querySelectorAll("label") ?? []),
+    ].find((label) => label.textContent === "Country") as HTMLLabelElement;
+    expect(countryLabel).not.toBeUndefined();
+
+    const forId = countryLabel.getAttribute("for");
+    const trigger = forId && element.shadowRoot?.getElementById(forId);
+    expect(trigger).toBeTruthy();
+
+    await act(async () => {
+      (trigger as HTMLElement).click();
+    });
+
+    // `Select.List` (`role="listbox"`) renders unstyled -- `background.popup`
+    // paints its own parent, `Select.Popup`, instead. Walking up from the
+    // list to its immediate parent isn't guesswork about Base UI's internal
+    // DOM: `address-page.tsx` itself renders `<Select.List>` as a direct
+    // child of `<Select.Popup>` with nothing in between (see that file's
+    // Country field), so this parent is exactly the node our own JSX
+    // produced. (A broader `[data-open][role="presentation"]` selector was
+    // tried first and rejected -- Base UI stamps that same pair onto both
+    // the Positioner and the Popup, so it isn't unique enough to tell them
+    // apart.)
+    const list = element.shadowRoot?.querySelector(
+      '[role="listbox"]',
     ) as HTMLElement | null;
+    expect(list).not.toBeNull();
+
+    const popup = list!.parentElement;
     expect(popup).not.toBeNull();
     expect(getComputedStyle(popup!).backgroundColor).toBe("rgb(10, 20, 30)");
   });

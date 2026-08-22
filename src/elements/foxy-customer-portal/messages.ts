@@ -441,10 +441,6 @@ export const messages = defineMessages({
     id: "portal_address_saving",
     defaultMessage: "Saving...",
   },
-  addressCancel: {
-    id: "portal_address_cancel",
-    defaultMessage: "Cancel",
-  },
   addressCountry: {
     id: "portal_address_country",
     defaultMessage: "Country",

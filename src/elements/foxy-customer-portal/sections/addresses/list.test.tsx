@@ -69,17 +69,14 @@ function editButtons(): HTMLButtonElement[] {
   );
 }
 
-function dialogInputValues(): string[] {
-  return [...document.querySelectorAll<HTMLInputElement>("input")].map(
-    (input) => input.value,
-  );
-}
-
 describe("AddressesSection", () => {
   it("renders a loading state before the read settles", async () => {
     // Never resolves during this assertion -- catches the read mid-flight.
     screen = mountScreen(
-      <AddressesSection customer={customer(() => new Promise(() => {})) as never} />,
+      <AddressesSection
+        customer={customer(() => new Promise(() => {})) as never}
+        onNavigate={vi.fn()}
+      />,
       {},
     );
 
@@ -96,6 +93,7 @@ describe("AddressesSection", () => {
         customer={
           customer(async () => ({ ok: false, status: 500, json: async () => ({}) })) as never
         }
+        onNavigate={vi.fn()}
       />,
       {},
     );
@@ -106,7 +104,10 @@ describe("AddressesSection", () => {
 
   it("renders nothing at all when there are no addresses", async () => {
     screen = mountScreen(
-      <AddressesSection customer={customer(async () => page([])) as never} />,
+      <AddressesSection
+        customer={customer(async () => page([])) as never}
+        onNavigate={vi.fn()}
+      />,
       {},
     );
     await flush();
@@ -120,6 +121,7 @@ describe("AddressesSection", () => {
         customer={
           customer(async () => page([address(1), address(2)])) as never
         }
+        onNavigate={vi.fn()}
       />,
       {},
     );
@@ -128,17 +130,19 @@ describe("AddressesSection", () => {
     expect(editButtons().length).toBe(2);
   });
 
-  it("opens the edit dialog for the specific address whose Edit was clicked", async () => {
+  it("navigates to the address page for the specific address whose Edit was clicked", async () => {
+    const onNavigate = vi.fn();
     screen = mountScreen(
       <AddressesSection
         customer={
           customer(async () =>
             page([
-              address(1, { first_name: "Alice", address1: "1 First Street" }),
-              address(2, { first_name: "Bob", address1: "2 Second Street" }),
+              address(1, { first_name: "Alice" }),
+              address(2, { first_name: "Bob" }),
             ]),
           ) as never
         }
+        onNavigate={onNavigate}
       />,
       {},
     );
@@ -148,25 +152,28 @@ describe("AddressesSection", () => {
       editButtons()[1]?.click();
     });
 
-    // Bob's (the second address's) values populate the form, not Alice's.
-    const values = dialogInputValues();
-    expect(values).toContain("Bob");
-    expect(values).toContain("2 Second Street");
-    expect(values).not.toContain("Alice");
-    expect(values).not.toContain("1 First Street");
+    expect(onNavigate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "address",
+        id: "2",
+        resource: expect.objectContaining({ first_name: "Bob" }),
+      }),
+    );
   });
 
-  it("opens the edit dialog for the first address when its own Edit is clicked", async () => {
+  it("navigates to the address page for the first address when its own Edit is clicked", async () => {
+    const onNavigate = vi.fn();
     screen = mountScreen(
       <AddressesSection
         customer={
           customer(async () =>
             page([
-              address(1, { first_name: "Alice", address1: "1 First Street" }),
-              address(2, { first_name: "Bob", address1: "2 Second Street" }),
+              address(1, { first_name: "Alice" }),
+              address(2, { first_name: "Bob" }),
             ]),
           ) as never
         }
+        onNavigate={onNavigate}
       />,
       {},
     );
@@ -176,86 +183,20 @@ describe("AddressesSection", () => {
       editButtons()[0]?.click();
     });
 
-    const values = dialogInputValues();
-    expect(values).toContain("Alice");
-    expect(values).toContain("1 First Street");
-    expect(values).not.toContain("Bob");
-    expect(values).not.toContain("2 Second Street");
-  });
-
-  it("refreshes the collection after a successful save", async () => {
-    const getSpy = vi.fn();
-    const patch = vi.fn(async () => ({ ok: true, status: 200 }));
-
-    screen = mountScreen(
-      <AddressesSection
-        customer={
-          customer(async (query) => {
-            getSpy(query);
-            return page([address(1, {}, patch)]);
-          }) as never
-        }
-      />,
-      {},
+    expect(onNavigate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "address",
+        id: "1",
+        resource: expect.objectContaining({ first_name: "Alice" }),
+      }),
     );
-    await flush();
-
-    const callsBeforeSave = getSpy.mock.calls.length;
-
-    act(() => {
-      editButtons()[0]?.click();
-    });
-
-    act(() => {
-      const buttons = [...document.querySelectorAll("button")];
-      buttons.find((b) => /^save$/i.test(b.textContent ?? ""))!.click();
-    });
-    await flush();
-
-    expect(patch).toHaveBeenCalled();
-    // A successful write must invalidate the cached page so the reopened
-    // dialog and the card both reflect what was actually saved, instead of
-    // replaying the stale resource from before the PATCH.
-    expect(getSpy.mock.calls.length).toBeGreaterThan(callsBeforeSave);
-  });
-
-  it("does not refetch when the edit dialog is dismissed without saving", async () => {
-    const getSpy = vi.fn();
-    const patch = vi.fn(async () => ({ ok: true, status: 200 }));
-
-    screen = mountScreen(
-      <AddressesSection
-        customer={
-          customer(async (query) => {
-            getSpy(query);
-            return page([address(1, {}, patch)]);
-          }) as never
-        }
-      />,
-      {},
-    );
-    await flush();
-
-    const callsBeforeDismiss = getSpy.mock.calls.length;
-
-    act(() => {
-      editButtons()[0]?.click();
-    });
-
-    act(() => {
-      const buttons = [...document.querySelectorAll("button")];
-      buttons.find((b) => /^cancel$/i.test(b.textContent ?? ""))!.click();
-    });
-    await flush();
-
-    expect(patch).not.toHaveBeenCalled();
-    expect(getSpy.mock.calls.length).toBe(callsBeforeDismiss);
   });
 
   it("hides pagination controls when everything fits on one page", async () => {
     screen = mountScreen(
       <AddressesSection
         customer={customer(async () => page([address(1)], 1)) as never}
+        onNavigate={vi.fn()}
       />,
       {},
     );
@@ -272,6 +213,7 @@ describe("AddressesSection", () => {
     screen = mountScreen(
       <AddressesSection
         customer={customer(async () => page(addresses, 15)) as never}
+        onNavigate={vi.fn()}
       />,
       {},
     );
