@@ -28,6 +28,14 @@ function subscriptionId(subscription: SubscriptionResource): string {
  * follow-up work, not part of this task. Until then, a deep link to a
  * subscription outside the customer's first 100 (by the collection's
  * default order) will not resolve.
+ *
+ * SECOND UNVERIFIED ASSUMPTION: this sends no `filters` at all, unlike
+ * `list.tsx`, which always sends `is_active=true` or `is_active=false`.
+ * This assumes the unfiltered `fx:subscriptions` collection includes both
+ * active and inactive subscriptions by default. That default was not
+ * verified against a live store either -- if it turns out to default to
+ * active-only, a deep link to an inactive subscription would never resolve,
+ * regardless of its position in the collection.
  */
 export function useSubscriptionById(
   link: FollowableLink<CollectionPage> | null,

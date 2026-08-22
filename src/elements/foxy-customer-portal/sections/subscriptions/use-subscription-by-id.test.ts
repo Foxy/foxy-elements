@@ -4,6 +4,14 @@ import { createRoot, type Root } from "react-dom/client";
 import { ApiProvider, RequestCache } from "@/lib/customer-api";
 import { useSubscriptionById } from "./use-subscription-by-id";
 
+// React only allows `act` outside a test renderer when this is set, and warns
+// on every update otherwise -- see `../../test-utils.ts`, which sets this for
+// every screen test. This file renders a bare probe component directly
+// (there is no screen to mount), so it sets the same flag itself.
+(
+  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
+).IS_REACT_ACT_ENVIRONMENT = true;
+
 let root: Root | null = null;
 let host: HTMLDivElement | null = null;
 

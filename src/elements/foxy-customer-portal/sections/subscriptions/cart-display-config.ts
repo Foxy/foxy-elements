@@ -2,7 +2,7 @@
  * The four subscription-related flags off `cart_display_config`, as the SDK
  * types it on `CustomerPortalSettings['props']` (not exported from any public
  * subpath, so declared here the same way `NextDateModificationRule` is in
- * `manage-dialog.tsx`). The full config also carries product-display flags
+ * `subscription-page.tsx`). The full config also carries product-display flags
  * (`show_product_weight` etc.) this section has no use for.
  *
  * Every field is optional, matching the runtime: a store on an older

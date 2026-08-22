@@ -62,7 +62,7 @@ type Props = {
   onPayments: () => void;
   /**
    * The store's `cart_display_config`, from the same `customer_portal_settings`
-   * response `manage-dialog.tsx` already reads. `null`/`undefined` (settings
+   * response `subscription-page.tsx` already reads. `null`/`undefined` (settings
    * still loading, or a store on an older template config that omits the key)
    * means every flag defaults to `true` -- see each flag's read below.
    */
