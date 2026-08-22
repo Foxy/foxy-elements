@@ -113,12 +113,22 @@ export function Portal({
       : { type: "home" },
   );
 
+  // Mutates `url.searchParams` surgically -- deleting only the two keys this
+  // element owns and setting whatever the codec returns -- rather than
+  // replacing `url.search` wholesale. The host page may have its own params
+  // (`?utm_source=...`) on the same URL; the `fc_` prefix on these two keys
+  // only means something if the rest of the query string survives a portal
+  // navigation untouched.
   const navigateAccountPage = useCallback(
     (page: AccountPage) => {
       setAccountPageState(page);
       if (!urlSync) return;
       const url = new URL(window.location.href);
-      url.search = accountPageToSearchParams(page).toString();
+      url.searchParams.delete("fc_page");
+      url.searchParams.delete("fc_id");
+      for (const [key, value] of accountPageToSearchParams(page)) {
+        url.searchParams.set(key, value);
+      }
       history.pushState({ fcAccountPage: true }, "", url);
     },
     [urlSync],
@@ -128,12 +138,17 @@ export function Portal({
   // again on a shared computer must not land on a stale sub-page from the
   // previous session, and `replaceState` (not `pushState`) keeps that reset
   // from adding a spurious Back stop on top of everything the previous
-  // session actually navigated through.
+  // session actually navigated through. Same surgical-delete-then-set
+  // pattern as `navigateAccountPage` above, for the same reason.
   const resetAccountPage = useCallback(() => {
     setAccountPageState({ type: "home" });
     if (!urlSync) return;
     const url = new URL(window.location.href);
-    url.search = accountPageToSearchParams({ type: "home" }).toString();
+    url.searchParams.delete("fc_page");
+    url.searchParams.delete("fc_id");
+    for (const [key, value] of accountPageToSearchParams({ type: "home" })) {
+      url.searchParams.set(key, value);
+    }
     history.replaceState({ fcAccountPage: true }, "", url);
   }, [urlSync]);
 
@@ -262,6 +277,14 @@ function PortalScreens({
 
   const previousScreen = useRef(screen);
 
+  // Covers both paths back to sign-in -- explicit sign-out and a 401/403 via
+  // `handleUnauthenticated` (see its doc comment in `Portal` above) -- so
+  // `onResetAccountPage` fires exactly once per session end regardless of
+  // which one triggered it. `accountPage.resource` is a second channel that
+  // can carry a customer's data (a full address, order or subscription
+  // object) across the same shared-computer boundary `cache.clear()` already
+  // guards below; leaving it out here would let it survive into the next
+  // customer's session even though the cache itself was cleared.
   useEffect(() => {
     const from = previousScreen.current;
     previousScreen.current = screen;
@@ -271,8 +294,9 @@ function PortalScreens({
       (from === "account" || from === "password-reset")
     ) {
       cache.clear();
+      onResetAccountPage();
     }
-  }, [screen, cache]);
+  }, [screen, cache, onResetAccountPage]);
 
   if (screen === "sign-in") {
     return (
@@ -320,8 +344,11 @@ function PortalScreens({
       fullNameTemplate={fullNameTemplate}
       onSignedOut={() => {
         onEvent(customerPortalEvents.signOut);
+        // No `onResetAccountPage()` call here -- this transitions `screen` to
+        // `"sign-in"`, which the effect above already resets `accountPage`
+        // for (alongside `cache.clear()`), the same as every other path back
+        // to sign-in. One place, not duplicated.
         setScreen("sign-in");
-        onResetAccountPage();
       }}
       settings={settings}
       accountPage={accountPage}

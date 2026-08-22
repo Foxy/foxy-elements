@@ -514,7 +514,11 @@ describe("Portal", () => {
     // end to end; every other test in this file renders with the default
     // `urlSync: false`. Runs in the suite's real Chromium page, so the
     // original URL is restored in `finally` rather than leaking into later
-    // tests.
+    // tests. Assertions read `fc_page`/`fc_id` off `URLSearchParams` rather
+    // than comparing the whole `search` string: the suite's real Chromium
+    // page already carries its own runner params (`sessionId`, `iframeId`)
+    // that this element must not disturb -- see the "preserves the host
+    // page's own query params" test below, which pins that down directly.
     const originalUrl = window.location.href;
 
     try {
@@ -527,7 +531,9 @@ describe("Portal", () => {
       clickButtonMatching(/edit profile/i);
       await flush();
 
-      expect(window.location.search).toBe("?fc_page=profile");
+      expect(new URLSearchParams(window.location.search).get("fc_page")).toBe(
+        "profile",
+      );
 
       // Simulate the browser's Back button landing on the pre-portal URL --
       // no `fc_page` at all -- which `parseAccountPageFromSearch`'s fallback
@@ -546,7 +552,9 @@ describe("Portal", () => {
       // session on a shared computer.
       clickButtonMatching(/edit profile/i);
       await flush();
-      expect(window.location.search).toBe("?fc_page=profile");
+      expect(new URLSearchParams(window.location.search).get("fc_page")).toBe(
+        "profile",
+      );
 
       act(() => {
         const buttons = [...screen!.host.querySelectorAll("button")];
@@ -558,10 +566,194 @@ describe("Portal", () => {
       await flush();
 
       expect(screen!.host.textContent).toMatch(/sign in/i);
-      expect(window.location.search).toBe("");
+      expect(window.location.search).not.toMatch(/fc_page|fc_id/);
     } finally {
       history.replaceState({}, "", originalUrl);
     }
+  });
+
+  it("keeps a deep-linked page after signing in while urlSync is on", async () => {
+    // Guards the Finding 1 fix against a regression in the opposite
+    // direction: `PortalScreens`'s reset effect must only fire on an
+    // `account`/`password-reset` -> `sign-in` transition, never on the
+    // ordinary `sign-in` -> `account` transition a deep link relies on (see
+    // `Portal`'s own comment on why `accountPage` and `screen` are separate
+    // state -- a page queued while signed out has to survive `afterSignIn`
+    // flipping `screen`).
+    const originalUrl = window.location.href;
+
+    try {
+      const seededUrl = new URL(window.location.href);
+      seededUrl.searchParams.set("fc_page", "profile");
+      history.replaceState({}, "", seededUrl);
+
+      render(fakeApi(), { urlSync: true }); // no session -- starts at sign-in
+      await flush();
+
+      submitSignIn();
+      await flush();
+      await flush();
+
+      expect(screen!.host.textContent).toMatch(/edit profile/i);
+    } finally {
+      history.replaceState({}, "", originalUrl);
+    }
+  });
+
+  it("preserves the host page's own query params when urlSync writes fc_page/fc_id", async () => {
+    // Finding 2 of the whole-branch review: `navigateAccountPage` used to do
+    // `url.search = accountPageToSearchParams(page).toString()`, which
+    // replaces the ENTIRE query string -- destroying any params unrelated to
+    // this element (`?utm_source=nl` on a real host page would vanish). The
+    // spec's own stated reason for the `fc_` prefix is that the host page may
+    // have other params of its own; that prefix is pointless if the whole
+    // string gets overwritten anyway. Same URL save/restore pattern as the
+    // urlSync test above.
+    const originalUrl = window.location.href;
+
+    try {
+      // Adds to the current URL's params rather than replacing them outright
+      // -- the suite's real Chromium page already carries its own runner
+      // params (`sessionId`, `iframeId`), and stomping those here would be
+      // exactly the bug this test exists to catch, just done by the test
+      // itself instead of by `view.tsx`.
+      const seededUrl = new URL(window.location.href);
+      seededUrl.searchParams.set("utm_source", "nl");
+      history.replaceState({}, "", seededUrl);
+
+      const api = fakeApi();
+      api.storage.setItem(API.SESSION, session());
+      render(api, { urlSync: true });
+      await flush();
+      await flush();
+
+      clickButtonMatching(/edit profile/i);
+      await flush();
+
+      const params = new URLSearchParams(window.location.search);
+      expect(params.get("utm_source")).toBe("nl");
+      expect(params.get("fc_page")).toBe("profile");
+    } finally {
+      history.replaceState({}, "", originalUrl);
+    }
+  });
+
+  it("does not show one customer's carried resource to the next customer after a forced sign-out (401)", async () => {
+    // Finding 1 of the whole-branch review (Critical): `accountPage` state
+    // can carry a `resource` field (a full address/order/subscription
+    // object). The explicit sign-out path already resets it via
+    // `onResetAccountPage()`, but a 401/403 routed through
+    // `handleUnauthenticated` used to leave it standing -- unlike
+    // `cache.clear()`, which the effect above already ran on both paths. This
+    // drives the reset through the 401 path specifically (not sign-out),
+    // carrying a `resource` into `accountPage` first, then signs in a second
+    // customer and asserts the first customer's data is gone.
+    const adaAddress = {
+      address_name: "Ada Home",
+      first_name: "Ada",
+      last_name: "Lovelace",
+      company: "",
+      phone: "",
+      address1: "1 Main Street",
+      address2: "",
+      city: "London",
+      region: "",
+      postal_code: "SW1A 1AA",
+      country: "GB",
+      is_default_billing: false,
+      is_default_shipping: false,
+      date_created: new Date().toISOString(),
+      date_modified: new Date().toISOString(),
+      _links: {
+        self: {
+          href: "/addresses/1",
+          patch: vi.fn(async () => ({ ok: false, status: 401 })),
+        },
+      },
+    };
+
+    const adaWithAddress = {
+      ...ada,
+      _links: {
+        ...ada._links,
+        "fx:customer_addresses": {
+          href: "https://demo.foxycart.com/s/customer/addresses",
+          get: async () => ({
+            ok: true,
+            status: 200,
+            json: async () => ({
+              total_items: 1,
+              _embedded: { "fx:addresses": [adaAddress] },
+            }),
+          }),
+        },
+      },
+    };
+
+    const bob = {
+      first_name: "Bob",
+      last_name: "Kahn",
+      email: "bob@example.com",
+      tax_id: "",
+      _links: {
+        self: {
+          href: "/c-bob",
+          patch: vi.fn(async () => ({ ok: true, status: 200 })),
+        },
+      },
+    };
+
+    let current: unknown = adaWithAddress;
+    const api = fakeApi({
+      get: vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => current,
+      })),
+    });
+    api.storage.setItem(API.SESSION, session());
+    render(api);
+    await flush();
+    await flush();
+
+    expect(screen!.host.textContent).toMatch(/Ada Lovelace/);
+
+    // Navigate into the address's Edit page -- this is what attaches
+    // `adaAddress` to `accountPage.resource`.
+    clickButtonMatching(/^edit$/i);
+    await flush();
+
+    const line1BeforeSignOut = document.querySelector<HTMLInputElement>(
+      'input[autocomplete="address-line1"]',
+    );
+    expect(line1BeforeSignOut?.value).toBe("1 Main Street");
+
+    // Force a 401 through a write on this page (not an explicit sign-out) --
+    // this is the `handleUnauthenticated` path Finding 1 is about.
+    act(() => {
+      document
+        .querySelector("form")!
+        .dispatchEvent(
+          new Event("submit", { bubbles: true, cancelable: true }),
+        );
+    });
+    await flush();
+
+    expect(screen!.host.textContent).toMatch(/sign in/i);
+
+    // Sign in as a different customer, Bob.
+    current = bob;
+    submitSignIn("bob@example.com", "hunter3");
+    await flush();
+    await flush();
+
+    expect(screen!.host.textContent).toMatch(/Bob Kahn/);
+    // The stale "Edit address" page (Ada's) must not still be showing.
+    expect(screen!.host.textContent).not.toMatch(/edit address/i);
+    const line1AfterSignIn = document.querySelector<HTMLInputElement>(
+      'input[autocomplete="address-line1"]',
+    );
+    expect(line1AfterSignIn).toBeNull();
   });
 
   it("does not dead-end on the retry loop when the session is gone", async () => {

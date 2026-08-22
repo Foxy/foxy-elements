@@ -22,7 +22,7 @@ export type OrderResource = {
   // Not narrowed to the SDK's status union: this value comes straight off
   // the wire, and `getTransactionStatusMessage` stays honest about that by
   // falling back to the raw string instead of assuming the union is
-  // exhaustive -- matching `payments-dialog.tsx`'s existing convention.
+  // exhaustive -- matching `subscription-page.tsx`'s existing convention.
   status: string;
   _links: {
     self: { href: string };

@@ -84,6 +84,8 @@ type CustomerPortalElementProps = Omit<
   "full-name-template"?: string;
   skipPasswordReset?: boolean;
   "skip-password-reset"?: boolean;
+  urlSync?: boolean;
+  "url-sync"?: boolean;
   lang?: string;
 } & SharedThemeProps;
 

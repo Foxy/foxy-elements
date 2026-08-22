@@ -235,33 +235,34 @@ export function AccountScreen({
     );
   }
 
+  // Every other `accountPage.type` returned above, so this only ever renders
+  // for `"home"` -- narrowed by TypeScript too, which is why the content
+  // below is unconditional rather than guarded by another `accountPage.type`
+  // check.
   return (
     <div>
-      {accountPage.type === "home" ? (
-        <>
-          <PortalHeader
-            customer={data}
-            fullNameTemplate={fullNameTemplate}
-            onEditProfile={() => onNavigate({ type: "profile" })}
-            onSignOut={handleSignOut}
-            signOutState={signOutState}
-          />
+      <PortalHeader
+        customer={data}
+        fullNameTemplate={fullNameTemplate}
+        onEditProfile={() => onNavigate({ type: "profile" })}
+        onSignOut={handleSignOut}
+        signOutState={signOutState}
+      />
 
-          <Button
-            type="button"
-            $variant="link"
-            onClick={() => onNavigate({ type: "password" })}
-          >
-            {intl.formatMessage(messages.profileChangePassword)}
-          </Button>
-        </>
-      ) : null}
+      <Button
+        type="button"
+        $variant="link"
+        onClick={() => onNavigate({ type: "password" })}
+      >
+        {intl.formatMessage(messages.profileChangePassword)}
+      </Button>
 
-      {/* `CustomerResource` types `_links` down to just `self`, because that's
-          the only link the two pages above read. The SDK's real response
-          enriches every link on the resource the same way (FollowableResource,
-          see `Response.json()`), so this cast widens the type to say so,
-          rather than papering over a runtime mismatch. */}
+      {/* `CustomerResource` types `_links` down to just `self`. The SDK's
+          real response enriches every link on the resource the same way
+          (FollowableResource, see `Response.json()`), so the casts below
+          (and the ones in three of the five early returns above -- the
+          per-item pages, each reading a different rel) widen the type to say
+          so, rather than papering over a runtime mismatch. */}
       <SubscriptionsSection
         customer={
           data as unknown as ComponentProps<
