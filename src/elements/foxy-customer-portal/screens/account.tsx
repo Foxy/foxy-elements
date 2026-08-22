@@ -24,6 +24,7 @@ import { OrdersSection } from "../sections/orders";
 import { PasswordPage } from "../sections/password-page";
 import { ProfilePage, type CustomerResource } from "../sections/profile-page";
 import {
+  SubscriptionPageContainer,
   SubscriptionsSection,
   type CartDisplayConfig,
   type PortalSettings as SubscriptionsSettings,
@@ -169,6 +170,23 @@ export function AccountScreen({
     return <PasswordPage customer={data} onBack={goHome} />;
   }
 
+  if (accountPage.type === "subscription") {
+    return (
+      <SubscriptionPageContainer
+        id={accountPage.id}
+        resource={accountPage.resource}
+        subscriptionsLink={
+          data._links["fx:subscriptions"] as unknown as ComponentProps<
+            typeof SubscriptionPageContainer
+          >["subscriptionsLink"]
+        }
+        settings={subscriptionsSettings}
+        cartDisplayConfig={cartDisplayConfig}
+        onBack={goHome}
+      />
+    );
+  }
+
   return (
     <div>
       {accountPage.type === "home" ? (
@@ -197,20 +215,20 @@ export function AccountScreen({
           see `Response.json()`), so this cast widens the type to say so,
           rather than papering over a runtime mismatch.
 
-          Tasks 4/5/6 give `subscription`/`order`/`address` their own page
-          instead of falling back to these home sections -- until then, a
-          deep link or Back/Forward landing on one of those three types
-          simply shows the home sections (without the header above, since
-          `accountPage.type` is not literally `"home"`) rather than crashing
-          on an AccountPage variant this task doesn't handle yet. */}
+          Tasks 5/6 give `order`/`address` their own page instead of falling
+          back to these home sections -- until then, a deep link or
+          Back/Forward landing on one of those two types simply shows the
+          home sections (without the header, since `accountPage.type` is not
+          literally `"home"`) rather than crashing on an AccountPage variant
+          this task doesn't handle yet. */}
       <SubscriptionsSection
         customer={
           data as unknown as ComponentProps<
             typeof SubscriptionsSection
           >["customer"]
         }
-        settings={subscriptionsSettings}
         cartDisplayConfig={cartDisplayConfig}
+        onNavigate={onNavigate}
       />
 
       <OrdersSection

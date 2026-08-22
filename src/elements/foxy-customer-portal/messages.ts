@@ -266,7 +266,6 @@ export const messages = defineMessages({
   manageEnds: { id: "portal_manage_ends", defaultMessage: "Ends" },
   manageSave: { id: "portal_manage_save", defaultMessage: "Save" },
   manageSaving: { id: "portal_manage_saving", defaultMessage: "Saving..." },
-  manageClose: { id: "portal_manage_close", defaultMessage: "Close" },
   manageNextPayment: {
     id: "portal_manage_next_payment",
     defaultMessage: "Next payment date",

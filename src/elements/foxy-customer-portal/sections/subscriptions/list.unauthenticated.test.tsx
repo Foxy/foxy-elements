@@ -44,7 +44,10 @@ describe("SubscriptionsSection unauthenticated read", () => {
     const onUnauthenticated = vi.fn();
 
     screen = mountScreen(
-      <SubscriptionsSection customer={expiredCustomer() as never} />,
+      <SubscriptionsSection
+        customer={expiredCustomer() as never}
+        onNavigate={vi.fn()}
+      />,
       {},
       onUnauthenticated,
     );

@@ -5,11 +5,10 @@ import { Button } from "@foxy.io/design-system/button";
 import { ButtonGroup } from "@foxy.io/design-system/button-group";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
 import { useCollection, type FollowableLink } from "@/lib/customer-api";
+import type { AccountPage } from "../../account-page";
 import { messages } from "../../messages";
 import type { CartDisplayConfig } from "./cart-display-config";
 import { SubscriptionCard, type SubscriptionResource } from "./card";
-import { ManageDialog, type PortalSettings } from "./manage-dialog";
-import { PaymentsDialog } from "./payments-dialog";
 
 type CustomerWithLinks = {
   _links: Record<string, FollowableLink<never> & { href: string }>;
@@ -17,32 +16,31 @@ type CustomerWithLinks = {
 
 type Props = {
   customer: CustomerWithLinks;
-  settings?: PortalSettings | null;
-  /**
-   * The store's `cart_display_config`, threaded independently of `settings`
-   * above -- see `manage-dialog.tsx`'s `Props` doc comment for why the two
-   * cannot share one gate.
-   */
   cartDisplayConfig?: CartDisplayConfig | null;
+  onNavigate: (page: AccountPage) => void;
 };
+
+/** The customer-scoped subscription resource has no top-level `id`; the last
+ * segment of its self link is the identifier the customer recognises --
+ * matching `subscription-page.tsx`'s own derivation. */
+function subscriptionId(subscription: SubscriptionResource): string {
+  return (
+    subscription._links.self.href.replace(/\/+$/, "").split("/").pop() ?? ""
+  );
+}
 
 export function SubscriptionsSection({
   customer,
-  settings,
   cartDisplayConfig,
+  onNavigate,
 }: Props) {
   const intl = useIntl();
   const [showActive, setShowActive] = useState(true);
-  const [managed, setManaged] = useState<SubscriptionResource | null>(null);
-  const [paid, setPaid] = useState<SubscriptionResource | null>(null);
 
   const link = customer._links["fx:subscriptions"];
 
   // Both states are separate server-side queries. Partitioning one result set
   // in the browser would make `total_items` describe the wrong collection.
-  // The href never changes here — only `query` does — so the reset that
-  // matters for this toggle is the one keyed on `href + serialiseQuery(query)`,
-  // not the href-only reset.
   const query = useMemo(
     () => ({
       filters: [`is_active=${showActive}`],
@@ -62,8 +60,15 @@ export function SubscriptionsSection({
     limit,
     loadNext,
     loadPrev,
-    refresh,
   } = useCollection<SubscriptionResource>(link as never, query);
+
+  function goToSubscription(subscription: SubscriptionResource) {
+    onNavigate({
+      type: "subscription",
+      id: subscriptionId(subscription),
+      resource: subscription,
+    });
+  }
 
   const toggle = (
     <ButtonGroup>
@@ -89,10 +94,6 @@ export function SubscriptionsSection({
       <h2>{intl.formatMessage(messages.subscriptionsHeading)}</h2>
       {toggle}
 
-      {/* `isUnauthenticated` holds the loading shape rather than flashing an
-          error on the way back to sign-in -- `useCollection` already fired
-          `onUnauthenticated` for this in an effect; see `account.tsx` for
-          the same pattern on the account resource. */}
       {isLoading || isUnauthenticated ? <Skeleton /> : null}
 
       {error && !isUnauthenticated ? (
@@ -108,51 +109,10 @@ export function SubscriptionsSection({
           key={subscription._links.self.href}
           subscription={subscription}
           cartDisplayConfig={cartDisplayConfig}
-          onManage={() => setManaged(subscription)}
-          onPayments={() => setPaid(subscription)}
+          onManage={() => goToSubscription(subscription)}
+          onPayments={() => goToSubscription(subscription)}
         />
       ))}
-
-      {/* Mounted only while a subscription is being managed, rather than kept
-          mounted with a nullable subscription: `ManageDialog` seeds its
-          frequency state from `subscription` once, on mount, so reusing one
-          instance across different subscriptions would leak the previous
-          subscription's frequency into the next. The `key` guards the same
-          case if a card is ever managed while another dialog is still up. */}
-      {managed ? (
-        <ManageDialog
-          key={managed._links.self.href}
-          subscription={managed}
-          settings={settings ?? null}
-          cartDisplayConfig={cartDisplayConfig}
-          open
-          onClose={() => setManaged(null)}
-          // Only a successful save invalidates the cache -- a dismissed
-          // dialog must not refetch. `refresh()` here invalidates only this
-          // *page's* cache key (`href + serialiseQuery(query)`, see
-          // `useCollection`), not the whole collection. That is sufficient:
-          // this dialog only ever edits `frequency` and
-          // `next_transaction_date`, and neither moves a subscription between
-          // the `is_active=true` and `is_active=false` collections, so no
-          // other cached page could contain the row that changed. Other pages
-          // stay stale, but they cannot be stale about this edit.
-          onSaved={refresh}
-        />
-      ) : null}
-
-      {/* Mount-only-while-open, matching ManageDialog above, for consistency
-          rather than necessity: `useCollection` already keys its page state
-          on `href + serialiseQuery(query)` (Task 4/FX-288), so a different
-          subscription's `fx:transactions` link resets paging on its own even
-          without the `key`. */}
-      {paid ? (
-        <PaymentsDialog
-          key={paid._links.self.href}
-          subscription={paid}
-          open
-          onClose={() => setPaid(null)}
-        />
-      ) : null}
 
       {totalItems > limit ? (
         <div>

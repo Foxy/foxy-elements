@@ -756,10 +756,10 @@ describe("Portal", () => {
 
   // FX-275's mount point: `PortalScreens` already fetches
   // `customer_portal_settings` for sign-up gating, and `account.tsx` forwards
-  // that same object to `SubscriptionsSection` -> `ManageDialog` rather than
-  // fetching it again. A customer local to this test (not the shared `ada`,
-  // which ~15 other tests here reuse) carries one subscription so the account
-  // screen actually mounts the section.
+  // that same object to `SubscriptionsSection` -> the subscription page
+  // rather than fetching it again. A customer local to this test (not the
+  // shared `ada`, which ~15 other tests here reuse) carries one subscription
+  // so the account screen actually mounts the section.
   // `account.tsx` used to gate `cart_display_config` behind the same check
   // that derives `subscriptionsSettings` from `settings.subscriptions` --
   // so a settings payload that carries `cart_display_config` but happens to
@@ -836,7 +836,7 @@ describe("Portal", () => {
     expect(screen!.host.textContent).not.toMatch(/next payment/i);
   });
 
-  it("carries the settings response down to the subscription manage dialog", async () => {
+  it("carries the settings response down to the subscription page", async () => {
     settingsResponse = {
       sign_up: {
         enabled: false,

@@ -1,24 +1,32 @@
 import { useId, useMemo, useState } from "react";
-import { FormattedDate, useIntl } from "react-intl";
+import { FormattedDate, FormattedNumber, useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
-import { SummaryTable } from "@foxy.io/design-system/summary-table";
 import { Button } from "@foxy.io/design-system/button";
 import { Calendar } from "@foxy.io/design-system/calendar";
 import { Field } from "@foxy.io/design-system/field";
 import { Select } from "@foxy.io/design-system/select";
+import { Skeleton } from "@foxy.io/design-system/skeleton";
+import { SummaryTable } from "@foxy.io/design-system/summary-table";
 import {
   getAllowedFrequencies,
   getNextTransactionDateConstraints,
 } from "@foxy.io/sdk/customer";
-import { useApi, WriteError } from "@/lib/customer-api";
+import {
+  useApi,
+  useCollection,
+  WriteError,
+  type FollowableLink,
+} from "@/lib/customer-api";
 import { toCalendarDate } from "../../calendar-date";
 import { messages } from "../../messages";
-import { PortalDialog } from "../../portal-dialog";
+import { AccountPageLayout } from "../../account-page-layout";
 import { usePortalContainer } from "../../portal-container";
+import { getTransactionStatusMessage } from "../../transaction-status";
 import { patchResource } from "../../write";
 import type { CartDisplayConfig } from "./cart-display-config";
 import { toDatePickerBounds, toLocalDateString } from "./date-constraints";
 import type { SubscriptionResource } from "./card";
+import { useSubscriptionById } from "./use-subscription-by-id";
 
 /**
  * Raw (snake_case) shape of a single next-date modification rule, as the API
@@ -36,7 +44,6 @@ type NextDateModificationRule = {
     { type: "day"; days: number[] } | { type: "month"; days: number[] };
 };
 
-/** False disables modification, true lifts all constraints, an array defines custom rules. */
 type NextDateModificationRules = boolean | NextDateModificationRule[];
 
 export type PortalSettings = {
@@ -46,32 +53,19 @@ export type PortalSettings = {
   };
 };
 
-type Props = {
-  subscription: SubscriptionResource;
-  settings: PortalSettings | null;
-  /**
-   * The store's `cart_display_config`. Kept separate from `settings` above
-   * rather than added to it: `settings` is derived in `account.tsx` by
-   * checking `settings.subscriptions` specifically, and `cart_display_config`
-   * is an independent key on the same `customer_portal_settings` response --
-   * a payload could carry one without the other, and gating this on the
-   * `subscriptions` check would silently drop the store's display flags in
-   * that case.
-   */
-  cartDisplayConfig?: CartDisplayConfig | null;
-  open: boolean;
-  onClose: () => void;
-  /**
-   * Fired once a save actually wrote through `patchResource`, just before
-   * `onClose`. `onClose` alone cannot tell the parent a save happened -- it
-   * fires identically on save-success, on the backdrop/Escape dismissal via
-   * `onOpenChange`, and on the Close button -- so a parent that needs to
-   * react only to a real write (`list.tsx` refreshing the cached collection)
-   * needs this second, optional callback rather than overloading `onClose`'s
-   * signature, which `PortalDialog`'s `onOpenChange={(next) => !next &&
-   * onClose()}` already calls with zero arguments.
-   */
-  onSaved?: () => void;
+type Payment = {
+  id: number;
+  transaction_date: string;
+  total_order: number;
+  currency_code: string;
+  status: string;
+  _links: { "fx:receipt"?: { href: string } };
+  _embedded?: { "fx:items"?: { name: string; quantity: number }[] };
+};
+
+type CollectionPage = {
+  total_items?: number;
+  _embedded?: Record<string, unknown[]>;
 };
 
 /** Builds a hosted-cart link from the subscription's token URL. */
@@ -83,16 +77,78 @@ function tokenLink(href: string, params: Record<string, string>): string {
   return url.toString();
 }
 
-export function ManageDialog({
+type ContainerProps = {
+  id: string;
+  resource?: SubscriptionResource;
+  subscriptionsLink: FollowableLink<CollectionPage> | null;
+  settings: PortalSettings | null;
+  cartDisplayConfig?: CartDisplayConfig | null;
+  onBack: () => void;
+};
+
+/**
+ * Resolves `resource` when navigation didn't already carry it before handing
+ * off to the presentational `SubscriptionPage` -- see `useSubscriptionById`'s
+ * doc comment for why this goes through a collection scan rather than a
+ * constructed href.
+ */
+export function SubscriptionPageContainer({
+  id,
+  resource,
+  subscriptionsLink,
+  settings,
+  cartDisplayConfig,
+  onBack,
+}: ContainerProps) {
+  const intl = useIntl();
+  const fetched = useSubscriptionById(resource ? null : subscriptionsLink, id);
+  const subscription = resource ?? fetched.subscription;
+
+  if (!resource && (fetched.isLoading || fetched.isUnauthenticated)) {
+    return (
+      <AccountPageLayout onBack={onBack}>
+        <Skeleton />
+      </AccountPageLayout>
+    );
+  }
+
+  if (!subscription) {
+    return (
+      <AccountPageLayout onBack={onBack}>
+        <Alert.Root $variant="destructive">
+          <Alert.Description>
+            {intl.formatMessage(messages.errorUnknown)}
+          </Alert.Description>
+        </Alert.Root>
+      </AccountPageLayout>
+    );
+  }
+
+  return (
+    <SubscriptionPage
+      subscription={subscription}
+      settings={settings}
+      cartDisplayConfig={cartDisplayConfig}
+      onBack={onBack}
+    />
+  );
+}
+
+type Props = {
+  subscription: SubscriptionResource;
+  settings: PortalSettings | null;
+  cartDisplayConfig?: CartDisplayConfig | null;
+  onBack: () => void;
+};
+
+export function SubscriptionPage({
   subscription,
   settings,
   cartDisplayConfig,
-  open,
-  onClose,
-  onSaved,
+  onBack,
 }: Props) {
   const intl = useIntl();
-  const { onUnauthenticated } = useApi();
+  const { onUnauthenticated, cache } = useApi();
   const portalContainer = usePortalContainer();
   const frequencyId = useId();
 
@@ -157,43 +213,43 @@ export function ManageDialog({
     .split("/")
     .pop();
 
-  // `toCalendarDate` -- not the raw `end_date` string -- so `<FormattedDate>`
-  // renders the store's calendar day instead of re-deriving it from the
-  // instant and shifting it for a viewer east of the store's timezone. It
-  // already returns null for both `null` and the `'0000-00-00'` sentinel, so
-  // it doubles as the "does this subscription have an end date" check below.
   const endsAt = toCalendarDate(subscription.end_date);
   const startedAt = toCalendarDate(subscription.start_date);
-
-  // Doubles as the "does this subscription have an end date" check `endsAt`'s
-  // own comment above describes -- `toCalendarDate` already excludes both
-  // `null` and the `'0000-00-00'` unset sentinel.
   const hasEndDate = !!endsAt;
 
-  // Absent config -- settings still loading, or a store on an older template
-  // config -- defaults every row/control on, so none ever regresses for a
-  // store that never opted out. Ported from v1's `SubscriptionForm.ts`
-  // (`__isStartDateVisible`, `__isEndDateVisible`, `__isFrequencyVisible`,
-  // `__isNextTransactionDateVisible`), which all test `=== false` rather than
-  // falsy for the same reason.
   const showStartDate = cartDisplayConfig?.show_sub_startdate ?? true;
   const showEndDate = cartDisplayConfig?.show_sub_enddate ?? true;
   const showFrequency = cartDisplayConfig?.show_sub_frequency ?? true;
   const showNextDate = cartDisplayConfig?.show_sub_nextdate ?? true;
 
+  // Items are zoomed per transaction, not read off the subscription, so a
+  // subscription that was later modified still shows what was actually
+  // charged at the time of each payment.
+  const paymentsLink = subscription._links["fx:transactions"];
+  const paymentsQuery = useMemo(() => ({ zoom: "items", limit: 10 }), []);
+
+  const {
+    items: payments,
+    error: paymentsError,
+    isLoading: paymentsLoading,
+    isUnauthenticated: paymentsUnauthenticated,
+    totalItems: paymentsTotal,
+    offset: paymentsOffset,
+    limit: paymentsLimit,
+    loadNext: loadNextPayment,
+    loadPrev: loadPrevPayment,
+  } = useCollection<Payment>(paymentsLink as never, paymentsQuery);
+
   async function handleSave() {
-    // Only the fields the customer actually touched go in the body. Sending
-    // `frequency` unconditionally regressed past v1, which serialised only
-    // its `edits` (`NucleonElement._sendPatch`) -- and it is the one field
-    // this dialog can offer with nothing to change: when the store allows no
-    // frequency modification, the Select doesn't render at all, yet a save
-    // would still have PATCHed the untouched value.
+    // Only the fields the customer actually touched go in the body -- see
+    // the original ManageDialog's comment on why sending `frequency`
+    // unconditionally is wrong even when the Select never rendered a change.
     const changes: Partial<SubscriptionResource> = {};
     if (frequency !== subscription.frequency) changes.frequency = frequency;
     if (nextDate) changes.next_transaction_date = toLocalDateString(nextDate);
 
     if (Object.keys(changes).length === 0) {
-      onClose();
+      onBack();
       return;
     }
 
@@ -202,11 +258,11 @@ export function ManageDialog({
 
     try {
       await patchResource(subscription._links.self as never, changes);
-      onSaved?.();
-      onClose();
+      cache.clear();
+      onBack();
     } catch (caught) {
-      // This dialog sends no credentials, so 401/403 can only mean the session
-      // died — the password dialog is the one place 401 means "wrong value".
+      // This page sends no credentials, so 401/403 can only mean the session
+      // died — the password page is the one place 401 means "wrong value".
       if (caught instanceof WriteError && caught.isUnauthorized) {
         onUnauthenticated();
         return;
@@ -219,10 +275,9 @@ export function ManageDialog({
   }
 
   return (
-    <PortalDialog
-      open={open}
-      onOpenChange={(next) => !next && onClose()}
+    <AccountPageLayout
       title={intl.formatMessage(messages.manageHeading)}
+      onBack={onBack}
     >
       {hasFailed ? (
         <Alert.Root $variant="destructive">
@@ -237,10 +292,6 @@ export function ManageDialog({
           settings are absent, which never happens inside the portal. Cancel
           still sets an end date, via the link-out below. */}
       <SummaryTable.Root>
-        {/* `value` renders as a plain text node right next to `title`'s, with
-            nothing between them — concatenated in the DOM as e.g.
-            "Subscription ID1". `subtitle` is what the design system wraps in
-            literal parentheses, so it is what actually sets the id apart. */}
         <SummaryTable.Entry
           title={intl.formatMessage(messages.manageId)}
           subtitle={subscriptionId}
@@ -277,10 +328,6 @@ export function ManageDialog({
               <Select.Value />
             </Select.Trigger>
 
-            {/* Select.Portal defaults to <body>, which is outside this
-                element's shadow root — the popup would render unstyled.
-                `?? undefined` because Base UI reads an explicit null as
-                "container unresolved" and never renders. */}
             <Select.Portal container={portalContainer ?? undefined}>
               <Select.Positioner>
                 <Select.Popup>
@@ -314,15 +361,8 @@ export function ManageDialog({
         </Field.Root>
       ) : null}
 
-      {/* Link-outs, not forms. v1 sends the customer to a hosted Foxy page for
-          all three, and this section keeps that. */}
       {tokenHref ? (
         <a
-          // Cancel gates on *having* an end date (`hasEndDate`), not on that
-          // date having passed (`hasEnded`, used below for modify/billing).
-          // A subscription already scheduled to end still has `hasEnded ===
-          // false` right up until that date arrives, and sending it into the
-          // hosted cancel flow again is the bug this guards against.
           href={
             hasEndDate
               ? undefined
@@ -362,9 +402,90 @@ export function ManageDialog({
         )}
       </Button>
 
-      <Button type="button" $variant="outline" onClick={onClose}>
-        {intl.formatMessage(messages.manageClose)}
-      </Button>
-    </PortalDialog>
+      <h3>{intl.formatMessage(messages.paymentsHeading)}</h3>
+
+      {paymentsLoading || paymentsUnauthenticated ? <Skeleton /> : null}
+
+      {paymentsError && !paymentsUnauthenticated ? (
+        <Alert.Root $variant="destructive">
+          <Alert.Description>
+            {intl.formatMessage(messages.errorUnknown)}
+          </Alert.Description>
+        </Alert.Root>
+      ) : null}
+
+      {!paymentsLoading && !paymentsError && payments.length === 0 ? (
+        <p>{intl.formatMessage(messages.paymentsEmpty)}</p>
+      ) : null}
+
+      <SummaryTable.Root>
+        {payments.map((payment) => {
+          const statusMessage = getTransactionStatusMessage(payment.status);
+          const transactionDate = toCalendarDate(payment.transaction_date);
+
+          return (
+            <SummaryTable.Entry
+              key={payment.id}
+              title={`#${payment.id}`}
+              subtitle={
+                statusMessage
+                  ? intl.formatMessage(statusMessage)
+                  : payment.status
+              }
+              value={
+                <FormattedNumber
+                  value={payment.total_order}
+                  style="currency"
+                  currency={payment.currency_code}
+                />
+              }
+              description={[
+                transactionDate ? (
+                  <FormattedDate
+                    key="date"
+                    value={transactionDate}
+                    dateStyle="medium"
+                  />
+                ) : null,
+                (payment._embedded?.["fx:items"] ?? [])
+                  .map((item) => `${item.name} ×${item.quantity}`)
+                  .join(", "),
+              ].filter((line) => line !== null)}
+              action={
+                payment._links["fx:receipt"] ? (
+                  <a href={payment._links["fx:receipt"].href}>
+                    {intl.formatMessage(messages.paymentsReceipt)}
+                  </a>
+                ) : null
+              }
+            />
+          );
+        })}
+      </SummaryTable.Root>
+
+      {paymentsTotal > paymentsLimit ? (
+        <div>
+          <Button
+            type="button"
+            onClick={loadPrevPayment}
+            disabled={paymentsOffset === 0}
+          >
+            {"<"}
+          </Button>
+          <span>
+            {paymentsOffset + 1}&ndash;
+            {Math.min(paymentsOffset + paymentsLimit, paymentsTotal)} /{" "}
+            {paymentsTotal}
+          </span>
+          <Button
+            type="button"
+            onClick={loadNextPayment}
+            disabled={paymentsOffset + paymentsLimit >= paymentsTotal}
+          >
+            {">"}
+          </Button>
+        </div>
+      ) : null}
+    </AccountPageLayout>
   );
 }
