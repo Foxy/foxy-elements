@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
 import { useCollection, type FollowableLink } from "@/lib/customer-api";
+import type { AccountPage } from "../../account-page";
 import { messages } from "../../messages";
-import { OrderDetailDialog } from "./detail-dialog";
 import { OrderRow, type OrderResource } from "./row";
 
 type CustomerWithLinks = {
@@ -14,14 +14,16 @@ type CustomerWithLinks = {
 
 type Props = {
   customer: CustomerWithLinks;
+  onNavigate: (page: AccountPage) => void;
 };
 
 // Verified against a live store (see the spec, §2 and §5.2): a single
 // `:in` filter is honoured, while two `:not` values on one property are
 // silently ignored and return the full unfiltered set with a 200. This list
-// excludes `subscription_renewal` (shown in the subscription's own Payments
-// dialog) and `updateinfo` (a zero-dollar card-update record, not an order)
-// by naming every type that IS an order, rather than the two that are not.
+// excludes `subscription_renewal` (shown in the subscription page's own
+// payment history) and `updateinfo` (a zero-dollar card-update record, not
+// an order) by naming every type that IS an order, rather than the two that
+// are not.
 //
 // Trade-off, stated rather than hidden: this silently omits any transaction
 // type Foxy adds later. Of the three types listed, only `transaction` has
@@ -30,9 +32,8 @@ type Props = {
 const ORDER_TYPES_FILTER =
   "type:in=transaction,subscription_modification,subscription_cancellation";
 
-export function OrdersSection({ customer }: Props) {
+export function OrdersSection({ customer, onNavigate }: Props) {
   const intl = useIntl();
-  const [opened, setOpened] = useState<OrderResource | null>(null);
 
   const link = customer._links["fx:transactions"];
 
@@ -79,18 +80,15 @@ export function OrdersSection({ customer }: Props) {
         <OrderRow
           key={order._links.self.href}
           order={order}
-          onOpen={() => setOpened(order)}
+          onOpen={() =>
+            onNavigate({
+              type: "order",
+              id: String(order.id),
+              resource: order,
+            })
+          }
         />
       ))}
-
-      {opened ? (
-        <OrderDetailDialog
-          key={opened._links.self.href}
-          order={opened}
-          open
-          onClose={() => setOpened(null)}
-        />
-      ) : null}
 
       {totalItems > limit ? (
         <div>

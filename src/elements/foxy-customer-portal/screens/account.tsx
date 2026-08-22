@@ -20,7 +20,7 @@ import type { AccountPage } from "../account-page";
 import { AccountPageLayout } from "../account-page-layout";
 import { AddressesSection } from "../sections/addresses";
 import { PortalHeader, type SignOutState } from "../sections/header";
-import { OrdersSection } from "../sections/orders";
+import { OrderPageContainer, OrdersSection } from "../sections/orders";
 import { PasswordPage } from "../sections/password-page";
 import { ProfilePage, type CustomerResource } from "../sections/profile-page";
 import {
@@ -187,6 +187,21 @@ export function AccountScreen({
     );
   }
 
+  if (accountPage.type === "order") {
+    return (
+      <OrderPageContainer
+        id={accountPage.id}
+        resource={accountPage.resource}
+        ordersLink={
+          data._links["fx:transactions"] as unknown as ComponentProps<
+            typeof OrderPageContainer
+          >["ordersLink"]
+        }
+        onBack={goHome}
+      />
+    );
+  }
+
   return (
     <div>
       {accountPage.type === "home" ? (
@@ -215,12 +230,12 @@ export function AccountScreen({
           see `Response.json()`), so this cast widens the type to say so,
           rather than papering over a runtime mismatch.
 
-          Tasks 5/6 give `order`/`address` their own page instead of falling
-          back to these home sections -- until then, a deep link or
-          Back/Forward landing on one of those two types simply shows the
-          home sections (without the header, since `accountPage.type` is not
-          literally `"home"`) rather than crashing on an AccountPage variant
-          this task doesn't handle yet. */}
+          Task 6 gives `address` its own page instead of falling back to
+          these home sections -- until then, a deep link or Back/Forward
+          landing on that type simply shows the home sections (without the
+          header, since `accountPage.type` is not literally `"home"`) rather
+          than crashing on an AccountPage variant this task doesn't handle
+          yet. */}
       <SubscriptionsSection
         customer={
           data as unknown as ComponentProps<
@@ -235,6 +250,7 @@ export function AccountScreen({
         customer={
           data as unknown as ComponentProps<typeof OrdersSection>["customer"]
         }
+        onNavigate={onNavigate}
       />
 
       <AddressesSection

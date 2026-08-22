@@ -56,7 +56,10 @@ const flush = () =>
 describe("OrdersSection", () => {
   it("requests the allow-list filter and the items zoom, and nothing else", async () => {
     const spy = vi.fn(async (_query?: Record<string, unknown>) => page([]));
-    screen = mountScreen(<OrdersSection customer={customer(spy) as never} />, {});
+    screen = mountScreen(
+      <OrdersSection customer={customer(spy) as never} onNavigate={vi.fn()} />,
+      {},
+    );
     await flush();
 
     const [query] = spy.mock.calls.at(-1) ?? [];
@@ -76,6 +79,7 @@ describe("OrdersSection", () => {
     screen = mountScreen(
       <OrdersSection
         customer={customer(async () => page([])) as never}
+        onNavigate={vi.fn()}
       />,
       {},
     );
@@ -90,6 +94,7 @@ describe("OrdersSection", () => {
         customer={
           customer(async () => page([order(1), order(2)])) as never
         }
+        onNavigate={vi.fn()}
       />,
       {},
     );
@@ -98,10 +103,12 @@ describe("OrdersSection", () => {
     expect(document.querySelectorAll("button").length).toBeGreaterThanOrEqual(2);
   });
 
-  it("opens the detail dialog for the clicked order", async () => {
+  it("navigates to the order page with its resource when a row is clicked", async () => {
+    const onNavigate = vi.fn();
     screen = mountScreen(
       <OrdersSection
         customer={customer(async () => page([order(98213)])) as never}
+        onNavigate={onNavigate}
       />,
       {},
     );
@@ -111,12 +118,9 @@ describe("OrdersSection", () => {
       document.querySelector("button")?.click();
     });
 
-    // The row itself already renders "#98213 · Widget ×1" before any click --
-    // matching only /98213/ here would pass even if the click did nothing and
-    // the dialog never mounted (row.test.tsx asserts the same pattern against
-    // the row alone). Assert on text only `OrderDetailDialog` renders: its
-    // title, built from `messages.orderDetailHeading` as "Order #{id}".
-    expect(document.body.textContent).toMatch(/Order #98213/);
+    expect(onNavigate).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "order", id: "98213" }),
+    );
   });
 
   it("shows an error, not an empty section, when the read fails", async () => {
@@ -125,6 +129,7 @@ describe("OrdersSection", () => {
         customer={
           customer(async () => ({ ok: false, status: 500, json: async () => ({}) })) as never
         }
+        onNavigate={vi.fn()}
       />,
       {},
     );

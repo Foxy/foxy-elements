@@ -1,8 +1,12 @@
 import styled from "styled-components";
 import { FormattedNumber, useIntl } from "react-intl";
+import { Alert } from "@foxy.io/design-system/alert";
+import { Skeleton } from "@foxy.io/design-system/skeleton";
 import { SummaryTable } from "@foxy.io/design-system/summary-table";
+import type { FollowableLink } from "@/lib/customer-api";
 import { messages } from "../../messages";
-import { PortalDialog } from "../../portal-dialog";
+import { AccountPageLayout } from "../../account-page-layout";
+import { useOrderById } from "./use-order-by-id";
 import type { OrderResource } from "./row";
 
 // Its own block, set apart with a divider and heavier weight, rather than a
@@ -21,39 +25,75 @@ const GrandTotal = styled.dl`
   }
 `;
 
-type Props = {
-  order: OrderResource;
-  open: boolean;
-  onClose: () => void;
+type CollectionPage = {
+  total_items?: number;
+  _embedded?: Record<string, unknown[]>;
 };
 
-export function OrderDetailDialog({ order, open, onClose }: Props) {
+type ContainerProps = {
+  id: string;
+  resource?: OrderResource;
+  ordersLink: FollowableLink<CollectionPage> | null;
+  onBack: () => void;
+};
+
+/**
+ * Resolves `resource` when navigation didn't already carry it -- same
+ * pattern as `subscriptions/subscription-page.tsx`'s
+ * `SubscriptionPageContainer`.
+ */
+export function OrderPageContainer({
+  id,
+  resource,
+  ordersLink,
+  onBack,
+}: ContainerProps) {
+  const intl = useIntl();
+  const fetched = useOrderById(resource ? null : ordersLink, id);
+  const order = resource ?? fetched.order;
+
+  if (!resource && (fetched.isLoading || fetched.isUnauthenticated)) {
+    return (
+      <AccountPageLayout onBack={onBack}>
+        <Skeleton />
+      </AccountPageLayout>
+    );
+  }
+
+  if (!order) {
+    return (
+      <AccountPageLayout onBack={onBack}>
+        <Alert.Root $variant="destructive">
+          <Alert.Description>
+            {intl.formatMessage(messages.errorUnknown)}
+          </Alert.Description>
+        </Alert.Root>
+      </AccountPageLayout>
+    );
+  }
+
+  return <OrderPage order={order} onBack={onBack} />;
+}
+
+type Props = { order: OrderResource; onBack: () => void };
+
+export function OrderPage({ order, onBack }: Props) {
   const intl = useIntl();
   const items = order._embedded?.["fx:items"] ?? [];
   const receiptHref = order._links["fx:receipt"]?.href;
 
   return (
-    <PortalDialog
-      open={open}
-      onOpenChange={(next) => !next && onClose()}
+    <AccountPageLayout
       title={intl.formatMessage(messages.orderDetailHeading, {
         id: order.display_id,
       })}
+      onBack={onBack}
     >
       <SummaryTable.Root>
         {items.map((item, index) => (
           <SummaryTable.Entry
-            // Items carry no id on the wire; index is stable because this
-            // list is never reordered or filtered client-side.
             key={index}
             title={item.name}
-            // `item.price` is the SDK-documented *unit* price (before item
-            // option modifiers), never a line total -- and this section's
-            // `zoom=items` never fetches `fx:item_options`, so there is no
-            // reliable line total to compute here. Folding quantity and
-            // unit price into one subtitle, with no separate `value` column,
-            // avoids presenting a number that reads as "what this line cost"
-            // when it is actually "what one unit costs".
             subtitle={intl.formatMessage(messages.orderItemQuantity, {
               quantity: item.quantity,
               price: intl.formatNumber(item.price, {
@@ -111,10 +151,7 @@ export function OrderDetailDialog({ order, open, onClose }: Props) {
         </dd>
       </GrandTotal>
 
-      {/* Withheld entirely, not merely disabled, when the link is absent --
-          matching `payments-dialog.tsx` and `manage-dialog.tsx`'s existing
-          convention for a resource that may not carry every optional link. */}
       <a href={receiptHref}>{intl.formatMessage(messages.orderReceipt)}</a>
-    </PortalDialog>
+    </AccountPageLayout>
   );
 }
