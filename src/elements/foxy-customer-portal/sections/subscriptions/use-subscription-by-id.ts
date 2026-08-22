@@ -32,9 +32,14 @@ function subscriptionId(subscription: SubscriptionResource): string {
  * SECOND UNVERIFIED ASSUMPTION: this sends no `filters` at all, unlike
  * `list.tsx`, which always sends `is_active=true` or `is_active=false`.
  * This assumes the unfiltered `fx:subscriptions` collection includes both
- * active and inactive subscriptions by default. That default was not
- * verified against a live store either -- if it turns out to default to
- * active-only, a deep link to an inactive subscription would never resolve,
+ * active and inactive subscriptions by default. `element.stories.ts`'s
+ * fetch stub has been taught to answer an unfiltered request with the union
+ * of its active + inactive fixtures, so the demo/Storybook manifestation of
+ * this is covered -- but that only proves the fixture behaves this way, not
+ * that the real API does. The live default was not verified against a real
+ * store (same missing-credentials constraint as the limitation above) -- if
+ * the real unfiltered collection turns out to default to active-only, a
+ * deep link to an inactive subscription would never resolve there,
  * regardless of its position in the collection.
  */
 export function useSubscriptionById(

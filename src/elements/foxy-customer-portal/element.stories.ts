@@ -347,6 +347,18 @@ export function stubStore(fixtures: StoreFixtures = {}): () => void {
         if (url.includes("is_active=false")) {
           return paginate(inactiveSubscriptions, url, "fx:subscriptions");
         }
+
+        // No `is_active` filter at all -- `useSubscriptionById`'s fallback
+        // (see use-subscription-by-id.ts) has no per-tab context, so it asks
+        // for the unfiltered collection and scans it for a matching id. The
+        // union of both fixtures, not either list alone, so a cold deep link
+        // to an inactive subscription resolves here too, not just an active
+        // one.
+        return paginate(
+          [...activeSubscriptions, ...inactiveSubscriptions],
+          url,
+          "fx:subscriptions",
+        );
       }
 
       // Matches the orders collection request. `OrdersSection` sends
