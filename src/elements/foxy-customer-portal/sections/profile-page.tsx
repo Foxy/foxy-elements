@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
@@ -8,6 +8,8 @@ import { WriteError, useApi, type FollowableLink } from "@/lib/customer-api";
 import { AccountPageLayout } from "../account-page-layout";
 import { messages } from "../messages";
 import { patchResource } from "../write";
+import { CUSTOMER_FIELD_LIMITS } from "../field-constraints";
+import { useFieldValidation } from "../use-field-validation";
 import type { CustomerProps } from "./header";
 
 export type CustomerResource = CustomerProps & {
@@ -31,8 +33,23 @@ export function ProfilePage({ customer, onBack }: Props) {
   const [isBusy, setIsBusy] = useState(false);
   const [hasFailed, setHasFailed] = useState(false);
 
+  const rules = useMemo(
+    () => ({
+      firstName: CUSTOMER_FIELD_LIMITS.firstName,
+      lastName: CUSTOMER_FIELD_LIMITS.lastName,
+      email: CUSTOMER_FIELD_LIMITS.email,
+      taxId: CUSTOMER_FIELD_LIMITS.taxId,
+    }),
+    [],
+  );
+
+  const { errors, validateField, validateAll } = useFieldValidation(rules);
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+
+    if (!validateAll({ firstName, lastName, email, taxId })) return;
+
     setIsBusy(true);
     setHasFailed(false);
 
@@ -69,7 +86,7 @@ export function ProfilePage({ customer, onBack }: Props) {
       title={intl.formatMessage(messages.profileHeading)}
       onBack={onBack}
     >
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         {hasFailed && (
           <Alert.Root $variant="destructive">
             <Alert.Description>
@@ -86,9 +103,18 @@ export function ProfilePage({ customer, onBack }: Props) {
             id={firstNameId}
             type="text"
             autoComplete="given-name"
+            maxLength={CUSTOMER_FIELD_LIMITS.firstName.maxLength}
             value={firstName}
-            onChange={(event) => setFirstName(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setFirstName(value);
+              validateField("firstName", value);
+            }}
+            onBlur={(event) => validateField("firstName", event.target.value)}
           />
+          {errors.firstName ? (
+            <Field.Error match>{errors.firstName}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Field.Root>
@@ -99,9 +125,18 @@ export function ProfilePage({ customer, onBack }: Props) {
             id={lastNameId}
             type="text"
             autoComplete="family-name"
+            maxLength={CUSTOMER_FIELD_LIMITS.lastName.maxLength}
             value={lastName}
-            onChange={(event) => setLastName(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setLastName(value);
+              validateField("lastName", value);
+            }}
+            onBlur={(event) => validateField("lastName", event.target.value)}
           />
+          {errors.lastName ? (
+            <Field.Error match>{errors.lastName}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Field.Root>
@@ -111,11 +146,19 @@ export function ProfilePage({ customer, onBack }: Props) {
           <Input
             id={emailId}
             type="email"
-            required
             autoComplete="email"
+            maxLength={CUSTOMER_FIELD_LIMITS.email.maxLength}
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setEmail(value);
+              validateField("email", value);
+            }}
+            onBlur={(event) => validateField("email", event.target.value)}
           />
+          {errors.email ? (
+            <Field.Error match>{errors.email}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Field.Root>
@@ -125,9 +168,18 @@ export function ProfilePage({ customer, onBack }: Props) {
           <Input
             id={taxIdId}
             type="text"
+            maxLength={CUSTOMER_FIELD_LIMITS.taxId.maxLength}
             value={taxId}
-            onChange={(event) => setTaxId(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setTaxId(value);
+              validateField("taxId", value);
+            }}
+            onBlur={(event) => validateField("taxId", event.target.value)}
           />
+          {errors.taxId ? (
+            <Field.Error match>{errors.taxId}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Button type="submit" disabled={isBusy}>

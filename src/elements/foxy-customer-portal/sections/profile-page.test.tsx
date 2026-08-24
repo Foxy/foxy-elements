@@ -159,4 +159,76 @@ describe("ProfilePage", () => {
     expect(onUnauthenticated).not.toHaveBeenCalled();
     expect(document.body.textContent).toMatch(/something went wrong/i);
   });
+
+  it("blocks submit and shows a message when email is cleared", async () => {
+    const { patch, onBack } = renderPage();
+    const email = document.querySelector<HTMLInputElement>(
+      'input[autocomplete="email"]',
+    )!;
+
+    act(() => setInputValue(email, ""));
+
+    act(() => {
+      document
+        .querySelector("form")!
+        .dispatchEvent(
+          new Event("submit", { bubbles: true, cancelable: true }),
+        );
+    });
+    await flush();
+
+    expect(patch).not.toHaveBeenCalled();
+    expect(onBack).not.toHaveBeenCalled();
+    expect(document.body.textContent).toMatch(/required/i);
+  });
+
+  it("shows a message on blur for a malformed email, without waiting for submit", async () => {
+    renderPage();
+    const email = document.querySelector<HTMLInputElement>(
+      'input[autocomplete="email"]',
+    )!;
+
+    act(() => setInputValue(email, "not-an-email"));
+    act(() => email.dispatchEvent(new Event("blur", { bubbles: true })));
+    await flush();
+
+    expect(document.body.textContent).toMatch(/valid email/i);
+  });
+
+  it("blocks submit when first name exceeds the API's 50-character limit", async () => {
+    const { patch } = renderPage();
+    const first = document.querySelector<HTMLInputElement>(
+      'input[autocomplete="given-name"]',
+    )!;
+
+    act(() => setInputValue(first, "x".repeat(51)));
+
+    act(() => {
+      document
+        .querySelector("form")!
+        .dispatchEvent(
+          new Event("submit", { bubbles: true, cancelable: true }),
+        );
+    });
+    await flush();
+
+    expect(patch).not.toHaveBeenCalled();
+    expect(document.body.textContent).toMatch(/50/);
+  });
+
+  it("clears the email error once a valid address is entered", async () => {
+    renderPage();
+    const email = document.querySelector<HTMLInputElement>(
+      'input[autocomplete="email"]',
+    )!;
+
+    act(() => setInputValue(email, "not-an-email"));
+    act(() => email.dispatchEvent(new Event("blur", { bubbles: true })));
+    await flush();
+    expect(document.body.textContent).toMatch(/valid email/i);
+
+    act(() => setInputValue(email, "ada@example.com"));
+    await flush();
+    expect(document.body.textContent).not.toMatch(/valid email/i);
+  });
 });
