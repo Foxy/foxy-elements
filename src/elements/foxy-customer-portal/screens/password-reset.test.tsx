@@ -186,4 +186,26 @@ describe("PasswordResetScreen", () => {
 
     expect(onSkipped).toHaveBeenCalled();
   });
+
+  it("blocks submit and shows a message when the new password is blank, before checking the mismatch", async () => {
+    render(fakeApi());
+    await flush();
+
+    fill("", "hunter2");
+
+    expect(screen!.host.textContent).toMatch(/required/i);
+    expect(screen!.host.textContent).not.toMatch(/do not match/i);
+  });
+
+  it("blocks submit when the new password exceeds the API's 50-character limit, before checking the mismatch", async () => {
+    const patch = vi.fn(async () => ({ ok: true, status: 200 }));
+    render(fakeApi(patch));
+    await flush();
+
+    fill("x".repeat(51), "y".repeat(51));
+
+    expect(patch).not.toHaveBeenCalled();
+    expect(screen!.host.textContent).toMatch(/50/);
+    expect(screen!.host.textContent).not.toMatch(/do not match/i);
+  });
 });

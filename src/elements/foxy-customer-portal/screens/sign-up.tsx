@@ -1,12 +1,14 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
 import { useApi } from "@/lib/customer-api";
+import { CUSTOMER_FIELD_LIMITS } from "../field-constraints";
 import { loadHCaptcha, type HCaptchaApi } from "../hcaptcha";
 import { messages } from "../messages";
+import { useFieldValidation } from "../use-field-validation";
 
 type Props = {
   siteKey: string;
@@ -37,6 +39,21 @@ export function SignUpScreen({ siteKey, onSignedIn, onBack }: Props) {
   const [isDone, setIsDone] = useState(false);
   const [error, setError] = useState<SignUpError | null>(null);
 
+  const rules = useMemo(
+    () => ({
+      firstName: CUSTOMER_FIELD_LIMITS.firstName,
+      lastName: CUSTOMER_FIELD_LIMITS.lastName,
+      email: CUSTOMER_FIELD_LIMITS.email,
+      // Deliberately not required -- a blank password means "email me a
+      // generated one," an existing, intentional flow this validation must
+      // not block. See this plan's Global Constraints.
+      password: CUSTOMER_FIELD_LIMITS.password,
+    }),
+    [],
+  );
+
+  const { errors, validateField, validateAll } = useFieldValidation(rules);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -56,6 +73,8 @@ export function SignUpScreen({ siteKey, onSignedIn, onBack }: Props) {
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+
+    if (!validateAll({ firstName, lastName, email, password })) return;
 
     // signUp() rejects without a token, so stop here with a useful message
     // rather than surfacing a generic INVALID_FORM from the server.
@@ -152,7 +171,7 @@ export function SignUpScreen({ siteKey, onSignedIn, onBack }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       <h1>{intl.formatMessage(messages.signUpHeading)}</h1>
 
       {error && (
@@ -171,9 +190,18 @@ export function SignUpScreen({ siteKey, onSignedIn, onBack }: Props) {
           id={firstNameId}
           type="text"
           autoComplete="given-name"
+          maxLength={CUSTOMER_FIELD_LIMITS.firstName.maxLength}
           value={firstName}
-          onChange={(event) => setFirstName(event.target.value)}
+          onChange={(event) => {
+            const value = event.target.value;
+            setFirstName(value);
+            if (errors.firstName) validateField("firstName", value);
+          }}
+          onBlur={(event) => validateField("firstName", event.target.value)}
         />
+        {errors.firstName ? (
+          <Field.Error match>{errors.firstName}</Field.Error>
+        ) : null}
       </Field.Root>
 
       <Field.Root>
@@ -184,9 +212,18 @@ export function SignUpScreen({ siteKey, onSignedIn, onBack }: Props) {
           id={lastNameId}
           type="text"
           autoComplete="family-name"
+          maxLength={CUSTOMER_FIELD_LIMITS.lastName.maxLength}
           value={lastName}
-          onChange={(event) => setLastName(event.target.value)}
+          onChange={(event) => {
+            const value = event.target.value;
+            setLastName(value);
+            if (errors.lastName) validateField("lastName", value);
+          }}
+          onBlur={(event) => validateField("lastName", event.target.value)}
         />
+        {errors.lastName ? (
+          <Field.Error match>{errors.lastName}</Field.Error>
+        ) : null}
       </Field.Root>
 
       <Field.Root>
@@ -196,11 +233,19 @@ export function SignUpScreen({ siteKey, onSignedIn, onBack }: Props) {
         <Input
           id={emailId}
           type="email"
-          required
           autoComplete="email"
+          maxLength={CUSTOMER_FIELD_LIMITS.email.maxLength}
           value={email}
-          onChange={(event) => setEmail(event.target.value)}
+          onChange={(event) => {
+            const value = event.target.value;
+            setEmail(value);
+            if (errors.email) validateField("email", value);
+          }}
+          onBlur={(event) => validateField("email", event.target.value)}
         />
+        {errors.email ? (
+          <Field.Error match>{errors.email}</Field.Error>
+        ) : null}
       </Field.Root>
 
       <Field.Root>
@@ -211,9 +256,18 @@ export function SignUpScreen({ siteKey, onSignedIn, onBack }: Props) {
           id={passwordId}
           type="password"
           autoComplete="new-password"
+          maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
           value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          onChange={(event) => {
+            const value = event.target.value;
+            setPassword(value);
+            if (errors.password) validateField("password", value);
+          }}
+          onBlur={(event) => validateField("password", event.target.value)}
         />
+        {errors.password ? (
+          <Field.Error match>{errors.password}</Field.Error>
+        ) : null}
       </Field.Root>
 
       <div ref={captchaHost} data-testid="hcaptcha" />

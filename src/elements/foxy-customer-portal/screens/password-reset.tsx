@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
@@ -10,7 +10,9 @@ import {
   UnauthenticatedError,
   type FollowableLink,
 } from "@/lib/customer-api";
+import { CUSTOMER_FIELD_LIMITS } from "../field-constraints";
 import { messages } from "../messages";
+import { useFieldValidation } from "../use-field-validation";
 import { patchResource } from "../write";
 
 type Props = {
@@ -38,6 +40,16 @@ export function PasswordResetScreen({
   const [confirmation, setConfirmation] = useState("");
   const [isBusy, setIsBusy] = useState(false);
   const [error, setError] = useState<"mismatch" | "unknown" | null>(null);
+
+  const rules = useMemo(
+    () => ({
+      password: { ...CUSTOMER_FIELD_LIMITS.password, required: true },
+      confirmation: { ...CUSTOMER_FIELD_LIMITS.password, required: true },
+    }),
+    [],
+  );
+
+  const { errors, validateField, validateAll } = useFieldValidation(rules);
 
   // The customer's own `self` link is the write target for the password.
   // This screen is only reached from `afterSignIn` (view.tsx) -- there is no
@@ -67,6 +79,8 @@ export function PasswordResetScreen({
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+
+    if (!validateAll({ password, confirmation })) return;
 
     if (password !== confirmation) {
       setError("mismatch");
@@ -104,7 +118,7 @@ export function PasswordResetScreen({
         </Alert.Root>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <Field.Root>
           <Field.Label htmlFor={newId}>
             {intl.formatMessage(messages.passwordNew)}
@@ -112,11 +126,19 @@ export function PasswordResetScreen({
           <Input
             id={newId}
             type="password"
-            required
             autoComplete="new-password"
+            maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setPassword(value);
+              if (errors.password) validateField("password", value);
+            }}
+            onBlur={(event) => validateField("password", event.target.value)}
           />
+          {errors.password ? (
+            <Field.Error match>{errors.password}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Field.Root>
@@ -126,11 +148,19 @@ export function PasswordResetScreen({
           <Input
             id={confirmId}
             type="password"
-            required
             autoComplete="new-password"
+            maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
             value={confirmation}
-            onChange={(event) => setConfirmation(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setConfirmation(value);
+              if (errors.confirmation) validateField("confirmation", value);
+            }}
+            onBlur={(event) => validateField("confirmation", event.target.value)}
           />
+          {errors.confirmation ? (
+            <Field.Error match>{errors.confirmation}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Button type="submit" disabled={isBusy || !self}>

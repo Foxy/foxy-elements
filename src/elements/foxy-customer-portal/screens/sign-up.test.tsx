@@ -282,4 +282,54 @@ describe("SignUpScreen", () => {
     // Re-solving the challenge would only invite a duplicate registration.
     expect(resetWidget).not.toHaveBeenCalled();
   });
+
+  it("blocks submit and shows a message when email is blank, without needing the captcha solved", async () => {
+    const signUp = vi.fn(async () => {});
+    render({ signUp, signIn: vi.fn(async () => {}) });
+    await flush();
+
+    submitForm();
+
+    expect(signUp).not.toHaveBeenCalled();
+    expect(screen!.host.textContent).toMatch(/required/i);
+  });
+
+  it("still does not require a password", async () => {
+    const signUp = vi.fn(async () => {});
+    render({ signUp, signIn: vi.fn(async () => {}) });
+    await flush();
+
+    const email = screen!.host.querySelector<HTMLInputElement>(
+      'input[type="email"]',
+    )!;
+    act(() => setInputValue(email, "ada@example.com"));
+    act(() => solve!("captcha-token"));
+    submitForm();
+    await flush();
+
+    expect(signUp).toHaveBeenCalledWith(
+      expect.objectContaining({ email: "ada@example.com", password: undefined }),
+    );
+  });
+
+  it("blocks submit when a supplied password exceeds the API's 50-character limit", async () => {
+    const signUp = vi.fn(async () => {});
+    render({ signUp, signIn: vi.fn(async () => {}) });
+    await flush();
+
+    const email = screen!.host.querySelector<HTMLInputElement>(
+      'input[type="email"]',
+    )!;
+    const password = screen!.host.querySelector<HTMLInputElement>(
+      'input[type="password"]',
+    )!;
+    act(() => setInputValue(email, "ada@example.com"));
+    act(() => setInputValue(password, "x".repeat(51)));
+    act(() => solve!("captcha-token"));
+    submitForm();
+    await flush();
+
+    expect(signUp).not.toHaveBeenCalled();
+    expect(screen!.host.textContent).toMatch(/50/);
+  });
 });
