@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
@@ -6,7 +6,9 @@ import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
 import { useApi, WriteError } from "@/lib/customer-api";
 import { AccountPageLayout } from "../account-page-layout";
+import { CUSTOMER_FIELD_LIMITS } from "../field-constraints";
 import { messages } from "../messages";
+import { useFieldValidation } from "../use-field-validation";
 import { patchResource } from "../write";
 import type { CustomerResource } from "./profile-page";
 
@@ -23,8 +25,21 @@ export function PasswordPage({ customer, onBack }: Props) {
   const [isBusy, setIsBusy] = useState(false);
   const [error, setError] = useState<"current" | "unknown" | null>(null);
 
+  const rules = useMemo(
+    () => ({
+      current: { ...CUSTOMER_FIELD_LIMITS.password, required: true },
+      next: { ...CUSTOMER_FIELD_LIMITS.password, required: true },
+    }),
+    [],
+  );
+
+  const { errors, validateField, validateAll } = useFieldValidation(rules);
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+
+    if (!validateAll({ current, next })) return;
+
     setIsBusy(true);
     setError(null);
 
@@ -57,7 +72,7 @@ export function PasswordPage({ customer, onBack }: Props) {
       title={intl.formatMessage(messages.profileChangePassword)}
       onBack={onBack}
     >
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         {error === "unknown" && (
           <Alert.Root $variant="destructive">
             <Alert.Description>
@@ -73,11 +88,19 @@ export function PasswordPage({ customer, onBack }: Props) {
           <Input
             id={currentId}
             type="password"
-            required
             autoComplete="current-password"
+            maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
             value={current}
-            onChange={(event) => setCurrent(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setCurrent(value);
+              if (errors.current) validateField("current", value);
+            }}
+            onBlur={(event) => validateField("current", event.target.value)}
           />
+          {errors.current ? (
+            <Field.Error match>{errors.current}</Field.Error>
+          ) : null}
           {error === "current" && (
             <Field.Error match>
               {intl.formatMessage(messages.errorWrongCurrentPassword)}
@@ -92,11 +115,19 @@ export function PasswordPage({ customer, onBack }: Props) {
           <Input
             id={nextId}
             type="password"
-            required
             autoComplete="new-password"
+            maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
             value={next}
-            onChange={(event) => setNext(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setNext(value);
+              if (errors.next) validateField("next", value);
+            }}
+            onBlur={(event) => validateField("next", event.target.value)}
           />
+          {errors.next ? (
+            <Field.Error match>{errors.next}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Button type="submit" disabled={isBusy}>
