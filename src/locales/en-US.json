@@ -186,5 +186,8 @@
   "portal_subscription_payments": "Payments",
   "portal_subscriptions_active": "Active",
   "portal_subscriptions_heading": "Subscriptions",
-  "portal_subscriptions_inactive": "Inactive"
+  "portal_subscriptions_inactive": "Inactive",
+  "portal_validation_email": "Enter a valid email address.",
+  "portal_validation_max_length": "Must be {max} characters or fewer.",
+  "portal_validation_required": "This field is required."
 }

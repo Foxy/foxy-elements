@@ -32,6 +32,18 @@ export const messages = defineMessages({
     id: "portal_error_unknown",
     defaultMessage: "Something went wrong. Please try again.",
   },
+  validationRequired: {
+    id: "portal_validation_required",
+    defaultMessage: "This field is required.",
+  },
+  validationMaxLength: {
+    id: "portal_validation_max_length",
+    defaultMessage: "Must be {max} characters or fewer.",
+  },
+  validationEmail: {
+    id: "portal_validation_email",
+    defaultMessage: "Enter a valid email address.",
+  },
   recoverHeading: {
     id: "portal_recover_heading",
     defaultMessage: "Recover access",
