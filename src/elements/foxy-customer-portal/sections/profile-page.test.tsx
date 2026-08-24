@@ -189,7 +189,6 @@ describe("ProfilePage", () => {
     )!;
 
     act(() => setInputValue(email, "not-an-email"));
-    act(() => email.dispatchEvent(new Event("blur", { bubbles: true })));
     await flush();
 
     expect(document.body.textContent).toMatch(/valid email/i);
@@ -223,12 +222,22 @@ describe("ProfilePage", () => {
     )!;
 
     act(() => setInputValue(email, "not-an-email"));
-    act(() => email.dispatchEvent(new Event("blur", { bubbles: true })));
     await flush();
     expect(document.body.textContent).toMatch(/valid email/i);
 
     act(() => setInputValue(email, "ada@example.com"));
     await flush();
     expect(document.body.textContent).not.toMatch(/valid email/i);
+  });
+
+  it("shows errors live as the user types (not just on blur)", () => {
+    renderPage();
+    const first = document.querySelector<HTMLInputElement>(
+      'input[autocomplete="given-name"]',
+    )!;
+
+    act(() => setInputValue(first, "x".repeat(60)));
+
+    expect(document.body.textContent).toMatch(/50/);
   });
 });
