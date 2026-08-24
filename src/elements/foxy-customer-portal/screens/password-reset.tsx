@@ -127,6 +127,7 @@ export function PasswordResetScreen({
             id={newId}
             type="password"
             autoComplete="new-password"
+            required
             maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
             value={password}
             onChange={(event) => {
@@ -149,6 +150,7 @@ export function PasswordResetScreen({
             id={confirmId}
             type="password"
             autoComplete="new-password"
+            required
             maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
             value={confirmation}
             onChange={(event) => {
@@ -156,7 +158,9 @@ export function PasswordResetScreen({
               setConfirmation(value);
               if (errors.confirmation) validateField("confirmation", value);
             }}
-            onBlur={(event) => validateField("confirmation", event.target.value)}
+            onBlur={(event) =>
+              validateField("confirmation", event.target.value)
+            }
           />
           {errors.confirmation ? (
             <Field.Error match>{errors.confirmation}</Field.Error>

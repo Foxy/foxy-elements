@@ -234,6 +234,7 @@ export function SignUpScreen({ siteKey, onSignedIn, onBack }: Props) {
           id={emailId}
           type="email"
           autoComplete="email"
+          required
           maxLength={CUSTOMER_FIELD_LIMITS.email.maxLength}
           value={email}
           onChange={(event) => {
@@ -243,9 +244,7 @@ export function SignUpScreen({ siteKey, onSignedIn, onBack }: Props) {
           }}
           onBlur={(event) => validateField("email", event.target.value)}
         />
-        {errors.email ? (
-          <Field.Error match>{errors.email}</Field.Error>
-        ) : null}
+        {errors.email ? <Field.Error match>{errors.email}</Field.Error> : null}
       </Field.Root>
 
       <Field.Root>

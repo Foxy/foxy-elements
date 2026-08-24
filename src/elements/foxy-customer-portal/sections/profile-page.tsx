@@ -147,6 +147,7 @@ export function ProfilePage({ customer, onBack }: Props) {
             id={emailId}
             type="email"
             autoComplete="email"
+            required
             maxLength={CUSTOMER_FIELD_LIMITS.email.maxLength}
             value={email}
             onChange={(event) => {

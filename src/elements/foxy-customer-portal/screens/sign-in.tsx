@@ -35,7 +35,10 @@ export function SignInScreen({
   const rules = useMemo(
     () => ({
       email: CUSTOMER_FIELD_LIMITS.email,
-      password: { ...CUSTOMER_FIELD_LIMITS.password, required: true },
+      // Sign-in verifies an existing password, not a newly created one, so
+      // the 50-character length cap does not apply here -- see
+      // `password-page.tsx`'s `current` field for the same reasoning.
+      password: { required: true },
     }),
     [],
   );
@@ -85,6 +88,7 @@ export function SignInScreen({
           id={emailId}
           type="email"
           autoComplete="email"
+          required
           maxLength={CUSTOMER_FIELD_LIMITS.email.maxLength}
           value={email}
           onChange={(event) => {
@@ -94,9 +98,7 @@ export function SignInScreen({
           }}
           onBlur={(event) => validateField("email", event.target.value)}
         />
-        {errors.email ? (
-          <Field.Error match>{errors.email}</Field.Error>
-        ) : null}
+        {errors.email ? <Field.Error match>{errors.email}</Field.Error> : null}
       </Field.Root>
 
       <Field.Root>
@@ -107,7 +109,7 @@ export function SignInScreen({
           id={passwordId}
           type="password"
           autoComplete="current-password"
-          maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
+          required
           value={password}
           onChange={(event) => {
             const value = event.target.value;

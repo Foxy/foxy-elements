@@ -27,7 +27,10 @@ export function PasswordPage({ customer, onBack }: Props) {
 
   const rules = useMemo(
     () => ({
-      current: { ...CUSTOMER_FIELD_LIMITS.password, required: true },
+      // `current` verifies an existing password, not a newly created one, so
+      // the 50-character length cap does not apply -- see `sign-in.tsx`'s
+      // `password` field for the same reasoning.
+      current: { required: true },
       next: { ...CUSTOMER_FIELD_LIMITS.password, required: true },
     }),
     [],
@@ -89,7 +92,7 @@ export function PasswordPage({ customer, onBack }: Props) {
             id={currentId}
             type="password"
             autoComplete="current-password"
-            maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
+            required
             value={current}
             onChange={(event) => {
               const value = event.target.value;
@@ -116,6 +119,7 @@ export function PasswordPage({ customer, onBack }: Props) {
             id={nextId}
             type="password"
             autoComplete="new-password"
+            required
             maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
             value={next}
             onChange={(event) => {
@@ -125,9 +129,7 @@ export function PasswordPage({ customer, onBack }: Props) {
             }}
             onBlur={(event) => validateField("next", event.target.value)}
           />
-          {errors.next ? (
-            <Field.Error match>{errors.next}</Field.Error>
-          ) : null}
+          {errors.next ? <Field.Error match>{errors.next}</Field.Error> : null}
         </Field.Root>
 
         <Button type="submit" disabled={isBusy}>
