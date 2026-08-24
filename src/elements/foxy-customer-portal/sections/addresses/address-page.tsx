@@ -9,7 +9,9 @@ import { Skeleton } from "@foxy.io/design-system/skeleton";
 import { useApi, WriteError, type FollowableLink } from "@/lib/customer-api";
 import { messages } from "../../messages";
 import { AccountPageLayout } from "../../account-page-layout";
+import { ADDRESS_FIELD_LIMITS } from "../../field-constraints";
 import { usePortalContainer } from "../../portal-container";
+import { useFieldValidation } from "../../use-field-validation";
 import { patchResource } from "../../write";
 import { COUNTRIES } from "./countries";
 import type { AddressResource } from "./card";
@@ -97,6 +99,10 @@ export function AddressPage({ address, onBack }: Props) {
   const [isBusy, setIsBusy] = useState(false);
   const [hasFailed, setHasFailed] = useState(false);
 
+  const { errors, validateField, validateAll } = useFieldValidation(
+    ADDRESS_FIELD_LIMITS,
+  );
+
   const selectedCountry = COUNTRIES.find((c) => c.code === country);
   const hasRegionList = (selectedCountry?.regions.length ?? 0) > 0;
 
@@ -127,6 +133,24 @@ export function AddressPage({ address, onBack }: Props) {
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+
+    if (
+      !validateAll({
+        addressName,
+        firstName,
+        lastName,
+        company,
+        phone,
+        address1,
+        address2,
+        city,
+        region,
+        postalCode,
+      })
+    ) {
+      return;
+    }
+
     setIsBusy(true);
     setHasFailed(false);
 
@@ -169,7 +193,7 @@ export function AddressPage({ address, onBack }: Props) {
       title={intl.formatMessage(messages.addressEditHeading)}
       onBack={onBack}
     >
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         {hasFailed ? (
           <Alert.Root $variant="destructive">
             <Alert.Description>
@@ -186,10 +210,18 @@ export function AddressPage({ address, onBack }: Props) {
             id={labelId}
             type="text"
             required
-            maxLength={100}
+            maxLength={ADDRESS_FIELD_LIMITS.addressName.maxLength}
             value={addressName}
-            onChange={(event) => setAddressName(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setAddressName(value);
+              if (errors.addressName) validateField("addressName", value);
+            }}
+            onBlur={(event) => validateField("addressName", event.target.value)}
           />
+          {errors.addressName ? (
+            <Field.Error match>{errors.addressName}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Field.Root>
@@ -200,10 +232,18 @@ export function AddressPage({ address, onBack }: Props) {
             id={firstNameId}
             type="text"
             autoComplete="given-name"
-            maxLength={50}
+            maxLength={ADDRESS_FIELD_LIMITS.firstName.maxLength}
             value={firstName}
-            onChange={(event) => setFirstName(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setFirstName(value);
+              if (errors.firstName) validateField("firstName", value);
+            }}
+            onBlur={(event) => validateField("firstName", event.target.value)}
           />
+          {errors.firstName ? (
+            <Field.Error match>{errors.firstName}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Field.Root>
@@ -214,10 +254,18 @@ export function AddressPage({ address, onBack }: Props) {
             id={lastNameId}
             type="text"
             autoComplete="family-name"
-            maxLength={50}
+            maxLength={ADDRESS_FIELD_LIMITS.lastName.maxLength}
             value={lastName}
-            onChange={(event) => setLastName(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setLastName(value);
+              if (errors.lastName) validateField("lastName", value);
+            }}
+            onBlur={(event) => validateField("lastName", event.target.value)}
           />
+          {errors.lastName ? (
+            <Field.Error match>{errors.lastName}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Field.Root>
@@ -228,10 +276,18 @@ export function AddressPage({ address, onBack }: Props) {
             id={companyId}
             type="text"
             autoComplete="organization"
-            maxLength={50}
+            maxLength={ADDRESS_FIELD_LIMITS.company.maxLength}
             value={company}
-            onChange={(event) => setCompany(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setCompany(value);
+              if (errors.company) validateField("company", value);
+            }}
+            onBlur={(event) => validateField("company", event.target.value)}
           />
+          {errors.company ? (
+            <Field.Error match>{errors.company}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Field.Root>
@@ -242,10 +298,18 @@ export function AddressPage({ address, onBack }: Props) {
             id={phoneId}
             type="tel"
             autoComplete="tel"
-            maxLength={50}
+            maxLength={ADDRESS_FIELD_LIMITS.phone.maxLength}
             value={phone}
-            onChange={(event) => setPhone(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setPhone(value);
+              if (errors.phone) validateField("phone", value);
+            }}
+            onBlur={(event) => validateField("phone", event.target.value)}
           />
+          {errors.phone ? (
+            <Field.Error match>{errors.phone}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Field.Root>
@@ -257,10 +321,18 @@ export function AddressPage({ address, onBack }: Props) {
             type="text"
             autoComplete="address-line1"
             required
-            maxLength={100}
+            maxLength={ADDRESS_FIELD_LIMITS.address1.maxLength}
             value={address1}
-            onChange={(event) => setAddress1(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setAddress1(value);
+              if (errors.address1) validateField("address1", value);
+            }}
+            onBlur={(event) => validateField("address1", event.target.value)}
           />
+          {errors.address1 ? (
+            <Field.Error match>{errors.address1}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Field.Root>
@@ -271,10 +343,18 @@ export function AddressPage({ address, onBack }: Props) {
             id={line2Id}
             type="text"
             autoComplete="address-line2"
-            maxLength={100}
+            maxLength={ADDRESS_FIELD_LIMITS.address2.maxLength}
             value={address2}
-            onChange={(event) => setAddress2(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setAddress2(value);
+              if (errors.address2) validateField("address2", value);
+            }}
+            onBlur={(event) => validateField("address2", event.target.value)}
           />
+          {errors.address2 ? (
+            <Field.Error match>{errors.address2}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Field.Root>
@@ -345,11 +425,19 @@ export function AddressPage({ address, onBack }: Props) {
               id={regionId}
               type="text"
               autoComplete="address-level1"
-              maxLength={50}
+              maxLength={ADDRESS_FIELD_LIMITS.region.maxLength}
               value={region}
-              onChange={(event) => setRegion(event.target.value)}
+              onChange={(event) => {
+                const value = event.target.value;
+                setRegion(value);
+                if (errors.region) validateField("region", value);
+              }}
+              onBlur={(event) => validateField("region", event.target.value)}
             />
           )}
+          {errors.region ? (
+            <Field.Error match>{errors.region}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Field.Root>
@@ -360,10 +448,18 @@ export function AddressPage({ address, onBack }: Props) {
             id={cityId}
             type="text"
             autoComplete="address-level2"
-            maxLength={50}
+            maxLength={ADDRESS_FIELD_LIMITS.city.maxLength}
             value={city}
-            onChange={(event) => setCity(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setCity(value);
+              if (errors.city) validateField("city", value);
+            }}
+            onBlur={(event) => validateField("city", event.target.value)}
           />
+          {errors.city ? (
+            <Field.Error match>{errors.city}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Field.Root>
@@ -374,10 +470,18 @@ export function AddressPage({ address, onBack }: Props) {
             id={postalCodeId}
             type="text"
             autoComplete="postal-code"
-            maxLength={50}
+            maxLength={ADDRESS_FIELD_LIMITS.postalCode.maxLength}
             value={postalCode}
-            onChange={(event) => setPostalCode(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setPostalCode(value);
+              if (errors.postalCode) validateField("postalCode", value);
+            }}
+            onBlur={(event) => validateField("postalCode", event.target.value)}
           />
+          {errors.postalCode ? (
+            <Field.Error match>{errors.postalCode}</Field.Error>
+          ) : null}
         </Field.Root>
 
         <Button type="submit" disabled={isBusy}>

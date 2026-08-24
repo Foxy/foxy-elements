@@ -483,6 +483,76 @@ describe("AddressPage", () => {
       expect(getInputByLabelText("Region").maxLength).toBe(50);
     });
   });
+
+  it("blocks submit when the address label is cleared", async () => {
+    const patch = vi.fn(async () => ({ ok: true, status: 200 }));
+    const onBack = vi.fn();
+    screen = mountScreen(
+      <AddressPage address={address({}, patch) as never} onBack={onBack} />,
+      {},
+    );
+
+    const label = screen.host.querySelector<HTMLInputElement>(
+      "input[required]",
+    )!;
+    act(() => setInputValue(label, ""));
+
+    act(() => {
+      screen!.host
+        .querySelector("form")!
+        .dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    });
+    await flush();
+
+    expect(patch).not.toHaveBeenCalled();
+    expect(onBack).not.toHaveBeenCalled();
+    expect(screen.host.textContent).toMatch(/required/i);
+  });
+
+  it("blocks submit when address line 1 exceeds the API's 100-character limit", async () => {
+    const patch = vi.fn(async () => ({ ok: true, status: 200 }));
+    screen = mountScreen(
+      <AddressPage address={address({}, patch) as never} onBack={vi.fn()} />,
+      {},
+    );
+
+    const line1 = screen.host.querySelector<HTMLInputElement>(
+      'input[autocomplete="address-line1"]',
+    )!;
+    act(() => setInputValue(line1, "x".repeat(101)));
+
+    act(() => {
+      screen!.host
+        .querySelector("form")!
+        .dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    });
+    await flush();
+
+    expect(patch).not.toHaveBeenCalled();
+    expect(screen.host.textContent).toMatch(/100/);
+  });
+
+  it("does not block submit over a blank optional field like company", async () => {
+    const patch = vi.fn(async () => ({ ok: true, status: 200 }));
+    const onBack = vi.fn();
+    screen = mountScreen(
+      <AddressPage
+        address={address({ company: "" }, patch) as never}
+        onBack={onBack}
+      />,
+      {},
+    );
+
+    act(() => {
+      screen!.host
+        .querySelector("form")!
+        .dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    });
+    await flush();
+
+    expect(patch).toHaveBeenCalled();
+    expect(onBack).toHaveBeenCalled();
+  });
 });
 
 describe("AddressPageContainer", () => {
