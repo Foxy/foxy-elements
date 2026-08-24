@@ -190,6 +190,10 @@ describe("ProfilePage", () => {
 
     act(() => setInputValue(email, "not-an-email"));
     await flush();
+    act(() => email.focus());
+    await flush();
+    act(() => email.dispatchEvent(new Event("focusout", { bubbles: true })));
+    await flush();
 
     expect(document.body.textContent).toMatch(/valid email/i);
   });
@@ -223,6 +227,10 @@ describe("ProfilePage", () => {
 
     act(() => setInputValue(email, "not-an-email"));
     await flush();
+    act(() => email.focus());
+    await flush();
+    act(() => email.dispatchEvent(new Event("focusout", { bubbles: true })));
+    await flush();
     expect(document.body.textContent).toMatch(/valid email/i);
 
     act(() => setInputValue(email, "ada@example.com"));
@@ -230,7 +238,7 @@ describe("ProfilePage", () => {
     expect(document.body.textContent).not.toMatch(/valid email/i);
   });
 
-  it("shows errors live as the user types (not just on blur)", () => {
+  it("does not show an error while typing into an untouched field", () => {
     renderPage();
     const first = document.querySelector<HTMLInputElement>(
       'input[autocomplete="given-name"]',
@@ -238,6 +246,6 @@ describe("ProfilePage", () => {
 
     act(() => setInputValue(first, "x".repeat(60)));
 
-    expect(document.body.textContent).toMatch(/50/);
+    expect(document.body.textContent).not.toMatch(/50/);
   });
 });

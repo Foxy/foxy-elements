@@ -108,7 +108,7 @@ export function ProfilePage({ customer, onBack }: Props) {
             onChange={(event) => {
               const value = event.target.value;
               setFirstName(value);
-              validateField("firstName", value);
+              if (errors.firstName) validateField("firstName", value);
             }}
             onBlur={(event) => validateField("firstName", event.target.value)}
           />
@@ -130,7 +130,7 @@ export function ProfilePage({ customer, onBack }: Props) {
             onChange={(event) => {
               const value = event.target.value;
               setLastName(value);
-              validateField("lastName", value);
+              if (errors.lastName) validateField("lastName", value);
             }}
             onBlur={(event) => validateField("lastName", event.target.value)}
           />
@@ -152,7 +152,7 @@ export function ProfilePage({ customer, onBack }: Props) {
             onChange={(event) => {
               const value = event.target.value;
               setEmail(value);
-              validateField("email", value);
+              if (errors.email) validateField("email", value);
             }}
             onBlur={(event) => validateField("email", event.target.value)}
           />
@@ -173,7 +173,7 @@ export function ProfilePage({ customer, onBack }: Props) {
             onChange={(event) => {
               const value = event.target.value;
               setTaxId(value);
-              validateField("taxId", value);
+              if (errors.taxId) validateField("taxId", value);
             }}
             onBlur={(event) => validateField("taxId", event.target.value)}
           />
