@@ -65,6 +65,7 @@ type PaymentMethodSelectorElementProps = Omit<
   lang?: string;
   optionIndex?: number;
   "option-index"?: string | number;
+  disabled?: boolean;
 } & SharedThemeProps;
 
 type ExpressCheckoutElementProps = Omit<
