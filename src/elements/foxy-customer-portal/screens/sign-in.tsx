@@ -1,11 +1,13 @@
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
 import { useApi } from "@/lib/customer-api";
+import { CUSTOMER_FIELD_LIMITS } from "../field-constraints";
 import { messages } from "../messages";
+import { useFieldValidation } from "../use-field-validation";
 
 type Props = {
   onSignedIn: () => void;
@@ -30,8 +32,21 @@ export function SignInScreen({
   const [isBusy, setIsBusy] = useState(false);
   const [error, setError] = useState<"unauthorized" | "unknown" | null>(null);
 
+  const rules = useMemo(
+    () => ({
+      email: CUSTOMER_FIELD_LIMITS.email,
+      password: { ...CUSTOMER_FIELD_LIMITS.password, required: true },
+    }),
+    [],
+  );
+
+  const { errors, validateField, validateAll } = useFieldValidation(rules);
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+
+    if (!validateAll({ email, password })) return;
+
     setIsBusy(true);
     setError(null);
 
@@ -47,7 +62,7 @@ export function SignInScreen({
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       <h1>{intl.formatMessage(messages.signInHeading)}</h1>
 
       {error && (
@@ -69,11 +84,19 @@ export function SignInScreen({
         <Input
           id={emailId}
           type="email"
-          required
           autoComplete="email"
+          maxLength={CUSTOMER_FIELD_LIMITS.email.maxLength}
           value={email}
-          onChange={(event) => setEmail(event.target.value)}
+          onChange={(event) => {
+            const value = event.target.value;
+            setEmail(value);
+            if (errors.email) validateField("email", value);
+          }}
+          onBlur={(event) => validateField("email", event.target.value)}
         />
+        {errors.email ? (
+          <Field.Error match>{errors.email}</Field.Error>
+        ) : null}
       </Field.Root>
 
       <Field.Root>
@@ -83,11 +106,19 @@ export function SignInScreen({
         <Input
           id={passwordId}
           type="password"
-          required
           autoComplete="current-password"
+          maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
           value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          onChange={(event) => {
+            const value = event.target.value;
+            setPassword(value);
+            if (errors.password) validateField("password", value);
+          }}
+          onBlur={(event) => validateField("password", event.target.value)}
         />
+        {errors.password ? (
+          <Field.Error match>{errors.password}</Field.Error>
+        ) : null}
       </Field.Root>
 
       <Button type="submit" disabled={isBusy}>

@@ -81,4 +81,14 @@ describe("AccessRecoveryScreen", () => {
 
     expect(onBack).toHaveBeenCalled();
   });
+
+  it("blocks submit and shows a message when email is blank", () => {
+    const sendPasswordResetEmail = vi.fn(async () => {});
+    render({ sendPasswordResetEmail });
+
+    submit("");
+
+    expect(sendPasswordResetEmail).not.toHaveBeenCalled();
+    expect(screen!.host.textContent).toMatch(/required/i);
+  });
 });

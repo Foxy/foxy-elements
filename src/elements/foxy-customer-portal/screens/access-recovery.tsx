@@ -1,11 +1,13 @@
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
 import { useApi } from "@/lib/customer-api";
+import { CUSTOMER_FIELD_LIMITS } from "../field-constraints";
 import { messages } from "../messages";
+import { useFieldValidation } from "../use-field-validation";
 
 export function AccessRecoveryScreen({ onBack }: { onBack: () => void }) {
   const intl = useIntl();
@@ -17,8 +19,14 @@ export function AccessRecoveryScreen({ onBack }: { onBack: () => void }) {
   const [isDone, setIsDone] = useState(false);
   const [hasFailed, setHasFailed] = useState(false);
 
+  const rules = useMemo(() => ({ email: CUSTOMER_FIELD_LIMITS.email }), []);
+  const { errors, validateField, validateAll } = useFieldValidation(rules);
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+
+    if (!validateAll({ email })) return;
+
     setIsBusy(true);
     setHasFailed(false);
 
@@ -45,7 +53,7 @@ export function AccessRecoveryScreen({ onBack }: { onBack: () => void }) {
           </Alert.Description>
         </Alert.Root>
       ) : (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <p>{intl.formatMessage(messages.recoverHint)}</p>
 
           {hasFailed && (
@@ -63,11 +71,19 @@ export function AccessRecoveryScreen({ onBack }: { onBack: () => void }) {
             <Input
               id={emailId}
               type="email"
-              required
               autoComplete="email"
+              maxLength={CUSTOMER_FIELD_LIMITS.email.maxLength}
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => {
+                const value = event.target.value;
+                setEmail(value);
+                if (errors.email) validateField("email", value);
+              }}
+              onBlur={(event) => validateField("email", event.target.value)}
             />
+            {errors.email ? (
+              <Field.Error match>{errors.email}</Field.Error>
+            ) : null}
           </Field.Root>
 
           <Button type="submit" disabled={isBusy}>

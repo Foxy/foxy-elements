@@ -97,4 +97,24 @@ describe("SignInScreen", () => {
     render({ signIn: async () => {} }, { canSignUp: true });
     expect(screen!.host.textContent).toMatch(/create an account/i);
   });
+
+  it("blocks submit and shows a message when email is blank", () => {
+    const signIn = vi.fn(async () => {});
+    render({ signIn });
+
+    submit("", "hunter2");
+
+    expect(signIn).not.toHaveBeenCalled();
+    expect(screen!.host.textContent).toMatch(/required/i);
+  });
+
+  it("blocks submit and shows a message for a malformed email", () => {
+    const signIn = vi.fn(async () => {});
+    render({ signIn });
+
+    submit("not-an-email", "hunter2");
+
+    expect(signIn).not.toHaveBeenCalled();
+    expect(screen!.host.textContent).toMatch(/valid email/i);
+  });
 });
