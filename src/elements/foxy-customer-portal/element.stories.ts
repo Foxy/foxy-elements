@@ -545,7 +545,7 @@ export const Empty: StoryObj = {
     expect(text).not.toMatch(/tax id/i);
     expect(text).toMatch(/Subscriptions/);
     expect(text).toMatch(/Active/);
-    expect(text).not.toMatch(/Orders/);
+    expect(text).not.toMatch(/Payment history/i);
     expect(text).not.toMatch(/Addresses/);
   },
 };
@@ -579,8 +579,10 @@ export const LongTimeUser: StoryObj = {
     const text = portalText(canvasElement);
     // Active tab is shown by default: 15 active subscriptions, paginated.
     expect(text).toMatch(/1–10 \/ 15/);
-    // Orders: 25 total, paginated.
-    expect(text).toMatch(/1–10 \/ 25/);
+    // Orders: 25 total at limit 10 -- 3 pages, shown by the shared
+    // Pagination component (Previous/Next plus numbered page buttons)
+    // instead of the old offset-range text.
+    expect(text).toMatch(/Previous\s*123\s*Next/);
     // Addresses: 12 total, paginated.
     expect(text).toMatch(/1–10 \/ 12/);
   },

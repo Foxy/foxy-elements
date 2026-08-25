@@ -137,4 +137,17 @@ describe("OrdersSection", () => {
 
     expect(document.body.textContent).toMatch(/something went wrong/i);
   });
+
+  it("shows the Payment history heading", async () => {
+    screen = mountScreen(
+      <OrdersSection
+        customer={customer(async () => page([order(1)])) as never}
+        onNavigate={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    expect(document.body.textContent).toMatch(/payment history/i);
+  });
 });

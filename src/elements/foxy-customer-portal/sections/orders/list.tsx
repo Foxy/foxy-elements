@@ -1,11 +1,12 @@
 import { useMemo } from "react";
 import { useIntl } from "react-intl";
+import styled from "styled-components";
 import { Alert } from "@foxy.io/design-system/alert";
-import { Button } from "@foxy.io/design-system/button";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
 import { useCollection, type FollowableLink } from "@/lib/customer-api";
 import type { AccountPage } from "../../account-page";
 import { messages } from "../../messages";
+import { Pagination } from "../pagination";
 import { OrderRow, type OrderResource } from "./row";
 
 type CustomerWithLinks = {
@@ -32,6 +33,12 @@ type Props = {
 const ORDER_TYPES_FILTER =
   "type:in=transaction,subscription_modification,subscription_cancellation";
 
+const Heading = styled.h2`
+  margin: 0 0 ${(props) => props.theme.tokens.space.lg};
+  font: ${(props) => props.theme.tokens.font.h2};
+  color: ${(props) => props.theme.tokens.color.body};
+`;
+
 export function OrdersSection({ customer, onNavigate }: Props) {
   const intl = useIntl();
 
@@ -52,6 +59,7 @@ export function OrdersSection({ customer, onNavigate }: Props) {
     limit,
     loadNext,
     loadPrev,
+    goToPage,
   } = useCollection<OrderResource>(link as never, query);
 
   // A section with nothing to show renders nothing -- no empty heading. This
@@ -64,7 +72,7 @@ export function OrdersSection({ customer, onNavigate }: Props) {
 
   return (
     <section>
-      <h2>{intl.formatMessage(messages.ordersHeading)}</h2>
+      <Heading>{intl.formatMessage(messages.paymentHistoryHeading)}</Heading>
 
       {isLoading || isUnauthenticated ? <Skeleton /> : null}
 
@@ -91,22 +99,14 @@ export function OrdersSection({ customer, onNavigate }: Props) {
       ))}
 
       {totalItems > limit ? (
-        <div>
-          <Button type="button" onClick={loadPrev} disabled={offset === 0}>
-            {"<"}
-          </Button>
-          <span>
-            {offset + 1}&ndash;{Math.min(offset + limit, totalItems)} /{" "}
-            {totalItems}
-          </span>
-          <Button
-            type="button"
-            onClick={loadNext}
-            disabled={offset + limit >= totalItems}
-          >
-            {">"}
-          </Button>
-        </div>
+        <Pagination
+          offset={offset}
+          limit={limit}
+          totalItems={totalItems}
+          onGoToPage={goToPage}
+          onPrev={loadPrev}
+          onNext={loadNext}
+        />
       ) : null}
     </section>
   );
