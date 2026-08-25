@@ -189,6 +189,21 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).toMatch(/subscription id/i);
   });
 
+  it("shows the store's calendar day for Next payment, not the viewer's UTC-shifted one", () => {
+    // '2023-02-11T22:45:01-0700' is 05:45:01Z on Feb 12 -- naively parsing
+    // and formatting in a viewer timezone at or east of the store's rolls
+    // the displayed day forward to Feb 12, a day after what the store (and
+    // the customer's receipt) considers the payment date.
+    render(
+      subscription({
+        is_active: true,
+        next_transaction_date: "2023-02-11T22:45:01-0700",
+      }),
+    );
+    expect(screen!.host.textContent).toMatch(/Feb 11, 2023/);
+    expect(screen!.host.textContent).not.toMatch(/Feb 12, 2023/);
+  });
+
   it("calls onManage", () => {
     const onManage = vi.fn();
     render(subscription(), { onManage });
