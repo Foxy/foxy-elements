@@ -23,6 +23,7 @@ const SETTINGS = {
 const SUBSCRIPTIONS_HREF = `${STORE_BASE}subscriptions`;
 const TRANSACTIONS_HREF = `${STORE_BASE}transactions`;
 const ADDRESSES_HREF = `${STORE_BASE}customer_addresses`;
+const PAYMENT_METHOD_HREF = `${STORE_BASE}default_payment_method`;
 
 function customerLinks() {
   return {
@@ -30,8 +31,29 @@ function customerLinks() {
     "fx:subscriptions": { href: SUBSCRIPTIONS_HREF },
     "fx:transactions": { href: TRANSACTIONS_HREF },
     "fx:customer_addresses": { href: ADDRESSES_HREF },
+    "fx:default_payment_method": { href: PAYMENT_METHOD_HREF },
   };
 }
+
+/**
+ * A saved card, in the shape `fx:default_payment_method` really returns:
+ * `cc_number_masked` carries the full masked string, not just the last four,
+ * so the UI has to slice it (see `payment-method.tsx`).
+ */
+const DEFAULT_PAYMENT_METHOD = {
+  cc_type: "visa",
+  cc_number_masked: "************4242",
+  cc_exp_month: "08",
+  cc_exp_year: "2028",
+};
+
+/** A customer who has never saved a card: the API answers with blank fields. */
+const NO_PAYMENT_METHOD = {
+  cc_type: "",
+  cc_number_masked: "",
+  cc_exp_month: "",
+  cc_exp_year: "",
+};
 
 const DEFAULT_CUSTOMER = {
   first_name: "Ada",
@@ -62,6 +84,28 @@ const LONG_TIME_CUSTOMER = {
   _links: customerLinks(),
 };
 
+/**
+ * A stand-in for `fx:item.image`. Inline SVG rather than a hosted URL so the
+ * thumbnail renders identically with no network — these stories run in a real
+ * Chromium with `fetch` stubbed, so any remote image would silently 404 and
+ * every card would fall back to the empty swatch, hiding the very state this
+ * fixture exists to show.
+ */
+function itemImage(hue: number): string {
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96">` +
+    `<rect width="96" height="96" fill="hsl(${hue} 42% 72%)"/></svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+type SubscriptionItemFixture = {
+  name: string;
+  quantity: number;
+  image?: string;
+  code?: string;
+  parent_code?: string;
+};
+
 type SubscriptionFixture = {
   frequency: string;
   start_date: string;
@@ -70,12 +114,15 @@ type SubscriptionFixture = {
   is_active: boolean;
   error_message: string;
   first_failed_transaction_date: string | null;
-  _links: { self: { href: string } };
+  _links: {
+    self: { href: string };
+    "fx:last_transaction"?: { href: string };
+  };
   _embedded: {
     "fx:transaction_template": {
       currency_code: string;
       total_order: number;
-      _embedded: { "fx:items": { name: string; quantity: number }[] };
+      _embedded: { "fx:items": SubscriptionItemFixture[] };
     };
   };
 };
@@ -91,13 +138,14 @@ const DEFAULT_ACTIVE_SUBSCRIPTIONS: SubscriptionFixture[] = [
     first_failed_transaction_date: null,
     _links: {
       self: { href: `${SUBSCRIPTIONS_HREF}/0` },
+      "fx:last_transaction": { href: `${TRANSACTIONS_HREF}/100` },
     },
     _embedded: {
       "fx:transaction_template": {
         currency_code: "USD",
         total_order: 42,
         _embedded: {
-          "fx:items": [{ name: "Coffee", quantity: 1 }],
+          "fx:items": [{ name: "Coffee", quantity: 1, image: itemImage(24) }],
         },
       },
     },
@@ -113,35 +161,91 @@ function buildSubscriptions(
 ): SubscriptionFixture[] {
   const frequencies = ["1m", "3m", "1y"];
 
-  return Array.from({ length: count }, (_, i) => ({
-    frequency: frequencies[i % frequencies.length],
-    start_date: "2018-01-01T00:00:00-0800",
-    next_transaction_date: isActive
-      ? "2099-01-01T00:00:00-0800"
-      : "2021-06-01T00:00:00-0800",
-    end_date: isActive ? null : "2021-06-01T00:00:00-0800",
-    is_active: isActive,
-    error_message: !isActive && i % 6 === 0 ? "The card on file was declined." : "",
-    first_failed_transaction_date: null,
-    _links: {
-      self: { href: `${SUBSCRIPTIONS_HREF}/${isActive ? "active" : "inactive"}-${i}` },
-    },
-    _embedded: {
-      "fx:transaction_template": {
-        currency_code: "USD",
-        total_order: 10 + i * 3,
-        _embedded: {
-          "fx:items": [{ name: `Subscription item ${i + 1}`, quantity: 1 + (i % 3) }],
+  return Array.from({ length: count }, (_, i) => {
+    const code = `BUNDLE-${isActive ? "a" : "i"}-${i}`;
+
+    // Every third subscription is a bundle: one parent item with two children
+    // hanging off its `code`. That is what drives the card's parent/child
+    // breakdown and its 2x2 thumbnail grid, so both that layout and the
+    // single-item one appear in the same story rather than only the latter.
+    const items: SubscriptionItemFixture[] =
+      i % 3 === 1
+        ? [
+            {
+              name: "Coffee Subscription — Dark Roast",
+              quantity: 1,
+              code,
+              image: itemImage(18),
+            },
+            {
+              name: "Extra Filters",
+              quantity: 2,
+              parent_code: code,
+              image: itemImage(96),
+            },
+            { name: "Coffee Mugs", quantity: 1, parent_code: code },
+          ]
+        : [
+            {
+              name: `Subscription item ${i + 1}`,
+              quantity: 1 + (i % 3),
+              // Every fourth one carries no image, so the empty fallback
+              // swatch is on screen next to real thumbnails.
+              ...(i % 4 === 3 ? {} : { image: itemImage((i * 47) % 360) }),
+            },
+          ];
+
+    return {
+      frequency: frequencies[i % frequencies.length],
+      start_date: "2018-01-01T00:00:00-0800",
+      next_transaction_date: isActive
+        ? "2099-01-01T00:00:00-0800"
+        : "2021-06-01T00:00:00-0800",
+      end_date: isActive ? null : "2021-06-01T00:00:00-0800",
+      is_active: isActive,
+      error_message:
+        !isActive && i % 6 === 0 ? "The card on file was declined." : "",
+      first_failed_transaction_date: null,
+      _links: {
+        self: {
+          href: `${SUBSCRIPTIONS_HREF}/${isActive ? "active" : "inactive"}-${i}`,
+        },
+        "fx:last_transaction": { href: `${TRANSACTIONS_HREF}/${200 + i}` },
+      },
+      _embedded: {
+        "fx:transaction_template": {
+          currency_code: "USD",
+          total_order: 10 + i * 3,
+          _embedded: { "fx:items": items },
         },
       },
-    },
-  }));
+    };
+  });
 }
 
 const LONG_TIME_ACTIVE_SUBSCRIPTIONS = buildSubscriptions(15, true);
 const LONG_TIME_INACTIVE_SUBSCRIPTIONS = buildSubscriptions(12, false);
 
-const DEFAULT_ORDERS = [
+type OrderFixture = {
+  id: number;
+  display_id: number;
+  transaction_date: string;
+  total_order: number;
+  total_item_price: string;
+  total_tax: string;
+  total_shipping: string;
+  currency_code: string;
+  status: string;
+  _links: {
+    self: { href: string };
+    "fx:receipt"?: { href: string };
+  };
+  _embedded: {
+    "fx:items": { name: string; quantity: number; price: number }[];
+  };
+};
+
+const DEFAULT_ORDERS: OrderFixture[] = [
   {
     id: 100,
     display_id: 100,
@@ -154,6 +258,7 @@ const DEFAULT_ORDERS = [
     status: "approved",
     _links: {
       self: { href: `${TRANSACTIONS_HREF}/100` },
+      "fx:receipt": { href: `${TRANSACTIONS_HREF}/100/receipt` },
     },
     _embedded: {
       "fx:items": [{ name: "Widget", quantity: 1, price: 25 }],
@@ -162,7 +267,7 @@ const DEFAULT_ORDERS = [
 ];
 
 /** `count` synthetic orders spread across a year, cycling through a few statuses. */
-function buildOrders(count: number): typeof DEFAULT_ORDERS {
+function buildOrders(count: number): OrderFixture[] {
   const statuses = ["approved", "approved", "approved", "refunded", "pending fraud review"];
 
   return Array.from({ length: count }, (_, i) => {
@@ -182,6 +287,13 @@ function buildOrders(count: number): typeof DEFAULT_ORDERS {
       status: statuses[i % statuses.length],
       _links: {
         self: { href: `${TRANSACTIONS_HREF}/${200 + i}` },
+        // Every fifth order has no receipt, so the column shows both the
+        // link and the blank it leaves behind.
+        ...(i % 5 === 4
+          ? {}
+          : {
+              "fx:receipt": { href: `${TRANSACTIONS_HREF}/${200 + i}/receipt` },
+            }),
       },
       _embedded: {
         "fx:items": [{ name: `Order item ${i + 1}`, quantity: 1, price }],
@@ -283,8 +395,9 @@ type StoreFixtures = {
   customer?: typeof DEFAULT_CUSTOMER;
   activeSubscriptions?: SubscriptionFixture[];
   inactiveSubscriptions?: SubscriptionFixture[];
-  orders?: typeof DEFAULT_ORDERS;
+  orders?: OrderFixture[];
   addresses?: typeof DEFAULT_ADDRESSES;
+  paymentMethod?: typeof DEFAULT_PAYMENT_METHOD;
 };
 
 /**
@@ -312,6 +425,7 @@ export function stubStore(fixtures: StoreFixtures = {}): () => void {
     fixtures.inactiveSubscriptions ?? DEFAULT_INACTIVE_SUBSCRIPTIONS;
   const orders = fixtures.orders ?? DEFAULT_ORDERS;
   const addresses = fixtures.addresses ?? DEFAULT_ADDRESSES;
+  const paymentMethod = fixtures.paymentMethod ?? DEFAULT_PAYMENT_METHOD;
 
   // No story here reaches the sign-up screen today, but `SETTINGS.sign_up.enabled`
   // is already `true`, so a future one would call `loadHCaptcha()`, which
@@ -375,6 +489,28 @@ export function stubStore(fixtures: StoreFixtures = {}): () => void {
         url.includes("type%3Ain=transaction")
       ) {
         return paginate(orders, url, "fx:transactions");
+      }
+
+      // A single transaction, by id. `fx:last_transaction` on a subscription
+      // points straight at one of these, so the subscription card's Last
+      // payment cell resolves through here rather than through the
+      // collection branch above (different pathname, no filters).
+      if (
+        new URL(url).pathname.startsWith(
+          `${new URL(TRANSACTIONS_HREF).pathname}/`,
+        )
+      ) {
+        const id = Number(new URL(url).pathname.split("/").pop());
+        const match = orders.find((order) => order.id === id);
+        return match ? json(match) : json({});
+      }
+
+      // The customer's one saved card. Unlike the collections above this is a
+      // single resource, so it answers with the object itself, not a page.
+      if (
+        new URL(url).pathname === new URL(PAYMENT_METHOD_HREF).pathname
+      ) {
+        return json(paymentMethod);
       }
 
       // Matches the addresses collection request. Unlike the two branches
@@ -533,6 +669,7 @@ export const Empty: StoryObj = {
       inactiveSubscriptions: [],
       orders: [],
       addresses: [],
+      paymentMethod: NO_PAYMENT_METHOD,
     },
   },
   beforeEach: () => withSession(),
