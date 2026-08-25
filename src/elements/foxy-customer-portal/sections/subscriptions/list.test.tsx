@@ -15,9 +15,9 @@ const flush = () =>
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
-function page(names: string[]) {
+function page(names: string[], totalItems = names.length) {
   return {
-    total_items: names.length,
+    total_items: totalItems,
     _embedded: {
       "fx:subscriptions": names.map((name) => ({
         frequency: "1m",
@@ -40,13 +40,23 @@ function page(names: string[]) {
   };
 }
 
-function customer(spy = vi.fn()) {
+// `spy` may just record calls (the default `vi.fn()`, which returns
+// `undefined`) or, per the "shows a count on each tab" test below, also
+// supply the response page itself -- whichever the caller's mock
+// implementation returns is used verbatim when truthy, falling back to the
+// fixed Coffee/Old Tea pages otherwise.
+function customer(
+  spy: (query?: Record<string, unknown>) => unknown = vi.fn(),
+) {
   return {
     _links: {
       "fx:subscriptions": {
         href: "https://demo.foxycart.com/s/customer/subscriptions",
         get: async (query?: Record<string, unknown>) => {
-          spy(query);
+          const result = await spy(query);
+          if (result) {
+            return { ok: true, status: 200, json: async () => result };
+          }
           const active = String(query?.filters ?? "").includes(
             "is_active=true",
           );
@@ -80,7 +90,11 @@ describe("SubscriptionsSection", () => {
     );
     await flush();
 
-    const [query] = spy.mock.calls.at(-1) ?? [];
+    // The section also fires two lightweight `limit: 1` count queries (one
+    // per tab) alongside the main paginated one -- only the main query
+    // carries `zoom`, so filter to it rather than assuming call order.
+    const calls = spy.mock.calls.filter(([q]) => q?.zoom !== undefined);
+    const [query] = calls.at(-1) ?? [];
     expect(String(query?.filters)).toMatch(/is_active=true/);
     expect(String(query?.zoom)).toMatch(/transaction_template:items/);
   });
@@ -130,6 +144,22 @@ describe("SubscriptionsSection", () => {
     expect(buttons.some((b) => /inactive/i.test(b.textContent ?? ""))).toBe(
       true,
     );
+  });
+
+  it("shows a count on each tab", async () => {
+    const spy = vi.fn(async (query?: Record<string, unknown>) => {
+      const isActive = String(query?.filters).includes("is_active=true");
+      return page([], isActive ? 4 : 2);
+    });
+
+    screen = mountScreen(
+      <SubscriptionsSection customer={customer(spy) as never} onNavigate={vi.fn()} />,
+      {},
+    );
+    await flush();
+
+    expect(document.body.textContent).toMatch(/Active \(4\)/);
+    expect(document.body.textContent).toMatch(/Inactive \(2\)/);
   });
 
   it("navigates to the subscription page with its resource when Manage is clicked", async () => {
@@ -210,7 +240,11 @@ describe("SubscriptionsSection", () => {
 
     act(() => {
       const buttons = [...screen!.host.querySelectorAll("button")];
-      buttons.find((b) => b.textContent === ">")!.click();
+      // Not anchored with a trailing `$`: the shared `Pagination`
+      // component's Next button carries a trailing arrow icon after the
+      // text (see `pagination.tsx`), so `textContent` is "Next " (a real
+      // space before the icon's empty text), not the exact string "Next".
+      buttons.find((b) => /^next/i.test(b.textContent ?? ""))!.click();
     });
     await flush();
 

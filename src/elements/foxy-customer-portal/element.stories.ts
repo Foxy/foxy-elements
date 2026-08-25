@@ -577,8 +577,10 @@ export const LongTimeUser: StoryObj = {
     );
 
     const text = portalText(canvasElement);
-    // Active tab is shown by default: 15 active subscriptions, paginated.
-    expect(text).toMatch(/1–10 \/ 15/);
+    // Active tab is shown by default: 15 active subscriptions at limit 10 --
+    // 2 pages, shown by the shared Pagination component instead of the old
+    // offset-range text.
+    expect(text).toMatch(/Previous\s*12\s*Next/);
     // Orders: 25 total at limit 10 -- 3 pages, shown by the shared
     // Pagination component (Previous/Next plus numbered page buttons)
     // instead of the old offset-range text.

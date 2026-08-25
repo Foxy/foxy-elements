@@ -216,11 +216,11 @@ export const messages = defineMessages({
   },
   subscriptionsActive: {
     id: "portal_subscriptions_active",
-    defaultMessage: "Active",
+    defaultMessage: "Active ({count})",
   },
   subscriptionsInactive: {
     id: "portal_subscriptions_inactive",
-    defaultMessage: "Inactive",
+    defaultMessage: "Inactive ({count})",
   },
   manageHeading: {
     id: "portal_manage_heading",
