@@ -43,39 +43,62 @@ const Empty = styled.p`
   color: ${(props) => props.theme.tokens.color.secondary};
 `;
 
+const Heading = styled.h2`
+  margin: 0 0 ${(props) => props.theme.tokens.space.md} 0;
+  font: ${(props) => props.theme.tokens.font.h3};
+  color: ${(props) => props.theme.tokens.color.body};
+`;
+
 export function PaymentMethod({ link }: Props) {
   const intl = useIntl();
   const { data, isLoading, error } = useResource<DefaultPaymentMethodResource>(
     link ?? null,
   );
 
-  if (isLoading) return <Skeleton />;
+  if (isLoading)
+    return (
+      <>
+        <Heading>{intl.formatMessage(messages.paymentMethodsHeading)}</Heading>
+        <Skeleton />
+      </>
+    );
 
   if (error) {
     return (
-      <Alert.Root $variant="destructive">
-        <Alert.Description>
-          {intl.formatMessage(messages.errorUnknown)}
-        </Alert.Description>
-      </Alert.Root>
+      <>
+        <Heading>{intl.formatMessage(messages.paymentMethodsHeading)}</Heading>
+        <Alert.Root $variant="destructive">
+          <Alert.Description>
+            {intl.formatMessage(messages.errorUnknown)}
+          </Alert.Description>
+        </Alert.Root>
+      </>
     );
   }
 
   if (!data || !data.cc_number_masked) {
-    return <Empty>{intl.formatMessage(messages.paymentMethodsEmpty)}</Empty>;
+    return (
+      <>
+        <Heading>{intl.formatMessage(messages.paymentMethodsHeading)}</Heading>
+        <Empty>{intl.formatMessage(messages.paymentMethodsEmpty)}</Empty>
+      </>
+    );
   }
 
   return (
-    <Card>
-      <Brand>
-        {data.cc_type} {data.cc_number_masked}
-      </Brand>
-      <Expiry>
-        {intl.formatMessage(messages.paymentMethodsExpires, {
-          month: data.cc_exp_month,
-          year: data.cc_exp_year,
-        })}
-      </Expiry>
-    </Card>
+    <>
+      <Heading>{intl.formatMessage(messages.paymentMethodsHeading)}</Heading>
+      <Card>
+        <Brand>
+          {data.cc_type} {data.cc_number_masked}
+        </Brand>
+        <Expiry>
+          {intl.formatMessage(messages.paymentMethodsExpires, {
+            month: data.cc_exp_month,
+            year: data.cc_exp_year,
+          })}
+        </Expiry>
+      </Card>
+    </>
   );
 }
