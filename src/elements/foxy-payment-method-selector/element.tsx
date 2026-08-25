@@ -1014,9 +1014,15 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       },
       borderRadius: {
         ...defaultTheme.borderRadius,
+        xs:
+          this.getThemeProperty("themeBorderRadiusXs") ??
+          defaultTheme.borderRadius.xs,
         sm:
           this.getThemeProperty("themeBorderRadiusSm") ??
           defaultTheme.borderRadius.sm,
+        md:
+          this.getThemeProperty("themeBorderRadiusMd") ??
+          defaultTheme.borderRadius.md,
       },
       space: {
         ...defaultTheme.space,

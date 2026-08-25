@@ -73,7 +73,7 @@ const BrandChip = styled.div<{ $scheme: Scheme }>`
   flex-shrink: 0;
   align-self: flex-start;
   margin-top: 2px;
-  border-radius: 4px;
+  border-radius: ${(props) => props.theme.tokens.borderRadius.xs};
   display: flex;
   align-items: center;
   justify-content: center;

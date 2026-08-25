@@ -96,6 +96,16 @@ const THEME_DEFINITIONS = [
     cssVariable: "--border-radius-sm",
   },
   {
+    property: "themeBorderRadiusXs",
+    attribute: "theme-border-radius-xs",
+    cssVariable: "--border-radius-xs",
+  },
+  {
+    property: "themeBorderRadiusMd",
+    attribute: "theme-border-radius-md",
+    cssVariable: "--border-radius-md",
+  },
+  {
     property: "themeSpaceMd",
     attribute: "theme-space-md",
     cssVariable: "--space-md",
