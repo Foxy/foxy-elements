@@ -239,6 +239,10 @@ export function useCollection<T>(
       () => setRawOffset((current) => Math.max(0, current - limit)),
       [limit],
     ),
+    goToPage: useCallback(
+      (page: number) => setRawOffset(Math.max(0, (page - 1) * limit)),
+      [limit],
+    ),
     refresh: useCallback(() => {
       if (key) cache.invalidate(key);
     }, [cache, key]),

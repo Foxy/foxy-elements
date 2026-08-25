@@ -423,6 +423,77 @@ describe("useCollection", () => {
 });
 
 describe("useCollection offset", () => {
+  it("jumps directly to a page via goToPage", async () => {
+    const spy = vi.fn();
+    const page = { total_items: 100, _embedded: { "fx:things": [] } };
+
+    function Probe() {
+      const { offset, goToPage } = useCollection<{ id: number }>(
+        link("/t", page, spy),
+        { limit: 10 },
+      );
+      return (
+        <button type="button" onClick={() => goToPage(4)}>
+          {offset}
+        </button>
+      );
+    }
+
+    render(
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+    expect(host!.textContent).toBe("0");
+
+    act(() => {
+      host!.querySelector("button")!.click();
+    });
+    await flush();
+
+    // Page 4, limit 10 -> offset 30.
+    expect(host!.textContent).toBe("30");
+  });
+
+  it("clamps goToPage(1) and below to offset 0", async () => {
+    const page = { total_items: 100, _embedded: { "fx:things": [] } };
+
+    function Probe() {
+      const { offset, goToPage } = useCollection<{ id: number }>(
+        link("/t", page),
+        { limit: 10 },
+      );
+      return (
+        <button type="button" onClick={() => goToPage(0)}>
+          {offset}
+        </button>
+      );
+    }
+
+    render(
+      <ApiProvider
+        api={{} as never}
+        cache={new RequestCache()}
+        onUnauthenticated={() => {}}
+      >
+        <Probe />
+      </ApiProvider>,
+    );
+    await flush();
+
+    act(() => {
+      host!.querySelector("button")!.click();
+    });
+    await flush();
+
+    expect(host!.textContent).toBe("0");
+  });
+
   it("returns to the first page when the link changes", async () => {
     const page = {
       total_items: 100,
