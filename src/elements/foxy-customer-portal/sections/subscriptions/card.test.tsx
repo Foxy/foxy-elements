@@ -148,13 +148,20 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).not.toMatch(/\$42\.00\//);
   });
 
-  it("shows a Start date cell for a subscription that already started", () => {
-    render(subscription({ start_date: storeDate(-30) }));
+  it("shows a Start date cell for a subscription that has not started yet", () => {
+    render(subscription({ start_date: storeDate(30) }));
     expect(screen!.host.textContent).toMatch(/start date/i);
   });
 
+  it("hides the Start date cell once the subscription has started", () => {
+    render(subscription({ start_date: storeDate(-30) }));
+    expect(screen!.host.textContent).not.toMatch(/start date/i);
+  });
+
   it("hides the Start date cell when the store turned show_sub_startdate off", () => {
-    render(subscription(), {
+    // A future start date, so the flag is what hides this rather than the
+    // date already having passed.
+    render(subscription({ start_date: storeDate(30) }), {
       cartDisplayConfig: { show_sub_startdate: false },
     });
     expect(screen!.host.textContent).not.toMatch(/start date/i);
@@ -289,7 +296,9 @@ describe("SubscriptionCard", () => {
   // auto-placement, Manage lands in whatever cell follows the last caption --
   // the middle of the card on any width where they wrap.
   it("keeps Manage at the card's right edge once the captions wrap", () => {
-    render(subscription());
+    // A future start date so the Start date caption is present: this needs
+    // enough captions to actually wrap, which is the premise it asserts below.
+    render(subscription({ start_date: storeDate(30) }));
     // Wide enough for several caption columns, narrow enough that five items
     // cannot sit on one row. A width that collapses the grid to a single
     // column would pass whatever Manage does, since every item is then

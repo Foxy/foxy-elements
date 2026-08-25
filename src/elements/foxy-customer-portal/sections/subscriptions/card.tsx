@@ -202,8 +202,13 @@ export function SubscriptionCard({
   const nextDate = toCalendarDate(subscription.next_transaction_date);
   const endDate = toCalendarDate(subscription.end_date);
 
+  // Only while it is still ahead: once a subscription has started, the date it
+  // started on is history, and the cell would take a column away from
+  // Next payment and the rest for the whole life of the subscription.
   const showStartDate =
-    (cartDisplayConfig?.show_sub_startdate ?? true) && startDate !== null;
+    (cartDisplayConfig?.show_sub_startdate ?? true) &&
+    startDate !== null &&
+    startDate.getTime() > Date.now();
   const showNextDate =
     (cartDisplayConfig?.show_sub_nextdate ?? true) &&
     nextDate !== null &&

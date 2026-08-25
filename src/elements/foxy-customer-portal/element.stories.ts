@@ -197,7 +197,10 @@ function buildSubscriptions(
 
     return {
       frequency: frequencies[i % frequencies.length],
-      start_date: "2018-01-01T00:00:00-0800",
+      // One that has not started yet, so the Start date caption -- which only
+      // shows while the date is still ahead -- appears somewhere in the story.
+      start_date:
+        isActive && i === 2 ? "2099-06-01T00:00:00-0800" : "2018-01-01T00:00:00-0800",
       next_transaction_date: isActive
         ? "2099-01-01T00:00:00-0800"
         : "2021-06-01T00:00:00-0800",
