@@ -46,6 +46,21 @@ const THEME_DEFINITIONS = [
     cssVariable: "--color-secondary",
   },
   {
+    property: "themeBorderDefault",
+    attribute: "theme-border-default",
+    cssVariable: "--border-default",
+  },
+  {
+    property: "themeColorFaint",
+    attribute: "theme-color-faint",
+    cssVariable: "--color-faint",
+  },
+  {
+    property: "themeBackgroundPage",
+    attribute: "theme-background-page",
+    cssVariable: "--background-page",
+  },
+  {
     property: "themeColorError",
     attribute: "theme-color-error",
     cssVariable: "--color-error",

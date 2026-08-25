@@ -238,6 +238,8 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
         onPrimary:
           this.getThemeProperty("themeColorOnPrimary") ??
           defaultTheme.color.onPrimary,
+        faint:
+          this.getThemeProperty("themeColorFaint") ?? defaultTheme.color.faint,
       },
       outline: {
         ...defaultTheme.outline,
@@ -250,6 +252,9 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
         surface:
           this.getThemeProperty("themeBackgroundSurface") ??
           defaultTheme.background.surface,
+        page:
+          this.getThemeProperty("themeBackgroundPage") ??
+          defaultTheme.background.page,
         field:
           this.getThemeProperty("themeBackgroundField") ??
           defaultTheme.background.field,
@@ -271,6 +276,9 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
         field:
           this.getThemeProperty("themeBorderField") ??
           defaultTheme.border.field,
+        default:
+          this.getThemeProperty("themeBorderDefault") ??
+          defaultTheme.border.default,
       },
       borderRadius: {
         ...defaultTheme.borderRadius,

@@ -85,7 +85,7 @@ const BrandChip = styled.div<{ $scheme: Scheme }>`
   color: ${(props) => props.theme.tokens.color.onPrimary};
   background: ${(props) =>
     props.$scheme === "visa"
-      ? props.theme.tokens.color.primaryHover
+      ? props.theme.tokens.color.primary
       : props.$scheme === "mastercard"
         ? props.theme.tokens.color.body
         : props.theme.tokens.color.secondary};
