@@ -18,7 +18,10 @@ import {
 } from "@/lib/customer-api";
 import type { AccountPage } from "../account-page";
 import { AccountPageLayout } from "../account-page-layout";
-import { AddressesSection, AddressPageContainer } from "../sections/addresses";
+import {
+  BillingShippingSection,
+  AddressPageContainer,
+} from "../sections/addresses";
 import { PortalHeader, type SignOutState } from "../sections/header";
 import { OrderPageContainer, OrdersSection } from "../sections/orders";
 import { PasswordPage } from "../sections/password-page";
@@ -273,14 +276,14 @@ export function AccountScreen({
         onNavigate={onNavigate}
       />
 
-      <AddressesSection
+      <BillingShippingSection
         customer={
-          data as unknown as ComponentProps<typeof AddressesSection>["customer"]
+          data as unknown as ComponentProps<
+            typeof BillingShippingSection
+          >["customer"]
         }
         onNavigate={onNavigate}
       />
-
-      {/* FX-289 payment methods mount here, once built. */}
     </div>
   );
 }

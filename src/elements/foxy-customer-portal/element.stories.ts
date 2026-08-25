@@ -585,8 +585,9 @@ export const LongTimeUser: StoryObj = {
     // Pagination component (Previous/Next plus numbered page buttons)
     // instead of the old offset-range text.
     expect(text).toMatch(/Previous\s*123\s*Next/);
-    // Addresses: 12 total, paginated.
-    expect(text).toMatch(/1–10 \/ 12/);
+    // Addresses: 12 total at limit 10 -- 2 pages, shown by the shared
+    // Pagination component instead of the old offset-range text.
+    expect(text).toMatch(/Previous\s*12\s*Next/);
   },
 };
 

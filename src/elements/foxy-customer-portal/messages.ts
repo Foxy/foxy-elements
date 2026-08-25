@@ -355,9 +355,25 @@ export const messages = defineMessages({
     id: "portal_payment_history_heading",
     defaultMessage: "Payment history",
   },
-  addressesHeading: {
-    id: "portal_addresses_heading",
-    defaultMessage: "Addresses",
+  billingShippingHeading: {
+    id: "portal_billing_shipping_heading",
+    defaultMessage: "Billing & Shipping",
+  },
+  billingAddressHeading: {
+    id: "portal_billing_address_heading",
+    defaultMessage: "Billing address",
+  },
+  shippingAddressHeading: {
+    id: "portal_shipping_address_heading",
+    defaultMessage: "Shipping address",
+  },
+  noBillingAddress: {
+    id: "portal_no_billing_address",
+    defaultMessage: "No billing address set.",
+  },
+  noShippingAddress: {
+    id: "portal_no_shipping_address",
+    defaultMessage: "No shipping address set.",
   },
   addressDefaultBilling: {
     id: "portal_address_default_billing",
