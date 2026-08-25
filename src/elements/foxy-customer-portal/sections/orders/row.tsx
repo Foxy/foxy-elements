@@ -44,22 +44,37 @@ type Props = {
 
 const Row = styled.div`
   display: grid;
-  grid-template-columns: 6rem 1fr auto auto auto;
+  // Just two top-level cells: the button (everything but the receipt link)
+  // and the receipt link itself. OpenButton used to be "display: contents"
+  // so its own children (date, summary, badge, amount) counted as Row's
+  // direct grid items instead of it -- but a "display: contents" element
+  // generates no box in Chromium, and an element with no box cannot receive
+  // focus, so the whole row was silently unreachable by keyboard (confirmed
+  // against a real Chromium instance: focus() was a no-op and
+  // document.activeElement stayed on the body). OpenButton now renders
+  // its own real box and lays out its own children in a nested grid below,
+  // so it can take focus, and the visible focus ring on Row below has
+  // something to key off.
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: ${(props) => props.theme.tokens.space.md};
   width: 100%;
   padding: ${(props) => props.theme.tokens.space.sm} 0;
   border-bottom: ${(props) => props.theme.tokens.border.default};
 
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto auto;
+  &:has(button:focus-visible) {
+    outline: ${(props) => props.theme.tokens.outline.primary};
+    outline-offset: 2px;
+    border-radius: ${(props) => props.theme.tokens.borderRadius.xs};
   }
 `;
 
 const OpenButton = styled.button`
   all: unset;
-  display: contents;
+  display: grid;
+  grid-template-columns: 6rem 1fr auto auto;
+  align-items: center;
+  gap: ${(props) => props.theme.tokens.space.md};
   width: 100%;
   border: none;
   background: none;
@@ -67,6 +82,11 @@ const OpenButton = styled.button`
   color: inherit;
   text-align: left;
   cursor: pointer;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+  }
 `;
 
 const ReceiptLink = styled.a`

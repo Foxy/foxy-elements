@@ -103,4 +103,53 @@ describe("OrderRow", () => {
     );
     expect(receipt).toBeUndefined();
   });
+
+  it("lets the row's button actually receive keyboard focus", () => {
+    // Regression guard for the bug the visible-focus fix below depends on:
+    // `OpenButton` used to be `display: contents`, which in real Chromium
+    // gives the button no layout box at all, so it silently could not
+    // receive focus -- `button.focus()` was a no-op and
+    // `document.activeElement` stayed on `<body>`, confirmed against this
+    // repo's actual `@vitest/browser-playwright` Chromium instance (not
+    // jsdom, which does not model this correctly). Keyboard users could not
+    // reach the row at all, let alone see a focus ring. If a future edit
+    // reintroduces `display: contents` here, this assertion catches it even
+    // if the `:has()` rule below is left in place (which would otherwise
+    // stay silently inert).
+    render();
+
+    const button = document.querySelector("button");
+    expect(button).toBeInstanceOf(HTMLButtonElement);
+
+    act(() => button?.focus());
+
+    expect(document.activeElement).toBe(button);
+  });
+
+  it("shows a visible focus indicator on the row when its button has keyboard focus", () => {
+    render();
+
+    const button = document.querySelector("button");
+    expect(button).toBeInstanceOf(HTMLButtonElement);
+    // `Row` is the outer `styled.div` wrapping `OpenButton`; the focus style
+    // lives on `Row`, keyed off `:has(button:focus-visible)`, since that's
+    // the ancestor that still generates a real box to paint an outline on.
+    const row = button?.parentElement;
+    expect(row).toBeInstanceOf(HTMLDivElement);
+
+    // Before focus: the `:has(button:focus-visible)` rule doesn't match,
+    // and `Row` sets no other outline, so the resolved outline is "none".
+    expect(row?.matches(":has(button:focus-visible)")).toBe(false);
+    expect(getComputedStyle(row as Element).outlineStyle).toBe("none");
+
+    act(() => button?.focus());
+
+    // A real Chromium instance (this suite runs on `@vitest/browser-playwright`,
+    // not jsdom) marks a script-focused button as focus-visible, so both the
+    // selector match and the resolved `outline-style` flip once the fix is in
+    // place.
+    expect(document.activeElement).toBe(button);
+    expect(row?.matches(":has(button:focus-visible)")).toBe(true);
+    expect(getComputedStyle(row as Element).outlineStyle).toBe("solid");
+  });
 });
