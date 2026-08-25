@@ -111,6 +111,8 @@
   "portal_order_tax": "Tax",
   "portal_order_total": "Total",
   "portal_orders_heading": "Orders",
+  "portal_pagination_next": "Next",
+  "portal_pagination_previous": "Previous",
   "portal_password_confirm": "Confirm password",
   "portal_password_current": "Current password",
   "portal_password_mismatch": "Passwords do not match.",
