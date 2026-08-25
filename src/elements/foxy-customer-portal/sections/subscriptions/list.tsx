@@ -110,7 +110,7 @@ export function SubscriptionsSection({
           subscription={subscription}
           cartDisplayConfig={cartDisplayConfig}
           onManage={() => goToSubscription(subscription)}
-          onPayments={() => goToSubscription(subscription)}
+          onNavigate={onNavigate}
         />
       ))}
 

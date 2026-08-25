@@ -178,13 +178,37 @@ export const messages = defineMessages({
     id: "portal_subscription_manage",
     defaultMessage: "Manage",
   },
-  subscriptionPayments: {
-    id: "portal_subscription_payments",
-    defaultMessage: "Payments",
-  },
   subscriptionFrequency: {
     id: "portal_subscription_frequency",
     defaultMessage: "Every {frequency}",
+  },
+  subscriptionLastPayment: {
+    id: "portal_subscription_last_payment",
+    defaultMessage: "Last payment",
+  },
+  subscriptionLastPaymentView: {
+    id: "portal_subscription_last_payment_view",
+    defaultMessage: "View",
+  },
+  subscriptionStartDate: {
+    id: "portal_subscription_start_date",
+    defaultMessage: "Start date",
+  },
+  subscriptionNextPayment: {
+    id: "portal_subscription_next_payment",
+    defaultMessage: "Next payment",
+  },
+  subscriptionCancels: {
+    id: "portal_subscription_cancels",
+    defaultMessage: "Cancels",
+  },
+  subscriptionEnded: {
+    id: "portal_subscription_ended",
+    defaultMessage: "Ended",
+  },
+  subscriptionId: {
+    id: "portal_subscription_id",
+    defaultMessage: "Subscription ID",
   },
   statusWillStart: {
     id: "portal_status_will_start",

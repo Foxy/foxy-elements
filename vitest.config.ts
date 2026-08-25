@@ -40,6 +40,7 @@ export default defineConfig({
       "@foxy.io/design-system/item",
       "@foxy.io/design-system/radio",
       "@foxy.io/design-system/select",
+      "@foxy.io/design-system/separator",
       "@foxy.io/design-system/skeleton",
       "@foxy.io/design-system/spinner",
       "@foxy.io/design-system/summary-table",

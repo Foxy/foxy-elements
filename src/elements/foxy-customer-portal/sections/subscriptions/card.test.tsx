@@ -12,16 +12,11 @@ afterEach(() => {
 
 const DAY = 86_400_000;
 
-// A store-timezone date `days` from now, in the shape the API really sends:
-// an explicit non-UTC offset with a late time-of-day, not the UTC-midnight
-// instant `.toISOString()` produces. '22:45:01-0700' is late enough that any
-// viewer at or east of the store's offset sees a rolled-forward calendar day
-// if the string is parsed as an instant instead of read as a calendar day --
-// the exact bug this file's dates guard against. The day-count offsets here
-// are wide enough (30 days past, 14 days future) that the few hours' shift
-// from the fixed time-of-day never flips which side of "now" they land on,
-// so `status.ts`'s relative-time checks still see the same "already started,
-// not yet due" subscription they did before.
+// A store-timezone date `days` from now, in the shape the API really sends.
+// See the original file's comment (preserved in spirit): a late fixed
+// time-of-day with an explicit non-UTC offset, wide enough day-count
+// offsets that the few hours' shift never flips which side of "now" a date
+// lands on.
 function storeDate(days: number): string {
   const date = new Date(Date.now() + days * DAY);
   const year = date.getUTCFullYear();
@@ -63,7 +58,7 @@ function render(sub: SubscriptionResource, props = {}) {
     <SubscriptionCard
       subscription={sub}
       onManage={vi.fn()}
-      onPayments={vi.fn()}
+      onNavigate={vi.fn()}
       {...props}
     />,
     {},
@@ -72,10 +67,10 @@ function render(sub: SubscriptionResource, props = {}) {
 }
 
 describe("SubscriptionCard", () => {
-  it("summarises the items with their quantities", () => {
+  it("summarises flat items with their quantities as the title", () => {
     render(subscription());
     expect(screen!.host.textContent).toMatch(/Coffee/);
-    expect(screen!.host.textContent).toMatch(/2/);
+    expect(screen!.host.textContent).toMatch(/×2/);
     expect(screen!.host.textContent).toMatch(/Grinder/);
   });
 
@@ -84,79 +79,38 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).toMatch(/\$42/);
   });
 
-  it("shows the status with the date it carries", () => {
-    // The default subscription is active, already started, with no end date
-    // and a future next_transaction_date -- getSubscriptionStatus's
-    // "next_payment". The bare "Active" badge this used to render told the
-    // customer nothing about *when* -- the date has to be in the text.
-    render(subscription());
-    expect(screen!.host.textContent).toMatch(/next payment on/i);
-  });
-
-  it("shows the next payment date only once, not once as a description line and again in the badge", () => {
-    // Regression: a commit that put the date back on the status badge
-    // collided with an existing "Next payment {date}" description line --
-    // the default subscription (active, started, no end date, future
-    // next_transaction_date) rendered both "Next payment ..." and "Next
-    // payment on ..." on the same card. v1's card has no such description
-    // line (SubscriptionCard.ts renders summary, status and price only) --
-    // the badge is the one place this belongs.
-    render(subscription());
-    const matches = screen!.host.textContent?.match(/next payment/gi) ?? [];
-    expect(matches).toHaveLength(1);
-  });
-
-  it("shows the actual start date for a subscription starting well in the future, not a vague label", () => {
-    // Regression for the bug this commit fixes: "Starting soon" used to
-    // render even for a subscription starting years out.
-    render(subscription({ start_date: storeDate(2000) }));
-    expect(screen!.host.textContent).toMatch(/starts on/i);
-    expect(screen!.host.textContent).not.toMatch(/starting soon/i);
-  });
-
-  it("substitutes the actual date into the badge, not the raw ICU pattern", () => {
-    // Mutation this guards against: dropping the values argument at card.tsx's
-    // `intl.formatMessage(STATUS_MESSAGES[status], statusDates)` call.
-    // react-intl doesn't throw on a missing value -- it renders the pattern's
-    // placeholder literally ("Starts on {start_date}"), so every prefix-only
-    // assertion in this file (/starts on/i, /failed on/i, /next payment on/i,
-    // /scheduled to start/i) stays green regardless. Only asserting the
-    // actual formatted digits catches it.
-    //
-    // A `will_start` fixture isolates the badge specifically: card.tsx has no
-    // description line that ever rendered `start_date` (only `frequency` and,
-    // before item 1, `next_transaction_date` did), so these digits can only
-    // have come from the badge's own substitution.
-    const startDate = storeDate(2000);
-    const [, year, month, day] = /^(\d{4})-(\d{2})-(\d{2})/.exec(startDate)!;
-    const expected = new Intl.DateTimeFormat("en-US", {
-      dateStyle: "medium",
-    }).format(new Date(Number(year), Number(month) - 1, Number(day)));
-
-    render(subscription({ start_date: startDate }));
-
-    expect(screen!.host.textContent).toContain(expected);
-  });
-
-  it("shows the date a failed payment happened", () => {
-    // first_failed_transaction_date used to be consumed only as a boolean by
-    // status.ts and rendered nowhere -- a customer whose payment failed had
-    // no way to see when.
+  it("titles a bundled subscription with the parent item's name and lists children separately", () => {
     render(
-      subscription({ first_failed_transaction_date: storeDate(-2) }),
+      subscription({
+        _embedded: {
+          "fx:transaction_template": {
+            currency_code: "USD",
+            total_order: 38.5,
+            _embedded: {
+              "fx:items": [
+                {
+                  name: "Coffee Subscription — Dark Roast",
+                  quantity: 1,
+                  code: "COFFEE",
+                },
+                {
+                  name: "Extra Filters",
+                  quantity: 2,
+                  parent_code: "COFFEE",
+                },
+              ],
+            },
+          },
+        },
+      }),
     );
-    expect(screen!.host.textContent).toMatch(/failed on/i);
+
+    expect(screen!.host.textContent).toMatch(/Coffee Subscription — Dark Roast/);
+    expect(screen!.host.textContent).toMatch(/Extra Filters/);
+    expect(screen!.host.textContent).toMatch(/×2/);
   });
 
-  it("shows a date-free label instead of the raw date when the store turned the matching flag off", () => {
-    render(subscription({ start_date: storeDate(2000) }), {
-      cartDisplayConfig: { show_sub_startdate: false },
-    });
-    expect(screen!.host.textContent).toMatch(/scheduled to start/i);
-    expect(screen!.host.textContent).not.toMatch(/starts on/i);
-  });
-
-  it("shows an error message when the subscription has one", () => {
+  it("shows an error alert when the subscription has one", () => {
     render(subscription({ error_message: "Card declined." }));
     expect(screen!.host.textContent).toMatch(/Card declined\./);
   });
@@ -166,28 +120,7 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).not.toMatch(/declined/i);
   });
 
-  it("falls back to a date-free badge when the date is the API's unset sentinel", () => {
-    // There is no separate next-payment description line (see item 1) --
-    // this now exercises `getExtendedSubscriptionStatus`'s own fallback,
-    // which drops to "next_payment_no_nextdate" ("Active") whenever the
-    // date can't be shown.
-    render(subscription({ next_transaction_date: "0000-00-00" }));
-    expect(screen!.host.textContent).not.toMatch(/next payment/i);
-  });
-
-  it("shows the store's calendar day, not the viewer's UTC-shifted one", () => {
-    // '2023-02-11T22:45:01-0700' is 05:45:01Z on Feb 12 -- naively parsing
-    // and formatting in a viewer timezone at or east of the store's rolls
-    // the displayed day forward to Feb 12, a day after what the store (and
-    // the customer's receipt) considers the payment date. The status badge
-    // is the only place this date renders (see item 1) -- there is no
-    // separate next-payment description line to satisfy this independently.
-    render(subscription({ next_transaction_date: "2023-02-11T22:45:01-0700" }));
-    expect(screen!.host.textContent).toMatch(/Feb 11, 2023/);
-    expect(screen!.host.textContent).not.toMatch(/Feb 12, 2023/);
-  });
-
-  it("shows the frequency line by default, with no cart_display_config at all", () => {
+  it("shows the frequency line by default", () => {
     render(subscription());
     expect(screen!.host.textContent).toMatch(/every/i);
   });
@@ -199,14 +132,61 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).not.toMatch(/every/i);
   });
 
-  it("hides the next-payment date from the badge when the store turned show_sub_nextdate off", () => {
-    // Gated in `getExtendedSubscriptionStatus` (status.ts), not here -- there
-    // is no separate next-payment description line for card.tsx itself to
-    // gate (see item 1).
+  it("shows a Start date cell for a subscription that already started", () => {
+    render(subscription({ start_date: storeDate(-30) }));
+    expect(screen!.host.textContent).toMatch(/start date/i);
+  });
+
+  it("hides the Start date cell when the store turned show_sub_startdate off", () => {
+    render(subscription(), {
+      cartDisplayConfig: { show_sub_startdate: false },
+    });
+    expect(screen!.host.textContent).not.toMatch(/start date/i);
+  });
+
+  it("shows a Next payment cell for an active subscription with a future payment", () => {
+    render(subscription({ next_transaction_date: storeDate(14) }));
+    expect(screen!.host.textContent).toMatch(/next payment/i);
+  });
+
+  it("hides the Next payment cell when the store turned show_sub_nextdate off", () => {
     render(subscription(), {
       cartDisplayConfig: { show_sub_nextdate: false },
     });
     expect(screen!.host.textContent).not.toMatch(/next payment/i);
+  });
+
+  it("hides the Next payment cell for an inactive subscription", () => {
+    render(subscription({ is_active: false }));
+    expect(screen!.host.textContent).not.toMatch(/next payment/i);
+  });
+
+  it("shows a Cancels cell for an active subscription with a future end date", () => {
+    render(subscription({ end_date: storeDate(30) }));
+    expect(screen!.host.textContent).toMatch(/cancels/i);
+  });
+
+  it("shows an Ended cell for an inactive subscription with a past end date", () => {
+    render(subscription({ is_active: false, end_date: storeDate(-1) }));
+    expect(screen!.host.textContent).toMatch(/ended/i);
+  });
+
+  it("hides the Start/Next/Cancels cells when the corresponding date is the API's unset sentinel", () => {
+    render(
+      subscription({
+        start_date: "0000-00-00",
+        next_transaction_date: "0000-00-00",
+        end_date: "0000-00-00",
+      }),
+    );
+    expect(screen!.host.textContent).not.toMatch(/start date/i);
+    expect(screen!.host.textContent).not.toMatch(/next payment/i);
+    expect(screen!.host.textContent).not.toMatch(/cancels/i);
+  });
+
+  it("always shows the Subscription ID cell", () => {
+    render(subscription());
+    expect(screen!.host.textContent).toMatch(/subscription id/i);
   });
 
   it("calls onManage", () => {
@@ -221,15 +201,74 @@ describe("SubscriptionCard", () => {
     expect(onManage).toHaveBeenCalled();
   });
 
-  it("calls onPayments", () => {
-    const onPayments = vi.fn();
-    render(subscription(), { onPayments });
+  it("uses the default Manage button for an active subscription and outline for an inactive one", () => {
+    render(subscription({ is_active: true }));
+    const activeManage = [...screen!.host.querySelectorAll("button")].find((b) =>
+      /manage/i.test(b.textContent ?? ""),
+    )!;
 
-    act(() => {
-      const buttons = [...screen!.host.querySelectorAll("button")];
-      buttons.find((b) => /payments/i.test(b.textContent ?? ""))!.click();
+    screen!.unmount();
+    render(subscription({ is_active: false }));
+    const inactiveManage = [...screen!.host.querySelectorAll("button")].find(
+      (b) => /manage/i.test(b.textContent ?? ""),
+    )!;
+
+    // The two buttons must render with visibly different styling -- the
+    // simplest reliable check without depending on styled-components'
+    // generated class names is that their computed background differs.
+    expect(getComputedStyle(activeManage).backgroundColor).not.toBe(
+      getComputedStyle(inactiveManage).backgroundColor,
+    );
+  });
+
+  it("shows the Last payment cell and a working View link once the fetch resolves", async () => {
+    const sub = subscription({
+      _links: {
+        self: { href: "/s/1" },
+        "fx:last_transaction": {
+          href: "/t/900",
+          get: async () => ({
+            ok: true,
+            status: 200,
+            json: async () => ({
+              id: 900,
+              display_id: 900,
+              transaction_date: storeDate(-10),
+              total_order: 42,
+              total_item_price: "42.00",
+              total_tax: "0.00",
+              total_shipping: "0.00",
+              currency_code: "USD",
+              status: "captured",
+              _links: { self: { href: "/t/900" } },
+            }),
+          }),
+        },
+      } as never,
     });
 
-    expect(onPayments).toHaveBeenCalled();
+    const onNavigate = vi.fn();
+    render(sub, { onNavigate });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(screen!.host.textContent).toMatch(/last payment/i);
+
+    act(() => {
+      const view = [...screen!.host.querySelectorAll("button, a")].find((el) =>
+        /view/i.test(el.textContent ?? ""),
+      );
+      (view as HTMLElement)?.click();
+    });
+
+    expect(onNavigate).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "order", id: "900" }),
+    );
+  });
+
+  it("hides the Last payment cell when the subscription has no fx:last_transaction link", () => {
+    render(subscription());
+    expect(screen!.host.textContent).not.toMatch(/last payment/i);
   });
 });

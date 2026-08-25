@@ -1,17 +1,16 @@
+import { ArrowRight } from "lucide-react";
 import { FormattedNumber, useIntl } from "react-intl";
-import type { MessageDescriptor } from "react-intl";
-import { Badge } from "@foxy.io/design-system/badge";
+import styled from "styled-components";
+import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
-import { Item } from "@foxy.io/design-system/item";
+import { Separator } from "@foxy.io/design-system/separator";
+import type { AccountPage } from "../../account-page";
 import { toCalendarDate } from "../../calendar-date";
+import { useResource, type FollowableLink } from "@/lib/customer-api";
 import { messages } from "../../messages";
+import { groupSubscriptionItems, type SubscriptionTemplateItem } from "./item-grouping";
 import type { CartDisplayConfig } from "./cart-display-config";
-import {
-  getExtendedSubscriptionStatus,
-  type ExtendedSubscriptionStatus,
-} from "./status";
-
-type TemplateItem = { name: string; quantity: number };
+import type { OrderResource } from "../orders/row";
 
 export type SubscriptionResource = {
   frequency: string;
@@ -21,45 +20,23 @@ export type SubscriptionResource = {
   is_active: boolean;
   error_message: string;
   first_failed_transaction_date: string | null;
-  _links: { self: { href: string } } & Record<string, { href: string }>;
+  _links: { self: { href: string } } & Record<
+    string,
+    (FollowableLink<OrderResource> & { href: string }) | { href: string }
+  >;
   _embedded?: {
     "fx:transaction_template"?: {
       currency_code?: string;
       total_order?: number;
-      _embedded?: { "fx:items"?: TemplateItem[] };
+      _embedded?: { "fx:items"?: SubscriptionTemplateItem[] };
     };
   };
 };
 
-// `messages.statusWillStart` etc. are referenced here, not by name lookup, so
-// this map itself is the "user" the messages catalog test requires for each.
-// `Record<ExtendedSubscriptionStatus, ...>` makes a missing entry a
-// compile-time error rather than a runtime crash on an unvalidated status.
-const STATUS_MESSAGES: Record<ExtendedSubscriptionStatus, MessageDescriptor> =
-  {
-    will_start: messages.statusWillStart,
-    will_start_no_startdate: messages.statusWillStartNoStartdate,
-    will_end: messages.statusWillEnd,
-    will_end_no_enddate: messages.statusWillEndNoEnddate,
-    will_end_after_payment: messages.statusWillEndAfterPayment,
-    will_end_after_payment_no_nextdate:
-      messages.statusWillEndAfterPaymentNoNextdate,
-    will_end_after_payment_no_enddate:
-      messages.statusWillEndAfterPaymentNoEnddate,
-    next_payment: messages.statusNextPayment,
-    next_payment_no_nextdate: messages.statusNextPaymentNoNextdate,
-    ended: messages.statusEnded,
-    ended_no_enddate: messages.statusEndedNoEnddate,
-    failed: messages.statusFailed,
-    failed_and_ended: messages.statusFailedAndEnded,
-    failed_and_ended_no_enddate: messages.statusFailedAndEndedNoEnddate,
-    inactive: messages.statusInactive,
-  };
-
 type Props = {
   subscription: SubscriptionResource;
   onManage: () => void;
-  onPayments: () => void;
+  onNavigate: (page: AccountPage) => void;
   /**
    * The store's `cart_display_config`, from the same `customer_portal_settings`
    * response `subscription-page.tsx` already reads. `null`/`undefined` (settings
@@ -69,96 +46,291 @@ type Props = {
   cartDisplayConfig?: CartDisplayConfig | null;
 };
 
+const Card = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: ${(props) => props.theme.tokens.space.lg};
+  padding: ${(props) => props.theme.tokens.space.xl};
+  background: ${(props) => props.theme.tokens.background.surface};
+  border: ${(props) => props.theme.tokens.border.default};
+  border-radius: ${(props) => props.theme.tokens.borderRadius.md};
+`;
+
+const Thumbnails = styled.div<{ $multi: boolean }>`
+  flex-shrink: 0;
+  width: 6rem;
+  height: 6rem;
+  display: grid;
+  grid-template-columns: ${(props) => (props.$multi ? "repeat(2, 1fr)" : "1fr")};
+  gap: ${(props) => props.theme.tokens.space.xs};
+`;
+
+const Thumbnail = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
+  background: ${(props) => props.theme.tokens.background.itemHighlighted};
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+`;
+
+const Body = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 220px;
+  min-width: 220px;
+  gap: ${(props) => props.theme.tokens.space.md};
+`;
+
+const TitleRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: ${(props) => props.theme.tokens.space.sm};
+`;
+
+const Title = styled.div`
+  font: ${(props) => props.theme.tokens.font.h3};
+  color: ${(props) => props.theme.tokens.color.body};
+`;
+
+const Price = styled.div`
+  font: ${(props) => props.theme.tokens.font.h3};
+  color: ${(props) => props.theme.tokens.color.body};
+`;
+
+const Frequency = styled.div`
+  font: ${(props) => props.theme.tokens.font.body};
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
+const ChildList = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const ChildLine = styled.div`
+  font: ${(props) => props.theme.tokens.font.body};
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
+const InfoGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: ${(props) => props.theme.tokens.space.md};
+`;
+
+const CellLabel = styled.div`
+  font: ${(props) => props.theme.tokens.font.bodySmall};
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
+const CellValue = styled.div<{ $error?: boolean }>`
+  font: ${(props) => props.theme.tokens.font.bodyEmphasis};
+  color: ${(props) =>
+    props.$error ? props.theme.tokens.color.error : props.theme.tokens.color.body};
+`;
+
+const ManageSlot = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+`;
+
+function itemLabel(item: SubscriptionTemplateItem): string {
+  return item.quantity > 1 ? `${item.name} ×${item.quantity}` : item.name;
+}
+
 export function SubscriptionCard({
   subscription,
   onManage,
-  onPayments,
+  onNavigate,
   cartDisplayConfig,
 }: Props) {
   const intl = useIntl();
   const template = subscription._embedded?.["fx:transaction_template"];
   const items = template?._embedded?.["fx:items"] ?? [];
-  const status = getExtendedSubscriptionStatus(
-    subscription,
-    cartDisplayConfig,
-  );
-  const nextPaymentDate = toCalendarDate(subscription.next_transaction_date);
   const showFrequency = cartDisplayConfig?.show_sub_frequency ?? true;
 
-  // Every date `STATUS_MESSAGES` might reference, pre-formatted through
-  // `toCalendarDate` -- never the raw API string -- so the badge renders the
-  // store's calendar day, not the viewer's UTC-shifted one (see
-  // `calendar-date.ts`). Passing a superset of what any one status message
-  // actually references is safe: react-intl only substitutes the
-  // placeholders a message's own ICU pattern names, and silently ignores the
-  // rest. A date that fails to parse formats to `""` rather than throwing --
-  // `getExtendedSubscriptionStatus` already steers `status` away from any
-  // variant that would reference an unformattable date, except
-  // `first_failed_transaction_date`, which has no such fallback (see that
-  // function's doc comment).
-  const formatStatusDate = (raw: string | null) => {
-    const date = toCalendarDate(raw);
-    return date ? intl.formatDate(date, { dateStyle: "medium" }) : "";
-  };
+  const { parents, children } = groupSubscriptionItems(items);
+  const isBundle = parents.length === 1 && children.length > 0;
+  const titleText = isBundle
+    ? parents[0].name
+    : items.map(itemLabel).join(", ");
 
-  const statusDates = {
-    start_date: formatStatusDate(subscription.start_date),
-    next_transaction_date: nextPaymentDate
-      ? intl.formatDate(nextPaymentDate, { dateStyle: "medium" })
-      : "",
-    end_date: formatStatusDate(subscription.end_date),
-    first_failed_transaction_date: formatStatusDate(
-      subscription.first_failed_transaction_date,
-    ),
-  };
+  const thumbnailItems = items.slice(0, 4);
+  const isMultiItem = thumbnailItems.length > 1;
 
-  const summary = items
-    .map((item) => `${item.name} ×${item.quantity}`)
-    .join(", ");
+  const startDate = toCalendarDate(subscription.start_date);
+  const nextDate = toCalendarDate(subscription.next_transaction_date);
+  const endDate = toCalendarDate(subscription.end_date);
+
+  const showStartDate =
+    (cartDisplayConfig?.show_sub_startdate ?? true) && startDate !== null;
+  const showNextDate =
+    (cartDisplayConfig?.show_sub_nextdate ?? true) &&
+    nextDate !== null &&
+    subscription.is_active;
+  const showEndDate =
+    (cartDisplayConfig?.show_sub_enddate ?? true) && endDate !== null;
+  const endIsFuture = endDate !== null && endDate.getTime() > Date.now();
+
+  // Assumes the SDK enriches `fx:last_transaction` with a working `.get()`
+  // the same way it enriches every other link on a resource it returns
+  // (see `account.tsx`'s doc comment on `CustomerLinks`) -- including on a
+  // subscription reached through a *collection* page's embedded items, not
+  // only a top-level `useResource` result. This has not been verified
+  // against a live store from inside this element specifically; if the
+  // Storybook/manual verification step at the end of this plan shows the
+  // Last Payment cell never appearing even for a subscription with real
+  // payment history, this assumption is the first thing to check.
+  const lastTransactionLink = subscription._links["fx:last_transaction"] as
+    | (FollowableLink<OrderResource> & { href: string })
+    | undefined;
+  const { data: lastTransaction } = useResource<OrderResource>(
+    lastTransactionLink ?? null,
+  );
+  const lastPaymentDate = lastTransaction
+    ? toCalendarDate(lastTransaction.transaction_date)
+    : null;
+
+  const manageButtonVariant = subscription.is_active ? "default" : "outline";
 
   return (
-    <Item.Root $variant="outline">
-      <Item.Content>
-        <Item.Title>{summary}</Item.Title>
+    <Card>
+      <Thumbnails $multi={isMultiItem}>
+        {thumbnailItems.map((item, index) => (
+          <Thumbnail key={`${item.name}-${index}`}>
+            {item.image ? <img src={item.image} alt="" loading="lazy" /> : null}
+          </Thumbnail>
+        ))}
+      </Thumbnails>
+
+      <Body>
+        <TitleRow>
+          <Title>{titleText}</Title>
+          {template?.total_order !== undefined ? (
+            <Price>
+              <FormattedNumber
+                value={template.total_order}
+                style="currency"
+                currency={template.currency_code ?? "USD"}
+              />
+            </Price>
+          ) : null}
+        </TitleRow>
 
         {showFrequency ? (
-          <Item.Description>
+          <Frequency>
             {intl.formatMessage(messages.subscriptionFrequency, {
               frequency: subscription.frequency,
             })}
-          </Item.Description>
+          </Frequency>
         ) : null}
 
-        {/* Data about the subscription, not a UI error — see the spec's error
-            model, which reserves Alert for failures of the portal itself. */}
         {subscription.error_message ? (
-          <Item.Description>{subscription.error_message}</Item.Description>
-        ) : null}
-      </Item.Content>
-
-      <Item.Actions>
-        {template?.total_order !== undefined ? (
-          <FormattedNumber
-            value={template.total_order}
-            style="currency"
-            currency={template.currency_code ?? "USD"}
-          />
+          <Alert.Root $variant="destructive">
+            <Alert.Description>{subscription.error_message}</Alert.Description>
+          </Alert.Root>
         ) : null}
 
-        {status ? (
-          <Badge>
-            {intl.formatMessage(STATUS_MESSAGES[status], statusDates)}
-          </Badge>
+        {isBundle ? (
+          <ChildList>
+            {children.map((child, index) => (
+              <ChildLine key={`${child.name}-${index}`}>
+                {itemLabel(child)}
+              </ChildLine>
+            ))}
+          </ChildList>
         ) : null}
 
-        <Button type="button" onClick={onManage}>
-          {intl.formatMessage(messages.subscriptionManage)}
-        </Button>
+        <Separator />
 
-        <Button type="button" $variant="outline" onClick={onPayments}>
-          {intl.formatMessage(messages.subscriptionPayments)}
-        </Button>
-      </Item.Actions>
-    </Item.Root>
+        <InfoGrid>
+          {lastPaymentDate ? (
+            <div>
+              <CellLabel>
+                {intl.formatMessage(messages.subscriptionLastPayment)}
+              </CellLabel>
+              <CellValue>
+                {intl.formatDate(lastPaymentDate, { dateStyle: "medium" })}{" "}
+                <Button
+                  type="button"
+                  $variant="link"
+                  onClick={() =>
+                    onNavigate({
+                      type: "order",
+                      id: String(lastTransaction!.id),
+                      resource: lastTransaction!,
+                    })
+                  }
+                >
+                  {intl.formatMessage(messages.subscriptionLastPaymentView)}
+                </Button>
+              </CellValue>
+            </div>
+          ) : null}
+
+          {showStartDate ? (
+            <div>
+              <CellLabel>
+                {intl.formatMessage(messages.subscriptionStartDate)}
+              </CellLabel>
+              <CellValue>
+                {intl.formatDate(startDate!, { dateStyle: "medium" })}
+              </CellValue>
+            </div>
+          ) : null}
+
+          {showNextDate ? (
+            <div>
+              <CellLabel>
+                {intl.formatMessage(messages.subscriptionNextPayment)}
+              </CellLabel>
+              <CellValue>
+                {intl.formatDate(nextDate!, { dateStyle: "medium" })}
+              </CellValue>
+            </div>
+          ) : null}
+
+          {showEndDate ? (
+            <div>
+              <CellLabel>
+                {intl.formatMessage(
+                  endIsFuture
+                    ? messages.subscriptionCancels
+                    : messages.subscriptionEnded,
+                )}
+              </CellLabel>
+              <CellValue $error>
+                {intl.formatDate(endDate!, { dateStyle: "medium" })}
+              </CellValue>
+            </div>
+          ) : null}
+
+          <div>
+            <CellLabel>{intl.formatMessage(messages.subscriptionId)}</CellLabel>
+            <CellValue>
+              {subscription._links.self.href.replace(/\/+$/, "").split("/").pop()}
+            </CellValue>
+          </div>
+
+          <ManageSlot>
+            <Button type="button" $variant={manageButtonVariant} onClick={onManage}>
+              {intl.formatMessage(messages.subscriptionManage)} <ArrowRight size={16} />
+            </Button>
+          </ManageSlot>
+        </InfoGrid>
+      </Body>
+    </Card>
   );
 }

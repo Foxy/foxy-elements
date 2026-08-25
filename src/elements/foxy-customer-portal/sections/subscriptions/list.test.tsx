@@ -142,25 +142,11 @@ describe("SubscriptionsSection", () => {
 
     act(() => {
       const buttons = [...screen!.host.querySelectorAll("button")];
-      buttons.find((b) => /^manage$/i.test(b.textContent ?? ""))!.click();
-    });
-
-    expect(onNavigate).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "subscription", id: "Coffee" }),
-    );
-  });
-
-  it("navigates to the same subscription page when Payments is clicked", async () => {
-    const onNavigate = vi.fn();
-    screen = mountScreen(
-      <SubscriptionsSection customer={customer() as never} onNavigate={onNavigate} />,
-      {},
-    );
-    await flush();
-
-    act(() => {
-      const buttons = [...screen!.host.querySelectorAll("button")];
-      buttons.find((b) => /^payments$/i.test(b.textContent ?? ""))!.click();
+      // Not anchored with a trailing `$`: the redesigned card's Manage
+      // button carries a trailing arrow icon after the text (see
+      // `card.tsx`), so `textContent` is "Manage " (a real space before the
+      // icon's empty text), not the exact string "Manage".
+      buttons.find((b) => /^manage/i.test(b.textContent ?? ""))!.click();
     });
 
     expect(onNavigate).toHaveBeenCalledWith(
