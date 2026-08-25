@@ -58,18 +58,29 @@ const Card = styled.div`
   border-radius: ${(props) => props.theme.tokens.borderRadius.md};
 `;
 
+// `grid-auto-rows: 1fr` is what splits the square between the rows. Without
+// it the rows size to their content, so a third item pushed each cell to the
+// image's own height and the grid rendered tall, narrow tiles instead of a
+// 2x2 of squares.
 const Thumbnails = styled.div<{ $multi: boolean }>`
   flex-shrink: 0;
   width: 6rem;
   height: 6rem;
   display: grid;
   grid-template-columns: ${(props) => (props.$multi ? "repeat(2, 1fr)" : "1fr")};
+  grid-auto-rows: 1fr;
   gap: 6px;
 `;
 
+// Square regardless of the cell it lands in, so a row that ever sizes
+// differently cannot stretch a tile out of shape. Item images are arbitrary
+// sizes and aspect ratios, so they fill that square by cropping rather than
+// letterboxing -- a tile that matches its neighbours matters more here than
+// showing the whole of any one image.
 const Thumbnail = styled.div`
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1;
+  align-self: start;
   border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
   background: ${(props) => props.theme.tokens.background.disabledField};
   overflow: hidden;

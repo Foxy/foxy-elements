@@ -228,6 +228,62 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).not.toMatch(/Feb 12, 2023/);
   });
 
+  // A deliberately wide, short image: the tile has to stay square regardless
+  // of what shape the store's own artwork is.
+  const WIDE_IMAGE = `data:image/svg+xml;utf8,${encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50">' +
+      '<rect width="200" height="50" fill="red"/></svg>',
+  )}`;
+
+  it("lays the thumbnails out as a square grid of square tiles", async () => {
+    render(
+      subscription({
+        _embedded: {
+          "fx:transaction_template": {
+            currency_code: "USD",
+            total_order: 42,
+            _embedded: {
+              "fx:items": [
+                { name: "A", quantity: 1, image: WIDE_IMAGE },
+                { name: "B", quantity: 1, image: WIDE_IMAGE },
+                // No image, so the empty swatch has to hold its shape too.
+                { name: "C", quantity: 1 },
+              ],
+            },
+          },
+        },
+      } as never),
+    );
+
+    const image = screen!.host.querySelector("img")!;
+    const grid = image.parentElement!.parentElement!;
+
+    // Measure only once the images carry their intrinsic size. Before they
+    // decode the tiles are square by accident, which would let this pass
+    // against the very layout it exists to catch.
+    await Promise.all(
+      [...screen!.host.querySelectorAll("img")].map((img) =>
+        img.decode().catch(() => undefined),
+      ),
+    );
+
+    const gridBox = grid.getBoundingClientRect();
+    expect(Math.abs(gridBox.width - gridBox.height)).toBeLessThanOrEqual(1);
+
+    // An odd item count is what broke this: three tiles in two columns means
+    // a second row, which used to size itself to the image instead of to
+    // half the square.
+    const tiles = [...grid.children];
+    expect(tiles).toHaveLength(3);
+    for (const tile of tiles) {
+      const box = tile.getBoundingClientRect();
+      expect(box.width).toBeGreaterThan(0);
+      expect(Math.abs(box.width - box.height)).toBeLessThanOrEqual(1);
+    }
+
+    expect(getComputedStyle(image).objectFit).toBe("cover");
+  });
+
   // The info captions sit in an auto-fit grid, so the number of columns moves
   // with both the viewport and how many captions a subscription has. Left to
   // auto-placement, Manage lands in whatever cell follows the last caption --
