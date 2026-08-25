@@ -1,9 +1,13 @@
 import styled from "styled-components";
 import { FormattedNumber, useIntl } from "react-intl";
+import { ExternalLink } from "lucide-react";
 import { Badge } from "@foxy.io/design-system/badge";
 import { toCalendarDate } from "../../calendar-date";
 import { messages } from "../../messages";
-import { getTransactionStatusMessage } from "../../transaction-status";
+import {
+  getTransactionStatusMessage,
+  getTransactionStatusVariant,
+} from "../../transaction-status";
 
 export type OrderResource = {
   id: number;
@@ -38,25 +42,42 @@ type Props = {
   onOpen: () => void;
 };
 
-const Row = styled.button`
+const Row = styled.div`
   display: grid;
-  grid-template-columns: 6rem 1fr auto auto;
+  grid-template-columns: 6rem 1fr auto auto auto;
   align-items: center;
   gap: ${(props) => props.theme.tokens.space.md};
   width: 100%;
   padding: ${(props) => props.theme.tokens.space.sm} 0;
-  border: none;
   border-bottom: ${(props) => props.theme.tokens.border.default};
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto auto;
+  }
+`;
+
+const OpenButton = styled.button`
+  all: unset;
+  display: contents;
+  width: 100%;
+  border: none;
   background: none;
   font: inherit;
   color: inherit;
   text-align: left;
   cursor: pointer;
+`;
 
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto;
-  }
+const ReceiptLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: ${(props) => props.theme.tokens.space["2xs"]};
+  font: ${(props) => props.theme.tokens.font.body};
+  font-weight: 500;
+  color: ${(props) => props.theme.tokens.color.primary};
+  text-decoration: underline;
+  justify-self: end;
 `;
 
 const Summary = styled.span`
@@ -83,33 +104,44 @@ export function OrderRow({ order, onOpen }: Props) {
   const intl = useIntl();
   const date = toCalendarDate(order.transaction_date);
   const statusMessage = getTransactionStatusMessage(order.status);
+  const statusVariant = getTransactionStatusVariant(order.status);
   const items = order._embedded?.["fx:items"] ?? [];
   const summary = items
     .map((item) => `${item.name} ×${item.quantity}`)
     .join(", ");
+  const receiptHref = order._links["fx:receipt"]?.href;
 
   return (
-    <Row type="button" onClick={onOpen}>
-      <DateLabel>
-        {date ? intl.formatDate(date, { dateStyle: "medium" }) : ""}
-      </DateLabel>
+    <Row>
+      <OpenButton type="button" onClick={onOpen}>
+        <DateLabel>
+          {date ? intl.formatDate(date, { dateStyle: "medium" }) : ""}
+        </DateLabel>
 
-      <Summary>
-        {intl.formatMessage(messages.orderSummary, {
-          id: order.display_id,
-          summary,
-        })}
-      </Summary>
+        <Summary>
+          {intl.formatMessage(messages.orderSummary, {
+            id: order.display_id,
+            summary,
+          })}
+        </Summary>
 
-      <Badge>
-        {statusMessage ? intl.formatMessage(statusMessage) : order.status}
-      </Badge>
+        <Badge $variant={statusVariant}>
+          {statusMessage ? intl.formatMessage(statusMessage) : order.status}
+        </Badge>
 
-      <FormattedNumber
-        value={order.total_order}
-        style="currency"
-        currency={order.currency_code}
-      />
+        <FormattedNumber
+          value={order.total_order}
+          style="currency"
+          currency={order.currency_code}
+        />
+      </OpenButton>
+
+      {receiptHref ? (
+        <ReceiptLink href={receiptHref} target="_blank" rel="noreferrer">
+          {intl.formatMessage(messages.paymentsReceipt)}{" "}
+          <ExternalLink size={14} />
+        </ReceiptLink>
+      ) : null}
     </Row>
   );
 }

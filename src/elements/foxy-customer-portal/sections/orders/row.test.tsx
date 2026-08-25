@@ -77,4 +77,30 @@ describe("OrderRow", () => {
 
     expect(onOpen).toHaveBeenCalledTimes(1);
   });
+
+  it("shows a Receipt link when the order has a receipt link", () => {
+    render({
+      order: order({
+        _links: {
+          self: { href: "/s/1" },
+          "fx:receipt": { href: "https://example.test/receipt/1" },
+        },
+      }) as never,
+    });
+
+    const receipt = [...document.querySelectorAll("a")].find((a) =>
+      /receipt/i.test(a.textContent ?? ""),
+    );
+    expect(receipt).toBeDefined();
+    expect(receipt?.getAttribute("href")).toBe("https://example.test/receipt/1");
+  });
+
+  it("shows no Receipt link when the order has none", () => {
+    render({ order: order({ _links: { self: { href: "/s/1" } } }) as never });
+
+    const receipt = [...document.querySelectorAll("a")].find((a) =>
+      /receipt/i.test(a.textContent ?? ""),
+    );
+    expect(receipt).toBeUndefined();
+  });
 });
