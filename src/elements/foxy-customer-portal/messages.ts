@@ -439,4 +439,16 @@ export const messages = defineMessages({
     id: "portal_pagination_next",
     defaultMessage: "Next",
   },
+  paymentMethodsHeading: {
+    id: "portal_payment_methods_heading",
+    defaultMessage: "Payment methods",
+  },
+  paymentMethodsEmpty: {
+    id: "portal_payment_methods_empty",
+    defaultMessage: "No payment method on file.",
+  },
+  paymentMethodsExpires: {
+    id: "portal_payment_methods_expires",
+    defaultMessage: "Expires {month}/{year}",
+  },
 });
