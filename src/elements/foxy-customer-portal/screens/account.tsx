@@ -245,17 +245,10 @@ export function AccountScreen({
         customer={data}
         fullNameTemplate={fullNameTemplate}
         onEditProfile={() => onNavigate({ type: "profile" })}
+        onChangePassword={() => onNavigate({ type: "password" })}
         onSignOut={handleSignOut}
         signOutState={signOutState}
       />
-
-      <Button
-        type="button"
-        $variant="link"
-        onClick={() => onNavigate({ type: "password" })}
-      >
-        {intl.formatMessage(messages.profileChangePassword)}
-      </Button>
 
       {/* `CustomerResource` types `_links` down to just `self`. The SDK's
           real response enriches every link on the resource the same way

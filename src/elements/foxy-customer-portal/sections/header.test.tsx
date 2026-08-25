@@ -16,6 +16,7 @@ function render(
         (props.fullNameTemplate as string) ?? "{first_name} {last_name}"
       }
       onEditProfile={(props.onEditProfile as () => void) ?? vi.fn()}
+      onChangePassword={(props.onChangePassword as () => void) ?? vi.fn()}
       onSignOut={(props.onSignOut as () => void) ?? vi.fn()}
       signOutState={(props.signOutState as SignOutState) ?? "idle"}
     />,
@@ -55,6 +56,32 @@ describe("PortalHeader", () => {
   it("shows the tax ID when present", () => {
     render({ ...ada, tax_id: "GB123456789" });
     expect(screen!.host.textContent).toMatch(/GB123456789/);
+  });
+
+  it("calls onEditProfile when Edit profile is clicked", () => {
+    const onEditProfile = vi.fn();
+    render(ada, { onEditProfile });
+
+    act(() => {
+      const buttons = [...screen!.host.querySelectorAll("button")];
+      buttons.find((b) => /edit profile/i.test(b.textContent ?? ""))!.click();
+    });
+
+    expect(onEditProfile).toHaveBeenCalled();
+  });
+
+  it("calls onChangePassword when Change password is clicked", () => {
+    const onChangePassword = vi.fn();
+    render(ada, { onChangePassword });
+
+    act(() => {
+      const buttons = [...screen!.host.querySelectorAll("button")];
+      buttons
+        .find((b) => /change password/i.test(b.textContent ?? ""))!
+        .click();
+    });
+
+    expect(onChangePassword).toHaveBeenCalled();
   });
 
   it("calls onSignOut", () => {
