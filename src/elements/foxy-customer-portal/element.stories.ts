@@ -328,6 +328,36 @@ const DEFAULT_ADDRESSES = [
 ];
 
 /**
+ * The one default address plus two ordinary ones, so the section shows both
+ * of its halves at once: the billing/shipping summaries, and the Saved
+ * addresses list below them -- which excludes the defaults, because they are
+ * already summarised above.
+ */
+const MIXED_ADDRESSES = [
+  DEFAULT_ADDRESSES[0],
+  {
+    ...DEFAULT_ADDRESSES[0],
+    address_name: "Office",
+    address1: "47 Difference Engine Road",
+    city: "Cambridge",
+    postal_code: "CB2 1TN",
+    is_default_billing: false,
+    is_default_shipping: false,
+    _links: { self: { href: `${ADDRESSES_HREF}/1` } },
+  },
+  {
+    ...DEFAULT_ADDRESSES[0],
+    address_name: "Workshop",
+    address1: "9 Loom Street",
+    city: "Manchester",
+    postal_code: "M1 2AB",
+    is_default_billing: false,
+    is_default_shipping: false,
+    _links: { self: { href: `${ADDRESSES_HREF}/2` } },
+  },
+];
+
+/**
  * `count` synthetic addresses. Billing and shipping defaults land on two
  * *different* entries (indices 0 and 1) to show the badges are independent,
  * not a single "the default address" flag. Mixes a region-list country
@@ -640,6 +670,7 @@ export const WithOrders: StoryObj = {
 };
 
 export const WithAddresses: StoryObj = {
+  parameters: { fixtures: { addresses: MIXED_ADDRESSES } },
   beforeEach: () => withSession(),
   render: () =>
     html`<foxy-customer-portal store-domain="demo"></foxy-customer-portal>`,
@@ -647,8 +678,22 @@ export const WithAddresses: StoryObj = {
     await waitFor(() =>
       expect(portalText(canvasElement)).toMatch(/12 Analytical Engine Way/),
     );
-    expect(portalText(canvasElement)).toMatch(/Default billing/);
-    expect(portalText(canvasElement)).toMatch(/Default shipping/);
+
+    const text = portalText(canvasElement);
+
+    // The default address is summarised under both headings...
+    expect(text).toMatch(/Billing address/);
+    expect(text).toMatch(/Shipping address/);
+    // ...and is left out of the list below, so its badges never render there.
+    expect(text).not.toMatch(/Default billing/);
+    expect(text).not.toMatch(/Default shipping/);
+    // Exactly once on the page, rather than once per summary plus a card.
+    expect(text.split("12 Analytical Engine Way").length - 1).toBe(2);
+
+    // The addresses that are not defaults are what the list is for.
+    expect(text).toMatch(/Saved addresses/);
+    expect(text).toMatch(/47 Difference Engine Road/);
+    expect(text).toMatch(/9 Loom Street/);
   },
 };
 

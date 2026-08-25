@@ -198,6 +198,68 @@ describe("BillingShippingSection", () => {
     expect(editButtons().length).toBeGreaterThanOrEqual(2);
   });
 
+  // Scoped to the list's own subtree, not the whole page: the two summaries
+  // above render the very addresses this asserts are absent, so a
+  // document-wide match would pass whether or not the filter works.
+  function savedList(): HTMLElement | null {
+    const heading = [...document.querySelectorAll("h3")].find((h) =>
+      /saved addresses/i.test(h.textContent ?? ""),
+    );
+    return (heading?.nextElementSibling as HTMLElement | null) ?? null;
+  }
+
+  it("leaves the default billing and shipping addresses out of the saved list", async () => {
+    screen = mountScreen(
+      <BillingShippingSection
+        customer={
+          customer(async () =>
+            page([
+              address(1, { first_name: "Billing", is_default_billing: true }),
+              address(2, { first_name: "Shipping", is_default_shipping: true }),
+              address(3, { first_name: "Other" }),
+            ]),
+          ) as never
+        }
+        onNavigate={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    const list = savedList();
+    expect(list).not.toBeNull();
+    expect(list!.textContent).toMatch(/Other/);
+    expect(list!.textContent).not.toMatch(/Billing/);
+    expect(list!.textContent).not.toMatch(/Shipping/);
+  });
+
+  it("drops the saved-address list entirely when every address is a default", async () => {
+    screen = mountScreen(
+      <BillingShippingSection
+        customer={
+          customer(async () =>
+            page([
+              address(1, {
+                first_name: "Only",
+                is_default_billing: true,
+                is_default_shipping: true,
+              }),
+            ]),
+          ) as never
+        }
+        onNavigate={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    // The summaries still render it; the list below has nothing left to show,
+    // so its heading goes too rather than standing over an empty space.
+    expect(document.body.textContent).toMatch(/Billing address/);
+    expect(savedList()).toBeNull();
+    expect(document.body.textContent).not.toMatch(/Saved addresses/);
+  });
+
   it("navigates to the specific address whose own Edit button was clicked", async () => {
     const onNavigate = vi.fn();
     screen = mountScreen(

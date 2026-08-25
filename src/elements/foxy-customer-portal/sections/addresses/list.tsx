@@ -124,6 +124,24 @@ export function BillingShippingSection({ customer, onNavigate }: Props) {
   const billingAddress = items.find((a) => a.is_default_billing) ?? null;
   const shippingAddress = items.find((a) => a.is_default_shipping) ?? null;
 
+  // Everything the summaries above are not already showing. Listing those
+  // again would render the same address twice -- three times for a customer
+  // whose single address is both defaults, which is the common case.
+  //
+  // Excluded by identity rather than by flag, so this drops exactly the two
+  // cards rendered above and nothing else: if a store ever reports two
+  // addresses as default billing, the one the summary did not pick still
+  // appears here instead of vanishing from the page entirely.
+  //
+  // Filtered from the page in hand rather than from the query, because the
+  // API documents no filter for either flag. `totalItems` therefore still
+  // counts the defaults: with more than one page, a page holding a default
+  // shows correspondingly fewer cards.
+  const summarised = new Set(
+    [billingAddress, shippingAddress].filter((a) => a !== null),
+  );
+  const otherAddresses = items.filter((address) => !summarised.has(address));
+
   // `items` is `[]` both before the read resolves and after it fails, which
   // would otherwise make `renderSummary()` claim "no address set" during a
   // load or an error -- a false negative, not a real answer. Only render the
@@ -211,14 +229,14 @@ export function BillingShippingSection({ customer, onNavigate }: Props) {
         </Alert.Root>
       ) : null}
 
-      {items.length > 0 ? (
+      {otherAddresses.length > 0 ? (
         <>
           <SubHeading>
             {intl.formatMessage(messages.savedAddressesHeading)}
           </SubHeading>
 
           <CardList>
-            {items.map((address) => (
+            {otherAddresses.map((address) => (
               <AddressCard
                 key={address._links.self.href}
                 address={address}
