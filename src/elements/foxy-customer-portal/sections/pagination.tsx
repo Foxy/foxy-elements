@@ -122,6 +122,7 @@ export function Pagination({
         <Button
           type="button"
           $variant="outline"
+          $size="sm"
           onClick={onPrev}
           disabled={currentPage <= 1}
         >
@@ -154,6 +155,7 @@ export function Pagination({
         <Button
           type="button"
           $variant="outline"
+          $size="sm"
           onClick={onNext}
           disabled={currentPage >= totalPages}
         >

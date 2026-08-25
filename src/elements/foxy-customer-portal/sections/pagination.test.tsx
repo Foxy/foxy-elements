@@ -39,6 +39,33 @@ function ellipsisSpans(): Element[] {
 }
 
 describe("Pagination", () => {
+  // Previous/Next are design-system Buttons while the numbered ones are local;
+  // left at the default size they stood 8px taller than the row they sit in.
+  it("sizes Previous and Next to match the numbered buttons", () => {
+    render({ offset: 10, limit: 10, totalItems: 35 });
+
+    const buttons = [...screen!.host.querySelectorAll("button")];
+    const prev = buttons.find((b) => /previous/i.test(b.textContent ?? ""))!;
+    const next = buttons.find((b) =>
+      /^next/i.test((b.textContent ?? "").trim()),
+    )!;
+
+    // Their slots are hidden below 640px and the test viewport is narrower,
+    // which would measure both at zero. Overriding display on the slots only
+    // makes them measurable; it does not touch the button's own height, which
+    // is what this asserts.
+    prev.parentElement!.style.display = "block";
+    next.parentElement!.style.display = "block";
+
+    const height = (el: Element) =>
+      Math.round(el.getBoundingClientRect().height);
+
+    const numbered = height(pageButtons()[0]);
+    expect(numbered).toBeGreaterThan(0);
+    expect(height(prev)).toBe(numbered);
+    expect(height(next)).toBe(numbered);
+  });
+
   it("renders one numbered button per page", () => {
     render({ totalItems: 35, limit: 10 });
     // ceil(35 / 10) = 4 pages.
