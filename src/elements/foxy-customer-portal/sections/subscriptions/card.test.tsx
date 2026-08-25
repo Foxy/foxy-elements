@@ -120,16 +120,32 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).not.toMatch(/declined/i);
   });
 
-  it("shows the frequency line by default", () => {
-    render(subscription());
-    expect(screen!.host.textContent).toMatch(/every/i);
+  // The billing period is a suffix on the price ("$42.00/mo") rather than a
+  // line of its own, so these assert the composed string, not the presence of
+  // a separate sentence.
+  it("suffixes the price with the billing period by default", () => {
+    render(subscription({ frequency: "1m" }));
+    expect(screen!.host.textContent).toMatch(/\$42\.00\/mo/);
   });
 
-  it("hides the frequency line when the store turned show_sub_frequency off", () => {
-    render(subscription(), {
+  it("pluralises a multi-unit billing period", () => {
+    render(subscription({ frequency: "3m" }));
+    expect(screen!.host.textContent).toMatch(/\$42\.00\/3 months/);
+  });
+
+  it("shows the bare price when the store turned show_sub_frequency off", () => {
+    render(subscription({ frequency: "1m" }), {
       cartDisplayConfig: { show_sub_frequency: false },
     });
-    expect(screen!.host.textContent).not.toMatch(/every/i);
+    expect(screen!.host.textContent).toMatch(/\$42\.00/);
+    expect(screen!.host.textContent).not.toMatch(/\$42\.00\//);
+  });
+
+  // A frequency the parser cannot read must not invent a period.
+  it("shows the bare price for an unreadable frequency", () => {
+    render(subscription({ frequency: "wat" }));
+    expect(screen!.host.textContent).toMatch(/\$42\.00/);
+    expect(screen!.host.textContent).not.toMatch(/\$42\.00\//);
   });
 
   it("shows a Start date cell for a subscription that already started", () => {

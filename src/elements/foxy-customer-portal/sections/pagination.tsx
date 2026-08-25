@@ -19,7 +19,7 @@ const Wrapper = styled.div`
   justify-content: center;
   width: 100%;
   gap: ${(props) => props.theme.tokens.space.md};
-  margin-top: ${(props) => props.theme.tokens.space.lg};
+  margin-top: 20px;
 `;
 
 // Hidden below 640px, matching the mock's own breakpoint for collapsing the
@@ -44,7 +44,7 @@ const NextSlot = styled.div`
 
 const Pages = styled.div`
   display: flex;
-  gap: ${(props) => props.theme.tokens.space.xs};
+  gap: 8px;
 `;
 
 const Ellipsis = styled.span`

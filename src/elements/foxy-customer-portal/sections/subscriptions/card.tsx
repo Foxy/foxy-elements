@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { FormattedNumber, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 import styled from "styled-components";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
@@ -9,6 +9,7 @@ import { toCalendarDate } from "../../calendar-date";
 import { useResource, type FollowableLink } from "@/lib/customer-api";
 import { messages } from "../../messages";
 import { groupSubscriptionItems, type SubscriptionTemplateItem } from "./item-grouping";
+import { parseFrequency } from "./price-line";
 import type { CartDisplayConfig } from "./cart-display-config";
 import type { OrderResource } from "../orders/row";
 
@@ -51,7 +52,7 @@ const Card = styled.div`
   flex-wrap: wrap;
   align-items: flex-start;
   gap: ${(props) => props.theme.tokens.space.lg};
-  padding: ${(props) => props.theme.tokens.space.xl};
+  padding: 20px;
   background: ${(props) => props.theme.tokens.background.surface};
   border: ${(props) => props.theme.tokens.border.default};
   border-radius: ${(props) => props.theme.tokens.borderRadius.md};
@@ -63,14 +64,14 @@ const Thumbnails = styled.div<{ $multi: boolean }>`
   height: 6rem;
   display: grid;
   grid-template-columns: ${(props) => (props.$multi ? "repeat(2, 1fr)" : "1fr")};
-  gap: ${(props) => props.theme.tokens.space.xs};
+  gap: 6px;
 `;
 
 const Thumbnail = styled.div`
   width: 100%;
   height: 100%;
   border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
-  background: ${(props) => props.theme.tokens.background.itemHighlighted};
+  background: ${(props) => props.theme.tokens.background.disabledField};
   overflow: hidden;
 
   img {
@@ -107,11 +108,6 @@ const Price = styled.div`
   color: ${(props) => props.theme.tokens.color.body};
 `;
 
-const Frequency = styled.div`
-  font: ${(props) => props.theme.tokens.font.body};
-  color: ${(props) => props.theme.tokens.color.secondary};
-`;
-
 const ChildList = styled.div`
   display: flex;
   flex-direction: column;
@@ -125,18 +121,37 @@ const ChildLine = styled.div`
 const InfoGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: ${(props) => props.theme.tokens.space.md};
+  gap: 14px;
 `;
 
 const CellLabel = styled.div`
   font: ${(props) => props.theme.tokens.font.bodySmall};
-  color: ${(props) => props.theme.tokens.color.secondary};
+  color: ${(props) => props.theme.tokens.color.faint};
 `;
 
 const CellValue = styled.div<{ $error?: boolean }>`
   font: ${(props) => props.theme.tokens.font.bodyEmphasis};
   color: ${(props) =>
     props.$error ? props.theme.tokens.color.error : props.theme.tokens.color.body};
+`;
+
+// The DS link Button carries button-sized padding, which pushed this cell
+// past its grid track and wrapped "View" onto its own line. The design draws
+// it as a plain inline link after a faint bullet, so this is one.
+const ViewLink = styled.button`
+  all: unset;
+  cursor: pointer;
+  color: ${(props) => props.theme.tokens.color.primary};
+  text-decoration: underline;
+
+  &:focus-visible {
+    outline: ${(props) => props.theme.tokens.outline.primary};
+    outline-offset: 2px;
+  }
+`;
+
+const Bullet = styled.span`
+  color: ${(props) => props.theme.tokens.color.faint};
 `;
 
 const ManageSlot = styled.div`
@@ -207,6 +222,31 @@ export function SubscriptionCard({
     ? toCalendarDate(lastTransaction.transaction_date)
     : null;
 
+  // Price and billing period render as one value ("$24.00/mo"), so the amount
+  // is formatted to a string here rather than by <FormattedNumber>, which
+  // would return a node the period message cannot interpolate. An
+  // unparseable frequency (or a store that hides the period) falls back to
+  // the bare amount rather than guessing a suffix.
+  const priceText =
+    template?.total_order !== undefined
+      ? intl.formatNumber(template.total_order, {
+          style: "currency",
+          currency: template.currency_code ?? "USD",
+        })
+      : null;
+  const frequencyParts = showFrequency
+    ? parseFrequency(subscription.frequency)
+    : null;
+  const priceLine =
+    priceText === null
+      ? null
+      : frequencyParts
+        ? intl.formatMessage(frequencyParts.message, {
+            price: priceText,
+            count: frequencyParts.count,
+          })
+        : priceText;
+
   const manageButtonVariant = subscription.is_active ? "default" : "outline";
 
   return (
@@ -222,24 +262,8 @@ export function SubscriptionCard({
       <Body>
         <TitleRow>
           <Title>{titleText}</Title>
-          {template?.total_order !== undefined ? (
-            <Price>
-              <FormattedNumber
-                value={template.total_order}
-                style="currency"
-                currency={template.currency_code ?? "USD"}
-              />
-            </Price>
-          ) : null}
+          {priceLine ? <Price>{priceLine}</Price> : null}
         </TitleRow>
-
-        {showFrequency ? (
-          <Frequency>
-            {intl.formatMessage(messages.subscriptionFrequency, {
-              frequency: subscription.frequency,
-            })}
-          </Frequency>
-        ) : null}
 
         {subscription.error_message ? (
           <Alert.Root $variant="destructive">
@@ -267,9 +291,9 @@ export function SubscriptionCard({
               </CellLabel>
               <CellValue>
                 {intl.formatDate(lastPaymentDate, { dateStyle: "medium" })}{" "}
-                <Button
+                <Bullet>•</Bullet>{" "}
+                <ViewLink
                   type="button"
-                  $variant="link"
                   onClick={() =>
                     onNavigate({
                       type: "order",
@@ -279,7 +303,7 @@ export function SubscriptionCard({
                   }
                 >
                   {intl.formatMessage(messages.subscriptionLastPaymentView)}
-                </Button>
+                </ViewLink>
               </CellValue>
             </div>
           ) : null}

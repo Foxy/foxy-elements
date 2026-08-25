@@ -7,7 +7,12 @@ import { useCollection, type FollowableLink } from "@/lib/customer-api";
 import type { AccountPage } from "../../account-page";
 import { messages } from "../../messages";
 import { Pagination } from "../pagination";
-import { OrderRow, type OrderResource } from "./row";
+import {
+  OrderHeaderCell,
+  OrderHeaderRow,
+  OrderRow,
+  type OrderResource,
+} from "./row";
 
 type CustomerWithLinks = {
   _links: Record<string, FollowableLink<never> & { href: string }>;
@@ -34,9 +39,27 @@ const ORDER_TYPES_FILTER =
   "type:in=transaction,subscription_modification,subscription_cancellation";
 
 const Heading = styled.h2`
-  margin: 0 0 ${(props) => props.theme.tokens.space.lg};
+  margin: 0 0 20px;
   font: ${(props) => props.theme.tokens.font.h2};
   color: ${(props) => props.theme.tokens.color.body};
+`;
+
+// The table keeps its column widths rather than crushing them, and scrolls
+// sideways instead, on any viewport too narrow to hold them -- but only down
+// to the point where the rows restack into cards (see row.tsx's MOBILE),
+// below which there are no columns left to preserve.
+const TableScroll = styled.div`
+  overflow-x: auto;
+`;
+
+const Table = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-width: 640px;
+
+  @media (max-width: 640px) {
+    min-width: 0;
+  }
 `;
 
 export function OrdersSection({ customer, onNavigate }: Props) {
@@ -84,19 +107,42 @@ export function OrdersSection({ customer, onNavigate }: Props) {
         </Alert.Root>
       ) : null}
 
-      {items.map((order) => (
-        <OrderRow
-          key={order._links.self.href}
-          order={order}
-          onOpen={() =>
-            onNavigate({
-              type: "order",
-              id: String(order.id),
-              resource: order,
-            })
-          }
-        />
-      ))}
+      <TableScroll>
+        <Table>
+          <OrderHeaderRow>
+            <OrderHeaderCell>
+              {intl.formatMessage(messages.ordersColumnOrder)}
+            </OrderHeaderCell>
+            <OrderHeaderCell>
+              {intl.formatMessage(messages.ordersColumnDate)}
+            </OrderHeaderCell>
+            <OrderHeaderCell>
+              {intl.formatMessage(messages.ordersColumnSummary)}
+            </OrderHeaderCell>
+            <OrderHeaderCell>
+              {intl.formatMessage(messages.ordersColumnAmount)}
+            </OrderHeaderCell>
+            <OrderHeaderCell>
+              {intl.formatMessage(messages.ordersColumnStatus)}
+            </OrderHeaderCell>
+            <div />
+          </OrderHeaderRow>
+
+          {items.map((order) => (
+            <OrderRow
+              key={order._links.self.href}
+              order={order}
+              onOpen={() =>
+                onNavigate({
+                  type: "order",
+                  id: String(order.id),
+                  resource: order,
+                })
+              }
+            />
+          ))}
+        </Table>
+      </TableScroll>
 
       {totalItems > limit ? (
         <Pagination

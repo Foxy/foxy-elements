@@ -39,9 +39,14 @@ describe("PaymentMethod", () => {
     );
     await flush();
 
-    expect(screen!.host.textContent).toMatch(/visa/i);
-    expect(screen!.host.textContent).toMatch(/4242/);
-    expect(screen!.host.textContent).toMatch(/08\/2028/);
+    // Brand is title-cased, the masked number is reduced to its last four,
+    // and the four-digit year is shown the way a card prints it.
+    expect(screen!.host.textContent).toMatch(/Visa ••••4242/);
+    expect(screen!.host.textContent).toMatch(/Expires 08\/28/);
+    // The full mask never reaches the page.
+    expect(screen!.host.textContent).not.toMatch(/\*{4}/);
+    // The heading counts the one card on file.
+    expect(screen!.host.textContent).toMatch(/Payment methods \(1\)/);
   });
 
   it("shows an empty-state message when there is no default payment method", async () => {

@@ -38,13 +38,27 @@ import { messages } from "../messages";
 /** How long the sign-out button stays in its error state. Matches v1. */
 const SIGN_OUT_ERROR_MS = 1000;
 
-// Every section's own heading zeroes its top margin, so without an explicit
-// gap here there is no space between sections -- the UA default heading
-// margins that used to provide it are gone.
+// The page the whole account overview sits on. Every section's own heading
+// zeroes its top margin, so the gap here is the only thing separating
+// sections -- the UA default heading margins that used to provide it are
+// gone.
+//
+// The measurements are the design's, not the token scale's: a 960px column,
+// a 48px/96px vertical frame, and a gap that grows with the viewport. Those
+// are layout decisions specific to this page rather than reusable steps, so
+// they stay literals; only the colors and fonts come from tokens.
 const HomeContent = styled.div`
+  /* A shadow root gets no page-level reset, so this box would otherwise be
+     content-box and measure 960px *plus* its padding. */
+  box-sizing: border-box;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 48px clamp(16px, 5vw, 32px) 96px;
   display: flex;
   flex-direction: column;
-  gap: ${(props) => props.theme.tokens.space["2xl"]};
+  gap: clamp(32px, 6vw, 56px);
+  background: ${(props) => props.theme.tokens.background.page};
+  color: ${(props) => props.theme.tokens.color.body};
 `;
 
 /**

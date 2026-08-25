@@ -33,7 +33,7 @@ const Tab = styled.button<{ $current: boolean }>`
   display: inline-flex;
   white-space: nowrap;
   cursor: pointer;
-  padding-bottom: ${(props) => props.theme.tokens.space.sm};
+  padding-bottom: 10px;
   font: ${(props) =>
     props.$current
       ? props.theme.tokens.font.bodyEmphasis
@@ -51,8 +51,14 @@ const Tab = styled.button<{ $current: boolean }>`
   }
 `;
 
+const CardList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
 const Heading = styled.h2`
-  margin: 0 0 ${(props) => props.theme.tokens.space.lg};
+  margin: 0 0 20px;
   font: ${(props) => props.theme.tokens.font.h2};
   color: ${(props) => props.theme.tokens.color.body};
 `;
@@ -163,15 +169,17 @@ export function SubscriptionsSection({
         </Alert.Root>
       ) : null}
 
-      {items.map((subscription) => (
-        <SubscriptionCard
-          key={subscription._links.self.href}
-          subscription={subscription}
-          cartDisplayConfig={cartDisplayConfig}
-          onManage={() => goToSubscription(subscription)}
-          onNavigate={onNavigate}
-        />
-      ))}
+      <CardList>
+        {items.map((subscription) => (
+          <SubscriptionCard
+            key={subscription._links.self.href}
+            subscription={subscription}
+            cartDisplayConfig={cartDisplayConfig}
+            onManage={() => goToSubscription(subscription)}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </CardList>
 
       {totalItems > limit ? (
         <Pagination

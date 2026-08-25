@@ -268,7 +268,7 @@ const DEFAULT_ORDERS: OrderFixture[] = [
 
 /** `count` synthetic orders spread across a year, cycling through a few statuses. */
 function buildOrders(count: number): OrderFixture[] {
-  const statuses = ["approved", "approved", "approved", "refunded", "pending fraud review"];
+  const statuses = ["approved", "approved", "approved", "refunded", "pending_fraud_review"];
 
   return Array.from({ length: count }, (_, i) => {
     const month = String((i % 12) + 1).padStart(2, "0");

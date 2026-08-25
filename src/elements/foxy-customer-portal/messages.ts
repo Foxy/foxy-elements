@@ -125,7 +125,7 @@ export const messages = defineMessages({
   headerSignOut: { id: "portal_header_sign_out", defaultMessage: "Sign out" },
   headerTaxId: {
     id: "portal_header_tax_id",
-    defaultMessage: "Tax ID: {taxId}",
+    defaultMessage: "Tax ID {taxId}",
   },
   back: { id: "portal_back", defaultMessage: "Back" },
   profileHeading: {
@@ -178,9 +178,26 @@ export const messages = defineMessages({
     id: "portal_subscription_manage",
     defaultMessage: "Manage",
   },
-  subscriptionFrequency: {
-    id: "portal_subscription_frequency",
-    defaultMessage: "Every {frequency}",
+  // The price and its billing period read as one value ("$24.00/mo"), so the
+  // period is a suffix on the price rather than a sentence of its own. One
+  // message per unit because the plural category applies to that unit's own
+  // noun -- a single message could not pluralise "month" and "week" from the
+  // same `count`.
+  subscriptionPricePerDay: {
+    id: "portal_subscription_price_per_day",
+    defaultMessage: "{price}/{count, plural, one {day} other {# days}}",
+  },
+  subscriptionPricePerWeek: {
+    id: "portal_subscription_price_per_week",
+    defaultMessage: "{price}/{count, plural, one {wk} other {# weeks}}",
+  },
+  subscriptionPricePerMonth: {
+    id: "portal_subscription_price_per_month",
+    defaultMessage: "{price}/{count, plural, one {mo} other {# months}}",
+  },
+  subscriptionPricePerYear: {
+    id: "portal_subscription_price_per_year",
+    defaultMessage: "{price}/{count, plural, one {yr} other {# years}}",
   },
   subscriptionLastPayment: {
     id: "portal_subscription_last_payment",
@@ -316,9 +333,28 @@ export const messages = defineMessages({
     id: "portal_payment_status_verified",
     defaultMessage: "Verified",
   },
-  orderSummary: {
-    id: "portal_order_summary",
-    defaultMessage: "#{id} · {summary}",
+  // Payment-history column headings. The order id and the item summary are
+  // their own columns now, so the combined "#{id} · {summary}" line the rows
+  // used to render has no reader left.
+  ordersColumnOrder: {
+    id: "portal_orders_column_order",
+    defaultMessage: "Order",
+  },
+  ordersColumnDate: {
+    id: "portal_orders_column_date",
+    defaultMessage: "Date",
+  },
+  ordersColumnSummary: {
+    id: "portal_orders_column_summary",
+    defaultMessage: "Summary",
+  },
+  ordersColumnAmount: {
+    id: "portal_orders_column_amount",
+    defaultMessage: "Amount",
+  },
+  ordersColumnStatus: {
+    id: "portal_orders_column_status",
+    defaultMessage: "Status",
   },
   orderDetailHeading: {
     id: "portal_order_detail_heading",
@@ -358,6 +394,10 @@ export const messages = defineMessages({
   billingShippingHeading: {
     id: "portal_billing_shipping_heading",
     defaultMessage: "Billing & Shipping",
+  },
+  savedAddressesHeading: {
+    id: "portal_saved_addresses_heading",
+    defaultMessage: "Saved addresses",
   },
   billingAddressHeading: {
     id: "portal_billing_address_heading",
@@ -457,7 +497,7 @@ export const messages = defineMessages({
   },
   paymentMethodsHeading: {
     id: "portal_payment_methods_heading",
-    defaultMessage: "Payment methods",
+    defaultMessage: "Payment methods ({count})",
   },
   paymentMethodsEmpty: {
     id: "portal_payment_methods_empty",

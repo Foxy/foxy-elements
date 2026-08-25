@@ -33,14 +33,14 @@ const Wrapper = styled.header`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: ${(props) => props.theme.tokens.space.lg};
+  gap: 24px;
   flex-wrap: wrap;
 `;
 
 const Identity = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${(props) => props.theme.tokens.space["2xs"]};
+  gap: 6px;
 `;
 
 const Name = styled.h1`
@@ -57,7 +57,7 @@ const Meta = styled.p`
 
 const Actions = styled.div`
   display: flex;
-  gap: ${(props) => props.theme.tokens.space.sm};
+  gap: 12px;
   flex-shrink: 0;
 `;
 
@@ -98,17 +98,28 @@ export function PortalHeader({
       </Identity>
 
       <Actions>
-        <Button type="button" $variant="outline" onClick={onEditProfile}>
+        <Button
+          type="button"
+          $variant="outline"
+          $size="sm"
+          onClick={onEditProfile}
+        >
           {intl.formatMessage(messages.headerEditProfile)}
         </Button>
 
-        <Button type="button" $variant="outline" onClick={onChangePassword}>
+        <Button
+          type="button"
+          $variant="outline"
+          $size="sm"
+          onClick={onChangePassword}
+        >
           {intl.formatMessage(messages.profileChangePassword)}
         </Button>
 
         <Button
           type="button"
           $variant="outline"
+          $size="sm"
           aria-label={intl.formatMessage(
             signOutState === "error"
               ? messages.headerSignOutFailed
