@@ -291,6 +291,9 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
         md:
           this.getThemeProperty("themeBorderRadiusMd") ??
           defaultTheme.borderRadius.md,
+        pill:
+          this.getThemeProperty("themeBorderRadiusPill") ??
+          defaultTheme.borderRadius.pill,
       },
       space: {
         ...defaultTheme.space,

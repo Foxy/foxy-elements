@@ -66,6 +66,7 @@ const THEME_PRESETS: Record<string, ThemePreset> = {
     themeBorderRadiusSm: "0rem",
     themeBorderRadiusXs: "0rem",
     themeBorderRadiusMd: "0rem",
+    themeBorderRadiusPill: "0rem",
     themeSpaceMd: "0.75rem",
     themeSizeControl: "2.75rem",
     themeSizeBorderWidth: "0.125rem",
