@@ -228,6 +228,39 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).not.toMatch(/Feb 12, 2023/);
   });
 
+  // The info captions sit in an auto-fit grid, so the number of columns moves
+  // with both the viewport and how many captions a subscription has. Left to
+  // auto-placement, Manage lands in whatever cell follows the last caption --
+  // the middle of the card on any width where they wrap.
+  it("keeps Manage at the card's right edge once the captions wrap", () => {
+    render(subscription());
+    // Wide enough for several caption columns, narrow enough that five items
+    // cannot sit on one row. A width that collapses the grid to a single
+    // column would pass whatever Manage does, since every item is then
+    // full-width.
+    screen!.host.style.width = "600px";
+
+    const manage = [...screen!.host.querySelectorAll("button")].find((b) =>
+      /^Manage/.test(b.textContent ?? ""),
+    )!;
+    const slot = manage.parentElement!;
+    const grid = slot.parentElement!;
+
+    // Guard both halves of the premise: more than one column, and Manage
+    // pushed onto a row below the first.
+    const columns = getComputedStyle(grid)
+      .gridTemplateColumns.split(" ")
+      .filter((width) => parseFloat(width) > 0);
+    expect(columns.length).toBeGreaterThan(1);
+    expect(slot.getBoundingClientRect().top).toBeGreaterThan(
+      grid.getBoundingClientRect().top,
+    );
+
+    expect(
+      grid.getBoundingClientRect().right - manage.getBoundingClientRect().right,
+    ).toBeLessThanOrEqual(1);
+  });
+
   it("calls onManage", () => {
     const onManage = vi.fn();
     render(subscription(), { onManage });

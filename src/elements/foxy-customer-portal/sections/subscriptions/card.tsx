@@ -155,12 +155,12 @@ const ManageSlot = styled.div`
   justify-content: flex-end;
   height: 100%;
 
-  /* Once the info cells wrap to two columns this lands in the first of them,
-     where "align right" means the middle of the card. Span the row so it
-     aligns to the card's edge instead. */
-  @media (max-width: 640px) {
-    grid-column: 1 / -1;
-  }
+  /* Pinned to the last column rather than left to auto-placement, which drops
+     it into whichever cell follows the final caption -- the middle of the
+     card at any width where the captions wrap. The track count varies with
+     the viewport (the grid is auto-fit) and with how many captions this
+     subscription has, so the column is addressed from the end. */
+  grid-column: -2 / -1;
 `;
 
 function itemLabel(item: SubscriptionTemplateItem): string {
