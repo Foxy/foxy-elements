@@ -389,6 +389,10 @@ export const messages = defineMessages({
     id: "portal_orders_heading",
     defaultMessage: "Orders",
   },
+  paymentHistoryHeading: {
+    id: "portal_payment_history_heading",
+    defaultMessage: "Payment history",
+  },
   addressesHeading: {
     id: "portal_addresses_heading",
     defaultMessage: "Addresses",

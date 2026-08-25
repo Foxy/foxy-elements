@@ -54,6 +54,41 @@ export const TRANSACTION_STATUS_MESSAGES: Record<
   verified: messages.paymentStatusVerified,
 };
 
+type BadgeVariant = "default" | "secondary" | "destructive";
+
+const TRANSACTION_STATUS_VARIANTS: Record<TransactionStatus, BadgeVariant> = {
+  "": "default",
+  capturing: "default",
+  captured: "default",
+  approved: "default",
+  authorized: "default",
+  pending: "default",
+  completed: "default",
+  problem: "destructive",
+  pending_fraud_review: "default",
+  rejected: "destructive",
+  declined: "destructive",
+  refunding: "secondary",
+  refunded: "secondary",
+  voided: "secondary",
+  verified: "default",
+};
+
+/**
+ * Same defensive-lookup shape as `getTransactionStatusMessage` -- `status`
+ * on the wire is whatever the API sends, not whatever this union currently
+ * lists, so an unrecognized value falls back to `"default"` rather than
+ * indexing the `Record` with an unchecked cast.
+ */
+export function getTransactionStatusVariant(status: string): BadgeVariant {
+  const variantsByStatus = TRANSACTION_STATUS_VARIANTS as Record<
+    string,
+    BadgeVariant | undefined
+  >;
+
+  return variantsByStatus[status] ?? "default";
+}
+
 /**
  * `status` on the wire is whatever the API sends, not whatever the SDK's
  * `.d.ts` currently lists -- the union above is a claim about the API, not a
