@@ -465,4 +465,12 @@ export const messages = defineMessages({
     id: "portal_address_region_placeholder",
     defaultMessage: "Select a region",
   },
+  paginationPrevious: {
+    id: "portal_pagination_previous",
+    defaultMessage: "Previous",
+  },
+  paginationNext: {
+    id: "portal_pagination_next",
+    defaultMessage: "Next",
+  },
 });
