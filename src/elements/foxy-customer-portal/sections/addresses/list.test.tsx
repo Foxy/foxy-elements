@@ -142,6 +142,23 @@ describe("BillingShippingSection", () => {
     expect(document.body.textContent).toMatch(/shipping address/i);
   });
 
+  it("does not show the no-address messages while the address read is still loading", async () => {
+    screen = mountScreen(
+      <BillingShippingSection
+        customer={customer(() => new Promise(() => {})) as never}
+        onNavigate={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    // Proves the section actually rendered in this state, not just that it
+    // withheld the false claim (which an early bail-out would also satisfy).
+    expect(document.body.textContent).toMatch(/billing & shipping/i);
+    expect(document.body.textContent).not.toMatch(/no billing address set/i);
+    expect(document.body.textContent).not.toMatch(/no shipping address set/i);
+  });
+
   it("shows a no-address message for a slot with no matching default", async () => {
     screen = mountScreen(
       <BillingShippingSection
@@ -156,7 +173,27 @@ describe("BillingShippingSection", () => {
     expect(document.body.textContent).toMatch(/no shipping address set/i);
   });
 
-  it("still lists every saved address below the summary, with a working Edit button each", async () => {
+  it("still lists every saved address below the summary", async () => {
+    screen = mountScreen(
+      <BillingShippingSection
+        customer={
+          customer(async () =>
+            page([
+              address(1, { first_name: "Alice" }),
+              address(2, { first_name: "Bob" }),
+            ]),
+          ) as never
+        }
+        onNavigate={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    expect(editButtons().length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("navigates to the specific address whose own Edit button was clicked", async () => {
     const onNavigate = vi.fn();
     screen = mountScreen(
       <BillingShippingSection
@@ -174,14 +211,32 @@ describe("BillingShippingSection", () => {
     );
     await flush();
 
-    expect(editButtons().length).toBeGreaterThanOrEqual(2);
+    expect(editButtons().length).toBe(2);
 
     act(() => {
       editButtons()[0]?.click();
     });
 
-    expect(onNavigate).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "address" }),
+    expect(onNavigate).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        type: "address",
+        id: "1",
+        resource: expect.objectContaining({ first_name: "Alice" }),
+      }),
+    );
+
+    act(() => {
+      editButtons()[1]?.click();
+    });
+
+    expect(onNavigate).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        type: "address",
+        id: "2",
+        resource: expect.objectContaining({ first_name: "Bob" }),
+      }),
     );
   });
 
@@ -202,6 +257,8 @@ describe("BillingShippingSection", () => {
     await flush();
 
     expect(document.body.textContent).toMatch(/something went wrong/i);
+    expect(document.body.textContent).not.toMatch(/no billing address set/i);
+    expect(document.body.textContent).not.toMatch(/no shipping address set/i);
   });
 
   it("shows pagination controls when there are more addresses than fit on one page", async () => {

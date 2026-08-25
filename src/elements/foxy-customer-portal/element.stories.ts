@@ -577,17 +577,24 @@ export const LongTimeUser: StoryObj = {
     );
 
     const text = portalText(canvasElement);
-    // Active tab is shown by default: 15 active subscriptions at limit 10 --
-    // 2 pages, shown by the shared Pagination component instead of the old
-    // offset-range text.
-    expect(text).toMatch(/Previous\s*12\s*Next/);
-    // Orders: 25 total at limit 10 -- 3 pages, shown by the shared
-    // Pagination component (Previous/Next plus numbered page buttons)
-    // instead of the old offset-range text.
-    expect(text).toMatch(/Previous\s*123\s*Next/);
-    // Addresses: 12 total at limit 10 -- 2 pages, shown by the shared
-    // Pagination component instead of the old offset-range text.
-    expect(text).toMatch(/Previous\s*12\s*Next/);
+    // Three sections paginate on this screen, each rendered by the shared
+    // Pagination component: active subscriptions (15 items / limit 10 -- 2
+    // pages), orders (25 items / limit 10 -- 3 pages), and addresses (12
+    // items / limit 10 -- 2 pages).
+    //
+    // The subscriptions and addresses blocks render an identical
+    // "Previous12Next" string, so a single `toMatch` can't tell them apart
+    // -- it would still pass if the addresses section's Pagination silently
+    // stopped rendering, since the subscriptions match alone satisfies it.
+    // Match every block and pin the exact sequence instead, so each section
+    // is proven to have rendered its own -- verified against the real
+    // rendered text, which gives exactly this array.
+    const paginationBlocks = text.match(/Previous[\s\d]*Next/g) ?? [];
+    expect(paginationBlocks).toEqual([
+      "Previous12Next", // active subscriptions: 15 / 10 = 2 pages
+      "Previous123Next", // orders: 25 / 10 = 3 pages
+      "Previous12Next", // addresses: 12 / 10 = 2 pages
+    ]);
   },
 };
 

@@ -98,6 +98,12 @@ export function BillingShippingSection({ customer, onNavigate }: Props) {
   const billingAddress = items.find((a) => a.is_default_billing) ?? null;
   const shippingAddress = items.find((a) => a.is_default_shipping) ?? null;
 
+  // `items` is `[]` both before the read resolves and after it fails, which
+  // would otherwise make `renderSummary()` claim "no address set" during a
+  // load or an error -- a false negative, not a real answer. Only render the
+  // summaries once the read has actually succeeded.
+  const addressesLoaded = !isLoading && !error;
+
   function editAddress(address: AddressResource) {
     onNavigate({
       type: "address",
@@ -148,16 +154,20 @@ export function BillingShippingSection({ customer, onNavigate }: Props) {
         </div>
 
         <div>
-          {renderSummary(
-            billingAddress,
-            intl.formatMessage(messages.billingAddressHeading),
-            intl.formatMessage(messages.noBillingAddress),
-          )}
-          {renderSummary(
-            shippingAddress,
-            intl.formatMessage(messages.shippingAddressHeading),
-            intl.formatMessage(messages.noShippingAddress),
-          )}
+          {addressesLoaded ? (
+            <>
+              {renderSummary(
+                billingAddress,
+                intl.formatMessage(messages.billingAddressHeading),
+                intl.formatMessage(messages.noBillingAddress),
+              )}
+              {renderSummary(
+                shippingAddress,
+                intl.formatMessage(messages.shippingAddressHeading),
+                intl.formatMessage(messages.noShippingAddress),
+              )}
+            </>
+          ) : null}
         </div>
       </Split>
 
