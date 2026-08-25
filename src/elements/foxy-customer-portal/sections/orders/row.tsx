@@ -50,7 +50,7 @@ const MOBILE = "@media (max-width: 640px)";
  * header row and every data row share it so the columns line up, which is
  * the whole reason it is a shared constant rather than repeated per rule.
  */
-export const ORDER_COLUMNS = "110px 110px 1fr 90px 100px 140px";
+const ORDER_COLUMNS = "110px 110px 1fr 90px 100px 140px";
 
 const rowGrid = css`
   display: grid;
@@ -183,7 +183,6 @@ const ReceiptCell = styled.div`
   ${MOBILE} {
     grid-column: 2;
     grid-row: 2;
-    align-self: end;
   }
 `;
 

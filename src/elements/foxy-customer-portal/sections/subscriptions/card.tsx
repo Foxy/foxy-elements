@@ -135,9 +135,8 @@ const CellValue = styled.div<{ $error?: boolean }>`
     props.$error ? props.theme.tokens.color.error : props.theme.tokens.color.body};
 `;
 
-// The DS link Button carries button-sized padding, which pushed this cell
-// past its grid track and wrapped "View" onto its own line. The design draws
-// it as a plain inline link after a faint bullet, so this is one.
+// A plain inline link, not the DS link Button, whose button-sized padding
+// pushed this cell past its grid track and wrapped "View" onto a second line.
 const ViewLink = styled.button`
   all: unset;
   cursor: pointer;
@@ -150,15 +149,18 @@ const ViewLink = styled.button`
   }
 `;
 
-const Bullet = styled.span`
-  color: ${(props) => props.theme.tokens.color.faint};
-`;
-
 const ManageSlot = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
   height: 100%;
+
+  /* Once the info cells wrap to two columns this lands in the first of them,
+     where "align right" means the middle of the card. Span the row so it
+     aligns to the card's edge instead. */
+  @media (max-width: 640px) {
+    grid-column: 1 / -1;
+  }
 `;
 
 function itemLabel(item: SubscriptionTemplateItem): string {
@@ -291,7 +293,6 @@ export function SubscriptionCard({
               </CellLabel>
               <CellValue>
                 {intl.formatDate(lastPaymentDate, { dateStyle: "medium" })}{" "}
-                <Bullet>•</Bullet>{" "}
                 <ViewLink
                   type="button"
                   onClick={() =>
