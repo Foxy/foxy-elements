@@ -7,6 +7,7 @@ import {
   type ComponentProps,
 } from "react";
 import { useIntl } from "react-intl";
+import styled from "styled-components";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
@@ -36,6 +37,15 @@ import { messages } from "../messages";
 
 /** How long the sign-out button stays in its error state. Matches v1. */
 const SIGN_OUT_ERROR_MS = 1000;
+
+// Every section's own heading zeroes its top margin, so without an explicit
+// gap here there is no space between sections -- the UA default heading
+// margins that used to provide it are gone.
+const HomeContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.tokens.space["2xl"]};
+`;
 
 /**
  * `CustomerResource` types `_links` down to just `self`, so indexing it by
@@ -243,7 +253,7 @@ export function AccountScreen({
   // below is unconditional rather than guarded by another `accountPage.type`
   // check.
   return (
-    <div>
+    <HomeContent>
       <PortalHeader
         customer={data}
         fullNameTemplate={fullNameTemplate}
@@ -284,6 +294,6 @@ export function AccountScreen({
         }
         onNavigate={onNavigate}
       />
-    </div>
+    </HomeContent>
   );
 }

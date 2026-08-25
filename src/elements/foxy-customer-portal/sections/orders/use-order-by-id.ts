@@ -7,14 +7,19 @@ type CollectionPage = {
   _embedded?: Record<string, unknown[]>;
 };
 
-// Same allow-list every other read of this collection uses -- see
-// orders/list.tsx's own `ORDER_TYPES_FILTER` and its comment for why.
-// Keeping this in sync here matters even though this hook doesn't filter by
-// type for correctness (id equality alone would still find the right row) --
-// it matters for the 100-item window below not being diluted by
-// subscription_renewal/updateinfo rows that are never real orders.
+// Deliberately NOT the same allow-list as orders/list.tsx's own
+// `ORDER_TYPES_FILTER`: that list excludes `subscription_renewal` because the
+// list view already shows renewals on the subscription's own page. That
+// reasoning doesn't apply here -- this hook resolves one specific transaction
+// the customer was just told about via a link (e.g. the subscription card's
+// "Last payment -> View"), and that transaction may legitimately be a
+// renewal (the steady state for any subscription that has renewed at least
+// once). Excluding it here would make a cold resolve (page reload, or
+// Back/Forward with `url-sync`) of that link fail for most real
+// subscriptions, even though the in-session navigation (which carries the
+// resource directly) always works.
 const ORDER_TYPES_FILTER =
-  "type:in=transaction,subscription_modification,subscription_cancellation";
+  "type:in=transaction,subscription_modification,subscription_cancellation,subscription_renewal";
 
 /**
  * Resolves a single order by id when navigation didn't already carry it in

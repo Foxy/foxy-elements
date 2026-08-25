@@ -182,7 +182,11 @@ export function SubscriptionCard({
     subscription.is_active;
   const showEndDate =
     (cartDisplayConfig?.show_sub_enddate ?? true) && endDate !== null;
-  const endIsFuture = endDate !== null && endDate.getTime() > Date.now();
+  // Also gated on `is_active`: a cancelled subscription isn't going to cancel
+  // again in the future, so an inactive subscription with a future
+  // `end_date` should still read "Ended", not "Cancels".
+  const endIsFuture =
+    endDate !== null && endDate.getTime() > Date.now() && subscription.is_active;
 
   // Assumes the SDK enriches `fx:last_transaction` with a working `.get()`
   // the same way it enriches every other link on a resource it returns

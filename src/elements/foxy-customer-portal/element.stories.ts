@@ -518,9 +518,12 @@ export const WithAddresses: StoryObj = {
 
 /**
  * A brand-new customer: minimal profile (no tax ID), no subscriptions, no
- * orders, no addresses. Orders and Addresses hide entirely on zero items;
+ * orders, no addresses. Payment history hides entirely on zero items;
  * Subscriptions keeps its heading and Active/Inactive toggle even when empty
  * (an empty Active tab isn't an empty section — see `list.tsx`'s own note).
+ * Billing & Shipping, unlike Payment history, always renders (heading +
+ * payment-method column + billing/shipping summary) even with zero
+ * addresses — only the address-card list itself is empty.
  */
 export const Empty: StoryObj = {
   parameters: {
@@ -546,7 +549,17 @@ export const Empty: StoryObj = {
     expect(text).toMatch(/Subscriptions/);
     expect(text).toMatch(/Active/);
     expect(text).not.toMatch(/Payment history/i);
-    expect(text).not.toMatch(/Addresses/);
+    // Billing & Shipping, unlike Payment history, always renders -- confirm
+    // the heading and the summary's empty-state text show up, while the
+    // address-card list itself stays empty (no "Edit" button, which only
+    // renders per address card / summary match).
+    expect(text).toMatch(/Billing & Shipping/);
+    expect(text).toMatch(/No billing address set\./);
+    expect(text).toMatch(/No shipping address set\./);
+    const editButtons = [
+      ...canvasElement.querySelectorAll("button"),
+    ].filter((button) => /^edit$/i.test(button.textContent ?? ""));
+    expect(editButtons).toHaveLength(0);
   },
 };
 

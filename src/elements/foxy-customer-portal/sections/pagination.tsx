@@ -47,6 +47,17 @@ const Pages = styled.div`
   gap: ${(props) => props.theme.tokens.space.xs};
 `;
 
+const Ellipsis = styled.span`
+  box-sizing: border-box;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: ${(props) => props.theme.tokens.font.bodySmall};
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
 const PageButton = styled.button<{ $current: boolean }>`
   all: unset;
   box-sizing: border-box;
@@ -64,7 +75,33 @@ const PageButton = styled.button<{ $current: boolean }>`
     props.$current
       ? props.theme.tokens.color.onPrimary
       : props.theme.tokens.color.body};
+
+  &:focus-visible {
+    outline: ${(props) => props.theme.tokens.outline.primary};
+    outline-offset: 2px;
+  }
 `;
+
+// Windows the rendered page numbers so a customer with hundreds of
+// transactions doesn't get hundreds of page buttons in one row: always show
+// the first page, the last page, and the current page with its immediate
+// neighbours, collapsing any gap between those into a single ellipsis.
+function getPageWindow(current: number, total: number): (number | "ellipsis")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+  const pages = new Set(
+    [1, total, current, current - 1, current + 1].filter(
+      (p) => p >= 1 && p <= total,
+    ),
+  );
+  const sorted = [...pages].sort((a, b) => a - b);
+  const result: (number | "ellipsis")[] = [];
+  sorted.forEach((page, i) => {
+    if (i > 0 && page - sorted[i - 1] > 1) result.push("ellipsis");
+    result.push(page);
+  });
+  return result;
+}
 
 export function Pagination({
   offset,
@@ -77,7 +114,7 @@ export function Pagination({
   const intl = useIntl();
   const totalPages = Math.max(1, Math.ceil(totalItems / limit));
   const currentPage = Math.floor(offset / limit) + 1;
-  const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+  const pages = getPageWindow(currentPage, totalPages);
 
   return (
     <Wrapper>
@@ -94,16 +131,23 @@ export function Pagination({
       </PrevSlot>
 
       <Pages>
-        {pages.map((page) => (
-          <PageButton
-            key={page}
-            type="button"
-            $current={page === currentPage}
-            onClick={() => onGoToPage(page)}
-          >
-            {page}
-          </PageButton>
-        ))}
+        {pages.map((page, index) =>
+          page === "ellipsis" ? (
+            <Ellipsis key={`ellipsis-${index}`} aria-hidden="true">
+              &hellip;
+            </Ellipsis>
+          ) : (
+            <PageButton
+              key={page}
+              type="button"
+              $current={page === currentPage}
+              aria-current={page === currentPage ? "page" : undefined}
+              onClick={() => onGoToPage(page)}
+            >
+              {page}
+            </PageButton>
+          ),
+        )}
       </Pages>
 
       <NextSlot>

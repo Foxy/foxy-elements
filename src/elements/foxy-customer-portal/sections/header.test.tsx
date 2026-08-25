@@ -112,6 +112,22 @@ describe("PortalHeader", () => {
     expect(signOutButton().getAttribute("aria-label")).toMatch(/failed/i);
     expect(signOutButton().disabled).toBe(false);
   });
+
+  it("gives the failure state a visible signal beyond the aria-label, unlike idle", () => {
+    // A sighted customer who clicks Sign out and hits a failure needs to see
+    // something change on screen, not just an off-screen aria-label update.
+    render(ada, { signOutState: "idle" });
+    const idleClassName = signOutButton().querySelector("span")?.className;
+
+    screen!.unmount();
+
+    render(ada, { signOutState: "error" });
+    const errorClassName = signOutButton().querySelector("span")?.className;
+
+    expect(idleClassName).toBeTruthy();
+    expect(errorClassName).toBeTruthy();
+    expect(errorClassName).not.toBe(idleClassName);
+  });
 });
 
 function signOutButton(): HTMLButtonElement {

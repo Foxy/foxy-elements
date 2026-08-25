@@ -171,6 +171,14 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).toMatch(/ended/i);
   });
 
+  it("shows Ended, not Cancels, for an inactive subscription with a future end date", () => {
+    // A cancelled subscription isn't going to cancel again in the future --
+    // `is_active` must gate the label, not just whether `end_date` is future.
+    render(subscription({ is_active: false, end_date: storeDate(30) }));
+    expect(screen!.host.textContent).toMatch(/ended/i);
+    expect(screen!.host.textContent).not.toMatch(/cancels/i);
+  });
+
   it("hides the Start/Next/Cancels cells when the corresponding date is the API's unset sentinel", () => {
     render(
       subscription({

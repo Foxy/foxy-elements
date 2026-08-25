@@ -32,6 +32,12 @@ function pageButtons(): HTMLButtonElement[] {
   );
 }
 
+// `aria-hidden="true"` alone would also match the Previous/Next chevron
+// icons, so scope to the non-button ellipsis spans specifically.
+function ellipsisSpans(): Element[] {
+  return [...screen!.host.querySelectorAll('span[aria-hidden="true"]')];
+}
+
 describe("Pagination", () => {
   it("renders one numbered button per page", () => {
     render({ totalItems: 35, limit: 10 });
@@ -74,6 +80,36 @@ describe("Pagination", () => {
     });
 
     expect(onNext).toHaveBeenCalled();
+  });
+
+  it("windows large page counts behind an ellipsis instead of rendering one button per page", () => {
+    // 50 pages total, well above the 7-page threshold where windowing kicks in.
+    render({ offset: 0, limit: 10, totalItems: 500 });
+
+    const buttons = pageButtons();
+    // First page, current page and its neighbour, and the last page --
+    // never anywhere close to one button per page.
+    expect(buttons.length).toBeLessThanOrEqual(6);
+
+    const ellipses = ellipsisSpans();
+    expect(ellipses.length).toBeGreaterThan(0);
+  });
+
+  it("does not window page counts at or below the threshold", () => {
+    render({ offset: 0, limit: 10, totalItems: 35 });
+
+    expect(pageButtons()).toHaveLength(4);
+    expect(ellipsisSpans()).toHaveLength(0);
+  });
+
+  it("marks the current page with aria-current", () => {
+    render({ offset: 20, limit: 10, totalItems: 35 });
+
+    const current = pageButtons().find((b) => b.textContent === "3");
+    expect(current?.getAttribute("aria-current")).toBe("page");
+
+    const other = pageButtons().find((b) => b.textContent === "1");
+    expect(other?.hasAttribute("aria-current")).toBe(false);
   });
 
   it("disables Previous on the first page and Next on the last page", () => {

@@ -44,6 +44,11 @@ const Tab = styled.button<{ $current: boolean }>`
       : props.theme.tokens.color.secondary};
   border-bottom: 2px solid
     ${(props) => (props.$current ? props.theme.tokens.color.primary : "transparent")};
+
+  &:focus-visible {
+    outline: ${(props) => props.theme.tokens.outline.primary};
+    outline-offset: 2px;
+  }
 `;
 
 const Heading = styled.h2`

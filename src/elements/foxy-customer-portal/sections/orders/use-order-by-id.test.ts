@@ -46,7 +46,7 @@ const flush = () =>
   });
 
 const ORDER_TYPES_FILTER =
-  "type:in=transaction,subscription_modification,subscription_cancellation";
+  "type:in=transaction,subscription_modification,subscription_cancellation,subscription_renewal";
 
 describe("useOrderById", () => {
   it("requests the same allow-listed collection every other read uses, and picks the matching id client-side", async () => {
@@ -68,6 +68,29 @@ describe("useOrderById", () => {
     await flush();
 
     expect(getResult().order).toMatchObject({ id: 98213 });
+    const [query] = spy.mock.calls.at(-1) ?? [];
+    expect(query).toMatchObject({ filters: [ORDER_TYPES_FILTER], limit: 100 });
+  });
+
+  it("resolves a subscription_renewal-typed transaction (the steady state for any subscription that has renewed at least once)", async () => {
+    const spy = vi.fn(async (_query?: Record<string, unknown>) => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        total_items: 1,
+        _embedded: {
+          "fx:transactions": [{ id: 55501, type: "subscription_renewal" }],
+        },
+      }),
+    }));
+
+    const getResult = renderHook(
+      { href: "https://demo.foxycart.com/s/customer/transactions", get: spy },
+      "55501",
+    );
+    await flush();
+
+    expect(getResult().order).toMatchObject({ id: 55501 });
     const [query] = spy.mock.calls.at(-1) ?? [];
     expect(query).toMatchObject({ filters: [ORDER_TYPES_FILTER], limit: 100 });
   });

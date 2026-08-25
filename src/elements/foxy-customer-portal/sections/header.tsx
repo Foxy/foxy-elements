@@ -61,6 +61,17 @@ const Actions = styled.div`
   flex-shrink: 0;
 `;
 
+// Idle vs. error only differed by `aria-label` before this, which a sighted
+// customer who just clicked Sign out and hit a failure would never see --
+// nothing on screen changed. Coloring the label/icon gives the error state a
+// visible signal too.
+const SignOutLabel = styled.span<{ $error: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: ${(props) => props.theme.tokens.space["2xs"]};
+  color: ${(props) => (props.$error ? props.theme.tokens.color.error : "inherit")};
+`;
+
 export function PortalHeader({
   customer,
   fullNameTemplate,
@@ -109,9 +120,9 @@ export function PortalHeader({
           {signOutState === "busy" ? (
             <Spinner />
           ) : (
-            <>
+            <SignOutLabel $error={signOutState === "error"}>
               {intl.formatMessage(messages.headerSignOut)} <LogOut size={16} />
-            </>
+            </SignOutLabel>
           )}
         </Button>
       </Actions>

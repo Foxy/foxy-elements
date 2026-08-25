@@ -138,8 +138,13 @@ describe("BillingShippingSection", () => {
     );
     await flush();
 
-    expect(document.body.textContent).toMatch(/billing address/i);
-    expect(document.body.textContent).toMatch(/shipping address/i);
+    // Both `/billing address/i` and `/shipping address/i` also match the
+    // empty-state fallback text ("No billing/shipping address set."), so
+    // they alone wouldn't prove the actual address data rendered. Assert on
+    // the address's own name instead -- it only appears once the address
+    // record is actually shown.
+    expect(document.body.textContent).toMatch(/Billing Anderson/);
+    expect(document.body.textContent).toMatch(/Shipping Anderson/);
   });
 
   it("does not show the no-address messages while the address read is still loading", async () => {

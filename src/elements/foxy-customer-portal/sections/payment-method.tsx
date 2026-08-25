@@ -43,7 +43,7 @@ const Empty = styled.p`
   color: ${(props) => props.theme.tokens.color.secondary};
 `;
 
-const Heading = styled.h2`
+const Heading = styled.h3`
   margin: 0 0 ${(props) => props.theme.tokens.space.md} 0;
   font: ${(props) => props.theme.tokens.font.h3};
   color: ${(props) => props.theme.tokens.color.body};
