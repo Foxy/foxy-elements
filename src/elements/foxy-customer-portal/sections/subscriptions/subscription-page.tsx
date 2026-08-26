@@ -518,6 +518,7 @@ export function SubscriptionPage({
   const [nextDate, setNextDate] = useState<Date | undefined>(undefined);
   const [isBusy, setIsBusy] = useState(false);
   const [hasFailed, setHasFailed] = useState(false);
+  const [hasSaved, setHasSaved] = useState(false);
   const [itemPage, setItemPage] = useState(1);
 
   // The SDK normalises snake_case at its own boundary, so `settings` goes in
@@ -705,14 +706,12 @@ export function SubscriptionPage({
   const frequencySelectVisible =
     !isEnded && showFrequency && frequencies.length > 0;
 
-  // The Calendar's own gate, hoisted so the Save button can be gated on
+  // The date picker's own gate, hoisted so the save note can be gated on
   // whether *anything* editable rendered above it. With `settings: null`
   // (a store that answered nothing, or a settings read still in flight)
-  // both controls are absent, and the rail used to still show a Save button
-  // under "Changes save immediately and apply to the next payment." --
-  // copy that describes edits the customer cannot make. Worse, that Save
-  // finds no changes and calls `onBack()`, so pressing it navigates them off
-  // the page. Both are hidden together when neither control is there.
+  // both controls are absent, and the rail used to still promise "Changes
+  // save immediately and apply to the next payment." -- copy describing
+  // edits the customer cannot make, over an empty card.
   const nextDateCalendarVisible =
     !isEnded && showNextDate && dateRules !== false;
   const hasEditableControls =
@@ -768,6 +767,15 @@ export function SubscriptionPage({
    *   when the write fails. Without a Save button there is nothing left to
    *   signal "not saved yet", so a control that kept a rejected value would
    *   simply be lying about the subscription.
+   * - It does NOT `cache.clear()`. It used to, which was harmless only
+   *   because the old flow cleared and then immediately navigated home,
+   *   remounting the list. Clearing while STAYING here drops the cached
+   *   resources under this page, so it unmounts to a skeleton and back --
+   *   taking the local `frequency`/`nextDate` with it. The page then falls
+   *   back to the `subscription` prop it was handed, which is the value
+   *   from before the write, so a save that succeeded looked like it had
+   *   silently reverted. The clear now happens on the way out (`handleBack`),
+   *   which is the moment it was ever actually doing anything.
    *
    * Only the touched field goes in the body -- see the original
    * ManageDialog's comment on why sending `frequency` unconditionally is
@@ -782,7 +790,7 @@ export function SubscriptionPage({
 
     try {
       await patchResource(subscription._links.self as never, changes);
-      cache.clear();
+      setHasSaved(true);
     } catch (caught) {
       // This page sends no credentials, so 401/403 can only mean the session
       // died — the password page is the one place 401 means "wrong value".
@@ -796,6 +804,18 @@ export function SubscriptionPage({
     } finally {
       setIsBusy(false);
     }
+  }
+
+  /**
+   * Leaves the page, refreshing everything behind it first if anything was
+   * actually written. The rest of the portal -- the home page's subscription
+   * card above all -- renders this subscription's frequency and next payment
+   * date from cached collections, so without this it would still show the old
+   * values after the customer edited them here.
+   */
+  function handleBack() {
+    if (hasSaved) cache.clear();
+    onBack();
   }
 
   function handleFrequencyChange(next: string) {
@@ -818,7 +838,7 @@ export function SubscriptionPage({
   }
 
   return (
-    <AccountPageLayout onBack={onBack} maxWidth="1080px">
+    <AccountPageLayout onBack={handleBack} maxWidth="1080px">
       <HeaderRow>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <TitleLine>

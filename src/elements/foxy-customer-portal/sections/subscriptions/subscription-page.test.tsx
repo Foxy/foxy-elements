@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import { page } from "vitest/browser";
 import { mountScreen, type MountedScreen } from "../../test-utils";
+import { RequestCache } from "@/lib/customer-api";
 import {
   SubscriptionPage,
   SubscriptionPageContainer,
@@ -479,6 +480,91 @@ describe("SubscriptionPage", () => {
     // `onBack()` on success, which for a control the customer may adjust
     // twice would throw them off the page on the first change.
     expect(onBack).not.toHaveBeenCalled();
+  });
+
+  it("keeps showing a saved value instead of snapping back", async () => {
+    // Mounted through the CONTAINER, not `SubscriptionPage` directly: the
+    // container is what fetches, and the bug this pins only exists on that
+    // path. Rendering the page with a ready-made `subscription` prop never
+    // remounts, so the same assertions pass either way -- they did, and the
+    // ablation caught it.
+    const patch = vi.fn(async () => ({ ok: true, status: 200 }));
+
+    // A read that keeps answering with the ORIGINAL frequency, which is the
+    // real situation here: nothing re-reads the subscriptions collection
+    // while the customer is on this page.
+    const link = {
+      href: "/subs",
+      get: vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          total_items: 1,
+          _embedded: { "fx:subscriptions": [subscription({}, patch)] },
+        }),
+      })),
+    };
+
+    screen = mountScreen(
+      <SubscriptionPageContainer
+        id="1042"
+        subscriptionsLink={link as never}
+        settings={EDITABLE_SETTINGS as never}
+        onBack={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    await pickFrequency("1y");
+    expect(patch).toHaveBeenCalled();
+
+    // `saveChange` used to `cache.clear()` on success. That was harmless
+    // only while the old flow cleared and immediately navigated home;
+    // clearing while STAYING here drops this page's cached resources, so the
+    // container unmounts the page to a skeleton and back, losing the local
+    // `frequency` -- and the remounted page reads whatever the re-read
+    // returns, which is the pre-write value. A save that worked looked like
+    // a silent revert.
+    expect(frequencyTrigger()?.textContent).toMatch(/1y/);
+    expect(railText()).not.toMatch(/could not save/i);
+  });
+
+  it("refreshes the rest of the portal on the way out, but only after a save", async () => {
+    const clear = vi.spyOn(RequestCache.prototype, "clear");
+    const patch = vi.fn(async () => ({ ok: true, status: 200 }));
+    const onBack = vi.fn();
+
+    screen = mountScreen(
+      <SubscriptionPage
+        subscription={subscription({}, patch) as never}
+        settings={EDITABLE_SETTINGS as never}
+        onBack={onBack}
+      />,
+      {},
+    );
+    await flush();
+
+    const back = [...screen.host.querySelectorAll("button")].find((b) =>
+      /^back$/i.test((b.textContent ?? "").trim()),
+    );
+
+    // Leaving without touching anything must not throw away everyone else's
+    // cached data for nothing.
+    act(() => back!.click());
+    expect(clear).not.toHaveBeenCalled();
+    expect(onBack).toHaveBeenCalledTimes(1);
+
+    await pickFrequency("1y");
+    expect(patch).toHaveBeenCalled();
+
+    // After a write it must clear: the home page's subscription card renders
+    // this frequency from a cached collection, so it would otherwise still
+    // show the old value.
+    act(() => back!.click());
+    expect(clear).toHaveBeenCalled();
+
+    clear.mockRestore();
   });
 
   it("saves a changed frequency immediately", async () => {

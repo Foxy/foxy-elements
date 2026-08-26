@@ -732,6 +732,56 @@ export function stubStore(fixtures: StoreFixtures = {}): () => void {
       if (url.endsWith("customer_portal_settings")) return json(SETTINGS);
       if (url === STORE_BASE) return json(customer);
 
+      // A single subscription, by id -- the URL `subscription._links.self`
+      // points at, which is what the detail page PATCHes.
+      //
+      // This branch exists because the page now saves on change rather than
+      // on a Save button. Without it the stub answered a PATCH exactly like
+      // a GET and persisted nothing, so `cache.clear()` refetched the
+      // untouched fixture and the customer's pick visibly snapped back --
+      // a working feature looking broken in every story, and
+      // indistinguishable from a silent failure.
+      //
+      // Mutating the fixture in place is deliberate: `paginate` reads these
+      // same objects, so a later collection request reflects the change too,
+      // the way a real API would.
+      if (
+        new URL(url).pathname.startsWith(
+          `${new URL(SUBSCRIPTIONS_HREF).pathname}/`,
+        ) &&
+        !new URL(url).pathname.endsWith("/transactions")
+      ) {
+        const id = new URL(url).pathname.split("/").pop();
+        const match = [...activeSubscriptions, ...inactiveSubscriptions].find(
+          (candidate) => candidate._links.self.href.endsWith(`/${id}`),
+        );
+
+        if (!match) return json({});
+
+        // The SDK sends a `Request` object rather than (url, init), so the
+        // method and body live on `input`. Reading only `init` here silently
+        // merged `{}` -- the PATCH "succeeded", persisted nothing, and the
+        // customer's pick snapped back exactly as if the stub had no PATCH
+        // branch at all.
+        const method = (
+          init?.method ??
+          (input instanceof Request ? input.method : "GET")
+        ).toUpperCase();
+
+        if (method === "PATCH") {
+          const rawBody =
+            init?.body ??
+            (input instanceof Request ? await input.clone().text() : "{}");
+
+          Object.assign(
+            match,
+            JSON.parse(String(rawBody || "{}")) as Record<string, unknown>,
+          );
+        }
+
+        return json(match);
+      }
+
       // Matches the subscriptions collection request for whichever tab is
       // active. `is_active=true`/`is_active=false` are checked literally
       // against the URL, not decoded — confirmed against what the real SDK
