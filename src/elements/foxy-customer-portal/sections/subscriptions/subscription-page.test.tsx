@@ -269,6 +269,26 @@ describe("SubscriptionPage", () => {
     expect(headerRow!.textContent).not.toMatch(/Summary/);
   });
 
+  it("gives its payment rows no click target", async () => {
+    // The page passes no `onOpen` -- there is nowhere for a click to go from
+    // a subscription's own payment history. It used to pass a no-op handler,
+    // which rendered a real focusable <button> per row that did nothing.
+    render({ subscription: subscriptionWithPayments([payment()]) });
+    await flush();
+
+    const section =
+      [...document.querySelectorAll("h2")]
+        .find((h) => /^Payment history/.test(h.textContent ?? ""))
+        ?.closest("section") ?? null;
+    expect(section).not.toBeNull();
+
+    // The row's own cells are there...
+    expect(section!.textContent).toMatch(/9001/);
+    // ...and nothing in the section is focusable (there is no pager either,
+    // with a single payment).
+    expect(section!.querySelectorAll("button")).toHaveLength(0);
+  });
+
   it("lays out the payment history header on the narrow (no-Summary) column set", async () => {
     // Above 640px, matching row.test.tsx's own desktop-grid tests -- see the
     // top-of-file comment on why the viewport is set here and restored in

@@ -39,7 +39,11 @@ export type OrderResource = {
 
 type Props = {
   order: OrderResource;
-  onOpen: () => void;
+  /**
+   * Omit it when there is nowhere for a click to go. The row then renders
+   * its cells without the button wrapper -- see `CellGroup`.
+   */
+  onOpen?: () => void;
   /** Defaults to the home page's six-column set. */
   columns?: string;
   /** The subscription page drops this cell -- see SUBSCRIPTION_ORDER_COLUMNS. */
@@ -92,7 +96,8 @@ const Row = styled.div<{ $columns?: string }>`
   border-bottom: ${(props) => props.theme.tokens.border.default};
 
   /* The click target is a descendant that cannot paint its own ring (see
-     OpenButton), so the row draws it instead. */
+     OpenButton), so the row draws it instead. A row with no onOpen has no
+     button at all, so this simply never matches for one. */
   &:has(button:focus-visible) {
     outline: ${(props) => props.theme.tokens.outline.primary};
     outline-offset: 2px;
@@ -107,30 +112,49 @@ const Row = styled.div<{ $columns?: string }>`
 `;
 
 /**
- * Spans every column except Receipt, which has to stay a real link outside
- * it -- an <a> inside a <button> is invalid and unclickable.
+ * The box holding every column except Receipt, which has to stay a real link
+ * outside it -- an <a> inside a <button> is invalid and unclickable.
  *
- * `subgrid` is what keeps the cells aligned to the header: the button is a
- * real box (so it is focusable, unlike `display: contents`, which drops an
- * element from the focus order entirely) while its children still lay
- * themselves out on the row's own tracks rather than a nested grid of their
- * own.
+ * `subgrid` is what keeps the cells aligned to the header: this is a real box
+ * (not `display: contents`, which would drop it from the focus order when it
+ * is a button) while its children still lay themselves out on the row's own
+ * tracks rather than a nested grid of their own.
+ *
+ * Shared by both variants below so that whether a row is clickable changes
+ * only its interactivity, never its layout.
  */
-const OpenButton = styled.button<{ $span: number }>`
-  all: unset;
+const rowCells = css<{ $span: number }>`
   grid-column: ${(props) => `1 / ${props.$span + 1}`};
   display: grid;
   grid-template-columns: subgrid;
   align-items: center;
-  font: inherit;
-  color: inherit;
   text-align: left;
-  cursor: pointer;
 
   ${MOBILE} {
     grid-column: 1 / 3;
     row-gap: 2px;
   }
+`;
+
+const OpenButton = styled.button<{ $span: number }>`
+  all: unset;
+  ${rowCells};
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+`;
+
+/**
+ * The same box with none of the button: used when the caller passes no
+ * `onOpen`. The subscription page's payment history has nowhere for a click
+ * to go -- the customer is already looking at that subscription -- and a
+ * button wired to a no-op is worse than no button: a keyboard user stops on
+ * every row for nothing and a mouse user gets a pointer cursor over a dead
+ * row. `<div>` needs no `all: unset` (its only UA style is `display: block`,
+ * which `rowCells` overrides) and inherits font and colour on its own.
+ */
+const CellGroup = styled.div<{ $span: number }>`
+  ${rowCells};
 `;
 
 const IdCell = styled.div`
@@ -226,35 +250,47 @@ export function OrderRow({
     .join(", ");
   const receiptHref = order._links["fx:receipt"]?.href;
 
+  const span = withSummary ? 5 : 4;
+
+  const cells = (
+    <>
+      <IdCell>{order.display_id}</IdCell>
+
+      <DateCell>
+        {date ? intl.formatDate(date, { dateStyle: "medium" }) : ""}
+      </DateCell>
+
+      {withSummary ? (
+        // Truncated to one line, so the full text has to stay reachable on
+        // hover for the rows this clips.
+        <SummaryCell title={summary}>{summary}</SummaryCell>
+      ) : null}
+
+      <AmountCell>
+        <FormattedNumber
+          value={order.total_order}
+          style="currency"
+          currency={order.currency_code}
+        />
+      </AmountCell>
+
+      <StatusCell $withSummary={withSummary}>
+        <Badge $variant={statusVariant}>
+          {statusMessage ? intl.formatMessage(statusMessage) : order.status}
+        </Badge>
+      </StatusCell>
+    </>
+  );
+
   return (
     <Row $columns={columns}>
-      <OpenButton type="button" onClick={onOpen} $span={withSummary ? 5 : 4}>
-        <IdCell>{order.display_id}</IdCell>
-
-        <DateCell>
-          {date ? intl.formatDate(date, { dateStyle: "medium" }) : ""}
-        </DateCell>
-
-        {withSummary ? (
-          // Truncated to one line, so the full text has to stay reachable on
-          // hover for the rows this clips.
-          <SummaryCell title={summary}>{summary}</SummaryCell>
-        ) : null}
-
-        <AmountCell>
-          <FormattedNumber
-            value={order.total_order}
-            style="currency"
-            currency={order.currency_code}
-          />
-        </AmountCell>
-
-        <StatusCell $withSummary={withSummary}>
-          <Badge $variant={statusVariant}>
-            {statusMessage ? intl.formatMessage(statusMessage) : order.status}
-          </Badge>
-        </StatusCell>
-      </OpenButton>
+      {onOpen ? (
+        <OpenButton type="button" onClick={onOpen} $span={span}>
+          {cells}
+        </OpenButton>
+      ) : (
+        <CellGroup $span={span}>{cells}</CellGroup>
+      )}
 
       <ReceiptCell>
         {receiptHref ? (

@@ -235,4 +235,91 @@ describe("OrderRow", () => {
       getComputedStyle(openButton).gridTemplateRows.split(" "),
     ).toHaveLength(3);
   });
+
+  it("renders no focusable click target when it has no onOpen", () => {
+    // The subscription page's payment history has nowhere for a click to go.
+    // It used to pass `onOpen={() => {}}`, which produced exactly what that
+    // was meant to avoid: a real <button> with `cursor: pointer` that a
+    // keyboard user stops on and Enter does nothing to.
+    screen = mountScreen(<OrderRow order={order() as never} />, {});
+
+    expect(document.querySelector("button")).toBeNull();
+    // The cells are still there -- only the wrapper changed.
+    expect(document.body.textContent).toMatch(/98213/);
+    expect(document.body.textContent).toMatch(/\$42\.50/);
+  });
+
+  it("keeps the Receipt link reachable with no onOpen", () => {
+    // The Receipt link sits outside the click target by design, so dropping
+    // that target must not take the one real link on the row with it.
+    screen = mountScreen(
+      <OrderRow
+        order={
+          order({
+            _links: {
+              self: { href: "/s/1" },
+              "fx:receipt": { href: "https://example.test/receipt/1" },
+            },
+          }) as never
+        }
+      />,
+      {},
+    );
+
+    const receipt = [...document.querySelectorAll("a")].find((a) =>
+      /receipt/i.test(a.textContent ?? ""),
+    );
+    expect(receipt?.getAttribute("href")).toBe(
+      "https://example.test/receipt/1",
+    );
+  });
+
+  it("keeps its button, and the layout, when it does have an onOpen", async () => {
+    // The other half of the pair. Both variants share one `rowCells` block,
+    // so this pins that the with-handler row is unchanged -- the home page's
+    // order list is the caller that depends on it.
+    await page.viewport(900, 800);
+    render();
+
+    const openButton = document.querySelector("button");
+    expect(openButton).not.toBeNull();
+    expect(getComputedStyle(openButton!).gridColumn).toBe("1 / 6");
+    expect(getComputedStyle(openButton!).cursor).toBe("pointer");
+  });
+
+  it("lays a no-onOpen row out exactly like a clickable one", async () => {
+    // Same tracks, same span, no pointer cursor. `rowCells` is shared
+    // precisely so that whether a row is clickable cannot move its cells.
+    await page.viewport(900, 800);
+
+    render({ columns: SUBSCRIPTION_ORDER_COLUMNS, withSummary: false });
+    const clickable = document.querySelector("button")!;
+    const clickableStyle = {
+      gridColumn: getComputedStyle(clickable).gridColumn,
+      gridTemplateColumns: getComputedStyle(clickable).gridTemplateColumns,
+    };
+    act(() => screen!.unmount());
+
+    screen = mountScreen(
+      <OrderRow
+        order={order() as never}
+        columns={SUBSCRIPTION_ORDER_COLUMNS}
+        withSummary={false}
+      />,
+      {},
+    );
+
+    // There is no button to find the group by, so locate it through the Id
+    // cell it wraps.
+    const idCell = [...document.querySelectorAll("div")].find(
+      (el) => el.children.length === 0 && el.textContent?.trim() === "98213",
+    )!;
+    const group = idCell.parentElement!;
+    expect(group.tagName).toBe("DIV");
+    expect(getComputedStyle(group).gridColumn).toBe(clickableStyle.gridColumn);
+    expect(getComputedStyle(group).gridTemplateColumns).toBe(
+      clickableStyle.gridTemplateColumns,
+    );
+    expect(getComputedStyle(group).cursor).not.toBe("pointer");
+  });
 });

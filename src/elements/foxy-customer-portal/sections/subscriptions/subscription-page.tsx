@@ -973,12 +973,12 @@ export function SubscriptionPage({
                   <OrderRow
                     key={payment._links.self.href}
                     order={payment}
-                    // The customer is already looking at this subscription --
-                    // there is nowhere else for a click to take them. The
-                    // row's own Receipt link is the way out to the document,
-                    // so the click target stays (rather than being removed)
-                    // to avoid a row that looks clickable and isn't.
-                    onOpen={() => {}}
+                    // No `onOpen`: the customer is already looking at this
+                    // subscription, so there is nowhere else for a click to
+                    // take them. `OrderRow` then renders the cells without
+                    // the button wrapper -- nothing focusable, no pointer
+                    // cursor, no focus ring. The row's own Receipt link is
+                    // the way out to the document and stays reachable.
                     columns={SUBSCRIPTION_ORDER_COLUMNS}
                     withSummary={false}
                   />
