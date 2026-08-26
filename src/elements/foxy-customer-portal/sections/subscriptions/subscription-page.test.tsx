@@ -291,6 +291,33 @@ describe("SubscriptionPage", () => {
     expect(headerRow!.textContent).not.toMatch(/Summary/);
   });
 
+  it("asks for no item zoom on the payments it never summarises", async () => {
+    // The table renders with `withSummary={false}`, and the `fx:items`
+    // embed feeds only that cell -- so `zoom: "items"` fetched a
+    // per-transaction item array on every page load that nothing rendered.
+    // (`orders/list.test.tsx` pins the home page's own zoom, which does
+    // render the Summary cell and must keep it.)
+    const spy = vi.fn(async (_query?: Record<string, unknown>) => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ total_items: 0, _embedded: {} }),
+    }));
+
+    render({
+      subscription: subscription({
+        _links: {
+          self: { href: "/s/1042" },
+          "fx:transactions": { href: "/s/42/transactions", get: spy },
+        },
+      }),
+    });
+    await flush();
+
+    expect(spy).toHaveBeenCalled();
+    const [query] = spy.mock.calls.at(-1) ?? [];
+    expect(query).not.toHaveProperty("zoom");
+  });
+
   it("gives its payment rows no click target", async () => {
     // The page passes no `onOpen` -- there is nowhere for a click to go from
     // a subscription's own payment history. It used to pass a no-op handler,

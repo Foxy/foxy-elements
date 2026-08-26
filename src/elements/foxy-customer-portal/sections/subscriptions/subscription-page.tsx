@@ -678,11 +678,14 @@ export function SubscriptionPage({
   const hasEditableControls =
     frequencySelectVisible || nextDateCalendarVisible;
 
-  // Items are zoomed per transaction, not read off the subscription, so a
-  // subscription that was later modified still shows what was actually
-  // charged at the time of each payment.
+  // No `zoom: "items"`, unlike the home page's order list. That embed feeds
+  // only `OrderRow`'s Summary cell (see `orders/row.tsx`), and this table
+  // passes `withSummary={false}` -- every payment here is for the same
+  // subscription, so a per-row summary would repeat the page's own title.
+  // Asking for it fetched an item array per transaction that nothing
+  // rendered.
   const paymentsLink = subscription._links["fx:transactions"];
-  const paymentsQuery = useMemo(() => ({ zoom: "items", limit: 10 }), []);
+  const paymentsQuery = useMemo(() => ({ limit: 10 }), []);
 
   const {
     items: payments,
