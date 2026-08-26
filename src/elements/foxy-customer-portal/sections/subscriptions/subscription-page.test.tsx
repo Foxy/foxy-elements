@@ -226,12 +226,22 @@ describe("SubscriptionPage", () => {
     );
     await flush();
 
-    expect(screen.host.textContent).toMatch(/42/);
+    // `/42/` alone was satisfied by the fixture's `total_order: 42`
+    // rendering as "$42.00", whatever the id turned out to be. The id is
+    // the last segment of the self link (`/s/1042`).
+    expect(screen.host.querySelector("h1")?.textContent).toMatch(/#1042/);
     const buttons = [...screen.host.querySelectorAll("button")];
     expect(buttons.some((b) => /^back$/i.test(b.textContent ?? ""))).toBe(true);
   });
 
-  it("shows the payment history below the manage controls", async () => {
+  it("closes the main column with the payment history section", async () => {
+    // Was "shows the payment history below the manage controls", asserting
+    // `/payments/i` and `/no payments yet/i` against the whole host. The
+    // heading is "Payment history" -- no "payments" in it -- so
+    // `messages.paymentsEmpty` ("No payments yet.") satisfied both patterns
+    // by itself and the entire heading could be deleted with the test still
+    // green. The old name was also no longer true: the manage controls moved
+    // into the rail, which follows the main column in DOM order.
     screen = mountScreen(
       <SubscriptionPage
         subscription={subscription() as never}
@@ -242,8 +252,20 @@ describe("SubscriptionPage", () => {
     );
     await flush();
 
-    expect(screen.host.textContent).toMatch(/payments/i);
-    expect(screen.host.textContent).toMatch(/no payments yet/i);
+    const heading = [...screen.host.querySelectorAll("h2")].find(
+      (h) => h.textContent?.trim() === "Payment history",
+    );
+    expect(heading).toBeDefined();
+
+    const section = heading!.closest("section")!;
+    expect(section.textContent).toMatch(/No payments yet/);
+
+    // Spec §5's left column, in order, with this section last.
+    const main = section.parentElement!;
+    expect(main.lastElementChild).toBe(section);
+    expect(
+      [...main.querySelectorAll("h2")].map((h) => h.textContent?.trim()),
+    ).toEqual(["Items (2)", "Billing & shipping", "Payment history"]);
   });
 
   // Locates the header row by its "Order" cell rather than
@@ -919,7 +941,10 @@ describe("SubscriptionPageContainer", () => {
     );
     await flush();
 
-    expect(screen.host.textContent).toMatch(/42/);
+    // Not `/42/`, which "$42.00" satisfies regardless of the id. `id="42"`
+    // is what the container is asked for; `/s/1042` is what the fixture's
+    // self link makes the page render.
+    expect(screen.host.querySelector("h1")?.textContent).toMatch(/#1042/);
     expect(link.get).not.toHaveBeenCalled();
   });
 
@@ -948,7 +973,7 @@ describe("SubscriptionPageContainer", () => {
     await flush();
 
     expect(link.get).toHaveBeenCalled();
-    expect(screen.host.textContent).toMatch(/42/);
+    expect(screen.host.querySelector("h1")?.textContent).toMatch(/#1042/);
   });
 
   it("shows a Back-aware error when the id resolves to nothing", async () => {
