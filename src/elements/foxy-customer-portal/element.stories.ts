@@ -18,6 +18,27 @@ const SETTINGS = {
       site_key: "10000000-ffff-ffff-ffff-000000000001",
     },
   },
+  // `allow_frequency_modification`'s `jsonata_query` deliberately excludes
+  // one frequency ("1y") rather than allowing everything: that is what gives
+  // the rail's two frequency states both a fixture, from one shared settings
+  // object -- a subscription on any other frequency gets the editable
+  // Select, while the annual one (`future-end`, below) gets zero allowed
+  // frequencies and falls through to the read-only row instead, live rather
+  // than only once ended.
+  subscriptions: {
+    allow_frequency_modification: [
+      {
+        jsonata_query: 'frequency != "1y"',
+        values: ["1w", "1m", "3m", "6m", "1y"],
+      },
+    ],
+    allow_next_date_modification: true,
+  },
+  cart_display_config: {
+    show_product_options: true,
+    show_product_weight: true,
+    show_product_code: true,
+  },
 };
 
 const SUBSCRIPTIONS_HREF = `${STORE_BASE}subscriptions`;
@@ -104,6 +125,9 @@ type SubscriptionItemFixture = {
   image?: string;
   code?: string;
   parent_code?: string;
+  price?: number;
+  weight?: number;
+  _embedded?: { "fx:item_options"?: { name: string; value: string }[] };
 };
 
 type SubscriptionFixture = {
@@ -114,20 +138,60 @@ type SubscriptionFixture = {
   is_active: boolean;
   error_message: string;
   first_failed_transaction_date: string | null;
+  past_due_amount?: number;
   _links: {
     self: { href: string };
     "fx:last_transaction"?: { href: string };
+    "fx:transactions"?: { href: string };
+    "fx:sub_token_url"?: { href: string };
   };
   _embedded: {
     "fx:transaction_template": {
       currency_code: string;
       total_order: number;
+      // Unlike `total_order`, the real API sends these as decimal STRINGS --
+      // see `card.tsx`'s own note on the same trap. A number here would
+      // typecheck but hide a real bug the rail's `Number()` coercion exists
+      // to guard against.
+      total_item_price: string;
+      total_tax: string;
+      total_shipping: string;
+      shipping_address1?: string;
+      shipping_address2?: string;
+      shipping_city?: string;
+      shipping_state?: string;
+      shipping_postal_code?: string;
+      shipping_country?: string;
       _embedded: { "fx:items": SubscriptionItemFixture[] };
     };
   };
 };
 
+/** A hosted-cart token link -- just enough of a real URL for `tokenLink()`'s `new URL()` to accept. */
+function subTokenLink(id: string): { href: string } {
+  return { href: `${STORE_BASE}cart?sub_token=tok-${id}` };
+}
+
+/**
+ * A subscription's own `fx:transactions` link -- a per-subscription payment
+ * history, distinct from the customer-wide orders collection at
+ * `TRANSACTIONS_HREF` (see `subscriptionPaymentsFor`/the stub branch below).
+ * `subscription-page.tsx` reads this rel to fill the Payment history table.
+ */
+function subTransactionsLink(id: string): { href: string } {
+  return { href: `${SUBSCRIPTIONS_HREF}/${id}/transactions` };
+}
+
 const DEFAULT_ACTIVE_SUBSCRIPTIONS: SubscriptionFixture[] = [
+  /**
+   * The feature-complete fixture: four items (one past the three-per-page
+   * limit, so the pager renders), and the first item carries a weight, a
+   * code, and item options all at once -- without at least one item like
+   * this, the weight row has nothing to render in any story (see
+   * `item-details.ts`: it's gated on `item.weight`, and no fixture ever set
+   * one before). Live with no end date, so its Cancel link renders active
+   * rather than inert.
+   */
   {
     frequency: "1m",
     start_date: "2020-01-01T00:00:00-0800",
@@ -139,13 +203,110 @@ const DEFAULT_ACTIVE_SUBSCRIPTIONS: SubscriptionFixture[] = [
     _links: {
       self: { href: `${SUBSCRIPTIONS_HREF}/0` },
       "fx:last_transaction": { href: `${TRANSACTIONS_HREF}/100` },
+      "fx:transactions": subTransactionsLink("0"),
+      "fx:sub_token_url": subTokenLink("0"),
     },
     _embedded: {
       "fx:transaction_template": {
         currency_code: "USD",
         total_order: 42,
+        total_item_price: "36.50",
+        total_tax: "1.50",
+        total_shipping: "4.00",
+        shipping_address1: "12 Analytical Engine Way",
+        shipping_address2: "",
+        shipping_city: "London",
+        shipping_state: "",
+        shipping_postal_code: "SW1A 1AA",
+        shipping_country: "GB",
         _embedded: {
-          "fx:items": [{ name: "Coffee", quantity: 1, image: itemImage(24) }],
+          "fx:items": [
+            {
+              name: "Coffee",
+              quantity: 1,
+              price: 18,
+              code: "COFFEE-DARK-12OZ",
+              weight: 12,
+              image: itemImage(24),
+              _embedded: {
+                "fx:item_options": [
+                  { name: "Roast", value: "Dark" },
+                  { name: "Grind", value: "Whole bean" },
+                ],
+              },
+            },
+            { name: "Filters", quantity: 2, price: 6, image: itemImage(96) },
+            { name: "Travel Mug", quantity: 1, price: 8.5 },
+            { name: "Reusable Pods", quantity: 3, price: 3 },
+          ],
+        },
+      },
+    },
+  },
+  /**
+   * Past due: a failed transaction with no end date reads as `failed` (see
+   * `status.ts`), which is what puts the page's Alert up top and the rail's
+   * error-styled Past due row on screen at once.
+   */
+  {
+    frequency: "3m",
+    start_date: "2019-06-01T00:00:00-0800",
+    next_transaction_date: "2026-09-15T00:00:00-0800",
+    end_date: null,
+    is_active: true,
+    error_message: "The card on file was declined.",
+    first_failed_transaction_date: "2026-08-01T00:00:00-0800",
+    past_due_amount: 24.99,
+    _links: {
+      self: { href: `${SUBSCRIPTIONS_HREF}/past-due` },
+      "fx:last_transaction": { href: `${TRANSACTIONS_HREF}/101` },
+      "fx:transactions": subTransactionsLink("past-due"),
+      "fx:sub_token_url": subTokenLink("past-due"),
+    },
+    _embedded: {
+      "fx:transaction_template": {
+        currency_code: "USD",
+        total_order: 30,
+        total_item_price: "28.00",
+        total_tax: "2.00",
+        total_shipping: "0.00",
+        _embedded: {
+          "fx:items": [{ name: "Tea Sampler", quantity: 1, price: 28 }],
+        },
+      },
+    },
+  },
+  /**
+   * Live, but with a future end date already queued (`next_transaction_date`
+   * lands before it, so `status.ts` reads `will_end_after_payment`) -- the
+   * Cancel link must render inert rather than let a second cancellation
+   * queue. Its frequency ("1y") is the one `SETTINGS`'s jsonata rule above
+   * excludes, so this is also the fixture that exercises the *live*
+   * read-only Frequency row, not just the ended one.
+   */
+  {
+    frequency: "1y",
+    start_date: "2021-01-01T00:00:00-0800",
+    next_transaction_date: "2099-02-01T00:00:00-0800",
+    end_date: "2099-06-01T00:00:00-0800",
+    is_active: true,
+    error_message: "",
+    first_failed_transaction_date: null,
+    _links: {
+      self: { href: `${SUBSCRIPTIONS_HREF}/future-end` },
+      "fx:last_transaction": { href: `${TRANSACTIONS_HREF}/102` },
+      "fx:transactions": subTransactionsLink("future-end"),
+      "fx:sub_token_url": subTokenLink("future-end"),
+    },
+    _embedded: {
+      "fx:transaction_template": {
+        currency_code: "USD",
+        total_order: 60,
+        total_item_price: "55.00",
+        total_tax: "5.00",
+        total_shipping: "0.00",
+        _embedded: {
+          "fx:items": [{ name: "Annual Bean Box", quantity: 1, price: 55 }],
         },
       },
     },
@@ -175,25 +336,37 @@ function buildSubscriptions(
               name: "Coffee Subscription — Dark Roast",
               quantity: 1,
               code,
+              price: 16,
+              // Carries a weight, a code (already set above) and options
+              // too, so the item-detail rows have something to render for
+              // the bundle layout specifically, not only the single-item one.
+              weight: 14,
               image: itemImage(18),
+              _embedded: {
+                "fx:item_options": [{ name: "Roast", value: "Medium" }],
+              },
             },
             {
               name: "Extra Filters",
               quantity: 2,
               parent_code: code,
+              price: 4,
               image: itemImage(96),
             },
-            { name: "Coffee Mugs", quantity: 1, parent_code: code },
+            { name: "Coffee Mugs", quantity: 1, parent_code: code, price: 9 },
           ]
         : [
             {
               name: `Subscription item ${i + 1}`,
               quantity: 1 + (i % 3),
+              price: 5 + i,
               // Every fourth one carries no image, so the empty fallback
               // swatch is on screen next to real thumbnails.
               ...(i % 4 === 3 ? {} : { image: itemImage((i * 47) % 360) }),
             },
           ];
+
+    const totalOrder = 10 + i * 3;
 
     return {
       frequency: frequencies[i % frequencies.length],
@@ -214,11 +387,23 @@ function buildSubscriptions(
           href: `${SUBSCRIPTIONS_HREF}/${isActive ? "active" : "inactive"}-${i}`,
         },
         "fx:last_transaction": { href: `${TRANSACTIONS_HREF}/${200 + i}` },
+        "fx:transactions": subTransactionsLink(
+          `${isActive ? "active" : "inactive"}-${i}`,
+        ),
+        "fx:sub_token_url": subTokenLink(`${isActive ? "active" : "inactive"}-${i}`),
       },
       _embedded: {
         "fx:transaction_template": {
           currency_code: "USD",
-          total_order: 10 + i * 3,
+          total_order: totalOrder,
+          total_item_price: (totalOrder - 2).toFixed(2),
+          total_tax: "0.50",
+          total_shipping: "1.50",
+          shipping_address1: "100 Main Street",
+          shipping_city: "Springfield",
+          shipping_state: "IL",
+          shipping_postal_code: "62704",
+          shipping_country: "US",
           _embedded: { "fx:items": items },
         },
       },
@@ -306,6 +491,64 @@ function buildOrders(count: number): OrderFixture[] {
 }
 
 const LONG_TIME_ORDERS = buildOrders(25);
+
+/**
+ * `count` synthetic payments for one subscription's own `fx:transactions`
+ * link. Separate from `buildOrders` above: that seeds the customer-wide
+ * orders collection at `TRANSACTIONS_HREF`, while this seeds the
+ * per-subscription resource `subTransactionsLink` points at -- a different
+ * href namespace, so the two need their own id space to stay distinct in
+ * the stub below (`9000 + subscriptionSeed` keeps every subscription's
+ * payments numbered apart from one another and from `buildOrders`' `200+`).
+ */
+function buildSubscriptionPayments(
+  subscriptionId: string,
+  count: number,
+): OrderFixture[] {
+  const statuses = ["approved", "approved", "refunded"];
+  // A short, stable hash of the id -- so the same subscription always shows
+  // the same payments across a re-render, rather than colliding on id 0 with
+  // every other subscription's own transactions.
+  let seed = 0;
+  for (const ch of subscriptionId) seed = (seed * 31 + ch.charCodeAt(0)) % 5000;
+
+  return Array.from({ length: count }, (_, i) => {
+    const month = String((i % 12) + 1).padStart(2, "0");
+    const price = 12 + i * 4;
+    const id = 9000 + seed * 10 + i;
+    const href = `${SUBSCRIPTIONS_HREF}/${subscriptionId}/transactions/${i}`;
+
+    return {
+      id,
+      display_id: id,
+      transaction_date: `2025-${month}-01T12:00:00-0800`,
+      total_order: price,
+      total_item_price: price.toFixed(2),
+      total_tax: "0.00",
+      total_shipping: "0.00",
+      currency_code: "USD",
+      status: statuses[i % statuses.length],
+      _links: {
+        self: { href },
+        ...(i % 3 === 2 ? {} : { "fx:receipt": { href: `${href}/receipt` } }),
+      },
+      _embedded: {
+        "fx:items": [{ name: `Payment ${i + 1}`, quantity: 1, price }],
+      },
+    };
+  });
+}
+
+/**
+ * Deterministic 2-5 payments per subscription id, so every subscription's
+ * Payment history table has something to show -- without every fixture
+ * array above having to build its own list by hand.
+ */
+function subscriptionPaymentsFor(id: string): OrderFixture[] {
+  let hash = 0;
+  for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) % 997;
+  return buildSubscriptionPayments(id, (hash % 4) + 2);
+}
 
 const DEFAULT_ADDRESSES = [
   {
@@ -506,6 +749,23 @@ export function stubStore(fixtures: StoreFixtures = {}): () => void {
           url,
           "fx:subscriptions",
         );
+      }
+
+      // A single subscription's own `fx:transactions` link -- nested under
+      // the subscriptions pathname (`.../subscriptions/<id>/transactions`),
+      // so it never collides with the exact-pathname match above or with the
+      // customer-wide orders collection below (different pathname
+      // entirely). `subscription-page.tsx` reads this rel for its Payment
+      // history table.
+      if (
+        new URL(url).pathname.startsWith(
+          `${new URL(SUBSCRIPTIONS_HREF).pathname}/`,
+        ) &&
+        new URL(url).pathname.endsWith("/transactions")
+      ) {
+        const segments = new URL(url).pathname.split("/");
+        const id = segments[segments.length - 2];
+        return paginate(subscriptionPaymentsFor(id), url, "fx:transactions");
       }
 
       // Matches the orders collection request. `OrdersSection` sends

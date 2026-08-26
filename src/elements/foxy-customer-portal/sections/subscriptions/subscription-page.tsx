@@ -950,8 +950,10 @@ export function SubscriptionPage({
             not editable here: v1's SubscriptionForm only allows it when
             portal settings are absent, which never happens inside the
             portal. Cancel still sets an end date, via the link-out below.
-            Frequency only appears here (as text) once the subscription has
-            ended -- while it's live, the editable Select below covers it. */}
+            Frequency appears here (as text) once the subscription has
+            ended, and also while it's live if the store disallows changing
+            it (`frequencySelectVisible` false, see its definition above) --
+            the editable Select below only covers the remaining case. */}
             <RailList>
               {showStartDate ? (
                 <RailRow>

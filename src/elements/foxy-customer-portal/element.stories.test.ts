@@ -18,6 +18,9 @@ function subscriptionFixture(id: string, isActive: boolean) {
       "fx:transaction_template": {
         currency_code: "USD",
         total_order: 10,
+        total_item_price: "10.00",
+        total_tax: "0.00",
+        total_shipping: "0.00",
         _embedded: { "fx:items": [{ name: "Item", quantity: 1 }] },
       },
     },
