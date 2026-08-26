@@ -320,7 +320,18 @@ const RailCard = styled.div`
   background: ${(props) => props.theme.tokens.background.surface};
 `;
 
-const RailTitle = styled.div`
+/**
+ * An `<h2>`, not a `<div>`: spec §6.6 calls this a heading, and as a div it
+ * was the one section of a customer-facing account page unreachable by
+ * heading navigation. `<h2>` is the level that fits the page's outline --
+ * the `<h1>` is the subscription title and the left column's sections are
+ * all `SectionHeading`, itself an `<h2>`. The `font.h3` styling is
+ * unchanged; heading *level* and heading *size* are separate. `margin: 0`
+ * replaces the UA stylesheet's own margin, which a `<div>` never had --
+ * `RailCard`'s `gap` does the spacing.
+ */
+const RailTitle = styled.h2`
+  margin: 0;
   font: ${(props) => props.theme.tokens.font.h3};
   color: ${(props) => props.theme.tokens.color.body};
 `;

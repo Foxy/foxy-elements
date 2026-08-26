@@ -765,6 +765,23 @@ describe("SubscriptionPage", () => {
     expect(document.querySelectorAll("aside")).toHaveLength(1);
   });
 
+  it("makes the rail's Summary title a real heading", async () => {
+    // Spec §6.6 calls it a heading. As a styled `<div>` it was the one
+    // section of this page a screen reader's heading list did not offer.
+    render();
+
+    const summary = [...document.querySelectorAll("aside h2")].find(
+      (h) => h.textContent?.trim() === "Summary",
+    );
+    expect(summary).toBeDefined();
+
+    // The styling is meant to be untouched by the element swap -- `font.h3`,
+    // and no UA margin creeping in now that it is a heading.
+    const style = getComputedStyle(summary!);
+    expect(style.marginTop).toBe("0px");
+    expect(style.marginBottom).toBe("0px");
+  });
+
   it("summarises the recurring cost", () => {
     render();
     expect(railText()).toMatch(/Recurring total/);
