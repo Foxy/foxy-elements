@@ -16,6 +16,8 @@
     "generate-groups": "node \"./.scripts/generate-groups.js\" && prettier \"./web-test-runner.groups.js\" --write",
     "storybook": "wds --watch",
     "storybook:build": "NODE_OPTIONS=--openssl-legacy-provider build-storybook",
+    "localdev:build:cdn": "rollup -c",
+    "localdev:watch:cdn": "rollup -c --watch",
     "lint": "npm run lint:eslint && npm run lint:prettier",
     "lint:eslint": "eslint --ext .ts,.html . --ignore-path .gitignore",
     "lint:prettier": "prettier \"**/*.js\" \"**/*.ts\" --check --ignore-path .gitignore",
