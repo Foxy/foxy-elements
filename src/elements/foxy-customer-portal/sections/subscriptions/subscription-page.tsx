@@ -64,8 +64,8 @@ const ITEMS_PER_PAGE = 3;
  *
  * `will_end` and `will_end_after_payment` stay `false` on purpose: those
  * carry a *scheduled* end date that has not arrived, so the subscription is
- * still live and still editable. (`hasEndDate` is what stops a second
- * cancellation being queued for them.)
+ * still live and still editable. (A non-null `endsAt` is what stops a
+ * second cancellation being queued for them -- see the Cancel block.)
  */
 const ENDED_STATUSES: Record<SubscriptionStatus, boolean> = {
   will_start: false,
@@ -509,6 +509,7 @@ export function SubscriptionPage({
   const { onUnauthenticated, cache } = useApi();
   const portalContainer = usePortalContainer();
   const frequencyId = useId();
+  const cancelNoteId = useId();
 
   const [frequency, setFrequency] = useState(subscription.frequency);
   const [nextDate, setNextDate] = useState<Date | undefined>(undefined);
@@ -573,13 +574,6 @@ export function SubscriptionPage({
   const endsAt = toCalendarDate(subscription.end_date);
   const startedAt = toCalendarDate(subscription.start_date);
   const nextAt = toCalendarDate(subscription.next_transaction_date);
-
-  // True once *any* end date is set, whether it is already in the past
-  // (`isEnded`) or merely scheduled (`will_end`/`will_end_after_payment`,
-  // where `isEnded` is still false). The Cancel link must not go active for
-  // either -- a subscription that already has a cancellation queued must not
-  // let the customer queue a second one.
-  const hasEndDate = !!endsAt;
 
   // `past_due_amount` is typed as a number on `SubscriptionResource`, but the
   // rail's row is coerced through `Number()` anyway -- belt-and-suspenders
@@ -1194,24 +1188,41 @@ export function SubscriptionPage({
 
           {!isEnded && tokenHref ? (
             <CancelBlock>
-              {hasEndDate ? (
-                <CancelLink aria-disabled="true">
-                  {intl.formatMessage(messages.manageCancel)}
-                </CancelLink>
+              {endsAt ? (
+                // A cancellation is already queued, so the link is inert.
+                // `aria-disabled` alone announces "unavailable" and stops
+                // there; the note says why, and `aria-describedby` ties the
+                // two together so it is read with the link rather than
+                // stumbled on afterwards. It replaces the "Access continues
+                // until {next payment}" line rather than joining it -- the
+                // end date is the date that now matters, and showing both
+                // would put two different "until" dates side by side.
+                <>
+                  <CancelLink aria-disabled="true" aria-describedby={cancelNoteId}>
+                    {intl.formatMessage(messages.manageCancel)}
+                  </CancelLink>
+                  <SaveNote id={cancelNoteId}>
+                    {intl.formatMessage(messages.subscriptionCancelScheduled, {
+                      date: intl.formatDate(endsAt, { dateStyle: "medium" }),
+                    })}
+                  </SaveNote>
+                </>
               ) : (
-                <CancelLink
-                  href={tokenLink(tokenHref, { sub_cancel: "true" })}
-                >
-                  {intl.formatMessage(messages.manageCancel)}
-                </CancelLink>
+                <>
+                  <CancelLink
+                    href={tokenLink(tokenHref, { sub_cancel: "true" })}
+                  >
+                    {intl.formatMessage(messages.manageCancel)}
+                  </CancelLink>
+                  {nextAt ? (
+                    <SaveNote>
+                      {intl.formatMessage(messages.subscriptionAccessUntil, {
+                        date: intl.formatDate(nextAt, { dateStyle: "medium" }),
+                      })}
+                    </SaveNote>
+                  ) : null}
+                </>
               )}
-              {nextAt ? (
-                <SaveNote>
-                  {intl.formatMessage(messages.subscriptionAccessUntil, {
-                    date: intl.formatDate(nextAt, { dateStyle: "medium" }),
-                  })}
-                </SaveNote>
-              ) : null}
             </CancelBlock>
           ) : null}
         </Rail>

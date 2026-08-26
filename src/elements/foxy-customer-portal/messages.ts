@@ -354,6 +354,13 @@ export const messages = defineMessages({
     id: "portal_subscription_save_note",
     defaultMessage: "Changes save immediately and apply to the next payment.",
   },
+  // Explains why the Cancel link is inert once a cancellation is already
+  // queued. Tied to that link by `aria-describedby`, so a screen reader is
+  // told the reason and not just "unavailable".
+  subscriptionCancelScheduled: {
+    id: "portal_subscription_cancel_scheduled",
+    defaultMessage: "This subscription is already scheduled to end on {date}.",
+  },
   subscriptionAccessUntil: {
     id: "portal_subscription_access_until",
     defaultMessage: "Access continues until {date}.",

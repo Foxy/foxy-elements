@@ -844,6 +844,30 @@ describe("SubscriptionPage", () => {
     expect(cancel?.getAttribute("aria-disabled")).toBe("true");
   });
 
+  it("says why the disabled cancel link is disabled", () => {
+    // `aria-disabled` on its own announces "unavailable" and stops there.
+    // The reason has to be text, and it has to be tied to the link.
+    render({
+      subscription: subscriptionWithTokenUrl({ end_date: future }),
+    });
+
+    const cancel = [...document.querySelectorAll("aside a")].find((a) =>
+      /cancel/i.test(a.textContent ?? ""),
+    );
+    const describedBy = cancel?.getAttribute("aria-describedby");
+    expect(describedBy).toBeTruthy();
+
+    const note = document.getElementById(describedBy!);
+    expect(note?.textContent).toMatch(/already scheduled to end on/i);
+    // Built from the end date, not the next payment date -- `future` is
+    // 2027-01-01 and `next_transaction_date` is 2099-01-01.
+    expect(note?.textContent).toMatch(/2027/);
+
+    // It replaces the access-until line rather than sitting beside it, so
+    // the rail never shows two different "until" dates.
+    expect(railText()).not.toMatch(/Access continues until/);
+  });
+
   it("shows no editable controls once the subscription has ended", () => {
     // Permissive settings, matching "saves a changed frequency and returns
     // home" above -- if the rail's own `!isEnded` gate were missing, these
