@@ -77,7 +77,9 @@ function subscription(
     _embedded: {
       "fx:transaction_template": {
         currency_code: "USD",
-        total_order: 10,
+        total_order: 42,
+        total_shipping: "4.50",
+        total_tax: "2.25",
         shipping_address1: "129 Elm Avenue",
         shipping_city: "Oakland",
         shipping_state: "CA",
@@ -150,12 +152,13 @@ function render(
     subscription?: unknown;
     cartDisplayConfig?: unknown;
     paymentMethodLink?: unknown;
+    settings?: unknown;
   } = {},
 ) {
   screen = mountScreen(
     <SubscriptionPage
       subscription={(overrides.subscription ?? subscription()) as never}
-      settings={null}
+      settings={(overrides.settings ?? null) as never}
       cartDisplayConfig={overrides.cartDisplayConfig as never}
       paymentMethodLink={overrides.paymentMethodLink as never}
       onBack={vi.fn()}
@@ -163,6 +166,38 @@ function render(
     {},
   );
 }
+
+/**
+ * A subscription whose `_links` carry `fx:sub_token_url`, like the Edit-link
+ * test's fixture below -- `self` and `fx:transactions` have to be repeated
+ * alongside it since overriding `_links` replaces it wholesale.
+ */
+function subscriptionWithTokenUrl(overrides: Record<string, unknown> = {}) {
+  return subscription({
+    _links: {
+      self: { href: "/s/1042" },
+      "fx:transactions": {
+        href: "/s/42/transactions",
+        get: async () => ({
+          ok: true,
+          status: 200,
+          json: async () => ({ total_items: 0, _embedded: {} }),
+        }),
+      },
+      "fx:sub_token_url": { href: "https://example.com/cart" },
+    },
+    ...overrides,
+  });
+}
+
+/**
+ * Scoped to the rail's own `<aside>` -- see `billingSectionText`/
+ * `itemsSectionText` above for why a whole-`document.body` match is the
+ * vacuous-test trap on this page. `/Shipping/`, for instance, is also
+ * satisfied by the Billing section's "Shipping address" label, so a rail
+ * assertion has to be scoped here to actually exercise the rail.
+ */
+const railText = () => document.querySelector("aside")?.textContent ?? "";
 
 /** Matches `payment-method.test.tsx`'s own link fixture shape. */
 function paymentMethodLink(json: unknown) {
@@ -454,6 +489,108 @@ describe("SubscriptionPage", () => {
   it("hides billing and shipping once the subscription has ended", () => {
     render({ subscription: subscription({ is_active: false, end_date: past }) });
     expect(document.body.textContent).not.toMatch(/Billing & shipping/);
+  });
+
+  it("renders exactly one summary rail", () => {
+    render();
+    expect(document.querySelectorAll("aside")).toHaveLength(1);
+  });
+
+  it("summarises the recurring cost", () => {
+    render();
+    expect(railText()).toMatch(/Recurring total/);
+    expect(railText()).toMatch(/\$42\.00/);
+    expect(railText()).toMatch(/\$4\.50/);
+    expect(railText()).toMatch(/\$2\.25/);
+    expect(railText()).toMatch(/Shipping/);
+    expect(railText()).toMatch(/Tax/);
+  });
+
+  it("shows a past-due line only when there is one", () => {
+    render();
+    expect(railText()).not.toMatch(/Past due/);
+
+    screen!.unmount();
+    render({ subscription: subscription({ past_due_amount: 24 }) });
+    expect(railText()).toMatch(/Past due/);
+  });
+
+  it("offers cancellation while the subscription is live", () => {
+    render({ subscription: subscriptionWithTokenUrl() });
+
+    const cancel = [...document.querySelectorAll("a")].find((a) =>
+      /cancel/i.test(a.textContent ?? ""),
+    );
+    expect(cancel?.getAttribute("href")).toMatch(/sub_cancel=true/);
+    expect(railText()).toMatch(/Access continues until/);
+  });
+
+  it("offers no cancellation once it has ended", () => {
+    render({
+      subscription: subscriptionWithTokenUrl({
+        is_active: false,
+        end_date: past,
+      }),
+    });
+
+    const cancel = [...document.querySelectorAll("a")].find((a) =>
+      /cancel/i.test(a.textContent ?? ""),
+    );
+    expect(cancel).toBeUndefined();
+    expect(document.body.textContent).not.toMatch(/Access continues until/);
+  });
+
+  it("shows no editable controls once the subscription has ended", () => {
+    // Permissive settings, matching "saves a changed frequency and returns
+    // home" above -- if the rail's own `!isEnded` gate were missing, these
+    // settings are exactly the ones that would let the Select/Calendar
+    // through on the strength of `frequencies`/`dateRules` alone.
+    render({
+      subscription: subscription({ is_active: false, end_date: past }),
+      settings: {
+        subscriptions: {
+          allow_frequency_modification: [
+            { jsonata_query: "*", values: ["1m", "1y"] },
+          ],
+          allow_next_date_modification: true,
+        },
+      },
+    });
+
+    expect(
+      [...document.querySelectorAll("aside button")].some((b) =>
+        /^save$/i.test(b.textContent ?? ""),
+      ),
+    ).toBe(false);
+    expect(document.querySelector("aside button[data-day]")).toBeNull();
+  });
+
+  it("shows the read-only schedule rows once the subscription has ended", () => {
+    render({
+      subscription: subscription({ is_active: false, end_date: past }),
+    });
+    expect(railText()).toMatch(/Started/);
+    expect(railText()).toMatch(/Ends/);
+    expect(railText()).toMatch(/Frequency/);
+    expect(railText()).toMatch(/1m/);
+  });
+
+  it("keeps the rail sticky on a wide viewport", async () => {
+    await page.viewport(1200, 900);
+    render();
+
+    const aside = document.querySelector("aside");
+    expect(aside).not.toBeNull();
+    expect(getComputedStyle(aside as Element).position).toBe("sticky");
+  });
+
+  it("drops the sticky rail once the columns stack on a narrow viewport", async () => {
+    await page.viewport(500, 900);
+    render();
+
+    const aside = document.querySelector("aside");
+    expect(aside).not.toBeNull();
+    expect(getComputedStyle(aside as Element).position).toBe("static");
   });
 });
 

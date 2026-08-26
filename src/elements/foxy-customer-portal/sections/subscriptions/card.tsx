@@ -30,6 +30,11 @@ export type SubscriptionResource = {
     "fx:transaction_template"?: {
       currency_code?: string;
       total_order?: number;
+      // Unlike `total_order`, the SDK types these as decimal STRINGS -- see
+      // `sections/orders/row.tsx`'s own note on the same trap. Callers must
+      // run them through `Number()` before arithmetic or `FormattedNumber`.
+      total_shipping?: string;
+      total_tax?: string;
       shipping_address1?: string;
       shipping_address2?: string;
       shipping_city?: string;

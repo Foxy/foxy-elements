@@ -280,13 +280,6 @@ export const messages = defineMessages({
     id: "portal_manage_cancel",
     defaultMessage: "Cancel subscription",
   },
-  manageModify: { id: "portal_manage_modify", defaultMessage: "Modify items" },
-  manageUpdateBilling: {
-    id: "portal_manage_update_billing",
-    defaultMessage: "Update billing",
-  },
-  manageId: { id: "portal_manage_id", defaultMessage: "Subscription ID" },
-  manageStarted: { id: "portal_manage_started", defaultMessage: "Started" },
   manageEnds: { id: "portal_manage_ends", defaultMessage: "Ends" },
   manageSave: { id: "portal_manage_save", defaultMessage: "Save" },
   manageSaving: { id: "portal_manage_saving", defaultMessage: "Saving..." },
@@ -322,6 +315,38 @@ export const messages = defineMessages({
   subscriptionShippingLabel: {
     id: "portal_subscription_shipping_label",
     defaultMessage: "Shipping address",
+  },
+  subscriptionSummaryHeading: {
+    id: "portal_subscription_summary_heading",
+    defaultMessage: "Summary",
+  },
+  subscriptionSummaryShipping: {
+    id: "portal_subscription_summary_shipping",
+    defaultMessage: "Shipping",
+  },
+  subscriptionSummaryTax: {
+    id: "portal_subscription_summary_tax",
+    defaultMessage: "Tax",
+  },
+  subscriptionSummaryTotal: {
+    id: "portal_subscription_summary_total",
+    defaultMessage: "Recurring total",
+  },
+  subscriptionSummaryPastDue: {
+    id: "portal_subscription_summary_past_due",
+    defaultMessage: "Past due",
+  },
+  subscriptionStarted: {
+    id: "portal_subscription_started",
+    defaultMessage: "Started",
+  },
+  subscriptionSaveNote: {
+    id: "portal_subscription_save_note",
+    defaultMessage: "Changes save immediately and apply to the next payment.",
+  },
+  subscriptionAccessUntil: {
+    id: "portal_subscription_access_until",
+    defaultMessage: "Access continues until {date}.",
   },
   paymentsEmpty: {
     id: "portal_payments_empty",

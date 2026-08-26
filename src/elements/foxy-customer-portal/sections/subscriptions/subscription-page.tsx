@@ -9,7 +9,6 @@ import { Field } from "@foxy.io/design-system/field";
 import { Select } from "@foxy.io/design-system/select";
 import { Separator } from "@foxy.io/design-system/separator";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
-import { SummaryTable } from "@foxy.io/design-system/summary-table";
 import {
   getAllowedFrequencies,
   getNextTransactionDateConstraints,
@@ -265,6 +264,73 @@ const EditLink = styled.a`
   }
 `;
 
+const RailCard = styled.div`
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border: ${(props) => props.theme.tokens.border.field};
+  border-radius: ${(props) => props.theme.tokens.borderRadius.md};
+  background: ${(props) => props.theme.tokens.background.surface};
+`;
+
+const RailTitle = styled.div`
+  font: ${(props) => props.theme.tokens.font.h3};
+  color: ${(props) => props.theme.tokens.color.body};
+`;
+
+const RailList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const RailRow = styled.div<{ $error?: boolean }>`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+
+  span:first-child {
+    font: ${(props) => props.theme.tokens.font.body};
+    color: ${(props) =>
+      props.$error
+        ? props.theme.tokens.color.error
+        : props.theme.tokens.color.secondary};
+  }
+
+  span:last-child {
+    font: ${(props) => props.theme.tokens.font.bodyEmphasis};
+    color: ${(props) =>
+      props.$error
+        ? props.theme.tokens.color.error
+        : props.theme.tokens.color.body};
+  }
+`;
+
+const SaveNote = styled.p`
+  margin: 0;
+  font: ${(props) => props.theme.tokens.font.bodySmall};
+  color: ${(props) => props.theme.tokens.color.faint};
+`;
+
+const CancelBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 4px;
+`;
+
+const CancelLink = styled.a`
+  align-self: flex-start;
+  font: ${(props) => props.theme.tokens.font.body};
+  font-weight: 500;
+  color: ${(props) => props.theme.tokens.color.error};
+  text-decoration: underline;
+  cursor: pointer;
+`;
+
 /**
  * Raw (snake_case) shape of a single next-date modification rule, as the API
  * returns it. Mirrors `CustomerPortalSettings['props']['subscriptions']
@@ -394,11 +460,6 @@ export function SubscriptionPage({
   const [hasFailed, setHasFailed] = useState(false);
   const [itemPage, setItemPage] = useState(1);
 
-  const hasEnded =
-    !!subscription.end_date &&
-    subscription.end_date !== "0000-00-00" &&
-    new Date(subscription.end_date).getTime() <= Date.now();
-
   // The SDK normalises snake_case at its own boundary, so `settings` goes in
   // exactly as the API returned it. Converting the keys here would produce
   // undefined JSONata queries and silently wrong gating.
@@ -439,7 +500,6 @@ export function SubscriptionPage({
   );
 
   const tokenHref = subscription._links["fx:sub_token_url"]?.href;
-  const modifyHref = subscription._links["fx:sub_modification_url"]?.href;
 
   // The customer-scoped subscription resource exposes no `id` — only
   // `third_party_id`, which is set solely for external systems like PayPal
@@ -452,7 +512,13 @@ export function SubscriptionPage({
 
   const endsAt = toCalendarDate(subscription.end_date);
   const startedAt = toCalendarDate(subscription.start_date);
-  const hasEndDate = !!endsAt;
+  const nextAt = toCalendarDate(subscription.next_transaction_date);
+
+  // `past_due_amount` is typed as a number on `SubscriptionResource`, but the
+  // rail's row is coerced through `Number()` anyway -- belt-and-suspenders
+  // against a store that ever sends the numeric-string shape the sibling
+  // `total_*` fields use, so `"0"` reads as "do not render" too.
+  const pastDueAmount = Number(subscription.past_due_amount ?? 0);
 
   const status = getSubscriptionStatus(subscription);
   const isFailed = status === "failed" || status === "failed_and_ended";
@@ -622,128 +688,6 @@ export function SubscriptionPage({
               </Alert.Description>
             </Alert.Root>
           ) : null}
-
-          {/* Read-only. The spec is explicit that start and end dates are not
-          editable here: v1's SubscriptionForm only allows it when portal
-          settings are absent, which never happens inside the portal. Cancel
-          still sets an end date, via the link-out below. */}
-          <SummaryTable.Root>
-            <SummaryTable.Entry
-              title={intl.formatMessage(messages.manageId)}
-              subtitle={subscriptionId}
-            />
-            {showStartDate ? (
-              <SummaryTable.Entry
-                title={intl.formatMessage(messages.manageStarted)}
-                value={
-                  startedAt ? (
-                    <FormattedDate value={startedAt} dateStyle="medium" />
-                  ) : null
-                }
-              />
-            ) : null}
-            {endsAt && showEndDate ? (
-              <SummaryTable.Entry
-                title={intl.formatMessage(messages.manageEnds)}
-                value={<FormattedDate value={endsAt} dateStyle="medium" />}
-              />
-            ) : null}
-          </SummaryTable.Root>
-
-          {showFrequency && frequencies.length > 0 ? (
-            <Field.Root>
-              <Field.Label htmlFor={frequencyId}>
-                {intl.formatMessage(messages.manageFrequency)}
-              </Field.Label>
-
-              <Select.Root
-                value={frequency}
-                onValueChange={(next: string | null) =>
-                  next && setFrequency(next)
-                }
-              >
-                <Select.Trigger id={frequencyId}>
-                  <Select.Value />
-                </Select.Trigger>
-
-                <Select.Portal container={portalContainer ?? undefined}>
-                  <Select.Positioner>
-                    <Select.Popup>
-                      <Select.List>
-                        {frequencies.map((value) => (
-                          <Select.Item key={value} value={value}>
-                            <Select.ItemText>{value}</Select.ItemText>
-                          </Select.Item>
-                        ))}
-                      </Select.List>
-                    </Select.Popup>
-                  </Select.Positioner>
-                </Select.Portal>
-              </Select.Root>
-            </Field.Root>
-          ) : null}
-
-          {showNextDate && dateRules !== false ? (
-            <Field.Root>
-              <Field.Label>
-                {intl.formatMessage(messages.manageNextPayment)}
-              </Field.Label>
-              <Calendar
-                mode="single"
-                selected={nextDate}
-                onSelect={setNextDate}
-                startMonth={
-                  "startMonth" in bounds ? bounds.startMonth : undefined
-                }
-                endMonth={"endMonth" in bounds ? bounds.endMonth : undefined}
-                disabled={bounds.disabled}
-              />
-            </Field.Root>
-          ) : null}
-
-          {tokenHref ? (
-            <a
-              href={
-                hasEndDate
-                  ? undefined
-                  : tokenLink(tokenHref, { sub_cancel: "true" })
-              }
-              aria-disabled={hasEndDate ? "true" : undefined}
-            >
-              {intl.formatMessage(messages.manageCancel)}
-            </a>
-          ) : null}
-
-          {modifyHref ? (
-            <a
-              href={hasEnded ? undefined : modifyHref}
-              aria-disabled={hasEnded ? "true" : undefined}
-            >
-              {intl.formatMessage(messages.manageModify)}
-            </a>
-          ) : null}
-
-          {tokenHref ? (
-            <a
-              href={
-                hasEnded
-                  ? undefined
-                  : tokenLink(tokenHref, {
-                      cart: "checkout",
-                      sub_restart: "auto",
-                    })
-              }
-              aria-disabled={hasEnded ? "true" : undefined}
-            >
-              {intl.formatMessage(messages.manageUpdateBilling)}
-            </a>
-          ) : null}
-
-          <Button type="button" onClick={handleSave} disabled={isBusy}>
-            {intl.formatMessage(
-              isBusy ? messages.manageSaving : messages.manageSave,
-            )}
-          </Button>
 
           <section>
             <SectionHeading>
@@ -924,7 +868,185 @@ export function SubscriptionPage({
             ) : null}
           </section>
         </Main>
-        <Rail>{/* Task 8 */}</Rail>
+        <Rail>
+          <RailCard>
+            <RailTitle>
+              {intl.formatMessage(messages.subscriptionSummaryHeading)}
+            </RailTitle>
+
+            <RailList>
+              <RailRow>
+                <span>
+                  {intl.formatMessage(messages.subscriptionSummaryShipping)}
+                </span>
+                <span>
+                  <FormattedNumber
+                    value={Number(template?.total_shipping ?? 0)}
+                    style="currency"
+                    currency={currency}
+                  />
+                </span>
+              </RailRow>
+              <RailRow>
+                <span>
+                  {intl.formatMessage(messages.subscriptionSummaryTax)}
+                </span>
+                <span>
+                  <FormattedNumber
+                    value={Number(template?.total_tax ?? 0)}
+                    style="currency"
+                    currency={currency}
+                  />
+                </span>
+              </RailRow>
+              <RailRow>
+                <span>
+                  {intl.formatMessage(messages.subscriptionSummaryTotal)}
+                </span>
+                <span>
+                  <FormattedNumber
+                    value={template?.total_order ?? 0}
+                    style="currency"
+                    currency={currency}
+                  />
+                </span>
+              </RailRow>
+              {pastDueAmount > 0 ? (
+                <RailRow $error>
+                  <span>
+                    {intl.formatMessage(messages.subscriptionSummaryPastDue)}
+                  </span>
+                  <span>
+                    <FormattedNumber
+                      value={pastDueAmount}
+                      style="currency"
+                      currency={currency}
+                    />
+                  </span>
+                </RailRow>
+              ) : null}
+            </RailList>
+
+            <Separator />
+
+            {/* Read-only. The spec is explicit that start and end dates are
+            not editable here: v1's SubscriptionForm only allows it when
+            portal settings are absent, which never happens inside the
+            portal. Cancel still sets an end date, via the link-out below.
+            Frequency only appears here (as text) once the subscription has
+            ended -- while it's live, the editable Select below covers it. */}
+            <RailList>
+              {showStartDate ? (
+                <RailRow>
+                  <span>
+                    {intl.formatMessage(messages.subscriptionStarted)}
+                  </span>
+                  <span>
+                    {startedAt ? (
+                      <FormattedDate value={startedAt} dateStyle="medium" />
+                    ) : null}
+                  </span>
+                </RailRow>
+              ) : null}
+              {endsAt && showEndDate ? (
+                <RailRow>
+                  <span>{intl.formatMessage(messages.manageEnds)}</span>
+                  <span>
+                    <FormattedDate value={endsAt} dateStyle="medium" />
+                  </span>
+                </RailRow>
+              ) : null}
+              {isEnded && showFrequency ? (
+                <RailRow>
+                  <span>{intl.formatMessage(messages.manageFrequency)}</span>
+                  <span>{subscription.frequency}</span>
+                </RailRow>
+              ) : null}
+            </RailList>
+
+            {!isEnded ? (
+              <>
+                {showFrequency && frequencies.length > 0 ? (
+                  <Field.Root>
+                    <Field.Label htmlFor={frequencyId}>
+                      {intl.formatMessage(messages.manageFrequency)}
+                    </Field.Label>
+
+                    <Select.Root
+                      value={frequency}
+                      onValueChange={(next: string | null) =>
+                        next && setFrequency(next)
+                      }
+                    >
+                      <Select.Trigger id={frequencyId}>
+                        <Select.Value />
+                      </Select.Trigger>
+
+                      <Select.Portal container={portalContainer ?? undefined}>
+                        <Select.Positioner>
+                          <Select.Popup>
+                            <Select.List>
+                              {frequencies.map((value) => (
+                                <Select.Item key={value} value={value}>
+                                  <Select.ItemText>{value}</Select.ItemText>
+                                </Select.Item>
+                              ))}
+                            </Select.List>
+                          </Select.Popup>
+                        </Select.Positioner>
+                      </Select.Portal>
+                    </Select.Root>
+                  </Field.Root>
+                ) : null}
+
+                {showNextDate && dateRules !== false ? (
+                  <Field.Root>
+                    <Field.Label>
+                      {intl.formatMessage(messages.manageNextPayment)}
+                    </Field.Label>
+                    <Calendar
+                      mode="single"
+                      selected={nextDate}
+                      onSelect={setNextDate}
+                      startMonth={
+                        "startMonth" in bounds ? bounds.startMonth : undefined
+                      }
+                      endMonth={
+                        "endMonth" in bounds ? bounds.endMonth : undefined
+                      }
+                      disabled={bounds.disabled}
+                    />
+                  </Field.Root>
+                ) : null}
+
+                <Button type="button" onClick={handleSave} disabled={isBusy}>
+                  {intl.formatMessage(
+                    isBusy ? messages.manageSaving : messages.manageSave,
+                  )}
+                </Button>
+
+                <SaveNote>
+                  {intl.formatMessage(messages.subscriptionSaveNote)}
+                </SaveNote>
+              </>
+            ) : null}
+          </RailCard>
+
+          {!isEnded && tokenHref ? (
+            <CancelBlock>
+              <CancelLink href={tokenLink(tokenHref, { sub_cancel: "true" })}>
+                {intl.formatMessage(messages.manageCancel)}
+              </CancelLink>
+              {nextAt ? (
+                <SaveNote>
+                  {intl.formatMessage(messages.subscriptionAccessUntil, {
+                    date: intl.formatDate(nextAt, { dateStyle: "medium" }),
+                  })}
+                </SaveNote>
+              ) : null}
+            </CancelBlock>
+          ) : null}
+        </Rail>
       </Columns>
     </AccountPageLayout>
   );
