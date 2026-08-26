@@ -25,7 +25,6 @@ import { toCalendarDate } from "../../calendar-date";
 import { messages } from "../../messages";
 import { AccountPageLayout } from "../../account-page-layout";
 import { usePortalContainer } from "../../portal-container";
-import { getTransactionStatusMessage } from "../../transaction-status";
 import { patchResource } from "../../write";
 import {
   formatCardLabel,
@@ -36,6 +35,13 @@ import type { CartDisplayConfig } from "./cart-display-config";
 import { toDatePickerBounds, toLocalDateString } from "./date-constraints";
 import { visibleItemDetails } from "./item-details";
 import { Pagination } from "../pagination";
+import {
+  OrderHeaderCell,
+  OrderHeaderRow,
+  OrderRow,
+  SUBSCRIPTION_ORDER_COLUMNS,
+  type OrderResource,
+} from "../orders/row";
 import { getSubscriptionStatus } from "./status";
 import type { SubscriptionResource } from "./card";
 import { useSubscriptionById } from "./use-subscription-by-id";
@@ -284,16 +290,6 @@ export type PortalSettings = {
   };
 };
 
-type Payment = {
-  id: number;
-  transaction_date: string;
-  total_order: number;
-  currency_code: string;
-  status: string;
-  _links: { "fx:receipt"?: { href: string } };
-  _embedded?: { "fx:items"?: { name: string; quantity: number }[] };
-};
-
 type CollectionPage = {
   total_items?: number;
   _embedded?: Record<string, unknown[]>;
@@ -521,7 +517,8 @@ export function SubscriptionPage({
     limit: paymentsLimit,
     loadNext: loadNextPayment,
     loadPrev: loadPrevPayment,
-  } = useCollection<Payment>(paymentsLink as never, paymentsQuery);
+    goToPage: goToPagePayment,
+  } = useCollection<OrderResource>(paymentsLink as never, paymentsQuery);
 
   // Decorative label only -- the payment-method row never shows a spinner,
   // an error, or a placeholder for it, so `isLoading`/`error` from this read
@@ -861,90 +858,71 @@ export function SubscriptionPage({
             </section>
           ) : null}
 
-          <h3>{intl.formatMessage(messages.paymentsHeading)}</h3>
+          <section>
+            <SectionHeading>
+              {intl.formatMessage(messages.paymentHistoryHeading)}
+            </SectionHeading>
 
-          {paymentsLoading || paymentsUnauthenticated ? <Skeleton /> : null}
+            {paymentsLoading || paymentsUnauthenticated ? <Skeleton /> : null}
 
-          {paymentsError && !paymentsUnauthenticated ? (
-            <Alert.Root $variant="destructive">
-              <Alert.Description>
-                {intl.formatMessage(messages.errorUnknown)}
-              </Alert.Description>
-            </Alert.Root>
-          ) : null}
+            {paymentsError && !paymentsUnauthenticated ? (
+              <Alert.Root $variant="destructive">
+                <Alert.Description>
+                  {intl.formatMessage(messages.errorUnknown)}
+                </Alert.Description>
+              </Alert.Root>
+            ) : null}
 
-          {!paymentsLoading && !paymentsError && payments.length === 0 ? (
-            <p>{intl.formatMessage(messages.paymentsEmpty)}</p>
-          ) : null}
+            {!paymentsLoading && !paymentsError && payments.length === 0 ? (
+              <p>{intl.formatMessage(messages.paymentsEmpty)}</p>
+            ) : null}
 
-          <SummaryTable.Root>
-            {payments.map((payment) => {
-              const statusMessage = getTransactionStatusMessage(payment.status);
-              const transactionDate = toCalendarDate(payment.transaction_date);
+            {!paymentsLoading && !paymentsError && payments.length > 0 ? (
+              <>
+                <OrderHeaderRow $columns={SUBSCRIPTION_ORDER_COLUMNS}>
+                  <OrderHeaderCell>
+                    {intl.formatMessage(messages.ordersColumnOrder)}
+                  </OrderHeaderCell>
+                  <OrderHeaderCell>
+                    {intl.formatMessage(messages.ordersColumnDate)}
+                  </OrderHeaderCell>
+                  <OrderHeaderCell>
+                    {intl.formatMessage(messages.ordersColumnAmount)}
+                  </OrderHeaderCell>
+                  <OrderHeaderCell>
+                    {intl.formatMessage(messages.ordersColumnStatus)}
+                  </OrderHeaderCell>
+                  <div />
+                </OrderHeaderRow>
 
-              return (
-                <SummaryTable.Entry
-                  key={payment.id}
-                  title={`#${payment.id}`}
-                  subtitle={
-                    statusMessage
-                      ? intl.formatMessage(statusMessage)
-                      : payment.status
-                  }
-                  value={
-                    <FormattedNumber
-                      value={payment.total_order}
-                      style="currency"
-                      currency={payment.currency_code}
-                    />
-                  }
-                  description={[
-                    transactionDate ? (
-                      <FormattedDate
-                        key="date"
-                        value={transactionDate}
-                        dateStyle="medium"
-                      />
-                    ) : null,
-                    (payment._embedded?.["fx:items"] ?? [])
-                      .map((item) => `${item.name} ×${item.quantity}`)
-                      .join(", "),
-                  ].filter((line) => line !== null)}
-                  action={
-                    payment._links["fx:receipt"] ? (
-                      <a href={payment._links["fx:receipt"].href}>
-                        {intl.formatMessage(messages.paymentsReceipt)}
-                      </a>
-                    ) : null
-                  }
-                />
-              );
-            })}
-          </SummaryTable.Root>
+                {payments.map((payment) => (
+                  <OrderRow
+                    key={payment._links.self.href}
+                    order={payment}
+                    // The customer is already looking at this subscription --
+                    // there is nowhere else for a click to take them. The
+                    // row's own Receipt link is the way out to the document,
+                    // so the click target stays (rather than being removed)
+                    // to avoid a row that looks clickable and isn't.
+                    onOpen={() => {}}
+                    columns={SUBSCRIPTION_ORDER_COLUMNS}
+                    withSummary={false}
+                  />
+                ))}
+              </>
+            ) : null}
 
-          {paymentsTotal > paymentsLimit ? (
-            <div>
-              <Button
-                type="button"
-                onClick={loadPrevPayment}
-                disabled={paymentsOffset === 0}
-              >
-                {"<"}
-              </Button>
-              <span>
-                {paymentsOffset + 1}&ndash;
-                {Math.min(paymentsOffset + paymentsLimit, paymentsTotal)} /{" "}
-                {paymentsTotal}
-              </span>
-              <Button
-                type="button"
-                onClick={loadNextPayment}
-                disabled={paymentsOffset + paymentsLimit >= paymentsTotal}
-              >
-                {">"}
-              </Button>
-            </div>
-          ) : null}
+            {paymentsTotal > paymentsLimit ? (
+              <Pagination
+                offset={paymentsOffset}
+                limit={paymentsLimit}
+                totalItems={paymentsTotal}
+                onGoToPage={goToPagePayment}
+                onPrev={loadPrevPayment}
+                onNext={loadNextPayment}
+              />
+            ) : null}
+          </section>
         </Main>
         <Rail>{/* Task 8 */}</Rail>
       </Columns>

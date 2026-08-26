@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
+import { page } from "vitest/browser";
 import { mountScreen, type MountedScreen } from "../../test-utils";
 import {
   SubscriptionPage,
@@ -9,9 +10,14 @@ import type * as DateConstraints from "./date-constraints";
 
 let screen: MountedScreen | null = null;
 
-afterEach(() => {
+// Mirrors row.test.tsx's own note: the suite's default iframe is under
+// row.tsx's 640px MOBILE breakpoint, and this hook restores it
+// unconditionally so a thrown assertion in a desktop-viewport test never
+// leaks a wide viewport into a later test.
+afterEach(async () => {
   screen?.unmount();
   screen = null;
+  await page.viewport(414, 896);
 });
 
 const flush = () =>
@@ -95,6 +101,44 @@ function subscriptionWithItems(count: number) {
   });
 }
 
+/** A single `fx:transactions` entry, shaped like `OrderResource`. */
+function payment(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 9001,
+    display_id: 9001,
+    transaction_date: "2026-03-01T00:00:00Z",
+    total_order: 42,
+    total_item_price: "37.50",
+    total_tax: "0.00",
+    total_shipping: "4.50",
+    currency_code: "USD",
+    status: "captured",
+    _links: { self: { href: "/s/9001" } },
+    _embedded: { "fx:items": [{ name: "Coffee", quantity: 1, price: 42 }] },
+    ...overrides,
+  };
+}
+
+/** A subscription whose `fx:transactions` link resolves to `payments`. */
+function subscriptionWithPayments(payments: unknown[]) {
+  return subscription({
+    _links: {
+      self: { href: "/s/1042" },
+      "fx:transactions": {
+        href: "/s/42/transactions",
+        get: async () => ({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            total_items: payments.length,
+            _embedded: { "fx:transactions": payments },
+          }),
+        }),
+      },
+    },
+  });
+}
+
 /**
  * Mounts `SubscriptionPage` with a default subscription (and no portal
  * settings), overridable per test. Assertions in this describe block read
@@ -158,6 +202,46 @@ describe("SubscriptionPage", () => {
 
     expect(screen.host.textContent).toMatch(/payments/i);
     expect(screen.host.textContent).toMatch(/no payments yet/i);
+  });
+
+  // Locates the header row by its "Order" cell rather than
+  // `document.body.textContent` -- the whole page (and, from Task 8 on, a
+  // "Summary" rail beside this section) is not what this test is about. The
+  // claim is narrower: the *table* has no Summary *column*.
+  const paymentHistoryHeaderRow = () => {
+    const orderCell = [...document.querySelectorAll("div")].find(
+      (el) => el.children.length === 0 && el.textContent?.trim() === "Order",
+    );
+    return orderCell?.parentElement ?? null;
+  };
+
+  it("renders payment history without a summary column", async () => {
+    render({ subscription: subscriptionWithPayments([payment()]) });
+    await flush();
+
+    const headerRow = paymentHistoryHeaderRow();
+    expect(headerRow).not.toBeNull();
+    // Column headings, minus Summary.
+    expect(headerRow!.textContent).toMatch(/Order/);
+    expect(headerRow!.textContent).toMatch(/Amount/);
+    expect(headerRow!.textContent).not.toMatch(/Summary/);
+  });
+
+  it("lays out the payment history header on the narrow (no-Summary) column set", async () => {
+    // Above 640px, matching row.test.tsx's own desktop-grid tests -- see the
+    // top-of-file comment on why the viewport is set here and restored in
+    // `afterEach`.
+    await page.viewport(900, 900);
+    render({ subscription: subscriptionWithPayments([payment()]) });
+    await flush();
+
+    const headerRow = paymentHistoryHeaderRow();
+    expect(headerRow).not.toBeNull();
+    // Order, Date, Amount, Status, Receipt -- five tracks, not the six the
+    // home page's order table uses.
+    expect(
+      getComputedStyle(headerRow as Element).gridTemplateColumns.split(" "),
+    ).toHaveLength(5);
   });
 
   it("saves a changed frequency and returns home", async () => {

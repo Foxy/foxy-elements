@@ -323,10 +323,6 @@ export const messages = defineMessages({
     id: "portal_subscription_shipping_label",
     defaultMessage: "Shipping address",
   },
-  paymentsHeading: {
-    id: "portal_payments_heading",
-    defaultMessage: "Payments",
-  },
   paymentsEmpty: {
     id: "portal_payments_empty",
     defaultMessage: "No payments yet.",

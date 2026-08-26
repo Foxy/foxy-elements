@@ -181,10 +181,12 @@ const AmountCell = styled.div`
   }
 `;
 
-const StatusCell = styled.div`
+const StatusCell = styled.div<{ $withSummary: boolean }>`
   ${MOBILE} {
     grid-column: 1;
-    grid-row: 4;
+    /* Row 4 sits below Summary's row 3; drop straight to row 3 when there is
+       no Summary cell, or the mobile subgrid keeps an empty fourth track. */
+    grid-row: ${(props) => (props.$withSummary ? 4 : 3)};
     margin-top: 4px;
   }
 `;
@@ -247,7 +249,7 @@ export function OrderRow({
           />
         </AmountCell>
 
-        <StatusCell>
+        <StatusCell $withSummary={withSummary}>
           <Badge $variant={statusVariant}>
             {statusMessage ? intl.formatMessage(statusMessage) : order.status}
           </Badge>

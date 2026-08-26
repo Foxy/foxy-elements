@@ -212,4 +212,27 @@ describe("OrderRow", () => {
     expect(receiptCell).not.toBe(openButton);
     expect(receiptCell.contains(openButton)).toBe(false);
   });
+
+  it("collapses to three mobile row tracks when there is no summary cell", async () => {
+    // Default suite viewport (414x896) is already under the 640px MOBILE
+    // breakpoint -- see the top-of-file comment -- so no `page.viewport`
+    // call is needed here, unlike the two desktop-grid tests above.
+    screen = mountScreen(
+      <OrderRow
+        order={order() as never}
+        onOpen={() => {}}
+        columns={SUBSCRIPTION_ORDER_COLUMNS}
+        withSummary={false}
+      />,
+      {},
+    );
+
+    // `OpenButton` is the grid that actually carries Id/Date/Amount/Status on
+    // its own implicit rows (see row.tsx) -- Order, Date, Amount, Status is
+    // three tracks once Summary's row is dropped, not four.
+    const openButton = document.querySelector("button")!;
+    expect(
+      getComputedStyle(openButton).gridTemplateRows.split(" "),
+    ).toHaveLength(3);
+  });
 });
