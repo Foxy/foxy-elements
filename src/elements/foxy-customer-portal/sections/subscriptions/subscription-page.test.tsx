@@ -223,8 +223,9 @@ describe("SubscriptionPage", () => {
 
   it("shows an item's weight and code", () => {
     render();
-    expect(document.body.textContent).toMatch(/Weight/);
-    expect(document.body.textContent).toMatch(/12/);
+    // Plain /12/ would also be satisfied by the Mug's own $12.00 price, so
+    // anchor to the weight row's label instead of the bare number.
+    expect(document.body.textContent).toMatch(/Weight\s*12/);
     expect(document.body.textContent).toMatch(/Code/);
     expect(document.body.textContent).toMatch(/MUG-1/);
   });
@@ -238,11 +239,42 @@ describe("SubscriptionPage", () => {
 
   it("pages the items when there are more than fit", () => {
     render({ subscription: subscriptionWithItems(5) });
-    const pageButtons = [...document.querySelectorAll("button")].filter((b) =>
-      /^\d+$/.test(b.textContent?.trim() ?? ""),
-    );
+
+    // The page's <h1> also lists every item's name (see `title` in
+    // subscription-page.tsx), so "Item 4" is present in `document.body`
+    // from the very first render regardless of pagination. Scope every
+    // content assertion to the Items section itself -- the <section> that
+    // wraps its <h2> -- so the assertions actually exercise
+    // `visibleItems`, not the unrelated title.
+    const itemsSectionText = () => {
+      const heading = [...document.querySelectorAll("h2")].find((h) =>
+        /^Items/.test(h.textContent ?? ""),
+      );
+      return heading?.parentElement?.textContent ?? "";
+    };
+
+    const pageButtons = () =>
+      [...document.querySelectorAll("button")].filter((b) =>
+        /^\d+$/.test(b.textContent?.trim() ?? ""),
+      );
+
     // 5 items at 3 per page.
-    expect(pageButtons).toHaveLength(2);
+    expect(pageButtons()).toHaveLength(2);
+
+    expect(itemsSectionText()).toMatch(/Item 1/);
+    expect(itemsSectionText()).toMatch(/Item 2/);
+    expect(itemsSectionText()).toMatch(/Item 3/);
+    expect(itemsSectionText()).not.toMatch(/Item 4/);
+
+    act(() => {
+      pageButtons()
+        .find((b) => b.textContent?.trim() === "2")!
+        .click();
+    });
+
+    expect(itemsSectionText()).toMatch(/Item 4/);
+    expect(itemsSectionText()).toMatch(/Item 5/);
+    expect(itemsSectionText()).not.toMatch(/Item 1/);
   });
 });
 
