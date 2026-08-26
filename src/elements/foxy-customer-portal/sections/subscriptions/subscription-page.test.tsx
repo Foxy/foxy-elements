@@ -517,6 +517,66 @@ describe("SubscriptionPage", () => {
     expect(document.body.textContent).not.toMatch(/Billing & shipping/);
   });
 
+  it("hides the shipping row when the template carries no address", () => {
+    // A digital-only subscription's template has no shipping fields. The row
+    // used to render its heading and a live Edit link-out over two empty
+    // lines -- an edit affordance for an address that does not exist.
+    render({
+      subscription: subscriptionWithTokenUrl({
+        _embedded: {
+          "fx:transaction_template": {
+            currency_code: "USD",
+            total_order: 42,
+            _embedded: { "fx:items": DEFAULT_ITEMS },
+          },
+        },
+      }),
+    });
+
+    // The panel itself is still there -- only the shipping row is gone.
+    expect(billingSectionText()).toMatch(/Payment method/);
+    expect(billingSectionText()).not.toMatch(/Shipping address/);
+    expect(billingSectionText()).not.toMatch(/Edit/);
+  });
+
+  it("hides the Save button and its note when no editable control renders", () => {
+    // `settings: null` (the default `render()`) leaves `frequencies` empty
+    // and `dateRules` false, so neither the Select nor the Calendar renders.
+    // The rail still offered a Save button under "Changes save immediately
+    // and apply to the next payment." -- and that Save, finding nothing
+    // changed, calls `onBack()`, navigating the customer off the page.
+    render();
+
+    expect(
+      [...document.querySelectorAll("aside button")].some((b) =>
+        /^save$/i.test(b.textContent ?? ""),
+      ),
+    ).toBe(false);
+    expect(railText()).not.toMatch(/Changes save immediately/);
+  });
+
+  it("keeps the Save button and its note when a control does render", () => {
+    // The other half of the pair: the gate must not have taken Save away
+    // from the case it exists for.
+    render({
+      settings: {
+        subscriptions: {
+          allow_frequency_modification: [
+            { jsonata_query: "*", values: ["1m", "1y"] },
+          ],
+          allow_next_date_modification: true,
+        },
+      },
+    });
+
+    expect(
+      [...document.querySelectorAll("aside button")].some((b) =>
+        /^save$/i.test(b.textContent ?? ""),
+      ),
+    ).toBe(true);
+    expect(railText()).toMatch(/Changes save immediately/);
+  });
+
   it("renders exactly one summary rail", () => {
     render();
     expect(document.querySelectorAll("aside")).toHaveLength(1);

@@ -610,6 +610,12 @@ export function SubscriptionPage({
     .filter((part) => part && String(part).trim())
     .join(" ");
 
+  // A transaction template for a digital-only subscription carries no
+  // shipping fields at all. Without this the row still rendered its heading
+  // and its Edit link-out over two empty lines -- an "edit" affordance for
+  // an address the store does not have.
+  const hasShippingAddress = !!(shippingLine1 || shippingLine2);
+
   // Items are already in hand from the embed, so this pager is local state
   // over a fixed array rather than another `useCollection`.
   const itemOffset = (itemPage - 1) * ITEMS_PER_PAGE;
@@ -629,6 +635,19 @@ export function SubscriptionPage({
   // it (`frequencies` empty), both fall through to the read-only row.
   const frequencySelectVisible =
     !isEnded && showFrequency && frequencies.length > 0;
+
+  // The Calendar's own gate, hoisted so the Save button can be gated on
+  // whether *anything* editable rendered above it. With `settings: null`
+  // (a store that answered nothing, or a settings read still in flight)
+  // both controls are absent, and the rail used to still show a Save button
+  // under "Changes save immediately and apply to the next payment." --
+  // copy that describes edits the customer cannot make. Worse, that Save
+  // finds no changes and calls `onBack()`, so pressing it navigates them off
+  // the page. Both are hidden together when neither control is there.
+  const nextDateCalendarVisible =
+    !isEnded && showNextDate && dateRules !== false;
+  const hasEditableControls =
+    frequencySelectVisible || nextDateCalendarVisible;
 
   // Items are zoomed per transaction, not read off the subscription, so a
   // subscription that was later modified still shows what was actually
@@ -847,30 +866,36 @@ export function SubscriptionPage({
                   {cardLabel ? <PanelValue>{cardLabel}</PanelValue> : null}
                 </PanelRow>
 
-                <Separator />
+                {/* Separator and row go together: leaving the rule behind
+                would draw a divider under the panel's only remaining row. */}
+                {hasShippingAddress ? (
+                  <>
+                    <Separator />
 
-                <PanelRow>
-                  <div>
-                    <PanelLabel>
-                      {intl.formatMessage(messages.subscriptionShippingLabel)}
-                    </PanelLabel>
-                    <PanelNote>{shippingLine1}</PanelNote>
-                    <PanelNote>{shippingLine2}</PanelNote>
-                  </div>
+                    <PanelRow>
+                      <div>
+                        <PanelLabel>
+                          {intl.formatMessage(messages.subscriptionShippingLabel)}
+                        </PanelLabel>
+                        <PanelNote>{shippingLine1}</PanelNote>
+                        <PanelNote>{shippingLine2}</PanelNote>
+                      </div>
 
-                  {tokenHref ? (
-                    <PanelAction>
-                      <EditLink
-                        href={tokenLink(tokenHref, {
-                          cart: "checkout",
-                          sub_restart: "auto",
-                        })}
-                      >
-                        {intl.formatMessage(messages.addressEdit)}
-                      </EditLink>
-                    </PanelAction>
-                  ) : null}
-                </PanelRow>
+                      {tokenHref ? (
+                        <PanelAction>
+                          <EditLink
+                            href={tokenLink(tokenHref, {
+                              cart: "checkout",
+                              sub_restart: "auto",
+                            })}
+                          >
+                            {intl.formatMessage(messages.addressEdit)}
+                          </EditLink>
+                        </PanelAction>
+                      ) : null}
+                    </PanelRow>
+                  </>
+                ) : null}
               </Panel>
             </section>
           ) : null}
@@ -1039,9 +1064,9 @@ export function SubscriptionPage({
               ) : null}
             </RailList>
 
-            {!isEnded ? (
+            {hasEditableControls ? (
               <>
-                {showFrequency && frequencies.length > 0 ? (
+                {frequencySelectVisible ? (
                   <Field.Root>
                     <Field.Label htmlFor={frequencyId}>
                       {intl.formatMessage(messages.manageFrequency)}
@@ -1074,7 +1099,7 @@ export function SubscriptionPage({
                   </Field.Root>
                 ) : null}
 
-                {showNextDate && dateRules !== false ? (
+                {nextDateCalendarVisible ? (
                   <Field.Root>
                     <Field.Label>
                       {intl.formatMessage(messages.manageNextPayment)}
