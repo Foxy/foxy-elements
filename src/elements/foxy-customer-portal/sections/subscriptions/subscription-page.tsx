@@ -514,6 +514,13 @@ export function SubscriptionPage({
   const startedAt = toCalendarDate(subscription.start_date);
   const nextAt = toCalendarDate(subscription.next_transaction_date);
 
+  // True once *any* end date is set, whether it is already in the past
+  // (`isEnded`) or merely scheduled (`will_end`/`will_end_after_payment`,
+  // where `isEnded` is still false). The Cancel link must not go active for
+  // either -- a subscription that already has a cancellation queued must not
+  // let the customer queue a second one.
+  const hasEndDate = !!endsAt;
+
   // `past_due_amount` is typed as a number on `SubscriptionResource`, but the
   // rail's row is coerced through `Number()` anyway -- belt-and-suspenders
   // against a store that ever sends the numeric-string shape the sibling
@@ -566,6 +573,16 @@ export function SubscriptionPage({
   const showEndDate = cartDisplayConfig?.show_sub_enddate ?? true;
   const showFrequency = cartDisplayConfig?.show_sub_frequency ?? true;
   const showNextDate = cartDisplayConfig?.show_sub_nextdate ?? true;
+
+  // Reconstructs the exact condition that gates the editable frequency
+  // `Select` below (`!isEnded` wrap, then `showFrequency &&
+  // frequencies.length > 0`), so the read-only Frequency row's own condition
+  // -- `showFrequency && !frequencySelectVisible` -- can never show both the
+  // Select and the read-only row, and never show neither while
+  // `showFrequency` is on: ended, or live-but-the-store-disallows-changing-
+  // it (`frequencies` empty), both fall through to the read-only row.
+  const frequencySelectVisible =
+    !isEnded && showFrequency && frequencies.length > 0;
 
   // Items are zoomed per transaction, not read off the subscription, so a
   // subscription that was later modified still shows what was actually
@@ -956,7 +973,7 @@ export function SubscriptionPage({
                   </span>
                 </RailRow>
               ) : null}
-              {isEnded && showFrequency ? (
+              {showFrequency && !frequencySelectVisible ? (
                 <RailRow>
                   <span>{intl.formatMessage(messages.manageFrequency)}</span>
                   <span>{subscription.frequency}</span>
@@ -1034,9 +1051,17 @@ export function SubscriptionPage({
 
           {!isEnded && tokenHref ? (
             <CancelBlock>
-              <CancelLink href={tokenLink(tokenHref, { sub_cancel: "true" })}>
-                {intl.formatMessage(messages.manageCancel)}
-              </CancelLink>
+              {hasEndDate ? (
+                <CancelLink aria-disabled="true">
+                  {intl.formatMessage(messages.manageCancel)}
+                </CancelLink>
+              ) : (
+                <CancelLink
+                  href={tokenLink(tokenHref, { sub_cancel: "true" })}
+                >
+                  {intl.formatMessage(messages.manageCancel)}
+                </CancelLink>
+              )}
               {nextAt ? (
                 <SaveNote>
                   {intl.formatMessage(messages.subscriptionAccessUntil, {

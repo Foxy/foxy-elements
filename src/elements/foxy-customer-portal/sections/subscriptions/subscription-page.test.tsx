@@ -30,6 +30,13 @@ const flush = () =>
 // past instant.
 const past = "2020-01-01T00:00:00Z";
 
+// After `start_date` (2026-01-01) but before the default fixture's
+// `next_transaction_date` (2099-01-01), so plugging this into `end_date`
+// alone (leaving `next_transaction_date` at its default) yields
+// `getSubscriptionStatus`'s "will_end" -- live, but with a cancellation
+// already scheduled -- rather than "ended" or "will_end_after_payment".
+const future = "2027-01-01T00:00:00Z";
+
 // Two items by default -- one plain, one carrying an option, a weight and a
 // code -- so a test can assert on the count and every detail-row kind
 // without every caller having to build its own items array.
@@ -540,6 +547,24 @@ describe("SubscriptionPage", () => {
     expect(document.body.textContent).not.toMatch(/Access continues until/);
   });
 
+  it("disables (rather than activates) the cancel link once a cancellation is already scheduled", () => {
+    // `is_active` stays true and `end_date` alone moves to the future --
+    // `getSubscriptionStatus` reads this as "will_end", not "ended", so
+    // `isEnded` is false and the old `!isEnded` gate alone would have let an
+    // active link through. The link must still come out disabled because a
+    // cancellation is already queued.
+    render({
+      subscription: subscriptionWithTokenUrl({ end_date: future }),
+    });
+
+    const cancel = [...document.querySelectorAll("aside a")].find((a) =>
+      /cancel/i.test(a.textContent ?? ""),
+    );
+    expect(cancel).toBeDefined();
+    expect(cancel?.getAttribute("href")).toBeNull();
+    expect(cancel?.getAttribute("aria-disabled")).toBe("true");
+  });
+
   it("shows no editable controls once the subscription has ended", () => {
     // Permissive settings, matching "saves a changed frequency and returns
     // home" above -- if the rail's own `!isEnded` gate were missing, these
@@ -571,6 +596,16 @@ describe("SubscriptionPage", () => {
     });
     expect(railText()).toMatch(/Started/);
     expect(railText()).toMatch(/Ends/);
+    expect(railText()).toMatch(/Frequency/);
+    expect(railText()).toMatch(/1m/);
+  });
+
+  it("shows the frequency as read-only text while live if the store won't let it change", () => {
+    // Default `render()` passes `settings: null`, so `frequencies` resolves
+    // to `[]` and the editable Select never renders -- previously that left
+    // the frequency showing nowhere at all for a live subscription. Now the
+    // read-only row picks it up instead.
+    render();
     expect(railText()).toMatch(/Frequency/);
     expect(railText()).toMatch(/1m/);
   });
