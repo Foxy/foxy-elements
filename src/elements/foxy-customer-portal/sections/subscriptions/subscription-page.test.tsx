@@ -571,6 +571,48 @@ describe("SubscriptionPage", () => {
     clear.mockRestore();
   });
 
+  it("marks the frequency Select as a menu, not a text field", () => {
+    // Without an affordance the trigger is a bordered box with a word in it
+    // -- indistinguishable from the read-only frequency row it replaces, and
+    // from the date field below it.
+    render({ settings: EDITABLE_SETTINGS });
+
+    const icon = frequencyTrigger()?.querySelector("svg");
+    expect(icon).toBeTruthy();
+    expect(icon?.getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("opens the cancel link in a new tab, as its icon promises", () => {
+    render({ subscription: subscriptionWithTokenUrl() });
+
+    const cancel = [...document.querySelectorAll("aside a")].find((a) =>
+      /cancel/i.test(a.textContent ?? ""),
+    ) as HTMLAnchorElement | undefined;
+
+    expect(cancel?.getAttribute("href")).toMatch(/sub_cancel=true/);
+    expect(cancel?.querySelector("svg")).toBeTruthy();
+
+    // The icon and the target have to agree. An external-link icon over a
+    // same-tab navigation is a lie the customer only finds out by losing
+    // the page they were on.
+    expect(cancel?.target).toBe("_blank");
+    expect(cancel?.rel).toBe("noreferrer");
+  });
+
+  it("puts no open-in-new icon on a cancel link that opens nothing", () => {
+    // The already-scheduled case renders inert: `aria-disabled`, no href.
+    // An icon there would promise a tab that never opens.
+    render({ subscription: subscriptionWithTokenUrl({ end_date: future }) });
+
+    const cancel = [...document.querySelectorAll("aside a")].find((a) =>
+      /cancel/i.test(a.textContent ?? ""),
+    );
+
+    expect(cancel?.getAttribute("aria-disabled")).toBe("true");
+    expect(cancel?.hasAttribute("href")).toBe(false);
+    expect(cancel?.querySelector("svg")).toBeNull();
+  });
+
   it("saves a changed frequency immediately", async () => {
     const patch = vi.fn(async (_body: unknown) => ({ ok: true, status: 200 }));
 

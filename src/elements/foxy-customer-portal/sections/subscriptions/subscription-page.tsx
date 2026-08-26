@@ -1,7 +1,7 @@
 import { useId, useMemo, useState } from "react";
 import { FormattedDate, FormattedNumber, useIntl } from "react-intl";
 import styled from "styled-components";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, ChevronDown, ExternalLink } from "lucide-react";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Badge } from "@foxy.io/design-system/badge";
 import { Calendar } from "@foxy.io/design-system/calendar";
@@ -382,6 +382,9 @@ const CancelBlock = styled.div`
 
 const CancelLink = styled.a`
   align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: ${(props) => props.theme.tokens.space["2xs"]};
   font: ${(props) => props.theme.tokens.font.body};
   font-weight: 500;
   color: ${(props) => props.theme.tokens.color.error};
@@ -1233,6 +1236,12 @@ export function SubscriptionPage({
                             ("1m") the Item was keyed by -- the value has to
                             stay the wire format for `onValueChange`. */}
                         <Select.Value>{formatFrequency(frequency)}</Select.Value>
+                        {/* `Select.Icon` rotates 180 degrees while the popup
+                            is open, so the chevron doubles as the open/closed
+                            state. */}
+                        <Select.Icon>
+                          <ChevronDown size={16} aria-hidden="true" />
+                        </Select.Icon>
                       </Select.Trigger>
 
                       <Select.Portal container={portalContainer ?? undefined}>
@@ -1379,8 +1388,21 @@ export function SubscriptionPage({
                   </SaveNote>
                 </>
               ) : (
-                <CancelLink href={tokenLink(tokenHref, { sub_cancel: "true" })}>
+                // Opens in a new tab, like the Receipt links in the table
+                // above. The icon is the reason: it promises a new tab, so
+                // navigating in place would make it a lie. Keeping the portal
+                // open behind the hosted cancel flow also means the customer
+                // still has this page to come back to.
+                //
+                // The inert branch above deliberately has no icon -- it opens
+                // nothing at all.
+                <CancelLink
+                  href={tokenLink(tokenHref, { sub_cancel: "true" })}
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   {intl.formatMessage(messages.manageCancel)}
+                  <ExternalLink size={14} aria-hidden="true" />
                 </CancelLink>
               )}
 
