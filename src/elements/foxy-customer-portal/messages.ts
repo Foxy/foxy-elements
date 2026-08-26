@@ -272,10 +272,6 @@ export const messages = defineMessages({
     id: "portal_subscriptions_inactive",
     defaultMessage: "Inactive ({count})",
   },
-  manageHeading: {
-    id: "portal_manage_heading",
-    defaultMessage: "Manage subscription",
-  },
   manageFrequency: {
     id: "portal_manage_frequency",
     defaultMessage: "Frequency",
