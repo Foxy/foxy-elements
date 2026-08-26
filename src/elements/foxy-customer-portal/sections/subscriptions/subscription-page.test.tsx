@@ -590,6 +590,67 @@ describe("SubscriptionPage", () => {
     expect(document.querySelector("aside button[data-day]")).toBeNull();
   });
 
+  it("treats a failed subscription that has also ended as ended", () => {
+    // `getSubscriptionStatus` returns the distinct string
+    // "failed_and_ended" when a failure and a past end date coincide, and
+    // the old `isEnded` (`"ended" || "inactive"`) missed it entirely -- so
+    // this state kept every editing control, kept the Billing & shipping
+    // panel with its *live* `cart=checkout&sub_restart=auto` Edit link, and
+    // never told the customer the subscription had ended. The token URL is
+    // supplied here on purpose: without it the Edit link would be absent for
+    // the wrong reason.
+    render({
+      subscription: subscriptionWithTokenUrl({
+        is_active: false,
+        end_date: past,
+        first_failed_transaction_date: past,
+        past_due_amount: 24,
+      }),
+      settings: {
+        subscriptions: {
+          allow_frequency_modification: [
+            { jsonata_query: "*", values: ["1m", "1y"] },
+          ],
+          allow_next_date_modification: true,
+        },
+      },
+    });
+
+    // No live editing controls in the rail.
+    expect(
+      [...document.querySelectorAll("aside button")].some((b) =>
+        /^save$/i.test(b.textContent ?? ""),
+      ),
+    ).toBe(false);
+    expect(document.querySelector("aside button[data-day]")).toBeNull();
+
+    // Billing & shipping is hidden (spec §6.4), so its Edit link-out is gone
+    // rather than merely inert.
+    expect(billingSectionText()).toBe("");
+    expect(
+      [...document.querySelectorAll("a")].some((a) =>
+        /cart=checkout/.test(a.getAttribute("href") ?? ""),
+      ),
+    ).toBe(false);
+
+    // And the header says so.
+    expect(document.body.textContent).toMatch(/No further payments/);
+  });
+
+  it("badges nothing when the subscription's status cannot be determined", () => {
+    // `start_date: null` makes `getSubscriptionStatus` return null. The old
+    // ternary chain fell through to "Active", asserting health about a
+    // record it knows nothing about.
+    render({ subscription: subscription({ start_date: null }) });
+
+    const header = document.querySelector("h1")?.parentElement;
+    expect(header).not.toBeNull();
+    expect(header!.textContent).not.toMatch(/Active/);
+    expect(header!.textContent).not.toMatch(/Scheduled/);
+    // The title and id still render -- the badge is what is withheld.
+    expect(header!.textContent).toMatch(/#1042/);
+  });
+
   it("shows the read-only schedule rows once the subscription has ended", () => {
     render({
       subscription: subscription({ is_active: false, end_date: past }),

@@ -41,11 +41,41 @@ import {
   SUBSCRIPTION_ORDER_COLUMNS,
   type OrderResource,
 } from "../orders/row";
-import { getSubscriptionStatus } from "./status";
+import { getSubscriptionStatus, type SubscriptionStatus } from "./status";
 import type { SubscriptionResource } from "./card";
 import { useSubscriptionById } from "./use-subscription-by-id";
 
 const ITEMS_PER_PAGE = 3;
+
+/**
+ * Which of `getSubscriptionStatus`'s statuses mean "this subscription is
+ * over" for the purposes of this page's gating: no editable controls, no
+ * Billing & shipping panel (spec §6.4), no cancel link, and an "Ended on
+ * {date}" note in the header (spec §6.1).
+ *
+ * A total map over `SubscriptionStatus` rather than a chain of equality
+ * checks, so a status added to `status.ts` fails to compile here instead of
+ * silently defaulting to "still live". That default is exactly what
+ * `failed_and_ended` used to get: it is `ended` with a payment failure on
+ * top, and every gate here read it as live -- which left a dead
+ * subscription showing a working `cart=checkout&sub_restart=auto` link and
+ * never telling the customer it had ended.
+ *
+ * `will_end` and `will_end_after_payment` stay `false` on purpose: those
+ * carry a *scheduled* end date that has not arrived, so the subscription is
+ * still live and still editable. (`hasEndDate` is what stops a second
+ * cancellation being queued for them.)
+ */
+const ENDED_STATUSES: Record<SubscriptionStatus, boolean> = {
+  will_start: false,
+  will_end: false,
+  will_end_after_payment: false,
+  next_payment: false,
+  ended: true,
+  failed: false,
+  failed_and_ended: true,
+  inactive: true,
+};
 
 const HeaderRow = styled.div`
   display: flex;
@@ -529,16 +559,32 @@ export function SubscriptionPage({
 
   const status = getSubscriptionStatus(subscription);
   const isFailed = status === "failed" || status === "failed_and_ended";
-  const isEnded = status === "ended" || status === "inactive";
+  const isEnded = status !== null && ENDED_STATUSES[status];
   const isScheduled = status === "will_start";
 
-  const statusMessage = isFailed
-    ? messages.subscriptionStatusPastDue
-    : isEnded
-      ? messages.subscriptionStatusEnded
-      : isScheduled
-        ? messages.subscriptionStatusScheduled
-        : messages.subscriptionStatusActive;
+  // `getSubscriptionStatus` returns `null` when the subscription carries no
+  // date it can reason from (`start_date: null`, or a `next_transaction_date`
+  // that is missing on an otherwise active record). The old chain fell
+  // through to "Active" there, badging a subscription whose state is
+  // genuinely unknown as a healthy one. There is nothing honest to say, so
+  // the badge is omitted -- the header still shows the title and id, and the
+  // rail still shows whatever dates the record does carry.
+  //
+  // `isFailed` is tested first in both chains, so `failed_and_ended` badges
+  // as Past due rather than Ended. That is spec §6.1's own row order ("any
+  // failed state" above "ended / inactive"), and it is deliberate: such a
+  // subscription shows the Past due badge, the past-due alert *and* the
+  // "Ended on {date}" note together, which is the full truth about it.
+  const statusMessage =
+    status === null
+      ? null
+      : isFailed
+        ? messages.subscriptionStatusPastDue
+        : isEnded
+          ? messages.subscriptionStatusEnded
+          : isScheduled
+            ? messages.subscriptionStatusScheduled
+            : messages.subscriptionStatusActive;
 
   const statusVariant = isFailed
     ? "destructive"
@@ -663,9 +709,11 @@ export function SubscriptionPage({
                 })}
               </TitleId>
             </PageTitle>
-            <Badge $variant={statusVariant}>
-              {intl.formatMessage(statusMessage)}
-            </Badge>
+            {statusMessage ? (
+              <Badge $variant={statusVariant}>
+                {intl.formatMessage(statusMessage)}
+              </Badge>
+            ) : null}
           </TitleLine>
 
           {isEnded && endsAt ? (
