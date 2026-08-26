@@ -96,6 +96,7 @@
   "portal_manage_frequency": "Frequency",
   "portal_manage_modify": "Modify items",
   "portal_manage_next_payment": "Next payment date",
+  "portal_manage_next_payment_empty": "Choose a date",
   "portal_manage_save": "Save",
   "portal_manage_saving": "Saving...",
   "portal_missing_store_domain": "Set the store-domain attribute to use this element.",

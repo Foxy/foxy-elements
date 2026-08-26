@@ -322,6 +322,10 @@ export const messages = defineMessages({
     id: "portal_manage_next_payment",
     defaultMessage: "Next payment date",
   },
+  manageNextPaymentEmpty: {
+    id: "portal_manage_next_payment_empty",
+    defaultMessage: "Choose a date",
+  },
   subscriptionItemsHeading: {
     id: "portal_subscription_items_heading",
     defaultMessage: "Items ({count})",

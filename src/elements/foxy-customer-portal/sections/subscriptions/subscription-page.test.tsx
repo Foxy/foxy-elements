@@ -207,6 +207,34 @@ function subscriptionWithTokenUrl(overrides: Record<string, unknown> = {}) {
 const railText = () => document.querySelector("aside")?.textContent ?? "";
 
 /**
+ * The next-payment date picker's trigger. Base UI's `Popover.Trigger` marks
+ * itself `aria-haspopup="dialog"`, which no other control in the rail does.
+ */
+const nextDatePickerTrigger = () =>
+  screen!.host.querySelector<HTMLButtonElement>(
+    'button[aria-haspopup="dialog"]',
+  );
+
+/**
+ * The calendar sits inside the popover, so it is not in the DOM at all until
+ * the trigger is clicked -- any test reaching for a `[data-day]` button has to
+ * open it first.
+ *
+ * It also lands in `document.body`, not `screen.host`: the popup portals to
+ * `container`, and `mountScreen` wraps nothing in `PortalContainerContext`, so
+ * `usePortalContainer()` is null and Base UI falls back to the body. In the
+ * element proper that context supplies the shadow root instead.
+ */
+async function openNextDatePicker() {
+  act(() => nextDatePickerTrigger()?.click());
+  await flush();
+}
+
+const calendarDays = () => [
+  ...document.body.querySelectorAll<HTMLButtonElement>("button[data-day]"),
+];
+
+/**
  * Scoped to the past-due `Alert` itself. `querySelectorAll("div")` returns
  * document order, so a `.find` over every div that *contains* "Payment
  * failed" hands back the OUTERMOST match -- the page layout wrapper, whose
@@ -405,10 +433,10 @@ describe("SubscriptionPage", () => {
     );
     await flush();
 
+    await openNextDatePicker();
+
     act(() => {
-      const day = screen!.host.querySelector<HTMLButtonElement>(
-        "button[data-day]:not([disabled])",
-      );
+      const day = calendarDays().find((button) => !button.disabled);
       day?.click();
     });
 
@@ -420,6 +448,80 @@ describe("SubscriptionPage", () => {
 
     expect(patch).toHaveBeenCalled();
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it("keeps the next payment calendar inside a popover", async () => {
+    render({
+      settings: {
+        subscriptions: {
+          allow_frequency_modification: [
+            { jsonata_query: "*", values: ["1m", "1y"] },
+          ],
+          allow_next_date_modification: true,
+        },
+      },
+    });
+    await flush();
+
+    // The point of the change: a month grid no longer sits open in a 320px
+    // rail. Asserting on `calendarDays()` rather than the trigger, because a
+    // trigger that renders while the calendar ALSO stays inline would still
+    // satisfy a trigger-only assertion.
+    expect(nextDatePickerTrigger()).not.toBeNull();
+    expect(calendarDays()).toHaveLength(0);
+
+    await openNextDatePicker();
+    expect(calendarDays().length).toBeGreaterThan(0);
+  });
+
+  it("labels the date picker trigger with the current next payment date", async () => {
+    render({
+      settings: {
+        subscriptions: {
+          allow_frequency_modification: [
+            { jsonata_query: "*", values: ["1m", "1y"] },
+          ],
+          allow_next_date_modification: true,
+        },
+      },
+    });
+    await flush();
+
+    // The fixture's `next_transaction_date` is 2099-01-01. A closed picker
+    // showing nothing would read as missing data, so the trigger states the
+    // date the subscription already has -- without that counting as a pending
+    // edit, which is why `nextDate` stays undefined until a day is clicked.
+    expect(nextDatePickerTrigger()?.textContent).toMatch(/2099/);
+    expect(nextDatePickerTrigger()?.textContent).not.toMatch(/Choose a date/);
+  });
+
+  it("closes the picker once a date is chosen", async () => {
+    render({
+      settings: {
+        subscriptions: {
+          allow_frequency_modification: [
+            { jsonata_query: "*", values: ["1m", "1y"] },
+          ],
+          allow_next_date_modification: true,
+        },
+      },
+    });
+    await flush();
+
+    await openNextDatePicker();
+    expect(calendarDays().length).toBeGreaterThan(0);
+
+    act(() => {
+      calendarDays().find((button) => !button.disabled)?.click();
+    });
+    await flush();
+
+    // Base UI keeps the popup mounted through its exit transition, so this
+    // asserts the popup is on its way out rather than already gone.
+    const popup = document.body.querySelector('[role="dialog"]');
+    expect(popup === null || popup.hasAttribute("data-ending-style")).toBe(
+      true,
+    );
   });
 
   it("heads the page with the subscription's items and id", () => {
@@ -1257,6 +1359,10 @@ describe("SubscriptionPage's Calendar disabled matcher", () => {
       {},
     );
     await flush();
+
+    // The Calendar only mounts once the picker's popover is open, so the
+    // matcher never runs until then.
+    await openNextDatePicker();
 
     // The matcher has to have actually been invoked, or the assertion below
     // would pass vacuously because the loop never runs.

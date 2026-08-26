@@ -1,11 +1,13 @@
 import { useId, useMemo, useState } from "react";
 import { FormattedDate, FormattedNumber, useIntl } from "react-intl";
 import styled from "styled-components";
+import { CalendarDays } from "lucide-react";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Badge } from "@foxy.io/design-system/badge";
 import { Button } from "@foxy.io/design-system/button";
 import { Calendar } from "@foxy.io/design-system/calendar";
 import { Field } from "@foxy.io/design-system/field";
+import { Popover } from "@foxy.io/design-system/popover";
 import { Select } from "@foxy.io/design-system/select";
 import { Separator } from "@foxy.io/design-system/separator";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
@@ -510,6 +512,8 @@ export function SubscriptionPage({
   const portalContainer = usePortalContainer();
   const frequencyId = useId();
   const cancelNoteId = useId();
+  const nextDateId = useId();
+  const [nextDateOpen, setNextDateOpen] = useState(false);
 
   const [frequency, setFrequency] = useState(subscription.frequency);
   const [nextDate, setNextDate] = useState<Date | undefined>(undefined);
@@ -574,6 +578,13 @@ export function SubscriptionPage({
   const endsAt = toCalendarDate(subscription.end_date);
   const startedAt = toCalendarDate(subscription.start_date);
   const nextAt = toCalendarDate(subscription.next_transaction_date);
+
+  // What the date picker trigger reads, and where its calendar opens: the
+  // customer's pending pick if there is one, otherwise the subscription's
+  // own next payment date. Deliberately NOT `nextDate` alone -- an empty
+  // trigger beside a date the page states twice elsewhere reads as missing
+  // data. `nextDate` stays the only thing `handleSave` looks at.
+  const shownNextDate = nextDate ?? nextAt;
 
   // `past_due_amount` is typed as a number on `SubscriptionResource`, but the
   // rail's row is coerced through `Number()` anyway -- belt-and-suspenders
@@ -1182,21 +1193,61 @@ export function SubscriptionPage({
 
                 {nextDateCalendarVisible ? (
                   <Field.Root>
-                    <Field.Label>
+                    <Field.Label htmlFor={nextDateId}>
                       {intl.formatMessage(messages.manageNextPayment)}
                     </Field.Label>
-                    <Calendar
-                      mode="single"
-                      selected={nextDate}
-                      onSelect={setNextDate}
-                      startMonth={
-                        "startMonth" in bounds ? bounds.startMonth : undefined
-                      }
-                      endMonth={
-                        "endMonth" in bounds ? bounds.endMonth : undefined
-                      }
-                      disabled={bounds.disabled}
-                    />
+
+                    <Popover.Root
+                      open={nextDateOpen}
+                      onOpenChange={setNextDateOpen}
+                    >
+                      <Popover.Trigger id={nextDateId} $variant="field">
+                        {shownNextDate ? (
+                          <FormattedDate
+                            value={shownNextDate}
+                            dateStyle="medium"
+                          />
+                        ) : (
+                          intl.formatMessage(messages.manageNextPaymentEmpty)
+                        )}
+                        <CalendarDays size={16} aria-hidden="true" />
+                      </Popover.Trigger>
+
+                      <Popover.Portal
+                        container={portalContainer ?? undefined}
+                      >
+                        <Popover.Positioner sideOffset={4}>
+                          <Popover.Popup>
+                            <Calendar
+                              mode="single"
+                              // `selected` and `defaultMonth` read the
+                              // subscription's own date so the picker opens on
+                              // it, but `nextDate` stays undefined until the
+                              // customer actually picks. `handleSave` keys the
+                              // PATCH off `nextDate`, so showing the current
+                              // date must not look like a pending change.
+                              selected={shownNextDate ?? undefined}
+                              defaultMonth={shownNextDate ?? undefined}
+                              onSelect={(date: Date | undefined) => {
+                                setNextDate(date);
+                                if (date) setNextDateOpen(false);
+                              }}
+                              startMonth={
+                                "startMonth" in bounds
+                                  ? bounds.startMonth
+                                  : undefined
+                              }
+                              endMonth={
+                                "endMonth" in bounds
+                                  ? bounds.endMonth
+                                  : undefined
+                              }
+                              disabled={bounds.disabled}
+                            />
+                          </Popover.Popup>
+                        </Popover.Positioner>
+                      </Popover.Portal>
+                    </Popover.Root>
                   </Field.Root>
                 ) : null}
 
