@@ -223,6 +223,13 @@ export function AccountScreen({
         }
         settings={subscriptionsSettings}
         cartDisplayConfig={cartDisplayConfig}
+        paymentMethodLink={
+          (data._links as unknown as CustomerLinks)[
+            "fx:default_payment_method"
+          ] as unknown as ComponentProps<
+            typeof SubscriptionPageContainer
+          >["paymentMethodLink"]
+        }
         onBack={goHome}
       />
     );

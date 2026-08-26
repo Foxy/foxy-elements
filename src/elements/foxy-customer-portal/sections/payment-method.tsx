@@ -40,6 +40,30 @@ function brandName(ccType: string): string {
   return ccType.charAt(0).toUpperCase() + ccType.slice(1);
 }
 
+/**
+ * True once `data` resolves to a resource that actually carries a card this
+ * UI can show. A customer with no card on file still gets a 200 with every
+ * field blank, so having the resource is not the same as having a card.
+ * Exported so other callers (e.g. the subscription page's billing row) can
+ * gate on the same rule `PaymentMethod` itself uses, rather than
+ * re-deriving it.
+ */
+export function hasSavedCard(
+  data: DefaultPaymentMethodResource | null | undefined,
+): data is DefaultPaymentMethodResource {
+  return !!data && !!data.cc_number_masked;
+}
+
+/**
+ * Formats a resolved card the same way `PaymentMethod`'s own card line does
+ * -- brand name plus the masked number's last four -- for a caller that only
+ * needs the compact label, not the full loading/empty/error block. Callers
+ * must check `hasSavedCard(data)` first; this assumes a real card.
+ */
+export function formatCardLabel(data: DefaultPaymentMethodResource): string {
+  return `${brandName(data.cc_type)} ••••${data.cc_number_masked.slice(-4)}`;
+}
+
 const Heading = styled.h3`
   margin: 0 0 16px;
   font: ${(props) => props.theme.tokens.font.h3};
@@ -123,9 +147,7 @@ export function PaymentMethod({ link }: Props) {
     link ?? null,
   );
 
-  // A customer with no card on file still gets a 200, with the fields blank —
-  // so having the resource is not the same as having a card.
-  const hasCard = !!data && !!data.cc_number_masked;
+  const hasCard = hasSavedCard(data);
 
   const heading = (
     <Heading>
@@ -175,9 +197,7 @@ export function PaymentMethod({ link }: Props) {
         </BrandChip>
 
         <Details>
-          <CardNumber>
-            {brandName(data.cc_type)} ••••{data.cc_number_masked.slice(-4)}
-          </CardNumber>
+          <CardNumber>{formatCardLabel(data)}</CardNumber>
           <Expiry>
             {intl.formatMessage(messages.paymentMethodsExpires, {
               month: data.cc_exp_month,

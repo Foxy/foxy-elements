@@ -102,17 +102,30 @@ function subscriptionWithItems(count: number) {
  * work, since `mountScreen` appends `host` to `document.body`.
  */
 function render(
-  overrides: { subscription?: unknown; cartDisplayConfig?: unknown } = {},
+  overrides: {
+    subscription?: unknown;
+    cartDisplayConfig?: unknown;
+    paymentMethodLink?: unknown;
+  } = {},
 ) {
   screen = mountScreen(
     <SubscriptionPage
       subscription={(overrides.subscription ?? subscription()) as never}
       settings={null}
       cartDisplayConfig={overrides.cartDisplayConfig as never}
+      paymentMethodLink={overrides.paymentMethodLink as never}
       onBack={vi.fn()}
     />,
     {},
   );
+}
+
+/** Matches `payment-method.test.tsx`'s own link fixture shape. */
+function paymentMethodLink(json: unknown) {
+  return {
+    href: "/s/customer/default_payment_method",
+    get: async () => ({ ok: true, status: 200, json: async () => json }),
+  };
 }
 
 describe("SubscriptionPage", () => {
@@ -296,6 +309,34 @@ describe("SubscriptionPage", () => {
     render();
     expect(billingSectionText()).toMatch(/129 Elm Avenue/);
     expect(billingSectionText()).toMatch(/Oakland/);
+  });
+
+  it("shows the default payment method's card label in the billing section", async () => {
+    render({
+      paymentMethodLink: paymentMethodLink({
+        cc_type: "visa",
+        cc_number_masked: "************4242",
+        cc_exp_month: "08",
+        cc_exp_year: "2028",
+      }),
+    });
+    await flush();
+
+    expect(billingSectionText()).toMatch(/Visa ••••4242/);
+  });
+
+  it("omits the card value when there is no default payment method", async () => {
+    // No `paymentMethodLink` at all -- covers the store-has-no-rel case.
+    // The row must still show its own label and note, just no value.
+    render();
+    await flush();
+
+    expect(billingSectionText()).toMatch(/Payment method/);
+    expect(billingSectionText()).toMatch(
+      /Your default payment method is charged/,
+    );
+    expect(billingSectionText()).not.toMatch(/undefined/);
+    expect(billingSectionText()).not.toMatch(/•/);
   });
 
   it("links the address Edit out to the hosted cart", () => {

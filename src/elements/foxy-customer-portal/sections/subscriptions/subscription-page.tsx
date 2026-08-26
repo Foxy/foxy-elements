@@ -17,6 +17,7 @@ import {
 import {
   useApi,
   useCollection,
+  useResource,
   WriteError,
   type FollowableLink,
 } from "@/lib/customer-api";
@@ -26,6 +27,11 @@ import { AccountPageLayout } from "../../account-page-layout";
 import { usePortalContainer } from "../../portal-container";
 import { getTransactionStatusMessage } from "../../transaction-status";
 import { patchResource } from "../../write";
+import {
+  formatCardLabel,
+  hasSavedCard,
+  type DefaultPaymentMethodResource,
+} from "../payment-method";
 import type { CartDisplayConfig } from "./cart-display-config";
 import { toDatePickerBounds, toLocalDateString } from "./date-constraints";
 import { visibleItemDetails } from "./item-details";
@@ -224,6 +230,12 @@ const PanelAction = styled.div`
   }
 `;
 
+const PanelValue = styled.div`
+  flex-shrink: 0;
+  font: ${(props) => props.theme.tokens.font.label};
+  color: ${(props) => props.theme.tokens.color.body};
+`;
+
 const EditLink = styled.a`
   box-sizing: border-box;
   display: inline-flex;
@@ -302,6 +314,9 @@ type ContainerProps = {
   subscriptionsLink: FollowableLink<CollectionPage> | null;
   settings: PortalSettings | null;
   cartDisplayConfig?: CartDisplayConfig | null;
+  paymentMethodLink?:
+    | (FollowableLink<DefaultPaymentMethodResource> & { href: string })
+    | undefined;
   onBack: () => void;
 };
 
@@ -317,6 +332,7 @@ export function SubscriptionPageContainer({
   subscriptionsLink,
   settings,
   cartDisplayConfig,
+  paymentMethodLink,
   onBack,
 }: ContainerProps) {
   const intl = useIntl();
@@ -348,6 +364,7 @@ export function SubscriptionPageContainer({
       subscription={subscription}
       settings={settings}
       cartDisplayConfig={cartDisplayConfig}
+      paymentMethodLink={paymentMethodLink}
       onBack={onBack}
     />
   );
@@ -357,6 +374,9 @@ type Props = {
   subscription: SubscriptionResource;
   settings: PortalSettings | null;
   cartDisplayConfig?: CartDisplayConfig | null;
+  paymentMethodLink?:
+    | (FollowableLink<DefaultPaymentMethodResource> & { href: string })
+    | undefined;
   onBack: () => void;
 };
 
@@ -364,6 +384,7 @@ export function SubscriptionPage({
   subscription,
   settings,
   cartDisplayConfig,
+  paymentMethodLink,
   onBack,
 }: Props) {
   const intl = useIntl();
@@ -501,6 +522,19 @@ export function SubscriptionPage({
     loadNext: loadNextPayment,
     loadPrev: loadPrevPayment,
   } = useCollection<Payment>(paymentsLink as never, paymentsQuery);
+
+  // Decorative label only -- the payment-method row never shows a spinner,
+  // an error, or a placeholder for it, so `isLoading`/`error` from this read
+  // are deliberately not consulted below. `cardLabel` is `null` the entire
+  // time the resource is loading, missing, or unresolved, and the row
+  // renders exactly the same (label + note, no value) in every one of those
+  // cases as it does for a customer who genuinely has no card on file.
+  const { data: paymentMethodData } = useResource<DefaultPaymentMethodResource>(
+    paymentMethodLink ?? null,
+  );
+  const cardLabel = hasSavedCard(paymentMethodData)
+    ? formatCardLabel(paymentMethodData)
+    : null;
 
   async function handleSave() {
     // Only the fields the customer actually touched go in the body -- see
@@ -795,6 +829,8 @@ export function SubscriptionPage({
                       {intl.formatMessage(messages.subscriptionPaymentMethodNote)}
                     </PanelNote>
                   </div>
+
+                  {cardLabel ? <PanelValue>{cardLabel}</PanelValue> : null}
                 </PanelRow>
 
                 <Separator />
