@@ -41,6 +41,7 @@ import {
   SUBSCRIPTION_ORDER_COLUMNS,
   type OrderResource,
 } from "../orders/row";
+import { subscriptionTitle } from "./item-grouping";
 import { getSubscriptionStatus, type SubscriptionStatus } from "./status";
 import type { SubscriptionResource } from "./card";
 import { useSubscriptionById } from "./use-subscription-by-id";
@@ -613,7 +614,17 @@ export function SubscriptionPage({
   const template = subscription._embedded?.["fx:transaction_template"];
   const currency = template?.currency_code ?? "USD";
   const items = template?._embedded?.["fx:items"] ?? [];
-  const title = items.map((item) => item.name).join(", ");
+  // The same derivation the home page's card uses, so the heading the
+  // customer clicked and the heading they land on agree. Joining raw
+  // `item.name`s here made a bundle's card read "Coffee Subscription -- Dark
+  // Roast" and its page read "Coffee Subscription -- Dark Roast, Extra
+  // Filters, Coffee Mugs".
+  //
+  // The Items section below deliberately does NOT group: spec §6.3 counts
+  // and pages the full item array, and a bundle's children are items the
+  // customer is paying for. Grouping there would hide them and make the
+  // "Items ({count})" heading disagree with the list beneath it.
+  const title = subscriptionTitle(items);
 
   const shippingLine1 = [template?.shipping_address1, template?.shipping_address2]
     .filter((part) => part && part.trim())
@@ -739,7 +750,10 @@ export function SubscriptionPage({
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <TitleLine>
             <PageTitle>
-              {title}{" "}
+              {/* A template with no items leaves nothing to name the
+              subscription by. Without this the heading read " (#1042)",
+              leading space and all. */}
+              {title ? <>{title} </> : null}
               <TitleId>
                 {intl.formatMessage(messages.subscriptionTitleId, {
                   id: subscriptionId,

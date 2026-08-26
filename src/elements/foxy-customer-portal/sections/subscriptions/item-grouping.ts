@@ -37,3 +37,28 @@ export function groupSubscriptionItems(
 
   return { parents, children };
 }
+
+/** One item as it appears in a title: its name, with `×{quantity}` above 1. */
+export function itemLabel(item: SubscriptionTemplateItem): string {
+  return item.quantity > 1 ? `${item.name} ×${item.quantity}` : item.name;
+}
+
+/**
+ * The heading a subscription is shown under: the parent's name alone when the
+ * items form a bundle (one parent with children), otherwise every item's
+ * label joined.
+ *
+ * Shared by the home page's `SubscriptionCard` and the detail page's `<h1>`
+ * so the two cannot disagree. They did: the page joined raw `item.name`s, so
+ * a card headed "Coffee Subscription -- Dark Roast" opened a page headed
+ * "Coffee Subscription -- Dark Roast, Extra Filters, Coffee Mugs".
+ *
+ * Returns "" for an empty item list. Callers decide what to show then -- the
+ * detail page falls back to its id alone.
+ */
+export function subscriptionTitle(items: SubscriptionTemplateItem[]): string {
+  const { parents, children } = groupSubscriptionItems(items);
+  const isBundle = parents.length === 1 && children.length > 0;
+
+  return isBundle ? parents[0].name : items.map(itemLabel).join(", ");
+}

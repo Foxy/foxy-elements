@@ -349,6 +349,62 @@ describe("SubscriptionPage", () => {
     expect(document.body.textContent).toMatch(/#1042/);
   });
 
+  it("heads a bundle with the parent's name, like the card the customer clicked", () => {
+    // `card.tsx` derives its title through `groupSubscriptionItems`, which
+    // shows only the parent for a bundle. The page joined every raw
+    // `item.name`, so a card headed "Coffee Subscription" opened a page
+    // headed "Coffee Subscription, Extra Filters, Coffee Mugs". Both now go
+    // through `subscriptionTitle`.
+    render({
+      subscription: subscription({
+        items: [
+          { name: "Coffee Subscription", quantity: 1, price: 30, code: "SUB" },
+          {
+            name: "Extra Filters",
+            quantity: 1,
+            price: 0,
+            code: "F",
+            parent_code: "SUB",
+          },
+          {
+            name: "Coffee Mugs",
+            quantity: 2,
+            price: 0,
+            code: "M",
+            parent_code: "SUB",
+          },
+        ],
+      }),
+    });
+
+    const heading = document.querySelector("h1")!;
+    expect(heading.textContent).toMatch(/Coffee Subscription/);
+    expect(heading.textContent).not.toMatch(/Extra Filters/);
+    expect(heading.textContent).not.toMatch(/Coffee Mugs/);
+
+    // The Items section still lists all three -- spec §6.3 counts and pages
+    // the full array, and the children are items the customer pays for.
+    expect(itemsSection()?.textContent).toMatch(/Items \(3\)/);
+    expect(itemsSection()?.textContent).toMatch(/Extra Filters/);
+  });
+
+  it("heads a non-bundle with each item's quantity, like the card does", () => {
+    render({
+      subscription: subscription({
+        items: [{ name: "Coffee", quantity: 3, price: 5 }],
+      }),
+    });
+
+    expect(document.querySelector("h1")!.textContent).toMatch(/Coffee ×3/);
+  });
+
+  it("falls back to the id alone when the template has no items", () => {
+    render({ subscription: subscription({ items: [] }) });
+
+    // Not " (#1042)" with a leading space.
+    expect(document.querySelector("h1")!.textContent).toBe("(#1042)");
+  });
+
   it("badges a live subscription as active", () => {
     render();
     expect(document.body.textContent).toMatch(/Active/);

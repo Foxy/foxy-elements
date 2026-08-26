@@ -8,7 +8,12 @@ import type { AccountPage } from "../../account-page";
 import { toCalendarDate } from "../../calendar-date";
 import { useResource, type FollowableLink } from "@/lib/customer-api";
 import { messages } from "../../messages";
-import { groupSubscriptionItems, type SubscriptionTemplateItem } from "./item-grouping";
+import {
+  groupSubscriptionItems,
+  itemLabel,
+  subscriptionTitle,
+  type SubscriptionTemplateItem,
+} from "./item-grouping";
 import { parseFrequency } from "./price-line";
 import type { CartDisplayConfig } from "./cart-display-config";
 import type { OrderResource } from "../orders/row";
@@ -186,10 +191,6 @@ const ManageSlot = styled.div`
   grid-column: -2 / -1;
 `;
 
-function itemLabel(item: SubscriptionTemplateItem): string {
-  return item.quantity > 1 ? `${item.name} ×${item.quantity}` : item.name;
-}
-
 export function SubscriptionCard({
   subscription,
   onManage,
@@ -203,9 +204,7 @@ export function SubscriptionCard({
 
   const { parents, children } = groupSubscriptionItems(items);
   const isBundle = parents.length === 1 && children.length > 0;
-  const titleText = isBundle
-    ? parents[0].name
-    : items.map(itemLabel).join(", ");
+  const titleText = subscriptionTitle(items);
 
   const thumbnailItems = items.slice(0, 4);
   const isMultiItem = thumbnailItems.length > 1;
