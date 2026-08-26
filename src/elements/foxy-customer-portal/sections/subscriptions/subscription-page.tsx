@@ -1191,12 +1191,12 @@ export function SubscriptionPage({
               {endsAt ? (
                 // A cancellation is already queued, so the link is inert.
                 // `aria-disabled` alone announces "unavailable" and stops
-                // there; the note says why, and `aria-describedby` ties the
+                // there; this note says why, and `aria-describedby` ties the
                 // two together so it is read with the link rather than
-                // stumbled on afterwards. It replaces the "Access continues
-                // until {next payment}" line rather than joining it -- the
-                // end date is the date that now matters, and showing both
-                // would put two different "until" dates side by side.
+                // stumbled on afterwards. It sits directly under the link,
+                // above the "Access continues until" line spec §6.7 keeps
+                // for every live subscription -- this one is still live, it
+                // just has an end date on the books.
                 <>
                   <CancelLink aria-disabled="true" aria-describedby={cancelNoteId}>
                     {intl.formatMessage(messages.manageCancel)}
@@ -1208,21 +1208,18 @@ export function SubscriptionPage({
                   </SaveNote>
                 </>
               ) : (
-                <>
-                  <CancelLink
-                    href={tokenLink(tokenHref, { sub_cancel: "true" })}
-                  >
-                    {intl.formatMessage(messages.manageCancel)}
-                  </CancelLink>
-                  {nextAt ? (
-                    <SaveNote>
-                      {intl.formatMessage(messages.subscriptionAccessUntil, {
-                        date: intl.formatDate(nextAt, { dateStyle: "medium" }),
-                      })}
-                    </SaveNote>
-                  ) : null}
-                </>
+                <CancelLink href={tokenLink(tokenHref, { sub_cancel: "true" })}>
+                  {intl.formatMessage(messages.manageCancel)}
+                </CancelLink>
               )}
+
+              {nextAt ? (
+                <SaveNote>
+                  {intl.formatMessage(messages.subscriptionAccessUntil, {
+                    date: intl.formatDate(nextAt, { dateStyle: "medium" }),
+                  })}
+                </SaveNote>
+              ) : null}
             </CancelBlock>
           ) : null}
         </Rail>

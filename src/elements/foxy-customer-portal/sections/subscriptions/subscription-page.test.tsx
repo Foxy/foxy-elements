@@ -863,9 +863,10 @@ describe("SubscriptionPage", () => {
     // 2027-01-01 and `next_transaction_date` is 2099-01-01.
     expect(note?.textContent).toMatch(/2027/);
 
-    // It replaces the access-until line rather than sitting beside it, so
-    // the rail never shows two different "until" dates.
-    expect(railText()).not.toMatch(/Access continues until/);
+    // Added, not swapped in: spec §6.7 keeps "Access continues until
+    // {next payment}" for every live subscription, and one with a
+    // scheduled end date is still live.
+    expect(railText()).toMatch(/Access continues until/);
   });
 
   it("shows no editable controls once the subscription has ended", () => {
@@ -938,6 +939,18 @@ describe("SubscriptionPage", () => {
 
     // And the header says so.
     expect(document.body.textContent).toMatch(/No further payments/);
+
+    // The badge still reads Past due, not Ended: spec §6.1 puts "any
+    // failed state" above "ended / inactive", so `isFailed` is tested
+    // first in the message chain. Such a subscription shows the Past due
+    // badge, the past-due alert and the ended note together, which is the
+    // whole truth about it.
+    expect(document.querySelector("h1")?.parentElement?.textContent).toMatch(
+      /Past due/,
+    );
+    expect(
+      document.querySelector("h1")?.parentElement?.textContent,
+    ).not.toMatch(/Ended/);
   });
 
   it("badges nothing when the subscription's status cannot be determined", () => {
