@@ -251,6 +251,15 @@ export const messages = defineMessages({
     id: "portal_subscription_ended_note",
     defaultMessage: "Ended on {date}. No further payments will be taken.",
   },
+  // Used when `cart_display_config.show_sub_enddate` is off, the same gate
+  // the rail's Ends row and the cancel-scheduled note use. The substance of
+  // the note -- it ended, nothing more will be charged -- is what the
+  // customer needs; only the date the store chose to hide drops.
+  subscriptionEndedNoteNoDate: {
+    id: "portal_subscription_ended_note_no_date",
+    defaultMessage:
+      "This subscription has ended. No further payments will be taken.",
+  },
   subscriptionPastDueTitle: {
     id: "portal_subscription_past_due_title",
     defaultMessage: "Payment failed",

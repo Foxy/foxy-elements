@@ -218,6 +218,15 @@ const railText = () => document.querySelector("aside")?.textContent ?? "";
  * Anchors on the leaf title div and takes its parent (the `Alert.Root`)
  * instead -- the same shape as `paymentHistoryHeaderRow`'s "Order" cell.
  */
+/**
+ * Scoped to the page header -- the flex column holding the title line and
+ * the ended note. `document.body` would also match the rail's own date
+ * rows, which is the whole point of the `show_sub_enddate` test below.
+ */
+const headerText = () =>
+  document.querySelector("h1")?.parentElement?.parentElement?.textContent ??
+  "";
+
 const pastDueAlertText = () => {
   const title = [...document.querySelectorAll("div")].find(
     (el) =>
@@ -484,7 +493,29 @@ describe("SubscriptionPage", () => {
       subscription: subscription({ is_active: false, end_date: past }),
     });
     expect(document.body.textContent).toMatch(/Ended/);
-    expect(document.body.textContent).toMatch(/No further payments/);
+    expect(headerText()).toMatch(/No further payments/);
+    // The date shows by default -- the positive half of the
+    // `show_sub_enddate` pair below. `past` is 2020-01-01.
+    expect(headerText()).toMatch(/2020/);
+  });
+
+  it("keeps the date out of the ended note when the store hides end dates", () => {
+    // The rail's Ends row and the cancel-scheduled note both gate on
+    // `showEndDate`; this note named `endsAt` unconditionally. Before this
+    // branch `failed_and_ended` never reached the note at all, so finding
+    // 3's fix is what made the leak reachable.
+    render({
+      subscription: subscription({ is_active: false, end_date: past }),
+      cartDisplayConfig: { show_sub_enddate: false },
+    });
+
+    // The substance survives: it ended, nothing more will be charged.
+    expect(headerText()).toMatch(/has ended/i);
+    expect(headerText()).toMatch(/No further payments/);
+    // The hidden date does not.
+    expect(headerText()).not.toMatch(/2020/);
+    // And the rail agrees.
+    expect(railText()).not.toMatch(/Ends/);
   });
 
   it("raises an alert when a payment has failed", () => {

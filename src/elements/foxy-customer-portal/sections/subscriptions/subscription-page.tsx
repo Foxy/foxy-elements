@@ -802,9 +802,19 @@ export function SubscriptionPage({
 
           {isEnded && endsAt ? (
             <Note>
-              {intl.formatMessage(messages.subscriptionEndedNote, {
-                date: intl.formatDate(endsAt, { dateStyle: "medium" }),
-              })}
+              {/* Named date gated on the same `showEndDate` the rail's Ends
+              row and the cancel-scheduled note use. Before this branch
+              `failed_and_ended` never reached this note at all, so a store
+              with `show_sub_enddate: false` could not see the leak; finding
+              3's fix is what routes that state here, which makes it ours.
+              The note itself is not gated -- that the subscription ended
+              and will take no further payments is the substance of it, and
+              is true whether or not the date can be shown. */}
+              {showEndDate
+                ? intl.formatMessage(messages.subscriptionEndedNote, {
+                    date: intl.formatDate(endsAt, { dateStyle: "medium" }),
+                  })
+                : intl.formatMessage(messages.subscriptionEndedNoteNoDate)}
             </Note>
           ) : null}
         </div>
