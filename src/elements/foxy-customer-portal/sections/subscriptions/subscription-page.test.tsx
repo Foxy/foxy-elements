@@ -72,6 +72,11 @@ function subscription(
       "fx:transaction_template": {
         currency_code: "USD",
         total_order: 10,
+        shipping_address1: "129 Elm Avenue",
+        shipping_city: "Oakland",
+        shipping_state: "CA",
+        shipping_postal_code: "94612",
+        shipping_country: "US",
         _embedded: { "fx:items": items ?? DEFAULT_ITEMS },
       },
     },
@@ -275,6 +280,55 @@ describe("SubscriptionPage", () => {
     expect(itemsSectionText()).toMatch(/Item 4/);
     expect(itemsSectionText()).toMatch(/Item 5/);
     expect(itemsSectionText()).not.toMatch(/Item 1/);
+  });
+
+  // Scoped to the Billing & shipping section's own subtree -- see the
+  // pager test above for why a whole-`document.body` match can pass for
+  // the wrong reason on this page.
+  const billingSectionText = () => {
+    const heading = [...document.querySelectorAll("h2")].find((h) =>
+      /^Billing & shipping/.test(h.textContent ?? ""),
+    );
+    return heading?.parentElement?.textContent ?? "";
+  };
+
+  it("shows the shipping address from the subscription's template", () => {
+    render();
+    expect(billingSectionText()).toMatch(/129 Elm Avenue/);
+    expect(billingSectionText()).toMatch(/Oakland/);
+  });
+
+  it("links the address Edit out to the hosted cart", () => {
+    // The default fixture carries no `fx:sub_token_url`, so the Edit link
+    // (like the existing Cancel/Update billing links) only renders once one
+    // is supplied -- overriding `_links` wholesale, so `self` and
+    // `fx:transactions` have to be repeated alongside it.
+    render({
+      subscription: subscription({
+        _links: {
+          self: { href: "/s/1042" },
+          "fx:transactions": {
+            href: "/s/42/transactions",
+            get: async () => ({
+              ok: true,
+              status: 200,
+              json: async () => ({ total_items: 0, _embedded: {} }),
+            }),
+          },
+          "fx:sub_token_url": { href: "https://example.com/cart" },
+        },
+      }),
+    });
+
+    const edit = [...document.querySelectorAll("a")].find((a) =>
+      /^edit$/i.test(a.textContent?.trim() ?? ""),
+    );
+    expect(edit?.getAttribute("href")).toMatch(/cart=checkout/);
+  });
+
+  it("hides billing and shipping once the subscription has ended", () => {
+    render({ subscription: subscription({ is_active: false, end_date: past }) });
+    expect(document.body.textContent).not.toMatch(/Billing & shipping/);
   });
 });
 

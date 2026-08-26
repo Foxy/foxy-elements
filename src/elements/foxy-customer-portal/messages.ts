@@ -306,6 +306,23 @@ export const messages = defineMessages({
     id: "portal_subscription_item_code",
     defaultMessage: "Code",
   },
+  subscriptionBillingHeading: {
+    id: "portal_subscription_billing_heading",
+    defaultMessage: "Billing & shipping",
+  },
+  subscriptionPaymentMethodLabel: {
+    id: "portal_subscription_payment_method_label",
+    defaultMessage: "Payment method",
+  },
+  subscriptionPaymentMethodNote: {
+    id: "portal_subscription_payment_method_note",
+    defaultMessage:
+      "Your default payment method is charged for this subscription. Change it on the portal home page.",
+  },
+  subscriptionShippingLabel: {
+    id: "portal_subscription_shipping_label",
+    defaultMessage: "Shipping address",
+  },
   paymentsHeading: {
     id: "portal_payments_heading",
     defaultMessage: "Payments",

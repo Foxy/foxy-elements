@@ -30,6 +30,12 @@ export type SubscriptionResource = {
     "fx:transaction_template"?: {
       currency_code?: string;
       total_order?: number;
+      shipping_address1?: string;
+      shipping_address2?: string;
+      shipping_city?: string;
+      shipping_state?: string;
+      shipping_postal_code?: string;
+      shipping_country?: string;
       _embedded?: { "fx:items"?: SubscriptionTemplateItem[] };
     };
   };

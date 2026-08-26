@@ -7,6 +7,7 @@ import { Button } from "@foxy.io/design-system/button";
 import { Calendar } from "@foxy.io/design-system/calendar";
 import { Field } from "@foxy.io/design-system/field";
 import { Select } from "@foxy.io/design-system/select";
+import { Separator } from "@foxy.io/design-system/separator";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
 import { SummaryTable } from "@foxy.io/design-system/summary-table";
 import {
@@ -182,6 +183,68 @@ const CardList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+`;
+
+const Panel = styled.div`
+  display: flex;
+  flex-direction: column;
+  border: ${(props) => props.theme.tokens.border.field};
+  border-radius: ${(props) => props.theme.tokens.borderRadius.md};
+  background: ${(props) => props.theme.tokens.background.surface};
+`;
+
+const PanelRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px;
+
+  @media (max-width: 560px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+`;
+
+const PanelLabel = styled.div`
+  font: ${(props) => props.theme.tokens.font.label};
+  color: ${(props) => props.theme.tokens.color.body};
+`;
+
+const PanelNote = styled.div`
+  font: ${(props) => props.theme.tokens.font.body};
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
+const PanelAction = styled.div`
+  flex-shrink: 0;
+
+  @media (max-width: 560px) {
+    width: 100%;
+  }
+`;
+
+const EditLink = styled.a`
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: ${(props) => props.theme.tokens.size.controlSm};
+  padding: 0 calc(${(props) => props.theme.tokens.size.controlSm} / 3);
+  border: ${(props) => props.theme.tokens.border.field};
+  border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
+  font: ${(props) => props.theme.tokens.font.buttonSm};
+  color: ${(props) => props.theme.tokens.color.body};
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: ${(props) => props.theme.tokens.outline.primary};
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 560px) {
+    width: 100%;
+  }
 `;
 
 /**
@@ -397,6 +460,19 @@ export function SubscriptionPage({
   const currency = template?.currency_code ?? "USD";
   const items = template?._embedded?.["fx:items"] ?? [];
   const title = items.map((item) => item.name).join(", ");
+
+  const shippingLine1 = [template?.shipping_address1, template?.shipping_address2]
+    .filter((part) => part && part.trim())
+    .join(", ");
+  const shippingLine2 = [
+    [template?.shipping_city, template?.shipping_state]
+      .filter((part) => part && part.trim())
+      .join(", "),
+    template?.shipping_postal_code,
+    template?.shipping_country,
+  ]
+    .filter((part) => part && String(part).trim())
+    .join(" ");
 
   // Items are already in hand from the embed, so this pager is local state
   // over a fixed array rather than another `useCollection`.
@@ -702,6 +778,52 @@ export function SubscriptionPage({
               />
             ) : null}
           </section>
+
+          {!isEnded ? (
+            <section>
+              <SectionHeading>
+                {intl.formatMessage(messages.subscriptionBillingHeading)}
+              </SectionHeading>
+
+              <Panel>
+                <PanelRow>
+                  <div>
+                    <PanelLabel>
+                      {intl.formatMessage(messages.subscriptionPaymentMethodLabel)}
+                    </PanelLabel>
+                    <PanelNote>
+                      {intl.formatMessage(messages.subscriptionPaymentMethodNote)}
+                    </PanelNote>
+                  </div>
+                </PanelRow>
+
+                <Separator />
+
+                <PanelRow>
+                  <div>
+                    <PanelLabel>
+                      {intl.formatMessage(messages.subscriptionShippingLabel)}
+                    </PanelLabel>
+                    <PanelNote>{shippingLine1}</PanelNote>
+                    <PanelNote>{shippingLine2}</PanelNote>
+                  </div>
+
+                  {tokenHref ? (
+                    <PanelAction>
+                      <EditLink
+                        href={tokenLink(tokenHref, {
+                          cart: "checkout",
+                          sub_restart: "auto",
+                        })}
+                      >
+                        {intl.formatMessage(messages.addressEdit)}
+                      </EditLink>
+                    </PanelAction>
+                  ) : null}
+                </PanelRow>
+              </Panel>
+            </section>
+          ) : null}
 
           <h3>{intl.formatMessage(messages.paymentsHeading)}</h3>
 
