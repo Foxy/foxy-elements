@@ -206,6 +206,26 @@ function subscriptionWithTokenUrl(overrides: Record<string, unknown> = {}) {
  */
 const railText = () => document.querySelector("aside")?.textContent ?? "";
 
+/**
+ * Scoped to the past-due `Alert` itself. `querySelectorAll("div")` returns
+ * document order, so a `.find` over every div that *contains* "Payment
+ * failed" hands back the OUTERMOST match -- the page layout wrapper, whose
+ * text starts with the Back button. That made the positive assertions unable
+ * to tell "this copy is in the alert" from "this copy is anywhere on the
+ * page", and coupled the `$0.00` assertion to the fixture's unrelated
+ * `total_shipping`/`total_tax`.
+ *
+ * Anchors on the leaf title div and takes its parent (the `Alert.Root`)
+ * instead -- the same shape as `paymentHistoryHeaderRow`'s "Order" cell.
+ */
+const pastDueAlertText = () => {
+  const title = [...document.querySelectorAll("div")].find(
+    (el) =>
+      el.children.length === 0 && el.textContent?.trim() === "Payment failed",
+  );
+  return title?.parentElement?.textContent ?? "";
+};
+
 /** Matches `payment-method.test.tsx`'s own link fixture shape. */
 function paymentMethodLink(json: unknown) {
   return {
@@ -486,14 +506,9 @@ describe("SubscriptionPage", () => {
     // itself here, so the two used to contradict each other on one screen.
     render({ subscription: subscription({ first_failed_transaction_date: past }) });
 
-    const alertText = () =>
-      [...document.querySelectorAll("div")]
-        .find((el) => /Payment failed/.test(el.textContent ?? ""))
-        ?.textContent ?? "";
-
-    expect(alertText()).toMatch(/Payment failed/);
-    expect(alertText()).toMatch(/A payment could not be taken/);
-    expect(alertText()).not.toMatch(/\$0\.00/);
+    expect(pastDueAlertText()).toMatch(/Payment failed/);
+    expect(pastDueAlertText()).toMatch(/A payment could not be taken/);
+    expect(pastDueAlertText()).not.toMatch(/\$0\.00/);
     expect(railText()).not.toMatch(/Past due/);
   });
 
