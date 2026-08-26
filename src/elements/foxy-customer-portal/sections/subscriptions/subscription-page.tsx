@@ -33,6 +33,7 @@ import {
 } from "../payment-method";
 import type { CartDisplayConfig } from "./cart-display-config";
 import { toDatePickerBounds, toLocalDateString } from "./date-constraints";
+import { frequencyLabel } from "./frequency-label";
 import { visibleItemDetails } from "./item-details";
 import { Pagination } from "../pagination";
 import {
@@ -818,6 +819,20 @@ export function SubscriptionPage({
     onBack();
   }
 
+  /**
+   * A frequency as the customer should read it -- "Monthly", not "1m".
+   *
+   * Falls back to the raw string when `frequencyLabel` cannot read it. The
+   * Select's values stay the wire format either way: it is what the API
+   * sent and what `handleFrequencyChange` PATCHes back.
+   */
+  function formatFrequency(value: string) {
+    const label = frequencyLabel(value);
+    return label
+      ? intl.formatMessage(label.message, { count: label.count })
+      : value;
+  }
+
   function handleFrequencyChange(next: string) {
     if (next === frequency) return;
 
@@ -1192,7 +1207,7 @@ export function SubscriptionPage({
               {showFrequency && !frequencySelectVisible ? (
                 <RailRow>
                   <span>{intl.formatMessage(messages.manageFrequency)}</span>
-                  <span>{subscription.frequency}</span>
+                  <span>{formatFrequency(subscription.frequency)}</span>
                 </RailRow>
               ) : null}
             </RailList>
@@ -1213,7 +1228,11 @@ export function SubscriptionPage({
                       }
                     >
                       <Select.Trigger id={frequencyId}>
-                        <Select.Value />
+                        {/* Explicit children rather than a bare
+                            `Select.Value`, which renders the raw API string
+                            ("1m") the Item was keyed by -- the value has to
+                            stay the wire format for `onValueChange`. */}
+                        <Select.Value>{formatFrequency(frequency)}</Select.Value>
                       </Select.Trigger>
 
                       <Select.Portal container={portalContainer ?? undefined}>
@@ -1222,7 +1241,9 @@ export function SubscriptionPage({
                             <Select.List>
                               {frequencies.map((value) => (
                                 <Select.Item key={value} value={value}>
-                                  <Select.ItemText>{value}</Select.ItemText>
+                                  <Select.ItemText>
+                                    {formatFrequency(value)}
+                                  </Select.ItemText>
                                 </Select.Item>
                               ))}
                             </Select.List>

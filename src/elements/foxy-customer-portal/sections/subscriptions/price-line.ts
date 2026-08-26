@@ -16,6 +16,29 @@ const UNIT_MESSAGES: Record<string, MessageDescriptor | undefined> = {
 export type FrequencyParts = { message: MessageDescriptor; count: number };
 
 /**
+ * Splits a `frequency` into its count and unit, or `null` when the string is
+ * not one this can read.
+ *
+ * Shared by both readings of a frequency -- the price suffix below and the
+ * standalone label in `frequency-label.ts` -- so the two can never disagree
+ * about what a given string means.
+ *
+ * Foxy also accepts fractional counts (`".5m"`, twice a month), so the
+ * pattern allows a decimal rather than assuming an integer.
+ */
+export function parseFrequencyParts(
+  frequency: string,
+): { count: number; unit: string } | null {
+  const match = /^(\d*\.?\d+)([dwmy])$/.exec(frequency.trim());
+  if (!match) return null;
+
+  const count = Number(match[1]);
+  if (!Number.isFinite(count) || count <= 0) return null;
+
+  return { count, unit: match[2]! };
+}
+
+/**
  * Splits a `frequency` into the message and count needed to render its price
  * suffix, or `null` when the string is not one this can read.
  *
@@ -27,12 +50,9 @@ export type FrequencyParts = { message: MessageDescriptor; count: number };
  * the wrong billing period is worse than showing none.
  */
 export function parseFrequency(frequency: string): FrequencyParts | null {
-  const match = /^(\d*\.?\d+)([dwmy])$/.exec(frequency.trim());
-  if (!match) return null;
+  const parts = parseFrequencyParts(frequency);
+  if (!parts) return null;
 
-  const count = Number(match[1]);
-  if (!Number.isFinite(count) || count <= 0) return null;
-
-  const message = UNIT_MESSAGES[match[2]];
-  return message ? { message, count } : null;
+  const message = UNIT_MESSAGES[parts.unit];
+  return message ? { message, count: parts.count } : null;
 }

@@ -199,6 +199,31 @@ export const messages = defineMessages({
     id: "portal_subscription_price_per_year",
     defaultMessage: "{price}/{count, plural, one {yr} other {# years}}",
   },
+  // Standalone frequency labels, for the rail's Select and its read-only
+  // row. Separate from the `subscriptionPricePer*` set above, which are
+  // price SUFFIXES ("$42.00/wk") and read wrongly on their own.
+  subscriptionFrequencyDaily: {
+    id: "portal_subscription_frequency_daily",
+    defaultMessage: "{count, plural, one {Daily} other {Every # days}}",
+  },
+  subscriptionFrequencyWeekly: {
+    id: "portal_subscription_frequency_weekly",
+    defaultMessage: "{count, plural, one {Weekly} other {Every # weeks}}",
+  },
+  subscriptionFrequencyMonthly: {
+    id: "portal_subscription_frequency_monthly",
+    defaultMessage: "{count, plural, one {Monthly} other {Every # months}}",
+  },
+  subscriptionFrequencyYearly: {
+    id: "portal_subscription_frequency_yearly",
+    defaultMessage: "{count, plural, one {Yearly} other {Every # years}}",
+  },
+  // Foxy's ".5m". Takes no count -- the generic path would say "Every 0.5
+  // months", which reads like a bug rather than a billing period.
+  subscriptionFrequencyTwiceMonthly: {
+    id: "portal_subscription_frequency_twice_monthly",
+    defaultMessage: "Twice a month",
+  },
   subscriptionLastPayment: {
     id: "portal_subscription_last_payment",
     defaultMessage: "Last payment",

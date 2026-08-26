@@ -1119,6 +1119,10 @@ describe("Portal", () => {
     // If `account.tsx` dropped `settings` on the way to `SubscriptionsSection`,
     // `getAllowedFrequencies` would see no rule, `frequencies` would be `[]`,
     // and the Select would never render at all — this list would be empty.
-    expect(options.join(" ")).toMatch(/1y/);
+    //
+    // Matched on the rendered label, not the wire value: the Select shows
+    // "Yearly" while keeping "1y" as the option's value. The rule that had
+    // to survive the trip down is still the one carrying "1y".
+    expect(options.join(" ")).toMatch(/Yearly/);
   });
 });

@@ -252,18 +252,22 @@ const frequencyTrigger = () =>
   );
 
 /**
- * Opens the frequency Select and clicks one option. Like the date picker's
- * popup, the listbox portals out of `screen.host` (see `openNextDatePicker`),
- * so the options are queried from `document.body`.
+ * Opens the frequency Select and clicks one option BY ITS RENDERED LABEL --
+ * "Yearly", not the wire value "1y". The Select shows human-readable labels
+ * while keeping the API's own strings as its values, so matching on the
+ * label is what proves the customer-facing half.
+ *
+ * Like the date picker's popup, the listbox portals out of `screen.host`
+ * (see `openNextDatePicker`), so the options are queried from `document.body`.
  */
-async function pickFrequency(value: string) {
+async function pickFrequency(label: string) {
   act(() => frequencyTrigger()?.click());
   await flush();
 
   const option = [...document.body.querySelectorAll<HTMLElement>('[role="option"]')].find(
-    (el) => (el.textContent ?? "").trim() === value,
+    (el) => (el.textContent ?? "").trim() === label,
   );
-  expect(option, `no "${value}" option in the frequency Select`).toBeTruthy();
+  expect(option, `no "${label}" option in the frequency Select`).toBeTruthy();
 
   act(() => option!.click());
   await flush();
@@ -516,7 +520,7 @@ describe("SubscriptionPage", () => {
     );
     await flush();
 
-    await pickFrequency("1y");
+    await pickFrequency("Yearly");
     expect(patch).toHaveBeenCalled();
 
     // `saveChange` used to `cache.clear()` on success. That was harmless
@@ -526,7 +530,7 @@ describe("SubscriptionPage", () => {
     // `frequency` -- and the remounted page reads whatever the re-read
     // returns, which is the pre-write value. A save that worked looked like
     // a silent revert.
-    expect(frequencyTrigger()?.textContent).toMatch(/1y/);
+    expect(frequencyTrigger()?.textContent).toMatch(/Yearly/);
     expect(railText()).not.toMatch(/could not save/i);
   });
 
@@ -555,7 +559,7 @@ describe("SubscriptionPage", () => {
     expect(clear).not.toHaveBeenCalled();
     expect(onBack).toHaveBeenCalledTimes(1);
 
-    await pickFrequency("1y");
+    await pickFrequency("Yearly");
     expect(patch).toHaveBeenCalled();
 
     // After a write it must clear: the home page's subscription card renders
@@ -580,7 +584,7 @@ describe("SubscriptionPage", () => {
     );
     await flush();
 
-    await pickFrequency("1y");
+    await pickFrequency("Yearly");
 
     expect(patch).toHaveBeenCalledTimes(1);
     expect(patch.mock.calls[0]?.[0]).toEqual({ frequency: "1y" });
@@ -601,15 +605,15 @@ describe("SubscriptionPage", () => {
     );
     await flush();
 
-    await pickFrequency("1y");
+    await pickFrequency("Yearly");
 
     expect(patch).toHaveBeenCalled();
 
     // With no Save button there is nothing left to signal "not saved yet",
     // so a control still showing the rejected value would be lying about
     // the subscription. It has to read the fixture's original "1m" again.
-    expect(frequencyTrigger()?.textContent).toMatch(/1m/);
-    expect(frequencyTrigger()?.textContent).not.toMatch(/1y/);
+    expect(frequencyTrigger()?.textContent).toMatch(/Monthly/);
+    expect(frequencyTrigger()?.textContent).not.toMatch(/Yearly/);
     expect(railText()).toMatch(/could not save/i);
   });
 
@@ -628,7 +632,7 @@ describe("SubscriptionPage", () => {
     );
     await flush();
 
-    await pickFrequency("1y");
+    await pickFrequency("Yearly");
 
     // Scoped deliberately: this alert used to render at the top of the LEFT
     // column, which at 1080px is a whole column away from the control that
@@ -1369,7 +1373,7 @@ describe("SubscriptionPage", () => {
     expect(railText()).toMatch(/Started/);
     expect(railText()).toMatch(/Ends/);
     expect(railText()).toMatch(/Frequency/);
-    expect(railText()).toMatch(/1m/);
+    expect(railText()).toMatch(/Monthly/);
   });
 
   it("shows the frequency as read-only text while live if the store won't let it change", () => {
@@ -1379,7 +1383,7 @@ describe("SubscriptionPage", () => {
     // read-only row picks it up instead.
     render();
     expect(railText()).toMatch(/Frequency/);
-    expect(railText()).toMatch(/1m/);
+    expect(railText()).toMatch(/Monthly/);
   });
 
   it("keeps the rail sticky on a wide viewport", async () => {
