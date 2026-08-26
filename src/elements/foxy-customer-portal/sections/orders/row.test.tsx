@@ -1,14 +1,23 @@
 // src/elements/foxy-customer-portal/sections/orders/row.test.tsx
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
+import { page } from "vitest/browser";
 import { mountScreen, type MountedScreen } from "../../test-utils";
-import { OrderRow } from "./row";
+import { OrderRow, SUBSCRIPTION_ORDER_COLUMNS } from "./row";
 
 let screen: MountedScreen | null = null;
 
-afterEach(() => {
+// This suite's default iframe is 414x896 (confirmed by probing
+// `window.innerWidth`), which is under row.tsx's 640px MOBILE breakpoint --
+// see pagination.test.tsx's "Their slots are hidden below 640px" comment for
+// the same constraint elsewhere in this element. The desktop grid tests below
+// widen the viewport for the duration of the test and this hook restores it
+// unconditionally, so a thrown assertion never leaks a wide viewport into a
+// later test.
+afterEach(async () => {
   act(() => screen?.unmount());
   screen = null;
+  await page.viewport(414, 896);
 });
 
 function order(overrides = {}) {
@@ -151,5 +160,56 @@ describe("OrderRow", () => {
     expect(document.activeElement).toBe(button);
     expect(row?.matches(":has(button:focus-visible)")).toBe(true);
     expect(getComputedStyle(row as Element).outlineStyle).toBe("solid");
+  });
+
+  it("lays out on the default columns", async () => {
+    // Above 640px so `Row`'s MOBILE override (`grid-template-columns: 1fr
+    // auto`, 2 tracks) doesn't win over `rowGrid` -- see the note by
+    // `afterEach` above.
+    await page.viewport(900, 800);
+    render();
+    const row = document.querySelector("button")!.parentElement!;
+    // Six tracks: Order, Date, Summary, Amount, Status, Receipt.
+    expect(
+      getComputedStyle(row).gridTemplateColumns.split(" "),
+    ).toHaveLength(6);
+
+    // Receipt has to land in the final track in both configurations (see the
+    // sibling test below for the five-column case).
+    const receiptCell = row.lastElementChild!;
+    expect(receiptCell.textContent).not.toMatch(/98213/);
+    const openButton = document.querySelector("button")!;
+    expect(getComputedStyle(openButton).gridColumn).toBe("1 / 6");
+  });
+
+  it("drops the summary cell and narrows to five columns when asked", async () => {
+    await page.viewport(900, 800);
+    screen = mountScreen(
+      <OrderRow
+        order={order() as never}
+        onOpen={() => {}}
+        columns={SUBSCRIPTION_ORDER_COLUMNS}
+        withSummary={false}
+      />,
+      {},
+    );
+
+    const row = document.querySelector("button")!.parentElement!;
+    expect(
+      getComputedStyle(row).gridTemplateColumns.split(" "),
+    ).toHaveLength(5);
+    // The summary text is what the dropped cell carried.
+    expect(document.body.textContent).not.toMatch(/Coffee/);
+    // Everything else still renders.
+    expect(document.body.textContent).toMatch(/98213/);
+    expect(document.body.textContent).toMatch(/\$42\.50/);
+
+    // Receipt still lands in the final (5th) track, not swallowed by
+    // OpenButton's narrower span.
+    const openButton = document.querySelector("button")!;
+    expect(getComputedStyle(openButton).gridColumn).toBe("1 / 5");
+    const receiptCell = row.lastElementChild!;
+    expect(receiptCell).not.toBe(openButton);
+    expect(receiptCell.contains(openButton)).toBe(false);
   });
 });

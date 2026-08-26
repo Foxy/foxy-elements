@@ -40,6 +40,10 @@ export type OrderResource = {
 type Props = {
   order: OrderResource;
   onOpen: () => void;
+  /** Defaults to the home page's six-column set. */
+  columns?: string;
+  /** The subscription page drops this cell -- see SUBSCRIPTION_ORDER_COLUMNS. */
+  withSummary?: boolean;
 };
 
 /** Below this the table stops being a table and each row becomes a card. */
@@ -50,16 +54,24 @@ const MOBILE = "@media (max-width: 640px)";
  * header row and every data row share it so the columns line up, which is
  * the whole reason it is a shared constant rather than repeated per rule.
  */
-const ORDER_COLUMNS = "110px 110px 1fr 90px 100px 140px";
+export const ORDER_COLUMNS = "110px 110px 1fr 90px 100px 140px";
 
-const rowGrid = css`
+/**
+ * The subscription page's own set: no Summary column, because every row in
+ * that table is a payment for the same subscription and the summary would
+ * repeat the page's title on every line.
+ */
+export const SUBSCRIPTION_ORDER_COLUMNS =
+  "minmax(90px,1fr) 100px 76px 92px 70px";
+
+const rowGrid = css<{ $columns?: string }>`
   display: grid;
-  grid-template-columns: ${ORDER_COLUMNS};
+  grid-template-columns: ${(props) => props.$columns ?? ORDER_COLUMNS};
   gap: 12px;
   align-items: center;
 `;
 
-export const OrderHeaderRow = styled.div`
+export const OrderHeaderRow = styled.div<{ $columns?: string }>`
   ${rowGrid};
   padding: 0 0 10px;
   border-bottom: ${(props) => props.theme.tokens.border.default};
@@ -74,7 +86,7 @@ export const OrderHeaderCell = styled.div`
   color: ${(props) => props.theme.tokens.color.faint};
 `;
 
-const Row = styled.div`
+const Row = styled.div<{ $columns?: string }>`
   ${rowGrid};
   padding: 14px 0;
   border-bottom: ${(props) => props.theme.tokens.border.default};
@@ -104,9 +116,9 @@ const Row = styled.div`
  * themselves out on the row's own tracks rather than a nested grid of their
  * own.
  */
-const OpenButton = styled.button`
+const OpenButton = styled.button<{ $span: number }>`
   all: unset;
-  grid-column: 1 / 6;
+  grid-column: ${(props) => `1 / ${props.$span + 1}`};
   display: grid;
   grid-template-columns: subgrid;
   align-items: center;
@@ -196,7 +208,12 @@ const ReceiptLink = styled.a`
   text-decoration: underline;
 `;
 
-export function OrderRow({ order, onOpen }: Props) {
+export function OrderRow({
+  order,
+  onOpen,
+  columns,
+  withSummary = true,
+}: Props) {
   const intl = useIntl();
   const date = toCalendarDate(order.transaction_date);
   const statusMessage = getTransactionStatusMessage(order.status);
@@ -208,17 +225,19 @@ export function OrderRow({ order, onOpen }: Props) {
   const receiptHref = order._links["fx:receipt"]?.href;
 
   return (
-    <Row>
-      <OpenButton type="button" onClick={onOpen}>
+    <Row $columns={columns}>
+      <OpenButton type="button" onClick={onOpen} $span={withSummary ? 5 : 4}>
         <IdCell>{order.display_id}</IdCell>
 
         <DateCell>
           {date ? intl.formatDate(date, { dateStyle: "medium" }) : ""}
         </DateCell>
 
-        {/* Truncated to one line, so the full text has to stay reachable on
-            hover for the rows this clips. */}
-        <SummaryCell title={summary}>{summary}</SummaryCell>
+        {withSummary ? (
+          // Truncated to one line, so the full text has to stay reachable on
+          // hover for the rows this clips.
+          <SummaryCell title={summary}>{summary}</SummaryCell>
+        ) : null}
 
         <AmountCell>
           <FormattedNumber
