@@ -99,6 +99,28 @@ describe("SubscriptionsSection", () => {
     expect(String(query?.zoom)).toMatch(/transaction_template:items/);
   });
 
+  it("zooms three levels deep, so the Manage page gets each item's options", async () => {
+    // Pins the exact zoom string rather than a prefix. This request is what
+    // supplies `subscription-page.tsx` when the customer clicks Manage, and
+    // that page reads `item._embedded["fx:item_options"]` (item-details.ts)
+    // for its option rows. Every fixture in this repo hand-builds that embed,
+    // so dropping `:item_options` here breaks nothing locally and silently
+    // empties the option rows against the real API. Hence an equality
+    // assertion, not a `toMatch` a two-level zoom would also satisfy.
+    const spy = vi.fn();
+    screen = mountScreen(
+      <SubscriptionsSection customer={customer(spy) as never} onNavigate={vi.fn()} />,
+      {},
+    );
+    await flush();
+
+    const calls = spy.mock.calls.filter(([q]) => q?.zoom !== undefined);
+    expect(calls.length).toBeGreaterThan(0);
+    for (const [query] of calls) {
+      expect(query?.zoom).toBe("transaction_template:items:item_options");
+    }
+  });
+
   it("switches to inactive subscriptions on demand", async () => {
     screen = mountScreen(
       <SubscriptionsSection customer={customer() as never} onNavigate={vi.fn()} />,

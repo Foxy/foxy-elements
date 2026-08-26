@@ -84,10 +84,17 @@ export function SubscriptionsSection({
 
   // Both states are separate server-side queries. Partitioning one result set
   // in the browser would make `total_items` describe the wrong collection.
+  //
+  // The zoom is three levels deep, and all three are load-bearing: this is
+  // the request that supplies `subscription-page.tsx` when the customer hits
+  // Manage, and that page's item cards read `item._embedded["fx:item_options"]`
+  // (see `item-details.ts`). Dropping `:item_options` costs no test and no
+  // error -- the option rows just silently stop existing against the real
+  // API -- so `list.test.tsx` pins this exact string.
   const query = useMemo(
     () => ({
       filters: [`is_active=${showActive}`],
-      zoom: "transaction_template:items",
+      zoom: "transaction_template:items:item_options",
       limit: 10,
     }),
     [showActive],

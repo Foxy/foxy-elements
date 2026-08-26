@@ -729,7 +729,8 @@ export function stubStore(fixtures: StoreFixtures = {}): () => void {
       // active. `is_active=true`/`is_active=false` are checked literally
       // against the URL, not decoded — confirmed against what the real SDK
       // sends for `filters: ["is_active=true"]`:
-      // `?is_active=true&offset=0&limit=10&zoom=transaction_template%3Aitems`.
+      // `?is_active=true&offset=0&limit=10&zoom=transaction_template%3Aitems
+      // %3Aitem_options`.
       if (new URL(url).pathname === new URL(SUBSCRIPTIONS_HREF).pathname) {
         if (url.includes("is_active=true")) {
           return paginate(activeSubscriptions, url, "fx:subscriptions");

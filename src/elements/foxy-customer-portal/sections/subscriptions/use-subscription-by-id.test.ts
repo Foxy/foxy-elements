@@ -92,6 +92,26 @@ describe("useSubscriptionById", () => {
     expect(query).not.toHaveProperty("filters");
   });
 
+  it("zooms three levels deep, so a deep link gets each item's options too", async () => {
+    // The deep-link twin of `list.test.tsx`'s own zoom test. Both fetch sites
+    // feed the same page, so a subscription resolved here has to arrive with
+    // the same embeds one resolved through the list does -- otherwise a cold
+    // deep link renders item cards with no option rows while the same page
+    // reached via Manage renders them. Equality, not `toMatch`, for the same
+    // reason stated there.
+    const spy = vi.fn(async (_query?: Record<string, unknown>) => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ total_items: 0, _embedded: {} }),
+    }));
+
+    renderHook(collectionLink(spy), "42");
+    await flush();
+
+    const [query] = spy.mock.calls.at(-1) ?? [];
+    expect(query?.zoom).toBe("transaction_template:items:item_options");
+  });
+
   it("returns null without erroring when nothing matches", async () => {
     const getResult = renderHook(
       collectionLink(async () => ({

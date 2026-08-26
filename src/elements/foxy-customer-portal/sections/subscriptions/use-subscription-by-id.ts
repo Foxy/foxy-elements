@@ -46,8 +46,12 @@ export function useSubscriptionById(
   link: FollowableLink<CollectionPage> | null,
   id: string,
 ) {
+  // Must stay in step with `list.tsx`'s zoom: this is the deep-link fallback
+  // for the very same page, so a subscription resolved here has to arrive
+  // carrying the same three embed levels one resolved through the list does.
+  // Pinned by this module's test for the reason stated there.
   const query = useMemo(
-    () => ({ zoom: "transaction_template:items", limit: 100 }),
+    () => ({ zoom: "transaction_template:items:item_options", limit: 100 }),
     [],
   );
 
