@@ -19,6 +19,11 @@ const flush = () =>
     await new Promise((r) => setTimeout(r, 0));
   });
 
+// Well behind `start_date`/`next_transaction_date`, so a test that plugs it
+// into `end_date` or `first_failed_transaction_date` gets an unambiguous
+// past instant.
+const past = "2020-01-01T00:00:00Z";
+
 function subscription(
   overrides: Record<string, unknown> = {},
   patch?: (body: unknown) => Promise<{ ok: boolean; status: number }>,
@@ -32,7 +37,7 @@ function subscription(
     error_message: "",
     first_failed_transaction_date: null,
     _links: {
-      self: { href: "/s/42", patch },
+      self: { href: "/s/1042", patch },
       "fx:transactions": {
         href: "/s/42/transactions",
         get: async () => ({
@@ -53,6 +58,23 @@ function subscription(
   };
 }
 
+/**
+ * Mounts `SubscriptionPage` with a default subscription (and no portal
+ * settings), overridable per test. Assertions in this describe block read
+ * `document.body.textContent` rather than `screen.host.textContent` -- both
+ * work, since `mountScreen` appends `host` to `document.body`.
+ */
+function render(overrides: { subscription?: unknown } = {}) {
+  screen = mountScreen(
+    <SubscriptionPage
+      subscription={(overrides.subscription ?? subscription()) as never}
+      settings={null}
+      onBack={vi.fn()}
+    />,
+    {},
+  );
+}
+
 describe("SubscriptionPage", () => {
   it("renders the subscription id and a Back button", async () => {
     screen = mountScreen(
@@ -67,9 +89,7 @@ describe("SubscriptionPage", () => {
 
     expect(screen.host.textContent).toMatch(/42/);
     const buttons = [...screen.host.querySelectorAll("button")];
-    expect(buttons.some((b) => /^back$/i.test(b.textContent ?? ""))).toBe(
-      true,
-    );
+    expect(buttons.some((b) => /^back$/i.test(b.textContent ?? ""))).toBe(true);
   });
 
   it("shows the payment history below the manage controls", async () => {
@@ -124,6 +144,40 @@ describe("SubscriptionPage", () => {
     expect(patch).toHaveBeenCalled();
     expect(onBack).toHaveBeenCalled();
   });
+
+  it("heads the page with the subscription's items and id", () => {
+    render();
+    expect(document.body.textContent).toMatch(/#1042/);
+  });
+
+  it("badges a live subscription as active", () => {
+    render();
+    expect(document.body.textContent).toMatch(/Active/);
+  });
+
+  it("badges an ended subscription and explains it", () => {
+    render({
+      subscription: subscription({ is_active: false, end_date: past }),
+    });
+    expect(document.body.textContent).toMatch(/Ended/);
+    expect(document.body.textContent).toMatch(/No further payments/);
+  });
+
+  it("raises an alert when a payment has failed", () => {
+    render({
+      subscription: subscription({
+        first_failed_transaction_date: past,
+        past_due_amount: 24,
+      }),
+    });
+    expect(document.body.textContent).toMatch(/Payment failed/);
+    expect(document.body.textContent).toMatch(/\$24\.00/);
+  });
+
+  it("shows no alert when nothing has failed", () => {
+    render();
+    expect(document.body.textContent).not.toMatch(/Payment failed/);
+  });
 });
 
 describe("SubscriptionPageContainer", () => {
@@ -161,7 +215,7 @@ describe("SubscriptionPageContainer", () => {
 
     screen = mountScreen(
       <SubscriptionPageContainer
-        id="42"
+        id="1042"
         subscriptionsLink={link as never}
         settings={null}
         onBack={vi.fn()}

@@ -1,6 +1,8 @@
 import { useId, useMemo, useState } from "react";
 import { FormattedDate, FormattedNumber, useIntl } from "react-intl";
+import styled from "styled-components";
 import { Alert } from "@foxy.io/design-system/alert";
+import { Badge } from "@foxy.io/design-system/badge";
 import { Button } from "@foxy.io/design-system/button";
 import { Calendar } from "@foxy.io/design-system/calendar";
 import { Field } from "@foxy.io/design-system/field";
@@ -25,8 +27,88 @@ import { getTransactionStatusMessage } from "../../transaction-status";
 import { patchResource } from "../../write";
 import type { CartDisplayConfig } from "./cart-display-config";
 import { toDatePickerBounds, toLocalDateString } from "./date-constraints";
+import { getSubscriptionStatus } from "./status";
 import type { SubscriptionResource } from "./card";
 import { useSubscriptionById } from "./use-subscription-by-id";
+
+const HeaderRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+`;
+
+const TitleLine = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+`;
+
+const PageTitle = styled.h1`
+  margin: 0;
+  font: ${(props) => props.theme.tokens.font.h1};
+  color: ${(props) => props.theme.tokens.color.body};
+`;
+
+const TitleId = styled.span`
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
+const Note = styled.p`
+  margin: 0;
+  font: ${(props) => props.theme.tokens.font.body};
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
+const AlertSlot = styled.div`
+  margin-top: 24px;
+`;
+
+// The DS Alert has no Title part. Worth adding upstream if a second caller
+// ever needs one; for now this is the one place that does.
+const AlertTitle = styled.div`
+  font: ${(props) => props.theme.tokens.font.bodyEmphasis};
+  color: inherit;
+`;
+
+// The rail keeps a fixed width beside a column that may hold a wide table;
+// `minmax(0, 1fr)` is what stops that table pushing the rail off screen.
+const Columns = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: clamp(24px, 4vw, 48px);
+  margin-top: 32px;
+  align-items: start;
+
+  @media (max-width: 860px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const Main = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  min-width: 0;
+`;
+
+const Rail = styled.aside`
+  position: sticky;
+  top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+
+  /* Once the columns stack there is nothing to stay level with, and a
+     sticky rail would just pin itself mid-scroll. */
+  @media (max-width: 860px) {
+    position: static;
+  }
+`;
 
 /**
  * Raw (snake_case) shape of a single next-date modification rule, as the API
@@ -217,6 +299,30 @@ export function SubscriptionPage({
   const startedAt = toCalendarDate(subscription.start_date);
   const hasEndDate = !!endsAt;
 
+  const status = getSubscriptionStatus(subscription);
+  const isFailed = status === "failed" || status === "failed_and_ended";
+  const isEnded = status === "ended" || status === "inactive";
+  const isScheduled = status === "will_start";
+
+  const statusMessage = isFailed
+    ? messages.subscriptionStatusPastDue
+    : isEnded
+      ? messages.subscriptionStatusEnded
+      : isScheduled
+        ? messages.subscriptionStatusScheduled
+        : messages.subscriptionStatusActive;
+
+  const statusVariant = isFailed
+    ? "destructive"
+    : isEnded || isScheduled
+      ? "secondary"
+      : "default";
+
+  const template = subscription._embedded?.["fx:transaction_template"];
+  const currency = template?.currency_code ?? "USD";
+  const items = template?._embedded?.["fx:items"] ?? [];
+  const title = items.map((item) => item.name).join(", ");
+
   const showStartDate = cartDisplayConfig?.show_sub_startdate ?? true;
   const showEndDate = cartDisplayConfig?.show_sub_enddate ?? true;
   const showFrequency = cartDisplayConfig?.show_sub_frequency ?? true;
@@ -275,217 +381,270 @@ export function SubscriptionPage({
   }
 
   return (
-    <AccountPageLayout
-      title={intl.formatMessage(messages.manageHeading)}
-      onBack={onBack}
-    >
-      {hasFailed ? (
-        <Alert.Root $variant="destructive">
-          <Alert.Description>
-            {intl.formatMessage(messages.errorUnknown)}
-          </Alert.Description>
-        </Alert.Root>
+    <AccountPageLayout onBack={onBack} maxWidth="1080px">
+      <HeaderRow>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <TitleLine>
+            <PageTitle>
+              {title}{" "}
+              <TitleId>
+                {intl.formatMessage(messages.subscriptionTitleId, {
+                  id: subscriptionId,
+                })}
+              </TitleId>
+            </PageTitle>
+            <Badge $variant={statusVariant}>
+              {intl.formatMessage(statusMessage)}
+            </Badge>
+          </TitleLine>
+
+          {isEnded && endsAt ? (
+            <Note>
+              {intl.formatMessage(messages.subscriptionEndedNote, {
+                date: intl.formatDate(endsAt, { dateStyle: "medium" }),
+              })}
+            </Note>
+          ) : null}
+        </div>
+      </HeaderRow>
+
+      {isFailed ? (
+        <AlertSlot>
+          <Alert.Root $variant="destructive">
+            <AlertTitle>
+              {intl.formatMessage(messages.subscriptionPastDueTitle)}
+            </AlertTitle>
+            <Alert.Description>
+              {intl.formatMessage(messages.subscriptionPastDueBody, {
+                amount: intl.formatNumber(subscription.past_due_amount ?? 0, {
+                  style: "currency",
+                  currency,
+                }),
+              })}
+            </Alert.Description>
+          </Alert.Root>
+        </AlertSlot>
       ) : null}
 
-      {/* Read-only. The spec is explicit that start and end dates are not
+      <Columns>
+        <Main>
+          {hasFailed ? (
+            <Alert.Root $variant="destructive">
+              <Alert.Description>
+                {intl.formatMessage(messages.errorUnknown)}
+              </Alert.Description>
+            </Alert.Root>
+          ) : null}
+
+          {/* Read-only. The spec is explicit that start and end dates are not
           editable here: v1's SubscriptionForm only allows it when portal
           settings are absent, which never happens inside the portal. Cancel
           still sets an end date, via the link-out below. */}
-      <SummaryTable.Root>
-        <SummaryTable.Entry
-          title={intl.formatMessage(messages.manageId)}
-          subtitle={subscriptionId}
-        />
-        {showStartDate ? (
-          <SummaryTable.Entry
-            title={intl.formatMessage(messages.manageStarted)}
-            value={
-              startedAt ? (
-                <FormattedDate value={startedAt} dateStyle="medium" />
-              ) : null
-            }
-          />
-        ) : null}
-        {endsAt && showEndDate ? (
-          <SummaryTable.Entry
-            title={intl.formatMessage(messages.manageEnds)}
-            value={<FormattedDate value={endsAt} dateStyle="medium" />}
-          />
-        ) : null}
-      </SummaryTable.Root>
-
-      {showFrequency && frequencies.length > 0 ? (
-        <Field.Root>
-          <Field.Label htmlFor={frequencyId}>
-            {intl.formatMessage(messages.manageFrequency)}
-          </Field.Label>
-
-          <Select.Root
-            value={frequency}
-            onValueChange={(next: string | null) => next && setFrequency(next)}
-          >
-            <Select.Trigger id={frequencyId}>
-              <Select.Value />
-            </Select.Trigger>
-
-            <Select.Portal container={portalContainer ?? undefined}>
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.List>
-                    {frequencies.map((value) => (
-                      <Select.Item key={value} value={value}>
-                        <Select.ItemText>{value}</Select.ItemText>
-                      </Select.Item>
-                    ))}
-                  </Select.List>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
-        </Field.Root>
-      ) : null}
-
-      {showNextDate && dateRules !== false ? (
-        <Field.Root>
-          <Field.Label>
-            {intl.formatMessage(messages.manageNextPayment)}
-          </Field.Label>
-          <Calendar
-            mode="single"
-            selected={nextDate}
-            onSelect={setNextDate}
-            startMonth={"startMonth" in bounds ? bounds.startMonth : undefined}
-            endMonth={"endMonth" in bounds ? bounds.endMonth : undefined}
-            disabled={bounds.disabled}
-          />
-        </Field.Root>
-      ) : null}
-
-      {tokenHref ? (
-        <a
-          href={
-            hasEndDate
-              ? undefined
-              : tokenLink(tokenHref, { sub_cancel: "true" })
-          }
-          aria-disabled={hasEndDate ? "true" : undefined}
-        >
-          {intl.formatMessage(messages.manageCancel)}
-        </a>
-      ) : null}
-
-      {modifyHref ? (
-        <a
-          href={hasEnded ? undefined : modifyHref}
-          aria-disabled={hasEnded ? "true" : undefined}
-        >
-          {intl.formatMessage(messages.manageModify)}
-        </a>
-      ) : null}
-
-      {tokenHref ? (
-        <a
-          href={
-            hasEnded
-              ? undefined
-              : tokenLink(tokenHref, { cart: "checkout", sub_restart: "auto" })
-          }
-          aria-disabled={hasEnded ? "true" : undefined}
-        >
-          {intl.formatMessage(messages.manageUpdateBilling)}
-        </a>
-      ) : null}
-
-      <Button type="button" onClick={handleSave} disabled={isBusy}>
-        {intl.formatMessage(
-          isBusy ? messages.manageSaving : messages.manageSave,
-        )}
-      </Button>
-
-      <h3>{intl.formatMessage(messages.paymentsHeading)}</h3>
-
-      {paymentsLoading || paymentsUnauthenticated ? <Skeleton /> : null}
-
-      {paymentsError && !paymentsUnauthenticated ? (
-        <Alert.Root $variant="destructive">
-          <Alert.Description>
-            {intl.formatMessage(messages.errorUnknown)}
-          </Alert.Description>
-        </Alert.Root>
-      ) : null}
-
-      {!paymentsLoading && !paymentsError && payments.length === 0 ? (
-        <p>{intl.formatMessage(messages.paymentsEmpty)}</p>
-      ) : null}
-
-      <SummaryTable.Root>
-        {payments.map((payment) => {
-          const statusMessage = getTransactionStatusMessage(payment.status);
-          const transactionDate = toCalendarDate(payment.transaction_date);
-
-          return (
+          <SummaryTable.Root>
             <SummaryTable.Entry
-              key={payment.id}
-              title={`#${payment.id}`}
-              subtitle={
-                statusMessage
-                  ? intl.formatMessage(statusMessage)
-                  : payment.status
-              }
-              value={
-                <FormattedNumber
-                  value={payment.total_order}
-                  style="currency"
-                  currency={payment.currency_code}
-                />
-              }
-              description={[
-                transactionDate ? (
-                  <FormattedDate
-                    key="date"
-                    value={transactionDate}
-                    dateStyle="medium"
-                  />
-                ) : null,
-                (payment._embedded?.["fx:items"] ?? [])
-                  .map((item) => `${item.name} ×${item.quantity}`)
-                  .join(", "),
-              ].filter((line) => line !== null)}
-              action={
-                payment._links["fx:receipt"] ? (
-                  <a href={payment._links["fx:receipt"].href}>
-                    {intl.formatMessage(messages.paymentsReceipt)}
-                  </a>
-                ) : null
-              }
+              title={intl.formatMessage(messages.manageId)}
+              subtitle={subscriptionId}
             />
-          );
-        })}
-      </SummaryTable.Root>
+            {showStartDate ? (
+              <SummaryTable.Entry
+                title={intl.formatMessage(messages.manageStarted)}
+                value={
+                  startedAt ? (
+                    <FormattedDate value={startedAt} dateStyle="medium" />
+                  ) : null
+                }
+              />
+            ) : null}
+            {endsAt && showEndDate ? (
+              <SummaryTable.Entry
+                title={intl.formatMessage(messages.manageEnds)}
+                value={<FormattedDate value={endsAt} dateStyle="medium" />}
+              />
+            ) : null}
+          </SummaryTable.Root>
 
-      {paymentsTotal > paymentsLimit ? (
-        <div>
-          <Button
-            type="button"
-            onClick={loadPrevPayment}
-            disabled={paymentsOffset === 0}
-          >
-            {"<"}
+          {showFrequency && frequencies.length > 0 ? (
+            <Field.Root>
+              <Field.Label htmlFor={frequencyId}>
+                {intl.formatMessage(messages.manageFrequency)}
+              </Field.Label>
+
+              <Select.Root
+                value={frequency}
+                onValueChange={(next: string | null) =>
+                  next && setFrequency(next)
+                }
+              >
+                <Select.Trigger id={frequencyId}>
+                  <Select.Value />
+                </Select.Trigger>
+
+                <Select.Portal container={portalContainer ?? undefined}>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.List>
+                        {frequencies.map((value) => (
+                          <Select.Item key={value} value={value}>
+                            <Select.ItemText>{value}</Select.ItemText>
+                          </Select.Item>
+                        ))}
+                      </Select.List>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </Field.Root>
+          ) : null}
+
+          {showNextDate && dateRules !== false ? (
+            <Field.Root>
+              <Field.Label>
+                {intl.formatMessage(messages.manageNextPayment)}
+              </Field.Label>
+              <Calendar
+                mode="single"
+                selected={nextDate}
+                onSelect={setNextDate}
+                startMonth={
+                  "startMonth" in bounds ? bounds.startMonth : undefined
+                }
+                endMonth={"endMonth" in bounds ? bounds.endMonth : undefined}
+                disabled={bounds.disabled}
+              />
+            </Field.Root>
+          ) : null}
+
+          {tokenHref ? (
+            <a
+              href={
+                hasEndDate
+                  ? undefined
+                  : tokenLink(tokenHref, { sub_cancel: "true" })
+              }
+              aria-disabled={hasEndDate ? "true" : undefined}
+            >
+              {intl.formatMessage(messages.manageCancel)}
+            </a>
+          ) : null}
+
+          {modifyHref ? (
+            <a
+              href={hasEnded ? undefined : modifyHref}
+              aria-disabled={hasEnded ? "true" : undefined}
+            >
+              {intl.formatMessage(messages.manageModify)}
+            </a>
+          ) : null}
+
+          {tokenHref ? (
+            <a
+              href={
+                hasEnded
+                  ? undefined
+                  : tokenLink(tokenHref, {
+                      cart: "checkout",
+                      sub_restart: "auto",
+                    })
+              }
+              aria-disabled={hasEnded ? "true" : undefined}
+            >
+              {intl.formatMessage(messages.manageUpdateBilling)}
+            </a>
+          ) : null}
+
+          <Button type="button" onClick={handleSave} disabled={isBusy}>
+            {intl.formatMessage(
+              isBusy ? messages.manageSaving : messages.manageSave,
+            )}
           </Button>
-          <span>
-            {paymentsOffset + 1}&ndash;
-            {Math.min(paymentsOffset + paymentsLimit, paymentsTotal)} /{" "}
-            {paymentsTotal}
-          </span>
-          <Button
-            type="button"
-            onClick={loadNextPayment}
-            disabled={paymentsOffset + paymentsLimit >= paymentsTotal}
-          >
-            {">"}
-          </Button>
-        </div>
-      ) : null}
+
+          <h3>{intl.formatMessage(messages.paymentsHeading)}</h3>
+
+          {paymentsLoading || paymentsUnauthenticated ? <Skeleton /> : null}
+
+          {paymentsError && !paymentsUnauthenticated ? (
+            <Alert.Root $variant="destructive">
+              <Alert.Description>
+                {intl.formatMessage(messages.errorUnknown)}
+              </Alert.Description>
+            </Alert.Root>
+          ) : null}
+
+          {!paymentsLoading && !paymentsError && payments.length === 0 ? (
+            <p>{intl.formatMessage(messages.paymentsEmpty)}</p>
+          ) : null}
+
+          <SummaryTable.Root>
+            {payments.map((payment) => {
+              const statusMessage = getTransactionStatusMessage(payment.status);
+              const transactionDate = toCalendarDate(payment.transaction_date);
+
+              return (
+                <SummaryTable.Entry
+                  key={payment.id}
+                  title={`#${payment.id}`}
+                  subtitle={
+                    statusMessage
+                      ? intl.formatMessage(statusMessage)
+                      : payment.status
+                  }
+                  value={
+                    <FormattedNumber
+                      value={payment.total_order}
+                      style="currency"
+                      currency={payment.currency_code}
+                    />
+                  }
+                  description={[
+                    transactionDate ? (
+                      <FormattedDate
+                        key="date"
+                        value={transactionDate}
+                        dateStyle="medium"
+                      />
+                    ) : null,
+                    (payment._embedded?.["fx:items"] ?? [])
+                      .map((item) => `${item.name} ×${item.quantity}`)
+                      .join(", "),
+                  ].filter((line) => line !== null)}
+                  action={
+                    payment._links["fx:receipt"] ? (
+                      <a href={payment._links["fx:receipt"].href}>
+                        {intl.formatMessage(messages.paymentsReceipt)}
+                      </a>
+                    ) : null
+                  }
+                />
+              );
+            })}
+          </SummaryTable.Root>
+
+          {paymentsTotal > paymentsLimit ? (
+            <div>
+              <Button
+                type="button"
+                onClick={loadPrevPayment}
+                disabled={paymentsOffset === 0}
+              >
+                {"<"}
+              </Button>
+              <span>
+                {paymentsOffset + 1}&ndash;
+                {Math.min(paymentsOffset + paymentsLimit, paymentsTotal)} /{" "}
+                {paymentsTotal}
+              </span>
+              <Button
+                type="button"
+                onClick={loadNextPayment}
+                disabled={paymentsOffset + paymentsLimit >= paymentsTotal}
+              >
+                {">"}
+              </Button>
+            </div>
+          ) : null}
+        </Main>
+        <Rail>{/* Task 8 */}</Rail>
+      </Columns>
     </AccountPageLayout>
   );
 }

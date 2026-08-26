@@ -21,6 +21,7 @@ export type SubscriptionResource = {
   is_active: boolean;
   error_message: string;
   first_failed_transaction_date: string | null;
+  past_due_amount?: number;
   _links: { self: { href: string } } & Record<
     string,
     (FollowableLink<OrderResource> & { href: string }) | { href: string }

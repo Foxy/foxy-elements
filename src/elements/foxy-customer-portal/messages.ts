@@ -227,6 +227,39 @@ export const messages = defineMessages({
     id: "portal_subscription_id",
     defaultMessage: "Subscription ID",
   },
+  subscriptionTitleId: {
+    id: "portal_subscription_title_id",
+    defaultMessage: "(#{id})",
+  },
+  subscriptionStatusActive: {
+    id: "portal_subscription_status_active",
+    defaultMessage: "Active",
+  },
+  subscriptionStatusPastDue: {
+    id: "portal_subscription_status_past_due",
+    defaultMessage: "Past due",
+  },
+  subscriptionStatusEnded: {
+    id: "portal_subscription_status_ended",
+    defaultMessage: "Ended",
+  },
+  subscriptionStatusScheduled: {
+    id: "portal_subscription_status_scheduled",
+    defaultMessage: "Scheduled",
+  },
+  subscriptionEndedNote: {
+    id: "portal_subscription_ended_note",
+    defaultMessage: "Ended on {date}. No further payments will be taken.",
+  },
+  subscriptionPastDueTitle: {
+    id: "portal_subscription_past_due_title",
+    defaultMessage: "Payment failed",
+  },
+  subscriptionPastDueBody: {
+    id: "portal_subscription_past_due_body",
+    defaultMessage:
+      "A payment of {amount} could not be taken. Update your payment method on the portal home page to continue using this subscription.",
+  },
   subscriptionsHeading: {
     id: "portal_subscriptions_heading",
     defaultMessage: "Subscriptions",
