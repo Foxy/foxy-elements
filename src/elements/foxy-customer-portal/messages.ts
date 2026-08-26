@@ -294,6 +294,18 @@ export const messages = defineMessages({
     id: "portal_manage_next_payment",
     defaultMessage: "Next payment date",
   },
+  subscriptionItemsHeading: {
+    id: "portal_subscription_items_heading",
+    defaultMessage: "Items ({count})",
+  },
+  subscriptionItemWeight: {
+    id: "portal_subscription_item_weight",
+    defaultMessage: "Weight",
+  },
+  subscriptionItemCode: {
+    id: "portal_subscription_item_code",
+    defaultMessage: "Code",
+  },
   paymentsHeading: {
     id: "portal_payments_heading",
     defaultMessage: "Payments",

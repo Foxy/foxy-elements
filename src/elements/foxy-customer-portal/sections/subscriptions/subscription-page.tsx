@@ -27,9 +27,13 @@ import { getTransactionStatusMessage } from "../../transaction-status";
 import { patchResource } from "../../write";
 import type { CartDisplayConfig } from "./cart-display-config";
 import { toDatePickerBounds, toLocalDateString } from "./date-constraints";
+import { visibleItemDetails } from "./item-details";
+import { Pagination } from "../pagination";
 import { getSubscriptionStatus } from "./status";
 import type { SubscriptionResource } from "./card";
 import { useSubscriptionById } from "./use-subscription-by-id";
+
+const ITEMS_PER_PAGE = 3;
 
 const HeaderRow = styled.div`
   display: flex;
@@ -108,6 +112,76 @@ const Rail = styled.aside`
   @media (max-width: 860px) {
     position: static;
   }
+`;
+
+const SectionHeading = styled.h2`
+  margin: 0 0 16px;
+  font: ${(props) => props.theme.tokens.font.h2};
+  color: ${(props) => props.theme.tokens.color.body};
+`;
+
+const ItemCard = styled.div`
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 16px;
+  border: ${(props) => props.theme.tokens.border.field};
+  border-radius: ${(props) => props.theme.tokens.borderRadius.md};
+  background: ${(props) => props.theme.tokens.background.surface};
+`;
+
+const ItemThumb = styled.div`
+  width: 56px;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+  align-self: flex-start;
+  border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
+  background: ${(props) => props.theme.tokens.background.disabledField};
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+`;
+
+const ItemBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 auto;
+`;
+
+const ItemName = styled.div`
+  font: ${(props) => props.theme.tokens.font.label};
+  color: ${(props) => props.theme.tokens.color.body};
+`;
+
+const DetailRow = styled.div`
+  display: flex;
+  gap: 6px;
+  font: ${(props) => props.theme.tokens.font.body};
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
+const DetailValue = styled.span`
+  color: ${(props) => props.theme.tokens.color.body};
+`;
+
+const ItemPrice = styled.div`
+  font: ${(props) => props.theme.tokens.font.bodyEmphasis};
+  color: ${(props) => props.theme.tokens.color.body};
+  flex-shrink: 0;
+`;
+
+const CardList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 `;
 
 /**
@@ -238,6 +312,7 @@ export function SubscriptionPage({
   const [nextDate, setNextDate] = useState<Date | undefined>(undefined);
   const [isBusy, setIsBusy] = useState(false);
   const [hasFailed, setHasFailed] = useState(false);
+  const [itemPage, setItemPage] = useState(1);
 
   const hasEnded =
     !!subscription.end_date &&
@@ -322,6 +397,11 @@ export function SubscriptionPage({
   const currency = template?.currency_code ?? "USD";
   const items = template?._embedded?.["fx:items"] ?? [];
   const title = items.map((item) => item.name).join(", ");
+
+  // Items are already in hand from the embed, so this pager is local state
+  // over a fixed array rather than another `useCollection`.
+  const itemOffset = (itemPage - 1) * ITEMS_PER_PAGE;
+  const visibleItems = items.slice(itemOffset, itemOffset + ITEMS_PER_PAGE);
 
   const showStartDate = cartDisplayConfig?.show_sub_startdate ?? true;
   const showEndDate = cartDisplayConfig?.show_sub_enddate ?? true;
@@ -557,6 +637,71 @@ export function SubscriptionPage({
               isBusy ? messages.manageSaving : messages.manageSave,
             )}
           </Button>
+
+          <section>
+            <SectionHeading>
+              {intl.formatMessage(messages.subscriptionItemsHeading, {
+                count: items.length,
+              })}
+            </SectionHeading>
+
+            <CardList>
+              {visibleItems.map((item, index) => (
+                <ItemCard key={`${item.name}-${itemOffset + index}`}>
+                  <ItemThumb>
+                    {item.image ? (
+                      <img src={item.image} alt="" loading="lazy" />
+                    ) : null}
+                  </ItemThumb>
+
+                  <ItemBody>
+                    <ItemName>{item.name}</ItemName>
+                    {visibleItemDetails(item, cartDisplayConfig).map(
+                      (row, i) => (
+                        <DetailRow key={`${row.kind}-${i}`}>
+                          <span>
+                            {row.kind === "option"
+                              ? row.name
+                              : intl.formatMessage(
+                                  row.kind === "weight"
+                                    ? messages.subscriptionItemWeight
+                                    : messages.subscriptionItemCode,
+                                )}
+                          </span>
+                          <DetailValue>{row.value}</DetailValue>
+                        </DetailRow>
+                      ),
+                    )}
+                  </ItemBody>
+
+                  {item.price !== undefined ? (
+                    <ItemPrice>
+                      <FormattedNumber
+                        value={item.price * (item.quantity ?? 1)}
+                        style="currency"
+                        currency={currency}
+                      />
+                    </ItemPrice>
+                  ) : null}
+                </ItemCard>
+              ))}
+            </CardList>
+
+            {items.length > ITEMS_PER_PAGE ? (
+              <Pagination
+                offset={itemOffset}
+                limit={ITEMS_PER_PAGE}
+                totalItems={items.length}
+                onGoToPage={setItemPage}
+                onPrev={() => setItemPage((p) => Math.max(1, p - 1))}
+                onNext={() =>
+                  setItemPage((p) =>
+                    Math.min(Math.ceil(items.length / ITEMS_PER_PAGE), p + 1),
+                  )
+                }
+              />
+            ) : null}
+          </section>
 
           <h3>{intl.formatMessage(messages.paymentsHeading)}</h3>
 

@@ -24,10 +24,31 @@ const flush = () =>
 // past instant.
 const past = "2020-01-01T00:00:00Z";
 
+// Two items by default -- one plain, one carrying an option, a weight and a
+// code -- so a test can assert on the count and every detail-row kind
+// without every caller having to build its own items array.
+const DEFAULT_ITEMS = [
+  { name: "Coffee", quantity: 1, price: 5 },
+  {
+    name: "Mug",
+    quantity: 1,
+    price: 12,
+    weight: 12,
+    code: "MUG-1",
+    _embedded: {
+      "fx:item_options": [{ name: "Engraving", value: "A. Marsh" }],
+    },
+  },
+];
+
 function subscription(
   overrides: Record<string, unknown> = {},
   patch?: (body: unknown) => Promise<{ ok: boolean; status: number }>,
 ) {
+  const { items, ...rest } = overrides as {
+    items?: unknown[];
+  } & Record<string, unknown>;
+
   return {
     frequency: "1m",
     start_date: "2026-01-01T00:00:00Z",
@@ -51,11 +72,22 @@ function subscription(
       "fx:transaction_template": {
         currency_code: "USD",
         total_order: 10,
-        _embedded: { "fx:items": [{ name: "Coffee", quantity: 1 }] },
+        _embedded: { "fx:items": items ?? DEFAULT_ITEMS },
       },
     },
-    ...overrides,
+    ...rest,
   };
+}
+
+/** A subscription whose template carries `count` plain items, for paging. */
+function subscriptionWithItems(count: number) {
+  return subscription({
+    items: Array.from({ length: count }, (_, i) => ({
+      name: `Item ${i + 1}`,
+      quantity: 1,
+      price: 5,
+    })),
+  });
 }
 
 /**
@@ -64,11 +96,14 @@ function subscription(
  * `document.body.textContent` rather than `screen.host.textContent` -- both
  * work, since `mountScreen` appends `host` to `document.body`.
  */
-function render(overrides: { subscription?: unknown } = {}) {
+function render(
+  overrides: { subscription?: unknown; cartDisplayConfig?: unknown } = {},
+) {
   screen = mountScreen(
     <SubscriptionPage
       subscription={(overrides.subscription ?? subscription()) as never}
       settings={null}
+      cartDisplayConfig={overrides.cartDisplayConfig as never}
       onBack={vi.fn()}
     />,
     {},
@@ -177,6 +212,37 @@ describe("SubscriptionPage", () => {
   it("shows no alert when nothing has failed", () => {
     render();
     expect(document.body.textContent).not.toMatch(/Payment failed/);
+  });
+
+  it("lists the subscription's items with their options", () => {
+    render();
+    expect(document.body.textContent).toMatch(/Items \(2\)/);
+    expect(document.body.textContent).toMatch(/Engraving/);
+    expect(document.body.textContent).toMatch(/A\. Marsh/);
+  });
+
+  it("shows an item's weight and code", () => {
+    render();
+    expect(document.body.textContent).toMatch(/Weight/);
+    expect(document.body.textContent).toMatch(/12/);
+    expect(document.body.textContent).toMatch(/Code/);
+    expect(document.body.textContent).toMatch(/MUG-1/);
+  });
+
+  it("hides options the store has turned off", () => {
+    render({ cartDisplayConfig: { show_product_options: false } });
+    expect(document.body.textContent).not.toMatch(/Engraving/);
+    // The item itself still renders.
+    expect(document.body.textContent).toMatch(/Items \(2\)/);
+  });
+
+  it("pages the items when there are more than fit", () => {
+    render({ subscription: subscriptionWithItems(5) });
+    const pageButtons = [...document.querySelectorAll("button")].filter((b) =>
+      /^\d+$/.test(b.textContent?.trim() ?? ""),
+    );
+    // 5 items at 3 per page.
+    expect(pageButtons).toHaveLength(2);
   });
 });
 

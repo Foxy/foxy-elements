@@ -1,9 +1,14 @@
+import type { ItemOptionResource } from "./item-details";
+
 export type SubscriptionTemplateItem = {
   name: string;
   quantity: number;
   image?: string;
   code?: string;
   parent_code?: string;
+  price?: number;
+  weight?: number;
+  _embedded?: { "fx:item_options"?: ItemOptionResource[] };
 };
 
 export type GroupedSubscriptionItems = {
