@@ -610,6 +610,31 @@ export function SubscriptionPage({
             ? messages.subscriptionStatusScheduled
             : messages.subscriptionStatusActive;
 
+  // Four bodies over two axes.
+  //
+  // Amount: a subscription can carry a failure date with no
+  // `past_due_amount`, and "A payment of $0.00 could not be taken" states a
+  // figure the store never sent. Gated on the same `pastDueAmount` the
+  // rail's Past due row uses, so the two can never disagree about whether
+  // there is an amount to name.
+  //
+  // Ended: spec §6.2's copy ends "Update your payment method on the portal
+  // home page to continue using this subscription", which is right while
+  // the subscription is running and incoherent once it is not --
+  // `failed_and_ended` would be told to fix a payment method for a
+  // subscription the same page says, four lines up, will take no further
+  // payments. The ended variants report the failure and stop.
+  //
+  // `amount` is passed to all four; the no-amount ones simply have no
+  // placeholder to fill.
+  const pastDueBody = isEnded
+    ? pastDueAmount > 0
+      ? messages.subscriptionPastDueEndedBody
+      : messages.subscriptionPastDueEndedBodyNoAmount
+    : pastDueAmount > 0
+      ? messages.subscriptionPastDueBody
+      : messages.subscriptionPastDueBodyNoAmount;
+
   const statusVariant = isFailed
     ? "destructive"
     : isEnded || isScheduled
@@ -792,20 +817,12 @@ export function SubscriptionPage({
               {intl.formatMessage(messages.subscriptionPastDueTitle)}
             </AlertTitle>
             <Alert.Description>
-              {/* The payment did fail, so the alert still shows -- but a
-              subscription can carry a failure date with no `past_due_amount`,
-              and "A payment of $0.00 could not be taken" states a figure the
-              store never sent. Reuses the same `pastDueAmount` the rail's
-              Past due row gates on, so the two can never disagree about
-              whether there is an amount to name. */}
-              {pastDueAmount > 0
-                ? intl.formatMessage(messages.subscriptionPastDueBody, {
-                    amount: intl.formatNumber(pastDueAmount, {
-                      style: "currency",
-                      currency,
-                    }),
-                  })
-                : intl.formatMessage(messages.subscriptionPastDueBodyNoAmount)}
+              {intl.formatMessage(pastDueBody, {
+                amount: intl.formatNumber(pastDueAmount, {
+                  style: "currency",
+                  currency,
+                }),
+              })}
             </Alert.Description>
           </Alert.Root>
         </AlertSlot>

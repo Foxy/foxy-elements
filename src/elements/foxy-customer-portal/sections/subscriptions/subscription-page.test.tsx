@@ -512,6 +512,44 @@ describe("SubscriptionPage", () => {
     expect(railText()).not.toMatch(/Past due/);
   });
 
+  it("drops the call to action from the alert once the subscription has ended", () => {
+    // Spec §6.2's body ends "Update your payment method on the portal home
+    // page to continue using this subscription." For `failed_and_ended`
+    // there is nothing to continue -- the header says so four lines up --
+    // so the customer was being told to go fix a payment method for a dead
+    // subscription.
+    render({
+      subscription: subscription({
+        is_active: false,
+        end_date: past,
+        first_failed_transaction_date: past,
+        past_due_amount: 24,
+      }),
+    });
+
+    // The alert still reports what happened, amount and all.
+    expect(pastDueAlertText()).toMatch(/Payment failed/);
+    expect(pastDueAlertText()).toMatch(/\$24\.00/);
+    expect(pastDueAlertText()).toMatch(/before this subscription ended/);
+    // ...but asks for nothing.
+    expect(pastDueAlertText()).not.toMatch(/continue using this subscription/);
+    expect(pastDueAlertText()).not.toMatch(/Update your payment method/);
+  });
+
+  it("keeps the call to action while the subscription is still live", () => {
+    // The other half of the pair: spec §6.2's copy is right for a live
+    // failed subscription and must survive the ended variant being added.
+    render({
+      subscription: subscription({
+        first_failed_transaction_date: past,
+        past_due_amount: 24,
+      }),
+    });
+
+    expect(pastDueAlertText()).toMatch(/continue using this subscription/);
+    expect(pastDueAlertText()).not.toMatch(/before this subscription ended/);
+  });
+
   it("shows no alert when nothing has failed", () => {
     render();
     expect(document.body.textContent).not.toMatch(/Payment failed/);

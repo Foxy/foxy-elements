@@ -191,6 +191,8 @@
   "portal_subscription_next_payment": "Next payment",
   "portal_subscription_past_due_body": "A payment of {amount} could not be taken. Update your payment method on the portal home page to continue using this subscription.",
   "portal_subscription_past_due_body_no_amount": "A payment could not be taken. Update your payment method on the portal home page to continue using this subscription.",
+  "portal_subscription_past_due_ended_body": "A payment of {amount} could not be taken before this subscription ended.",
+  "portal_subscription_past_due_ended_body_no_amount": "A payment could not be taken before this subscription ended.",
   "portal_subscription_past_due_title": "Payment failed",
   "portal_subscription_payment_method_label": "Payment method",
   "portal_subscription_payment_method_note": "Your default payment method is charged for this subscription. Change it on the portal home page.",
