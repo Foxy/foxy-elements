@@ -178,6 +178,7 @@
   "portal_subscription_access_until": "Access continues until {date}.",
   "portal_subscription_billing_heading": "Billing & shipping",
   "portal_subscription_cancel_scheduled": "This subscription is already scheduled to end on {date}.",
+  "portal_subscription_cancel_scheduled_no_date": "This subscription is already scheduled to end.",
   "portal_subscription_cancels": "Cancels",
   "portal_subscription_ended": "Ended",
   "portal_subscription_ended_note": "Ended on {date}. No further payments will be taken.",

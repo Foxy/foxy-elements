@@ -377,6 +377,13 @@ export const messages = defineMessages({
     id: "portal_subscription_cancel_scheduled",
     defaultMessage: "This subscription is already scheduled to end on {date}.",
   },
+  // Used when `cart_display_config.show_sub_enddate` is off. The link is
+  // still inert and the customer still needs to know why, so the note stays
+  // -- it just cannot name the date the store chose to hide.
+  subscriptionCancelScheduledNoDate: {
+    id: "portal_subscription_cancel_scheduled_no_date",
+    defaultMessage: "This subscription is already scheduled to end.",
+  },
   subscriptionAccessUntil: {
     id: "portal_subscription_access_until",
     defaultMessage: "Access continues until {date}.",

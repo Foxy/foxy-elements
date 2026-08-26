@@ -1219,9 +1219,25 @@ export function SubscriptionPage({
                     {intl.formatMessage(messages.manageCancel)}
                   </CancelLink>
                   <SaveNote id={cancelNoteId}>
-                    {intl.formatMessage(messages.subscriptionCancelScheduled, {
-                      date: intl.formatDate(endsAt, { dateStyle: "medium" }),
-                    })}
+                    {/* Named date gated on the same `showEndDate` the rail's
+                    Ends row uses, two blocks up -- otherwise a store that
+                    sets `show_sub_enddate: false` gets the Ends row
+                    correctly suppressed and then reads the same date here.
+                    The note itself is not gated: explaining why the link is
+                    inert is its whole job, and that is true with or without
+                    a date to show. */}
+                    {showEndDate
+                      ? intl.formatMessage(
+                          messages.subscriptionCancelScheduled,
+                          {
+                            date: intl.formatDate(endsAt, {
+                              dateStyle: "medium",
+                            }),
+                          },
+                        )
+                      : intl.formatMessage(
+                          messages.subscriptionCancelScheduledNoDate,
+                        )}
                   </SaveNote>
                 </>
               ) : (

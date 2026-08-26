@@ -922,6 +922,31 @@ describe("SubscriptionPage", () => {
     expect(railText()).toMatch(/Access continues until/);
   });
 
+  it("keeps the date out of the cancel note when the store hides end dates", () => {
+    // The rail's own Ends row gates on `endsAt && showEndDate`, so a store
+    // with `show_sub_enddate: false` gets that row suppressed. The cancel
+    // note named `endsAt` unconditionally and printed the very same date
+    // two blocks below.
+    render({
+      subscription: subscriptionWithTokenUrl({ end_date: future }),
+      cartDisplayConfig: { show_sub_enddate: false },
+    });
+
+    const cancel = [...document.querySelectorAll("aside a")].find((a) =>
+      /cancel/i.test(a.textContent ?? ""),
+    );
+    const note = document.getElementById(
+      cancel!.getAttribute("aria-describedby")!,
+    );
+
+    // The note still explains why the link is inert -- that is its job.
+    expect(note?.textContent).toMatch(/already scheduled to end/i);
+    // It just does not name the date the store chose to hide.
+    expect(note?.textContent).not.toMatch(/2027/);
+    // And the rail agrees: no Ends row either.
+    expect(railText()).not.toMatch(/Ends/);
+  });
+
   it("shows no editable controls once the subscription has ended", () => {
     // Permissive settings, matching "saves a changed frequency and returns
     // home" above -- if the rail's own `!isEnded` gate were missing, these
