@@ -516,11 +516,15 @@ describe("SubscriptionPage", () => {
     });
     await flush();
 
-    // Base UI keeps the popup mounted through its exit transition, so this
-    // asserts the popup is on its way out rather than already gone.
-    const popup = document.body.querySelector('[role="dialog"]');
-    expect(popup === null || popup.hasAttribute("data-ending-style")).toBe(
-      true,
+    // Base UI keeps the popup mounted through its exit transition, so the
+    // unmount has to be waited for rather than asserted synchronously. It
+    // MUST actually unmount: a popup left mounted is 35 invisible but
+    // focusable day buttons sitting in the tab order.
+    await vi.waitFor(
+      () => {
+        expect(document.body.querySelector('[role="dialog"]')).toBeNull();
+      },
+      { timeout: 2000 },
     );
   });
 
