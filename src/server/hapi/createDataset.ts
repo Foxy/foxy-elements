@@ -753,6 +753,15 @@ export const createDataset: () => Dataset = () => ({
     },
   ],
 
+  data_retention_settings: [
+    {
+      id: 0,
+      store_id: 0,
+      auto_anonymize: true,
+      auto_anonymize_days: 365,
+    },
+  ],
+
   customer_portal_settings: [
     {
       id: 0,
