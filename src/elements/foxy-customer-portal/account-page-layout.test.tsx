@@ -61,22 +61,32 @@ describe("AccountPageLayout", () => {
     expect(onBack).toHaveBeenCalledTimes(1);
   });
 
-  it("constrains the page and centres it", () => {
+  it("fills the width its host gives it, setting none of its own", async () => {
+    // The portal is an embeddable custom element, so page width belongs to
+    // the host that embeds it. A cap here would override a merchant's own
+    // layout, and there is no width a widget can pick that is right for
+    // every page it lands on.
     render();
     const container = screen!.host.firstElementChild as HTMLElement;
-    const styles = getComputedStyle(container);
 
-    expect(styles.maxWidth).toBe("960px");
-    expect(styles.boxSizing).toBe("border-box");
-    // border-box, so the padding is inside the max-width rather than added
-    // to it -- a shadow root gets no page-level reset to do this for us.
-    expect(container.getBoundingClientRect().width).toBeLessThanOrEqual(960);
+    expect(getComputedStyle(container).maxWidth).toBe("none");
+
+    // Widening the host has to widen the container with it, which a
+    // `max-width` would silently cap. Measured rather than asserted from
+    // CSS alone: `max-width: none` on a box some ancestor constrains would
+    // still pass a style-only check.
+    screen!.host.style.width = "1400px";
+    expect(Math.round(container.getBoundingClientRect().width)).toBe(1400);
   });
 
-  it("takes a wider column when a page asks for one", () => {
-    render({ maxWidth: "1080px" });
+  it("keeps its padding inside the width a host sets", () => {
+    // border-box is still load-bearing: a shadow root gets no page-level
+    // reset, so a host that *does* size the element would otherwise get that
+    // width plus this padding -- the bug that made the old 960px container
+    // measure 1024px.
+    render();
     const container = screen!.host.firstElementChild as HTMLElement;
 
-    expect(getComputedStyle(container).maxWidth).toBe("1080px");
+    expect(getComputedStyle(container).boxSizing).toBe("border-box");
   });
 });

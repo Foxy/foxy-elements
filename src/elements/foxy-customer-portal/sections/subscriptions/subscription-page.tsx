@@ -876,7 +876,7 @@ export function SubscriptionPage({
   }
 
   return (
-    <AccountPageLayout onBack={handleBack} maxWidth="1080px">
+    <AccountPageLayout onBack={handleBack}>
       <HeaderRow>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <TitleLine>
@@ -1349,8 +1349,8 @@ export function SubscriptionPage({
                     page's other failures render. With no Save button there
                     is no moment the customer is watching for a result, so an
                     error about a rail control has to appear in the rail --
-                    at 1080px the left column's alert can be a whole column
-                    away, and once stacked it is off screen entirely. */}
+                    on a wide host the left column's alert can be a whole
+                    column away, and once stacked it is off screen. */}
                 {hasFailed ? (
                   <Alert.Root $variant="destructive" role="alert">
                     <Alert.Description>

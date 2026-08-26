@@ -7,8 +7,6 @@ import { messages } from "./messages";
 type Props = {
   title?: ReactNode;
   onBack: () => void;
-  /** The design's column width for this page. */
-  maxWidth?: string;
   children: ReactNode;
 };
 
@@ -20,13 +18,16 @@ type Props = {
  * empty `<h2>` would be worse than none.
  *
  * The container lives here rather than in any one page so all five share it.
- * `box-sizing` is explicit: a shadow root gets no page-level reset, so this
- * box would otherwise measure its max-width *plus* its padding.
+ * It sets no width of its own: this is an embeddable custom element, so page
+ * width belongs to the host that embeds it, not to the widget. It fills
+ * whatever it is given.
+ *
+ * `box-sizing` is explicit anyway -- a shadow root gets no page-level reset,
+ * so a host that does set a width on the element would otherwise get that
+ * width *plus* this padding.
  */
-const Container = styled.div<{ $maxWidth: string }>`
+const Container = styled.div`
   box-sizing: border-box;
-  max-width: ${(props) => props.$maxWidth};
-  margin: 0 auto;
   padding: 40px clamp(16px, 5vw, 32px) 96px;
   background: ${(props) => props.theme.tokens.background.page};
   color: ${(props) => props.theme.tokens.color.body};
@@ -56,16 +57,11 @@ const Title = styled.h2`
   color: ${(props) => props.theme.tokens.color.body};
 `;
 
-export function AccountPageLayout({
-  title,
-  onBack,
-  maxWidth = "960px",
-  children,
-}: Props) {
+export function AccountPageLayout({ title, onBack, children }: Props) {
   const intl = useIntl();
 
   return (
-    <Container $maxWidth={maxWidth}>
+    <Container>
       <BackButton type="button" onClick={onBack}>
         <ChevronLeft size={16} />
         {intl.formatMessage(messages.back)}

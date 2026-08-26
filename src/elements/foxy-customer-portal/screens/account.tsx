@@ -43,16 +43,17 @@ const SIGN_OUT_ERROR_MS = 1000;
 // sections -- the UA default heading margins that used to provide it are
 // gone.
 //
-// The measurements are the design's, not the token scale's: a 960px column,
-// a 48px/96px vertical frame, and a gap that grows with the viewport. Those
-// are layout decisions specific to this page rather than reusable steps, so
-// they stay literals; only the colors and fonts come from tokens.
+// The measurements are the design's, not the token scale's: a 48px/96px
+// vertical frame and a gap that grows with the viewport. Those are layout
+// decisions specific to this page rather than reusable steps, so they stay
+// literals; only the colors and fonts come from tokens.
+//
+// No width of its own, matching `AccountPageLayout`'s container: the portal
+// is an embeddable element, so page width belongs to the host embedding it.
 const HomeContent = styled.div`
-  /* A shadow root gets no page-level reset, so this box would otherwise be
-     content-box and measure 960px *plus* its padding. */
+  /* A shadow root gets no page-level reset, so a host that does set a width
+     on the element would otherwise get that width *plus* this padding. */
   box-sizing: border-box;
-  max-width: 960px;
-  margin: 0 auto;
   padding: 48px clamp(16px, 5vw, 32px) 96px;
   display: flex;
   flex-direction: column;
