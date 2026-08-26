@@ -144,6 +144,7 @@ type SubscriptionFixture = {
     "fx:last_transaction"?: { href: string };
     "fx:transactions"?: { href: string };
     "fx:sub_token_url"?: { href: string };
+    "fx:sub_modification_url"?: { href: string };
   };
   _embedded: {
     "fx:transaction_template": {
@@ -205,6 +206,12 @@ const DEFAULT_ACTIVE_SUBSCRIPTIONS: SubscriptionFixture[] = [
       "fx:last_transaction": { href: `${TRANSACTIONS_HREF}/100` },
       "fx:transactions": subTransactionsLink("0"),
       "fx:sub_token_url": subTokenLink("0"),
+      // The Items section's "Modify items" link-out (spec §3). Only this
+      // fixture carries it, so the subscription page's story shows the link
+      // while the others cover the store-has-no-rel case.
+      "fx:sub_modification_url": {
+        href: "https://demo.foxycart.com/cart?sub_modify=0",
+      },
     },
     _embedded: {
       "fx:transaction_template": {
