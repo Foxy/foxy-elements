@@ -156,10 +156,24 @@ const Rail = styled.aside`
   }
 `;
 
-const SectionHeading = styled.h2`
-  margin: 0 0 16px;
+const SectionHeading = styled.h2<{ $flush?: boolean }>`
+  margin: ${(props) => (props.$flush ? "0" : "0 0 16px")};
   font: ${(props) => props.theme.tokens.font.h2};
   color: ${(props) => props.theme.tokens.color.body};
+`;
+
+/**
+ * A section heading with an action beside it -- the Items section's "Modify
+ * items" link-out. The heading inside goes `$flush` so this row owns the
+ * spacing below instead of two margins stacking.
+ */
+const SectionHeader = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
 `;
 
 const ItemCard = styled.div`
@@ -531,6 +545,10 @@ export function SubscriptionPage({
 
   const tokenHref = subscription._links["fx:sub_token_url"]?.href;
 
+  // The second of the two hosted link-outs spec §3 lists. Unlike the billing
+  // one it is a ready-made URL, not `sub_token_url` plus query params.
+  const modifyHref = subscription._links["fx:sub_modification_url"]?.href;
+
   // The customer-scoped subscription resource exposes no `id` — only
   // `third_party_id`, which is set solely for external systems like PayPal
   // Express and is usually empty. The identifier the customer recognises is
@@ -782,11 +800,25 @@ export function SubscriptionPage({
           ) : null}
 
           <section>
-            <SectionHeading>
-              {intl.formatMessage(messages.subscriptionItemsHeading, {
-                count: items.length,
-              })}
-            </SectionHeading>
+            <SectionHeader>
+              <SectionHeading $flush>
+                {intl.formatMessage(messages.subscriptionItemsHeading, {
+                  count: items.length,
+                })}
+              </SectionHeading>
+
+              {/* Spec §3 and §9: changing what is in a subscription is a
+              hosted-cart flow, not a customer-API write, so this stays the
+              link-out it has always been. It lives beside the Items heading
+              because the items are what it modifies. Hidden once the
+              subscription has ended, like the page's other link-outs --
+              there is nothing left to modify. */}
+              {modifyHref && !isEnded ? (
+                <EditLink href={modifyHref}>
+                  {intl.formatMessage(messages.manageModify)}
+                </EditLink>
+              ) : null}
+            </SectionHeader>
 
             <CardList>
               {visibleItems.map((item, index) => (

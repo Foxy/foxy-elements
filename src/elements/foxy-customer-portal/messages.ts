@@ -289,6 +289,7 @@ export const messages = defineMessages({
     id: "portal_manage_cancel",
     defaultMessage: "Cancel subscription",
   },
+  manageModify: { id: "portal_manage_modify", defaultMessage: "Modify items" },
   manageEnds: { id: "portal_manage_ends", defaultMessage: "Ends" },
   manageSave: { id: "portal_manage_save", defaultMessage: "Save" },
   manageSaving: { id: "portal_manage_saving", defaultMessage: "Saving..." },

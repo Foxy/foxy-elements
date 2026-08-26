@@ -413,7 +413,11 @@ describe("SubscriptionPage", () => {
       const heading = [...document.querySelectorAll("h2")].find((h) =>
         /^Items/.test(h.textContent ?? ""),
       );
-      return heading?.parentElement?.textContent ?? "";
+      // `closest("section")`, not `parentElement`: the Items heading now
+      // sits inside a `SectionHeader` row alongside the "Modify items"
+      // link-out, so `parentElement` would scope this to the heading row
+      // and pass every "not present" assertion for the wrong reason.
+      return heading?.closest("section")?.textContent ?? "";
     };
 
     const pageButtons = () =>
@@ -440,6 +444,60 @@ describe("SubscriptionPage", () => {
     expect(itemsSectionText()).not.toMatch(/Item 1/);
   });
 
+  /**
+   * A subscription carrying `fx:sub_modification_url`. Like
+   * `subscriptionWithTokenUrl`, overriding `_links` replaces it wholesale,
+   * so `self` and `fx:transactions` are repeated alongside it.
+   */
+  function subscriptionWithModifyUrl(overrides: Record<string, unknown> = {}) {
+    return subscription({
+      _links: {
+        self: { href: "/s/1042" },
+        "fx:transactions": {
+          href: "/s/42/transactions",
+          get: async () => ({
+            ok: true,
+            status: 200,
+            json: async () => ({ total_items: 0, _embedded: {} }),
+          }),
+        },
+        "fx:sub_modification_url": { href: "https://example.com/cart?mod=x" },
+      },
+      ...overrides,
+    });
+  }
+
+  const itemsSection = () =>
+    [...document.querySelectorAll("h2")]
+      .find((h) => /^Items/.test(h.textContent ?? ""))
+      ?.closest("section") ?? null;
+
+  it("keeps the Modify items link-out in the Items section", () => {
+    // Spec §3 lists this as one of the two hosted link-outs and §9 says it
+    // stays one. It was dropped in the redesign; this pins it to the section
+    // whose contents it modifies, not just to the page.
+    render({ subscription: subscriptionWithModifyUrl() });
+
+    const section = itemsSection();
+    expect(section).not.toBeNull();
+
+    const modify = [...section!.querySelectorAll("a")].find((a) =>
+      /^modify items$/i.test(a.textContent?.trim() ?? ""),
+    );
+    expect(modify?.getAttribute("href")).toBe("https://example.com/cart?mod=x");
+  });
+
+  it("drops the Modify items link once the subscription has ended", () => {
+    render({
+      subscription: subscriptionWithModifyUrl({
+        is_active: false,
+        end_date: past,
+      }),
+    });
+
+    expect(document.body.textContent).not.toMatch(/Modify items/);
+  });
+
   // Scoped to the Billing & shipping section's own subtree -- see the
   // pager test above for why a whole-`document.body` match can pass for
   // the wrong reason on this page.
@@ -447,7 +505,7 @@ describe("SubscriptionPage", () => {
     const heading = [...document.querySelectorAll("h2")].find((h) =>
       /^Billing & shipping/.test(h.textContent ?? ""),
     );
-    return heading?.parentElement?.textContent ?? "";
+    return heading?.closest("section")?.textContent ?? "";
   };
 
   it("shows the shipping address from the subscription's template", () => {
