@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useState, type ReactNode } from "react";
 import { FormattedDate, FormattedNumber, useIntl } from "react-intl";
 import styled from "styled-components";
 import { CalendarDays, ChevronDown, ExternalLink } from "lucide-react";
@@ -293,6 +293,7 @@ const EditLink = styled.a`
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: ${(props) => props.theme.tokens.space["2xs"]};
   height: ${(props) => props.theme.tokens.size.controlSm};
   padding: 0 calc(${(props) => props.theme.tokens.size.controlSm} / 3);
   border: ${(props) => props.theme.tokens.border.field};
@@ -310,6 +311,25 @@ const EditLink = styled.a`
     width: 100%;
   }
 `;
+
+/**
+ * A link that leaves the portal for Foxy's hosted cart: Modify items, and the
+ * shipping address Edit.
+ *
+ * It exists to keep three things that have to agree in one place -- the new
+ * tab, the `rel` that must accompany it, and the icon that tells the customer
+ * to expect one. Spread across call sites, they drift: an icon over a
+ * same-tab navigation is a promise the customer only discovers is false once
+ * they have lost the page they were on.
+ */
+function LinkOut({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <EditLink href={href} target="_blank" rel="noreferrer">
+      {children}
+      <ExternalLink size={14} aria-hidden="true" />
+    </EditLink>
+  );
+}
 
 const RailCard = styled.div`
   box-sizing: border-box;
@@ -933,9 +953,9 @@ export function SubscriptionPage({
               subscription has ended, like the page's other link-outs --
               there is nothing left to modify. */}
               {modifyHref && !isEnded ? (
-                <EditLink href={modifyHref}>
+                <LinkOut href={modifyHref}>
                   {intl.formatMessage(messages.manageModify)}
-                </EditLink>
+                </LinkOut>
               ) : null}
             </SectionHeader>
 
@@ -1034,14 +1054,14 @@ export function SubscriptionPage({
 
                       {tokenHref ? (
                         <PanelAction>
-                          <EditLink
+                          <LinkOut
                             href={tokenLink(tokenHref, {
                               cart: "checkout",
                               sub_restart: "auto",
                             })}
                           >
                             {intl.formatMessage(messages.addressEdit)}
-                          </EditLink>
+                          </LinkOut>
                         </PanelAction>
                       ) : null}
                     </PanelRow>

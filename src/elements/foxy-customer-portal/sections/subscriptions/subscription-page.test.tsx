@@ -613,6 +613,48 @@ describe("SubscriptionPage", () => {
     expect(cancel?.querySelector("svg")).toBeNull();
   });
 
+  it("marks every hosted-cart link-out the same way", () => {
+    // Modify items, the shipping Edit and Cancel subscription all leave the
+    // portal for Foxy's hosted cart. They are the page's only external
+    // destinations, so a customer who learns what the icon means on one
+    // should not be surprised by another opening in place.
+    render({
+      subscription: subscriptionWithTokenUrl({
+        _links: {
+          self: { href: "/s/1042" },
+          "fx:transactions": {
+            href: "/s/42/transactions",
+            get: async () => ({
+              ok: true,
+              status: 200,
+              json: async () => ({ total_items: 0, _embedded: {} }),
+            }),
+          },
+          "fx:sub_token_url": { href: "https://example.com/cart" },
+          "fx:sub_modification_url": { href: "https://example.com/modify" },
+        },
+      }),
+    });
+
+    const byLabel = (pattern: RegExp) =>
+      [...document.querySelectorAll("a")].find((a) =>
+        pattern.test((a.textContent ?? "").trim()),
+      ) as HTMLAnchorElement | undefined;
+
+    const linkOuts = [
+      ["Modify items", byLabel(/^modify items$/i)],
+      ["shipping Edit", byLabel(/^edit$/i)],
+      ["Cancel subscription", byLabel(/cancel subscription/i)],
+    ] as const;
+
+    for (const [name, link] of linkOuts) {
+      expect(link, `${name} did not render`).toBeTruthy();
+      expect(link!.target, `${name} target`).toBe("_blank");
+      expect(link!.rel, `${name} rel`).toBe("noreferrer");
+      expect(link!.querySelector("svg"), `${name} icon`).toBeTruthy();
+    }
+  });
+
   it("saves a changed frequency immediately", async () => {
     const patch = vi.fn(async (_body: unknown) => ({ ok: true, status: 200 }));
 
