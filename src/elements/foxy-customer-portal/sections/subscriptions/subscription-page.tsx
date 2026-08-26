@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { CalendarDays } from "lucide-react";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Badge } from "@foxy.io/design-system/badge";
-import { Button } from "@foxy.io/design-system/button";
 import { Calendar } from "@foxy.io/design-system/calendar";
 import { Field } from "@foxy.io/design-system/field";
 import { Popover } from "@foxy.io/design-system/popover";
@@ -754,26 +753,36 @@ export function SubscriptionPage({
     ? formatCardLabel(paymentMethodData)
     : null;
 
-  async function handleSave() {
-    // Only the fields the customer actually touched go in the body -- see
-    // the original ManageDialog's comment on why sending `frequency`
-    // unconditionally is wrong even when the Select never rendered a change.
-    const changes: Partial<SubscriptionResource> = {};
-    if (frequency !== subscription.frequency) changes.frequency = frequency;
-    if (nextDate) changes.next_transaction_date = toLocalDateString(nextDate);
-
-    if (Object.keys(changes).length === 0) {
-      onBack();
-      return;
-    }
-
+  /**
+   * Writes one touched field and stays on the page.
+   *
+   * The rail's note has always told the customer "Changes save immediately",
+   * and now that is literally true: each control writes as it changes and
+   * there is no Save button to press. Two consequences worth naming:
+   *
+   * - It does NOT call `onBack()`. That used to fire on a successful save,
+   *   which is right for a form the customer submits once and wrong for a
+   *   control they may adjust twice -- it would throw them off the page on
+   *   the first change.
+   * - `revert` puts the control back to the value the server still holds
+   *   when the write fails. Without a Save button there is nothing left to
+   *   signal "not saved yet", so a control that kept a rejected value would
+   *   simply be lying about the subscription.
+   *
+   * Only the touched field goes in the body -- see the original
+   * ManageDialog's comment on why sending `frequency` unconditionally is
+   * wrong even when the Select never rendered a change.
+   */
+  async function saveChange(
+    changes: Partial<SubscriptionResource>,
+    revert: () => void,
+  ) {
     setIsBusy(true);
     setHasFailed(false);
 
     try {
       await patchResource(subscription._links.self as never, changes);
       cache.clear();
-      onBack();
     } catch (caught) {
       // This page sends no credentials, so 401/403 can only mean the session
       // died — the password page is the one place 401 means "wrong value".
@@ -782,10 +791,30 @@ export function SubscriptionPage({
         return;
       }
 
+      revert();
       setHasFailed(true);
     } finally {
       setIsBusy(false);
     }
+  }
+
+  function handleFrequencyChange(next: string) {
+    if (next === frequency) return;
+
+    const previous = frequency;
+    setFrequency(next);
+    void saveChange({ frequency: next }, () => setFrequency(previous));
+  }
+
+  function handleNextDateChange(date: Date | undefined) {
+    if (!date) return;
+
+    const previous = nextDate;
+    setNextDate(date);
+    void saveChange(
+      { next_transaction_date: toLocalDateString(date) },
+      () => setNextDate(previous),
+    );
   }
 
   return (
@@ -851,14 +880,6 @@ export function SubscriptionPage({
 
       <Columns>
         <Main>
-          {hasFailed ? (
-            <Alert.Root $variant="destructive">
-              <Alert.Description>
-                {intl.formatMessage(messages.errorUnknown)}
-              </Alert.Description>
-            </Alert.Root>
-          ) : null}
-
           <section>
             <SectionHeader>
               <SectionHeading $flush>
@@ -1166,8 +1187,9 @@ export function SubscriptionPage({
 
                     <Select.Root
                       value={frequency}
+                      disabled={isBusy}
                       onValueChange={(next: string | null) =>
-                        next && setFrequency(next)
+                        next && handleFrequencyChange(next)
                       }
                     >
                       <Select.Trigger id={frequencyId}>
@@ -1201,7 +1223,11 @@ export function SubscriptionPage({
                       open={nextDateOpen}
                       onOpenChange={setNextDateOpen}
                     >
-                      <Popover.Trigger id={nextDateId} $variant="field">
+                      <Popover.Trigger
+                        id={nextDateId}
+                        $variant="field"
+                        disabled={isBusy}
+                      >
                         {shownNextDate ? (
                           <FormattedDate
                             value={shownNextDate}
@@ -1221,15 +1247,13 @@ export function SubscriptionPage({
                             <Calendar
                               mode="single"
                               // `selected` and `defaultMonth` read the
-                              // subscription's own date so the picker opens on
-                              // it, but `nextDate` stays undefined until the
-                              // customer actually picks. `handleSave` keys the
-                              // PATCH off `nextDate`, so showing the current
-                              // date must not look like a pending change.
+                              // subscription's own date, so the picker opens
+                              // on the date the customer already has rather
+                              // than on an empty month.
                               selected={shownNextDate ?? undefined}
                               defaultMonth={shownNextDate ?? undefined}
                               onSelect={(date: Date | undefined) => {
-                                setNextDate(date);
+                                handleNextDateChange(date);
                                 if (date) setNextDateOpen(false);
                               }}
                               startMonth={
@@ -1251,14 +1275,26 @@ export function SubscriptionPage({
                   </Field.Root>
                 ) : null}
 
-                <Button type="button" onClick={handleSave} disabled={isBusy}>
-                  {intl.formatMessage(
-                    isBusy ? messages.manageSaving : messages.manageSave,
-                  )}
-                </Button>
+                {/* Beside the controls, not in the left column where the
+                    page's other failures render. With no Save button there
+                    is no moment the customer is watching for a result, so an
+                    error about a rail control has to appear in the rail --
+                    at 1080px the left column's alert can be a whole column
+                    away, and once stacked it is off screen entirely. */}
+                {hasFailed ? (
+                  <Alert.Root $variant="destructive" role="alert">
+                    <Alert.Description>
+                      {intl.formatMessage(messages.subscriptionSaveFailed)}
+                    </Alert.Description>
+                  </Alert.Root>
+                ) : null}
 
-                <SaveNote>
-                  {intl.formatMessage(messages.subscriptionSaveNote)}
+                <SaveNote aria-live="polite">
+                  {intl.formatMessage(
+                    isBusy
+                      ? messages.subscriptionSaving
+                      : messages.subscriptionSaveNote,
+                  )}
                 </SaveNote>
               </>
             ) : null}

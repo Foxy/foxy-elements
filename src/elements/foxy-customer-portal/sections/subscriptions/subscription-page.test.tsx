@@ -234,6 +234,40 @@ const calendarDays = () => [
   ...document.body.querySelectorAll<HTMLButtonElement>("button[data-day]"),
 ];
 
+/** Settings that let both rail controls render, for the save-on-change tests. */
+const EDITABLE_SETTINGS = {
+  subscriptions: {
+    allow_frequency_modification: [
+      { jsonata_query: "*", values: ["1m", "1y"] },
+    ],
+    allow_next_date_modification: true,
+  },
+};
+
+/** The frequency `Select`'s trigger -- Base UI marks it `aria-haspopup="listbox"`. */
+const frequencyTrigger = () =>
+  screen!.host.querySelector<HTMLButtonElement>(
+    'button[aria-haspopup="listbox"]',
+  );
+
+/**
+ * Opens the frequency Select and clicks one option. Like the date picker's
+ * popup, the listbox portals out of `screen.host` (see `openNextDatePicker`),
+ * so the options are queried from `document.body`.
+ */
+async function pickFrequency(value: string) {
+  act(() => frequencyTrigger()?.click());
+  await flush();
+
+  const option = [...document.body.querySelectorAll<HTMLElement>('[role="option"]')].find(
+    (el) => (el.textContent ?? "").trim() === value,
+  );
+  expect(option, `no "${value}" option in the frequency Select`).toBeTruthy();
+
+  act(() => option!.click());
+  await flush();
+}
+
 /**
  * Scoped to the past-due `Alert` itself. `querySelectorAll("div")` returns
  * document order, so a `.find` over every div that *contains* "Payment
@@ -412,21 +446,14 @@ describe("SubscriptionPage", () => {
     ).toHaveLength(5);
   });
 
-  it("saves a changed frequency and returns home", async () => {
-    const patch = vi.fn(async () => ({ ok: true, status: 200 }));
+  it("saves a picked date immediately, without leaving the page", async () => {
+    const patch = vi.fn(async (_body: unknown) => ({ ok: true, status: 200 }));
     const onBack = vi.fn();
 
     screen = mountScreen(
       <SubscriptionPage
         subscription={subscription({}, patch) as never}
-        settings={{
-          subscriptions: {
-            allow_frequency_modification: [
-              { jsonata_query: "*", values: ["1m", "1y"] },
-            ],
-            allow_next_date_modification: true,
-          },
-        }}
+        settings={EDITABLE_SETTINGS as never}
         onBack={onBack}
       />,
       {},
@@ -439,15 +466,90 @@ describe("SubscriptionPage", () => {
       const day = calendarDays().find((button) => !button.disabled);
       day?.click();
     });
-
-    act(() => {
-      const buttons = [...screen!.host.querySelectorAll("button")];
-      buttons.find((b) => /^save$/i.test(b.textContent ?? ""))!.click();
-    });
     await flush();
 
+    // The write goes out on the pick itself -- there is no Save button left
+    // to press, and the rail's note has always promised exactly this.
+    expect(patch).toHaveBeenCalledTimes(1);
+    expect(patch.mock.calls[0]?.[0]).toMatchObject({
+      next_transaction_date: expect.any(String),
+    });
+
+    // Staying put is the half that used to be wrong: `handleSave` called
+    // `onBack()` on success, which for a control the customer may adjust
+    // twice would throw them off the page on the first change.
+    expect(onBack).not.toHaveBeenCalled();
+  });
+
+  it("saves a changed frequency immediately", async () => {
+    const patch = vi.fn(async (_body: unknown) => ({ ok: true, status: 200 }));
+
+    screen = mountScreen(
+      <SubscriptionPage
+        subscription={subscription({}, patch) as never}
+        settings={EDITABLE_SETTINGS as never}
+        onBack={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    await pickFrequency("1y");
+
+    expect(patch).toHaveBeenCalledTimes(1);
+    expect(patch.mock.calls[0]?.[0]).toEqual({ frequency: "1y" });
+  });
+
+  it("puts a control back and explains when the save fails", async () => {
+    const patch = vi.fn(async () => {
+      throw new Error("nope");
+    });
+
+    screen = mountScreen(
+      <SubscriptionPage
+        subscription={subscription({}, patch) as never}
+        settings={EDITABLE_SETTINGS as never}
+        onBack={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    await pickFrequency("1y");
+
     expect(patch).toHaveBeenCalled();
-    expect(onBack).toHaveBeenCalled();
+
+    // With no Save button there is nothing left to signal "not saved yet",
+    // so a control still showing the rejected value would be lying about
+    // the subscription. It has to read the fixture's original "1m" again.
+    expect(frequencyTrigger()?.textContent).toMatch(/1m/);
+    expect(frequencyTrigger()?.textContent).not.toMatch(/1y/);
+    expect(railText()).toMatch(/could not save/i);
+  });
+
+  it("reports a failed save in the rail, beside the control", async () => {
+    const patch = vi.fn(async () => {
+      throw new Error("nope");
+    });
+
+    screen = mountScreen(
+      <SubscriptionPage
+        subscription={subscription({}, patch) as never}
+        settings={EDITABLE_SETTINGS as never}
+        onBack={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    await pickFrequency("1y");
+
+    // Scoped deliberately: this alert used to render at the top of the LEFT
+    // column, which at 1080px is a whole column away from the control that
+    // failed and is off screen entirely once the columns stack.
+    const main = screen!.host.querySelector("main, div > section")?.parentElement;
+    expect(railText()).toMatch(/could not save/i);
+    expect(main?.textContent ?? "").not.toMatch(/could not save/i);
   });
 
   it("keeps the next payment calendar inside a popover", async () => {
@@ -912,42 +1014,34 @@ describe("SubscriptionPage", () => {
     expect(billingSectionText()).not.toMatch(/Edit/);
   });
 
-  it("hides the Save button and its note when no editable control renders", () => {
+  it("hides the save note when no editable control renders", () => {
     // `settings: null` (the default `render()`) leaves `frequencies` empty
     // and `dateRules` false, so neither the Select nor the Calendar renders.
-    // The rail still offered a Save button under "Changes save immediately
-    // and apply to the next payment." -- and that Save, finding nothing
-    // changed, calls `onBack()`, navigating the customer off the page.
+    // The rail used to promise "Changes save immediately and apply to the
+    // next payment." with nothing above it that could change.
     render();
 
-    expect(
-      [...document.querySelectorAll("aside button")].some((b) =>
-        /^save$/i.test(b.textContent ?? ""),
-      ),
-    ).toBe(false);
     expect(railText()).not.toMatch(/Changes save immediately/);
   });
 
-  it("keeps the Save button and its note when a control does render", () => {
-    // The other half of the pair: the gate must not have taken Save away
+  it("keeps the save note when a control does render", () => {
+    // The other half of the pair: the gate must not have taken the note away
     // from the case it exists for.
-    render({
-      settings: {
-        subscriptions: {
-          allow_frequency_modification: [
-            { jsonata_query: "*", values: ["1m", "1y"] },
-          ],
-          allow_next_date_modification: true,
-        },
-      },
-    });
+    render({ settings: EDITABLE_SETTINGS });
 
-    expect(
-      [...document.querySelectorAll("aside button")].some((b) =>
-        /^save$/i.test(b.textContent ?? ""),
-      ),
-    ).toBe(true);
     expect(railText()).toMatch(/Changes save immediately/);
+  });
+
+  it("offers no Save button anywhere, now that changes write on change", () => {
+    render({ settings: EDITABLE_SETTINGS });
+
+    // Asserted across the whole page rather than the rail: a Save button
+    // left anywhere would contradict the note the rail displays.
+    expect(
+      [...document.querySelectorAll("button")].some((b) =>
+        /^(save|saving)/i.test((b.textContent ?? "").trim()),
+      ),
+    ).toBe(false);
   });
 
   it("renders exactly one summary rail", () => {

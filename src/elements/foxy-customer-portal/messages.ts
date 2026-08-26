@@ -316,8 +316,6 @@ export const messages = defineMessages({
   },
   manageModify: { id: "portal_manage_modify", defaultMessage: "Modify items" },
   manageEnds: { id: "portal_manage_ends", defaultMessage: "Ends" },
-  manageSave: { id: "portal_manage_save", defaultMessage: "Save" },
-  manageSaving: { id: "portal_manage_saving", defaultMessage: "Saving..." },
   manageNextPayment: {
     id: "portal_manage_next_payment",
     defaultMessage: "Next payment date",
@@ -382,6 +380,20 @@ export const messages = defineMessages({
   subscriptionSaveNote: {
     id: "portal_subscription_save_note",
     defaultMessage: "Changes save immediately and apply to the next payment.",
+  },
+  // Replaces the note while a write is in flight, in the same slot, so the
+  // one line under the controls always says what is going on. The slot is
+  // `aria-live`, so this is what a screen reader hears when a change starts.
+  subscriptionSaving: {
+    id: "portal_subscription_saving",
+    defaultMessage: "Saving your change...",
+  },
+  // Save-specific rather than the generic `errorUnknown`: with no Save button
+  // the customer needs telling that the control went back to its old value,
+  // which a bare "something went wrong" does not convey.
+  subscriptionSaveFailed: {
+    id: "portal_subscription_save_failed",
+    defaultMessage: "We could not save that change, so it has been undone. Please try again.",
   },
   // Explains why the Cancel link is inert once a cancellation is already
   // queued. Tied to that link by `aria-describedby`, so a screen reader is
