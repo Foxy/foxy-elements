@@ -353,6 +353,25 @@ describe("SubscriptionPage", () => {
     expect(document.body.textContent).toMatch(/\$24\.00/);
   });
 
+  it("names no amount in the past-due alert when there is none", () => {
+    // A failure date with no `past_due_amount`. The alert must still appear
+    // -- the payment genuinely failed -- but it must not state $0.00 as the
+    // sum owed, which is what passing `past_due_amount ?? 0` straight to
+    // `formatNumber` produced. The rail's own Past due row already hides
+    // itself here, so the two used to contradict each other on one screen.
+    render({ subscription: subscription({ first_failed_transaction_date: past }) });
+
+    const alertText = () =>
+      [...document.querySelectorAll("div")]
+        .find((el) => /Payment failed/.test(el.textContent ?? ""))
+        ?.textContent ?? "";
+
+    expect(alertText()).toMatch(/Payment failed/);
+    expect(alertText()).toMatch(/A payment could not be taken/);
+    expect(alertText()).not.toMatch(/\$0\.00/);
+    expect(railText()).not.toMatch(/Past due/);
+  });
+
   it("shows no alert when nothing has failed", () => {
     render();
     expect(document.body.textContent).not.toMatch(/Payment failed/);

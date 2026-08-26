@@ -260,6 +260,15 @@ export const messages = defineMessages({
     defaultMessage:
       "A payment of {amount} could not be taken. Update your payment method on the portal home page to continue using this subscription.",
   },
+  // Used when the API reports a failed payment but no `past_due_amount`.
+  // Naming a $0.00 figure there would state a number the store never sent,
+  // and the rail's own Past due row already hides itself for exactly that
+  // case -- so the alert drops the amount clause rather than the alert.
+  subscriptionPastDueBodyNoAmount: {
+    id: "portal_subscription_past_due_body_no_amount",
+    defaultMessage:
+      "A payment could not be taken. Update your payment method on the portal home page to continue using this subscription.",
+  },
   subscriptionsHeading: {
     id: "portal_subscriptions_heading",
     defaultMessage: "Subscriptions",

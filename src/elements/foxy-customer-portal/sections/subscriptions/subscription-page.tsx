@@ -733,12 +733,20 @@ export function SubscriptionPage({
               {intl.formatMessage(messages.subscriptionPastDueTitle)}
             </AlertTitle>
             <Alert.Description>
-              {intl.formatMessage(messages.subscriptionPastDueBody, {
-                amount: intl.formatNumber(subscription.past_due_amount ?? 0, {
-                  style: "currency",
-                  currency,
-                }),
-              })}
+              {/* The payment did fail, so the alert still shows -- but a
+              subscription can carry a failure date with no `past_due_amount`,
+              and "A payment of $0.00 could not be taken" states a figure the
+              store never sent. Reuses the same `pastDueAmount` the rail's
+              Past due row gates on, so the two can never disagree about
+              whether there is an amount to name. */}
+              {pastDueAmount > 0
+                ? intl.formatMessage(messages.subscriptionPastDueBody, {
+                    amount: intl.formatNumber(pastDueAmount, {
+                      style: "currency",
+                      currency,
+                    }),
+                  })
+                : intl.formatMessage(messages.subscriptionPastDueBodyNoAmount)}
             </Alert.Description>
           </Alert.Root>
         </AlertSlot>
