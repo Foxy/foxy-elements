@@ -68,11 +68,9 @@ export default defineConfig(({ mode }) => {
     plugins,
     resolve: { alias: { "@": srcDir } },
     server: {
-      allowedHosts: ["elements.foxy.test"],
       host: "localhost",
       port: 5173,
       strictPort: true,
-      hmr: { protocol: "wss", clientPort: 443 },
     },
     define: isCDN ? { "process.env.NODE_ENV": '"production"' } : undefined,
     build: {
