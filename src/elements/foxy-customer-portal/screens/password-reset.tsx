@@ -12,6 +12,15 @@ import {
 } from "@/lib/customer-api";
 import { CUSTOMER_FIELD_LIMITS } from "../field-constraints";
 import { messages } from "../messages";
+import {
+  AuthAlternatives,
+  AuthActions,
+  AuthColumn,
+  AuthContainer,
+  AuthHint,
+  AuthTitle,
+} from "../auth-layout";
+import { Form } from "../form-layout";
 import { useFieldValidation } from "../use-field-validation";
 import { patchResource } from "../write";
 
@@ -102,83 +111,91 @@ export function PasswordResetScreen({
   }
 
   return (
-    <div>
-      <h1>{intl.formatMessage(messages.passwordResetHeading)}</h1>
-      <p>{intl.formatMessage(messages.passwordResetHint)}</p>
+    <AuthContainer>
+      <AuthColumn>
+        <AuthTitle>
+          {intl.formatMessage(messages.passwordResetHeading)}
+        </AuthTitle>
+        <AuthHint>{intl.formatMessage(messages.passwordResetHint)}</AuthHint>
 
-      {error && (
-        <Alert.Root $variant="destructive">
-          <Alert.Description>
-            {intl.formatMessage(
-              error === "mismatch"
-                ? messages.passwordMismatch
-                : messages.errorUnknown,
-            )}
-          </Alert.Description>
-        </Alert.Root>
-      )}
+        {error && (
+          <Alert.Root $variant="destructive">
+            <Alert.Description>
+              {intl.formatMessage(
+                error === "mismatch"
+                  ? messages.passwordMismatch
+                  : messages.errorUnknown,
+              )}
+            </Alert.Description>
+          </Alert.Root>
+        )}
 
-      <form onSubmit={handleSubmit} noValidate>
-        <Field.Root>
-          <Field.Label htmlFor={newId}>
-            {intl.formatMessage(messages.passwordNew)}
-          </Field.Label>
-          <Input
-            id={newId}
-            type="password"
-            autoComplete="new-password"
-            required
-            maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
-            value={password}
-            onChange={(event) => {
-              const value = event.target.value;
-              setPassword(value);
-              if (errors.password) validateField("password", value);
-            }}
-            onBlur={(event) => validateField("password", event.target.value)}
-          />
-          {errors.password ? (
-            <Field.Error match>{errors.password}</Field.Error>
-          ) : null}
-        </Field.Root>
+        <Form onSubmit={handleSubmit} noValidate $maxWidth="none">
+          <Field.Root>
+            <Field.Label htmlFor={newId}>
+              {intl.formatMessage(messages.passwordNew)}
+            </Field.Label>
+            <Input
+              id={newId}
+              type="password"
+              autoComplete="new-password"
+              required
+              maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
+              value={password}
+              onChange={(event) => {
+                const value = event.target.value;
+                setPassword(value);
+                if (errors.password) validateField("password", value);
+              }}
+              onBlur={(event) => validateField("password", event.target.value)}
+            />
+            {errors.password ? (
+              <Field.Error match>{errors.password}</Field.Error>
+            ) : null}
+          </Field.Root>
 
-        <Field.Root>
-          <Field.Label htmlFor={confirmId}>
-            {intl.formatMessage(messages.passwordConfirm)}
-          </Field.Label>
-          <Input
-            id={confirmId}
-            type="password"
-            autoComplete="new-password"
-            required
-            maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
-            value={confirmation}
-            onChange={(event) => {
-              const value = event.target.value;
-              setConfirmation(value);
-              if (errors.confirmation) validateField("confirmation", value);
-            }}
-            onBlur={(event) =>
-              validateField("confirmation", event.target.value)
-            }
-          />
-          {errors.confirmation ? (
-            <Field.Error match>{errors.confirmation}</Field.Error>
-          ) : null}
-        </Field.Root>
+          <Field.Root>
+            <Field.Label htmlFor={confirmId}>
+              {intl.formatMessage(messages.passwordConfirm)}
+            </Field.Label>
+            <Input
+              id={confirmId}
+              type="password"
+              autoComplete="new-password"
+              required
+              maxLength={CUSTOMER_FIELD_LIMITS.password.maxLength}
+              value={confirmation}
+              onChange={(event) => {
+                const value = event.target.value;
+                setConfirmation(value);
+                if (errors.confirmation) validateField("confirmation", value);
+              }}
+              onBlur={(event) =>
+                validateField("confirmation", event.target.value)
+              }
+            />
+            {errors.confirmation ? (
+              <Field.Error match>{errors.confirmation}</Field.Error>
+            ) : null}
+          </Field.Root>
 
-        <Button type="submit" disabled={isBusy || !self}>
-          {intl.formatMessage(
-            isBusy ? messages.passwordSaving : messages.passwordSave,
-          )}
-        </Button>
-      </form>
+          <AuthActions>
+            <Button type="submit" disabled={isBusy || !self}>
+              {intl.formatMessage(
+                isBusy ? messages.passwordSaving : messages.passwordSave,
+              )}
+            </Button>
+          </AuthActions>
+        </Form>
 
-      {canSkip && (
-        <Button type="button" $variant="link" onClick={onSkipped}>
-          {intl.formatMessage(messages.passwordSkip)}
-        </Button>
-      )}
-    </div>
+        {canSkip && (
+          <AuthAlternatives>
+            <Button type="button" $variant="link" onClick={onSkipped}>
+              {intl.formatMessage(messages.passwordSkip)}
+            </Button>
+          </AuthAlternatives>
+        )}
+      </AuthColumn>
+    </AuthContainer>
   );
 }

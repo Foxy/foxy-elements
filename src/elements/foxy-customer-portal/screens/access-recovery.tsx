@@ -7,6 +7,15 @@ import { Input } from "@foxy.io/design-system/input";
 import { useApi } from "@/lib/customer-api";
 import { CUSTOMER_FIELD_LIMITS } from "../field-constraints";
 import { messages } from "../messages";
+import {
+  AuthAlternatives,
+  AuthActions,
+  AuthColumn,
+  AuthContainer,
+  AuthHint,
+  AuthTitle,
+} from "../auth-layout";
+import { Form } from "../form-layout";
 import { useFieldValidation } from "../use-field-validation";
 
 export function AccessRecoveryScreen({ onBack }: { onBack: () => void }) {
@@ -41,63 +50,71 @@ export function AccessRecoveryScreen({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <div>
-      <h1>{intl.formatMessage(messages.recoverHeading)}</h1>
+    <AuthContainer>
+      <AuthColumn>
+        <AuthTitle>{intl.formatMessage(messages.recoverHeading)}</AuthTitle>
 
-      {isDone ? (
-        // Deliberately identical whether or not the account exists — the API
-        // does not disclose it, and neither should the UI.
-        <Alert.Root>
-          <Alert.Description>
-            {intl.formatMessage(messages.recoverDone)}
-          </Alert.Description>
-        </Alert.Root>
-      ) : (
-        <form onSubmit={handleSubmit} noValidate>
-          <p>{intl.formatMessage(messages.recoverHint)}</p>
+        {isDone ? (
+          // Deliberately identical whether or not the account exists — the API
+          // does not disclose it, and neither should the UI.
+          <Alert.Root>
+            <Alert.Description>
+              {intl.formatMessage(messages.recoverDone)}
+            </Alert.Description>
+          </Alert.Root>
+        ) : (
+          <>
+            <AuthHint>{intl.formatMessage(messages.recoverHint)}</AuthHint>
 
-          {hasFailed && (
-            <Alert.Root $variant="destructive">
-              <Alert.Description>
-                {intl.formatMessage(messages.errorUnknown)}
-              </Alert.Description>
-            </Alert.Root>
-          )}
-
-          <Field.Root>
-            <Field.Label htmlFor={emailId}>
-              {intl.formatMessage(messages.signInEmail)}
-            </Field.Label>
-            <Input
-              id={emailId}
-              type="email"
-              autoComplete="email"
-              required
-              maxLength={CUSTOMER_FIELD_LIMITS.email.maxLength}
-              value={email}
-              onChange={(event) => {
-                const value = event.target.value;
-                setEmail(value);
-                if (errors.email) validateField("email", value);
-              }}
-              onBlur={(event) => validateField("email", event.target.value)}
-            />
-            {errors.email ? (
-              <Field.Error match>{errors.email}</Field.Error>
-            ) : null}
-          </Field.Root>
-
-          <Button type="submit" disabled={isBusy}>
-            {intl.formatMessage(
-              isBusy ? messages.recoverBusy : messages.recoverSubmit,
+            {hasFailed && (
+              <Alert.Root $variant="destructive">
+                <Alert.Description>
+                  {intl.formatMessage(messages.errorUnknown)}
+                </Alert.Description>
+              </Alert.Root>
             )}
-          </Button>
-        </form>
-      )}
 
-      <Button type="button" $variant="link" onClick={onBack}>
-        {intl.formatMessage(messages.recoverBack)}
-      </Button>
-    </div>
+            <Form onSubmit={handleSubmit} noValidate $maxWidth="none">
+              <Field.Root>
+                <Field.Label htmlFor={emailId}>
+                  {intl.formatMessage(messages.signInEmail)}
+                </Field.Label>
+                <Input
+                  id={emailId}
+                  type="email"
+                  autoComplete="email"
+                  required
+                  maxLength={CUSTOMER_FIELD_LIMITS.email.maxLength}
+                  value={email}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setEmail(value);
+                    if (errors.email) validateField("email", value);
+                  }}
+                  onBlur={(event) => validateField("email", event.target.value)}
+                />
+                {errors.email ? (
+                  <Field.Error match>{errors.email}</Field.Error>
+                ) : null}
+              </Field.Root>
+
+              <AuthActions>
+                <Button type="submit" disabled={isBusy}>
+                  {intl.formatMessage(
+                    isBusy ? messages.recoverBusy : messages.recoverSubmit,
+                  )}
+                </Button>
+              </AuthActions>
+            </Form>
+          </>
+        )}
+
+        <AuthAlternatives>
+          <Button type="button" $variant="link" onClick={onBack}>
+            {intl.formatMessage(messages.recoverBack)}
+          </Button>
+        </AuthAlternatives>
+      </AuthColumn>
+    </AuthContainer>
   );
 }

@@ -52,6 +52,71 @@ afterEach(() => {
 });
 
 describe("SignInScreen", () => {
+  it("frames the form the way the rest of the portal is framed", () => {
+    // These screens had no chrome at all: a bare `<form>` with a
+    // browser-default `<h1>`, no padding and no page background, rendering
+    // flush against whatever embedded them while every signed-in screen sat
+    // in a framed container.
+    render({ signIn: async () => {} });
+
+    const container = screen!.host.firstElementChild as HTMLElement;
+    const containerStyles = getComputedStyle(container);
+
+    expect(containerStyles.boxSizing).toBe("border-box");
+    expect(parseFloat(containerStyles.paddingTop)).toBeGreaterThanOrEqual(40);
+
+    // `<h1>` at font.h1 (28px), matching the home screen's customer name and
+    // every account sub-page. A bare `<h1>` takes the host page's font.
+    const heading = screen!.host.querySelector("h1");
+    expect(heading).not.toBeNull();
+    expect(getComputedStyle(heading!).fontSize).toBe("28px");
+  });
+
+  it("caps and centres the form rather than letting it fill the page", () => {
+    render({ signIn: async () => {} });
+
+    const column = screen!.host.querySelector("h1")!.parentElement!;
+    screen!.host.style.width = "1200px";
+
+    const styles = getComputedStyle(column);
+    expect(styles.maxWidth).toBe("420px");
+    expect(parseFloat(styles.rowGap)).toBeGreaterThanOrEqual(12);
+
+    // Measured, not just declared: centred means equal space either side.
+    const columnBox = column.getBoundingClientRect();
+    const hostBox = screen!.host.getBoundingClientRect();
+    const left = columnBox.left - hostBox.left;
+    const right = hostBox.right - columnBox.right;
+
+    expect(Math.round(columnBox.width)).toBe(420);
+    expect(Math.abs(left - right)).toBeLessThanOrEqual(1);
+  });
+
+  it("separates the ways out of signing in from signing in", () => {
+    // "Forgot password?" and "Create an account" were siblings of the
+    // password field, in the same undifferentiated stack as the submit
+    // button they are alternatives to.
+    render({ signIn: async () => {} }, { canSignUp: true });
+
+    const recover = [...screen!.host.querySelectorAll("button")].find((b) =>
+      /forgot|recover/i.test(b.textContent ?? ""),
+    )!;
+    const submit = screen!.host.querySelector<HTMLButtonElement>(
+      'button[type="submit"]',
+    )!;
+
+    const group = recover.parentElement!;
+    expect(group.contains(submit)).toBe(false);
+    expect(getComputedStyle(group).borderTopStyle).toBe("solid");
+
+    // The primary action spans the column; a left-aligned submit under
+    // full-width inputs and above centred links reads as a stray element.
+    const column = screen!.host.querySelector("h1")!.parentElement!;
+    expect(Math.round(submit.getBoundingClientRect().width)).toBe(
+      Math.round(column.getBoundingClientRect().width),
+    );
+  });
+
   it("calls signIn with the entered credentials", async () => {
     const signIn = vi.fn(async () => {});
     render({ signIn });

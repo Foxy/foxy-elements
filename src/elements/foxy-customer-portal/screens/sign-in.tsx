@@ -7,6 +7,14 @@ import { Input } from "@foxy.io/design-system/input";
 import { useApi } from "@/lib/customer-api";
 import { CUSTOMER_FIELD_LIMITS } from "../field-constraints";
 import { messages } from "../messages";
+import {
+  AuthAlternatives,
+  AuthActions,
+  AuthColumn,
+  AuthContainer,
+  AuthTitle,
+} from "../auth-layout";
+import { Form } from "../form-layout";
 import { useFieldValidation } from "../use-field-validation";
 
 type Props = {
@@ -65,79 +73,92 @@ export function SignInScreen({
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
-      <h1>{intl.formatMessage(messages.signInHeading)}</h1>
+    <AuthContainer>
+      <AuthColumn>
+        <AuthTitle>{intl.formatMessage(messages.signInHeading)}</AuthTitle>
 
-      {error && (
-        <Alert.Root $variant="destructive">
-          <Alert.Description>
-            {intl.formatMessage(
-              error === "unauthorized"
-                ? messages.errorUnauthorized
-                : messages.errorUnknown,
-            )}
-          </Alert.Description>
-        </Alert.Root>
-      )}
-
-      <Field.Root>
-        <Field.Label htmlFor={emailId}>
-          {intl.formatMessage(messages.signInEmail)}
-        </Field.Label>
-        <Input
-          id={emailId}
-          type="email"
-          autoComplete="email"
-          required
-          maxLength={CUSTOMER_FIELD_LIMITS.email.maxLength}
-          value={email}
-          onChange={(event) => {
-            const value = event.target.value;
-            setEmail(value);
-            if (errors.email) validateField("email", value);
-          }}
-          onBlur={(event) => validateField("email", event.target.value)}
-        />
-        {errors.email ? <Field.Error match>{errors.email}</Field.Error> : null}
-      </Field.Root>
-
-      <Field.Root>
-        <Field.Label htmlFor={passwordId}>
-          {intl.formatMessage(messages.signInPassword)}
-        </Field.Label>
-        <Input
-          id={passwordId}
-          type="password"
-          autoComplete="current-password"
-          required
-          value={password}
-          onChange={(event) => {
-            const value = event.target.value;
-            setPassword(value);
-            if (errors.password) validateField("password", value);
-          }}
-          onBlur={(event) => validateField("password", event.target.value)}
-        />
-        {errors.password ? (
-          <Field.Error match>{errors.password}</Field.Error>
-        ) : null}
-      </Field.Root>
-
-      <Button type="submit" disabled={isBusy}>
-        {intl.formatMessage(
-          isBusy ? messages.signInBusy : messages.signInSubmit,
+        {error && (
+          <Alert.Root $variant="destructive">
+            <Alert.Description>
+              {intl.formatMessage(
+                error === "unauthorized"
+                  ? messages.errorUnauthorized
+                  : messages.errorUnknown,
+              )}
+            </Alert.Description>
+          </Alert.Root>
         )}
-      </Button>
 
-      <Button type="button" $variant="link" onClick={onRecoverAccess}>
-        {intl.formatMessage(messages.signInRecover)}
-      </Button>
+        {/* `$maxWidth="none"` because the column already caps the width --
+            the form's own 480px default would fight it. */}
+        <Form onSubmit={handleSubmit} noValidate $maxWidth="none">
+          <Field.Root>
+            <Field.Label htmlFor={emailId}>
+              {intl.formatMessage(messages.signInEmail)}
+            </Field.Label>
+            <Input
+              id={emailId}
+              type="email"
+              autoComplete="email"
+              required
+              maxLength={CUSTOMER_FIELD_LIMITS.email.maxLength}
+              value={email}
+              onChange={(event) => {
+                const value = event.target.value;
+                setEmail(value);
+                if (errors.email) validateField("email", value);
+              }}
+              onBlur={(event) => validateField("email", event.target.value)}
+            />
+            {errors.email ? (
+              <Field.Error match>{errors.email}</Field.Error>
+            ) : null}
+          </Field.Root>
 
-      {canSignUp && (
-        <Button type="button" $variant="link" onClick={onSignUp}>
-          {intl.formatMessage(messages.signInCreate)}
-        </Button>
-      )}
-    </form>
+          <Field.Root>
+            <Field.Label htmlFor={passwordId}>
+              {intl.formatMessage(messages.signInPassword)}
+            </Field.Label>
+            <Input
+              id={passwordId}
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(event) => {
+                const value = event.target.value;
+                setPassword(value);
+                if (errors.password) validateField("password", value);
+              }}
+              onBlur={(event) => validateField("password", event.target.value)}
+            />
+            {errors.password ? (
+              <Field.Error match>{errors.password}</Field.Error>
+            ) : null}
+          </Field.Root>
+
+          <AuthActions>
+            <Button type="submit" disabled={isBusy}>
+              {intl.formatMessage(
+                isBusy ? messages.signInBusy : messages.signInSubmit,
+              )}
+            </Button>
+          </AuthActions>
+        </Form>
+
+        {/* Ways out of signing in, grouped away from the act of signing in. */}
+        <AuthAlternatives>
+          <Button type="button" $variant="link" onClick={onRecoverAccess}>
+            {intl.formatMessage(messages.signInRecover)}
+          </Button>
+
+          {canSignUp && (
+            <Button type="button" $variant="link" onClick={onSignUp}>
+              {intl.formatMessage(messages.signInCreate)}
+            </Button>
+          )}
+        </AuthAlternatives>
+      </AuthColumn>
+    </AuthContainer>
   );
 }
