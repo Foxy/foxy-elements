@@ -81,6 +81,7 @@
     "globals": "^16.3.0",
     "playwright": "^1.59.1",
     "prettier": "^3.8.3",
+    "remark-gfm": "^4.0.1",
     "storybook": "^10.3.5",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.35.1",

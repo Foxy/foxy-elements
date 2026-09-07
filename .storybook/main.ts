@@ -1,4 +1,5 @@
 import type { StorybookConfig } from "@storybook/web-components-vite";
+import remarkGfm from "remark-gfm";
 import path from "path";
 import { fileURLToPath } from "node:url";
 
@@ -13,7 +14,22 @@ const config: StorybookConfig = {
     "@chromatic-com/storybook",
     "@storybook/addon-vitest",
     "@storybook/addon-a11y",
-    "@storybook/addon-docs",
+    {
+      // `@storybook/addon-docs` compiles MDX with a bare CommonMark pipeline --
+      // it only ever appends its own two rehype plugins (slug, external links)
+      // and passes `mdxCompileOptions` straight through otherwise. GFM is not
+      // part of that, so pipe tables in a `docs.mdx` render as literal
+      // `| a | b |` paragraph text. Re-adding `remark-gfm` restores tables
+      // (plus strikethrough, task lists and autolinks) across every docs page.
+      name: "@storybook/addon-docs",
+      options: {
+        mdxPluginOptions: {
+          mdxCompileOptions: {
+            remarkPlugins: [remarkGfm],
+          },
+        },
+      },
+    },
     "@storybook/addon-themes",
   ],
   framework: "@storybook/web-components-vite",
