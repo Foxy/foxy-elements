@@ -367,7 +367,12 @@ describe("foxy-customer-portal", () => {
       await Promise.resolve();
     });
 
-    const button = element.shadowRoot?.querySelector("button");
+    // The SUBMIT button specifically. `querySelector("button")` takes the
+    // first in DOM order, which on the sign-in screen is the "Forgot
+    // password?" link beside the Password label -- a link variant with a
+    // transparent background, so it says nothing about the primary fill this
+    // test is checking.
+    const button = element.shadowRoot?.querySelector('button[type="submit"]');
     expect(button).not.toBeNull();
     expect(getComputedStyle(button!).backgroundColor).toBe("rgb(1, 2, 3)");
 
@@ -378,7 +383,9 @@ describe("foxy-customer-portal", () => {
       await Promise.resolve();
     });
 
-    const buttonAfterClear = element.shadowRoot?.querySelector("button");
+    const buttonAfterClear = element.shadowRoot?.querySelector(
+      'button[type="submit"]',
+    );
     expect(getComputedStyle(buttonAfterClear!).backgroundColor).toBe(
       "rgb(255, 174, 0)",
     );

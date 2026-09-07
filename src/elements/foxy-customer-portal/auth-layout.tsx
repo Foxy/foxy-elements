@@ -58,6 +58,24 @@ export const AuthHint = styled.p`
 `;
 
 /**
+ * A field label with an action on the same line -- sign-in's "Forgot
+ * password?" beside the Password label.
+ *
+ * It sits here rather than below the form because that is where a customer
+ * looks when the password is the thing going wrong, and it keeps the block
+ * under the form for the one alternative that is not about this field.
+ *
+ * `baseline` rather than `center`: the link and the label are both text, and
+ * aligning their boxes instead of their type leaves the link visibly high.
+ */
+export const AuthLabelRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: ${(props) => props.theme.tokens.space.sm};
+`;
+
+/**
  * The primary action under an auth form.
  *
  * Full width, unlike the account forms' `Actions`, which sizes the button to

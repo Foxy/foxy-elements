@@ -92,30 +92,67 @@ describe("SignInScreen", () => {
     expect(Math.abs(left - right)).toBeLessThanOrEqual(1);
   });
 
-  it("separates the ways out of signing in from signing in", () => {
-    // "Forgot password?" and "Create an account" were siblings of the
-    // password field, in the same undifferentiated stack as the submit
-    // button they are alternatives to.
+  it("puts account recovery beside the field it is about", () => {
+    // "Forgot password?" belongs on the Password label's line: that is where
+    // a customer looks when the password is the thing going wrong. It used to
+    // sit below the submit button, in the same undifferentiated stack as the
+    // fields.
     render({ signIn: async () => {} }, { canSignUp: true });
 
     const recover = [...screen!.host.querySelectorAll("button")].find((b) =>
       /forgot|recover/i.test(b.textContent ?? ""),
     )!;
+    const passwordLabel = [...screen!.host.querySelectorAll("label")].find(
+      (l) => /password/i.test(l.textContent ?? ""),
+    )!;
+
+    // Same row, and the link sits to the right of the label. Vertical
+    // OVERLAP rather than matching edges: the two are aligned on their
+    // baselines and set at different sizes, so their boxes legitimately
+    // start and end a few pixels apart.
+    const recoverBox = recover.getBoundingClientRect();
+    const labelBox = passwordLabel.getBoundingClientRect();
+
+    expect(recover.parentElement).toBe(passwordLabel.parentElement);
+    expect(recoverBox.left).toBeGreaterThan(labelBox.right);
+    expect(recoverBox.top).toBeLessThan(labelBox.bottom);
+    expect(labelBox.top).toBeLessThan(recoverBox.bottom);
+  });
+
+  it("keeps the way out of signing in separate from signing in", () => {
+    render({ signIn: async () => {} }, { canSignUp: true });
+
+    const create = [...screen!.host.querySelectorAll("button")].find((b) =>
+      /create an account/i.test(b.textContent ?? ""),
+    )!;
     const submit = screen!.host.querySelector<HTMLButtonElement>(
       'button[type="submit"]',
     )!;
 
-    const group = recover.parentElement!;
+    const group = create.parentElement!;
     expect(group.contains(submit)).toBe(false);
     expect(getComputedStyle(group).borderTopStyle).toBe("solid");
 
     // The primary action spans the column; a left-aligned submit under
-    // full-width inputs and above centred links reads as a stray element.
+    // full-width inputs and above a centred link reads as a stray element.
     const column = screen!.host.querySelector("h1")!.parentElement!;
     expect(Math.round(submit.getBoundingClientRect().width)).toBe(
       Math.round(column.getBoundingClientRect().width),
     );
   });
+
+  it("renders no bordered block when there is nothing to put in it", () => {
+    // With sign-up disabled the alternatives block has no contents, and an
+    // empty one is a stray rule under the form.
+    render({ signIn: async () => {} }, { canSignUp: false });
+
+    const bordered = [...screen!.host.querySelectorAll("div")].filter(
+      (el) => getComputedStyle(el).borderTopStyle === "solid",
+    );
+
+    expect(bordered).toHaveLength(0);
+  });
+
 
   it("calls signIn with the entered credentials", async () => {
     const signIn = vi.fn(async () => {});

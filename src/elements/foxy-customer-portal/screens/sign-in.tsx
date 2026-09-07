@@ -11,6 +11,7 @@ import {
   AuthAlternatives,
   AuthActions,
   AuthColumn,
+  AuthLabelRow,
   AuthContainer,
   AuthTitle,
 } from "../auth-layout";
@@ -116,9 +117,20 @@ export function SignInScreen({
           </Field.Root>
 
           <Field.Root>
-            <Field.Label htmlFor={passwordId}>
-              {intl.formatMessage(messages.signInPassword)}
-            </Field.Label>
+            <AuthLabelRow>
+              <Field.Label htmlFor={passwordId}>
+                {intl.formatMessage(messages.signInPassword)}
+              </Field.Label>
+
+              <Button
+                type="button"
+                $variant="link"
+                $size="sm"
+                onClick={onRecoverAccess}
+              >
+                {intl.formatMessage(messages.signInRecover)}
+              </Button>
+            </AuthLabelRow>
             <Input
               id={passwordId}
               type="password"
@@ -146,18 +158,16 @@ export function SignInScreen({
           </AuthActions>
         </Form>
 
-        {/* Ways out of signing in, grouped away from the act of signing in. */}
-        <AuthAlternatives>
-          <Button type="button" $variant="link" onClick={onRecoverAccess}>
-            {intl.formatMessage(messages.signInRecover)}
-          </Button>
-
-          {canSignUp && (
+        {/* Recovery moved up beside the Password label, so this block holds
+            only the way out of signing in entirely -- and renders at all only
+            when there is one. An empty bordered block is a stray rule. */}
+        {canSignUp && (
+          <AuthAlternatives>
             <Button type="button" $variant="link" onClick={onSignUp}>
               {intl.formatMessage(messages.signInCreate)}
             </Button>
-          )}
-        </AuthAlternatives>
+          </AuthAlternatives>
+        )}
       </AuthColumn>
     </AuthContainer>
   );

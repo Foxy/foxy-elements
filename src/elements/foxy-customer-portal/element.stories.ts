@@ -717,6 +717,13 @@ function paginate(items: unknown[], url: string, curie: string): Response {
 
 type StoreFixtures = {
   customer?: typeof DEFAULT_CUSTOMER;
+  /**
+   * Answers sign-in with a session flagged `force_password_reset`, which is
+   * what puts the portal on the password-reset screen. The screen is only
+   * reachable through an actual sign-in -- a seeded session opens straight on
+   * the account -- so a story that wants it has to go through the form.
+   */
+  forcePasswordReset?: boolean;
   activeSubscriptions?: SubscriptionFixture[];
   inactiveSubscriptions?: SubscriptionFixture[];
   orders?: OrderFixture[];
@@ -770,6 +777,17 @@ export function stubStore(fixtures: StoreFixtures = {}): () => void {
           : input.url;
 
     if (url.startsWith(STORE_BASE)) {
+      // Sign-in. The SDK stores this response body as the session, so
+      // `force_password_reset` here is what `usesTemporaryPassword` reads
+      // back a moment later.
+      if (new URL(url).pathname.endsWith("/authenticate")) {
+        return json({
+          session_token: "storybook",
+          expires_in: 3600,
+          force_password_reset: fixtures.forcePasswordReset ?? false,
+        });
+      }
+
       if (url.endsWith("customer_portal_settings")) return json(SETTINGS);
 
       // The store's country/region lists, filtered the way FX-367 specifies:
@@ -1181,6 +1199,53 @@ export const LongTimeUser: StoryObj = {
       "Previous123Next", // orders: 25 / 10 = 3 pages
       "Previous12Next", // addresses: 12 / 10 = 2 pages
     ]);
+  },
+};
+
+/**
+ * The screen a customer meets when they sign in with a temporary password --
+ * the one screen of the four signed-out ones that had no story, and so the
+ * only one nobody could look at.
+ *
+ * Reached by actually signing in: `usesTemporaryPassword` reads
+ * `force_password_reset` back off the stored session, and a session seeded
+ * directly would open on the account screen instead.
+ */
+export const PasswordReset: StoryObj = {
+  parameters: { fixtures: { forcePasswordReset: true } },
+  render: () =>
+    html`<foxy-customer-portal store-domain="demo"></foxy-customer-portal>`,
+  play: async ({ canvasElement }) => {
+    const shadowRoot = () =>
+      canvasElement.querySelector("foxy-customer-portal")?.shadowRoot ?? null;
+
+    await waitFor(() => expect(portalText(canvasElement)).toMatch(/sign in/i));
+
+    const root = shadowRoot()!;
+    const email = root.querySelector<HTMLInputElement>('input[type="email"]')!;
+    const password = root.querySelector<HTMLInputElement>(
+      'input[type="password"]',
+    )!;
+
+    // `.value = ...` alone does not reach React's onChange -- it tracks the
+    // native setter and skips an assignment it did not see.
+    const setValue = (input: HTMLInputElement, value: string) => {
+      const setter = Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype,
+        "value",
+      )!.set!;
+      setter.call(input, value);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+
+    setValue(email, "ada@example.com");
+    setValue(password, "temporary");
+
+    root.querySelector<HTMLFormElement>("form")!.requestSubmit();
+
+    await waitFor(() =>
+      expect(portalText(canvasElement)).toMatch(/choose a new password/i),
+    );
   },
 };
 
