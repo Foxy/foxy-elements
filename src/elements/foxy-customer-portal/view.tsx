@@ -89,6 +89,18 @@ function useSettingsLink(api: API): FollowableLink<PortalSettings> | null {
  * by `PortalScreens`) both require that context, so they cannot run in this
  * component itself; they run one level down, inside the provider.
  */
+/**
+ * A fresh id for one history entry. `randomUUID` where it exists, a counter
+ * otherwise -- these only need to be unique within one document's lifetime,
+ * never guessable or stable across loads.
+ */
+let scrollKeyCounter = 0;
+function newScrollKey(): string {
+  return typeof crypto?.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `fc-${Date.now()}-${scrollKeyCounter++}`;
+}
+
 export function Portal({
   api,
   cache,
@@ -124,10 +136,21 @@ export function Portal({
 
   const portalContainer = usePortalContainer();
 
-  // Where the customer was on each page they have visited, so backing out of
-  // a sub-page returns them to the spot they left rather than the top of a
-  // list they now have to scroll through again.
+  // Where the customer was, keyed by HISTORY ENTRY rather than by page, so
+  // visiting home twice at different offsets remembers both. A page-keyed map
+  // holds one position per page, and a Back stack that passes through home
+  // more than once then restores the newest offset every time.
+  //
+  // With `urlSync` off there are no history entries to key on -- the portal
+  // pushes nothing -- so it falls back to the page identity there. Less
+  // precise, and the only thing available in that mode.
   const scrollPositions = useRef(new Map<string, number>());
+
+  // The entry the customer is on now. Tracked in a ref rather than read from
+  // `history.state` at use time: by the time `popstate` fires, `history.state`
+  // is already the entry being moved TO, so the one being left could no
+  // longer be identified.
+  const currentScrollKey = useRef<string>("");
 
   // What to do once the next page has actually rendered. Scrolling inside the
   // navigate callback would run against the OLD page: restoring 1868px while
@@ -181,6 +204,60 @@ export function Portal({
     }
   });
 
+  /**
+   * The scroll bookkeeping's view of `history.state`.
+   *
+   * `fcScrollKey` identifies the entry; `fcCameFrom` is the entry that was
+   * current when this one was pushed. The in-portal Back needs the second
+   * because it *pushes* a new entry rather than popping -- it cannot read the
+   * position off the entry it is returning to, since that is not where it is
+   * going. Pushing rather than calling `history.back()` is deliberate: a
+   * customer who arrived by deep link has no portal entry behind them, and
+   * `back()` would take them off the site entirely.
+   */
+  type ScrollState = { fcScrollKey?: string; fcCameFrom?: string };
+
+  const readScrollState = useCallback(
+    () => (history.state ?? null) as ScrollState | null,
+    [],
+  );
+
+  /**
+   * Identifies the current entry, falling back to the page when the portal
+   * owns no history entries (`urlSync` off).
+   */
+  const keyForNow = useCallback(
+    () =>
+      (urlSync ? readScrollState()?.fcScrollKey : null) ??
+      accountPageKey(accountPageRef.current),
+    [urlSync, readScrollState],
+  );
+
+  // Seeds the entry the portal starts on. Without this the first navigation
+  // records its scroll under a key nothing ever reads back, so returning to
+  // where the customer began would silently land at the top. Spreads the
+  // existing state -- the host page may keep its own routing data there.
+  useEffect(() => {
+    if (!urlSync) {
+      currentScrollKey.current = accountPageKey(accountPageRef.current);
+      return;
+    }
+
+    const existing = readScrollState()?.fcScrollKey;
+    if (existing) {
+      currentScrollKey.current = existing;
+      return;
+    }
+
+    const seeded = newScrollKey();
+    currentScrollKey.current = seeded;
+    history.replaceState(
+      { ...(history.state ?? {}), fcScrollKey: seeded },
+      "",
+      window.location.href,
+    );
+  }, [urlSync, readScrollState]);
+
   // Mutates `url.searchParams` surgically -- deleting only the two keys this
   // element owns and setting whatever the codec returns -- rather than
   // replacing `url.search` wholesale. The host page may have its own params
@@ -190,32 +267,50 @@ export function Portal({
   const navigateAccountPage = useCallback(
     (page: AccountPage, options?: { restoreScroll?: boolean }) => {
       // Remember the spot being left before anything re-renders.
-      scrollPositions.current.set(
-        accountPageKey(accountPageRef.current),
-        window.scrollY,
-      );
+      const leavingKey = currentScrollKey.current || keyForNow();
+      scrollPositions.current.set(leavingKey, window.scrollY);
 
       // `restoreScroll` is set only by the in-portal Back control, so a
       // forward navigation to a page visited earlier still opens at its top.
       // Inferring "this is a Back" from the target page would get that wrong:
       // Home is both what Back returns to and what half the forward links go
       // to.
-      const saved = options?.restoreScroll
-        ? scrollPositions.current.get(accountPageKey(page))
-        : undefined;
+      //
+      // The position comes from the entry this one was pushed FROM, not from
+      // the target page: Back pushes a new entry, so there is nothing on the
+      // destination to read.
+      const cameFrom = urlSync
+        ? readScrollState()?.fcCameFrom
+        : accountPageKey(page);
+
+      const saved =
+        options?.restoreScroll && cameFrom
+          ? scrollPositions.current.get(cameFrom)
+          : undefined;
 
       pendingScroll.current = saved ?? "top";
       setAccountPageState(page);
-      if (!urlSync) return;
+      if (!urlSync) {
+        currentScrollKey.current = accountPageKey(page);
+        return;
+      }
+
       const url = new URL(window.location.href);
       url.searchParams.delete("fc_page");
       url.searchParams.delete("fc_id");
       for (const [key, value] of accountPageToSearchParams(page)) {
         url.searchParams.set(key, value);
       }
-      history.pushState({ fcAccountPage: true }, "", url);
+
+      const nextKey = newScrollKey();
+      currentScrollKey.current = nextKey;
+      history.pushState(
+        { fcAccountPage: true, fcScrollKey: nextKey, fcCameFrom: leavingKey },
+        "",
+        url,
+      );
     },
-    [urlSync],
+    [urlSync, keyForNow, readScrollState],
   );
 
   // Sign-out uses this, not `navigateAccountPage`: a customer signing in
@@ -226,6 +321,7 @@ export function Portal({
   // pattern as `navigateAccountPage` above, for the same reason.
   const resetAccountPage = useCallback(() => {
     scrollPositions.current.clear();
+    currentScrollKey.current = "";
     pendingScroll.current = "top";
     setAccountPageState({ type: "home" });
     if (!urlSync) return;
@@ -268,16 +364,21 @@ export function Portal({
     function handlePopState() {
       const page = parseAccountPageFromSearch(window.location.search);
 
-      scrollPositions.current.set(
-        accountPageKey(accountPageRef.current),
-        window.scrollY,
-      );
+      // `history.state` is already the entry being moved TO, which is why the
+      // one being left has to come from the ref.
+      if (currentScrollKey.current) {
+        scrollPositions.current.set(currentScrollKey.current, window.scrollY);
+      }
 
-      // No entry means the customer arrived here by deep link or reload and
-      // has never been on the target page in this session -- its top is the
-      // only honest answer.
-      pendingScroll.current =
-        scrollPositions.current.get(accountPageKey(page)) ?? "top";
+      const arrivingKey =
+        (history.state as ScrollState | null)?.fcScrollKey ??
+        accountPageKey(page);
+      currentScrollKey.current = arrivingKey;
+
+      // No recorded position means the customer arrived by deep link or
+      // reload and has never stood on this entry in this session -- its top
+      // is the only honest answer.
+      pendingScroll.current = scrollPositions.current.get(arrivingKey) ?? "top";
 
       setAccountPageState(page);
     }

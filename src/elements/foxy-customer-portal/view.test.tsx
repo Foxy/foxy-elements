@@ -697,6 +697,11 @@ describe("Portal", () => {
       // clamped value could win.
       expect(history.scrollRestoration).toBe("manual");
 
+      // The entry the customer starts on, seeded with its own `fcScrollKey`.
+      // Captured so Back can be simulated faithfully below.
+      const entryBefore = history.state;
+      expect(entryBefore?.fcScrollKey).toBeTruthy();
+
       Object.defineProperty(window, "scrollY", {
         value: 1420,
         configurable: true,
@@ -707,7 +712,11 @@ describe("Portal", () => {
 
       scrollTo.mockClear();
 
-      history.pushState({}, "", originalUrl);
+      // A real Back restores the PREVIOUS entry's state along with its URL.
+      // Pushing a fresh `{}` instead would land on an entry carrying no
+      // `fcScrollKey`, which is not what the browser does and would make this
+      // test pass or fail for the wrong reason.
+      history.replaceState(entryBefore, "", originalUrl);
       act(() => {
         window.dispatchEvent(new PopStateEvent("popstate"));
       });
@@ -715,6 +724,84 @@ describe("Portal", () => {
 
       expect(screen!.host.textContent).toMatch(/Ada Lovelace/);
       expect(scrollTo).toHaveBeenCalledWith(0, 1420);
+    } finally {
+      scrollTo.mockRestore();
+      history.replaceState({}, "", originalUrl);
+      history.scrollRestoration = originalRestoration;
+    }
+  });
+
+  it("remembers each visit to a page separately, not one position per page", async () => {
+    // The reason positions are keyed by history entry rather than by page. A
+    // page-keyed map holds one offset per page, so a Back stack that passes
+    // through home twice restores the newest offset both times -- the
+    // customer lands somewhere they never were.
+    const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    const container = document.createElement("div");
+    container.scrollIntoView = vi.fn();
+
+    const api = fakeApi();
+    api.storage.setItem(API.SESSION, session());
+    const originalUrl = window.location.href;
+    const originalRestoration = history.scrollRestoration;
+
+    const setScrollY = (value: number) =>
+      Object.defineProperty(window, "scrollY", { value, configurable: true });
+
+    try {
+      screen = mountScreen(
+        <PortalContainerContext value={container}>
+          <Portal
+            api={api as never}
+            cache={new RequestCache()}
+            fullNameTemplate="{first_name} {last_name}"
+            skipPasswordReset={false}
+            urlSync
+            onEvent={vi.fn()}
+          />
+        </PortalContainerContext>,
+        api,
+      );
+      await flush();
+      await flush();
+
+      // First visit to home, standing at 300.
+      const firstHomeEntry = history.state;
+      setScrollY(300);
+      clickButtonMatching(/edit profile/i);
+      await flush();
+
+      // Back to home, then stand somewhere else entirely and leave again.
+      // Under page keying this second offset overwrites the first.
+      setScrollY(0);
+      act(() => {
+        const buttons = [...screen!.host.querySelectorAll("button")];
+        buttons.find((b) => /^back$/i.test(b.textContent ?? ""))!.click();
+      });
+      await flush();
+
+      const secondHomeEntry = history.state;
+      setScrollY(1700);
+      clickButtonMatching(/edit profile/i);
+      await flush();
+
+      // Back to the SECOND home visit: 1700.
+      scrollTo.mockClear();
+      history.replaceState(secondHomeEntry, "", originalUrl);
+      act(() => {
+        window.dispatchEvent(new PopStateEvent("popstate"));
+      });
+      await flush();
+      expect(scrollTo).toHaveBeenCalledWith(0, 1700);
+
+      // Back again, to the FIRST home visit: 300, not 1700.
+      scrollTo.mockClear();
+      history.replaceState(firstHomeEntry, "", originalUrl);
+      act(() => {
+        window.dispatchEvent(new PopStateEvent("popstate"));
+      });
+      await flush();
+      expect(scrollTo).toHaveBeenCalledWith(0, 300);
     } finally {
       scrollTo.mockRestore();
       history.replaceState({}, "", originalUrl);
