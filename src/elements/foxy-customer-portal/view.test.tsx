@@ -509,6 +509,118 @@ describe("Portal", () => {
     await flush();
   });
 
+  it("returns to the previous scroll position when Back is pressed", async () => {
+    // A customer who opened an address from the bottom of a long list should
+    // come back to that address, not to the top of the list they now have to
+    // scroll through again.
+    const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    const container = document.createElement("div");
+    container.scrollIntoView = vi.fn();
+
+    const api = fakeApi();
+    api.storage.setItem(API.SESSION, session());
+
+    try {
+      screen = mountScreen(
+        <PortalContainerContext value={container}>
+          <Portal
+            api={api as never}
+            cache={new RequestCache()}
+            fullNameTemplate="{first_name} {last_name}"
+            skipPasswordReset={false}
+            urlSync={false}
+            onEvent={vi.fn()}
+          />
+        </PortalContainerContext>,
+        api,
+      );
+      await flush();
+      await flush();
+
+      // Stand somewhere down the home page, then open a sub-page.
+      Object.defineProperty(window, "scrollY", {
+        value: 1868,
+        configurable: true,
+      });
+
+      clickButtonMatching(/edit profile/i);
+      await flush();
+
+      // Forward: opens at its own top, not at home's offset.
+      expect(container.scrollIntoView).toHaveBeenCalledTimes(1);
+      expect(scrollTo).not.toHaveBeenCalled();
+
+      act(() => {
+        const buttons = [...screen!.host.querySelectorAll("button")];
+        buttons.find((b) => /^back$/i.test(b.textContent ?? ""))!.click();
+      });
+      await flush();
+
+      // Back: the exact offset the customer left from.
+      expect(scrollTo).toHaveBeenCalledWith(0, 1868);
+      expect(container.scrollIntoView).toHaveBeenCalledTimes(1);
+    } finally {
+      scrollTo.mockRestore();
+    }
+  });
+
+  it("opens a forward navigation at the top even for a page seen before", async () => {
+    // The flag is set by the Back control, never inferred from the target
+    // page -- home is both what Back returns to and where several forward
+    // links go, so inferring would restore a scroll position on a link the
+    // customer expects to open at the top.
+    const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    const container = document.createElement("div");
+    container.scrollIntoView = vi.fn();
+
+    const api = fakeApi();
+    api.storage.setItem(API.SESSION, session());
+
+    try {
+      screen = mountScreen(
+        <PortalContainerContext value={container}>
+          <Portal
+            api={api as never}
+            cache={new RequestCache()}
+            fullNameTemplate="{first_name} {last_name}"
+            skipPasswordReset={false}
+            urlSync={false}
+            onEvent={vi.fn()}
+          />
+        </PortalContainerContext>,
+        api,
+      );
+      await flush();
+      await flush();
+
+      Object.defineProperty(window, "scrollY", {
+        value: 900,
+        configurable: true,
+      });
+
+      // Visit, come back (which records a position for the profile page),
+      // then go forward to the same page again.
+      clickButtonMatching(/edit profile/i);
+      await flush();
+      act(() => {
+        const buttons = [...screen!.host.querySelectorAll("button")];
+        buttons.find((b) => /^back$/i.test(b.textContent ?? ""))!.click();
+      });
+      await flush();
+
+      scrollTo.mockClear();
+      (container.scrollIntoView as ReturnType<typeof vi.fn>).mockClear();
+
+      clickButtonMatching(/edit profile/i);
+      await flush();
+
+      expect(container.scrollIntoView).toHaveBeenCalledTimes(1);
+      expect(scrollTo).not.toHaveBeenCalled();
+    } finally {
+      scrollTo.mockRestore();
+    }
+  });
+
   it("brings the portal's top into view on navigation, but not on Back", async () => {
     // Swapping pages leaves the document's scroll offset alone, so opening a
     // short page from far down a long one lands the customer at its end -- on

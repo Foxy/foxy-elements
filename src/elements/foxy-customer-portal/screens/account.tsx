@@ -106,7 +106,7 @@ type Props = {
   /** `null` while the settings request is still in flight. */
   settings: PortalSettings | null;
   accountPage: AccountPage;
-  onNavigate: (page: AccountPage) => void;
+  onNavigate: (page: AccountPage, options?: { restoreScroll?: boolean }) => void;
 };
 
 export function AccountScreen({
@@ -167,7 +167,17 @@ export function AccountScreen({
   const cartDisplayConfig: CartDisplayConfig | null =
     settings?.cart_display_config ?? null;
 
-  const goHome = useCallback(() => onNavigate({ type: "home" }), [onNavigate]);
+  // The in-portal Back control. Asks for the previous scroll position back:
+  // a customer who opened an address from the bottom of a long list should
+  // return to that address, not to the top of the list.
+  //
+  // Only Back passes this. A forward link to home (there are several) still
+  // opens at the top, which is why the flag is explicit rather than inferred
+  // from the target page.
+  const goHome = useCallback(
+    () => onNavigate({ type: "home" }, { restoreScroll: true }),
+    [onNavigate],
+  );
 
   // Both the loading and error states below stay Back-aware for any non-home
   // page: a deep link (or a browser Back/Forward) that lands here while the

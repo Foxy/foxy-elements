@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useIntl } from "react-intl";
 import type { API } from "@foxy.io/sdk/customer";
 import { Alert } from "@foxy.io/design-system/alert";
@@ -11,6 +18,7 @@ import {
   type RequestCache,
 } from "@/lib/customer-api";
 import {
+  accountPageKey,
   accountPageToSearchParams,
   parseAccountPageFromSearch,
   type AccountPage,
@@ -116,6 +124,22 @@ export function Portal({
 
   const portalContainer = usePortalContainer();
 
+  // Where the customer was on each page they have visited, so backing out of
+  // a sub-page returns them to the spot they left rather than the top of a
+  // list they now have to scroll through again.
+  const scrollPositions = useRef(new Map<string, number>());
+
+  // What to do once the next page has actually rendered. Scrolling inside the
+  // navigate callback would run against the OLD page: restoring 1868px while
+  // a short form is still mounted clamps to that form's height and lands
+  // nowhere near where the customer was.
+  const pendingScroll = useRef<"top" | number | null>(null);
+
+  // Read inside `navigateAccountPage` without making it depend on the current
+  // page, which would rebuild the callback -- and every consumer's memo --
+  // on every navigation.
+  const accountPageRef = useRef(accountPage);
+
   /**
    * Brings the top of the portal into view after a navigation.
    *
@@ -141,6 +165,22 @@ export function Portal({
     portalContainer?.scrollIntoView({ block: "start" });
   }, [portalContainer]);
 
+  useLayoutEffect(() => {
+    accountPageRef.current = accountPage;
+
+    const target = pendingScroll.current;
+    if (target === null) return;
+    pendingScroll.current = null;
+
+    if (target === "top") {
+      scrollToPortalTop();
+    } else {
+      // An offset the customer was already at, so restoring it imposes
+      // nothing the way a blanket scroll-to-zero would.
+      window.scrollTo(0, target);
+    }
+  });
+
   // Mutates `url.searchParams` surgically -- deleting only the two keys this
   // element owns and setting whatever the codec returns -- rather than
   // replacing `url.search` wholesale. The host page may have its own params
@@ -148,9 +188,24 @@ export function Portal({
   // only means something if the rest of the query string survives a portal
   // navigation untouched.
   const navigateAccountPage = useCallback(
-    (page: AccountPage) => {
+    (page: AccountPage, options?: { restoreScroll?: boolean }) => {
+      // Remember the spot being left before anything re-renders.
+      scrollPositions.current.set(
+        accountPageKey(accountPageRef.current),
+        window.scrollY,
+      );
+
+      // `restoreScroll` is set only by the in-portal Back control, so a
+      // forward navigation to a page visited earlier still opens at its top.
+      // Inferring "this is a Back" from the target page would get that wrong:
+      // Home is both what Back returns to and what half the forward links go
+      // to.
+      const saved = options?.restoreScroll
+        ? scrollPositions.current.get(accountPageKey(page))
+        : undefined;
+
+      pendingScroll.current = saved ?? "top";
       setAccountPageState(page);
-      scrollToPortalTop();
       if (!urlSync) return;
       const url = new URL(window.location.href);
       url.searchParams.delete("fc_page");
@@ -160,7 +215,7 @@ export function Portal({
       }
       history.pushState({ fcAccountPage: true }, "", url);
     },
-    [urlSync, scrollToPortalTop],
+    [urlSync],
   );
 
   // Sign-out uses this, not `navigateAccountPage`: a customer signing in
@@ -170,8 +225,9 @@ export function Portal({
   // session actually navigated through. Same surgical-delete-then-set
   // pattern as `navigateAccountPage` above, for the same reason.
   const resetAccountPage = useCallback(() => {
+    scrollPositions.current.clear();
+    pendingScroll.current = "top";
     setAccountPageState({ type: "home" });
-    scrollToPortalTop();
     if (!urlSync) return;
     const url = new URL(window.location.href);
     url.searchParams.delete("fc_page");
@@ -180,7 +236,7 @@ export function Portal({
       url.searchParams.set(key, value);
     }
     history.replaceState({ fcAccountPage: true }, "", url);
-  }, [urlSync, scrollToPortalTop]);
+  }, [urlSync]);
 
   // Registered only while `urlSync` is on, and torn down the moment it turns
   // off or this unmounts -- the listener lives on `window`, not on this
@@ -262,7 +318,10 @@ function PortalScreens({
   screen: PortalScreen;
   setScreen: (screen: PortalScreen) => void;
   accountPage: AccountPage;
-  onNavigateAccountPage: (page: AccountPage) => void;
+  onNavigateAccountPage: (
+    page: AccountPage,
+    options?: { restoreScroll?: boolean },
+  ) => void;
   onResetAccountPage: () => void;
   fullNameTemplate: string;
   skipPasswordReset: boolean;

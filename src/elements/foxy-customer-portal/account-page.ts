@@ -10,6 +10,15 @@ export type AccountPage =
   | { type: "order"; id: string; resource?: OrderResource }
   | { type: "address"; id: string; resource?: AddressResource };
 
+/**
+ * Identifies one page for scroll bookkeeping. Includes the id, so backing out
+ * of one address restores the list where that address is, not where a
+ * different one was.
+ */
+export function accountPageKey(page: AccountPage): string {
+  return "id" in page ? `${page.type}:${page.id}` : page.type;
+}
+
 const PAGE_PARAM = "fc_page";
 const ID_PARAM = "fc_id";
 
