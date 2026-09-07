@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi, type Mock } from "vitest";
 import { act } from "react";
+import { page } from "vitest/browser";
 import { RequestCache } from "@/lib/customer-api";
 import { mountScreen, setInputValue, type MountedScreen } from "../../test-utils";
 import { AddressPage, AddressPageContainer } from "./address-page";
@@ -7,9 +8,14 @@ import type { AddressResource } from "./card";
 
 let screen: MountedScreen | null = null;
 
-afterEach(() => {
+// The viewport restore is unconditional, like row.test.tsx's: the two
+// layout tests below change it, and a thrown assertion must not leak a wide
+// or narrow viewport into a later test. Vitest browser mode defaults to
+// 414x896.
+afterEach(async () => {
   screen?.unmount();
   screen = null;
+  await page.viewport(414, 896);
 });
 
 const flush = () =>
@@ -108,6 +114,55 @@ function submitForm() {
 }
 
 describe("AddressPage", () => {
+  it("pairs the fields an address form keeps together", async () => {
+    await page.viewport(900, 900);
+
+    screen = mountScreen(
+      <AddressPage address={address() as never} onBack={vi.fn()} />,
+      {},
+    );
+
+    const box = (autocomplete: string) =>
+      screen!.host
+        .querySelector(`input[autocomplete="${autocomplete}"]`)!
+        .getBoundingClientRect();
+
+    // First/last name, country/region and city/postal code sit two-up, the
+    // way address forms conventionally group them. Eleven fields in one
+    // column is a long scroll for a form people fill in from memory.
+    for (const [a, b] of [
+      ["given-name", "family-name"],
+      ["address-level2", "postal-code"],
+    ] as const) {
+      const left = box(a);
+      const right = box(b);
+      expect(Math.round(left.top), `${a}/${b} share a row`).toBe(
+        Math.round(right.top),
+      );
+      expect(right.left, `${b} sits right of ${a}`).toBeGreaterThan(left.left);
+    }
+  });
+
+  it("stacks the pairs on a narrow viewport", async () => {
+    await page.viewport(420, 900);
+
+    screen = mountScreen(
+      <AddressPage address={address() as never} onBack={vi.fn()} />,
+      {},
+    );
+
+    const first = screen.host
+      .querySelector('input[autocomplete="given-name"]')!
+      .getBoundingClientRect();
+    const last = screen.host
+      .querySelector('input[autocomplete="family-name"]')!
+      .getBoundingClientRect();
+
+    // Two text inputs sharing a phone's width are narrower than the content
+    // they hold, so the grid collapses to one column below 560px.
+    expect(Math.round(last.top)).toBeGreaterThan(Math.round(first.bottom) - 1);
+  });
+
   it("prefills from the address resource and has a Back button", () => {
     screen = mountScreen(
       <AddressPage address={address() as never} onBack={vi.fn()} />,

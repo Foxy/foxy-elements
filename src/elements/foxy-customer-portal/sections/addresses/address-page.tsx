@@ -9,6 +9,7 @@ import { Skeleton } from "@foxy.io/design-system/skeleton";
 import { useApi, WriteError, type FollowableLink } from "@/lib/customer-api";
 import { messages } from "../../messages";
 import { AccountPageLayout } from "../../account-page-layout";
+import { Actions, Form, Pair } from "../../form-layout";
 import { ADDRESS_FIELD_LIMITS } from "../../field-constraints";
 import { usePortalContainer } from "../../portal-container";
 import { useFieldValidation } from "../../use-field-validation";
@@ -193,7 +194,7 @@ export function AddressPage({ address, onBack }: Props) {
       title={intl.formatMessage(messages.addressEditHeading)}
       onBack={onBack}
     >
-      <form onSubmit={handleSubmit} noValidate>
+      <Form onSubmit={handleSubmit} noValidate $maxWidth="640px">
         {hasFailed ? (
           <Alert.Root $variant="destructive">
             <Alert.Description>
@@ -224,49 +225,51 @@ export function AddressPage({ address, onBack }: Props) {
           ) : null}
         </Field.Root>
 
-        <Field.Root>
-          <Field.Label htmlFor={firstNameId}>
-            {intl.formatMessage(messages.addressFirstName)}
-          </Field.Label>
-          <Input
-            id={firstNameId}
-            type="text"
-            autoComplete="given-name"
-            maxLength={ADDRESS_FIELD_LIMITS.firstName.maxLength}
-            value={firstName}
-            onChange={(event) => {
-              const value = event.target.value;
-              setFirstName(value);
-              if (errors.firstName) validateField("firstName", value);
-            }}
-            onBlur={(event) => validateField("firstName", event.target.value)}
-          />
-          {errors.firstName ? (
-            <Field.Error match>{errors.firstName}</Field.Error>
-          ) : null}
-        </Field.Root>
+        <Pair>
+          <Field.Root>
+            <Field.Label htmlFor={firstNameId}>
+              {intl.formatMessage(messages.addressFirstName)}
+            </Field.Label>
+            <Input
+              id={firstNameId}
+              type="text"
+              autoComplete="given-name"
+              maxLength={ADDRESS_FIELD_LIMITS.firstName.maxLength}
+              value={firstName}
+              onChange={(event) => {
+                const value = event.target.value;
+                setFirstName(value);
+                if (errors.firstName) validateField("firstName", value);
+              }}
+              onBlur={(event) => validateField("firstName", event.target.value)}
+            />
+            {errors.firstName ? (
+              <Field.Error match>{errors.firstName}</Field.Error>
+            ) : null}
+          </Field.Root>
 
-        <Field.Root>
-          <Field.Label htmlFor={lastNameId}>
-            {intl.formatMessage(messages.addressLastName)}
-          </Field.Label>
-          <Input
-            id={lastNameId}
-            type="text"
-            autoComplete="family-name"
-            maxLength={ADDRESS_FIELD_LIMITS.lastName.maxLength}
-            value={lastName}
-            onChange={(event) => {
-              const value = event.target.value;
-              setLastName(value);
-              if (errors.lastName) validateField("lastName", value);
-            }}
-            onBlur={(event) => validateField("lastName", event.target.value)}
-          />
-          {errors.lastName ? (
-            <Field.Error match>{errors.lastName}</Field.Error>
-          ) : null}
-        </Field.Root>
+          <Field.Root>
+            <Field.Label htmlFor={lastNameId}>
+              {intl.formatMessage(messages.addressLastName)}
+            </Field.Label>
+            <Input
+              id={lastNameId}
+              type="text"
+              autoComplete="family-name"
+              maxLength={ADDRESS_FIELD_LIMITS.lastName.maxLength}
+              value={lastName}
+              onChange={(event) => {
+                const value = event.target.value;
+                setLastName(value);
+                if (errors.lastName) validateField("lastName", value);
+              }}
+              onBlur={(event) => validateField("lastName", event.target.value)}
+            />
+            {errors.lastName ? (
+              <Field.Error match>{errors.lastName}</Field.Error>
+            ) : null}
+          </Field.Root>
+        </Pair>
 
         <Field.Root>
           <Field.Label htmlFor={companyId}>
@@ -357,62 +360,30 @@ export function AddressPage({ address, onBack }: Props) {
           ) : null}
         </Field.Root>
 
-        <Field.Root>
-          <Field.Label htmlFor={countryId}>
-            {intl.formatMessage(messages.addressCountry)}
-          </Field.Label>
-          <Select.Root
-            value={country}
-            onValueChange={handleCountryChange}
-            items={countryItems}
-          >
-            <Select.Trigger id={countryId}>
-              <Select.Value />
-            </Select.Trigger>
-            {/* Select.Portal defaults to <body>, which is outside this
-                element's shadow root -- the popup would render unstyled.
-                `?? undefined` because Base UI reads an explicit null as
-                "container unresolved" and never renders. */}
-            <Select.Portal container={portalContainer ?? undefined}>
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.List>
-                    {COUNTRIES.map((c) => (
-                      <Select.Item key={c.code} value={c.code}>
-                        <Select.ItemText>{c.name}</Select.ItemText>
-                      </Select.Item>
-                    ))}
-                  </Select.List>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
-        </Field.Root>
-
-        <Field.Root>
-          <Field.Label htmlFor={regionId}>
-            {intl.formatMessage(messages.addressRegion)}
-          </Field.Label>
-          {hasRegionList ? (
+        <Pair>
+          <Field.Root>
+            <Field.Label htmlFor={countryId}>
+              {intl.formatMessage(messages.addressCountry)}
+            </Field.Label>
             <Select.Root
-              value={region}
-              onValueChange={(next: string | null) => next && setRegion(next)}
-              items={regionItems}
+              value={country}
+              onValueChange={handleCountryChange}
+              items={countryItems}
             >
-              <Select.Trigger id={regionId}>
-                <Select.Value
-                  placeholder={intl.formatMessage(
-                    messages.addressRegionPlaceholder,
-                  )}
-                />
+              <Select.Trigger id={countryId}>
+                <Select.Value />
               </Select.Trigger>
+              {/* Select.Portal defaults to <body>, which is outside this
+                  element's shadow root -- the popup would render unstyled.
+                  `?? undefined` because Base UI reads an explicit null as
+                  "container unresolved" and never renders. */}
               <Select.Portal container={portalContainer ?? undefined}>
                 <Select.Positioner>
                   <Select.Popup>
                     <Select.List>
-                      {selectedCountry!.regions.map((r) => (
-                        <Select.Item key={r.code} value={r.code}>
-                          <Select.ItemText>{r.name}</Select.ItemText>
+                      {COUNTRIES.map((c) => (
+                        <Select.Item key={c.code} value={c.code}>
+                          <Select.ItemText>{c.name}</Select.ItemText>
                         </Select.Item>
                       ))}
                     </Select.List>
@@ -420,76 +391,114 @@ export function AddressPage({ address, onBack }: Props) {
                 </Select.Positioner>
               </Select.Portal>
             </Select.Root>
-          ) : (
+          </Field.Root>
+
+          <Field.Root>
+            <Field.Label htmlFor={regionId}>
+              {intl.formatMessage(messages.addressRegion)}
+            </Field.Label>
+            {hasRegionList ? (
+              <Select.Root
+                value={region}
+                onValueChange={(next: string | null) => next && setRegion(next)}
+                items={regionItems}
+              >
+                <Select.Trigger id={regionId}>
+                  <Select.Value
+                    placeholder={intl.formatMessage(
+                      messages.addressRegionPlaceholder,
+                    )}
+                  />
+                </Select.Trigger>
+                <Select.Portal container={portalContainer ?? undefined}>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.List>
+                        {selectedCountry!.regions.map((r) => (
+                          <Select.Item key={r.code} value={r.code}>
+                            <Select.ItemText>{r.name}</Select.ItemText>
+                          </Select.Item>
+                        ))}
+                      </Select.List>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            ) : (
+              <Input
+                id={regionId}
+                type="text"
+                autoComplete="address-level1"
+                maxLength={ADDRESS_FIELD_LIMITS.region.maxLength}
+                value={region}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setRegion(value);
+                  if (errors.region) validateField("region", value);
+                }}
+                onBlur={(event) => validateField("region", event.target.value)}
+              />
+            )}
+            {errors.region ? (
+              <Field.Error match>{errors.region}</Field.Error>
+            ) : null}
+          </Field.Root>
+        </Pair>
+
+        <Pair>
+          <Field.Root>
+            <Field.Label htmlFor={cityId}>
+              {intl.formatMessage(messages.addressCity)}
+            </Field.Label>
             <Input
-              id={regionId}
+              id={cityId}
               type="text"
-              autoComplete="address-level1"
-              maxLength={ADDRESS_FIELD_LIMITS.region.maxLength}
-              value={region}
+              autoComplete="address-level2"
+              maxLength={ADDRESS_FIELD_LIMITS.city.maxLength}
+              value={city}
               onChange={(event) => {
                 const value = event.target.value;
-                setRegion(value);
-                if (errors.region) validateField("region", value);
+                setCity(value);
+                if (errors.city) validateField("city", value);
               }}
-              onBlur={(event) => validateField("region", event.target.value)}
+              onBlur={(event) => validateField("city", event.target.value)}
             />
-          )}
-          {errors.region ? (
-            <Field.Error match>{errors.region}</Field.Error>
-          ) : null}
-        </Field.Root>
+            {errors.city ? (
+              <Field.Error match>{errors.city}</Field.Error>
+            ) : null}
+          </Field.Root>
 
-        <Field.Root>
-          <Field.Label htmlFor={cityId}>
-            {intl.formatMessage(messages.addressCity)}
-          </Field.Label>
-          <Input
-            id={cityId}
-            type="text"
-            autoComplete="address-level2"
-            maxLength={ADDRESS_FIELD_LIMITS.city.maxLength}
-            value={city}
-            onChange={(event) => {
-              const value = event.target.value;
-              setCity(value);
-              if (errors.city) validateField("city", value);
-            }}
-            onBlur={(event) => validateField("city", event.target.value)}
-          />
-          {errors.city ? (
-            <Field.Error match>{errors.city}</Field.Error>
-          ) : null}
-        </Field.Root>
+          <Field.Root>
+            <Field.Label htmlFor={postalCodeId}>
+              {intl.formatMessage(messages.addressPostalCode)}
+            </Field.Label>
+            <Input
+              id={postalCodeId}
+              type="text"
+              autoComplete="postal-code"
+              maxLength={ADDRESS_FIELD_LIMITS.postalCode.maxLength}
+              value={postalCode}
+              onChange={(event) => {
+                const value = event.target.value;
+                setPostalCode(value);
+                if (errors.postalCode) validateField("postalCode", value);
+              }}
+              onBlur={(event) => validateField("postalCode", event.target.value)}
+            />
+            {errors.postalCode ? (
+              <Field.Error match>{errors.postalCode}</Field.Error>
+            ) : null}
+          </Field.Root>
+        </Pair>
 
-        <Field.Root>
-          <Field.Label htmlFor={postalCodeId}>
-            {intl.formatMessage(messages.addressPostalCode)}
-          </Field.Label>
-          <Input
-            id={postalCodeId}
-            type="text"
-            autoComplete="postal-code"
-            maxLength={ADDRESS_FIELD_LIMITS.postalCode.maxLength}
-            value={postalCode}
-            onChange={(event) => {
-              const value = event.target.value;
-              setPostalCode(value);
-              if (errors.postalCode) validateField("postalCode", value);
-            }}
-            onBlur={(event) => validateField("postalCode", event.target.value)}
-          />
-          {errors.postalCode ? (
-            <Field.Error match>{errors.postalCode}</Field.Error>
-          ) : null}
-        </Field.Root>
-
-        <Button type="submit" disabled={isBusy}>
-          {intl.formatMessage(
-            isBusy ? messages.addressSaving : messages.addressSave,
-          )}
-        </Button>
-      </form>
+        <Actions>
+          <Button type="submit" disabled={isBusy}>
+            {intl.formatMessage(
+              isBusy ? messages.addressSaving : messages.addressSave,
+            )}
+          </Button>
+        </Actions>
+      </Form>
     </AccountPageLayout>
   );
 }

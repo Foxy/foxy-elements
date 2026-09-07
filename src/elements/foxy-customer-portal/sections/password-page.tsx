@@ -6,6 +6,7 @@ import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
 import { useApi, WriteError } from "@/lib/customer-api";
 import { AccountPageLayout } from "../account-page-layout";
+import { Actions, Form } from "../form-layout";
 import { CUSTOMER_FIELD_LIMITS } from "../field-constraints";
 import { messages } from "../messages";
 import { useFieldValidation } from "../use-field-validation";
@@ -75,7 +76,7 @@ export function PasswordPage({ customer, onBack }: Props) {
       title={intl.formatMessage(messages.profileChangePassword)}
       onBack={onBack}
     >
-      <form onSubmit={handleSubmit} noValidate>
+      <Form onSubmit={handleSubmit} noValidate>
         {error === "unknown" && (
           <Alert.Root $variant="destructive">
             <Alert.Description>
@@ -132,12 +133,14 @@ export function PasswordPage({ customer, onBack }: Props) {
           {errors.next ? <Field.Error match>{errors.next}</Field.Error> : null}
         </Field.Root>
 
-        <Button type="submit" disabled={isBusy}>
-          {intl.formatMessage(
-            isBusy ? messages.passwordSaving : messages.passwordSave,
-          )}
-        </Button>
-      </form>
+        <Actions>
+          <Button type="submit" disabled={isBusy}>
+            {intl.formatMessage(
+              isBusy ? messages.passwordSaving : messages.passwordSave,
+            )}
+          </Button>
+        </Actions>
+      </Form>
     </AccountPageLayout>
   );
 }

@@ -1,12 +1,12 @@
 import { useId, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
-import styled from "styled-components";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
 import { WriteError, useApi, type FollowableLink } from "@/lib/customer-api";
 import { AccountPageLayout } from "../account-page-layout";
+import { Actions, Form } from "../form-layout";
 import { messages } from "../messages";
 import { patchResource } from "../write";
 import { CUSTOMER_FIELD_LIMITS } from "../field-constraints";
@@ -16,32 +16,6 @@ import type { CustomerProps } from "./header";
 export type CustomerResource = CustomerProps & {
   _links: { self: FollowableLink<unknown> };
 };
-
-/**
- * `Field.Root` is a grid with a `space.xs` gap, but that gap is *inside* one
- * field -- between its label, control and error. Nothing separated one field
- * from the next, so the form read as a single undifferentiated stack.
- *
- * The width cap is on the form rather than the page: the page container
- * deliberately fills its host (see `AccountPageLayout`), and a row of short
- * text inputs stretched to a wide monitor is unreadable and unpleasant to
- * aim at. 480px is a layout measurement the token scale does not carry, so
- * it stays a literal; the spacing does come from tokens.
- */
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: ${(props) => props.theme.tokens.space.lg};
-  max-width: 480px;
-`;
-
-// The submit button sizes to its own text instead of stretching to the
-// form's width, and takes a little more room above it than the gap between
-// two fields -- it is the end of the form, not another field in it.
-const Actions = styled.div`
-  display: flex;
-  margin-top: ${(props) => props.theme.tokens.space.sm};
-`;
 
 type Props = { customer: CustomerResource; onBack: () => void };
 

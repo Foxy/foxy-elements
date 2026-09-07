@@ -66,6 +66,32 @@ function fill(current = "old-pw", next = "new-pw") {
 }
 
 describe("PasswordPage", () => {
+  it("lays the form out like the portal's other account forms", () => {
+    renderPage();
+
+    const form = screen!.host.querySelector("form")!;
+    const styles = getComputedStyle(form);
+
+    // Same three things the profile form needed: `Field.Root`'s own gap sits
+    // inside a field, so nothing separated one from the next; the page fills
+    // its host, so the inputs ran the full width of a wide monitor; and the
+    // heading was an `<h2>` where the rest of the portal uses `<h1>`.
+    expect(styles.display).toBe("flex");
+    expect(parseFloat(styles.rowGap)).toBeGreaterThanOrEqual(12);
+    expect(styles.maxWidth).toBe("480px");
+
+    const heading = screen!.host.querySelector("h1");
+    expect(heading).not.toBeNull();
+    expect(getComputedStyle(heading!).fontSize).toBe("28px");
+
+    // Measured, not just declared -- a gap on a non-flex form computes fine
+    // and moves nothing.
+    const fields = [...form.querySelectorAll("label")].map(
+      (label) => label.parentElement!.getBoundingClientRect(),
+    );
+    expect(fields[1]!.top - fields[0]!.bottom).toBeGreaterThanOrEqual(12);
+  });
+
   it("has a Back button that returns to home", () => {
     const { onBack } = renderPage();
 
