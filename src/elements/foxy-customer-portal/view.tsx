@@ -248,15 +248,45 @@ export function Portal({
   // here. Calls `setAccountPageState` directly, never `navigateAccountPage`
   // -- that would push a fresh entry on top of the one the browser just
   // popped to, breaking Back.
+  //
+  // Scroll is restored from the same map the in-portal Back uses, so both
+  // Backs behave identically. That also fixes the browser's own attempt,
+  // which cannot work here: it restores as the entry is popped, while React
+  // has yet to render the taller page, so the offset clamps to the height of
+  // the page being left.
+  //
+  // Taking `scrollRestoration` off `auto` is a document-global change, and
+  // this element is a guest on someone else's page -- so it is scoped to
+  // `urlSync` (the mode where the portal already owns history entries) and
+  // the previous value is handed back on cleanup.
   useEffect(() => {
     if (!urlSync) return;
 
+    const previousRestoration = history.scrollRestoration;
+    history.scrollRestoration = "manual";
+
     function handlePopState() {
-      setAccountPageState(parseAccountPageFromSearch(window.location.search));
+      const page = parseAccountPageFromSearch(window.location.search);
+
+      scrollPositions.current.set(
+        accountPageKey(accountPageRef.current),
+        window.scrollY,
+      );
+
+      // No entry means the customer arrived here by deep link or reload and
+      // has never been on the target page in this session -- its top is the
+      // only honest answer.
+      pendingScroll.current =
+        scrollPositions.current.get(accountPageKey(page)) ?? "top";
+
+      setAccountPageState(page);
     }
 
     window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      history.scrollRestoration = previousRestoration;
+    };
   }, [urlSync]);
 
   /**

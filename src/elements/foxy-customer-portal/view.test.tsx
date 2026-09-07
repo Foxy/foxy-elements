@@ -621,7 +621,7 @@ describe("Portal", () => {
     }
   });
 
-  it("brings the portal's top into view on navigation, but not on Back", async () => {
+  it("brings the portal's top into view on a forward navigation", async () => {
     // Swapping pages leaves the document's scroll offset alone, so opening a
     // short page from far down a long one lands the customer at its end -- on
     // mobile, tapping Edit at the bottom of Home opened the address form
@@ -633,11 +633,47 @@ describe("Portal", () => {
     const api = fakeApi();
     api.storage.setItem(API.SESSION, session());
 
-    // `urlSync` on, so the `popstate` listener is actually registered. With
-    // it off that listener never mounts and the Back half of this test would
-    // pass whether or not the handler scrolls -- which is exactly what an
-    // ablation caught.
+    screen = mountScreen(
+      <PortalContainerContext value={container}>
+        <Portal
+          api={api as never}
+          cache={new RequestCache()}
+          fullNameTemplate="{first_name} {last_name}"
+          skipPasswordReset={false}
+          urlSync={false}
+          onEvent={vi.fn()}
+        />
+      </PortalContainerContext>,
+      api,
+    );
+    await flush();
+    await flush();
+
+    expect(scrollIntoView).not.toHaveBeenCalled();
+
+    clickButtonMatching(/edit profile/i);
+    await flush();
+
+    // The element's own container, not the window: the portal is embedded in
+    // someone else's page, which may have content above it, and scrolling
+    // that page to zero would discard a position the widget does not own.
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: "start" });
+  });
+
+  it("restores scroll on browser Back the same way the in-portal Back does", async () => {
+    // Both Backs read the same map, so they cannot disagree. The browser's
+    // own restoration cannot do this job here: it fires as the entry is
+    // popped, before React has rendered the taller page, so the offset clamps
+    // to the height of the page being left.
+    const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    const container = document.createElement("div");
+    container.scrollIntoView = vi.fn();
+
+    const api = fakeApi();
+    api.storage.setItem(API.SESSION, session());
     const originalUrl = window.location.href;
+    const originalRestoration = history.scrollRestoration;
 
     try {
       screen = mountScreen(
@@ -656,18 +692,21 @@ describe("Portal", () => {
       await flush();
       await flush();
 
-      expect(scrollIntoView).not.toHaveBeenCalled();
+      // While the portal owns history entries it takes scroll restoration
+      // off the browser -- otherwise both would fire and the browser's
+      // clamped value could win.
+      expect(history.scrollRestoration).toBe("manual");
+
+      Object.defineProperty(window, "scrollY", {
+        value: 1420,
+        configurable: true,
+      });
 
       clickButtonMatching(/edit profile/i);
       await flush();
 
-      // The element's own container, not the window: the portal is embedded
-      // in someone else's page, which may have content above it.
-      expect(scrollIntoView).toHaveBeenCalledTimes(1);
-      expect(scrollIntoView).toHaveBeenCalledWith({ block: "start" });
+      scrollTo.mockClear();
 
-      // Back is the browser's to restore. Overriding it would throw away the
-      // position the customer is returning to.
       history.pushState({}, "", originalUrl);
       act(() => {
         window.dispatchEvent(new PopStateEvent("popstate"));
@@ -675,9 +714,38 @@ describe("Portal", () => {
       await flush();
 
       expect(screen!.host.textContent).toMatch(/Ada Lovelace/);
-      expect(scrollIntoView).toHaveBeenCalledTimes(1);
+      expect(scrollTo).toHaveBeenCalledWith(0, 1420);
+    } finally {
+      scrollTo.mockRestore();
+      history.replaceState({}, "", originalUrl);
+      history.scrollRestoration = originalRestoration;
+    }
+  });
+
+  it("hands scroll restoration back when it stops owning history", async () => {
+    // A document-global setting, and this element is a guest on someone
+    // else's page: leaving it on "manual" after unmount would silently break
+    // the host's own Back behaviour.
+    const originalRestoration = history.scrollRestoration;
+    const originalUrl = window.location.href;
+
+    try {
+      const api = fakeApi();
+      api.storage.setItem(API.SESSION, session());
+
+      render(api, { urlSync: true });
+      await flush();
+      await flush();
+
+      expect(history.scrollRestoration).toBe("manual");
+
+      screen!.unmount();
+      screen = null;
+
+      expect(history.scrollRestoration).toBe(originalRestoration);
     } finally {
       history.replaceState({}, "", originalUrl);
+      history.scrollRestoration = originalRestoration;
     }
   });
 
