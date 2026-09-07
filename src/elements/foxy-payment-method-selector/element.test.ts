@@ -533,6 +533,7 @@ describe("PaymentMethodSelectorElement", () => {
 
     expect(observed).toContain("lang");
     expect(observed).toContain("option-index");
+    expect(observed).toContain("disabled");
 
     for (const attributeName of THEME_ATTRIBUTE_NAMES) {
       expect(observed).toContain(attributeName);
@@ -1477,6 +1478,88 @@ describe("PaymentMethodSelectorElement", () => {
 
   // Every option uses the same layout — radio indicator plus bordered card —
   // no matter how many options there are, so a single option is not special-cased.
+  it("disables every payment option while the host carries the disabled attribute", async () => {
+    const restoreClient = overrideClientState(createSezzleApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      element.setAttribute("disabled", "");
+      document.body.append(element);
+
+      const radio = await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector<HTMLElement>(
+            '[id^="payment-option-"]',
+          ),
+        "payment option radio",
+      );
+
+      // The view already ORs the host-level flag into each option's own
+      // `disabled`, so proving it arrives on the radio proves it reaches the
+      // option body and the card wrapper with it.
+      // `[id^="payment-option-"]` is the visually-hidden native input behind
+      // the styled radio, so this is the real thing that blocks a click.
+      expect(radio).toBeInstanceOf(HTMLInputElement);
+      expect((radio as HTMLInputElement).disabled).toBe(true);
+
+      // The styled radio is a span, so it carries `aria-disabled` rather than
+      // a native attribute — assistive tech reads this one, not the input.
+      expect(
+        element.shadowRoot
+          ?.querySelector('[role="radio"]')
+          ?.getAttribute("aria-disabled"),
+      ).toBe("true");
+
+      // And the option's card wrapper, which is what greys the row out.
+      expect(radio.closest("[data-disabled]")?.getAttribute("data-disabled")).toBe(
+        "true",
+      );
+
+      // Clearing it has to give the control back — a lock that cannot be
+      // released would strand a checkout that re-enables the field.
+      element.disabled = false;
+      await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector<HTMLInputElement>(
+            '[id^="payment-option-"]',
+          )?.disabled === false || undefined,
+        "re-enabled payment option radio",
+      );
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  it("reflects the disabled property to its attribute in both directions", () => {
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    expect(element.disabled).toBe(false);
+
+    element.disabled = true;
+    expect(element.hasAttribute("disabled")).toBe(true);
+    // Reflected as the empty string, the way native controls write it.
+    expect(element.getAttribute("disabled")).toBe("");
+
+    element.disabled = false;
+    expect(element.hasAttribute("disabled")).toBe(false);
+
+    // Presence is the value for a boolean attribute, so "false" reads as
+    // disabled — same as <button disabled="false">. Worth pinning because it
+    // cuts the unsafe way: a consumer that templates the string in gets a
+    // locked field, never an accidentally unlocked one. Consumers should omit
+    // the attribute rather than set it to a falsy string.
+    element.setAttribute("disabled", "false");
+    expect(element.disabled).toBe(true);
+
+    element.removeAttribute("disabled");
+    expect(element.disabled).toBe(false);
+  });
+
   it("renders the radio and bordered card layout for a single payment option", async () => {
     const restoreClient = overrideClientState(createSezzleApiState());
     const element = document.createElement(

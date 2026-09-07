@@ -18,6 +18,14 @@ const config: StorybookConfig = {
   ],
   framework: "@storybook/web-components-vite",
   async viteFinal(config) {
+    // Storybook serves both the manager and the preview through Vite, and Vite
+    // rejects an unknown Host with a 400. The localdev stack proxies this
+    // through nginx-proxy, so the forwarded Host has to be allowed here --
+    // server.allowedHosts in vite.config.ts covers the examples server only,
+    // not Storybook's.
+    config.server ??= {};
+    config.server.allowedHosts = ["beta.elements.foxy.test"];
+
     config.resolve ??= {};
     config.resolve.alias = {
       ...(config.resolve.alias as Record<string, string>),

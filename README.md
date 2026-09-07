@@ -184,13 +184,13 @@ Use Node 22 for local development.
    npm run localdev:storybook
    ```
 
-4. Start local examples (requires Caddy to be installed):
+4. Start local examples:
 
   ```bash
   npm run localdev:examples
   ```
 
-  Add `elements.foxy.test` to your hosts file and open `https://elements.foxy.test/examples/[path/to/example]`.
+  Open `http://localhost:5173/examples/[path/to/example]`.
 
 5. Build outputs:
 

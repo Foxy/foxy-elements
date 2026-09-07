@@ -89,6 +89,7 @@ const PAYPAL_UNDOCUMENTED_APMS = [
 
 const LANG_ATTRIBUTE = "lang";
 const OPTION_INDEX_ATTRIBUTE = "option-index";
+const DISABLED_ATTRIBUTE = "disabled";
 const DEFAULT_LOCALE = "en-US";
 const UNINITIALIZED_ALERT_GRACE_MS = 750;
 
@@ -105,6 +106,7 @@ const ThemeableHTMLElement = ThemeMixin(HTMLElement);
 
 export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #optionIndex: number | undefined;
+  #disabled = false;
   #loading = false;
   #canRenderUninitializedAlert = false;
   #uninitializedAlertTimer: ReturnType<typeof setTimeout> | undefined;
@@ -136,6 +138,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return [
       LANG_ATTRIBUTE,
       OPTION_INDEX_ATTRIBUTE,
+      DISABLED_ATTRIBUTE,
       ...ThemeableHTMLElement.themeAttributeNames,
     ];
   }
@@ -169,6 +172,32 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       }
     } else if (this.hasAttribute(OPTION_INDEX_ATTRIBUTE)) {
       this.removeAttribute(OPTION_INDEX_ATTRIBUTE);
+    }
+
+    this.#render();
+  }
+
+  get disabled(): boolean {
+    return this.#disabled;
+  }
+
+  set disabled(value: boolean) {
+    const normalized = Boolean(value);
+
+    if (this.#disabled === normalized) return;
+
+    this.#disabled = normalized;
+
+    // A boolean attribute carries its value in its presence, not its text, so
+    // reflection is add/remove rather than the stringified value `optionIndex`
+    // writes. This is also why `disabled="false"` still reads as disabled —
+    // the same as every native form control.
+    if (normalized) {
+      if (!this.hasAttribute(DISABLED_ATTRIBUTE)) {
+        this.setAttribute(DISABLED_ATTRIBUTE, "");
+      }
+    } else if (this.hasAttribute(DISABLED_ATTRIBUTE)) {
+      this.removeAttribute(DISABLED_ATTRIBUTE);
     }
 
     this.#render();
@@ -719,6 +748,12 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       return;
     }
 
+    if (name === DISABLED_ATTRIBUTE) {
+      this.#disabled = newValue !== null;
+      this.#render();
+      return;
+    }
+
     if (
       ThemeableHTMLElement.themeAttributeNames.includes(
         name as ThemeAttributeName,
@@ -799,7 +834,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
               options={options}
               selectedOptionId={selectedOptionId}
               lang={locale}
-              disabled={this.#loading}
+              disabled={this.#loading || this.#disabled}
               loading={this.#optionsLoading}
               onSelectionChange={(optionId) => {
                 const previousSelectedOption = this.#resolveSelectedOption();

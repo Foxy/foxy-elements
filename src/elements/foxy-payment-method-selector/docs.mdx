@@ -79,6 +79,19 @@ The card, Stripe and saved-card scenarios seed a single entry through <code>save
     </tr>
     <tr>
       <td>
+        <code>disabled</code>
+      </td>
+      <td>
+        Locks every payment option and its embedded gateway controls. A boolean
+        attribute: presence disables, so omit it rather than setting it to{" "}
+        <code>false</code>.
+      </td>
+      <td>
+        <code>disabled</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
         <code>theme-background-surface</code>
       </td>
       <td>Background color token for the selector's own surface.</td>
@@ -267,6 +280,18 @@ remain the inherited <code>HTMLElement</code> property.
         <code>number | undefined</code>
       </td>
       <td>Selected payment option index; undefined clears selection.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>disabled</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>
+        Locks every option and embedded gateway control; reflects to the{" "}
+        <code>disabled</code> attribute.
+      </td>
     </tr>
     <tr>
       <td>
