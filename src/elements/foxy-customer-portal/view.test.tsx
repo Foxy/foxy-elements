@@ -5,6 +5,7 @@ import { RequestCache, serialiseQuery } from "@/lib/customer-api";
 import { mountScreen, setInputValue, type MountedScreen } from "./test-utils";
 import { resetHCaptchaLoaderForTests } from "./hcaptcha";
 import { Portal } from "./view";
+import { PortalContainerContext } from "./portal-container";
 
 let screen: MountedScreen | null = null;
 
@@ -506,6 +507,66 @@ describe("Portal", () => {
     expect(probe).toHaveBeenCalled();
 
     await flush();
+  });
+
+  it("brings the portal's top into view on navigation, but not on Back", async () => {
+    // Swapping pages leaves the document's scroll offset alone, so opening a
+    // short page from far down a long one lands the customer at its end -- on
+    // mobile, tapping Edit at the bottom of Home opened the address form
+    // scrolled past everything in it.
+    const scrollIntoView = vi.fn();
+    const container = document.createElement("div");
+    container.scrollIntoView = scrollIntoView;
+
+    const api = fakeApi();
+    api.storage.setItem(API.SESSION, session());
+
+    // `urlSync` on, so the `popstate` listener is actually registered. With
+    // it off that listener never mounts and the Back half of this test would
+    // pass whether or not the handler scrolls -- which is exactly what an
+    // ablation caught.
+    const originalUrl = window.location.href;
+
+    try {
+      screen = mountScreen(
+        <PortalContainerContext value={container}>
+          <Portal
+            api={api as never}
+            cache={new RequestCache()}
+            fullNameTemplate="{first_name} {last_name}"
+            skipPasswordReset={false}
+            urlSync
+            onEvent={vi.fn()}
+          />
+        </PortalContainerContext>,
+        api,
+      );
+      await flush();
+      await flush();
+
+      expect(scrollIntoView).not.toHaveBeenCalled();
+
+      clickButtonMatching(/edit profile/i);
+      await flush();
+
+      // The element's own container, not the window: the portal is embedded
+      // in someone else's page, which may have content above it.
+      expect(scrollIntoView).toHaveBeenCalledTimes(1);
+      expect(scrollIntoView).toHaveBeenCalledWith({ block: "start" });
+
+      // Back is the browser's to restore. Overriding it would throw away the
+      // position the customer is returning to.
+      history.pushState({}, "", originalUrl);
+      act(() => {
+        window.dispatchEvent(new PopStateEvent("popstate"));
+      });
+      await flush();
+
+      expect(screen!.host.textContent).toMatch(/Ada Lovelace/);
+      expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    } finally {
+      history.replaceState({}, "", originalUrl);
+    }
   });
 
   it("keeps the URL in sync when urlSync is enabled: pushes on navigate, routes back on popstate, and clears on sign-out", async () => {

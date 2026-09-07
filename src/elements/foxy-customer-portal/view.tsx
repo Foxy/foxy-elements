@@ -16,6 +16,7 @@ import {
   type AccountPage,
 } from "./account-page";
 import { customerPortalEvents } from "./events";
+import { usePortalContainer } from "./portal-container";
 import { messages } from "./messages";
 import type { PortalScreen } from "./types";
 import { AccessRecoveryScreen } from "./screens/access-recovery";
@@ -113,6 +114,33 @@ export function Portal({
       : { type: "home" },
   );
 
+  const portalContainer = usePortalContainer();
+
+  /**
+   * Brings the top of the portal into view after a navigation.
+   *
+   * Swapping `accountPage` replaces what is rendered but leaves the
+   * document's scroll offset alone, so opening a short page from far down a
+   * long one lands the customer at its end -- on mobile, tapping Edit at the
+   * bottom of Home opened the address form scrolled past everything in it.
+   *
+   * Scrolls this element's own container rather than the window: the portal
+   * is embedded in someone else's page, which may have a header or content
+   * above it, and `window.scrollTo(0, 0)` would discard a position the
+   * widget does not own.
+   *
+   * Instant rather than smooth. A long smooth scroll on navigation is slow
+   * and disorienting, and jumping sidesteps `prefers-reduced-motion`
+   * entirely.
+   *
+   * Deliberately NOT called from the `popstate` handler below: the browser
+   * restores scroll for a Back or Forward itself, and overriding it there
+   * would throw away the position the customer is returning to.
+   */
+  const scrollToPortalTop = useCallback(() => {
+    portalContainer?.scrollIntoView({ block: "start" });
+  }, [portalContainer]);
+
   // Mutates `url.searchParams` surgically -- deleting only the two keys this
   // element owns and setting whatever the codec returns -- rather than
   // replacing `url.search` wholesale. The host page may have its own params
@@ -122,6 +150,7 @@ export function Portal({
   const navigateAccountPage = useCallback(
     (page: AccountPage) => {
       setAccountPageState(page);
+      scrollToPortalTop();
       if (!urlSync) return;
       const url = new URL(window.location.href);
       url.searchParams.delete("fc_page");
@@ -131,7 +160,7 @@ export function Portal({
       }
       history.pushState({ fcAccountPage: true }, "", url);
     },
-    [urlSync],
+    [urlSync, scrollToPortalTop],
   );
 
   // Sign-out uses this, not `navigateAccountPage`: a customer signing in
@@ -142,6 +171,7 @@ export function Portal({
   // pattern as `navigateAccountPage` above, for the same reason.
   const resetAccountPage = useCallback(() => {
     setAccountPageState({ type: "home" });
+    scrollToPortalTop();
     if (!urlSync) return;
     const url = new URL(window.location.href);
     url.searchParams.delete("fc_page");
@@ -150,7 +180,7 @@ export function Portal({
       url.searchParams.set(key, value);
     }
     history.replaceState({ fcAccountPage: true }, "", url);
-  }, [urlSync]);
+  }, [urlSync, scrollToPortalTop]);
 
   // Registered only while `urlSync` is on, and torn down the moment it turns
   // off or this unmounts -- the listener lives on `window`, not on this
