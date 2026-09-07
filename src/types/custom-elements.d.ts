@@ -81,8 +81,6 @@ type CustomerPortalElementProps = Omit<
   "store-domain"?: string;
   templateSetId?: string;
   "template-set-id"?: string;
-  fullNameTemplate?: string;
-  "full-name-template"?: string;
   skipPasswordReset?: boolean;
   "skip-password-reset"?: boolean;
   urlSync?: boolean;

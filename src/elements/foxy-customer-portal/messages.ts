@@ -127,6 +127,16 @@ export const messages = defineMessages({
     id: "portal_header_tax_id",
     defaultMessage: "Tax ID {taxId}",
   },
+  // Name order is a translation decision, not a host-page one: a locale that
+  // leads with the family name (ja-JP, hu-HU, zh-CN) reorders the two
+  // placeholders here, and a store wanting a salutation prefixes it here too.
+  // This replaces the former `full-name-template` attribute -- an attribute
+  // could not be extracted into the catalogue, so it forced every locale to
+  // share one host-supplied order.
+  headerFullName: {
+    id: "portal_header_full_name",
+    defaultMessage: "{firstName} {lastName}",
+  },
   back: { id: "portal_back", defaultMessage: "Back" },
   profileHeading: {
     id: "portal_profile_heading",

@@ -57,10 +57,19 @@ export type MountedScreen = {
  * `onUnauthenticated` defaults to a no-op; pass one to assert a write routed
  * to sign-in on a 401/403.
  */
+/**
+ * `messageOverrides` patches the `en-US` catalogue for one mount. Portal
+ * strings that a store customizes -- `portal_header_full_name`, whose
+ * placeholder order and salutation used to come from the removed
+ * `full-name-template` attribute -- are only reachable through the
+ * catalogue now, so a test proving that path needs somewhere to swap an
+ * entry.
+ */
 export function mountScreen(
   node: ReactNode,
   api: unknown,
   onUnauthenticated: () => void = () => {},
+  messageOverrides: Record<string, string> = {},
 ): MountedScreen {
   const host = document.createElement("div");
   document.body.append(host);
@@ -76,7 +85,10 @@ export function mountScreen(
           IntlProvider,
           {
             locale: "en-US",
-            messages: enUsMessages as Record<string, string>,
+            messages: {
+              ...(enUsMessages as Record<string, string>),
+              ...messageOverrides,
+            },
           },
           createElement(ApiProvider, {
             api: api as never,

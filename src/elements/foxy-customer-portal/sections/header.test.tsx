@@ -12,15 +12,15 @@ function render(
   screen = mountScreen(
     <PortalHeader
       customer={customer as never}
-      fullNameTemplate={
-        (props.fullNameTemplate as string) ?? "{first_name} {last_name}"
-      }
       onEditProfile={(props.onEditProfile as () => void) ?? vi.fn()}
       onChangePassword={(props.onChangePassword as () => void) ?? vi.fn()}
       onSignOut={(props.onSignOut as () => void) ?? vi.fn()}
       signOutState={(props.signOutState as SignOutState) ?? "idle"}
     />,
     {},
+    // Positional: `onUnauthenticated` first, catalogue overrides last.
+    undefined,
+    props.messageOverrides as Record<string, string> | undefined,
   );
 }
 
@@ -43,9 +43,29 @@ describe("PortalHeader", () => {
     expect(screen!.host.textContent).toMatch(/ada@example\.com/);
   });
 
-  it("applies a salutation template", () => {
-    render(ada, { fullNameTemplate: "Dr. {first_name} {last_name}" });
+  // The three cases below cover what `full-name-template` used to do, now
+  // that the name is an ICU catalogue entry: a salutation, a family-name-first
+  // order, and a missing name that must not leave a stray space behind.
+  it("applies a salutation from the catalogue", () => {
+    render(ada, {
+      messageOverrides: {
+        portal_header_full_name: "Dr. {firstName} {lastName}",
+      },
+    });
     expect(screen!.host.textContent).toMatch(/Dr\. Ada Lovelace/);
+  });
+
+  it("applies a family-name-first order from the catalogue", () => {
+    render(ada, {
+      messageOverrides: { portal_header_full_name: "{lastName}, {firstName}" },
+    });
+    expect(screen!.host.textContent).toMatch(/Lovelace, Ada/);
+  });
+
+  it("trims the gap a missing name leaves behind", () => {
+    render({ ...ada, last_name: undefined });
+    const name = screen!.host.querySelector("h1");
+    expect(name?.textContent).toBe("Ada");
   });
 
   it("hides the tax ID when empty", () => {

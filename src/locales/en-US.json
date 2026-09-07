@@ -93,6 +93,7 @@
   "portal_error_unknown": "Something went wrong. Please try again.",
   "portal_error_wrong_current_password": "That is not your current password.",
   "portal_header_edit_profile": "Edit profile",
+  "portal_header_full_name": "{firstName} {lastName}",
   "portal_header_sign_out": "Sign out",
   "portal_header_sign_out_failed": "Sign out failed",
   "portal_header_tax_id": "Tax ID {taxId}",

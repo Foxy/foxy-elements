@@ -101,7 +101,6 @@ export type PortalSettings = {
 } & Partial<SubscriptionsSettings>;
 
 type Props = {
-  fullNameTemplate: string;
   onSignedOut: () => void;
   /** `null` while the settings request is still in flight. */
   settings: PortalSettings | null;
@@ -110,7 +109,6 @@ type Props = {
 };
 
 export function AccountScreen({
-  fullNameTemplate,
   onSignedOut,
   settings,
   accountPage,
@@ -301,7 +299,6 @@ export function AccountScreen({
     <HomeContent>
       <PortalHeader
         customer={data}
-        fullNameTemplate={fullNameTemplate}
         onEditProfile={() => onNavigate({ type: "profile" })}
         onChangePassword={() => onNavigate({ type: "password" })}
         onSignOut={handleSignOut}

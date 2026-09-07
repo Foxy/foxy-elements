@@ -1043,23 +1043,6 @@ export const SignedOut: StoryObj = {
   },
 };
 
-export const WithSalutation: StoryObj = {
-  beforeEach: () => withSession(),
-  render: () => html`
-    <foxy-customer-portal
-      store-domain="demo"
-      full-name-template="Dr. {first_name} {last_name}"
-    ></foxy-customer-portal>
-  `,
-  // Also proves the stub answered: reaching the account screen needs both the
-  // seeded session and a customer response, and neither comes from the network.
-  play: async ({ canvasElement }) => {
-    await waitFor(() =>
-      expect(portalText(canvasElement)).toMatch(/Dr\. Ada Lovelace/),
-    );
-  },
-};
-
 export const WithSubscriptions: StoryObj = {
   beforeEach: () => withSession(),
   render: () =>

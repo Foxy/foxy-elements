@@ -17,7 +17,6 @@ temporary-password reset, and account management.
 | --------------------- | -------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | `store-domain`        | yes      | —                          | `demo` becomes `demo.foxycart.com`; a value with a dot is used as-is, so custom domains work.                                            |
 | `template-set-id`     | no       | —                          | Reserved for future payment-method editing; the Billing & Shipping section already shows the customer's default payment method (read-only). |
-| `full-name-template`  | no       | `{first_name} {last_name}` | Plain token substitution, not ICU. Use it for salutations or name order.                                                                 |
 | `skip-password-reset` | no       | `false`                    | Suppresses the forced reset screen after signing in with a temporary password.                                                           |
 | `url-sync`            | no       | `false`                    | Reflects the current account sub-page into the host page's URL (`fc_page`/`fc_id` query params) and drives navigation from Back/Forward. |
 | `lang`                | no       | `en-US`                    | BCP 47. Underscores are normalised to hyphens.                                                                                           |
@@ -44,6 +43,11 @@ The account screen adds one section per resource type. Today that is:
 | Billing & Shipping  | A payment-method column showing the customer's single default payment method (read-only), next to a billing/shipping address summary (name and formatted address, or an empty-state message) derived from the default-flagged addresses; the full address list — every address as a card with a Badge for default billing/shipping — still renders below it.                                                                | Read-only list — no create button, matching the portal's hidden `addresses:actions:create` control. Edit opens a page covering every v1 field except the admin-only `ignore-address-restrictions` toggle; changing country resets region.                                                                                                                                                                                     |
 
 ## Notes
+
+The customer's name in the account header is a translatable string
+(`portal_header_full_name`, `{firstName} {lastName}`), not an attribute. Change
+the placeholder order or add a salutation in the language file. There used to
+be a `full-name-template` attribute for this; it is gone.
 
 Session data is stored under a key namespaced by store domain, so two Foxy
 stores served from one origin do not share a session.

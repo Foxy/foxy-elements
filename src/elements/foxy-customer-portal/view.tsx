@@ -104,14 +104,12 @@ function newScrollKey(): string {
 export function Portal({
   api,
   cache,
-  fullNameTemplate,
   skipPasswordReset,
   urlSync,
   onEvent,
 }: {
   api: API;
   cache: RequestCache;
-  fullNameTemplate: string;
   skipPasswordReset: boolean;
   urlSync: boolean;
   onEvent: (type: string, detail?: unknown) => void;
@@ -417,7 +415,6 @@ export function Portal({
         accountPage={accountPage}
         onNavigateAccountPage={navigateAccountPage}
         onResetAccountPage={resetAccountPage}
-        fullNameTemplate={fullNameTemplate}
         skipPasswordReset={skipPasswordReset}
         onEvent={onEvent}
       />
@@ -442,7 +439,6 @@ function PortalScreens({
   accountPage,
   onNavigateAccountPage,
   onResetAccountPage,
-  fullNameTemplate,
   skipPasswordReset,
   onEvent,
 }: {
@@ -454,7 +450,6 @@ function PortalScreens({
     options?: { restoreScroll?: boolean },
   ) => void;
   onResetAccountPage: () => void;
-  fullNameTemplate: string;
   skipPasswordReset: boolean;
   onEvent: (type: string, detail?: unknown) => void;
 }) {
@@ -561,7 +556,6 @@ function PortalScreens({
 
   return (
     <AccountScreen
-      fullNameTemplate={fullNameTemplate}
       onSignedOut={() => {
         onEvent(customerPortalEvents.signOut);
         // No `onResetAccountPage()` call here -- this transitions `screen` to

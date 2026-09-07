@@ -146,9 +146,6 @@ function render(api: unknown, props: Record<string, unknown> = {}) {
     <Portal
       api={api as never}
       cache={(props.cache as RequestCache) ?? new RequestCache()}
-      fullNameTemplate={
-        (props.fullNameTemplate as string) ?? "{first_name} {last_name}"
-      }
       skipPasswordReset={(props.skipPasswordReset as boolean) ?? false}
       urlSync={(props.urlSync as boolean) ?? false}
       onEvent={
@@ -526,7 +523,6 @@ describe("Portal", () => {
           <Portal
             api={api as never}
             cache={new RequestCache()}
-            fullNameTemplate="{first_name} {last_name}"
             skipPasswordReset={false}
             urlSync={false}
             onEvent={vi.fn()}
@@ -582,7 +578,6 @@ describe("Portal", () => {
           <Portal
             api={api as never}
             cache={new RequestCache()}
-            fullNameTemplate="{first_name} {last_name}"
             skipPasswordReset={false}
             urlSync={false}
             onEvent={vi.fn()}
@@ -638,7 +633,6 @@ describe("Portal", () => {
         <Portal
           api={api as never}
           cache={new RequestCache()}
-          fullNameTemplate="{first_name} {last_name}"
           skipPasswordReset={false}
           urlSync={false}
           onEvent={vi.fn()}
@@ -681,7 +675,6 @@ describe("Portal", () => {
           <Portal
             api={api as never}
             cache={new RequestCache()}
-            fullNameTemplate="{first_name} {last_name}"
             skipPasswordReset={false}
             urlSync
             onEvent={vi.fn()}
@@ -754,7 +747,6 @@ describe("Portal", () => {
           <Portal
             api={api as never}
             cache={new RequestCache()}
-            fullNameTemplate="{first_name} {last_name}"
             skipPasswordReset={false}
             urlSync
             onEvent={vi.fn()}

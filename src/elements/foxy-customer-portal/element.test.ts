@@ -118,11 +118,6 @@ describe("foxy-customer-portal", () => {
     expect(element.hasAttribute("url-sync")).toBe(false);
   });
 
-  it("defaults fullNameTemplate", async () => {
-    const element = await mount({ "store-domain": "demo" });
-    expect(element.fullNameTemplate).toBe("{first_name} {last_name}");
-  });
-
   it("renders an alert instead of throwing when store-domain is missing", async () => {
     const element = await mount();
     expect(element.shadowRoot?.textContent).toMatch(/store-domain/i);

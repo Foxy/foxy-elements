@@ -19,12 +19,10 @@ export const CUSTOMER_PORTAL_ELEMENT_TAG = "foxy-customer-portal";
 
 const STORE_DOMAIN_ATTRIBUTE = "store-domain";
 const TEMPLATE_SET_ID_ATTRIBUTE = "template-set-id";
-const FULL_NAME_TEMPLATE_ATTRIBUTE = "full-name-template";
 const SKIP_PASSWORD_RESET_ATTRIBUTE = "skip-password-reset";
 const URL_SYNC_ATTRIBUTE = "url-sync";
 const LANG_ATTRIBUTE = "lang";
 
-const DEFAULT_FULL_NAME_TEMPLATE = "{first_name} {last_name}";
 const DEFAULT_LOCALE = "en-US";
 
 /**
@@ -61,7 +59,6 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
     return [
       STORE_DOMAIN_ATTRIBUTE,
       TEMPLATE_SET_ID_ATTRIBUTE,
-      FULL_NAME_TEMPLATE_ATTRIBUTE,
       SKIP_PASSWORD_RESET_ATTRIBUTE,
       URL_SYNC_ATTRIBUTE,
       LANG_ATTRIBUTE,
@@ -92,17 +89,6 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
   set templateSetId(value: string | null) {
     if (value === null) this.removeAttribute(TEMPLATE_SET_ID_ATTRIBUTE);
     else this.setAttribute(TEMPLATE_SET_ID_ATTRIBUTE, value);
-  }
-
-  get fullNameTemplate(): string {
-    return (
-      this.getAttribute(FULL_NAME_TEMPLATE_ATTRIBUTE) ??
-      DEFAULT_FULL_NAME_TEMPLATE
-    );
-  }
-
-  set fullNameTemplate(value: string) {
-    this.setAttribute(FULL_NAME_TEMPLATE_ATTRIBUTE, value);
   }
 
   get skipPasswordReset(): boolean {
@@ -356,7 +342,6 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
                 <Portal
                   api={api}
                   cache={this.#cache}
-                  fullNameTemplate={this.fullNameTemplate}
                   skipPasswordReset={this.skipPasswordReset}
                   urlSync={this.urlSync}
                   onEvent={(type, detail) =>

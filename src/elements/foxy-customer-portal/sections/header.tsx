@@ -3,7 +3,6 @@ import { useIntl } from "react-intl";
 import styled from "styled-components";
 import { Button } from "@foxy.io/design-system/button";
 import { Spinner } from "@foxy.io/design-system/spinner";
-import { formatFullName } from "../full-name";
 import { messages } from "../messages";
 
 export type CustomerProps = {
@@ -22,7 +21,6 @@ export type SignOutState = "idle" | "busy" | "error";
 
 type Props = {
   customer: CustomerProps;
-  fullNameTemplate: string;
   onEditProfile: () => void;
   onChangePassword: () => void;
   onSignOut: () => void;
@@ -74,14 +72,24 @@ const SignOutLabel = styled.span<{ $error: boolean }>`
 
 export function PortalHeader({
   customer,
-  fullNameTemplate,
   onEditProfile,
   onChangePassword,
   onSignOut,
   signOutState,
 }: Props) {
   const intl = useIntl();
-  const fullName = formatFullName(fullNameTemplate, customer);
+
+  // A catalogue entry can leave a placeholder out entirely, and either name
+  // can be absent on the customer record, so the formatted result is squeezed
+  // and trimmed rather than trusted: react-intl happily renders the gap a
+  // missing `first_name` leaves behind as leading whitespace.
+  const fullName = intl
+    .formatMessage(messages.headerFullName, {
+      firstName: customer.first_name ?? "",
+      lastName: customer.last_name ?? "",
+    })
+    .replace(/\s+/g, " ")
+    .trim();
 
   return (
     <Wrapper>
