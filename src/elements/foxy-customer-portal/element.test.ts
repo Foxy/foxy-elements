@@ -123,6 +123,76 @@ describe("foxy-customer-portal", () => {
     expect(element.shadowRoot?.textContent).toMatch(/store-domain/i);
   });
 
+  /** Answers the language endpoint with `values`, everything else with `{}`. */
+  function serveLanguageStrings(
+    values: Record<string, string>,
+    localeCode = "fr-FR",
+  ) {
+    fetchMock.mockImplementation(async (input: unknown) => {
+      const body = String(input).includes("language_strings")
+        ? { locale_code: localeCode, values }
+        : {};
+
+      return { ok: true, status: 200, json: async () => body };
+    });
+  }
+
+  it("renders strings from the language endpoint", async () => {
+    serveLanguageStrings({ portal_sign_in_heading: "Se connecter" });
+
+    const element = await mount({ "store-domain": "demo" });
+
+    expect(element.shadowRoot?.textContent).toMatch(/Se connecter/);
+  });
+
+  // Screen readers and text shaping need the language of the text that is
+  // actually on screen, which the server picked -- not whatever the host page
+  // put on the element.
+  it("marks its rendered content with the resolved locale", async () => {
+    serveLanguageStrings({}, "fr-FR");
+
+    const element = await mount({ "store-domain": "demo", lang: "de-DE" });
+
+    expect(element.shadowRoot?.firstElementChild?.getAttribute("lang")).toBe(
+      "fr-FR",
+    );
+  });
+
+  it("no longer observes lang", () => {
+    expect(CustomerPortalElement.observedAttributes).not.toContain("lang");
+  });
+
+  // The whole failure story rests on this. `defineMessages` compiles a
+  // `defaultMessage` into the bundle for every key, so a catalogue that is
+  // partial -- or empty, when the endpoint is down -- still renders correct
+  // English instead of raw ids. A build change that strips `defaultMessage`
+  // (babel-plugin-formatjs `removeDefaultMessage`, an `ast: true` extract)
+  // would break every one of those screens, and this is what catches it.
+  it("renders a key the catalogue is missing from its compiled default", async () => {
+    serveLanguageStrings({ portal_sign_in_heading: "Se connecter" }, "fr-FR");
+
+    const element = await mount({ "store-domain": "demo" });
+    const text = element.shadowRoot?.textContent ?? "";
+
+    expect(text).toMatch(/Se connecter/); // supplied by the catalogue
+    expect(text).toMatch(/Password/); // only ever from defaultMessage
+    expect(text).not.toMatch(/portal_sign_in_password/);
+  });
+
+  it("renders English throughout when the language request fails", async () => {
+    fetchMock.mockImplementation(async (input: unknown) =>
+      String(input).includes("language_strings")
+        ? Promise.reject(new Error("offline"))
+        : { ok: true, status: 200, json: async () => ({}) },
+    );
+
+    const element = await mount({ "store-domain": "demo" });
+    const text = element.shadowRoot?.textContent ?? "";
+
+    expect(text).toMatch(/Sign in/);
+    expect(text).toMatch(/Password/);
+  });
+
   it("threads the theme-font-body attribute into rendered shadow DOM", async () => {
     // The element observes every `theme-*` attribute (see
     // `observedAttributes`) but, before `#buildThemeTokens()`, never read
@@ -386,14 +456,23 @@ describe("foxy-customer-portal", () => {
     );
   });
 
-  it("only ever asks for portal settings inside the store base path", async () => {
+  // Both are public, unauthenticated and fetched before any session exists.
+  // Asserting the exact set, not just the prefix: a request that escaped the
+  // store base path and one that should not happen while signed out are two
+  // different bugs, and this catches both.
+  it("only ever asks for the two public resources inside the store base path", async () => {
+    const base = "https://demo.foxycart.com/s/customer/";
+
     await mount({ "store-domain": "demo" });
 
-    for (const [input] of fetchMock.mock.calls as [unknown][]) {
-      expect(String(input)).toBe(
-        "https://demo.foxycart.com/s/customer/customer_portal_settings",
-      );
-    }
+    const requested = new Set(
+      (fetchMock.mock.calls as [unknown][]).map(([input]) => String(input)),
+    );
+
+    expect([...requested].sort()).toEqual([
+      `${base}customer_portal_settings`,
+      `${base}language_strings`,
+    ]);
   });
 
   it("renders without a session rather than requesting the customer", async () => {

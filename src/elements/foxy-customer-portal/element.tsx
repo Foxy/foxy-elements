@@ -2,9 +2,9 @@ import { createRoot, type Root } from "react-dom/client";
 import { IntlProvider } from "react-intl";
 import { StyleSheetManager, ThemeProvider } from "styled-components";
 import { defaultTheme } from "@foxy.io/design-system/theme";
+import { Skeleton } from "@foxy.io/design-system/skeleton";
 import { API } from "@foxy.io/sdk/customer";
 
-import enUsMessages from "@/locales/en-US.json";
 import {
   RequestCache,
   createScopedStorage,
@@ -13,6 +13,11 @@ import {
 import { ThemeMixin } from "@/lib/theme-mixin";
 
 import { PortalContainerContext } from "./portal-container";
+import {
+  DEFAULT_LOCALE,
+  resolveLanguageStrings,
+  type ResolvedLanguageStrings,
+} from "./language-strings";
 import { MissingStoreDomain, Portal } from "./view";
 
 export const CUSTOMER_PORTAL_ELEMENT_TAG = "foxy-customer-portal";
@@ -21,9 +26,6 @@ const STORE_DOMAIN_ATTRIBUTE = "store-domain";
 const TEMPLATE_SET_ID_ATTRIBUTE = "template-set-id";
 const SKIP_PASSWORD_RESET_ATTRIBUTE = "skip-password-reset";
 const URL_SYNC_ATTRIBUTE = "url-sync";
-const LANG_ATTRIBUTE = "lang";
-
-const DEFAULT_LOCALE = "en-US";
 
 /**
  * Consola numbering: errors and warnings only.
@@ -35,15 +37,6 @@ const DEFAULT_LOCALE = "en-US";
  */
 const LOG_LEVEL = 1;
 
-const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
-  "en-US": enUsMessages as Record<string, string>,
-  en: enUsMessages as Record<string, string>,
-};
-
-export function toBcp47Locale(value: string): string {
-  return value.replace(/_/g, "-");
-}
-
 const ThemeableHTMLElement = ThemeMixin(HTMLElement);
 
 export class CustomerPortalElement extends ThemeableHTMLElement {
@@ -54,6 +47,8 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
   #apiBase: string | null = null;
   #cache = new RequestCache();
   #renderScheduled = false;
+  #languageStrings: ResolvedLanguageStrings | null = null;
+  #languageStringsKey: string | null = null;
 
   static get observedAttributes(): string[] {
     return [
@@ -61,7 +56,6 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
       TEMPLATE_SET_ID_ATTRIBUTE,
       SKIP_PASSWORD_RESET_ATTRIBUTE,
       URL_SYNC_ATTRIBUTE,
-      LANG_ATTRIBUTE,
       ...ThemeableHTMLElement.themeAttributeNames,
     ];
   }
@@ -120,6 +114,8 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
     this.#api = null;
     this.#apiBase = null;
     this.#cache.clear();
+    this.#languageStrings = null;
+    this.#languageStringsKey = null;
   }
 
   attributeChangedCallback(name: string) {
@@ -190,6 +186,32 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
     });
 
     return this.#api;
+  }
+
+  /**
+   * Starts one language-strings request per (base, template set) pair and
+   * re-renders when it settles. `resolveLanguageStrings` never rejects, so
+   * there is no failure branch here -- a dead endpoint resolves to English.
+   *
+   * The key guard does double duty: it stops `#render` re-fetching on every
+   * pass, and it drops a response whose store or template set the host has
+   * since changed away from.
+   */
+  #ensureLanguageStrings(base: URL): void {
+    const key = `${base.toString()}|${this.templateSetId ?? ""}`;
+    if (this.#languageStringsKey === key) return;
+
+    this.#languageStringsKey = key;
+    this.#languageStrings = null;
+
+    void resolveLanguageStrings({
+      base,
+      templateSetId: this.templateSetId,
+    }).then((resolved) => {
+      if (this.#languageStringsKey !== key) return;
+      this.#languageStrings = resolved;
+      this.#scheduleRender();
+    });
   }
 
   /**
@@ -303,10 +325,17 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
   #render() {
     if (!this.#root) return;
 
-    const locale = toBcp47Locale(this.lang || DEFAULT_LOCALE);
-    const messages =
-      MESSAGES_BY_LOCALE[locale] ?? MESSAGES_BY_LOCALE[DEFAULT_LOCALE];
     const api = this.#resolveApi();
+    if (api) this.#ensureLanguageStrings(api.base);
+
+    // Strings gate the first paint, so a store whose request is still in
+    // flight renders a skeleton rather than English that would swap language
+    // under the customer a moment later. `MissingStoreDomain` has no base to
+    // fetch from and renders straight away on `defaultMessage` English.
+    const strings = this.#languageStrings;
+    const isAwaitingStrings = api !== null && strings === null;
+    const locale = strings?.locale ?? DEFAULT_LOCALE;
+    const messages = strings?.messages ?? {};
     const tokens = this.#buildThemeTokens();
 
     // The DS's own styled components (`Button`, `Item`, `Field`, ...) all
@@ -327,6 +356,13 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
     this.#container.style.color = tokens.color.body;
     this.#container.style.font = tokens.font.body;
 
+    // The language of the text actually rendered, which the server chose via
+    // the template set -- not the host's `lang`, which this element no longer
+    // reads. Set on `#container` for the same reason the two lines above are:
+    // it is the one real DOM ancestor shared by the main tree and anything
+    // Base UI portals into it.
+    this.#container.lang = locale;
+
     this.#root.render(
       <StyleSheetManager target={this.#shadowRootRef}>
         <ThemeProvider theme={{ tokens }}>
@@ -338,7 +374,9 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
               defaultLocale={DEFAULT_LOCALE}
               messages={messages}
             >
-              {api ? (
+              {isAwaitingStrings ? (
+                <Skeleton style={{ height: "12rem", width: "100%" }} />
+              ) : api ? (
                 <Portal
                   api={api}
                   cache={this.#cache}
