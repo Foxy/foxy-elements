@@ -729,6 +729,13 @@ type StoreFixtures = {
   orders?: OrderFixture[];
   addresses?: typeof DEFAULT_ADDRESSES;
   paymentMethod?: typeof DEFAULT_PAYMENT_METHOD;
+  /**
+   * Stands in for what FX-372 will serve at `<base>language_strings`. Defaults
+   * to an empty catalogue, which is not a blank portal: every key falls back
+   * to the `defaultMessage` compiled into the bundle, so the other stories
+   * render their usual English through the same code path a live store uses.
+   */
+  languageStrings?: { locale_code: string; values: Record<string, string> };
 };
 
 /**
@@ -789,6 +796,12 @@ export function stubStore(fixtures: StoreFixtures = {}): () => void {
       }
 
       if (url.endsWith("customer_portal_settings")) return json(SETTINGS);
+
+      if (new URL(url).pathname.endsWith("/language_strings")) {
+        return json(
+          fixtures.languageStrings ?? { locale_code: "en-US", values: {} },
+        );
+      }
 
       // The store's country/region lists, filtered the way FX-367 specifies:
       // `address_type` narrows the countries, `country_code` picks a region
@@ -1013,10 +1026,10 @@ const meta: Meta = {
   beforeEach: (context) => {
     // Clear the session on the way in, not just on the way out. Storybook runs
     // a story's `beforeEach` teardown under the test runner, but not when you
-    // navigate between stories in the interactive UI — so the session seeded by
-    // `WithSalutation` survives into `SignedOut`, which then renders an account
-    // screen instead of the sign-in form. Tests never saw it because each story
-    // runs isolated there; only the preview lied.
+    // navigate between stories in the interactive UI — so a session seeded by
+    // any account story survives into `SignedOut`, which then renders an
+    // account screen instead of the sign-in form. Tests never saw it because
+    // each story runs isolated there; only the preview lied.
     localStorage.removeItem(SESSION_KEY);
     // A story sets its own fixtures via `parameters.fixtures` (see `Empty`
     // and `LongTimeUser`); everything else gets the six-story defaults.
@@ -1040,6 +1053,49 @@ export const SignedOut: StoryObj = {
     html`<foxy-customer-portal store-domain="demo"></foxy-customer-portal>`,
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(portalText(canvasElement)).toMatch(/sign in/i));
+  },
+};
+
+/**
+ * What a store gets once FX-371 seeds the keys and FX-372 serves them: the
+ * portal in the template set's own language, with no `lang` attribute
+ * involved.
+ *
+ * The catalogue here is deliberately partial. Everything it omits renders its
+ * compiled `defaultMessage` English, which is the same degradation a store
+ * sees while its language is still being translated -- and the reason a dead
+ * endpoint costs a language rather than the portal.
+ *
+ * It also covers what the removed `WithSalutation` story used to show. Name
+ * order is a translation decision now, so `portal_header_full_name` puts the
+ * family name first here.
+ */
+export const InFrench: StoryObj = {
+  beforeEach: () => withSession(),
+  parameters: {
+    fixtures: {
+      languageStrings: {
+        locale_code: "fr-FR",
+        values: {
+          portal_header_full_name: "{lastName} {firstName}",
+          portal_header_edit_profile: "Modifier le profil",
+          portal_header_sign_out: "Se déconnecter",
+          portal_profile_change_password: "Changer le mot de passe",
+          portal_subscriptions_heading: "Abonnements",
+          portal_subscriptions_active: "Actifs ({count})",
+          portal_subscriptions_inactive: "Inactifs ({count})",
+        },
+      },
+    } satisfies StoreFixtures,
+  },
+  render: () =>
+    html`<foxy-customer-portal store-domain="demo"></foxy-customer-portal>`,
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(portalText(canvasElement)).toMatch(/Lovelace Ada/),
+    );
+    // Untranslated keys still render, in English, rather than as raw ids.
+    await waitFor(() => expect(portalText(canvasElement)).toMatch(/Coffee/));
   },
 };
 

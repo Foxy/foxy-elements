@@ -16,13 +16,16 @@ temporary-password reset, and account management.
 | Attribute             | Required | Default                    | Notes                                                                                                                                    |
 | --------------------- | -------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | `store-domain`        | yes      | —                          | `demo` becomes `demo.foxycart.com`; a value with a dot is used as-is, so custom domains work.                                            |
-| `template-set-id`     | no       | —                          | Reserved for future payment-method editing; the Billing & Shipping section already shows the customer's default payment method (read-only). |
+| `template-set-id`     | no       | store default              | Picks the template set, which decides both the language strings and the locale. Omit it and the store's default set is used. Also reserved for future payment-method editing. |
 | `skip-password-reset` | no       | `false`                    | Suppresses the forced reset screen after signing in with a temporary password.                                                           |
 | `url-sync`            | no       | `false`                    | Reflects the current account sub-page into the host page's URL (`fc_page`/`fc_id` query params) and drives navigation from Back/Forward. |
-| `lang`                | no       | `en-US`                    | BCP 47. Underscores are normalised to hyphens.                                                                                           |
 
 The embed origin is not an attribute — it comes from `VITE_EMBED_ORIGIN` at
 build time.
+
+`lang` is not an input. The portal takes its language from the template set,
+and writes the resolved locale onto its own content instead. Setting `lang` on
+the element has no effect on what language it renders.
 
 ## Events
 
@@ -44,10 +47,23 @@ The account screen adds one section per resource type. Today that is:
 
 ## Notes
 
-The customer's name in the account header is a translatable string
-(`portal_header_full_name`, `{firstName} {lastName}`), not an attribute. Change
-the placeholder order or add a salutation in the language file. There used to
-be a `full-name-template` attribute for this; it is gone.
+## Language
+
+Every string comes from the API, at `<store base>/s/customer/language_strings`.
+The store's own overrides are already merged in, so a store customizes the
+portal by editing its language strings — not by setting attributes. Two
+attributes that used to do this job, `full-name-template` and `lang`, are gone.
+
+The customer's name is one of those strings: `portal_header_full_name`,
+`{firstName} {lastName}`. Reorder the placeholders for a locale that leads with
+the family name, or prefix a salutation.
+
+The portal waits up to 3 seconds for that request on first paint. If it fails,
+times out, or the store has no strings for a key, the portal renders that
+string's built-in English rather than failing — so a slow or missing endpoint
+costs a language, never the portal.
+
+## Notes
 
 Session data is stored under a key namespaced by store domain, so two Foxy
 stores served from one origin do not share a session.
