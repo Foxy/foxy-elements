@@ -45,6 +45,45 @@ const SUBSCRIPTIONS_HREF = `${STORE_BASE}subscriptions`;
 const TRANSACTIONS_HREF = `${STORE_BASE}transactions`;
 const ADDRESSES_HREF = `${STORE_BASE}customer_addresses`;
 const PAYMENT_METHOD_HREF = `${STORE_BASE}default_payment_method`;
+const COUNTRIES_HREF = `${STORE_BASE}property_helpers/countries`;
+const REGIONS_HREF = `${STORE_BASE}property_helpers/regions`;
+
+/**
+ * The store's country and region lists, in the v1 property-helper shape the
+ * API returns (see FX-367).
+ *
+ * A deliberately small subset rather than every country: the point of these
+ * endpoints is that the form offers what the STORE sells to, and a fixture
+ * carrying all 254 would look identical to the hardcoded table this replaced.
+ * The store here ships to fewer countries than it bills to, so the two
+ * `address_type` values actually differ.
+ */
+const COUNTRY_VALUES: Record<string, Record<string, unknown>> = {
+  US: { default: "United States", cc2: "US", cc3: "USA", has_regions: true, regions_required: true, regions_type: "state", active: true },
+  CA: { default: "Canada", cc2: "CA", cc3: "CAN", has_regions: true, regions_required: true, regions_type: "province", active: true },
+  JP: { default: "Japan", cc2: "JP", cc3: "JPN", has_regions: true, regions_required: true, regions_type: "prefecture", active: true },
+  GB: { default: "United Kingdom", cc2: "GB", cc3: "GBR", has_regions: false, regions_required: false, regions_type: null, active: true },
+  DE: { default: "Germany", cc2: "DE", cc3: "DEU", has_regions: false, regions_required: false, regions_type: null, active: true },
+};
+
+/** Billing reaches further than shipping, which is the common real shape. */
+const SHIPPING_ONLY = new Set(["US", "CA", "GB"]);
+
+const REGION_VALUES: Record<string, Record<string, Record<string, unknown>>> = {
+  US: {
+    IL: { default: "Illinois", code: "IL", active: true },
+    CA: { default: "California", code: "CA", active: true },
+    NY: { default: "New York", code: "NY", active: true },
+  },
+  CA: {
+    ON: { default: "Ontario", code: "ON", active: true },
+    QC: { default: "Quebec", code: "QC", active: true },
+  },
+  JP: {
+    "13": { default: "Tokyo", code: "13", active: true },
+    "27": { default: "Osaka", code: "27", active: true },
+  },
+};
 
 function customerLinks() {
   return {
@@ -53,6 +92,8 @@ function customerLinks() {
     "fx:transactions": { href: TRANSACTIONS_HREF },
     "fx:customer_addresses": { href: ADDRESSES_HREF },
     "fx:default_payment_method": { href: PAYMENT_METHOD_HREF },
+    "fx:countries": { href: COUNTRIES_HREF },
+    "fx:regions": { href: REGIONS_HREF },
   };
 }
 
@@ -730,6 +771,32 @@ export function stubStore(fixtures: StoreFixtures = {}): () => void {
 
     if (url.startsWith(STORE_BASE)) {
       if (url.endsWith("customer_portal_settings")) return json(SETTINGS);
+
+      // The store's country/region lists, filtered the way FX-367 specifies:
+      // `address_type` narrows the countries, `country_code` picks a region
+      // list. Without the filtering the stub would answer every call
+      // identically and the address form's whole point would be invisible.
+      if (new URL(url).pathname === new URL(COUNTRIES_HREF).pathname) {
+        const addressType = new URL(url).searchParams.get("address_type");
+        const values = Object.fromEntries(
+          Object.entries(COUNTRY_VALUES).filter(
+            ([code]) => addressType !== "shipping" || SHIPPING_ONLY.has(code),
+          ),
+        );
+
+        return json({
+          message: `These are the values available for the ${addressType ?? "store"} country field.`,
+          values,
+        });
+      }
+
+      if (new URL(url).pathname === new URL(REGIONS_HREF).pathname) {
+        const code = new URL(url).searchParams.get("country_code") ?? "";
+        return json({
+          message: `These are the values available for the region field when ${code} is the country_code.`,
+          values: REGION_VALUES[code] ?? {},
+        });
+      }
       if (url === STORE_BASE) return json(customer);
 
       // A single subscription, by id -- the URL `subscription._links.self`

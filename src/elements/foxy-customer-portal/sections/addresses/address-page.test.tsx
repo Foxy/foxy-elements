@@ -15,6 +15,8 @@ let screen: MountedScreen | null = null;
 afterEach(async () => {
   screen?.unmount();
   screen = null;
+  countryQueries = [];
+  regionQueries = [];
   await page.viewport(414, 896);
 });
 
@@ -26,6 +28,79 @@ const flush = () =>
 // Same rationale as edit-dialog.test.tsx: the real client's `patch` resolves
 // with a `Response`-shaped value whatever the status; it never rejects.
 const ok = () => ({ ok: true, status: 200 });
+
+/**
+ * The store's country list, in the v1 property-helper shape the API returns.
+ *
+ * Deliberately a small subset rather than every country: the point of this
+ * work is that the form offers what the STORE sells to, so a fixture holding
+ * all 254 would hide the very behaviour under test.
+ */
+const COUNTRY_VALUES = {
+  US: { default: "United States", cc2: "US", cc3: "USA", has_regions: true, regions_type: "state", active: true },
+  AU: { default: "Australia", cc2: "AU", cc3: "AUS", has_regions: true, regions_type: "state", active: true },
+  CA: { default: "Canada", cc2: "CA", cc3: "CAN", has_regions: true, regions_type: "province", active: true },
+  JP: { default: "Japan", cc2: "JP", cc3: "JPN", has_regions: true, regions_type: "prefecture", active: true },
+  AF: { default: "Afghanistan", cc2: "AF", cc3: "AFG", has_regions: false, regions_type: null, active: true },
+};
+
+const REGION_VALUES: Record<string, Record<string, unknown>> = {
+  US: { IL: { default: "Illinois", code: "IL", active: true }, CA: { default: "California", code: "CA", active: true } },
+  AU: { NSW: { default: "New South Wales", code: "NSW", active: true }, VIC: { default: "Victoria", code: "VIC", active: true } },
+  CA: { ON: { default: "Ontario", code: "ON", active: true } },
+  JP: { "13": { default: "Tokyo", code: "13", active: true } },
+};
+
+/**
+ * Reads one `key=value` out of a `filters` array.
+ *
+ * The SDK's `Node.get()` only serializes `{ filters, fields, offset, limit,
+ * order, zoom }` -- a loose `{ address_type }` is dropped without a word. So
+ * the portal sends these as filters, and the fixtures read them the same way
+ * the real endpoint would.
+ */
+function filterValue(query: Record<string, unknown> | undefined, key: string) {
+  const filters = (query?.filters as string[] | undefined) ?? [];
+  const match = filters.find((entry) => entry.startsWith(`${key}=`));
+  return match ? match.slice(key.length + 1) : "";
+}
+
+/** Records the query each call was made with, so tests can assert on it. */
+let countryQueries: Record<string, unknown>[] = [];
+let regionQueries: Record<string, unknown>[] = [];
+
+function countriesLink(values: unknown = COUNTRY_VALUES) {
+  return {
+    href: "/property_helpers/countries",
+    get: async (query?: Record<string, unknown>) => {
+      countryQueries.push(query ?? {});
+      return { ok: true, status: 200, json: async () => ({ values }) };
+    },
+  };
+}
+
+function regionsLink(byCountry = REGION_VALUES) {
+  return {
+    href: "/property_helpers/regions",
+    get: async (query?: Record<string, unknown>) => {
+      regionQueries.push(query ?? {});
+      const code = filterValue(query, "country_code");
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ values: byCountry[code] ?? {} }),
+      };
+    },
+  };
+}
+
+/** A link whose read fails, for the free-text fallback path. */
+function failingLink() {
+  return {
+    href: "/property_helpers/countries",
+    get: async () => ({ ok: false, status: 500, json: async () => ({}) }),
+  };
+}
 
 function getInputByLabelText(text: string): HTMLInputElement {
   const label = Array.from(document.querySelectorAll("label")).find(
@@ -118,7 +193,12 @@ describe("AddressPage", () => {
     await page.viewport(900, 900);
 
     screen = mountScreen(
-      <AddressPage address={address() as never} onBack={vi.fn()} />,
+      <AddressPage
+        address={address() as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
+        onBack={vi.fn()}
+      />,
       {},
     );
 
@@ -147,7 +227,12 @@ describe("AddressPage", () => {
     await page.viewport(420, 900);
 
     screen = mountScreen(
-      <AddressPage address={address() as never} onBack={vi.fn()} />,
+      <AddressPage
+        address={address() as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
+        onBack={vi.fn()}
+      />,
       {},
     );
 
@@ -165,7 +250,12 @@ describe("AddressPage", () => {
 
   it("prefills from the address resource and has a Back button", () => {
     screen = mountScreen(
-      <AddressPage address={address() as never} onBack={vi.fn()} />,
+      <AddressPage
+        address={address() as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
+        onBack={vi.fn()}
+      />,
       {},
     );
 
@@ -195,6 +285,8 @@ describe("AddressPage", () => {
             postal_code: "62701",
           }) as never
         }
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
         onBack={vi.fn()}
       />,
       {},
@@ -218,7 +310,12 @@ describe("AddressPage", () => {
     const onBack = vi.fn();
 
     screen = mountScreen(
-      <AddressPage address={address({}, patch) as never} onBack={onBack} />,
+      <AddressPage
+        address={address({}, patch) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
+        onBack={onBack}
+      />,
       {},
     );
 
@@ -248,7 +345,12 @@ describe("AddressPage", () => {
     const patch = vi.fn(async () => ok());
 
     screen = mountScreen(
-      <AddressPage address={address({}, patch) as never} onBack={vi.fn()} />,
+      <AddressPage
+        address={address({}, patch) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
+        onBack={vi.fn()}
+      />,
       {},
     );
 
@@ -281,6 +383,8 @@ describe("AddressPage", () => {
             patch,
           ) as never
         }
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
         onBack={vi.fn()}
       />,
       {},
@@ -305,14 +409,166 @@ describe("AddressPage", () => {
     });
   });
 
-  it("pre-selects the stored country in the Country select", async () => {
+  it("asks for the list that governs this address", async () => {
+    // Billing and shipping addresses are separate records, so an address has
+    // exactly one type. An address flagged NEITHER is inferred as shipping by
+    // Foxy -- treating it as unconstrained would offer countries the store
+    // cannot ship to.
     screen = mountScreen(
       <AddressPage
-        address={address({ country: "US" }) as never}
+        address={address({ is_default_billing: false }) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
         onBack={vi.fn()}
       />,
       {},
     );
+    await flush();
+
+    expect(filterValue(countryQueries[0], "address_type")).toBe("shipping");
+  });
+
+  it("asks for the billing list for a default billing address", async () => {
+    screen = mountScreen(
+      <AddressPage
+        address={address({ is_default_billing: true }) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
+        onBack={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    expect(filterValue(countryQueries[0], "address_type")).toBe("billing");
+  });
+
+  it("offers only the countries the store sells to", async () => {
+    // The whole point of the change: the form used to offer all 254
+    // countries from a hardcoded table, including ones checkout rejects.
+    screen = mountScreen(
+      <AddressPage
+        address={address({ country: "US" }) as never}
+        countriesLink={countriesLink({
+          US: { default: "United States", cc2: "US", has_regions: false },
+          CA: { default: "Canada", cc2: "CA", has_regions: false },
+        }) as never}
+        regionsLink={regionsLink() as never}
+        onBack={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    act(() => getControlByLabelText("Country").click());
+
+    const options = [...document.querySelectorAll('[role="option"]')].map(
+      (option) => option.textContent?.trim(),
+    );
+
+    expect(options).toEqual(["Canada", "United States"]);
+    expect(options).not.toContain("Afghanistan");
+  });
+
+  it("falls back to free text when the country list cannot be read", async () => {
+    // Failure rule 1. A reference list that did not load must never stop a
+    // customer fixing their own address.
+    screen = mountScreen(
+      <AddressPage
+        address={address({ country: "GB" }) as never}
+        countriesLink={failingLink() as never}
+        regionsLink={regionsLink() as never}
+        onBack={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    const control = getControlByLabelText("Country");
+    expect(control.tagName).toBe("INPUT");
+    expect((control as HTMLInputElement).value).toBe("GB");
+  });
+
+  it("keeps a saved country the store no longer offers", async () => {
+    // Failure rule 2, and the highest-value test in FX-369: a store can
+    // narrow its countries after an address was saved. Dropping the value
+    // would mean editing an unrelated field silently rewrote the customer's
+    // country.
+    const patch = vi.fn(async (_body: Record<string, unknown>) => ok());
+
+    screen = mountScreen(
+      <AddressPage
+        address={
+          address({ country: "JP", region: "" }, patch) as never
+        }
+        countriesLink={countriesLink({
+          US: { default: "United States", cc2: "US", has_regions: false },
+        }) as never}
+        regionsLink={regionsLink() as never}
+        onBack={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    // Still offered, so the customer can see and keep it.
+    act(() => getControlByLabelText("Country").click());
+    expect(
+      [...document.querySelectorAll('[role="option"]')].map((o) =>
+        o.textContent?.trim(),
+      ),
+    ).toContain("Japan");
+
+    act(() => document.body.click());
+    submitForm();
+    await flush();
+
+    // And saving an unrelated edit leaves it exactly as it was.
+    expect(patch).toHaveBeenCalled();
+    expect(patch.mock.calls[0]?.[0]?.country).toBe("JP");
+  });
+
+  it("labels the region field the way the country does", async () => {
+    // "State" for the US, "Prefecture" for Japan. The field read "Region" for
+    // every country before the store's list carried `regions_type`.
+    for (const [country, label] of [
+      ["US", "State"],
+      ["CA", "Province"],
+      ["JP", "Prefecture"],
+    ] as const) {
+      screen = mountScreen(
+        <AddressPage
+          address={address({ country, region: "" }) as never}
+          countriesLink={countriesLink() as never}
+          regionsLink={regionsLink() as never}
+          onBack={vi.fn()}
+        />,
+        {},
+      );
+      await flush();
+
+      expect(
+        [...document.querySelectorAll("label")].map((l) => l.textContent),
+        `${country} labels its regions "${label}"`,
+      ).toContain(label);
+
+      screen.unmount();
+      screen = null;
+    }
+  });
+
+  it("pre-selects the stored country in the Country select", async () => {
+    screen = mountScreen(
+      <AddressPage
+        address={address({ country: "US" }) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
+        onBack={vi.fn()}
+      />,
+      {},
+    );
+
+    await flush();
 
     const trigger = getControlByLabelText("Country");
     act(() => trigger.click());
@@ -325,12 +581,17 @@ describe("AddressPage", () => {
     screen = mountScreen(
       <AddressPage
         address={address({ country: "AU", region: "NSW" }) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
         onBack={vi.fn()}
       />,
       {},
     );
 
-    const trigger = getControlByLabelText("Region");
+    await flush();
+
+    // Labelled "State" rather than "Region": AU's `regions_type` is "state".
+    const trigger = getControlByLabelText("State");
     expect(trigger.getAttribute("role")).toBe("combobox");
 
     act(() => trigger.click());
@@ -345,10 +606,14 @@ describe("AddressPage", () => {
         address={
           address({ country: "AF", region: "Kabul Province" }) as never
         }
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
         onBack={vi.fn()}
       />,
       {},
     );
+
+    await flush();
 
     expect(getInputByLabelText("Region").value).toBe("Kabul Province");
   });
@@ -359,18 +624,25 @@ describe("AddressPage", () => {
         address={
           address({ country: "AF", region: "Somewhere Custom" }) as never
         }
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
         onBack={vi.fn()}
       />,
       {},
     );
+
+    await flush();
 
     expect(getInputByLabelText("Region").value).toBe("Somewhere Custom");
 
     const countryTrigger = getControlByLabelText("Country");
     act(() => countryTrigger.click());
     act(() => selectOption(getOptionByText("Australia")!));
+    await flush();
 
-    const regionTrigger = getControlByLabelText("Region");
+    // The label follows the country: AF has no `regions_type` and reads
+    // "Region", AU is "state" and reads "State".
+    const regionTrigger = getControlByLabelText("State");
     expect(regionTrigger.getAttribute("role")).toBe("combobox");
 
     act(() => regionTrigger.click());
@@ -390,10 +662,14 @@ describe("AddressPage", () => {
     screen = mountScreen(
       <AddressPage
         address={address({ country: "US", region: "IL" }) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
         onBack={vi.fn()}
       />,
       {},
     );
+
+    await flush();
 
     const countryTrigger = getControlByLabelText("Country");
     act(() => countryTrigger.click());
@@ -408,10 +684,14 @@ describe("AddressPage", () => {
     screen = mountScreen(
       <AddressPage
         address={address({ country: "US", region: "IL" }, patch) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
         onBack={vi.fn()}
       />,
       {},
     );
+
+    await flush();
 
     const countryTrigger = getControlByLabelText("Country");
     act(() => countryTrigger.click());
@@ -430,7 +710,12 @@ describe("AddressPage", () => {
     const onBack = vi.fn();
 
     screen = mountScreen(
-      <AddressPage address={address({}, patch) as never} onBack={onBack} />,
+      <AddressPage
+        address={address({}, patch) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
+        onBack={onBack}
+      />,
       {},
     );
 
@@ -447,7 +732,12 @@ describe("AddressPage", () => {
     const onBack = vi.fn();
 
     screen = mountScreen(
-      <AddressPage address={address({}, patch) as never} onBack={onBack} />,
+      <AddressPage
+        address={address({}, patch) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
+        onBack={onBack}
+      />,
       {},
       onUnauthenticated,
     );
@@ -464,10 +754,14 @@ describe("AddressPage", () => {
     screen = mountScreen(
       <AddressPage
         address={address({ country: "GB" }) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
         onBack={vi.fn()}
       />,
       {},
     );
+
+    await flush();
 
     const trigger = getControlByLabelText("Country");
     expect(trigger.textContent).toBe("United Kingdom");
@@ -478,12 +772,19 @@ describe("AddressPage", () => {
     screen = mountScreen(
       <AddressPage
         address={address({ country: "AU", region: "NSW" }) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
         onBack={vi.fn()}
       />,
       {},
     );
 
-    const trigger = getControlByLabelText("Region");
+    await flush();
+
+    // "State", not "Region": AU's `regions_type` is "state", and the field
+    // now takes its label from the country rather than always reading
+    // "Region".
+    const trigger = getControlByLabelText("State");
     expect(trigger.textContent).toBe("New South Wales");
     expect(trigger.textContent).not.toBe("NSW");
   });
@@ -491,7 +792,12 @@ describe("AddressPage", () => {
   describe("validation", () => {
     it("marks only Address label and Address line 1 as required", async () => {
       screen = mountScreen(
-        <AddressPage address={address() as never} onBack={vi.fn()} />,
+        <AddressPage
+        address={address() as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
+        onBack={vi.fn()}
+      />,
         {},
       );
 
@@ -509,7 +815,12 @@ describe("AddressPage", () => {
 
     it("caps address_name, address1, and address2 at 100 characters", async () => {
       screen = mountScreen(
-        <AddressPage address={address() as never} onBack={vi.fn()} />,
+        <AddressPage
+        address={address() as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
+        onBack={vi.fn()}
+      />,
         {},
       );
 
@@ -543,7 +854,12 @@ describe("AddressPage", () => {
     const patch = vi.fn(async () => ({ ok: true, status: 200 }));
     const onBack = vi.fn();
     screen = mountScreen(
-      <AddressPage address={address({}, patch) as never} onBack={onBack} />,
+      <AddressPage
+        address={address({}, patch) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
+        onBack={onBack}
+      />,
       {},
     );
 
@@ -567,7 +883,12 @@ describe("AddressPage", () => {
   it("blocks submit when address line 1 exceeds the API's 100-character limit", async () => {
     const patch = vi.fn(async () => ({ ok: true, status: 200 }));
     screen = mountScreen(
-      <AddressPage address={address({}, patch) as never} onBack={vi.fn()} />,
+      <AddressPage
+        address={address({}, patch) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
+        onBack={vi.fn()}
+      />,
       {},
     );
 
@@ -593,6 +914,8 @@ describe("AddressPage", () => {
     screen = mountScreen(
       <AddressPage
         address={address({ company: "" }, patch) as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
         onBack={onBack}
       />,
       {},
@@ -619,6 +942,8 @@ describe("AddressPageContainer", () => {
         id="7"
         resource={address() as never}
         addressesLink={link as never}
+        countriesLink={countriesLink() as never}
+        regionsLink={regionsLink() as never}
         onBack={vi.fn()}
       />,
       {},

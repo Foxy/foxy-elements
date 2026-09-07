@@ -36,6 +36,11 @@ export const ADDRESS_FIELD_LIMITS = {
   // Free-text fallback for a country with no known region list; the
   // Select-driven case can only ever produce a valid 2-character code, so
   // this only matters for that fallback -- see the spec §3.
+  // Country is normally a Select over the store's own list, so this bound
+  // only governs the free-text fallback used when that list is unavailable.
+  // Generous on purpose: the field holds a 2-char code, and a tighter rule
+  // would reject legacy values that save fine today.
+  country: { maxLength: 50 },
   region: { maxLength: 50 },
   postalCode: { maxLength: 50 },
   phone: { maxLength: 50 },

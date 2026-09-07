@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 import { Alert } from "@foxy.io/design-system/alert";
 import { Button } from "@foxy.io/design-system/button";
@@ -6,7 +6,17 @@ import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
 import { Select } from "@foxy.io/design-system/select";
 import { Skeleton } from "@foxy.io/design-system/skeleton";
-import { useApi, WriteError, type FollowableLink } from "@/lib/customer-api";
+import {
+  useApi,
+  useResource,
+  WriteError,
+  type FollowableLink,
+} from "@/lib/customer-api";
+import {
+  loadRegionMessages,
+  toCountryOptions,
+  toRegionOptions,
+} from "@foxy.io/sdk/checkout";
 import { messages } from "../../messages";
 import { AccountPageLayout } from "../../account-page-layout";
 import { Actions, Form, Pair } from "../../form-layout";
@@ -14,9 +24,31 @@ import { ADDRESS_FIELD_LIMITS } from "../../field-constraints";
 import { usePortalContainer } from "../../portal-container";
 import { useFieldValidation } from "../../use-field-validation";
 import { patchResource } from "../../write";
-import { COUNTRIES } from "./countries";
+import {
+  addressTypeFor,
+  codesFrom,
+  withSavedCode,
+  type CountryOptionsLink,
+  type RegionOptionsLink,
+} from "./address-options";
 import type { AddressResource } from "./card";
 import { useAddressById } from "./use-address-by-id";
+
+/**
+ * The five region labels Foxy uses, keyed by a country's `regions_type`.
+ *
+ * `""` covers both a country with no `regions_type` and one the API has not
+ * classified, and resolves to the generic "Region" -- the label this form
+ * used for every country before the store's own lists were available.
+ */
+const REGION_LABELS: Record<string, (typeof messages)[keyof typeof messages]> = {
+  state: messages.addressRegionState,
+  province: messages.addressRegionProvince,
+  county: messages.addressRegionCounty,
+  canton: messages.addressRegionCanton,
+  prefecture: messages.addressRegionPrefecture,
+  "": messages.addressRegion,
+};
 
 type CollectionPage = {
   total_items?: number;
@@ -27,6 +59,8 @@ type ContainerProps = {
   id: string;
   resource?: AddressResource;
   addressesLink: FollowableLink<CollectionPage> | null;
+  countriesLink?: CountryOptionsLink | null;
+  regionsLink?: RegionOptionsLink | null;
   onBack: () => void;
 };
 
@@ -39,6 +73,8 @@ export function AddressPageContainer({
   id,
   resource,
   addressesLink,
+  countriesLink,
+  regionsLink,
   onBack,
 }: ContainerProps) {
   const intl = useIntl();
@@ -65,12 +101,34 @@ export function AddressPageContainer({
     );
   }
 
-  return <AddressPage address={address} onBack={onBack} />;
+  return (
+    <AddressPage
+      address={address}
+      countriesLink={countriesLink}
+      regionsLink={regionsLink}
+      onBack={onBack}
+    />
+  );
 }
 
-type Props = { address: AddressResource; onBack: () => void };
+type Props = {
+  address: AddressResource;
+  /**
+   * The store's country and region lists. Optional: when either is missing --
+   * an older API, or a read that failed -- the matching control degrades to
+   * free text rather than blocking the form. See FX-369's failure rules.
+   */
+  countriesLink?: CountryOptionsLink | null;
+  regionsLink?: RegionOptionsLink | null;
+  onBack: () => void;
+};
 
-export function AddressPage({ address, onBack }: Props) {
+export function AddressPage({
+  address,
+  countriesLink,
+  regionsLink,
+  onBack,
+}: Props) {
   const intl = useIntl();
   const { onUnauthenticated, cache } = useApi();
   const labelId = useId();
@@ -104,24 +162,109 @@ export function AddressPage({ address, onBack }: Props) {
     ADDRESS_FIELD_LIMITS,
   );
 
-  const selectedCountry = COUNTRIES.find((c) => c.code === country);
-  const hasRegionList = (selectedCountry?.regions.length ?? 0) > 0;
+  // Which list governs this address. Billing and shipping addresses are
+  // always separate records, so there is exactly one and no intersection to
+  // compute; an address flagged neither is inferred as shipping.
+  const addressType = addressTypeFor(address);
+
+  // Sent as `filters`, not as loose keys. The SDK's `Node.get()` destructures
+  // exactly `{ filters, fields, offset, limit, order, zoom }` and drops
+  // anything else without a word, so `{ address_type }` would produce a bare
+  // URL and a response scoped to nothing. `filters` splits each entry on its
+  // first `=` and appends the halves as a query param, which is also how this
+  // element already sends `is_active=true` and `type:in=...`.
+  const { data: countryData } = useResource(countriesLink ?? null, {
+    filters: [`address_type=${addressType}`],
+  });
+
+  // Asked for per country rather than all at once: a customer edits one
+  // address at a time, and the cache keeps the previous country's list for
+  // the way back.
+  const { data: regionData } = useResource(
+    country.trim() ? (regionsLink ?? null) : null,
+    {
+      filters: [
+        `address_type=${addressType}`,
+        `country_code=${country.trim()}`,
+      ],
+    },
+  );
+
+  const countryEntries = countryData?.values;
+  const selectedCountry = countryEntries?.[country];
+
+  // `codesFrom` rather than the map itself: the SDK helpers take an array and
+  // return `[]` for anything else, so passing `values` straight in would
+  // empty the dropdown with no error at all.
+  const countryCodes = useMemo(
+    () => withSavedCode(codesFrom(countryEntries), country),
+    [countryEntries, country],
+  );
+
+  // No list at all means the read failed or the API predates it. The control
+  // falls back to free text -- a customer must never be blocked from fixing
+  // their own address because a reference list did not load.
+  const hasCountryList = countryCodes.length > 0;
+
+  const regionCodes = useMemo(
+    () => withSavedCode(codesFrom(regionData?.values), region),
+    [regionData, region],
+  );
+
+  // Gated on the country's own `has_regions`, not on whether the region read
+  // happened to return anything: a country that genuinely has no regions
+  // takes free text, and that is a different state from a list still loading.
+  const hasRegionList = Boolean(selectedCountry?.has_regions) && regionCodes.length > 0;
+
+  const countryOptions = useMemo(
+    () => toCountryOptions(countryCodes, intl.locale),
+    [countryCodes, intl.locale],
+  );
+
+  // Region names ship with the SDK, lazily per locale. The API's own `default`
+  // is English only, so it is the floor rather than the display value.
+  const [regionNames, setRegionNames] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    let active = true;
+    loadRegionMessages(intl.locale).then((loaded) => {
+      if (active) setRegionNames(loaded);
+    });
+    return () => {
+      active = false;
+    };
+  }, [intl.locale]);
+
+  const regionOptions = useMemo(
+    () => toRegionOptions(regionCodes, country),
+    [regionCodes, country],
+  );
 
   // Without an `items` map, Base UI's closed-trigger `Select.Value` falls
   // back to rendering the raw stored value (the country/region code)
   // instead of looking up its display name.
   const countryItems = useMemo(
-    () => Object.fromEntries(COUNTRIES.map((c) => [c.code, c.name])),
-    [],
+    () => Object.fromEntries(countryOptions.map((o) => [o.value, o.label])),
+    [countryOptions],
+  );
+
+  const regionLabelFor = useCallback(
+    (option: { value: string; messageId: string }) =>
+      regionNames[option.messageId] ??
+      regionData?.values?.[option.value]?.default ??
+      option.value,
+    [regionNames, regionData],
   );
 
   const regionItems = useMemo(
     () =>
-      Object.fromEntries(
-        (selectedCountry?.regions ?? []).map((r) => [r.code, r.name]),
-      ),
-    [selectedCountry],
+      Object.fromEntries(regionOptions.map((o) => [o.value, regionLabelFor(o)])),
+    [regionOptions, regionLabelFor],
   );
+
+  // "State", "Prefecture", "Canton" -- whatever this country calls them. The
+  // generic "Region" is the fallback when the country list does not say.
+  const regionLabel = REGION_LABELS[selectedCountry?.regions_type ?? ""];
 
   // A customer switching e.g. US -> Canada must not keep a stale US state
   // code silently mislabeled as a Canadian province -- v1's AddressForm.ts:49
@@ -145,6 +288,7 @@ export function AddressPage({ address, onBack }: Props) {
         address1,
         address2,
         city,
+        country,
         region,
         postalCode,
       })
@@ -365,37 +509,55 @@ export function AddressPage({ address, onBack }: Props) {
             <Field.Label htmlFor={countryId}>
               {intl.formatMessage(messages.addressCountry)}
             </Field.Label>
-            <Select.Root
-              value={country}
-              onValueChange={handleCountryChange}
-              items={countryItems}
-            >
-              <Select.Trigger id={countryId}>
-                <Select.Value />
-              </Select.Trigger>
-              {/* Select.Portal defaults to <body>, which is outside this
-                  element's shadow root -- the popup would render unstyled.
-                  `?? undefined` because Base UI reads an explicit null as
-                  "container unresolved" and never renders. */}
-              <Select.Portal container={portalContainer ?? undefined}>
-                <Select.Positioner>
-                  <Select.Popup>
-                    <Select.List>
-                      {COUNTRIES.map((c) => (
-                        <Select.Item key={c.code} value={c.code}>
-                          <Select.ItemText>{c.name}</Select.ItemText>
-                        </Select.Item>
-                      ))}
-                    </Select.List>
-                  </Select.Popup>
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
+            {hasCountryList ? (
+              <Select.Root
+                value={country}
+                onValueChange={handleCountryChange}
+                items={countryItems}
+              >
+                <Select.Trigger id={countryId}>
+                  <Select.Value />
+                </Select.Trigger>
+                {/* Select.Portal defaults to <body>, which is outside this
+                    element's shadow root -- the popup would render unstyled.
+                    `?? undefined` because Base UI reads an explicit null as
+                    "container unresolved" and never renders. */}
+                <Select.Portal container={portalContainer ?? undefined}>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.List>
+                        {countryOptions.map((option) => (
+                          <Select.Item key={option.value} value={option.value}>
+                            <Select.ItemText>{option.label}</Select.ItemText>
+                          </Select.Item>
+                        ))}
+                      </Select.List>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            ) : (
+              // No list reached us. Free text rather than an empty Select:
+              // the customer must still be able to fix their own address.
+              <Input
+                id={countryId}
+                type="text"
+                autoComplete="country"
+                maxLength={ADDRESS_FIELD_LIMITS.country.maxLength}
+                value={country}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  handleCountryChange(value);
+                  if (errors.country) validateField("country", value);
+                }}
+                onBlur={(event) => validateField("country", event.target.value)}
+              />
+            )}
           </Field.Root>
 
           <Field.Root>
             <Field.Label htmlFor={regionId}>
-              {intl.formatMessage(messages.addressRegion)}
+              {intl.formatMessage(regionLabel)}
             </Field.Label>
             {hasRegionList ? (
               <Select.Root
@@ -414,9 +576,11 @@ export function AddressPage({ address, onBack }: Props) {
                   <Select.Positioner>
                     <Select.Popup>
                       <Select.List>
-                        {selectedCountry!.regions.map((r) => (
-                          <Select.Item key={r.code} value={r.code}>
-                            <Select.ItemText>{r.name}</Select.ItemText>
+                        {regionOptions.map((option) => (
+                          <Select.Item key={option.value} value={option.value}>
+                            <Select.ItemText>
+                              {regionLabelFor(option)}
+                            </Select.ItemText>
                           </Select.Item>
                         ))}
                       </Select.List>

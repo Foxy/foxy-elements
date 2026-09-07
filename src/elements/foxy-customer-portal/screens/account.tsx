@@ -265,6 +265,19 @@ export function AccountScreen({
             typeof AddressPageContainer
           >["addressesLink"]
         }
+        // The store's own country and region lists. Absent on an API that
+        // predates them, which the form handles by degrading to free text
+        // rather than blocking the edit.
+        countriesLink={
+          (data._links as unknown as Record<string, unknown>)[
+            "fx:countries"
+          ] as ComponentProps<typeof AddressPageContainer>["countriesLink"]
+        }
+        regionsLink={
+          (data._links as unknown as Record<string, unknown>)[
+            "fx:regions"
+          ] as ComponentProps<typeof AddressPageContainer>["regionsLink"]
+        }
         onBack={goHome}
       />
     );

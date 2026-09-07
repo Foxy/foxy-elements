@@ -171,6 +171,7 @@ describe("foxy-customer-portal", () => {
     // address to reach `AddressPage`, then opens its Country select.
     const storeBase = "https://demo.foxycart.com/s/customer/";
     const addressesHref = `${storeBase}addresses`;
+    const countriesHref = `${storeBase}property_helpers/countries`;
 
     localStorage.setItem(
       `foxy:${storeBase}:session`,
@@ -209,6 +210,18 @@ describe("foxy-customer-portal", () => {
           _links: {
             self: { href: storeBase },
             "fx:customer_addresses": { href: addressesHref },
+            // The Country control is a `Select` only when the store's own
+            // list reaches it; without this it degrades to free text and
+            // there is no popup for this test to inspect.
+            "fx:countries": { href: countriesHref },
+          },
+        });
+      }
+      if (url.startsWith(countriesHref)) {
+        return json({
+          values: {
+            GB: { default: "United Kingdom", cc2: "GB", has_regions: false },
+            US: { default: "United States", cc2: "US", has_regions: true, regions_type: "state" },
           },
         });
       }
@@ -278,8 +291,22 @@ describe("foxy-customer-portal", () => {
     expect(countryLabel).not.toBeUndefined();
 
     const forId = countryLabel.getAttribute("for");
+
+    // The store's country list is fetched once the form is on screen, and
+    // the control is a free-text `<input>` until it lands. Wait for the
+    // `Select` to replace it, or the click below opens nothing.
+    const triggerStart = Date.now();
+    while (
+      Date.now() - triggerStart < 2000 &&
+      element.shadowRoot?.getElementById(forId ?? "")?.getAttribute("role") !==
+        "combobox"
+    ) {
+      await flush();
+    }
+
     const trigger = forId && element.shadowRoot?.getElementById(forId);
     expect(trigger).toBeTruthy();
+    expect((trigger as HTMLElement).getAttribute("role")).toBe("combobox");
 
     await act(async () => {
       (trigger as HTMLElement).click();

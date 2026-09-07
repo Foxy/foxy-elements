@@ -48,18 +48,19 @@ describe("formatFullAddress", () => {
     );
 
     expect(result).not.toMatch(/,\s*,/);
-    // "IL" resolves through COUNTRIES to its display name, "Illinois" --
-    // this test's real point is the blank address2 leaving no double comma.
-    expect(result).toBe("123 Main St, Springfield, Illinois, 62701");
+    // The region shows as its own code. Resolving it to a name needs the
+    // store's region list, which only the address form fetches -- and a
+    // postal address is conventionally written with the code anyway.
+    expect(result).toBe("123 Main St, Springfield, IL, 62701");
   });
 
-  it("resolves a known region code to its display name", () => {
+  it("writes the region as its code rather than dropping it", () => {
     const result = formatFullAddress(
       address({ country: "AU", region: "NSW", city: "Sydney" }),
     );
 
-    expect(result).toMatch(/New South Wales/);
-    expect(result).not.toMatch(/\bNSW\b/);
+    expect(result).toMatch(/\bNSW\b/);
+    expect(result).toMatch(/Sydney/);
   });
 
   it("falls back to the raw region value for a country with no predefined regions", () => {

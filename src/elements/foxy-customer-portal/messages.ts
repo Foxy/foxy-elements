@@ -648,9 +648,37 @@ export const messages = defineMessages({
     id: "portal_address_country",
     defaultMessage: "Country",
   },
+  // The generic label, used when the store's country list does not say what
+  // this country calls its regions.
   addressRegion: {
     id: "portal_address_region",
     defaultMessage: "Region",
+  },
+  // Per-country region labels, keyed off `regions_type` on the country entry.
+  //
+  // These have to exist here rather than being reused from checkout. The
+  // SDK's `regionLabelMessageId()` returns `checkout_location_state` and
+  // friends, and those strings arrive in *checkout's* `language_strings`,
+  // which the portal never receives.
+  addressRegionState: {
+    id: "portal_address_region_state",
+    defaultMessage: "State",
+  },
+  addressRegionProvince: {
+    id: "portal_address_region_province",
+    defaultMessage: "Province",
+  },
+  addressRegionCounty: {
+    id: "portal_address_region_county",
+    defaultMessage: "County",
+  },
+  addressRegionCanton: {
+    id: "portal_address_region_canton",
+    defaultMessage: "Canton",
+  },
+  addressRegionPrefecture: {
+    id: "portal_address_region_prefecture",
+    defaultMessage: "Prefecture",
   },
   addressRegionPlaceholder: {
     id: "portal_address_region_placeholder",

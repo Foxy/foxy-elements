@@ -2,7 +2,6 @@ import { useIntl } from "react-intl";
 import styled from "styled-components";
 import { Badge } from "@foxy.io/design-system/badge";
 import { Button } from "@foxy.io/design-system/button";
-import { COUNTRIES } from "./countries";
 import { messages } from "../../messages";
 
 export type AddressResource = {
@@ -38,17 +37,45 @@ export type AddressLines = {
 };
 
 /**
+ * A country code as a reader's own locale names it.
+ *
+ * `Intl.DisplayNames` replaces the hardcoded country table this file used to
+ * read, which carried English names only. `fallback: "code"` returns the code
+ * itself for anything unrecognised rather than throwing, and a malformed
+ * locale falls back the same way -- these formatters are called during render
+ * and must not throw over a bad tag.
+ */
+function countryName(code: string, locale?: string): string {
+  const value = code?.trim() ?? "";
+  if (value === "") return "";
+
+  try {
+    const names = new Intl.DisplayNames([locale ?? "en-US"], {
+      type: "region",
+      fallback: "code",
+    });
+    return names.of(value.toUpperCase()) ?? value;
+  } catch {
+    return value;
+  }
+}
+
+/**
  * The same address `formatFullAddress` joins into one line, kept as the four
  * separate lines a postal address is normally written on. The summary in
  * Billing & Shipping shows it this way; the cards in the list below still use
- * the joined form, and both resolve region and country codes through
- * `COUNTRIES` here so they never disagree about what "IL" is called.
+ * the joined form, and both resolve the country code the same way so they
+ * never disagree about what "IL" is called.
+ *
+ * The region shows as its own code rather than a name. Resolving it needs the
+ * store's region list, which only the address form fetches -- and a postal
+ * address is conventionally written with the code anyway ("Chicago, IL").
  */
-export function formatAddressLines(address: AddressResource): AddressLines {
-  const country = COUNTRIES.find((c) => c.code === address.country);
-  const region =
-    country?.regions.find((r) => r.code === address.region)?.name ??
-    address.region;
+export function formatAddressLines(
+  address: AddressResource,
+  locale?: string,
+): AddressLines {
+  const region = address.region;
   const fullName = [address.first_name, address.last_name]
     .filter(isFilled)
     .join(" ");
@@ -60,15 +87,12 @@ export function formatAddressLines(address: AddressResource): AddressLines {
     cityStateZip: [cityAndRegion, address.postal_code]
       .filter(isFilled)
       .join(" "),
-    country: country?.name ?? address.country,
+    country: countryName(address.country, locale),
   };
 }
 
 export function formatFullAddress(address: AddressResource): string {
-  const country = COUNTRIES.find((c) => c.code === address.country);
-  const region =
-    country?.regions.find((r) => r.code === address.region)?.name ??
-    address.region;
+  const region = address.region;
 
   return [
     address.address1,
