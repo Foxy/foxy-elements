@@ -46,6 +46,64 @@ afterEach(() => {
 });
 
 describe("ProfilePage", () => {
+  it("separates the fields from one another", () => {
+    renderPage();
+
+    const form = screen!.host.querySelector("form")!;
+    const styles = getComputedStyle(form);
+
+    // `Field.Root`'s own `space.xs` gap sits *inside* a field, between its
+    // label, control and error. Without a gap on the form the fields butted
+    // straight up against each other.
+    expect(styles.display).toBe("flex");
+    expect(styles.flexDirection).toBe("column");
+    expect(parseFloat(styles.rowGap)).toBeGreaterThanOrEqual(12);
+
+    // Measured, not just declared: two adjacent fields must actually have
+    // space between them. A gap on a form that was not a flex column would
+    // compute fine and change nothing.
+    const fields = [...form.querySelectorAll("label")].map(
+      (label) => label.parentElement!,
+    );
+    const first = fields[0]!.getBoundingClientRect();
+    const second = fields[1]!.getBoundingClientRect();
+    expect(second.top - first.bottom).toBeGreaterThanOrEqual(12);
+  });
+
+  it("caps the form's width without capping the page", async () => {
+    renderPage();
+
+    const form = screen!.host.querySelector("form")!;
+    const container = screen!.host.firstElementChild as HTMLElement;
+
+    // The page fills its host -- that is deliberate, the portal is an
+    // embeddable element. The cap belongs on the form, so a row of short
+    // text inputs does not stretch across a wide monitor.
+    screen!.host.style.width = "1400px";
+
+    expect(getComputedStyle(container).maxWidth).toBe("none");
+    expect(getComputedStyle(form).maxWidth).toBe("480px");
+    expect(form.getBoundingClientRect().width).toBeLessThanOrEqual(480);
+  });
+
+  it("heads the page the way the rest of the portal does", () => {
+    renderPage();
+
+    // The home screen's customer name and the subscription page's title are
+    // both `<h1>` at `font.h1`. These sub-pages were the only screens whose
+    // top heading was an `<h2>`, which also left them with no `<h1>` at all.
+    const heading = screen!.host.querySelector("h1");
+
+    expect(heading).not.toBeNull();
+    expect(screen!.host.querySelector("h2")).toBeNull();
+
+    // The element AND the type ramp: `font.h1` is 1.75rem/28px, `font.h2`
+    // 1.375rem/22px. Asserting only the tag would pass on an `<h1>` still
+    // carrying the smaller `font.h2`, which is most of what made these
+    // pages look different from the rest of the portal.
+    expect(getComputedStyle(heading!).fontSize).toBe("28px");
+  });
+
   it("prefills from the customer resource", () => {
     renderPage();
     const first = document.querySelector<HTMLInputElement>(

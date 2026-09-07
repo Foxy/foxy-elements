@@ -41,7 +41,7 @@ describe("AccountPageLayout", () => {
       {},
     );
 
-    expect(screen.host.querySelector("h2")).toBeNull();
+    expect(screen.host.querySelector("h1")).toBeNull();
   });
 
   it("calls onBack when the Back button is clicked", () => {
