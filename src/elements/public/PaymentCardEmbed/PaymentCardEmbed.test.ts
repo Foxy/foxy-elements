@@ -22,6 +22,22 @@ class TestElement extends PaymentCardEmbed {
 
 customElements.define('test-element', TestElement);
 
+// The Lumo default font stack, verbatim from @vaadin/vaadin-lumo-styles/typography.js. The element
+// forwards `getComputedStyle(...).fontFamily`, and browsers rewrite that stack when serializing it
+// (current Chrome reports BlinkMacSystemFont as "system-ui"), so resolve it here instead of
+// hardcoding one browser's output.
+const LUMO_FONT_FAMILY =
+  '-apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"';
+
+function computedFontFamily(fontFamily: string): string {
+  const probe = document.createElement('div');
+  probe.style.fontFamily = fontFamily;
+  document.body.appendChild(probe);
+  const computed = getComputedStyle(probe).fontFamily;
+  probe.remove();
+  return computed;
+}
+
 describe('PaymentCardEmbed', () => {
   it('imports and defines foxy-spinner element', () => {
     expect(customElements.get('foxy-spinner')).to.exist;
@@ -162,8 +178,7 @@ describe('PaymentCardEmbed', () => {
         '--lumo-size-xs': '26px',
         '--lumo-border-radius-m': '4px',
         '--lumo-border-radius-s': '4px',
-        '--lumo-font-family':
-          '-apple-system, BlinkMacSystemFont, Roboto, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+        '--lumo-font-family': computedFontFamily(LUMO_FONT_FAMILY),
         '--lumo-font-size-m': '16px',
         '--lumo-font-size-s': '14px',
         '--lumo-font-size-xs': '13px',
