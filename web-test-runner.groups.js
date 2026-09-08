@@ -707,4 +707,8 @@ export const groups = [
     name: 'foxy-webhook-status-card',
     files: './src/elements/public/WebhookStatusCard/**/*.test.ts',
   },
+  {
+    name: 'server',
+    files: './src/server/**/*.test.ts',
+  },
 ];
