@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
 import { defaultTheme } from "@foxy.io/design-system/theme";
 import {
@@ -133,6 +141,29 @@ async function waitForTruthy<T>(
 async function waitForTime(ms: number): Promise<void> {
   await new Promise<void>((resolve) => setTimeout(resolve, ms));
 }
+
+// `view.tsx` mounts every option body through `React.lazy(() => import(...))`,
+// and `icons/payment-option-brand-icon.tsx` does the same for the brand marks.
+// Under vitest those chunks come off the Vite dev server, so the first render
+// of an option waits on a request whose latency tracks how busy the machine is:
+// ~250ms when this file runs on its own, ~900ms measured during a full
+// `npm run verify`. The helpers above spend their budget in animation frames,
+// which keep ticking at the same rate whatever the load, so a busy run used to
+// run out of attempts while a chunk was still in flight -- a different test
+// timing out each time. Awaiting the same modules once, up front, puts them in
+// the module cache, so `lazy()` resolves from memory and the helpers are left
+// waiting on a React commit instead of on the network.
+//
+// The globs are matched against the same paths the `import()` calls resolve to,
+// so new embeds and brand marks are covered without touching this list.
+const LAZY_MODULE_LOADERS = {
+  ...import.meta.glob("./embeds/*.tsx"),
+  ...import.meta.glob("./icons/*.tsx"),
+};
+
+beforeAll(async () => {
+  await Promise.all(Object.values(LAZY_MODULE_LOADERS).map((load) => load()));
+});
 
 async function setTextInputValue(
   input: HTMLInputElement,
@@ -2321,10 +2352,11 @@ describe("PaymentMethodSelectorElement", () => {
         () => element.shadowRoot?.textContent,
         "Pay in 30 Days",
       );
-      // The Klarna widget is mounted via a lazy()/Suspense chunk; on this
-      // machine the first-load commit lands around ~300ms (~10 render-tick
-      // iterations), which is right at this helper's default budget. Widen
-      // just this call so the test isn't racing chunk-load latency.
+      // The Klarna widget lands after a chain of availability/mount state
+      // passes rather than in a single commit: ~18 render ticks on an idle
+      // run, against this file's default of 10. Nothing is fetched during those
+      // ticks, so the cost is in render turns, which is the currency this
+      // helper spends -- 60 is headroom in the same unit, not a time budget.
       await waitForText(
         () => element.shadowRoot?.textContent,
         "Klarna widget pay_in_4",
