@@ -28,6 +28,7 @@ const STYLE_ATTRIBUTES: HostedFieldStyleAttributes = {
 type EmbedPropOverrides = {
   mode?: "card" | "card_csc";
   templateSetId?: number;
+  sessionId?: string;
   hostedCard?: false;
   disabled?: boolean;
   onControllerReady?: (controller: PaymentController | null) => void;
@@ -43,6 +44,7 @@ function embed(overrides: EmbedPropOverrides = {}) {
           : {
               mode: overrides.mode ?? "card",
               templateSetId: overrides.templateSetId,
+              sessionId: overrides.sessionId,
             },
     }),
     disabled: overrides.disabled,
@@ -106,6 +108,18 @@ describe("CardOptionEmbed", () => {
   // The two modes collect different things — a whole card versus three or four
   // digits — so a shopper re-entering a security code must not be asked for
   // "Card details".
+  it("pushes the checkout session onto the hosted field", async () => {
+    const mounted = await mountEmbed(
+      embed({ templateSetId: 42, sessionId: "a1b2c3,d4-e5" }),
+    );
+
+    // The mint binds the reference to this session; without it the reference is
+    // sessionless and spendable from any session at all.
+    expect(fieldIn(mounted.container).sessionId).toBe("a1b2c3,d4-e5");
+
+    await mounted.unmount();
+  });
+
   it("labels the field by mode", async () => {
     const mounted = await mountEmbed(embed({ mode: "card" }));
 

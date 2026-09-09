@@ -89,8 +89,10 @@ export default function CardOptionEmbed({
     if (!element || !option.hostedCard) return;
 
     element.mode = option.hostedCard.mode;
-    // INTERIM: removed when card token vaulting lands.
     element.templateSetId = option.hostedCard.templateSetId;
+    // The mint binds the reference to this session. Without it the reference is
+    // sessionless, which the vault only accepts for portal/admin card save.
+    element.sessionId = option.hostedCard.sessionId;
     element.disabled = Boolean(disabled);
 
     const controller: PaymentController = {

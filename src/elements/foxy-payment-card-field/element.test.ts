@@ -356,7 +356,7 @@ describe("PaymentCardFieldElement", () => {
     expect(element.mode).toBe("card");
   });
 
-  it("uses VITE_EMBED_ORIGIN to build the iframe URL", () => {
+  it("uses VITE_CARD_EMBED_ORIGIN and VITE_CARD_EMBED_PATH to build the iframe URL", () => {
     const element = document.createElement(
       PAYMENT_CARD_FIELD_ELEMENT_TAG,
     ) as PaymentCardFieldElement;
@@ -370,11 +370,42 @@ describe("PaymentCardFieldElement", () => {
       window.location.origin,
     );
     const expectedOrigin = new URL(
-      import.meta.env.VITE_EMBED_ORIGIN,
+      import.meta.env.VITE_CARD_EMBED_ORIGIN,
       window.location.origin,
     ).origin;
     expect(url.origin).toBe(expectedOrigin);
-    expect(url.pathname).toBe("/v2.html");
+    expect(url.pathname).toBe(import.meta.env.VITE_CARD_EMBED_PATH);
+  });
+
+  it("puts the checkout session id on the shell URL", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    element.setAttribute("session-id", "a1b2c3,d4-e5");
+    document.body.append(element);
+
+    const iframe = element.shadowRoot?.querySelector("iframe");
+    const url = new URL(
+      iframe?.getAttribute("src") ?? "",
+      window.location.origin,
+    );
+
+    expect(url.searchParams.get("session_id")).toBe("a1b2c3,d4-e5");
+  });
+
+  it("omits session_id entirely when no session is set", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const iframe = element.shadowRoot?.querySelector("iframe");
+    const url = new URL(
+      iframe?.getAttribute("src") ?? "",
+      window.location.origin,
+    );
+
+    expect(url.searchParams.has("session_id")).toBe(false);
   });
 
   it("rejects tokenize with invalid_state when iframe is not ready", async () => {
@@ -663,5 +694,170 @@ describe("PaymentCardFieldElement", () => {
       { patternMismatch: true },
       "Please enter a valid card number.",
     );
+  });
+  it("reports the refusal context the mint sent rather than a generic failure", async () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const privateElement = element as unknown as {
+      _port: {
+        close: () => void;
+        onmessage: ((event: MessageEvent<string>) => void) | null;
+        postMessage: (message: string) => void;
+      };
+      _ready: boolean;
+      _handlePortMessage: (event: MessageEvent<string>) => void;
+    };
+
+    privateElement._port = {
+      close: vi.fn(),
+      onmessage: null,
+      postMessage: vi.fn(),
+    };
+    privateElement._ready = true;
+
+    let errorDetail: { code: string; message?: string } | undefined;
+    element.addEventListener(
+      "tokenizationerror",
+      (event) => {
+        errorDetail = (event as CustomEvent<{ code: string; message?: string }>)
+          .detail;
+      },
+      { once: true },
+    );
+
+    const resultPromise = element.tokenize("card-request-refused");
+
+    privateElement._handlePortMessage({
+      data: JSON.stringify({
+        type: "tokenization_response",
+        id: "card-request-refused",
+        token: null,
+        code: "card_brand_unsupported",
+      }),
+    } as MessageEvent<string>);
+
+    await expect(resultPromise).rejects.toThrow();
+    expect(errorDetail?.code).toBe("card_brand_unsupported");
+  });
+
+  it("still reports tokenization_failed when a refusal carries no context", async () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const privateElement = element as unknown as {
+      _port: {
+        close: () => void;
+        onmessage: ((event: MessageEvent<string>) => void) | null;
+        postMessage: (message: string) => void;
+      };
+      _ready: boolean;
+      _handlePortMessage: (event: MessageEvent<string>) => void;
+    };
+
+    privateElement._port = {
+      close: vi.fn(),
+      onmessage: null,
+      postMessage: vi.fn(),
+    };
+    privateElement._ready = true;
+
+    let errorDetail: { code: string } | undefined;
+    element.addEventListener(
+      "tokenizationerror",
+      (event) => {
+        errorDetail = (event as CustomEvent<{ code: string }>).detail;
+      },
+      { once: true },
+    );
+
+    const resultPromise = element.tokenize("card-request-bare");
+
+    privateElement._handlePortMessage({
+      data: JSON.stringify({
+        type: "tokenization_response",
+        id: "card-request-bare",
+        token: null,
+      }),
+    } as MessageEvent<string>);
+
+    await expect(resultPromise).rejects.toThrow();
+    expect(errorDetail?.code).toBe("tokenization_failed");
+  });
+
+  it("mints a fresh reference on every tokenize call", async () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const postMessage = vi.fn();
+    const privateElement = element as unknown as {
+      _port: {
+        close: () => void;
+        onmessage: ((event: MessageEvent<string>) => void) | null;
+        postMessage: (message: string) => void;
+      };
+      _ready: boolean;
+      _handlePortMessage: (event: MessageEvent<string>) => void;
+    };
+
+    privateElement._port = { close: vi.fn(), onmessage: null, postMessage };
+    privateElement._ready = true;
+
+    const first = element.tokenize("submit-1");
+    privateElement._handlePortMessage({
+      data: JSON.stringify({
+        type: "tokenization_response",
+        id: "submit-1",
+        token: "tok_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      }),
+    } as MessageEvent<string>);
+    await expect(first).resolves.toMatchObject({
+      token: "tok_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    });
+
+    const second = element.tokenize("submit-2");
+    privateElement._handlePortMessage({
+      data: JSON.stringify({
+        type: "tokenization_response",
+        id: "submit-2",
+        token: "tok_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      }),
+    } as MessageEvent<string>);
+    await expect(second).resolves.toMatchObject({
+      token: "tok_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    });
+
+    // References are single-use with a 5-minute TTL, so the element must ask
+    // the iframe again on every submit and never hand back the previous one.
+    expect(postMessage).toHaveBeenCalledTimes(2);
+  });
+
+  it("marks the field a server-side refusal blames", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const privateElement = element as unknown as {
+      _handlePortMessage: (event: MessageEvent<string>) => void;
+    };
+
+    privateElement._handlePortMessage({
+      data: JSON.stringify({
+        type: "validation",
+        field: "cc_exp",
+        valid: false,
+        code: "card_expiry_invalid",
+      }),
+    } as MessageEvent<string>);
+
+    expect(element.validity.valid).toBe(false);
+    expect(element.validationMessage).not.toBe("");
   });
 });
