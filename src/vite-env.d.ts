@@ -2,6 +2,8 @@
 
 interface ImportMetaEnv {
   readonly VITE_EMBED_ORIGIN: string;
+  readonly VITE_CARD_EMBED_ORIGIN: string;
+  readonly VITE_CARD_EMBED_PATH: string;
   readonly VITE_KLARNA_INIT_RESPONSE?: string;
   readonly VITE_PAYPAL_SANDBOX_CLIENT_ID_US?: string;
   readonly VITE_PAYPAL_SANDBOX_CLIENT_ID_AT?: string;

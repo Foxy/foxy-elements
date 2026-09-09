@@ -1,5 +1,8 @@
 export function getRequiredEnvVar(
-  name: keyof Pick<ImportMetaEnv, "VITE_EMBED_ORIGIN">,
+  name: keyof Pick<
+    ImportMetaEnv,
+    "VITE_EMBED_ORIGIN" | "VITE_CARD_EMBED_ORIGIN" | "VITE_CARD_EMBED_PATH"
+  >,
 ): string {
   const value = import.meta.env[name]?.trim();
 

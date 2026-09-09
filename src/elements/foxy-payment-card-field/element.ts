@@ -23,8 +23,11 @@ export const paymentCardFieldEvents = {
   tokenizationError: "tokenizationerror",
 } as const;
 
-const DEFAULT_CARD_SECURE_ORIGIN = getRequiredEnvVar("VITE_EMBED_ORIGIN");
-const DEFAULT_EMBED_PATH = "/v2.html";
+// app-php serves the card-entry shell and the vault mint it posts to on the
+// tokenization origin, which is not the host foxy-ach-field uses. Both values
+// are inlined at build time: the element has never read a runtime origin.
+const DEFAULT_CARD_SECURE_ORIGIN = getRequiredEnvVar("VITE_CARD_EMBED_ORIGIN");
+const DEFAULT_EMBED_PATH = getRequiredEnvVar("VITE_CARD_EMBED_PATH");
 
 type PaymentCardFieldMode = "card" | "card_csc";
 type EmbedValidationField = "cc_number" | "cc_exp" | "cc_csc" | "form";
@@ -33,13 +36,21 @@ type EmbedValidationCode =
   | "pattern_mismatch"
   | "range_underflow"
   | "card_brand_unsupported"
-  | "invalid_state";
+  | "invalid_state"
+  // Refusals the mint makes that no client-side check can. They have no native
+  // constraint equivalent, so toValidityFlags leaves them on customError.
+  | "card_number_invalid"
+  | "card_expiry_invalid"
+  | "card_csc_invalid";
 
 export type PaymentCardFieldOption = {
   mode: PaymentCardFieldMode;
-  // INTERIM: forwarded to the embed so it can fetch its gateway_id. Removed
-  // when card token vaulting lands.
+  // The config key the shell resolves everything from: gateway, live/test
+  // credentials and accepted brands. A gateway id resolves none of that.
   templateSetId?: number;
+  // The checkout session the mint binds the reference to. Absent for
+  // portal/admin card save, which rests on the vault's claim and TTL instead.
+  sessionId?: string;
   translationCardNumberLabel?: string;
   translationCardNumberPlaceholder?: string;
   translationCardExpirationLabel?: string;
@@ -97,6 +108,7 @@ const MODE_ATTRIBUTE = "mode";
 const DISABLED_ATTRIBUTE = "disabled";
 const LANG_ATTRIBUTE = "lang";
 const TEMPLATE_SET_ID_ATTRIBUTE = "template-set-id";
+const SESSION_ID_ATTRIBUTE = "session-id";
 const TRANSLATION_CARD_NUMBER_LABEL_ATTRIBUTE = "translation-card-number-label";
 const TRANSLATION_CARD_NUMBER_PLACEHOLDER_ATTRIBUTE =
   "translation-card-number-placeholder";
@@ -211,6 +223,9 @@ function toValidityFlags(code: EmbedValidationCode | null): ValidityStateFlags {
   }
 }
 
+// Copy per refusal context. Deliberately exhaustive with no default: the union
+// comes from the SDK, so a context added there fails typecheck here rather than
+// reaching a shopper as a blank message.
 function toErrorMessage(code: CardEmbedTokenizeErrorCode): string {
   switch (code) {
     case "invalid_state":
@@ -219,7 +234,51 @@ function toErrorMessage(code: CardEmbedTokenizeErrorCode): string {
       return "Secure card embed configuration is incomplete.";
     case "tokenization_failed":
       return "Unable to tokenize card details.";
+    case "tokenization_network_error":
+      return "Could not reach the payment service. Please try again.";
+    case "card_number_invalid":
+      return "Please enter a valid card number.";
+    case "card_expiry_invalid":
+      return "Please enter a valid expiration date.";
+    case "card_csc_invalid":
+      return "Please enter a valid security code.";
+    case "card_brand_unsupported":
+      return "This card brand is not accepted.";
+    case "saved_card_unavailable":
+      return "Your saved card is unavailable. Please enter a card.";
+    case "tokenization_config_stale":
+      return "This store's payment settings changed. Please re-enter your card.";
+    case "tokenization_not_supported_for_provider":
+      return "This payment gateway does not accept cards entered here.";
+    case "rate_limited":
+      return "Too many attempts. Please wait and try again.";
+    case "malformed_request":
+    case "method_not_allowed":
+      return "Unable to tokenize card details.";
   }
+}
+
+const TOKENIZE_ERROR_CODES = new Set<string>([
+  "invalid_state",
+  "invalid_config",
+  "tokenization_failed",
+  "tokenization_network_error",
+  "card_number_invalid",
+  "card_expiry_invalid",
+  "card_csc_invalid",
+  "card_brand_unsupported",
+  "saved_card_unavailable",
+  "tokenization_config_stale",
+  "tokenization_not_supported_for_provider",
+  "rate_limited",
+  "malformed_request",
+  "method_not_allowed",
+] satisfies CardEmbedTokenizeErrorCode[]);
+
+function isTokenizeErrorCode(
+  value: unknown,
+): value is CardEmbedTokenizeErrorCode {
+  return typeof value === "string" && TOKENIZE_ERROR_CODES.has(value);
 }
 
 function normalizeMode(value: string | null | undefined): PaymentCardFieldMode {
@@ -245,6 +304,7 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
       DISABLED_ATTRIBUTE,
       LANG_ATTRIBUTE,
       TEMPLATE_SET_ID_ATTRIBUTE,
+      SESSION_ID_ATTRIBUTE,
       ...TRANSLATION_ATTRIBUTE_NAMES,
       ...ThemeableHTMLElement.themeAttributeNames,
     ];
@@ -254,6 +314,7 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
   private _mode: PaymentCardFieldMode = "card";
   private _lang: string | undefined;
   private _templateSetId: number | undefined;
+  private _sessionId: string | undefined;
   private _iframe: HTMLIFrameElement | null = null;
   private _port: MessagePort | null = null;
   private _fallbackRequestCounter = 0;
@@ -282,6 +343,8 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
     this._templateSetId = normalizeTemplateSetId(
       this.getAttribute(TEMPLATE_SET_ID_ATTRIBUTE),
     );
+    this._sessionId =
+      this.getAttribute(SESSION_ID_ATTRIBUTE)?.trim() || undefined;
     this._syncPublicStates();
   }
 
@@ -365,6 +428,23 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
       this.removeAttribute(TEMPLATE_SET_ID_ATTRIBUTE);
     } else if (this.getAttribute(TEMPLATE_SET_ID_ATTRIBUTE) !== String(value)) {
       this.setAttribute(TEMPLATE_SET_ID_ATTRIBUTE, String(value));
+    }
+
+    if (this.isConnected) this._mountIframe();
+  }
+
+  get sessionId(): string | undefined {
+    return this._sessionId;
+  }
+
+  set sessionId(value: string | undefined) {
+    if (this._sessionId === value) return;
+
+    this._sessionId = value;
+    if (value === undefined) {
+      this.removeAttribute(SESSION_ID_ATTRIBUTE);
+    } else if (this.getAttribute(SESSION_ID_ATTRIBUTE) !== value) {
+      this.setAttribute(SESSION_ID_ATTRIBUTE, value);
     }
 
     if (this.isConnected) this._mountIframe();
@@ -501,6 +581,12 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
 
     if (name === TEMPLATE_SET_ID_ATTRIBUTE) {
       this._templateSetId = normalizeTemplateSetId(newValue);
+      if (this.isConnected) this._mountIframe();
+      return;
+    }
+
+    if (name === SESSION_ID_ATTRIBUTE) {
+      this._sessionId = newValue?.trim() || undefined;
       if (this.isConnected) this._mountIframe();
       return;
     }
@@ -696,10 +782,15 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
       url.searchParams.set("lang", this._lang);
     }
 
-    // INTERIM: lets the embed fetch its gateway_id. Removed when card token
-    // vaulting lands.
     if (this._templateSetId !== undefined) {
       url.searchParams.set("template_set_id", String(this._templateSetId));
+    }
+
+    // Forwarded exactly as given. The mint rejects a session id it could not
+    // have issued; dropping a malformed one here would mint a sessionless
+    // reference instead, which is spendable from any session at all.
+    if (this._sessionId) {
+      url.searchParams.set("session_id", this._sessionId);
     }
 
     for (const attrName of THEME_QUERY_ATTRIBUTE_NAMES) {
@@ -893,8 +984,18 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
         );
         pending.resolve(detail);
       } else {
-        const error = this._emitTokenizeError("tokenization_failed", requestId);
-        pending.reject(error);
+        // The mint names why it refused, and those contexts are the whole point
+        // of the vault error contract: before it, an expired reference, a
+        // replay and an unsupported brand all reached the host as one generic
+        // card-number error. A client-side validation failure sends no code,
+        // and stays a generic failure.
+        const code = payload["code"];
+        pending.reject(
+          this._emitTokenizeError(
+            isTokenizeErrorCode(code) ? code : "tokenization_failed",
+            requestId,
+          ),
+        );
       }
     }
   }
