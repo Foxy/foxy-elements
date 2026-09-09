@@ -810,11 +810,11 @@ describe("SubscriptionPage", () => {
   });
 
   it("heads a bundle with the parent's name, like the card the customer clicked", () => {
-    // `card.tsx` derives its title through `groupSubscriptionItems`, which
+    // `card.tsx` derives its title through `groupLineItems`, which
     // shows only the parent for a bundle. The page joined every raw
     // `item.name`, so a card headed "Coffee Subscription" opened a page
     // headed "Coffee Subscription, Extra Filters, Coffee Mugs". Both now go
-    // through `subscriptionTitle`.
+    // through `lineItemsTitle`.
     render({
       subscription: subscription({
         items: [

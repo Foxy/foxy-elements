@@ -40,7 +40,7 @@ export function useOrderById(
   id: string,
 ) {
   const query = useMemo(
-    () => ({ filters: [ORDER_TYPES_FILTER], zoom: "items", limit: 100 }),
+    () => ({ filters: [ORDER_TYPES_FILTER], zoom: "items:item_options", limit: 100 }),
     [],
   );
 

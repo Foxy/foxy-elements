@@ -26,6 +26,27 @@ export type AddressResource = {
   >;
 };
 
+/**
+ * The fields the two formatters below actually read. Narrower than
+ * `AddressResource` on purpose: a transaction's `fx:shipment` carries exactly
+ * these and none of the rest (no `is_default_*`, no `_links`), so declaring
+ * the real dependency lets the order page's Billing & shipping panel reuse
+ * this formatting instead of copying it. `AddressResource` satisfies it, so
+ * every existing caller is unaffected.
+ */
+export type AddressLike = Pick<
+  AddressResource,
+  | "address_name"
+  | "first_name"
+  | "last_name"
+  | "address1"
+  | "address2"
+  | "city"
+  | "region"
+  | "postal_code"
+  | "country"
+>;
+
 const isFilled = (part: string | undefined): part is string =>
   !!part && part.trim().length > 0;
 
@@ -72,7 +93,7 @@ function countryName(code: string, locale?: string): string {
  * address is conventionally written with the code anyway ("Chicago, IL").
  */
 export function formatAddressLines(
-  address: AddressResource,
+  address: AddressLike,
   locale?: string,
 ): AddressLines {
   const region = address.region;
@@ -91,7 +112,7 @@ export function formatAddressLines(
   };
 }
 
-export function formatFullAddress(address: AddressResource): string {
+export function formatFullAddress(address: AddressLike): string {
   const region = address.region;
 
   return [

@@ -18,6 +18,7 @@ import {
   resolveLanguageStrings,
   type ResolvedLanguageStrings,
 } from "./language-strings";
+import type { PortalVariant } from "./types";
 import { MissingStoreDomain, Portal } from "./view";
 
 export const CUSTOMER_PORTAL_ELEMENT_TAG = "foxy-customer-portal";
@@ -26,6 +27,14 @@ const STORE_DOMAIN_ATTRIBUTE = "store-domain";
 const TEMPLATE_SET_ID_ATTRIBUTE = "template-set-id";
 const SKIP_PASSWORD_RESET_ATTRIBUTE = "skip-password-reset";
 const URL_SYNC_ATTRIBUTE = "url-sync";
+const VARIANT_ATTRIBUTE = "variant";
+
+/**
+ * The layout every existing embed already has. An unset attribute -- and an
+ * unrecognised one, which is a typo in a host page's markup -- resolves here
+ * rather than blanking out a section.
+ */
+const DEFAULT_VARIANT: PortalVariant = "subscriptions";
 
 /**
  * Consola numbering: errors and warnings only.
@@ -56,6 +65,7 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
       TEMPLATE_SET_ID_ATTRIBUTE,
       SKIP_PASSWORD_RESET_ATTRIBUTE,
       URL_SYNC_ATTRIBUTE,
+      VARIANT_ATTRIBUTE,
       ...ThemeableHTMLElement.themeAttributeNames,
     ];
   }
@@ -101,6 +111,22 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
   set urlSync(value: boolean) {
     if (value) this.setAttribute(URL_SYNC_ATTRIBUTE, "");
     else this.removeAttribute(URL_SYNC_ATTRIBUTE);
+  }
+
+  /**
+   * Which selling shape the portal is laid out for -- see `PortalVariant`.
+   * Reads back as the resolved value, so a host that never set the attribute
+   * (or set one the element does not know) is told what it actually got.
+   */
+  get variant(): PortalVariant {
+    return this.getAttribute(VARIANT_ATTRIBUTE) === "orders"
+      ? "orders"
+      : DEFAULT_VARIANT;
+  }
+
+  set variant(value: PortalVariant | null) {
+    if (value === null) this.removeAttribute(VARIANT_ATTRIBUTE);
+    else this.setAttribute(VARIANT_ATTRIBUTE, value);
   }
 
   connectedCallback() {
@@ -382,6 +408,7 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
                   cache={this.#cache}
                   skipPasswordReset={this.skipPasswordReset}
                   urlSync={this.urlSync}
+                  variant={this.variant}
                   onEvent={(type, detail) =>
                     this.dispatchEvent(
                       new CustomEvent(type, {

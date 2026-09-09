@@ -535,6 +535,22 @@ export const messages = defineMessages({
     id: "portal_orders_column_status",
     defaultMessage: "Status",
   },
+  // The `variant="orders"` heading for the same section `paymentHistoryHeading`
+  // heads in the subscriptions variant. Two keys, not one reworded: there the
+  // section sits under a subscriptions list and covers a customer's payments
+  // including one-off ones, while here it IS the page and a customer who buys
+  // products thinks of its rows as orders.
+  ordersHeading: {
+    id: "portal_orders_heading",
+    defaultMessage: "Orders",
+  },
+  // The card view's own control, where the row view has a whole clickable
+  // row instead. "Order" rather than a bare "View" so it reads on its own
+  // next to the receipt link, which also opens something.
+  ordersView: {
+    id: "portal_orders_view",
+    defaultMessage: "View order",
+  },
   orderDetailHeading: {
     id: "portal_order_detail_heading",
     defaultMessage: "Order #{id}",
@@ -561,6 +577,44 @@ export const messages = defineMessages({
   orderTotal: {
     id: "portal_order_total",
     defaultMessage: "Total",
+  },
+  orderItemsHeading: {
+    id: "portal_order_items_heading",
+    defaultMessage: "Items ({count})",
+  },
+  orderSummaryHeading: {
+    id: "portal_order_summary_heading",
+    defaultMessage: "Summary",
+  },
+  // `frequency` arrives already formatted through `frequencyLabel` -- the
+  // standalone reading ("Monthly"), not the price suffix ("/mo").
+  //
+  // Marks the item; does not link to the subscription yet. The Customer API
+  // does expose `fx:subscription` on an item, so the link is possible -- it
+  // just needs the rel added to the SDK's customer item type first.
+  orderItemSubscription: {
+    id: "portal_order_item_subscription",
+    defaultMessage: "Subscription · {frequency}",
+  },
+  orderBillingHeading: {
+    id: "portal_order_billing_heading",
+    defaultMessage: "Billing & shipping",
+  },
+  orderPaymentMethodLabel: {
+    id: "portal_order_payment_method_label",
+    defaultMessage: "Payment method",
+  },
+  // `number` is the customer's own PO value, entered at checkout.
+  orderPurchaseOrder: {
+    id: "portal_order_purchase_order",
+    defaultMessage: "Purchase order {number}",
+  },
+  // `destination` is the shipment's own name -- the customer's `shipto`
+  // value on a multiship order. Replaces the single `orderShipping` line in
+  // the summary rail once an order ships to more than one place.
+  orderShippingTo: {
+    id: "portal_order_shipping_to",
+    defaultMessage: "Shipping to {destination}",
   },
   orderReceipt: {
     id: "portal_order_receipt",

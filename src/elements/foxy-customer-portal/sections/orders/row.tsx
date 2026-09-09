@@ -3,6 +3,7 @@ import { FormattedNumber, useIntl } from "react-intl";
 import { ExternalLink } from "lucide-react";
 import { Badge } from "@foxy.io/design-system/badge";
 import { toCalendarDate } from "../../calendar-date";
+import type { LineItem } from "../../line-items";
 import { messages } from "../../messages";
 import {
   getTransactionStatusMessage,
@@ -32,8 +33,13 @@ export type OrderResource = {
     self: { href: string };
     "fx:receipt"?: { href: string };
   } & Record<string, { href: string } | undefined>;
+  // `LineItem`, not the three fields the rows render: `fx:item` is a single
+  // resource type shared with the subscription template (see `line-items.ts`),
+  // and `OrderCard` renders its `image`/`code`/`parent_code` off the same
+  // fetch. Widening the shared type beats a second, card-shaped variant of
+  // this resource.
   _embedded?: {
-    "fx:items"?: { name: string; quantity: number; price: number }[];
+    "fx:items"?: LineItem[];
   };
 };
 

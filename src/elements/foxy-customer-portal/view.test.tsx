@@ -148,6 +148,7 @@ function render(api: unknown, props: Record<string, unknown> = {}) {
       cache={(props.cache as RequestCache) ?? new RequestCache()}
       skipPasswordReset={(props.skipPasswordReset as boolean) ?? false}
       urlSync={(props.urlSync as boolean) ?? false}
+      variant={(props.variant as "subscriptions" | "orders") ?? "subscriptions"}
       onEvent={
         (props.onEvent as (type: string, detail?: unknown) => void) ?? vi.fn()
       }
@@ -525,6 +526,7 @@ describe("Portal", () => {
             cache={new RequestCache()}
             skipPasswordReset={false}
             urlSync={false}
+      variant="subscriptions"
             onEvent={vi.fn()}
           />
         </PortalContainerContext>,
@@ -580,6 +582,7 @@ describe("Portal", () => {
             cache={new RequestCache()}
             skipPasswordReset={false}
             urlSync={false}
+      variant="subscriptions"
             onEvent={vi.fn()}
           />
         </PortalContainerContext>,
@@ -635,6 +638,7 @@ describe("Portal", () => {
           cache={new RequestCache()}
           skipPasswordReset={false}
           urlSync={false}
+      variant="subscriptions"
           onEvent={vi.fn()}
         />
       </PortalContainerContext>,
@@ -677,6 +681,7 @@ describe("Portal", () => {
             cache={new RequestCache()}
             skipPasswordReset={false}
             urlSync
+      variant="subscriptions"
             onEvent={vi.fn()}
           />
         </PortalContainerContext>,
@@ -749,6 +754,7 @@ describe("Portal", () => {
             cache={new RequestCache()}
             skipPasswordReset={false}
             urlSync
+      variant="subscriptions"
             onEvent={vi.fn()}
           />
         </PortalContainerContext>,
@@ -1444,5 +1450,59 @@ describe("Portal", () => {
     // "Yearly" while keeping "1y" as the option's value. The rule that had
     // to survive the trip down is still the one carrying "1y".
     expect(options.join(" ")).toMatch(/Yearly/);
+  });
+
+  describe("layout variant", () => {
+    it("leads with the subscriptions section by default", async () => {
+      const api = fakeApi();
+      api.storage.setItem(API.SESSION, session());
+      render(api);
+      await flush();
+      await flush();
+
+      expect(screen!.host.textContent).toMatch(/subscriptions/i);
+    });
+
+    it('drops the subscriptions section under variant="orders"', async () => {
+      const api = fakeApi();
+      api.storage.setItem(API.SESSION, session());
+      render(api, { variant: "orders" });
+      await flush();
+      await flush();
+
+      // A store that mostly sells products has no subscriptions to lead
+      // with, and an empty Active/Inactive toggle is worse than no section.
+      expect(screen!.host.textContent).not.toMatch(/subscriptions/i);
+      // The payment section is still there, under its orders-variant heading.
+      expect(screen!.host.textContent).toMatch(/orders/i);
+      expect(screen!.host.textContent).not.toMatch(/payment history/i);
+    });
+
+    it('still resolves a deep-linked subscription page under variant="orders"', async () => {
+      // The section is gone from the home page, but a bookmarked or emailed
+      // subscription URL has to keep working -- hiding an entry point is not
+      // the same as retiring a route.
+      const originalUrl = window.location.href;
+
+      try {
+        history.replaceState({}, "", "?fc_page=subscription&fc_id=42");
+
+        const api = fakeApi();
+        api.storage.setItem(API.SESSION, session());
+        render(api, { variant: "orders", urlSync: true });
+        await flush();
+        await flush();
+
+        // The subscription page renders its own Back control; the home page
+        // does not.
+        expect(
+          [...screen!.host.querySelectorAll("button")].some((button) =>
+            /back/i.test(button.textContent ?? ""),
+          ),
+        ).toBe(true);
+      } finally {
+        history.replaceState({}, "", originalUrl);
+      }
+    });
   });
 });

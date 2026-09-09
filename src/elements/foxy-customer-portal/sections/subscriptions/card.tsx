@@ -9,11 +9,25 @@ import { toCalendarDate } from "../../calendar-date";
 import { useResource, type FollowableLink } from "@/lib/customer-api";
 import { messages } from "../../messages";
 import {
-  groupSubscriptionItems,
+  groupLineItems,
   itemLabel,
-  subscriptionTitle,
-  type SubscriptionTemplateItem,
-} from "./item-grouping";
+  lineItemsTitle,
+  type LineItem,
+} from "../../line-items";
+import {
+  Card,
+  CardActionSlot,
+  CardBody,
+  CardCellLabel,
+  CardCellValue,
+  CardChildLine,
+  CardChildList,
+  CardInfoGrid,
+  CardPrice,
+  CardTitle,
+  CardTitleRow,
+} from "../../card-layout";
+import { ThumbnailGrid } from "../../thumbnail-grid";
 import { parseFrequency } from "./price-line";
 import type { CartDisplayConfig } from "./cart-display-config";
 import type { OrderResource } from "../orders/row";
@@ -46,7 +60,7 @@ export type SubscriptionResource = {
       shipping_state?: string;
       shipping_postal_code?: string;
       shipping_country?: string;
-      _embedded?: { "fx:items"?: SubscriptionTemplateItem[] };
+      _embedded?: { "fx:items"?: LineItem[] };
     };
   };
 };
@@ -64,105 +78,6 @@ type Props = {
   cartDisplayConfig?: CartDisplayConfig | null;
 };
 
-const Card = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: ${(props) => props.theme.tokens.space.lg};
-  padding: 20px;
-  background: ${(props) => props.theme.tokens.background.surface};
-  border: ${(props) => props.theme.tokens.border.default};
-  border-radius: ${(props) => props.theme.tokens.borderRadius.md};
-`;
-
-// `grid-auto-rows: 1fr` is what splits the square between the rows. Without
-// it the rows size to their content, so a third item pushed each cell to the
-// image's own height and the grid rendered tall, narrow tiles instead of a
-// 2x2 of squares.
-const Thumbnails = styled.div<{ $multi: boolean }>`
-  flex-shrink: 0;
-  width: 6rem;
-  height: 6rem;
-  display: grid;
-  grid-template-columns: ${(props) => (props.$multi ? "repeat(2, 1fr)" : "1fr")};
-  grid-auto-rows: 1fr;
-  gap: 6px;
-`;
-
-// Square regardless of the cell it lands in, so a row that ever sizes
-// differently cannot stretch a tile out of shape. Item images are arbitrary
-// sizes and aspect ratios, so they fill that square by cropping rather than
-// letterboxing -- a tile that matches its neighbours matters more here than
-// showing the whole of any one image.
-const Thumbnail = styled.div`
-  width: 100%;
-  aspect-ratio: 1;
-  align-self: start;
-  border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
-  background: ${(props) => props.theme.tokens.background.disabledField};
-  overflow: hidden;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-`;
-
-const Body = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 220px;
-  min-width: 220px;
-  gap: ${(props) => props.theme.tokens.space.md};
-`;
-
-const TitleRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: ${(props) => props.theme.tokens.space.sm};
-`;
-
-const Title = styled.div`
-  font: ${(props) => props.theme.tokens.font.h3};
-  color: ${(props) => props.theme.tokens.color.body};
-`;
-
-const Price = styled.div`
-  font: ${(props) => props.theme.tokens.font.h3};
-  color: ${(props) => props.theme.tokens.color.body};
-`;
-
-const ChildList = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const ChildLine = styled.div`
-  font: ${(props) => props.theme.tokens.font.body};
-  color: ${(props) => props.theme.tokens.color.secondary};
-`;
-
-const InfoGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 14px;
-`;
-
-const CellLabel = styled.div`
-  font: ${(props) => props.theme.tokens.font.bodySmall};
-  color: ${(props) => props.theme.tokens.color.faint};
-`;
-
-const CellValue = styled.div<{ $error?: boolean }>`
-  font: ${(props) => props.theme.tokens.font.bodyEmphasis};
-  color: ${(props) =>
-    props.$error ? props.theme.tokens.color.error : props.theme.tokens.color.body};
-`;
-
 // A plain inline link, not the DS link Button, whose button-sized padding
 // pushed this cell past its grid track and wrapped "View" onto a second line.
 const ViewLink = styled.button`
@@ -177,20 +92,6 @@ const ViewLink = styled.button`
   }
 `;
 
-const ManageSlot = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  height: 100%;
-
-  /* Pinned to the last column rather than left to auto-placement, which drops
-     it into whichever cell follows the final caption -- the middle of the
-     card at any width where the captions wrap. The track count varies with
-     the viewport (the grid is auto-fit) and with how many captions this
-     subscription has, so the column is addressed from the end. */
-  grid-column: -2 / -1;
-`;
-
 export function SubscriptionCard({
   subscription,
   onManage,
@@ -202,12 +103,9 @@ export function SubscriptionCard({
   const items = template?._embedded?.["fx:items"] ?? [];
   const showFrequency = cartDisplayConfig?.show_sub_frequency ?? true;
 
-  const { parents, children } = groupSubscriptionItems(items);
+  const { parents, children } = groupLineItems(items);
   const isBundle = parents.length === 1 && children.length > 0;
-  const titleText = subscriptionTitle(items);
-
-  const thumbnailItems = items.slice(0, 4);
-  const isMultiItem = thumbnailItems.length > 1;
+  const titleText = lineItemsTitle(items);
 
   const startDate = toCalendarDate(subscription.start_date);
   const nextDate = toCalendarDate(subscription.next_transaction_date);
@@ -232,15 +130,14 @@ export function SubscriptionCard({
   const endIsFuture =
     endDate !== null && endDate.getTime() > Date.now() && subscription.is_active;
 
-  // Assumes the SDK enriches `fx:last_transaction` with a working `.get()`
-  // the same way it enriches every other link on a resource it returns
-  // (see `account.tsx`'s doc comment on `CustomerLinks`) -- including on a
-  // subscription reached through a *collection* page's embedded items, not
-  // only a top-level `useResource` result. This has not been verified
-  // against a live store from inside this element specifically; if the
-  // Storybook/manual verification step at the end of this plan shows the
-  // Last Payment cell never appearing even for a subscription with real
-  // payment history, this assumption is the first thing to check.
+  // The SDK enriches `fx:last_transaction` with a working `.get()` the same
+  // way it enriches every other link on a resource it returns -- including on
+  // a subscription reached through a *collection* page's embedded items,
+  // not only a top-level `useResource` result. Verified in the SDK rather
+  // than assumed: `addFollowableLinks` (core/API/Response.ts) recurses into
+  // `_embedded`, mapping every embedded item through itself, so nesting depth
+  // does not matter. The order page's Billing & shipping panel relies on the
+  // same guarantee for `fx:shipments`/`fx:payments`.
   const lastTransactionLink = subscription._links["fx:last_transaction"] as
     | (FollowableLink<OrderResource> & { href: string })
     | undefined;
@@ -280,19 +177,13 @@ export function SubscriptionCard({
 
   return (
     <Card>
-      <Thumbnails $multi={isMultiItem}>
-        {thumbnailItems.map((item, index) => (
-          <Thumbnail key={`${item.name}-${index}`}>
-            {item.image ? <img src={item.image} alt="" loading="lazy" /> : null}
-          </Thumbnail>
-        ))}
-      </Thumbnails>
+      <ThumbnailGrid items={items} />
 
-      <Body>
-        <TitleRow>
-          <Title>{titleText}</Title>
-          {priceLine ? <Price>{priceLine}</Price> : null}
-        </TitleRow>
+      <CardBody>
+        <CardTitleRow>
+          <CardTitle>{titleText}</CardTitle>
+          {priceLine ? <CardPrice>{priceLine}</CardPrice> : null}
+        </CardTitleRow>
 
         {subscription.error_message ? (
           <Alert.Root $variant="destructive">
@@ -301,24 +192,24 @@ export function SubscriptionCard({
         ) : null}
 
         {isBundle ? (
-          <ChildList>
+          <CardChildList>
             {children.map((child, index) => (
-              <ChildLine key={`${child.name}-${index}`}>
+              <CardChildLine key={`${child.name}-${index}`}>
                 {itemLabel(child)}
-              </ChildLine>
+              </CardChildLine>
             ))}
-          </ChildList>
+          </CardChildList>
         ) : null}
 
         <Separator />
 
-        <InfoGrid>
+        <CardInfoGrid>
           {lastPaymentDate ? (
             <div>
-              <CellLabel>
+              <CardCellLabel>
                 {intl.formatMessage(messages.subscriptionLastPayment)}
-              </CellLabel>
-              <CellValue>
+              </CardCellLabel>
+              <CardCellValue>
                 {intl.formatDate(lastPaymentDate, { dateStyle: "medium" })}{" "}
                 <ViewLink
                   type="button"
@@ -332,61 +223,61 @@ export function SubscriptionCard({
                 >
                   {intl.formatMessage(messages.subscriptionLastPaymentView)}
                 </ViewLink>
-              </CellValue>
+              </CardCellValue>
             </div>
           ) : null}
 
           {showStartDate ? (
             <div>
-              <CellLabel>
+              <CardCellLabel>
                 {intl.formatMessage(messages.subscriptionStartDate)}
-              </CellLabel>
-              <CellValue>
+              </CardCellLabel>
+              <CardCellValue>
                 {intl.formatDate(startDate!, { dateStyle: "medium" })}
-              </CellValue>
+              </CardCellValue>
             </div>
           ) : null}
 
           {showNextDate ? (
             <div>
-              <CellLabel>
+              <CardCellLabel>
                 {intl.formatMessage(messages.subscriptionNextPayment)}
-              </CellLabel>
-              <CellValue>
+              </CardCellLabel>
+              <CardCellValue>
                 {intl.formatDate(nextDate!, { dateStyle: "medium" })}
-              </CellValue>
+              </CardCellValue>
             </div>
           ) : null}
 
           {showEndDate ? (
             <div>
-              <CellLabel>
+              <CardCellLabel>
                 {intl.formatMessage(
                   endIsFuture
                     ? messages.subscriptionCancels
                     : messages.subscriptionEnded,
                 )}
-              </CellLabel>
-              <CellValue $error>
+              </CardCellLabel>
+              <CardCellValue $error>
                 {intl.formatDate(endDate!, { dateStyle: "medium" })}
-              </CellValue>
+              </CardCellValue>
             </div>
           ) : null}
 
           <div>
-            <CellLabel>{intl.formatMessage(messages.subscriptionId)}</CellLabel>
-            <CellValue>
+            <CardCellLabel>{intl.formatMessage(messages.subscriptionId)}</CardCellLabel>
+            <CardCellValue>
               {subscription._links.self.href.replace(/\/+$/, "").split("/").pop()}
-            </CellValue>
+            </CardCellValue>
           </div>
 
-          <ManageSlot>
+          <CardActionSlot>
             <Button type="button" $variant={manageButtonVariant} onClick={onManage}>
               {intl.formatMessage(messages.subscriptionManage)} <ArrowRight size={16} />
             </Button>
-          </ManageSlot>
-        </InfoGrid>
-      </Body>
+          </CardActionSlot>
+        </CardInfoGrid>
+      </CardBody>
     </Card>
   );
 }

@@ -34,6 +34,7 @@ import {
   type PortalSettings as SubscriptionsSettings,
 } from "../sections/subscriptions";
 import { messages } from "../messages";
+import type { PortalVariant } from "../types";
 
 /** How long the sign-out button stays in its error state. Matches v1. */
 const SIGN_OUT_ERROR_MS = 1000;
@@ -105,6 +106,8 @@ type Props = {
   /** `null` while the settings request is still in flight. */
   settings: PortalSettings | null;
   accountPage: AccountPage;
+  /** Which selling shape the home page is laid out for -- see `PortalVariant`. */
+  variant: PortalVariant;
   onNavigate: (page: AccountPage, options?: { restoreScroll?: boolean }) => void;
 };
 
@@ -112,6 +115,7 @@ export function AccountScreen({
   onSignedOut,
   settings,
   accountPage,
+  variant,
   onNavigate,
 }: Props) {
   const intl = useIntl();
@@ -256,6 +260,7 @@ export function AccountScreen({
             typeof OrderPageContainer
           >["ordersLink"]
         }
+        cartDisplayConfig={cartDisplayConfig}
         onBack={goHome}
       />
     );
@@ -311,20 +316,32 @@ export function AccountScreen({
           (and the ones in three of the five early returns above -- the
           per-item pages, each reading a different rel) widen the type to say
           so, rather than papering over a runtime mismatch. */}
-      <SubscriptionsSection
-        customer={
-          data as unknown as ComponentProps<
-            typeof SubscriptionsSection
-          >["customer"]
-        }
-        cartDisplayConfig={cartDisplayConfig}
-        onNavigate={onNavigate}
-      />
+      {/* Dropped entirely under `variant="orders"`: a store that mostly
+          sells products has nothing to lead with here, and the section keeps
+          its heading and Active/Inactive toggle even when empty (see
+          `SubscriptionsSection`), so leaving it in would show an empty frame
+          on every such store's home page.
+
+          The `subscription` page above is deliberately NOT gated with it --
+          there is no entry point from here, but a bookmarked or emailed
+          subscription URL keeps resolving. */}
+      {variant === "subscriptions" ? (
+        <SubscriptionsSection
+          customer={
+            data as unknown as ComponentProps<
+              typeof SubscriptionsSection
+            >["customer"]
+          }
+          cartDisplayConfig={cartDisplayConfig}
+          onNavigate={onNavigate}
+        />
+      ) : null}
 
       <OrdersSection
         customer={
           data as unknown as ComponentProps<typeof OrdersSection>["customer"]
         }
+        variant={variant}
         onNavigate={onNavigate}
       />
 

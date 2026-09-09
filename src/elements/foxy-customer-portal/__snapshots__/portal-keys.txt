@@ -1,4 +1,4 @@
-175 keys
+184 keys
 
 portal_account_load_failed
 portal_address_city
@@ -47,11 +47,18 @@ portal_manage_next_payment_empty
 portal_missing_store_domain
 portal_no_billing_address
 portal_no_shipping_address
+portal_order_billing_heading
 portal_order_detail_heading
 portal_order_item_quantity
+portal_order_item_subscription
+portal_order_items_heading
 portal_order_items_total
+portal_order_payment_method_label
+portal_order_purchase_order
 portal_order_receipt
 portal_order_shipping
+portal_order_shipping_to
+portal_order_summary_heading
 portal_order_tax
 portal_order_total
 portal_orders_column_amount
@@ -59,6 +66,8 @@ portal_orders_column_date
 portal_orders_column_order
 portal_orders_column_status
 portal_orders_column_summary
+portal_orders_heading
+portal_orders_view
 portal_pagination_next
 portal_pagination_previous
 portal_password_confirm

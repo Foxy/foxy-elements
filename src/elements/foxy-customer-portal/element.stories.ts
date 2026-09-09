@@ -38,6 +38,7 @@ const SETTINGS = {
     show_product_options: true,
     show_product_weight: true,
     show_product_code: true,
+    hidden_product_options: ["internal sku"],
   },
 };
 
@@ -475,9 +476,27 @@ type OrderFixture = {
   _links: {
     self: { href: string };
     "fx:receipt"?: { href: string };
+    // Followed by the order page's Billing & shipping panel. Declared on the
+    // fixture because the SDK enriches links it finds in the response -- it
+    // cannot invent one the payload never carried.
+    "fx:shipments"?: { href: string };
+    "fx:payments"?: { href: string };
   };
   _embedded: {
-    "fx:items": { name: string; quantity: number; price: number }[];
+    "fx:items": {
+      name: string;
+      quantity: number;
+      price: number;
+      image?: string;
+      code?: string;
+      parent_code?: string;
+      weight?: number;
+      shipto?: string;
+      subscription_frequency?: string;
+      _embedded?: {
+        "fx:item_options": { name: string; value: string }[];
+      };
+    }[];
   };
 };
 
@@ -494,10 +513,119 @@ const DEFAULT_ORDERS: OrderFixture[] = [
     status: "approved",
     _links: {
       self: { href: `${TRANSACTIONS_HREF}/100` },
+      "fx:shipments": { href: `${TRANSACTIONS_HREF}/100/shipments` },
+      "fx:payments": { href: `${TRANSACTIONS_HREF}/100/payments` },
       "fx:receipt": { href: `${TRANSACTIONS_HREF}/100/receipt` },
     },
     _embedded: {
-      "fx:items": [{ name: "Widget", quantity: 1, price: 25 }],
+      "fx:items": [
+        { name: "Widget", quantity: 1, price: 25, image: itemImage(210) },
+      ],
+    },
+  },
+];
+
+/**
+ * What `variant="orders"` is for: a store selling products, whose payment
+ * history is the page rather than a table under a subscriptions section.
+ *
+ * Deliberately varied, because the card presentation has more shapes than the
+ * row one: a single item, several items (a 2x2 thumbnail grid), a bundle
+ * (parent name as the title, children listed under it), an item with no image
+ * at all, and one order with no receipt link.
+ */
+const PRODUCT_STORE_ORDERS: OrderFixture[] = [
+  {
+    id: 300,
+    display_id: 300,
+    transaction_date: "2024-06-14T10:15:00-0700",
+    total_order: 148,
+    total_item_price: "148.00",
+    total_tax: "0.00",
+    total_shipping: "0.00",
+    currency_code: "USD",
+    status: "approved",
+    _links: {
+      self: { href: `${TRANSACTIONS_HREF}/300` },
+      "fx:shipments": { href: `${TRANSACTIONS_HREF}/300/shipments` },
+      "fx:payments": { href: `${TRANSACTIONS_HREF}/300/payments` },
+      "fx:receipt": { href: `${TRANSACTIONS_HREF}/300/receipt` },
+    },
+    _embedded: {
+      "fx:items": [
+        {
+          name: "Pour-Over Kit",
+          quantity: 1,
+          price: 96,
+          code: "KIT",
+          weight: 2.4,
+          image: itemImage(28),
+          _embedded: {
+            "fx:item_options": [
+              { name: "Grind", value: "Medium" },
+              // Hidden by `cart_display_config.hidden_product_options` below,
+              // so the detail page shows that gate working.
+              { name: "Internal SKU", value: "PK-0099" },
+            ],
+          },
+        },
+        {
+          // Auto-replenished, so the detail page marks this line as a
+          // subscription. It carries no link to the subscription itself --
+          // `fx:item` has none -- so the marker is a badge, not a link.
+          name: "Paper Filters",
+          quantity: 2,
+          price: 6,
+          parent_code: "KIT",
+          subscription_frequency: "1m",
+          image: itemImage(52),
+        },
+        { name: "Gooseneck Kettle", quantity: 1, price: 40, parent_code: "KIT" },
+      ],
+    },
+  },
+  {
+    id: 301,
+    display_id: 301,
+    transaction_date: "2024-04-02T16:40:00-0700",
+    total_order: 62,
+    total_item_price: "62.00",
+    total_tax: "0.00",
+    total_shipping: "0.00",
+    currency_code: "USD",
+    status: "approved",
+    _links: {
+      self: { href: `${TRANSACTIONS_HREF}/301` },
+      "fx:shipments": { href: `${TRANSACTIONS_HREF}/301/shipments` },
+      "fx:payments": { href: `${TRANSACTIONS_HREF}/301/payments` },
+      "fx:receipt": { href: `${TRANSACTIONS_HREF}/301/receipt` },
+    },
+    _embedded: {
+      "fx:items": [
+        { name: "Dark Roast", quantity: 2, price: 18, image: itemImage(14) },
+        { name: "Mug", quantity: 1, price: 12, image: itemImage(190) },
+        { name: "Tote", quantity: 1, price: 14, image: itemImage(96) },
+      ],
+    },
+  },
+  {
+    // No receipt: the action slot then holds the button alone.
+    id: 302,
+    display_id: 302,
+    transaction_date: "2024-02-20T09:05:00-0800",
+    total_order: 18,
+    total_item_price: "18.00",
+    total_tax: "0.00",
+    total_shipping: "0.00",
+    currency_code: "USD",
+    status: "refunded",
+    _links: {
+      self: { href: `${TRANSACTIONS_HREF}/302` },
+      "fx:shipments": { href: `${TRANSACTIONS_HREF}/302/shipments` },
+      "fx:payments": { href: `${TRANSACTIONS_HREF}/302/payments` },
+    },
+    _embedded: {
+      "fx:items": [{ name: "Sample Bag", quantity: 1, price: 18 }],
     },
   },
 ];
@@ -523,6 +651,8 @@ function buildOrders(count: number): OrderFixture[] {
       status: statuses[i % statuses.length],
       _links: {
         self: { href: `${TRANSACTIONS_HREF}/${200 + i}` },
+        "fx:shipments": { href: `${TRANSACTIONS_HREF}/${200 + i}/shipments` },
+        "fx:payments": { href: `${TRANSACTIONS_HREF}/${200 + i}/payments` },
         // Every fifth order has no receipt, so the column shows both the
         // link and the blank it leaves behind.
         ...(i % 5 === 4
@@ -532,7 +662,16 @@ function buildOrders(count: number): OrderFixture[] {
             }),
       },
       _embedded: {
-        "fx:items": [{ name: `Order item ${i + 1}`, quantity: 1, price }],
+        "fx:items": [
+          {
+            name: `Order item ${i + 1}`,
+            quantity: 1,
+            price,
+            // Every third one bare, so both the image and the empty swatch
+            // appear in the card presentation.
+            ...(i % 3 === 2 ? {} : { image: itemImage((i * 53) % 360) }),
+          },
+        ],
       },
     };
   });
@@ -704,6 +843,136 @@ function json(body: unknown): Response {
  * a person clicks Next/Prev in the live preview, rather than only looking
  * paginated on the first render.
  */
+/**
+ * One shipment per order, as `fx:shipments` returns it. The field set matches
+ * the Customer API's own allow-list -- the customer's destination, the service
+ * they chose, and that shipment's totals.
+ */
+const DEFAULT_SHIPMENTS = [
+  {
+    address_name: "Default Shipping Address",
+    first_name: "Ada",
+    last_name: "Lovelace",
+    company: "",
+    address1: "12 Analytical Engine Way",
+    address2: "",
+    city: "London",
+    region: "",
+    postal_code: "SW1A 1AA",
+    country: "GB",
+    phone: "",
+    shipping_service_id: 12,
+    shipping_service_description: "Royal Mail Tracked 48",
+    total_item_price: 148,
+    total_tax: 0,
+    total_shipping: 0,
+    total_price: 148,
+  },
+];
+
+/**
+ * Deliberately a DIFFERENT card from `DEFAULT_PAYMENT_METHOD` (a Visa): the
+ * order page shows the card that actually paid, not the customer's current
+ * default. A fixture where the two matched would hide the distinction the
+ * `fx:payments` endpoint exists for.
+ */
+const DEFAULT_PAYMENTS = [
+  {
+    type: "plastic",
+    purchase_order: "",
+    cc_number_masked: "************5454",
+    cc_type: "mastercard",
+    cc_exp_month: "11",
+    cc_exp_year: "2027",
+    amount: 148,
+  },
+];
+
+/**
+ * A multiship order: one cart split across two destinations. Each item's
+ * `shipto` names the shipment it belongs to, and each shipment's
+ * `address_name` is that same value -- which is what pairs them up.
+ */
+const MULTISHIP_ORDER = {
+  id: 400,
+  display_id: 400,
+  transaction_date: "2024-08-03T11:20:00-0700",
+  total_order: 96,
+  total_item_price: "84.00",
+  total_tax: "0.00",
+  total_shipping: "12.00",
+  currency_code: "USD",
+  status: "approved",
+  _links: {
+    self: { href: `${TRANSACTIONS_HREF}/400` },
+    "fx:shipments": { href: `${TRANSACTIONS_HREF}/400/shipments` },
+    "fx:payments": { href: `${TRANSACTIONS_HREF}/400/payments` },
+    "fx:receipt": { href: `${TRANSACTIONS_HREF}/400/receipt` },
+  },
+  _embedded: {
+    "fx:items": [
+      {
+        name: "Dark Roast",
+        quantity: 2,
+        price: 18,
+        shipto: "Home",
+        image: itemImage(14),
+      },
+      { name: "Mug", quantity: 1, price: 12, shipto: "Home", image: itemImage(190) },
+      {
+        name: "Office Blend",
+        quantity: 2,
+        price: 22,
+        shipto: "Office",
+        image: itemImage(96),
+      },
+      { name: "Filters", quantity: 1, price: 6, shipto: "Office" },
+    ],
+  },
+};
+
+/** The two legs of `MULTISHIP_ORDER`, with different services and costs. */
+const MULTISHIP_SHIPMENTS = [
+  {
+    address_name: "Home",
+    first_name: "Ada",
+    last_name: "Lovelace",
+    company: "",
+    address1: "12 Analytical Engine Way",
+    address2: "",
+    city: "London",
+    region: "",
+    postal_code: "SW1A 1AA",
+    country: "GB",
+    phone: "",
+    shipping_service_id: 12,
+    shipping_service_description: "Royal Mail Tracked 48",
+    total_item_price: 48,
+    total_tax: 0,
+    total_shipping: 4,
+    total_price: 52,
+  },
+  {
+    address_name: "Office",
+    first_name: "Ada",
+    last_name: "Lovelace",
+    company: "Analytical Engines Ltd",
+    address1: "1 Cavendish Square",
+    address2: "Floor 4",
+    city: "Manchester",
+    region: "",
+    postal_code: "M1 2AB",
+    country: "GB",
+    phone: "",
+    shipping_service_id: 21,
+    shipping_service_description: "DPD Next Day",
+    total_item_price: 36,
+    total_tax: 0,
+    total_shipping: 8,
+    total_price: 44,
+  },
+];
+
 function paginate(items: unknown[], url: string, curie: string): Response {
   const params = new URL(url).searchParams;
   const limit = Number(params.get("limit") ?? items.length) || items.length;
@@ -729,6 +998,9 @@ type StoreFixtures = {
   orders?: OrderFixture[];
   addresses?: typeof DEFAULT_ADDRESSES;
   paymentMethod?: typeof DEFAULT_PAYMENT_METHOD;
+  /** Applied to every order; the stories only ever open one at a time. */
+  shipments?: typeof DEFAULT_SHIPMENTS;
+  payments?: typeof DEFAULT_PAYMENTS;
   /**
    * Stands in for what FX-372 will serve at `<base>language_strings`. Defaults
    * to an empty catalogue, which is not a blank portal: every key falls back
@@ -764,6 +1036,8 @@ export function stubStore(fixtures: StoreFixtures = {}): () => void {
   const orders = fixtures.orders ?? DEFAULT_ORDERS;
   const addresses = fixtures.addresses ?? DEFAULT_ADDRESSES;
   const paymentMethod = fixtures.paymentMethod ?? DEFAULT_PAYMENT_METHOD;
+  const shipments = fixtures.shipments ?? DEFAULT_SHIPMENTS;
+  const payments = fixtures.payments ?? DEFAULT_PAYMENTS;
 
   // No story here reaches the sign-up screen today, but `SETTINGS.sign_up.enabled`
   // is already `true`, so a future one would call `loadHCaptcha()`, which
@@ -940,6 +1214,18 @@ export function stubStore(fixtures: StoreFixtures = {}): () => void {
         return paginate(orders, url, "fx:transactions");
       }
 
+      // The order page's Billing & shipping panel follows these two rels off
+      // the transaction. Both branches sit ABOVE the single-transaction one
+      // below, whose `startsWith` would otherwise match these pathnames and
+      // answer a sub-collection request with the order object.
+      if (new URL(url).pathname.endsWith("/shipments")) {
+        return paginate(shipments, url, "fx:shipments");
+      }
+
+      if (new URL(url).pathname.endsWith("/payments")) {
+        return paginate(payments, url, "fx:payments");
+      }
+
       // A single transaction, by id. `fx:last_transaction` on a subscription
       // points straight at one of these, so the subscription card's Last
       // payment cell resolves through here rather than through the
@@ -1114,6 +1400,238 @@ export const WithOrders: StoryObj = {
     html`<foxy-customer-portal store-domain="demo"></foxy-customer-portal>`,
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(portalText(canvasElement)).toMatch(/Widget/));
+  },
+};
+
+/**
+ * `variant="orders"`: no subscriptions section at all, and the payment
+ * history rendered as cards with the items' own images -- the layout for a
+ * store that mostly sells products.
+ */
+export const OrdersVariant: StoryObj = {
+  parameters: { fixtures: { orders: PRODUCT_STORE_ORDERS } },
+  beforeEach: () => withSession(),
+  render: () =>
+    html`<foxy-customer-portal
+      store-domain="demo"
+      variant="orders"
+    ></foxy-customer-portal>`,
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(portalText(canvasElement)).toMatch(/Pour-Over Kit/),
+    );
+
+    const text = portalText(canvasElement);
+    expect(text).toMatch(/Orders/);
+    expect(text).not.toMatch(/Payment history/i);
+    // The bundle's children are listed under the parent's name.
+    expect(text).toMatch(/Paper Filters/);
+    // The card's own control, which the row presentation does not have.
+    expect(text).toMatch(/View order/);
+    // And no subscriptions section, heading or toggle.
+    expect(text).not.toMatch(/Subscriptions/);
+  },
+};
+
+/**
+ * The same store with nothing bought yet. The orders variant has no
+ * subscriptions section to fill the page, so the section keeps its heading and
+ * says so rather than rendering nothing.
+ */
+export const OrdersVariantEmpty: StoryObj = {
+  parameters: { fixtures: { orders: [] } },
+  beforeEach: () => withSession(),
+  render: () =>
+    html`<foxy-customer-portal
+      store-domain="demo"
+      variant="orders"
+    ></foxy-customer-portal>`,
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(portalText(canvasElement)).toMatch(/No payments yet/i),
+    );
+    // Headed "Orders" here, not "Payment history" -- see `messages.ordersHeading`.
+    expect(portalText(canvasElement)).toMatch(/Orders/);
+  },
+};
+
+/**
+ * The order detail page, reached the way a customer reaches it: opening a card
+ * from the orders variant.
+ *
+ * Deliberately the bundle order, because it exercises everything the page can
+ * show -- a thumbnail, item options (one of them hidden by the store's
+ * `hidden_product_options`), weight, code, a subscription-marked line, an
+ * item with no image, and a totals rail whose Total is its own figure.
+ */
+export const OrderDetail: StoryObj = {
+  parameters: { fixtures: { orders: PRODUCT_STORE_ORDERS } },
+  beforeEach: () => withSession(),
+  render: () =>
+    html`<foxy-customer-portal
+      store-domain="demo"
+      variant="orders"
+    ></foxy-customer-portal>`,
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(portalText(canvasElement)).toMatch(/Pour-Over Kit/),
+    );
+
+    const portal = canvasElement.querySelector("foxy-customer-portal")!;
+    const open = [...portal.shadowRoot!.querySelectorAll("button")].find(
+      (button) => /view order/i.test(button.textContent ?? ""),
+    )!;
+    open.click();
+
+    await waitFor(() =>
+      expect(portalText(canvasElement)).toMatch(/Order #300/),
+    );
+
+    const text = portalText(canvasElement);
+    expect(text).toMatch(/Grind/);
+    expect(text).toMatch(/Medium/);
+    // The store hides this option, so it must not reach the page.
+    expect(text).not.toMatch(/PK-0099/);
+    expect(text).toMatch(/2\.4/);
+    expect(text).toMatch(/KIT/);
+    // The subscription-marked line.
+    expect(text).toMatch(/Monthly/);
+    // The rail.
+    expect(text).toMatch(/Summary/);
+    expect(text).toMatch(/\$148\.00/);
+
+    // Billing & shipping, from `fx:payments` and `fx:shipments`.
+    expect(text).toMatch(/Billing & shipping/);
+    // The card that actually paid -- a Mastercard -- not the customer's
+    // current default, which is the Visa in `DEFAULT_PAYMENT_METHOD`.
+    expect(text).toMatch(/Mastercard/);
+    expect(text).toMatch(/5454/);
+    expect(text).not.toMatch(/4242/);
+    expect(text).toMatch(/12 Analytical Engine Way/);
+    expect(text).toMatch(/Royal Mail Tracked 48/);
+  },
+};
+
+/**
+ * An order big enough to page: fourteen lines against the page's ten-per-page
+ * limit. Its own fixture rather than a bigger `PRODUCT_STORE_ORDERS`, so the
+ * card-list stories keep the three deliberately-varied orders they exist for.
+ */
+export const OrderDetailManyItems: StoryObj = {
+  parameters: {
+    fixtures: {
+      orders: [
+        {
+          ...PRODUCT_STORE_ORDERS[1],
+          _embedded: {
+            "fx:items": Array.from({ length: 14 }, (_, i) => ({
+              name: `Bean Bag ${String(i + 1).padStart(2, "0")}`,
+              quantity: 1,
+              price: 8,
+              ...(i % 3 === 2 ? {} : { image: itemImage((i * 37) % 360) }),
+            })),
+          },
+        },
+      ],
+    },
+  },
+  beforeEach: () => withSession(),
+  render: () =>
+    html`<foxy-customer-portal
+      store-domain="demo"
+      variant="orders"
+    ></foxy-customer-portal>`,
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(portalText(canvasElement)).toMatch(/Bean Bag 01/),
+    );
+
+    const portal = canvasElement.querySelector("foxy-customer-portal")!;
+    const open = [...portal.shadowRoot!.querySelectorAll("button")].find(
+      (button) => /view order/i.test(button.textContent ?? ""),
+    )!;
+    open.click();
+
+    await waitFor(() => expect(portalText(canvasElement)).toMatch(/Items \(14\)/));
+
+    // Ten on the first page, the rest behind the pager.
+    expect(portalText(canvasElement)).toMatch(/Bean Bag 10/);
+    expect(portalText(canvasElement)).not.toMatch(/Bean Bag 11/);
+  },
+};
+
+/**
+ * A multiship order -- one cart shipped to two addresses.
+ *
+ * The Billing & shipping panel gets one row per shipment, each named by its
+ * own `shipto` value, with its own address and its own service. The items
+ * above carry matching `shipto` values.
+ */
+export const OrderDetailMultiship: StoryObj = {
+  parameters: {
+    fixtures: {
+      orders: [MULTISHIP_ORDER],
+      shipments: MULTISHIP_SHIPMENTS,
+      payments: [
+        {
+          type: "plastic",
+          purchase_order: "",
+          cc_number_masked: "************5454",
+          cc_type: "mastercard",
+          cc_exp_month: "11",
+          cc_exp_year: "2027",
+          amount: 96,
+        },
+      ],
+    },
+  },
+  beforeEach: () => withSession(),
+  render: () =>
+    html`<foxy-customer-portal
+      store-domain="demo"
+      variant="orders"
+    ></foxy-customer-portal>`,
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(portalText(canvasElement)).toMatch(/Dark Roast/),
+    );
+
+    const portal = canvasElement.querySelector("foxy-customer-portal")!;
+    const open = [...portal.shadowRoot!.querySelectorAll("button")].find(
+      (button) => /view order/i.test(button.textContent ?? ""),
+    )!;
+    open.click();
+
+    await waitFor(() => expect(portalText(canvasElement)).toMatch(/Order #400/));
+
+    const text = portalText(canvasElement);
+    // Both shipments, each with its own address and service.
+    expect(text).toMatch(/12 Analytical Engine Way/);
+    expect(text).toMatch(/Royal Mail Tracked 48/);
+    expect(text).toMatch(/1 Cavendish Square/);
+    expect(text).toMatch(/DPD Next Day/);
+
+    // The Items section is grouped by destination, and each group's heading
+    // matches the `address_name` of the shipment below it.
+    const portalRoot = canvasElement.querySelector("foxy-customer-portal")!;
+    const groups = [...portalRoot.shadowRoot!.querySelectorAll("h3")].map(
+      (heading) => heading.textContent,
+    );
+    expect(groups).toEqual(["Home", "Office"]);
+
+    const home = [...portalRoot.shadowRoot!.querySelectorAll("h3")]
+      .find((heading) => heading.textContent === "Home")!
+      .parentElement!.textContent!;
+    expect(home).toMatch(/Dark Roast/);
+    expect(home).toMatch(/Mug/);
+    expect(home).not.toMatch(/Office Blend/);
+
+    // The rail lists one shipping line per destination instead of one
+    // combined figure, so the $12.00 total no longer appears on its own.
+    expect(text).toMatch(/Shipping to Home/);
+    expect(text).toMatch(/Shipping to Office/);
+    expect(text).toMatch(/\$4\.00/);
+    expect(text).toMatch(/\$8\.00/);
   },
 };
 

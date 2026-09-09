@@ -1,6 +1,7 @@
 import type { CSSProperties, DetailedHTMLProps, HTMLAttributes } from "react";
 import type { AchFieldElement } from "@/elements/foxy-ach-field/element";
 import type { CustomerPortalElement } from "@/elements/foxy-customer-portal/element";
+import type { PortalVariant } from "@/elements/foxy-customer-portal/types";
 import type { PaymentCardFieldElement } from "@/elements/foxy-payment-card-field/element";
 import type { PaymentMethodSelectorElement } from "@/elements/foxy-payment-method-selector/element";
 import type { ThemeAttributeName, ThemePropertyName } from "@/lib/theme-mixin";
@@ -85,6 +86,7 @@ type CustomerPortalElementProps = Omit<
   "skip-password-reset"?: boolean;
   urlSync?: boolean;
   "url-sync"?: boolean;
+  variant?: PortalVariant;
   lang?: string;
 } & SharedThemeProps;
 

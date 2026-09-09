@@ -1,6 +1,11 @@
 import type { CartDisplayConfig } from "./cart-display-config";
 
-export type ItemOptionResource = { name: string; value: string };
+// Re-exported, not redeclared: `fx:item_option` is part of the shared
+// line-item vocabulary now, and this module's own consumers import the type
+// from here.
+import type { ItemOptionResource } from "../../line-items";
+
+export type { ItemOptionResource };
 
 export type ItemWithDetails = {
   code?: string;

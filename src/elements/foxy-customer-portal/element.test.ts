@@ -118,6 +118,34 @@ describe("foxy-customer-portal", () => {
     expect(element.hasAttribute("url-sync")).toBe(false);
   });
 
+  it("defaults variant to subscriptions when the attribute is unset", async () => {
+    const element = await mount({ "store-domain": "demo" });
+    expect(element.variant).toBe("subscriptions");
+  });
+
+  it("reflects variant as a string", async () => {
+    const element = await mount({ "store-domain": "demo", variant: "orders" });
+    expect(element.variant).toBe("orders");
+
+    // `attributeChangedCallback` defers `#render()` to a microtask (see its
+    // own doc comment) -- await it, or React logs an act() warning for the
+    // update this property setter's attribute change still schedules.
+    await act(async () => {
+      element.variant = "subscriptions";
+      await Promise.resolve();
+    });
+    expect(element.getAttribute("variant")).toBe("subscriptions");
+  });
+
+  // A typo in a host page's markup must not blank out the portal's layout.
+  it("falls back to subscriptions for an unrecognised variant", async () => {
+    const element = await mount({
+      "store-domain": "demo",
+      variant: "everything",
+    });
+    expect(element.variant).toBe("subscriptions");
+  });
+
   it("renders an alert instead of throwing when store-domain is missing", async () => {
     const element = await mount();
     expect(element.shadowRoot?.textContent).toMatch(/store-domain/i);

@@ -26,7 +26,7 @@ import {
 import { customerPortalEvents } from "./events";
 import { usePortalContainer } from "./portal-container";
 import { messages } from "./messages";
-import type { PortalScreen } from "./types";
+import type { PortalScreen, PortalVariant } from "./types";
 import { AccessRecoveryScreen } from "./screens/access-recovery";
 import { AccountScreen, type PortalSettings } from "./screens/account";
 import { PasswordResetScreen } from "./screens/password-reset";
@@ -106,12 +106,14 @@ export function Portal({
   cache,
   skipPasswordReset,
   urlSync,
+  variant,
   onEvent,
 }: {
   api: API;
   cache: RequestCache;
   skipPasswordReset: boolean;
   urlSync: boolean;
+  variant: PortalVariant;
   onEvent: (type: string, detail?: unknown) => void;
 }) {
   // Presence of the session key is not enough — see `hasValidSession`. An
@@ -416,6 +418,7 @@ export function Portal({
         onNavigateAccountPage={navigateAccountPage}
         onResetAccountPage={resetAccountPage}
         skipPasswordReset={skipPasswordReset}
+        variant={variant}
         onEvent={onEvent}
       />
     </ApiProvider>
@@ -440,6 +443,7 @@ function PortalScreens({
   onNavigateAccountPage,
   onResetAccountPage,
   skipPasswordReset,
+  variant,
   onEvent,
 }: {
   screen: PortalScreen;
@@ -451,6 +455,7 @@ function PortalScreens({
   ) => void;
   onResetAccountPage: () => void;
   skipPasswordReset: boolean;
+  variant: PortalVariant;
   onEvent: (type: string, detail?: unknown) => void;
 }) {
   const { api, cache } = useApi();
@@ -566,6 +571,7 @@ function PortalScreens({
       }}
       settings={settings}
       accountPage={accountPage}
+      variant={variant}
       onNavigate={onNavigateAccountPage}
     />
   );

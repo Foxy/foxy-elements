@@ -19,6 +19,7 @@ temporary-password reset, and account management.
 | `template-set-id`     | no       | store default              | Picks the template set, which decides both the language strings and the locale. Omit it and the store's default set is used. Also reserved for future payment-method editing. |
 | `skip-password-reset` | no       | `false`                    | Suppresses the forced reset screen after signing in with a temporary password.                                                           |
 | `url-sync`            | no       | `false`                    | Reflects the current account sub-page into the host page's URL (`fc_page`/`fc_id` query params) and drives navigation from Back/Forward. |
+| `variant`             | no       | `subscriptions`            | Which selling shape the account screen is laid out for — see [Variants](#variants). An unrecognised value falls back to `subscriptions`. |
 
 The embed origin is not an attribute — it comes from `VITE_EMBED_ORIGIN` at
 build time.
@@ -35,14 +36,63 @@ the element has no effect on what language it renders.
 | `signout`       | none                                   |
 | `passwordreset` | `{ result: "skipped" \| "completed" }` |
 
+## Variants
+
+`variant` picks the layout for the store's selling shape. It changes the
+account screen only; sign-in, recovery and the profile, password and address
+pages are identical in both.
+
+| | `subscriptions` (default) | `orders` |
+| --- | --- | --- |
+| Subscriptions section | shown | not rendered |
+| Payment history section | shown, headed "Payment history" | shown, headed "Orders" |
+| Its presentation | dense rows | cards with item images |
+| Transaction types listed | excludes `subscription_renewal` | includes it |
+| Empty payment history | section renders nothing | section keeps its heading and says "No payments yet." |
+
+```html
+<foxy-customer-portal store-domain="demo" variant="orders"></foxy-customer-portal>
+```
+
+Two things the orders variant deliberately does not change:
+
+- **Subscription pages stay reachable.** There is no link to one from the
+  account screen, but a bookmarked or emailed subscription URL still resolves,
+  and `url-sync` still routes to it. Hiding an entry point is not retiring a
+  route.
+- **Renewals become visible in the list.** The subscriptions variant leaves
+  `subscription_renewal` transactions to each subscription's own payment
+  history. With no subscriptions section, that page has no entry point, so the
+  orders variant lists renewals in that section instead — otherwise a
+  renewal charge would appear nowhere in the portal. Card-update
+  (`updateinfo`) records stay excluded in both.
+
+## What the order page shows
+
+The order page reads three things beyond the transaction itself, each from its
+own rel, fetched only when that page opens — the orders list request is not
+enlarged to carry them:
+
+| Panel | Source | Notes |
+| --- | --- | --- |
+| Items | `fx:items` (embedded via the list's `items:item_options` zoom) | Options, weight and code honour `cart_display_config`. Ten per page. On a multiship order — two or more distinct `shipto` values — the list is grouped under each destination, with headings matching the shipment names below. A single-destination order stays a flat list. |
+| Payment method | `fx:payments` | The card **actually charged** — brand, last four, expiry — not the customer's current default payment method, which may since have changed. A purchase order shows its number. A payment type the portal has no customer-facing name for (`amazon_mws`, `ogone`, `hosted`) shows no row rather than leaking the enum. |
+| Shipping | `fx:shipments` | The delivery address and the service chosen at checkout, one row per shipment so multiship orders read correctly. What each shipment cost goes in the summary rail, not here. |
+
+Both `fx:payments` and `fx:shipments` are narrow, customer-safe projections:
+the Customer API allow-lists their fields and exposes no gateway internals,
+carrier accounts or negotiated rates. An order linking to neither — an older
+API response, or a digital order paid through an unnamed gateway — renders no
+Billing & shipping panel at all.
+
 ## Sections
 
 The account screen adds one section per resource type. Today that is:
 
 | Section       | Shows                                                                                                                                                               | Notes                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Subscriptions       | Every subscription as a card: item thumbnails (with a parent/child breakdown for bundled items), price, frequency, an error alert when `error_message` is set, and an info grid (Last payment — with a View link to that transaction, Start date, Next payment, Cancels/Ended, Subscription ID), with an Active/Inactive toggle. | Active and Inactive are two separate server-side requests, not a client-side filter of one list. Manage opens a page (replacing the account screen's content, with a Back button) for the frequency and next payment date the store allows changing, and that page also lists the subscription's own transaction history; Cancel, Modify items and Update billing navigate to hosted Foxy pages rather than editing in place. |
-| Payment history     | Every non-subscription-renewal transaction: date, order ID, item summary, status and amount, with a Receipt link when the order has one, opening a page with the full item list, totals and receipt link.                                                                                                                        | Excludes subscription renewals (shown on the subscription's own page) and card-update records. Read-only — there is nothing to edit here.                                                                                                                                                                                                                                                                                     |
+| Subscriptions       | Not rendered under `variant="orders"`. Otherwise, every subscription as a card: item thumbnails (with a parent/child breakdown for bundled items), price, frequency, an error alert when `error_message` is set, and an info grid (Last payment — with a View link to that transaction, Start date, Next payment, Cancels/Ended, Subscription ID), with an Active/Inactive toggle. | Active and Inactive are two separate server-side requests, not a client-side filter of one list. Manage opens a page (replacing the account screen's content, with a Back button) for the frequency and next payment date the store allows changing, and that page also lists the subscription's own transaction history; Cancel, Modify items and Update billing navigate to hosted Foxy pages rather than editing in place. |
+| Payment history<br />(headed "Orders" under `variant="orders"`)     | Under `variant="subscriptions"`, every non-subscription-renewal transaction as a dense row: date, order ID, item summary, status and amount, with a Receipt link when the order has one. Under `variant="orders"`, the same transactions plus renewals, each as a card: item thumbnails (with a parent/child breakdown for bundled items), the items' names as the title, the total, and an info grid (Order, Date, Status) with a Receipt link and a View order button. Both open the same order page: the order number with its status badge and date, one card per item (thumbnail, unit price, options/weight/code honouring `cart_display_config`, a badge on any line carrying a subscription frequency, and the line total), a sticky Summary rail with Items/Tax/Shipping/Total plus the receipt link — where an order shipping to more than one place replaces the single Shipping line with one line per destination — and a Billing & shipping panel showing the card that actually paid and the delivery address. A line that started or renewed a subscription is marked with its frequency. That marker is a badge rather than a link only because the SDK's customer item type does not yet declare the `fx:subscription` rel the API already exposes.                                                                                                                        | Which transaction types are listed depends on the variant — see [Variants](#variants). Card-update records are always excluded. Read-only — there is nothing to edit here.                                                                                                                                                                                                                                                                                     |
 | Billing & Shipping  | A payment-method column showing the customer's single default payment method (read-only), next to a billing/shipping address summary (name and formatted address, or an empty-state message) derived from the default-flagged addresses; the full address list — every address as a card with a Badge for default billing/shipping — still renders below it.                                                                | Read-only list — no create button, matching the portal's hidden `addresses:actions:create` control. Edit opens a page covering every v1 field except the admin-only `ignore-address-restrictions` toggle; changing country resets region.                                                                                                                                                                                     |
 
 ## Notes

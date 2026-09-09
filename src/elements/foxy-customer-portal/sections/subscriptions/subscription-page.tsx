@@ -34,6 +34,37 @@ import {
 import type { CartDisplayConfig } from "./cart-display-config";
 import { toDatePickerBounds, toLocalDateString } from "./date-constraints";
 import { frequencyLabel } from "./frequency-label";
+import {
+  AlertSlot,
+  CardList,
+  Columns,
+  DetailRow,
+  DetailValue,
+  HeaderRow,
+  ItemBody,
+  ItemCard,
+  ItemName,
+  ItemPrice,
+  ItemThumb,
+  Main,
+  Note,
+  PageTitle,
+  Panel,
+  PanelAction,
+  PanelLabel,
+  PanelNote,
+  PanelRow,
+  PanelValue,
+  Rail,
+  RailCard,
+  RailList,
+  RailRow,
+  RailTitle,
+  SectionHeader,
+  SectionHeading,
+  TitleId,
+  TitleLine,
+} from "../../detail-page-layout";
 import { visibleItemDetails } from "./item-details";
 import { Pagination } from "../pagination";
 import {
@@ -43,7 +74,7 @@ import {
   SUBSCRIPTION_ORDER_COLUMNS,
   type OrderResource,
 } from "../orders/row";
-import { subscriptionTitle } from "./item-grouping";
+import { lineItemsTitle } from "../../line-items";
 import { getSubscriptionStatus, type SubscriptionStatus } from "./status";
 import type { SubscriptionResource } from "./card";
 import { useSubscriptionById } from "./use-subscription-by-id";
@@ -80,212 +111,11 @@ const ENDED_STATUSES: Record<SubscriptionStatus, boolean> = {
   inactive: true,
 };
 
-const HeaderRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 8px;
-`;
-
-const TitleLine = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-`;
-
-const PageTitle = styled.h1`
-  margin: 0;
-  font: ${(props) => props.theme.tokens.font.h1};
-  color: ${(props) => props.theme.tokens.color.body};
-`;
-
-const TitleId = styled.span`
-  color: ${(props) => props.theme.tokens.color.secondary};
-`;
-
-const Note = styled.p`
-  margin: 0;
-  font: ${(props) => props.theme.tokens.font.body};
-  color: ${(props) => props.theme.tokens.color.secondary};
-`;
-
-const AlertSlot = styled.div`
-  margin-top: 24px;
-`;
-
 // The DS Alert has no Title part. Worth adding upstream if a second caller
 // ever needs one; for now this is the one place that does.
 const AlertTitle = styled.div`
   font: ${(props) => props.theme.tokens.font.bodyEmphasis};
   color: inherit;
-`;
-
-// The rail keeps a fixed width beside a column that may hold a wide table;
-// `minmax(0, 1fr)` is what stops that table pushing the rail off screen.
-const Columns = styled.div`
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: clamp(24px, 4vw, 48px);
-  margin-top: 32px;
-  align-items: start;
-
-  @media (max-width: 860px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const Main = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-  min-width: 0;
-`;
-
-const Rail = styled.aside`
-  position: sticky;
-  top: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  min-width: 0;
-
-  /* Once the columns stack there is nothing to stay level with, and a
-     sticky rail would just pin itself mid-scroll. */
-  @media (max-width: 860px) {
-    position: static;
-  }
-`;
-
-const SectionHeading = styled.h2<{ $flush?: boolean }>`
-  margin: ${(props) => (props.$flush ? "0" : "0 0 16px")};
-  font: ${(props) => props.theme.tokens.font.h2};
-  color: ${(props) => props.theme.tokens.color.body};
-`;
-
-/**
- * A section heading with an action beside it -- the Items section's "Modify
- * items" link-out. The heading inside goes `$flush` so this row owns the
- * spacing below instead of two margins stacking.
- */
-const SectionHeader = styled.div`
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 16px;
-`;
-
-const ItemCard = styled.div`
-  box-sizing: border-box;
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 14px 16px;
-  border: ${(props) => props.theme.tokens.border.field};
-  border-radius: ${(props) => props.theme.tokens.borderRadius.md};
-  background: ${(props) => props.theme.tokens.background.surface};
-`;
-
-const ItemThumb = styled.div`
-  width: 56px;
-  aspect-ratio: 1;
-  flex-shrink: 0;
-  align-self: flex-start;
-  border-radius: ${(props) => props.theme.tokens.borderRadius.sm};
-  background: ${(props) => props.theme.tokens.background.disabledField};
-  overflow: hidden;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-`;
-
-const ItemBody = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-  flex: 1 1 auto;
-`;
-
-const ItemName = styled.div`
-  font: ${(props) => props.theme.tokens.font.label};
-  color: ${(props) => props.theme.tokens.color.body};
-`;
-
-const DetailRow = styled.div`
-  display: flex;
-  gap: 6px;
-  font: ${(props) => props.theme.tokens.font.body};
-  color: ${(props) => props.theme.tokens.color.secondary};
-`;
-
-const DetailValue = styled.span`
-  color: ${(props) => props.theme.tokens.color.body};
-`;
-
-const ItemPrice = styled.div`
-  font: ${(props) => props.theme.tokens.font.bodyEmphasis};
-  color: ${(props) => props.theme.tokens.color.body};
-  flex-shrink: 0;
-`;
-
-const CardList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const Panel = styled.div`
-  display: flex;
-  flex-direction: column;
-  border: ${(props) => props.theme.tokens.border.field};
-  border-radius: ${(props) => props.theme.tokens.borderRadius.md};
-  background: ${(props) => props.theme.tokens.background.surface};
-`;
-
-const PanelRow = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 16px;
-
-  @media (max-width: 560px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
-`;
-
-const PanelLabel = styled.div`
-  font: ${(props) => props.theme.tokens.font.label};
-  color: ${(props) => props.theme.tokens.color.body};
-`;
-
-const PanelNote = styled.div`
-  font: ${(props) => props.theme.tokens.font.body};
-  color: ${(props) => props.theme.tokens.color.secondary};
-`;
-
-const PanelAction = styled.div`
-  flex-shrink: 0;
-
-  @media (max-width: 560px) {
-    width: 100%;
-  }
-`;
-
-const PanelValue = styled.div`
-  flex-shrink: 0;
-  font: ${(props) => props.theme.tokens.font.label};
-  color: ${(props) => props.theme.tokens.color.body};
 `;
 
 const EditLink = styled.a`
@@ -330,62 +160,6 @@ function LinkOut({ href, children }: { href: string; children: ReactNode }) {
     </EditLink>
   );
 }
-
-const RailCard = styled.div`
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 20px;
-  border: ${(props) => props.theme.tokens.border.field};
-  border-radius: ${(props) => props.theme.tokens.borderRadius.md};
-  background: ${(props) => props.theme.tokens.background.surface};
-`;
-
-/**
- * An `<h2>`, not a `<div>`: spec §6.6 calls this a heading, and as a div it
- * was the one section of a customer-facing account page unreachable by
- * heading navigation. `<h2>` is the level that fits the page's outline --
- * the `<h1>` is the subscription title and the left column's sections are
- * all `SectionHeading`, itself an `<h2>`. The `font.h3` styling is
- * unchanged; heading *level* and heading *size* are separate. `margin: 0`
- * replaces the UA stylesheet's own margin, which a `<div>` never had --
- * `RailCard`'s `gap` does the spacing.
- */
-const RailTitle = styled.h2`
-  margin: 0;
-  font: ${(props) => props.theme.tokens.font.h3};
-  color: ${(props) => props.theme.tokens.color.body};
-`;
-
-const RailList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
-
-const RailRow = styled.div<{ $error?: boolean }>`
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-
-  span:first-child {
-    font: ${(props) => props.theme.tokens.font.body};
-    color: ${(props) =>
-      props.$error
-        ? props.theme.tokens.color.error
-        : props.theme.tokens.color.secondary};
-  }
-
-  span:last-child {
-    font: ${(props) => props.theme.tokens.font.bodyEmphasis};
-    color: ${(props) =>
-      props.$error
-        ? props.theme.tokens.color.error
-        : props.theme.tokens.color.body};
-  }
-`;
 
 const SaveNote = styled.p`
   margin: 0;
@@ -689,7 +463,7 @@ export function SubscriptionPage({
   // and pages the full item array, and a bundle's children are items the
   // customer is paying for. Grouping there would hide them and make the
   // "Items ({count})" heading disagree with the list beneath it.
-  const title = subscriptionTitle(items);
+  const title = lineItemsTitle(items);
 
   const shippingLine1 = [template?.shipping_address1, template?.shipping_address2]
     .filter((part) => part && part.trim())
