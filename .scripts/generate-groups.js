@@ -37,6 +37,14 @@ publicElements.forEach(file => {
   }
 });
 
+// The mock HAL+JSON server is not a component directory, so it gets one group of its own. Without
+// it there is nothing globbing ./src/server, and since the config has no top-level `files` key a
+// test placed there is silently never run.
+groups.push({
+  name: 'server',
+  files: './src/server/**/*.test.ts',
+});
+
 const configURL = new URL('../web-test-runner.groups.js', import.meta.url);
 const config = `export const groups = ${JSON.stringify(groups, null, 2)}`;
 
