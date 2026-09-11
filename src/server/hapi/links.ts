@@ -240,6 +240,10 @@ export const links: Links = {
     'fx:store': { href: `./stores/${store_id}` },
   }),
 
+  data_retention_settings: ({ store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+  }),
+
   taxes: ({ id, store_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:tax_item_categories': { href: `./tax_item_categories?tax_id=${id}` },
