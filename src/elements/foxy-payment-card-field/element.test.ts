@@ -419,6 +419,73 @@ describe("PaymentCardFieldElement", () => {
     );
   });
 
+  // The shell loads the embed with a dynamic import(), which the iframe's
+  // `load` event does not wait for. The connect posted on load can land in a
+  // document that has no listener yet and is then lost, leaving the field
+  // invisible forever. The embed announces once it can receive, so answering
+  // that announcement is what actually closes the handshake.
+  it("connects when the embed announces it can receive a connect", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const privateElement = element as unknown as {
+      _iframe: HTMLIFrameElement | null;
+    };
+    const iframe = privateElement._iframe;
+    expect(iframe).toBeTruthy();
+
+    const postMessage = vi.fn();
+    const contentWindow = { postMessage } as unknown as Window;
+    Object.defineProperty(iframe, "contentWindow", {
+      configurable: true,
+      value: contentWindow,
+    });
+
+    const event = new MessageEvent("message", {
+      data: { type: "awaiting-connect" },
+      origin: "http://localhost:5173",
+    });
+    Object.defineProperty(event, "source", { value: contentWindow });
+    window.dispatchEvent(event);
+
+    expect(postMessage).toHaveBeenCalledWith(
+      "connect",
+      "http://localhost:5173",
+      [expect.any(MessagePort)],
+    );
+  });
+
+  // The announcement hands out a live MessagePort, so it must not be answerable
+  // by any other frame that happens to post the same payload.
+  it("ignores an announcement that is not from its own iframe", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const privateElement = element as unknown as {
+      _iframe: HTMLIFrameElement | null;
+    };
+    const postMessage = vi.fn();
+    Object.defineProperty(privateElement._iframe, "contentWindow", {
+      configurable: true,
+      value: { postMessage } as unknown as Window,
+    });
+
+    const event = new MessageEvent("message", {
+      data: { type: "awaiting-connect" },
+      origin: "http://localhost:5173",
+    });
+    Object.defineProperty(event, "source", {
+      value: { postMessage: vi.fn() } as unknown as Window,
+    });
+    window.dispatchEvent(event);
+
+    expect(postMessage).not.toHaveBeenCalled();
+  });
+
   it("resolves tokenize with metadata from tokenization_response payload", async () => {
     const element = document.createElement(
       PAYMENT_CARD_FIELD_ELEMENT_TAG,

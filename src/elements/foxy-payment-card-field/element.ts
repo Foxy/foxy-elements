@@ -541,10 +541,12 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
   }
 
   connectedCallback(): void {
+    window.addEventListener("message", this._onEmbedAnnounce);
     this._mountIframe();
   }
 
   disconnectedCallback(): void {
+    window.removeEventListener("message", this._onEmbedAnnounce);
     this._teardown();
   }
 
@@ -733,6 +735,29 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
     const metrics = this._resolveThemeMetrics();
     return `${metrics.heightPx}px`;
   }
+
+  // The card-entry shell pulls the embed in with a dynamic import(), which the
+  // iframe's `load` event does not wait for. The connect posted from that load
+  // listener can therefore reach a document with no message listener yet, and a
+  // transferred MessagePort delivered to nobody is simply lost -- the embed then
+  // queues its "ready" forever and the field never becomes visible. The embed
+  // announces once it can receive, so answer that with a fresh port.
+  private _onEmbedAnnounce = (event: MessageEvent<unknown>): void => {
+    const iframe = this._iframe;
+    if (!iframe) return;
+
+    // This hands out a live port, so only ever to our own frame.
+    if (!event.source || event.source !== iframe.contentWindow) return;
+
+    const url = normalizeUrl(DEFAULT_CARD_SECURE_ORIGIN);
+    if (!url || event.origin !== url.origin) return;
+
+    const data = event.data;
+    if (!data || typeof data !== "object") return;
+    if ((data as Record<string, unknown>)["type"] !== "awaiting-connect") return;
+
+    this._connectPort(iframe);
+  };
 
   private _onIframeFocus = (): void => {
     if (this._disabled) return;
