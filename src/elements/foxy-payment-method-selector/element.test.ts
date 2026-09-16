@@ -793,6 +793,50 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
+  // Adyen is a hosted provider: the CSC mint refuses it before it reads the
+  // body, and none of the drop-in's config (payment methods response,
+  // environment, client key) rides along on a saved card. There is no path from
+  // this option to a charge, so it is not offered at all.
+  it("leaves out a saved card on a gateway the mint cannot serve", async () => {
+    const restoreClient = overrideClientState({
+      template_set: { id: 42 },
+      session: { id: "sess_abc" },
+      payment_gateways: [{ type: "authorize" }],
+      saved_payment_methods: [
+        {
+          gateway: "adyen_embedded",
+          brand: "Visa",
+          last_4: "1881",
+          expiry_month: "12",
+          expiry_year: "2030",
+          id: "pm_saved_1881",
+        },
+        {
+          gateway: "authorize",
+          brand: "Visa",
+          last_4: "4242",
+          expiry_month: "12",
+          expiry_year: "2030",
+          id: "pm_saved_4242",
+        },
+      ],
+    });
+
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "4242");
+
+      expect(element.shadowRoot?.textContent).not.toContain("1881");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
   it("skips disabled payment options when picking the default tokenization target", async () => {
     const globalWithApplePay = globalThis as typeof globalThis & {
       ApplePaySession?: { canMakePayments?: () => boolean };

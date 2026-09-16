@@ -27,6 +27,8 @@ import {
 } from "./events";
 import {
   ACH_GATEWAY_TYPES,
+  SAVED_CARD_CSC_GATEWAYS,
+  SAVED_CARD_ID_GATEWAYS,
   SQUARE_UP_DEFAULT_METHODS,
   SQUARE_UP_METHODS_BY_COUNTRY,
 } from "./constants";
@@ -2367,6 +2369,12 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     if (!paymentMethod) return [];
 
     const gateway = this.#toText(option.gateway);
+    // Charged by id, or re-minted from a CSC — there is no third way to spend a
+    // saved card, so a gateway in neither set is left out rather than offered
+    // as an option that cannot reach a charge.
+    const chargeById = SAVED_CARD_ID_GATEWAYS.has(gateway);
+    if (!chargeById && !SAVED_CARD_CSC_GATEWAYS.has(gateway)) return [];
+
     const savedPaymentMethodId =
       this.#toText(paymentMethod.payment_method_id) ||
       this.#toText(paymentMethod.payment_token) ||
@@ -2406,16 +2414,13 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           expirationMonthLabel && expirationYearLabel
             ? `Expires ${expirationMonthLabel}/${expirationYearLabel}`
             : undefined,
-        hostedCard:
-          gateway === "stripe_v2" ||
-          gateway === "stripe_connect" ||
-          gateway === "stripe_connect_charge"
-            ? undefined
-            : {
-                mode: "card_csc",
-                templateSetId: this.#resolveTemplateSetId(apiState),
-                sessionId: this.#resolveSessionId(apiState),
-              },
+        hostedCard: chargeById
+          ? undefined
+          : {
+              mode: "card_csc",
+              templateSetId: this.#resolveTemplateSetId(apiState),
+              sessionId: this.#resolveSessionId(apiState),
+            },
       },
     ];
   }

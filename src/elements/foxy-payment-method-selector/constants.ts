@@ -2,6 +2,36 @@ export const CARD_TYPES = new Set(["new-card", "saved-card", "card"]);
 
 export const PURCHASE_ORDER_MAX_LENGTH = 32;
 
+// Saved cards on these are charged by id, so they carry no embed at all.
+export const SAVED_CARD_ID_GATEWAYS = new Set([
+  "stripe_v2",
+  "stripe_connect",
+  "stripe_connect_charge",
+]);
+
+// Saved cards on these are re-minted from a CSC-only embed. The mint runs the
+// default tokenization provider, and only a direct card gateway on the template
+// set resolves to it — a hosted provider (Adyen, Square) refuses the request
+// before it reads anything. So a saved card on any other gateway has no path to
+// a charge, and offering it would only give the shopper something that fails at
+// submit. Mirrors StandardCardGateway in foxy-sdk, which is not exported.
+export const SAVED_CARD_CSC_GATEWAYS = new Set([
+  "authorize",
+  "authorize_cim",
+  "braintree_sdk",
+  "bluesnap",
+  "cybersource_rest",
+  "bank_of_america",
+  "eway",
+  "firstdata_e4",
+  "moneris",
+  "nmi_native",
+  "paytrace",
+  "quickbook_payments",
+  "vantiv_omnipay",
+  "sagepay",
+]);
+
 export const GATEWAY_NAME_BY_TYPE: Record<string, string> = {
   // Synced with foxy-sdk checkout PaymentOption gateway types.
   accept_blue: "Accept.blue",
