@@ -91,7 +91,8 @@ export default function CardOptionEmbed({
     element.mode = option.hostedCard.mode;
     element.templateSetId = option.hostedCard.templateSetId;
     // The mint binds the reference to this session. Without it the reference is
-    // sessionless, which the vault only accepts for portal/admin card save.
+    // sessionless, and the vault accepts those from anyone who holds one: the
+    // binding is what stops a leaked token being spent outside this checkout.
     element.sessionId = option.hostedCard.sessionId;
     element.disabled = Boolean(disabled);
 

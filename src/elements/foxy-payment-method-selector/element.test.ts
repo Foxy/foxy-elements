@@ -99,6 +99,13 @@ function overrideClientState(
   });
 }
 
+// The two mint inputs the embed forwards to <foxy-payment-card-field>; both are
+// plain properties on the element, not attributes.
+type CardFieldMintContext = {
+  templateSetId?: number;
+  sessionId?: string;
+};
+
 async function waitForRender(): Promise<void> {
   await Promise.resolve();
   await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
@@ -705,6 +712,81 @@ describe("PaymentMethodSelectorElement", () => {
         expirationYear: 2030,
       });
       expect(payload).not.toHaveProperty("savedPaymentMethodId");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  // The CSC-only mint carries no PAN, so it resolves the card from the session
+  // and the gateway credentials from the template set. Dropping either one
+  // fails the mint outright (400 on a missing template set, 422 on a missing
+  // session) rather than degrading, so both have to reach the embed.
+  it("passes the template set and session to the saved-card security-code embed", async () => {
+    const restoreClient = overrideClientState({
+      template_set: { id: 42 },
+      session: { id: "sess_abc" },
+      payment_gateways: [{ type: "authorize" }],
+      saved_payment_methods: [
+        {
+          gateway: "authorize",
+          brand: "Visa",
+          last_4: "4242",
+          expiry_month: "12",
+          expiry_year: "2030",
+          id: "pm_saved_4242",
+        },
+      ],
+    });
+
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      const cscField = await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector(
+            'foxy-payment-card-field[mode="card_csc"]',
+          ) as CardFieldMintContext | null,
+        "security code field",
+      );
+
+      expect(cscField.templateSetId).toBe(42);
+      expect(cscField.sessionId).toBe("sess_abc");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  // The vault accepts a sessionless reference, so this one degrades quietly:
+  // the mint still issues a token, it just is not bound to the checkout that
+  // asked for it and anyone holding it can spend it.
+  it("binds the new-card embed's mint to the checkout session", async () => {
+    const restoreClient = overrideClientState({
+      template_set: { id: 42 },
+      session: { id: "sess_abc" },
+      payment_gateways: [{ type: "authorize" }],
+    });
+
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      const cardField = await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector(
+            'foxy-payment-card-field[mode="card"]',
+          ) as CardFieldMintContext | null,
+        "card field",
+      );
+
+      expect(cardField.templateSetId).toBe(42);
+      expect(cardField.sessionId).toBe("sess_abc");
     } finally {
       element.remove();
       restoreClient();

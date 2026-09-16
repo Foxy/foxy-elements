@@ -1506,6 +1506,15 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return this.#toNumber(this.#asRecord(apiState?.template_set)?.id);
   }
 
+  // The mint binds the reference it issues to this session, and a saved card
+  // cannot be minted without it at all: the CSC-only body carries no PAN, so
+  // the session is the only thing that says whose wallet to read.
+  #resolveSessionId(
+    apiState: Record<string, unknown> | null,
+  ): string | undefined {
+    return this.#toOptionalText(this.#asRecord(apiState?.session)?.id);
+  }
+
   #resolveApiState(): Record<string, unknown> | null {
     const state = this.#asRecord(this.#checkoutClient?.state);
     if (state) return state;
@@ -2352,7 +2361,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #createSavedCardOptions(
     option: Record<string, unknown>,
     index: number,
-    _apiState: Record<string, unknown>,
+    apiState: Record<string, unknown>,
   ): PaymentMethodSelectorOption[] {
     const paymentMethod = this.#asRecord(option.payment_method);
     if (!paymentMethod) return [];
@@ -2404,6 +2413,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             ? undefined
             : {
                 mode: "card_csc",
+                templateSetId: this.#resolveTemplateSetId(apiState),
+                sessionId: this.#resolveSessionId(apiState),
               },
       },
     ];
@@ -2489,6 +2500,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
                   mode: "card",
                   // INTERIM: removed when card token vaulting lands.
                   templateSetId: this.#resolveTemplateSetId(apiState),
+                  sessionId: this.#resolveSessionId(apiState),
                 }
               : undefined,
           paypalPlatform,
@@ -2511,6 +2523,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
             mode: "card",
             // INTERIM: removed when card token vaulting lands.
             templateSetId: this.#resolveTemplateSetId(apiState),
+            sessionId: this.#resolveSessionId(apiState),
           },
         },
       ];
