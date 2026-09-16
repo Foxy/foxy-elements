@@ -793,6 +793,48 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
+  // Any direct card gateway resolves the mint to its default provider, so the
+  // CSC re-mint is the rule and not a short list. A gateway the element has no
+  // name for still gets the embed rather than being dropped.
+  it("re-mints a saved card on any direct card gateway", async () => {
+    const restoreClient = overrideClientState({
+      template_set: { id: 42 },
+      session: { id: "sess_abc" },
+      payment_gateways: [{ type: "nmi" }],
+      saved_payment_methods: [
+        {
+          gateway: "nmi",
+          brand: "Visa",
+          last_4: "4242",
+          expiry_month: "12",
+          expiry_year: "2030",
+          id: "pm_saved_4242",
+        },
+      ],
+    });
+
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      const cscField = await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector(
+            'foxy-payment-card-field[mode="card_csc"]',
+          ) as CardFieldMintContext | null,
+        "security code field",
+      );
+
+      expect(cscField.templateSetId).toBe(42);
+      expect(cscField.sessionId).toBe("sess_abc");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
   // Adyen is a hosted provider: the CSC mint refuses it before it reads the
   // body, and none of the drop-in's config (payment methods response,
   // environment, client key) rides along on a saved card. There is no path from

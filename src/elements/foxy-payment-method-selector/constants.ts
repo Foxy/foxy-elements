@@ -9,27 +9,23 @@ export const SAVED_CARD_ID_GATEWAYS = new Set([
   "stripe_connect_charge",
 ]);
 
-// Saved cards on these are re-minted from a CSC-only embed. The mint runs the
-// default tokenization provider, and only a direct card gateway on the template
-// set resolves to it — a hosted provider (Adyen, Square) refuses the request
-// before it reads anything. So a saved card on any other gateway has no path to
-// a charge, and offering it would only give the shopper something that fails at
-// submit. Mirrors StandardCardGateway in foxy-sdk, which is not exported.
-export const SAVED_CARD_CSC_GATEWAYS = new Set([
-  "authorize",
-  "authorize_cim",
-  "braintree_sdk",
-  "bluesnap",
-  "cybersource_rest",
-  "bank_of_america",
-  "eway",
-  "firstdata_e4",
-  "moneris",
-  "nmi_native",
-  "paytrace",
-  "quickbook_payments",
-  "vantiv_omnipay",
-  "sagepay",
+// Saved cards on these cannot be charged at all, so they are not offered.
+//
+// The CSC mint runs the default tokenization provider, which a template set
+// resolves to whenever it carries a direct card gateway — any of them, not a
+// curated few. It resolves to something else only for a hosted gateway, and the
+// only hosted types it recognises are square_up, stripe_connect and stripe_v2;
+// the Stripe pair is charged by id above, and square_up refuses the mint.
+// adyen_embedded is not recognised at all and refuses it a step earlier, with no
+// drop-in to fall back on: the payment methods response, environment and client
+// key that one needs do not ride along on a saved card.
+//
+// A deny-list rather than an allowlist on purpose. Getting it wrong here should
+// show the shopper a card that errors at submit, not silently drop a card the
+// store can charge.
+export const SAVED_CARD_UNCHARGEABLE_GATEWAYS = new Set([
+  "adyen_embedded",
+  "square_up",
 ]);
 
 export const GATEWAY_NAME_BY_TYPE: Record<string, string> = {
