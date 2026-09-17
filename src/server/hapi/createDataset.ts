@@ -652,6 +652,7 @@ export const createDataset: () => Dataset = () => ({
           },
         },
       },
+      data_retention: { auto_anonymize: true, auto_anonymize_days: 365 },
       affiliate_id: 0,
       is_maintenance_mode: false,
       is_active: true,
@@ -750,15 +751,6 @@ export const createDataset: () => Dataset = () => ({
       content_url: 'http://example.com/cart-template',
       date_created: '2012-08-10T11:58:54-0700',
       date_modified: '2012-08-10T11:58:54-0700',
-    },
-  ],
-
-  data_retention_settings: [
-    {
-      id: 0,
-      store_id: 0,
-      auto_anonymize: true,
-      auto_anonymize_days: 365,
     },
   ],
 
