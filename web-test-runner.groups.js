@@ -360,10 +360,6 @@ export const groups = [
     files: './src/elements/public/CustomersTable/**/*.test.ts',
   },
   {
-    name: 'foxy-data-retention-settings-form',
-    files: './src/elements/public/DataRetentionSettingsForm/**/*.test.ts',
-  },
-  {
     name: 'foxy-discount-builder',
     files: './src/elements/public/DiscountBuilder/**/*.test.ts',
   },

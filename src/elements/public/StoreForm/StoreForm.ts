@@ -9,6 +9,7 @@ import type { Rels } from '@foxy.io/sdk/backend';
 
 import type {
   ParsedCustomDisplayIdConfig,
+  ParsedDataRetention,
   ParsedSmtpConfig,
   ParsedWebhookKey,
   Data,
@@ -164,6 +165,18 @@ export class StoreForm extends Base<Data> {
       ({ unified_order_entry_password: v }) => {
         return !v || String(v).length <= 100 || 'unified-order-entry-password:v8n_too_long';
       },
+
+      ({ data_retention: v }) => {
+        const days = v?.auto_anonymize_days;
+        if (days === null || days === undefined) return true;
+        return (Number.isInteger(days) && days >= 90) || 'auto-anonymize-days:v8n_too_small';
+      },
+
+      ({ data_retention: v }) => {
+        if (!v?.auto_anonymize) return true;
+        const days = v.auto_anonymize_days;
+        return (typeof days === 'number' && days >= 90) || 'auto-anonymize-days:v8n_required';
+      },
     ];
   }
 
@@ -286,6 +299,31 @@ export class StoreForm extends Base<Data> {
     }
 
     this.edit({ store_name: newValue });
+  };
+
+  private readonly __getDataRetention = (): ParsedDataRetention => {
+    const config = this.form.data_retention;
+
+    return {
+      auto_anonymize: config?.auto_anonymize ?? false,
+      auto_anonymize_days: config?.auto_anonymize_days ?? null,
+    };
+  };
+
+  private readonly __getAutoAnonymizeValue = (): boolean => {
+    return this.__getDataRetention().auto_anonymize;
+  };
+
+  private readonly __setAutoAnonymizeValue = (newValue: boolean) => {
+    this.edit({ data_retention: { ...this.__getDataRetention(), auto_anonymize: newValue } });
+  };
+
+  private readonly __getAutoAnonymizeDaysValue = (): number | null => {
+    return this.__getDataRetention().auto_anonymize_days;
+  };
+
+  private readonly __setAutoAnonymizeDaysValue = (newValue: number) => {
+    this.edit({ data_retention: { ...this.__getDataRetention(), auto_anonymize_days: newValue } });
   };
 
   private readonly __getStoreEmailValue = (): Item[] => {
@@ -1013,6 +1051,28 @@ export class StoreForm extends Base<Data> {
               ${xmlDatafeedKey
                 ? this.__renderReadonlyWebhookKey('webhook-key-xml-datafeed', xmlDatafeedKey)
                 : ''}
+            `
+          : ''}
+      </foxy-internal-summary-control>
+
+      <foxy-internal-summary-control infer="data-retention">
+        <foxy-internal-switch-control
+          infer="auto-anonymize"
+          .getValue=${this.__getAutoAnonymizeValue}
+          .setValue=${this.__setAutoAnonymizeValue}
+        >
+        </foxy-internal-switch-control>
+        ${this.form.data_retention?.auto_anonymize
+          ? html`
+              <foxy-internal-number-control
+                layout="summary-item"
+                infer="auto-anonymize-days"
+                min="90"
+                step="1"
+                .getValue=${this.__getAutoAnonymizeDaysValue}
+                .setValue=${this.__setAutoAnonymizeDaysValue}
+              >
+              </foxy-internal-number-control>
             `
           : ''}
       </foxy-internal-summary-control>
