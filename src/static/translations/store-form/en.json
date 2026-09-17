@@ -440,6 +440,23 @@
       }
     }
   },
+  "data-retention": {
+    "label": "Data retention",
+    "helper_text": "",
+    "auto-anonymize": {
+      "label": "Auto-anonymize inactive customers",
+      "helper_text": "When enabled, customers with no activity for the configured number of days are automatically and irreversibly anonymized.",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "auto-anonymize-days": {
+      "label": "Days of inactivity",
+      "placeholder": "365",
+      "helper_text": "Minimum 90 days. Customers inactive this long will be anonymized.",
+      "v8n_required": "Please enter the number of inactive days (at least 90).",
+      "v8n_too_small": "Please enter at least 90 days."
+    }
+  },
   "hcaptcha": {
     "disclaimer": "We use hCaptcha to protect this page from spam and abuse.",
     "privacy_policy": "Privacy Policy",

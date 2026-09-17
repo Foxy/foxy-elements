@@ -2469,4 +2469,61 @@ describe('StoreForm', () => {
 
     expect(element.errors).to.include('error:store_domain_exists');
   });
+  it('produces the auto-anonymize-days:v8n_too_small error when the value is under 90', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('auto-anonymize-days:v8n_too_small');
+
+    form.edit({ data_retention: { auto_anonymize: false, auto_anonymize_days: 89 } });
+    expect(form.errors).to.include('auto-anonymize-days:v8n_too_small');
+
+    form.edit({ data_retention: { auto_anonymize: false, auto_anonymize_days: 90 } });
+    expect(form.errors).to.not.include('auto-anonymize-days:v8n_too_small');
+  });
+
+  it('produces the auto-anonymize-days:v8n_required error when auto-anonymization is on but days are unset', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('auto-anonymize-days:v8n_required');
+
+    form.edit({ data_retention: { auto_anonymize: true, auto_anonymize_days: null } });
+    expect(form.errors).to.include('auto-anonymize-days:v8n_required');
+
+    form.edit({ data_retention: { auto_anonymize: true, auto_anonymize_days: 365 } });
+    expect(form.errors).to.not.include('auto-anonymize-days:v8n_required');
+  });
+
+  it('renders a switch control for auto-anonymization in the Data Retention section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const control = element.renderRoot.querySelector(
+      '[infer="data-retention"] foxy-internal-switch-control[infer="auto-anonymize"]'
+    ) as InternalSwitchControl;
+
+    expect(control).to.exist;
+
+    element.edit({ data_retention: { auto_anonymize: true, auto_anonymize_days: 120 } });
+    expect(control.getValue()).to.equal(true);
+
+    control.setValue(false);
+    expect(element).to.have.nested.property('form.data_retention.auto_anonymize', false);
+    expect(element).to.have.nested.property('form.data_retention.auto_anonymize_days', 120);
+  });
+
+  it('renders a number control for days of inactivity in the Data Retention section when auto-anonymization is on', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const selector =
+      '[infer="data-retention"] foxy-internal-number-control[infer="auto-anonymize-days"]';
+
+    expect(element.renderRoot.querySelector(selector)).to.not.exist;
+
+    element.edit({ data_retention: { auto_anonymize: true, auto_anonymize_days: 365 } });
+    await element.requestUpdate();
+
+    const control = element.renderRoot.querySelector(selector) as InternalNumberControl;
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('min', '90');
+    expect(control.getValue()).to.equal(365);
+
+    control.setValue(120);
+    expect(element).to.have.nested.property('form.data_retention.auto_anonymize_days', 120);
+  });
 });
