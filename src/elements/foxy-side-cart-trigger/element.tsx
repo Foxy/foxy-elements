@@ -6,21 +6,41 @@ import { defaultTheme } from "@foxy.io/design-system/theme";
 import { sideCart } from "@foxy.io/sdk/checkout/side-cart";
 import { SideCartTriggerView } from "./view";
 import { StyleSheetManager, ThemeProvider } from "styled-components";
+import { IntlProvider } from "react-intl";
+import enUsMessages from "@/locales/en-US.json";
+import {
+  ThemeMixin,
+  type ThemeAttributeName,
+} from "@/lib/theme-mixin";
 
-export class SideCartTriggerElement extends HTMLElement {
+const LANG_ATTRIBUTE = "lang";
+const DEFAULT_LOCALE = "en-US";
+
+const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
+  "en-US": enUsMessages as Record<string, string>,
+  en: enUsMessages as Record<string, string>,
+};
+
+const ThemeableHTMLElement = ThemeMixin(HTMLElement);
+
+export class SideCartTriggerElement extends ThemeableHTMLElement {
   #shadowRoot = this.attachShadow({ mode: "open" });
   #root: Root | null = null;
   #container = document.createElement("div");
   #lastCount: number | null = null;
-  #announcement = "";
+  #announcedCount: number | null = null;
+
+  static get observedAttributes(): string[] {
+    return [LANG_ATTRIBUTE, ...ThemeableHTMLElement.themeAttributeNames];
+  }
 
   #onCountChange = (): void => {
     const next = sideCart.itemCount;
     // Silent for the first count to arrive: that is the cache catching up with
     // the store, not something the shopper did, and announcing a correction
     // nobody asked for is worse than announcing nothing.
-    this.#announcement =
-      this.#lastCount === null || next === null ? "" : `Cart, ${next} items`;
+    this.#announcedCount =
+      this.#lastCount === null || next === null ? null : next;
     this.#lastCount = next;
     this.#render();
   };
@@ -31,6 +51,7 @@ export class SideCartTriggerElement extends HTMLElement {
       this.#root = createRoot(this.#container);
     }
 
+    this.syncThemeCssVarsToStyle();
     this.#lastCount = sideCart.itemCount;
     sideCart.addEventListener("itemcountchange", this.#onCountChange);
     this.#render();
@@ -40,17 +61,167 @@ export class SideCartTriggerElement extends HTMLElement {
     sideCart.removeEventListener("itemcountchange", this.#onCountChange);
     this.#root?.unmount();
     this.#root = null;
+
+    // A stale announcement must not survive a disconnect: otherwise a
+    // framework that re-parents this element (moves it in the DOM by
+    // removing and re-appending it) resurrects whatever was last announced,
+    // which can now contradict the badge a fresh render computes from the
+    // live count.
+    this.#announcedCount = null;
+
+    // `root.unmount()` only tears down the React tree; the `<style>` tag
+    // `StyleSheetManager` inserted directly into `#shadowRoot` (as `target`,
+    // not through the React-managed `#container`) is not React's to clean
+    // up, and a fresh `StyleSheetManager` on the next connect inserts
+    // another one. Left alone this leaks one `<style>` per connect/disconnect
+    // cycle for as long as the element lives on the page.
+    this.#shadowRoot
+      .querySelectorAll("style[data-styled]")
+      .forEach((style) => style.remove());
+  }
+
+  attributeChangedCallback(name: string): void {
+    if (
+      ThemeableHTMLElement.themeAttributeNames.includes(
+        name as ThemeAttributeName,
+      )
+    ) {
+      this.syncThemeCssVarsToStyle();
+    }
+
+    this.#render();
+  }
+
+  #resolveLocale(): string {
+    const fromAttribute = this.getAttribute(LANG_ATTRIBUTE);
+    if (fromAttribute?.trim()) return fromAttribute.trim();
+    if (this.lang?.trim()) return this.lang.trim();
+    if (document.documentElement.lang?.trim()) {
+      return document.documentElement.lang.trim();
+    }
+    return DEFAULT_LOCALE;
+  }
+
+  #resolveMessages(locale: string): Record<string, string> {
+    const normalized = locale.trim().replace(/_/g, "-");
+    if (MESSAGES_BY_LOCALE[normalized]) return MESSAGES_BY_LOCALE[normalized];
+
+    const baseLocale = normalized.split("-")[0];
+    if (baseLocale && MESSAGES_BY_LOCALE[baseLocale]) {
+      return MESSAGES_BY_LOCALE[baseLocale];
+    }
+
+    return MESSAGES_BY_LOCALE[DEFAULT_LOCALE] ?? {};
+  }
+
+  #buildThemeTokens() {
+    return {
+      letterSpacing: defaultTheme.letterSpacing,
+      textTransform: defaultTheme.textTransform,
+      font: {
+        ...defaultTheme.font,
+        body: this.getThemeProperty("themeFontBody") ?? defaultTheme.font.body,
+      },
+      color: {
+        ...defaultTheme.color,
+        body:
+          this.getThemeProperty("themeColorBody") ?? defaultTheme.color.body,
+        error:
+          this.getThemeProperty("themeColorError") ?? defaultTheme.color.error,
+        primary:
+          this.getThemeProperty("themeColorPrimary") ??
+          defaultTheme.color.primary,
+        secondary:
+          this.getThemeProperty("themeColorSecondary") ??
+          defaultTheme.color.secondary,
+        onPrimary:
+          this.getThemeProperty("themeColorOnPrimary") ??
+          defaultTheme.color.onPrimary,
+      },
+      outline: {
+        ...defaultTheme.outline,
+        primary:
+          this.getThemeProperty("themeOutlinePrimary") ??
+          defaultTheme.outline.primary,
+      },
+      background: {
+        ...defaultTheme.background,
+        surface:
+          this.getThemeProperty("themeBackgroundSurface") ??
+          defaultTheme.background.surface,
+        field:
+          this.getThemeProperty("themeBackgroundField") ??
+          defaultTheme.background.field,
+        disabledField:
+          this.getThemeProperty("themeBackgroundDisabledField") ??
+          defaultTheme.background.disabledField,
+        buttonPrimary:
+          this.getThemeProperty("themeBackgroundButtonPrimary") ??
+          defaultTheme.background.buttonPrimary,
+        error:
+          this.getThemeProperty("themeBackgroundError") ??
+          defaultTheme.background.error,
+        popup:
+          this.getThemeProperty("themeBackgroundPopup") ??
+          defaultTheme.background.popup,
+      },
+      border: {
+        ...defaultTheme.border,
+        field:
+          this.getThemeProperty("themeBorderField") ??
+          defaultTheme.border.field,
+      },
+      borderRadius: {
+        ...defaultTheme.borderRadius,
+        xs:
+          this.getThemeProperty("themeBorderRadiusXs") ??
+          defaultTheme.borderRadius.xs,
+        sm:
+          this.getThemeProperty("themeBorderRadiusSm") ??
+          defaultTheme.borderRadius.sm,
+        md:
+          this.getThemeProperty("themeBorderRadiusMd") ??
+          defaultTheme.borderRadius.md,
+        pill:
+          this.getThemeProperty("themeBorderRadiusPill") ??
+          defaultTheme.borderRadius.pill,
+      },
+      space: {
+        ...defaultTheme.space,
+        md: this.getThemeProperty("themeSpaceMd") ?? defaultTheme.space.md,
+      },
+      size: {
+        ...defaultTheme.size,
+        control:
+          this.getThemeProperty("themeSizeControl") ??
+          defaultTheme.size.control,
+        borderWidth:
+          this.getThemeProperty("themeSizeBorderWidth") ??
+          defaultTheme.size.borderWidth,
+      },
+      easing: defaultTheme.easing,
+      duration: defaultTheme.duration,
+      zIndex: defaultTheme.zIndex,
+    };
   }
 
   #render(): void {
+    const locale = this.#resolveLocale();
+
     this.#root?.render(
       <StyleSheetManager target={this.#shadowRoot}>
-        <ThemeProvider theme={{ tokens: defaultTheme }}>
-          <SideCartTriggerView
-            itemCount={sideCart.itemCount}
-            announcement={this.#announcement}
-            onClick={() => sideCart.show()}
-          />
+        <ThemeProvider theme={{ tokens: this.#buildThemeTokens() }}>
+          <IntlProvider
+            locale={locale}
+            defaultLocale={DEFAULT_LOCALE}
+            messages={this.#resolveMessages(locale)}
+          >
+            <SideCartTriggerView
+              itemCount={sideCart.itemCount}
+              announcedCount={this.#announcedCount}
+              onClick={() => sideCart.show()}
+            />
+          </IntlProvider>
         </ThemeProvider>
       </StyleSheetManager>,
     );
