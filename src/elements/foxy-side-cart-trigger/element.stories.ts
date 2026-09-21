@@ -74,6 +74,12 @@ export const UnknownCount: Story = {
     });
 
     expect(trigger.shadowRoot?.textContent).not.toMatch(/\d/);
+
+    // `textContent` never surfaces attribute values, so the assertion above
+    // would stay green even if the accessible name started lying about the
+    // count. Assert the name itself.
+    const button = trigger.shadowRoot?.querySelector("button");
+    expect(button?.getAttribute("aria-label")).toBe("Cart");
   },
 };
 
@@ -95,6 +101,9 @@ export const ZeroCount: Story = {
     await waitFor(() => {
       expect(trigger.shadowRoot?.textContent).toContain("0");
     });
+
+    const button = trigger.shadowRoot?.querySelector("button");
+    expect(button?.getAttribute("aria-label")).toBe("Cart, 0 items");
   },
 };
 
@@ -119,6 +128,8 @@ export const KnownCount: Story = {
     });
 
     const button = trigger.shadowRoot?.querySelector("button");
+    expect(button?.getAttribute("aria-label")).toBe("Cart, 3 items");
+
     if (button) await userEvent.click(button);
 
     expect(show).toHaveBeenCalledTimes(1);
