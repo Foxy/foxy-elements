@@ -23,9 +23,9 @@ export function SideCartTriggerView({
         Cart
         {itemCount !== null && <Badge>{itemCount}</Badge>}
       </Button>
-      <span aria-live="polite" role="status">
-        {announcement}
-      </span>
+      {/* `role="status"` already implies `aria-live="polite"`; only one is
+      needed, and `aria-live` is what the element's own test queries for. */}
+      <span aria-live="polite">{announcement}</span>
     </>
   );
 }

@@ -38,6 +38,8 @@ export class SideCartTriggerElement extends HTMLElement {
 
   disconnectedCallback(): void {
     sideCart.removeEventListener("itemcountchange", this.#onCountChange);
+    this.#root?.unmount();
+    this.#root = null;
   }
 
   #render(): void {

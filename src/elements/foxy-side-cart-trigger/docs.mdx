@@ -1,0 +1,24 @@
+import { Meta } from "@storybook/blocks";
+import * as SideCartTriggerStories from "./element.stories";
+
+<Meta of={SideCartTriggerStories} name="Docs" />
+
+# foxy-side-cart-trigger
+
+A merchant drops this element anywhere on their site — a header, a product page, a nav bar — to show the cart's item count and open the sidecart drawer on click. It renders a button and a badge; nothing else needs configuring.
+
+Required attributes: none. It reads the shared `sideCart` singleton from `@foxy.io/sdk/checkout/side-cart` directly, so as soon as it's on the page it reflects whatever that singleton knows.
+
+## Two things that look like bugs
+
+**No badge until a count is known.** `sideCart.itemCount` is `null` for "not known yet" — a cold page load, before the iframe or the cart JSON has reported anything — which is different from a known count of `0` (an empty cart). Rendering `0` for the unknown state would be a claim the element cannot make, so it renders no badge at all until a real number arrives. See the **Unknown Count** and **Zero Count** stories for the visible difference.
+
+**A count change is announced only when the shopper caused it.** The element keeps an `aria-live="polite"` region for count changes, but the very first count to arrive is the cache or the store catching up with the page — not something the shopper did on this page — so that first arrival is silent. Only a change from one already-known count to another is announced. A screen reader user who clicks "Add to cart" hears the new count; a screen reader user who just loaded the page does not hear an unprompted correction.
+
+## Scenarios
+
+- **Unknown Count** — the cold-start state: no badge.
+- **Zero Count** — a known, empty cart: badge reads `0`.
+- **Known Count** — a non-zero count renders in the badge, and clicking the trigger calls `sideCart.show()` to open the drawer.
+
+Each story stubs only `sideCart`'s `itemCount` getter (the same singleton a real integration reads); everything else — the button, the badge, the click handler, the live region — is the real element.
