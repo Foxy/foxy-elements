@@ -90,17 +90,76 @@ describe("foxy-side-cart-trigger", () => {
     const element = mount();
     await settle();
 
-    // null -> 2 is the cache catching up, which the shopper did not cause.
+    // null -> 2 is the first count ever, which the shopper did not cause --
+    // silent regardless of what the SDK's own `corrected` flag says. The SDK
+    // does flag this exact case `corrected: true` in practice (first report
+    // after a connect), which is what's dispatched here.
     current = 2;
-    sideCart.dispatchEvent(new Event("itemcountchange"));
+    sideCart.dispatchEvent(
+      new CustomEvent("itemcountchange", { detail: { corrected: true } }),
+    );
     await settle();
     expect(element.shadowRoot?.querySelector("[aria-live]")?.textContent).toBe("");
 
-    // 2 -> 5 is the shopper's own change, so it is announced.
+    // 2 -> 5, not flagged as a correction, is the shopper's own change, so it
+    // is announced.
     current = 5;
-    sideCart.dispatchEvent(new Event("itemcountchange"));
+    sideCart.dispatchEvent(
+      new CustomEvent("itemcountchange", { detail: { corrected: false } }),
+    );
     await settle();
     expect(element.shadowRoot?.querySelector("[aria-live]")?.textContent).toContain("5");
+  });
+
+  it("re-renders on a corrective change without announcing it", async () => {
+    // The bug this pins: the cache said 1, the store actually held 3.
+    // itemcountchange used to be suppressed entirely for this exact report,
+    // which left the badge and its aria-label frozen on the stale 1 until
+    // some unrelated change happened to fire the event.
+    let current: number | null = 1;
+    vi.spyOn(Object.getPrototypeOf(sideCart), "itemCount", "get").mockImplementation(
+      () => current,
+    );
+
+    const element = mount();
+    await settle();
+    expect(getButton(element)?.getAttribute("aria-label")).toBe("Cart, 1 item");
+
+    current = 3;
+    sideCart.dispatchEvent(
+      new CustomEvent("itemcountchange", { detail: { corrected: true } }),
+    );
+    await settle();
+
+    // The badge and its accessible name must stop lying about the stale
+    // count -- a correction still has to render.
+    expect(element.shadowRoot?.textContent).toContain("3");
+    expect(getButton(element)?.getAttribute("aria-label")).toBe("Cart, 3 items");
+    // But a correction is not something the shopper did, so the live region
+    // stays quiet.
+    expect(element.shadowRoot?.querySelector("[aria-live]")?.textContent).toBe("");
+  });
+
+  it("re-renders and announces a non-corrective change", async () => {
+    let current: number | null = 1;
+    vi.spyOn(Object.getPrototypeOf(sideCart), "itemCount", "get").mockImplementation(
+      () => current,
+    );
+
+    const element = mount();
+    await settle();
+
+    current = 4;
+    sideCart.dispatchEvent(
+      new CustomEvent("itemcountchange", { detail: { corrected: false } }),
+    );
+    await settle();
+
+    expect(element.shadowRoot?.textContent).toContain("4");
+    expect(getButton(element)?.getAttribute("aria-label")).toBe("Cart, 4 items");
+    expect(element.shadowRoot?.querySelector("[aria-live]")?.textContent).toContain(
+      "4",
+    );
   });
 
   it("resets the announcement on disconnect, so a reconnect cannot resurface a stale one", async () => {
@@ -115,7 +174,9 @@ describe("foxy-side-cart-trigger", () => {
     // Produce a real, on-screen announcement first (2 -> 9 is a change the
     // shopper caused).
     current = 9;
-    sideCart.dispatchEvent(new Event("itemcountchange"));
+    sideCart.dispatchEvent(
+      new CustomEvent("itemcountchange", { detail: { corrected: false } }),
+    );
     await settle();
     expect(element.shadowRoot?.querySelector("[aria-live]")?.textContent).toContain("9");
 

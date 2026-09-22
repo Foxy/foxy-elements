@@ -23,6 +23,15 @@ const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
 
 const ThemeableHTMLElement = ThemeMixin(HTMLElement);
 
+/**
+ * `@foxy.io/sdk/checkout/side-cart` does not export a type for this, so it is
+ * declared here from the shape documented on `sideCart`'s `itemcountchange`
+ * event: `true` only for the first report after a connect (a
+ * cache-to-authoritative correction the shopper did not cause), `false` for
+ * every other source of a change.
+ */
+type SideCartItemCountChangeDetail = { corrected: boolean };
+
 export class SideCartTriggerElement extends ThemeableHTMLElement {
   #shadowRoot = this.attachShadow({ mode: "open" });
   #root: Root | null = null;
@@ -34,13 +43,20 @@ export class SideCartTriggerElement extends ThemeableHTMLElement {
     return [LANG_ATTRIBUTE, ...ThemeableHTMLElement.themeAttributeNames];
   }
 
-  #onCountChange = (): void => {
+  #onCountChange = (event: Event): void => {
+    // The SDK dispatches this on every genuine count change now, including
+    // the first, corrective report after a connect -- it is the element's
+    // only signal that the count changed at all, so re-rendering must not
+    // depend on whether the change gets announced.
+    const { corrected } = (event as CustomEvent<SideCartItemCountChangeDetail>)
+      .detail;
     const next = sideCart.itemCount;
-    // Silent for the first count to arrive: that is the cache catching up with
-    // the store, not something the shopper did, and announcing a correction
-    // nobody asked for is worse than announcing nothing.
+    // Silent for the first count to ever arrive (the shopper did not cause a
+    // first count appearing) and silent for a correction the SDK flags as
+    // such (a cache-to-authoritative catch-up, not a shopper action).
+    // Announcing either is worse than announcing nothing.
     this.#announcedCount =
-      this.#lastCount === null || next === null ? null : next;
+      this.#lastCount === null || next === null || corrected ? null : next;
     this.#lastCount = next;
     this.#render();
   };
