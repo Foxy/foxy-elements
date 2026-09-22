@@ -223,6 +223,13 @@ export class SideCartTriggerElement extends ThemeableHTMLElement {
 
   #render(): void {
     const locale = this.#resolveLocale();
+    // One-shot: this render is the one that delivers the announcement, so it
+    // is cleared here rather than left for something to time out later. No
+    // timer needed -- whatever calls #render() next (the next count change,
+    // an attribute change, anything) naturally renders with nothing to
+    // announce, so a stale message never sits in the live region forever.
+    const announcedCount = this.#announcedCount;
+    this.#announcedCount = null;
 
     this.#root?.render(
       <StyleSheetManager target={this.#shadowRoot}>
@@ -234,7 +241,7 @@ export class SideCartTriggerElement extends ThemeableHTMLElement {
           >
             <SideCartTriggerView
               itemCount={sideCart.itemCount}
-              announcedCount={this.#announcedCount}
+              announcedCount={announcedCount}
               onClick={() => sideCart.show()}
             />
           </IntlProvider>

@@ -18,6 +18,10 @@ function getButton(element: HTMLElement): HTMLButtonElement | null | undefined {
   return element.shadowRoot?.querySelector("button");
 }
 
+function getLiveRegion(element: HTMLElement): HTMLElement | null | undefined {
+  return element.shadowRoot?.querySelector("[aria-live]");
+}
+
 describe("foxy-side-cart-trigger", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
@@ -160,6 +164,58 @@ describe("foxy-side-cart-trigger", () => {
     expect(element.shadowRoot?.querySelector("[aria-live]")?.textContent).toContain(
       "4",
     );
+  });
+
+  it("keeps the live region visually hidden but present in the accessibility tree", async () => {
+    const element = mount();
+    await settle();
+
+    const liveRegion = getLiveRegion(element) as HTMLElement;
+    expect(liveRegion).toBeTruthy();
+
+    const computed = getComputedStyle(liveRegion);
+
+    // Clipped to nothing and taken out of the flow -- this is what actually
+    // hides it from sighted users, checked via the computed styles rather
+    // than just asserting the element exists.
+    expect(computed.position).toBe("absolute");
+    expect(computed.width).toBe("1px");
+    expect(computed.height).toBe("1px");
+    expect(computed.overflow).toBe("hidden");
+    expect(computed.clip).toBe("rect(0px, 0px, 0px, 0px)");
+
+    // `display: none`, `visibility: hidden`, and the `hidden` attribute would
+    // all hide it from sighted users too, but they also remove it from the
+    // accessibility tree -- which would silence it for screen readers, the
+    // one thing this element exists to not do.
+    expect(computed.display).not.toBe("none");
+    expect(computed.visibility).not.toBe("hidden");
+    expect(liveRegion.hidden).toBe(false);
+  });
+
+  it("clears the announcement once it has served its purpose, on the next render", async () => {
+    let current: number | null = 1;
+    vi.spyOn(Object.getPrototypeOf(sideCart), "itemCount", "get").mockImplementation(
+      () => current,
+    );
+
+    const element = mount();
+    await settle();
+
+    current = 4;
+    sideCart.dispatchEvent(
+      new CustomEvent("itemcountchange", { detail: { corrected: false } }),
+    );
+    await settle();
+    expect(getLiveRegion(element)?.textContent).toContain("4");
+
+    // Any later render -- not just another count change -- must not still be
+    // carrying the old announcement. A theme-attribute change triggers one
+    // without touching the count at all.
+    element.setAttribute("theme-color-primary", "#123456");
+    await settle();
+
+    expect(getLiveRegion(element)?.textContent).toBe("");
   });
 
   it("resets the announcement on disconnect, so a reconnect cannot resurface a stale one", async () => {
