@@ -518,6 +518,39 @@ describe("foxy-customer-portal", () => {
     });
     expect(element.shadowRoot?.textContent).toBe("");
   });
+
+  it("does not leak a <style> element across connect/disconnect cycles", async () => {
+    // No `store-domain`, so the element settles on `MissingStoreDomain` --
+    // the cheapest tree that still renders design-system (styled-components)
+    // markup into the shadow root, with no settings request to wait on.
+    const element = await mount();
+
+    const countSheets = () =>
+      element.shadowRoot?.querySelectorAll("style[data-styled]").length ?? 0;
+
+    // Pinned so the assertion below cannot go vacuous: a setup change that
+    // stopped rendering styled content at all would otherwise leave every
+    // cycle at zero sheets and the test green on a leaking element.
+    const afterFirstConnect = countSheets();
+    expect(afterFirstConnect).toBeGreaterThan(0);
+
+    for (let index = 0; index < 4; index += 1) {
+      await act(async () => {
+        element.remove();
+        document.body.append(element);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+    }
+
+    // `root.unmount()` on disconnect tears down the React tree, but the
+    // `<style>` tag `StyleSheetManager` inserted directly into the shadow
+    // root (as `target`, not through the React-managed container) is not
+    // React's to clean up, and the fresh `StyleSheetManager` on the next
+    // connect inserts another one. Left alone this leaks one `<style>` per
+    // connect/disconnect cycle, unbounded, for as long as a host framework
+    // keeps re-parenting the element.
+    expect(countSheets()).toBe(afterFirstConnect);
+  });
 });
 
 /**
