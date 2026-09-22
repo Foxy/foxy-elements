@@ -142,6 +142,16 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
     this.#cache.clear();
     this.#languageStrings = null;
     this.#languageStringsKey = null;
+
+    // `root.unmount()` only tears down the React tree; the `<style>` tag
+    // `StyleSheetManager` inserted directly into `#shadowRootRef` (as
+    // `target`, not through the React-managed `#container`) is not React's to
+    // clean up, and a fresh `StyleSheetManager` on the next connect inserts
+    // another one. Left alone this leaks one `<style>` per connect/disconnect
+    // cycle for as long as the element lives on the page.
+    this.#shadowRootRef
+      .querySelectorAll("style[data-styled]")
+      .forEach((style) => style.remove());
   }
 
   attributeChangedCallback(name: string) {

@@ -19,7 +19,8 @@
     "./foxy-ach-field": "./dist/npm/foxy-ach-field.js",
     "./foxy-customer-portal": "./dist/npm/foxy-customer-portal.js",
     "./foxy-payment-card-field": "./dist/npm/foxy-payment-card-field.js",
-    "./foxy-payment-method-selector": "./dist/npm/foxy-payment-method-selector.js"
+    "./foxy-payment-method-selector": "./dist/npm/foxy-payment-method-selector.js",
+    "./foxy-side-cart-trigger": "./dist/npm/foxy-side-cart-trigger.js"
   },
   "scripts": {
     "test": "vitest run",

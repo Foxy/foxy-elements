@@ -2949,6 +2949,70 @@ describe("PaymentMethodSelectorElement", () => {
       }
     });
   });
+
+  it("does not leak a <style> element across connect/disconnect cycles", async () => {
+    const restoreClient = overrideClientState(createPurchaseOrderApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    const countSheets = () =>
+      element.shadowRoot?.querySelectorAll("style[data-styled]").length ?? 0;
+
+    const connectAndRender = async () => {
+      document.body.append(element);
+      await waitForText(
+        () => element.shadowRoot?.textContent,
+        "Purchase order number",
+      );
+    };
+
+    try {
+      // A theme token whose effect is visible in computed style, so the last
+      // assertion below can prove the surviving sheet still carries rules.
+      element.setAttribute(
+        "theme-font-body",
+        "400 1rem/1.25 Figtree, sans-serif",
+      );
+      await connectAndRender();
+
+      // Pinned so the assertion below cannot go vacuous: a setup change that
+      // stopped rendering styled content at all would otherwise leave every
+      // cycle at zero sheets and the test green on a leaking element.
+      const afterFirstConnect = countSheets();
+      expect(afterFirstConnect).toBeGreaterThan(0);
+
+      for (let index = 0; index < 4; index += 1) {
+        element.remove();
+        await connectAndRender();
+      }
+
+      // `root.unmount()` on disconnect tears down the React tree, but the
+      // `<style>` tag `StyleSheetManager` inserted directly into the shadow
+      // root (as `target`, not through the React-managed container) is not
+      // React's to clean up, and the fresh `StyleSheetManager` on the next
+      // connect inserts another one. Left alone this leaks one `<style>` per
+      // connect/disconnect cycle, unbounded, for as long as a host framework
+      // keeps re-parenting the element.
+      expect(countSheets()).toBe(afterFirstConnect);
+
+      // Counting alone cannot tell a working sheet from an empty one: a
+      // sweep that removed a `<style>` styled-components still considered
+      // live would leave a fresh, ruleless tag behind and still count 1.
+      // The purchase-order input is styled from `theme.tokens.font.body`, so
+      // its computed font proves the surviving sheet still carries rules
+      // after four cycles.
+      const input = element.shadowRoot?.querySelector(
+        '[data-purchase-order-number="true"]',
+      ) as HTMLElement | null;
+
+      expect(input).not.toBeNull();
+      expect(getComputedStyle(input!).fontFamily).toBe("Figtree, sans-serif");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
 });
 
 describe("toBcp47Locale", () => {

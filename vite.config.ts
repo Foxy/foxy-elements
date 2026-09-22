@@ -42,6 +42,7 @@ export default defineConfig(({ mode }) => {
           "@foxy.io/sdk/checkout": `${sdkBase}/checkout.js`,
           "@foxy.io/sdk/checkout/client": `${sdkBase}/checkout/client.js`,
           "@foxy.io/sdk/checkout/loader": `${sdkBase}/checkout/loader.js`,
+          "@foxy.io/sdk/checkout/side-cart": `${sdkBase}/checkout/side-cart.js`,
         },
       }),
     );

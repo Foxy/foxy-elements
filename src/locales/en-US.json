@@ -242,5 +242,7 @@
   "portal_subscriptions_inactive": "Inactive ({count})",
   "portal_validation_email": "Enter a valid email address.",
   "portal_validation_max_length": "Must be {max} characters or fewer.",
-  "portal_validation_required": "This field is required."
+  "portal_validation_required": "This field is required.",
+  "side_cart_trigger_label": "Cart",
+  "side_cart_trigger_label_with_count": "Cart, {count, plural, one {# item} other {# items}}"
 }
