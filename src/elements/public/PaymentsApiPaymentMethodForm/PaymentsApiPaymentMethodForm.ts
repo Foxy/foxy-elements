@@ -480,9 +480,10 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
               <p class="text-s text-secondary">
                 <foxy-i18n infer="" key="${choice.key}.description"></foxy-i18n>
               </p>
+            </div>
+            <div>
               <vaadin-button
                 data-testid="connect-${choice.key}"
-                class="mt-xs"
                 theme="tertiary-inline"
                 ?disabled=${isBusy || this.disabled || this.readonly}
                 @click=${() => this.__connect(choice, type)}
