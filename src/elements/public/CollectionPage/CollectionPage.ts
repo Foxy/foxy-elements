@@ -177,8 +177,17 @@ export class CollectionPage<TPage extends Page> extends Base<TPage> {
   }
 
   private __failRequest(event: FetchEvent) {
+    // Forward the real failure so items can tell a permissions error from a generic
+    // one. `CollectionPages` does the same. `this.failure` is the same cached Response
+    // across every call this method makes (each item's own fetch, any retry/re-render),
+    // and each caller reads its body via `isAccessDenied`, so clone per call rather than
+    // handing out the shared instance, whose body can only be read once.
+    const failure = this.failure;
+
     event.stopImmediatePropagation();
-    event.respondWith(Promise.resolve(new Response(null, { status: 500 })));
+    event.respondWith(
+      Promise.resolve(failure ? failure.clone() : new Response(null, { status: 500 }))
+    );
   }
 }
 

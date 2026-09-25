@@ -53,6 +53,7 @@ export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElem
           <foxy-spinner
             layout=${spinnerState === 'busy' ? 'no-label' : 'horizontal'}
             state=${spinnerState}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             infer="spinner"
           >
           </foxy-spinner>

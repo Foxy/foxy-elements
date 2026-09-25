@@ -170,7 +170,11 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
             </div>
           `
         : html`
-            <foxy-spinner infer="list-spinner" state=${loader?.in('fail') ? 'error' : 'busy'}>
+            <foxy-spinner
+              infer="list-spinner"
+              state=${loader?.in('fail') ? 'error' : 'busy'}
+              error-type=${loader?.accessDenied ? 'access-denied' : 'generic'}
+            >
             </foxy-spinner>
           `}
     `;

@@ -78,6 +78,30 @@ export class InternalSelectControl extends InternalEditableControl {
     super.updated(changes);
     const comboBox = this.renderRoot.querySelector('vaadin-combo-box');
     if (comboBox && comboBox.value !== this._value) comboBox.value = this._value as string;
+
+    // Forward a host-level `aria-label` (a consumer sets this as a plain attribute on this
+    // control, the same way `aria-label` is already used on raw Vaadin elements elsewhere in
+    // this codebase) to the elements that actually take focus. `<vaadin-combo-box>` itself never
+    // receives keyboard focus, and its `focusElement` (a `<vaadin-text-field>`) is itself a
+    // shadow host whose OWN focusable element is the native `<input>` nested inside its shadow
+    // root -- confirmed empirically that `vaadin-text-field`'s internal accessible-name wiring
+    // (`_getActiveLabelId`) targets *its own* `focusElement` (that native input), the same
+    // pattern one level up. When `label` is unset (as it is for every current consumer of this
+    // control), that wiring still sets a non-empty `aria-labelledby` on the native input, but it
+    // points at internal wrapper nodes with only whitespace text content. Per the W3C Accessible
+    // Name and Description Computation spec (https://www.w3.org/TR/accname-1.2/, step 2B/2C), an
+    // `aria-labelledby` that resolves to empty/whitespace-only text is *not* authoritative --
+    // computation falls through to `aria-label` on that same element. So `aria-label` must be set
+    // on the native input itself for that fallback to have something to land on; we also set it
+    // on the outer `vaadin-text-field` (`focusElement`) as a defensive no-cost second placement,
+    // in case any assistive-technology/browser combination resolves the name from the host
+    // instead of the nested focusable element.
+    const ariaLabel = this.getAttribute('aria-label');
+    if (ariaLabel && comboBox?.focusElement) {
+      const focusEl = comboBox.focusElement;
+      focusEl.setAttribute('aria-label', ariaLabel);
+      focusEl.shadowRoot?.querySelector('input')?.setAttribute('aria-label', ariaLabel);
+    }
   }
 
   private __renderSummaryItemLayout() {

@@ -23,6 +23,12 @@ async function waitForIdle(element: Form) {
 }
 
 describe('TaxForm', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('imports and defines dependencies', () => {
     expect(customElements.get('foxy-internal-async-resource-link-list-control')).to.exist;
     expect(customElements.get('foxy-internal-async-list-control')).to.exist;

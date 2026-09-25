@@ -10,6 +10,7 @@ import memoize from 'lodash-es/memoize';
 import { serveFromCache } from './serveFromCache';
 import { InferrableMixin } from '../../../mixins/inferrable';
 import { internalServer } from './internalServer';
+import { isAccessDenied } from '../../../utils/is-access-denied';
 import { uniqueId } from 'lodash-es';
 
 /**
@@ -104,6 +105,8 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
 
   private __href: string | null = null;
 
+  private __accessDeniedFor: Response | null = null;
+
   private __unsubscribeFromRumour: (() => void) | null = null;
 
   private __fetchEventHandler!: (evt: Event) => void;
@@ -151,6 +154,17 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    */
   get failure(): Response | null {
     return this.__service.state?.context.failure ?? null;
+  }
+
+  /**
+   * `true` if the last request failed because the token lacks the scope required
+   * for the resource. Elements use this to render a specific "Access denied"
+   * message instead of the generic error.
+   *
+   * This property is readonly. It tracks `.failure` and clears with it.
+   */
+  get accessDenied(): boolean {
+    return !!this.failure && this.__accessDeniedFor === this.failure;
   }
 
   /**
@@ -353,7 +367,12 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   /** Sends API request. Throws an error on non-2XX response. */
   protected async _fetch<TResult = TData>(...args: Parameters<Window['fetch']>): Promise<TResult> {
     const response = await new API(this).fetch(...args);
-    if (!response.ok) throw response;
+
+    if (!response.ok) {
+      if (await isAccessDenied(response)) this.__accessDeniedFor = response;
+      throw response;
+    }
+
     return response.json();
   }
 

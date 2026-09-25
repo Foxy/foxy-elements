@@ -225,6 +225,7 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
           <foxy-spinner
             layout=${this.in('fail') ? 'vertical' : 'no-label'}
             state=${this.in('fail') ? 'error' : 'busy'}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             infer="spinner"
           >
           </foxy-spinner>

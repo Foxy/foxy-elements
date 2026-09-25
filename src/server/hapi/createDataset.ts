@@ -2032,6 +2032,8 @@ export const createDataset: () => Dataset = () => ({
       first_name: 'Sally',
       last_name: 'Sims',
       email: 'sally.sims@example.com',
+      scope:
+        'transactions_read transactions_resend customers_write item_categories_read reporting_read',
       status: 'sent',
       date_created: '2022-12-01T10:07:05-0800',
       date_modified: '2022-12-01T10:07:05-0800',

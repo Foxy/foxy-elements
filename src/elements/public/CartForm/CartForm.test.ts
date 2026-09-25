@@ -756,12 +756,15 @@ describe('CartForm', () => {
     expect(control).to.have.attribute('regions', 'https://demo.api/hapi/property_helpers/4');
     expect(control).to.have.attribute('type', 'billing');
 
-    expect(control).to.have.deep.property(
-      'customer',
-      await getTestData(
-        './hapi/customers/0?zoom=default_payment_method%2Cdefault_billing_address%2Cdefault_shipping_address'
-      )
+    // Compares id and zoomed embeds rather than the whole resource: `_links.self.href` just
+    // echoes the URL of the request that produced the object, so a deep equality check against
+    // getTestData() pins how the customer was fetched rather than what the control received.
+    const customer = await getTestData<any>(
+      './hapi/customers/0?zoom=default_payment_method%2Cdefault_billing_address%2Cdefault_shipping_address'
     );
+
+    expect(control).to.have.nested.property('customer.id', customer.id);
+    expect(control).to.have.deep.nested.property('customer._embedded', customer._embedded);
   });
 
   it('renders summary control for Shipping', async () => {
@@ -803,12 +806,14 @@ describe('CartForm', () => {
     expect(control).to.have.attribute('regions', 'https://demo.api/hapi/property_helpers/4');
     expect(control).to.have.attribute('type', 'shipping');
 
-    expect(control).to.have.deep.property(
-      'customer',
-      await getTestData(
-        './hapi/customers/0?zoom=default_payment_method%2Cdefault_billing_address%2Cdefault_shipping_address'
-      )
+    // See the note on the billing address test above: `_links.self.href` echoes the request URL,
+    // so this compares the id and the zoomed embeds instead of the whole resource.
+    const customer = await getTestData<any>(
+      './hapi/customers/0?zoom=default_payment_method%2Cdefault_billing_address%2Cdefault_shipping_address'
     );
+
+    expect(control).to.have.nested.property('customer.id', customer.id);
+    expect(control).to.have.deep.nested.property('customer._embedded', customer._embedded);
   });
 
   it('renders async list control for custom fields', async () => {

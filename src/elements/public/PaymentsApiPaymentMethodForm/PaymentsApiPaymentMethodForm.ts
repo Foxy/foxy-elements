@@ -328,7 +328,11 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
     if (!loader?.data) {
       return html`
-        <foxy-spinner infer="list-spinner" state=${loader?.in('fail') ? 'error' : 'busy'}>
+        <foxy-spinner
+          infer="list-spinner"
+          state=${loader?.in('fail') ? 'error' : 'busy'}
+          error-type=${loader?.accessDenied ? 'access-denied' : 'generic'}
+        >
         </foxy-spinner>
       `;
     }

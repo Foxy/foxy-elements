@@ -55,6 +55,7 @@ export class ResourceViewer extends Base<Resource<Rel>> {
           data-testid="spinner"
           layout="horizontal"
           state=${this.in('fail') ? 'error' : isBusy ? 'busy' : 'empty'}
+          error-type=${this.accessDenied ? 'access-denied' : 'generic'}
           lang=${this.lang}
           ns=${this.ns}
         >

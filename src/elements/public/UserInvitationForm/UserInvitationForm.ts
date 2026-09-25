@@ -6,6 +6,7 @@ import type { Data } from './types';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { getGravatarUrl } from '../../../utils/get-gravatar-url';
+import { getGrantable } from '../../../utils/invitation-scope';
 import { html, svg, css } from 'lit-element';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { asyncReplace } from 'lit-html/directives/async-replace';
@@ -23,6 +24,7 @@ export class UserInvitationForm extends Base<Data> {
       defaultDomain: { attribute: 'default-domain' },
       currentStore: { attribute: 'current-store' },
       currentUser: { attribute: 'current-user' },
+      currentUserScope: { attribute: 'current-user-scope' },
       layout: {},
     };
   }
@@ -54,8 +56,25 @@ export class UserInvitationForm extends Base<Data> {
     ];
   }
 
-  static get v8n(): NucleonV8N<Data> {
-    return [({ email: v }) => !!v || 'email:v8n_required'];
+  static get v8n(): NucleonV8N<Data, UserInvitationForm> {
+    return [
+      ({ email: v }) => !!v || 'email:v8n_required',
+      // Conditional on the control actually being offered. Shares `__isScopeGated` with
+      // `hiddenSelector` instead of restating the condition, so the rule cannot demand a scope
+      // through a control that is not on screen. The status comes from `form`, never from
+      // `host.data`: see `__isScopeGated` for why.
+      //
+      // Two distinct empty states get two distinct messages. `v === undefined` means the
+      // admin never touched the control at all -- "please choose". `v === ''` can only be
+      // reached by actively opening the Custom matrix and leaving (or returning) every row to
+      // None, i.e. the admin *did* choose, just chose nothing -- a different message, because
+      // the generic one reads as if nothing had been selected yet.
+      ({ scope: v, status }, host) => {
+        if (host.__isScopeGated(status)) return true;
+        if (v?.trim()) return true;
+        return v === undefined ? 'scope:v8n_required' : 'scope:v8n_required_custom_empty';
+      },
+    ];
   }
 
   /** When provided, displays a link to Store Dashboard in user layout. */
@@ -70,6 +89,17 @@ export class UserInvitationForm extends Base<Data> {
   /** Currently logged in user resource URL. Used for determining when to emit `selfrevoked` event. */
   currentUser: string | null = null;
 
+  /**
+   * Space-separated scope of the currently logged in user, e.g. `transactions_read`.
+   * Supplied by the host application from its OIDC token — the API exposes no endpoint that
+   * reveals a caller's own scope.
+   *
+   * When unset, the scope control is hidden and the scope v8n rule does not apply, so
+   * consumers that do not pass it are unaffected. It must never be treated as "grant
+   * everything".
+   */
+  currentUserScope: string | null = null;
+
   /** Admin layout will display user info, user layout (default) will display store info. */
   layout: 'admin' | 'user' | null = null;
 
@@ -81,11 +111,24 @@ export class UserInvitationForm extends Base<Data> {
 
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = ['store', super.readonlySelector.toString()];
+
+    // The API only lets store_full_access or user_invitations_write change the scope of an
+    // existing invitation. The rule does not apply on create, so this only matters once
+    // there is data.
+    if (this.data) {
+      const { storeFullAccess, tokens } = getGrantable(this.currentUserScope ?? void 0);
+      const canEditScope = storeFullAccess || tokens.has('user_invitations_write');
+
+      if (!canEditScope) alwaysMatch.unshift('scope');
+    }
+
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
   get hiddenSelector(): BooleanSelector {
-    const alwaysMatch = ['timestamps', 'submit', 'undo', super.hiddenSelector.toString()];
+    // `submit` is deliberately absent: InternalForm already reveals it only for a dirty
+    // snapshot, which is exactly the save-an-edit case, so it must not be force-hidden here.
+    const alwaysMatch = ['timestamps', 'undo', super.hiddenSelector.toString()];
     const status = this.data?.status;
     const layout = this.layout ?? 'user';
 
@@ -105,6 +148,10 @@ export class UserInvitationForm extends Base<Data> {
       alwaysMatch.unshift('resend');
     }
 
+    // Shared with the `scope` v8n rule so the two can never disagree. Any future gating
+    // condition belongs inside `__isScopeGated`, not in a separate condition here.
+    if (this.__isScopeGated(status)) alwaysMatch.unshift('scope');
+
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
 
@@ -122,7 +169,7 @@ export class UserInvitationForm extends Base<Data> {
     try {
       return await super._fetch(...args);
     } catch (err) {
-      let message;
+      let message: string;
 
       try {
         message = (await (err as Response).json())._embedded['fx:errors'][0].message;
@@ -130,14 +177,65 @@ export class UserInvitationForm extends Base<Data> {
         throw err;
       }
 
-      if (message.includes('already been created for this email and store')) {
-        throw ['error:invitation_exists'];
-      } else if (message.includes('already has access to this store')) {
-        throw ['error:already_has_access'];
-      } else {
-        throw err;
-      }
+      // Matched on substrings because the API's sentences are not stable — the inviter
+      // message ships with a typo ("invitaion is still has sent status").
+      const mappings: [string, string][] = [
+        ['already been created for this email and store', 'error:invitation_exists'],
+        ['already has access to this store', 'error:already_has_access'],
+        ['give more permission than you have', 'error:scope_too_broad'],
+        ['permission to edit scope', 'error:scope_edit_forbidden'],
+        ['Only the inviter can change the scope', 'error:scope_inviter_only'],
+        ['nobody will have full access', 'error:scope_last_admin'],
+      ];
+
+      const match = mappings.find(([substring]) => message.includes(substring));
+
+      if (match) throw [match[1]];
+
+      throw err;
     }
+  }
+
+  /**
+   * `true` when the scope control is gated off, for any of three reasons: the consumer hid it,
+   * the consumer supplied no granter scope, or the invitation already exists and its status
+   * makes editing the scope pointless. A template form has no status yet, so it is gated only by
+   * the first two.
+   *
+   * This is the single source of truth for scope gating. `hiddenSelector` hides the control when
+   * it is `true` and the `scope` v8n rule stands down when it is `true`, so a control that is
+   * required but not on screen is impossible by construction.
+   *
+   * IMPORTANT, three constraints on changing this:
+   *
+   * 1. Any future gating condition must be conjoined into this one expression. A separate,
+   *    weaker condition elsewhere would let the `!this.currentUserScope` default stop meaning
+   *    "gate the control off" — that default must never come to mean "offer everything".
+   * 2. The `hiddenControls` *field* may be read, but only through optional chaining, and the
+   *    `hiddenSelector` *getter* must never be read. v8n rules are evaluated from
+   *    NucleonElement's constructor, before the ConfigurableMixin class fields exist, so
+   *    `this.hiddenControls` is `undefined` at that point — a non-optional read throws
+   *    "Cannot read properties of undefined (reading 'matches')" for every instance, verified.
+   *    `?.` absorbs that; the getter cannot be rescued the same way, because its throw happens
+   *    *inside* it, at `InternalForm`'s `super.hiddenSelector.toString()`, before any optional
+   *    chaining on its result could apply. Do not rely on a `||` term ahead of the field read
+   *    short-circuiting past it either — that is luck, not safety.
+   * 3. `status` is a parameter rather than read from `this.data` because v8n runs inside the
+   *    xstate `assign` that computes `errors`, i.e. before `__service.state` is updated — so
+   *    `this.data` is one transition stale there and would judge the previous status. Callers
+   *    pass the freshest status they have: the v8n rule passes `form.status`, `hiddenSelector`
+   *    passes `this.data?.status`.
+   */
+  private __isScopeGated(status: Data['status'] | undefined): boolean {
+    // Editing the scope of a revoked, rejected or expired invitation achieves nothing.
+    const isEditableStatus = status === 'sent' || status === 'accepted';
+
+    return (
+      // A consumer that hides the control must not be blocked by a rule about it.
+      this.hiddenControls?.matches('scope', true) === true ||
+      !this.currentUserScope ||
+      (!!status && !isEditableStatus)
+    );
   }
 
   private async *__getGravatar(email?: string) {
@@ -164,7 +262,17 @@ export class UserInvitationForm extends Base<Data> {
   private __renderAdminTemplateState() {
     return html`
       ${this.renderHeader()}
-      <foxy-internal-text-control infer="email"></foxy-internal-text-control>
+      <foxy-internal-summary-control infer="" label="" helper-text="">
+        <foxy-internal-text-control
+          layout="summary-item"
+          infer="email"
+        ></foxy-internal-text-control>
+      </foxy-internal-summary-control>
+      <foxy-internal-user-invitation-form-scope-control
+        infer="scope"
+        granter-scope=${ifDefined(this.currentUserScope ?? void 0)}
+      >
+      </foxy-internal-user-invitation-form-scope-control>
       ${super.renderBody()}
     `;
   }
@@ -192,7 +300,7 @@ export class UserInvitationForm extends Base<Data> {
       this.currentUser === _links?.['fx:user'].href;
 
     return html`
-      <div style="padding-top: 3.5rem">
+      <div style="padding-top: 3.5rem" class="grid gap-m">
         <div class="relative">
           <div class="inner-curve bg-contrast-5 absolute inset-0"></div>
           ${asyncReplace(this.__getGravatar(this.data?.email))}
@@ -290,6 +398,14 @@ export class UserInvitationForm extends Base<Data> {
             </div>
           </div>
         </div>
+
+        <foxy-internal-user-invitation-form-scope-control
+          infer="scope"
+          granter-scope=${ifDefined(this.currentUserScope ?? void 0)}
+        >
+        </foxy-internal-user-invitation-form-scope-control>
+
+        <foxy-internal-submit-control infer="submit"></foxy-internal-submit-control>
       </div>
     `;
   }

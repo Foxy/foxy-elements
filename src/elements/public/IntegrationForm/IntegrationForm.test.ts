@@ -529,4 +529,45 @@ describe('IntegrationForm', () => {
     const control = element.renderRoot.querySelector('[infer="delete"]');
     expect(control).to.be.instanceOf(InternalDeleteControl);
   });
+
+  it('reports a scope denial as an access-denied spinner state', async () => {
+    // The exact sentence the API's scope check emits. The classifier matches on this
+    // shape, so a paraphrase here would make the test pass for the wrong reason.
+    const body = JSON.stringify({
+      total: 1,
+      _embedded: {
+        'fx:errors': [
+          {
+            logref: 'id-1',
+            message:
+              'The current authenticated user does not appear to have read permission for integration resource.',
+          },
+        ],
+      },
+    });
+
+    const element = await fixture<Form>(html`
+      <foxy-integration-form
+        href="https://demo.api/hapi/integrations/0"
+        @fetch=${(evt: Event) => {
+          const event = evt as FetchEvent;
+          event.respondWith(Promise.resolve(new Response(body, { status: 401 })));
+        }}
+      >
+      </foxy-integration-form>
+    `);
+
+    await waitUntil(() => element.in('fail'), '', { timeout: 5000 });
+    await element.updateComplete;
+
+    expect(element, 'classifier ran despite the _fetch override').to.have.property(
+      'accessDenied',
+      true
+    );
+
+    const spinner = element.renderRoot.querySelector('foxy-spinner[infer="spinner"]');
+
+    expect(spinner).to.exist;
+    expect(spinner).to.have.attribute('error-type', 'access-denied');
+  });
 });

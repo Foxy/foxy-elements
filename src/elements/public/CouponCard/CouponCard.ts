@@ -41,6 +41,7 @@ export class CouponCard extends Base<Data> {
           <foxy-spinner
             data-testid="spinner"
             state=${this.in('fail') ? 'error' : this.in({ idle: 'template' }) ? 'empty' : 'busy'}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             class="m-auto"
             lang=${this.lang}
             ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"

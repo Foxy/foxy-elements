@@ -5,6 +5,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 
 export type SpinnerLayout = 'vertical' | 'horizontal' | 'no-label';
 export type SpinnerState = 'end' | 'busy' | 'error' | 'empty' | 'paused';
+export type SpinnerErrorType = 'generic' | 'access-denied';
 
 const Base = TranslatableMixin(ThemeableMixin(InferrableMixin(LitElement)), 'spinner');
 
@@ -13,6 +14,7 @@ export class Spinner extends Base {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      errorType: { type: String, attribute: 'error-type' },
       layout: { type: String },
       state: { type: String },
     };
@@ -35,6 +37,18 @@ export class Spinner extends Base {
    */
   state: SpinnerState = 'busy';
 
+  /**
+   * Why the `error` state was entered:
+   *
+   * - `generic` (default) for an unclassified failure;
+   * - `access-denied` when the token lacks the scope required for the resource.
+   *
+   * Ignored in every state other than `error`. Set explicitly by each call site —
+   * deliberately NOT in `inferredProperties`, because inference runs after lit
+   * commits bindings and would overwrite it.
+   */
+  errorType: SpinnerErrorType = 'generic';
+
   /** @readonly */
   render(): TemplateResult {
     let layout: string;
@@ -47,8 +61,12 @@ export class Spinner extends Base {
       text = 'loading_end';
       tint = 'text-tertiary';
     } else if (this.state === 'error') {
-      icon = html`<iron-icon data-testid="icon" icon="icons:error-outline"></iron-icon>`;
-      text = 'loading_error';
+      const isDenied = this.errorType === 'access-denied';
+      icon = html`<iron-icon
+        data-testid="icon"
+        icon=${isDenied ? 'icons:block' : 'icons:error-outline'}
+      ></iron-icon>`;
+      text = isDenied ? 'loading_access_denied' : 'loading_error';
       tint = 'text-error';
     } else if (this.state === 'paused') {
       icon = html`<iron-icon data-testid="icon" icon="icons:more-horiz"></iron-icon>`;
