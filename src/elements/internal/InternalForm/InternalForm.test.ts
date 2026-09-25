@@ -295,6 +295,20 @@ describe('InternalForm', () => {
     expect(element).to.have.property('status', null);
   });
 
+  it('renders an error status message when status type is "error"', async () => {
+    const element = await fixture<InternalForm<any>>(
+      html`<foxy-internal-form .status=${{ key: 'test', type: 'error' }}></foxy-internal-form>`
+    );
+
+    const wrapper = element.renderRoot.querySelector('[data-testid="status"]')!;
+    expect(wrapper).to.have.class('bg-error-10');
+    expect(wrapper).to.not.have.class('bg-success-10');
+    expect(wrapper.querySelector('vaadin-button')).to.have.attribute(
+      'theme',
+      'error tertiary-inline'
+    );
+  });
+
   it('hides closable status message if hiddencontrols matches "status"', async () => {
     const element = await fixture<InternalForm<any>>(
       html`

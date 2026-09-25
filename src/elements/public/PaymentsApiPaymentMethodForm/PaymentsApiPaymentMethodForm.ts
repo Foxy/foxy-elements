@@ -62,7 +62,6 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
       __search: { attribute: false },
       __connectState: { attribute: false },
       __connectKey: { attribute: false },
-      __connectError: { attribute: false },
     };
   }
 
@@ -173,9 +172,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
   private __search = '';
 
-  private __connectState: 'idle' | 'busy' | 'fail' = 'idle';
-
-  private __connectError = '';
+  private __connectState: 'idle' | 'busy' = 'idle';
 
   /** Key of the connect choice whose connection URL is being fetched. */
   private __connectKey = '';
@@ -349,8 +346,6 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
           }}
         />
 
-        ${this.__renderConnectError()}
-
         <section data-testid="select-method-list">
           ${this.__groupedAvailablePaymentMethods.map(({ name, items }) => {
             return html`
@@ -402,6 +397,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
     this.__connectState = 'busy';
     this.__connectKey = choice.key;
+    this.status = null;
 
     try {
       const body: Rels.ConnectGateway['props'] = {
@@ -430,8 +426,11 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
         }
       }
 
-      this.__connectError = message;
-      this.__connectState = 'fail';
+      this.status = message
+        ? { key: 'connect_error', options: { message }, type: 'error' }
+        : { key: 'connect_error_unknown', type: 'error' };
+
+      this.__connectState = 'idle';
     }
   }
 
@@ -482,18 +481,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
             </div>
           `
         )}
-        ${this.__renderConnectError()}
       </foxy-internal-summary-control>
-    `;
-  }
-
-  private __renderConnectError() {
-    if (this.__connectState !== 'fail') return '';
-
-    return html`
-      <p data-testid="connect-error" class="text-s text-error">
-        ${this.__connectError || this.t('connection.error_unknown')}
-      </p>
     `;
   }
 

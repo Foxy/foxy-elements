@@ -2065,7 +2065,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
         body: { connection_url: 'https://gateway.test/connect' },
       };
 
-      let release = () => {};
+      let release: () => void = () => undefined;
       const gate = params.hold ? new Promise<void>(r => (release = r)) : Promise.resolve();
 
       const handleFetch = async (evt: FetchEvent) => {
@@ -2201,14 +2201,24 @@ describe('PaymentsApiPaymentMethodForm', () => {
       await waitUntil(
         async () => {
           await element.requestUpdate();
-          return !!element.renderRoot.querySelector('[data-testid="connect-error"]');
+          return !!element.status;
         },
         '',
         { timeout: 5000 }
       );
 
-      const error = element.renderRoot.querySelector('[data-testid="connect-error"]')!;
-      expect(error).to.include.text(message);
+      expect(element.status).to.deep.equal({
+        key: 'connect_error',
+        options: { message },
+        type: 'error',
+      });
+
+      const status = element.renderRoot.querySelector('[data-testid="status"]')!;
+      expect(status).to.have.class('bg-error-10');
+      expect(status.querySelector('[key="connect_error"]')).to.have.deep.property('options', {
+        message,
+      });
+
       expect(redirect).to.not.have.been.called;
       expect(element.renderRoot.querySelector('[data-testid="connect-spinner"]')).to.not.exist;
       expect(element.renderRoot.querySelector('[data-testid="select-method-list"]')).to.exist;
