@@ -41,15 +41,17 @@ export class IntegrationForm extends Base<Data> {
   }
 
   protected async _fetch<TResult = Data>(...args: Parameters<Window['fetch']>): Promise<TResult> {
-    const constructor = this.constructor as typeof IntegrationForm;
-    const response = await new constructor.API(this).fetch(...args);
     const method = typeof args[0] === 'string' ? args[1]?.method : args[0].method;
     const url = typeof args[0] === 'string' ? args[0] : args[0].url;
 
-    if (!response.ok) throw response;
+    // Delegate rather than reimplementing the request: the base class classifies
+    // scope-denial failures on the way through, which is what makes `.accessDenied`
+    // (and the "Access denied" spinner message) work for this form.
+    const json = await super._fetch<TResult>(...args);
 
-    const json = await response.json();
-    if (method?.toUpperCase() === 'POST' && url === this.parent) this.__postResponse = json;
+    if (method?.toUpperCase() === 'POST' && url === this.parent) {
+      this.__postResponse = json as unknown as PostResponseData;
+    }
 
     return json;
   }

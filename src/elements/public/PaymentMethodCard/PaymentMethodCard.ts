@@ -170,6 +170,7 @@ export class PaymentMethodCard extends Base<Data> {
               data-testid="spinner"
               layout="vertical"
               state=${spinnerState}
+              error-type=${this.accessDenied ? 'access-denied' : 'generic'}
               lang=${this.lang}
               ns="${ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
             >

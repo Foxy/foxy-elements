@@ -93,6 +93,7 @@ export class ErrorEntryCard extends Base<Data> {
             data-testid="spinner"
             layout="horizontal"
             state=${isBusy ? 'busy' : this.in('fail') ? 'error' : 'empty'}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             lang=${this.lang}
             ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
           >

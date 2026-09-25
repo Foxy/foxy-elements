@@ -151,6 +151,7 @@ export class CancellationForm extends Base<Data> {
             layout="vertical"
             class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
             state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             lang=${this.lang}
             ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
           >

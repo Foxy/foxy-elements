@@ -341,7 +341,13 @@ export class CollectionPages<TPage extends Page> extends Base {
 
   private __failRequest(event: FetchEvent) {
     const error = this.__service.state?.context.error as Response | undefined;
-    const response = error ?? new Response('Unknown error, details unavailable.', { status: 500 });
+
+    // Clone per handout. A Response body is a single-use stream, and this method answers
+    // one request per child, so sharing the recorded error by reference would let the
+    // first child to read the body lock it for every other. Matches CollectionPage.
+    const response =
+      error?.clone() ?? new Response('Unknown error, details unavailable.', { status: 500 });
+
     event.stopImmediatePropagation();
     event.respondWith(Promise.resolve(response));
   }

@@ -143,6 +143,7 @@ export class SubscriptionCard extends Base<Data> {
         >
           <foxy-spinner
             state=${this.in('fail') ? 'error' : this.in({ idle: 'template' }) ? 'empty' : 'busy'}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             class="m-auto"
             infer="spinner"
           >
