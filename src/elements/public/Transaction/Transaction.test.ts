@@ -955,6 +955,40 @@ describe('Transaction', () => {
     expect(control).to.have.property('item', 'foxy-shipment-card');
   });
 
+  it('links items and shipments without waiting for the store to load', async () => {
+    const router = createRouter();
+    const element = await fixture<Transaction>(html`
+      <foxy-transaction
+        href="https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
+        @fetch=${(evt: FetchEvent) => {
+          if (new URL(evt.request.url).pathname.startsWith('/hapi/stores/')) {
+            evt.preventDefault();
+            evt.respondWith(new Promise<Response>(() => void 0));
+          } else {
+            router.handleEvent(evt);
+          }
+        }}
+      >
+      </foxy-transaction>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
+    await element.requestUpdate();
+
+    const items = element.renderRoot.querySelector('[infer="items"]');
+    const shipments = element.renderRoot.querySelector('[infer="shipments"]');
+
+    expect(items).to.have.property(
+      'first',
+      'https://demo.api/hapi/items?transaction_id=0&zoom=item_options'
+    );
+
+    expect(shipments).to.have.property(
+      'first',
+      'https://demo.api/hapi/shipments?transaction_id=0&zoom=items%3Aitem_category'
+    );
+  });
+
   it('renders webhooks as control', async () => {
     const router = createRouter();
     const element = await fixture<Transaction>(html`
