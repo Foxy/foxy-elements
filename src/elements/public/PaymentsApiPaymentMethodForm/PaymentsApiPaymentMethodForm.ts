@@ -774,14 +774,10 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
               ? html`<span class="text-xs"> ${this.t('conflict_message', helper.conflict)}</span>`
               : choice
               ? html`
-                  ${hasChoiceLabel
-                    ? html`<span class="text-xs text-secondary">
-                        ${this.t(`connection.${choice.key}.description`)}
-                      </span>`
-                    : ''}
-                  <span class="text-xs text-secondary"
-                    >${this.t('connection.redirect_notice')}</span
-                  >
+                  <span class="text-xs text-secondary">
+                    ${hasChoiceLabel ? this.t(`connection.${choice.key}.description`) : ''}
+                    ${this.t('connection.redirect_notice')}
+                  </span>
                 `
               : ''}
           </figcaption>

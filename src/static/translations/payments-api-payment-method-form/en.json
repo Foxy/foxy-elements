@@ -170,12 +170,12 @@
     "paypal_platform": {
       "ppcp": {
         "label": "PayPal Checkout with card payments",
-        "description": "Accept PayPal and credit or debit cards on your checkout. Available in some countries only.",
+        "description": "Available in select countries.",
         "button": "Connect"
       },
       "express_checkout": {
         "label": "PayPal Checkout",
-        "description": "Accept PayPal payments only.",
+        "description": "Available in select countries.",
         "button": "Connect"
       },
       "reconnect": {
