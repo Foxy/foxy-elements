@@ -2101,7 +2101,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
                 ? 'https://foxy-payments-api.element/payment_presets/0/payment_methods/H0C0'
                 : ''}
               .getConnectRedirectUrl=${(preset: string) =>
-                `https://admin.foxy.test/return?preset=${encodeURIComponent(preset)}`}
+                `https://admin.example.com/return?preset=${encodeURIComponent(preset)}`}
             >
             </foxy-payments-api-payment-method-form>
           </foxy-payments-api>
@@ -2173,7 +2173,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
           url: 'https://demo.api/hapi/payment_method_sets/0/connect_gateway',
           body: {
             type: 'paypal_platform',
-            final_redirect: `https://admin.foxy.test/return?preset=${encodeURIComponent(
+            final_redirect: `https://admin.example.com/return?preset=${encodeURIComponent(
               'https://foxy-payments-api.element/payment_presets/0'
             )}`,
             options: { paypal_product_type: 'express_checkout' },
