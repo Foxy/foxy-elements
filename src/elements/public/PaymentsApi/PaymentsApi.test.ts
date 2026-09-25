@@ -211,6 +211,9 @@ describe('PaymentsApi', () => {
         'fx:payment_presets': [
           {
             _links: {
+              'fx:connect_gateway': {
+                href: 'https://demo.api/hapi/payment_method_sets/0/connect_gateway',
+              },
               'fx:available_fraud_protections': {
                 href: 'https://foxy-payments-api.element/payment_presets/0/available_fraud_protections',
               },
@@ -242,6 +245,9 @@ describe('PaymentsApi', () => {
           },
           {
             _links: {
+              'fx:connect_gateway': {
+                href: 'https://demo.api/hapi/payment_method_sets/1/connect_gateway',
+              },
               'fx:available_fraud_protections': {
                 href: 'https://foxy-payments-api.element/payment_presets/1/available_fraud_protections',
               },
@@ -382,6 +388,9 @@ describe('PaymentsApi', () => {
 
     expect(nucleon).to.have.deep.property('data', {
       _links: {
+        'fx:connect_gateway': {
+          href: 'https://demo.api/hapi/payment_method_sets/0/connect_gateway',
+        },
         'fx:available_fraud_protections': {
           href: 'https://foxy-payments-api.element/payment_presets/0/available_fraud_protections',
         },
@@ -2419,6 +2428,72 @@ describe('PaymentsApi', () => {
           ],
         },
       },
+    });
+  });
+
+  it('passes the fx:connect_gateway link of a hosted gateway through to fx:payment_method', async () => {
+    const router = createRouter({
+      defaults,
+      dataset: {
+        payment_method_set_hosted_payment_gateways: [
+          {
+            id: 0,
+            store_id: 0,
+            payment_method_set_id: 0,
+            hosted_payment_gateway_id: 0,
+            payment_method_set_uri: 'https://demo.api/payment_method_sets/0',
+            hosted_payment_gateway_uri: 'https://demo.api/hosted_payment_gateways/0',
+            date_created: '2012-08-10T11:58:54-0700',
+            date_modified: '2012-08-10T11:58:54-0700',
+          },
+        ],
+        hosted_payment_gateways: [
+          {
+            id: 0,
+            store_id: 0,
+            payment_method_set_id: 0,
+            description: 'PayPal',
+            type: 'paypal_platform',
+            account_id: 'merchant@example.com',
+            date_created: '2015-05-26T17:49:56-0700',
+            date_modified: '2015-05-26T17:49:56-0700',
+          },
+        ],
+        payment_gateways: [],
+        payment_method_sets: [{ id: 0, store_id: 0, gateway_uri: '', is_live: false }],
+        property_helpers: [
+          { id: 0, store_id: 0, values: {} },
+          { id: 1, store_id: 0, values: { paypal_platform: { name: 'PayPal' } } },
+        ],
+      },
+      links,
+    });
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-nucleon
+            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/H0C0"
+          >
+          </foxy-nucleon>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const api = wrapper.firstElementChild as PaymentsApi;
+    const nucleon = api.firstElementChild as NucleonElement<any>;
+    await waitUntil(() => !!nucleon.data, '', { timeout: 5000 });
+
+    expect(nucleon.data._links).to.have.deep.property('fx:connect_gateway', {
+      href: 'https://demo.api/hapi/hosted_payment_gateways/0/connect_gateway',
     });
   });
 

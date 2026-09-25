@@ -19,6 +19,7 @@ interface PaymentPresetRel extends Graph {
   links: {
     'self': PaymentPresetRel;
     'fx:store': Rels.Store;
+    'fx:connect_gateway': Rels.ConnectGateway;
     'fx:payment_methods': PaymentMethodsRel;
     'fx:fraud_protections': FraudProtectionsRel;
     'fx:available_payment_methods': AvailablePaymentMethodsRel;
@@ -45,6 +46,8 @@ interface PaymentMethodRel extends Graph {
     'self': PaymentMethodRel;
     'fx:store': Rels.Store;
     'fx:payment_preset': any;
+    /** Present only for hosted gateways that support OAuth-style connections. */
+    'fx:connect_gateway': Rels.ConnectGateway;
   };
 }
 
