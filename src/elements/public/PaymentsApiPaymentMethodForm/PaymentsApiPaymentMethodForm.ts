@@ -473,19 +473,17 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
           : ''}
         ${choices.map(
           choice => html`
-            <div class="flex items-center justify-between" style="gap: var(--lumo-space-m)">
-              <div class="leading-xs">
-                <p class="font-medium">
-                  <foxy-i18n infer="" key="${choice.key}.label"></foxy-i18n>
-                </p>
-                <p class="text-s text-secondary">
-                  <foxy-i18n infer="" key="${choice.key}.description"></foxy-i18n>
-                </p>
-              </div>
+            <div class="leading-xs">
+              <p class="font-medium">
+                <foxy-i18n infer="" key="${choice.key}.label"></foxy-i18n>
+              </p>
+              <p class="text-s text-secondary">
+                <foxy-i18n infer="" key="${choice.key}.description"></foxy-i18n>
+              </p>
               <vaadin-button
                 data-testid="connect-${choice.key}"
-                class="flex-shrink-0"
-                theme="primary"
+                class="mt-xs"
+                theme="tertiary-inline"
                 ?disabled=${isBusy || this.disabled || this.readonly}
                 @click=${() => this.__connect(choice, type)}
               >
