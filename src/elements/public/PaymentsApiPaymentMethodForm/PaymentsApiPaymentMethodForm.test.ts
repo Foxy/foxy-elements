@@ -2302,6 +2302,31 @@ describe('PaymentsApiPaymentMethodForm', () => {
       expect(requests[0].body).to.have.property('type', 'paypal_platform');
     });
 
+    it('hides the reconnect rows but keeps the connected email when read-only', async () => {
+      for (const setReadonly of [
+        (form: Form) => (form.readonly = true),
+        (form: Form) => form.setAttribute('readonlycontrols', 'connection'),
+      ]) {
+        const { element } = await setup({
+          gateway: {
+            type: 'paypal_platform',
+            test_account_id: 'test@example.com',
+            test_third_party_key: '',
+          },
+        });
+
+        setReadonly(element);
+        await element.requestUpdate();
+
+        const root = element.renderRoot;
+        expect(root.querySelector('[key="status_connected"]')).to.exist;
+        expect(root.querySelector('[key="paypal_platform.reconnect_with_cards.label"]')).to.not
+          .exist;
+        expect(root.querySelector('[data-testid="connect-paypal_platform.reconnect_with_cards"]'))
+          .to.not.exist;
+      }
+    });
+
     it('offers a plain reconnect when card payments are already connected', async () => {
       const { element } = await setup({
         gateway: {

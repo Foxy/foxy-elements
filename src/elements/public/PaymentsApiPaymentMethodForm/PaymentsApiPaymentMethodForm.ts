@@ -461,6 +461,8 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
       ? [this.__getReconnectChoice(thirdPartyKey)]
       : this.__getConnectChoices(type);
     const isBusy = this.__connectState === 'busy';
+    const isReadonly = this.readonlySelector.matches('connection', true);
+    const isDisabled = isBusy || this.disabledSelector.matches('connection', true);
 
     return html`
       <foxy-internal-summary-control infer="connection">
@@ -471,7 +473,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
               </p>
             `
           : ''}
-        ${choices.map(
+        ${(isReadonly ? [] : choices).map(
           choice => html`
             <div class="leading-xs">
               <p class="font-medium">
@@ -485,7 +487,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
               <vaadin-button
                 data-testid="connect-${choice.key}"
                 theme="tertiary-inline"
-                ?disabled=${isBusy || this.disabled || this.readonly}
+                ?disabled=${isDisabled}
                 @click=${() => this.__connect(choice, type)}
               >
                 ${isBusy && this.__connectKey === choice.key
