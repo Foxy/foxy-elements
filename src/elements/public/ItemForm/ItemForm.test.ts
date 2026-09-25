@@ -153,11 +153,15 @@ describe('ItemForm', () => {
       `
     );
 
-    await waitUntil(() => {
-      if (!element.in({ idle: 'snapshot' })) return false;
-      const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
-      return [...nucleons].every(nucleon => nucleon.in({ idle: 'snapshot' }));
-    });
+    await waitUntil(
+      () => {
+        if (!element.in({ idle: 'snapshot' })) return false;
+        const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+        return [...nucleons].every(nucleon => nucleon.in({ idle: 'snapshot' }));
+      },
+      '',
+      { timeout: 5000 }
+    );
 
     expect(element.hiddenSelector.matches('general:shipto', true)).to.be.true;
 

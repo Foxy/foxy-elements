@@ -20,6 +20,10 @@ import { I18n } from '../I18n/I18n';
 import { stub } from 'sinon';
 import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
 
+// A 1x1 GIF that always loads. A URL that fails to load fires the element's image
+// error handler, which swaps in a fallback and races the assertions below.
+const TEST_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 describe('PaymentsApiFraudProtectionForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
 
@@ -327,7 +331,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
         >
           <foxy-payments-api-fraud-protection-form
             parent="https://foxy-payments-api.element/payment_presets/0/fraud_protections"
-            .getImageSrc=${(type: string) => `https://example.com?${type}`}
+            .getImageSrc=${(type: string) => `${TEST_IMAGE}#${type}`}
             @fetch=${(evt: FetchEvent) => {
               if (evt.request.url.endsWith('/payment_presets/0/available_fraud_protections')) {
                 evt.preventDefault();
@@ -363,10 +367,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
     expect(item0Button).to.not.have.attribute('disabled');
     expect(item0Button).to.not.have.attribute('title');
     expect(item0Button).to.include.text('Minfraud');
-    expect(await getByTag(item0Button, 'img')).to.have.attribute(
-      'src',
-      'https://example.com?minfraud'
-    );
+    expect(await getByTag(item0Button, 'img')).to.have.attribute('src', `${TEST_IMAGE}#minfraud`);
 
     expect(item1Button).to.exist;
     expect(item1Button).to.have.attribute('disabled');
@@ -374,7 +375,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
     expect(item1Button).to.include.text('Google reCaptcha');
     expect(await getByTag(item1Button, 'img')).to.have.attribute(
       'src',
-      'https://example.com?google_recaptcha'
+      `${TEST_IMAGE}#google_recaptcha`
     );
 
     item0Button.click();
