@@ -19,14 +19,15 @@ import has from 'lodash-es/has';
 import get from 'lodash-es/get';
 import set from 'lodash-es/set';
 
-type PaymentMethod = {
-  helper: AvailablePaymentMethods['values'][string];
-  type: string;
-};
-
 type ConnectChoice = {
   key: string;
   options?: Rels.ConnectGateway['props']['options'];
+};
+
+type PaymentMethod = {
+  helper: AvailablePaymentMethods['values'][string];
+  choice?: ConnectChoice;
+  type: string;
 };
 
 /** OAuth gateways that connect through fx:connect_gateway. Other OAuth gateways show a notice. */
@@ -60,6 +61,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
       store: {},
       __search: { attribute: false },
       __connectState: { attribute: false },
+      __connectKey: { attribute: false },
       __connectError: { attribute: false },
     };
   }
@@ -175,6 +177,9 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
   private __connectError = '';
 
+  /** Key of the connect choice whose connection URL is being fetched. */
+  private __connectKey = '';
+
   get hiddenSelector(): BooleanSelector {
     return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
   }
@@ -280,10 +285,14 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
         const name = isSpecialCharacter ? '#' : firstChar;
         const group = groups.find(group => group.name === name);
 
+        const items: PaymentMethod[] = connectableGateways.includes(type)
+          ? this.__getConnectChoices(type).map(choice => ({ type, helper, choice }))
+          : [{ type, helper }];
+
         if (group) {
-          group.items.push({ type, helper });
+          group.items.push(...items);
         } else {
-          groups.push({ name, items: [{ type, helper }] });
+          groups.push({ name, items });
         }
 
         return groups;
@@ -340,6 +349,8 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
           }}
         />
 
+        ${this.__renderConnectError()}
+
         <section data-testid="select-method-list">
           ${this.__groupedAvailablePaymentMethods.map(({ name, items }) => {
             return html`
@@ -360,8 +371,8 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     window.location.assign(url);
   }
 
-  private get __connectChoices(): ConnectChoice[] {
-    if (this.form.type === 'paypal_platform') {
+  private __getConnectChoices(type: string): ConnectChoice[] {
+    if (type === 'paypal_platform') {
       return [
         { key: 'paypal_platform.ppcp', options: { paypal_product_type: 'ppcp' } },
         {
@@ -384,16 +395,17 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     return { key: 'reconnect' };
   }
 
-  private async __connect(choice: ConnectChoice) {
+  private async __connect(choice: ConnectChoice, type: string) {
     const presetLink = this.__paymentPresetLoader?.data?._links['fx:connect_gateway'];
     const href = this.data?._links['fx:connect_gateway']?.href ?? presetLink?.href;
-    if (!href || !this.form.type || !this.paymentPreset) return;
+    if (!href || !this.paymentPreset || this.__connectState === 'busy') return;
 
     this.__connectState = 'busy';
+    this.__connectKey = choice.key;
 
     try {
       const body: Rels.ConnectGateway['props'] = {
-        type: this.form.type,
+        type,
         final_redirect: this.getConnectRedirectUrl?.(this.paymentPreset) ?? window.location.href,
       };
 
@@ -404,6 +416,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
         body: JSON.stringify(body),
       });
 
+      // State stays busy on purpose: the spinner keeps going until the browser leaves the page.
       this.__redirect(response.connection_url);
     } catch (err) {
       let message = '';
@@ -429,7 +442,10 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     const prefix = preset.is_live ? '' : 'test_';
     const email = this.data?.[`${prefix}account_id` as const];
     const thirdPartyKey = this.data?.[`${prefix}third_party_key` as const] ?? '';
-    const choices = email ? [this.__getReconnectChoice(thirdPartyKey)] : this.__connectChoices;
+    const type = this.form.type as string;
+    const choices = email
+      ? [this.__getReconnectChoice(thirdPartyKey)]
+      : this.__getConnectChoices(type);
     const isBusy = this.__connectState === 'busy';
 
     return html`
@@ -457,36 +473,39 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
                 class="flex-shrink-0"
                 theme="primary"
                 ?disabled=${isBusy || this.disabled || this.readonly}
-                @click=${() => this.__connect(choice)}
+                @click=${() => this.__connect(choice, type)}
               >
-                <foxy-i18n infer="" key="${choice.key}.button"></foxy-i18n>
+                ${isBusy && this.__connectKey === choice.key
+                  ? html`<foxy-spinner layout="no-label" infer="connect-spinner"></foxy-spinner>`
+                  : html`<foxy-i18n infer="" key="${choice.key}.button"></foxy-i18n>`}
               </vaadin-button>
             </div>
           `
         )}
-        ${this.__connectState === 'fail'
-          ? html`
-              <p data-testid="connect-error" class="text-s text-error">
-                ${this.__connectError || this.t('connection.error_unknown')}
-              </p>
-            `
-          : ''}
+        ${this.__renderConnectError()}
       </foxy-internal-summary-control>
+    `;
+  }
+
+  private __renderConnectError() {
+    if (this.__connectState !== 'fail') return '';
+
+    return html`
+      <p data-testid="connect-error" class="text-s text-error">
+        ${this.__connectError || this.t('connection.error_unknown')}
+      </p>
     `;
   }
 
   private __renderPaymentMethodConfig() {
     if (this.form.type && connectableGateways.includes(this.form.type)) {
       return html`
-        ${this.data
-          ? html`
-              <foxy-internal-summary-control infer="general">
-                <foxy-internal-text-control layout="summary-item" infer="description">
-                </foxy-internal-text-control>
-              </foxy-internal-summary-control>
-            `
-          : ''}
-        ${this.__renderConnection()} ${this.data ? super.renderBody() : ''}
+        <foxy-internal-summary-control infer="general">
+          <foxy-internal-text-control layout="summary-item" infer="description">
+          </foxy-internal-text-control>
+        </foxy-internal-summary-control>
+
+        ${this.__renderConnection()} ${super.renderBody()}
       `;
     }
 
@@ -688,13 +707,16 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
   }
 
   private __renderPaymentMethodButton(
-    { type, helper }: PaymentMethod,
+    { type, helper, choice }: PaymentMethod,
     index: number,
     total: number
   ) {
     const defaultSrc = PaymentsApiPaymentMethodForm.defaultImageSrc;
     const src = this.getImageSrc?.(type) ?? defaultSrc;
     const onError = (evt: Event) => ((evt.currentTarget as HTMLImageElement).src = defaultSrc);
+    const isBusy = this.__connectState === 'busy';
+    const isConnecting = isBusy && !!choice && this.__connectKey === choice.key;
+    const hasChoiceLabel = !!choice && choice.key !== 'default';
 
     return html`
       <button
@@ -706,32 +728,61 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
           'rounded-t': index === 0,
           'rounded-b': index === total - 1,
         })}
-        ?disabled=${!!helper.conflict}
+        data-testid=${ifDefined(choice ? `connect-${choice.key}` : undefined)}
+        ?disabled=${!!helper.conflict || isBusy}
         style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
-        @click=${() => this.edit({ type, helper })}
+        @click=${() => (choice ? this.__connect(choice, type) : this.edit({ type, helper }))}
       >
         <figure
           class="relative flex items-center"
           style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
         >
-          <img
-            class=${classMap({
-              'h-m w-m object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs': true,
-              'filter grayscale': !!helper.conflict,
-            })}
-            src=${src}
-            alt=""
-            @error=${onError}
-          />
+          ${isConnecting
+            ? html`
+                <foxy-spinner
+                  data-testid="connect-spinner"
+                  class="h-m w-m flex items-center justify-center flex-shrink-0"
+                  layout="no-label"
+                  infer="connect-spinner"
+                >
+                </foxy-spinner>
+              `
+            : html`
+                <img
+                  class=${classMap({
+                    'h-m w-m object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs':
+                      true,
+                    'filter grayscale': !!helper.conflict,
+                  })}
+                  src=${src}
+                  alt=""
+                  @error=${onError}
+                />
+              `}
           <figcaption
             class=${classMap({
               'min-w-0 flex-1 grid leading-xs': true,
               'text-disabled': !!helper.conflict,
             })}
           >
-            <span class="font-medium">${helper.name}&ZeroWidthSpace;</span>
+            <span class="font-medium">
+              ${hasChoiceLabel
+                ? this.t(`connection.${choice!.key}.label`)
+                : helper.name}&ZeroWidthSpace;
+            </span>
             ${helper.conflict
               ? html`<span class="text-xs"> ${this.t('conflict_message', helper.conflict)}</span>`
+              : choice
+              ? html`
+                  ${hasChoiceLabel
+                    ? html`<span class="text-xs text-secondary">
+                        ${this.t(`connection.${choice.key}.description`)}
+                      </span>`
+                    : ''}
+                  <span class="text-xs text-secondary"
+                    >${this.t('connection.redirect_notice')}</span
+                  >
+                `
               : ''}
           </figcaption>
         </figure>

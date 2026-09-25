@@ -2047,6 +2047,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
       gateway?: Record<string, unknown>;
       isLive?: boolean;
       response?: ConnectResponse;
+      /** Holds the connect response until `release()` is called. */
+      hold?: boolean;
     }) {
       const dataset = createDataset();
       dataset.payment_method_sets[0].is_live = params.isLive ?? false;
@@ -2063,12 +2065,16 @@ describe('PaymentsApiPaymentMethodForm', () => {
         body: { connection_url: 'https://gateway.test/connect' },
       };
 
+      let release = () => {};
+      const gate = params.hold ? new Promise<void>(r => (release = r)) : Promise.resolve();
+
       const handleFetch = async (evt: FetchEvent) => {
         if (evt.request.url.endsWith('/connect_gateway')) {
           const request = evt.request.clone();
           evt.respondWith(
-            request.json().then(body => {
+            request.json().then(async body => {
               requests.push({ url: request.url, body });
+              await gate;
               return new Response(JSON.stringify(response.body), { status: response.status });
             })
           );
@@ -2105,42 +2111,61 @@ describe('PaymentsApiPaymentMethodForm', () => {
       const element = wrapper.firstElementChild!.firstElementChild as Form;
       const redirect = stub(element as any, '__redirect');
 
-      if (params.gateway) {
-        await waitUntil(() => !!element.data, '', { timeout: 5000 });
-      } else {
-        element.edit({ type: 'paypal_platform', helper: { name: 'PayPal' } as any });
+      if (params.gateway) await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+      for (const id of ['paymentPresetLoader', 'availablePaymentMethodsLoader']) {
+        await waitUntil(
+          async () => {
+            await element.requestUpdate();
+            const loader = element.renderRoot.querySelector<NucleonElement<any>>(`#${id}`);
+            return !!loader?.data;
+          },
+          '',
+          { timeout: 5000 }
+        );
       }
 
-      const presetLoader =
-        element.renderRoot.querySelector<NucleonElement<any>>('#paymentPresetLoader');
-      await waitUntil(() => !!presetLoader?.data, '', { timeout: 5000 });
       await element.requestUpdate();
-
-      return { element, requests, redirect };
+      return { element, requests, redirect, release };
     }
 
-    it('offers both PayPal product types for a new connection and hides the create button', async () => {
+    it('lists each PayPal product type in the new payment method list with a redirect notice', async () => {
       const { element } = await setup({});
-      const root = element.renderRoot;
+      const list = element.renderRoot.querySelector('[data-testid="select-method-list"]')!;
+      const ppcp = list.querySelector('[data-testid="connect-paypal_platform.ppcp"]');
+      const express = list.querySelector(
+        '[data-testid="connect-paypal_platform.express_checkout"]'
+      );
 
-      expect(root.querySelector('[data-testid="connect-paypal_platform.ppcp"]')).to.exist;
-      expect(root.querySelector('[data-testid="connect-paypal_platform.express_checkout"]')).to
-        .exist;
-      expect(root.querySelector('[infer="connection"] [key="paypal_platform.ppcp.label"]')).to
-        .exist;
-      expect(root.querySelector('[infer="connection"] [key="paypal_platform.ppcp.description"]')).to
-        .exist;
-      expect(root.querySelector('[infer="create"]')).to.not.exist;
-      expect(root.querySelector('[infer="account-id"]')).to.not.exist;
+      expect(ppcp).to.include.text('connection.paypal_platform.ppcp.label');
+      expect(ppcp).to.include.text('connection.paypal_platform.ppcp.description');
+      expect(ppcp).to.include.text('connection.redirect_notice');
+      expect(express).to.include.text('connection.paypal_platform.express_checkout.label');
+      expect(express).to.include.text('connection.redirect_notice');
     });
 
-    it('posts to the payment preset connect link and sends the browser to connection_url', async () => {
-      const { element, requests, redirect } = await setup({});
-      const button = element.renderRoot.querySelector<HTMLElement>(
+    it('posts to the payment preset connect link on click and sends the browser to connection_url', async () => {
+      const { element, requests, redirect, release } = await setup({ hold: true });
+      const button = element.renderRoot.querySelector<HTMLButtonElement>(
         '[data-testid="connect-paypal_platform.express_checkout"]'
       )!;
 
       button.click();
+
+      await waitUntil(
+        async () => {
+          await element.requestUpdate();
+          return !!button.querySelector('[data-testid="connect-spinner"]');
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      expect(element.form.type).to.not.exist;
+      expect(button).to.have.property('disabled', true);
+      expect(redirect).to.not.have.been.called;
+
+      release();
       await waitUntil(() => redirect.called, '', { timeout: 5000 });
 
       expect(requests).to.deep.equal([
@@ -2185,6 +2210,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
       const error = element.renderRoot.querySelector('[data-testid="connect-error"]')!;
       expect(error).to.include.text(message);
       expect(redirect).to.not.have.been.called;
+      expect(element.renderRoot.querySelector('[data-testid="connect-spinner"]')).to.not.exist;
+      expect(element.renderRoot.querySelector('[data-testid="select-method-list"]')).to.exist;
     });
 
     it('shows the connected email for the current mode and hides the credential fields', async () => {

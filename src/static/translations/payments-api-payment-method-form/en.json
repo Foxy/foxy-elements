@@ -22,6 +22,9 @@
   "conflict_message": "Remove {{ name }} to use this method",
   "no_oauth_support_message": "Adding this gateway is currently restricted from this admin. Please utilise our legacy administration to connect this gateway to your payment set.",
   "search_placeholder": "Search by name",
+  "connect-spinner": {
+    "loading_busy": "Connecting..."
+  },
   "test-group": {
     "label": "Test setup",
     "label_inactive": "Test setup (inactive)",
@@ -150,6 +153,10 @@
     "helper_text": "",
     "status_connected": "Connected as {{ email }}",
     "error_unknown": "We couldn't start the connection. Please try again.",
+    "redirect_notice": "You'll be redirected to finish setup.",
+    "connect-spinner": {
+      "loading_busy": "Connecting..."
+    },
     "default": {
       "label": "Connect this gateway",
       "description": "You'll sign in to the gateway and approve access, then come back here.",
