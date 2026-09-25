@@ -14,6 +14,7 @@
   },
   "list-spinner": {
     "loading_busy": "Loading fraud protections...",
+    "loading_access_denied": "Access denied",
     "loading_error": "Unknown error. Failed to load fraud protections."
   },
   "default_additional_field_placeholder": "None",

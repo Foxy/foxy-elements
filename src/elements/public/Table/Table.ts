@@ -97,6 +97,7 @@ export class Table<TData extends Collection> extends Base<TData> {
                   data-testid="spinner"
                   layout="vertical"
                   state=${this.in('busy') ? 'busy' : this.in('idle') ? 'empty' : 'error'}
+                  error-type=${this.accessDenied ? 'access-denied' : 'generic'}
                   class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
                   lang=${this.lang}
                   ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"

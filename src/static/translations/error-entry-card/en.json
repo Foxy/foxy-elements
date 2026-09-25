@@ -7,5 +7,6 @@
   "date": "{{value, date}}",
   "error": "Error",
   "request": "Request",
-  "time": "{{value, time}}"
+  "time": "{{value, time}}",
+  "loading_access_denied": "Access denied"
 }

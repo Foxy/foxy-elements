@@ -3,6 +3,7 @@ import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { getGravatarUrl } from '../../../utils/get-gravatar-url';
+import { groupInvitationScopes } from '../../../utils/group-invitation-scopes';
 import { getResourceId } from '@foxy.io/sdk/core';
 import { asyncReplace } from 'lit-html/directives/async-replace';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
@@ -38,7 +39,7 @@ export class UserInvitationCard extends Base<Data> {
 
       return html`
         <div
-          class="flex items-center"
+          class="flex items-start"
           style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
         >
           ${asyncReplace(this.__getGravatar(this.data?.email))}
@@ -67,6 +68,7 @@ export class UserInvitationCard extends Base<Data> {
               key="status"
             >
             </foxy-i18n>
+            ${this.__renderScopes()}
           </div>
         </div>
       `;
@@ -100,6 +102,69 @@ export class UserInvitationCard extends Base<Data> {
         >
         </foxy-i18n>
       </div>
+    `;
+  }
+
+  /** Renders the scope summary lines, or nothing when the invitation grants nothing. */
+  private __renderScopes(): TemplateResult | string {
+    const groups = groupInvitationScopes(this.data?.scope);
+
+    const hasScopes =
+      groups.storeFullAccess ||
+      !!groups.full.length ||
+      !!groups.read.length ||
+      !!groups.resend.length;
+
+    // Bail before the wrapper so an invitation that grants nothing renders no separator
+    // and no empty block — the card looks exactly as it did before this feature.
+    if (!hasScopes) return '';
+
+    // The separator lives here rather than beside the subtitle so it only ever appears
+    // when there is something below it to separate.
+    return html`
+      <div class="border-t border-contrast-10 mt-s pt-s">
+        ${groups.storeFullAccess
+          ? html`
+              <foxy-i18n
+                class="block truncate text-s text-secondary"
+                infer=""
+                key="scope_store_full_access"
+              >
+              </foxy-i18n>
+            `
+          : html`
+              ${this.__renderScopeLine('scope_full', groups.full)}
+              ${this.__renderScopeLine('scope_read', groups.read)}
+              ${this.__renderScopeLine('scope_resend', groups.resend)}
+            `}
+      </div>
+    `;
+  }
+
+  /**
+   * Renders one scope line: up to three localized collection names sorted alphabetically,
+   * with the remainder reported through the `_truncated` i18next context. Returns nothing
+   * for an empty group so no blank line is rendered.
+   */
+  private __renderScopeLine(key: string, collections: string[]): TemplateResult | string {
+    if (!collections.length) return '';
+
+    const labels = collections.map(collection => this.t(`scopes.${collection}`)).sort();
+    const count = Math.max(0, labels.length - 3);
+    const options = {
+      names: labels.slice(0, 3).join(', '),
+      count,
+      context: count ? 'truncated' : '',
+    };
+
+    return html`
+      <foxy-i18n
+        .options=${options}
+        class="block truncate text-s text-secondary"
+        infer=""
+        key=${key}
+      >
+      </foxy-i18n>
     `;
   }
 

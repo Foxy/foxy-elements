@@ -16,6 +16,12 @@ import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 
 describe('TemplateConfigForm', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('imports and defines foxy-internal-editable-list-control element', () => {
     expect(customElements.get('foxy-internal-editable-list-control')).to.exist;
   });
