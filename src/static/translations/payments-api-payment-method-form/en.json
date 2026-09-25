@@ -145,6 +145,44 @@
       "v8n_too_long": "Please reduce this description to a 100 characters or less"
     }
   },
+  "connection": {
+    "label": "",
+    "helper_text": "",
+    "status_connected": "Connected as {{ email }}",
+    "error_unknown": "We couldn't start the connection. Please try again.",
+    "default": {
+      "label": "Connect this gateway",
+      "description": "You'll sign in to the gateway and approve access, then come back here.",
+      "button": "Connect"
+    },
+    "reconnect": {
+      "label": "Reconnect",
+      "description": "Reconnect if payments stop working or the gateway asks for new permissions.",
+      "button": "Reconnect"
+    },
+    "paypal_platform": {
+      "ppcp": {
+        "label": "PayPal Checkout with card payments",
+        "description": "Accept PayPal and credit or debit cards on your checkout. Available in some countries only.",
+        "button": "Connect"
+      },
+      "express_checkout": {
+        "label": "PayPal Checkout",
+        "description": "Accept PayPal payments only.",
+        "button": "Connect"
+      },
+      "reconnect": {
+        "label": "Reconnect",
+        "description": "Refreshes permissions, such as Apple Pay. Use the same PayPal email. To switch to another account, remove this gateway and connect again.",
+        "button": "Reconnect"
+      },
+      "reconnect_with_cards": {
+        "label": "Add card payments",
+        "description": "This account accepts PayPal only. Reconnect to also accept cards. If you have active PayPal subscriptions, use the same PayPal email.",
+        "button": "Reconnect with card payments"
+      }
+    }
+  },
   "account-id": {
     "label": "Account ID"
   },

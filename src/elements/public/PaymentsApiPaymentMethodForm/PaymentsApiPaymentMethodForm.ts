@@ -24,6 +24,14 @@ type PaymentMethod = {
   type: string;
 };
 
+type ConnectChoice = {
+  key: string;
+  options?: Rels.ConnectGateway['props']['options'];
+};
+
+/** OAuth gateways that connect through fx:connect_gateway. Other OAuth gateways show a notice. */
+const connectableGateways = ['paypal_platform'];
+
 const NS = 'payments-api-payment-method-form';
 const Base = TranslatableMixin(InternalForm, NS);
 
@@ -48,8 +56,11 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
       ...super.properties,
       paymentPreset: { attribute: 'payment-preset' },
       getImageSrc: { attribute: false },
+      getConnectRedirectUrl: { attribute: false },
       store: {},
       __search: { attribute: false },
+      __connectState: { attribute: false },
+      __connectError: { attribute: false },
     };
   }
 
@@ -92,6 +103,13 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
   /** A function that returns a URL of a payment method icon based on the given type. */
   getImageSrc: ((type: string) => string) | null = null;
+
+  /**
+   * Returns the URL the gateway sends the merchant back to after a connection.
+   * Receives the `payment-preset` URL. The API appends a `status` query parameter.
+   * Defaults to the current page URL.
+   */
+  getConnectRedirectUrl: ((paymentPreset: string) => string) | null = null;
 
   /** URL of the linked `fx:store` resource. */
   store: string | null = null;
@@ -152,6 +170,10 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
   ];
 
   private __search = '';
+
+  private __connectState: 'idle' | 'busy' | 'fail' = 'idle';
+
+  private __connectError = '';
 
   get hiddenSelector(): BooleanSelector {
     return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
@@ -334,7 +356,139 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     `;
   }
 
+  private __redirect(url: string) {
+    window.location.assign(url);
+  }
+
+  private get __connectChoices(): ConnectChoice[] {
+    if (this.form.type === 'paypal_platform') {
+      return [
+        { key: 'paypal_platform.ppcp', options: { paypal_product_type: 'ppcp' } },
+        {
+          key: 'paypal_platform.express_checkout',
+          options: { paypal_product_type: 'express_checkout' },
+        },
+      ];
+    }
+
+    return [{ key: 'default' }];
+  }
+
+  private __getReconnectChoice(thirdPartyKey: string): ConnectChoice {
+    if (this.form.type === 'paypal_platform') {
+      // An empty third-party key means the account is connected for PayPal only, without cards.
+      const key = thirdPartyKey ? 'reconnect' : 'reconnect_with_cards';
+      return { key: `paypal_platform.${key}`, options: { paypal_product_type: 'ppcp' } };
+    }
+
+    return { key: 'reconnect' };
+  }
+
+  private async __connect(choice: ConnectChoice) {
+    const presetLink = this.__paymentPresetLoader?.data?._links['fx:connect_gateway'];
+    const href = this.data?._links['fx:connect_gateway']?.href ?? presetLink?.href;
+    if (!href || !this.form.type || !this.paymentPreset) return;
+
+    this.__connectState = 'busy';
+
+    try {
+      const body: Rels.ConnectGateway['props'] = {
+        type: this.form.type,
+        final_redirect: this.getConnectRedirectUrl?.(this.paymentPreset) ?? window.location.href,
+      };
+
+      if (choice.options) body.options = choice.options;
+
+      const response = await this._fetch<{ connection_url: string }>(href, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+
+      this.__redirect(response.connection_url);
+    } catch (err) {
+      let message = '';
+
+      if (err instanceof Response) {
+        try {
+          const json = await err.json();
+          message = json?._embedded?.['fx:errors']?.[0]?.message ?? '';
+        } catch {
+          // not a vnd.error response
+        }
+      }
+
+      this.__connectError = message;
+      this.__connectState = 'fail';
+    }
+  }
+
+  private __renderConnection() {
+    const preset = this.__paymentPresetLoader?.data;
+    if (!preset) return html``;
+
+    const prefix = preset.is_live ? '' : 'test_';
+    const email = this.data?.[`${prefix}account_id` as const];
+    const thirdPartyKey = this.data?.[`${prefix}third_party_key` as const] ?? '';
+    const choices = email ? [this.__getReconnectChoice(thirdPartyKey)] : this.__connectChoices;
+    const isBusy = this.__connectState === 'busy';
+
+    return html`
+      <foxy-internal-summary-control infer="connection">
+        ${email
+          ? html`
+              <p class="font-medium">
+                <foxy-i18n infer="" key="status_connected" .options=${{ email }}></foxy-i18n>
+              </p>
+            `
+          : ''}
+        ${choices.map(
+          choice => html`
+            <div class="flex items-center justify-between" style="gap: var(--lumo-space-m)">
+              <div class="leading-xs">
+                <p class="font-medium">
+                  <foxy-i18n infer="" key="${choice.key}.label"></foxy-i18n>
+                </p>
+                <p class="text-s text-secondary">
+                  <foxy-i18n infer="" key="${choice.key}.description"></foxy-i18n>
+                </p>
+              </div>
+              <vaadin-button
+                data-testid="connect-${choice.key}"
+                theme="primary"
+                ?disabled=${isBusy || this.disabled || this.readonly}
+                @click=${() => this.__connect(choice)}
+              >
+                <foxy-i18n infer="" key="${choice.key}.button"></foxy-i18n>
+              </vaadin-button>
+            </div>
+          `
+        )}
+        ${this.__connectState === 'fail'
+          ? html`
+              <p data-testid="connect-error" class="text-s text-error">
+                ${this.__connectError || this.t('connection.error_unknown')}
+              </p>
+            `
+          : ''}
+      </foxy-internal-summary-control>
+    `;
+  }
+
   private __renderPaymentMethodConfig() {
+    if (this.form.type && connectableGateways.includes(this.form.type)) {
+      return html`
+        ${this.data
+          ? html`
+              <foxy-internal-summary-control infer="general">
+                <foxy-internal-text-control layout="summary-item" infer="description">
+                </foxy-internal-text-control>
+              </foxy-internal-summary-control>
+            `
+          : ''}
+        ${this.__renderConnection()} ${this.data ? super.renderBody() : ''}
+      `;
+    }
+
     const oauthGateways = [
       'stripe_connect',
       'stripe_v2',
