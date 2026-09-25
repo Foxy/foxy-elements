@@ -115,7 +115,7 @@ describe('CouponForm', () => {
   });
 
   it('has a reactive property "getTransactionPageHref', () => {
-    expect(new CouponForm()).to.haveOwnProperty('getTransactionPageHref', null);
+    expect(new CouponForm()).to.have.property('getTransactionPageHref', null);
     expect(CouponForm).to.have.deep.nested.property('properties.getTransactionPageHref', {
       attribute: false,
     });
