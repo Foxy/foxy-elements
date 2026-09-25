@@ -454,6 +454,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
               </div>
               <vaadin-button
                 data-testid="connect-${choice.key}"
+                class="flex-shrink-0"
                 theme="primary"
                 ?disabled=${isBusy || this.disabled || this.readonly}
                 @click=${() => this.__connect(choice)}
