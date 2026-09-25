@@ -407,10 +407,13 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
       if (choice.options) body.options = choice.options;
 
-      const response = await this._fetch<{ connection_url: string }>(href, {
+      const response = await this._fetch<{ connection_url: string | null }>(href, {
         method: 'POST',
         body: JSON.stringify(body),
       });
+
+      // The API answers 201 with a null URL when the gateway itself fails to create one.
+      if (!response.connection_url) throw new Error('No connection_url in the response.');
 
       // State stays busy on purpose: the spinner keeps going until the browser leaves the page.
       this.__redirect(response.connection_url);
@@ -426,9 +429,21 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
         }
       }
 
-      this.status = message
-        ? { key: 'connect_error', options: { message }, type: 'error' }
-        : { key: 'connect_error_unknown', type: 'error' };
+      // The API's country error names raw option values ('ppcp', 'express_checkout'), so we
+      // replace it with our own text. It's the only 403 our requests can get that mentions 'ppcp'.
+      const isPpcpUnsupported =
+        err instanceof Response &&
+        err.status === 403 &&
+        choice.options?.paypal_product_type === 'ppcp' &&
+        message.includes("'ppcp'");
+
+      if (isPpcpUnsupported) {
+        this.status = { key: 'connect_error_ppcp_unsupported', type: 'error' };
+      } else if (message) {
+        this.status = { key: 'connect_error', options: { message }, type: 'error' };
+      } else {
+        this.status = { key: 'connect_error_unknown', type: 'error' };
+      }
 
       this.__connectState = 'idle';
     }

@@ -2184,19 +2184,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
       expect(redirect).to.have.been.calledOnceWith('https://gateway.test/connect');
     });
 
-    it('shows the API error message when the connect request fails', async () => {
-      const message =
-        "PayPal direct card payments ('ppcp') are not supported in your store's country.";
-      const { element, redirect } = await setup({
-        response: {
-          status: 403,
-          body: { _embedded: { 'fx:errors': [{ logref: 'id-1', message }] } },
-        },
-      });
-
-      element.renderRoot
-        .querySelector<HTMLElement>('[data-testid="connect-paypal_platform.ppcp"]')!
-        .click();
+    async function clickAndWaitForStatus(element: Form, testId: string) {
+      element.renderRoot.querySelector<HTMLElement>(`[data-testid="${testId}"]`)!.click();
 
       await waitUntil(
         async () => {
@@ -2206,6 +2195,43 @@ describe('PaymentsApiPaymentMethodForm', () => {
         '',
         { timeout: 5000 }
       );
+    }
+
+    it('replaces the API country error for ppcp with its own error status', async () => {
+      const message =
+        "PayPal direct card payments ('ppcp') are not supported in your store's country. Please use 'express_checkout' instead.";
+
+      const { element, redirect } = await setup({
+        response: {
+          status: 403,
+          body: { _embedded: { 'fx:errors': [{ logref: 'id-1', message }] } },
+        },
+      });
+
+      await clickAndWaitForStatus(element, 'connect-paypal_platform.ppcp');
+
+      expect(element.status).to.deep.equal({
+        key: 'connect_error_ppcp_unsupported',
+        type: 'error',
+      });
+      const status = element.renderRoot.querySelector('[data-testid="status"]')!;
+      expect(status).to.have.class('bg-error-10');
+      expect(status.querySelector('[key="connect_error_ppcp_unsupported"]')).to.exist;
+      expect(redirect).to.not.have.been.called;
+      expect(element.renderRoot.querySelector('[data-testid="connect-spinner"]')).to.not.exist;
+      expect(element.renderRoot.querySelector('[data-testid="select-method-list"]')).to.exist;
+    });
+
+    it('shows other API error messages as they are', async () => {
+      const message = 'Sorry but we can not generate connection URL for paypal_platform gateway.';
+      const { element, redirect } = await setup({
+        response: {
+          status: 403,
+          body: { _embedded: { 'fx:errors': [{ logref: 'id-1', message }] } },
+        },
+      });
+
+      await clickAndWaitForStatus(element, 'connect-paypal_platform.ppcp');
 
       expect(element.status).to.deep.equal({
         key: 'connect_error',
@@ -2214,14 +2240,22 @@ describe('PaymentsApiPaymentMethodForm', () => {
       });
 
       const status = element.renderRoot.querySelector('[data-testid="status"]')!;
-      expect(status).to.have.class('bg-error-10');
       expect(status.querySelector('[key="connect_error"]')).to.have.deep.property('options', {
         message,
       });
 
       expect(redirect).to.not.have.been.called;
-      expect(element.renderRoot.querySelector('[data-testid="connect-spinner"]')).to.not.exist;
-      expect(element.renderRoot.querySelector('[data-testid="select-method-list"]')).to.exist;
+    });
+
+    it('shows a generic error status when the API returns no connection_url', async () => {
+      const { element, redirect } = await setup({
+        response: { status: 201, body: { connection_url: null } },
+      });
+
+      await clickAndWaitForStatus(element, 'connect-paypal_platform.express_checkout');
+
+      expect(element.status).to.deep.equal({ key: 'connect_error_unknown', type: 'error' });
+      expect(redirect).to.not.have.been.called;
     });
 
     it('shows the connected email for the current mode and hides the credential fields', async () => {

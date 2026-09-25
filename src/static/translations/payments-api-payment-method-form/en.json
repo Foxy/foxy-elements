@@ -25,7 +25,8 @@
   "status": {
     "close": "Close",
     "connect_error": "{{ message }}",
-    "connect_error_unknown": "We couldn't start the connection. Please try again."
+    "connect_error_unknown": "We couldn't start the connection. Please try again.",
+    "connect_error_ppcp_unsupported": "Card payments through PayPal aren't available in your store's country. Choose PayPal Checkout instead."
   },
   "connect-spinner": {
     "loading_busy": "Connecting..."
