@@ -38,12 +38,19 @@ export function compose(params: Params): PaymentMethod {
   const presetURL = new URL(`./payment_presets/${presetId}`, base);
   const selfURL = new URL(`./payment_presets/${presetId}/payment_methods/${methodId}`, base);
 
+  const links = {
+    'self': { href: selfURL.toString() },
+    'fx:store': gwLinks['fx:store'],
+    'fx:payment_preset': { href: presetURL.toString() },
+    ...('fx:connect_gateway' in gwLinks
+      ? { 'fx:connect_gateway': gwLinks['fx:connect_gateway'] }
+      : {}),
+  };
+
   return {
-    _links: {
-      'self': { href: selfURL.toString() },
-      'fx:store': gwLinks['fx:store'],
-      'fx:payment_preset': { href: presetURL.toString() },
-    },
+    // The API adds fx:connect_gateway only to hosted gateways that support it.
+    // v1 Graph links can't be optional, so the type says it's always there.
+    _links: links as PaymentMethod['_links'],
     ...gwProps,
     helper,
   };

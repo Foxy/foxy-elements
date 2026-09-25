@@ -22,6 +22,15 @@
   "conflict_message": "Remove {{ name }} to use this method",
   "no_oauth_support_message": "Adding this gateway is currently restricted from this admin. Please utilise our legacy administration to connect this gateway to your payment set.",
   "search_placeholder": "Search by name",
+  "status": {
+    "close": "Close",
+    "connect_error": "{{ message }}",
+    "connect_error_unknown": "We couldn't start the connection. Please try again.",
+    "connect_error_ppcp_unsupported": "Card payments through PayPal aren't available in your store's country. Choose PayPal Checkout instead."
+  },
+  "connect-spinner": {
+    "loading_busy": "Connecting..."
+  },
   "test-group": {
     "label": "Test setup",
     "label_inactive": "Test setup (inactive)",
@@ -143,6 +152,47 @@
       "placeholder": "Defaults to the gateway name",
       "helper_text": "",
       "v8n_too_long": "Please reduce this description to a 100 characters or less"
+    }
+  },
+  "connection": {
+    "label": "",
+    "helper_text": "",
+    "status_connected": "Connected as {{ email }}",
+    "redirect_notice": "You'll be redirected to finish setup.",
+    "connect-spinner": {
+      "loading_busy": "Connecting..."
+    },
+    "default": {
+      "label": "Connect this gateway",
+      "description": "You'll sign in to the gateway and approve access, then come back here.",
+      "button": "Connect"
+    },
+    "reconnect": {
+      "label": "Reconnect",
+      "description": "Reconnect if payments stop working or the gateway asks for new permissions.",
+      "button": "Reconnect"
+    },
+    "paypal_platform": {
+      "ppcp": {
+        "label": "PayPal Checkout with card payments",
+        "description": "Available in select countries.",
+        "button": "Connect"
+      },
+      "express_checkout": {
+        "label": "PayPal Checkout",
+        "description": "Available in select countries.",
+        "button": "Connect"
+      },
+      "reconnect": {
+        "label": "Reconnect",
+        "description": "Refreshes permissions, such as Apple Pay. Use the same PayPal email. To switch to another account, remove this gateway and connect again.",
+        "button": "Reconnect"
+      },
+      "reconnect_with_cards": {
+        "label": "Add card payments",
+        "description": "This account accepts PayPal only. Reconnect to also accept cards. If you have active PayPal subscriptions, use the same PayPal email.",
+        "button": "Reconnect with card payments"
+      }
     }
   },
   "account-id": {

@@ -15,6 +15,10 @@ import { InternalTextControl } from '../../internal/InternalTextControl/Internal
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
+import { createRouter as createHapiRouter } from '../../../server/router/createRouter';
+import { createDataset } from '../../../server/hapi/createDataset';
+import { defaults } from '../../../server/hapi/defaults';
+import { links } from '../../../server/hapi/links';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getByKey } from '../../../testgen/getByKey';
 import { getByTag } from '../../../testgen/getByTag';
@@ -584,7 +588,6 @@ describe('PaymentsApiPaymentMethodForm', () => {
       'square_up',
       'quickbook_payments',
       'amazon_mws',
-      'paypal_platform',
     ];
 
     for (const type of oauthGateways) {
@@ -597,10 +600,12 @@ describe('PaymentsApiPaymentMethodForm', () => {
       expect(warning).to.have.attribute('infer', '');
     }
 
-    element.edit({ type: 'any_other_gateway' });
-    await element.requestUpdate();
-    const warning = element.renderRoot.querySelector('[key="no_oauth_support_message"]');
-    expect(warning).to.not.exist;
+    for (const type of ['paypal_platform', 'any_other_gateway']) {
+      element.edit({ type });
+      await element.requestUpdate();
+      const warning = element.renderRoot.querySelector('[key="no_oauth_support_message"]');
+      expect(warning).to.not.exist;
+    }
   });
 
   it('renders a text control for live and test account id if applicable', async () => {
@@ -2033,5 +2038,322 @@ describe('PaymentsApiPaymentMethodForm', () => {
       'src',
       'https://static.www.foxycart.com/email/v2/email_header_logo.png?type=bar_one'
     );
+  });
+
+  describe('OAuth connections', () => {
+    type ConnectResponse = { status: number; body: unknown };
+
+    async function setup(params: {
+      gateway?: Record<string, unknown>;
+      isLive?: boolean;
+      response?: ConnectResponse;
+      /** Holds the connect response until `release()` is called. */
+      hold?: boolean;
+    }) {
+      const dataset = createDataset();
+      dataset.payment_method_sets[0].is_live = params.isLive ?? false;
+      const hostedHelper = dataset.property_helpers[1] as unknown as {
+        values: Record<string, unknown>;
+      };
+      hostedHelper.values.paypal_platform = { name: 'PayPal' };
+      if (params.gateway) Object.assign(dataset.hosted_payment_gateways[0], params.gateway);
+
+      const router = createHapiRouter({ defaults, dataset, links });
+      const requests: { url: string; body: unknown }[] = [];
+      const response = params.response ?? {
+        status: 201,
+        body: { connection_url: 'https://gateway.test/connect' },
+      };
+
+      let release: () => void = () => undefined;
+      const gate = params.hold ? new Promise<void>(r => (release = r)) : Promise.resolve();
+
+      const handleFetch = async (evt: FetchEvent) => {
+        if (evt.request.url.endsWith('/connect_gateway')) {
+          const request = evt.request.clone();
+          evt.respondWith(
+            request.json().then(async body => {
+              requests.push({ url: request.url, body });
+              await gate;
+              return new Response(JSON.stringify(response.body), { status: response.status });
+            })
+          );
+        } else if (evt.request.url.startsWith('https://demo.api/')) {
+          router.handleEvent(evt);
+        }
+      };
+
+      const wrapper = await fixture(html`
+        <div @fetch=${handleFetch}>
+          <foxy-payments-api
+            payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+            hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+            hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+            payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+            payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+            fraud-protections-url="https://demo.api/hapi/fraud_protections"
+            payment-gateways-url="https://demo.api/hapi/payment_gateways"
+          >
+            <foxy-payments-api-payment-method-form
+              payment-preset="https://foxy-payments-api.element/payment_presets/0"
+              store="https://demo.api/hapi/stores/0"
+              href=${params.gateway
+                ? 'https://foxy-payments-api.element/payment_presets/0/payment_methods/H0C0'
+                : ''}
+              .getConnectRedirectUrl=${(preset: string) =>
+                `https://admin.example.com/return?preset=${encodeURIComponent(preset)}`}
+            >
+            </foxy-payments-api-payment-method-form>
+          </foxy-payments-api>
+        </div>
+      `);
+
+      const element = wrapper.firstElementChild!.firstElementChild as Form;
+      const redirect = stub(element as any, '__redirect');
+
+      if (params.gateway) await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+      for (const id of ['paymentPresetLoader', 'availablePaymentMethodsLoader']) {
+        await waitUntil(
+          async () => {
+            await element.requestUpdate();
+            const loader = element.renderRoot.querySelector<NucleonElement<any>>(`#${id}`);
+            return !!loader?.data;
+          },
+          '',
+          { timeout: 5000 }
+        );
+      }
+
+      await element.requestUpdate();
+      return { element, requests, redirect, release };
+    }
+
+    it('lists each PayPal product type in the new payment method list with a redirect notice', async () => {
+      const { element } = await setup({});
+      const list = element.renderRoot.querySelector('[data-testid="select-method-list"]')!;
+      const ppcp = list.querySelector('[data-testid="connect-paypal_platform.ppcp"]');
+      const express = list.querySelector(
+        '[data-testid="connect-paypal_platform.express_checkout"]'
+      );
+
+      expect(ppcp).to.include.text('connection.paypal_platform.ppcp.label');
+      expect(ppcp).to.include.text('connection.paypal_platform.ppcp.description');
+      expect(ppcp).to.include.text('connection.redirect_notice');
+      expect(express).to.include.text('connection.paypal_platform.express_checkout.label');
+      expect(express).to.include.text('connection.redirect_notice');
+    });
+
+    it('posts to the payment preset connect link on click and sends the browser to connection_url', async () => {
+      const { element, requests, redirect, release } = await setup({ hold: true });
+      const button = element.renderRoot.querySelector<HTMLButtonElement>(
+        '[data-testid="connect-paypal_platform.express_checkout"]'
+      )!;
+
+      button.click();
+
+      await waitUntil(
+        async () => {
+          await element.requestUpdate();
+          return !!button.querySelector('[data-testid="connect-spinner"]');
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      expect(element.form.type).to.not.exist;
+      expect(button).to.have.property('disabled', true);
+      expect(redirect).to.not.have.been.called;
+
+      release();
+      await waitUntil(() => redirect.called, '', { timeout: 5000 });
+
+      expect(requests).to.deep.equal([
+        {
+          url: 'https://demo.api/hapi/payment_method_sets/0/connect_gateway',
+          body: {
+            type: 'paypal_platform',
+            final_redirect: `https://admin.example.com/return?preset=${encodeURIComponent(
+              'https://foxy-payments-api.element/payment_presets/0'
+            )}`,
+            options: { paypal_product_type: 'express_checkout' },
+          },
+        },
+      ]);
+
+      expect(redirect).to.have.been.calledOnceWith('https://gateway.test/connect');
+    });
+
+    async function clickAndWaitForStatus(element: Form, testId: string) {
+      element.renderRoot.querySelector<HTMLElement>(`[data-testid="${testId}"]`)!.click();
+
+      await waitUntil(
+        async () => {
+          await element.requestUpdate();
+          return !!element.status;
+        },
+        '',
+        { timeout: 5000 }
+      );
+    }
+
+    it('replaces the API country error for ppcp with its own error status', async () => {
+      const message =
+        "PayPal direct card payments ('ppcp') are not supported in your store's country. Please use 'express_checkout' instead.";
+
+      const { element, redirect } = await setup({
+        response: {
+          status: 403,
+          body: { _embedded: { 'fx:errors': [{ logref: 'id-1', message }] } },
+        },
+      });
+
+      await clickAndWaitForStatus(element, 'connect-paypal_platform.ppcp');
+
+      expect(element.status).to.deep.equal({
+        key: 'connect_error_ppcp_unsupported',
+        type: 'error',
+      });
+      const status = element.renderRoot.querySelector('[data-testid="status"]')!;
+      expect(status).to.have.class('bg-error-10');
+      expect(status.querySelector('[key="connect_error_ppcp_unsupported"]')).to.exist;
+      expect(redirect).to.not.have.been.called;
+      expect(element.renderRoot.querySelector('[data-testid="connect-spinner"]')).to.not.exist;
+      expect(element.renderRoot.querySelector('[data-testid="select-method-list"]')).to.exist;
+    });
+
+    it('shows other API error messages as they are', async () => {
+      const message = 'Sorry but we can not generate connection URL for paypal_platform gateway.';
+      const { element, redirect } = await setup({
+        response: {
+          status: 403,
+          body: { _embedded: { 'fx:errors': [{ logref: 'id-1', message }] } },
+        },
+      });
+
+      await clickAndWaitForStatus(element, 'connect-paypal_platform.ppcp');
+
+      expect(element.status).to.deep.equal({
+        key: 'connect_error',
+        options: { message },
+        type: 'error',
+      });
+
+      const status = element.renderRoot.querySelector('[data-testid="status"]')!;
+      expect(status.querySelector('[key="connect_error"]')).to.have.deep.property('options', {
+        message,
+      });
+
+      expect(redirect).to.not.have.been.called;
+    });
+
+    it('shows a generic error status when the API returns no connection_url', async () => {
+      const { element, redirect } = await setup({
+        response: { status: 201, body: { connection_url: null } },
+      });
+
+      await clickAndWaitForStatus(element, 'connect-paypal_platform.express_checkout');
+
+      expect(element.status).to.deep.equal({ key: 'connect_error_unknown', type: 'error' });
+      expect(redirect).to.not.have.been.called;
+    });
+
+    it('shows the connected email for the current mode and hides the credential fields', async () => {
+      const gateway = {
+        type: 'paypal_platform',
+        account_id: 'live@example.com',
+        test_account_id: 'test@example.com',
+      };
+
+      const { element: testElement } = await setup({ gateway, isLive: false });
+      const testStatus = testElement.renderRoot.querySelector('[key="status_connected"]');
+      expect(testStatus).to.have.deep.property('options', { email: 'test@example.com' });
+      expect(testElement.renderRoot.querySelector('[infer="test-account-id"]')).to.not.exist;
+
+      const { element: liveElement } = await setup({ gateway, isLive: true });
+      const liveStatus = liveElement.renderRoot.querySelector('[key="status_connected"]');
+      expect(liveStatus).to.have.deep.property('options', { email: 'live@example.com' });
+    });
+
+    it('offers reconnecting with card payments when the account is connected for PayPal only', async () => {
+      const { element, requests, redirect } = await setup({
+        gateway: {
+          type: 'paypal_platform',
+          test_account_id: 'test@example.com',
+          test_third_party_key: '',
+        },
+      });
+
+      const button = element.renderRoot.querySelector<HTMLElement>(
+        '[data-testid="connect-paypal_platform.reconnect_with_cards"]'
+      );
+
+      expect(button).to.exist;
+      expect(element.renderRoot.querySelector('[data-testid="connect-paypal_platform.reconnect"]'))
+        .to.not.exist;
+
+      button!.click();
+      await waitUntil(() => redirect.called, '', { timeout: 5000 });
+
+      expect(requests[0].url).to.equal(
+        'https://demo.api/hapi/hosted_payment_gateways/0/connect_gateway'
+      );
+      expect(requests[0].body).to.have.deep.property('options', { paypal_product_type: 'ppcp' });
+      expect(requests[0].body).to.have.property('type', 'paypal_platform');
+    });
+
+    it('hides the reconnect rows but keeps the connected email when read-only', async () => {
+      for (const setReadonly of [
+        (form: Form) => (form.readonly = true),
+        (form: Form) => form.setAttribute('readonlycontrols', 'connection'),
+      ]) {
+        const { element } = await setup({
+          gateway: {
+            type: 'paypal_platform',
+            test_account_id: 'test@example.com',
+            test_third_party_key: '',
+          },
+        });
+
+        setReadonly(element);
+        await element.requestUpdate();
+
+        const root = element.renderRoot;
+        expect(root.querySelector('[key="status_connected"]')).to.exist;
+        expect(root.querySelector('[key="paypal_platform.reconnect_with_cards.label"]')).to.not
+          .exist;
+        expect(root.querySelector('[data-testid="connect-paypal_platform.reconnect_with_cards"]'))
+          .to.not.exist;
+      }
+    });
+
+    it('offers a plain reconnect when card payments are already connected', async () => {
+      const { element } = await setup({
+        gateway: {
+          type: 'paypal_platform',
+          test_account_id: 'test@example.com',
+          test_third_party_key: 'MERCHANT123',
+        },
+      });
+
+      expect(element.renderRoot.querySelector('[data-testid="connect-paypal_platform.reconnect"]'))
+        .to.exist;
+      expect(
+        element.renderRoot.querySelector(
+          '[data-testid="connect-paypal_platform.reconnect_with_cards"]'
+        )
+      ).to.not.exist;
+    });
+
+    it('offers a new connection for an existing gateway that is not connected in the current mode', async () => {
+      const { element } = await setup({
+        gateway: { type: 'paypal_platform', account_id: 'live@example.com', test_account_id: '' },
+        isLive: false,
+      });
+
+      expect(element.renderRoot.querySelector('[key="status_connected"]')).to.not.exist;
+      expect(element.renderRoot.querySelector('[data-testid="connect-paypal_platform.ppcp"]')).to
+        .exist;
+    });
   });
 });

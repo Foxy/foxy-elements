@@ -30,6 +30,7 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      getConnectRedirectUrl: { attribute: false },
       getFraudProtectionImageSrc: { attribute: false },
       getPaymentMethodImageSrc: { attribute: false },
     };
@@ -41,6 +42,9 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
       ({ description: v }) => (v && v.length <= 100) || 'description:v8n_too_long',
     ];
   }
+
+  /** Passed to the payment method form. See `PaymentsApiPaymentMethodForm.getConnectRedirectUrl`. */
+  getConnectRedirectUrl: ((paymentPreset: string) => string) | null = null;
 
   /** A function that returns image URL for given fraud protection `type`. */
   getFraudProtectionImageSrc: ((type: string) => string) | null = null;
@@ -116,6 +120,7 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
         wide
         .itemProps=${{ '.getImageSrc': this.getPaymentMethodImageSrc }}
         .formProps=${{
+          '.getConnectRedirectUrl': this.getConnectRedirectUrl,
           '.getImageSrc': this.getPaymentMethodImageSrc,
           'payment-preset': this.href,
           'store': this.data?._links['fx:store'].href,

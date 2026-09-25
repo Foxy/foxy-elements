@@ -257,18 +257,20 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
     `;
   }
 
-  private __renderStatus({ key, options }: Status) {
+  private __renderStatus({ key, options, type = 'success' }: Status) {
     if (this.hiddenSelector.matches('status', true)) return;
     return html`
       <p
         data-testid="status"
-        class="leading-xs text-body rounded bg-success-10 flex items-start gap-m"
+        class="leading-xs text-body rounded ${type === 'error'
+          ? 'bg-error-10'
+          : 'bg-success-10'} flex items-start gap-m"
         style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
       >
         <foxy-i18n class="flex-1" infer="status" key=${key} .options=${options}></foxy-i18n>
         <vaadin-button
           class="flex-shrink-0"
-          theme="success tertiary-inline"
+          theme="${type} tertiary-inline"
           @click=${() => (this.status = null)}
         >
           <foxy-i18n class="flex-1" infer="status" key="close"></foxy-i18n>

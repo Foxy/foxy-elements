@@ -471,9 +471,12 @@ export const links: Links = {
     'fx:payment_method_sets': { href: `./payment_method_sets?payment_gateway_id=${id}` },
   }),
 
-  hosted_payment_gateways: ({ store_id, id }) => ({
+  hosted_payment_gateways: ({ store_id, type, id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:payment_method_sets': { href: `./payment_method_sets?hosted_payment_gateway_id=${id}` },
+    ...(type === 'paypal_platform'
+      ? { 'fx:connect_gateway': { href: `./hosted_payment_gateways/${id}/connect_gateway` } }
+      : {}),
   }),
 
   fraud_protections: ({ store_id, id }) => ({
@@ -490,6 +493,7 @@ export const links: Links = {
     'fx:payment_method_set_fraud_protections': {
       href: `./payment_method_set_fraud_protections?payment_method_set_id=${id}`,
     },
+    'fx:connect_gateway': { href: `./payment_method_sets/${id}/connect_gateway` },
     ...(typeof payment_gateway_id === 'number'
       ? {
           'fx:payment_gateway': { href: `./payment_gateways/${payment_gateway_id}` },

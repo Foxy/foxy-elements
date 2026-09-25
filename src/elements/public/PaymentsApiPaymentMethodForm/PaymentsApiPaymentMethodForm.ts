@@ -19,10 +19,19 @@ import has from 'lodash-es/has';
 import get from 'lodash-es/get';
 import set from 'lodash-es/set';
 
+type ConnectChoice = {
+  key: string;
+  options?: Rels.ConnectGateway['props']['options'];
+};
+
 type PaymentMethod = {
   helper: AvailablePaymentMethods['values'][string];
+  choice?: ConnectChoice;
   type: string;
 };
+
+/** OAuth gateways that connect through fx:connect_gateway. Other OAuth gateways show a notice. */
+const connectableGateways = ['paypal_platform'];
 
 const NS = 'payments-api-payment-method-form';
 const Base = TranslatableMixin(InternalForm, NS);
@@ -48,8 +57,11 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
       ...super.properties,
       paymentPreset: { attribute: 'payment-preset' },
       getImageSrc: { attribute: false },
+      getConnectRedirectUrl: { attribute: false },
       store: {},
       __search: { attribute: false },
+      __connectState: { attribute: false },
+      __connectKey: { attribute: false },
     };
   }
 
@@ -92,6 +104,13 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
   /** A function that returns a URL of a payment method icon based on the given type. */
   getImageSrc: ((type: string) => string) | null = null;
+
+  /**
+   * Returns the URL the gateway sends the merchant back to after a connection.
+   * Receives the `payment-preset` URL. The API appends a `status` query parameter.
+   * Defaults to the current page URL.
+   */
+  getConnectRedirectUrl: ((paymentPreset: string) => string) | null = null;
 
   /** URL of the linked `fx:store` resource. */
   store: string | null = null;
@@ -152,6 +171,11 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
   ];
 
   private __search = '';
+
+  private __connectState: 'idle' | 'busy' = 'idle';
+
+  /** Key of the connect choice whose connection URL is being fetched. */
+  private __connectKey = '';
 
   get hiddenSelector(): BooleanSelector {
     return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
@@ -258,10 +282,14 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
         const name = isSpecialCharacter ? '#' : firstChar;
         const group = groups.find(group => group.name === name);
 
+        const items: PaymentMethod[] = connectableGateways.includes(type)
+          ? this.__getConnectChoices(type).map(choice => ({ type, helper, choice }))
+          : [{ type, helper }];
+
         if (group) {
-          group.items.push({ type, helper });
+          group.items.push(...items);
         } else {
-          groups.push({ name, items: [{ type, helper }] });
+          groups.push({ name, items });
         }
 
         return groups;
@@ -334,7 +362,157 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     `;
   }
 
+  private __redirect(url: string) {
+    window.location.assign(url);
+  }
+
+  private __getConnectChoices(type: string): ConnectChoice[] {
+    if (type === 'paypal_platform') {
+      return [
+        { key: 'paypal_platform.ppcp', options: { paypal_product_type: 'ppcp' } },
+        {
+          key: 'paypal_platform.express_checkout',
+          options: { paypal_product_type: 'express_checkout' },
+        },
+      ];
+    }
+
+    return [{ key: 'default' }];
+  }
+
+  private __getReconnectChoice(thirdPartyKey: string): ConnectChoice {
+    if (this.form.type === 'paypal_platform') {
+      // An empty third-party key means the account is connected for PayPal only, without cards.
+      const key = thirdPartyKey ? 'reconnect' : 'reconnect_with_cards';
+      return { key: `paypal_platform.${key}`, options: { paypal_product_type: 'ppcp' } };
+    }
+
+    return { key: 'reconnect' };
+  }
+
+  private async __connect(choice: ConnectChoice, type: string) {
+    const presetLink = this.__paymentPresetLoader?.data?._links['fx:connect_gateway'];
+    const href = this.data?._links['fx:connect_gateway']?.href ?? presetLink?.href;
+    if (!href || !this.paymentPreset || this.__connectState === 'busy') return;
+
+    this.__connectState = 'busy';
+    this.__connectKey = choice.key;
+    this.status = null;
+
+    try {
+      const body: Rels.ConnectGateway['props'] = {
+        type,
+        final_redirect: this.getConnectRedirectUrl?.(this.paymentPreset) ?? window.location.href,
+      };
+
+      if (choice.options) body.options = choice.options;
+
+      const response = await this._fetch<{ connection_url: string | null }>(href, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+
+      // The API answers 201 with a null URL when the gateway itself fails to create one.
+      if (!response.connection_url) throw new Error('No connection_url in the response.');
+
+      // State stays busy on purpose: the spinner keeps going until the browser leaves the page.
+      this.__redirect(response.connection_url);
+    } catch (err) {
+      let message = '';
+
+      if (err instanceof Response) {
+        try {
+          const json = await err.json();
+          message = json?._embedded?.['fx:errors']?.[0]?.message ?? '';
+        } catch {
+          // not a vnd.error response
+        }
+      }
+
+      // The API's country error names raw option values ('ppcp', 'express_checkout'), so we
+      // replace it with our own text. It's the only 403 our requests can get that mentions 'ppcp'.
+      const isPpcpUnsupported =
+        err instanceof Response &&
+        err.status === 403 &&
+        choice.options?.paypal_product_type === 'ppcp' &&
+        message.includes("'ppcp'");
+
+      if (isPpcpUnsupported) {
+        this.status = { key: 'connect_error_ppcp_unsupported', type: 'error' };
+      } else if (message) {
+        this.status = { key: 'connect_error', options: { message }, type: 'error' };
+      } else {
+        this.status = { key: 'connect_error_unknown', type: 'error' };
+      }
+
+      this.__connectState = 'idle';
+    }
+  }
+
+  private __renderConnection() {
+    const preset = this.__paymentPresetLoader?.data;
+    if (!preset) return html``;
+
+    const prefix = preset.is_live ? '' : 'test_';
+    const email = this.data?.[`${prefix}account_id` as const];
+    const thirdPartyKey = this.data?.[`${prefix}third_party_key` as const] ?? '';
+    const type = this.form.type as string;
+    const choices = email
+      ? [this.__getReconnectChoice(thirdPartyKey)]
+      : this.__getConnectChoices(type);
+    const isBusy = this.__connectState === 'busy';
+    const isReadonly = this.readonlySelector.matches('connection', true);
+    const isDisabled = isBusy || this.disabledSelector.matches('connection', true);
+
+    return html`
+      <foxy-internal-summary-control infer="connection">
+        ${email
+          ? html`
+              <p class="font-medium">
+                <foxy-i18n infer="" key="status_connected" .options=${{ email }}></foxy-i18n>
+              </p>
+            `
+          : ''}
+        ${(isReadonly ? [] : choices).map(
+          choice => html`
+            <div class="leading-xs">
+              <p class="font-medium">
+                <foxy-i18n infer="" key="${choice.key}.label"></foxy-i18n>
+              </p>
+              <p class="text-s text-secondary">
+                <foxy-i18n infer="" key="${choice.key}.description"></foxy-i18n>
+              </p>
+            </div>
+            <div>
+              <vaadin-button
+                data-testid="connect-${choice.key}"
+                theme="tertiary-inline"
+                ?disabled=${isDisabled}
+                @click=${() => this.__connect(choice, type)}
+              >
+                ${isBusy && this.__connectKey === choice.key
+                  ? html`<foxy-spinner layout="no-label" infer="connect-spinner"></foxy-spinner>`
+                  : html`<foxy-i18n infer="" key="${choice.key}.button"></foxy-i18n>`}
+              </vaadin-button>
+            </div>
+          `
+        )}
+      </foxy-internal-summary-control>
+    `;
+  }
+
   private __renderPaymentMethodConfig() {
+    if (this.form.type && connectableGateways.includes(this.form.type)) {
+      return html`
+        <foxy-internal-summary-control infer="general">
+          <foxy-internal-text-control layout="summary-item" infer="description">
+          </foxy-internal-text-control>
+        </foxy-internal-summary-control>
+
+        ${this.__renderConnection()} ${super.renderBody()}
+      `;
+    }
+
     const oauthGateways = [
       'stripe_connect',
       'stripe_v2',
@@ -533,13 +711,16 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
   }
 
   private __renderPaymentMethodButton(
-    { type, helper }: PaymentMethod,
+    { type, helper, choice }: PaymentMethod,
     index: number,
     total: number
   ) {
     const defaultSrc = PaymentsApiPaymentMethodForm.defaultImageSrc;
     const src = this.getImageSrc?.(type) ?? defaultSrc;
     const onError = (evt: Event) => ((evt.currentTarget as HTMLImageElement).src = defaultSrc);
+    const isBusy = this.__connectState === 'busy';
+    const isConnecting = isBusy && !!choice && this.__connectKey === choice.key;
+    const hasChoiceLabel = !!choice && choice.key !== 'default';
 
     return html`
       <button
@@ -551,32 +732,57 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
           'rounded-t': index === 0,
           'rounded-b': index === total - 1,
         })}
-        ?disabled=${!!helper.conflict}
+        data-testid=${ifDefined(choice ? `connect-${choice.key}` : undefined)}
+        ?disabled=${!!helper.conflict || isBusy}
         style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
-        @click=${() => this.edit({ type, helper })}
+        @click=${() => (choice ? this.__connect(choice, type) : this.edit({ type, helper }))}
       >
         <figure
           class="relative flex items-center"
           style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
         >
-          <img
-            class=${classMap({
-              'h-m w-m object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs': true,
-              'filter grayscale': !!helper.conflict,
-            })}
-            src=${src}
-            alt=""
-            @error=${onError}
-          />
+          ${isConnecting
+            ? html`
+                <foxy-spinner
+                  data-testid="connect-spinner"
+                  class="h-m w-m flex items-center justify-center flex-shrink-0"
+                  layout="no-label"
+                  infer="connect-spinner"
+                >
+                </foxy-spinner>
+              `
+            : html`
+                <img
+                  class=${classMap({
+                    'h-m w-m object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs':
+                      true,
+                    'filter grayscale': !!helper.conflict,
+                  })}
+                  src=${src}
+                  alt=""
+                  @error=${onError}
+                />
+              `}
           <figcaption
             class=${classMap({
               'min-w-0 flex-1 grid leading-xs': true,
               'text-disabled': !!helper.conflict,
             })}
           >
-            <span class="font-medium">${helper.name}&ZeroWidthSpace;</span>
+            <span class="font-medium">
+              ${hasChoiceLabel
+                ? this.t(`connection.${choice!.key}.label`)
+                : helper.name}&ZeroWidthSpace;
+            </span>
             ${helper.conflict
               ? html`<span class="text-xs"> ${this.t('conflict_message', helper.conflict)}</span>`
+              : choice
+              ? html`
+                  <span class="text-xs text-secondary">
+                    ${hasChoiceLabel ? this.t(`connection.${choice.key}.description`) : ''}
+                    ${this.t('connection.redirect_notice')}
+                  </span>
+                `
               : ''}
           </figcaption>
         </figure>
