@@ -13,3 +13,8 @@ export type Data = Omit<Resource<Rels.Store>, 'custom_display_id_config'> & {
 export type ParsedWebhookKey = StoreWebhookKeyJson;
 export type ParsedSmtpConfig = StoreSmtpConfigJson;
 export type ParsedCustomDisplayIdConfig = StoreCustomDisplayIdConfigJson;
+
+export type ParsedDataRetention = {
+  auto_anonymize: boolean;
+  auto_anonymize_days: number | null;
+};

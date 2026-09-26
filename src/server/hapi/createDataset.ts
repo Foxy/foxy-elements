@@ -652,6 +652,7 @@ export const createDataset: () => Dataset = () => ({
           },
         },
       },
+      data_retention: { auto_anonymize: true, auto_anonymize_days: 365 },
       affiliate_id: 0,
       is_maintenance_mode: false,
       is_active: true,
