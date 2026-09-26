@@ -93,6 +93,12 @@ describe('PaymentsApiPaymentPresetForm', () => {
     expect(Form).to.have.nested.property('properties.getFraudProtectionImageSrc.attribute', false);
   });
 
+  it('has a reactive property "getConnectRedirectUrl"', () => {
+    expect(new Form()).to.have.property('getConnectRedirectUrl', null);
+    expect(Form).to.have.nested.property('properties.getConnectRedirectUrl');
+    expect(Form).to.have.nested.property('properties.getConnectRedirectUrl.attribute', false);
+  });
+
   it('has a reactive property "getPaymentMethodImageSrc"', () => {
     expect(new Form()).to.have.property('getPaymentMethodImageSrc', null);
     expect(Form).to.have.nested.property('properties.getPaymentMethodImageSrc');
@@ -458,6 +464,7 @@ describe('PaymentsApiPaymentPresetForm', () => {
 
   it('renders an async list control for payment methods', async () => {
     const getImageSrc = fake();
+    const getConnectRedirectUrl = fake();
     const router = createRouter();
     const wrapper = await fixture(html`
       <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
@@ -473,6 +480,7 @@ describe('PaymentsApiPaymentPresetForm', () => {
           <foxy-payments-api-payment-preset-form
             href="https://foxy-payments-api.element/payment_presets/0"
             .getPaymentMethodImageSrc=${getImageSrc}
+            .getConnectRedirectUrl=${getConnectRedirectUrl}
           >
           </foxy-payments-api-payment-preset-form>
         </foxy-payments-api>
@@ -492,6 +500,7 @@ describe('PaymentsApiPaymentPresetForm', () => {
     expect(control).to.have.attribute('form', 'foxy-payments-api-payment-method-form');
     expect(control).to.have.deep.property('itemProps', { '.getImageSrc': getImageSrc });
     expect(control).to.have.deep.property('formProps', {
+      '.getConnectRedirectUrl': getConnectRedirectUrl,
       '.getImageSrc': getImageSrc,
       'payment-preset': 'https://foxy-payments-api.element/payment_presets/0',
       'store': 'https://demo.api/hapi/stores/0',

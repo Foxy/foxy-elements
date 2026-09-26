@@ -1,6 +1,6 @@
 import './index';
 
-import { expect, fixture, html, oneEvent } from '@open-wc/testing';
+import { expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
 
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { I18n } from './I18n';
@@ -67,8 +67,13 @@ describe('I18n', () => {
 
     event.preventDefault();
     event.respondWith(Promise.resolve(new Response(JSON.stringify(resource))));
-    await new Promise(resolve => setTimeout(resolve));
-    await element.requestUpdate();
+
+    // The element re-renders itself when i18next loads a bundle, but reading the response body
+    // takes more than one task, so wait for the bundle instead of a fixed number of ticks.
+    await waitUntil(
+      () => !!I18n.i18next.getResourceBundle('en', 'baz'),
+      'i18next never loaded the baz namespace'
+    );
 
     expect(element).shadowDom.to.equal('<span>bar</span>');
   });
@@ -89,8 +94,12 @@ describe('I18n', () => {
 
     event.preventDefault();
     event.respondWith(Promise.resolve(new Response(JSON.stringify(resource))));
-    await new Promise(resolve => setTimeout(resolve));
-    await element.requestUpdate();
+
+    // See the note above: wait for the bundle, not for a fixed number of ticks.
+    await waitUntil(
+      () => !!I18n.i18next.getResourceBundle('es', 'shared'),
+      'i18next never loaded the es translations'
+    );
 
     expect(element).shadowDom.to.equal('<span>bar</span>');
   });

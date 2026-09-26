@@ -67,7 +67,8 @@ export function compose(params: Params): PaymentMethods {
         paymentMethodSetHostedPaymentGatewayId: new URL(shgw._links.self.href).pathname
           .split('/')
           .pop() as string,
-        hostedPaymentGateway: resource,
+        // A matching set-hosted-gateway record means this resource is a hosted gateway.
+        hostedPaymentGateway: resource as Resource<Rels.HostedPaymentGateway>,
         paymentPresetId: presetId,
         helper: hostedGwsHelper.values[resource.type],
         base,

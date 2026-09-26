@@ -44,8 +44,13 @@ async function addEmbeds(router: Router, result: Document, zoom: string[][]) {
 export function createResourceGetHandler(router: Router, dataset: Dataset, links: Links) {
   return async ({ params, url }: HandlerContext): Promise<Response> => {
     const { collection, prefix, id } = params;
-    const document = dataset[collection]?.find(v => v.id == id);
-    if (!document) return new Response('Not found', { status: 404 });
+    const storedDocument = dataset[collection]?.find(v => v.id == id);
+    if (!storedDocument) return new Response('Not found', { status: 404 });
+
+    // Serialization happens after `addEmbeds` yields, so `_links` and `_embedded` go onto a copy.
+    // Writing them to the stored document lets two overlapping requests for the same resource
+    // overwrite each other's `_links`, and leaves `_embedded` behind for later unzoomed requests.
+    const document = { ...storedDocument };
 
     const resourceLinks = links[collection]?.(document) ?? {};
     resourceLinks.self = { href: url.toString() };

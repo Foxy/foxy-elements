@@ -1,5 +1,6 @@
-import { expect, fixture } from '@open-wc/testing';
+import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
+import type { i18n } from 'i18next';
 import { createMachine } from 'xstate';
 import { I18N } from './I18N';
 
@@ -68,7 +69,6 @@ function testLang(lang: 'en' | 'fr') {
 
 async function testText(element: I18N) {
   await element.whenReady;
-  await element.requestUpdate();
 
   const lang = element.lang as 'en' | 'fr';
   const ns = element.ns as 'global' | 'custom';
@@ -76,6 +76,17 @@ async function testText(element: I18N) {
   const opts = element.opts as { value: string } | undefined;
   const value = opts?.value ?? '';
   const text = key === '' ? '' : samples.text[lang][ns][key].replace('{{value}}', value);
+
+  // `whenReady` only covers the one-time i18next init. Assigning `ns` or `lang` starts another
+  // load that it does not track, and until that lands `_t` falls back to the global namespace, so
+  // wait for the bundle this state actually needs before reading the rendered text.
+  const i18nInstance = (element as unknown as { _i18n: i18n })._i18n;
+  await waitUntil(
+    () => !!i18nInstance.getResourceBundle(lang, ns),
+    `i18next never loaded the ${ns} namespace for ${lang}`
+  );
+
+  await element.requestUpdate();
 
   expect(element.shadowRoot!.textContent).to.equal(text);
 }

@@ -33,6 +33,7 @@ export function compose(params: Params): PaymentPreset {
     _links: {
       'self': { href: selfURL.toString() },
       'fx:store': setLinks['fx:store'],
+      'fx:connect_gateway': setLinks['fx:connect_gateway'],
       'fx:payment_methods': { href: methodsURL.toString() },
       'fx:fraud_protections': { href: protectionsURL.toString() },
       'fx:available_payment_methods': { href: availableMethodsURL.toString() },
