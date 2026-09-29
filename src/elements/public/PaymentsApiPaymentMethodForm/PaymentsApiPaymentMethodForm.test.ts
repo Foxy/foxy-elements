@@ -1231,7 +1231,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     expect(field).to.exist;
     expect(field).to.be.instanceOf(InternalTextControl);
-    expect(field).to.have.attribute('placeholder', 'baz_default');
+    expect(field).to.have.attribute('placeholder', 'default_additional_field_placeholder');
     expect(field).to.have.attribute('helper-text', 'Baz Description');
     expect(field).to.have.attribute('layout', 'summary-item');
     expect(field).to.have.attribute('label', 'Baz');

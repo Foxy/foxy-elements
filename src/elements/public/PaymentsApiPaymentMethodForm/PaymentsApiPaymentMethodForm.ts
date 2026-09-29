@@ -911,8 +911,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
           : html`
               <foxy-internal-text-control
                 helper-text=${field.description ?? ''}
-                placeholder=${(block.is_live && field.default_value) ||
-                this.t('default_additional_field_placeholder')}
+                placeholder=${this.t('default_additional_field_placeholder')}
                 layout="summary-item"
                 label=${field.name}
                 infer=${scope}
