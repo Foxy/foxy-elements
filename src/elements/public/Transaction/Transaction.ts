@@ -1,5 +1,6 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
+import type { HALJSONResource } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Badge } from '../../internal/InternalForm/types';
 import type { Data } from './types';
@@ -449,7 +450,8 @@ export class Transaction extends Base<Data> {
 
   private get __emailTemplateSubject() {
     type TemplateSet = { _embedded?: { 'fx:email_template'?: { subject?: string } } };
-    type Data = TemplateSet & { _embedded?: { 'fx:template_sets'?: TemplateSet[] } };
+    type Data = HALJSONResource &
+      TemplateSet & { _embedded?: { 'fx:template_sets'?: TemplateSet[] } };
     type Loader = NucleonElement<Data>;
 
     // Loads either the transaction's own template set or the store's DEFAULT set collection.
