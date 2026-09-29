@@ -635,7 +635,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
     const element = wrapper.firstElementChild!.firstElementChild as Form;
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
 
-    element.edit({ helper: { ...element.data!.helper, id_description: 'Test ID Description' } });
+    // Non-default test credentials keep the default credentials switch off, so fields stay visible.
+    element.edit({
+      test_account_id: 'custom_id',
+      helper: { ...element.data!.helper, id_description: 'Test ID Description' },
+    });
     await element.requestUpdate();
 
     for (let index = 0; index < 2; ++index) {
@@ -755,7 +759,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
     const element = wrapper.firstElementChild!.firstElementChild as Form;
     await waitUntil(() => !!element.data, '', { timeout: 5000 });
 
-    element.edit({ helper: { ...element.data!.helper, key_description: 'Test key description' } });
+    // Non-default test credentials keep the default credentials switch off, so fields stay visible.
+    element.edit({
+      test_account_key: 'custom_key',
+      helper: { ...element.data!.helper, key_description: 'Test key description' },
+    });
     await element.requestUpdate();
 
     for (let index = 0; index < 2; ++index) {
@@ -1309,7 +1317,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(JSON.parse(element.form.additional_fields!)).to.have.property('baz', 'another_value');
   });
 
-  it('renders a button filling in default test credentials if available', async () => {
+  it('renders a switch for default test credentials that fills in and hides those fields', async () => {
     const router = createRouter();
 
     const wrapper = await fixture(html`
@@ -1373,18 +1381,22 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     const testGroup = element.renderRoot.querySelector('[infer="test-group"]') as HTMLElement;
     const liveGroup = element.renderRoot.querySelector('[infer="live-group"]') as HTMLElement;
-    const selector = '[data-testid="default-test-credentials"]';
-    const button = testGroup.querySelector(selector) as HTMLElement;
+    const control = testGroup.querySelector(
+      '[infer="default-credentials"]'
+    ) as InternalSwitchControl;
+    const query = (infer: string) => testGroup.querySelector(`[infer="${infer}"]`);
 
-    expect(liveGroup.querySelector(selector)).to.not.exist;
-    expect(button).to.exist;
-    expect(await getByKey(button, 'default_credentials.button')).to.exist;
+    expect(liveGroup.querySelector('[infer="default-credentials"]')).to.not.exist;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control).to.have.attribute('helper-text-as-tooltip');
+    expect(control.getValue()).to.be.false;
 
-    const testField = testGroup.querySelector('[infer="additional-fields-test-field"]');
+    const testField = query('additional-fields-test-field') as InternalTextControl;
     expect(testField).to.have.attribute('placeholder', 'default_additional_field_placeholder');
-    expect((testField as InternalTextControl).getValue()).to.be.undefined;
+    expect(testField.getValue()).to.be.undefined;
 
-    button.click();
+    control.setValue(true);
+    await element.requestUpdate();
 
     expect(element.form).to.have.property('test_account_id', 'default_id');
     expect(element.form).to.have.property('test_account_key', 'default_key');
@@ -1394,18 +1406,32 @@ describe('PaymentsApiPaymentMethodForm', () => {
       test_field: 'test_default',
     });
 
-    element.readonly = true;
-    await element.requestUpdate();
-    expect(element.renderRoot.querySelector(selector)).to.not.exist;
+    expect(control.getValue()).to.be.true;
+    expect(query('test-account-id')).to.not.exist;
+    expect(query('test-account-key')).to.not.exist;
+    expect(query('additional-fields-test-field')).to.not.exist;
+    expect(query('additional-fields-test-empty')).to.exist;
 
-    element.readonly = false;
+    control.setValue(false);
+    await element.requestUpdate();
+
+    expect(element.form).to.have.property('test_account_id', '');
+    expect(element.form).to.have.property('test_account_key', '');
+    expect(element.form).to.have.property('test_third_party_key', 'custom_3pk');
+    expect(JSON.parse(element.form.additional_fields!)).to.deep.equal({ live_field: 'live_value' });
+
+    expect(control.getValue()).to.be.false;
+    expect(query('test-account-id')).to.exist;
+    expect(query('test-account-key')).to.exist;
+    expect(query('additional-fields-test-field')).to.exist;
+
     element.data = {
       ...element.data!,
       helper: { ...element.data!.helper, test_id: '', test_key: '', additional_fields: null },
     };
 
     await element.requestUpdate();
-    expect(element.renderRoot.querySelector(selector)).to.not.exist;
+    expect(testGroup.querySelector('[infer="default-credentials"]')).to.not.exist;
   });
 
   it('renders a text control for description', async () => {
