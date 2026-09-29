@@ -654,6 +654,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
                   `
                 : ''}
               ${blocks.map(block => this.__renderBlock(block))}
+              ${type === 'test' ? this.__renderDefaultTestCredentials() : ''}
               ${this.form.helper?.supports_card_verification
                 ? html`
                     <foxy-internal-select-control
@@ -790,6 +791,66 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     `;
   }
 
+  /** Default test credentials of the selected gateway as a form edit. Skips empty values. */
+  private __getDefaultTestCredentials(): Partial<Data> | null {
+    const helper = this.form.helper;
+    if (!helper) return null;
+
+    const credentials: Partial<Data> = {};
+    if (helper.test_id) credentials.test_account_id = helper.test_id;
+    if (helper.test_key) credentials.test_account_key = helper.test_key;
+    if (helper.test_third_party_key) credentials.test_third_party_key = helper.test_third_party_key;
+
+    const fields = this.__testBlocks
+      .flatMap(block => block.fields)
+      .filter(field => field.type !== 'hidden' && typeof field.default_value === 'string')
+      .filter(field => field.default_value !== '');
+
+    if (fields.length) {
+      let config: Record<string, unknown> = {};
+
+      try {
+        config = JSON.parse(this.form.additional_fields ?? '');
+      } catch {
+        // ignore
+      }
+
+      fields.forEach(field => set(config, field.id, field.default_value));
+      credentials.additional_fields = JSON.stringify(config);
+    }
+
+    return Object.keys(credentials).length ? credentials : null;
+  }
+
+  private __renderDefaultTestCredentials() {
+    const scope = 'test-group:default-credentials';
+    if (this.readonlySelector.matches(scope, true)) return '';
+    if (!this.__getDefaultTestCredentials()) return '';
+
+    return html`
+      <div class="flex items-center justify-between gap-m">
+        <p class="leading-xs">
+          <foxy-i18n class="block font-medium" infer="" key="default_credentials.label">
+          </foxy-i18n>
+          <foxy-i18n
+            class="block text-s text-secondary"
+            infer=""
+            key="default_credentials.helper_text"
+          >
+          </foxy-i18n>
+        </p>
+        <vaadin-button
+          data-testid="default-test-credentials"
+          theme="tertiary-inline"
+          ?disabled=${this.disabledSelector.matches(scope, true)}
+          @click=${() => this.edit(this.__getDefaultTestCredentials() ?? {})}
+        >
+          <foxy-i18n infer="" key="default_credentials.button"></foxy-i18n>
+        </vaadin-button>
+      </div>
+    `;
+  }
+
   private __renderBlock(block: Block) {
     return html`${block.fields.map(field => {
       if (field.type === 'hidden') return;
@@ -800,7 +861,8 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
           const config = JSON.parse(this.form.additional_fields ?? '{}');
           return get(config, field.id) ?? config.default_value;
         } catch {
-          return field.default_value;
+          // Test defaults are filled in explicitly with the default credentials button.
+          return block.is_live ? field.default_value : undefined;
         }
       };
 
@@ -849,7 +911,8 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
           : html`
               <foxy-internal-text-control
                 helper-text=${field.description ?? ''}
-                placeholder=${field.default_value || this.t('default_additional_field_placeholder')}
+                placeholder=${(block.is_live && field.default_value) ||
+                this.t('default_additional_field_placeholder')}
                 layout="summary-item"
                 label=${field.name}
                 infer=${scope}

@@ -1297,7 +1297,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     expect(field).to.exist;
     expect(field).to.be.instanceOf(InternalTextControl);
-    expect(field).to.have.attribute('placeholder', 'baz_default');
+    expect(field).to.have.attribute('placeholder', 'default_additional_field_placeholder');
     expect(field).to.have.attribute('helper-text', 'Baz Description');
     expect(field).to.have.attribute('layout', 'summary-item');
     expect(field).to.have.attribute('label', 'Baz');
@@ -1307,6 +1307,105 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     field.setValue('another_value');
     expect(JSON.parse(element.form.additional_fields!)).to.have.property('baz', 'another_value');
+  });
+
+  it('renders a button filling in default test credentials if available', async () => {
+    const router = createRouter();
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
+            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+    element.data = {
+      ...element.data!,
+      test_account_id: '',
+      test_account_key: '',
+      test_third_party_key: 'custom_3pk',
+      additional_fields: JSON.stringify({ live_field: 'live_value' }),
+      helper: {
+        ...element.data!.helper,
+        test_id: 'default_id',
+        test_key: 'default_key',
+        test_third_party_key: '',
+        additional_fields: {
+          blocks: [
+            {
+              id: 'live',
+              is_live: true,
+              parent_id: '',
+              fields: [{ id: 'live_field', name: 'Live', type: 'text', default_value: '' }],
+            },
+            {
+              id: 'test',
+              is_live: false,
+              parent_id: '',
+              fields: [
+                { id: 'test_field', name: 'Test', type: 'text', default_value: 'test_default' },
+                { id: 'test_empty', name: 'Empty', type: 'text', default_value: '' },
+              ],
+            },
+          ],
+        },
+      },
+    };
+
+    await element.requestUpdate();
+
+    const testGroup = element.renderRoot.querySelector('[infer="test-group"]') as HTMLElement;
+    const liveGroup = element.renderRoot.querySelector('[infer="live-group"]') as HTMLElement;
+    const selector = '[data-testid="default-test-credentials"]';
+    const button = testGroup.querySelector(selector) as HTMLElement;
+
+    expect(liveGroup.querySelector(selector)).to.not.exist;
+    expect(button).to.exist;
+    expect(await getByKey(button, 'default_credentials.button')).to.exist;
+
+    const testField = testGroup.querySelector('[infer="additional-fields-test-field"]');
+    expect(testField).to.have.attribute('placeholder', 'default_additional_field_placeholder');
+    expect((testField as InternalTextControl).getValue()).to.be.undefined;
+
+    button.click();
+
+    expect(element.form).to.have.property('test_account_id', 'default_id');
+    expect(element.form).to.have.property('test_account_key', 'default_key');
+    expect(element.form).to.have.property('test_third_party_key', 'custom_3pk');
+    expect(JSON.parse(element.form.additional_fields!)).to.deep.equal({
+      live_field: 'live_value',
+      test_field: 'test_default',
+    });
+
+    element.readonly = true;
+    await element.requestUpdate();
+    expect(element.renderRoot.querySelector(selector)).to.not.exist;
+
+    element.readonly = false;
+    element.data = {
+      ...element.data!,
+      helper: { ...element.data!.helper, test_id: '', test_key: '', additional_fields: null },
+    };
+
+    await element.requestUpdate();
+    expect(element.renderRoot.querySelector(selector)).to.not.exist;
   });
 
   it('renders a text control for description', async () => {

@@ -36,6 +36,11 @@
     "label_inactive": "Test setup (inactive)",
     "helper_text": "",
     "helper_text_inactive": "To use this setup, turn off the \"Use live credentials\" option in the payment method set.",
+    "default_credentials": {
+      "label": "Default test account",
+      "helper_text": "Replaces the test values above with Foxy's shared test credentials for this gateway.",
+      "button": "Fill in"
+    },
     "test-card-verification": {
       "label": "Card verification",
       "placeholder": "Select",
