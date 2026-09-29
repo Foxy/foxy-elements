@@ -121,6 +121,7 @@ export class Transaction extends Base<Data> {
     }
 
     if (!this.__storeLoader?.data?.use_webhook) alwaysMatch.unshift('datafeed');
+    if (!this.__emailTemplateSubject) alwaysMatch.unshift('actions:send-emails');
 
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
@@ -244,6 +245,7 @@ export class Transaction extends Base<Data> {
   }
 
   renderBody(): TemplateResult {
+    let templateSetLink: string | undefined = undefined;
     let shipmentsLink: string | undefined = undefined;
     let webhooksLink: string | undefined = undefined;
     let itemsLink: string | undefined = undefined;
@@ -264,6 +266,19 @@ export class Transaction extends Base<Data> {
         shipmentsLink = shipmentsUrl.toString();
         webhooksLink = webhooksUrl.toString();
         itemsLink = itemsUrl.toString();
+      } catch {
+        //
+      }
+
+      try {
+        // @ts-expect-error SDK types do not include fx:template_sets on fx:transaction
+        const ownTemplateSetHref: string | undefined = this.data._links['fx:template_sets']?.href;
+        const storeTemplateSetsHref = this.__storeLoader?.data?._links['fx:template_sets'].href;
+        const templateSetUrl = new URL(ownTemplateSetHref ?? storeTemplateSetsHref ?? '');
+
+        if (!ownTemplateSetHref) templateSetUrl.searchParams.set('code', 'DEFAULT');
+        templateSetUrl.searchParams.set('zoom', 'email_template');
+        templateSetLink = templateSetUrl.toString();
       } catch {
         //
       }
@@ -415,11 +430,31 @@ export class Transaction extends Base<Data> {
         @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(templateSetLink)}
+        id="templateSetLoader"
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
     `;
   }
 
   private get __storeLoader() {
     type Loader = NucleonElement<Resource<Rels.Store>>;
     return this.renderRoot.querySelector<Loader>('#storeLoader');
+  }
+
+  private get __emailTemplateSubject() {
+    type TemplateSet = { _embedded?: { 'fx:email_template'?: { subject?: string } } };
+    type Data = TemplateSet & { _embedded?: { 'fx:template_sets'?: TemplateSet[] } };
+    type Loader = NucleonElement<Data>;
+
+    // Loads either the transaction's own template set or the store's DEFAULT set collection.
+    const data = this.renderRoot.querySelector<Loader>('#templateSetLoader')?.data;
+    const templateSet = data?._embedded?.['fx:template_sets']?.[0] ?? data;
+    return templateSet?._embedded?.['fx:email_template']?.subject;
   }
 }

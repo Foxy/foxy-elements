@@ -202,6 +202,98 @@ describe('Transaction', () => {
     expect(element.hiddenSelector.matches('datafeed', true)).to.be.false;
   });
 
+  describe('send-emails action', () => {
+    const whenAllLoaded = (element: Transaction) =>
+      waitUntil(
+        () => {
+          if (!element.in({ idle: 'snapshot' })) return false;
+          const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+          return [...nucleons].every(nucleon => nucleon.in({ idle: 'snapshot' }));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+    const createElement = (edit: (url: URL, json: any) => void = () => void 0) => {
+      const router = createRouter();
+
+      return fixture<Transaction>(html`
+        <foxy-transaction
+          href="https://demo.api/hapi/transactions/0"
+          @fetch=${(evt: FetchEvent) => {
+            if (evt.defaultPrevented) return;
+            const url = new URL(evt.request.url);
+            const result = router.handleRequest(evt.request);
+            evt.respondWith(
+              result!.handlerPromise.then(async response => {
+                const json = await response.json();
+                edit(url, json);
+                return new Response(JSON.stringify(json));
+              })
+            );
+          }}
+        >
+        </foxy-transaction>
+      `);
+    };
+
+    it('hides send-emails action until email template is loaded', () => {
+      const element = new Transaction();
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.true;
+    });
+
+    it("shows send-emails action when store's DEFAULT template set has email subject", async () => {
+      const urls: string[] = [];
+      const element = await createElement(url => urls.push(url.toString()));
+      await whenAllLoaded(element);
+
+      const templateSetUrl = urls.find(url => url.includes('/template_sets'));
+      expect(templateSetUrl).to.include('store_id=0');
+      expect(templateSetUrl).to.include('code=DEFAULT');
+      expect(templateSetUrl).to.include('zoom=email_template');
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.false;
+    });
+
+    it("shows send-emails action when transaction's own template set has email subject", async () => {
+      const urls: string[] = [];
+      const element = await createElement((url, json) => {
+        urls.push(url.toString());
+        if (url.pathname === '/hapi/transactions/0') {
+          json._links['fx:template_sets'] = { href: 'https://demo.api/hapi/template_sets/1' };
+        }
+      });
+
+      await whenAllLoaded(element);
+
+      expect(urls).to.include('https://demo.api/hapi/template_sets/1?zoom=email_template');
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.false;
+    });
+
+    it("hides send-emails action when transaction's own template set has no email subject", async () => {
+      const element = await createElement((url, json) => {
+        if (url.pathname === '/hapi/transactions/0') {
+          json._links['fx:template_sets'] = { href: 'https://demo.api/hapi/template_sets/1' };
+        } else if (url.pathname === '/hapi/template_sets/1') {
+          json._embedded['fx:email_template'].subject = '';
+        }
+      });
+
+      await whenAllLoaded(element);
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.true;
+    });
+
+    it("hides send-emails action when store's DEFAULT template set has no email subject", async () => {
+      const element = await createElement((url, json) => {
+        if (url.pathname === '/hapi/template_sets') {
+          json._embedded['fx:template_sets'][0]._embedded['fx:email_template'].subject = '';
+        }
+      });
+
+      await whenAllLoaded(element);
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.true;
+    });
+  });
+
   it('renders a form header', () => {
     const form = new Transaction();
     const renderHeaderMethod = stub(form, 'renderHeader');
