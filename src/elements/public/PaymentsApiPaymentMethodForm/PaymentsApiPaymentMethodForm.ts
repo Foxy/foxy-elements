@@ -18,6 +18,7 @@ import Fuse from 'fuse.js';
 import has from 'lodash-es/has';
 import get from 'lodash-es/get';
 import set from 'lodash-es/set';
+import unset from 'lodash-es/unset';
 
 type ConnectChoice = {
   key: string;
@@ -170,6 +171,32 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     { label: 'option_enabled_override', value: 'enabled_override' },
   ];
 
+  /** On when every test credential with a default is set to that default. */
+  private readonly __defaultTestCredentialsGetValue = () => {
+    const config = this.__additionalFieldsConfig;
+
+    return (
+      this.__hasDefaultTestCredentials &&
+      this.__defaultTestCredentials.every(([key, value]) => this.form[key] === value) &&
+      this.__defaultTestFields.every(field => get(config, field.id) === field.default_value)
+    );
+  };
+
+  /** Fills in the defaults when turned on. Clears the same fields when turned off. */
+  private readonly __defaultTestCredentialsSetValue = (newValue: boolean) => {
+    const config = this.__additionalFieldsConfig;
+    const edit: Partial<Data> = {};
+
+    this.__defaultTestCredentials.forEach(([key, value]) => (edit[key] = newValue ? value : ''));
+    this.__defaultTestFields.forEach(field => {
+      if (newValue) set(config, field.id, field.default_value);
+      else unset(config, field.id);
+    });
+
+    if (this.__defaultTestFields.length) edit.additional_fields = JSON.stringify(config);
+    this.edit(edit);
+  };
+
   private __search = '';
 
   private __connectState: 'idle' | 'busy' = 'idle';
@@ -321,6 +348,39 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
   private get __testBlocks() {
     return this.form.helper?.additional_fields?.blocks.filter(block => !block.is_live) ?? [];
+  }
+
+  /** Top-level test credentials with a non-empty default for the selected gateway. */
+  private get __defaultTestCredentials() {
+    type Key = 'test_account_id' | 'test_account_key' | 'test_third_party_key';
+    const helper = this.form.helper;
+    const credentials: [Key, string | undefined][] = [
+      ['test_account_id', helper?.test_id],
+      ['test_account_key', helper?.test_key],
+      ['test_third_party_key', helper?.test_third_party_key],
+    ];
+
+    return credentials.filter((entry): entry is [Key, string] => !!entry[1]);
+  }
+
+  /** Visible test additional fields with a non-empty default for the selected gateway. */
+  private get __defaultTestFields() {
+    return this.__testBlocks
+      .flatMap(block => block.fields)
+      .filter(field => field.type !== 'hidden' && typeof field.default_value === 'string')
+      .filter(field => field.default_value !== '');
+  }
+
+  private get __hasDefaultTestCredentials() {
+    return this.__defaultTestCredentials.length > 0 || this.__defaultTestFields.length > 0;
+  }
+
+  private get __additionalFieldsConfig(): Record<string, unknown> {
+    try {
+      return JSON.parse(this.form.additional_fields ?? '') ?? {};
+    } catch {
+      return {};
+    }
   }
 
   private __renderPaymentMethodSelector() {
@@ -586,6 +646,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
         const inferPrefix = index === 0 ? '' : `${type}-`;
         const blocks = index === 0 ? this.__liveBlocks : this.__testBlocks;
         const scope = `${type}-group`;
+        const useDefaults = type === 'test' && this.__defaultTestCredentialsGetValue();
 
         if (type === 'live' && !this.__storeLoader?.data) return html``;
         if (type === 'live' && !this.__storeLoader?.data?.is_active) {
@@ -617,7 +678,18 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
             infer=${scope}
           >
             <foxy-internal-summary-control infer="" label="" helper-text="">
-              ${this.form.helper?.id_description
+              ${type === 'test' && this.__hasDefaultTestCredentials
+                ? html`
+                    <foxy-internal-switch-control
+                      infer="default-credentials"
+                      helper-text-as-tooltip
+                      .getValue=${this.__defaultTestCredentialsGetValue}
+                      .setValue=${this.__defaultTestCredentialsSetValue}
+                    >
+                    </foxy-internal-switch-control>
+                  `
+                : ''}
+              ${this.form.helper?.id_description && !(useDefaults && this.form.helper.test_id)
                 ? html`
                     <foxy-internal-text-control
                       placeholder=${this.t('default_additional_field_placeholder')}
@@ -629,7 +701,8 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
                     </foxy-internal-text-control>
                   `
                 : ''}
-              ${this.form.helper?.third_party_key_description
+              ${this.form.helper?.third_party_key_description &&
+              !(useDefaults && this.form.helper.test_third_party_key)
                 ? html`
                     <foxy-internal-password-control
                       placeholder=${this.t('default_additional_field_placeholder')}
@@ -641,7 +714,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
                     </foxy-internal-password-control>
                   `
                 : ''}
-              ${this.form.helper?.key_description
+              ${this.form.helper?.key_description && !(useDefaults && this.form.helper.test_key)
                 ? html`
                     <foxy-internal-password-control
                       placeholder=${this.t('default_additional_field_placeholder')}
@@ -653,7 +726,9 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
                     </foxy-internal-password-control>
                   `
                 : ''}
-              ${blocks.map(block => this.__renderBlock(block))}
+              ${blocks.map(block =>
+                this.__renderBlock(block, useDefaults ? this.__defaultTestFields : [])
+              )}
               ${this.form.helper?.supports_card_verification
                 ? html`
                     <foxy-internal-select-control
@@ -790,9 +865,9 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     `;
   }
 
-  private __renderBlock(block: Block) {
+  private __renderBlock(block: Block, hiddenFields: Block['fields'] = []) {
     return html`${block.fields.map(field => {
-      if (field.type === 'hidden') return;
+      if (field.type === 'hidden' || hiddenFields.includes(field)) return;
       const scope = ['additional-fields', field.id].join('-').replace(/_/g, '-');
 
       const getValue = () => {
@@ -800,7 +875,8 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
           const config = JSON.parse(this.form.additional_fields ?? '{}');
           return get(config, field.id) ?? config.default_value;
         } catch {
-          return field.default_value;
+          // Test defaults are filled in explicitly with the default credentials switch.
+          return block.is_live ? field.default_value : undefined;
         }
       };
 
@@ -849,7 +925,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
           : html`
               <foxy-internal-text-control
                 helper-text=${field.description ?? ''}
-                placeholder=${field.default_value || this.t('default_additional_field_placeholder')}
+                placeholder=${this.t('default_additional_field_placeholder')}
                 layout="summary-item"
                 label=${field.name}
                 infer=${scope}
