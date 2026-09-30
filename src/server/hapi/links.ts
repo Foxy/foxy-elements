@@ -106,7 +106,12 @@ export const links: Links = {
     folder_id,
     customer_id,
     subscription_id,
+    template_set_id,
   }) => ({
+    ...(typeof template_set_id === 'number'
+      ? { 'fx:template_sets': { href: `./template_sets/${template_set_id}` } }
+      : {}),
+
     ...(is_editable
       ? status === 'completed'
         ? {
