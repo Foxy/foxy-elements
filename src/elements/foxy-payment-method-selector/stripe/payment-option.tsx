@@ -178,6 +178,28 @@ type StripeBillingDetails = {
   };
 };
 
+/**
+ * Every billing field is set to "never", and Stripe refuses a confirmation that
+ * leaves any of them out. The checkout drops empty optional fields (phone,
+ * line2), so each missing one is sent as an empty string.
+ */
+export function completeBillingDetails(details: StripeBillingDetails) {
+  const address = details.address ?? {};
+  return {
+    name: details.name ?? "",
+    email: details.email ?? "",
+    phone: details.phone ?? "",
+    address: {
+      country: address.country ?? "",
+      line1: address.line1 ?? "",
+      line2: address.line2 ?? "",
+      city: address.city ?? "",
+      state: address.state ?? "",
+      postal_code: address.postal_code ?? "",
+    },
+  };
+}
+
 /** The billing details the checkout collected, as the element was given them. */
 function readBillingDetails(
   paymentElementOptions: PaymentElementOptionsMap,
@@ -262,7 +284,9 @@ function StripePaymentField({
         clientSecret,
         confirmParams: {
           return_url: returnUrlRef.current ?? window.location.href,
-          ...(billingDetails ? { payment_method_data: { billing_details: billingDetails } } : {}),
+          ...(billingDetails
+            ? { payment_method_data: { billing_details: completeBillingDetails(billingDetails) } }
+            : {}),
         },
         redirect: "if_required",
       });
