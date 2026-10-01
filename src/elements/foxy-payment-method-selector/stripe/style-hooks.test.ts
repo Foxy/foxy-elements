@@ -3,7 +3,6 @@ import { defaultTheme, type DesignSystemTheme } from "@foxy.io/design-system/the
 
 import {
   buildStripeAppearanceFromTokens,
-  buildStripeCardElementStyle,
   getStripeFontsForAppearance,
 } from "./style-hooks";
 
@@ -96,20 +95,5 @@ describe("getStripeFontsForAppearance", () => {
         configured,
       ),
     ).toBe(configured);
-  });
-});
-
-describe("buildStripeCardElementStyle", () => {
-  // The legacy Card Element ignores the `appearance` API entirely and is styled
-  // through its own `style` option, which was never being passed.
-  it("carries the theme's text colour, family and placeholder colour", () => {
-    const style = buildStripeCardElementStyle(defaultTheme);
-
-    expect(style.base.color).toBe(defaultTheme.color.body);
-    expect(style.base.fontFamily).toContain("Albert Sans");
-    expect(style.base["::placeholder"]).toEqual({
-      color: defaultTheme.color.secondary,
-    });
-    expect(style.invalid.color).toBe(defaultTheme.color.error);
   });
 });

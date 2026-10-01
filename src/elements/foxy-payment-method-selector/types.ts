@@ -60,11 +60,6 @@ export type PaymentMethodSelectorAchTokenizePayload = {
   accountType: 'checking' | 'savings';
 };
 
-export type PaymentMethodSelectorStripeCardElementTokenizePayload = {
-  requestId: string;
-  card_token_id: string;
-};
-
 /**
  * Stripe Payment Element (stripe_v2) carries no token. The submit request only
  * names the gateway; the backend answers with a `confirm_intent` next action
@@ -156,7 +151,6 @@ export type PaymentMethodSelectorTokenizePayload =
   | PaymentMethodSelectorSavedCardTokenizePayload
   | PaymentMethodSelectorNewCardTokenizePayload
   | PaymentMethodSelectorAchTokenizePayload
-  | PaymentMethodSelectorStripeCardElementTokenizePayload
   | PaymentMethodSelectorStripePaymentElementTokenizePayload
   | PaymentMethodSelectorPurchaseOrderTokenizePayload
   | PaymentMethodSelectorKlarnaTokenizePayload
@@ -206,12 +200,6 @@ export type PaymentMethodSelectorOption = {
   expirationYear?: number;
   acceptedBrands?: string[];
   hostedCard?: PaymentCardFieldOption;
-  stripeCardElement?: {
-    publishableKey: string;
-    locale?: string;
-    appearance?: Record<string, unknown>;
-    cardElementOptions?: Record<string, unknown>;
-  };
   stripePaymentElement?: {
     publishableKey: string;
     locale?: string;

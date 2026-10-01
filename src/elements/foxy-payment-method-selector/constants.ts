@@ -3,11 +3,7 @@ export const CARD_TYPES = new Set(["new-card", "saved-card", "card"]);
 export const PURCHASE_ORDER_MAX_LENGTH = 32;
 
 // Saved cards on these are charged by id, so they carry no embed at all.
-export const SAVED_CARD_ID_GATEWAYS = new Set([
-  "stripe_v2",
-  "stripe_connect",
-  "stripe_connect_charge",
-]);
+export const SAVED_CARD_ID_GATEWAYS = new Set(["stripe_v2"]);
 
 // Saved cards on these cannot be charged at all, so they are not offered.
 //
@@ -15,7 +11,8 @@ export const SAVED_CARD_ID_GATEWAYS = new Set([
 // resolves to whenever it carries a direct card gateway — any of them, not a
 // curated few. It resolves to something else only for a hosted gateway, and the
 // only hosted types it recognises are square_up, stripe_connect and stripe_v2;
-// the Stripe pair is charged by id above, and square_up refuses the mint.
+// stripe_connect is not offered on v3 at all, stripe_v2 is charged by id above,
+// and square_up refuses the mint.
 // adyen_embedded is not recognised at all and refuses it a step earlier, with no
 // drop-in to fall back on: the payment methods response, environment and client
 // key that one needs do not ride along on a saved card.
@@ -141,8 +138,6 @@ export const GATEWAY_NAME_BY_TYPE: Record<string, string> = {
   wigwag: "WigWag",
   worldline_hosted: "Worldline Hosted",
   worldpay_online: "Worldpay Online",
-  stripe_connect: "Stripe Connect",
-  stripe_connect_charge: "Stripe Connect Charge",
   stripe_v2: "Stripe",
   paypal_platform: "PayPal",
   klarna: "Klarna",

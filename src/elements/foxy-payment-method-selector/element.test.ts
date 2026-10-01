@@ -1120,7 +1120,7 @@ describe("PaymentMethodSelectorElement", () => {
     const restoreClient = overrideClientState({
       payment_gateways: [
         {
-          type: "stripe_connect",
+          type: "stripe_v2",
           publishable_key: "",
         },
         {
@@ -1137,22 +1137,15 @@ describe("PaymentMethodSelectorElement", () => {
       await waitForRender();
 
       const host = element.querySelector(
-        '[data-foxy-stripe-host="stripe-card-element"]',
+        '[data-foxy-stripe-host="stripe-payment-element"]',
       );
       expect(host).toBeTruthy();
 
-      // Regression guard: StripeCardElementOption calls useTheme() from
-      // styled-components (directly, and via useStripeTokenAppearance). That
-      // hook throws "Accessing 'useTheme' hook outside of a '<ThemeProvider>'
-      // element" when the light-DOM React root it's mounted into (a separate
-      // root from the shadow-DOM tree that owns the <ThemeProvider>) isn't
-      // itself wrapped in one. When it throws, React unmounts the failed
-      // render and the host div is left empty, so merely asserting the host
-      // div exists (as above) does NOT catch the crash — asserting on
-      // content the component only produces after a successful render does.
+      // Asserting the host exists is not enough: a render that throws leaves
+      // it empty. Wait for content only a successful render produces.
       await waitForText(
         () => host?.textContent,
-        "Stripe configuration is missing for this payment option.",
+        "Stripe Payment Element configuration is missing for this payment option.",
       );
 
       element.optionIndex = 1;
@@ -1220,7 +1213,7 @@ describe("PaymentMethodSelectorElement", () => {
     const restoreClient = overrideClientState({
       payment_gateways: [
         {
-          type: "stripe_connect",
+          type: "stripe_v2",
           publishable_key: "",
         },
         {
@@ -1238,7 +1231,7 @@ describe("PaymentMethodSelectorElement", () => {
 
       expect(element.optionIndex).toBeUndefined();
       expect(
-        element.querySelector('[data-foxy-stripe-host="stripe-card-element"]'),
+        element.querySelector('[data-foxy-stripe-host="stripe-payment-element"]'),
       ).toBeTruthy();
 
       const secondOption = element.shadowRoot?.querySelector(
@@ -1252,7 +1245,7 @@ describe("PaymentMethodSelectorElement", () => {
       expect(element.querySelector("[data-foxy-stripe-host]")).toBeNull();
 
       const firstOption = element.shadowRoot?.querySelector(
-        "#payment-option-stripe-card-element",
+        "#payment-option-stripe-payment-element",
       ) as HTMLElement | null;
 
       firstOption?.click();
@@ -1260,7 +1253,7 @@ describe("PaymentMethodSelectorElement", () => {
 
       expect(element.optionIndex).toBe(0);
       expect(
-        element.querySelector('[data-foxy-stripe-host="stripe-card-element"]'),
+        element.querySelector('[data-foxy-stripe-host="stripe-payment-element"]'),
       ).toBeTruthy();
     } finally {
       element.remove();

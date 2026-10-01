@@ -19,14 +19,4 @@ describe("stripe-payment embed module", () => {
   it("default-exports something React.lazy can render", () => {
     expect(StripePaymentEmbed).toBeTypeOf("function");
   });
-
-  // The two Stripe embeds are separate options with separate SDK setups: the
-  // Card Element tokenizes a card, `stripe_v2` mounts deferred and confirms an
-  // intent the backend creates. A copy-paste in either re-export would point
-  // both option types at the same component.
-  it("is a different component from the Stripe Card Element embed", async () => {
-    const cardEmbed = (await import("./stripe-card")).default;
-
-    expect(StripePaymentEmbed).not.toBe(cardEmbed);
-  });
 });
