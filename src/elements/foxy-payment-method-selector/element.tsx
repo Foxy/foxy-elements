@@ -1512,6 +1512,12 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return this.#toOptionalText(this.#asRecord(apiState?.session)?.id);
   }
 
+  #isCompletedTransaction(apiState: Record<string, unknown> | null): boolean {
+    return Boolean(
+      this.#toText(this.#asRecord(apiState?.transaction)?.transaction_date),
+    );
+  }
+
   #resolveApiState(): Record<string, unknown> | null {
     const state = this.#asRecord(this.#checkoutClient?.state);
     if (state) return state;
@@ -1521,6 +1527,13 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
   async #refreshOptions(): Promise<void> {
     const apiState = this.#resolveApiState();
+
+    // A successful submit answers with the receipt body, which carries no
+    // payment_gateways. The host fades the payment step out as the page turns
+    // into the receipt, so re-deriving here would show "no payment methods"
+    // for an order that is already paid. Keep what the shopper paid with.
+    if (this.#isCompletedTransaction(apiState)) return;
+
     const requestVersion = this.#optionsRequestVersion + 1;
     this.#optionsRequestVersion = requestVersion;
 
