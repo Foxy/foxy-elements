@@ -78,10 +78,6 @@ export const messages = defineMessages({
     id: "payment_option_label_przelewy24",
     defaultMessage: "Przelewy24",
   },
-  optionLabelStripeCardElement: {
-    id: "payment_option_label_stripe_card_element",
-    defaultMessage: "New Card",
-  },
   optionLabelStripePaymentElement: {
     id: "payment_option_label_stripe_payment_element",
     defaultMessage: "New Payment Method",
@@ -113,10 +109,6 @@ export const messages = defineMessages({
   optionDescriptionSavedCard: {
     id: "payment_option_description_saved_card",
     defaultMessage: "Enter your card's security code below.",
-  },
-  optionDescriptionStripeCardElement: {
-    id: "payment_option_description_stripe_card_element",
-    defaultMessage: "Enter your payment card details below.",
   },
   optionDescriptionStripePaymentElement: {
     id: "payment_option_description_stripe_payment_element",
@@ -269,7 +261,6 @@ export const OPTION_LABEL_BY_TYPE: Partial<Record<string, MessageDescriptor>> =
     przelewy24: messages.optionLabelPrzelewy24,
     "purchase-order": messages.optionLabelPurchaseOrder,
     generic: messages.optionLabelRedirect,
-    "stripe-card-element": messages.optionLabelStripeCardElement,
     "stripe-payment-element": messages.optionLabelStripePaymentElement,
     dragonpay: messages.optionLabelOnlineBanking,
     "online-banking-pl": messages.optionLabelOnlineBanking,
@@ -287,7 +278,6 @@ export const OPTION_DESCRIPTION_BY_TYPE: Partial<
 > = {
   "new-card": messages.optionDescriptionNewCard,
   "saved-card": messages.optionDescriptionSavedCard,
-  "stripe-card-element": messages.optionDescriptionStripeCardElement,
   "stripe-payment-element": messages.optionDescriptionStripePaymentElement,
   "purchase-order": messages.optionDescriptionPurchaseOrder,
   ach: messages.optionDescriptionAch,

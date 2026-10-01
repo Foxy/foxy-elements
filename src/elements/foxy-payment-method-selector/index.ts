@@ -11,7 +11,6 @@ export type {
   PaymentMethodSelectorNewCardTokenizePayload,
   PaymentMethodSelectorPurchaseOrderTokenizePayload,
   PaymentMethodSelectorSavedCardTokenizePayload,
-  PaymentMethodSelectorStripeCardElementTokenizePayload,
   PaymentMethodSelectorStripePaymentElementTokenizePayload,
   PaymentMethodSelectorTokenizePayload,
 } from "./types";

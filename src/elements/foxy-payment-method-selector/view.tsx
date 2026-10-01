@@ -44,7 +44,6 @@ const CardOptionEmbed = lazy(() => import("./embeds/card-hosted"));
 const AchOptionEmbed = lazy(() => import("./embeds/ach-hosted"));
 const PurchaseOrderOptionEmbed = lazy(() => import("./embeds/purchase-order"));
 const KlarnaOptionEmbed = lazy(() => import("./embeds/klarna"));
-const StripeCardElementOption = lazy(() => import("./embeds/stripe-card"));
 const StripePaymentElementOption = lazy(
   () => import("./embeds/stripe-payment"),
 );
@@ -536,22 +535,6 @@ function PaymentOptionBody({
             messages.achOwnerConfirmationError,
           )}
           tokenizeErrorMessage={intl.formatMessage(messages.tokenizeAchError)}
-        />
-      </Suspense>
-    );
-  }
-
-  if (option.type === "stripe-card-element" && option.stripeCardElement) {
-    if (renderStripeContent) {
-      return renderStripeContent({ option, disabled, onControllerReady });
-    }
-
-    return (
-      <Suspense fallback={bodyFallback}>
-        <StripeCardElementOption
-          option={option}
-          disabled={disabled}
-          onControllerReady={onControllerReady}
         />
       </Suspense>
     );

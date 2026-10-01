@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Suspense, lazy } from "react";
-import { CreditCard, FileText, Landmark, Wallet } from "lucide-react";
+import { FileText, Landmark, Wallet } from "lucide-react";
 import { styled } from "styled-components";
 import type { PaymentMethodSelectorOption } from "../types";
 import SezzleMarkIcon from "./sezzle";
@@ -210,10 +210,6 @@ export function PaymentOptionBrandIcon({
         <PaymentOptionCardBrandIcon option={option} />
       </Suspense>
     );
-  }
-
-  if (option.type === "stripe-card-element") {
-    return getGenericPaymentOptionIcon(<MutedGlyph as={CreditCard} />);
   }
 
   if (option.type === "ach") {

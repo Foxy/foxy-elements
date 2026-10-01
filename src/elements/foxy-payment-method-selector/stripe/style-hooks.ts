@@ -408,44 +408,6 @@ export function mergeStripeAppearance(
   };
 }
 
-export type StripeCardElementStyle = {
-  base: Record<string, unknown>;
-  invalid: Record<string, unknown>;
-};
-
-// The `appearance` API only covers the newer Elements (Payment, Address,
-// Express Checkout, Link Authentication). The legacy Card Element ignores it
-// and is styled through its own `style` option, so without this its text is
-// Stripe's default colour and font no matter what the theme says.
-export function buildStripeCardElementStyle(
-  theme: DesignSystemTheme,
-): StripeCardElementStyle {
-  const metrics = deriveInputMetrics({
-    controlSize: theme.size.control,
-    borderWidth: theme.size.borderWidth,
-    fontBody: theme.font.body,
-  });
-  const fontFamily = normalizeFontFamilyForStripe(
-    sanitizeCssValue(metrics.fontFamily),
-  );
-  const color = sanitizeCssValue(theme.color.body);
-  const placeholderColor = sanitizeCssValue(theme.color.secondary);
-  const errorColor = sanitizeCssValue(theme.color.error);
-
-  return {
-    base: {
-      ...(color ? { color } : {}),
-      ...(fontFamily ? { fontFamily } : {}),
-      fontSize: metrics.fontSize,
-      fontSmoothing: "antialiased",
-      ...(placeholderColor ? { "::placeholder": { color: placeholderColor } } : {}),
-    },
-    invalid: {
-      ...(errorColor ? { color: errorColor, iconColor: errorColor } : {}),
-    },
-  };
-}
-
 export function resolveDesignTokens(theme: DesignSystemTheme) {
   return {
     primary: sanitizeCssValue(theme.color.primary),

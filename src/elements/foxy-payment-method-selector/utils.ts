@@ -77,13 +77,6 @@ export function createStripeV2Gateway(): StoryGateway {
   };
 }
 
-export function createStripeConnectGateway(): StoryGateway {
-  return {
-    type: "stripe_connect",
-    publishable_key: resolveStripePublishableKey(),
-  };
-}
-
 export const STRIPE_SAVED_CARD: StorySavedPaymentMethod = {
   gateway: "stripe_v2",
   brand: "Visa",
@@ -91,11 +84,6 @@ export const STRIPE_SAVED_CARD: StorySavedPaymentMethod = {
   expiry_month: "12",
   expiry_year: "2030",
   id: "pt_saved_4242",
-};
-
-export const STRIPE_CONNECT_SAVED_CARD: StorySavedPaymentMethod = {
-  ...STRIPE_SAVED_CARD,
-  gateway: "stripe_connect",
 };
 
 type StoryCustomerType = "registered" | "guest";

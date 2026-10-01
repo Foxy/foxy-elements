@@ -13,7 +13,6 @@ import {
   SEZZLE_GATEWAY,
   SQUARE_UP_GATEWAY,
   STORY_COUNTRY_CODES,
-  STRIPE_CONNECT_SAVED_CARD,
   STRIPE_SAVED_CARD,
   appendTokenizeControls,
   applyStoryApiState,
@@ -26,7 +25,6 @@ import {
   createSelector,
   createSelectorSurface,
   createStoryNote,
-  createStripeConnectGateway,
   createSquareSdk,
   createStripeV2Gateway,
   expectedSquareMethods,
@@ -260,40 +258,6 @@ export const StripeV2: Story = {
       id: "selector-stripe-v2",
       lang,
       note: "Stripe gateway with a saved card. Set VITE_STRIPE_PUBLISHABLE_KEY to mount against your own Stripe account.",
-    }),
-  play: async ({ canvasElement }) => {
-    const selector = getPrimarySelector(canvasElement);
-
-    await waitForOptionCount(selector, 2);
-    await waitForSelectorText(selector, "4242");
-  },
-};
-
-export const StripeConnectOrCharge: Story = {
-  parameters: {
-    controls: { include: ["lang"] },
-    docs: {
-      description: {
-        story:
-          "Port of the stripe_connect_or_charge example page: the Stripe Connect gateway, whose saved methods are scoped to the connected account.",
-      },
-    },
-  },
-  argTypes: {
-    lang: { control: "text" },
-  },
-  beforeEach: () =>
-    applyStoryApiState(
-      createApiState({
-        gateways: [createStripeConnectGateway()],
-        savedPaymentMethods: [STRIPE_CONNECT_SAVED_CARD],
-      }),
-    ),
-  render: ({ lang }) =>
-    renderScenario({
-      id: "selector-stripe-connect",
-      lang,
-      note: "Stripe Connect gateway with a saved card scoped to the connected account.",
     }),
   play: async ({ canvasElement }) => {
     const selector = getPrimarySelector(canvasElement);

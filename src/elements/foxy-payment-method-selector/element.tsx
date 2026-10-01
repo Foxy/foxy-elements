@@ -34,7 +34,6 @@ import {
 } from "./constants";
 import { messages } from "./messages";
 import { Payment } from "./view";
-import { StripeCardElementOption } from "./stripe/card-option";
 import { StripePaymentElementOption } from "./stripe/payment-option";
 import { getCurrencyMinorUnitExponent } from "./stripe/shared";
 import AdyenEmbeddedOption from "./embeds/adyen-embedded";
@@ -694,7 +693,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return Boolean(
       option.hostedCard ||
       option.hostedFields ||
-      option.stripeCardElement ||
       option.stripePaymentElement ||
       option.adyenEmbedded ||
       option.squareUp ||
@@ -1252,7 +1250,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       const isStandardCard =
         !!selectedOption.gateway &&
         !selectedOption.paypalPlatform &&
-        !selectedOption.stripeCardElement &&
         !selectedOption.stripePaymentElement &&
         !selectedOption.adyenEmbedded &&
         !selectedOption.squareUp;
@@ -1306,17 +1303,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       };
     }
 
-    if (selectedOption.type === "stripe-card-element") {
-      return {
-        requestId: crypto.randomUUID(),
-        card_token_id: this.#requirePayloadString(
-          payload,
-          "paymentMethodId",
-          "Stripe Card Element tokenization response is missing a payment method id.",
-        ),
-      };
-    }
-
     // No token: the checkout submission names the gateway and nothing else.
     // The only thing to check is that the Payment Element really validated the
     // shopper's details — submitting without it creates a PaymentIntent that
@@ -1362,7 +1348,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     const normalized = raw.replace(/_/g, "-");
     if (normalized === "new-card") return "new-card";
     if (normalized === "saved-card") return "saved-card";
-    if (normalized === "stripe-card-element") return "stripe-card-element";
     if (normalized === "stripe-payment-element")
       return "stripe-payment-element";
     if (normalized === "purchase-order") return "purchase-order";
@@ -1970,16 +1955,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       ];
     }
 
-    if (gateway === "stripe_connect" || gateway === "stripe_connect_charge") {
-      return [
-        {
-          type: "stripe-card-element",
-          gateway,
-          publishable_key: this.#toOptionalText(config.publishable_key),
-        },
-      ];
-    }
-
     if (
       ACH_GATEWAY_TYPES.has(gateway) ||
       (Array.isArray(config.fields) && Array.isArray(config.account_types))
@@ -2566,21 +2541,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       ];
     }
 
-    if (type === "stripe-card-element") {
-      return [
-        {
-          id: optionId,
-          type: "stripe-card-element",
-          label: "",
-          gateway: gateway || undefined,
-          disabled,
-          stripeCardElement: {
-            publishableKey: this.#toText(option.publishable_key),
-          },
-        },
-      ];
-    }
-
     if (type === "stripe-payment-element") {
       const returnUrl = this.#getStripeReturnUrl(apiState);
       return [
@@ -2685,10 +2645,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #isStripeOption(option: PaymentMethodSelectorOption | undefined): boolean {
     if (!option) return false;
     return (
-      (option.type === "stripe-card-element" &&
-        Boolean(option.stripeCardElement)) ||
-      (option.type === "stripe-payment-element" &&
-        Boolean(option.stripePaymentElement))
+      option.type === "stripe-payment-element" &&
+      Boolean(option.stripePaymentElement)
     );
   }
 
@@ -2721,25 +2679,6 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     if (!root) {
       root = createRoot(host);
       this.#lightDomStripeRoots.set(option.id, root);
-    }
-
-    if (option.type === "stripe-card-element" && option.stripeCardElement) {
-      root.render(
-        <ThemeProvider theme={{ tokens: this.#buildThemeTokens() }}>
-          <StripeCardElementOption
-            option={option}
-            onControllerReady={(controller) => {
-              if (controller) {
-                this.#controllers.set(option.id, controller);
-                return;
-              }
-
-              this.#controllers.delete(option.id);
-            }}
-          />
-        </ThemeProvider>,
-      );
-      return;
     }
 
     if (
