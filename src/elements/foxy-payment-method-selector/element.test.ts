@@ -1049,6 +1049,43 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
+  // A successful submit answers with the receipt body, which carries no
+  // payment_gateways. The host page fades the payment step out as it turns into
+  // the receipt, so for the length of that exit the selector is still on screen.
+  // Re-deriving its options from a paid transaction showed the shopper "No
+  // payment methods are currently available" right after they had paid.
+  it("keeps its options when the transaction it pays for completes", async () => {
+    const restoreClient = overrideClientState({
+      payment_gateways: [{ type: "purchase_order" }],
+    });
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "Purchase Order");
+
+      Object.defineProperty(checkoutClient, "state", {
+        configurable: true,
+        value: { transaction: { transaction_date: "2026-10-01T14:50:14-0700" } },
+      });
+      checkoutClient.dispatchEvent(new Event("update"));
+
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        await waitForRender();
+      }
+
+      expect(element.shadowRoot?.textContent).toContain("Purchase Order");
+      expect(element.shadowRoot?.textContent).not.toContain(
+        "No payment methods are currently available.",
+      );
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
   it("renders an unavailable state and rejects tokenization when no payment methods are available", async () => {
     const restoreClient = overrideClientState({ payment_gateways: [] });
     const element = document.createElement(
