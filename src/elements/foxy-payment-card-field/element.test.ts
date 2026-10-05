@@ -267,8 +267,8 @@ describe("PaymentCardFieldElement", () => {
     expect(element.themeSizeControl).toBe("4rem");
 
     // 4rem = 64px at the default 16px root font size; border width falls
-    // back to the design system's default (0.125rem = 2px each side).
-    const expectedHeightPx = 64 - 2 * 2;
+    // back to the design system's default (1px each side).
+    const expectedHeightPx = 64 - 2 * 1;
 
     const iframe = element.shadowRoot?.querySelector("iframe");
     expect(iframe).toBeTruthy();

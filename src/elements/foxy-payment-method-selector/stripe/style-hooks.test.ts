@@ -5,6 +5,7 @@ import {
   buildStripeAppearanceFromTokens,
   getStripeFontsForAppearance,
 } from "./style-hooks";
+import { remToPx } from "@/lib/theme-attribute-sync";
 
 function rules(theme: DesignSystemTheme = defaultTheme) {
   return buildStripeAppearanceFromTokens(theme).rules as Record<
@@ -46,10 +47,9 @@ describe("buildStripeAppearanceFromTokens", () => {
     expect(rules(theme)[".Block"].backgroundColor).toBe("#FFFFFF");
   });
 
-  it("draws borders at the DS border width rather than a hardcoded 1px", () => {
+  it("draws borders at the DS border width", () => {
     for (const selector of [".Input", ".Tab", ".Tab--selected", ".CheckboxInput"]) {
-      expect(rules()[selector].border).toContain(defaultTheme.size.borderWidth);
-      expect(rules()[selector].border).not.toContain("1px solid");
+      expect(rules()[selector].border).toContain(`${defaultTheme.size.borderWidth} solid`);
     }
   });
 
@@ -59,7 +59,7 @@ describe("buildStripeAppearanceFromTokens", () => {
   it("pads .Input so its box height matches size.control", () => {
     const { padding, fontSize, lineHeight } = rules()[".Input"];
     const paddingYPx = Number.parseFloat(padding.split(" ")[0]);
-    const borderPx = Number.parseFloat(defaultTheme.size.borderWidth) * 16;
+    const borderPx = Number.parseFloat(remToPx(defaultTheme.size.borderWidth, 16));
     const lineBoxPx = Number.parseFloat(fontSize) * Number.parseFloat(lineHeight);
     const controlPx = Number.parseFloat(defaultTheme.size.control) * 16;
 
