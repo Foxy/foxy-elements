@@ -44,6 +44,7 @@ const summary: Summary = {
       'emails',
       'emails:from-email',
       'emails:use-email-dns',
+      'emails:email-dns',
       'emails:use-smtp-config',
       'emails:smtp-config-host',
       'emails:smtp-config-port',

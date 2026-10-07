@@ -1126,7 +1126,44 @@ describe('StoreForm', () => {
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalSwitchControl);
-    expect(control).to.have.attribute('helper-text-as-tooltip');
+    expect(control).to.not.have.attribute('helper-text-as-tooltip');
+    expect(control?.parentElement).to.not.have.attribute('label');
+  });
+
+  it('renders email DNS records while "Use Email DNS" is being enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const selector = '[infer="emails email-dns copy-to-clipboard"]';
+    const getCopiedValues = () =>
+      Array.from(element.renderRoot.querySelectorAll(selector)).map(e => e.getAttribute('text'));
+
+    element.data = { ...(await getTestData<Data>('./hapi/stores/0')), use_email_dns: false };
+    await element.requestUpdate();
+    expect(getCopiedValues()).to.deep.equal([]);
+
+    element.edit({ use_email_dns: true });
+    await element.requestUpdate();
+    expect(getCopiedValues()).to.deep.equal([
+      'smtpapi._domainkey',
+      'k=rsa; t=s; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDPtW5iwpXVPiH5FzJ7Nrl8USzuY9zqqzjE0D1r04xDN6qwziDnmgcFNNfMewVKN2D1O+2J9N14hRprzByFwfQW76yojh54Xu3uSbQ3JP0A7k8o8GutRF8zbFUA8n0ZH2y0cIEjMliXY4W4LwPA7m4q0ObmvSjhd63O9d8z1XkUBwIDAQAB',
+      '@',
+      'v=spf1 include:_spf.foxycart.com ~all',
+    ]);
+
+    element.setAttribute('hiddencontrols', 'emails:email-dns');
+    await element.requestUpdate();
+    expect(getCopiedValues()).to.deep.equal([]);
+
+    element.setAttribute('hiddencontrols', 'emails');
+    await element.requestUpdate();
+    expect(getCopiedValues()).to.deep.equal([]);
+
+    element.removeAttribute('hiddencontrols');
+    await element.requestUpdate();
+    expect(getCopiedValues()).to.have.length(4);
+
+    element.data = { ...element.data!, use_email_dns: true };
+    await element.requestUpdate();
+    expect(getCopiedValues()).to.deep.equal([]);
   });
 
   it('renders a switch control for "Use SMTP Config" setting in the Emails section', async () => {
@@ -1136,6 +1173,8 @@ describe('StoreForm', () => {
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalSwitchControl);
     expect(control).to.have.attribute('helper-text-as-tooltip');
+    expect(control?.parentElement).to.have.attribute('label', '');
+    expect(control?.parentElement).to.have.attribute('helper-text', '');
   });
 
   it('renders a text control for SMTP host in the Emails section when "Use SMTP Config" is enabled', async () => {

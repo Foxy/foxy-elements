@@ -169,13 +169,25 @@
     },
     "use-email-dns": {
       "label": "Improve email deliverability with DNS",
-      "helper_text": "Before saving your changes, make sure the DNS records for your domain list our servers.",
+      "helper_text": "",
       "checked": "Yes",
       "unchecked": "No"
     },
+    "email-dns": {
+      "helper_text": "Add these TXT records to your domain’s DNS settings before saving. If you already have a record that starts with \"v=spf1\", modify it by adding \"include:_spf.foxycart.com\" to the list of senders.",
+      "link_text": "Learn how to set up email deliverability with SPF, DKIM, and DMARC",
+      "host": "Host",
+      "value": "Value",
+      "copy-to-clipboard": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy",
+        "copying": "Copying...",
+        "done": "Copied"
+      }
+    },
     "use-smtp-config": {
       "label": "Use custom mail server",
-      "helper_text": "If you'd like to configure your own SMTP server for sending transaction receipt emails, you can do so here.",
+      "helper_text": "",
       "checked": "Yes",
       "unchecked": "No",
       "v8n_too_long": "This configuration must fit within 1000 characters when JSON-encoded"
