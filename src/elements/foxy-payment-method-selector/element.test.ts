@@ -15,6 +15,18 @@ import {
 } from "@/lib/theme-mixin";
 import { PaymentMethodSelectorElement, toBcp47Locale } from "./element";
 
+// A saved stripe_v2 card has no mounted Payment Element, so its next action
+// goes through Stripe.js directly. Only that path reaches loadStripe here.
+const stripeHandleNextAction = vi.fn(
+  async (_options: { clientSecret: string }): Promise<{ error?: { message: string } }> => ({}),
+);
+const loadStripe = vi.fn(async (_key: string) => ({
+  handleNextAction: stripeHandleNextAction,
+}));
+vi.mock("@stripe/stripe-js/pure", () => ({
+  loadStripe: (key: string) => loadStripe(key),
+}));
+
 type PayPalPlatformTestOptionType =
   | "paypal"
   | "new-card"
@@ -3075,6 +3087,64 @@ describe("PaymentMethodSelectorElement", () => {
         expect(confirm).not.toHaveBeenCalled();
       } finally {
         cleanup();
+      }
+    });
+
+    // The backend answers a saved card that needs 3DS with confirm_intent too.
+    // There is no Payment Element to confirm from, so Stripe.js runs the
+    // intent's next action itself, with the gateway's publishable key.
+    it("runs a saved stripe_v2 card's next action through Stripe.js", async () => {
+      loadStripe.mockClear();
+      stripeHandleNextAction.mockClear();
+      const restoreClient = overrideClientState({
+        payment_gateways: [{ type: "stripe_v2", publishable_key: "pk_test_saved" }],
+        saved_payment_methods: [
+          {
+            gateway: "stripe_v2",
+            brand: "Visa",
+            last_4: "3155",
+            expiry_month: "12",
+            expiry_year: "2030",
+            id: "2",
+            csc_required: false,
+          },
+        ],
+      });
+      const element = document.createElement(
+        "foxy-payment-method-selector",
+      ) as PaymentMethodSelectorElement;
+
+      try {
+        document.body.append(element);
+        await waitForText(() => element.shadowRoot?.textContent, "3155");
+        element.optionIndex = 0;
+        await waitForRender();
+        expect(element.selectedOption?.type).toBe("saved-card");
+
+        await element.handleNextAction({
+          type: "confirm_intent",
+          gateway: "stripe_v2",
+          params: { client_secret: "pi_123_secret_abc" },
+        });
+
+        expect(loadStripe).toHaveBeenCalledWith("pk_test_saved");
+        expect(stripeHandleNextAction).toHaveBeenCalledWith({
+          clientSecret: "pi_123_secret_abc",
+        });
+
+        stripeHandleNextAction.mockResolvedValueOnce({
+          error: { message: "Your card was declined." },
+        });
+        await expect(
+          element.handleNextAction({
+            type: "confirm_intent",
+            gateway: "stripe_v2",
+            params: { client_secret: "pi_123_secret_abc" },
+          }),
+        ).rejects.toThrow("Your card was declined.");
+      } finally {
+        element.remove();
+        restoreClient();
       }
     });
 

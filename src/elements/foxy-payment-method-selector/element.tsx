@@ -34,7 +34,11 @@ import {
 import { messages } from "./messages";
 import { Payment } from "./view";
 import { StripePaymentElementOption } from "./stripe/payment-option";
-import { getCurrencyMinorUnitExponent } from "./stripe/shared";
+import {
+  getCurrencyMinorUnitExponent,
+  resolveStripePublishableKey,
+} from "./stripe/shared";
+import { loadStripe } from "@stripe/stripe-js/pure";
 import AdyenEmbeddedOption from "./embeds/adyen-embedded";
 import {
   ThemeMixin,
@@ -384,6 +388,14 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     this.#setLoading(true);
 
     try {
+      if (
+        selectedOption.type === "saved-card" &&
+        selectedOption.gateway === "stripe_v2"
+      ) {
+        await this.#handleSavedStripeCardNextAction(clientSecret);
+        return;
+      }
+
       const controller = await this.#awaitController(selectedOption.id);
 
       if (!controller?.confirm) {
@@ -395,6 +407,33 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       await controller.confirm({ clientSecret });
     } finally {
       this.#setLoading(false);
+    }
+  }
+
+  /**
+   * A saved stripe_v2 card mounts no Payment Element, so there is no
+   * controller to confirm with. The intent already holds the card; Stripe.js
+   * only has to run its next action (3DS) with the gateway's key.
+   */
+  async #handleSavedStripeCardNextAction(clientSecret: string): Promise<void> {
+    const gateway = this.#getArrayRecords(
+      this.#resolveApiState()?.payment_gateways,
+    ).find((entry) => entry.type === "stripe_v2");
+    const publishableKey = resolveStripePublishableKey(
+      this.#toOptionalText(gateway?.publishable_key),
+    );
+    if (!publishableKey) {
+      throw new Error("Stripe is not configured for this checkout.");
+    }
+
+    const stripe = await loadStripe(publishableKey);
+    if (!stripe) throw new Error("Unable to load Stripe.");
+
+    const result = await stripe.handleNextAction({ clientSecret });
+    if (result.error) {
+      throw new Error(
+        result.error.message ?? "Unable to confirm Stripe payment.",
+      );
     }
   }
 
