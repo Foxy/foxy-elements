@@ -22,6 +22,7 @@ export type StorySavedPaymentMethod = {
   expiry_month: string;
   expiry_year: string;
   id: string;
+  csc_required: boolean;
 };
 
 export const AUTHORIZE_GATEWAY: StoryGateway = { type: "authorize" };
@@ -48,6 +49,7 @@ export const AUTHORIZE_SAVED_CARD: StorySavedPaymentMethod = {
   expiry_month: "12",
   expiry_year: "2030",
   id: "pm_authorize_saved_4242",
+  csc_required: true,
 };
 
 // The Stripe example pages read VITE_STRIPE_PUBLISHABLE_KEY first and fall back
@@ -84,6 +86,7 @@ export const STRIPE_SAVED_CARD: StorySavedPaymentMethod = {
   expiry_month: "12",
   expiry_year: "2030",
   id: "pt_saved_4242",
+  csc_required: false,
 };
 
 type StoryCustomerType = "registered" | "guest";

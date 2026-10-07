@@ -15,6 +15,18 @@ import {
 } from "@/lib/theme-mixin";
 import { PaymentMethodSelectorElement, toBcp47Locale } from "./element";
 
+// A saved stripe_v2 card has no mounted Payment Element, so its next action
+// goes through Stripe.js directly. Only that path reaches loadStripe here.
+const stripeHandleNextAction = vi.fn(
+  async (_options: { clientSecret: string }): Promise<{ error?: { message: string } }> => ({}),
+);
+const loadStripe = vi.fn(async (_key: string) => ({
+  handleNextAction: stripeHandleNextAction,
+}));
+vi.mock("@stripe/stripe-js/pure", () => ({
+  loadStripe: (key: string) => loadStripe(key),
+}));
+
 type PayPalPlatformTestOptionType =
   | "paypal"
   | "new-card"
@@ -104,6 +116,7 @@ function overrideClientState(
 type CardFieldMintContext = {
   templateSetId?: number;
   sessionId?: string;
+  paymentMethodId?: string;
 };
 
 async function waitForRender(): Promise<void> {
@@ -679,7 +692,9 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
-  it("omits savedPaymentMethodId from saved-card tokenization payload", async () => {
+  // The checkout submits the wallet row id with every saved card: it is what
+  // names the card to charge, whether or not a CSC token rides along.
+  it("includes savedPaymentMethodId in the saved-card tokenization payload", async () => {
     const restoreClient = overrideClientState({
       saved_payment_methods: [
         {
@@ -689,6 +704,7 @@ describe("PaymentMethodSelectorElement", () => {
           expiry_month: "12",
           expiry_year: "2030",
           id: "pm_saved_4242",
+          csc_required: false,
         },
       ],
     });
@@ -706,12 +722,118 @@ describe("PaymentMethodSelectorElement", () => {
       expect(payload).toEqual({
         token: undefined,
         requestId: undefined,
+        savedPaymentMethodId: "pm_saved_4242",
         cardBrand: "Visa",
         last4: "4242",
         expirationMonth: 12,
         expirationYear: 2030,
       });
-      expect(payload).not.toHaveProperty("savedPaymentMethodId");
+      expect(
+        element.shadowRoot?.querySelector("foxy-payment-card-field"),
+      ).toBeNull();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  // Without the id the mint resolves the customer's default card, which may be
+  // a different card or one with no number at all.
+  it("passes the picked saved card's id to its security-code embed", async () => {
+    const restoreClient = overrideClientState({
+      template_set: { id: 42 },
+      session: { id: "sess_abc" },
+      payment_gateways: [{ type: "authorize" }],
+      saved_payment_methods: [
+        {
+          gateway: "authorize",
+          brand: "Visa",
+          last_4: "1111",
+          expiry_month: "12",
+          expiry_year: "2030",
+          id: "4",
+          csc_required: true,
+        },
+        {
+          gateway: "authorize",
+          brand: "Mastercard",
+          last_4: "0015",
+          expiry_month: "11",
+          expiry_year: "2031",
+          id: "5",
+          csc_required: true,
+        },
+      ],
+    });
+
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "0015");
+
+      const secondCard = element.shadowRoot?.querySelector(
+        "#payment-option-saved-card-2",
+      ) as HTMLElement | null;
+      secondCard?.click();
+      await waitForRender();
+
+      expect(element.selectedOption?.savedPaymentMethodId).toBe("5");
+      // Each saved card mounts its own field, so look inside the picked one.
+      const cscField = await waitForTruthy(
+        () =>
+          secondCard
+            ?.closest("[data-disabled]")
+            ?.querySelector(
+              'foxy-payment-card-field[mode="card_csc"]',
+            ) as CardFieldMintContext | null,
+        "security code field",
+      );
+
+      expect(cscField.paymentMethodId).toBe("5");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  // csc_required is the server's call: a saved card that does not need one is
+  // charged by id, so it gets no embed to fill in.
+  it("renders no security-code embed for a saved card that needs no CSC", async () => {
+    const restoreClient = overrideClientState({
+      template_set: { id: 42 },
+      session: { id: "sess_abc" },
+      payment_gateways: [{ type: "authorize" }],
+      saved_payment_methods: [
+        {
+          gateway: "authorize",
+          brand: "Visa",
+          last_4: "1111",
+          expiry_month: "12",
+          expiry_year: "2030",
+          id: "4",
+          csc_required: false,
+        },
+      ],
+    });
+
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "1111");
+      await waitForRender();
+
+      expect(element.selectedOption?.hostedCard).toBeUndefined();
+      expect(
+        element.shadowRoot?.querySelector(
+          'foxy-payment-card-field[mode="card_csc"]',
+        ),
+      ).toBeNull();
     } finally {
       element.remove();
       restoreClient();
@@ -735,6 +857,7 @@ describe("PaymentMethodSelectorElement", () => {
           expiry_month: "12",
           expiry_year: "2030",
           id: "pm_saved_4242",
+          csc_required: true,
         },
       ],
     });
@@ -809,6 +932,7 @@ describe("PaymentMethodSelectorElement", () => {
           expiry_month: "12",
           expiry_year: "2030",
           id: "pm_saved_4242",
+          csc_required: true,
         },
       ],
     });
@@ -852,6 +976,7 @@ describe("PaymentMethodSelectorElement", () => {
           expiry_month: "12",
           expiry_year: "2030",
           id: "pm_saved_1881",
+          csc_required: true,
         },
         {
           gateway: "authorize",
@@ -860,6 +985,7 @@ describe("PaymentMethodSelectorElement", () => {
           expiry_month: "12",
           expiry_year: "2030",
           id: "pm_saved_4242",
+          csc_required: true,
         },
       ],
     });
@@ -1613,6 +1739,7 @@ describe("PaymentMethodSelectorElement", () => {
           expiry_month: "12",
           expiry_year: "2030",
           id: "pm_saved_4242",
+          csc_required: true,
         },
       ],
     });
@@ -2960,6 +3087,64 @@ describe("PaymentMethodSelectorElement", () => {
         expect(confirm).not.toHaveBeenCalled();
       } finally {
         cleanup();
+      }
+    });
+
+    // The backend answers a saved card that needs 3DS with confirm_intent too.
+    // There is no Payment Element to confirm from, so Stripe.js runs the
+    // intent's next action itself, with the gateway's publishable key.
+    it("runs a saved stripe_v2 card's next action through Stripe.js", async () => {
+      loadStripe.mockClear();
+      stripeHandleNextAction.mockClear();
+      const restoreClient = overrideClientState({
+        payment_gateways: [{ type: "stripe_v2", publishable_key: "pk_test_saved" }],
+        saved_payment_methods: [
+          {
+            gateway: "stripe_v2",
+            brand: "Visa",
+            last_4: "3155",
+            expiry_month: "12",
+            expiry_year: "2030",
+            id: "2",
+            csc_required: false,
+          },
+        ],
+      });
+      const element = document.createElement(
+        "foxy-payment-method-selector",
+      ) as PaymentMethodSelectorElement;
+
+      try {
+        document.body.append(element);
+        await waitForText(() => element.shadowRoot?.textContent, "3155");
+        element.optionIndex = 0;
+        await waitForRender();
+        expect(element.selectedOption?.type).toBe("saved-card");
+
+        await element.handleNextAction({
+          type: "confirm_intent",
+          gateway: "stripe_v2",
+          params: { client_secret: "pi_123_secret_abc" },
+        });
+
+        expect(loadStripe).toHaveBeenCalledWith("pk_test_saved");
+        expect(stripeHandleNextAction).toHaveBeenCalledWith({
+          clientSecret: "pi_123_secret_abc",
+        });
+
+        stripeHandleNextAction.mockResolvedValueOnce({
+          error: { message: "Your card was declined." },
+        });
+        await expect(
+          element.handleNextAction({
+            type: "confirm_intent",
+            gateway: "stripe_v2",
+            params: { client_secret: "pi_123_secret_abc" },
+          }),
+        ).rejects.toThrow("Your card was declined.");
+      } finally {
+        element.remove();
+        restoreClient();
       }
     });
 
