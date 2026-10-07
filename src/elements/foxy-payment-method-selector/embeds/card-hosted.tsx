@@ -94,6 +94,7 @@ export default function CardOptionEmbed({
     // sessionless, and the vault accepts those from anyone who holds one: the
     // binding is what stops a leaked token being spent outside this checkout.
     element.sessionId = option.hostedCard.sessionId;
+    element.paymentMethodId = option.hostedCard.paymentMethodId;
     element.disabled = Boolean(disabled);
 
     const controller: PaymentController = {

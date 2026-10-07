@@ -51,6 +51,9 @@ export type PaymentCardFieldOption = {
   // The checkout session the mint binds the reference to. Absent for
   // portal/admin card save, which rests on the vault's claim and TTL instead.
   sessionId?: string;
+  // The saved card a card_csc mint confirms. Without it the mint falls back to
+  // the customer's default card.
+  paymentMethodId?: string;
   translationCardNumberLabel?: string;
   translationCardNumberPlaceholder?: string;
   translationCardExpirationLabel?: string;
@@ -109,6 +112,7 @@ const DISABLED_ATTRIBUTE = "disabled";
 const LANG_ATTRIBUTE = "lang";
 const TEMPLATE_SET_ID_ATTRIBUTE = "template-set-id";
 const SESSION_ID_ATTRIBUTE = "session-id";
+const PAYMENT_METHOD_ID_ATTRIBUTE = "payment-method-id";
 const TRANSLATION_CARD_NUMBER_LABEL_ATTRIBUTE = "translation-card-number-label";
 const TRANSLATION_CARD_NUMBER_PLACEHOLDER_ATTRIBUTE =
   "translation-card-number-placeholder";
@@ -305,6 +309,7 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
       LANG_ATTRIBUTE,
       TEMPLATE_SET_ID_ATTRIBUTE,
       SESSION_ID_ATTRIBUTE,
+      PAYMENT_METHOD_ID_ATTRIBUTE,
       ...TRANSLATION_ATTRIBUTE_NAMES,
       ...ThemeableHTMLElement.themeAttributeNames,
     ];
@@ -315,6 +320,7 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
   private _lang: string | undefined;
   private _templateSetId: number | undefined;
   private _sessionId: string | undefined;
+  private _paymentMethodId: string | undefined;
   private _iframe: HTMLIFrameElement | null = null;
   private _port: MessagePort | null = null;
   private _fallbackRequestCounter = 0;
@@ -345,6 +351,8 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
     );
     this._sessionId =
       this.getAttribute(SESSION_ID_ATTRIBUTE)?.trim() || undefined;
+    this._paymentMethodId =
+      this.getAttribute(PAYMENT_METHOD_ID_ATTRIBUTE)?.trim() || undefined;
     this._syncPublicStates();
   }
 
@@ -445,6 +453,23 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
       this.removeAttribute(SESSION_ID_ATTRIBUTE);
     } else if (this.getAttribute(SESSION_ID_ATTRIBUTE) !== value) {
       this.setAttribute(SESSION_ID_ATTRIBUTE, value);
+    }
+
+    if (this.isConnected) this._mountIframe();
+  }
+
+  get paymentMethodId(): string | undefined {
+    return this._paymentMethodId;
+  }
+
+  set paymentMethodId(value: string | undefined) {
+    if (this._paymentMethodId === value) return;
+
+    this._paymentMethodId = value;
+    if (value === undefined) {
+      this.removeAttribute(PAYMENT_METHOD_ID_ATTRIBUTE);
+    } else if (this.getAttribute(PAYMENT_METHOD_ID_ATTRIBUTE) !== value) {
+      this.setAttribute(PAYMENT_METHOD_ID_ATTRIBUTE, value);
     }
 
     if (this.isConnected) this._mountIframe();
@@ -589,6 +614,12 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
 
     if (name === SESSION_ID_ATTRIBUTE) {
       this._sessionId = newValue?.trim() || undefined;
+      if (this.isConnected) this._mountIframe();
+      return;
+    }
+
+    if (name === PAYMENT_METHOD_ID_ATTRIBUTE) {
+      this._paymentMethodId = newValue?.trim() || undefined;
       if (this.isConnected) this._mountIframe();
       return;
     }
@@ -816,6 +847,10 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
     // reference instead, which is spendable from any session at all.
     if (this._sessionId) {
       url.searchParams.set("session_id", this._sessionId);
+    }
+
+    if (this._mode === "card_csc" && this._paymentMethodId) {
+      url.searchParams.set("payment_method_id", this._paymentMethodId);
     }
 
     for (const attrName of THEME_QUERY_ATTRIBUTE_NAMES) {

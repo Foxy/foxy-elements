@@ -27,7 +27,6 @@ import {
 } from "./events";
 import {
   ACH_GATEWAY_TYPES,
-  SAVED_CARD_ID_GATEWAYS,
   SAVED_CARD_UNCHARGEABLE_GATEWAYS,
   SQUARE_UP_DEFAULT_METHODS,
   SQUARE_UP_METHODS_BY_COUNTRY,
@@ -1226,6 +1225,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       return {
         token: this.#readPayloadString(payload, "token"),
         requestId: this.#readPayloadString(payload, "requestId"),
+        savedPaymentMethodId: selectedOption.savedPaymentMethodId,
         cardBrand:
           this.#readPayloadString(payload, "cardBrand") ??
           selectedOption.cardBrand,
@@ -1599,6 +1599,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
           last_4: savedPaymentMethod.last_4,
           expiry_month: savedPaymentMethod.expiry_month,
           expiry_year: savedPaymentMethod.expiry_year,
+          csc_required: savedPaymentMethod.csc_required,
           payment_method_id:
             this.#toOptionalText(savedPaymentMethod.id) ??
             this.#toOptionalText(savedPaymentMethod.payment_method_id) ??
@@ -2369,8 +2370,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     const gateway = this.#toText(option.gateway);
     // Charged by id, or re-minted from a CSC — there is no third way to spend a
     // saved card, so a gateway that can do neither is left out rather than
-    // offered as an option that cannot reach a charge.
-    const chargeById = SAVED_CARD_ID_GATEWAYS.has(gateway);
+    // offered as an option that cannot reach a charge. The server says which
+    // one applies: csc_required depends on the card's source and the store.
+    const chargeById = paymentMethod.csc_required !== true;
     if (!chargeById && (!gateway || SAVED_CARD_UNCHARGEABLE_GATEWAYS.has(gateway))) {
       return [];
     }
@@ -2420,6 +2422,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
               mode: "card_csc",
               templateSetId: this.#resolveTemplateSetId(apiState),
               sessionId: this.#resolveSessionId(apiState),
+              paymentMethodId: savedPaymentMethodId,
             },
       },
     ];

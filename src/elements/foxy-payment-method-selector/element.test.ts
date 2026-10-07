@@ -104,6 +104,7 @@ function overrideClientState(
 type CardFieldMintContext = {
   templateSetId?: number;
   sessionId?: string;
+  paymentMethodId?: string;
 };
 
 async function waitForRender(): Promise<void> {
@@ -679,7 +680,9 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
-  it("omits savedPaymentMethodId from saved-card tokenization payload", async () => {
+  // The checkout submits the wallet row id with every saved card: it is what
+  // names the card to charge, whether or not a CSC token rides along.
+  it("includes savedPaymentMethodId in the saved-card tokenization payload", async () => {
     const restoreClient = overrideClientState({
       saved_payment_methods: [
         {
@@ -689,6 +692,7 @@ describe("PaymentMethodSelectorElement", () => {
           expiry_month: "12",
           expiry_year: "2030",
           id: "pm_saved_4242",
+          csc_required: false,
         },
       ],
     });
@@ -706,12 +710,118 @@ describe("PaymentMethodSelectorElement", () => {
       expect(payload).toEqual({
         token: undefined,
         requestId: undefined,
+        savedPaymentMethodId: "pm_saved_4242",
         cardBrand: "Visa",
         last4: "4242",
         expirationMonth: 12,
         expirationYear: 2030,
       });
-      expect(payload).not.toHaveProperty("savedPaymentMethodId");
+      expect(
+        element.shadowRoot?.querySelector("foxy-payment-card-field"),
+      ).toBeNull();
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  // Without the id the mint resolves the customer's default card, which may be
+  // a different card or one with no number at all.
+  it("passes the picked saved card's id to its security-code embed", async () => {
+    const restoreClient = overrideClientState({
+      template_set: { id: 42 },
+      session: { id: "sess_abc" },
+      payment_gateways: [{ type: "authorize" }],
+      saved_payment_methods: [
+        {
+          gateway: "authorize",
+          brand: "Visa",
+          last_4: "1111",
+          expiry_month: "12",
+          expiry_year: "2030",
+          id: "4",
+          csc_required: true,
+        },
+        {
+          gateway: "authorize",
+          brand: "Mastercard",
+          last_4: "0015",
+          expiry_month: "11",
+          expiry_year: "2031",
+          id: "5",
+          csc_required: true,
+        },
+      ],
+    });
+
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "0015");
+
+      const secondCard = element.shadowRoot?.querySelector(
+        "#payment-option-saved-card-2",
+      ) as HTMLElement | null;
+      secondCard?.click();
+      await waitForRender();
+
+      expect(element.selectedOption?.savedPaymentMethodId).toBe("5");
+      // Each saved card mounts its own field, so look inside the picked one.
+      const cscField = await waitForTruthy(
+        () =>
+          secondCard
+            ?.closest("[data-disabled]")
+            ?.querySelector(
+              'foxy-payment-card-field[mode="card_csc"]',
+            ) as CardFieldMintContext | null,
+        "security code field",
+      );
+
+      expect(cscField.paymentMethodId).toBe("5");
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
+  // csc_required is the server's call: a saved card that does not need one is
+  // charged by id, so it gets no embed to fill in.
+  it("renders no security-code embed for a saved card that needs no CSC", async () => {
+    const restoreClient = overrideClientState({
+      template_set: { id: 42 },
+      session: { id: "sess_abc" },
+      payment_gateways: [{ type: "authorize" }],
+      saved_payment_methods: [
+        {
+          gateway: "authorize",
+          brand: "Visa",
+          last_4: "1111",
+          expiry_month: "12",
+          expiry_year: "2030",
+          id: "4",
+          csc_required: false,
+        },
+      ],
+    });
+
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      await waitForText(() => element.shadowRoot?.textContent, "1111");
+      await waitForRender();
+
+      expect(element.selectedOption?.hostedCard).toBeUndefined();
+      expect(
+        element.shadowRoot?.querySelector(
+          'foxy-payment-card-field[mode="card_csc"]',
+        ),
+      ).toBeNull();
     } finally {
       element.remove();
       restoreClient();
@@ -735,6 +845,7 @@ describe("PaymentMethodSelectorElement", () => {
           expiry_month: "12",
           expiry_year: "2030",
           id: "pm_saved_4242",
+          csc_required: true,
         },
       ],
     });
@@ -809,6 +920,7 @@ describe("PaymentMethodSelectorElement", () => {
           expiry_month: "12",
           expiry_year: "2030",
           id: "pm_saved_4242",
+          csc_required: true,
         },
       ],
     });
@@ -852,6 +964,7 @@ describe("PaymentMethodSelectorElement", () => {
           expiry_month: "12",
           expiry_year: "2030",
           id: "pm_saved_1881",
+          csc_required: true,
         },
         {
           gateway: "authorize",
@@ -860,6 +973,7 @@ describe("PaymentMethodSelectorElement", () => {
           expiry_month: "12",
           expiry_year: "2030",
           id: "pm_saved_4242",
+          csc_required: true,
         },
       ],
     });
@@ -1613,6 +1727,7 @@ describe("PaymentMethodSelectorElement", () => {
           expiry_month: "12",
           expiry_year: "2030",
           id: "pm_saved_4242",
+          csc_required: true,
         },
       ],
     });

@@ -44,7 +44,10 @@ type PaymentMethodSelectorRequiredHostedCardTokenizePayload = {
 
 export type PaymentMethodSelectorSavedCardTokenizePayload =
   PaymentMethodSelectorOptionalHostedCardTokenizePayload &
-    PaymentMethodSelectorCardTokenizeDetails;
+    PaymentMethodSelectorCardTokenizeDetails & {
+      /** The wallet row to charge; the token, when present, confirms its CSC. */
+      savedPaymentMethodId: string | undefined;
+    };
 
 export type PaymentMethodSelectorNewCardTokenizePayload =
   PaymentMethodSelectorRequiredHostedCardTokenizePayload &

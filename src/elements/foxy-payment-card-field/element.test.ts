@@ -393,6 +393,23 @@ describe("PaymentCardFieldElement", () => {
     expect(url.searchParams.get("session_id")).toBe("a1b2c3,d4-e5");
   });
 
+  it("puts the saved payment method id on the shell URL", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    element.mode = "card_csc";
+    element.paymentMethodId = "5";
+    document.body.append(element);
+
+    const iframe = element.shadowRoot?.querySelector("iframe");
+    const url = new URL(
+      iframe?.getAttribute("src") ?? "",
+      window.location.origin,
+    );
+
+    expect(url.searchParams.get("payment_method_id")).toBe("5");
+  });
+
   it("omits session_id entirely when no session is set", () => {
     const element = document.createElement(
       PAYMENT_CARD_FIELD_ELEMENT_TAG,

@@ -2,9 +2,6 @@ export const CARD_TYPES = new Set(["new-card", "saved-card", "card"]);
 
 export const PURCHASE_ORDER_MAX_LENGTH = 32;
 
-// Saved cards on these are charged by id, so they carry no embed at all.
-export const SAVED_CARD_ID_GATEWAYS = new Set(["stripe_v2"]);
-
 // Saved cards on these cannot be charged at all, so they are not offered.
 //
 // The CSC mint runs the default tokenization provider, which a template set
