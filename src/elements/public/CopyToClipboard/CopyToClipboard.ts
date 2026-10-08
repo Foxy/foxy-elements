@@ -138,6 +138,7 @@ export class CopyToClipboard extends Base {
             <button
               id="trigger"
               class=${classMap({ 'icon-button': true, 'inline': layout === 'icon-inline' })}
+              aria-label=${this.t(label)}
               ?disabled=${this.disabled}
               @click=${this.__copy}
             >

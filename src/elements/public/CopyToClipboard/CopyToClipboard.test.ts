@@ -56,6 +56,15 @@ describe('CopyToClipboard', () => {
     expect(tooltip).to.have.property('key', 'click_to_copy');
   });
 
+  it('gives the icon-only button an accessible name (icon layout)', async () => {
+    const layout = html`<foxy-copy-to-clipboard></foxy-copy-to-clipboard>`;
+    const element = await fixture<CopyToClipboard>(layout);
+    const trigger = element.renderRoot.querySelector('#trigger') as HTMLButtonElement;
+
+    expect(trigger).to.have.attribute('aria-label', 'click_to_copy');
+    await expect(element).to.be.accessible();
+  });
+
   it('renders in the idle state by default (text layout)', async () => {
     const layout = html`<foxy-copy-to-clipboard layout="text"></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
