@@ -332,18 +332,14 @@ export class InternalButton extends LitElement {
     ];
   }
 
-  /**
-   * Same as the `disabled` attribute of a native button. Declared without an initializer
-   * so that a class field never shadows the reactive accessor.
-   */
-  declare disabled: boolean;
+  /** Same as the `disabled` attribute of a native button. */
+  disabled = false;
 
   /** Space-separated Lumo variants, e.g. `primary`, `tertiary-inline`, `small`, `icon`. */
-  declare theme: string | undefined;
+  theme: string | undefined;
 
   constructor() {
     super();
-    this.disabled = false;
 
     this.addEventListener('keydown', evt => {
       if (this.disabled || evt.target !== this) return;
