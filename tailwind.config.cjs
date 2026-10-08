@@ -78,19 +78,19 @@ const colorsMap = {
   'primary': {
     10: cssVar('primary-color-10pct', 'hsla(214, 90%, 52%, 0.1)'),
     50: cssVar('primary-color-50pct', 'hsla(214, 90%, 52%, 0.5)'),
-    DEFAULT: cssVar('primary-color', 'hsl(214, 90%, 52%)'),
+    DEFAULT: cssVar('primary-color', 'hsl(214, 90%, 45.5%)'),
     contrast: cssVar('primary-contrast-color', '#fff'),
   },
   'error': {
     10: cssVar('error-color-10pct', 'hsla(3, 100%, 60%, 0.1)'),
     50: cssVar('error-color-50pct', 'hsla(3, 100%, 60%, 0.5)'),
-    DEFAULT: cssVar('error-color', 'hsl(3, 100%, 61%)'),
+    DEFAULT: cssVar('error-color', 'hsl(3, 100%, 45.5%)'),
     contrast: cssVar('error-contrast-color', '#fff'),
   },
   'success': {
     10: cssVar('success-color-10pct', 'hsla(145, 76%, 44%, 0.12)'),
     50: cssVar('success-color-50pct', 'hsla(145, 76%, 44%, 0.55)'),
-    DEFAULT: cssVar('success-color', 'hsl(145, 80%, 42%)'),
+    DEFAULT: cssVar('success-color', 'hsl(145, 80%, 29%)'),
     contrast: cssVar('success-contrast-color', '#fff'),
   },
 };
@@ -112,13 +112,13 @@ const textColorMap = Object.assign({}, colorsMap, {
   secondary: cssVar('secondary-text-color', 'hsla(214, 42%, 18%, 0.72)'),
   tertiary: cssVar('tertiary-text-color', 'hsla(214, 45%, 20%, 0.5)'),
   primary: Object.assign({}, colorsMap.primary, {
-    DEFAULT: cssVar('primary-text-color', 'hsl(214, 90%, 52%)'),
+    DEFAULT: cssVar('primary-text-color', 'hsl(214, 90%, 45.5%)'),
   }),
   success: Object.assign({}, colorsMap.success, {
-    DEFAULT: cssVar('success-text-color', 'hsl(145, 100%, 32%)'),
+    DEFAULT: cssVar('success-text-color', 'hsl(145, 100%, 24%)'),
   }),
   error: Object.assign({}, colorsMap.error, {
-    DEFAULT: cssVar('error-text-color', 'hsl(3, 92%, 53%)'),
+    DEFAULT: cssVar('error-text-color', 'hsl(3, 92%, 42.5%)'),
   }),
 });
 
