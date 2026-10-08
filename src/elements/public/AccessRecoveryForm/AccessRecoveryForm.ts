@@ -127,7 +127,7 @@ export class AccessRecoveryForm extends Base<Data> {
     const isBusy = this.in('busy');
 
     return html`
-      <main
+      <div
         data-testid="wrapper"
         aria-live="polite"
         aria-busy=${isBusy}
@@ -153,7 +153,7 @@ export class AccessRecoveryForm extends Base<Data> {
           >
           </foxy-spinner>
         </div>
-      </main>
+      </div>
     `;
   }
 

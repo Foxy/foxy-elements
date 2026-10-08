@@ -361,7 +361,7 @@ export class SignInForm extends Base<Data> {
     const isBusy = this.in('busy');
 
     return html`
-      <main aria-live="polite" aria-busy=${isBusy} class="relative font-lumo text-m leading-m">
+      <div aria-live="polite" aria-busy=${isBusy} class="relative font-lumo text-m leading-m">
         ${hiddenSelector.matches('email', true) ? '' : this.__renderEmail()}
         ${isMfaRequired || hiddenSelector.matches('password', true) ? '' : this.__renderPassword()}
         ${isNewPasswordHidden || !isNewPasswordRequired ? '' : this.__renderNewPassword()}
@@ -387,7 +387,7 @@ export class SignInForm extends Base<Data> {
           >
           </foxy-spinner>
         </div>
-      </main>
+      </div>
     `;
   }
 
