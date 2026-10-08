@@ -8,8 +8,8 @@ import { InternalApiBrowserResourceForm } from './index';
 
 describe('ApiBrowser', () => {
   describe('InternalApiBrowserResourceForm', () => {
-    it('imports and defines vaadin-button', () => {
-      expect(customElements.get('vaadin-button')).to.exist;
+    it('imports and defines foxy-internal-button', () => {
+      expect(customElements.get('foxy-internal-button')).to.exist;
     });
 
     it('imports and defines iron-icon', () => {
@@ -321,7 +321,7 @@ describe('ApiBrowser', () => {
         expect(getEvent).to.have.property('bubbles', true);
         expect(getEvent).to.have.property('detail', form.data!._links[curie].href);
 
-        const postButton = actions.querySelector('[slot="action"] vaadin-button')!;
+        const postButton = actions.querySelector('[slot="action"] foxy-internal-button')!;
         expect(postButton).to.exist;
 
         const whenGotPostEvent = oneEvent(form, 'navigate:post');

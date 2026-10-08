@@ -15,8 +15,8 @@ describe('UpdatePaymentMethodForm', () => {
       expect(customElements.get('foxy-payment-card-embed')).to.exist;
     });
 
-    it('imports and defines vaadin-button', () => {
-      expect(customElements.get('vaadin-button')).to.exist;
+    it('imports and defines foxy-internal-button', () => {
+      expect(customElements.get('foxy-internal-button')).to.exist;
     });
 
     it('imports and defines foxy-i18n', () => {
@@ -66,7 +66,7 @@ describe('UpdatePaymentMethodForm', () => {
       expect(label).to.exist;
       expect(label).to.have.attribute('infer', '');
 
-      const button = label.closest('vaadin-button')!;
+      const button = label.closest('foxy-internal-button')!;
       expect(button).to.exist;
       expect(button).to.have.attribute('theme', 'primary');
 
@@ -90,7 +90,7 @@ describe('UpdatePaymentMethodForm', () => {
         </foxy-internal-update-payment-method-form-cc-token-control>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       expect(button).to.not.have.attribute('disabled');
 
       control.disabled = true;

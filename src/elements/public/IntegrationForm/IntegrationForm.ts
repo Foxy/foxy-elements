@@ -82,7 +82,7 @@ export class IntegrationForm extends Base<Data> {
 
       <div class="bg-success-10 text-success p-m pb-s space-y-xs leading-s rounded-t-l rounded-b-l">
         <foxy-i18n infer="message" class="block" key="text"></foxy-i18n>
-        <vaadin-button
+        <foxy-internal-button
           data-testid="message-action"
           theme="tertiary contrast"
           class="p-0"
@@ -90,7 +90,7 @@ export class IntegrationForm extends Base<Data> {
           @click=${() => (this.__postResponse = null)}
         >
           <foxy-i18n infer="message" key="action"></foxy-i18n>
-        </vaadin-button>
+        </foxy-internal-button>
       </div>
 
       ${this.renderTemplateOrSlot('message:after')}

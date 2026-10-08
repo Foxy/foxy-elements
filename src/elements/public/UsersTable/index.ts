@@ -1,4 +1,3 @@
-import '@vaadin/vaadin-button';
 import '../FormDialog/index';
 import '../UserForm/index';
 import '../Spinner/index';

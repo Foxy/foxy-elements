@@ -1,5 +1,5 @@
 import { expect, fixture } from '@open-wc/testing';
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../../../../internal/InternalButton/InternalButton';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { createModel } from '@xstate/test';
 import { createMachine, EventObject } from 'xstate';
@@ -19,7 +19,7 @@ customElements.define('x-origins-list', TestOriginsList);
 interface Refs {
   list: List;
   input: TextFieldElement;
-  button: ButtonElement;
+  button: InternalButton;
 }
 
 function testDisabled(disabled: boolean) {

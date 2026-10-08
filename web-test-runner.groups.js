@@ -16,6 +16,10 @@ export const groups = [
     files: './src/elements/internal/InternalBulkAddActionControl/**/*.test.ts',
   },
   {
+    name: 'foxy-internal-button',
+    files: './src/elements/internal/InternalButton/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-calendar',
     files: './src/elements/internal/InternalCalendar/**/*.test.ts',
   },
@@ -710,5 +714,9 @@ export const groups = [
   {
     name: 'server',
     files: './src/server/**/*.test.ts',
+  },
+  {
+    name: 'mixins',
+    files: './src/mixins/**/*.test.ts',
   },
 ];

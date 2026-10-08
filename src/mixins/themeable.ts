@@ -6,6 +6,8 @@ import { ResponsiveMixin } from './responsive';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { registerStyles } from '@vaadin/vaadin-themable-mixin/register-styles';
 
+import '@vaadin/vaadin-lumo-styles/color.js';
+
 type Base = Constructor<LitElement> & { styles?: CSSResult | CSSResultArray | CSSStyleSheet };
 
 export const ThemeableMixin = <TBase extends Base>(
@@ -83,6 +85,7 @@ export const ThemeableMixin = <TBase extends Base>(
           }
 
           vaadin-button,
+          foxy-internal-button,
           vaadin-checkbox::part(checkbox) {
             margin: 0;
           }
@@ -189,6 +192,39 @@ export const ThemeableMixin = <TBase extends Base>(
     }
   };
 };
+
+/**
+ * Lumo 14 default colors fail the WCAG AA contrast ratio for text (4.5:1). This style
+ * replaces them. It goes right after Lumo's own `html { ... }` declaration and uses the same
+ * selector, so it only beats Lumo. Any override that beats Lumo's defaults today
+ * (a `:root` rule, a later `html` rule, inline styles) still wins over these values.
+ *
+ * `--lumo-primary-text-color` is left alone: Lumo sets it to `var(--lumo-primary-color)`,
+ * and merchants rely on links following their brand color.
+ */
+const lumoAAColorsId = 'foxy-lumo-aa-colors';
+
+if (!document.getElementById(lumoAAColorsId)) {
+  const lumoColors = Array.from(document.querySelectorAll('custom-style')).find(el =>
+    el.textContent?.includes('--lumo-primary-color:')
+  );
+
+  if (lumoColors) {
+    const style = document.createElement('style');
+    style.id = lumoAAColorsId;
+    style.textContent = `
+      html {
+        --lumo-primary-color: hsl(214, 90%, 45.5%);
+        --lumo-error-color: hsl(3, 100%, 45.5%);
+        --lumo-error-text-color: hsl(3, 92%, 42.5%);
+        --lumo-success-color: hsl(145, 80%, 29%);
+        --lumo-success-text-color: hsl(145, 100%, 24%);
+      }
+    `;
+
+    lumoColors.after(style);
+  }
+}
 
 try {
   registerStyles(

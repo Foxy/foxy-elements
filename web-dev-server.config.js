@@ -84,7 +84,12 @@ export default {
       'process.env.NODE_ENV': '"production"',
       'embed.foxy.io': 'embed.foxy.test',
     }),
-    esbuildPlugin({ ts: true }),
+    // Production builds compile class fields as constructor assignments (tsc with an es2018
+    // target). esbuild only does the same when given the tsconfig and when that tsconfig sets
+    // `useDefineForClassFields: false` explicitly. Otherwise a Lit reactive field like
+    // `open = false` becomes an own property that shadows its accessor, and assigning to it
+    // never re-renders in dev and tests.
+    esbuildPlugin({ ts: true, tsconfig: './tsconfig.json' }),
     compatPlugin(),
     jsonPlugin(),
   ],

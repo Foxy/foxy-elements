@@ -2,7 +2,7 @@ import './index';
 
 import { expect, fixture, html } from '@open-wc/testing';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../InternalButton/InternalButton';
 import { InternalCalendar } from './InternalCalendar';
 import { LitElement } from 'lit-element';
 import { getByTestClass } from '../../../testgen/getByTestClass';
@@ -37,7 +37,7 @@ describe('InternalCalendar', () => {
   it('renders "previous" button setting the calendar to the previous month', async () => {
     const layout = html`<foxy-internal-calendar start="2021-01-01"></foxy-internal-calendar>`;
     const element = await fixture<InternalCalendar>(layout);
-    const button = (await getByTestId(element, 'prev')) as ButtonElement;
+    const button = (await getByTestId(element, 'prev')) as InternalButton;
 
     button.click();
     expect(element).to.have.property('start', '2020-12-01');
@@ -46,7 +46,7 @@ describe('InternalCalendar', () => {
   it('renders "next" button setting the calendar to the next month', async () => {
     const layout = html`<foxy-internal-calendar start="2021-01-01"></foxy-internal-calendar>`;
     const element = await fixture<InternalCalendar>(layout);
-    const button = (await getByTestId(element, 'next')) as ButtonElement;
+    const button = (await getByTestId(element, 'next')) as InternalButton;
 
     button.dispatchEvent(new CustomEvent('click'));
     expect(element).to.have.property('start', '2021-02-01');
@@ -58,7 +58,7 @@ describe('InternalCalendar', () => {
     `);
 
     const options = { month: 'long', year: 'numeric' };
-    const title = (await getByTestId(element, 'month')) as ButtonElement;
+    const title = (await getByTestId(element, 'month')) as InternalButton;
     const text = new Date(2021, 0, 1).toLocaleDateString('en', options);
 
     expect(title).to.include.text(text);
@@ -93,7 +93,7 @@ describe('InternalCalendar', () => {
     const layout = html`<foxy-internal-calendar disabled></foxy-internal-calendar>`;
     const element = await fixture<InternalCalendar>(layout);
 
-    element.querySelectorAll('vaadin-button, input').forEach(control => {
+    element.querySelectorAll('foxy-internal-button, input').forEach(control => {
       expect(control).to.have.attribute('disabled');
     });
   });
@@ -102,7 +102,7 @@ describe('InternalCalendar', () => {
     const layout = html`<foxy-internal-calendar readonly></foxy-internal-calendar>`;
     const element = await fixture<InternalCalendar>(layout);
 
-    element.querySelectorAll('vaadin-button, input').forEach(control => {
+    element.querySelectorAll('foxy-internal-button, input').forEach(control => {
       expect(control).to.have.attribute('disabled');
     });
   });

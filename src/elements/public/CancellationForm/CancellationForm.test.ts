@@ -3,7 +3,7 @@ import type { FetchEvent } from '../NucleonElement/FetchEvent';
 import './index';
 
 import { expect, fixture, waitUntil } from '@open-wc/testing';
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../../internal/InternalButton/InternalButton';
 import { CancellationForm } from './CancellationForm';
 import { Data } from './types';
 import { InternalCalendar } from '../../internal/InternalCalendar/InternalCalendar';
@@ -309,7 +309,7 @@ describe('CancellationForm', () => {
       const data = await getTestData('./hapi/subscriptions/0');
       const layout = html`<foxy-cancellation-form .data=${data}></foxy-cancellation-form>`;
       const element = await fixture<CancellationForm>(layout);
-      const control = await getByTestId<ButtonElement>(element, 'submit');
+      const control = await getByTestId<InternalButton>(element, 'submit');
       const submitMethod = stub(element, 'submit');
 
       element.edit({ end_date: new Date(Date.now() + 84600000).toISOString() });

@@ -1,4 +1,4 @@
-import '@vaadin/vaadin-button';
+import '../InternalButton/index';
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';
 

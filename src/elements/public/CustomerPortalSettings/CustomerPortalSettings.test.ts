@@ -1,5 +1,5 @@
 import { expect, fixture, oneEvent } from '@open-wc/testing';
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../../internal/InternalButton/InternalButton';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
 import { RequestEvent } from '../../../events/request';
@@ -68,9 +68,9 @@ interface Refs {
   signup: SignUp;
   error: ErrorScreen;
   ndmod: NextDateModification;
-  reset: ButtonElement;
+  reset: InternalButton;
   fmod: FrequencyModification;
-  save: ButtonElement;
+  save: InternalButton;
 }
 
 async function waitForRef(getRef: () => HTMLElement | null) {

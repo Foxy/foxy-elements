@@ -1,3 +1,4 @@
+import '../../internal/InternalButton/index';
 import type { CSSResult, PropertyDeclarations, TemplateResult } from 'lit-element';
 
 import { LitElement, css, html } from 'lit-element';
@@ -137,6 +138,7 @@ export class CopyToClipboard extends Base {
             <button
               id="trigger"
               class=${classMap({ 'icon-button': true, 'inline': layout === 'icon-inline' })}
+              aria-label=${this.t(label)}
               ?disabled=${this.disabled}
               @click=${this.__copy}
             >
@@ -154,7 +156,7 @@ export class CopyToClipboard extends Base {
             </vcf-tooltip>
           `
         : html`
-            <vaadin-button
+            <foxy-internal-button
               theme=${ifDefined(this.theme ?? void 0)}
               ?disabled=${this.disabled}
               @click=${this.__copy}
@@ -169,7 +171,7 @@ export class CopyToClipboard extends Base {
                     </iron-icon>
                   `
                 : ''}
-            </vaadin-button>
+            </foxy-internal-button>
           `}
     `;
   }

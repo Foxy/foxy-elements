@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import '@vaadin/vaadin-button';
+import '../../../../internal/InternalButton/index';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
@@ -15,6 +15,7 @@ export class NextDateModification extends Translatable {
     return {
       'x-next-date-modification-rule': NextDateModificationRule,
       'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-internal-button': customElements.get('foxy-internal-button'),
       'x-section': Section,
       'iron-icon': customElements.get('iron-icon'),
       'x-switch': Switch,
@@ -92,7 +93,7 @@ export class NextDateModification extends Translatable {
           : ''}
 
         <div class="mt-m sm-flex sm-items-center">
-          <vaadin-button
+          <foxy-internal-button
             class="w-full sm-w-auto"
             data-testid="add"
             theme="primary"
@@ -101,7 +102,7 @@ export class NextDateModification extends Translatable {
           >
             <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.add"></x-i18n>
             <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
-          </vaadin-button>
+          </foxy-internal-button>
 
           <x-i18n
             .lang=${this.lang}

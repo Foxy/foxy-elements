@@ -20,7 +20,7 @@ describe('CustomerPortal', () => {
 
   it('imports and defines dependencies', () => {
     expect(customElements.get('iron-icon')).to.exist;
-    expect(customElements.get('vaadin-button')).to.exist;
+    expect(customElements.get('foxy-internal-button')).to.exist;
     expect(customElements.get('foxy-internal-password-control')).to.exist;
     expect(customElements.get('foxy-internal-sandbox')).to.exist;
     expect(customElements.get('foxy-internal-form')).to.exist;

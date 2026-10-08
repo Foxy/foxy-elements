@@ -15,8 +15,8 @@ describe('ApiBrowser', () => {
     expect(customElements.get('vaadin-text-field')).to.exist;
   });
 
-  it('imports and defines vaadin-button', () => {
-    expect(customElements.get('vaadin-button')).to.exist;
+  it('imports and defines foxy-internal-button', () => {
+    expect(customElements.get('foxy-internal-button')).to.exist;
   });
 
   it('imports and defines iron-icon', () => {
@@ -55,13 +55,13 @@ describe('ApiBrowser', () => {
 
   it('renders Go Back button', async () => {
     const element = await fixture<ApiBrowser>(html`<foxy-api-browser></foxy-api-browser>`);
-    const button = element.renderRoot.querySelector('vaadin-button[title="go_back"]');
+    const button = element.renderRoot.querySelector('foxy-internal-button[title="go_back"]');
     expect(button).to.exist;
   });
 
   it("disables Go Back button when there's nothing in the history to go back to", async () => {
     const element = await fixture<ApiBrowser>(html`<foxy-api-browser></foxy-api-browser>`);
-    const button = element.renderRoot.querySelector('vaadin-button[title="go_back"]');
+    const button = element.renderRoot.querySelector('foxy-internal-button[title="go_back"]');
     expect(button).to.have.property('disabled', true);
   });
 
@@ -102,7 +102,7 @@ describe('ApiBrowser', () => {
 
     await element.requestUpdate();
 
-    const button = element.renderRoot.querySelector('vaadin-button[title="go_back"]');
+    const button = element.renderRoot.querySelector('foxy-internal-button[title="go_back"]');
     expect(button).to.have.property('disabled', false);
   });
 
@@ -144,7 +144,7 @@ describe('ApiBrowser', () => {
     await element.requestUpdate();
 
     const button = element.renderRoot.querySelector(
-      'vaadin-button[title="go_back"]'
+      'foxy-internal-button[title="go_back"]'
     ) as HTMLButtonElement;
 
     button.click();
@@ -155,7 +155,7 @@ describe('ApiBrowser', () => {
 
   it('renders Go Home button', async () => {
     const element = await fixture<ApiBrowser>(html`<foxy-api-browser></foxy-api-browser>`);
-    const button = element.renderRoot.querySelector('vaadin-button[title="go_home"]');
+    const button = element.renderRoot.querySelector('foxy-internal-button[title="go_home"]');
     expect(button).to.exist;
   });
 
@@ -170,7 +170,7 @@ describe('ApiBrowser', () => {
       `
     );
 
-    const button = element.renderRoot.querySelector('vaadin-button[title="go_home"]');
+    const button = element.renderRoot.querySelector('foxy-internal-button[title="go_home"]');
     expect(button).to.have.attribute('disabled');
   });
 
@@ -185,7 +185,7 @@ describe('ApiBrowser', () => {
       `
     );
 
-    const button = element.renderRoot.querySelector('vaadin-button[title="go_home"]');
+    const button = element.renderRoot.querySelector('foxy-internal-button[title="go_home"]');
     expect(button).to.not.have.attribute('disabled');
   });
 
@@ -201,7 +201,7 @@ describe('ApiBrowser', () => {
     );
 
     const button = element.renderRoot.querySelector(
-      'vaadin-button[title="go_home"]'
+      'foxy-internal-button[title="go_home"]'
     ) as HTMLButtonElement;
 
     button.click();
@@ -253,7 +253,7 @@ describe('ApiBrowser', () => {
 
   it('renders Refresh button', async () => {
     const element = await fixture<ApiBrowser>(html`<foxy-api-browser></foxy-api-browser>`);
-    const button = element.renderRoot.querySelector('vaadin-button[title="refresh"]');
+    const button = element.renderRoot.querySelector('foxy-internal-button[title="refresh"]');
     expect(button).to.exist;
   });
 
@@ -261,7 +261,7 @@ describe('ApiBrowser', () => {
     const element = await fixture<ApiBrowser>(html`<foxy-api-browser></foxy-api-browser>`);
     const refreshMethod = stub(element, 'refresh');
     const button = element.renderRoot.querySelector(
-      'vaadin-button[title="refresh"]'
+      'foxy-internal-button[title="refresh"]'
     ) as HTMLButtonElement;
 
     button.click();
@@ -271,13 +271,13 @@ describe('ApiBrowser', () => {
 
   it('renders GET Mode button', async () => {
     const element = await fixture<ApiBrowser>(html`<foxy-api-browser></foxy-api-browser>`);
-    const button = element.renderRoot.querySelector('vaadin-button[title="get_mode"]');
+    const button = element.renderRoot.querySelector('foxy-internal-button[title="get_mode"]');
     expect(button).to.exist;
   });
 
   it('renders POST Mode button', async () => {
     const element = await fixture<ApiBrowser>(html`<foxy-api-browser></foxy-api-browser>`);
-    const button = element.renderRoot.querySelector('vaadin-button[title="post_mode"]');
+    const button = element.renderRoot.querySelector('foxy-internal-button[title="post_mode"]');
     expect(button).to.exist;
   });
 
@@ -467,7 +467,7 @@ describe('ApiBrowser', () => {
 
   it('disables all buttons and fields when the element is disabled', async () => {
     const element = await fixture<ApiBrowser>(html`<foxy-api-browser disabled></foxy-api-browser>`);
-    const controls = element.renderRoot.querySelectorAll('vaadin-button, vaadin-text-field');
+    const controls = element.renderRoot.querySelectorAll('foxy-internal-button, vaadin-text-field');
 
     for (const control of controls) {
       expect(control).to.have.property('disabled', true);

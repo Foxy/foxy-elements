@@ -2,7 +2,7 @@ import type { InternalSummaryControl } from '../InternalSummaryControl/InternalS
 import type { NotificationElement } from '@vaadin/vaadin-notification';
 import type { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import type { AttributeCard } from '../../public/AttributeCard/AttributeCard';
-import type { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../InternalButton/InternalButton';
 import type { ItemRenderer } from '../../public/CollectionPage/CollectionPage';
 import type { FetchEvent } from '../../public/NucleonElement/FetchEvent';
 
@@ -48,8 +48,8 @@ describe('InternalAsyncListControl', () => {
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
-  it('imports and defines vaadin-button', () => {
-    const element = customElements.get('vaadin-button');
+  it('imports and defines foxy-internal-button', () => {
+    const element = customElements.get('foxy-internal-button');
     expect(element).to.exist;
   });
 
@@ -799,7 +799,7 @@ describe('InternalAsyncListControl', () => {
 
       const card = swipeActions.querySelector('foxy-attribute-card') as AttributeCard;
       const label = swipeActions.querySelector('[key="delete_button_text"]')!;
-      const button = label.closest('vaadin-button')!;
+      const button = label.closest('foxy-internal-button')!;
       const confirm = (await getByTag(
         control,
         'foxy-internal-confirm-dialog'
@@ -859,7 +859,7 @@ describe('InternalAsyncListControl', () => {
         })
       );
 
-      const selector = 'vaadin-button foxy-i18n[key="delete_button_text"]';
+      const selector = 'foxy-internal-button foxy-i18n[key="delete_button_text"]';
       expect(swipeActions.querySelector(selector)).to.not.exist;
     });
 
@@ -901,7 +901,7 @@ describe('InternalAsyncListControl', () => {
         })
       );
 
-      const selector = 'vaadin-button foxy-i18n[key="delete_button_text"]';
+      const selector = 'foxy-internal-button foxy-i18n[key="delete_button_text"]';
       expect(swipeActions.querySelector(selector)).to.not.exist;
     });
 
@@ -915,7 +915,7 @@ describe('InternalAsyncListControl', () => {
       control.form = 'foxy-attribute-form';
 
       const label = (await getByKey(control, 'create_button_text'))!;
-      const button = label.closest('vaadin-button')!;
+      const button = label.closest('foxy-internal-button')!;
       const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
 
       expect(label).to.have.property('localName', 'foxy-i18n');
@@ -955,7 +955,7 @@ describe('InternalAsyncListControl', () => {
       control.item = 'foxy-attribute-card';
       await control.requestUpdate();
 
-      const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
+      const buttonSelector = 'foxy-internal-button foxy-i18n[key="create_button_text"]';
       const aSelector = 'a foxy-i18n[key="create_button_text"]';
 
       expect(control.querySelector(buttonSelector)).to.not.exist;
@@ -973,7 +973,7 @@ describe('InternalAsyncListControl', () => {
       control.readonly = true;
       await control.requestUpdate();
 
-      const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
+      const buttonSelector = 'foxy-internal-button foxy-i18n[key="create_button_text"]';
       const aSelector = 'a foxy-i18n[key="create_button_text"]';
 
       expect(control.querySelector(buttonSelector)).to.not.exist;
@@ -991,7 +991,7 @@ describe('InternalAsyncListControl', () => {
       control.hideCreateButton = true;
       await control.requestUpdate();
 
-      const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
+      const buttonSelector = 'foxy-internal-button foxy-i18n[key="create_button_text"]';
       const aSelector = 'a foxy-i18n[key="create_button_text"]';
 
       expect(control.querySelector(buttonSelector)).to.not.exist;
@@ -1029,7 +1029,7 @@ describe('InternalAsyncListControl', () => {
         () => !!control.renderRoot.querySelector<CollectionPage<any>>('foxy-collection-page')?.data
       );
 
-      let actions = await getByTestClass<ButtonElement>(control, 'action');
+      let actions = await getByTestClass<InternalButton>(control, 'action');
       expect(actions).to.be.empty;
 
       control.actions = [
@@ -1038,7 +1038,7 @@ describe('InternalAsyncListControl', () => {
       ];
 
       await control.requestUpdate();
-      actions = await getByTestClass<ButtonElement>(control, 'action');
+      actions = await getByTestClass<InternalButton>(control, 'action');
 
       expect(actions).to.have.length(2);
 
@@ -1095,7 +1095,7 @@ describe('InternalAsyncListControl', () => {
       await control.requestUpdate();
 
       const buttonLabel = await getByKey(control, 'search_button_text');
-      const button = buttonLabel?.closest('vaadin-button');
+      const button = buttonLabel?.closest('foxy-internal-button');
       const overlay = control.renderRoot.querySelector(
         'foxy-internal-async-list-control-filter-overlay'
       );
@@ -1286,7 +1286,7 @@ describe('InternalAsyncListControl', () => {
       await control.requestUpdate();
 
       const label = await getByKey(control, 'select_button_text');
-      const button = label?.closest('vaadin-button');
+      const button = label?.closest('foxy-internal-button');
 
       expect(label).to.exist;
       expect(button).to.exist;
@@ -1314,7 +1314,7 @@ describe('InternalAsyncListControl', () => {
       expect(await getByKey(control, 'select_button_text')).to.exist;
       expect(await getByKey(control, 'cancel_button_text')).to.not.exist;
 
-      (await getByKey(control, 'select_button_text'))?.closest('vaadin-button')?.click();
+      (await getByKey(control, 'select_button_text'))?.closest('foxy-internal-button')?.click();
       await control.requestUpdate();
 
       expect(await getByKey(control, 'select_button_text')).to.not.exist;
@@ -1340,7 +1340,7 @@ describe('InternalAsyncListControl', () => {
       expect(await getByTestClass(control, 'bulk-action')).to.be.empty;
 
       const label = await getByKey(control, 'select_button_text');
-      const button = label?.closest('vaadin-button');
+      const button = label?.closest('foxy-internal-button');
       button?.click();
       await control.requestUpdate();
       const anyCheckbox = await getByTag<CheckboxElement>(control, 'vaadin-checkbox');
@@ -1380,7 +1380,7 @@ describe('InternalAsyncListControl', () => {
       expect(await getByTestClass(control, 'vaadin-checkbox')).to.be.empty;
 
       const label = await getByKey(control, 'select_button_text');
-      const button = label?.closest('vaadin-button');
+      const button = label?.closest('foxy-internal-button');
       button?.click();
       await control.requestUpdate();
 
@@ -1439,7 +1439,7 @@ describe('InternalAsyncListControl', () => {
       await waitUntil(() => !!page?.data, '', { timeout: 5000 });
 
       const label = await getByKey(control, 'select_button_text');
-      const button = label?.closest('vaadin-button');
+      const button = label?.closest('foxy-internal-button');
       button?.click();
       await control.requestUpdate();
 
@@ -1479,7 +1479,7 @@ describe('InternalAsyncListControl', () => {
       await waitUntil(() => !!page?.data, '', { timeout: 5000 });
 
       const label = await getByKey(control, 'select_button_text');
-      const button = label?.closest('vaadin-button');
+      const button = label?.closest('foxy-internal-button');
       button?.click();
       await control.requestUpdate();
 
@@ -1540,7 +1540,7 @@ describe('InternalAsyncListControl', () => {
       await waitUntil(() => !!page?.data, '', { timeout: 5000 });
 
       const label = await getByKey(control, 'select_button_text');
-      const button = label?.closest('vaadin-button');
+      const button = label?.closest('foxy-internal-button');
       button?.click();
       await control.requestUpdate();
 

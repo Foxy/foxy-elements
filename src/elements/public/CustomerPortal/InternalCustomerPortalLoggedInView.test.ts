@@ -2,7 +2,7 @@ import './index';
 
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../../internal/InternalButton/InternalButton';
 import { Customer } from '../Customer/Customer';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { InternalCustomerPortalLoggedInView } from './InternalCustomerPortalLoggedInView';
@@ -98,6 +98,19 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
       expect(button).to.have.attribute('disabled');
     });
 
+    it('renders an accessible sign_out button', async () => {
+      const element = await fixture<InternalCustomerPortalLoggedInView>(html`
+        <foxy-internal-customer-portal-logged-in-view></foxy-internal-customer-portal-logged-in-view>
+      `);
+
+      const customer = (await getByTestId(element, 'customer')) as Customer;
+      const templateRenderer = customer.templates['header:actions:after']!;
+      const renderedTemplate = await fixture(html`<div>${templateRenderer(html, customer)}</div>`);
+      const button = await getByTestId(renderedTemplate, 'sign-out');
+
+      await expect(button).to.be.accessible();
+    });
+
     it('renders disabled sign_out button in header:actions:after template of foxy-customer if disabledcontrols includes "customer:header:actions:sign-out"', async () => {
       const element = await fixture<InternalCustomerPortalLoggedInView>(html`
         <foxy-internal-customer-portal-logged-in-view
@@ -132,7 +145,7 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
 
       const templateRenderer = customer.templates['header:actions:after']!;
       const renderedTemplate = await fixture(html`<div>${templateRenderer(html, customer)}</div>`);
-      const button = (await getByTestId(renderedTemplate, 'sign-out')) as ButtonElement;
+      const button = (await getByTestId(renderedTemplate, 'sign-out')) as InternalButton;
 
       button.click();
       expect(element).to.have.property('loggingOutState', 'busy');

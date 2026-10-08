@@ -1,4 +1,5 @@
 {
+  "sign_out": "Cerrar sesión",
   "password-reset": {
     "title": "Restablecimiento de contraseña",
     "subtitle": "Por favor, actualice su contraseña ahora para mantener su cuenta segura.",

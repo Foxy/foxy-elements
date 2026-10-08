@@ -2,7 +2,7 @@ import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { ScopedElementsHost } from '@open-wc/scoped-elements/src/types';
 import '@polymer/iron-icon';
 import '@polymer/iron-icons';
-import { ButtonElement } from '@vaadin/vaadin-button';
+import '../../../../internal/InternalButton/index';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
@@ -17,7 +17,7 @@ export class DisallowedDates extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-date-picker': DatePickerElement,
-      'vaadin-button': ButtonElement,
+      'foxy-internal-button': customElements.get('foxy-internal-button'),
       'x-skeleton': Skeleton,
       'iron-icon': customElements.get('iron-icon'),
       'x-i18n': I18N,
@@ -82,7 +82,7 @@ export class DisallowedDates extends Translatable {
             </vaadin-date-picker>
           </div>
 
-          <vaadin-button
+          <foxy-internal-button
             .disabled=${isInputDisabled || !this.__startValue}
             data-testid="submit"
             class="w-full mt-s sm-mt-0 sm-w-auto sm-ml-s"
@@ -95,7 +95,7 @@ export class DisallowedDates extends Translatable {
             >
             </x-i18n>
             <iron-icon icon="icons:add" slot="suffix"></iron-icon>
-          </vaadin-button>
+          </foxy-internal-button>
         </div>
 
         ${this.value.length > 0

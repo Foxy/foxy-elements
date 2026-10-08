@@ -1,4 +1,4 @@
-import '@vaadin/vaadin-button';
+import '../InternalButton/index';
 
 import '../../public/I18n/index';
 import '../InternalControl/index';

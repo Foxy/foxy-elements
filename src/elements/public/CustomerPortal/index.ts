@@ -1,5 +1,8 @@
 import '@polymer/iron-icons/editor-icons';
+// Not used by our templates anymore. Kept so that <vaadin-button> in merchant templates
+// still renders. Remove in the next major version.
 import '@vaadin/vaadin-button';
+import '../../internal/InternalButton/index';
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';
 import '../../internal/InternalPasswordControl/index';

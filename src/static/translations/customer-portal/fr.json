@@ -1,4 +1,5 @@
 {
+  "sign_out": "Se déconnecter",
   "password-reset": {
     "title": "Réinitialisation du mot de passe",
     "subtitle": "Veuillez mettre à jour votre mot de passe maintenant pour sécuriser votre compte.",

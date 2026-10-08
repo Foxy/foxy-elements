@@ -117,7 +117,7 @@ export class Pagination extends Base {
 
       <div class="flex gap-m relative mt-s" ?hidden=${pages <= 1}>
         <div class="absolute inset-0 flex items-center justify-center">
-          <vaadin-button
+          <foxy-internal-button
             theme="tertiary-inline contrast"
             ?disabled=${this.disabled}
             @click=${(evt: CustomEvent) => {
@@ -149,10 +149,10 @@ export class Pagination extends Base {
               }}
             >
             </foxy-i18n>
-          </vaadin-button>
+          </foxy-internal-button>
         </div>
 
-        <vaadin-button
+        <foxy-internal-button
           theme="tertiary-inline contrast"
           class="relative"
           ?disabled=${this.disabled || this.__page === 1}
@@ -160,9 +160,9 @@ export class Pagination extends Base {
         >
           ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block" style="width: 1em; height: 1em; transform: translate(-0.15em, -0.05em) scale(1.5)"><path fill-rule="evenodd" d="M4.72 9.47a.75.75 0 0 0 0 1.06l4.25 4.25a.75.75 0 1 0 1.06-1.06L6.31 10l3.72-3.72a.75.75 0 1 0-1.06-1.06L4.72 9.47Zm9.25-4.25L9.72 9.47a.75.75 0 0 0 0 1.06l4.25 4.25a.75.75 0 1 0 1.06-1.06L11.31 10l3.72-3.72a.75.75 0 0 0-1.06-1.06Z" clip-rule="evenodd" /></svg>`}
           <foxy-i18n infer="" class="leading-none sr-only sm-not-sr-only" key="first"></foxy-i18n>
-        </vaadin-button>
+        </foxy-internal-button>
 
-        <vaadin-button
+        <foxy-internal-button
           theme="tertiary-inline contrast"
           class="relative"
           ?disabled=${this.disabled || this.__page === 1}
@@ -171,11 +171,11 @@ export class Pagination extends Base {
           ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block" style="width: 1em; height: 1em; transform: translate(-0.15em, -0.05em) scale(1.5)"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" /></svg>`}
           <foxy-i18n infer="" class="leading-none sr-only sm-not-sr-only" key="previous">
           </foxy-i18n>
-        </vaadin-button>
+        </foxy-internal-button>
 
         <div class="flex-1"></div>
 
-        <vaadin-button
+        <foxy-internal-button
           theme="tertiary-inline contrast"
           class="relative"
           ?disabled=${this.disabled || this.__page >= pages}
@@ -183,9 +183,9 @@ export class Pagination extends Base {
         >
           <foxy-i18n infer="" class="leading-none sr-only sm-not-sr-only" key="next"></foxy-i18n>
           ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block" style="width: 1em; height: 1em; transform: translate(0.15em, -0.05em) scale(1.5)"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>`}
-        </vaadin-button>
+        </foxy-internal-button>
 
-        <vaadin-button
+        <foxy-internal-button
           theme="tertiary-inline contrast"
           class="relative"
           ?disabled=${this.disabled || this.__page >= pages}
@@ -193,7 +193,7 @@ export class Pagination extends Base {
         >
           <foxy-i18n infer="" class="leading-none sr-only sm-not-sr-only" key="last"></foxy-i18n>
           ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block" style="width: 1em; height: 1em; transform: translate(0.15em, -0.05em) scale(1.5)"><path fill-rule="evenodd" d="M15.28 9.47a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 1 1-1.06-1.06L13.69 10 9.97 6.28a.75.75 0 0 1 1.06-1.06l4.25 4.25ZM6.03 5.22l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L8.69 10 4.97 6.28a.75.75 0 0 1 1.06-1.06Z" clip-rule="evenodd" /></svg>`}
-        </vaadin-button>
+        </foxy-internal-button>
       </div>
 
       <dialog

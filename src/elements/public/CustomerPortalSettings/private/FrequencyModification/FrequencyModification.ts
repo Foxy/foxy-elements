@@ -1,6 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
-import '@vaadin/vaadin-button';
+import '../../../../internal/InternalButton/index';
 import '@vaadin/vaadin-lumo-styles/icons';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
@@ -16,6 +16,7 @@ export class FrequencyModification extends Translatable {
     return {
       'x-frequency-modification-rule': FrequencyModificationRule,
       'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-internal-button': customElements.get('foxy-internal-button'),
       'x-section': Section,
       'iron-icon': customElements.get('iron-icon'),
       'x-group': Group,
@@ -65,7 +66,7 @@ export class FrequencyModification extends Translatable {
         )}
 
         <div class="mt-m sm-flex sm-items-center">
-          <vaadin-button
+          <foxy-internal-button
             class="w-full sm-w-auto"
             data-testid="add"
             theme="primary"
@@ -74,7 +75,7 @@ export class FrequencyModification extends Translatable {
           >
             <x-i18n .ns=${this.ns} .lang=${this.lang} key="fmod.add_rule"></x-i18n>
             <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
-          </vaadin-button>
+          </foxy-internal-button>
 
           <x-i18n
             .lang=${this.lang}

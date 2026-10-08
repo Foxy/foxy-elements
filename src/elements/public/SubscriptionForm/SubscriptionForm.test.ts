@@ -57,8 +57,8 @@ describe('SubscriptionForm', () => {
     expect(customElements.get('vaadin-combo-box')).to.exist;
   });
 
-  it('imports and defines vaadin-button', () => {
-    expect(customElements.get('vaadin-button')).to.exist;
+  it('imports and defines foxy-internal-button', () => {
+    expect(customElements.get('foxy-internal-button')).to.exist;
   });
 
   it('imports and defines iron-icon', () => {

@@ -56,10 +56,21 @@ describe('CopyToClipboard', () => {
     expect(tooltip).to.have.property('key', 'click_to_copy');
   });
 
+  it('gives the icon-only button an accessible name (icon layout)', async () => {
+    const layout = html`<foxy-copy-to-clipboard></foxy-copy-to-clipboard>`;
+    const element = await fixture<CopyToClipboard>(layout);
+    const trigger = element.renderRoot.querySelector('#trigger') as HTMLButtonElement;
+
+    expect(trigger).to.have.attribute('aria-label', 'click_to_copy');
+    await expect(element).to.be.accessible();
+  });
+
   it('renders in the idle state by default (text layout)', async () => {
     const layout = html`<foxy-copy-to-clipboard layout="text"></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
-    const tooltip = element.renderRoot.querySelector('vaadin-button foxy-i18n') as HTMLElement;
+    const tooltip = element.renderRoot.querySelector(
+      'foxy-internal-button foxy-i18n'
+    ) as HTMLElement;
 
     expect(tooltip).to.have.property('infer', '');
     expect(tooltip).to.have.property('key', 'click_to_copy');
@@ -68,7 +79,9 @@ describe('CopyToClipboard', () => {
   it('renders in the idle state by default (complete layout)', async () => {
     const layout = html`<foxy-copy-to-clipboard layout="complete"></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
-    const tooltip = element.renderRoot.querySelector('vaadin-button foxy-i18n') as HTMLElement;
+    const tooltip = element.renderRoot.querySelector(
+      'foxy-internal-button foxy-i18n'
+    ) as HTMLElement;
 
     expect(tooltip).to.have.property('infer', '');
     expect(tooltip).to.have.property('key', 'click_to_copy');
@@ -135,7 +148,7 @@ describe('CopyToClipboard', () => {
     const writeTextMethod = stub(navigator.clipboard, 'writeText').resolves();
     const layout = html`<foxy-copy-to-clipboard layout="text" text="Foo"></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
-    const button = element.renderRoot.querySelector('vaadin-button');
+    const button = element.renderRoot.querySelector('foxy-internal-button');
 
     button?.click();
     await waitUntil(
@@ -161,7 +174,7 @@ describe('CopyToClipboard', () => {
       <foxy-copy-to-clipboard layout="complete" text="Foo"> </foxy-copy-to-clipboard>
     `);
 
-    const button = element.renderRoot.querySelector('vaadin-button');
+    const button = element.renderRoot.querySelector('foxy-internal-button');
     button?.click();
     await waitUntil(
       () => {
@@ -205,7 +218,7 @@ describe('CopyToClipboard', () => {
 
     const layout = html`<foxy-copy-to-clipboard layout="text" text="Foo"></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
-    const button = element.renderRoot.querySelector('vaadin-button');
+    const button = element.renderRoot.querySelector('foxy-internal-button');
     const tooltip = button?.querySelector('foxy-i18n');
 
     button?.click();
@@ -225,7 +238,7 @@ describe('CopyToClipboard', () => {
       <foxy-copy-to-clipboard layout="complete" text="Foo"> </foxy-copy-to-clipboard>
     `);
 
-    const button = element.renderRoot.querySelector('vaadin-button');
+    const button = element.renderRoot.querySelector('foxy-internal-button');
     const tooltip = button?.querySelector('foxy-i18n');
 
     button?.click();
@@ -263,7 +276,7 @@ describe('CopyToClipboard', () => {
     const writeTextMethod = stub(navigator.clipboard, 'writeText').resolves();
     const layout = html`<foxy-copy-to-clipboard layout="text"></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
-    const button = element.renderRoot.querySelector('vaadin-button');
+    const button = element.renderRoot.querySelector('foxy-internal-button');
     const tooltip = button?.querySelector('foxy-i18n');
 
     button?.click();
@@ -286,7 +299,7 @@ describe('CopyToClipboard', () => {
     const writeTextMethod = stub(navigator.clipboard, 'writeText').resolves();
     const layout = html`<foxy-copy-to-clipboard layout="complete"></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
-    const button = element.renderRoot.querySelector('vaadin-button');
+    const button = element.renderRoot.querySelector('foxy-internal-button');
     const tooltip = button?.querySelector('foxy-i18n');
 
     button?.click();
@@ -332,7 +345,7 @@ describe('CopyToClipboard', () => {
     const writeTextMethod = stub(navigator.clipboard, 'writeText').rejects();
     const layout = html`<foxy-copy-to-clipboard layout="text" text="Foo"></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
-    const button = element.renderRoot.querySelector('vaadin-button');
+    const button = element.renderRoot.querySelector('foxy-internal-button');
     const tooltip = button?.querySelector('foxy-i18n');
 
     button?.click();
@@ -357,7 +370,7 @@ describe('CopyToClipboard', () => {
       <foxy-copy-to-clipboard layout="complete" text="Foo"> </foxy-copy-to-clipboard>
     `);
 
-    const button = element.renderRoot.querySelector('vaadin-button');
+    const button = element.renderRoot.querySelector('foxy-internal-button');
     const tooltip = button?.querySelector('foxy-i18n');
 
     button?.click();
@@ -403,7 +416,7 @@ describe('CopyToClipboard', () => {
     const writeTextMethod = stub(navigator.clipboard, 'writeText').rejects();
     const layout = html`<foxy-copy-to-clipboard layout="text"></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
-    const button = element.renderRoot.querySelector('vaadin-button');
+    const button = element.renderRoot.querySelector('foxy-internal-button');
     const tooltip = button?.querySelector('foxy-i18n');
 
     button?.click();
@@ -426,7 +439,7 @@ describe('CopyToClipboard', () => {
     const writeTextMethod = stub(navigator.clipboard, 'writeText').rejects();
     const layout = html`<foxy-copy-to-clipboard layout="complete"></foxy-copy-to-clipboard>`;
     const element = await fixture<CopyToClipboard>(layout);
-    const button = element.renderRoot.querySelector('vaadin-button');
+    const button = element.renderRoot.querySelector('foxy-internal-button');
     const tooltip = button?.querySelector('foxy-i18n');
 
     button?.click();
@@ -445,21 +458,21 @@ describe('CopyToClipboard', () => {
     writeTextMethod.restore();
   });
 
-  it('propagates theme attribute to vaadin-button in text layout', async () => {
+  it('propagates theme attribute to foxy-internal-button in text layout', async () => {
     const element = await fixture<CopyToClipboard>(html`
       <foxy-copy-to-clipboard layout="text" theme="foo"></foxy-copy-to-clipboard>
     `);
 
-    const button = element.renderRoot.querySelector('vaadin-button');
+    const button = element.renderRoot.querySelector('foxy-internal-button');
     expect(button).to.have.attribute('theme', 'foo');
   });
 
-  it('propagates theme attribute to vaadin-button in complete layout', async () => {
+  it('propagates theme attribute to foxy-internal-button in complete layout', async () => {
     const element = await fixture<CopyToClipboard>(html`
       <foxy-copy-to-clipboard layout="complete" theme="foo"></foxy-copy-to-clipboard>
     `);
 
-    const button = element.renderRoot.querySelector('vaadin-button');
+    const button = element.renderRoot.querySelector('foxy-internal-button');
     expect(button).to.have.attribute('theme', 'foo');
   });
 });

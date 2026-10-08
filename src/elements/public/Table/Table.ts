@@ -41,26 +41,35 @@ export class Table<TData extends Collection> extends Base<TData> {
         class="relative font-lumo text-m"
       >
         <table class="table-fixed w-full" data-testid="table">
-          <thead class=${hasHeaders ? 'border-b border-contrast-10' : 'sr-only'}>
-            <tr>
-              ${this.columns.map((column, columnIndex) => {
-                return html`
-                  <th
-                    class=${classMap({
-                      'truncate h-l text-tertiary text-m text-left font-medium': true,
-                      'text-right': columnIndex === this.columns.length - 1,
-                      'hidden sm-table-cell': column.hideBelow === 'sm',
-                      'hidden md-table-cell': column.hideBelow === 'md',
-                      'hidden lg-table-cell': column.hideBelow === 'lg',
-                      'hidden xl-table-cell': column.hideBelow === 'xl',
+          ${hasHeaders
+            ? html`
+                <thead class="border-b border-contrast-10">
+                  <tr>
+                    ${this.columns.map((column, columnIndex) => {
+                      return html`
+                        <th
+                          class=${classMap({
+                            'truncate h-l text-secondary text-m text-left font-medium': true,
+                            'text-right': columnIndex === this.columns.length - 1,
+                            'hidden sm-table-cell': column.hideBelow === 'sm',
+                            'hidden md-table-cell': column.hideBelow === 'md',
+                            'hidden lg-table-cell': column.hideBelow === 'lg',
+                            'hidden xl-table-cell': column.hideBelow === 'xl',
+                          })}
+                        >
+                          ${column.header?.({
+                            html,
+                            lang: this.lang,
+                            data: this.data,
+                            ns: this.ns,
+                          })}
+                        </th>
+                      `;
                     })}
-                  >
-                    ${column.header?.({ html, lang: this.lang, data: this.data, ns: this.ns })}
-                  </th>
-                `;
-              })}
-            </tr>
-          </thead>
+                  </tr>
+                </thead>
+              `
+            : ''}
 
           <tbody class="divide-y divide-contrast-10">
             ${this.__rows.map(resource => {

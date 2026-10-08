@@ -38,7 +38,7 @@ export class InternalAsyncListControlFilterOverlay extends PositionMixin(Overlay
         </foxy-query-builder>
 
         <div style="display: flex; justify-content: space-between">
-          <vaadin-button
+          <foxy-internal-button
             theme="primary"
             style="margin: 0"
             @click=${() => {
@@ -48,15 +48,15 @@ export class InternalAsyncListControlFilterOverlay extends PositionMixin(Overlay
             }}
           >
             <foxy-i18n lang=${m.lang} ns=${m.ns} key="search"></foxy-i18n>
-          </vaadin-button>
+          </foxy-internal-button>
 
-          <vaadin-button
+          <foxy-internal-button
             theme="secondary contrast"
             style="margin: 0"
             @click=${() => this.dispatchEvent(new CustomEvent('search'))}
           >
             <foxy-i18n lang=${m.lang} ns=${m.ns} key="clear"></foxy-i18n>
-          </vaadin-button>
+          </foxy-internal-button>
         </div>
       </div>
     `;
