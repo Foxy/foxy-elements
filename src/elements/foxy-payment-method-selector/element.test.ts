@@ -834,6 +834,9 @@ describe("PaymentMethodSelectorElement", () => {
           'foxy-payment-card-field[mode="card_csc"]',
         ),
       ).toBeNull();
+      expect(element.shadowRoot?.textContent).not.toContain(
+        "Enter your card's security code below.",
+      );
     } finally {
       element.remove();
       restoreClient();
@@ -2999,6 +3002,36 @@ describe("PaymentMethodSelectorElement", () => {
 
         expect(options.setupFutureUsage).toBeUndefined();
         expect(options.captureMethod).toBeUndefined();
+      } finally {
+        cleanup();
+      }
+    });
+
+    // The backend attaches a Stripe customer as soon as the submit creates the
+    // account, so a guest who is signing up gets the same intent as a
+    // registered customer.
+    it("saves the card for a guest who is creating an account", async () => {
+      const { element, cleanup } = await mountStripeV2Selector(null);
+
+      try {
+        element.setAttribute("creates-account", "");
+        await waitForRender();
+
+        expect(element.createsAccount).toBe(true);
+        expect(
+          element.selectedOption?.stripePaymentElement?.paymentElementOptions,
+        ).toMatchObject({ setupFutureUsage: "off_session" });
+
+        element.createsAccount = false;
+        await waitForRender();
+
+        expect(element.hasAttribute("creates-account")).toBe(false);
+        expect(
+          (
+            element.selectedOption?.stripePaymentElement
+              ?.paymentElementOptions as Record<string, unknown>
+          ).setupFutureUsage,
+        ).toBeUndefined();
       } finally {
         cleanup();
       }

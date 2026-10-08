@@ -94,6 +94,7 @@ const PAYPAL_UNDOCUMENTED_APMS = [
 const LANG_ATTRIBUTE = "lang";
 const OPTION_INDEX_ATTRIBUTE = "option-index";
 const DISABLED_ATTRIBUTE = "disabled";
+const CREATES_ACCOUNT_ATTRIBUTE = "creates-account";
 const DEFAULT_LOCALE = "en-US";
 const UNINITIALIZED_ALERT_GRACE_MS = 750;
 
@@ -111,6 +112,7 @@ const ThemeableHTMLElement = ThemeMixin(HTMLElement);
 export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #optionIndex: number | undefined;
   #disabled = false;
+  #createsAccount = false;
   #loading = false;
   #canRenderUninitializedAlert = false;
   #uninitializedAlertTimer: ReturnType<typeof setTimeout> | undefined;
@@ -143,6 +145,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       LANG_ATTRIBUTE,
       OPTION_INDEX_ATTRIBUTE,
       DISABLED_ATTRIBUTE,
+      CREATES_ACCOUNT_ATTRIBUTE,
       ...ThemeableHTMLElement.themeAttributeNames,
     ];
   }
@@ -205,6 +208,33 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     this.#render();
+  }
+
+  /**
+   * Whether the submit will create a customer account. The backend then saves
+   * the card for that customer, so a Stripe Payment Element has to ask for the
+   * same and show the shopper Stripe's terms for it.
+   */
+  get createsAccount(): boolean {
+    return this.#createsAccount;
+  }
+
+  set createsAccount(value: boolean) {
+    const normalized = Boolean(value);
+
+    if (this.#createsAccount === normalized) return;
+
+    this.#createsAccount = normalized;
+
+    if (normalized) {
+      if (!this.hasAttribute(CREATES_ACCOUNT_ATTRIBUTE)) {
+        this.setAttribute(CREATES_ACCOUNT_ATTRIBUTE, "");
+      }
+    } else if (this.hasAttribute(CREATES_ACCOUNT_ATTRIBUTE)) {
+      this.removeAttribute(CREATES_ACCOUNT_ATTRIBUTE);
+    }
+
+    void this.#refreshOptions();
   }
 
   setPaymentController(
@@ -799,6 +829,14 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     if (name === DISABLED_ATTRIBUTE) {
       this.#disabled = newValue !== null;
       this.#render();
+      return;
+    }
+
+    if (name === CREATES_ACCOUNT_ATTRIBUTE) {
+      const createsAccount = newValue !== null;
+      if (this.#createsAccount === createsAccount) return;
+      this.#createsAccount = createsAccount;
+      void this.#refreshOptions();
       return;
     }
 
@@ -2253,7 +2291,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #stripeIntentSavesPaymentMethod(apiState: Record<string, unknown>): boolean {
     const customer = this.#asRecord(apiState.customer);
 
-    return this.#toOptionalText(customer?.type) !== "guest";
+    return (
+      this.#createsAccount || this.#toOptionalText(customer?.type) !== "guest"
+    );
   }
 
   /**

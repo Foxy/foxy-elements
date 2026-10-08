@@ -402,6 +402,12 @@ function getPaymentOptionDescriptionText(
     return undefined;
   }
 
+  // A saved card charged by id has no security-code field to point at, and its
+  // label already carries the expiry.
+  if (option.type === "saved-card" && !option.hostedCard) {
+    return undefined;
+  }
+
   if (!option.type) return option.description;
   const descriptor = OPTION_DESCRIPTION_BY_TYPE[option.type];
   if (!descriptor) return option.description;

@@ -12,7 +12,11 @@ import {
   useStripe,
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js/pure";
-import type { StripeElementsOptions } from "@stripe/stripe-js";
+import type {
+  Stripe,
+  StripeElements,
+  StripeElementsOptions,
+} from "@stripe/stripe-js";
 import {
   resolveStripeLocale,
   resolveStripePublishableKey,
@@ -46,7 +50,7 @@ const DEFAULT_BILLING_ADDRESS_SETTINGS = {
   },
 } as const;
 
-function parseElementsOptions(
+export function parseElementsOptions(
   locale: StripeElementsOptions["locale"],
   appearance: StripeElementsOptions["appearance"],
   config: PaymentElementOptionsMap | undefined,
@@ -145,7 +149,9 @@ function parseElementsOptions(
     appearance,
     ...(fonts ? { fonts } : {}),
     ...(captureMethod ? { captureMethod } : {}),
-    ...(setupFutureUsage ? { setupFutureUsage } : {}),
+    // Always present: react-stripe-js only updates keys that exist, so a
+    // missing one could never take back an earlier off_session.
+    setupFutureUsage: setupFutureUsage ?? null,
   };
 
   // No placeholder amount or currency. Stripe checks both against the
@@ -162,6 +168,35 @@ function parseElementsOptions(
       : { ...sharedOptions, mode, amount: amount as number, currency };
 
   return { elementsOptions, paymentElementOptions };
+}
+
+/**
+ * Points Elements at the intent it is about to confirm. Stripe refuses to
+ * confirm when the two disagree on saving the card or on capture, and the
+ * Elements options are only the selector's prediction of what the backend
+ * would create; this covers the cases the prediction misses.
+ */
+export async function matchElementsToIntent(
+  stripe: Pick<Stripe, "retrievePaymentIntent">,
+  elements: Pick<StripeElements, "update" | "submit">,
+  clientSecret: string,
+): Promise<void> {
+  const { paymentIntent } = await stripe.retrievePaymentIntent(clientSecret);
+  if (!paymentIntent) return;
+
+  elements.update({
+    setupFutureUsage: paymentIntent.setup_future_usage ?? null,
+    captureMethod: paymentIntent.capture_method,
+  });
+
+  // An update after the earlier submit() has to be validated again before
+  // Stripe will confirm.
+  const submitResult = await elements.submit();
+  if (submitResult.error) {
+    throw new Error(
+      submitResult.error.message ?? "Payment details are incomplete.",
+    );
+  }
 }
 
 type StripeBillingDetails = {
@@ -272,6 +307,8 @@ function StripePaymentField({
       if (!stripe || !elements) {
         throw new Error("Stripe Payment Element is not ready yet.");
       }
+
+      await matchElementsToIntent(stripe, elements, clientSecret);
 
       const billingDetails = readBillingDetails(
         paymentElementOptionsRef.current,
