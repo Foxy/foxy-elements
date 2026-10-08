@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import '@vaadin/vaadin-button';
+import '../../../../internal/InternalButton/index';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
@@ -13,6 +13,7 @@ export class OriginsList extends Translatable {
     return {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-internal-button': customElements.get('foxy-internal-button'),
       'x-skeleton': Skeleton,
       'iron-icon': customElements.get('iron-icon'),
       'x-group': Group,
@@ -81,7 +82,7 @@ export class OriginsList extends Translatable {
             </vaadin-text-field>
 
             <div class="sm-flex sm-items-center">
-              <vaadin-button
+              <foxy-internal-button
                 class="w-full sm-w-auto"
                 data-testid="button"
                 .disabled=${!this._isI18nReady ||
@@ -92,7 +93,7 @@ export class OriginsList extends Translatable {
               >
                 <x-i18n .ns=${this.ns} .lang=${this.lang} key="origins.add"></x-i18n>
                 <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
-              </vaadin-button>
+              </foxy-internal-button>
 
               <x-i18n
                 .lang=${this.lang}

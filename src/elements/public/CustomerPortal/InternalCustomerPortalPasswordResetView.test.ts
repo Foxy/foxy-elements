@@ -87,7 +87,7 @@ describe('InternalCustomerPortalPasswordResetView', () => {
     `);
 
     const label = view.renderRoot.querySelector('foxy-i18n[infer=""][key="submit"]')!;
-    const button = label.closest('vaadin-button')!;
+    const button = label.closest('foxy-internal-button')!;
     expect(button).to.exist;
 
     const submitMethod = stub(view, 'submit');
@@ -106,7 +106,7 @@ describe('InternalCustomerPortalPasswordResetView', () => {
     `);
 
     const label = view.renderRoot.querySelector('foxy-i18n[infer=""][key="skip"]')!;
-    const button = label.closest('vaadin-button')!;
+    const button = label.closest('foxy-internal-button')!;
     expect(button).to.exist;
 
     const skipEvent = oneEvent(view, 'skip');

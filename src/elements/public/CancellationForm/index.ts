@@ -1,4 +1,4 @@
-import '@vaadin/vaadin-button';
+import '../../internal/InternalButton/index';
 import '../../internal/InternalCalendar/index';
 import '../../internal/InternalSandbox/index';
 import '../Spinner/index';

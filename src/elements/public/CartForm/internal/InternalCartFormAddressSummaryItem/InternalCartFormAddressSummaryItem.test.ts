@@ -76,8 +76,8 @@ describe('CartForm', () => {
     before(() => (window.ResizeObserver = undefined));
     after(() => (window.ResizeObserver = OriginalResizeObserver));
 
-    it('imports and defines vaadin-button', () => {
-      expect(customElements.get('vaadin-button')).to.exist;
+    it('imports and defines foxy-internal-button', () => {
+      expect(customElements.get('foxy-internal-button')).to.exist;
     });
 
     it('imports and defines foxy-internal-editable-control', () => {
@@ -779,7 +779,7 @@ describe('CartForm', () => {
 
         const dialog = control.renderRoot.querySelector('dialog');
         const resetLabel = dialog?.querySelector('foxy-i18n[infer=""][key="reset"]');
-        const resetBtn = resetLabel?.closest('vaadin-button');
+        const resetBtn = resetLabel?.closest('foxy-internal-button');
 
         expect(resetBtn).to.exist;
         resetBtn?.click();
@@ -826,7 +826,7 @@ describe('CartForm', () => {
 
       const dialog = control.renderRoot.querySelector('dialog');
       const resetLabel = dialog?.querySelector('foxy-i18n[infer=""][key="reset"]');
-      const resetBtn = resetLabel?.closest('vaadin-button');
+      const resetBtn = resetLabel?.closest('foxy-internal-button');
       expect(resetBtn).to.not.have.attribute('disabled');
 
       control.disabled = true;
@@ -863,7 +863,7 @@ describe('CartForm', () => {
 
       const dialog = control.renderRoot.querySelector('dialog');
       const resetLabel = dialog?.querySelector('foxy-i18n[infer=""][key="reset"]');
-      const resetBtn = resetLabel?.closest('vaadin-button');
+      const resetBtn = resetLabel?.closest('foxy-internal-button');
       expect(resetBtn).to.not.have.attribute('hidden');
 
       control.readonly = true;
@@ -889,7 +889,7 @@ describe('CartForm', () => {
 
       const dialog = control.renderRoot.querySelector('dialog');
       const doneLabel = dialog?.querySelector<HTMLDialogElement>('foxy-i18n[infer=""][key="done"]');
-      const doneBtn = doneLabel?.closest('vaadin-button');
+      const doneBtn = doneLabel?.closest('foxy-internal-button');
       expect(doneBtn).to.exist;
 
       const closeMethod = stub(dialog!, 'close');
@@ -904,7 +904,7 @@ describe('CartForm', () => {
 
       const dialog = control.renderRoot.querySelector('dialog');
       const doneLabel = dialog?.querySelector<HTMLDialogElement>('foxy-i18n[infer=""][key="done"]');
-      const doneBtn = doneLabel?.closest('vaadin-button');
+      const doneBtn = doneLabel?.closest('foxy-internal-button');
       expect(doneBtn).to.not.have.attribute('disabled');
 
       control.disabled = true;

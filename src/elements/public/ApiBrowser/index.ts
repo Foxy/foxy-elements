@@ -1,5 +1,5 @@
 import '@vaadin/vaadin-text-field';
-import '@vaadin/vaadin-button';
+import '../../internal/InternalButton/index';
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';
 

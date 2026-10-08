@@ -375,14 +375,14 @@ export class InternalExperimentalAddToCartBuilderItemControl extends InternalCon
         ${(nucleon?.form.items?.length ?? 0) <= 1
           ? html``
           : html`
-              <vaadin-button
+              <foxy-internal-button
                 theme="error"
                 class="w-full"
                 ?disabled=${this.disabled}
                 @click=${() => this.dispatchEvent(new CustomEvent('remove'))}
               >
                 <foxy-i18n infer="delete" key="caption"></foxy-i18n>
-              </vaadin-button>
+              </foxy-internal-button>
             `}
 
         <foxy-nucleon

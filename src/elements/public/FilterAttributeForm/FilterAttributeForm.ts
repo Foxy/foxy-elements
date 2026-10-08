@@ -106,20 +106,20 @@ export class FilterAttributeForm extends Base<Data> {
             `}
         ${hasChanges
           ? html`
-              <vaadin-button
+              <foxy-internal-button
                 theme="secondary contrast"
                 style=${ifDefined(hasData ? void 0 : '--lumo-button-size: auto')}
                 ?disabled=${this.disabled}
                 @click=${() => this.undo()}
               >
                 <foxy-i18n infer="action" class="px-s" key="reset"></foxy-i18n>
-              </vaadin-button>
+              </foxy-internal-button>
             `
           : ''}
         ${!hasValue || (!filterQuery && !hasData)
           ? ''
           : html`
-              <vaadin-button
+              <foxy-internal-button
                 theme=${hasData ? (hasChanges ? 'secondary' : 'error') : 'success'}
                 style=${ifDefined(hasData ? void 0 : '--lumo-button-size: auto')}
                 ?disabled=${this.disabled}
@@ -131,7 +131,7 @@ export class FilterAttributeForm extends Base<Data> {
                   key=${hasData ? (hasChanges ? 'update' : 'delete') : 'create'}
                 >
                 </foxy-i18n>
-              </vaadin-button>
+              </foxy-internal-button>
             `}
       </div>
 

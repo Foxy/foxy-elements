@@ -83,6 +83,7 @@ export const ThemeableMixin = <TBase extends Base>(
           }
 
           vaadin-button,
+          foxy-internal-button,
           vaadin-checkbox::part(checkbox) {
             margin: 0;
           }

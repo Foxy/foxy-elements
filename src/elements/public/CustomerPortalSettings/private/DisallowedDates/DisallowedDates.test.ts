@@ -1,5 +1,5 @@
 import { expect, fixture, oneEvent } from '@open-wc/testing';
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../../../../internal/InternalButton/InternalButton';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
@@ -19,7 +19,7 @@ class TestDisallowedDates extends DisallowedDates {
 customElements.define('x-disallowed-dates', TestDisallowedDates);
 
 interface Refs {
-  submit: ButtonElement;
+  submit: InternalButton;
   start: DatePickerElement;
   list: List;
   end: DatePickerElement;

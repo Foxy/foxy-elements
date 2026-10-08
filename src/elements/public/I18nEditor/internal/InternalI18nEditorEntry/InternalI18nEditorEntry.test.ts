@@ -19,8 +19,8 @@ describe('I18nEditor', () => {
     before(() => (window.ResizeObserver = undefined));
     after(() => (window.ResizeObserver = OriginalResizeObserver));
 
-    it('imports and defines vaadin-button', () => {
-      const element = customElements.get('vaadin-button');
+    it('imports and defines foxy-internal-button', () => {
+      const element = customElements.get('foxy-internal-button');
       expect(element).to.exist;
     });
 
@@ -274,7 +274,7 @@ describe('I18nEditor', () => {
       `);
 
       const label = (await getByKey(entry, 'undo_button')) as I18n;
-      const button = label.closest('vaadin-button')!;
+      const button = label.closest('foxy-internal-button')!;
 
       expect(label).to.exist;
       expect(label).to.have.attribute('infer', '');
@@ -294,7 +294,7 @@ describe('I18nEditor', () => {
       `);
 
       const label = (await getByKey(entry, 'undo_button')) as I18n;
-      const button = label.closest('vaadin-button')!;
+      const button = label.closest('foxy-internal-button')!;
 
       expect(button).to.not.have.attribute('disabled');
 
@@ -312,7 +312,7 @@ describe('I18nEditor', () => {
       `);
 
       const label = (await getByKey(entry, 'undo_button')) as I18n;
-      const button = label.closest('vaadin-button')!;
+      const button = label.closest('foxy-internal-button')!;
 
       expect(button).to.not.have.attribute('disabled');
 
@@ -336,7 +336,7 @@ describe('I18nEditor', () => {
       await waitUntil(() => !!entry.data, '', { timeout: 5000 });
 
       const label = (await getByKey(entry, 'undo_button')) as I18n;
-      const button = label.closest('vaadin-button')!;
+      const button = label.closest('foxy-internal-button')!;
 
       expect(button).to.not.have.attribute('disabled');
 
@@ -356,7 +356,7 @@ describe('I18nEditor', () => {
       `);
 
       const label = (await getByKey(entry, 'save_button')) as I18n;
-      const button = label.closest('vaadin-button')!;
+      const button = label.closest('foxy-internal-button')!;
 
       expect(label).to.exist;
       expect(label).to.have.attribute('infer', '');
@@ -376,7 +376,7 @@ describe('I18nEditor', () => {
       `);
 
       const label = (await getByKey(entry, 'save_button')) as I18n;
-      const button = label.closest('vaadin-button')!;
+      const button = label.closest('foxy-internal-button')!;
 
       expect(button).to.not.have.attribute('disabled');
 
@@ -394,7 +394,7 @@ describe('I18nEditor', () => {
       `);
 
       const label = (await getByKey(entry, 'save_button')) as I18n;
-      const button = label.closest('vaadin-button')!;
+      const button = label.closest('foxy-internal-button')!;
 
       expect(button).to.not.have.attribute('disabled');
 
@@ -418,7 +418,7 @@ describe('I18nEditor', () => {
       await waitUntil(() => !!entry.data, '', { timeout: 5000 });
 
       const label = (await getByKey(entry, 'save_button')) as I18n;
-      const button = label.closest('vaadin-button')!;
+      const button = label.closest('foxy-internal-button')!;
 
       expect(button).to.not.have.attribute('disabled');
 

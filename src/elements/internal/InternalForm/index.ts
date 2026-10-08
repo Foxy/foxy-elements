@@ -1,4 +1,4 @@
-import '@vaadin/vaadin-button';
+import '../InternalButton/index';
 
 import '../InternalTimestampsControl/index';
 import '../InternalSubmitControl/index';

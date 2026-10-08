@@ -42,7 +42,7 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
     return html`
       <div class="text-m text-body font-lumo leading-m">
         <div class="grid p-xs" style="grid-template: auto / max-content auto max-content">
-          <vaadin-button
+          <foxy-internal-button
             data-testid="prev"
             aria-label=${prevMonth.toLocaleString(lang, { year: 'numeric', month: 'long' })}
             theme="icon tertiary"
@@ -51,7 +51,7 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
             @click=${this.__handlePrevButtonClick}
           >
             <iron-icon icon="icons:chevron-left"></iron-icon>
-          </vaadin-button>
+          </foxy-internal-button>
 
           <span
             data-testid="month"
@@ -63,7 +63,7 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
             ${thisMonth.toLocaleDateString(lang, { month: 'long', year: 'numeric' })}
           </span>
 
-          <vaadin-button
+          <foxy-internal-button
             data-testid="next"
             aria-label=${nextMonth.toLocaleString(lang, { year: 'numeric', month: 'long' })}
             theme="icon tertiary"
@@ -72,7 +72,7 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
             @click=${this.__handleNextButtonClick}
           >
             <iron-icon icon="icons:chevron-right"></iron-icon>
-          </vaadin-button>
+          </foxy-internal-button>
         </div>
 
         ${this.__renderMonth(thisMonth.getMonth(), thisMonth.getFullYear())}

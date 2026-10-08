@@ -927,7 +927,7 @@ describe('ExperimentalAddToCartBuilder', () => {
       expect(caption).to.exist;
       expect(caption).to.have.attribute('key', 'caption');
 
-      const button = caption?.closest('vaadin-button');
+      const button = caption?.closest('foxy-internal-button');
       expect(button).to.exist;
       expect(button).to.not.have.attribute('disabled');
 

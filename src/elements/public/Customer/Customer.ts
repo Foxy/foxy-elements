@@ -3,7 +3,8 @@ import { CSSResultArray, TemplateResult, html, PropertyDeclarations } from 'lit-
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 
 import { Data as Attribute } from '../AttributeCard/types';
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../../internal/InternalButton/InternalButton';
+import '../../internal/InternalButton/index';
 import { Column } from '../Table/types';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { Data as CustomerAddress } from '../AddressCard/types';
@@ -44,6 +45,7 @@ export class Customer extends Base<Data> {
       'foxy-address-card': customElements.get('foxy-address-card'),
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
       'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-internal-button': customElements.get('foxy-internal-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-table': customElements.get('foxy-table'),
       'x-skeleton': Skeleton,
@@ -109,7 +111,7 @@ export class Customer extends Base<Data> {
       >
       </foxy-form-dialog>
 
-      <vaadin-button
+      <foxy-internal-button
         data-testid="header:actions:edit"
         aria-label=${this.t('update').toString()}
         class="px-xs rounded-full"
@@ -121,7 +123,7 @@ export class Customer extends Base<Data> {
         }}
       >
         <iron-icon icon="editor:mode-edit"></iron-icon>
-      </vaadin-button>
+      </foxy-internal-button>
 
       ${this.renderTemplateOrSlot('header:actions:edit:after')}
     `;
@@ -179,7 +181,7 @@ export class Customer extends Base<Data> {
     return html`
       ${this.renderTemplateOrSlot('addresses:actions:create:before')}
 
-      <vaadin-button
+      <foxy-internal-button
         data-testid="addresses:actions:create"
         aria-label=${this.t('create').toString()}
         class="px-xs rounded-full"
@@ -210,7 +212,7 @@ export class Customer extends Base<Data> {
         </foxy-form-dialog>
 
         <iron-icon slot="suffix" icon="icons:add"></iron-icon>
-      </vaadin-button>
+      </foxy-internal-button>
 
       ${this.renderTemplateOrSlot('addresses:actions:create:after')}
     `;
@@ -423,7 +425,7 @@ export class Customer extends Base<Data> {
     return html`
       ${this.renderTemplateOrSlot('attributes:actions:create:before')}
 
-      <vaadin-button
+      <foxy-internal-button
         data-testid="attributes:actions:create"
         aria-label=${this.t('create').toString()}
         class="px-xs rounded-full"
@@ -453,7 +455,7 @@ export class Customer extends Base<Data> {
         </foxy-form-dialog>
 
         <iron-icon slot="suffix" icon="icons:add"></iron-icon>
-      </vaadin-button>
+      </foxy-internal-button>
 
       ${this.renderTemplateOrSlot('attributes:actions:create:after')}
     `;
@@ -637,13 +639,13 @@ export class Customer extends Base<Data> {
     SubscriptionsTable.statusColumn,
     {
       cell: ({ html, lang, data }) => html`
-        <vaadin-button
+        <foxy-internal-button
           data-testclass="edit"
           theme="small tertiary-inline"
           @click=${(evt: Event) => {
             const link = new URL(data._links.self.href);
             const form = this.renderRoot.querySelector('#subscriptions-form') as FormDialog;
-            const button = evt.target as ButtonElement;
+            const button = evt.target as InternalButton;
 
             link.searchParams.set('zoom', 'transaction_template:items');
             form.href = link.toString();
@@ -651,7 +653,7 @@ export class Customer extends Base<Data> {
           }}
         >
           <foxy-i18n class="text-m" lang=${lang} key="update" ns=${this.ns}></foxy-i18n>
-        </vaadin-button>
+        </foxy-internal-button>
       `,
     },
   ];

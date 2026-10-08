@@ -2,7 +2,7 @@ import '../../public/I18n/index';
 
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../InternalButton/InternalButton';
 import { Dialog } from '../../private/Dialog/Dialog';
 import { InternalConfirmDialog } from './InternalConfirmDialog';
 import { html } from 'lit-html';
@@ -76,7 +76,7 @@ describe('InternalConfirmDialog', () => {
     await dialog.show();
 
     const cancelButton = dialog.renderRoot.querySelector('[data-testid="cancelButton"]');
-    (cancelButton as ButtonElement).click();
+    (cancelButton as InternalButton).click();
 
     const hideEvent = await oneEvent(dialog, 'hide');
     expect(hideEvent.detail).to.have.property('cancelled', true);
@@ -89,7 +89,7 @@ describe('InternalConfirmDialog', () => {
     await dialog.show();
 
     const confirmButton = dialog.renderRoot.querySelector('[data-testid="confirmButton"]');
-    (confirmButton as ButtonElement).click();
+    (confirmButton as InternalButton).click();
 
     const hideEvent = await oneEvent(dialog, 'hide');
     expect(hideEvent.detail).to.have.property('cancelled', false);

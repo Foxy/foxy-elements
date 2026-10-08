@@ -2,7 +2,7 @@ import '../../../../internal/InternalControl/index';
 import '../../../PaymentCardEmbed/index';
 import '../../../I18n/index';
 
-import '@vaadin/vaadin-button';
+import '../../../../internal/InternalButton/index';
 
 import { InternalUpdatePaymentMethodFormCcTokenControl } from './InternalUpdatePaymentMethodFormCcTokenControl';
 

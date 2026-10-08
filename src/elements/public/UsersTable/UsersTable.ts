@@ -1,6 +1,7 @@
 import { TemplateResult, html } from 'lit-element';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../../internal/InternalButton/InternalButton';
+import '../../internal/InternalButton/index';
 import { Column } from '../Table/types';
 import { Data } from './types';
 import { FormDialog } from '../FormDialog/FormDialog';
@@ -75,11 +76,11 @@ export class UsersTable extends TranslatableMixin(Table, 'users-table')<Data> {
 
   static actionsColumn: Column<Data> = {
     cell: ctx => html`
-      <vaadin-button
+      <foxy-internal-button
         data-testclass="actions"
         theme="tertiary small"
         @click=${(evt: CustomEvent) => {
-          const button = evt.target as ButtonElement;
+          const button = evt.target as InternalButton;
           const root = button.getRootNode() as ShadowRoot;
           const form = root.querySelector('#form') as FormDialog;
 
@@ -88,7 +89,7 @@ export class UsersTable extends TranslatableMixin(Table, 'users-table')<Data> {
         }}
       >
         <foxy-i18n lang=${ctx.lang} key="update" ns=${ctx.ns}></foxy-i18n>
-      </vaadin-button>
+      </foxy-internal-button>
     `,
   };
 

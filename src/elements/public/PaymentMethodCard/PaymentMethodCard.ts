@@ -90,7 +90,7 @@ export class PaymentMethodCard extends Base<Data> {
         >
         </foxy-form-dialog>
 
-        <vaadin-button
+        <foxy-internal-button
           class=${ifDefined(hasCC ? 'px-xs rounded' : void 0)}
           theme=${hasCC ? 'icon' : 'contrast small'}
           style=${ifDefined(buttonStyle)}
@@ -106,7 +106,7 @@ export class PaymentMethodCard extends Base<Data> {
           ${hasCC
             ? html`<iron-icon icon="icons:create"></iron-icon>`
             : html`<foxy-i18n infer="" key="add"></foxy-i18n>`}
-        </vaadin-button>
+        </foxy-internal-button>
 
         ${this.renderTemplateOrSlot('actions:update:after')}
       </div>
@@ -118,7 +118,7 @@ export class PaymentMethodCard extends Base<Data> {
       <div class="flex">
         ${this.renderTemplateOrSlot('actions:delete:before')}
 
-        <vaadin-button
+        <foxy-internal-button
           class="px-xs rounded"
           theme="icon"
           style="--lumo-primary-text-color: #fff; --lumo-primary-color-50pct: rgba(255, 255, 255, 0.5); --lumo-contrast-5pct: rgba(255, 255, 255, 0.05)"
@@ -128,7 +128,7 @@ export class PaymentMethodCard extends Base<Data> {
           @click=${this.__handleDelete}
         >
           <iron-icon icon="icons:delete"></iron-icon>
-        </vaadin-button>
+        </foxy-internal-button>
 
         ${this.renderTemplateOrSlot('actions:delete:after')}
       </div>

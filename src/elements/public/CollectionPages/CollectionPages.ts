@@ -259,9 +259,12 @@ export class CollectionPages<TPage extends Page> extends Base {
         ? this.in({ idle: 'paused' })
           ? html`
               <!-- manual trigger -->
-              <vaadin-button theme="small contrast" @click=${() => this.__service.send('RESUME')}>
+              <foxy-internal-button
+                theme="small contrast"
+                @click=${() => this.__service.send('RESUME')}
+              >
                 <foxy-i18n lang=${this.lang} key="load_more" ns=${this.ns}></foxy-i18n>
-              </vaadin-button>
+              </foxy-internal-button>
             `
           : ''
         : html`

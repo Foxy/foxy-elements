@@ -1,7 +1,8 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { InternalConfirmDialog } from '../InternalConfirmDialog/InternalConfirmDialog';
 import type { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import type { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../InternalButton/InternalButton';
+import '../InternalButton/index';
 
 import { InternalControl } from '../InternalControl/InternalControl';
 import { ifDefined } from 'lit-html/directives/if-defined';
@@ -35,12 +36,12 @@ export class InternalPostActionControl extends InternalControl {
       >
       </foxy-internal-post-action-control-dialog>
 
-      <vaadin-button
+      <foxy-internal-button
         theme=${ifDefined(this.theme ?? void 0)}
         class="w-full"
         ?disabled=${this.disabled || this.readonly}
         @click=${(evt: CustomEvent) => {
-          const button = evt.currentTarget as ButtonElement;
+          const button = evt.currentTarget as InternalButton;
           const dialog = this.renderRoot.querySelector<InternalConfirmDialog>(
             'foxy-internal-post-action-control-dialog'
           );
@@ -49,7 +50,7 @@ export class InternalPostActionControl extends InternalControl {
         }}
       >
         <foxy-i18n infer="" key="button"></foxy-i18n>
-      </vaadin-button>
+      </foxy-internal-button>
     `;
   }
 }

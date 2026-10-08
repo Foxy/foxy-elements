@@ -20,7 +20,7 @@ describe('AdminSubscriptionForm', () => {
     });
 
     it('imports and defines dependencies', () => {
-      expect(customElements.get('vaadin-button')).to.exist;
+      expect(customElements.get('foxy-internal-button')).to.exist;
       expect(customElements.get('foxy-internal-confirm-dialog')).to.exist;
       expect(customElements.get('foxy-internal-control')).to.exist;
       expect(customElements.get('foxy-form-dialog')).to.exist;
@@ -66,7 +66,7 @@ describe('AdminSubscriptionForm', () => {
       const action = nucleon.firstElementChild as Action;
       await action.requestUpdate();
 
-      const button = action.renderRoot.querySelector('vaadin-button');
+      const button = action.renderRoot.querySelector('foxy-internal-button');
       expect(button).to.exist;
       expect(button).to.have.attribute('theme', 'tertiary-inline error');
 
@@ -116,7 +116,7 @@ describe('AdminSubscriptionForm', () => {
       const action = nucleon.firstElementChild as Action;
       await action.requestUpdate();
 
-      const button = action.renderRoot.querySelector('vaadin-button');
+      const button = action.renderRoot.querySelector('foxy-internal-button');
       expect(button).to.exist;
       expect(button).to.have.attribute('theme', 'tertiary-inline success');
 
@@ -169,7 +169,7 @@ describe('AdminSubscriptionForm', () => {
       const action = nucleon.firstElementChild as Action;
       await action.requestUpdate();
 
-      const button = action.renderRoot.querySelector('vaadin-button');
+      const button = action.renderRoot.querySelector('foxy-internal-button');
       expect(button).to.exist;
       expect(button).to.have.attribute('theme', 'tertiary-inline');
 

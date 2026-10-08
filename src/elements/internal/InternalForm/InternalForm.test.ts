@@ -1,4 +1,4 @@
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../InternalButton/InternalButton';
 import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { html, render, svg } from 'lit-html';
 import { spy, stub } from 'sinon';
@@ -258,7 +258,7 @@ describe('InternalForm', () => {
     expect(caption).to.exist;
     expect(caption).to.have.attribute('infer', 'spinner');
 
-    const button = caption!.closest('vaadin-button') as ButtonElement;
+    const button = caption!.closest('foxy-internal-button') as InternalButton;
     const refreshStub = stub(element, 'refresh');
     button.click();
     expect(refreshStub).to.have.been.called;
@@ -280,7 +280,7 @@ describe('InternalForm', () => {
     );
 
     const wrapper = element.renderRoot.querySelector('[data-testid="status"]')!;
-    const button = wrapper.querySelector('vaadin-button')!;
+    const button = wrapper.querySelector('foxy-internal-button')!;
     const buttonText = button.querySelector('foxy-i18n')!;
     const text = wrapper.querySelector('foxy-i18n')!;
 
@@ -303,7 +303,7 @@ describe('InternalForm', () => {
     const wrapper = element.renderRoot.querySelector('[data-testid="status"]')!;
     expect(wrapper).to.have.class('bg-error-10');
     expect(wrapper).to.not.have.class('bg-success-10');
-    expect(wrapper.querySelector('vaadin-button')).to.have.attribute(
+    expect(wrapper.querySelector('foxy-internal-button')).to.have.attribute(
       'theme',
       'error tertiary-inline'
     );

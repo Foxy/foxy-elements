@@ -1,4 +1,4 @@
-import '@vaadin/vaadin-button';
+import '../InternalButton/index';
 
 import '../InternalAsyncListControl/index';
 import '../InternalEditableControl/index';

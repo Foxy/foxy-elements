@@ -3,7 +3,7 @@ import '@vaadin/vaadin-text-field/vaadin-email-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import '@vaadin/vaadin-checkbox';
-import '@vaadin/vaadin-button';
+import '../../internal/InternalButton/index';
 import '@vaadin/vaadin-lumo-styles/icons';
 import '@polymer/iron-icon';
 import '../../internal/InternalSandbox/index';

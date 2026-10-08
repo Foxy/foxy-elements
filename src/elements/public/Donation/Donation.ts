@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import '@vaadin/vaadin-button';
+import '../../internal/InternalButton/index';
 import '@vaadin/vaadin-text-field/vaadin-text-area';
 import { PropertyDeclarations } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
@@ -46,6 +46,7 @@ export class Donation extends Translatable {
       'vaadin-text-area': customElements.get('vaadin-text-area'),
       'x-error-screen': ErrorScreen,
       'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-internal-button': customElements.get('foxy-internal-button'),
       'x-dropdown': Dropdown,
       'x-checkbox': Checkbox,
       'x-choice': Choice,
@@ -386,7 +387,7 @@ export class Donation extends Translatable {
             : ''}
 
           <div class="flex-1 p-s">
-            <vaadin-button
+            <foxy-internal-button
               class="w-full"
               theme="primary"
               data-testid="submit"
@@ -402,7 +403,7 @@ export class Donation extends Translatable {
                 ns=${this.ns}
               >
               </x-i18n>
-            </vaadin-button>
+            </foxy-internal-button>
           </div>
         </div>
       </section>

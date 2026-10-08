@@ -106,7 +106,7 @@ export class AccessRecoveryForm extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot('submit:before')}
 
-        <vaadin-button
+        <foxy-internal-button
           data-testid="submit"
           class="w-full"
           theme="primary"
@@ -114,7 +114,7 @@ export class AccessRecoveryForm extends Base<Data> {
           @click=${() => this.submit()}
         >
           <foxy-i18n lang=${this.lang} key="recover_access" ns=${this.ns}></foxy-i18n>
-        </vaadin-button>
+        </foxy-internal-button>
 
         ${this.renderTemplateOrSlot('submit:after')}
       </div>

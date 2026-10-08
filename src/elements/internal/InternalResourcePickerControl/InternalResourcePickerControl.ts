@@ -257,13 +257,13 @@ export class InternalResourcePickerControl extends InternalEditableControl {
           ${this.readonly || !this._value
             ? ''
             : html`
-                <vaadin-button
+                <foxy-internal-button
                   theme="error tertiary-inline"
                   ?disabled=${this.disabled}
                   @click=${this.__clear}
                 >
                   <foxy-i18n infer="" key="clear"></foxy-i18n>
-                </vaadin-button>
+                </foxy-internal-button>
               `}
         </div>
 

@@ -33,7 +33,7 @@ export class InternalI18nEditorEntry extends Base<Data> {
           -webkit-text-fill-color: var(--lumo-body-text-color);
         }
 
-        vaadin-button {
+        foxy-internal-button {
           height: var(--button-height);
           --lumo-primary-color-50pct: var(--lumo-success-contrast-color);
         }
@@ -155,21 +155,21 @@ export class InternalI18nEditorEntry extends Base<Data> {
             'h-0': !isDirty || isReadonly,
           })}
         >
-          <vaadin-button
+          <foxy-internal-button
             theme="primary success small"
             ?disabled=${!isInteractive}
             @click=${() => this.undo()}
           >
             <foxy-i18n infer="" key="undo_button"></foxy-i18n>
-          </vaadin-button>
+          </foxy-internal-button>
 
-          <vaadin-button
+          <foxy-internal-button
             theme="primary success small"
             ?disabled=${!isInteractive}
             @click=${() => this.submit()}
           >
             <foxy-i18n infer="" key="save_button"></foxy-i18n>
-          </vaadin-button>
+          </foxy-internal-button>
         </div>
       </div>
     `;
