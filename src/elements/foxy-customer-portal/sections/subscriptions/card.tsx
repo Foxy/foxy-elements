@@ -173,8 +173,6 @@ export function SubscriptionCard({
           })
         : priceText;
 
-  const manageButtonVariant = subscription.is_active ? "default" : "outline";
-
   return (
     <Card>
       <ThumbnailGrid items={items} />
@@ -272,7 +270,9 @@ export function SubscriptionCard({
           </div>
 
           <CardActionSlot>
-            <Button type="button" $variant={manageButtonVariant} onClick={onManage}>
+            {/* Outline on every card: an amber button per subscription
+                competed with everything else on the page. */}
+            <Button type="button" $variant="outline" onClick={onManage}>
               {intl.formatMessage(messages.subscriptionManage)} <ArrowRight size={16} />
             </Button>
           </CardActionSlot>
