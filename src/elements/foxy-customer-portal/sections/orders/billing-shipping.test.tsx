@@ -226,7 +226,7 @@ describe("OrderBillingShipping", () => {
 
   it("shows the heading once there is something to show", async () => {
     await render(order());
-    expect(screen!.host.textContent).toMatch(/Billing & shipping/i);
+    expect(screen!.host.textContent).toMatch(/Billing & Shipping/i);
   });
 
   // The panel stacks unrelated blocks -- how they paid, then each place their

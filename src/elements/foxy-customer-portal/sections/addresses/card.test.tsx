@@ -75,14 +75,14 @@ describe("formatFullAddress", () => {
 describe("AddressCard", () => {
   it("shows a Default billing badge only when is_default_billing is true", () => {
     render({ address: address({ is_default_billing: true }) });
-    expect(screen!.host.textContent).toMatch(/Default billing/);
-    expect(screen!.host.textContent).not.toMatch(/Default shipping/);
+    expect(screen!.host.textContent).toMatch(/Default Billing/);
+    expect(screen!.host.textContent).not.toMatch(/Default Shipping/);
   });
 
   it("shows a Default shipping badge only when is_default_shipping is true", () => {
     render({ address: address({ is_default_shipping: true }) });
-    expect(screen!.host.textContent).toMatch(/Default shipping/);
-    expect(screen!.host.textContent).not.toMatch(/Default billing/);
+    expect(screen!.host.textContent).toMatch(/Default Shipping/);
+    expect(screen!.host.textContent).not.toMatch(/Default Billing/);
   });
 
   it("shows neither badge when neither flag is true", () => {
@@ -92,8 +92,8 @@ describe("AddressCard", () => {
         is_default_shipping: false,
       }),
     });
-    expect(screen!.host.textContent).not.toMatch(/Default billing/);
-    expect(screen!.host.textContent).not.toMatch(/Default shipping/);
+    expect(screen!.host.textContent).not.toMatch(/Default Billing/);
+    expect(screen!.host.textContent).not.toMatch(/Default Shipping/);
   });
 
   it("shows both badges simultaneously when both flags are true", () => {
@@ -103,8 +103,8 @@ describe("AddressCard", () => {
         is_default_shipping: true,
       }),
     });
-    expect(screen!.host.textContent).toMatch(/Default billing/);
-    expect(screen!.host.textContent).toMatch(/Default shipping/);
+    expect(screen!.host.textContent).toMatch(/Default Billing/);
+    expect(screen!.host.textContent).toMatch(/Default Shipping/);
   });
 
   it("calls onEdit when the Edit button is clicked", () => {

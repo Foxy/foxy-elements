@@ -12,7 +12,7 @@ import {
   typeInto,
 } from "./test-utils";
 
-const LABEL = "Purchase order number";
+const LABEL = "Purchase Order Number";
 const PLACEHOLDER = "PO-000000";
 const REQUIRED_ERROR = "Enter a purchase order number.";
 const TOO_LONG_ERROR = "That purchase order number is too long.";

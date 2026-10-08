@@ -5,24 +5,24 @@ export const messages = defineMessages({
     id: "portal_missing_store_domain",
     defaultMessage: "Set the store-domain attribute to use this element.",
   },
-  signInHeading: { id: "portal_sign_in_heading", defaultMessage: "Sign in" },
+  signInHeading: { id: "portal_sign_in_heading", defaultMessage: "Sign In" },
   signInEmail: { id: "portal_sign_in_email", defaultMessage: "Email" },
   signInPassword: {
     id: "portal_sign_in_password",
     defaultMessage: "Password",
   },
-  signInSubmit: { id: "portal_sign_in_submit", defaultMessage: "Sign in" },
+  signInSubmit: { id: "portal_sign_in_submit", defaultMessage: "Sign In" },
   signInBusy: {
     id: "portal_sign_in_busy",
     defaultMessage: "Signing in...",
   },
   signInRecover: {
     id: "portal_sign_in_recover",
-    defaultMessage: "Forgot password?",
+    defaultMessage: "Forgot Password?",
   },
   signInCreate: {
     id: "portal_sign_in_create",
-    defaultMessage: "Create an account",
+    defaultMessage: "Create an Account",
   },
   errorUnauthorized: {
     id: "portal_error_unauthorized",
@@ -46,13 +46,13 @@ export const messages = defineMessages({
   },
   recoverHeading: {
     id: "portal_recover_heading",
-    defaultMessage: "Recover access",
+    defaultMessage: "Recover Access",
   },
   recoverHint: {
     id: "portal_recover_hint",
     defaultMessage: "We'll email you a link to get back into your account.",
   },
-  recoverSubmit: { id: "portal_recover_submit", defaultMessage: "Send email" },
+  recoverSubmit: { id: "portal_recover_submit", defaultMessage: "Send Email" },
   recoverBusy: { id: "portal_recover_busy", defaultMessage: "Sending..." },
   recoverDone: {
     id: "portal_recover_done",
@@ -60,43 +60,43 @@ export const messages = defineMessages({
   },
   recoverBack: {
     id: "portal_recover_back",
-    defaultMessage: "Back to sign in",
+    defaultMessage: "Back to Sign In",
   },
   passwordResetHeading: {
     id: "portal_password_reset_heading",
-    defaultMessage: "Choose a new password",
+    defaultMessage: "Choose a New Password",
   },
   passwordResetHint: {
     id: "portal_password_reset_hint",
     defaultMessage: "You signed in with a temporary password.",
   },
-  passwordNew: { id: "portal_password_new", defaultMessage: "New password" },
+  passwordNew: { id: "portal_password_new", defaultMessage: "New Password" },
   passwordConfirm: {
     id: "portal_password_confirm",
-    defaultMessage: "Confirm password",
+    defaultMessage: "Confirm Password",
   },
   passwordMismatch: {
     id: "portal_password_mismatch",
     defaultMessage: "Passwords do not match.",
   },
-  passwordSave: { id: "portal_password_save", defaultMessage: "Save password" },
+  passwordSave: { id: "portal_password_save", defaultMessage: "Save Password" },
   passwordSaving: { id: "portal_password_saving", defaultMessage: "Saving..." },
-  passwordSkip: { id: "portal_password_skip", defaultMessage: "Skip for now" },
+  passwordSkip: { id: "portal_password_skip", defaultMessage: "Skip for Now" },
   signUpHeading: {
     id: "portal_sign_up_heading",
-    defaultMessage: "Create an account",
+    defaultMessage: "Create an Account",
   },
   signUpFirstName: {
     id: "portal_sign_up_first_name",
-    defaultMessage: "First name",
+    defaultMessage: "First Name",
   },
   signUpLastName: {
     id: "portal_sign_up_last_name",
-    defaultMessage: "Last name",
+    defaultMessage: "Last Name",
   },
   signUpSubmit: {
     id: "portal_sign_up_submit",
-    defaultMessage: "Create account",
+    defaultMessage: "Create Account",
   },
   signUpBusy: {
     id: "portal_sign_up_busy",
@@ -104,7 +104,7 @@ export const messages = defineMessages({
   },
   signUpBack: {
     id: "portal_sign_up_back",
-    defaultMessage: "Back to sign in",
+    defaultMessage: "Back to Sign In",
   },
   signUpVerificationPending: {
     id: "portal_sign_up_verification_pending",
@@ -120,9 +120,9 @@ export const messages = defineMessages({
   },
   headerEditProfile: {
     id: "portal_header_edit_profile",
-    defaultMessage: "Edit profile",
+    defaultMessage: "Edit Profile",
   },
-  headerSignOut: { id: "portal_header_sign_out", defaultMessage: "Sign out" },
+  headerSignOut: { id: "portal_header_sign_out", defaultMessage: "Sign Out" },
   headerTaxId: {
     id: "portal_header_tax_id",
     defaultMessage: "Tax ID {taxId}",
@@ -140,26 +140,26 @@ export const messages = defineMessages({
   back: { id: "portal_back", defaultMessage: "Back" },
   profileHeading: {
     id: "portal_profile_heading",
-    defaultMessage: "Edit profile",
+    defaultMessage: "Edit Profile",
   },
   profileFirstName: {
     id: "portal_profile_first_name",
-    defaultMessage: "First name",
+    defaultMessage: "First Name",
   },
   profileLastName: {
     id: "portal_profile_last_name",
-    defaultMessage: "Last name",
+    defaultMessage: "Last Name",
   },
   profileTaxId: { id: "portal_profile_tax_id", defaultMessage: "Tax ID" },
   profileSave: { id: "portal_profile_save", defaultMessage: "Save" },
   profileSaving: { id: "portal_profile_saving", defaultMessage: "Saving..." },
   profileChangePassword: {
     id: "portal_profile_change_password",
-    defaultMessage: "Change password",
+    defaultMessage: "Change Password",
   },
   passwordCurrent: {
     id: "portal_password_current",
-    defaultMessage: "Current password",
+    defaultMessage: "Current Password",
   },
   errorWrongCurrentPassword: {
     id: "portal_error_wrong_current_password",
@@ -169,7 +169,7 @@ export const messages = defineMessages({
     id: "portal_account_load_failed",
     defaultMessage: "We couldn't load your account. Please try again.",
   },
-  retry: { id: "portal_retry", defaultMessage: "Try again" },
+  retry: { id: "portal_retry", defaultMessage: "Try Again" },
   headerSignOutFailed: {
     id: "portal_header_sign_out_failed",
     defaultMessage: "Sign out failed",
@@ -236,7 +236,7 @@ export const messages = defineMessages({
   },
   subscriptionLastPayment: {
     id: "portal_subscription_last_payment",
-    defaultMessage: "Last payment",
+    defaultMessage: "Last Payment",
   },
   subscriptionLastPaymentView: {
     id: "portal_subscription_last_payment_view",
@@ -244,11 +244,11 @@ export const messages = defineMessages({
   },
   subscriptionStartDate: {
     id: "portal_subscription_start_date",
-    defaultMessage: "Start date",
+    defaultMessage: "Start Date",
   },
   subscriptionNextPayment: {
     id: "portal_subscription_next_payment",
-    defaultMessage: "Next payment",
+    defaultMessage: "Next Payment",
   },
   subscriptionCancels: {
     id: "portal_subscription_cancels",
@@ -272,7 +272,7 @@ export const messages = defineMessages({
   },
   subscriptionStatusPastDue: {
     id: "portal_subscription_status_past_due",
-    defaultMessage: "Past due",
+    defaultMessage: "Past Due",
   },
   subscriptionStatusEnded: {
     id: "portal_subscription_status_ended",
@@ -297,7 +297,7 @@ export const messages = defineMessages({
   },
   subscriptionPastDueTitle: {
     id: "portal_subscription_past_due_title",
-    defaultMessage: "Payment failed",
+    defaultMessage: "Payment Failed",
   },
   subscriptionPastDueBody: {
     id: "portal_subscription_past_due_body",
@@ -347,13 +347,13 @@ export const messages = defineMessages({
   },
   manageCancel: {
     id: "portal_manage_cancel",
-    defaultMessage: "Cancel subscription",
+    defaultMessage: "Cancel Subscription",
   },
-  manageModify: { id: "portal_manage_modify", defaultMessage: "Modify items" },
+  manageModify: { id: "portal_manage_modify", defaultMessage: "Modify Items" },
   manageEnds: { id: "portal_manage_ends", defaultMessage: "Ends" },
   manageNextPayment: {
     id: "portal_manage_next_payment",
-    defaultMessage: "Next payment date",
+    defaultMessage: "Next Payment Date",
   },
   manageNextPaymentEmpty: {
     id: "portal_manage_next_payment_empty",
@@ -373,11 +373,11 @@ export const messages = defineMessages({
   },
   subscriptionBillingHeading: {
     id: "portal_subscription_billing_heading",
-    defaultMessage: "Billing & shipping",
+    defaultMessage: "Billing & Shipping",
   },
   subscriptionPaymentMethodLabel: {
     id: "portal_subscription_payment_method_label",
-    defaultMessage: "Payment method",
+    defaultMessage: "Payment Method",
   },
   subscriptionPaymentMethodNote: {
     id: "portal_subscription_payment_method_note",
@@ -386,7 +386,7 @@ export const messages = defineMessages({
   },
   subscriptionShippingLabel: {
     id: "portal_subscription_shipping_label",
-    defaultMessage: "Shipping address",
+    defaultMessage: "Shipping Address",
   },
   subscriptionSummaryHeading: {
     id: "portal_subscription_summary_heading",
@@ -402,11 +402,11 @@ export const messages = defineMessages({
   },
   subscriptionSummaryTotal: {
     id: "portal_subscription_summary_total",
-    defaultMessage: "Recurring total",
+    defaultMessage: "Recurring Total",
   },
   subscriptionSummaryPastDue: {
     id: "portal_subscription_summary_past_due",
-    defaultMessage: "Past due",
+    defaultMessage: "Past Due",
   },
   subscriptionStarted: {
     id: "portal_subscription_started",
@@ -482,11 +482,11 @@ export const messages = defineMessages({
   },
   paymentStatusProblem: {
     id: "portal_payment_status_problem",
-    defaultMessage: "Payment issue",
+    defaultMessage: "Payment Issue",
   },
   paymentStatusUnderReview: {
     id: "portal_payment_status_under_review",
-    defaultMessage: "Under review",
+    defaultMessage: "Under Review",
   },
   paymentStatusRejected: {
     id: "portal_payment_status_rejected",
@@ -498,7 +498,7 @@ export const messages = defineMessages({
   },
   paymentStatusRefunding: {
     id: "portal_payment_status_refunding",
-    defaultMessage: "Refund in progress",
+    defaultMessage: "Refund in Progress",
   },
   paymentStatusRefunded: {
     id: "portal_payment_status_refunded",
@@ -549,7 +549,7 @@ export const messages = defineMessages({
   // next to the receipt link, which also opens something.
   ordersView: {
     id: "portal_orders_view",
-    defaultMessage: "View order",
+    defaultMessage: "View Order",
   },
   orderDetailHeading: {
     id: "portal_order_detail_heading",
@@ -598,16 +598,16 @@ export const messages = defineMessages({
   },
   orderBillingHeading: {
     id: "portal_order_billing_heading",
-    defaultMessage: "Billing & shipping",
+    defaultMessage: "Billing & Shipping",
   },
   orderPaymentMethodLabel: {
     id: "portal_order_payment_method_label",
-    defaultMessage: "Payment method",
+    defaultMessage: "Payment Method",
   },
   // `number` is the customer's own PO value, entered at checkout.
   orderPurchaseOrder: {
     id: "portal_order_purchase_order",
-    defaultMessage: "Purchase order {number}",
+    defaultMessage: "Purchase Order {number}",
   },
   // `destination` is the shipment's own name -- the customer's `shipto`
   // value on a multiship order. Replaces the single `orderShipping` line in
@@ -622,7 +622,7 @@ export const messages = defineMessages({
   },
   paymentHistoryHeading: {
     id: "portal_payment_history_heading",
-    defaultMessage: "Payment history",
+    defaultMessage: "Payment History",
   },
   billingShippingHeading: {
     id: "portal_billing_shipping_heading",
@@ -630,15 +630,15 @@ export const messages = defineMessages({
   },
   savedAddressesHeading: {
     id: "portal_saved_addresses_heading",
-    defaultMessage: "Saved addresses",
+    defaultMessage: "Saved Addresses",
   },
   billingAddressHeading: {
     id: "portal_billing_address_heading",
-    defaultMessage: "Billing address",
+    defaultMessage: "Billing Address",
   },
   shippingAddressHeading: {
     id: "portal_shipping_address_heading",
-    defaultMessage: "Shipping address",
+    defaultMessage: "Shipping Address",
   },
   noBillingAddress: {
     id: "portal_no_billing_address",
@@ -650,11 +650,11 @@ export const messages = defineMessages({
   },
   addressDefaultBilling: {
     id: "portal_address_default_billing",
-    defaultMessage: "Default billing",
+    defaultMessage: "Default Billing",
   },
   addressDefaultShipping: {
     id: "portal_address_default_shipping",
-    defaultMessage: "Default shipping",
+    defaultMessage: "Default Shipping",
   },
   addressEdit: {
     id: "portal_address_edit",
@@ -662,19 +662,19 @@ export const messages = defineMessages({
   },
   addressEditHeading: {
     id: "portal_address_edit_heading",
-    defaultMessage: "Edit address",
+    defaultMessage: "Edit Address",
   },
   addressLabel: {
     id: "portal_address_label",
-    defaultMessage: "Address label",
+    defaultMessage: "Address Label",
   },
   addressFirstName: {
     id: "portal_address_first_name",
-    defaultMessage: "First name",
+    defaultMessage: "First Name",
   },
   addressLastName: {
     id: "portal_address_last_name",
-    defaultMessage: "Last name",
+    defaultMessage: "Last Name",
   },
   addressCompany: {
     id: "portal_address_company",
@@ -686,11 +686,11 @@ export const messages = defineMessages({
   },
   addressLine1: {
     id: "portal_address_line1",
-    defaultMessage: "Address line 1",
+    defaultMessage: "Address Line 1",
   },
   addressLine2: {
     id: "portal_address_line2",
-    defaultMessage: "Address line 2",
+    defaultMessage: "Address Line 2",
   },
   addressCity: {
     id: "portal_address_city",
@@ -698,7 +698,7 @@ export const messages = defineMessages({
   },
   addressPostalCode: {
     id: "portal_address_postal_code",
-    defaultMessage: "Postal code",
+    defaultMessage: "Postal Code",
   },
   addressSave: {
     id: "portal_address_save",
@@ -758,7 +758,7 @@ export const messages = defineMessages({
   },
   paymentMethodsHeading: {
     id: "portal_payment_methods_heading",
-    defaultMessage: "Payment methods ({count})",
+    defaultMessage: "Payment Methods ({count})",
   },
   paymentMethodsEmpty: {
     id: "portal_payment_methods_empty",

@@ -666,7 +666,7 @@ describe("PaymentMethodSelectorElement", () => {
       document.body.append(element);
       await waitForText(
         () => element.shadowRoot?.textContent,
-        "Purchase order number",
+        "Purchase Order Number",
       );
 
       // The purchase-order number field renders through the design system's
@@ -1563,7 +1563,7 @@ describe("PaymentMethodSelectorElement", () => {
       expect(input).toBeTruthy();
       await waitForText(
         () => element.shadowRoot?.textContent,
-        "Purchase order number",
+        "Purchase Order Number",
       );
     } finally {
       element.remove();
@@ -3211,7 +3211,7 @@ describe("PaymentMethodSelectorElement", () => {
       document.body.append(element);
       await waitForText(
         () => element.shadowRoot?.textContent,
-        "Purchase order number",
+        "Purchase Order Number",
       );
     };
 

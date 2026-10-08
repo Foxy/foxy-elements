@@ -23,13 +23,13 @@ function render(props: Record<string, unknown> = {}) {
 describe("AccountPageLayout", () => {
   it("renders the title and children", () => {
     screen = mountScreen(
-      <AccountPageLayout title="Edit profile" onBack={vi.fn()}>
+      <AccountPageLayout title="Edit Profile" onBack={vi.fn()}>
         <p>content</p>
       </AccountPageLayout>,
       {},
     );
 
-    expect(screen.host.textContent).toMatch(/Edit profile/);
+    expect(screen.host.textContent).toMatch(/Edit Profile/);
     expect(screen.host.textContent).toMatch(/content/);
   });
 

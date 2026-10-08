@@ -202,7 +202,7 @@ function subscriptionWithTokenUrl(overrides: Record<string, unknown> = {}) {
  * Scoped to the rail's own `<aside>` -- see `billingSectionText`/
  * `itemsSectionText` above for why a whole-`document.body` match is the
  * vacuous-test trap on this page. `/Shipping/`, for instance, is also
- * satisfied by the Billing section's "Shipping address" label, so a rail
+ * satisfied by the Billing section's "Shipping Address" label, so a rail
  * assertion has to be scoped here to actually exercise the rail.
  */
 const railText = () => document.querySelector("aside")?.textContent ?? "";
@@ -297,7 +297,7 @@ const headerText = () =>
 const pastDueAlertText = () => {
   const title = [...document.querySelectorAll("div")].find(
     (el) =>
-      el.children.length === 0 && el.textContent?.trim() === "Payment failed",
+      el.children.length === 0 && el.textContent?.trim() === "Payment Failed",
   );
   return title?.parentElement?.textContent ?? "";
 };
@@ -333,7 +333,7 @@ describe("SubscriptionPage", () => {
   it("closes the main column with the payment history section", async () => {
     // Was "shows the payment history below the manage controls", asserting
     // `/payments/i` and `/no payments yet/i` against the whole host. The
-    // heading is "Payment history" -- no "payments" in it -- so
+    // heading is "Payment History" -- no "payments" in it -- so
     // `messages.paymentsEmpty` ("No payments yet.") satisfied both patterns
     // by itself and the entire heading could be deleted with the test still
     // green. The old name was also no longer true: the manage controls moved
@@ -349,7 +349,7 @@ describe("SubscriptionPage", () => {
     await flush();
 
     const heading = [...screen.host.querySelectorAll("h2")].find(
-      (h) => h.textContent?.trim() === "Payment history",
+      (h) => h.textContent?.trim() === "Payment History",
     );
     expect(heading).toBeDefined();
 
@@ -361,7 +361,7 @@ describe("SubscriptionPage", () => {
     expect(main.lastElementChild).toBe(section);
     expect(
       [...main.querySelectorAll("h2")].map((h) => h.textContent?.trim()),
-    ).toEqual(["Items (2)", "Billing & shipping", "Payment history"]);
+    ).toEqual(["Items (2)", "Billing & Shipping", "Payment History"]);
   });
 
   // Locates the header row by its "Order" cell rather than
@@ -423,7 +423,7 @@ describe("SubscriptionPage", () => {
 
     const section =
       [...document.querySelectorAll("h2")]
-        .find((h) => /^Payment history/.test(h.textContent ?? ""))
+        .find((h) => /^Payment History/.test(h.textContent ?? ""))
         ?.closest("section") ?? null;
     expect(section).not.toBeNull();
 
@@ -642,9 +642,9 @@ describe("SubscriptionPage", () => {
       ) as HTMLAnchorElement | undefined;
 
     const linkOuts = [
-      ["Modify items", byLabel(/^modify items$/i)],
+      ["Modify Items", byLabel(/^modify items$/i)],
       ["shipping Edit", byLabel(/^edit$/i)],
-      ["Cancel subscription", byLabel(/cancel subscription/i)],
+      ["Cancel Subscription", byLabel(/cancel subscription/i)],
     ] as const;
 
     for (const [name, link] of linkOuts) {
@@ -907,7 +907,7 @@ describe("SubscriptionPage", () => {
         past_due_amount: 24,
       }),
     });
-    expect(document.body.textContent).toMatch(/Payment failed/);
+    expect(document.body.textContent).toMatch(/Payment Failed/);
     expect(document.body.textContent).toMatch(/\$24\.00/);
   });
 
@@ -919,10 +919,10 @@ describe("SubscriptionPage", () => {
     // itself here, so the two used to contradict each other on one screen.
     render({ subscription: subscription({ first_failed_transaction_date: past }) });
 
-    expect(pastDueAlertText()).toMatch(/Payment failed/);
+    expect(pastDueAlertText()).toMatch(/Payment Failed/);
     expect(pastDueAlertText()).toMatch(/A payment could not be taken/);
     expect(pastDueAlertText()).not.toMatch(/\$0\.00/);
-    expect(railText()).not.toMatch(/Past due/);
+    expect(railText()).not.toMatch(/Past Due/);
   });
 
   it("drops the call to action from the alert once the subscription has ended", () => {
@@ -941,7 +941,7 @@ describe("SubscriptionPage", () => {
     });
 
     // The alert still reports what happened, amount and all.
-    expect(pastDueAlertText()).toMatch(/Payment failed/);
+    expect(pastDueAlertText()).toMatch(/Payment Failed/);
     expect(pastDueAlertText()).toMatch(/\$24\.00/);
     expect(pastDueAlertText()).toMatch(/before this subscription ended/);
     // ...but asks for nothing.
@@ -965,7 +965,7 @@ describe("SubscriptionPage", () => {
 
   it("shows no alert when nothing has failed", () => {
     render();
-    expect(document.body.textContent).not.toMatch(/Payment failed/);
+    expect(document.body.textContent).not.toMatch(/Payment Failed/);
   });
 
   it("lists the subscription's items with their options", () => {
@@ -1005,7 +1005,7 @@ describe("SubscriptionPage", () => {
         /^Items/.test(h.textContent ?? ""),
       );
       // `closest("section")`, not `parentElement`: the Items heading now
-      // sits inside a `SectionHeader` row alongside the "Modify items"
+      // sits inside a `SectionHeader` row alongside the "Modify Items"
       // link-out, so `parentElement` would scope this to the heading row
       // and pass every "not present" assertion for the wrong reason.
       return heading?.closest("section")?.textContent ?? "";
@@ -1086,7 +1086,7 @@ describe("SubscriptionPage", () => {
       }),
     });
 
-    expect(document.body.textContent).not.toMatch(/Modify items/);
+    expect(document.body.textContent).not.toMatch(/Modify Items/);
   });
 
   // Scoped to the Billing & shipping section's own subtree -- see the
@@ -1094,7 +1094,7 @@ describe("SubscriptionPage", () => {
   // the wrong reason on this page.
   const billingSectionText = () => {
     const heading = [...document.querySelectorAll("h2")].find((h) =>
-      /^Billing & shipping/.test(h.textContent ?? ""),
+      /^Billing & Shipping/.test(h.textContent ?? ""),
     );
     return heading?.closest("section")?.textContent ?? "";
   };
@@ -1125,7 +1125,7 @@ describe("SubscriptionPage", () => {
     render();
     await flush();
 
-    expect(billingSectionText()).toMatch(/Payment method/);
+    expect(billingSectionText()).toMatch(/Payment Method/);
     expect(billingSectionText()).toMatch(
       /Your default payment method is charged/,
     );
@@ -1163,7 +1163,7 @@ describe("SubscriptionPage", () => {
 
   it("hides billing and shipping once the subscription has ended", () => {
     render({ subscription: subscription({ is_active: false, end_date: past }) });
-    expect(document.body.textContent).not.toMatch(/Billing & shipping/);
+    expect(document.body.textContent).not.toMatch(/Billing & Shipping/);
   });
 
   it("hides the shipping row when the template carries no address", () => {
@@ -1183,8 +1183,8 @@ describe("SubscriptionPage", () => {
     });
 
     // The panel itself is still there -- only the shipping row is gone.
-    expect(billingSectionText()).toMatch(/Payment method/);
-    expect(billingSectionText()).not.toMatch(/Shipping address/);
+    expect(billingSectionText()).toMatch(/Payment Method/);
+    expect(billingSectionText()).not.toMatch(/Shipping Address/);
     expect(billingSectionText()).not.toMatch(/Edit/);
   });
 
@@ -1242,7 +1242,7 @@ describe("SubscriptionPage", () => {
 
   it("summarises the recurring cost", () => {
     render();
-    expect(railText()).toMatch(/Recurring total/);
+    expect(railText()).toMatch(/Recurring Total/);
     expect(railText()).toMatch(/\$42\.00/);
     expect(railText()).toMatch(/\$4\.50/);
     expect(railText()).toMatch(/\$2\.25/);
@@ -1252,11 +1252,11 @@ describe("SubscriptionPage", () => {
 
   it("shows a past-due line only when there is one", () => {
     render();
-    expect(railText()).not.toMatch(/Past due/);
+    expect(railText()).not.toMatch(/Past Due/);
 
     screen!.unmount();
     render({ subscription: subscription({ past_due_amount: 24 }) });
-    expect(railText()).toMatch(/Past due/);
+    expect(railText()).toMatch(/Past Due/);
   });
 
   it("offers cancellation while the subscription is live", () => {
@@ -1429,7 +1429,7 @@ describe("SubscriptionPage", () => {
     // badge, the past-due alert and the ended note together, which is the
     // whole truth about it.
     expect(document.querySelector("h1")?.parentElement?.textContent).toMatch(
-      /Past due/,
+      /Past Due/,
     );
     expect(
       document.querySelector("h1")?.parentElement?.textContent,

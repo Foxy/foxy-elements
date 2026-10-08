@@ -200,7 +200,7 @@ export const PurchaseOrder: Story = {
     const selector = getPrimarySelector(canvasElement);
 
     await waitForOptionCount(selector, 1);
-    await waitForSelectorText(selector, "Purchase order number");
+    await waitForSelectorText(selector, "Purchase Order Number");
   },
 };
 

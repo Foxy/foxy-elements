@@ -255,9 +255,9 @@ describe("BillingShippingSection", () => {
 
     // The summaries still render it; the list below has nothing left to show,
     // so its heading goes too rather than standing over an empty space.
-    expect(document.body.textContent).toMatch(/Billing address/);
+    expect(document.body.textContent).toMatch(/Billing Address/);
     expect(savedList()).toBeNull();
-    expect(document.body.textContent).not.toMatch(/Saved addresses/);
+    expect(document.body.textContent).not.toMatch(/Saved Addresses/);
   });
 
   it("navigates to the specific address whose own Edit button was clicked", async () => {

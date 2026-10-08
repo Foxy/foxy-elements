@@ -90,7 +90,7 @@ export const SectionHeading = styled.h2<{ $flush?: boolean }>`
 
 /**
  * A section heading with an action beside it -- the subscription page's
- * "Modify items" link-out. The heading inside goes `$flush` so this row owns
+ * "Modify Items" link-out. The heading inside goes `$flush` so this row owns
  * the spacing below instead of two margins stacking.
  */
 export const SectionHeader = styled.div`
