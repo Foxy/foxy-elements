@@ -834,6 +834,9 @@ describe("PaymentMethodSelectorElement", () => {
           'foxy-payment-card-field[mode="card_csc"]',
         ),
       ).toBeNull();
+      expect(element.shadowRoot?.textContent).not.toContain(
+        "Enter your card's security code below.",
+      );
     } finally {
       element.remove();
       restoreClient();
