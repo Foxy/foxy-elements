@@ -1,4 +1,5 @@
 {
+  "sign_out": "登出",
   "password-reset": {
     "title": "重置密码",
     "subtitle": "请立即更新您的密码以确保帐户安全。",
