@@ -1074,7 +1074,7 @@ describe("Portal", () => {
     await flush();
 
     expect(screen!.host.textContent).toMatch(/Bob Kahn/);
-    // The stale "Edit address" page (Ada's) must not still be showing.
+    // The stale "Edit Address" page (Ada's) must not still be showing.
     expect(screen!.host.textContent).not.toMatch(/edit address/i);
     const line1AfterSignIn = document.querySelector<HTMLInputElement>(
       'input[autocomplete="address-line1"]',

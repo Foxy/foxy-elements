@@ -21,10 +21,10 @@ const DEFAULT_ACH_SECURE_ORIGIN =
 const DEFAULT_EMBED_PATH = "/v2.html";
 
 const DEFAULT_LABELS = {
-  "routing-number": "Routing number",
-  "account-number": "Account number",
-  "account-type": "Account type",
-  "account-holder-name": "Name on account",
+  "routing-number": "Routing Number",
+  "account-number": "Account Number",
+  "account-type": "Account Type",
+  "account-holder-name": "Name on Account",
 } as const;
 
 export type AchAccountTypeValue = "checking" | "savings";

@@ -292,15 +292,15 @@ describe("AddressPage", () => {
       {},
     );
 
-    expect(getInputByLabelText("Address label").value).toBe("Home");
-    expect(getInputByLabelText("First name").value).toBe("Jane");
-    expect(getInputByLabelText("Last name").value).toBe("Doe");
+    expect(getInputByLabelText("Address Label").value).toBe("Home");
+    expect(getInputByLabelText("First Name").value).toBe("Jane");
+    expect(getInputByLabelText("Last Name").value).toBe("Doe");
     expect(getInputByLabelText("Company").value).toBe("Acme Inc");
     expect(getInputByLabelText("Phone").value).toBe("555-1234");
-    expect(getInputByLabelText("Address line 1").value).toBe("123 Main St");
-    expect(getInputByLabelText("Address line 2").value).toBe("Suite 2");
+    expect(getInputByLabelText("Address Line 1").value).toBe("123 Main St");
+    expect(getInputByLabelText("Address Line 2").value).toBe("Suite 2");
     expect(getInputByLabelText("City").value).toBe("Springfield");
-    expect(getInputByLabelText("Postal code").value).toBe("62701");
+    expect(getInputByLabelText("Postal Code").value).toBe("62701");
   });
 
   it("saves the edited fields, never is_default_billing/is_default_shipping, and returns home", async () => {
@@ -801,16 +801,16 @@ describe("AddressPage", () => {
         {},
       );
 
-      expect(getInputByLabelText("Address label").required).toBe(true);
-      expect(getInputByLabelText("Address line 1").required).toBe(true);
+      expect(getInputByLabelText("Address Label").required).toBe(true);
+      expect(getInputByLabelText("Address Line 1").required).toBe(true);
 
-      expect(getInputByLabelText("First name").required).toBe(false);
-      expect(getInputByLabelText("Last name").required).toBe(false);
+      expect(getInputByLabelText("First Name").required).toBe(false);
+      expect(getInputByLabelText("Last Name").required).toBe(false);
       expect(getInputByLabelText("Company").required).toBe(false);
       expect(getInputByLabelText("Phone").required).toBe(false);
-      expect(getInputByLabelText("Address line 2").required).toBe(false);
+      expect(getInputByLabelText("Address Line 2").required).toBe(false);
       expect(getInputByLabelText("City").required).toBe(false);
-      expect(getInputByLabelText("Postal code").required).toBe(false);
+      expect(getInputByLabelText("Postal Code").required).toBe(false);
     });
 
     it("caps address_name, address1, and address2 at 100 characters", async () => {
@@ -824,9 +824,9 @@ describe("AddressPage", () => {
         {},
       );
 
-      expect(getInputByLabelText("Address label").maxLength).toBe(100);
-      expect(getInputByLabelText("Address line 1").maxLength).toBe(100);
-      expect(getInputByLabelText("Address line 2").maxLength).toBe(100);
+      expect(getInputByLabelText("Address Label").maxLength).toBe(100);
+      expect(getInputByLabelText("Address Line 1").maxLength).toBe(100);
+      expect(getInputByLabelText("Address Line 2").maxLength).toBe(100);
     });
 
     it("caps the other text fields at 50 characters", async () => {
@@ -840,12 +840,12 @@ describe("AddressPage", () => {
         {},
       );
 
-      expect(getInputByLabelText("First name").maxLength).toBe(50);
-      expect(getInputByLabelText("Last name").maxLength).toBe(50);
+      expect(getInputByLabelText("First Name").maxLength).toBe(50);
+      expect(getInputByLabelText("Last Name").maxLength).toBe(50);
       expect(getInputByLabelText("Company").maxLength).toBe(50);
       expect(getInputByLabelText("Phone").maxLength).toBe(50);
       expect(getInputByLabelText("City").maxLength).toBe(50);
-      expect(getInputByLabelText("Postal code").maxLength).toBe(50);
+      expect(getInputByLabelText("Postal Code").maxLength).toBe(50);
       expect(getInputByLabelText("Region").maxLength).toBe(50);
     });
   });

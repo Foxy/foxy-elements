@@ -8,7 +8,7 @@ export const messages = defineMessages({
   },
   paymentMethodsLegend: {
     id: "payment_methods_legend",
-    defaultMessage: "Payment methods",
+    defaultMessage: "Payment Methods",
   },
   optionLabelNewCard: {
     id: "payment_option_label_new_card",
@@ -132,19 +132,19 @@ export const messages = defineMessages({
   },
   achRoutingNumber: {
     id: "payment_ach_routing_number_label",
-    defaultMessage: "Routing number",
+    defaultMessage: "Routing Number",
   },
   achAccountNumber: {
     id: "payment_ach_account_number_label",
-    defaultMessage: "Account number",
+    defaultMessage: "Account Number",
   },
   achAccountType: {
     id: "payment_ach_account_type_label",
-    defaultMessage: "Account type",
+    defaultMessage: "Account Type",
   },
   achAccountHolderName: {
     id: "payment_ach_account_holder_name_label",
-    defaultMessage: "Name on account",
+    defaultMessage: "Name on Account",
   },
   achOwnerConfirmationLabel: {
     id: "payment_ach_owner_confirmation_label",
@@ -156,7 +156,7 @@ export const messages = defineMessages({
   },
   purchaseOrderNumberLabel: {
     id: "payment_purchase_order_number_label",
-    defaultMessage: "Purchase order number",
+    defaultMessage: "Purchase Order Number",
   },
   purchaseOrderNumberPlaceholder: {
     id: "payment_purchase_order_number_placeholder",
@@ -173,11 +173,11 @@ export const messages = defineMessages({
   },
   cardFieldLabelFull: {
     id: "payment_card_field_label_full",
-    defaultMessage: "Card details",
+    defaultMessage: "Card Details",
   },
   cardFieldLabelCsc: {
     id: "payment_card_field_label_csc",
-    defaultMessage: "Security code",
+    defaultMessage: "Security Code",
   },
   tokenizeCardError: {
     id: "payment_tokenize_card_error",

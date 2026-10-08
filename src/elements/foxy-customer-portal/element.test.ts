@@ -217,7 +217,7 @@ describe("foxy-customer-portal", () => {
     const element = await mount({ "store-domain": "demo" });
     const text = element.shadowRoot?.textContent ?? "";
 
-    expect(text).toMatch(/Sign in/);
+    expect(text).toMatch(/Sign In/);
     expect(text).toMatch(/Password/);
   });
 

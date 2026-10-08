@@ -21,9 +21,9 @@ const OWNER_CONFIRMATION_ERROR = "Confirm that you own this account.";
 const TOKENIZE_ERROR = "We could not verify those bank details.";
 
 const DEFAULT_LABELS: Partial<Record<AchHostedFieldName, string>> = {
-  "routing-number": "Routing number",
-  "account-number": "Account number",
-  "account-type": "Account type",
+  "routing-number": "Routing Number",
+  "account-number": "Account Number",
+  "account-type": "Account Type",
   "account-holder-name": "Account holder name",
 };
 

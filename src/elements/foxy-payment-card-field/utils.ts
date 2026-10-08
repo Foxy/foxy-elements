@@ -136,7 +136,7 @@ export function createLabeledField(options: {
   label.style.fontWeight = "500";
   label.textContent =
     options.label ??
-    (options.mode === "card_csc" ? "Security code" : "Card details");
+    (options.mode === "card_csc" ? "Security Code" : "Card Details");
   label.htmlFor = options.id;
 
   const field = document.createElement(

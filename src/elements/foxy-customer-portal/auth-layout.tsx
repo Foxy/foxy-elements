@@ -93,8 +93,8 @@ export const AuthActions = styled.div`
 `;
 
 /**
- * The secondary actions under a form -- "Forgot password?", "Create an
- * account", "Back to sign in".
+ * The secondary actions under a form -- "Forgot Password?", "Create an
+ * account", "Back to Sign In".
  *
  * They were siblings of the fields, in the same undifferentiated stack, so
  * the submit button and the links that navigate away from it read as one

@@ -46,7 +46,7 @@ describe("PaymentMethod", () => {
     // The full mask never reaches the page.
     expect(screen!.host.textContent).not.toMatch(/\*{4}/);
     // The heading counts the one card on file.
-    expect(screen!.host.textContent).toMatch(/Payment methods \(1\)/);
+    expect(screen!.host.textContent).toMatch(/Payment Methods \(1\)/);
   });
 
   it("shows an empty-state message when there is no default payment method", async () => {

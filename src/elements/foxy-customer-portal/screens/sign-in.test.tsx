@@ -93,7 +93,7 @@ describe("SignInScreen", () => {
   });
 
   it("puts account recovery beside the field it is about", () => {
-    // "Forgot password?" belongs on the Password label's line: that is where
+    // "Forgot Password?" belongs on the Password label's line: that is where
     // a customer looks when the password is the thing going wrong. It used to
     // sit below the submit button, in the same undifferentiated stack as the
     // fields.

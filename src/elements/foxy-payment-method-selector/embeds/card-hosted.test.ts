@@ -13,8 +13,8 @@ import {
   settled,
 } from "./test-utils";
 
-const FULL_FIELD_LABEL = "Card details";
-const CSC_FIELD_LABEL = "Security code";
+const FULL_FIELD_LABEL = "Card Details";
+const CSC_FIELD_LABEL = "Security Code";
 const TOKENIZE_ERROR = "We could not read that card.";
 
 const STYLE_ATTRIBUTES: HostedFieldStyleAttributes = {
@@ -107,7 +107,7 @@ describe("CardOptionEmbed", () => {
 
   // The two modes collect different things — a whole card versus three or four
   // digits — so a shopper re-entering a security code must not be asked for
-  // "Card details".
+  // "Card Details".
   it("pushes the checkout session onto the hosted field", async () => {
     const mounted = await mountEmbed(
       embed({ templateSetId: 42, sessionId: "a1b2c3,d4-e5" }),

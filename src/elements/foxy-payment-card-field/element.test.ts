@@ -215,7 +215,7 @@ describe("PaymentCardFieldElement", () => {
     ) as PaymentCardFieldElement;
 
     element.setAttribute("translation-card-number-label", "Card number");
-    element.setAttribute("translation-card-csc-label", "Security code");
+    element.setAttribute("translation-card-csc-label", "Security Code");
     document.body.append(element);
 
     const iframe = element.shadowRoot?.querySelector("iframe");
@@ -229,7 +229,7 @@ describe("PaymentCardFieldElement", () => {
       "Card number",
     );
     expect(url.searchParams.get("translations_cc_csc_label")).toBe(
-      "Security code",
+      "Security Code",
     );
   });
 

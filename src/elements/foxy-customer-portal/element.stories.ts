@@ -248,7 +248,7 @@ const DEFAULT_ACTIVE_SUBSCRIPTIONS: SubscriptionFixture[] = [
       "fx:last_transaction": { href: `${TRANSACTIONS_HREF}/100` },
       "fx:transactions": subTransactionsLink("0"),
       "fx:sub_token_url": subTokenLink("0"),
-      // The Items section's "Modify items" link-out (spec §3). Only this
+      // The Items section's "Modify Items" link-out (spec §3). Only this
       // fixture carries it, so the subscription page's story shows the link
       // while the others cover the store-has-no-rel case.
       "fx:sub_modification_url": {
@@ -1423,11 +1423,11 @@ export const OrdersVariant: StoryObj = {
 
     const text = portalText(canvasElement);
     expect(text).toMatch(/Orders/);
-    expect(text).not.toMatch(/Payment history/i);
+    expect(text).not.toMatch(/Payment History/i);
     // The bundle's children are listed under the parent's name.
     expect(text).toMatch(/Paper Filters/);
     // The card's own control, which the row presentation does not have.
-    expect(text).toMatch(/View order/);
+    expect(text).toMatch(/View Order/);
     // And no subscriptions section, heading or toggle.
     expect(text).not.toMatch(/Subscriptions/);
   },
@@ -1450,7 +1450,7 @@ export const OrdersVariantEmpty: StoryObj = {
     await waitFor(() =>
       expect(portalText(canvasElement)).toMatch(/No payments yet/i),
     );
-    // Headed "Orders" here, not "Payment history" -- see `messages.ordersHeading`.
+    // Headed "Orders" here, not "Payment History" -- see `messages.ordersHeading`.
     expect(portalText(canvasElement)).toMatch(/Orders/);
   },
 };
@@ -1501,7 +1501,7 @@ export const OrderDetail: StoryObj = {
     expect(text).toMatch(/\$148\.00/);
 
     // Billing & shipping, from `fx:payments` and `fx:shipments`.
-    expect(text).toMatch(/Billing & shipping/);
+    expect(text).toMatch(/Billing & Shipping/);
     // The card that actually paid -- a Mastercard -- not the customer's
     // current default, which is the Visa in `DEFAULT_PAYMENT_METHOD`.
     expect(text).toMatch(/Mastercard/);
@@ -1648,16 +1648,16 @@ export const WithAddresses: StoryObj = {
     const text = portalText(canvasElement);
 
     // The default address is summarised under both headings...
-    expect(text).toMatch(/Billing address/);
-    expect(text).toMatch(/Shipping address/);
+    expect(text).toMatch(/Billing Address/);
+    expect(text).toMatch(/Shipping Address/);
     // ...and is left out of the list below, so its badges never render there.
-    expect(text).not.toMatch(/Default billing/);
-    expect(text).not.toMatch(/Default shipping/);
+    expect(text).not.toMatch(/Default Billing/);
+    expect(text).not.toMatch(/Default Shipping/);
     // Exactly once on the page, rather than once per summary plus a card.
     expect(text.split("12 Analytical Engine Way").length - 1).toBe(2);
 
     // The addresses that are not defaults are what the list is for.
-    expect(text).toMatch(/Saved addresses/);
+    expect(text).toMatch(/Saved Addresses/);
     expect(text).toMatch(/47 Difference Engine Road/);
     expect(text).toMatch(/9 Loom Street/);
   },
@@ -1696,7 +1696,7 @@ export const Empty: StoryObj = {
     expect(text).not.toMatch(/tax id/i);
     expect(text).toMatch(/Subscriptions/);
     expect(text).toMatch(/Active/);
-    expect(text).not.toMatch(/Payment history/i);
+    expect(text).not.toMatch(/Payment History/i);
     // Billing & Shipping, unlike Payment history, always renders -- confirm
     // the heading and the summary's empty-state text show up, while the
     // address-card list itself stays empty (no "Edit" button, which only
