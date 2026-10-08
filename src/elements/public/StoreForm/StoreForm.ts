@@ -20,7 +20,7 @@ import { ResponsiveMixin } from '../../../mixins/responsive';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { isHttpUrl } from '../../../utils/is-http-url';
-import { html } from 'lit-html';
+import { html, svg } from 'lit-html';
 
 import slugify from '@sindresorhus/slugify';
 import merge from 'lodash-es/merge';
@@ -704,9 +704,25 @@ export class StoreForm extends Base<Data> {
         >
         </foxy-internal-text-control>
 
-        <foxy-internal-switch-control infer="use-email-dns" helper-text-as-tooltip>
-        </foxy-internal-switch-control>
+        <foxy-internal-select-control
+          layout="summary-item"
+          infer="send-html-email"
+          .getValue=${this.__sendHtmlEmailGetValue}
+          .setValue=${this.__sendHtmlEmailSetValue}
+          .options=${this.__sendHtmlEmailOptions}
+        >
+        </foxy-internal-select-control>
 
+        <foxy-internal-switch-control infer="use-email-dns"> </foxy-internal-switch-control>
+      </foxy-internal-summary-control>
+
+      ${this.form.use_email_dns &&
+      !this.data?.use_email_dns &&
+      !this.hiddenSelector.matches('emails:email-dns', true)
+        ? this.__renderEmailDnsRecords()
+        : ''}
+
+      <foxy-internal-summary-control infer="emails" label="" helper-text="">
         <foxy-internal-switch-control
           infer="use-smtp-config"
           helper-text-as-tooltip
@@ -761,15 +777,6 @@ export class StoreForm extends Base<Data> {
               </foxy-internal-select-control>
             `
           : ''}
-
-        <foxy-internal-select-control
-          layout="summary-item"
-          infer="send-html-email"
-          .getValue=${this.__sendHtmlEmailGetValue}
-          .setValue=${this.__sendHtmlEmailSetValue}
-          .options=${this.__sendHtmlEmailOptions}
-        >
-        </foxy-internal-select-control>
       </foxy-internal-summary-control>
 
       <foxy-internal-summary-control infer="shipping">
@@ -1313,6 +1320,72 @@ export class StoreForm extends Base<Data> {
         </foxy-nucleon>
       `,
     };
+  }
+
+  private __renderEmailDnsRecords() {
+    const records = [
+      {
+        host: 'smtpapi._domainkey',
+        value:
+          'k=rsa; t=s; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDPtW5iwpXVPiH5FzJ7Nrl8USzuY9zqqzjE0D1r04xDN6qwziDnmgcFNNfMewVKN2D1O+2J9N14hRprzByFwfQW76yojh54Xu3uSbQ3JP0A7k8o8GutRF8zbFUA8n0ZH2y0cIEjMliXY4W4LwPA7m4q0ObmvSjhd63O9d8z1XkUBwIDAQAB',
+      },
+      {
+        host: '@',
+        value: 'v=spf1 include:_spf.foxycart.com ~all',
+      },
+    ];
+
+    const renderField = (key: string, text: string) => html`
+      <foxy-i18n
+        style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px);"
+        class="bg-contrast-5 h-full"
+        infer="emails email-dns"
+        key=${key}
+      >
+      </foxy-i18n>
+      <div
+        class="flex items-start bg-contrast-5 gap-s h-full"
+        style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px);"
+      >
+        <code class="flex-1" style="overflow-wrap: anywhere">${text}</code>
+        <foxy-copy-to-clipboard infer="emails email-dns copy-to-clipboard" text=${text}>
+        </foxy-copy-to-clipboard>
+      </div>
+    `;
+
+    return html`
+      <div class="grid" style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px);">
+        <div
+          class="flex items-start border border-primary rounded bg-base"
+          style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px); gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+        >
+          ${svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="flex-shrink-0 text-primary" style="width: 1.25em"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>`}
+          <div class="grid" style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px);">
+            <foxy-i18n infer="emails email-dns" key="helper_text"></foxy-i18n>
+
+            <a
+              target="_blank"
+              class="rounded font-medium text-primary transition-colors cursor-pointer hover-opacity-80 focus-outline-none focus-ring-2 focus-ring-primary-50"
+              href="https://www.foxy.io/help/articles/set-up-email-deliverability-with-spf-dkim-and-dmarc#set-up-email-dns"
+              rel="noopener noreferrer"
+            >
+              <foxy-i18n infer="emails email-dns" key="link_text"></foxy-i18n>
+            </a>
+
+            ${records.map(
+              ({ host, value }) => html`
+                <div
+                  class="grid rounded-s overflow-hidden text-s"
+                  style="grid-template-columns: auto 1fr; gap: 1px;"
+                >
+                  ${renderField('host', host)} ${renderField('value', value)}
+                </div>
+              `
+            )}
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   private __renderReadonlyWebhookKey(scope: string, key: string) {
