@@ -69,6 +69,8 @@ type PaymentMethodSelectorElementProps = Omit<
   optionIndex?: number;
   "option-index"?: string | number;
   disabled?: boolean;
+  createsAccount?: boolean;
+  "creates-account"?: boolean;
 } & SharedThemeProps;
 
 type CustomerPortalElementProps = Omit<
