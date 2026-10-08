@@ -1,4 +1,5 @@
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { Data } from './types';
 
 import './index';
 
