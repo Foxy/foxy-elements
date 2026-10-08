@@ -5,4 +5,8 @@
 #
 # Bypass with `git push --no-verify` when you need to push known-red work.
 
+# Worktrees share this hook, but older branches (v1 on main) have no verify
+# script. Skip instead of failing every push from them.
+grep -q '"verify":' package.json 2>/dev/null || exit 0
+
 exec npm run verify
