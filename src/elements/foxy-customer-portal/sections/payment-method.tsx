@@ -61,7 +61,7 @@ export function hasSavedCard(
  * must check `hasSavedCard(data)` first; this assumes a real card.
  */
 export function formatCardLabel(data: DefaultPaymentMethodResource): string {
-  return `${brandName(data.cc_type)} ••••${data.cc_number_masked.slice(-4)}`;
+  return `${brandName(data.cc_type)} •••• ${data.cc_number_masked.slice(-4)}`;
 }
 
 const Heading = styled.h3`
@@ -78,7 +78,7 @@ const Card = styled.div`
   width: 100%;
   gap: ${(props) => props.theme.tokens.space.sm};
   padding: 14px 16px;
-  border: ${(props) => props.theme.tokens.border.field};
+  border: ${(props) => props.theme.tokens.border.default};
   border-radius: ${(props) => props.theme.tokens.borderRadius.md};
   background: ${(props) => props.theme.tokens.background.surface};
 `;
@@ -126,12 +126,12 @@ const CardNumber = styled.div`
   display: flex;
   align-items: center;
   gap: ${(props) => props.theme.tokens.space.sm};
-  font: ${(props) => props.theme.tokens.font.label};
+  font: ${(props) => props.theme.tokens.font.bodyEmphasis};
   color: ${(props) => props.theme.tokens.color.body};
 `;
 
 const Expiry = styled.div`
-  font: ${(props) => props.theme.tokens.font.body};
+  font: ${(props) => props.theme.tokens.font.bodySmall};
   color: ${(props) => props.theme.tokens.color.secondary};
 `;
 

@@ -24,7 +24,7 @@ const Tabs = styled.div`
   display: flex;
   gap: ${(props) => props.theme.tokens.space.xl};
   border-bottom: ${(props) => props.theme.tokens.border.default};
-  margin-bottom: ${(props) => props.theme.tokens.space.xl};
+  margin-bottom: ${(props) => props.theme.tokens.space.lg};
   flex-wrap: wrap;
 `;
 
@@ -33,16 +33,13 @@ const Tab = styled.button<{ $current: boolean }>`
   display: inline-flex;
   white-space: nowrap;
   cursor: pointer;
-  padding-bottom: 10px;
-  font: ${(props) =>
-    props.$current
-      ? props.theme.tokens.font.bodyEmphasis
-      : props.theme.tokens.font.body};
+  padding-bottom: ${(props) => props.theme.tokens.space.sm};
+  font: ${(props) => props.theme.tokens.font.label};
   color: ${(props) =>
     props.$current
       ? props.theme.tokens.color.primary
       : props.theme.tokens.color.secondary};
-  border-bottom: 2px solid
+  border-bottom: 1px solid
     ${(props) => (props.$current ? props.theme.tokens.color.primary : "transparent")};
 
   &:focus-visible {
@@ -57,8 +54,15 @@ const CardList = styled.div`
   gap: 16px;
 `;
 
+// Matches the payment history's own empty line (`sections/orders/list.tsx`).
+const Empty = styled.p`
+  margin: 0;
+  font: ${(props) => props.theme.tokens.font.body};
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
 const Heading = styled.h2`
-  margin: 0 0 20px;
+  margin: 0 0 16px;
   font: ${(props) => props.theme.tokens.font.h2};
   color: ${(props) => props.theme.tokens.color.body};
 `;
@@ -174,6 +178,16 @@ export function SubscriptionsSection({
             {intl.formatMessage(messages.errorUnknown)}
           </Alert.Description>
         </Alert.Root>
+      ) : null}
+
+      {!isLoading && !error && !isUnauthenticated && items.length === 0 ? (
+        <Empty>
+          {intl.formatMessage(
+            showActive
+              ? messages.subscriptionsEmptyActive
+              : messages.subscriptionsEmptyInactive,
+          )}
+        </Empty>
       ) : null}
 
       <CardList>

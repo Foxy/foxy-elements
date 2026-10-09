@@ -12,6 +12,7 @@ import { Pagination } from "../pagination";
 import {
   OrderHeaderCell,
   OrderHeaderRow,
+  OrderReceiptHeaderCell,
   OrderRow,
   type OrderResource,
 } from "./row";
@@ -140,18 +141,6 @@ export function OrdersSection({
   const isEmpty =
     !isLoading && !error && !isUnauthenticated && items.length === 0;
 
-  // A section with nothing to show renders nothing -- no empty heading. This
-  // differs from `SubscriptionsSection`, which keeps its heading and toggle
-  // even when empty for a stated reason (an empty Active tab is not an empty
-  // section); there is no such ambiguity here, so the general rule applies.
-  //
-  // Except under `variant="orders"`, where this section is the whole home
-  // page below the header: returning nothing there leaves a customer with no
-  // payments looking at a blank page rather than at an answer.
-  if (isEmpty && variant !== "orders") {
-    return null;
-  }
-
   return (
     <section>
       <Heading>
@@ -213,7 +202,9 @@ export function OrdersSection({
               <OrderHeaderCell>
                 {intl.formatMessage(messages.ordersColumnStatus)}
               </OrderHeaderCell>
-              <div />
+              <OrderReceiptHeaderCell>
+                {intl.formatMessage(messages.ordersColumnReceipt)}
+              </OrderReceiptHeaderCell>
             </OrderHeaderRow>
 
             {items.map((order) => (

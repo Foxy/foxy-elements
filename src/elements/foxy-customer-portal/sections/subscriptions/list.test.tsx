@@ -166,6 +166,32 @@ describe("SubscriptionsSection", () => {
     expect(buttons.some((b) => /inactive/i.test(b.textContent ?? ""))).toBe(
       true,
     );
+
+    // Each tab says it is empty in its own words: an empty Active tab can sit
+    // beside a non-empty Inactive one.
+    expect(screen!.host.textContent).toMatch(/No active subscriptions\./);
+
+    act(() => buttons.find((b) => /inactive/i.test(b.textContent ?? ""))!.click());
+    await flush();
+
+    expect(screen!.host.textContent).toMatch(/No inactive subscriptions\./);
+    expect(screen!.host.textContent).not.toMatch(/No active subscriptions/);
+  });
+
+  it("does not call the list empty while it is still loading", async () => {
+    const pending = {
+      _links: {
+        "fx:subscriptions": { href: "/subs", get: () => new Promise(() => {}) },
+      },
+    };
+
+    screen = mountScreen(
+      <SubscriptionsSection customer={pending as never} onNavigate={vi.fn()} />,
+      {},
+    );
+    await flush();
+
+    expect(screen!.host.textContent).not.toMatch(/No active subscriptions/);
   });
 
   it("shows a count on each tab", async () => {

@@ -70,6 +70,7 @@ import { Pagination } from "../pagination";
 import {
   OrderHeaderCell,
   OrderHeaderRow,
+  OrderReceiptHeaderCell,
   OrderRow,
   SUBSCRIPTION_ORDER_COLUMNS,
   type OrderResource,
@@ -879,7 +880,9 @@ export function SubscriptionPage({
                   <OrderHeaderCell>
                     {intl.formatMessage(messages.ordersColumnStatus)}
                   </OrderHeaderCell>
-                  <div />
+                  <OrderReceiptHeaderCell>
+                    {intl.formatMessage(messages.ordersColumnReceipt)}
+                  </OrderReceiptHeaderCell>
                 </OrderHeaderRow>
 
                 {payments.map((payment) => (

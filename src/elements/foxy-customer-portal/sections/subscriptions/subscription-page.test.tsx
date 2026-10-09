@@ -385,6 +385,7 @@ describe("SubscriptionPage", () => {
     expect(headerRow!.textContent).toMatch(/Order/);
     expect(headerRow!.textContent).toMatch(/Amount/);
     expect(headerRow!.textContent).not.toMatch(/Summary/);
+    expect(headerRow!.lastElementChild?.textContent).toBe("Receipt");
   });
 
   it("asks for no item zoom on the payments it never summarises", async () => {
@@ -926,8 +927,8 @@ describe("SubscriptionPage", () => {
   });
 
   it("drops the call to action from the alert once the subscription has ended", () => {
-    // Spec §6.2's body ends "Update your payment method on the portal home
-    // page to continue using this subscription." For `failed_and_ended`
+    // The live body ends with a call to action: "To keep this subscription,
+    // contact the store to update your payment method." For `failed_and_ended`
     // there is nothing to continue -- the header says so four lines up --
     // so the customer was being told to go fix a payment method for a dead
     // subscription.
@@ -945,12 +946,12 @@ describe("SubscriptionPage", () => {
     expect(pastDueAlertText()).toMatch(/\$24\.00/);
     expect(pastDueAlertText()).toMatch(/before this subscription ended/);
     // ...but asks for nothing.
-    expect(pastDueAlertText()).not.toMatch(/continue using this subscription/);
-    expect(pastDueAlertText()).not.toMatch(/Update your payment method/);
+    expect(pastDueAlertText()).not.toMatch(/keep this subscription/);
+    expect(pastDueAlertText()).not.toMatch(/contact the store/);
   });
 
   it("keeps the call to action while the subscription is still live", () => {
-    // The other half of the pair: spec §6.2's copy is right for a live
+    // The other half of the pair: the call to action is right for a live
     // failed subscription and must survive the ended variant being added.
     render({
       subscription: subscription({
@@ -959,7 +960,7 @@ describe("SubscriptionPage", () => {
       }),
     });
 
-    expect(pastDueAlertText()).toMatch(/continue using this subscription/);
+    expect(pastDueAlertText()).toMatch(/contact the store/);
     expect(pastDueAlertText()).not.toMatch(/before this subscription ended/);
   });
 
@@ -1116,7 +1117,7 @@ describe("SubscriptionPage", () => {
     });
     await flush();
 
-    expect(billingSectionText()).toMatch(/Visa ••••4242/);
+    expect(billingSectionText()).toMatch(/Visa •••• 4242/);
   });
 
   it("omits the card value when there is no default payment method", async () => {

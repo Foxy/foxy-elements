@@ -81,7 +81,7 @@ describe("OrdersSection", () => {
     expect(String(query?.zoom)).toBe("items:item_options");
   });
 
-  it("renders nothing at all when there are no orders", async () => {
+  it("keeps its heading and says there are no payments yet when there are no orders", async () => {
     screen = mountScreen(
       <OrdersSection
         customer={customer(async () => page([])) as never}
@@ -91,7 +91,8 @@ describe("OrdersSection", () => {
     );
     await flush();
 
-    expect(document.body.textContent?.trim()).toBe("");
+    expect(document.body.textContent).toMatch(/payment history/i);
+    expect(document.body.textContent).toMatch(/no payments yet/i);
   });
 
   it("lists every order it receives", async () => {
@@ -107,6 +108,23 @@ describe("OrdersSection", () => {
     await flush();
 
     expect(document.querySelectorAll("button").length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("heads the receipt column", async () => {
+    screen = mountScreen(
+      <OrdersSection
+        customer={customer(async () => page([order(1)])) as never}
+        onNavigate={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    // A plain-text cell, not the rows' own "Receipt" links.
+    const header = [...document.querySelectorAll("div")].find(
+      (cell) => cell.textContent === "Receipt" && !cell.querySelector("a"),
+    );
+    expect(header).toBeDefined();
   });
 
   it("navigates to the order page with its resource when a row is clicked", async () => {
@@ -226,9 +244,6 @@ describe("OrdersSection", () => {
       );
       await flush();
 
-      // The row view returns null when empty, because the subscriptions
-      // section above it still fills the page. In this variant this section
-      // is the whole page, so an empty one has to say so.
       expect(document.body.textContent).toMatch(/no payments yet/i);
     });
 

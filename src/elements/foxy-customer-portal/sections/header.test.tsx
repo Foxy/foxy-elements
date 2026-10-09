@@ -133,6 +133,14 @@ describe("PortalHeader", () => {
     expect(signOutButton().disabled).toBe(false);
   });
 
+  it("wraps its actions instead of overflowing a 320px-wide viewport", () => {
+    render(ada);
+    screen!.host.style.width = "320px";
+
+    const header = screen!.host.querySelector("header")!;
+    expect(header.scrollWidth).toBeLessThanOrEqual(header.clientWidth);
+  });
+
   it("gives the failure state a visible signal beyond the aria-label, unlike idle", () => {
     // A sighted customer who clicks Sign out and hits a failure needs to see
     // something change on screen, not just an off-screen aria-label update.
