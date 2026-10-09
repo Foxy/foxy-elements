@@ -51,6 +51,41 @@ const SIGN_OUT_ERROR_MS = 1000;
 //
 // No width of its own, matching `AccountPageLayout`'s container: the portal
 // is an embeddable element, so page width belongs to the host embedding it.
+// The loading placeholder, laid out like the home page it stands in for
+// (Figma "Portal / Home Loading"): name and email lines, then two sections,
+// each a heading bar over a block. A bare Skeleton has no size of its own,
+// so every bar sets one.
+const LoadingStack = styled.div<{ $gap: string }>`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.$gap};
+`;
+
+const Bar = styled(Skeleton)<{ $width: string; $height: string }>`
+  width: ${(props) => props.$width};
+  max-width: 100%;
+  height: ${(props) => props.$height};
+`;
+
+function HomeLoading() {
+  return (
+    <>
+      <LoadingStack $gap="6px">
+        <Bar $width="200px" $height="28px" />
+        <Bar $width="320px" $height="16px" />
+      </LoadingStack>
+      <LoadingStack $gap="16px">
+        <Bar $width="180px" $height="22px" />
+        <Bar $width="100%" $height="136px" />
+      </LoadingStack>
+      <LoadingStack $gap="16px">
+        <Bar $width="180px" $height="22px" />
+        <Bar $width="100%" $height="160px" />
+      </LoadingStack>
+    </>
+  );
+}
+
 const HomeContent = styled.div`
   /* A shadow root gets no page-level reset, so a host that does set a width
      on the element would otherwise get that width *plus* this padding. */
@@ -187,12 +222,12 @@ export function AccountScreen({
   // strand the customer on a bare skeleton or an alert with no way out.
   if (isLoading || isUnauthenticated) {
     return accountPage.type === "home" ? (
-      <HomeContent>
-        <Skeleton />
+      <HomeContent aria-busy="true">
+        <HomeLoading />
       </HomeContent>
     ) : (
       <AccountPageLayout onBack={goHome}>
-        <Skeleton />
+        <Bar $width="100%" $height="160px" />
       </AccountPageLayout>
     );
   }

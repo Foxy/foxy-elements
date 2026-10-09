@@ -40,6 +40,8 @@ describe("AccountScreen home", () => {
 
     expect(getComputedStyle(pageWrapper()).paddingTop).toBe("48px");
     expect(pageWrapper().textContent).not.toMatch(/try again/i);
+    // A Skeleton has no size of its own; the placeholder must show something.
+    expect(pageWrapper().getBoundingClientRect().height).toBeGreaterThan(300);
   });
 
   it("shows the error state inside the padded page", async () => {
