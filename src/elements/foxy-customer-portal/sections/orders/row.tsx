@@ -96,6 +96,11 @@ export const OrderHeaderCell = styled.div`
   color: ${(props) => props.theme.tokens.color.faint};
 `;
 
+/** Right-aligned to sit over the row's own right-aligned Receipt link. */
+export const OrderReceiptHeaderCell = styled(OrderHeaderCell)`
+  text-align: right;
+`;
+
 const Row = styled.div<{ $columns?: string }>`
   ${rowGrid};
   padding: 14px 0;

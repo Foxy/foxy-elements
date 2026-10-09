@@ -12,6 +12,7 @@ import { Pagination } from "../pagination";
 import {
   OrderHeaderCell,
   OrderHeaderRow,
+  OrderReceiptHeaderCell,
   OrderRow,
   type OrderResource,
 } from "./row";
@@ -201,7 +202,9 @@ export function OrdersSection({
               <OrderHeaderCell>
                 {intl.formatMessage(messages.ordersColumnStatus)}
               </OrderHeaderCell>
-              <div />
+              <OrderReceiptHeaderCell>
+                {intl.formatMessage(messages.ordersColumnReceipt)}
+              </OrderReceiptHeaderCell>
             </OrderHeaderRow>
 
             {items.map((order) => (

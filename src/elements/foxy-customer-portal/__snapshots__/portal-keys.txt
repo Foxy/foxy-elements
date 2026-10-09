@@ -1,4 +1,4 @@
-186 keys
+187 keys
 
 portal_account_load_failed
 portal_address_city
@@ -64,6 +64,7 @@ portal_order_total
 portal_orders_column_amount
 portal_orders_column_date
 portal_orders_column_order
+portal_orders_column_receipt
 portal_orders_column_status
 portal_orders_column_summary
 portal_orders_heading
@@ -179,9 +180,9 @@ portal_subscription_summary_tax
 portal_subscription_summary_total
 portal_subscription_title_id
 portal_subscriptions_active
-portal_subscriptions_heading
 portal_subscriptions_empty_active
 portal_subscriptions_empty_inactive
+portal_subscriptions_heading
 portal_subscriptions_inactive
 portal_validation_email
 portal_validation_max_length

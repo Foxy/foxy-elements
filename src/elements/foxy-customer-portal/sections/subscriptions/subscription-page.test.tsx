@@ -385,6 +385,7 @@ describe("SubscriptionPage", () => {
     expect(headerRow!.textContent).toMatch(/Order/);
     expect(headerRow!.textContent).toMatch(/Amount/);
     expect(headerRow!.textContent).not.toMatch(/Summary/);
+    expect(headerRow!.lastElementChild?.textContent).toBe("Receipt");
   });
 
   it("asks for no item zoom on the payments it never summarises", async () => {

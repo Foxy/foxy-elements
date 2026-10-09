@@ -545,6 +545,10 @@ export const messages = defineMessages({
     id: "portal_orders_column_status",
     defaultMessage: "Status",
   },
+  ordersColumnReceipt: {
+    id: "portal_orders_column_receipt",
+    defaultMessage: "Receipt",
+  },
   // The `variant="orders"` heading for the same section `paymentHistoryHeading`
   // heads in the subscriptions variant. Two keys, not one reworded: there the
   // section sits under a subscriptions list and covers a customer's payments

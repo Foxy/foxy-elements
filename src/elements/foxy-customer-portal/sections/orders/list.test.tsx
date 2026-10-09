@@ -110,6 +110,23 @@ describe("OrdersSection", () => {
     expect(document.querySelectorAll("button").length).toBeGreaterThanOrEqual(2);
   });
 
+  it("heads the receipt column", async () => {
+    screen = mountScreen(
+      <OrdersSection
+        customer={customer(async () => page([order(1)])) as never}
+        onNavigate={vi.fn()}
+      />,
+      {},
+    );
+    await flush();
+
+    // A plain-text cell, not the rows' own "Receipt" links.
+    const header = [...document.querySelectorAll("div")].find(
+      (cell) => cell.textContent === "Receipt" && !cell.querySelector("a"),
+    );
+    expect(header).toBeDefined();
+  });
+
   it("navigates to the order page with its resource when a row is clicked", async () => {
     const onNavigate = vi.fn();
     screen = mountScreen(
