@@ -177,6 +177,14 @@ export class StoreForm extends Base<Data> {
         const days = v.auto_anonymize_days;
         return (typeof days === 'number' && days >= 90) || 'auto-anonymize-days:v8n_required';
       },
+
+      ({ package_weight_max: v }) => {
+        return v !== null || 'package-weight-max:v8n_required';
+      },
+
+      ({ package_weight_max: v }) => {
+        return !v || v >= 0 || 'package-weight-max:v8n_negative';
+      },
     ];
   }
 
@@ -324,6 +332,11 @@ export class StoreForm extends Base<Data> {
 
   private readonly __setAutoAnonymizeDaysValue = (newValue: number) => {
     this.edit({ data_retention: { ...this.__getDataRetention(), auto_anonymize_days: newValue } });
+  };
+
+  // null is a UI-only state (switch on, no limit yet) that v8n blocks from being submitted.
+  private readonly __setPackageWeightMax = (newValue: number | null) => {
+    this.edit({ package_weight_max: newValue as number });
   };
 
   private readonly __getStoreEmailValue = (): Item[] => {
@@ -541,6 +554,8 @@ export class StoreForm extends Base<Data> {
     const logDetailRequestTypes = transactionJournalEntriesConfig.log_detail_request_types;
     const displayIdExamples = this.__displayIdExamples;
     const journalIdExamples = this.__journalIdExamples;
+    const packageWeightMax = this.form.package_weight_max;
+    const isPackageWeightSplitEnabled = packageWeightMax !== undefined && packageWeightMax !== 0;
 
     const rawWebhookKey = this.data?.webhook_key ?? '';
     const parsedWebhookKey = parseWebhookKey(rawWebhookKey);
@@ -792,6 +807,29 @@ export class StoreForm extends Base<Data> {
 
         <foxy-internal-switch-control infer="require-signed-shipping-rates" helper-text-as-tooltip>
         </foxy-internal-switch-control>
+
+        <foxy-internal-switch-control
+          infer="package-weight-split"
+          helper-text-as-tooltip
+          .getValue=${() => isPackageWeightSplitEnabled}
+          .setValue=${(newValue: boolean) => this.__setPackageWeightMax(newValue ? null : 0)}
+        >
+        </foxy-internal-switch-control>
+
+        ${isPackageWeightSplitEnabled
+          ? html`
+              <foxy-internal-number-control
+                layout="summary-item"
+                infer="package-weight-max"
+                min="0"
+                .setValue=${(newValue: number) => {
+                  // 0 means "don't split" in the API, so keep the switch on and ask for a real limit instead.
+                  this.__setPackageWeightMax(newValue === 0 ? null : newValue);
+                }}
+              >
+              </foxy-internal-number-control>
+            `
+          : ''}
       </foxy-internal-summary-control>
 
       <foxy-internal-summary-control infer="cart">

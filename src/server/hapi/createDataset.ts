@@ -634,6 +634,7 @@ export const createDataset: () => Dataset = () => ({
       app_session_time: 0,
       shipping_address_type: 'residential',
       require_signed_shipping_rates: false,
+      package_weight_max: 0,
       unified_order_entry_password: '',
       custom_display_id_config: {
         enabled: false,

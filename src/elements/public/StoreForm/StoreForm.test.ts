@@ -1447,6 +1447,57 @@ describe('StoreForm', () => {
     expect(control).to.have.attribute('helper-text-as-tooltip');
   });
 
+  it('renders a switch control for Package Weight Split in the Shipping section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    element.edit({ package_weight_max: 0 });
+    await element.requestUpdate();
+
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      '[infer="shipping"] [infer="package-weight-split"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control).to.have.attribute('helper-text-as-tooltip');
+    expect(control?.getValue()).to.be.false;
+
+    element.edit({ package_weight_max: 50 });
+    await element.requestUpdate();
+    expect(control?.getValue()).to.be.true;
+
+    control?.setValue(false);
+    expect(element.form.package_weight_max).to.equal(0);
+
+    control?.setValue(true);
+    expect(element.form.package_weight_max).to.be.null;
+  });
+
+  it('renders a number control for Package Weight Max in the Shipping section when splitting is on', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const selector = '[infer="shipping"] [infer="package-weight-max"]';
+
+    element.edit({ package_weight_max: 0 });
+    await element.requestUpdate();
+    expect(element.renderRoot.querySelector(selector)).to.not.exist;
+
+    element.edit({ package_weight_max: 50 });
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalNumberControl>(selector);
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('min', '0');
+
+    control?.setValue(70);
+    expect(element.form.package_weight_max).to.equal(70);
+
+    control?.setValue(0);
+    expect(element.form.package_weight_max).to.be.null;
+    await element.requestUpdate();
+    expect(element.renderRoot.querySelector(selector)).to.exist;
+  });
+
   it('renders a summary control for Cart section', async () => {
     const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
     const control = element.renderRoot.querySelector('foxy-internal-summary-control[infer="cart"]');
@@ -2518,6 +2569,28 @@ describe('StoreForm', () => {
 
     form.edit({ data_retention: { auto_anonymize: false, auto_anonymize_days: 90 } });
     expect(form.errors).to.not.include('auto-anonymize-days:v8n_too_small');
+  });
+
+  it('produces the package-weight-max:v8n_required error when splitting is on but the limit is unset', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('package-weight-max:v8n_required');
+
+    form.edit({ package_weight_max: null as unknown as number });
+    expect(form.errors).to.include('package-weight-max:v8n_required');
+
+    form.edit({ package_weight_max: 50 });
+    expect(form.errors).to.not.include('package-weight-max:v8n_required');
+  });
+
+  it('produces the package-weight-max:v8n_negative error when the value is below 0', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('package-weight-max:v8n_negative');
+
+    form.edit({ package_weight_max: -1 });
+    expect(form.errors).to.include('package-weight-max:v8n_negative');
+
+    form.edit({ package_weight_max: 0 });
+    expect(form.errors).to.not.include('package-weight-max:v8n_negative');
   });
 
   it('produces the auto-anonymize-days:v8n_required error when auto-anonymization is on but days are unset', () => {
