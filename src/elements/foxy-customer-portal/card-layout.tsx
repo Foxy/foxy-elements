@@ -16,7 +16,7 @@ export const Card = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  gap: ${(props) => props.theme.tokens.space.lg};
+  gap: 20px;
   padding: 20px;
   background: ${(props) => props.theme.tokens.background.surface};
   border: ${(props) => props.theme.tokens.border.default};
@@ -62,7 +62,7 @@ export const CardChildLine = styled.div`
 export const CardInfoGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 14px;
+  gap: ${(props) => props.theme.tokens.space.xl};
 `;
 
 export const CardCellLabel = styled.div`
@@ -71,7 +71,7 @@ export const CardCellLabel = styled.div`
 `;
 
 export const CardCellValue = styled.div<{ $error?: boolean }>`
-  font: ${(props) => props.theme.tokens.font.bodyEmphasis};
+  font: ${(props) => props.theme.tokens.font.body};
   color: ${(props) =>
     props.$error
       ? props.theme.tokens.color.error

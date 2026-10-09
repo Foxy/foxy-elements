@@ -1116,7 +1116,7 @@ describe("SubscriptionPage", () => {
     });
     await flush();
 
-    expect(billingSectionText()).toMatch(/Visa ••••4242/);
+    expect(billingSectionText()).toMatch(/Visa •••• 4242/);
   });
 
   it("omits the card value when there is no default payment method", async () => {

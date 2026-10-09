@@ -41,7 +41,7 @@ describe("PaymentMethod", () => {
 
     // Brand is title-cased, the masked number is reduced to its last four,
     // and the four-digit year is shown the way a card prints it.
-    expect(screen!.host.textContent).toMatch(/Visa ••••4242/);
+    expect(screen!.host.textContent).toMatch(/Visa •••• 4242/);
     expect(screen!.host.textContent).toMatch(/Expires 08\/28/);
     // The full mask never reaches the page.
     expect(screen!.host.textContent).not.toMatch(/\*{4}/);

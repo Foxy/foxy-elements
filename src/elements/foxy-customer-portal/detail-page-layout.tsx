@@ -108,7 +108,7 @@ export const ItemCard = styled.div`
   align-items: flex-start;
   gap: 16px;
   padding: 14px 16px;
-  border: ${(props) => props.theme.tokens.border.field};
+  border: ${(props) => props.theme.tokens.border.default};
   border-radius: ${(props) => props.theme.tokens.borderRadius.md};
   background: ${(props) => props.theme.tokens.background.surface};
 `;
@@ -172,7 +172,7 @@ export const RailCard = styled.div`
   flex-direction: column;
   gap: 14px;
   padding: 20px;
-  border: ${(props) => props.theme.tokens.border.field};
+  border: ${(props) => props.theme.tokens.border.default};
   border-radius: ${(props) => props.theme.tokens.borderRadius.md};
   background: ${(props) => props.theme.tokens.background.surface};
 `;
@@ -251,7 +251,7 @@ export const RailTotalRow = styled(RailRow)`
 export const Panel = styled.div`
   display: flex;
   flex-direction: column;
-  border: ${(props) => props.theme.tokens.border.field};
+  border: ${(props) => props.theme.tokens.border.default};
   border-radius: ${(props) => props.theme.tokens.borderRadius.md};
   background: ${(props) => props.theme.tokens.background.surface};
 `;

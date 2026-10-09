@@ -139,7 +139,7 @@ const Card = styled.div`
   flex-wrap: wrap;
   gap: ${(props) => props.theme.tokens.space.md};
   padding: 14px 16px;
-  border: ${(props) => props.theme.tokens.border.field};
+  border: ${(props) => props.theme.tokens.border.default};
   border-radius: ${(props) => props.theme.tokens.borderRadius.md};
   background: ${(props) => props.theme.tokens.background.surface};
 `;
