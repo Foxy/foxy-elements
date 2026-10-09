@@ -392,7 +392,7 @@ export const messages = defineMessages({
   subscriptionPaymentMethodNote: {
     id: "portal_subscription_payment_method_note",
     defaultMessage:
-      "Your default payment method is charged for this subscription. To change it, contact the store or pay with a new card at your next checkout.",
+      "Your default payment method is charged for this subscription. To change it, contact the store.",
   },
   subscriptionShippingLabel: {
     id: "portal_subscription_shipping_label",
