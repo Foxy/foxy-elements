@@ -1696,9 +1696,16 @@ export const Empty: StoryObj = {
     expect(text).not.toMatch(/tax id/i);
     expect(text).toMatch(/Subscriptions/);
     expect(text).toMatch(/Active/);
-    expect(text).not.toMatch(/Payment History/i);
-    // Billing & Shipping, unlike Payment history, always renders -- confirm
-    // the heading and the summary's empty-state text show up, while the
+    // Every section keeps its heading and says it is empty, rather than
+    // leaving a gap the customer has to interpret.
+    await waitFor(() => {
+      const loaded = portalText(canvasElement);
+      expect(loaded).toMatch(/No active subscriptions\./);
+      expect(loaded).toMatch(/Payment History/);
+      expect(loaded).toMatch(/No payments yet\./);
+    });
+    // Billing & Shipping always renders too -- confirm the heading and the
+    // summary's empty-state text show up, while the
     // address-card list itself stays empty (no "Edit" button, which only
     // renders per address card / summary match).
     expect(text).toMatch(/Billing & Shipping/);

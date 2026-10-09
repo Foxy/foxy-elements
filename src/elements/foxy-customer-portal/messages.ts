@@ -341,6 +341,16 @@ export const messages = defineMessages({
     id: "portal_subscriptions_inactive",
     defaultMessage: "Inactive ({count})",
   },
+  // The empty line under each tab. Per tab, not one "No subscriptions yet.":
+  // an empty Active tab can sit beside a non-empty Inactive one.
+  subscriptionsEmptyActive: {
+    id: "portal_subscriptions_empty_active",
+    defaultMessage: "No active subscriptions.",
+  },
+  subscriptionsEmptyInactive: {
+    id: "portal_subscriptions_empty_inactive",
+    defaultMessage: "No inactive subscriptions.",
+  },
   manageFrequency: {
     id: "portal_manage_frequency",
     defaultMessage: "Frequency",

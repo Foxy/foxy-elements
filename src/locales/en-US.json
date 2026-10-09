@@ -237,6 +237,8 @@
   "portal_subscription_title_id": "(#{id})",
   "portal_subscriptions_active": "Active ({count})",
   "portal_subscriptions_heading": "Subscriptions",
+  "portal_subscriptions_empty_active": "No active subscriptions.",
+  "portal_subscriptions_empty_inactive": "No inactive subscriptions.",
   "portal_subscriptions_inactive": "Inactive ({count})",
   "portal_validation_email": "Enter a valid email address.",
   "portal_validation_max_length": "Must be {max} characters or fewer.",

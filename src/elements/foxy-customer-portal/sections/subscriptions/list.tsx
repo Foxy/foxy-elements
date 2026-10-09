@@ -54,6 +54,13 @@ const CardList = styled.div`
   gap: 16px;
 `;
 
+// Matches the payment history's own empty line (`sections/orders/list.tsx`).
+const Empty = styled.p`
+  margin: 0;
+  font: ${(props) => props.theme.tokens.font.body};
+  color: ${(props) => props.theme.tokens.color.secondary};
+`;
+
 const Heading = styled.h2`
   margin: 0 0 16px;
   font: ${(props) => props.theme.tokens.font.h2};
@@ -171,6 +178,16 @@ export function SubscriptionsSection({
             {intl.formatMessage(messages.errorUnknown)}
           </Alert.Description>
         </Alert.Root>
+      ) : null}
+
+      {!isLoading && !error && !isUnauthenticated && items.length === 0 ? (
+        <Empty>
+          {intl.formatMessage(
+            showActive
+              ? messages.subscriptionsEmptyActive
+              : messages.subscriptionsEmptyInactive,
+          )}
+        </Empty>
       ) : null}
 
       <CardList>
