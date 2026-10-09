@@ -238,9 +238,11 @@ export function AccountScreen({
         <Alert.Description>
           {intl.formatMessage(messages.accountLoadFailed)}
         </Alert.Description>
-        <Button type="button" onClick={refresh}>
-          {intl.formatMessage(messages.retry)}
-        </Button>
+        <Alert.Action>
+          <Button type="button" onClick={refresh}>
+            {intl.formatMessage(messages.retry)}
+          </Button>
+        </Alert.Action>
       </Alert.Root>
     );
 
