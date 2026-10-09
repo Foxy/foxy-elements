@@ -302,7 +302,7 @@ export const messages = defineMessages({
   subscriptionPastDueBody: {
     id: "portal_subscription_past_due_body",
     defaultMessage:
-      "A payment of {amount} could not be taken. Update your payment method on the portal home page to continue using this subscription.",
+      "A payment of {amount} could not be taken. To keep this subscription, contact the store to update your payment method.",
   },
   // Used when the API reports a failed payment but no `past_due_amount`.
   // Naming a $0.00 figure there would state a number the store never sent,
@@ -311,10 +311,10 @@ export const messages = defineMessages({
   subscriptionPastDueBodyNoAmount: {
     id: "portal_subscription_past_due_body_no_amount",
     defaultMessage:
-      "A payment could not be taken. Update your payment method on the portal home page to continue using this subscription.",
+      "A payment could not be taken. To keep this subscription, contact the store to update your payment method.",
   },
-  // The two above end with spec §6.2's call to action, which only makes
-  // sense while the subscription is still running. These two are for
+  // The two above end with a call to action, which only makes sense while
+  // the subscription is still running. These two are for
   // `failed_and_ended`: the payment failed, but the subscription is over,
   // so there is nothing to "continue using" and nothing worth fixing. They
   // report what happened and stop -- the header's "No further payments will
@@ -382,7 +382,7 @@ export const messages = defineMessages({
   subscriptionPaymentMethodNote: {
     id: "portal_subscription_payment_method_note",
     defaultMessage:
-      "Your default payment method is charged for this subscription. Change it on the portal home page.",
+      "Your default payment method is charged for this subscription. To change it, contact the store or pay with a new card at your next checkout.",
   },
   subscriptionShippingLabel: {
     id: "portal_subscription_shipping_label",
