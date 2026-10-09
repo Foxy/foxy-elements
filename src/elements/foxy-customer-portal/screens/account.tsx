@@ -187,7 +187,9 @@ export function AccountScreen({
   // strand the customer on a bare skeleton or an alert with no way out.
   if (isLoading || isUnauthenticated) {
     return accountPage.type === "home" ? (
-      <Skeleton />
+      <HomeContent>
+        <Skeleton />
+      </HomeContent>
     ) : (
       <AccountPageLayout onBack={goHome}>
         <Skeleton />
@@ -208,7 +210,7 @@ export function AccountScreen({
     );
 
     return accountPage.type === "home" ? (
-      body
+      <HomeContent>{body}</HomeContent>
     ) : (
       <AccountPageLayout onBack={goHome}>{body}</AccountPageLayout>
     );

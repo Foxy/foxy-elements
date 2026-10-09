@@ -53,10 +53,12 @@ const Meta = styled.p`
   color: ${(props) => props.theme.tokens.color.secondary};
 `;
 
+// Wraps rather than holding one row: three buttons side by side are wider
+// than a 320px viewport, and a row that cannot shrink overflows the page.
 const Actions = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
-  flex-shrink: 0;
 `;
 
 // Idle vs. error only differed by `aria-label` before this, which a sighted
