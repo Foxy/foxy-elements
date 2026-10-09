@@ -247,6 +247,19 @@
       "helper_text": "Enables multiple shipping addresses per order. For more information, see our wiki on multiship.",
       "checked": "Yes",
       "unchecked": "No"
+    },
+    "package-weight-split": {
+      "label": "Split heavy orders into multiple packages",
+      "helper_text": "When an order's shippable items weigh more than the limit below, live rates are requested for several packages of equal weight instead of one.",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
+    "package-weight-max": {
+      "label": "Maximum package weight",
+      "placeholder": "Required",
+      "helper_text": "Uses the same weight unit as your item categories.",
+      "v8n_required": "Please enter a weight above 0.",
+      "v8n_negative": "Please enter a weight above 0."
     }
   },
   "cart": {
