@@ -13,6 +13,7 @@ import {
 import { ThemeMixin } from "@/lib/theme-mixin";
 
 import { PortalContainerContext } from "./portal-container";
+import { ensureBrandFonts } from "./brand-fonts";
 import {
   DEFAULT_LOCALE,
   resolveLanguageStrings,
@@ -130,6 +131,7 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
   }
 
   connectedCallback() {
+    ensureBrandFonts(document);
     if (!this.#root) this.#root = createRoot(this.#container);
     this.#render();
   }
