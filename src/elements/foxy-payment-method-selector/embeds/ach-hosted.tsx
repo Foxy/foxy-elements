@@ -227,27 +227,26 @@ export default function AchOptionEmbed({
             );
           })}
           <AchOwnerConfirmationField>
-            <Checkbox.Root
-              id={`ach-owner-confirmation-${option.id}`}
-              checked={ownerConfirmed}
-              disabled={disabled}
-              data-ach-owner-confirmation="true"
-              onCheckedChange={(checked) => {
-                const isChecked = Boolean(checked);
-                setOwnerConfirmed(isChecked);
-                if (isChecked) {
-                  setOwnerConfirmationError(false);
-                }
-              }}
-              aria-label={ownerConfirmationLabel}
-            >
-              <Checkbox.Indicator>
-                <Check size="0.875rem" />
-              </Checkbox.Indicator>
-            </Checkbox.Root>
-            <Field.Label htmlFor={`ach-owner-confirmation-${option.id}`}>
+            <Checkbox.Label>
+              <Checkbox.Root
+                id={`ach-owner-confirmation-${option.id}`}
+                checked={ownerConfirmed}
+                disabled={disabled}
+                data-ach-owner-confirmation="true"
+                onCheckedChange={(checked) => {
+                  const isChecked = Boolean(checked);
+                  setOwnerConfirmed(isChecked);
+                  if (isChecked) {
+                    setOwnerConfirmationError(false);
+                  }
+                }}
+              >
+                <Checkbox.Indicator>
+                  <Check size="0.875rem" />
+                </Checkbox.Indicator>
+              </Checkbox.Root>
               {ownerConfirmationLabel}
-            </Field.Label>
+            </Checkbox.Label>
           </AchOwnerConfirmationField>
           {ownerConfirmationError ? (
             <AchOwnerConfirmationError>
