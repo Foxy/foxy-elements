@@ -230,7 +230,7 @@ describe("foxy-customer-portal", () => {
     // `foxy-payment-method-selector`'s equivalent test does for
     // `theme-font-body`: the sign-in form's email `Input` is styled from
     // `theme.tokens.font.body`, so its computed font picks up "Figtree"
-    // instead of the design system's default ("Albert Sans") only if the
+    // instead of the design system's default (the system font stack) only if the
     // attribute is genuinely threaded through StyleSheetManager/ThemeProvider.
     const element = await mount({
       "store-domain": "demo",
@@ -480,7 +480,7 @@ describe("foxy-customer-portal", () => {
       'button[type="submit"]',
     );
     expect(getComputedStyle(buttonAfterClear!).backgroundColor).toBe(
-      "rgb(255, 174, 0)",
+      "rgb(26, 26, 26)",
     );
   });
 

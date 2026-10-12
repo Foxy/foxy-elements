@@ -675,7 +675,7 @@ describe("PaymentMethodSelectorElement", () => {
       // the theme-font-body attribute is actually threaded through
       // StyleSheetManager/ThemeProvider into the rendered shadow DOM, this
       // input's computed font picks up "Figtree" instead of the design
-      // system's default ("Albert Sans").
+      // system's default (the system font stack).
       const input = element.shadowRoot?.querySelector(
         '[data-purchase-order-number="true"]',
       ) as HTMLElement | null;
@@ -2227,7 +2227,7 @@ describe("PaymentMethodSelectorElement", () => {
       expect(css).not.toContain("body{display:none}");
       // Sanitize-or-default: an unsafe override falls back to the design
       // system's default color rather than dropping the declaration.
-      expect(css).toContain("#1C1A1D");
+      expect(css).toContain("#1A1A1A");
     } finally {
       element.remove();
       restoreClient();

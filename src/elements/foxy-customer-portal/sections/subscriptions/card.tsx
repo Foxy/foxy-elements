@@ -270,7 +270,7 @@ export function SubscriptionCard({
           </div>
 
           <CardActionSlot>
-            {/* Outline on every card: an amber button per subscription
+            {/* Outline on every card: a filled button per subscription
                 competed with everything else on the page. */}
             <Button type="button" $variant="outline" onClick={onManage}>
               {intl.formatMessage(messages.subscriptionManage)} <ArrowRight size={16} />
