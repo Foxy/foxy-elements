@@ -69,11 +69,22 @@ describe("buildStripeAppearanceFromTokens", () => {
 
 describe("getStripeFontsForAppearance", () => {
   // Stripe renders cross-origin, so the host page's webfont is not available
-  // to it — the family has to be paired with a stylesheet. This only resolved
-  // Inter, so the DS body font never reached the iframe.
-  it("resolves a webfont stylesheet for the DS body font", () => {
+  // to it — a webfont family has to be paired with a stylesheet. The DS
+  // default is the system font stack, which needs none.
+  it("loads no webfont for the DS default system font", () => {
     const fonts = getStripeFontsForAppearance(
       buildStripeAppearanceFromTokens(defaultTheme),
+    );
+
+    expect(fonts ?? []).toHaveLength(0);
+  });
+
+  it("resolves a webfont stylesheet for an allowlisted body font", () => {
+    const fonts = getStripeFontsForAppearance(
+      buildStripeAppearanceFromTokens({
+        ...defaultTheme,
+        font: { ...defaultTheme.font, body: "400 1rem/1.5 'Albert Sans', sans-serif" },
+      }),
     );
 
     expect(fonts).toHaveLength(1);
