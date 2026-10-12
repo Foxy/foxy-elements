@@ -105,9 +105,13 @@ export class PaymentCard extends Base<Data> {
           <foxy-i18n .options=${{ value: data?.date_created }} infer="" key="date"></foxy-i18n>
         </span>
 
-        <span class="block text-s text-secondary">
-          ${this.__gatewayName || html`<foxy-i18n infer="" key="unknown"></foxy-i18n>`}
-        </span>
+        ${this.__gatewayName
+          ? html`
+              <span class="block text-s text-secondary" data-testid="gateway">
+                ${this.__gatewayName}
+              </span>
+            `
+          : ''}
 
         ${infoKeys.map(key => {
           if (!data?.[key]) return;
@@ -144,7 +148,18 @@ export class PaymentCard extends Base<Data> {
     if (!super.isBodyReady) return false;
     if (!this.__currencyCode) return false;
     if (!this.__currencyDisplay) return false;
-    return !this.hostedPaymentGatewaysHelper || !this.paymentGatewaysHelper || !!this.__gatewayName;
+    if (this.__gatewayName) return true;
+
+    // Wait for both helpers to settle (loaded or failed) instead of waiting for a match:
+    // gateway_type can be empty or missing from the helpers, and then it would never match.
+    const isSettled = (helper: string | null, loader: NucleonElement<any> | null) => {
+      return !helper || !!loader?.data || !!loader?.in('fail');
+    };
+
+    return (
+      isSettled(this.hostedPaymentGatewaysHelper, this.__hostedPaymentGatewaysLoader) &&
+      isSettled(this.paymentGatewaysHelper, this.__paymentGatewaysLoader)
+    );
   }
 
   private get __hostedPaymentGatewaysLoader() {
