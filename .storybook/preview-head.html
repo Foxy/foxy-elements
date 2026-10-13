@@ -159,4 +159,23 @@
     --size-control: 2.75rem;
     --size-border-width: 0.125rem;
   }
+
+  /* `foxy-side-cart-trigger` reads no theme values; it is styled from the
+     page with `::part()`. Scoped to the demo themes so Default shows the
+     element's own defaults, and layered so a story's own unlayered
+     `::part()` rules (the Custom Styles story) still win. */
+  @layer demo-theme {
+    :root[class*="demo-theme-"] foxy-side-cart-trigger::part(button) {
+      color: var(--color-body);
+      font: var(--font-body);
+      border: var(--border-field);
+      border-radius: var(--border-radius-sm);
+      background: var(--background-surface);
+    }
+
+    :root[class*="demo-theme-"] foxy-side-cart-trigger::part(badge) {
+      background: var(--color-primary);
+      color: var(--color-on-primary);
+    }
+  }
 </style>
