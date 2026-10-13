@@ -45,6 +45,34 @@ describe("foxy-side-cart-trigger", () => {
     expect(getButton(element)?.getAttribute("aria-label")).toBe("Cart");
   });
 
+  it("shows a spinner only while the count is unknown", async () => {
+    let current: number | null = null;
+    vi.spyOn(Object.getPrototypeOf(sideCart), "itemCount", "get").mockImplementation(
+      () => current,
+    );
+    const element = mount();
+    await settle();
+
+    const spinner = () => getButton(element)?.querySelector('[part="spinner"]');
+    expect(spinner()?.getAttribute("aria-hidden")).toBe("true");
+    expect(getButton(element)?.querySelector('[part="badge"]')).toBeNull();
+
+    current = 0;
+    sideCart.dispatchEvent(
+      new CustomEvent("itemcountchange", { detail: { corrected: false } }),
+    );
+    await settle();
+    expect(spinner()).toBeNull();
+
+    current = 2;
+    sideCart.dispatchEvent(
+      new CustomEvent("itemcountchange", { detail: { corrected: false } }),
+    );
+    await settle();
+    expect(spinner()).toBeNull();
+    expect(getButton(element)?.querySelector('[part="badge"]')?.textContent).toBe("2");
+  });
+
   it("renders no badge for an empty cart, but names the count", async () => {
     vi.spyOn(Object.getPrototypeOf(sideCart), "itemCount", "get").mockReturnValue(0);
     const element = mount();

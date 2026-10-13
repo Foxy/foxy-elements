@@ -37,6 +37,7 @@ The element does not use the design system. It ships plain defaults — a border
 | `icon` | The cart icon `<svg>`. Not rendered in the `text` layout. It draws with `currentColor`. |
 | `label` | The visible "Cart" text inside the button. Not a part in the `icon` layout, where the text is visually hidden. |
 | `badge` | The item count. Not rendered while the count is unknown or `0`. |
+| `spinner` | Shown in place of the badge while the count is unknown. Hidden from screen readers. |
 
 ```css
 foxy-side-cart-trigger::part(button) {
@@ -55,7 +56,7 @@ The screen-reader announcement region is deliberately not a part: it has to stay
 
 ## Two things that look like bugs
 
-**No badge for an empty cart, or before a count is known.** `sideCart.itemCount` is `null` for "not known yet" — a cold page load, before the iframe or the cart JSON has reported anything — and `0` for an empty cart. Neither shows a badge; it appears once the cart holds at least one item. The accessible name still tells them apart: "Cart" while the count is unknown, "Cart, 0 items" for an empty cart.
+**A spinner before the count is known, and no badge for an empty cart.** `sideCart.itemCount` is `null` for "not known yet" — a first visit, before the cart JSON or the iframe has reported anything — and `0` for an empty cart. The element shows a spinner for `null`, nothing for `0`, and the badge once the cart holds at least one item. The accessible name tells the states apart: "Cart" while the count is unknown, "Cart, 0 items" for an empty cart. The spinner stays if the count never loads, for example when no store domain is set or the first cart request fails and the shopper has no cached count.
 
 **A count change is announced only when the shopper caused it.** The element keeps an `aria-live="polite"` region for count changes, but the very first count to arrive is the cache or the store catching up with the page — not something the shopper did on this page — so that first arrival is silent. Only a change from one already-known count to another is announced. A screen reader user who clicks "Add to cart" hears the new count; a screen reader user who just loaded the page does not hear an unprompted correction.
 
@@ -63,6 +64,7 @@ The accessible name ("Cart", or "Cart, N item(s)") comes from this package's mes
 
 ## Scenarios
 
+- **Loading** — the count is not known yet: a spinner in place of the badge.
 - **Known Count** — a non-zero count renders in the badge, and clicking the trigger calls `sideCart.show()` to open the drawer.
 - **Icon Only** and **Text Only** — the other two layouts.
 

@@ -58,6 +58,23 @@ const STYLES = `
     text-align: center;
     font-variant-numeric: tabular-nums;
   }
+  /* The margin makes it as tall as the badge (0.875em * 1.5), so the button
+     does not change height when the count arrives. */
+  [part="spinner"] {
+    width: 1em;
+    height: 1em;
+    margin-block: 0.15625em;
+    flex: none;
+    box-sizing: border-box;
+    border: 0.125em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [part="spinner"] { animation-duration: 2.4s; }
+  }
+  @keyframes spin { to { transform: rotate(1turn); } }
   .visually-hidden {
     position: absolute;
     width: 1px;
@@ -86,6 +103,7 @@ export class SideCartTriggerElement extends HTMLElement {
   #icon: Element;
   #label = document.createElement("span");
   #badge = document.createElement("span");
+  #spinner = document.createElement("span");
   #liveRegion = document.createElement("span");
   #lastCount: number | null = null;
   #announcedCount: number | null = null;
@@ -114,6 +132,8 @@ export class SideCartTriggerElement extends HTMLElement {
     this.#button.setAttribute("part", "button");
     this.#button.addEventListener("click", () => sideCart.show());
     this.#badge.setAttribute("part", "badge");
+    this.#spinner.setAttribute("part", "spinner");
+    this.#spinner.setAttribute("aria-hidden", "true");
 
     const icon = document.createElement("template");
     icon.innerHTML = ICON_SVG;
@@ -231,14 +251,14 @@ export class SideCartTriggerElement extends HTMLElement {
         : this.#format(messages.triggerLabelWithCount, { count: itemCount }),
     );
 
-    // No badge for an unknown (`null`) or empty cart; the accessible name
-    // still tells the two apart. Nodes are left out, not hidden: an outside
+    // A spinner while the count is unknown (`null`), nothing for an empty
+    // cart, a badge otherwise. Nodes are left out, not hidden: an outside
     // `::part() { display: ... }` rule would override a `hidden` attribute.
     this.#badge.textContent = String(itemCount);
     this.#button.replaceChildren(
       ...(layout === "text" ? [] : [this.#icon]),
       this.#label,
-      ...(itemCount ? [this.#badge] : []),
+      ...(itemCount === null ? [this.#spinner] : itemCount ? [this.#badge] : []),
     );
 
     this.#liveRegion.textContent =

@@ -55,6 +55,44 @@ export default meta;
 
 type Story = StoryObj;
 
+export const Loading: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "`itemCount` is `null`: nothing has reported a count yet. Each layout shows a spinner in place of the badge until a count arrives.",
+      },
+    },
+  },
+  beforeEach: () => stubItemCount(null),
+  render: () => {
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = "display: flex; gap: 1rem; align-items: center;";
+    wrapper.append(
+      renderTrigger(),
+      renderTrigger("icon"),
+      renderTrigger("text"),
+    );
+    return wrapper;
+  },
+  play: async ({ canvasElement }) => {
+    const triggers = [
+      ...canvasElement.querySelectorAll<SideCartTriggerElement>("foxy-side-cart-trigger"),
+    ];
+    expect(triggers.map((trigger) => trigger.layout)).toEqual(["default", "icon", "text"]);
+
+    for (const trigger of triggers) {
+      const button = await waitFor(() => {
+        const found = trigger.shadowRoot?.querySelector("button");
+        expect(found?.querySelector('[part="spinner"]')).toBeTruthy();
+        return found!;
+      });
+
+      expect(button.getAttribute("aria-label")).toBe("Cart");
+    }
+  },
+};
+
 export const KnownCount: Story = {
   name: "Known Count",
   parameters: {
