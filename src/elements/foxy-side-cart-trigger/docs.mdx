@@ -13,7 +13,7 @@ It accepts `lang`, the locale for its visible label, accessible name and announc
 
 ## Layout
 
-The `layout` attribute (and `layout` property) picks what the button shows. The badge shows in every layout once the count is known.
+The `layout` attribute (and `layout` property) picks what the button shows. The badge shows in every layout once the cart holds at least one item.
 
 | `layout` | Shows |
 | --- | --- |
@@ -54,13 +54,23 @@ foxy-side-cart-trigger::part(badge) {
 
 The screen-reader announcement region is deliberately not a part: it has to stay visually hidden. Switch the theme in the Storybook toolbar to see the trigger restyled with `::part()`.
 
-## Two things that look like bugs
+## Count states
 
-**A spinner before the count is known, and no badge for an empty cart.** `sideCart.itemCount` is `null` for "not known yet" — a first visit, before the cart JSON or the iframe has reported anything — and `0` for an empty cart. The element shows a spinner for `null`, nothing for `0`, and the badge once the cart holds at least one item. The accessible name tells the states apart: "Cart" while the count is unknown, "Cart, 0 items" for an empty cart. The spinner stays if the count never loads, for example when no store domain is set or the first cart request fails and the shopper has no cached count.
+`sideCart.itemCount` is `null` until the SDK knows the count: on a first visit, before the first cart request returns, or when the iframe has not reported yet. A returning shopper's cached count shows right away.
 
-**A count change is announced only when the shopper caused it.** The element keeps an `aria-live="polite"` region for count changes, but the very first count to arrive is the cache or the store catching up with the page — not something the shopper did on this page — so that first arrival is silent. Only a change from one already-known count to another is announced. A screen reader user who clicks "Add to cart" hears the new count; a screen reader user who just loaded the page does not hear an unprompted correction.
+| Count | Shows | Accessible name |
+| --- | --- | --- |
+| Not known yet | Spinner | "Cart" |
+| `0` | Nothing | "Cart, 0 items" |
+| 1 or more | Badge | "Cart, 3 items" |
 
-The accessible name ("Cart", or "Cart, N item(s)") comes from this package's message catalog rather than a hardcoded English string, and its count uses a real ICU plural rule — "1 item", not "1 items".
+The spinner stays if the count never loads: when no store domain is set, or when the first cart request fails and the shopper has no cached count.
+
+## Screen readers
+
+Count changes are announced through an `aria-live="polite"` region, but only when the shopper caused them. The first count to arrive after page load, and a cached count the store corrects, are silent: the shopper did nothing on this page. A shopper who clicks "Add to cart" hears the new count.
+
+The accessible name and announcements come from this package's message catalog and use ICU plural rules ("1 item", not "1 items").
 
 ## Scenarios
 
