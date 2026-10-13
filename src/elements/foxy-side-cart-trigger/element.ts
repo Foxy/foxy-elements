@@ -231,14 +231,14 @@ export class SideCartTriggerElement extends HTMLElement {
         : this.#format(messages.triggerLabelWithCount, { count: itemCount }),
     );
 
-    // `null` means the count is not known yet -- render no badge. Nodes are
-    // left out, not hidden: an outside `::part() { display: ... }` rule would
-    // override a `hidden` attribute.
+    // No badge for an unknown (`null`) or empty cart; the accessible name
+    // still tells the two apart. Nodes are left out, not hidden: an outside
+    // `::part() { display: ... }` rule would override a `hidden` attribute.
     this.#badge.textContent = String(itemCount);
     this.#button.replaceChildren(
       ...(layout === "text" ? [] : [this.#icon]),
       this.#label,
-      ...(itemCount === null ? [] : [this.#badge]),
+      ...(itemCount ? [this.#badge] : []),
     );
 
     this.#liveRegion.textContent =

@@ -45,12 +45,12 @@ describe("foxy-side-cart-trigger", () => {
     expect(getButton(element)?.getAttribute("aria-label")).toBe("Cart");
   });
 
-  it("renders a zero badge, distinct from the unknown state", async () => {
+  it("renders no badge for an empty cart, but names the count", async () => {
     vi.spyOn(Object.getPrototypeOf(sideCart), "itemCount", "get").mockReturnValue(0);
     const element = mount();
     await settle();
 
-    expect(getButton(element)?.textContent).toContain("0");
+    expect(getButton(element)?.querySelector('[part="badge"]')).toBeNull();
     expect(getButton(element)?.getAttribute("aria-label")).toBe("Cart, 0 items");
   });
 

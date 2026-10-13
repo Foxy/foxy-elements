@@ -90,7 +90,7 @@ export const ZeroCount: Story = {
     docs: {
       description: {
         story:
-          "A known count of zero. This is a real answer — an empty cart — and is rendered as a badge reading `0`, distinct from the unknown state above rendering no badge.",
+          "A known, empty cart. Like the unknown state, it shows no badge. Only the accessible name differs: \"Cart, 0 items\" here, \"Cart\" there.",
       },
     },
   },
@@ -99,12 +99,13 @@ export const ZeroCount: Story = {
   play: async ({ canvasElement }) => {
     const trigger = getTrigger(canvasElement);
 
-    await waitFor(() => {
-      expect(trigger.shadowRoot?.querySelector("button")?.textContent).toContain("0");
+    const button = await waitFor(() => {
+      const found = trigger.shadowRoot?.querySelector("button");
+      expect(found?.getAttribute("aria-label")).toBe("Cart, 0 items");
+      return found!;
     });
 
-    const button = trigger.shadowRoot?.querySelector("button");
-    expect(button?.getAttribute("aria-label")).toBe("Cart, 0 items");
+    expect(button.querySelector('[part="badge"]')).toBeNull();
   },
 };
 
