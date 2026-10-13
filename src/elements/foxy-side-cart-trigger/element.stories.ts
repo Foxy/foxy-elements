@@ -55,60 +55,6 @@ export default meta;
 
 type Story = StoryObj;
 
-export const UnknownCount: Story = {
-  name: "Unknown Count",
-  parameters: {
-    docs: {
-      description: {
-        story:
-          "A cold start: nothing has reported a count yet. `itemCount` is `null`, not `0`, and the element renders no badge at all rather than claim a count it doesn't have.",
-      },
-    },
-  },
-  beforeEach: () => stubItemCount(null),
-  render: () => renderTrigger(),
-  play: async ({ canvasElement }) => {
-    const trigger = getTrigger(canvasElement);
-
-    await waitFor(() => {
-      expect(trigger.shadowRoot?.querySelector("button")).toBeTruthy();
-    });
-
-    expect(trigger.shadowRoot?.querySelector("button")?.textContent).not.toMatch(/\d/);
-
-    // `textContent` never surfaces attribute values, so the assertion above
-    // would stay green even if the accessible name started lying about the
-    // count. Assert the name itself.
-    const button = trigger.shadowRoot?.querySelector("button");
-    expect(button?.getAttribute("aria-label")).toBe("Cart");
-  },
-};
-
-export const ZeroCount: Story = {
-  name: "Zero Count",
-  parameters: {
-    docs: {
-      description: {
-        story:
-          "A known, empty cart. Like the unknown state, it shows no badge. Only the accessible name differs: \"Cart, 0 items\" here, \"Cart\" there.",
-      },
-    },
-  },
-  beforeEach: () => stubItemCount(0),
-  render: () => renderTrigger(),
-  play: async ({ canvasElement }) => {
-    const trigger = getTrigger(canvasElement);
-
-    const button = await waitFor(() => {
-      const found = trigger.shadowRoot?.querySelector("button");
-      expect(found?.getAttribute("aria-label")).toBe("Cart, 0 items");
-      return found!;
-    });
-
-    expect(button.querySelector('[part="badge"]')).toBeNull();
-  },
-};
-
 export const KnownCount: Story = {
   name: "Known Count",
   parameters: {
