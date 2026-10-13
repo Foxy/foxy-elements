@@ -131,9 +131,12 @@ export function createLabeledField(options: {
   };
 }): { wrapper: HTMLDivElement; field: PaymentCardFieldElement } {
   const wrapper = createStorySection();
+  // Match DS Field.Root / Field.Label: space.md gap, font.label trimmed to cap height.
+  wrapper.style.gap = defaultTheme.space.md;
   const label = document.createElement("label");
-  label.style.fontSize = "0.875rem";
-  label.style.fontWeight = "500";
+  label.style.font = defaultTheme.font.label;
+  label.style.setProperty("text-box", "trim-both cap alphabetic");
+  label.style.color = defaultTheme.color.body;
   label.textContent =
     options.label ??
     (options.mode === "card_csc" ? "Security Code" : "Card Details");

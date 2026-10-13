@@ -8,12 +8,6 @@ import { useEffect, useRef, useState } from "react";
 import { Field } from "@foxy.io/design-system/field";
 import { styled } from "styled-components";
 
-const CardFieldRoot = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${(props) => props.theme.tokens.space.xs};
-`;
-
 const ErrorText = styled.p`
   all: unset;
   display: block;
@@ -145,10 +139,8 @@ export default function CardOptionEmbed({
     option.hostedCard.mode === "card_csc" ? cscFieldLabel : fullFieldLabel;
 
   return (
-    <CardFieldRoot>
-      <Field.Root>
-        <Field.Label htmlFor={fieldId}>{fieldLabel}</Field.Label>
-      </Field.Root>
+    <Field.Root>
+      <Field.Label htmlFor={fieldId}>{fieldLabel}</Field.Label>
       <StyledPaymentCardField
         data-csc-only={
           option.hostedCard.mode === "card_csc" ? "true" : undefined
@@ -182,6 +174,6 @@ export default function CardOptionEmbed({
         }}
       />
       {error ? <ErrorText>{tokenizeErrorMessage}</ErrorText> : null}
-    </CardFieldRoot>
+    </Field.Root>
   );
 }
