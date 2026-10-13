@@ -96,8 +96,7 @@ type CustomerPortalElementProps = Omit<
 type SideCartTriggerElementProps = DetailedHTMLProps<
   HTMLAttributes<SideCartTriggerElement>,
   SideCartTriggerElement
-> &
-  SharedThemeProps;
+>;
 
 type ExpressCheckoutElementProps = Omit<
   DetailedHTMLProps<

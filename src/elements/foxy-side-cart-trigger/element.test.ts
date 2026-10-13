@@ -37,7 +37,7 @@ describe("foxy-side-cart-trigger", () => {
 
     // A cold start has no cached count. Rendering a zero would be a claim we
     // cannot make, and a number that later jumps is worse than no number.
-    expect(element.shadowRoot?.textContent).not.toMatch(/\d/);
+    expect(getButton(element)?.textContent).not.toMatch(/\d/);
 
     // `textContent` never surfaces attribute values, so the badge assertion
     // above would stay green even if the accessible name started lying about
@@ -50,7 +50,7 @@ describe("foxy-side-cart-trigger", () => {
     const element = mount();
     await settle();
 
-    expect(element.shadowRoot?.textContent).toContain("0");
+    expect(getButton(element)?.textContent).toContain("0");
     expect(getButton(element)?.getAttribute("aria-label")).toBe("Cart, 0 items");
   });
 
@@ -59,7 +59,7 @@ describe("foxy-side-cart-trigger", () => {
     const element = mount();
     await settle();
 
-    expect(element.shadowRoot?.textContent).toContain("3");
+    expect(getButton(element)?.textContent).toContain("3");
     expect(getButton(element)?.getAttribute("aria-label")).toBe("Cart, 3 items");
   });
 
@@ -137,7 +137,7 @@ describe("foxy-side-cart-trigger", () => {
 
     // The badge and its accessible name must stop lying about the stale
     // count -- a correction still has to render.
-    expect(element.shadowRoot?.textContent).toContain("3");
+    expect(getButton(element)?.textContent).toContain("3");
     expect(getButton(element)?.getAttribute("aria-label")).toBe("Cart, 3 items");
     // But a correction is not something the shopper did, so the live region
     // stays quiet.
@@ -159,7 +159,7 @@ describe("foxy-side-cart-trigger", () => {
     );
     await settle();
 
-    expect(element.shadowRoot?.textContent).toContain("4");
+    expect(getButton(element)?.textContent).toContain("4");
     expect(getButton(element)?.getAttribute("aria-label")).toBe("Cart, 4 items");
     expect(element.shadowRoot?.querySelector("[aria-live]")?.textContent).toContain(
       "4",
@@ -210,9 +210,9 @@ describe("foxy-side-cart-trigger", () => {
     expect(getLiveRegion(element)?.textContent).toContain("4");
 
     // Any later render -- not just another count change -- must not still be
-    // carrying the old announcement. A theme-attribute change triggers one
-    // without touching the count at all.
-    element.setAttribute("theme-color-primary", "#123456");
+    // carrying the old announcement. A `lang` change triggers one without
+    // touching the count at all.
+    element.setAttribute("lang", "en");
     await settle();
 
     expect(getLiveRegion(element)?.textContent).toBe("");
@@ -261,20 +261,39 @@ describe("foxy-side-cart-trigger", () => {
       await settle();
     }
 
-    // `root.unmount()` on disconnect tears down the React tree but does not,
-    // by itself, remove the `<style>` tag `StyleSheetManager` inserted
-    // directly into the shadow root -- left alone, every reconnect adds
-    // another one, unbounded, for as long as the element stays on the page.
-    const styleCount =
-      element.shadowRoot?.querySelectorAll("style[data-styled]").length ?? 0;
-    expect(styleCount).toBeLessThanOrEqual(1);
+    expect(element.shadowRoot?.querySelectorAll("style")).toHaveLength(1);
   });
 
-  it("reflects a theme attribute onto the host's CSS custom properties", () => {
-    const element = document.createElement("foxy-side-cart-trigger");
-    element.setAttribute("theme-color-primary", "#123456");
+  it("exposes the button, label and badge as parts, and drops the badge while the count is unknown", async () => {
+    let current: number | null = null;
+    vi.spyOn(Object.getPrototypeOf(sideCart), "itemCount", "get").mockImplementation(
+      () => current,
+    );
 
-    expect(element.style.getPropertyValue("--color-primary")).toBe("#123456");
+    const element = mount();
+    await settle();
+
+    const part = (name: string) => element.shadowRoot?.querySelector(`[part="${name}"]`);
+    expect(part("button")).toBe(getButton(element));
+    expect(part("label")?.textContent).toBe("Cart");
+    // Removed, not hidden: an outside `::part(badge)` display rule would
+    // override a `hidden` attribute.
+    expect(part("badge")).toBeNull();
+
+    current = 2;
+    sideCart.dispatchEvent(
+      new CustomEvent("itemcountchange", { detail: { corrected: true } }),
+    );
+    await settle();
+    expect(part("badge")?.textContent).toBe("2");
+  });
+
+  it("does not render the live region as a part", async () => {
+    // An outside `::part()` rule beats the shadow styles that keep it clipped.
+    const element = mount();
+    await settle();
+
+    expect(getLiveRegion(element)?.hasAttribute("part")).toBe(false);
   });
 
   it("is not re-exported from the elements barrel", async () => {

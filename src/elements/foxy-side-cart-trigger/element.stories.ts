@@ -73,7 +73,7 @@ export const UnknownCount: Story = {
       expect(trigger.shadowRoot?.querySelector("button")).toBeTruthy();
     });
 
-    expect(trigger.shadowRoot?.textContent).not.toMatch(/\d/);
+    expect(trigger.shadowRoot?.querySelector("button")?.textContent).not.toMatch(/\d/);
 
     // `textContent` never surfaces attribute values, so the assertion above
     // would stay green even if the accessible name started lying about the
@@ -99,7 +99,7 @@ export const ZeroCount: Story = {
     const trigger = getTrigger(canvasElement);
 
     await waitFor(() => {
-      expect(trigger.shadowRoot?.textContent).toContain("0");
+      expect(trigger.shadowRoot?.querySelector("button")?.textContent).toContain("0");
     });
 
     const button = trigger.shadowRoot?.querySelector("button");
@@ -124,7 +124,7 @@ export const KnownCount: Story = {
     const show = spyOn(sideCart, "show").mockImplementation(() => undefined);
 
     await waitFor(() => {
-      expect(trigger.shadowRoot?.textContent).toContain("3");
+      expect(trigger.shadowRoot?.querySelector("button")?.textContent).toContain("3");
     });
 
     const button = trigger.shadowRoot?.querySelector("button");
@@ -134,5 +134,52 @@ export const KnownCount: Story = {
 
     expect(show).toHaveBeenCalledTimes(1);
     show.mockRestore();
+  },
+};
+
+export const CustomStyles: Story = {
+  name: "Custom Styles",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "The element ships plain defaults. Every visible node is a CSS part — `button`, `label` and `badge` — so a page restyles it with `::part()` from outside the shadow root.",
+      },
+    },
+  },
+  beforeEach: () => stubItemCount(3),
+  render: () => {
+    const wrapper = document.createElement("div");
+    const style = document.createElement("style");
+    style.textContent = `
+      .custom-trigger::part(button) {
+        border: none;
+        border-radius: 999px;
+        padding: 0.625rem 1rem;
+        background: #1f2937;
+        color: #ffffff;
+      }
+      .custom-trigger::part(label) {
+        font-weight: 600;
+      }
+      .custom-trigger::part(badge) {
+        background: #f59e0b;
+        color: #1f2937;
+      }
+    `;
+    const trigger = renderTrigger();
+    trigger.classList.add("custom-trigger");
+    wrapper.append(style, trigger);
+    return wrapper;
+  },
+  play: async ({ canvasElement }) => {
+    const trigger = getTrigger(canvasElement);
+
+    await waitFor(() => {
+      expect(trigger.shadowRoot?.querySelector('[part="badge"]')).toBeTruthy();
+    });
+
+    const badge = trigger.shadowRoot?.querySelector('[part="badge"]') as HTMLElement;
+    expect(getComputedStyle(badge).backgroundColor).toBe("rgb(245, 158, 11)");
   },
 };

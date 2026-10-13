@@ -45,6 +45,7 @@
     "@google-pay/button-element": "^3.2.1",
     "@stripe/react-stripe-js": "^6.0.0",
     "@stripe/stripe-js": "^9.0.0",
+    "intl-messageformat": "^10.7.18",
     "lucide-react": "^0.536.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

@@ -9,7 +9,32 @@ A merchant drops this element anywhere on their site — a header, a product pag
 
 Required attributes: none. It reads the shared `sideCart` singleton from `@foxy.io/sdk/checkout/side-cart` directly, so as soon as it's on the page it reflects whatever that singleton knows.
 
-Like the other themed elements in this package, it accepts `lang` (locale for its own accessible-name and announcement text) and the shared `theme-*` attributes — see `foxy-payment-method-selector`'s docs for the full attribute list; the mechanism is identical here.
+It accepts `lang`, the locale for its visible label, accessible name and announcement text. It falls back to the page's `<html lang>`, then to `en-US`.
+
+## Styling
+
+The element does not use the design system. It ships plain defaults — a bordered button that inherits the page's font and text color, and a badge in the page's system colors — and exposes every visible node as a CSS part:
+
+| Part | What it is |
+| --- | --- |
+| `button` | The `<button>` that opens the sidecart. |
+| `label` | The visible "Cart" text inside the button. |
+| `badge` | The item count. Not rendered while the count is unknown. |
+
+```css
+foxy-side-cart-trigger::part(button) {
+  border: none;
+  border-radius: 999px;
+  background: #1f2937;
+  color: #ffffff;
+}
+
+foxy-side-cart-trigger::part(badge) {
+  background: #f59e0b;
+}
+```
+
+The screen-reader announcement region is deliberately not a part: it has to stay visually hidden. See the **Custom Styles** story.
 
 ## Two things that look like bugs
 
@@ -17,12 +42,13 @@ Like the other themed elements in this package, it accepts `lang` (locale for it
 
 **A count change is announced only when the shopper caused it.** The element keeps an `aria-live="polite"` region for count changes, but the very first count to arrive is the cache or the store catching up with the page — not something the shopper did on this page — so that first arrival is silent. Only a change from one already-known count to another is announced. A screen reader user who clicks "Add to cart" hears the new count; a screen reader user who just loaded the page does not hear an unprompted correction.
 
-The accessible name ("Cart", or "Cart, N item(s)") goes through this package's `react-intl` message catalog rather than a hardcoded English string, and its count uses a real ICU plural rule — "1 item", not "1 items" — the same way every other user-facing string in this package does.
+The accessible name ("Cart", or "Cart, N item(s)") comes from this package's message catalog rather than a hardcoded English string, and its count uses a real ICU plural rule — "1 item", not "1 items".
 
 ## Scenarios
 
 - **Unknown Count** — the cold-start state: no badge.
 - **Zero Count** — a known, empty cart: badge reads `0`.
 - **Known Count** — a non-zero count renders in the badge, and clicking the trigger calls `sideCart.show()` to open the drawer.
+- **Custom Styles** — the same element restyled from the page with `::part()`.
 
 Each story stubs only `sideCart`'s `itemCount` getter (the same singleton a real integration reads); everything else — the button, the badge, the click handler, the live region — is the real element.
