@@ -245,5 +245,6 @@
   "portal_validation_max_length": "Must be {max} characters or fewer.",
   "portal_validation_required": "This field is required.",
   "side_cart_trigger_label": "Cart",
+  "side_cart_trigger_label_unavailable": "Cart, item count unavailable",
   "side_cart_trigger_label_with_count": "Cart, {count, plural, one {# item} other {# items}}"
 }

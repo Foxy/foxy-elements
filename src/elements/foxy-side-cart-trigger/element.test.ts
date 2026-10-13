@@ -26,6 +26,11 @@ describe("foxy-side-cart-trigger", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
     vi.restoreAllMocks();
+    // Test pages set no store domain, so the real getter turns true once the
+    // page has loaded. Tests of the error state override this.
+    vi.spyOn(Object.getPrototypeOf(sideCart), "itemCountUnavailable", "get").mockReturnValue(
+      false,
+    );
   });
 
   it("renders no badge while the count is unknown", async () => {
@@ -71,6 +76,33 @@ describe("foxy-side-cart-trigger", () => {
     await settle();
     expect(spinner()).toBeNull();
     expect(getButton(element)?.querySelector('[part="badge"]')?.textContent).toBe("2");
+  });
+
+  it("shows an error icon when the count can't load, until a count arrives", async () => {
+    let current: number | null = null;
+    let unavailable = true;
+    const proto = Object.getPrototypeOf(sideCart);
+    vi.spyOn(proto, "itemCount", "get").mockImplementation(() => current);
+    vi.mocked(Object.getOwnPropertyDescriptor(proto, "itemCountUnavailable")!.get!).mockImplementation(
+      () => unavailable,
+    );
+    const element = mount();
+    await settle();
+
+    const button = getButton(element)!;
+    expect(button.querySelector('[part="error"]')?.getAttribute("aria-hidden")).toBe("true");
+    expect(button.querySelector('[part="spinner"]')).toBeNull();
+    expect(button.getAttribute("aria-label")).toBe("Cart, item count unavailable");
+
+    current = 2;
+    unavailable = false;
+    sideCart.dispatchEvent(
+      new CustomEvent("itemcountchange", { detail: { corrected: false } }),
+    );
+    await settle();
+    expect(button.querySelector('[part="error"]')).toBeNull();
+    expect(button.querySelector('[part="badge"]')?.textContent).toBe("2");
+    expect(button.getAttribute("aria-label")).toBe("Cart, 2 items");
   });
 
   it("renders no badge for an empty cart, but names the count", async () => {

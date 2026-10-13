@@ -12,6 +12,10 @@ export const messages = defineMessages({
     id: "side_cart_trigger_label",
     defaultMessage: "Cart",
   },
+  triggerLabelUnavailable: {
+    id: "side_cart_trigger_label_unavailable",
+    defaultMessage: "Cart, item count unavailable",
+  },
   triggerLabelWithCount: {
     id: "side_cart_trigger_label_with_count",
     defaultMessage: "Cart, {count, plural, one {# item} other {# items}}",

@@ -25,6 +25,27 @@ function stubItemCount(itemCount: number | null): () => void {
   return () => spy.mockRestore();
 }
 
+/** Same prototype-spy reason as `stubItemCount`. Story pages set no store
+ * domain, so the real getter turns `true` once the page has loaded. */
+function stubItemCountUnavailable(unavailable: boolean): () => void {
+  const spy = spyOn(
+    Object.getPrototypeOf(sideCart) as { itemCountUnavailable: boolean },
+    "itemCountUnavailable",
+    "get",
+  ).mockReturnValue(unavailable);
+
+  return () => spy.mockRestore();
+}
+
+function stubCount(itemCount: number | null, unavailable = false): () => void {
+  const restoreCount = stubItemCount(itemCount);
+  const restoreUnavailable = stubItemCountUnavailable(unavailable);
+  return () => {
+    restoreUnavailable();
+    restoreCount();
+  };
+}
+
 function getTrigger(canvasElement: HTMLElement): SideCartTriggerElement {
   return canvasElement.querySelector(
     "[data-story-role='primary']",
@@ -64,7 +85,7 @@ export const Loading: Story = {
       },
     },
   },
-  beforeEach: () => stubItemCount(null),
+  beforeEach: () => stubCount(null),
   render: () => {
     const wrapper = document.createElement("div");
     wrapper.style.cssText = "display: flex; gap: 1rem; align-items: center;";
@@ -93,6 +114,39 @@ export const Loading: Story = {
   },
 };
 
+export const Unavailable: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "The count could not load: the first cart request failed, or no store domain was set. `sideCart.itemCountUnavailable` is `true`, and each layout shows an error icon in place of the badge. The SDK logs the cause and the fix to the console.",
+      },
+    },
+  },
+  beforeEach: () => stubCount(null, true),
+  render: () => {
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = "display: flex; gap: 1rem; align-items: center;";
+    wrapper.append(renderTrigger(), renderTrigger("icon"), renderTrigger("text"));
+    return wrapper;
+  },
+  play: async ({ canvasElement }) => {
+    const triggers = [
+      ...canvasElement.querySelectorAll<SideCartTriggerElement>("foxy-side-cart-trigger"),
+    ];
+
+    for (const trigger of triggers) {
+      const button = await waitFor(() => {
+        const found = trigger.shadowRoot?.querySelector("button");
+        expect(found?.querySelector('[part="error"]')).toBeTruthy();
+        return found!;
+      });
+
+      expect(button.getAttribute("aria-label")).toBe("Cart, item count unavailable");
+    }
+  },
+};
+
 export const KnownCount: Story = {
   name: "Known Count",
   parameters: {
@@ -103,7 +157,7 @@ export const KnownCount: Story = {
       },
     },
   },
-  beforeEach: () => stubItemCount(3),
+  beforeEach: () => stubCount(3),
   render: () => renderTrigger(),
   play: async ({ canvasElement }) => {
     const trigger = getTrigger(canvasElement);
@@ -133,7 +187,7 @@ export const IconOnly: Story = {
       },
     },
   },
-  beforeEach: () => stubItemCount(3),
+  beforeEach: () => stubCount(3),
   render: () => renderTrigger("icon"),
   play: async ({ canvasElement }) => {
     const button = await waitFor(() => {
@@ -156,7 +210,7 @@ export const TextOnly: Story = {
       },
     },
   },
-  beforeEach: () => stubItemCount(3),
+  beforeEach: () => stubCount(3),
   render: () => renderTrigger("text"),
   play: async ({ canvasElement }) => {
     const button = await waitFor(() => {

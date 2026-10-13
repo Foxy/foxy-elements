@@ -19,6 +19,9 @@ export type SideCartTriggerLayout = "default" | "icon" | "text";
 // Lucide's notice for `lucide-react`).
 const ICON_SVG = `<svg part="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>`;
 
+// Lucide's `circle-alert`, same license note as the cart icon.
+const ERROR_SVG = `<svg part="error" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>`;
+
 // Defaults only -- every visible node carries a `part`, and an outside
 // `::part()` rule wins over these. `Canvas` /
 // `CanvasText` are system colors, so the badge follows the page's
@@ -75,6 +78,8 @@ const STYLES = `
     [part="spinner"] { animation-duration: 2.4s; }
   }
   @keyframes spin { to { transform: rotate(1turn); } }
+  /* As tall as the badge, like the spinner. */
+  [part="error"] { width: 1.3125em; height: 1.3125em; flex: none; }
   .visually-hidden {
     position: absolute;
     width: 1px;
@@ -101,6 +106,7 @@ export class SideCartTriggerElement extends HTMLElement {
   #shadowRoot = this.attachShadow({ mode: "open" });
   #button = document.createElement("button");
   #icon: Element;
+  #error: Element;
   #label = document.createElement("span");
   #badge = document.createElement("span");
   #spinner = document.createElement("span");
@@ -138,6 +144,8 @@ export class SideCartTriggerElement extends HTMLElement {
     const icon = document.createElement("template");
     icon.innerHTML = ICON_SVG;
     this.#icon = icon.content.firstElementChild as Element;
+    icon.innerHTML = ERROR_SVG;
+    this.#error = icon.content.firstElementChild as Element;
 
     // `aria-live="polite"` alone; `role="status"` would imply the same thing.
     this.#liveRegion.setAttribute("aria-live", "polite");
@@ -244,21 +252,31 @@ export class SideCartTriggerElement extends HTMLElement {
     } else {
       this.#label.setAttribute("part", "label");
     }
+    const unavailable = sideCart.itemCountUnavailable;
     this.#button.setAttribute(
       "aria-label",
-      itemCount === null
-        ? this.#format(messages.triggerLabel)
-        : this.#format(messages.triggerLabelWithCount, { count: itemCount }),
+      unavailable
+        ? this.#format(messages.triggerLabelUnavailable)
+        : itemCount === null
+          ? this.#format(messages.triggerLabel)
+          : this.#format(messages.triggerLabelWithCount, { count: itemCount }),
     );
 
-    // A spinner while the count is unknown (`null`), nothing for an empty
-    // cart, a badge otherwise. Nodes are left out, not hidden: an outside
-    // `::part() { display: ... }` rule would override a `hidden` attribute.
+    // An error icon when the count can't load, a spinner while it is unknown
+    // (`null`), nothing for an empty cart, a badge otherwise. Nodes are left
+    // out, not hidden: an outside `::part() { display: ... }` rule would
+    // override a `hidden` attribute.
     this.#badge.textContent = String(itemCount);
     this.#button.replaceChildren(
       ...(layout === "text" ? [] : [this.#icon]),
       this.#label,
-      ...(itemCount === null ? [this.#spinner] : itemCount ? [this.#badge] : []),
+      ...(unavailable
+        ? [this.#error]
+        : itemCount === null
+          ? [this.#spinner]
+          : itemCount
+            ? [this.#badge]
+            : []),
     );
 
     this.#liveRegion.textContent =
