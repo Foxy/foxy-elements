@@ -51,7 +51,7 @@ foxy-side-cart-trigger::part(badge) {
 }
 ```
 
-The screen-reader announcement region is deliberately not a part: it has to stay visually hidden. See the **Custom Styles** story.
+The screen-reader announcement region is deliberately not a part: it has to stay visually hidden. Switch the theme in the Storybook toolbar to see the trigger restyled with `::part()`.
 
 ## Two things that look like bugs
 
@@ -67,6 +67,5 @@ The accessible name ("Cart", or "Cart, N item(s)") comes from this package's mes
 - **Zero Count** — a known, empty cart: badge reads `0`.
 - **Known Count** — a non-zero count renders in the badge, and clicking the trigger calls `sideCart.show()` to open the drawer.
 - **Icon Only** and **Text Only** — the other two layouts.
-- **Custom Styles** — the same element restyled from the page with `::part()`.
 
 Each story stubs only `sideCart`'s `itemCount` getter (the same singleton a real integration reads); everything else — the button, the badge, the click handler, the live region — is the real element.
