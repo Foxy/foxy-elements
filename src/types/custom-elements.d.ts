@@ -4,7 +4,10 @@ import type { CustomerPortalElement } from "@/elements/foxy-customer-portal/elem
 import type { PortalVariant } from "@/elements/foxy-customer-portal/types";
 import type { PaymentCardFieldElement } from "@/elements/foxy-payment-card-field/element";
 import type { PaymentMethodSelectorElement } from "@/elements/foxy-payment-method-selector/element";
-import type { SideCartTriggerElement } from "@/elements/foxy-side-cart-trigger/element";
+import type {
+  SideCartTriggerElement,
+  SideCartTriggerLayout,
+} from "@/elements/foxy-side-cart-trigger/element";
 import type { ThemeAttributeName, ThemePropertyName } from "@/lib/theme-mixin";
 
 type SharedThemeProps = Partial<Record<ThemePropertyName, string>> &
@@ -96,7 +99,9 @@ type CustomerPortalElementProps = Omit<
 type SideCartTriggerElementProps = DetailedHTMLProps<
   HTMLAttributes<SideCartTriggerElement>,
   SideCartTriggerElement
->;
+> & {
+  layout?: SideCartTriggerLayout;
+};
 
 type ExpressCheckoutElementProps = Omit<
   DetailedHTMLProps<

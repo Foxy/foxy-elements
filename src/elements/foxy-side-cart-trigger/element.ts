@@ -5,6 +5,7 @@ import enUsMessages from "@/locales/en-US.json";
 import { messages } from "./messages";
 
 const LANG_ATTRIBUTE = "lang";
+const LAYOUT_ATTRIBUTE = "layout";
 const DEFAULT_LOCALE = "en-US";
 
 const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
@@ -12,13 +13,20 @@ const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
   en: enUsMessages as Record<string, string>,
 };
 
-// Defaults only -- every rendered node except the live region carries a
-// `part`, and an outside `::part()` rule wins over these. `Canvas` /
+export type SideCartTriggerLayout = "default" | "icon" | "text";
+
+// Lucide's `shopping-cart` (ISC; the CDN build's LICENSE.md already carries
+// Lucide's notice for `lucide-react`).
+const ICON_SVG = `<svg part="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>`;
+
+// Defaults only -- every visible node carries a `part`, and an outside
+// `::part()` rule wins over these. `Canvas` /
 // `CanvasText` are system colors, so the badge follows the page's
 // `color-scheme` and forced-colors mode without a design-system dependency.
 //
-// The live region has no `part` on purpose: an outside `::part()` rule would
-// beat `.visually-hidden` and could un-hide it. `display: none`,
+// The live region, and the label in the `icon` layout, have no `part` on
+// purpose: an outside `::part()` rule would beat `.visually-hidden` and could
+// un-hide them. `display: none`,
 // `visibility: hidden` and `hidden` would hide it from screen readers too,
 // so it is clipped to nothing instead.
 const STYLES = `
@@ -35,7 +43,10 @@ const STYLES = `
     font: inherit;
     cursor: pointer;
   }
+  :host([layout="icon"]) [part="button"] { padding: 0.5em; }
   [part="button"]:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+  /* At least one line tall, so the icon layout matches the others' height. */
+  [part="icon"] { width: 1.25em; height: max(1.25em, 1lh); flex: none; }
   [part="badge"] {
     min-width: 1.5em;
     padding: 0 0.375em;
@@ -72,6 +83,7 @@ type SideCartItemCountChangeDetail = { corrected: boolean };
 export class SideCartTriggerElement extends HTMLElement {
   #shadowRoot = this.attachShadow({ mode: "open" });
   #button = document.createElement("button");
+  #icon: Element;
   #label = document.createElement("span");
   #badge = document.createElement("span");
   #liveRegion = document.createElement("span");
@@ -79,7 +91,17 @@ export class SideCartTriggerElement extends HTMLElement {
   #announcedCount: number | null = null;
 
   static get observedAttributes(): string[] {
-    return [LANG_ATTRIBUTE];
+    return [LANG_ATTRIBUTE, LAYOUT_ATTRIBUTE];
+  }
+
+  /** `icon`, `text`, or `default` (icon and text) for any other value. */
+  get layout(): SideCartTriggerLayout {
+    const value = this.getAttribute(LAYOUT_ATTRIBUTE);
+    return value === "icon" || value === "text" ? value : "default";
+  }
+
+  set layout(value: SideCartTriggerLayout) {
+    this.setAttribute(LAYOUT_ATTRIBUTE, value);
   }
 
   constructor() {
@@ -91,9 +113,11 @@ export class SideCartTriggerElement extends HTMLElement {
     this.#button.type = "button";
     this.#button.setAttribute("part", "button");
     this.#button.addEventListener("click", () => sideCart.show());
-    this.#label.setAttribute("part", "label");
     this.#badge.setAttribute("part", "badge");
-    this.#button.append(this.#label);
+
+    const icon = document.createElement("template");
+    icon.innerHTML = ICON_SVG;
+    this.#icon = icon.content.firstElementChild as Element;
 
     // `aria-live="polite"` alone; `role="status"` would imply the same thing.
     this.#liveRegion.setAttribute("aria-live", "polite");
@@ -192,7 +216,14 @@ export class SideCartTriggerElement extends HTMLElement {
     const announcedCount = this.#announcedCount;
     this.#announcedCount = null;
 
+    const layout = this.layout;
     this.#label.textContent = this.#format(messages.triggerLabel);
+    this.#label.classList.toggle("visually-hidden", layout === "icon");
+    if (layout === "icon") {
+      this.#label.removeAttribute("part");
+    } else {
+      this.#label.setAttribute("part", "label");
+    }
     this.#button.setAttribute(
       "aria-label",
       itemCount === null
@@ -200,15 +231,15 @@ export class SideCartTriggerElement extends HTMLElement {
         : this.#format(messages.triggerLabelWithCount, { count: itemCount }),
     );
 
-    // `null` means the count is not known yet -- render no badge. The node is
-    // removed, not hidden: an outside `::part(badge) { display: ... }` rule
-    // would override a `hidden` attribute.
-    if (itemCount === null) {
-      this.#badge.remove();
-    } else {
-      this.#badge.textContent = String(itemCount);
-      this.#button.append(this.#badge);
-    }
+    // `null` means the count is not known yet -- render no badge. Nodes are
+    // left out, not hidden: an outside `::part() { display: ... }` rule would
+    // override a `hidden` attribute.
+    this.#badge.textContent = String(itemCount);
+    this.#button.replaceChildren(
+      ...(layout === "text" ? [] : [this.#icon]),
+      this.#label,
+      ...(itemCount === null ? [] : [this.#badge]),
+    );
 
     this.#liveRegion.textContent =
       announcedCount === null

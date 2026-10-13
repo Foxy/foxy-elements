@@ -288,6 +288,65 @@ describe("foxy-side-cart-trigger", () => {
     expect(part("badge")?.textContent).toBe("2");
   });
 
+  it.each([
+    ["default", true, true],
+    ["icon", true, false],
+    ["text", false, true],
+  ] as const)(
+    "renders the %s layout (icon: %s, visible label: %s)",
+    async (layout, hasIcon, hasVisibleLabel) => {
+      vi.spyOn(Object.getPrototypeOf(sideCart), "itemCount", "get").mockReturnValue(2);
+      const element = document.createElement("foxy-side-cart-trigger");
+      element.setAttribute("layout", layout);
+      document.body.appendChild(element);
+      await settle();
+
+      const button = getButton(element)!;
+      expect(!!button.querySelector('[part="icon"]')).toBe(hasIcon);
+      expect(!!button.querySelector('[part="label"]')).toBe(hasVisibleLabel);
+      expect(button.querySelector('[part="badge"]')?.textContent).toBe("2");
+      expect(button.getAttribute("aria-label")).toBe("Cart, 2 items");
+    },
+  );
+
+  it("keeps the label in the icon layout, visually hidden and without a part", async () => {
+    const element = document.createElement("foxy-side-cart-trigger");
+    element.setAttribute("layout", "icon");
+    document.body.appendChild(element);
+    await settle();
+
+    const label = getButton(element)?.querySelector("span:not([part])") as HTMLElement;
+    expect(label.textContent).toBe("Cart");
+    const computed = getComputedStyle(label);
+    expect(computed.position).toBe("absolute");
+    expect(computed.width).toBe("1px");
+    expect(computed.clip).toBe("rect(0px, 0px, 0px, 0px)");
+    expect(computed.display).not.toBe("none");
+  });
+
+  it("re-renders when the layout attribute changes", async () => {
+    const element = mount();
+    await settle();
+    expect(getButton(element)?.querySelector('[part="icon"]')).toBeTruthy();
+
+    element.setAttribute("layout", "text");
+    expect(getButton(element)?.querySelector('[part="icon"]')).toBeNull();
+  });
+
+  it("treats a missing or unknown layout as default", () => {
+    const element = document.createElement("foxy-side-cart-trigger");
+    expect(element.layout).toBe("default");
+
+    element.setAttribute("layout", "bogus");
+    expect(element.layout).toBe("default");
+  });
+
+  it("reflects the layout property to the attribute while disconnected", () => {
+    const element = document.createElement("foxy-side-cart-trigger");
+    element.layout = "icon";
+    expect(element.getAttribute("layout")).toBe("icon");
+  });
+
   it("does not render the live region as a part", async () => {
     // An outside `::part()` rule beats the shadow styles that keep it clipped.
     const element = mount();

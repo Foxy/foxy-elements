@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { expect, spyOn, userEvent, waitFor } from "storybook/test";
 import { sideCart } from "@foxy.io/sdk/checkout/side-cart";
 import "./element";
-import type { SideCartTriggerElement } from "./element";
+import type { SideCartTriggerElement, SideCartTriggerLayout } from "./element";
 
 /**
  * Stubs the singleton's `itemCount` getter for the story's lifetime. The
@@ -31,9 +31,10 @@ function getTrigger(canvasElement: HTMLElement): SideCartTriggerElement {
   ) as SideCartTriggerElement;
 }
 
-function renderTrigger(): SideCartTriggerElement {
+function renderTrigger(layout?: SideCartTriggerLayout): SideCartTriggerElement {
   const element = document.createElement("foxy-side-cart-trigger");
   element.setAttribute("data-story-role", "primary");
+  if (layout) element.layout = layout;
   return element;
 }
 
@@ -134,6 +135,52 @@ export const KnownCount: Story = {
 
     expect(show).toHaveBeenCalledTimes(1);
     show.mockRestore();
+  },
+};
+
+export const IconOnly: Story = {
+  name: "Icon Only",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "`layout=\"icon\"`: the icon and the badge only. The \"Cart\" text stays in the DOM, visually hidden, and the button's accessible name is unchanged.",
+      },
+    },
+  },
+  beforeEach: () => stubItemCount(3),
+  render: () => renderTrigger("icon"),
+  play: async ({ canvasElement }) => {
+    const button = await waitFor(() => {
+      const found = getTrigger(canvasElement).shadowRoot?.querySelector("button");
+      expect(found?.querySelector('[part="icon"]')).toBeTruthy();
+      return found!;
+    });
+
+    expect(button.querySelector('[part="label"]')).toBeNull();
+    expect(button.getAttribute("aria-label")).toBe("Cart, 3 items");
+  },
+};
+
+export const TextOnly: Story = {
+  name: "Text Only",
+  parameters: {
+    docs: {
+      description: {
+        story: "`layout=\"text\"`: the text and the badge, no icon.",
+      },
+    },
+  },
+  beforeEach: () => stubItemCount(3),
+  render: () => renderTrigger("text"),
+  play: async ({ canvasElement }) => {
+    const button = await waitFor(() => {
+      const found = getTrigger(canvasElement).shadowRoot?.querySelector("button");
+      expect(found?.querySelector('[part="label"]')).toBeTruthy();
+      return found!;
+    });
+
+    expect(button.querySelector('[part="icon"]')).toBeNull();
   },
 };
 

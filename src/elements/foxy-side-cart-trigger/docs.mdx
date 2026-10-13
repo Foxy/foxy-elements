@@ -5,11 +5,27 @@ import * as SideCartTriggerStories from "./element.stories";
 
 # foxy-side-cart-trigger
 
-A merchant drops this element anywhere on their site — a header, a product page, a nav bar — to show the cart's item count and open the sidecart drawer on click. It renders a button and a badge; nothing else needs configuring.
+A merchant drops this element anywhere on their site — a header, a product page, a nav bar — to show the cart's item count and open the sidecart drawer on click. It renders a button with a cart icon, the text "Cart" and a count badge; nothing else needs configuring.
 
 Required attributes: none. It reads the shared `sideCart` singleton from `@foxy.io/sdk/checkout/side-cart` directly, so as soon as it's on the page it reflects whatever that singleton knows.
 
 It accepts `lang`, the locale for its visible label, accessible name and announcement text. It falls back to the page's `<html lang>`, then to `en-US`.
+
+## Layout
+
+The `layout` attribute (and `layout` property) picks what the button shows. The badge shows in every layout once the count is known.
+
+| `layout` | Shows |
+| --- | --- |
+| `default`, or no attribute | Icon and text |
+| `icon` | Icon only. The text stays in the DOM, visually hidden. |
+| `text` | Text only |
+
+Any other value behaves as `default`. The button's accessible name ("Cart, 3 items") is the same in every layout.
+
+```html
+<foxy-side-cart-trigger layout="icon"></foxy-side-cart-trigger>
+```
 
 ## Styling
 
@@ -18,7 +34,8 @@ The element does not use the design system. It ships plain defaults — a border
 | Part | What it is |
 | --- | --- |
 | `button` | The `<button>` that opens the sidecart. |
-| `label` | The visible "Cart" text inside the button. |
+| `icon` | The cart icon `<svg>`. Not rendered in the `text` layout. It draws with `currentColor`. |
+| `label` | The visible "Cart" text inside the button. Not a part in the `icon` layout, where the text is visually hidden. |
 | `badge` | The item count. Not rendered while the count is unknown. |
 
 ```css
@@ -49,6 +66,7 @@ The accessible name ("Cart", or "Cart, N item(s)") comes from this package's mes
 - **Unknown Count** — the cold-start state: no badge.
 - **Zero Count** — a known, empty cart: badge reads `0`.
 - **Known Count** — a non-zero count renders in the badge, and clicking the trigger calls `sideCart.show()` to open the drawer.
+- **Icon Only** and **Text Only** — the other two layouts.
 - **Custom Styles** — the same element restyled from the page with `::part()`.
 
 Each story stubs only `sideCart`'s `itemCount` getter (the same singleton a real integration reads); everything else — the button, the badge, the click handler, the live region — is the real element.
