@@ -1299,7 +1299,7 @@ function withSession(): () => void {
 }
 
 const meta: Meta = {
-  title: "Elements/foxy-customer-portal",
+  title: "foxy-customer-portal",
   // `fullscreen`, not `centered`: the element sets no width of its own, so a
   // centered canvas would pad it in and hide exactly what these stories are
   // for -- how the portal behaves at the width its host gives it.

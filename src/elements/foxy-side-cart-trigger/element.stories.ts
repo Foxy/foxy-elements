@@ -38,7 +38,7 @@ function renderTrigger(): SideCartTriggerElement {
 }
 
 const meta = {
-  title: "Universal/foxy-side-cart-trigger",
+  title: "foxy-side-cart-trigger",
   parameters: {
     layout: "centered",
     docs: {
