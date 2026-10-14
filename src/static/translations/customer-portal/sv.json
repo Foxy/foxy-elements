@@ -1,4 +1,5 @@
 {
+  "sign_out": "Logga ut",
   "password-reset": {
     "title": "Återställ lösenord",
     "subtitle": "Uppdatera ditt lösenord nu för att hålla ditt konto säkert.",

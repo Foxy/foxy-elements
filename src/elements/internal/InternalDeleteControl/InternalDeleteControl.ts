@@ -1,7 +1,8 @@
 import type { InternalConfirmDialog } from '../InternalConfirmDialog/InternalConfirmDialog';
 import type { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
-import type { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../InternalButton/InternalButton';
+import '../InternalButton/index';
 
 import { InternalControl } from '../InternalControl/InternalControl';
 import { html } from 'lit-element';
@@ -21,7 +22,7 @@ export class InternalDeleteControl extends InternalControl {
     };
   }
 
-  /** Same as the "theme" attribute of the `vaadin-button` element. */
+  /** Same as the "theme" attribute of the `foxy-internal-button` element. */
   theme = 'error';
 
   renderControl(): TemplateResult {
@@ -38,18 +39,18 @@ export class InternalDeleteControl extends InternalControl {
       >
       </foxy-internal-confirm-dialog>
 
-      <vaadin-button
+      <foxy-internal-button
         data-testid="delete"
         theme=${this.theme}
         class="w-full"
         ?disabled=${this.disabled || this.readonly}
         @click=${(evt: CustomEvent) => {
           const confirm = this.renderRoot.querySelector('#confirm') as InternalConfirmDialog;
-          confirm.show(evt.currentTarget as ButtonElement);
+          confirm.show(evt.currentTarget as InternalButton);
         }}
       >
         <foxy-i18n infer="" key="delete"></foxy-i18n>
-      </vaadin-button>
+      </foxy-internal-button>
     `;
   }
 }

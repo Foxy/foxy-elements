@@ -176,7 +176,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
             `;
           })}
 
-          <vaadin-button
+          <foxy-internal-button
             class="w-full"
             theme="success"
             ?disabled=${this.disabled}
@@ -188,7 +188,7 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
             }}
           >
             <foxy-i18n infer="add-product" key="caption"></foxy-i18n>
-          </vaadin-button>
+          </foxy-internal-button>
         </foxy-internal-summary-control>
 
         <div class="space-y-m md-col-span-2 sticky top-0">

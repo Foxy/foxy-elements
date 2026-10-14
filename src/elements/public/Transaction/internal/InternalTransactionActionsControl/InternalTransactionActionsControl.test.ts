@@ -315,7 +315,7 @@ describe('Transaction', () => {
 
       const editMethod = stub(wrapper, 'edit');
       const submitMethod = stub(wrapper, 'submit');
-      const button = label?.closest('vaadin-button');
+      const button = label?.closest('foxy-internal-button');
       button?.dispatchEvent(new CustomEvent('click'));
       expect(editMethod).to.have.been.calledOnceWith({ hide_transaction: true });
       expect(submitMethod).to.have.been.calledOnce;
@@ -346,7 +346,7 @@ describe('Transaction', () => {
 
       const editMethod = stub(wrapper, 'edit');
       const submitMethod = stub(wrapper, 'submit');
-      const button = label?.closest('vaadin-button');
+      const button = label?.closest('foxy-internal-button');
       button?.dispatchEvent(new CustomEvent('click'));
       expect(editMethod).to.have.been.calledOnceWith({ hide_transaction: false });
       expect(submitMethod).to.have.been.calledOnce;
@@ -358,7 +358,7 @@ describe('Transaction', () => {
       `)) as InternalTransactionActionsControl;
 
       const label = control.renderRoot.querySelector('foxy-i18n[infer="archive"]');
-      const button = label?.closest('vaadin-button');
+      const button = label?.closest('foxy-internal-button');
       expect(button).to.not.have.attribute('disabled');
 
       control.disabled = true;

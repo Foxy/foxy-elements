@@ -1,6 +1,6 @@
 import '@polymer/iron-icon';
 import '@polymer/iron-icons';
-import '@vaadin/vaadin-button';
+import '../../internal/InternalButton/index';
 import '../../internal/InternalConfirmDialog/index';
 import '../../internal/InternalSandbox/index';
 import '../UpdatePaymentMethodForm/index';

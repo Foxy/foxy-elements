@@ -1,5 +1,5 @@
 import '@polymer/iron-icon';
-import '@vaadin/vaadin-button';
+import '../../internal/InternalButton/index';
 
 import { ErrorScreen, FriendlyError } from '../../private/ErrorScreen/ErrorScreen';
 import { FxBookmark, FxCustomerPortalSettings, FxStore } from '../../../types/hapi';
@@ -54,6 +54,7 @@ export class CustomerPortalSettings extends Translatable {
     return {
       'iron-icon': customElements.get('iron-icon'),
       'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-internal-button': customElements.get('foxy-internal-button'),
       'x-frequency-modification': FrequencyModification,
       'x-next-date-modification': NextDateModification,
       'x-session-duration': SessionDuration,
@@ -256,7 +257,7 @@ export class CustomerPortalSettings extends Translatable {
                 class="sticky flex justify-between rounded-t-l rounded-b-l shadow-m -mx-s p-s bg-contrast"
                 style="bottom: var(--lumo-space-m)"
               >
-                <vaadin-button
+                <foxy-internal-button
                   data-testid="save"
                   theme="primary ${matchesDeleted ? 'error' : 'success'}"
                   .disabled=${matchesInvalid}
@@ -268,9 +269,9 @@ export class CustomerPortalSettings extends Translatable {
                     key="save_${matchesCreated ? 'create' : matchesDeleted ? 'delete' : 'update'}"
                   >
                   </x-i18n>
-                </vaadin-button>
+                </foxy-internal-button>
 
-                <vaadin-button
+                <foxy-internal-button
                   style="--lumo-contrast: var(--lumo-base-color)"
                   data-testid="reset"
                   theme="contrast tertiary"
@@ -278,7 +279,7 @@ export class CustomerPortalSettings extends Translatable {
                 >
                   <x-i18n lang=${this.lang} key="undo_all"></x-i18n>
                   <iron-icon icon="lumo:reload" slot="suffix"></iron-icon>
-                </vaadin-button>
+                </foxy-internal-button>
               </div>
             `
           : this.__service.state.matches('busy')

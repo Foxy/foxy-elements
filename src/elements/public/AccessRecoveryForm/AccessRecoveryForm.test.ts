@@ -5,7 +5,7 @@ import './index';
 import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { AccessRecoveryForm } from './AccessRecoveryForm';
 import { BooleanSelector } from '@foxy.io/sdk/core';
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../../internal/InternalButton/InternalButton';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
@@ -371,7 +371,7 @@ describe('AccessRecoveryForm', () => {
     it('submits valid form on click', async () => {
       const layout = html`<foxy-access-recovery-form></foxy-access-recovery-form>`;
       const element = await fixture<AccessRecoveryForm>(layout);
-      const control = await getByTestId<ButtonElement>(element, 'submit');
+      const control = await getByTestId<InternalButton>(element, 'submit');
       const submit = stub(element, 'submit');
 
       element.edit({ type: 'email', detail: { email: 'justice.witt@example.com' } });

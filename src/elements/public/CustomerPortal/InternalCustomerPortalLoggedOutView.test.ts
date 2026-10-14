@@ -3,7 +3,7 @@ import './index';
 import { expect, fixture, html } from '@open-wc/testing';
 
 import { AccessRecoveryForm } from '../AccessRecoveryForm';
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../../internal/InternalButton/InternalButton';
 import { InternalCustomerPortalLoggedOutView } from './InternalCustomerPortalLoggedOutView';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { SignInForm } from '../SignInForm';
@@ -411,7 +411,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
         `);
 
         const recover = await getByTestId(element, 'sign-in:recover');
-        const title = await getByKey(recover!, 'recover_access');
+        const title = recover!.querySelector('foxy-i18n[key="recover_access"]');
 
         expect(title).to.exist;
         expect(title).to.have.attribute('lang', 'es');
@@ -421,7 +421,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
       it('opens access recovery page on click', async () => {
         const layout = html`<foxy-internal-customer-portal-logged-out-view></foxy-internal-customer-portal-logged-out-view>`;
         const element = await fixture<InternalCustomerPortalLoggedOutView>(layout);
-        const button = (await getByTestId(element, 'sign-in:recover')) as ButtonElement;
+        const button = (await getByTestId(element, 'sign-in:recover')) as InternalButton;
 
         button.click();
         expect(element).to.have.property('page', 'access-recovery');
@@ -893,7 +893,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
         `);
 
         const signin = await getByTestId(element, 'sign-up:go-back');
-        const title = await getByKey(signin!, 'go_back');
+        const title = signin!.querySelector('foxy-i18n[key="go_back"]');
 
         expect(title).to.exist;
         expect(title).to.have.attribute('lang', 'es');
@@ -906,7 +906,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
           </foxy-internal-customer-portal-logged-out-view>
         `);
 
-        ((await getByTestId(element, 'sign-up:go-back')) as ButtonElement).click();
+        ((await getByTestId(element, 'sign-up:go-back')) as InternalButton).click();
         expect(element).to.have.property('page', 'sign-in');
       });
     });
@@ -1359,7 +1359,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
         `);
 
         const signin = await getByTestId(element, 'access-recovery:back');
-        const title = await getByKey(signin!, 'back');
+        const title = signin!.querySelector('foxy-i18n[key="back"]');
 
         expect(title).to.exist;
         expect(title).to.have.attribute('lang', 'es');
@@ -1372,7 +1372,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
           </foxy-internal-customer-portal-logged-out-view>
         `);
 
-        ((await getByTestId(element, 'access-recovery:back')) as ButtonElement).click();
+        ((await getByTestId(element, 'access-recovery:back')) as InternalButton).click();
         expect(element).to.have.property('page', 'sign-in');
       });
     });

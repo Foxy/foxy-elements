@@ -1,5 +1,3 @@
-import '@vaadin/vaadin-button';
-
 import '../../public/I18n/index';
 import '../InternalConfirmDialog/index';
 import '../InternalControl/index';

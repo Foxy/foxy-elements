@@ -5,7 +5,7 @@ import './index';
 
 import { expect, fixture, waitUntil } from '@open-wc/testing';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../../internal/InternalButton/InternalButton';
 import { Data } from './types';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
@@ -272,7 +272,7 @@ describe('PaymentMethodCard', () => {
       `;
 
       const element = await fixture<PaymentMethodCard>(layout);
-      const control = await getByTestId<ButtonElement>(element, 'actions:update');
+      const control = await getByTestId<InternalButton>(element, 'actions:update');
       const confirm = await getByTestId<FormDialog>(element, 'update-dialog');
       const showMethod = stub(confirm!, 'show');
 
@@ -431,7 +431,7 @@ describe('PaymentMethodCard', () => {
       const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
       const element = await fixture<PaymentMethodCard>(layout);
-      const control = await getByTestId<ButtonElement>(element, 'actions:delete');
+      const control = await getByTestId<InternalButton>(element, 'actions:delete');
       const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
       const showMethod = stub(confirm!, 'show');
 

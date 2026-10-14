@@ -32,6 +32,7 @@ export class CancellationForm extends Base<Data> {
       'foxy-internal-calendar': customElements.get('foxy-internal-calendar'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-internal-button': customElements.get('foxy-internal-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
       'x-warning': Warning,
@@ -114,7 +115,7 @@ export class CancellationForm extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot('submit:before')}
 
-        <vaadin-button
+        <foxy-internal-button
           data-testid="submit"
           ?disabled=${!isValid || this.disabledSelector.matches('submit', true)}
           theme="primary error"
@@ -122,7 +123,7 @@ export class CancellationForm extends Base<Data> {
           @click=${() => this.submit()}
         >
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="end_subscription"></foxy-i18n>
-        </vaadin-button>
+        </foxy-internal-button>
 
         ${this.renderTemplateOrSlot('submit:after')}
       </div>

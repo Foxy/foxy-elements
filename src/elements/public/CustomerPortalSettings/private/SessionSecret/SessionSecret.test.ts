@@ -1,5 +1,5 @@
 import { expect, fixture } from '@open-wc/testing';
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../../../../internal/InternalButton/InternalButton';
 import { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-field';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
@@ -16,7 +16,7 @@ customElements.define('x-session-secret', TestSessionSecret);
 
 interface Refs {
   input: PasswordFieldElement;
-  button: ButtonElement;
+  button: InternalButton;
 }
 
 function testDisabled(disabled: boolean) {

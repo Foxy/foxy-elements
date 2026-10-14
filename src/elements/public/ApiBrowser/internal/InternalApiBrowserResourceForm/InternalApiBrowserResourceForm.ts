@@ -112,14 +112,14 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
               : ''}
             ${this.in({ idle: { snapshot: 'dirty' } }) || this.in({ idle: { template: 'dirty' } })
               ? html`
-                  <vaadin-button
+                  <foxy-internal-button
                     data-testid="undo"
                     theme="tertiary-inline contrast"
                     class="px-xs"
                     @click=${() => this.undo()}
                   >
                     <foxy-i18n infer="" key="undo"></foxy-i18n>
-                  </vaadin-button>
+                  </foxy-internal-button>
                 `
               : ''}
             ${this.in({ idle: 'snapshot' })
@@ -287,7 +287,7 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
           </button>
 
           <div slot="action" class="h-full flex">
-            <vaadin-button
+            <foxy-internal-button
               theme="secondary success"
               class="h-full rounded-none"
               @click=${() => {
@@ -296,7 +296,7 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
               }}
             >
               POST
-            </vaadin-button>
+            </foxy-internal-button>
           </div>
         </foxy-swipe-actions>
       </li>

@@ -34,7 +34,7 @@ export class InternalBulkAddActionControl extends InternalControl {
       >
       </foxy-form-dialog>
 
-      <vaadin-button
+      <foxy-internal-button
         theme="tertiary-inline"
         ?disabled=${this.disabled}
         @click=${(evt: Event) => {
@@ -48,7 +48,7 @@ export class InternalBulkAddActionControl extends InternalControl {
         }}
       >
         <foxy-i18n infer="" key="button_text"></foxy-i18n>
-      </vaadin-button>
+      </foxy-internal-button>
     `;
   }
 }

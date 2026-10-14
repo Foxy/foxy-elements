@@ -45,6 +45,12 @@ groups.push({
   files: './src/server/**/*.test.ts',
 });
 
+// Mixins are not component directories either. Same reason as the server group above.
+groups.push({
+  name: 'mixins',
+  files: './src/mixins/**/*.test.ts',
+});
+
 const configURL = new URL('../web-test-runner.groups.js', import.meta.url);
 const config = `export const groups = ${JSON.stringify(groups, null, 2)}`;
 

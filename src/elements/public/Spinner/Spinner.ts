@@ -45,7 +45,7 @@ export class Spinner extends Base {
     if (this.state === 'end') {
       icon = html`<iron-icon data-testid="icon" icon="icons:done-all"></iron-icon>`;
       text = 'loading_end';
-      tint = 'text-tertiary';
+      tint = 'text-secondary';
     } else if (this.state === 'error') {
       icon = html`<iron-icon data-testid="icon" icon="icons:error-outline"></iron-icon>`;
       text = 'loading_error';
@@ -53,11 +53,11 @@ export class Spinner extends Base {
     } else if (this.state === 'paused') {
       icon = html`<iron-icon data-testid="icon" icon="icons:more-horiz"></iron-icon>`;
       text = 'loading_paused';
-      tint = 'text-tertiary';
+      tint = 'text-secondary';
     } else if (this.state === 'empty') {
       icon = html`<iron-icon data-testid="icon" icon="icons:info-outline"></iron-icon>`;
       text = 'loading_empty';
-      tint = 'text-tertiary';
+      tint = 'text-secondary';
     } else {
       icon = svg`
         <svg data-testid="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 22 22" preserveAspectRatio="xMidYMid" class="animate-spin h-full w-full">
@@ -66,7 +66,7 @@ export class Spinner extends Base {
       `;
 
       text = 'loading_busy';
-      tint = 'text-tertiary';
+      tint = 'text-secondary';
     }
 
     if (this.layout === 'horizontal') {

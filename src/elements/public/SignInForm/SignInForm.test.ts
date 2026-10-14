@@ -3,7 +3,7 @@ import './index';
 import { expect, fixture, waitUntil } from '@open-wc/testing';
 
 import { BooleanSelector } from '@foxy.io/sdk/core';
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../../internal/InternalButton/InternalButton';
 import { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
@@ -1492,7 +1492,7 @@ describe('SignInForm', () => {
     it('submits valid form on click', async () => {
       const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
       const element = await fixture<SignInForm>(layout);
-      const control = await getByTestId<ButtonElement>(element, 'submit');
+      const control = await getByTestId<InternalButton>(element, 'submit');
       const submit = stub(element, 'submit');
 
       element.edit({

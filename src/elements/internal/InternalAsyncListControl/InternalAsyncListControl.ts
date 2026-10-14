@@ -223,7 +223,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
         ${clickableItem}
         ${this.actions.map(action => {
           return html`
-            <vaadin-button
+            <foxy-internal-button
               data-testclass="action"
               theme=${action.theme}
               class="h-full rounded-none relative"
@@ -249,13 +249,13 @@ export class InternalAsyncListControl extends InternalEditableControl {
                 <foxy-spinner layout="no-label" infer="spinner" state=${action.state}>
                 </foxy-spinner>
               </div>
-            </vaadin-button>
+            </foxy-internal-button>
           `;
         })}
         ${this.hideDeleteButton
           ? ''
           : html`
-              <vaadin-button
+              <foxy-internal-button
                 theme="primary error"
                 class="h-full rounded-none"
                 slot="action"
@@ -277,7 +277,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
                 }}
               >
                 <foxy-i18n infer="" key="delete_button_text"></foxy-i18n>
-              </vaadin-button>
+              </foxy-internal-button>
             `}
       </foxy-swipe-actions>
     `;
@@ -464,7 +464,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
             >
             </foxy-internal-async-list-control-filter-overlay>
 
-            <vaadin-button
+            <foxy-internal-button
               theme="tertiary-inline contrast"
               id="filters"
               ?disabled=${this.disabled}
@@ -472,7 +472,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
             >
               <foxy-i18n infer="pagination" key="search_button_text"></foxy-i18n>
               ${this.filter ? html`<span>(${this.filter.split('&').length})</span>` : ''}
-            </vaadin-button>
+            </foxy-internal-button>
           `
         : '',
 
@@ -485,7 +485,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
                   const isActive = this.__activeBulkAction?.name === action.name;
 
                   return html`
-                    <vaadin-button
+                    <foxy-internal-button
                       data-testclass="bulk-action"
                       theme="tertiary-inline"
                       ?disabled=${this.disabled || !!this.__activeBulkAction}
@@ -511,11 +511,11 @@ export class InternalAsyncListControl extends InternalEditableControl {
                         .options=${{ count: this.__selection.length }}
                       >
                       </foxy-i18n>
-                    </vaadin-button>
+                    </foxy-internal-button>
                   `;
                 })
               : ''}
-            <vaadin-button
+            <foxy-internal-button
               theme="tertiary-inline contrast"
               ?disabled=${this.disabled || !!this.__activeBulkAction}
               @click=${() => {
@@ -528,7 +528,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
                 key=${this.__isSelecting ? 'cancel_button_text' : 'select_button_text'}
               >
               </foxy-i18n>
-            </vaadin-button>
+            </foxy-internal-button>
           `
         : '',
 
@@ -552,7 +552,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
             </a>
           `
         : html`
-            <vaadin-button
+            <foxy-internal-button
               theme="tertiary-inline"
               ?disabled=${this.disabled}
               @click=${(evt: Event) => {
@@ -568,7 +568,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
               }}
             >
               <foxy-i18n infer="pagination" key="create_button_text"></foxy-i18n>
-            </vaadin-button>
+            </foxy-internal-button>
           `,
     ].filter(v => !!v);
   }

@@ -17,8 +17,8 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { stub } from 'sinon';
 
 describe('IntegrationForm', () => {
-  it('imports and registers vaadin-button element', () => {
-    expect(customElements.get('vaadin-button')).to.exist;
+  it('imports and registers foxy-internal-button element', () => {
+    expect(customElements.get('foxy-internal-button')).to.exist;
   });
 
   it('imports and registers foxy-internal-text-area-control element', () => {
@@ -145,7 +145,7 @@ describe('IntegrationForm', () => {
 
     expect(message).to.exist;
     expect(messageAction).to.exist;
-    expect(messageAction).to.be.instanceOf(customElements.get('vaadin-button'));
+    expect(messageAction).to.be.instanceOf(customElements.get('foxy-internal-button'));
     expect(messageAction).to.not.have.attribute('disabled');
     expect(messageActionLabel).to.exist;
   });

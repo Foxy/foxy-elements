@@ -11,8 +11,8 @@ import { html } from 'lit-html';
 
 describe('EmailTemplateForm', () => {
   describe('InternalEmailTemplateFormAsyncAction', () => {
-    it('imports and defines vaadin-button', () => {
-      expect(customElements.get('vaadin-button')).to.exist;
+    it('imports and defines foxy-internal-button', () => {
+      expect(customElements.get('foxy-internal-button')).to.exist;
     });
 
     it('imports and defines foxy-internal-control', () => {
@@ -49,7 +49,7 @@ describe('EmailTemplateForm', () => {
         </foxy-internal-email-template-form-async-action>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       const label = button.querySelector('foxy-i18n')!;
 
       expect(button).to.exist;
@@ -70,7 +70,7 @@ describe('EmailTemplateForm', () => {
         </foxy-internal-email-template-form-async-action>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       const whenGotEvent = oneEvent(control, 'fetch');
 
       button.click();
@@ -92,7 +92,7 @@ describe('EmailTemplateForm', () => {
         </foxy-internal-email-template-form-async-action>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       const label = button.querySelector('foxy-i18n')!;
 
       button.click();
@@ -118,7 +118,7 @@ describe('EmailTemplateForm', () => {
         </foxy-internal-email-template-form-async-action>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       const label = button.querySelector<I18n>('foxy-i18n')!;
 
       fetchCount = 0;
@@ -154,7 +154,7 @@ describe('EmailTemplateForm', () => {
         </foxy-internal-email-template-form-async-action>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       const label = button.querySelector<I18n>('foxy-i18n')!;
 
       fetchCount = 0;
@@ -180,7 +180,7 @@ describe('EmailTemplateForm', () => {
         </foxy-internal-email-template-form-async-action>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       expect(button).to.have.attribute('disabled');
     });
   });

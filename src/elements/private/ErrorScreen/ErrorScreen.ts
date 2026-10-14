@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { ButtonElement } from '@vaadin/vaadin-button';
+import '../../internal/InternalButton/index';
 import { CSSResultArray, PropertyDeclarations, css } from 'lit-element';
 import { TemplateResult, html } from 'lit-html';
 import { Translatable } from '../../../mixins/translatable';
@@ -25,7 +25,7 @@ export class ErrorScreenReloadEvent extends CustomEvent<void> {
 export class ErrorScreen extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'vaadin-button': ButtonElement,
+      'foxy-internal-button': customElements.get('foxy-internal-button'),
       'iron-icon': customElements.get('iron-icon'),
       'x-i18n': I18N,
     };
@@ -90,14 +90,14 @@ export class ErrorScreen extends Translatable {
 
           ${this.reload
             ? html`
-                <vaadin-button
+                <foxy-internal-button
                   data-testid="reload"
                   theme="primary"
                   @click=${() => this.dispatchEvent(new ErrorScreenReloadEvent())}
                 >
                   <x-i18n ns=${this.ns} lang=${this.lang} key="reload"></x-i18n>
                   <iron-icon icon="icons:refresh" slot="suffix"></iron-icon>
-                </vaadin-button>
+                </foxy-internal-button>
               `
             : ''}
         </div>

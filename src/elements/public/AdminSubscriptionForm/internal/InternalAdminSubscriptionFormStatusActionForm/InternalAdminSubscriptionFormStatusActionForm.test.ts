@@ -22,7 +22,7 @@ describe('AdminSubscriptionForm', () => {
     });
 
     it('imports and defines the dependencies', () => {
-      expect(customElements.get('vaadin-button')).to.exist;
+      expect(customElements.get('foxy-internal-button')).to.exist;
       expect(customElements.get('foxy-internal-form')).to.exist;
       expect(customElements.get('foxy-internal-summary-control')).to.exist;
       expect(customElements.get('foxy-internal-select-control')).to.exist;
@@ -293,7 +293,7 @@ describe('AdminSubscriptionForm', () => {
       await form.requestUpdate();
 
       const caption = $('foxy-i18n[infer=""][key="cancel_submit"');
-      const button = caption?.closest('vaadin-button');
+      const button = caption?.closest('foxy-internal-button');
 
       expect(button).to.exist;
       expect(button).to.not.have.attribute('disabled');
@@ -370,7 +370,7 @@ describe('AdminSubscriptionForm', () => {
       await form.requestUpdate();
 
       const caption = $('foxy-i18n[infer=""][key="reactivate_submit"]');
-      const button = caption?.closest('vaadin-button');
+      const button = caption?.closest('foxy-internal-button');
 
       expect(button).to.exist;
       expect(button).to.not.have.attribute('disabled');

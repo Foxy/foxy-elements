@@ -230,9 +230,9 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
           </foxy-spinner>
           ${this.href && this.in('fail')
             ? html`
-                <vaadin-button theme="small contrast" @click=${() => this.refresh()}>
+                <foxy-internal-button theme="small contrast" @click=${() => this.refresh()}>
                   <foxy-i18n infer="spinner" key="refresh"></foxy-i18n>
-                </vaadin-button>
+                </foxy-internal-button>
               `
             : ''}
         </div>
@@ -268,13 +268,13 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
         style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
       >
         <foxy-i18n class="flex-1" infer="status" key=${key} .options=${options}></foxy-i18n>
-        <vaadin-button
+        <foxy-internal-button
           class="flex-shrink-0"
           theme="${type} tertiary-inline"
           @click=${() => (this.status = null)}
         >
           <foxy-i18n class="flex-1" infer="status" key="close"></foxy-i18n>
-        </vaadin-button>
+        </foxy-internal-button>
       </p>
     `;
   }

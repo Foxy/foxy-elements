@@ -103,13 +103,13 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
         ${this.data?.type || !this.form.type
           ? html``
           : html`
-              <vaadin-button
+              <foxy-internal-button
                 data-testid="select-another-button"
                 theme="tertiary-inline"
                 @click=${() => this.undo()}
               >
                 <foxy-i18n infer="" key="select_another_button_label"></foxy-i18n>
-              </vaadin-button>
+              </foxy-internal-button>
             `}
       </div>
     `;

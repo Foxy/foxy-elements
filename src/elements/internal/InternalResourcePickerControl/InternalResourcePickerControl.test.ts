@@ -23,8 +23,8 @@ async function waitForIdle(element: Control) {
 }
 
 describe('InternalResourcePickerControl', () => {
-  it('imports and defines vaadin-button element', () => {
-    expect(customElements.get('vaadin-button')).to.exist;
+  it('imports and defines foxy-internal-button element', () => {
+    expect(customElements.get('foxy-internal-button')).to.exist;
   });
 
   it('imports and defines foxy-internal-editable-control element', () => {
@@ -534,7 +534,7 @@ describe('InternalResourcePickerControl', () => {
     expect(btnText).to.exist;
     expect(btnText).to.have.attribute('infer', '');
 
-    const clearBtn = btnText?.closest('vaadin-button');
+    const clearBtn = btnText?.closest('foxy-internal-button');
     expect(clearBtn).to.exist;
     expect(clearBtn).to.not.have.attribute('disabled');
 

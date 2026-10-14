@@ -223,7 +223,7 @@ describe('ExperimentalAddToCartBuilder', () => {
     );
 
     const label = element.renderRoot.querySelector('foxy-i18n[infer="add-product"][key="caption"]');
-    const button = label?.closest('vaadin-button');
+    const button = label?.closest('foxy-internal-button');
 
     expect(button).to.exist;
     expect(element.form.items).to.have.length(1);

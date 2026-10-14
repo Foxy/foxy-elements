@@ -44,17 +44,17 @@ export class InternalConfirmDialog extends Dialog {
         </foxy-i18n>
 
         <div class="grid grid-cols-2 gap-m">
-          <vaadin-button data-testid="cancelButton" @click=${this.__handleCancel}>
+          <foxy-internal-button data-testid="cancelButton" @click=${this.__handleCancel}>
             <foxy-i18n ns=${this.ns} lang=${this.lang} key=${this.cancel}></foxy-i18n>
-          </vaadin-button>
+          </foxy-internal-button>
 
-          <vaadin-button
+          <foxy-internal-button
             theme=${this.theme}
             data-testid="confirmButton"
             @click=${this.__handleConfirm}
           >
             <foxy-i18n ns=${this.ns} lang=${this.lang} key=${this.confirm}></foxy-i18n>
-          </vaadin-button>
+          </foxy-internal-button>
         </div>
       `
     );

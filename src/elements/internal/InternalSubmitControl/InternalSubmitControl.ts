@@ -18,18 +18,18 @@ export class InternalSubmitControl extends InternalControl {
     };
   }
 
-  /** Same as the "theme" attribute of the `vaadin-button` element. */
+  /** Same as the "theme" attribute of the `foxy-internal-button` element. */
   theme = 'primary';
 
   renderControl(): TemplateResult {
     return html`
-      <vaadin-button
+      <foxy-internal-button
         theme=${this.theme}
         ?disabled=${this.disabled}
         @click=${() => this.nucleon?.submit()}
       >
         <foxy-i18n infer="" key="caption"></foxy-i18n>
-      </vaadin-button>
+      </foxy-internal-button>
     `;
   }
 }

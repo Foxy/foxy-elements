@@ -1,4 +1,4 @@
-import type { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../InternalButton/InternalButton';
 
 import './index';
 
@@ -9,7 +9,7 @@ import { stub } from 'sinon';
 
 describe('InternalPostActionControl', () => {
   it('imports dependencies', () => {
-    expect(customElements.get('vaadin-button')).to.exist;
+    expect(customElements.get('foxy-internal-button')).to.exist;
     expect(customElements.get('foxy-internal-control')).to.exist;
     expect(customElements.get('foxy-spinner')).to.exist;
     expect(customElements.get('foxy-i18n')).to.exist;
@@ -65,7 +65,7 @@ describe('InternalPostActionControl', () => {
       <foxy-internal-post-action-control theme="primary"></foxy-internal-post-action-control>
     `);
 
-    const button = control.renderRoot.querySelector('vaadin-button');
+    const button = control.renderRoot.querySelector('foxy-internal-button');
     expect(button).to.exist;
     expect(button).to.have.attribute('theme', 'primary');
 
@@ -79,7 +79,7 @@ describe('InternalPostActionControl', () => {
       <foxy-internal-post-action-control></foxy-internal-post-action-control>
     `);
 
-    const button = control.renderRoot.querySelector('vaadin-button') as ButtonElement;
+    const button = control.renderRoot.querySelector('foxy-internal-button') as InternalButton;
     const dialog = control.renderRoot.querySelector(
       'foxy-internal-post-action-control-dialog'
     ) as ControlDialog;

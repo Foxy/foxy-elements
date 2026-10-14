@@ -56,7 +56,7 @@ describe('UserInvitationForm', () => {
       await waitUntil(() => collection.in('idle') && invitation.in('idle'), '', { timeout: 5000 });
       requests.length = 0;
 
-      const button = control.renderRoot.querySelector('vaadin-button') as HTMLElement;
+      const button = control.renderRoot.querySelector('foxy-internal-button') as HTMLElement;
       return { requests, collection, invitation, control, button };
     }
 

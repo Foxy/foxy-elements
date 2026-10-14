@@ -1,6 +1,6 @@
 import { expect } from '@open-wc/testing';
 import { fixture, oneEvent } from '@open-wc/testing-helpers';
-import { ButtonElement } from '@vaadin/vaadin-button';
+import type { InternalButton } from '../../internal/InternalButton/InternalButton';
 import { createModel } from '@xstate/test';
 import { createMachine, EventObject } from 'xstate';
 import { I18N } from '../I18N/I18N';
@@ -32,7 +32,7 @@ function testType(type: TestErrorScreen['type']) {
 function testReload(reload: TestErrorScreen['reload']) {
   return async (element: TestErrorScreen) => {
     await element.requestUpdate();
-    const reloadBtn = element.shadowRoot!.querySelector('[data-testid=reload]') as ButtonElement;
+    const reloadBtn = element.shadowRoot!.querySelector('[data-testid=reload]') as InternalButton;
     if (reload) {
       const whenReloadFired = oneEvent(element, 'reload');
       reloadBtn.click();

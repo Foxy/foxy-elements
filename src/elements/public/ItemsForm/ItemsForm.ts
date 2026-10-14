@@ -1,4 +1,4 @@
-import '@vaadin/vaadin-button';
+import '../../internal/InternalButton/index';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { parseDuration } from '../../../utils/parse-duration';
 import { Dropdown, ErrorScreen } from '../../private/index';
@@ -27,6 +27,7 @@ export class ItemsForm extends SignableFields {
     return {
       'x-error-screen': ErrorScreen,
       'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-internal-button': customElements.get('foxy-internal-button'),
       'x-dropdown': Dropdown,
       'x-item': Item,
     };
@@ -399,7 +400,7 @@ export class ItemsForm extends SignableFields {
                     `
                   : ''}
 
-                <vaadin-button
+                <foxy-internal-button
                   class="m-s w-full sm-w-auto"
                   theme="primary"
                   data-testid="submit"
@@ -409,7 +410,7 @@ export class ItemsForm extends SignableFields {
                   <span class="total">
                     ${this.__submitBtnText(this.__translateAmount(this.total))}
                   </span>
-                </vaadin-button>
+                </foxy-internal-button>
               </section>
             `
           : ''}

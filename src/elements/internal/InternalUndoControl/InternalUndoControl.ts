@@ -18,18 +18,18 @@ export class InternalUndoControl extends InternalControl {
     };
   }
 
-  /** Same as the "theme" attribute of the `vaadin-button` element. */
+  /** Same as the "theme" attribute of the `foxy-internal-button` element. */
   theme = 'secondary';
 
   renderControl(): TemplateResult {
     return html`
-      <vaadin-button
+      <foxy-internal-button
         theme=${this.theme}
         ?disabled=${this.disabled}
         @click=${() => this.nucleon?.undo()}
       >
         <foxy-i18n infer="" key="caption"></foxy-i18n>
-      </vaadin-button>
+      </foxy-internal-button>
     `;
   }
 }

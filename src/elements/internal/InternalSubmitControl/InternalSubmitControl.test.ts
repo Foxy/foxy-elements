@@ -19,8 +19,8 @@ describe('InternalSubmitControl', () => {
   beforeEach(() => nucleon.undo());
   after(() => nucleon.remove());
 
-  it('imports and defines vaadin-button', () => {
-    expect(customElements.get('vaadin-button')).to.not.be.undefined;
+  it('imports and defines foxy-internal-button', () => {
+    expect(customElements.get('foxy-internal-button')).to.not.be.undefined;
   });
 
   it('imports and defines foxy-i18n', () => {
@@ -44,18 +44,18 @@ describe('InternalSubmitControl', () => {
     expect(new Control()).to.be.instanceOf(InternalControl);
   });
 
-  it('renders vaadin-button element', async () => {
+  it('renders foxy-internal-button element', async () => {
     const layout = html`<test-internal-submit-control></test-internal-submit-control>`;
     const control = await fixture<TestControl>(layout);
-    const button = control.renderRoot.querySelector('vaadin-button');
+    const button = control.renderRoot.querySelector('foxy-internal-button');
 
     expect(button).to.not.be.null;
   });
 
-  it('renders translatable label "caption" within vaadin-button element', async () => {
+  it('renders translatable label "caption" within foxy-internal-button element', async () => {
     const layout = html`<test-internal-submit-control></test-internal-submit-control>`;
     const control = await fixture<TestControl>(layout);
-    const button = control.renderRoot.querySelector('vaadin-button');
+    const button = control.renderRoot.querySelector('foxy-internal-button');
     const label = button?.querySelector('foxy-i18n');
 
     expect(label).to.not.be.null;
@@ -63,10 +63,10 @@ describe('InternalSubmitControl', () => {
     expect(label).to.have.property('infer', '');
   });
 
-  it('sets "disabled" on vaadin-button from "disabled" on itself', async () => {
+  it('sets "disabled" on foxy-internal-button from "disabled" on itself', async () => {
     const layout = html`<test-internal-submit-control></test-internal-submit-control>`;
     const control = await fixture<TestControl>(layout);
-    const button = control.renderRoot.querySelector('vaadin-button')!;
+    const button = control.renderRoot.querySelector('foxy-internal-button')!;
 
     control.disabled = true;
     await control.requestUpdate();
@@ -80,7 +80,7 @@ describe('InternalSubmitControl', () => {
   it('submits the host nucleon form on click', async () => {
     const layout = html`<test-internal-submit-control></test-internal-submit-control>`;
     const control = await fixture<TestControl>(layout);
-    const button = control.renderRoot.querySelector('vaadin-button')!;
+    const button = control.renderRoot.querySelector('foxy-internal-button')!;
     const submitMethod = stub(control.nucleon, 'submit');
 
     button.dispatchEvent(new MouseEvent('click'));

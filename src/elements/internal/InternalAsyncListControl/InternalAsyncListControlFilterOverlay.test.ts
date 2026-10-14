@@ -68,7 +68,7 @@ describe('InternalAsyncListControl', () => {
       expect(searchLabel).to.have.property('lang', 'es');
       expect(searchLabel).to.have.property('ns', 'test');
 
-      const searchButton = searchLabel?.closest('vaadin-button');
+      const searchButton = searchLabel?.closest('foxy-internal-button');
       expect(searchButton).to.exist;
 
       const whenGotEmptySearchEvent = oneEvent(overlay, 'search');
@@ -98,7 +98,7 @@ describe('InternalAsyncListControl', () => {
       expect(clearLabel).to.have.property('lang', 'es');
       expect(clearLabel).to.have.property('ns', 'test');
 
-      const clearButton = clearLabel?.closest('vaadin-button');
+      const clearButton = clearLabel?.closest('foxy-internal-button');
       expect(clearButton).to.exist;
 
       const whenGotClearEvent = oneEvent(overlay, 'search');

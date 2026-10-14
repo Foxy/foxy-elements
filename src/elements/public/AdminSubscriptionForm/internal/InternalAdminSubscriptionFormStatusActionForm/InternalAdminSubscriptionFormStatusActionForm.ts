@@ -176,14 +176,14 @@ export class InternalAdminSubscriptionFormStatusActionForm extends InternalForm<
             ]}
       </foxy-internal-summary-control>
 
-      <vaadin-button
+      <foxy-internal-button
         theme="primary ${isActive ? 'error' : 'success'} large"
         class="w-full"
         ?disabled=${this.disabled}
         @click=${() => this.submit()}
       >
         <foxy-i18n infer="" key="${action}_submit"></foxy-i18n>
-      </vaadin-button>
+      </foxy-internal-button>
     `;
   }
 

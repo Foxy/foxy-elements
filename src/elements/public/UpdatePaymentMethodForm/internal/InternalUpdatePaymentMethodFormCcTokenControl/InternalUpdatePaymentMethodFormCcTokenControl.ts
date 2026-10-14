@@ -25,14 +25,14 @@ export class InternalUpdatePaymentMethodFormCcTokenControl extends InternalContr
       >
       </foxy-payment-card-embed>
 
-      <vaadin-button
+      <foxy-internal-button
         theme="primary"
         class="w-full mt-l"
         ?disabled=${this.disabled}
         @click=${() => this.__tokenize()}
       >
         <foxy-i18n infer="" key="tokenize"></foxy-i18n>
-      </vaadin-button>
+      </foxy-internal-button>
     `;
   }
 
