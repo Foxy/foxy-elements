@@ -681,7 +681,11 @@
         }
       }
     },
-    "helper_text": "Limit which categories this gift card applies to. All changes are saved automatically."
+    "helper_text": "Limit which categories this gift card applies to. All changes are saved automatically.",
+    "spinner": {
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
+    }
   },
   "attributes": {
     "label": "Attributes",

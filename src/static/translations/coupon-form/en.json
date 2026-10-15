@@ -607,7 +607,11 @@
         }
       }
     },
-    "helper_text": "Limit which categories this coupon applies to. All changes are saved automatically."
+    "helper_text": "Limit which categories this coupon applies to. All changes are saved automatically.",
+    "spinner": {
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
+    }
   },
   "customer-attribute-restrictions": {
     "label": "Customer attribute restrictions",

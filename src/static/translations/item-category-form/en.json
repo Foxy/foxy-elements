@@ -63,7 +63,11 @@
         }
       }
     },
-    "helper_text": "Select taxes that will apply to the products in this category. Changes here are saved immediately."
+    "helper_text": "Select taxes that will apply to the products in this category. Changes here are saved immediately.",
+    "spinner": {
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
+    }
   },
   "delivery": {
     "label": "Delivery Options",
