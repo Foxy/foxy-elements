@@ -369,7 +369,13 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     const response = await new API(this).fetch(...args);
 
     if (!response.ok) {
-      if (await isAccessDenied(response)) this.__accessDeniedFor = response;
+      if (await isAccessDenied(response)) {
+        // A denied write is reported as a validation error so the user keeps their edits.
+        const method = (args[1]?.method ?? (args[0] as Request).method ?? 'GET').toUpperCase();
+        if (method !== 'GET' && method !== 'HEAD') throw ['error:access_denied'];
+        this.__accessDeniedFor = response;
+      }
+
       throw response;
     }
 
