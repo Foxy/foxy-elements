@@ -259,29 +259,23 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
         ? await ignoreAccessDenied(super._fetch<TransactionTemplate>(transactionTemplateHref))
         : undefined;
 
-      if (transactionTemplate) {
-        this.__itemsLink = transactionTemplate._links['fx:items'].href;
-        return item;
-      }
+      if (transactionTemplate) this.__itemsLink = transactionTemplate._links['fx:items'].href;
+      return item;
     }
 
     if (item._links['fx:transaction']) {
       const transactionHref = item._links['fx:transaction'].href;
       const transaction = await ignoreAccessDenied(super._fetch<Transaction>(transactionHref));
 
-      if (transaction) {
-        this.__itemsLink = transaction._links['fx:items'].href;
-        return item;
-      }
+      if (transaction) this.__itemsLink = transaction._links['fx:items'].href;
+      return item;
     }
 
     if (item._links['fx:cart']) {
       const cart = await ignoreAccessDenied(super._fetch<Cart>(item._links['fx:cart'].href));
 
-      if (cart) {
-        this.__itemsLink = cart._links['fx:items'].href;
-        return item;
-      }
+      if (cart) this.__itemsLink = cart._links['fx:items'].href;
+      return item;
     }
 
     return item;
