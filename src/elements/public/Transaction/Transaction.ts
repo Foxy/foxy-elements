@@ -246,30 +246,38 @@ export class Transaction extends Base<Data> {
   }
 
   renderBody(): TemplateResult {
-    let templateSetLink: string | undefined = undefined;
-    let shipmentsLink: string | undefined = undefined;
-    let webhooksLink: string | undefined = undefined;
-    let itemsLink: string | undefined = undefined;
-
     const alertStatuses = ['problem', 'pending_fraud_review', 'rejected', 'declined'];
     const hidden = this.hiddenSelector;
 
-    if (this.data) {
+    // Each link is built on its own. The webhooks link needs the store, which loads
+    // separately, and must not hold back the items and shipments lists.
+    const withParam = (href: string | undefined, key: string, value: string) => {
+      if (!href) return undefined;
       try {
-        const shipmentsUrl = new URL(this.data._links['fx:shipments'].href);
-        const webhooksUrl = new URL(this.__storeLoader?.data?._links['fx:webhooks'].href ?? '');
-        const itemsUrl = new URL(this.data._links['fx:items'].href);
-
-        shipmentsUrl.searchParams.set('zoom', 'items:item_category');
-        webhooksUrl.searchParams.set('event_resource', 'transaction');
-        itemsUrl.searchParams.set('zoom', 'item_options');
-
-        shipmentsLink = shipmentsUrl.toString();
-        webhooksLink = webhooksUrl.toString();
-        itemsLink = itemsUrl.toString();
+        const url = new URL(href);
+        url.searchParams.set(key, value);
+        return url.toString();
       } catch {
-        //
+        return undefined;
       }
+    };
+
+    const shipmentsLink = withParam(
+      this.data?._links['fx:shipments'].href,
+      'zoom',
+      'items:item_category'
+    );
+
+    const webhooksLink = withParam(
+      this.__storeLoader?.data?._links['fx:webhooks'].href,
+      'event_resource',
+      'transaction'
+    );
+
+    const itemsLink = withParam(this.data?._links['fx:items'].href, 'zoom', 'item_options');
+
+    const templateSetLink = (() => {
+      if (!this.data) return undefined;
 
       try {
         // @ts-expect-error SDK types do not include fx:template_sets on fx:transaction
@@ -279,11 +287,11 @@ export class Transaction extends Base<Data> {
 
         if (!ownTemplateSetHref) templateSetUrl.searchParams.set('code', 'DEFAULT');
         templateSetUrl.searchParams.set('zoom', 'email_template');
-        templateSetLink = templateSetUrl.toString();
+        return templateSetUrl.toString();
       } catch {
-        //
+        return undefined;
       }
-    }
+    })();
 
     return html`
       ${this.renderHeader()}
