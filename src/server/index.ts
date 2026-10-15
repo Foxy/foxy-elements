@@ -25,7 +25,9 @@ export function createRouter(): Router {
 
       if (request.method === 'GET' || request.method === 'HEAD') {
         const { handlerPromise } =
-          router.handleRequest(new Request(target.toString(), request)) ?? {};
+          router.handleRequest(
+            new Request(target.toString(), { method: request.method, headers: request.headers })
+          ) ?? {};
         return handlerPromise ?? new Response(null, { status: 404 });
       }
 
