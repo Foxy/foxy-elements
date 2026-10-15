@@ -212,6 +212,45 @@ describe('InternalSelectControl', () => {
     expect(comboBox).to.have.property('readonly', false);
   });
 
+  it('always shows the clear button on vaadin-combo-box in standalone layout', async () => {
+    const layout = html`<test-internal-select-control></test-internal-select-control>`;
+    const control = await fixture<TestControl>(layout);
+    const comboBox = control.renderRoot.querySelector('vaadin-combo-box')!;
+
+    expect(comboBox).to.have.attribute('clear-button-visible');
+  });
+
+  it('forwards a host "aria-label" to the focusable input inside vaadin-combo-box in standalone layout', async () => {
+    const layout = html`<test-internal-select-control
+      aria-label="my accessible name"
+      label=""
+      helper-text=""
+    >
+    </test-internal-select-control>`;
+
+    const control = await fixture<TestControl>(layout);
+    const comboBox = control.renderRoot.querySelector('vaadin-combo-box')!;
+    const focusEl = comboBox.focusElement as HTMLElement | undefined;
+    const nativeInput = focusEl?.shadowRoot?.querySelector('input');
+
+    // Set on both the outer `vaadin-text-field` ("focusElement") and, since that element is
+    // itself a shadow host whose own focusable descendant is the native `<input>`, on that
+    // input directly -- see the reasoning comment in InternalSelectControl.ts's `updated()`.
+    expect(focusEl).to.have.attribute('aria-label', 'my accessible name');
+    expect(nativeInput).to.have.attribute('aria-label', 'my accessible name');
+  });
+
+  it('does not forward "aria-label" when the host has none set', async () => {
+    const layout = html`<test-internal-select-control></test-internal-select-control>`;
+    const control = await fixture<TestControl>(layout);
+    const comboBox = control.renderRoot.querySelector('vaadin-combo-box')!;
+    const focusEl = comboBox.focusElement as HTMLElement | undefined;
+    const nativeInput = focusEl?.shadowRoot?.querySelector('input');
+
+    expect(focusEl).to.not.have.attribute('aria-label');
+    expect(nativeInput).to.not.have.attribute('aria-label');
+  });
+
   it('sets "checkValidity" on vaadin-combo-box from "_checkValidity" on itself in standalone layout', async () => {
     const layout = html`<test-internal-select-control></test-internal-select-control>`;
     const control = await fixture<TestControl>(layout);

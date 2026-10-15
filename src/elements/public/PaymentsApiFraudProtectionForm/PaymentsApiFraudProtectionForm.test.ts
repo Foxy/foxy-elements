@@ -20,6 +20,10 @@ import { I18n } from '../I18n/I18n';
 import { stub } from 'sinon';
 import { InternalSummaryControl } from '../../internal/InternalSummaryControl/InternalSummaryControl';
 
+// A 1x1 GIF that always loads. A URL that fails to load fires the element's image
+// error handler, which swaps in a fallback and races the assertions below.
+const TEST_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 describe('PaymentsApiFraudProtectionForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
 
@@ -327,7 +331,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
         >
           <foxy-payments-api-fraud-protection-form
             parent="https://foxy-payments-api.element/payment_presets/0/fraud_protections"
-            .getImageSrc=${(type: string) => `https://example.com?${type}`}
+            .getImageSrc=${(type: string) => `${TEST_IMAGE}#${type}`}
             @fetch=${(evt: FetchEvent) => {
               if (evt.request.url.endsWith('/payment_presets/0/available_fraud_protections')) {
                 evt.preventDefault();
@@ -363,10 +367,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
     expect(item0Button).to.not.have.attribute('disabled');
     expect(item0Button).to.not.have.attribute('title');
     expect(item0Button).to.include.text('Minfraud');
-    expect(await getByTag(item0Button, 'img')).to.have.attribute(
-      'src',
-      'https://example.com?minfraud'
-    );
+    expect(await getByTag(item0Button, 'img')).to.have.attribute('src', `${TEST_IMAGE}#minfraud`);
 
     expect(item1Button).to.exist;
     expect(item1Button).to.have.attribute('disabled');
@@ -374,7 +375,7 @@ describe('PaymentsApiFraudProtectionForm', () => {
     expect(item1Button).to.include.text('Google reCaptcha');
     expect(await getByTag(item1Button, 'img')).to.have.attribute(
       'src',
-      'https://example.com?google_recaptcha'
+      `${TEST_IMAGE}#google_recaptcha`
     );
 
     item0Button.click();
@@ -383,6 +384,72 @@ describe('PaymentsApiFraudProtectionForm', () => {
     expect(element).to.have.nested.property('form.type', 'minfraud');
     expect(await getByKey(element, 'select_method_title')).to.not.exist;
     expect(await getByTestId(element, 'select-method-list')).to.not.exist;
+  });
+
+  it('passes accessDenied from the fraud protections loader to the list spinner', async () => {
+    const element = await fixture<Form>(
+      html`<foxy-payments-api-fraud-protection-form></foxy-payments-api-fraud-protection-form>`
+    );
+
+    await element.updateComplete;
+
+    const spinner = element.renderRoot.querySelector('foxy-spinner[infer="list-spinner"]');
+    expect(spinner, 'list spinner is rendered while the loader has no data').to.exist;
+    expect(spinner).to.have.attribute('error-type', 'generic');
+  });
+
+  it('passes accessDenied "true" from the fraud protections loader to the list spinner on a scope-denied failure, while the host form\'s own accessDenied stays false', async () => {
+    const SCOPE_DENIAL_BODY = JSON.stringify({
+      total: 1,
+      _embedded: {
+        'fx:errors': [
+          {
+            logref: 'id-1',
+            message:
+              'The current authenticated user does not appear to have read permission for available_fraud_protections resource.',
+          },
+        ],
+      },
+    });
+
+    const router = createRouter();
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-fraud-protection-form
+            parent="https://foxy-payments-api.element/payment_presets/0/fraud_protections"
+            @fetch=${(evt: FetchEvent) => {
+              if (evt.request.url.endsWith('/payment_presets/0/available_fraud_protections')) {
+                evt.preventDefault();
+                evt.respondWith(Promise.resolve(new Response(SCOPE_DENIAL_BODY, { status: 401 })));
+              }
+            }}
+          >
+          </foxy-payments-api-fraud-protection-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    const loader = element.renderRoot.querySelector('#availableFraudProtections') as InstanceType<
+      typeof NucleonElement
+    >;
+
+    await waitUntil(() => !!loader && loader.in('fail'), '', { timeout: 5000 });
+    await element.updateComplete;
+
+    const spinner = element.renderRoot.querySelector('foxy-spinner[infer="list-spinner"]');
+    expect(spinner).to.have.attribute('error-type', 'access-denied');
+    expect(element.accessDenied, "host form's own request never fails in this test").to.be.false;
   });
 
   it('renders a switch control for a "checkbox" block in json if present', async () => {

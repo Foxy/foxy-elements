@@ -1093,6 +1093,8 @@ export const defaults: Defaults = {
     first_name: '',
     last_name: '',
     email: '',
+    scope:
+      'transactions_read transactions_resend customers_write item_categories_read reporting_read',
     status: 'sent',
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),

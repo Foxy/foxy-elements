@@ -311,7 +311,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, type: 'updateinfo', source: 'cit_ecommerce' };
     await element.requestUpdate();
 
@@ -338,7 +338,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, type: 'updateinfo', source: 'mit_uoe' };
     await element.requestUpdate();
 
@@ -365,7 +365,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, type: 'updateinfo', source: 'mit_api' };
     await element.requestUpdate();
 
@@ -392,7 +392,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, type: 'subscription_modification', source: 'cit_ecommerce' };
     await element.requestUpdate();
 
@@ -419,7 +419,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, type: 'subscription_modification', source: 'mit_uoe' };
     await element.requestUpdate();
 
@@ -446,7 +446,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, type: 'subscription_modification', source: 'mit_api' };
     await element.requestUpdate();
 
@@ -473,7 +473,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, type: 'subscription_renewal', source: 'mit_recurring' };
     await element.requestUpdate();
 
@@ -500,7 +500,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = {
       ...element.data!,
       type: 'subscription_renewal',
@@ -531,7 +531,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = {
       ...element.data!,
       type: 'subscription_renewal',
@@ -562,7 +562,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = {
       ...element.data!,
       type: 'subscription_cancellation',
@@ -593,7 +593,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = {
       ...element.data!,
       type: 'subscription_cancellation',
@@ -624,7 +624,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     element.data = {
       ...element.data!,
@@ -659,7 +659,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     const newData = { ...element.data!, source: 'cit_ecommerce', type: '' } as const;
     // @ts-expect-error SDK doesn't support optional links
@@ -692,7 +692,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, is_test: true };
     expect(element.headerSubtitleBadges).to.deep.include({ key: 'test' });
 
@@ -710,7 +710,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, hide_transaction: true };
     expect(element.headerSubtitleBadges).to.deep.include({ key: 'archived' });
 
@@ -728,7 +728,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     expect(element.headerSubtitleBadges[0]).to.have.property('text', 'Pending');
   });
 
@@ -742,7 +742,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, display_id: '123' };
 
     expect(element.headerCopyIdValue).to.equal('123');
@@ -758,11 +758,19 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="actions"]');
 
     expect(control).to.exist;
     expect(control).to.have.property('localName', 'foxy-internal-transaction-actions-control');
+
+    // Currency display comes from the store, which loads after the transaction.
+    await waitUntil(
+      () => (control as unknown as { currencyDisplay: string }).currencyDisplay === 'code',
+      '',
+      { timeout: 5000 }
+    );
+
     expect(control).to.have.property('currencyDisplay', 'code');
   });
 
@@ -776,7 +784,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     const control = element.renderRoot.querySelector(
       '[infer="datafeed"] [infer="process-webhook"]'
     );
@@ -796,7 +804,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="customer"]');
 
     expect(control).to.exist;
@@ -814,7 +822,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="items"]');
 
     expect(control).to.exist;
@@ -851,7 +859,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="summary"]');
 
     expect(control).to.exist;
@@ -868,7 +876,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="billing-addresses"]');
 
     expect(control).to.exist;
@@ -893,7 +901,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="payments"]');
 
     expect(control).to.exist;
@@ -918,7 +926,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     const control = element.renderRoot.querySelector('[infer="custom-fields"]');
 
@@ -943,7 +951,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     const control = element.renderRoot.querySelector('[infer="attributes"]');
 
@@ -968,7 +976,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)';
     const analyzeStub = stub(uainfer, 'analyze').returns({ toString: () => 'Stub Agent' });
@@ -1005,7 +1013,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     element.data = {
       ...element.data!,
@@ -1036,7 +1044,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     const control = element.renderRoot.querySelector('[infer="shipments"]');
 
@@ -1183,7 +1191,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     const summary = element.renderRoot.querySelector('[infer="datafeed"]');
     expect(summary).to.exist;

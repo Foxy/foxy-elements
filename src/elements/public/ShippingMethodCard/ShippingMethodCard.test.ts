@@ -13,6 +13,10 @@ import { getByKey } from '../../../testgen/getByKey';
 import { getByTag } from '../../../testgen/getByTag';
 import { I18n } from '../I18n/I18n';
 
+// A 1x1 GIF that always loads. A URL that fails to load fires the element's image
+// error handler, which swaps in a fallback and races the assertions below.
+const TEST_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 describe('ShippingMethodCard', () => {
   it('imports and registers foxy-i18n element', () => {
     expect(customElements.get('foxy-i18n')).to.equal(I18n);
@@ -85,7 +89,7 @@ describe('ShippingMethodCard', () => {
     const element = await fixture<ShippingMethodCard>(html`
       <foxy-shipping-method-card
         href=${href}
-        .getImageSrc=${(code: string) => `https://example.com/${code}.png`}
+        .getImageSrc=${(code: string) => `${TEST_IMAGE}#${code}`}
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-shipping-method-card>
@@ -98,7 +102,7 @@ describe('ShippingMethodCard', () => {
     const img = await getByTag(element, 'img');
 
     expect(img).to.exist;
-    expect(img).to.have.attribute('src', 'https://example.com/test_method.png');
+    expect(img).to.have.attribute('src', `${TEST_IMAGE}#test_method`);
     expect(img).to.have.attribute('alt', 'image_alt');
   });
 

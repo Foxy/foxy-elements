@@ -240,5 +240,44 @@ describe('CustomerCard', () => {
 
       expect(spinner!.parentElement).to.have.class('opacity-0');
     });
+
+    it('passes error-type to foxy-spinner', async () => {
+      const element = await fixture<CustomerCard>(html`<foxy-customer-card></foxy-customer-card>`);
+
+      const spinner = await getByTestId(element, 'spinner');
+      expect(spinner).to.have.attribute('error-type', 'generic');
+    });
+
+    it('passes error-type "access-denied" to foxy-spinner for a scope-denied failure', async () => {
+      const SCOPE_DENIAL_BODY = JSON.stringify({
+        total: 1,
+        _embedded: {
+          'fx:errors': [
+            {
+              logref: 'id-1',
+              message:
+                'The current authenticated user does not appear to have read permission for customer resource.',
+            },
+          ],
+        },
+      });
+
+      const layout = html`
+        <foxy-customer-card
+          href="https://demo.api/hapi/customers/0"
+          @fetch=${(evt: FetchEvent) =>
+            evt.respondWith(Promise.resolve(new Response(SCOPE_DENIAL_BODY, { status: 401 })))}
+        >
+        </foxy-customer-card>
+      `;
+
+      const element = await fixture<CustomerCard>(layout);
+
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
+      await element.updateComplete;
+
+      const spinner = await getByTestId(element, 'spinner');
+      expect(spinner).to.have.attribute('error-type', 'access-denied');
+    });
   });
 });

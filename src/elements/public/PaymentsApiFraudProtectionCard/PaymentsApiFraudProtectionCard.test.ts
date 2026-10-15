@@ -12,6 +12,10 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { I18n } from '../I18n/I18n';
 import { getByTag } from '../../../testgen/getByTag';
 
+// A 1x1 GIF that always loads. A URL that fails to load fires the element's image
+// error handler, which swaps in a fallback and races the assertions below.
+const TEST_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 describe('PaymentsApiFraudProtectionCard', () => {
   const OriginalResizeObserver = window.ResizeObserver;
 
@@ -115,7 +119,7 @@ describe('PaymentsApiFraudProtectionCard', () => {
         >
           <foxy-payments-api-fraud-protection-card
             href="https://foxy-payments-api.element/payment_presets/0/fraud_protections/0C0"
-            .getImageSrc=${(type: string) => `https://example.com/${type}.png`}
+            .getImageSrc=${(type: string) => `${TEST_IMAGE}#${type}`}
           >
           </foxy-payments-api-fraud-protection-card>
         </foxy-payments-api>
@@ -126,7 +130,7 @@ describe('PaymentsApiFraudProtectionCard', () => {
     await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
 
     const image = await getByTag(element, 'img');
-    expect(image).to.have.attribute('src', `https://example.com/${element.data!.type}.png`);
+    expect(image).to.have.attribute('src', `${TEST_IMAGE}#${element.data!.type}`);
     expect(image).to.have.attribute('alt', 'image_alt');
   });
 });

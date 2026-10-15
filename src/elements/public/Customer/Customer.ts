@@ -792,6 +792,7 @@ export class Customer extends Base<Data> {
             layout="vertical"
             class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
             state=${this.in('fail') ? 'error' : isBusy ? 'busy' : 'empty'}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             lang=${lang}
             ns="${ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
           >
