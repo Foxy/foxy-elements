@@ -172,6 +172,10 @@
           "loading_access_denied": "Access denied"
         }
       }
+    },
+    "spinner": {
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
     }
   },
   "timestamps": {

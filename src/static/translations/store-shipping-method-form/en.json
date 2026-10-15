@@ -242,7 +242,11 @@
         }
       }
     },
-    "helper_text": "Enable additional services for this shipping method. All changes here are saved automatically."
+    "helper_text": "Enable additional services for this shipping method. All changes here are saved automatically.",
+    "spinner": {
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
+    }
   },
   "timestamps": {
     "date_created": "Created on",
