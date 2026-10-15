@@ -424,7 +424,8 @@ describe('InternalAsyncListControl', () => {
   });
 
   describe('when the collection page failed', () => {
-    const deny = (evt: FetchEvent) => evt.respondWith(Promise.resolve(createAccessDeniedResponse()));
+    const deny = (evt: FetchEvent) =>
+      evt.respondWith(Promise.resolve(createAccessDeniedResponse()));
 
     it('stays visible with hideWhenEmpty and keeps the failure item', async () => {
       const control = await fixture<Control>(html`
