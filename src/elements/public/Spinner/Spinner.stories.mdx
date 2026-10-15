@@ -15,6 +15,7 @@ import './index.ts';
   mdxSource={dedent`
     <foxy-spinner state="busy"></foxy-spinner>
     <foxy-spinner state="error"></foxy-spinner>
+    <foxy-spinner state="error" error-type="access-denied"></foxy-spinner>
     <foxy-spinner state="empty"></foxy-spinner>
     <foxy-spinner state="paused"></foxy-spinner>
     <foxy-spinner state="end"></foxy-spinner>
@@ -27,6 +28,7 @@ import './index.ts';
         <div class="flex flex-wrap -m-4">
           <foxy-spinner class="m-4"></foxy-spinner>
           <foxy-spinner state="error" class="m-4"></foxy-spinner>
+          <foxy-spinner state="error" error-type="access-denied" class="m-4"></foxy-spinner>
           <foxy-spinner state="empty" class="m-4"></foxy-spinner>
           <foxy-spinner state="paused" class="m-4"></foxy-spinner>
           <foxy-spinner state="end" class="m-4"></foxy-spinner>
@@ -42,6 +44,7 @@ import './index.ts';
   mdxSource={dedent`
     <foxy-spinner></foxy-spinner>
     <foxy-spinner state="error"></foxy-spinner>
+    <foxy-spinner state="error" error-type="access-denied"></foxy-spinner>
     <foxy-spinner state="empty"></foxy-spinner>
     <foxy-spinner state="paused"></foxy-spinner>
     <foxy-spinner state="end"></foxy-spinner>
@@ -54,6 +57,7 @@ import './index.ts';
         <div class="flex flex-wrap -m-4">
           <foxy-spinner layout="vertical" class="m-4"></foxy-spinner>
           <foxy-spinner layout="vertical" state="error" class="m-4"></foxy-spinner>
+          <foxy-spinner layout="vertical" state="error" error-type="access-denied" class="m-4"></foxy-spinner>
           <foxy-spinner layout="vertical" state="empty" class="m-4"></foxy-spinner>
           <foxy-spinner layout="vertical" state="paused" class="m-4"></foxy-spinner>
           <foxy-spinner layout="vertical" state="end" class="m-4"></foxy-spinner>

@@ -27,10 +27,12 @@ export const NoCardEditable = getStory({ ...summary, ext: demoExt });
 export const NoCardReadonly = getStory(summary);
 export const Empty = getStory(summary);
 export const Error = getStory(summary);
+export const AccessDenied = getStory(summary);
 export const Busy = getStory(summary);
 
 NoCardReadonly.args.href = 'https://demo.api/hapi/payment_methods/1';
 NoCardEditable.args.href = 'https://demo.api/hapi/payment_methods/1';
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
+AccessDenied.args.href = 'https://demo.api/virtual/denied';
 Busy.args.href = 'https://demo.api/virtual/stall';
