@@ -82,7 +82,9 @@ export class InternalPostActionControlDialog extends Dialog {
                           if (response.ok) {
                             this.__state = 'done';
                           } else {
-                            this.__state = (await isAccessDenied(response)) ? 'access_denied' : 'fail';
+                            this.__state = (await isAccessDenied(response))
+                              ? 'access_denied'
+                              : 'fail';
                           }
                         } catch {
                           this.__state = 'fail';

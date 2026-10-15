@@ -23,7 +23,8 @@ export class InternalTemplateFormAsyncAction extends InternalControl {
 
   renderControl(): TemplateResult {
     const state = this.__state;
-    const theme = state === 'fail' || state === 'access_denied' ? 'error' : state === 'idle' ? '' : '';
+    const theme =
+      state === 'fail' || state === 'access_denied' ? 'error' : state === 'idle' ? '' : '';
 
     return html`
       <vaadin-button
@@ -45,7 +46,11 @@ export class InternalTemplateFormAsyncAction extends InternalControl {
       const api = new NucleonElement.API(this);
       const response = await api.fetch(this.href ?? '', { method: 'POST' });
 
-      this.__state = response.ok ? 'idle' : (await isAccessDenied(response)) ? 'access_denied' : 'fail';
+      this.__state = response.ok
+        ? 'idle'
+        : (await isAccessDenied(response))
+        ? 'access_denied'
+        : 'fail';
       if (response.ok) this.nucleon?.refresh();
     } catch {
       this.__state = 'fail';

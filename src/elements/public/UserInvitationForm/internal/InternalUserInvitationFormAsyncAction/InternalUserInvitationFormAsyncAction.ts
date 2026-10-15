@@ -24,7 +24,8 @@ export class InternalUserInvitationFormAsyncAction extends InternalControl {
 
   renderControl(): TemplateResult {
     const state = this.__state;
-    const theme = state === 'fail' || state === 'access_denied' ? 'error' : state === 'idle' ? this.theme : '';
+    const theme =
+      state === 'fail' || state === 'access_denied' ? 'error' : state === 'idle' ? this.theme : '';
 
     return html`
       <vaadin-button
