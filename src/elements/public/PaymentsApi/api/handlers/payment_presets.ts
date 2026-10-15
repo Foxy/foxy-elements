@@ -4,7 +4,7 @@ import type { Rels } from '@foxy.io/sdk/backend';
 
 import { compose as composePaymentPresets } from '../composers/payment_presets';
 import { compose as composePaymentPreset } from '../composers/payment_preset';
-import { fetchJson } from '../utils';
+import { fetchJson, FetchError } from '../utils';
 
 export type Params = {
   paymentMethodSetsUrl: string;
@@ -58,7 +58,7 @@ export async function handle(params: Params): Promise<Response> {
     status = 200;
   } catch (err) {
     body = err instanceof Error ? err.message : String(err);
-    status = status ?? 500;
+    status = status ?? (err instanceof FetchError ? err.status : 500);
   }
 
   return new Response(body, { status });
