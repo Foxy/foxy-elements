@@ -7,6 +7,7 @@ import type { Collection } from './types';
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { NucleonElement } from '../../public/NucleonElement/NucleonElement';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { isAccessDenied } from '../../../utils/is-access-denied';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
 import { css } from 'lit-element';
@@ -27,6 +28,7 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
       limit: { type: Number },
       item: {},
       __isFetching: { attribute: false },
+      __linkFailure: { attribute: false },
     };
   }
 
@@ -118,6 +120,8 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
 
   private __isFetching = false;
 
+  private __linkFailure: 'access_denied' | 'generic' | null = null;
+
   renderControl(): TemplateResult {
     let firstHref: string | undefined;
 
@@ -129,7 +133,9 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
       firstHref = undefined;
     }
 
-    const isStatusVisible = this.__isFetching || !this.__allLinks;
+    const loadFailure = this.__loadFailure;
+    const failure = this.__linkFailure ?? loadFailure;
+    const isStatusVisible = !loadFailure && (this.__isFetching || !this.__allLinks);
 
     return html`
       <div class="group">
@@ -167,6 +173,14 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
           ${this._errorMessage}
         </div>
 
+        <foxy-i18n
+          class="block mt-s text-s leading-xs text-error"
+          infer="spinner"
+          key=${failure === 'access_denied' ? 'loading_access_denied' : 'loading_error'}
+          ?hidden=${!failure}
+        >
+        </foxy-i18n>
+
         ${this.__renderLinkResourceLoaders()}
       </div>
     `;
@@ -179,17 +193,23 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
 
   private async __insertLink(foreignUri: string) {
     this.__isFetching = true;
+    this.__linkFailure = null;
 
-    const api = new NucleonElement.API(this);
-    const response = await api.fetch(this.linksHref ?? '', {
-      method: 'POST',
-      body: JSON.stringify({
-        [this.foreignKeyForUri ?? '']: foreignUri,
-        [this.ownKeyForUri ?? '']: this.ownUri,
-      }),
-    });
+    try {
+      const api = new NucleonElement.API(this);
+      const response = await api.fetch(this.linksHref ?? '', {
+        method: 'POST',
+        body: JSON.stringify({
+          [this.foreignKeyForUri ?? '']: foreignUri,
+          [this.ownKeyForUri ?? '']: this.ownUri,
+        }),
+      });
 
-    if (response.ok) {
+      if (!response.ok) {
+        this.__linkFailure = await this.__getFailure(response);
+        return;
+      }
+
       const json = await response.json();
       const dataResponse = await api.fetch(json._links.self.href);
 
@@ -197,34 +217,53 @@ export class InternalAsyncResourceLinkListControl extends InternalEditableContro
         const rumour = NucleonElement.Rumour(this.nucleon?.group ?? '');
         const data = await dataResponse.json();
 
-        console.log({
-          related: [this.linksHref ?? ''],
-          source: json._links.self.href,
-          data,
-        });
         rumour.share({
           related: [this.linksHref ?? ''],
           source: json._links.self.href,
           data,
         });
+      } else {
+        this.__linkFailure = await this.__getFailure(dataResponse);
       }
+    } catch {
+      this.__linkFailure = 'generic';
+    } finally {
+      this.__isFetching = false;
     }
-
-    this.__isFetching = false;
   }
 
   private async __deleteLink(linkUri: string) {
     this.__isFetching = true;
+    this.__linkFailure = null;
 
-    const api = new NucleonElement.API(this);
-    const response = await api.fetch(linkUri, { method: 'DELETE' });
+    try {
+      const api = new NucleonElement.API(this);
+      const response = await api.fetch(linkUri, { method: 'DELETE' });
 
-    if (response.ok) {
-      const rumour = NucleonElement.Rumour(this.nucleon?.group ?? '');
-      rumour.share({ related: [this.linksHref ?? ''], source: linkUri, data: null });
+      if (response.ok) {
+        const rumour = NucleonElement.Rumour(this.nucleon?.group ?? '');
+        rumour.share({ related: [this.linksHref ?? ''], source: linkUri, data: null });
+      } else {
+        this.__linkFailure = await this.__getFailure(response);
+      }
+    } catch {
+      this.__linkFailure = 'generic';
+    } finally {
+      this.__isFetching = false;
     }
+  }
 
-    this.__isFetching = false;
+  private async __getFailure(response: Response) {
+    return (await isAccessDenied(response)) ? 'access_denied' : 'generic';
+  }
+
+  private get __loadFailure(): 'access_denied' | 'generic' | null {
+    type Loader = NucleonElement<Collection>;
+    const loaders = this.renderRoot.querySelectorAll<Loader>('[data-link-page]');
+    const failed = Array.from(loaders).filter(loader => loader.in('fail'));
+
+    if (failed.length === 0) return null;
+    return failed.some(loader => loader.accessDenied) ? 'access_denied' : 'generic';
   }
 
   private __renderLinkResourceLoaders() {
