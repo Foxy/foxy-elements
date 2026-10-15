@@ -247,12 +247,14 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
   }
 
   private __renderGeneralError(err: string) {
+    const isDenied = err === 'error:access_denied';
+
     return html`
       <foxy-i18n
         class="leading-xs text-body rounded bg-error-10 block"
         style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
-        infer="error"
-        key=${err.replace('error:', '')}
+        infer=${isDenied ? 'spinner' : 'error'}
+        key=${isDenied ? 'loading_access_denied' : err.replace('error:', '')}
       >
       </foxy-i18n>
     `;
