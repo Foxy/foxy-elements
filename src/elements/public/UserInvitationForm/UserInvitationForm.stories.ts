@@ -56,6 +56,8 @@ export const UserLayoutPlayground = getStory({ ...summary, ext: extUser, code: t
 export const AdminLayoutEmpty = getStory({ ...summary, ext: extAdmin });
 export const UserLayoutEmpty = getStory({ ...summary, ext: extUser });
 export const Error = getStory({ ...summary, ext: extAdmin });
+export const AccessDenied = getStory({ ...summary, ext: extAdmin });
+export const AccessDeniedOnSave = getStory({ ...summary, ext: extAdmin });
 export const Busy = getStory({ ...summary, ext: extAdmin });
 export const AdminLayoutRestrictedGranter = getStory({
   ...summary,
@@ -77,5 +79,10 @@ export const AdminLayoutNarrowGranterCanEdit = getStory({
 AdminLayoutEmpty.args.href = '';
 UserLayoutEmpty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
+AccessDenied.args.href = 'https://demo.api/virtual/denied';
+AccessDeniedOnSave.args.href = summary.href?.replace(
+  'https://demo.api/',
+  'https://demo.api/read-only/'
+);
 Busy.args.href = 'https://demo.api/virtual/stall';
 AdminLayoutNewRestrictedGranter.args.href = '';

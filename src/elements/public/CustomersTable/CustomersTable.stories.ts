@@ -25,8 +25,10 @@ export default Meta;
 export const Playground = getStory({ ...summary, code: true });
 export const Empty = getStory(summary);
 export const Error = getStory(summary);
+export const AccessDenied = getStory(summary);
 export const Busy = getStory(summary);
 
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
+AccessDenied.args.href = 'https://demo.api/virtual/denied';
 Busy.args.href = 'https://demo.api/virtual/stall';
