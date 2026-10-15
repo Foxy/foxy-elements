@@ -11,6 +11,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { ignoreAccessDenied } from '../../../utils/ignore-access-denied';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
 
@@ -239,33 +240,48 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
 
     const item = await super._sendGet();
 
+    // Related resources only enrich the form, so a scope denial for any of them is ignored.
     if (item._links['fx:downloadable_purchase']) {
-      this.__downloadablePurchase = await super._fetch<Resource<Rels.DownloadablePurchase>>(
-        item._links['fx:downloadable_purchase'].href
+      const downloadablePurchase = await ignoreAccessDenied(
+        super._fetch<Resource<Rels.DownloadablePurchase>>(
+          item._links['fx:downloadable_purchase'].href
+        )
       );
+
+      if (downloadablePurchase) this.__downloadablePurchase = downloadablePurchase;
     }
 
     if (item._links['fx:subscription']) {
       const subscriptionHref = item._links['fx:subscription'].href;
-      const subscription = await super._fetch<Subscription>(subscriptionHref);
+      const subscription = await ignoreAccessDenied(super._fetch<Subscription>(subscriptionHref));
+      const transactionTemplateHref = subscription?._links['fx:transaction_template'].href;
+      const transactionTemplate = transactionTemplateHref
+        ? await ignoreAccessDenied(super._fetch<TransactionTemplate>(transactionTemplateHref))
+        : undefined;
 
-      const transactionTemplateHref = subscription._links['fx:transaction_template'].href;
-      const transactionTemplate = await super._fetch<TransactionTemplate>(transactionTemplateHref);
-
-      this.__itemsLink = transactionTemplate._links['fx:items'].href;
-      return item;
+      if (transactionTemplate) {
+        this.__itemsLink = transactionTemplate._links['fx:items'].href;
+        return item;
+      }
     }
 
     if (item._links['fx:transaction']) {
-      const transaction = await super._fetch<Transaction>(item._links['fx:transaction'].href);
-      this.__itemsLink = transaction._links['fx:items'].href;
-      return item;
+      const transactionHref = item._links['fx:transaction'].href;
+      const transaction = await ignoreAccessDenied(super._fetch<Transaction>(transactionHref));
+
+      if (transaction) {
+        this.__itemsLink = transaction._links['fx:items'].href;
+        return item;
+      }
     }
 
     if (item._links['fx:cart']) {
-      const cart = await super._fetch<Cart>(item._links['fx:cart'].href);
-      this.__itemsLink = cart._links['fx:items'].href;
-      return item;
+      const cart = await ignoreAccessDenied(super._fetch<Cart>(item._links['fx:cart'].href));
+
+      if (cart) {
+        this.__itemsLink = cart._links['fx:items'].href;
+        return item;
+      }
     }
 
     return item;

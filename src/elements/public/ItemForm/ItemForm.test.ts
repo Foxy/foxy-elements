@@ -10,6 +10,7 @@ import { ItemForm } from './ItemForm';
 import { html } from 'lit-html';
 import { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
 import { getTestData } from '../../../testgen/getTestData';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { stub } from 'sinon';
 import { NucleonElement } from '../NucleonElement';
 import { Resource } from '@foxy.io/sdk/core';
@@ -855,5 +856,47 @@ describe('ItemForm', () => {
     expect(control).to.have.property('form', 'foxy-attribute-form');
     expect(control).to.have.property('item', 'foxy-attribute-card');
     expect(control).to.have.property('first', element.data!._links['fx:attributes'].href);
+  });
+
+  it('loads the item when related resources are denied', async () => {
+    const router = createRouter();
+    const handleFetch = (evt: FetchEvent) => {
+      const pattern =
+        /\/(downloadable_purchases|subscriptions|transaction_templates|transactions|carts)\//;
+      if (pattern.test(evt.request.url)) {
+        evt.preventDefault();
+        evt.respondWith(Promise.resolve(createAccessDeniedResponse('read', 'transaction')));
+      } else {
+        router.handleEvent(evt);
+      }
+    };
+
+    const element = await fixture<ItemForm>(html`
+      <foxy-item-form href="https://demo.api/hapi/items/0" @fetch=${handleFetch}></foxy-item-form>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
+
+    expect(element.data).to.exist;
+    expect(element.hiddenSelector.matches('downloadable-purchase', true)).to.be.true;
+  });
+
+  it('fails to load the item when a related resource fails for another reason', async () => {
+    const router = createRouter();
+    const handleFetch = (evt: FetchEvent) => {
+      if (evt.request.url.includes('/downloadable_purchases/')) {
+        evt.preventDefault();
+        evt.respondWith(Promise.resolve(new Response(null, { status: 500 })));
+      } else {
+        router.handleEvent(evt);
+      }
+    };
+
+    const element = await fixture<ItemForm>(html`
+      <foxy-item-form href="https://demo.api/hapi/items/0" @fetch=${handleFetch}></foxy-item-form>
+    `);
+
+    await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
+    expect(element.accessDenied).to.be.false;
   });
 });
