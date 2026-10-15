@@ -56,7 +56,8 @@
     "cache": {
       "idle": "Sync now",
       "busy": "Caching...",
-      "fail": "Failed to cache"
+      "fail": "Failed to cache",
+      "access_denied": "Access denied"
     }
   },
   "text-source": {
@@ -70,7 +71,8 @@
     "cache": {
       "idle": "Sync now",
       "busy": "Caching...",
-      "fail": "Failed to cache"
+      "fail": "Failed to cache",
+      "access_denied": "Access denied"
     }
   },
   "content-html": {

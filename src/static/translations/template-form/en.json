@@ -39,7 +39,8 @@
     "cache": {
       "idle": "Cache now",
       "busy": "Caching...",
-      "fail": "Failed to cache"
+      "fail": "Failed to cache",
+      "access_denied": "Access denied"
     }
   },
   "content": {

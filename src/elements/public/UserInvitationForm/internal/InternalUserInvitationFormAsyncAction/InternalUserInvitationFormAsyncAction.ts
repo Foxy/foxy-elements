@@ -3,6 +3,7 @@ import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
 import { NucleonElement } from '../../../NucleonElement/NucleonElement';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { isAccessDenied } from '../../../../../utils/is-access-denied';
 import { html } from 'lit-element';
 
 export class InternalUserInvitationFormAsyncAction extends InternalControl {
@@ -23,7 +24,7 @@ export class InternalUserInvitationFormAsyncAction extends InternalControl {
 
   renderControl(): TemplateResult {
     const state = this.__state;
-    const theme = state === 'fail' ? 'error' : state === 'idle' ? this.theme : '';
+    const theme = state === 'fail' || state === 'access_denied' ? 'error' : state === 'idle' ? this.theme : '';
 
     return html`
       <vaadin-button
@@ -50,7 +51,7 @@ export class InternalUserInvitationFormAsyncAction extends InternalControl {
         await this.__share(api);
         this.__state = 'idle';
       } else {
-        this.__state = 'fail';
+        this.__state = (await isAccessDenied(response)) ? 'access_denied' : 'fail';
       }
     } catch {
       this.__state = 'fail';
