@@ -831,6 +831,9 @@ describe('Transaction', () => {
       'locale-codes': 'https://demo.api/hapi/property_helpers/7',
     });
 
+    // the store loads separately from the transaction, so wait for it
+    await waitUntil(() => (control as any).formProps?.['item-categories'], '', { timeout: 5000 });
+
     expect(control).to.have.deep.property('formProps', {
       'item-categories': 'https://demo.api/hapi/item_categories?store_id=0',
       'locale-codes': 'https://demo.api/hapi/property_helpers/7',
