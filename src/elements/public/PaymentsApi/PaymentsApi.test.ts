@@ -11,6 +11,8 @@ import { LitElement } from 'lit-element';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { defaults } from '../../../server/hapi/defaults';
 import { links } from '../../../server/hapi/links';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
+import { isAccessDenied } from '../../../utils/is-access-denied';
 
 describe('PaymentsApi', () => {
   it('imports and defines itself as foxy-payments-api', () => {
@@ -3623,5 +3625,53 @@ describe('PaymentsApi', () => {
 
     expect(protection).to.not.exist;
     expect(bridge).to.not.exist;
+  });
+
+  it('keeps the status of a denied upstream request so that the caller can recognise it', async () => {
+    const router = createRouter({
+      defaults,
+      links,
+      dataset: {
+        property_helpers: [
+          { id: 0, store_id: 0, message: 'fx:payment_gateways property helper', values: {} },
+          { id: 1, store_id: 0, message: 'fx:hosted_payment_gateways property helper', values: {} },
+        ],
+      },
+    });
+
+    const handleFetch = (evt: FetchEvent) => {
+      if (evt.request.url.includes('/payment_gateways/')) {
+        evt.respondWith(Promise.resolve(createAccessDeniedResponse('read', 'payment_gateway')));
+      } else {
+        router.handleEvent(evt);
+      }
+    };
+
+    const wrapper = await fixture(html`
+      <div @fetch=${handleFetch}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-nucleon
+            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+          >
+          </foxy-nucleon>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const api = wrapper.firstElementChild as PaymentsApi;
+    const nucleon = api.firstElementChild as NucleonElement<any>;
+    await waitUntil(() => nucleon.in('fail'), '', { timeout: 5000 });
+
+    expect(nucleon.failure).to.have.property('status', 401);
+    expect(await isAccessDenied(nucleon.failure!)).to.be.true;
+    expect(nucleon.accessDenied).to.be.true;
   });
 });

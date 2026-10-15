@@ -23,6 +23,7 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getByKey } from '../../../testgen/getByKey';
 import { getByTag } from '../../../testgen/getByTag';
 import { I18n } from '../I18n/I18n';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { stub } from 'sinon';
 
 describe('PaymentsApiPaymentMethodForm', () => {
@@ -499,6 +500,46 @@ describe('PaymentsApiPaymentMethodForm', () => {
     const spinner = element.renderRoot.querySelector('foxy-spinner[infer="list-spinner"]');
     expect(spinner).to.have.attribute('error-type', 'access-denied');
     expect(element.accessDenied, "host form's own request never fails in this test").to.be.false;
+  });
+
+  it('shows the access denied state when the API denies the gateway behind the form', async () => {
+    const router = createRouter();
+    const handleFetch = (evt: FetchEvent) => {
+      if (evt.request.url.includes('/payment_gateways/')) {
+        evt.respondWith(Promise.resolve(createAccessDeniedResponse('read', 'payment_gateway')));
+      } else {
+        router.handleEvent(evt);
+      }
+    };
+
+    const wrapper = await fixture(html`
+      <div @fetch=${handleFetch}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => element.in('fail'), '', { timeout: 5000 });
+    await element.updateComplete;
+
+    expect(element.accessDenied).to.be.true;
+    const spinner = element.renderRoot.querySelector('[data-testid="spinner"] foxy-spinner');
+    expect(spinner).to.have.attribute('error-type', 'access-denied');
   });
 
   it('hides deprecated payment methods', async () => {

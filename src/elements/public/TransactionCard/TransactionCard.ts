@@ -6,6 +6,7 @@ import { Resource, getResourceId } from '@foxy.io/sdk/core';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
+import { ignoreAccessDenied } from '../../../utils/ignore-access-denied';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
 
@@ -70,8 +71,8 @@ class TransactionCard extends Base<Data> {
     const storeLink = transaction._links['fx:store']?.href;
 
     if (typeof storeLink === 'string') {
-      const store = await super._fetch<Resource<Rels.Store>>(storeLink);
-      this.__currencyDisplay = store.use_international_currency_symbol ? 'code' : 'symbol';
+      const store = await ignoreAccessDenied(super._fetch<Resource<Rels.Store>>(storeLink));
+      this.__currencyDisplay = store?.use_international_currency_symbol ? 'code' : 'symbol';
     } else {
       this.__currencyDisplay = 'symbol';
     }

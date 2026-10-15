@@ -291,7 +291,10 @@ export class StoreForm extends Base<Data> {
       url.searchParams.set('store_domain', value);
 
       const response = await new StoreForm.API(this).fetch(url.toString());
-      return response.ok || 'store-domain:v8n_unavailable';
+
+      // Only a 400 means "taken". Anything else (a scope denial, a server error) says
+      // nothing about the domain, so the check is skipped and the API decides on save.
+      return response.status !== 400 || 'store-domain:v8n_unavailable';
     } else {
       throw new Error('reportingStoreDomainExists is not set.');
     }

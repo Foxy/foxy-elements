@@ -777,6 +777,7 @@
           "reset-usage": {
             "message_idle": "This action will attempt to reset usage for this downloadable purchase. Would you like to proceed?",
             "message_fail": "Failed to reset usage for this downloadable purchase. If you'd like to retry, close this dialog and click the reset usage button again.",
+            "message_access_denied": "Access denied. You don't have permission to do this.",
             "message_done": "Usage for this downloadable purchase was reset successfully. You can close this dialog now.",
             "button_close": "Close",
             "button_confirm": "Reset usage",

@@ -11,6 +11,7 @@ import { getByKey } from '../../../testgen/getByKey';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-html';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { createRouter } from '../../../server/index';
 
 const router = createRouter();
@@ -74,5 +75,34 @@ describe('DiscountCard', () => {
     expect(amount).to.have.attribute('options', options);
     expect(amount).to.have.attribute('lang', element.lang);
     expect(amount).to.have.attribute('ns', element.ns);
+  });
+
+  it('renders the loaded resource when the transaction and store are denied', async () => {
+    const router = createRouter();
+    const handleFetch = (evt: FetchEvent) => {
+      if (/\/(transactions|stores)\//.test(evt.request.url)) {
+        evt.preventDefault();
+        evt.respondWith(Promise.resolve(createAccessDeniedResponse('read', 'transaction')));
+      } else {
+        router.handleEvent(evt);
+      }
+    };
+
+    const element = await fixture<DiscountCard>(html`
+      <foxy-discount-card
+        href="https://demo.api/hapi/discounts/0"
+        @fetch=${handleFetch}
+      ></foxy-discount-card>
+    `);
+
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
+    expect(element.in('idle')).to.be.true;
+
+    const title = await getByTestId(element, 'title');
+    const subtitle = await getByTestId(element, 'subtitle');
+
+    expect(title).to.include.text(element.data!.name);
+    expect(title).to.not.include.text('undefined');
+    expect(subtitle).to.not.include.text('undefined');
   });
 });
