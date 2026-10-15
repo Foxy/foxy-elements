@@ -42,7 +42,8 @@
                     "spinner": {
                       "loading_busy": "Loading",
                       "loading_empty": "No item categories found",
-                      "loading_error": "Unknown error"
+                      "loading_error": "Unknown error",
+                      "loading_access_denied": "Access denied"
                     }
                   }
                 }
@@ -52,7 +53,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "Not assigned – click to select",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -413,7 +415,8 @@
                           "spinner": {
                             "loading_busy": "Loading",
                             "loading_empty": "No item categories found",
-                            "loading_error": "Unknown error"
+                            "loading_error": "Unknown error",
+                            "loading_access_denied": "Access denied"
                           }
                         }
                       }
@@ -423,7 +426,8 @@
                     "spinner": {
                       "loading_busy": "Loading",
                       "loading_empty": "Not assigned – click to select",
-                      "loading_error": "Unknown error"
+                      "loading_error": "Unknown error",
+                      "loading_access_denied": "Access denied"
                     }
                   }
                 }
@@ -445,7 +449,8 @@
               "spinner": {
                 "refresh": "Refresh",
                 "loading_busy": "Loading",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           },
@@ -455,7 +460,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No options",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             },
             "create_button_text": "Add option +",
@@ -509,7 +515,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No template sets found",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -584,7 +591,8 @@
     },
     "spinner": {
       "loading_busy": "Signing",
-      "loading_error": "Failed to sign"
+      "loading_error": "Failed to sign",
+      "loading_access_denied": "Access denied"
     },
     "copy-to-clipboard": {
       "failed_to_copy": "Failed to copy",

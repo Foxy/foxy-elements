@@ -77,7 +77,8 @@
             "spinner": {
               "loading_busy": "Loading",
               "loading_empty": "No payment method sets found",
-              "loading_error": "Unknown error"
+              "loading_error": "Unknown error",
+              "loading_access_denied": "Access denied"
             }
           }
         }
@@ -89,7 +90,8 @@
       "spinner": {
         "loading_busy": "Loading",
         "loading_empty": "Select a payment method set",
-        "loading_error": "Unknown error"
+        "loading_error": "Unknown error",
+        "loading_access_denied": "Access denied"
       }
     }
   },
@@ -101,7 +103,8 @@
       "refresh": "Refresh",
       "loading_busy": "Loading",
       "loading_empty": "No data",
-      "loading_error": "Unknown error"
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
     }
   },
   "timestamps": {
@@ -126,6 +129,7 @@
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   }
 }
