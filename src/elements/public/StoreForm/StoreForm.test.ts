@@ -17,6 +17,7 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
 import { I18n } from '../I18n/I18n';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { stub } from 'sinon';
 import { VanillaHCaptchaWebComponent } from 'vanilla-hcaptcha';
 import { getTestData } from '../../../testgen/getTestData';
@@ -675,6 +676,31 @@ describe('StoreForm', () => {
     expect(await control.checkValidityAsync?.('domain-two')).to.equal(
       'store-domain:v8n_unavailable'
     );
+
+    element.reportingStoreDomainExists = 'https://demo.api/virtual/empty?status=500';
+    element.edit({ store_domain: 'domain-three' });
+    await element.requestUpdate();
+    expect(await control.checkValidityAsync?.('domain-three')).to.be.true;
+  });
+
+  it('does not report the domain as unavailable when the availability check is denied', async () => {
+    const element = await fixture<Form>(html`
+      <foxy-store-form
+        reporting-store-domain-exists="https://demo.api/hapi/reporting/store_domain_exists"
+        @fetch=${(evt: FetchEvent) => {
+          evt.preventDefault();
+          evt.respondWith(
+            Promise.resolve(createAccessDeniedResponse('read', 'reporting_store_domain_exists'))
+          );
+        }}
+      ></foxy-store-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="essentials-group-one"] foxy-internal-text-control[infer="store-domain"]'
+    ) as InternalTextControl;
+
+    expect(await control.checkValidityAsync?.('domain-one')).to.be.true;
   });
 
   it('renders a text control for store url in the Essentials section', async () => {
