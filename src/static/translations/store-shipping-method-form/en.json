@@ -48,7 +48,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No providers found",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -61,7 +62,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "Select a provider",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     },
@@ -92,7 +94,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No containers found",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -103,7 +106,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "Select a container",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     },
@@ -134,7 +138,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No drop types found",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -145,7 +150,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "Select a drop type",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     }
@@ -231,7 +237,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No additional services available",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     },
@@ -259,6 +266,7 @@
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   }
 }

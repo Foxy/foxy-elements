@@ -67,7 +67,8 @@
         },
         "list-spinner": {
           "loading_busy": "Loading payment methods...",
-          "loading_error": "Unknown error. Failed to load payment methods."
+          "loading_error": "Unknown error. Failed to load payment methods.",
+          "loading_access_denied": "Access denied"
         },
         "select_another_button_label": "Select another",
         "default_additional_field_placeholder": "None",
@@ -224,7 +225,8 @@
         "spinner": {
           "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         },
         "delete": {
           "delete": "Remove",
@@ -281,7 +283,8 @@
         },
         "list-spinner": {
           "loading_busy": "Loading fraud protections...",
-          "loading_error": "Unknown error. Failed to load fraud protections."
+          "loading_error": "Unknown error. Failed to load fraud protections.",
+          "loading_access_denied": "Access denied"
         },
         "default_additional_field_placeholder": "None",
         "default_additional_field_select_placeholder": "Select",
@@ -315,7 +318,8 @@
         "spinner": {
           "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         },
         "delete": {
           "delete": "Remove",
@@ -348,7 +352,8 @@
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   },
   "delete": {
     "delete": "Delete",

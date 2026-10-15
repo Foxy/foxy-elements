@@ -23,7 +23,8 @@
     "spinner": {
       "loading_busy": "Loading",
       "loading_empty": "No data",
-      "loading_error": "Unknown error"
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
     }
   },
   "address-form": {
@@ -144,7 +145,8 @@
     "spinner": {
       "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Unknown error"
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
     },
     "country_af": "Afghanistan",
     "country_ax": "Åland Islands",
@@ -728,7 +730,8 @@
     "spinner": {
       "loading_busy": "Loading",
       "loading_empty": "No data",
-      "loading_error": "Unknown error"
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
     }
   },
   "attribute-form": {
@@ -794,7 +797,8 @@
     "spinner": {
       "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Unknown error"
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
     }
   },
   "customer-form": {
@@ -902,7 +906,8 @@
     "spinner": {
       "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Unknown error"
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
     }
   },
   "payment-method-card": {
@@ -955,7 +960,8 @@
                   "spinner": {
                     "loading_busy": "Loading",
                     "loading_empty": "No template sets found",
-                    "loading_error": "Unknown error"
+                    "loading_error": "Unknown error",
+                    "loading_access_denied": "Access denied"
                   }
                 }
               },
@@ -999,7 +1005,8 @@
             "spinner": {
               "loading_busy": "Loading",
               "loading_empty": "Click to select",
-              "loading_error": "Unknown error"
+              "loading_error": "Unknown error",
+              "loading_access_denied": "Access denied"
             }
           },
           "helper_text": "Template set determines which payment gateway and tokenization service will be used to capture card details."
@@ -1059,6 +1066,7 @@
           "refresh": "Refresh",
           "loading_busy": "Loading",
           "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied",
           "loading_empty": "This form works only with existing payment methods"
         }
       }
@@ -1066,13 +1074,15 @@
     "spinner": {
       "loading_busy": "Loading",
       "loading_empty": "No payment method",
-      "loading_error": "Unknown error"
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
     }
   },
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   },
   "subscription-form": {
     "header": {
@@ -1147,7 +1157,8 @@
       "label": "Customer",
       "spinner": {
         "loading_busy": "Loading",
-        "loading_error": "Unknown error"
+        "loading_error": "Unknown error",
+        "loading_access_denied": "Access denied"
       }
     },
     "past-due-amount": {
@@ -1176,7 +1187,8 @@
           "spinner": {
             "loading_busy": "Loading",
             "loading_empty": "No attributes",
-            "loading_error": "Unknown error"
+            "loading_error": "Unknown error",
+            "loading_access_denied": "Access denied"
           }
         }
       },
@@ -1208,7 +1220,8 @@
         "spinner": {
           "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     },
@@ -1240,7 +1253,8 @@
           "spinner": {
             "loading_busy": "Loading",
             "loading_empty": "No items",
-            "loading_error": "Unknown error"
+            "loading_error": "Unknown error",
+            "loading_access_denied": "Access denied"
           }
         }
       }
@@ -1288,7 +1302,8 @@
           "spinner": {
             "loading_busy": "Loading",
             "loading_empty": "No transactions",
-            "loading_error": "Unknown error"
+            "loading_error": "Unknown error",
+            "loading_access_denied": "Access denied"
           }
         }
       }
@@ -1296,7 +1311,8 @@
     "spinner": {
       "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Unknown error"
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
     },
     "timestamps": {
       "date_created": "Created on",
@@ -1331,7 +1347,8 @@
       "refresh": "Refresh",
       "loading_busy": "Loading",
       "loading_empty": "No data",
-      "loading_error": "Unknown error"
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
     }
   },
   "transactions-table": {
@@ -1354,7 +1371,8 @@
       "refresh": "Refresh",
       "loading_busy": "Loading",
       "loading_empty": "No data",
-      "loading_error": "Unknown error"
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
     }
   }
 }

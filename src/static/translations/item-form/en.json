@@ -68,7 +68,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No item categories found",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -78,7 +79,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "Not assigned – click to select",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     },
@@ -267,7 +269,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No data",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     }
@@ -290,7 +293,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No data",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     }
@@ -377,7 +381,8 @@
         "spinner": {
           "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     },
@@ -388,7 +393,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No data",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       },
       "first": "First",
@@ -478,7 +484,8 @@
         "spinner": {
           "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         },
         "delete": {
           "delete": "Delete",
@@ -502,7 +509,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No data",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       },
       "create_button_text": "Add option +",
@@ -538,6 +546,7 @@
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   }
 }
