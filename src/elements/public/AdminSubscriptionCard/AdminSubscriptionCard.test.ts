@@ -11,6 +11,7 @@ import { createRouter } from '../../../server';
 import { getTestData } from '../../../testgen/getTestData';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { getByKey } from '../../../testgen/getByKey';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { parseFrequency } from '../../../utils/parse-frequency';
 import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
 
@@ -601,5 +602,34 @@ describe('AdminSubscriptionCard', () => {
 
     await waitUntil(() => element.isBodyReady, '', { timeout: 5000 });
     expect(element.renderRoot).to.include.text('Test User');
+  });
+
+  it('stops the spinner and shows access denied when the customer helper is denied', async () => {
+    const router = createRouter();
+    const href = 'https://demo.api/hapi/subscriptions/0';
+    const data = await getTestData<Resource<Rels.Subscription>>(href, router);
+    const customerHref = data._links['fx:customer'].href;
+
+    const element = await fixture<Card>(html`
+      <foxy-admin-subscription-card
+        locale-codes="https://demo.api/hapi/property_helpers/7"
+        href=${href}
+        @fetch=${(evt: FetchEvent) => {
+          if (evt.request.url === customerHref) {
+            evt.respondWith(Promise.resolve(createAccessDeniedResponse('read', 'customer')));
+          } else {
+            router.handleEvent(evt);
+          }
+        }}
+      >
+      </foxy-admin-subscription-card>
+    `);
+
+    const spinner = () => element.renderRoot.querySelector('foxy-spinner')!;
+    await waitUntil(() => spinner().getAttribute('state') === 'error', '', { timeout: 5000 });
+
+    expect(element.isBodyReady).to.be.false;
+    expect(spinner()).to.have.attribute('error-type', 'access-denied');
+    expect(spinner().parentElement).not.to.have.class('opacity-0');
   });
 });
