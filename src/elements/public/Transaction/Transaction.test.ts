@@ -763,6 +763,14 @@ describe('Transaction', () => {
 
     expect(control).to.exist;
     expect(control).to.have.property('localName', 'foxy-internal-transaction-actions-control');
+
+    // Currency display comes from the store, which loads after the transaction.
+    await waitUntil(
+      () => (control as unknown as { currencyDisplay: string }).currencyDisplay === 'code',
+      '',
+      { timeout: 5000 }
+    );
+
     expect(control).to.have.property('currencyDisplay', 'code');
   });
 
