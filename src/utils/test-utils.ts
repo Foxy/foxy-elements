@@ -14,3 +14,16 @@ export function exec<TRefs = unknown, TElement extends LitElement = LitElement>(
     await callback({ ...getRefs<TRefs>(element), element });
   };
 }
+
+/**
+ * A response shaped like the API's scope denial: HTTP 401 with a `vnd.error` body whose
+ * message names the missing permission. `isAccessDenied` returns `true` for it.
+ */
+export function createAccessDeniedResponse(
+  type: 'read' | 'write' | 'resend' = 'read',
+  rel = 'customer'
+): Response {
+  const message = `The current authenticated user does not appear to have ${type} permission for ${rel} resource.`;
+  const body = { total: 1, _embedded: { 'fx:errors': [{ logref: 'id-1', message }] } };
+  return new Response(JSON.stringify(body), { status: 401 });
+}

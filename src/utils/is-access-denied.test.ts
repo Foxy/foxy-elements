@@ -88,3 +88,13 @@ describe('isAccessDenied', () => {
     expect(body._embedded['fx:errors'][0].message).to.equal(READ);
   });
 });
+
+describe('Utils', () => {
+  describe('createAccessDeniedResponse', () => {
+    it('builds a response that isAccessDenied recognises', async () => {
+      const { createAccessDeniedResponse } = await import('./test-utils');
+      expect(await isAccessDenied(createAccessDeniedResponse())).to.be.true;
+      expect(await isAccessDenied(createAccessDeniedResponse('write', 'transaction'))).to.be.true;
+    });
+  });
+});
