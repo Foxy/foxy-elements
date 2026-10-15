@@ -365,7 +365,9 @@ describe('InternalForm', () => {
   });
 
   it('renders error:access_denied as a banner with the spinner access denied text', async () => {
-    const element = await fixture<InternalForm<any>>(html`<foxy-internal-form></foxy-internal-form>`);
+    const element = await fixture<InternalForm<any>>(
+      html`<foxy-internal-form></foxy-internal-form>`
+    );
 
     Object.defineProperty(element, 'errors', { get: () => ['error:access_denied'] });
     await element.requestUpdate();

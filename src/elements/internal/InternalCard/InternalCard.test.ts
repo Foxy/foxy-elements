@@ -115,7 +115,9 @@ describe('InternalCard', () => {
 
   describe('helper loaders', () => {
     const renderWithHelper = async (respond: (evt: FetchEvent) => void) => {
-      const element = await fixture<TestInternalCard>(html`<test-internal-card></test-internal-card>`);
+      const element = await fixture<TestInternalCard>(
+        html`<test-internal-card></test-internal-card>`
+      );
 
       element.testBody = html`
         <foxy-nucleon

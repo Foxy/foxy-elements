@@ -16,6 +16,7 @@ import { html } from 'lit-element';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { createRouter } from '../../../server';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 
 describe('CancellationForm', () => {
   it('extends NucleonElement', () => {
@@ -440,5 +441,35 @@ describe('CancellationForm', () => {
 
       expect(spinnerWrapper).to.have.class('opacity-0');
     });
+  });
+
+  it('renders foxy-spinner in "error" state with access-denied type if submit is denied', async () => {
+    const router = createRouter();
+    const element = await fixture<CancellationForm>(html`
+      <foxy-cancellation-form
+        href="https://demo.api/hapi/subscriptions/0"
+        @fetch=${(evt: FetchEvent) =>
+          evt.request.method === 'PATCH'
+            ? evt.respondWith(Promise.resolve(createAccessDeniedResponse('write', 'subscription')))
+            : router.handleEvent(evt)}
+      >
+      </foxy-cancellation-form>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
+    element.edit({ end_date: new Date(Date.now() + 84600000).toISOString() });
+    element.submit();
+    await waitUntil(() => element.errors.includes('error:access_denied'), undefined, {
+      timeout: 5000,
+    });
+    await element.updateComplete;
+
+    const spinnerWrapper = await getByTestId(element, 'spinner');
+    const spinner = spinnerWrapper!.firstElementChild;
+
+    expect(element.in('idle')).to.be.true;
+    expect(spinnerWrapper).not.to.have.class('opacity-0');
+    expect(spinner).to.have.attribute('state', 'error');
+    expect(spinner).to.have.attribute('error-type', 'access-denied');
   });
 });

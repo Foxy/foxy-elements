@@ -152,8 +152,12 @@ export class PaymentMethodCard extends Base<Data> {
   render(): TemplateResult {
     const { data, lang, ns } = this;
 
-    if (this.in({ idle: 'template' }) || !data?.save_cc || !this.in('idle')) {
-      const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';
+    // A denied delete leaves the card idle with the denial in `errors`.
+    const isDenied = this.errors.includes('error:access_denied');
+
+    if (this.in({ idle: 'template' }) || !data?.save_cc || !this.in('idle') || isDenied) {
+      const spinnerState =
+        this.in('fail') || isDenied ? 'error' : this.in('busy') ? 'busy' : 'empty';
       const isUpdateHidden =
         this.hiddenSelector.matches('actions:update', true) || !this.embedUrl || !this.data;
 
@@ -170,7 +174,7 @@ export class PaymentMethodCard extends Base<Data> {
               data-testid="spinner"
               layout="vertical"
               state=${spinnerState}
-              error-type=${this.accessDenied ? 'access-denied' : 'generic'}
+              error-type=${this.accessDenied || isDenied ? 'access-denied' : 'generic'}
               lang=${this.lang}
               ns="${ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
             >

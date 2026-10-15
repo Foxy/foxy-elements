@@ -132,7 +132,8 @@ export class CancellationForm extends Base<Data> {
   render(): TemplateResult {
     const hiddenSelector = this.hiddenSelector;
     const isBusy = this.in('busy');
-    const isFail = this.in('fail');
+    const isDenied = this.errors.includes('error:access_denied');
+    const isFail = this.in('fail') || isDenied;
 
     return html`
       <div class="space-y-l font-lumo text-m text-body leading-m relative">
@@ -151,7 +152,7 @@ export class CancellationForm extends Base<Data> {
             layout="vertical"
             class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
             state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
-            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
+            error-type=${this.accessDenied || isDenied ? 'access-denied' : 'generic'}
             lang=${this.lang}
             ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
           >
