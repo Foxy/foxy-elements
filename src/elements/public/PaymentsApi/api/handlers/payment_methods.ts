@@ -4,7 +4,7 @@ import type { Rels } from '@foxy.io/sdk/backend';
 
 import { compose as composePaymentMethods } from '../composers/payment_methods';
 import { compose as composePaymentMethod } from '../composers/payment_method';
-import { fetchJson } from '../utils';
+import { fetchJson, FetchError } from '../utils';
 
 export type Params = {
   hostedPaymentGatewaysHelperUrl: string;
@@ -162,7 +162,7 @@ export async function handle(params: Params): Promise<Response> {
     }
   } catch (err) {
     body = err instanceof Error ? err.message : String(err);
-    status = status ?? 500;
+    status = status ?? (err instanceof FetchError ? err.status : 500);
   }
 
   return new Response(body, { status });

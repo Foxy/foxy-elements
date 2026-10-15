@@ -1,12 +1,14 @@
 import type { FetchEvent } from '../../public/NucleonElement/FetchEvent';
 
 import './index';
+import '../../public/NucleonElement/index';
 
 import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { InternalCard } from './InternalCard';
 import { NucleonElement } from '../../public/NucleonElement/NucleonElement';
 import { createRouter } from '../../../server/index';
 import { Spinner } from '../../public/Spinner/Spinner';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { html } from 'lit-element';
 
 class TestInternalCard extends InternalCard<any> {
@@ -109,5 +111,79 @@ describe('InternalCard', () => {
     await element.requestUpdate();
 
     expect(element.renderRoot.querySelector('#test-body')).to.exist;
+  });
+
+  describe('helper loaders', () => {
+    const renderWithHelper = async (respond: (evt: FetchEvent) => void) => {
+      const element = await fixture<TestInternalCard>(
+        html`<test-internal-card></test-internal-card>`
+      );
+
+      element.testBody = html`
+        <foxy-nucleon
+          class="hidden"
+          infer=""
+          href="https://demo.api/hapi/customers/0"
+          @fetch=${respond}
+          @update=${() => element.requestUpdate()}
+        >
+        </foxy-nucleon>
+      `;
+
+      await element.requestUpdate();
+      const helper = element.renderRoot.querySelector('foxy-nucleon') as NucleonElement<any>;
+      await waitUntil(() => helper.in('fail'), undefined, { timeout: 5000 });
+      await element.updateComplete;
+      return element;
+    };
+
+    it('renders "error" foxy-spinner with access-denied type when a helper is denied', async () => {
+      const element = await renderWithHelper(evt =>
+        evt.respondWith(Promise.resolve(createAccessDeniedResponse()))
+      );
+
+      const spinner = element.renderRoot.querySelector('foxy-spinner');
+      expect(spinner!.parentElement).not.to.have.class('opacity-0');
+      expect(spinner).to.have.attribute('state', 'error');
+      expect(spinner).to.have.attribute('error-type', 'access-denied');
+    });
+
+    it('renders "error" foxy-spinner with generic type when a helper fails otherwise', async () => {
+      const element = await renderWithHelper(evt =>
+        evt.respondWith(Promise.resolve(new Response(null, { status: 500 })))
+      );
+
+      const spinner = element.renderRoot.querySelector('foxy-spinner');
+      expect(spinner!.parentElement).not.to.have.class('opacity-0');
+      expect(spinner).to.have.attribute('state', 'error');
+      expect(spinner).to.have.attribute('error-type', 'generic');
+    });
+  });
+
+  it('shows access-denied spinner when a write is denied', async () => {
+    const router = createRouter();
+    const element = await fixture<TestInternalCard>(html`
+      <test-internal-card
+        href="https://demo.api/hapi/customers/0"
+        @fetch=${(evt: FetchEvent) =>
+          evt.request.method === 'DELETE'
+            ? evt.respondWith(Promise.resolve(createAccessDeniedResponse('write')))
+            : router.handleEvent(evt)}
+      >
+      </test-internal-card>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
+    element.delete();
+    await waitUntil(() => element.errors.includes('error:access_denied'), undefined, {
+      timeout: 5000,
+    });
+    await element.updateComplete;
+
+    const spinner = element.renderRoot.querySelector('foxy-spinner');
+    expect(element.in('idle')).to.be.true;
+    expect(spinner!.parentElement).not.to.have.class('opacity-0');
+    expect(spinner).to.have.attribute('state', 'error');
+    expect(spinner).to.have.attribute('error-type', 'access-denied');
   });
 });

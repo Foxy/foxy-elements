@@ -136,7 +136,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "Please configure a rate provider on the Integrations page",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       },
       "first": "First",
@@ -167,9 +168,14 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "Add an item category to apply it here",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
+    },
+    "spinner": {
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
     }
   },
   "timestamps": {
@@ -194,6 +200,7 @@
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   }
 }

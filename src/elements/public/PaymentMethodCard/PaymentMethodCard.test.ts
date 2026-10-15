@@ -14,6 +14,7 @@ import { PaymentMethodCard } from './PaymentMethodCard';
 import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { html } from 'lit-element';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
@@ -577,5 +578,33 @@ describe('PaymentMethodCard', () => {
 
       expect(await getByTestId(element, 'spinner')).to.not.exist;
     });
+  });
+
+  it('renders "error" foxy-spinner with access-denied type if delete is denied', async () => {
+    const router = createRouter();
+    const element = await fixture<PaymentMethodCard>(html`
+      <foxy-payment-method-card
+        href="https://demo.api/hapi/payment_methods/0"
+        @fetch=${(evt: FetchEvent) =>
+          evt.request.method === 'PATCH'
+            ? evt.respondWith(
+                Promise.resolve(createAccessDeniedResponse('write', 'payment_method'))
+              )
+            : router.handleEvent(evt)}
+      >
+      </foxy-payment-method-card>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
+    element.delete();
+    await waitUntil(() => element.errors.includes('error:access_denied'), undefined, {
+      timeout: 5000,
+    });
+    await element.updateComplete;
+
+    const spinner = await getByTestId(element, 'spinner');
+    expect(element.in('idle')).to.be.true;
+    expect(spinner).to.have.attribute('state', 'error');
+    expect(spinner).to.have.attribute('error-type', 'access-denied');
   });
 });

@@ -49,7 +49,8 @@
         "spinner": {
           "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     }
@@ -113,7 +114,8 @@
         "spinner": {
           "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     }
@@ -273,7 +275,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No transactions",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -300,7 +303,8 @@
         "spinner": {
           "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     },
@@ -317,7 +321,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No codes",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       },
       "first": "First",
@@ -452,7 +457,8 @@
         "spinner": {
           "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     },
@@ -463,7 +469,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No attributes",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       },
       "first": "First",
@@ -595,11 +602,16 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No restrictions",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     },
-    "helper_text": "Limit which categories this coupon applies to. All changes are saved automatically."
+    "helper_text": "Limit which categories this coupon applies to. All changes are saved automatically.",
+    "spinner": {
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
+    }
   },
   "customer-attribute-restrictions": {
     "label": "Customer attribute restrictions",
@@ -691,6 +703,7 @@
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   }
 }

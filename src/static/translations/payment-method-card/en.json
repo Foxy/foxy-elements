@@ -44,7 +44,8 @@
                 "spinner": {
                   "loading_busy": "Loading",
                   "loading_empty": "No template sets found",
-                  "loading_error": "Unknown error"
+                  "loading_error": "Unknown error",
+                  "loading_access_denied": "Access denied"
                 }
               }
             },
@@ -88,7 +89,8 @@
           "spinner": {
             "loading_busy": "Loading",
             "loading_empty": "Click to select",
-            "loading_error": "Unknown error"
+            "loading_error": "Unknown error",
+            "loading_access_denied": "Access denied"
           }
         },
         "helper_text": "Template set determines which payment gateway and tokenization service will be used to capture card details."
@@ -148,6 +150,7 @@
         "refresh": "Refresh",
         "loading_busy": "Loading",
         "loading_error": "Unknown error",
+        "loading_access_denied": "Access denied",
         "loading_empty": "This form works only with existing payment methods"
       }
     }
@@ -155,6 +158,7 @@
   "spinner": {
     "loading_busy": "Loading",
     "loading_empty": "No payment method",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   }
 }

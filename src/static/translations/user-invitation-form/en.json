@@ -28,8 +28,10 @@
     "idle": "Leave this store",
     "busy": "Leaving...",
     "fail": "Failed to leave",
+    "access_denied": "Access denied",
     "message_idle": "You are about to remove your own access to {{ store_name }} ({{ store_domain }}). Are you sure you want to proceed? If you need access to this store again in the future, you will need to be re-invited by another user of the store.",
     "message_fail": "Failed to revoke access. If you'd like to retry, close this dialog and click the revoke button again.",
+    "message_access_denied": "Access denied. You don't have permission to do this.",
     "message_done": "Your access was revoked successfully. Close this dialog to continue.",
     "button_close": "Close",
     "button_confirm": "Leave this store",
@@ -42,8 +44,10 @@
     "idle": "Revoke access",
     "busy": "Revoking...",
     "fail": "Failed to revoke",
+    "access_denied": "Access denied",
     "message_idle": "You are about to remove your own access to {{ store_name }} ({{ store_domain }}). Are you sure you want to proceed? If you need access to this store again in the future, you will need to be re-invited by another user of the store.",
     "message_fail": "Failed to revoke access. If you'd like to retry, close this dialog and click the revoke button again.",
+    "message_access_denied": "Access denied. You don't have permission to do this.",
     "message_done": "Your access was revoked successfully. Close this dialog to continue.",
     "button_close": "Close",
     "button_confirm": "Leave this store",
@@ -55,7 +59,8 @@
   "resend": {
     "idle": "Resend invitation",
     "busy": "Resending...",
-    "fail": "Failed to resend"
+    "fail": "Failed to resend",
+    "access_denied": "Access denied"
   },
   "error": {
     "invitation_exists": "This user has already been invited to this store.",
@@ -135,12 +140,14 @@
   "accept": {
     "idle": "Accept",
     "busy": "Accepting...",
-    "fail": "Failed to accept"
+    "fail": "Failed to accept",
+    "access_denied": "Access denied"
   },
   "reject": {
     "idle": "Reject",
     "busy": "Rejecting...",
-    "fail": "Failed to reject"
+    "fail": "Failed to reject",
+    "access_denied": "Access denied"
   },
   "create": {
     "caption": "Send invitation"
@@ -159,6 +166,7 @@
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   }
 }

@@ -19,9 +19,11 @@ export const Playground = getStory({ ...summary, code: true });
 export const Minimal = getStory(summary);
 export const Empty = getStory(summary);
 export const Error = getStory(summary);
+export const AccessDenied = getStory(summary);
 export const Busy = getStory(summary);
 
 Minimal.args.href = 'https://demo.api/hapi/passkeys/1';
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
+AccessDenied.args.href = 'https://demo.api/virtual/denied';
 Busy.args.href = 'https://demo.api/virtual/stall';

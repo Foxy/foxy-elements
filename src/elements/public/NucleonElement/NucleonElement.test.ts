@@ -258,10 +258,10 @@ describe('NucleonElement', () => {
       },
     });
 
-    const respondWith = (element: HTMLElement, response: () => Response) => {
+    const respondWith = (element: HTMLElement, response: (request: Request) => Response) => {
       element.addEventListener('fetch', (evt: Event) => {
         const event = evt as FetchEvent;
-        event.respondWith(Promise.resolve(response()));
+        event.respondWith(Promise.resolve(response(event.request)));
       });
     };
 
@@ -283,6 +283,53 @@ describe('NucleonElement', () => {
 
       await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
       expect(element).to.have.property('accessDenied', true);
+    });
+
+    for (const method of ['PATCH', 'DELETE'] as const) {
+      it(`turns a scope-denied ${method} into an error and keeps the edits`, async () => {
+        const element = await fixture<NucleonElement<any>>(
+          html`<foxy-nucleon-test href="https://demo.api/hapi/customers/0"></foxy-nucleon-test>`
+        );
+
+        respondWith(element, request =>
+          request.method === 'GET'
+            ? new Response(JSON.stringify({ _links: { self: { href: element.href } } }))
+            : new Response(SCOPE_DENIAL_BODY, { status: 401 })
+        );
+
+        element.refresh();
+        await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
+
+        if (method === 'PATCH') {
+          element.edit({ first_name: 'A' });
+          element.submit();
+        } else {
+          element.delete();
+        }
+
+        await waitUntil(() => element.errors.length > 0, undefined, { timeout: 5000 });
+        expect(element.in('idle')).to.be.true;
+        expect(element.errors).to.deep.equal(['error:access_denied']);
+        expect(element).to.have.property('accessDenied', false);
+        if (method === 'PATCH') expect(element.form).to.have.property('first_name', 'A');
+
+        // server-side errors clear on the next edit, like any other
+        element.edit({ first_name: 'B' });
+        await element.updateComplete;
+        expect(element.errors).to.deep.equal([]);
+      });
+    }
+
+    it('still fails on a scope-denied GET and sets accessDenied', async () => {
+      const element = await fixture<NucleonElement<any>>(
+        html`<foxy-nucleon-test></foxy-nucleon-test>`
+      );
+
+      respondWith(element, () => new Response(SCOPE_DENIAL_BODY, { status: 401 }));
+      element.href = 'https://demo.api/hapi/customers/0';
+
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
+      expect(element.errors).to.deep.equal([]);
     });
 
     it('is false after a generic server error', async () => {

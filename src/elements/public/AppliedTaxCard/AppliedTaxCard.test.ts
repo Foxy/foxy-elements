@@ -7,6 +7,7 @@ import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { Rels } from '@foxy.io/sdk/backend';
 import { Resource } from '@foxy.io/sdk/core';
 import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { createRouter } from '../../../server/index';
 import { getByKey } from '../../../testgen/getByKey';
 import { getByTestId } from '../../../testgen/getByTestId';
@@ -92,5 +93,34 @@ describe('AppliedTaxCard', () => {
     expect(rate).to.have.attribute('options', options);
     expect(rate).to.have.attribute('lang', element.lang);
     expect(rate).to.have.attribute('ns', element.ns);
+  });
+
+  it('renders the loaded resource when the transaction and store are denied', async () => {
+    const router = createRouter();
+    const handleFetch = (evt: FetchEvent) => {
+      if (/\/(transactions|stores)\//.test(evt.request.url)) {
+        evt.preventDefault();
+        evt.respondWith(Promise.resolve(createAccessDeniedResponse('read', 'transaction')));
+      } else {
+        router.handleEvent(evt);
+      }
+    };
+
+    const element = await fixture<AppliedTaxCard>(html`
+      <foxy-applied-tax-card
+        href="https://demo.api/hapi/applied_taxes/0"
+        @fetch=${handleFetch}
+      ></foxy-applied-tax-card>
+    `);
+
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
+    expect(element.in('idle')).to.be.true;
+
+    const title = await getByTestId(element, 'title');
+    const subtitle = await getByTestId(element, 'subtitle');
+
+    expect(title).to.include.text(element.data!.name);
+    expect(title).to.not.include.text('undefined');
+    expect(subtitle).to.not.include.text('undefined');
   });
 });

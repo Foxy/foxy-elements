@@ -155,6 +155,7 @@
     "charge-past-due": {
       "message_idle": "This will attempt to charge the past due amount of {{ amount, price }}. Would you like to proceed?",
       "message_fail": "Failed to charge the past due amount of {{ amount, price }}. If you'd like to retry, close this dialog and click the charge past due amount button again.",
+      "message_access_denied": "Access denied. You don't have permission to do this.",
       "message_done": "The past due amount of {{ amount, price }} has been charged successfully. You can close this dialog now.",
       "button_close": "Close",
       "button_confirm": "Charge now",
@@ -233,7 +234,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No attributes",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     },
@@ -310,7 +312,8 @@
         "spinner": {
           "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     }
@@ -358,7 +361,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No transactions",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     },
@@ -416,7 +420,8 @@
           "spinner": {
             "loading_busy": "Loading",
             "loading_empty": "No customer",
-            "loading_error": "Unknown error"
+            "loading_error": "Unknown error",
+            "loading_access_denied": "Access denied"
           }
         },
         "items": {
@@ -454,7 +459,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No items",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           },
@@ -538,7 +544,8 @@
                           "spinner": {
                             "loading_busy": "Loading",
                             "loading_empty": "No item categories found",
-                            "loading_error": "Unknown error"
+                            "loading_error": "Unknown error",
+                            "loading_access_denied": "Access denied"
                           }
                         }
                       }
@@ -548,7 +555,8 @@
                     "spinner": {
                       "loading_busy": "Loading",
                       "loading_empty": "Not assigned – click to select",
-                      "loading_error": "Unknown error"
+                      "loading_error": "Unknown error",
+                      "loading_access_denied": "Access denied"
                     }
                   }
                 },
@@ -620,6 +628,7 @@
                 "reset-usage": {
                   "message_idle": "This action will attempt to reset usage for this downloadable purchase. Would you like to proceed?",
                   "message_fail": "Failed to reset usage for this downloadable purchase. If you'd like to retry, close this dialog and click the reset usage button again.",
+                  "message_access_denied": "Access denied. You don't have permission to do this.",
                   "message_done": "Usage for this downloadable purchase was reset successfully. You can close this dialog now.",
                   "button_close": "Close",
                   "button_confirm": "Reset usage",
@@ -737,7 +746,8 @@
                     "spinner": {
                       "loading_busy": "Loading",
                       "loading_empty": "No data",
-                      "loading_error": "Unknown error"
+                      "loading_error": "Unknown error",
+                      "loading_access_denied": "Access denied"
                     }
                   }
                 }
@@ -760,7 +770,8 @@
                     "spinner": {
                       "loading_busy": "Loading",
                       "loading_empty": "No data",
-                      "loading_error": "Unknown error"
+                      "loading_error": "Unknown error",
+                      "loading_access_denied": "Access denied"
                     }
                   }
                 }
@@ -847,7 +858,8 @@
                     "spinner": {
                       "refresh": "Refresh",
                       "loading_busy": "Loading",
-                      "loading_error": "Unknown error"
+                      "loading_error": "Unknown error",
+                      "loading_access_denied": "Access denied"
                     }
                   }
                 },
@@ -858,7 +870,8 @@
                     "spinner": {
                       "loading_busy": "Loading",
                       "loading_empty": "No data",
-                      "loading_error": "Unknown error"
+                      "loading_error": "Unknown error",
+                      "loading_access_denied": "Access denied"
                     }
                   },
                   "first": "First",
@@ -948,7 +961,8 @@
                     "spinner": {
                       "refresh": "Refresh",
                       "loading_busy": "Loading",
-                      "loading_error": "Unknown error"
+                      "loading_error": "Unknown error",
+                      "loading_access_denied": "Access denied"
                     },
                     "delete": {
                       "delete": "Delete",
@@ -972,7 +986,8 @@
                     "spinner": {
                       "loading_busy": "Loading",
                       "loading_empty": "No data",
-                      "loading_error": "Unknown error"
+                      "loading_error": "Unknown error",
+                      "loading_access_denied": "Access denied"
                     }
                   },
                   "create_button_text": "Add option +",
@@ -1008,7 +1023,8 @@
               "spinner": {
                 "refresh": "Refresh",
                 "loading_busy": "Loading",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -1088,7 +1104,8 @@
               "spinner": {
                 "refresh": "Refresh",
                 "loading_busy": "Loading",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           },
@@ -1107,7 +1124,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No custom fields",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -1191,7 +1209,8 @@
               "spinner": {
                 "refresh": "Refresh",
                 "loading_busy": "Loading",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           },
@@ -1210,7 +1229,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No attributes",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -1257,6 +1277,7 @@
                     "spinner": {
                       "loading_busy": "Loading",
                       "loading_error": "Unknown error",
+                      "loading_access_denied": "Access denied",
                       "loading_empty": "No runs for this transaction yet"
                     }
                   }
@@ -1278,6 +1299,7 @@
                     "spinner": {
                       "loading_busy": "Loading",
                       "loading_error": "Unknown error",
+                      "loading_access_denied": "Access denied",
                       "loading_empty": "No runs for this transaction yet"
                     }
                   }
@@ -1286,7 +1308,8 @@
               "spinner": {
                 "refresh": "Refresh",
                 "loading_busy": "Loading",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           },
@@ -1317,6 +1340,7 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied",
                 "loading_empty": "No webhooks"
               }
             }
@@ -1334,6 +1358,7 @@
           "process-webhook": {
             "message_idle": "This action will attempt to resend the legacy XML datafeed for this transaction. Would you like to proceed?",
             "message_fail": "Failed to resend the datafeed this transaction. If you'd like to retry, close this dialog and click the Resend button again.",
+            "message_access_denied": "Access denied. You don't have permission to do this.",
             "message_done": "Legacy XML datafeed was resent successfully. You can close this dialog now.",
             "button_close": "Close",
             "button_confirm": "Resend",
@@ -1390,7 +1415,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No payments",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -1519,7 +1545,8 @@
               "spinner": {
                 "refresh": "Refresh",
                 "loading_busy": "Loading",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               },
               "country_af": "Afghanistan",
               "country_ax": "Åland Islands",
@@ -2115,7 +2142,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No addresses",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -2141,7 +2169,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No shipments",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -2150,6 +2179,7 @@
           "capture": {
             "message_idle": "This action will attempt to capture this transaction. Would you like to proceed?",
             "message_fail": "Failed to capture this transaction. If you'd like to retry, close this dialog and click the capture button again.",
+            "message_access_denied": "Access denied. You don't have permission to do this.",
             "message_done": "Transaction was captured successfully. You can close this dialog now.",
             "button_close": "Close",
             "button_confirm": "Capture",
@@ -2161,6 +2191,7 @@
           "void": {
             "message_idle": "This action will attempt to void this transaction. Would you like to proceed?",
             "message_fail": "Failed to void this transaction. If you'd like to retry, close this dialog and click the void button again.",
+            "message_access_denied": "Access denied. You don't have permission to do this.",
             "message_done": "Transaction was voided successfully. You can close this dialog now.",
             "button_close": "Close",
             "button_confirm": "Void",
@@ -2172,6 +2203,7 @@
           "refund": {
             "message_idle": "This action will attempt to refund {{ amount, price }} to the payment method used in this transaction. Would you like to proceed?",
             "message_fail": "Failed to refund this transaction. If you'd like to retry, close this dialog and click the refund button again.",
+            "message_access_denied": "Access denied. You don't have permission to do this.",
             "message_done": "Transaction was refunded successfully. You can close this dialog now.",
             "button_close": "Close",
             "button_confirm": "Refund",
@@ -2183,6 +2215,7 @@
           "send-emails": {
             "message_idle": "This action will attempt to resend emails for this transaction. Would you like to proceed?",
             "message_fail": "Failed to resend emails for this transaction. If you'd like to retry, close this dialog and click the resend emails button again.",
+            "message_access_denied": "Access denied. You don't have permission to do this.",
             "message_done": "Emails for this transaction were resent successfully. You can close this dialog now.",
             "button_close": "Close",
             "button_confirm": "Resend emails",
@@ -2210,7 +2243,8 @@
           "refresh": "Refresh",
           "loading_busy": "Loading",
           "loading_empty": "No data",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     }
@@ -2229,6 +2263,7 @@
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   }
 }

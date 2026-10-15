@@ -18,6 +18,7 @@
     "refresh": "Refresh",
     "loading_busy": "Loading",
     "loading_empty": "No data",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   }
 }

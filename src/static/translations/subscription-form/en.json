@@ -71,7 +71,8 @@
     "label": "Customer",
     "spinner": {
       "loading_busy": "Loading",
-      "loading_error": "Unknown error"
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
     }
   },
   "past-due-amount": {
@@ -100,7 +101,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No attributes",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     },
@@ -132,7 +134,8 @@
       "spinner": {
         "refresh": "Refresh",
         "loading_busy": "Loading",
-        "loading_error": "Unknown error"
+        "loading_error": "Unknown error",
+        "loading_access_denied": "Access denied"
       }
     }
   },
@@ -164,7 +167,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No items",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     }
@@ -212,7 +216,8 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No transactions",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     }
@@ -220,7 +225,8 @@
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   },
   "timestamps": {
     "date_created": "Created on",

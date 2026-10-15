@@ -58,11 +58,16 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "Add a tax in settings to apply it here",
-          "loading_error": "Unknown error"
+          "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied"
         }
       }
     },
-    "helper_text": "Select taxes that will apply to the products in this category. Changes here are saved immediately."
+    "helper_text": "Select taxes that will apply to the products in this category. Changes here are saved immediately.",
+    "spinner": {
+      "loading_error": "Unknown error",
+      "loading_access_denied": "Access denied"
+    }
   },
   "delivery": {
     "label": "Delivery Options",
@@ -231,7 +236,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No email templates found",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -261,6 +267,7 @@
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   }
 }
