@@ -20,6 +20,7 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
 import { getTestData } from '../../../testgen/getTestData';
 import { fake, stub } from 'sinon';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 
 describe('PaymentsApiPaymentPresetForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -135,6 +136,18 @@ describe('PaymentsApiPaymentPresetForm', () => {
   it('always hides Copy JSON button in the header', () => {
     const form = new Form();
     expect(form.hiddenSelector.matches('header:copy-json', true)).to.be.true;
+  });
+
+  it('builds the readonly selector from readonly controls, not hidden controls', () => {
+    const form = new Form();
+    expect(form.readonlySelector.matches('header:copy-json', true)).to.be.false;
+
+    form.readonlyControls = new BooleanSelector('general:description');
+    expect(form.readonlySelector.matches('general:description', true)).to.be.true;
+
+    form.readonly = true;
+    expect(form.readonlySelector.matches('general:description', true)).to.be.true;
+    expect(form.readonlySelector.matches('payment-methods', true)).to.be.true;
   });
 
   it('hides Payment Methods and Fraud Protections when there is no data', async () => {

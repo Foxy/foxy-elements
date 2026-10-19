@@ -63,7 +63,7 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
   private readonly __storeLoaderId = 'storeLoader';
 
   get readonlySelector(): BooleanSelector {
-    const alwaysMatch = [super.hiddenSelector.toString()];
+    const alwaysMatch = [super.readonlySelector.toString()];
 
     if (!this.__storeLoader?.data?.is_active) {
       alwaysMatch.unshift('general:is-live', 'general:is-purchase-order-enabled');
