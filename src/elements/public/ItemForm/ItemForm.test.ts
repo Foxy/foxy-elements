@@ -899,4 +899,59 @@ describe('ItemForm', () => {
     await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
     expect(element.accessDenied).to.be.false;
   });
+
+  describe('current user scope', () => {
+    const create = async (links: Record<string, unknown> = {}) => {
+      const element = new ItemForm();
+      const data = await getTestData<any>('./hapi/items/0');
+      element.data = { ...data, _links: { ...data._links, ...links } };
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal(
+          'discount:discount-builder downloadable-purchase general:shipto undo submit create'
+        );
+        expect(element.readonlySelector.toString()).to.equal('subscriptions');
+      });
+    });
+
+    it('uses transactions for items of a completed transaction', async () => {
+      const element = await create();
+      element.currentUserScope = 'transactions_read customers_read';
+      expect(element.scopeCollection).to.equal('transactions');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+    });
+
+    it('uses carts for items of an incomplete transaction', async () => {
+      const element = await create({ 'fx:cart': { href: 'https://demo.api/hapi/carts/0' } });
+      element.currentUserScope = 'transactions_read';
+      expect(element.scopeCollection).to.equal('carts');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+
+      element.currentUserScope = 'carts_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+    });
+
+    it('hides the item category without item_categories_read', async () => {
+      const element = await create();
+      element.currentUserScope = 'transactions_read customers_read';
+      expect(element.hiddenSelector.matches('general:item-category-uri', true)).to.be.true;
+
+      element.currentUserScope = 'transactions_read item_categories_read';
+      expect(element.hiddenSelector.matches('general:item-category-uri', true)).to.be.false;
+    });
+
+    it('does not lock a new item', () => {
+      const element = new ItemForm();
+      element.currentUserScope = 'transactions_read';
+      expect(element.scopeCollection).to.be.null;
+      expect(element.readonlySelector.matches('general:name', true)).to.be.false;
+    });
+  });
 });

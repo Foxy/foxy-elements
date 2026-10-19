@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { PropertyDeclarations } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
@@ -12,6 +13,7 @@ import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { decode } from 'html-entities';
 import { html } from 'lit-html';
+import { getItemScopeCollection } from '../../../utils/item-scope-collection';
 
 const NS = 'item-card';
 const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
@@ -51,6 +53,10 @@ export class ItemCard extends Base<Data> {
   private readonly __storeLoaderId = 'storeLoader';
 
   private readonly __cartLoaderId = 'cartLoader';
+
+  get scopeCollection(): ScopeCollection | null {
+    return getItemScopeCollection(this.data);
+  }
 
   renderBody(): TemplateResult {
     const displayConfig = this.settings?.cart_display_config;
