@@ -296,4 +296,35 @@ describe('NativeIntegrationCard', () => {
     expect(text).to.have.attribute('infer', '');
     expect(text).to.have.deep.property('options', JSON.parse(defaults.customTax));
   });
+
+  describe('current user scope', () => {
+    const create = async (id: number) => {
+      const element = new Card();
+      element.data = await getTestData<Data>(`./hapi/native_integrations/${id}`);
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create(0);
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it("uses the provider's collection for a native integration", async () => {
+      const avalara = await create(0);
+      const webhook = await create(1);
+
+      [avalara, webhook].forEach(card => (card.currentUserScope = 'taxes_read webhooks_write'));
+      expect(avalara.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(webhook.readonlySelector.matches('any-control', true)).to.be.false;
+
+      [avalara, webhook].forEach(card => (card.currentUserScope = 'taxes_write webhooks_read'));
+      expect(avalara.readonlySelector.matches('any-control', true)).to.be.false;
+      expect(webhook.readonlySelector.matches('any-control', true)).to.be.true;
+    });
+  });
 });

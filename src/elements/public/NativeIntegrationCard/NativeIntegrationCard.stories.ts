@@ -20,6 +20,10 @@ export const Empty = getStory(summary);
 export const Error = getStory(summary);
 export const AccessDenied = getStory(summary);
 export const Busy = getStory(summary);
+export const RestrictedScope = getStory({
+  ...summary,
+  ext: 'current-user-scope="coupons_read item_categories_read taxes_read"',
+});
 
 Legacy.args.href = 'https://demo.api/hapi/native_integrations/1';
 Empty.args.href = '';

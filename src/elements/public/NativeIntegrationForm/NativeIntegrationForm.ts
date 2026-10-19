@@ -6,12 +6,14 @@ import type { Option } from '../../internal/InternalRadioGroupControl/types';
 import type { Data } from './types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 import type { Rels } from '@foxy.io/sdk/backend';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { isHttpUrl } from '../../../utils/is-http-url';
+import { getNativeIntegrationScopeCollection } from '../../../utils/native-integration-scope-collection';
 import { html, svg } from 'lit-html';
 
 import * as defaults from './defaults';
@@ -193,6 +195,25 @@ export class NativeIntegrationForm extends Base<Data> {
     { value: 'transaction/created', label: 'option_transaction_created' },
     { value: 'subscription/cancelled', label: 'option_subscription_cancelled' },
   ];
+
+  get scopeCollection(): ScopeCollection | null {
+    // Saved data only: a provider picked in create mode must not lock the provider select.
+    return getNativeIntegrationScopeCollection(this.data?.provider);
+  }
+
+  get scopeRules(): ScopeRule[] {
+    // Existing tax code mappings stay visible; only adding one needs the category list.
+    return [
+      {
+        path: 'avalara-category-to-product-tax-code-mappings:new-mapping',
+        collection: 'item_categories',
+      },
+      {
+        path: 'taxjar-category-to-product-tax-code-mappings:new-mapping',
+        collection: 'item_categories',
+      },
+    ];
+  }
 
   get readonlySelector(): BooleanSelector {
     const match = [super.readonlySelector.toString()];
