@@ -441,4 +441,86 @@ describe('CartCard', () => {
     expect(line3).to.exist;
     expect(line3).to.have.attribute('infer', '');
   });
+
+  describe('current user scope', () => {
+    const create = async () => {
+      const element = new CartCard();
+      element.data = await getTestData<Data>('./hapi/carts/0');
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with carts_read templates_read', async () => {
+      const element = await create();
+      element.currentUserScope = 'carts_read templates_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      element.currentUserScope = 'carts_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+    });
+  });
+
+  describe('helper loaders and current user scope', () => {
+    const denied = 'https://demo.api/virtual/denied';
+
+    const create = async (scope: string, templateSetUri = denied) => {
+      const router = createRouter();
+      const data = await getTestData<Resource<Rels.Cart>>('./hapi/carts/0');
+      data.currency_code = '';
+      data.template_set_uri = templateSetUri;
+      data._links['fx:store'] = { href: denied };
+
+      const element = await fixture<CartCard>(html`
+        <foxy-cart-card
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          current-user-scope=${scope}
+          .data=${data}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-cart-card>
+      `);
+
+      await waitUntil(
+        () => {
+          const loaders = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+          return [...loaders].every(loader => !loader.in('busy'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      await element.requestUpdate();
+      return element;
+    };
+
+    it('waits for denied helpers without a scope or with their read scope', async () => {
+      expect((await create('')).isBodyReady).to.be.false;
+      expect((await create('carts_read templates_read stores_read')).isBodyReady).to.be.false;
+      expect((await create('carts_read templates_read stores_read', '')).isBodyReady).to.be.false;
+    });
+
+    it('renders without helpers the scope cannot read', async () => {
+      for (const [scope, uri] of [
+        ['carts_read', denied],
+        ['carts_read templates_read', ''],
+      ]) {
+        const element = await create(scope, uri);
+        expect(element.isBodyReady, scope).to.be.true;
+
+        const line1 = await getByKey(element, 'line_1');
+        expect(line1).to.have.nested.property('options.currencyDisplay', 'symbol');
+        expect(line1).to.have.nested.property('options.amount', String(element.data!.total_order));
+      }
+    });
+  });
 });

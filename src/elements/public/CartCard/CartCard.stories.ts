@@ -19,6 +19,10 @@ export const Empty = getStory(summary);
 export const Error = getStory(summary);
 export const AccessDenied = getStory(summary);
 export const Busy = getStory(summary);
+export const RestrictedScope = getStory({
+  ...summary,
+  ext: 'current-user-scope="carts_read templates_read"',
+});
 
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
