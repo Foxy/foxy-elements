@@ -497,6 +497,32 @@ describe('Transaction', () => {
       expect(control.renderRoot.querySelector('foxy-i18n[infer="archive"]')).to.not.exist;
     });
 
+    it('hides See Subscription action when subscription is hidden', async () => {
+      const router = createRouter();
+      const wrapper = await fixture<Transaction>(html`
+        <foxy-nucleon
+          href="https://demo.api/hapi/transactions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+          <foxy-internal-transaction-actions-control infer="actions">
+          </foxy-internal-transaction-actions-control>
+        </foxy-nucleon>
+      `);
+
+      await waitUntil(() => wrapper.in({ idle: 'snapshot' }));
+      const control = wrapper.firstElementChild as InternalTransactionActionsControl;
+
+      set(wrapper, 'data._links["fx:subscription"]', { href: 'test' });
+      wrapper.data = { ...wrapper.data! };
+      await wrapper.requestUpdate();
+      await control.requestUpdate();
+      expect(control.renderRoot.querySelector('[infer="subscription"]')).to.exist;
+
+      control.hiddenControls = new BooleanSelector('subscription');
+      await control.requestUpdate();
+      expect(control.renderRoot.querySelector('[infer="subscription"]')).to.not.exist;
+    });
+
     it('hides folder selector when folder is hidden', async () => {
       const control = (await fixture(html`
         <foxy-internal-transaction-actions-control

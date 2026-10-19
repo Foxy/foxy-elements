@@ -28,7 +28,10 @@ export class InternalTransactionActionsControl extends InternalControl {
         ${this.nucleon?.data?._links['fx:void'] ? this.__renderVoidAction() : ''}
         ${this.nucleon?.data?._links['fx:refund'] ? this.__renderRefundAction() : ''}
         ${this.nucleon?.data?._links['fx:send_emails'] ? this.__renderSendEmailsAction() : ''}
-        ${this.nucleon?.data?._links['fx:subscription'] ? this.__renderSubscriptionAction() : ''}
+        ${this.nucleon?.data?._links['fx:subscription'] &&
+        !this.hiddenSelector.matches('subscription', true)
+          ? this.__renderSubscriptionAction()
+          : ''}
         ${this.nucleon?.data?._links['fx:receipt'] ? this.__renderReceiptAction() : ''}
         ${this.hiddenSelector.matches('archive', true) ? '' : this.__renderArchiveAction()}
         ${this.folders && !this.hiddenSelector.matches('folder', true)

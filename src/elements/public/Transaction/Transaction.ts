@@ -13,6 +13,7 @@ import { ResponsiveMixin } from '../../../mixins/responsive';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html, svg } from 'lit-element';
+import { parseUserScope } from '../../../utils/user-scope';
 
 import uainfer from 'uainfer/src/uainfer.js';
 
@@ -95,6 +96,7 @@ export class Transaction extends Base<Data> {
       { path: 'actions:archive', collection: 'transactions', need: 'write' },
       { path: 'actions:folder', collection: 'transactions', need: 'write' },
       { path: 'actions:send-emails', collection: 'transactions', need: 'resend' },
+      { path: 'actions:subscription', collection: 'subscriptions' },
       // The webhooks list and the folders come from links on the store.
       { path: 'webhooks', collection: 'stores' },
       { path: 'actions:folder', collection: 'stores' },
@@ -145,9 +147,7 @@ export class Transaction extends Base<Data> {
     }
 
     if (!this.__storeLoader?.data?.use_webhook) alwaysMatch.unshift('datafeed');
-    // A failed template set load (e.g. no templates_read) leaves the decision to the API.
-    const isTemplateSetFailed = this.__templateSetLoader?.in('fail');
-    if (!isTemplateSetFailed && !this.__emailTemplateSubject) {
+    if (!this.__emailTemplateSubject && !this.__isTemplateSetUnknownForScope) {
       alwaysMatch.unshift('actions:send-emails');
     }
 
@@ -481,6 +481,19 @@ export class Transaction extends Base<Data> {
   private get __storeLoader() {
     type Loader = NucleonElement<Resource<Rels.Store>>;
     return this.renderRoot.querySelector<Loader>('#storeLoader');
+  }
+
+  /**
+   * With a scope set, the template set may not load (failed request, no templates_read, or no
+   * stores_read to find the store's DEFAULT set). Then the API decides on send emails, not us.
+   */
+  private get __isTemplateSetUnknownForScope() {
+    const scope = parseUserScope(this.currentUserScope);
+    if (!scope) return false;
+    if (this.__templateSetLoader?.in('fail') || !scope.canRead('templates')) return true;
+    // @ts-expect-error SDK types do not include fx:template_sets on fx:transaction
+    const hasOwnTemplateSet = Boolean(this.data?._links['fx:template_sets']);
+    return !hasOwnTemplateSet && !scope.canRead('stores');
   }
 
   private get __templateSetLoader() {

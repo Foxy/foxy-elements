@@ -1343,6 +1343,38 @@ describe('Transaction', () => {
       expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.false;
     });
 
+    it('hides send emails without a scope when the template set fails to load', async () => {
+      const element = await createElement('', url => {
+        if (url.pathname.startsWith('/hapi/template_sets')) {
+          return new Response(null, { status: 500 });
+        }
+      });
+
+      await whenAllLoaded(element);
+      const loader = element.renderRoot.querySelector<NucleonElement<any>>('#templateSetLoader');
+      expect(loader?.in('fail')).to.be.true;
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.true;
+    });
+
+    [
+      'transactions_resend transactions_read',
+      'transactions_resend transactions_read templates_read',
+    ].forEach(scope => {
+      it(`shows send emails with "${scope}" when the store is denied`, async () => {
+        const element = await createElement(scope, url => {
+          if (url.pathname === '/hapi/stores/0') return createAccessDeniedResponse('read', 'store');
+        });
+
+        // The template set loader gets no href here, so it never settles.
+        const storeLoader = () =>
+          element.renderRoot.querySelector<NucleonElement<any>>('#storeLoader');
+        await waitUntil(() => element.in({ idle: 'snapshot' }) && !!storeLoader()?.in('fail'));
+        await element.requestUpdate();
+        expect(element.data?._links).to.not.have.property('fx:template_sets');
+        expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.false;
+      });
+    });
+
     it('hides webhooks and folders without stores_read', async () => {
       const element = new Transaction();
       element.currentUserScope = 'transactions_write webhooks_read';
@@ -1352,6 +1384,15 @@ describe('Transaction', () => {
       element.currentUserScope = 'transactions_write webhooks_read stores_read';
       expect(element.hiddenSelector.matches('webhooks', true)).to.be.false;
       expect(element.hiddenSelector.matches('actions:folder', true)).to.be.false;
+    });
+
+    it('hides the subscription link without subscriptions_read', () => {
+      const element = new Transaction();
+      element.currentUserScope = 'transactions_read';
+      expect(element.hiddenSelector.matches('actions:subscription', true)).to.be.true;
+
+      element.currentUserScope = 'transactions_read subscriptions_read';
+      expect(element.hiddenSelector.matches('actions:subscription', true)).to.be.false;
     });
 
     it('hides the customer block without customers_read', () => {
