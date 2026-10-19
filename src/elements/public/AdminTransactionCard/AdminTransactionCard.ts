@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
 import type { Resource } from '@foxy.io/sdk/core';
@@ -22,6 +23,10 @@ const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
  * @since 1.46.0
  */
 export class AdminTransactionCard extends Base<Data> {
+  get scopeCollection(): ScopeCollection | null {
+    return 'transactions';
+  }
+
   renderBody(): TemplateResult {
     const store = this.__storeLoader?.data;
     const data = this.data;
