@@ -222,6 +222,9 @@ export const ConfigurableMixin = <TBase extends Base>(
 
     currentUserScope: string | null = null;
 
+    /** Last scope inherited from an ancestor. Lets an ancestor that clears its scope reset ours. */
+    private __inheritedScope: string | null = null;
+
     private readonly __observer = new MutationObserver(() => this.__onMutation());
 
     get scopeCollection(): ScopeCollection | null {
@@ -378,11 +381,20 @@ export const ConfigurableMixin = <TBase extends Base>(
       this.mode = mode ?? 'production';
 
       const currentUserScope = context.get('currentUserScope') as string | undefined;
-      if (currentUserScope !== undefined) this.currentUserScope = currentUserScope;
+      if (currentUserScope !== undefined) {
+        this.currentUserScope = currentUserScope;
+        this.__inheritedScope = currentUserScope;
+      } else if (this.__inheritedScope !== null) {
+        // An ancestor cleared its scope. Drop the stale inherited value, keep an explicit one.
+        if (this.currentUserScope === this.__inheritedScope) this.currentUserScope = null;
+        this.__inheritedScope = null;
+      }
     }
 
     private __getScopeSelectors() {
       const scope = parseUserScope(this.currentUserScope);
+      // Subclass getters may need data that is not there yet, so don't read them without a scope.
+      if (!scope) return getScopeSelectors(null, [], null);
       return getScopeSelectors(scope, this.scopeRules, this.scopeCollection);
     }
 

@@ -18,6 +18,19 @@ class TestElement extends ConfigurableMixin(InferrableMixin(LitElement)) {
 
 customElements.define('x-configurable-test', TestElement);
 
+class ThrowingRulesElement extends ConfigurableMixin(InferrableMixin(LitElement)) {
+  get scopeRules(): ScopeRule[] {
+    throw new Error('scopeRules must not be read without a scope');
+  }
+}
+
+customElements.define('x-configurable-throwing-rules-test', ThrowingRulesElement);
+
+const settle = async (el: TestElement) => {
+  await el.updateComplete;
+  await new Promise(resolve => setTimeout(resolve));
+};
+
 describe('ConfigurableMixin', () => {
   describe('current user scope', () => {
     it('leaves selectors unchanged when no scope is set', async () => {
@@ -126,6 +139,51 @@ describe('ConfigurableMixin', () => {
       await child.updateComplete;
       await new Promise(resolve => setTimeout(resolve));
       expect(child.currentUserScope).to.equal('customers_read');
+    });
+
+    it('does not read scope rules when no scope is set', async () => {
+      const el = await fixture<ThrowingRulesElement>(
+        html`<x-configurable-throwing-rules-test></x-configurable-throwing-rules-test>`
+      );
+
+      expect(() => el.hiddenSelector).to.not.throw();
+      expect(() => el.readonlySelector).to.not.throw();
+    });
+
+    it('resets an inherited scope when the ancestor clears it', async () => {
+      const el = await fixture<TestElement>(html`
+        <x-configurable-test current-user-scope="customers_read">
+          <x-configurable-test infer></x-configurable-test>
+        </x-configurable-test>
+      `);
+
+      const child = el.firstElementChild as TestElement;
+      await settle(child);
+      expect(child.currentUserScope).to.equal('customers_read');
+
+      el.currentUserScope = null;
+      await settle(el);
+      await settle(child);
+      expect(child.currentUserScope).to.be.null;
+    });
+
+    it('keeps an explicit scope when the ancestor clears its scope', async () => {
+      const el = await fixture<TestElement>(html`
+        <x-configurable-test current-user-scope="customers_read">
+          <x-configurable-test infer></x-configurable-test>
+        </x-configurable-test>
+      `);
+
+      const child = el.firstElementChild as TestElement;
+      await settle(child);
+      expect(child.currentUserScope).to.equal('customers_read');
+
+      child.currentUserScope = 'transactions_read';
+      await settle(child);
+      el.currentUserScope = '';
+      await settle(el);
+      await settle(child);
+      expect(child.currentUserScope).to.equal('transactions_read');
     });
   });
 });
