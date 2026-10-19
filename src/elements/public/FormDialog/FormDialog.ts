@@ -137,6 +137,7 @@ export class FormDialog extends Dialog {
             ?disabled=\${options.dialog.disabled}
             ?readonly=\${options.dialog.readonly}
             ?hidden=\${options.dialog.hidden}
+            .currentUserScope=\${options.dialog.currentUserScope}
             .templates=\${options.dialog.templates}
             .related=\${options.dialog.related}
             ...=$\{options.spread(options.dialog.props)}
