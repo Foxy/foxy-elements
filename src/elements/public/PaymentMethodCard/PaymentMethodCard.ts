@@ -87,6 +87,7 @@ export class PaymentMethodCard extends Base<Data> {
           ns="${this.ns} dialog"
           alert
           close-on-patch
+          .currentUserScope=${this.currentUserScope}
           .props=${{ '.embedUrl': this.embedUrl }}
         >
         </foxy-form-dialog>

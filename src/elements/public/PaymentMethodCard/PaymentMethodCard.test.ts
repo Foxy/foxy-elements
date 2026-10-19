@@ -652,5 +652,15 @@ describe('PaymentMethodCard', () => {
       await element.requestUpdate();
       expect(await getByTestId(element, 'actions:update')).to.exist;
     });
+
+    it('passes the scope to the update dialog', async () => {
+      const element = await create(0, 'customers_write');
+      const dialog = await getByTestId<FormDialog>(element, 'update-dialog');
+      expect(dialog).to.have.property('currentUserScope', 'customers_write');
+
+      element.currentUserScope = null;
+      await element.requestUpdate();
+      expect(dialog).to.have.property('currentUserScope', null);
+    });
   });
 });
