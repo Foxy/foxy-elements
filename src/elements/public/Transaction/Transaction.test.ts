@@ -1377,6 +1377,27 @@ describe('Transaction', () => {
       expect(webhooks.bulkActions).to.have.length(1);
     });
 
+    it('hides the process webhook action without webhooks_resend', async () => {
+      const element = await createElement(
+        'transactions_write stores_read webhooks_read',
+        withWebhookStore
+      );
+
+      await whenAllLoaded(element);
+      await element.requestUpdate();
+      const control = element.renderRoot.querySelector<InternalControl>(
+        '[infer="datafeed"] [infer="process-webhook"]'
+      )!;
+
+      await control.requestUpdate();
+      expect(control.hidden).to.be.true;
+
+      element.currentUserScope = 'transactions_write stores_read webhooks_read webhooks_resend';
+      await element.requestUpdate();
+      await control.requestUpdate();
+      expect(control.hidden).to.be.false;
+    });
+
     it('hides send emails without transactions_resend', async () => {
       const element = await createElement();
       await whenAllLoaded(element);
