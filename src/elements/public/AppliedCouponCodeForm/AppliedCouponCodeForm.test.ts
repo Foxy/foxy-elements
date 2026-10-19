@@ -108,4 +108,33 @@ describe('AppliedCouponCodeForm', () => {
 
     expect(control).to.be.instanceOf(InternalSwitchControl);
   });
+
+  describe('current user scope', () => {
+    const create = async () => {
+      const form = new Form();
+      form.data = await getTestData<Data>('./hapi/applied_coupon_codes/0');
+      return form;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal('timestamps undo submit create');
+        expect(form.readonlySelector.toString()).to.equal('not=delete');
+      });
+    });
+
+    it('is read-only and hides delete for a cart code with carts_read templates_read', async () => {
+      const form = await create();
+      form.currentUserScope = 'carts_read templates_read';
+      expect(form.readonlySelector.matches('delete', true)).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+
+      form.currentUserScope = 'carts_write';
+      expect(form.readonlySelector.toString()).to.equal('not=delete');
+      expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+    });
+  });
 });

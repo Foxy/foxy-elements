@@ -1,7 +1,9 @@
 import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
+import { getItemScopeCollection } from '../../../utils/item-scope-collection';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
@@ -21,8 +23,14 @@ export class AppliedCouponCodeForm extends Base<Data> {
     return [({ code: v }) => !!v || 'code:v8n_required'];
   }
 
+  get scopeCollection(): ScopeCollection | null {
+    return getItemScopeCollection(this.data);
+  }
+
   get readonlySelector(): BooleanSelector {
-    return this.data ? new BooleanSelector('not=delete') : super.readonlySelector;
+    const selector = super.readonlySelector;
+    if (selector.toString() === BooleanSelector.True.toString()) return selector;
+    return this.data ? new BooleanSelector('not=delete') : selector;
   }
 
   get hiddenSelector(): BooleanSelector {

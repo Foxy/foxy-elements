@@ -58,4 +58,73 @@ describe('AppliedCouponCodeCard', () => {
     expect(element.renderRoot).to.contain.text(code.code);
     expect(element.renderRoot).to.contain.text(coupon.name);
   });
+
+  describe('current user scope', () => {
+    const create = async () => {
+      const element = new AppliedCouponCodeCard();
+      element.data = await getTestData<any>('./hapi/applied_coupon_codes/0');
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('follows carts for a code applied to a cart', async () => {
+      const element = await create();
+      element.currentUserScope = 'carts_read templates_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      element.currentUserScope = 'carts_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.false;
+    });
+  });
+
+  describe('helper loaders and current user scope', () => {
+    const create = async (scope: string) => {
+      const router = createRouter();
+      const data = await getTestData<any>('./hapi/applied_coupon_codes/0');
+      data._links['fx:coupon'] = { href: 'https://demo.api/virtual/denied' };
+
+      const element = await fixture<AppliedCouponCodeCard>(html`
+        <foxy-applied-coupon-code-card
+          current-user-scope=${scope}
+          .data=${data}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-applied-coupon-code-card>
+      `);
+
+      await waitUntil(
+        () => {
+          const loaders = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+          return [...loaders].every(loader => !loader.in('busy'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      await element.requestUpdate();
+      return element;
+    };
+
+    it('waits for the coupon without a scope or with coupons_read', async () => {
+      expect((await create('')).isBodyReady).to.be.false;
+      expect((await create('carts_read coupons_read')).isBodyReady).to.be.false;
+    });
+
+    it('renders without the coupon when the scope cannot read coupons', async () => {
+      const element = await create('carts_read');
+      expect(element.isBodyReady).to.be.true;
+      expect(element.renderRoot).to.contain.text(element.data!.code);
+    });
+  });
 });
