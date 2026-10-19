@@ -325,4 +325,41 @@ describe('ItemCard', () => {
     expect(data._embedded['fx:item_options']).to.not.be.empty;
     expect(options).to.have.length(0);
   });
+
+  describe('current user scope', () => {
+    const create = async (links: Record<string, unknown> = {}) => {
+      const element = new ItemCard();
+      const data = await getTestData<any>('./hapi/items/0');
+      element.data = { ...data, _links: { ...data._links, ...links } };
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('uses transactions for items of a completed transaction', async () => {
+      const element = await create();
+      element.currentUserScope = 'transactions_read customers_read';
+      expect(element.scopeCollection).to.equal('transactions');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+    });
+
+    it('uses carts for items of an incomplete transaction', async () => {
+      const element = await create({ 'fx:cart': { href: 'https://demo.api/hapi/carts/0' } });
+      element.currentUserScope = 'transactions_read';
+      expect(element.scopeCollection).to.equal('carts');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+
+      element.currentUserScope = 'carts_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+    });
+  });
 });

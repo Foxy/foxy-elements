@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { Resource } from '@foxy.io/sdk/core';
@@ -8,6 +9,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
+import { getItemScopeCollection } from '../../../utils/item-scope-collection';
 
 const NS = 'item-option-card';
 const Base = TranslatableMixin(TwoLineCard, NS);
@@ -41,6 +43,10 @@ export class ItemOptionCard extends Base<Data> {
   private readonly __storeLoaderId = 'storeLoader';
 
   private readonly __cartLoaderId = 'cartLoader';
+
+  get scopeCollection(): ScopeCollection | null {
+    return getItemScopeCollection(this.data);
+  }
 
   renderBody(): TemplateResult {
     const currencyDisplay = this.__currencyDisplay;

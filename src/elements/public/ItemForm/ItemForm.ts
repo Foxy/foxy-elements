@@ -1,3 +1,4 @@
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 import type { PropertyDeclarations } from 'lit-element';
 import type { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
 import type { TemplateResult } from 'lit-html';
@@ -14,6 +15,7 @@ import { ifDefined } from 'lit-html/directives/if-defined';
 import { ignoreAccessDenied } from '../../../utils/ignore-access-denied';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
+import { getItemScopeCollection } from '../../../utils/item-scope-collection';
 
 /**
  * Form element for creating or editing items (`fx:item`).
@@ -61,6 +63,14 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
   private __downloadablePurchase: Resource<Rels.DownloadablePurchase> | null = null;
 
   private __itemsLink = '';
+
+  get scopeCollection(): ScopeCollection | null {
+    return getItemScopeCollection(this.data);
+  }
+
+  get scopeRules(): ScopeRule[] {
+    return [{ path: 'general:item-category-uri', collection: 'item_categories' }];
+  }
 
   get headerSubtitleOptions(): Record<string, unknown> {
     return { context: this.data?.is_future_line_item ? 'future_line_item' : 'regular' };

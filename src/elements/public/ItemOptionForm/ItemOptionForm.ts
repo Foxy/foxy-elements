@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Data } from './types';
@@ -5,6 +6,7 @@ import type { Data } from './types';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { html } from 'lit-html';
+import { getItemScopeCollection } from '../../../utils/item-scope-collection';
 
 /**
  * Form element for creating or editing item options (`fx:item_option`).
@@ -20,6 +22,10 @@ export class ItemOptionForm extends TranslatableMixin(InternalForm, 'item-option
       ({ value: v }) => !!v || 'value:v8n_required',
       ({ value: v }) => (!!v && v.length <= 1024) || 'value:v8n_too_long',
     ];
+  }
+
+  get scopeCollection(): ScopeCollection | null {
+    return getItemScopeCollection(this.data);
   }
 
   renderBody(): TemplateResult {

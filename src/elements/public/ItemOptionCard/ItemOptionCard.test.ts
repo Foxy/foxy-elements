@@ -12,6 +12,7 @@ import { ItemOptionCard as Card } from './ItemOptionCard';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { Spinner } from '../Spinner/Spinner';
+import { getTestData } from '../../../testgen/getTestData';
 
 const fromDefaults = (key: string, overrides: Record<PropertyKey, unknown>) => {
   return { ...defaults[key](new URLSearchParams(), {}), ...overrides };
@@ -491,5 +492,42 @@ describe('ItemOptionCard', () => {
     const title = await getByTestId(element, 'subtitle');
 
     expect(title).to.include.text(element.data!.value);
+  });
+
+  describe('current user scope', () => {
+    const create = async (links: Record<string, unknown> = {}) => {
+      const element = new Card();
+      const data = await getTestData<any>('./hapi/item_options/0');
+      element.data = { ...data, _links: { ...data._links, ...links } };
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('uses transactions when it belongs to a transaction', async () => {
+      const element = await create();
+      element.currentUserScope = 'transactions_read customers_read';
+      expect(element.scopeCollection).to.equal('transactions');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+    });
+
+    it('uses carts when it belongs to a cart', async () => {
+      const element = await create({ 'fx:cart': { href: 'https://demo.api/hapi/carts/0' } });
+      element.currentUserScope = 'transactions_read';
+      expect(element.scopeCollection).to.equal('carts');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+
+      element.currentUserScope = 'carts_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+    });
   });
 });
