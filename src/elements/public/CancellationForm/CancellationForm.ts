@@ -1,3 +1,4 @@
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 import { Data } from './types';
 import { Group, Warning } from '../../private/index';
 import { TemplateResult, html } from 'lit-element';
@@ -128,6 +129,15 @@ export class CancellationForm extends Base<Data> {
       </div>
     `;
   };
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'subscriptions';
+  }
+
+  // The submit button ignores `readonly`, so it needs its own rule.
+  get scopeRules(): ScopeRule[] {
+    return [{ path: 'submit', collection: 'subscriptions', need: 'write' }];
+  }
 
   render(): TemplateResult {
     const hiddenSelector = this.hiddenSelector;

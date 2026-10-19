@@ -472,4 +472,34 @@ describe('CancellationForm', () => {
     expect(spinner).to.have.attribute('state', 'error');
     expect(spinner).to.have.attribute('error-type', 'access-denied');
   });
+
+  describe('current user scope', () => {
+    const create = async (scope = '') => {
+      const data = await getTestData<Data>('./hapi/subscriptions/0');
+      return fixture<CancellationForm>(html`
+        <foxy-cancellation-form current-user-scope=${scope} .data=${data}> </foxy-cancellation-form>
+      `);
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('hides cancel and locks the end date without subscriptions_write', async () => {
+      const element = await create('subscriptions_read customers_read');
+      expect(await getByTestId(element, 'submit')).to.not.exist;
+      expect(element.readonlySelector.matches('end-date', true)).to.be.true;
+
+      element.currentUserScope = 'subscriptions_write';
+      await element.requestUpdate();
+      expect(await getByTestId(element, 'submit')).to.exist;
+      expect(element.readonlySelector.matches('end-date', true)).to.be.false;
+    });
+  });
 });
