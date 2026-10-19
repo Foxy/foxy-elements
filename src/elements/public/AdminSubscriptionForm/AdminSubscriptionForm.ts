@@ -69,7 +69,7 @@ export class AdminSubscriptionForm extends Base<Data> {
     const chargePastDueHref: string | undefined = this.data?._links['fx:charge_past_due']?.href;
     const pastDueAmount = this.data?.past_due_amount;
     const errorMessage = this.data?.error_message;
-    const currencyCode = this.data?._embedded['fx:transaction_template'].currency_code;
+    const currencyCode = this.data?._embedded?.['fx:transaction_template']?.currency_code;
 
     return html`
       ${this.renderHeader()}

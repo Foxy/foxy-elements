@@ -572,5 +572,16 @@ describe('AdminSubscriptionForm', () => {
       form.currentUserScope = 'subscriptions_read transactions_read';
       expect(form.hiddenSelector.matches('transactions', true)).to.be.false;
     });
+
+    it('renders without the transaction template embed', async () => {
+      const form = await fixture<Form>(
+        html`<foxy-admin-subscription-form></foxy-admin-subscription-form>`
+      );
+      const data = await getTestData<any>('./hapi/subscriptions/0');
+      delete data._embedded;
+      form.data = data;
+      await form.requestUpdate();
+      expect(form.renderRoot.querySelector('[infer="general"]')).to.exist;
+    });
   });
 });
