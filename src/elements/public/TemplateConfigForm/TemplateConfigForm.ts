@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { Data, TemplateConfigJSON } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
@@ -229,6 +230,10 @@ export class TemplateConfigForm extends Base<Data> {
   };
 
   private readonly __defaultJSON = JSON.stringify(getDefaultJSON());
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'templates';
+  }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysHidden = [super.hiddenSelector.toString()];
