@@ -8,6 +8,7 @@ import type { Rels } from '@foxy.io/sdk/dist/types/backend';
 import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { createRouter } from '../../../server/index';
 import { Transaction } from './index';
 import { getTestData } from '../../../testgen/getTestData';
@@ -1216,17 +1217,36 @@ describe('Transaction', () => {
         'billing-addresses datafeed:data-is-fed webhooks:dialog:url items attributes custom-fields',
     };
 
-    const createElement = (scope = '') => {
+    // `edit` may change the demo JSON in place or return a response to send instead.
+    const createElement = (
+      scope = '',
+      edit: (url: URL, json: any) => Response | void = () => void 0
+    ) => {
       const router = createRouter();
 
       return fixture<Transaction>(html`
         <foxy-transaction
           current-user-scope=${scope}
           href="https://demo.api/hapi/transactions/0"
-          @fetch=${(evt: FetchEvent) => !evt.defaultPrevented && router.handleEvent(evt)}
+          @fetch=${(evt: FetchEvent) => {
+            if (evt.defaultPrevented) return;
+            const url = new URL(evt.request.url);
+            const result = router.handleRequest(evt.request)!;
+            evt.respondWith(
+              result.handlerPromise.then(async response => {
+                const json = await response.json();
+                const replacement = edit(url, json);
+                return replacement ? replacement : new Response(JSON.stringify(json));
+              })
+            );
+          }}
         >
         </foxy-transaction>
       `);
+    };
+
+    const withWebhookStore = (url: URL, json: any) => {
+      if (url.pathname === '/hapi/stores/0') json.use_webhook = true;
     };
 
     const whenAllLoaded = (element: Transaction) =>
@@ -1234,7 +1254,7 @@ describe('Transaction', () => {
         () => {
           if (!element.in({ idle: 'snapshot' })) return false;
           const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
-          return [...nucleons].every(nucleon => nucleon.in({ idle: 'snapshot' }));
+          return [...nucleons].every(n => n.in({ idle: 'snapshot' }) || n.in('fail'));
         },
         '',
         { timeout: 5000 }
@@ -1253,9 +1273,16 @@ describe('Transaction', () => {
       expect(element.readonlySelector.toString()).to.equal(today.readonly);
     });
 
-    it('locks own fields and hides write actions with transactions_read customers_read', () => {
-      const element = new Transaction();
-      element.currentUserScope = 'transactions_read customers_read';
+    it('locks own fields and hides write actions with transactions_read', async () => {
+      const element = await createElement(
+        'transactions_read customers_read stores_read webhooks_read',
+        withWebhookStore
+      );
+
+      await whenAllLoaded(element);
+      expect(element.data?._links).to.have.property('fx:refund');
+      expect(element.hiddenSelector.matches('datafeed', true)).to.be.false;
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.true;
 
       const readonly = element.readonlySelector;
       const hidden = element.hiddenSelector;
@@ -1269,14 +1296,62 @@ describe('Transaction', () => {
         'actions:capture',
         'actions:void',
         'actions:refund',
-        'actions:send-emails',
         'actions:archive',
         'actions:folder',
-        'webhooks',
         'datafeed:process-webhook',
       ].forEach(path => expect(hidden.matches(path, true), path).to.be.true);
 
-      expect(hidden.matches('customer', true)).to.be.false;
+      ['customer', 'webhooks', 'datafeed:data-is-fed'].forEach(path => {
+        expect(hidden.matches(path, true), path).to.be.false;
+      });
+    });
+
+    it('keeps own fields and write actions with transactions_write', async () => {
+      const element = await createElement(
+        'transactions_write transactions_resend stores_read webhooks_read webhooks_resend',
+        withWebhookStore
+      );
+
+      await whenAllLoaded(element);
+      const readonly = element.readonlySelector;
+      const hidden = element.hiddenSelector;
+
+      ['items', 'custom-fields', 'attributes'].forEach(path => {
+        expect(readonly.matches(path, true), path).to.be.false;
+      });
+
+      [
+        'actions:void',
+        'actions:refund',
+        'actions:send-emails',
+        'actions:archive',
+        'actions:folder',
+        'datafeed:process-webhook',
+      ].forEach(path => expect(hidden.matches(path, true), path).to.be.false);
+    });
+
+    it('shows send emails when the template set is denied', async () => {
+      const element = await createElement('transactions_resend transactions_read', url => {
+        if (url.pathname.startsWith('/hapi/template_sets')) {
+          return createAccessDeniedResponse('read', 'template_set');
+        }
+      });
+
+      await whenAllLoaded(element);
+      const loader = element.renderRoot.querySelector<NucleonElement<any>>('#templateSetLoader');
+      expect(loader?.in('fail')).to.be.true;
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.false;
+    });
+
+    it('hides webhooks and folders without stores_read', async () => {
+      const element = new Transaction();
+      element.currentUserScope = 'transactions_write webhooks_read';
+      expect(element.hiddenSelector.matches('webhooks', true)).to.be.true;
+      expect(element.hiddenSelector.matches('actions:folder', true)).to.be.true;
+
+      element.currentUserScope = 'transactions_write webhooks_read stores_read';
+      expect(element.hiddenSelector.matches('webhooks', true)).to.be.false;
+      expect(element.hiddenSelector.matches('actions:folder', true)).to.be.false;
     });
 
     it('hides the customer block without customers_read', () => {
@@ -1287,7 +1362,8 @@ describe('Transaction', () => {
 
     it('hides webhooks without webhooks_read and refeed without webhooks_resend', async () => {
       const element = await fixture<Transaction>(html`
-        <foxy-transaction current-user-scope="transactions_read webhooks_read"> </foxy-transaction>
+        <foxy-transaction current-user-scope="transactions_read stores_read webhooks_read">
+        </foxy-transaction>
       `);
 
       const webhooks =
@@ -1296,7 +1372,7 @@ describe('Transaction', () => {
       expect(element.hiddenSelector.matches('webhooks', true)).to.be.false;
       expect(webhooks.bulkActions).to.be.empty;
 
-      element.currentUserScope = 'transactions_read webhooks_read webhooks_resend';
+      element.currentUserScope = 'transactions_read stores_read webhooks_read webhooks_resend';
       await element.requestUpdate();
       expect(webhooks.bulkActions).to.have.length(1);
     });

@@ -95,6 +95,9 @@ export class Transaction extends Base<Data> {
       { path: 'actions:archive', collection: 'transactions', need: 'write' },
       { path: 'actions:folder', collection: 'transactions', need: 'write' },
       { path: 'actions:send-emails', collection: 'transactions', need: 'resend' },
+      // The webhooks list and the folders come from links on the store.
+      { path: 'webhooks', collection: 'stores' },
+      { path: 'actions:folder', collection: 'stores' },
       { path: 'webhooks', collection: 'webhooks' },
       { path: 'webhooks:refeed', collection: 'webhooks', need: 'resend' },
       { path: 'datafeed:process-webhook', collection: 'webhooks', need: 'resend' },
@@ -142,7 +145,11 @@ export class Transaction extends Base<Data> {
     }
 
     if (!this.__storeLoader?.data?.use_webhook) alwaysMatch.unshift('datafeed');
-    if (!this.__emailTemplateSubject) alwaysMatch.unshift('actions:send-emails');
+    // A failed template set load (e.g. no templates_read) leaves the decision to the API.
+    const isTemplateSetFailed = this.__templateSetLoader?.in('fail');
+    if (!isTemplateSetFailed && !this.__emailTemplateSubject) {
+      alwaysMatch.unshift('actions:send-emails');
+    }
 
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
@@ -476,14 +483,17 @@ export class Transaction extends Base<Data> {
     return this.renderRoot.querySelector<Loader>('#storeLoader');
   }
 
-  private get __emailTemplateSubject() {
+  private get __templateSetLoader() {
     type TemplateSet = { _embedded?: { 'fx:email_template'?: { subject?: string } } };
     type Data = HALJSONResource &
       TemplateSet & { _embedded?: { 'fx:template_sets'?: TemplateSet[] } };
-    type Loader = NucleonElement<Data>;
 
     // Loads either the transaction's own template set or the store's DEFAULT set collection.
-    const data = this.renderRoot.querySelector<Loader>('#templateSetLoader')?.data;
+    return this.renderRoot.querySelector<NucleonElement<Data>>('#templateSetLoader');
+  }
+
+  private get __emailTemplateSubject() {
+    const data = this.__templateSetLoader?.data;
     const templateSet = data?._embedded?.['fx:template_sets']?.[0] ?? data;
     return templateSet?._embedded?.['fx:email_template']?.subject;
   }
