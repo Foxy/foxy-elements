@@ -6,6 +6,7 @@ import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
 import { parseFrequency } from '../../../utils/parse-frequency';
 import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
+import { getTestData } from '../../../testgen/getTestData';
 
 type Refs = {
   frequencies: HTMLSpanElement[];
@@ -80,5 +81,35 @@ describe('SubscriptionsTable', () => {
         });
       },
     },
+  });
+
+  describe('current user scope', () => {
+    const create = async () => {
+      const element = new SubscriptionsTable();
+      element.data = await getTestData<any>(
+        './hapi/subscriptions?customer_id=0&zoom=transaction_template:items'
+      );
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with subscriptions_read customers_read', async () => {
+      const element = await create();
+      element.currentUserScope = 'subscriptions_read customers_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      element.currentUserScope = 'subscriptions_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+    });
   });
 });

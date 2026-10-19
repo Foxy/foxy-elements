@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { PropertyDeclarations } from 'lit-element';
 import type { Data, Settings } from './types';
 
@@ -36,6 +37,10 @@ export class SubscriptionCard extends Base<Data> {
   }
 
   settings: Settings | null = null;
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'subscriptions';
+  }
 
   render(): TemplateResult {
     const status = this.settings

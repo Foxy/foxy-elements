@@ -632,4 +632,32 @@ describe('AdminSubscriptionCard', () => {
     expect(spinner()).to.have.attribute('error-type', 'access-denied');
     expect(spinner().parentElement).not.to.have.class('opacity-0');
   });
+
+  describe('current user scope', () => {
+    const create = async () => {
+      const element = new Card();
+      element.data = await getTestData<any>('./hapi/subscriptions/0');
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with subscriptions_read customers_read', async () => {
+      const element = await create();
+      element.currentUserScope = 'subscriptions_read customers_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      element.currentUserScope = 'subscriptions_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+    });
+  });
 });

@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -51,6 +52,10 @@ export class AdminSubscriptionCard extends Base<Data> {
   private readonly __itemsLoaderId = 'itemsLoader';
 
   private readonly __storeLoaderId = 'storeLoader';
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'subscriptions';
+  }
 
   renderBody(): TemplateResult {
     const customer = this.__customer;

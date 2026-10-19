@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import { Column } from '../Table/types';
 import { Data } from './types';
 import { Table } from '../Table/Table';
@@ -103,4 +104,8 @@ export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-
     SubscriptionsTable.statusColumn,
     SubscriptionsTable.subTokenURLColumn,
   ];
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'subscriptions';
+  }
 }
