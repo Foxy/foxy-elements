@@ -1081,4 +1081,116 @@ describe('UserInvitationForm', () => {
       });
     });
   });
+
+  describe('current user scope', () => {
+    const create = async (scope: string | null, layout = 'admin', own = false) => {
+      const data = await getTestData<Data>('./hapi/user_invitations/0');
+      const element = await fixture<Form>(html`
+        <foxy-user-invitation-form
+          current-store=${own ? data._links['fx:store'].href : 'https://demo.api/hapi/stores/1'}
+          current-user=${data._links['fx:user'].href}
+          layout=${layout}
+          .data=${data}
+        >
+        </foxy-user-invitation-form>
+      `);
+
+      element.currentUserScope = scope;
+      await element.requestUpdate();
+      return element;
+    };
+
+    const isHidden = async (element: Form, infer: string) => {
+      const control = element.renderRoot.querySelector<InternalForm<any>>(`[infer="${infer}"]`)!;
+      await control.requestUpdate();
+      return control.hidden;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const admin = await create(null);
+      expect(admin.hiddenSelector.toString()).to.equal(
+        'scope delete leave timestamps undo submit create'
+      );
+      expect(admin.readonlySelector.toString()).to.equal('scope store');
+
+      admin.currentUserScope = 'store_full_access';
+      expect(admin.hiddenSelector.toString()).to.equal(
+        'delete leave timestamps undo submit create'
+      );
+      expect(admin.readonlySelector.toString()).to.equal('store');
+
+      const user = await create(null, 'user');
+      expect(user.hiddenSelector.toString()).to.equal(
+        'scope resend delete leave timestamps undo submit create'
+      );
+      expect(user.readonlySelector.toString()).to.equal('scope store');
+
+      user.currentUserScope = 'store_full_access';
+      expect(user.hiddenSelector.toString()).to.equal(
+        'resend delete leave timestamps undo submit create'
+      );
+      expect(user.readonlySelector.toString()).to.equal('store');
+    });
+
+    it('hides resend, revoke, delete and create without user_invitations_write', async () => {
+      const element = await create('user_invitations_read');
+
+      ['resend', 'revoke', 'delete', 'create'].forEach(path => {
+        expect(element.hiddenSelector.matches(path, true), path).to.be.true;
+      });
+
+      expect(element.readonlySelector.matches('scope', true)).to.be.true;
+      expect(await isHidden(element, 'resend')).to.be.true;
+      expect(await isHidden(element, 'revoke')).to.be.true;
+
+      element.currentUserScope = 'user_invitations_write';
+      await element.requestUpdate();
+
+      ['resend', 'revoke'].forEach(path => {
+        expect(element.hiddenSelector.matches(path, true), path).to.be.false;
+      });
+
+      expect(element.readonlySelector.matches('scope', true)).to.be.false;
+      expect(await isHidden(element, 'resend')).to.be.false;
+      expect(await isHidden(element, 'revoke')).to.be.false;
+    });
+
+    it('hides delete of a revoked invitation and create without user_invitations_write', async () => {
+      const element = await create('user_invitations_read');
+      element.data = { ...element.data!, status: 'revoked' };
+      await element.requestUpdate();
+      expect(await isHidden(element, 'delete')).to.be.true;
+
+      element.currentUserScope = 'user_invitations_write';
+      await element.requestUpdate();
+      expect(await isHidden(element, 'delete')).to.be.false;
+
+      element.data = null;
+      element.currentUserScope = 'user_invitations_read';
+      await element.requestUpdate();
+      expect(await isHidden(element, 'create')).to.be.true;
+
+      element.currentUserScope = 'user_invitations_write';
+      await element.requestUpdate();
+      expect(await isHidden(element, 'create')).to.be.false;
+    });
+
+    it('keeps revoke for the current user leaving the current store', async () => {
+      const element = await create('user_invitations_read', 'admin', true);
+      expect(element.hiddenSelector.matches('revoke', true)).to.be.false;
+      expect(element.hiddenSelector.matches('resend', true)).to.be.true;
+      expect(await isHidden(element, 'revoke')).to.be.false;
+    });
+
+    it('leaves accept, reject, leave and delete ungated in user layout', async () => {
+      const element = await create('user_invitations_read', 'user');
+      const unrestricted = await create('store_full_access', 'user');
+
+      expect(element.hiddenSelector.toString()).to.equal(unrestricted.hiddenSelector.toString());
+      // Locked by the existing granter rule, not by a scope rule. User layout renders no scope.
+      expect(element.readonlySelector.toString()).to.equal('scope store');
+      expect(await isHidden(element, 'accept')).to.be.false;
+      expect(await isHidden(element, 'reject')).to.be.false;
+    });
+  });
 });

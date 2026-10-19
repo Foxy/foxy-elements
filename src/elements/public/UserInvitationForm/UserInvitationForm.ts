@@ -1,6 +1,7 @@
 import type { CSSResultArray, PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { ScopeRule } from '../../../utils/user-scope';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -99,6 +100,34 @@ export class UserInvitationForm extends Base<Data> {
     const domain = this.data?.store_domain;
     return domain?.includes('.') || !defaultD ? domain : `${domain}.${defaultD}`;
   };
+
+  // Only the admin layout manages a store's invitations. The user layout shows the user's own
+  // invitation (accept, reject, leave, delete), which depends on the user's own access, so it
+  // gets no rules. Editing the scope (the only PATCH here) is already locked above without
+  // user_invitations_write, so it needs no rule either.
+  get scopeRules(): ScopeRule[] {
+    if (this.layout !== 'admin') return super.scopeRules;
+
+    const write = (path: string): ScopeRule => ({
+      path,
+      collection: 'user_invitations',
+      need: 'write',
+    });
+
+    const rules = [...super.scopeRules, write('resend'), write('delete'), write('create')];
+
+    // Revoking the current user's own invitation for the current store is leaving the store.
+    const { currentStore, currentUser } = this;
+    const links = this.data?._links;
+    const isOwn =
+      !!currentStore &&
+      !!currentUser &&
+      currentStore === links?.['fx:store']?.href &&
+      currentUser === links?.['fx:user']?.href;
+
+    if (!isOwn) rules.push(write('revoke'));
+    return rules;
+  }
 
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = ['store', super.readonlySelector.toString()];

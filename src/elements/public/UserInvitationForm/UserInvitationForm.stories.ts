@@ -75,6 +75,10 @@ export const AdminLayoutNarrowGranterCanEdit = getStory({
   ext: extAdminNarrowGranterCanEdit,
   code: true,
 });
+export const RestrictedScope = getStory({
+  ...summary,
+  ext: 'default-domain="foxycart.com" layout="admin" current-user-scope="user_invitations_read"',
+});
 
 AdminLayoutEmpty.args.href = '';
 UserLayoutEmpty.args.href = '';
