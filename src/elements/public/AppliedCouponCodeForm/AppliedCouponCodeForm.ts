@@ -4,6 +4,7 @@ import type { NucleonV8N } from '../NucleonElement/types';
 import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { getItemScopeCollection } from '../../../utils/item-scope-collection';
+import { parseUserScope } from '../../../utils/user-scope';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
@@ -28,9 +29,13 @@ export class AppliedCouponCodeForm extends Base<Data> {
   }
 
   get readonlySelector(): BooleanSelector {
-    const selector = super.readonlySelector;
-    if (selector.toString() === BooleanSelector.True.toString()) return selector;
-    return this.data ? new BooleanSelector('not=delete') : selector;
+    // Keep the whole form read-only when the scope can't write the code's collection.
+    const scope = parseUserScope(this.currentUserScope);
+    const collection = this.scopeCollection;
+    const isScopeReadonly =
+      !!collection && !!scope?.canRead(collection) && !scope.canWrite(collection);
+    if (isScopeReadonly) return super.readonlySelector;
+    return this.data ? new BooleanSelector('not=delete') : super.readonlySelector;
   }
 
   get hiddenSelector(): BooleanSelector {

@@ -126,6 +126,15 @@ describe('AppliedCouponCodeForm', () => {
       });
     });
 
+    it('keeps delete editable on a read-only form without a scope', async () => {
+      const form = await create();
+      form.readonly = true;
+      expect(form.readonlySelector.toString()).to.equal('not=delete');
+
+      form.currentUserScope = 'carts_write';
+      expect(form.readonlySelector.toString()).to.equal('not=delete');
+    });
+
     it('is read-only and hides delete for a cart code with carts_read templates_read', async () => {
       const form = await create();
       form.currentUserScope = 'carts_read templates_read';
