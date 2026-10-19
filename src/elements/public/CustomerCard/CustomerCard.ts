@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import { Data } from './types';
 import { TemplateResult, html } from 'lit-html';
 
@@ -17,6 +18,10 @@ const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 
  * @since 1.12.0
  */
 class CustomerCard extends Base<Data> {
+  get scopeCollection(): ScopeCollection | null {
+    return 'customers';
+  }
+
   render(): TemplateResult {
     const hiddenSelector = this.hiddenSelector;
 

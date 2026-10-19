@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import { Data } from './types';
 import { TemplateResult, html } from 'lit-html';
 
@@ -103,6 +104,10 @@ export class AddressCard extends Base<Data> {
     const text = html`${this.data?.phone || '–'}`;
     return this.__renderLine('phone', 'maps:local-phone', text);
   };
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'customers';
+  }
 
   render(): TemplateResult {
     const hiddenSelector = this.hiddenSelector;

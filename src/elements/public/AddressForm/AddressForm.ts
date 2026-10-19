@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
@@ -48,6 +49,10 @@ export class AddressForm extends Base<Data> {
   private __countrySetValue = (newValue: string) => {
     this.edit({ country: newValue, region: '' });
   };
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'customers';
+  }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysHidden = [super.hiddenSelector.toString()];
