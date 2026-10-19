@@ -238,5 +238,13 @@ describe('DownloadableForm', () => {
       expect((await getControl(form, '[infer="item-category-uri"]')).hidden).to.be.true;
       expect((await getControl(form, '[infer="name"]')).hidden).to.be.false;
     });
+
+    it('keeps the required category picker visible in create mode', async () => {
+      const form = await fixture<Form>(html`
+        <foxy-downloadable-form current-user-scope="downloadables_write"></foxy-downloadable-form>
+      `);
+
+      expect((await getControl(form, '[infer="item-category-uri"]')).hidden).to.be.false;
+    });
   });
 });

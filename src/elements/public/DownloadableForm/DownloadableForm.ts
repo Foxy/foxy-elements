@@ -50,8 +50,10 @@ export class DownloadableForm extends Base<Data> {
   }
 
   get scopeRules(): ScopeRule[] {
-    // The category picker cannot list categories without item_categories_read.
-    return [{ path: 'group-one:item-category-uri', collection: 'item_categories' }];
+    // The category picker cannot list categories without item_categories_read. In create mode
+    // the category is required, so the picker stays visible and shows the access error.
+    const rule: ScopeRule = { path: 'group-one:item-category-uri', collection: 'item_categories' };
+    return this.data ? [rule] : [];
   }
 
   renderBody(): TemplateResult {
