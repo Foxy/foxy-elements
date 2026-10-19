@@ -88,6 +88,9 @@ export class UserInvitationForm extends Base<Data> {
   /** Currently logged in user resource URL. Used for determining when to emit `selfrevoked` event. */
   currentUser: string | null = null;
 
+  // For this element, an unset `currentUserScope` (inherited from ConfigurableMixin) gates the
+  // scope control off. It must never mean "grant everything".
+
   /** Admin layout will display user info, user layout (default) will display store info. */
   layout: 'admin' | 'user' | null = null;
 
