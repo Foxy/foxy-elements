@@ -1548,5 +1548,19 @@ describe('TemplateConfigForm', () => {
       expect(form.hiddenSelector.matches('delete', true)).to.be.false;
       expect((await getControl(form, '[infer="cart-type"]')).readonly).to.be.false;
     });
+
+    it('shows multiship fields without stores_read, when the store cannot load', async () => {
+      const path = 'custom-script-values-multiship-checkout-fields';
+      const form = await create('templates_write');
+      form.store = 'https://demo.api/virtual/denied';
+      await form.requestUpdate();
+      expect(form.hiddenSelector.matches(path, true)).to.be.false;
+
+      form.currentUserScope = 'templates_write stores_read';
+      expect(form.hiddenSelector.matches(path, true)).to.be.true;
+
+      form.currentUserScope = null;
+      expect(form.hiddenSelector.matches(path, true)).to.be.true;
+    });
   });
 });
