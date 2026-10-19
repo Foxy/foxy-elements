@@ -114,18 +114,11 @@ export class UserInvitationForm extends Base<Data> {
       need: 'write',
     });
 
-    const rules = [...super.scopeRules, write('resend'), write('delete'), write('create')];
+    const rules = [...super.scopeRules, write('resend'), write('create')];
 
-    // Revoking the current user's own invitation for the current store is leaving the store.
-    const { currentStore, currentUser } = this;
-    const links = this.data?._links;
-    const isOwn =
-      !!currentStore &&
-      !!currentUser &&
-      currentStore === links?.['fx:store']?.href &&
-      currentUser === links?.['fx:user']?.href;
-
-    if (!isOwn) rules.push(write('revoke'));
+    // Revoking the current user's own invitation for the current store is leaving the store,
+    // and deleting it depends on the user's own access too.
+    if (!this.__isOwnInvitationForCurrentStore) rules.push(write('revoke'), write('delete'));
     return rules;
   }
 
@@ -258,6 +251,19 @@ export class UserInvitationForm extends Base<Data> {
     );
   }
 
+  /** `true` when this is the current user's own invitation for the current store. */
+  private get __isOwnInvitationForCurrentStore(): boolean {
+    const links = this.data?._links;
+    return (
+      !!this.currentStore &&
+      !!this.currentUser &&
+      !!links?.['fx:store'] &&
+      !!links?.['fx:user'] &&
+      this.currentStore === links['fx:store'].href &&
+      this.currentUser === links['fx:user'].href
+    );
+  }
+
   private async *__getGravatar(email?: string) {
     yield html`
       <div
@@ -305,19 +311,11 @@ export class UserInvitationForm extends Base<Data> {
     `;
   }
 
-  private __renderAdminSnapshotState({ first_name, last_name, store_name, _links }: Data) {
+  private __renderAdminSnapshotState({ first_name, last_name, store_name }: Data) {
     const hasName = first_name?.trim() || last_name?.trim();
     const nameOptions = { first_name, last_name, context: hasName ? '' : 'empty' };
     const status = this.data?.status;
     const hidden = this.hiddenSelector;
-
-    const isOwnInvitationForCurrentStore =
-      this.currentStore &&
-      this.currentUser &&
-      _links?.['fx:store'] &&
-      _links?.['fx:user'] &&
-      this.currentStore === _links?.['fx:store'].href &&
-      this.currentUser === _links?.['fx:user'].href;
 
     return html`
       <div style="padding-top: 3.5rem" class="grid gap-m">
@@ -381,7 +379,7 @@ export class UserInvitationForm extends Base<Data> {
               hidden.matches('resend', true) &&
               hidden.matches('delete', true)}
             >
-              ${isOwnInvitationForCurrentStore
+              ${this.__isOwnInvitationForCurrentStore
                 ? html`
                     <foxy-internal-post-action-control
                       message-options=${JSON.stringify({
@@ -439,14 +437,6 @@ export class UserInvitationForm extends Base<Data> {
       'text-error': status === 'rejected',
     };
 
-    const isOwnInvitationForCurrentStore =
-      this.currentStore &&
-      this.currentUser &&
-      links?.['fx:store'] &&
-      links?.['fx:user'] &&
-      this.currentStore === links?.['fx:store'].href &&
-      this.currentUser === links?.['fx:user'].href;
-
     return html`
       <div class=${classMap({ 'flex items-center gap-m': true, ...textColorMap })}>
         <div class="border-t flex-1"></div>
@@ -495,7 +485,7 @@ export class UserInvitationForm extends Base<Data> {
       >
       </foxy-i18n>
 
-      ${isOwnInvitationForCurrentStore
+      ${this.__isOwnInvitationForCurrentStore
         ? html`
             <foxy-internal-post-action-control
               message-options=${JSON.stringify({

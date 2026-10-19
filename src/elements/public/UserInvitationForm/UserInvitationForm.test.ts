@@ -1182,6 +1182,20 @@ describe('UserInvitationForm', () => {
       expect(await isHidden(element, 'revoke')).to.be.false;
     });
 
+    it('keeps delete of the current user own revoked invitation for the current store', async () => {
+      const own = await create('user_invitations_read', 'admin', true);
+      own.data = { ...own.data!, status: 'revoked' };
+      await own.requestUpdate();
+      expect(own.hiddenSelector.matches('delete', true)).to.be.false;
+      expect(await isHidden(own, 'delete')).to.be.false;
+
+      const other = await create('user_invitations_read');
+      other.data = { ...other.data!, status: 'revoked' };
+      await other.requestUpdate();
+      expect(other.hiddenSelector.matches('delete', true)).to.be.true;
+      expect(await isHidden(other, 'delete')).to.be.true;
+    });
+
     it('leaves accept, reject, leave and delete ungated in user layout', async () => {
       const element = await create('user_invitations_read', 'user');
       const unrestricted = await create('store_full_access', 'user');
