@@ -47,7 +47,8 @@ export class ErrorEntryCard extends Base<Data> {
 
   /**
    * If true, displays the error details.
-   * Additionally, sets `form.hide_error` to `true` and submits changes on first view.
+   * Additionally, sets `form.hide_error` to `true` and submits changes on first view
+   * when the current user scope can write reporting (or is unset).
    */
   open = false;
 
