@@ -847,4 +847,121 @@ describe('CartForm', () => {
 
     expect(control).to.have.property('localName', 'foxy-internal-async-list-control');
   });
+
+  describe('current user scope', () => {
+    const today = {
+      hidden: 'general:customer-email undo submit create',
+      readonly: '',
+    };
+
+    const create = async (scope: string) => {
+      const router = createRouter();
+      const posts: string[] = [];
+
+      const element = await fixture<Form>(html`
+        <foxy-cart-form
+          template-sets="https://demo.api/hapi/template_sets?store_id=0"
+          customers="https://demo.api/hapi/customers?store_id=0"
+          current-user-scope=${scope}
+          href="https://demo.api/hapi/carts/0?zoom=discounts"
+          @fetch=${(evt: FetchEvent) => {
+            if (evt.request.method === 'POST') posts.push(evt.request.url);
+            router.handleEvent(evt);
+          }}
+        >
+        </foxy-cart-form>
+      `);
+
+      await waitForIdle(element);
+      await element.requestUpdate();
+      return { element, posts };
+    };
+
+    const get = (element: Form, selector: string) => {
+      return element.renderRoot.querySelector<InternalResourcePickerControl>(selector)!;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const { element } = await create('');
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal(today.hidden);
+        expect(element.readonlySelector.toString()).to.equal(today.readonly);
+      });
+    });
+
+    it('locks cart fields and hides write actions with carts_read templates_read', async () => {
+      const { element, posts } = await create('carts_read templates_read');
+      const session = get(element, '[infer="view-as-customer"]');
+
+      expect(session.hidden).to.be.true;
+      expect(posts.some(url => url.includes('virtual/empty'))).to.be.false;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      [
+        'general',
+        'items',
+        'applied-coupon-codes',
+        'billing',
+        'shipping',
+        'custom-fields',
+        'attributes',
+      ].forEach(path => {
+        const control = get(element, `[infer="${path}"]`);
+        expect(control.readonly, path).to.be.true;
+        expect(control.hidden, path).to.be.false;
+      });
+
+      expect(get(element, '[infer="template-set-uri"]').hidden).to.be.false;
+      expect(get(element, '[infer="template-set-uri"]').readonly).to.be.true;
+      expect(get(element, '[infer="customer-uri"]').hidden).to.be.true;
+      expect(element.hiddenSelector.matches('billing:payment-method-uri', true)).to.be.true;
+    });
+
+    it('keeps cart fields editable with carts_write', async () => {
+      const { element, posts } = await create(
+        'carts_write templates_read customers_read transactions_read'
+      );
+
+      expect(get(element, '[infer="view-as-customer"]').hidden).to.be.false;
+      expect(posts.some(url => url.includes('virtual/empty'))).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.false;
+
+      [
+        'general',
+        'items',
+        'applied-coupon-codes',
+        'billing',
+        'shipping',
+        'custom-fields',
+        'attributes',
+      ].forEach(path => {
+        expect(get(element, `[infer="${path}"]`).readonly, path).to.be.false;
+      });
+
+      expect(get(element, '[infer="template-set-uri"]').hidden).to.be.false;
+      expect(get(element, '[infer="customer-uri"]').hidden).to.be.false;
+      expect(get(element, '[infer="customer-uri"]').readonly).to.be.false;
+    });
+
+    it('hides pickers for collections the scope cannot read', async () => {
+      const { element } = await create('carts_write');
+
+      expect(get(element, '[infer="template-set-uri"]').hidden).to.be.true;
+      expect(get(element, '[infer="customer-uri"]').hidden).to.be.true;
+      expect(get(element, '[infer="general"]').readonly).to.be.false;
+
+      element.currentUserScope = 'carts_write customers_read';
+      expect(element.hiddenSelector.matches('billing:payment-method-uri', true)).to.be.true;
+      element.currentUserScope = 'carts_write transactions_read';
+      expect(element.hiddenSelector.matches('billing:payment-method-uri', true)).to.be.true;
+    });
+
+    it('hides create without carts_write', async () => {
+      const element = new Form();
+      element.currentUserScope = 'carts_read';
+      expect(element.hiddenSelector.matches('create', true)).to.be.true;
+    });
+  });
 });

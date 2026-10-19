@@ -2,6 +2,7 @@ import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { CartForm } from '../../CartForm';
 
+import { parseUserScope } from '../../../../../utils/user-scope';
 import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
 import { classMap } from '../../../../../utils/class-map';
 import { html } from 'lit-html';
@@ -56,7 +57,9 @@ export class InternalCartFormCreateSessionAction extends InternalControl {
 
     const nucleon = this.nucleon as CartForm | null;
     const data = nucleon?.data;
-    const newCreateSessionHref = data?._links['fx:create_session'].href ?? null;
+    // Creating a session is a write: don't send it when the scope can't write carts.
+    const canWrite = parseUserScope(nucleon?.currentUserScope)?.canWrite('carts') ?? true;
+    const newCreateSessionHref = canWrite ? data?._links['fx:create_session'].href ?? null : null;
 
     this.__reloadSessionHref(newCreateSessionHref);
   }
