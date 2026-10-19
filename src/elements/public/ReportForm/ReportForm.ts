@@ -1,5 +1,6 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import {
   getCurrentMonth,
@@ -127,6 +128,10 @@ export class ReportForm extends Base<Data> {
       });
     }
   };
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'reporting';
+  }
 
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = [super.readonlySelector.toString()];
