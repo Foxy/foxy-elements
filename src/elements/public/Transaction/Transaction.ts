@@ -5,6 +5,7 @@ import type { Resource } from '@foxy.io/sdk/core';
 import type { Badge } from '../../internal/InternalForm/types';
 import type { Data } from './types';
 import type { Rels } from '@foxy.io/sdk/backend';
+import type { ScopeRule } from '../../../utils/user-scope';
 
 import { BooleanSelector, getResourceId } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -81,6 +82,25 @@ export class Transaction extends Base<Data> {
     },
   ];
 
+  // Not `scopeCollection`: a read-only transaction would lock the customer and webhook blocks too.
+  get scopeRules(): ScopeRule[] {
+    return [
+      { path: 'customer', collection: 'customers' },
+      { path: 'items', collection: 'transactions', readonlyIfNoWrite: true },
+      { path: 'custom-fields', collection: 'transactions', readonlyIfNoWrite: true },
+      { path: 'attributes', collection: 'transactions', readonlyIfNoWrite: true },
+      { path: 'actions:capture', collection: 'transactions', need: 'write' },
+      { path: 'actions:void', collection: 'transactions', need: 'write' },
+      { path: 'actions:refund', collection: 'transactions', need: 'write' },
+      { path: 'actions:archive', collection: 'transactions', need: 'write' },
+      { path: 'actions:folder', collection: 'transactions', need: 'write' },
+      { path: 'actions:send-emails', collection: 'transactions', need: 'resend' },
+      { path: 'webhooks', collection: 'webhooks' },
+      { path: 'webhooks:refeed', collection: 'webhooks', need: 'resend' },
+      { path: 'datafeed:process-webhook', collection: 'webhooks', need: 'resend' },
+    ];
+  }
+
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = [
       'billing-addresses',
@@ -105,7 +125,7 @@ export class Transaction extends Base<Data> {
       'webhooks:dialog:query',
       'webhooks:dialog:encryption-key',
       'webhooks:dialog:delete',
-      super.readonlySelector,
+      super.hiddenSelector,
     ];
 
     const type = this.data?.type;
@@ -414,7 +434,7 @@ export class Transaction extends Base<Data> {
         hide-create-button
         hide-delete-button
         alert
-        .bulkActions=${this.__webhooksBulkActions}
+        .bulkActions=${hidden.matches('webhooks:refeed', true) ? [] : this.__webhooksBulkActions}
         .itemProps=${{ 'resource-uri': this.href }}
         .formProps=${{ 'resource-uri': this.href }}
       >
