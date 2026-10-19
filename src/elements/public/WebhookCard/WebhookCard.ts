@@ -4,9 +4,12 @@ import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { getResourceId } from '@foxy.io/sdk/core';
+import { canReadCollection } from '../../../utils/user-scope';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../utils/class-map';
@@ -18,7 +21,9 @@ import { html } from 'lit-html';
  * @element foxy-webhook-card
  * @since 1.17.0
  */
-export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')<Data> {
+export class WebhookCard extends ConfigurableMixin(
+  TranslatableMixin(InternalCard, 'webhook-card')
+)<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -32,11 +37,16 @@ export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')
    */
   resourceUri: string | null = null;
 
+  get scopeCollection(): ScopeCollection | null {
+    return 'webhooks';
+  }
+
   get isBodyReady(): boolean {
-    return !!this.__statusesLoader?.data && super.isBodyReady;
+    return (!!this.__statusesLoader?.data || !this.__canReadStatuses) && super.isBodyReady;
   }
 
   renderBody(): TemplateResult {
+    const canReadStatuses = this.__canReadStatuses;
     let statusesLink: string | undefined;
 
     try {
@@ -82,26 +92,37 @@ export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')
         <p class="text-s truncate text-tertiary">
           ${this.resourceUri
             ? ''
-            : html`<span class="capitalize">${eventResource.replace(/_/g, ' ')}</span> &bull;`}
-          <foxy-i18n
-            class=${classMap({ 'text-error': isActive && cardStatus === 'failed' })}
-            infer=""
-            key="status_${cardStatus}"
-            .options=${lastStatus}
-          >
-          </foxy-i18n>
+            : canReadStatuses
+            ? html`<span class="capitalize">${eventResource.replace(/_/g, ' ')}</span> &bull;`
+            : html`<span class="capitalize">${eventResource.replace(/_/g, ' ')}</span>`}
+          ${canReadStatuses
+            ? html`
+                <foxy-i18n
+                  class=${classMap({ 'text-error': isActive && cardStatus === 'failed' })}
+                  infer=""
+                  key="status_${cardStatus}"
+                  .options=${lastStatus}
+                >
+                </foxy-i18n>
+              `
+            : ''}
         </p>
       </div>
 
       <foxy-nucleon
         class="hidden"
         infer=""
-        href=${ifDefined(statusesLink)}
+        href=${ifDefined(canReadStatuses ? statusesLink : undefined)}
         id="statusesLoader"
         @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
     `;
+  }
+
+  // Without access to statuses the card renders without the last status.
+  private get __canReadStatuses() {
+    return canReadCollection(this.currentUserScope, 'webhooks');
   }
 
   private get __statusesLoader() {
