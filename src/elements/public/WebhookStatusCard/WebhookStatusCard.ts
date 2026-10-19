@@ -1,14 +1,16 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { html } from 'lit-html';
 import { classMap } from '../../../utils/class-map';
 
 const NS = 'webhook-status-card';
-const Base = TranslatableMixin(InternalCard, NS);
+const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
 /**
  * Basic card displaying webhook status (`fx:webhook_status`) info.
@@ -26,6 +28,10 @@ export class WebhookStatusCard extends Base<Data> {
 
   /** When set to "resource", doesn't render resource type and ID. */
   layout: null | 'resource' = null;
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'webhooks';
+  }
 
   renderBody(): TemplateResult {
     const { resource_type: type, date_created: date, resource_id: id, status } = this.data ?? {};
