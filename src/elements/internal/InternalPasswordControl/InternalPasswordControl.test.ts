@@ -255,6 +255,27 @@ describe('InternalTextControl', () => {
     expect(button).to.not.exist;
   });
 
+  it('does not generate a password when readonly or disabled', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-password-control show-generator></test-internal-password-control>
+    `);
+
+    const button = control.renderRoot.querySelector<HTMLElement>('[data-testid="generator"]')!;
+
+    control.readonly = true;
+    button.click();
+    expect(control.testValue).to.equal('');
+
+    control.readonly = false;
+    control.disabled = true;
+    button.click();
+    expect(control.testValue).to.equal('');
+
+    control.disabled = false;
+    button.click();
+    expect(control.testValue).to.not.be.empty;
+  });
+
   it('uses password generator options when generating a password', async () => {
     const control = await fixture<TestControl>(html`
       <test-internal-password-control show-generator></test-internal-password-control>

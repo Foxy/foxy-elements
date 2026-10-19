@@ -87,6 +87,8 @@ export class InternalPasswordControl extends InternalEditableControl {
         })}
         slot="suffix"
         @click=${() => {
+          if (this.disabled || this.readonly) return;
+
           let isStrong = false;
           let newValue: string;
           let attempts = 0;
