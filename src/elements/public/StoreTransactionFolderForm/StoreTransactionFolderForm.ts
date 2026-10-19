@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
 
@@ -15,6 +16,10 @@ const Base = TranslatableMixin(InternalForm, NS);
  * @since 1.46.0
  */
 export class StoreTransactionFolderForm extends Base<Data> {
+  get scopeCollection(): ScopeCollection | null {
+    return 'transactions';
+  }
+
   renderBody(): TemplateResult {
     const colors: Record<string, string> = {
       'red': 'bg-folder-red text-white',
