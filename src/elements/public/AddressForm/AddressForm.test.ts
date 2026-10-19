@@ -542,5 +542,31 @@ describe('AddressForm', () => {
       expect(form.hiddenSelector.matches('delete', true)).to.be.false;
       expect((await getControl(form)).readonly).to.be.false;
     });
+
+    it('uses the transactions collection for a transaction billing address', async () => {
+      const data = await getTestData<any>('./hapi/customer_addresses/2');
+      delete data._links['fx:customer'];
+      data._links['fx:transaction'] = { href: 'https://demo.api/hapi/transactions/0' };
+      const form = await fixture<AddressForm>(html`
+        <foxy-address-form current-user-scope="transactions_read customers_write" .data=${data}>
+        </foxy-address-form>
+      `);
+
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+
+      form.currentUserScope = 'transactions_write customers_read';
+      expect(form.readonlySelector.matches('any-control', true)).to.be.false;
+    });
+
+    it('uses no collection for an address without a customer or transaction link', async () => {
+      const data = await getTestData<any>('./hapi/customer_addresses/2');
+      delete data._links['fx:customer'];
+      const form = await fixture<AddressForm>(html`
+        <foxy-address-form current-user-scope="customers_read transactions_read" .data=${data}>
+        </foxy-address-form>
+      `);
+
+      expect(form.readonlySelector.matches('any-control', true)).to.be.false;
+    });
   });
 });

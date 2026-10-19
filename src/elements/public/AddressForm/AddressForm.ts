@@ -50,8 +50,12 @@ export class AddressForm extends Base<Data> {
     this.edit({ country: newValue, region: '' });
   };
 
+  // Customer addresses belong to customers, transaction billing addresses to transactions.
   get scopeCollection(): ScopeCollection | null {
-    return 'customers';
+    const links: Record<string, unknown> | undefined = this.data?._links;
+    if (links?.['fx:customer']) return 'customers';
+    if (links?.['fx:transaction']) return 'transactions';
+    return null;
   }
 
   get hiddenSelector(): BooleanSelector {
