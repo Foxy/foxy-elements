@@ -3,7 +3,9 @@ import type { TemplateResult } from 'lit-html';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
@@ -15,7 +17,11 @@ import { html } from 'lit-html';
  * @element foxy-tax-card
  * @since 1.13.0
  */
-export class TaxCard extends TranslatableMixin(InternalCard, 'tax-card')<Data> {
+export class TaxCard extends ConfigurableMixin(TranslatableMixin(InternalCard, 'tax-card'))<Data> {
+  get scopeCollection(): ScopeCollection | null {
+    return 'taxes';
+  }
+
   renderBody(): TemplateResult {
     let taxItemCategoriesHref: string | undefined;
 
