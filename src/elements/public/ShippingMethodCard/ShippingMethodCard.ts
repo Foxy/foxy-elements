@@ -4,13 +4,15 @@ import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
 import type { Resource } from '@foxy.io/sdk/core';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
+import { canReadCollection } from '../../../utils/user-scope';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
 const NS = 'shipping-method-card';
-const Base = TranslatableMixin(InternalCard, NS);
+const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
 /**
  * Card element representing a shipping method (`fx:shipping_method`).
@@ -61,9 +63,14 @@ export class ShippingMethodCard extends Base<Data> {
 
         <figcaption class="min-w-0 flex-1 leading-xs -my-xs">
           <p class="text-m truncate text-body font-medium">${data?.name}</p>
-          <p class="text-s truncate text-secondary">
-            <foxy-i18n infer="" key=${isActive ? 'status_active' : 'status_inactive'}></foxy-i18n>
-          </p>
+          ${this.storeShippingMethods && !this.__canReadStoreShippingMethods
+            ? ''
+            : html`
+                <p class="text-s truncate text-secondary">
+                  <foxy-i18n infer="" key=${isActive ? 'status_active' : 'status_inactive'}>
+                  </foxy-i18n>
+                </p>
+              `}
         </figcaption>
       </figure>
 
@@ -80,10 +87,19 @@ export class ShippingMethodCard extends Base<Data> {
 
   get isBodyReady(): boolean {
     if (!super.isBodyReady) return false;
-    return this.storeShippingMethods ? !!this.__storeShippingMethodsItems : true;
+    if (!this.storeShippingMethods || !this.__canReadStoreShippingMethods) return true;
+    return !!this.__storeShippingMethodsItems;
+  }
+
+  // Shipping methods are an ungated property helper, but the store's own methods need
+  // shipping_settings_read. Without it the card skips the status line.
+  private get __canReadStoreShippingMethods() {
+    return canReadCollection(this.currentUserScope, 'shipping_settings');
   }
 
   private get __storeShippingMethodsHref() {
+    if (!this.__canReadStoreShippingMethods) return;
+
     try {
       const url = new URL(this.storeShippingMethods!);
       url.searchParams.set('shipping_method_id', this.href.split('/').pop()!);

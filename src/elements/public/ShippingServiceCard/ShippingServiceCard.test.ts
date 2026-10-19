@@ -68,4 +68,15 @@ describe('ShippingServiceCard', () => {
       context: 'international_only',
     });
   });
+
+  it('stays ungated for every scope', () => {
+    const element = new ShippingServiceCard();
+    const scopes = [null, 'store_full_access', 'stores_read payment_settings_read'];
+
+    [...scopes, 'shipping_settings_read'].forEach(scope => {
+      element.currentUserScope = scope;
+      expect(element.hiddenSelector.toString()).to.equal('');
+      expect(element.readonlySelector.toString()).to.equal('');
+    });
+  });
 });

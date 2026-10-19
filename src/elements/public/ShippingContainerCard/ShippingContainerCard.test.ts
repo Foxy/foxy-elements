@@ -59,4 +59,15 @@ describe('ShippingContainerCard', () => {
     expect(text).to.have.attribute('infer', '');
     expect(text).to.have.deep.property('options', { code: element.data!.code });
   });
+
+  it('stays ungated for every scope', () => {
+    const element = new ShippingContainerCard();
+    const scopes = [null, 'store_full_access', 'stores_read payment_settings_read'];
+
+    [...scopes, 'shipping_settings_read'].forEach(scope => {
+      element.currentUserScope = scope;
+      expect(element.hiddenSelector.toString()).to.equal('');
+      expect(element.readonlySelector.toString()).to.equal('');
+    });
+  });
 });

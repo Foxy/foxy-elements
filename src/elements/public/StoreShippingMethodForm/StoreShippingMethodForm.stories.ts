@@ -42,6 +42,10 @@ export const Error = getStory({ ...summary, ext });
 export const AccessDenied = getStory({ ...summary, ext });
 export const AccessDeniedOnSave = getStory({ ...summary, ext });
 export const Busy = getStory({ ...summary, ext });
+export const RestrictedScope = getStory({
+  ...summary,
+  ext: `${ext} current-user-scope="stores_read payment_settings_read shipping_settings_read"`,
+});
 
 CustomCode.args.href = `https://demo.api/hapi/store_shipping_methods/1`;
 Empty.args.href = '';

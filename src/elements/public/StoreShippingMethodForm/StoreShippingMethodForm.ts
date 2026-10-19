@@ -5,6 +5,7 @@ import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
@@ -77,6 +78,11 @@ export class StoreShippingMethodForm extends Base<Data> {
 
     this.__useCustomAccount = value;
   };
+
+  // Shipping methods, containers, drop types and services are ungated property helpers.
+  get scopeCollection(): ScopeCollection | null {
+    return 'shipping_settings';
+  }
 
   get hiddenSelector(): BooleanSelector {
     const hasData = !!this.data;

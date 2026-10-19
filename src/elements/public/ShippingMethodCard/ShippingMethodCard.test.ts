@@ -123,4 +123,66 @@ describe('ShippingMethodCard', () => {
     expect(img).to.have.attribute('src', ShippingMethodCard.defaultImageSrc);
     expect(img).to.have.attribute('alt', 'image_alt');
   });
+
+  describe('current user scope', () => {
+    const denied = 'https://demo.api/virtual/denied';
+
+    const create = async (scope: string, storeShippingMethods: string) => {
+      const router = createRouter();
+      const element = await fixture<ShippingMethodCard>(html`
+        <foxy-shipping-method-card
+          current-user-scope=${scope}
+          store-shipping-methods=${storeShippingMethods}
+          href="https://demo.api/hapi/shipping_methods/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-shipping-method-card>
+      `);
+
+      await waitUntil(
+        () => {
+          if (!element.data) return false;
+          const loaders = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+          return [...loaders].every(loader => !loader.in('busy'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      await element.requestUpdate();
+      return element;
+    };
+
+    it('stays ungated for every scope', () => {
+      const element = new ShippingMethodCard();
+      const scopes = [null, 'store_full_access', 'stores_read payment_settings_read'];
+
+      [...scopes, 'shipping_settings_read'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('waits for a denied store shipping methods list without a scope or with its read scope', async () => {
+      expect((await create('', denied)).isBodyReady).to.be.false;
+      expect((await create('shipping_settings_read', denied)).isBodyReady).to.be.false;
+    });
+
+    it('renders without the status line when the scope cannot read store shipping methods', async () => {
+      const element = await create('stores_read', denied);
+      expect(element.isBodyReady).to.be.true;
+      expect(element.renderRoot.querySelector('foxy-i18n[key^="status_"]')).to.not.exist;
+    });
+
+    it('renders the status line with shipping_settings_read', async () => {
+      const element = await create(
+        'shipping_settings_read',
+        'https://demo.api/hapi/store_shipping_methods'
+      );
+
+      expect(element.isBodyReady).to.be.true;
+      expect(element.renderRoot.querySelector('foxy-i18n[key="status_active"]')).to.exist;
+    });
+  });
 });
