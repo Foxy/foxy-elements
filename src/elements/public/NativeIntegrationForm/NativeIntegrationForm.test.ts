@@ -1521,5 +1521,30 @@ describe('NativeIntegrationForm', () => {
       await map.requestUpdate();
       expect((await getControl(map, '[infer="new-mapping"]')).hidden).to.be.false;
     });
+
+    it('hides only new TaxJar tax code mappings without item_categories_read', async () => {
+      const router = createRouter();
+      const data = await getTestData<Data>('./hapi/native_integrations/0');
+      data.provider = 'taxjar';
+      data.config = JSON.stringify({ api_token: 'abc', category_to_product_tax_code_mappings: {} });
+
+      const form = await fixture<Form>(html`
+        <foxy-native-integration-form
+          current-user-scope="taxes_write"
+          .data=${data}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-native-integration-form>
+      `);
+
+      const map = await getControl(form, '[infer="taxjar-category-to-product-tax-code-mappings"]');
+      expect(map.hidden).to.be.false;
+      expect((await getControl(map, '[infer="new-mapping"]')).hidden).to.be.true;
+
+      form.currentUserScope = 'taxes_write item_categories_read';
+      await form.requestUpdate();
+      await map.requestUpdate();
+      expect((await getControl(map, '[infer="new-mapping"]')).hidden).to.be.false;
+    });
   });
 });

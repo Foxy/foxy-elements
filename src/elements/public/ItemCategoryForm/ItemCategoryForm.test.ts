@@ -956,6 +956,33 @@ describe('ItemCategoryForm', () => {
       expect((await getControl(form, picker)).hidden).to.be.false;
     });
 
+    it('locks emails without item_categories_write', async () => {
+      const form = await create('item_categories_read templates_read');
+      const picker = '[infer="gift-recipient-email-template-uri"]';
+      expect((await getControl(form, '[infer="emails"]')).readonly).to.be.true;
+      expect((await getControl(form, picker)).readonly).to.be.true;
+
+      form.currentUserScope = 'item_categories_write templates_read';
+      await form.requestUpdate();
+      expect((await getControl(form, '[infer="emails"]')).readonly).to.be.false;
+      expect((await getControl(form, picker)).readonly).to.be.false;
+    });
+
+    it('hides create in create mode without item_categories_write', async () => {
+      const form = await fixture<Form>(html`
+        <foxy-item-category-form current-user-scope="item_categories_read">
+        </foxy-item-category-form>
+      `);
+
+      expect(form.hiddenSelector.matches('create', true)).to.be.true;
+      expect((await getControl(form, '[infer="create"]')).hidden).to.be.true;
+
+      form.currentUserScope = 'item_categories_write';
+      await form.requestUpdate();
+      expect(form.hiddenSelector.matches('create', true)).to.be.false;
+      expect((await getControl(form, '[infer="create"]')).hidden).to.be.false;
+    });
+
     it('does not lock the taxes list when only the item category is read-only', async () => {
       const form = await create('item_categories_read taxes_write');
       const taxes = await getControl(form, '[infer="taxes"]');
