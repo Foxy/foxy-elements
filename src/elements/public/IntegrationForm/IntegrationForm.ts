@@ -2,6 +2,7 @@ import type { Data, PostResponseData } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
@@ -31,6 +32,10 @@ export class IntegrationForm extends Base<Data> {
   }
 
   private __postResponse: PostResponseData | null = null;
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'integrations';
+  }
 
   get hiddenSelector(): BooleanSelector {
     return new BooleanSelector(`header:copy-id ${super.hiddenSelector}`.trimEnd());

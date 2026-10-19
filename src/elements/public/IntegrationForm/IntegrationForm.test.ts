@@ -570,4 +570,63 @@ describe('IntegrationForm', () => {
     expect(spinner).to.exist;
     expect(spinner).to.have.attribute('error-type', 'access-denied');
   });
+  describe('current user scope', () => {
+    const create = async (scope = '', href = 'https://demo.api/hapi/integrations/0') => {
+      const router = createRouter();
+      const form = await fixture<Form>(html`
+        <foxy-integration-form
+          current-user-scope=${scope}
+          parent="https://demo.api/hapi/integrations"
+          href=${href}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-integration-form>
+      `);
+
+      if (href) await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
+      await form.requestUpdate();
+      return form;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, '', 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal('header:copy-id undo submit create');
+        expect(form.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('hides delete with integrations_read and shows it with integrations_write', async () => {
+      const form = await create('integrations_read');
+      const control = form.renderRoot.querySelector<InternalDeleteControl>('[infer="delete"]')!;
+      await control.requestUpdate();
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(control.hidden).to.be.true;
+
+      form.currentUserScope = 'integrations_write';
+      await form.requestUpdate();
+      await control.requestUpdate();
+      expect(form.readonlySelector.matches('any-control', true)).to.be.false;
+      expect(control.hidden).to.be.false;
+    });
+
+    it('locks the new integration fields and hides create with integrations_read', async () => {
+      const form = await create('integrations_read', '');
+      const name = form.renderRoot.querySelector<InternalTextControl>('[infer="project-name"]')!;
+      const submit = form.renderRoot.querySelector<InternalSubmitControl>('[infer="create"]')!;
+      await name.requestUpdate();
+      await submit.requestUpdate();
+      expect(name.readonly).to.be.true;
+      expect(submit.hidden).to.be.true;
+
+      form.currentUserScope = 'integrations_write';
+      await form.requestUpdate();
+      await name.requestUpdate();
+      await submit.requestUpdate();
+      expect(name.readonly).to.be.false;
+      expect(submit.hidden).to.be.false;
+    });
+  });
 });
