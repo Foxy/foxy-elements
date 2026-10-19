@@ -2665,4 +2665,56 @@ describe('StoreForm', () => {
     control.setValue(120);
     expect(element).to.have.nested.property('form.data_retention.auto_anonymize_days', 120);
   });
+
+  describe('current user scope', () => {
+    const create = async (scope = '', href = 'https://demo.api/hapi/stores/0') => {
+      const router = createRouter();
+      const form = await fixture<Form>(html`
+        <foxy-store-form
+          current-user-scope=${scope}
+          href=${href}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-store-form>
+      `);
+
+      if (href) await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getControl = async (form: Form, selector: string) => {
+      const control = form.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access', 'payment_settings_read'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal('undo submit create');
+        expect(form.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with stores_read', async () => {
+      const form = await create('stores_read payment_settings_read');
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(form, '[infer="essentials-group-one"]')).readonly).to.be.true;
+
+      form.currentUserScope = 'stores_write';
+      await form.requestUpdate();
+      expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(form, '[infer="essentials-group-one"]')).readonly).to.be.false;
+    });
+
+    it('stays editable in create mode with stores_read', async () => {
+      const form = await create('stores_read user_full_access', '');
+      expect(form.readonlySelector.matches('essentials-group-one', true)).to.be.false;
+      expect(form.hiddenSelector.matches('create', true)).to.be.false;
+    });
+  });
 });

@@ -6,6 +6,7 @@ import type { NucleonElement } from '../NucleonElement';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 import type { Rels } from '@foxy.io/sdk/backend';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import type {
   ParsedCustomDisplayIdConfig,
@@ -494,6 +495,11 @@ export class StoreForm extends Base<Data> {
   };
 
   private __hCaptchaToken: string | null = null;
+
+  get scopeCollection(): ScopeCollection | null {
+    // A new store is created under the user's stores list, which this scope does not cover.
+    return this.data ? 'stores' : null;
+  }
 
   get headerSubtitleOptions(): Record<string, unknown> {
     return { context: this.data?.is_active ? 'active' : 'inactive' };
