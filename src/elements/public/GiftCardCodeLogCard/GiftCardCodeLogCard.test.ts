@@ -164,4 +164,48 @@ describe('GiftCardCodeLogCard', () => {
     expect(adjustment).to.have.nested.property('options.signDisplay', 'exceptZero');
     expect(adjustment).to.have.nested.property('options.currencyDisplay', currencyDisplay);
   });
+
+  describe('helper loaders and current user scope', () => {
+    const denied = 'https://demo.api/virtual/denied';
+
+    const create = async (scope: string) => {
+      const router = createRouter();
+      const data = await getTestData<any>('./hapi/gift_card_code_logs/0');
+      data._links['fx:store'] = { href: denied };
+
+      const element = await fixture<GiftCardCodeLogCard>(html`
+        <foxy-gift-card-code-log-card
+          current-user-scope=${scope}
+          .data=${data}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-gift-card-code-log-card>
+      `);
+
+      await waitUntil(
+        () => {
+          const loaders = element.renderRoot.querySelectorAll<any>('foxy-nucleon');
+          return [...loaders].every(loader => !loader.in('busy'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      await element.requestUpdate();
+      return element;
+    };
+
+    it('waits for a denied store without a scope or with stores_read', async () => {
+      expect((await create('')).isBodyReady).to.be.false;
+      expect((await create('gift_cards_read stores_read')).isBodyReady).to.be.false;
+    });
+
+    it('renders the adjustment with the currency symbol without stores_read', async () => {
+      const element = await create('gift_cards_read');
+      expect(element.isBodyReady).to.be.true;
+      expect(element.renderRoot.querySelector('#storeLoader')).to.not.have.attribute('href');
+      const adjustment = await getByKey(element, 'adjustment');
+      expect(adjustment).to.have.nested.property('options.currencyDisplay', 'symbol');
+    });
+  });
 });
