@@ -249,8 +249,8 @@ export const ConfigurableMixin = <TBase extends Base>(
 
     inferFromElement(key: string, element: HTMLElement): unknown | undefined {
       const value = super.inferFromElement(key, element);
-      // An unset scope must not stop the walk: an ancestor further up may have one.
-      return key === 'currentUserScope' && value === null ? undefined : value;
+      // An unset (null or empty) scope must not stop the walk: an ancestor further up may have one.
+      return key === 'currentUserScope' && !value ? undefined : value;
     }
 
     connectedCallback(): void {

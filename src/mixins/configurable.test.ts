@@ -1,5 +1,6 @@
 import { LitElement } from 'lit-element';
 import { BooleanSelector } from '@foxy.io/sdk/core';
+import '../elements/public/UserInvitationForm/index';
 import { expect, fixture, html } from '@open-wc/testing';
 import { ConfigurableMixin } from './configurable';
 import { InferrableMixin } from './inferrable';
@@ -66,6 +67,45 @@ describe('ConfigurableMixin', () => {
       const el = await fixture<TestElement>(html`
         <x-configurable-test current-user-scope="customers_read">
           <x-configurable-test infer></x-configurable-test>
+        </x-configurable-test>
+      `);
+
+      const child = el.firstElementChild as TestElement;
+      await child.updateComplete;
+      await new Promise(resolve => setTimeout(resolve));
+      expect(child.currentUserScope).to.equal('customers_read');
+    });
+
+    it('is unchanged for store_full_access', async () => {
+      const el = await fixture<TestElement>(html`
+        <x-configurable-test
+          current-user-scope="store_full_access store_id_1"
+          hiddencontrols="foo"
+        ></x-configurable-test>
+      `);
+
+      expect(el.hiddenSelector.toString()).to.equal(new BooleanSelector('foo').toString());
+      expect(el.readonlySelector.toString()).to.equal(BooleanSelector.False.toString());
+    });
+
+    it('does not overwrite an explicit scope with an inherited empty scope', async () => {
+      const el = await fixture<TestElement>(html`
+        <x-configurable-test current-user-scope="">
+          <x-configurable-test infer current-user-scope="customers_read"></x-configurable-test>
+        </x-configurable-test>
+      `);
+
+      const child = el.firstElementChild as TestElement;
+      await child.updateComplete;
+      await new Promise(resolve => setTimeout(resolve));
+      expect(child.currentUserScope).to.equal('customers_read');
+    });
+
+    it('does not overwrite the scope of a nested invitation form with an inherited null', async () => {
+      const el = await fixture<TestElement>(html`
+        <x-configurable-test>
+          <foxy-user-invitation-form infer current-user-scope="customers_read">
+          </foxy-user-invitation-form>
         </x-configurable-test>
       `);
 
