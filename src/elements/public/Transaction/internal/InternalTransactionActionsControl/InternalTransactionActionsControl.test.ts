@@ -484,5 +484,32 @@ describe('Transaction', () => {
       await control.requestUpdate();
       expect(select).to.have.attribute('readonly');
     });
+
+    it('hides Archive button when archive is hidden', async () => {
+      const control = (await fixture(html`
+        <foxy-internal-transaction-actions-control></foxy-internal-transaction-actions-control>
+      `)) as InternalTransactionActionsControl;
+
+      expect(control.renderRoot.querySelector('foxy-i18n[infer="archive"]')).to.exist;
+
+      control.hiddenControls = new BooleanSelector('archive');
+      await control.requestUpdate();
+      expect(control.renderRoot.querySelector('foxy-i18n[infer="archive"]')).to.not.exist;
+    });
+
+    it('hides folder selector when folder is hidden', async () => {
+      const control = (await fixture(html`
+        <foxy-internal-transaction-actions-control
+          folders="https://demo.api/virtual/stall"
+        ></foxy-internal-transaction-actions-control>
+      `)) as InternalTransactionActionsControl;
+
+      expect(control.renderRoot.querySelector('#foldersLoader')).to.exist;
+
+      control.hiddenControls = new BooleanSelector('folder');
+      await control.requestUpdate();
+      expect(control.renderRoot.querySelector('#foldersLoader')).to.not.exist;
+      expect(control.renderRoot.querySelector('select')).to.not.exist;
+    });
   });
 });

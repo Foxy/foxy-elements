@@ -21,6 +21,10 @@ export const Empty = getStory(summary);
 export const Error = getStory(summary);
 export const AccessDenied = getStory(summary);
 export const Busy = getStory(summary);
+export const RestrictedScope = getStory({
+  ...summary,
+  ext: 'current-user-scope="transactions_read customers_read"',
+});
 
 Readonly.args.href =
   'https://demo.api/hapi/transactions/1?zoom=folder,applied_taxes,discounts,shipments,gift_card_code_logs:gift_card,gift_card_code_logs:gift_card_code';
