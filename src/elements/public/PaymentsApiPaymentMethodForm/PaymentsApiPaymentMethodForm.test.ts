@@ -2590,4 +2590,92 @@ describe('PaymentsApiPaymentMethodForm', () => {
         .exist;
     });
   });
+
+  describe('current user scope', () => {
+    const create = async (scope = '', store = 'https://demo.api/hapi/stores/0') => {
+      const router = createRouter();
+      const wrapper = await fixture(html`
+        <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+          <foxy-payments-api
+            payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+            hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+            hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+            payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+            payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+            fraud-protections-url="https://demo.api/hapi/fraud_protections"
+            payment-gateways-url="https://demo.api/hapi/payment_gateways"
+          >
+            <foxy-payments-api-payment-method-form
+              current-user-scope=${scope}
+              payment-preset="https://foxy-payments-api.element/payment_presets/0"
+              store=${store}
+              href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+            >
+            </foxy-payments-api-payment-method-form>
+          </foxy-payments-api>
+        </div>
+      `);
+
+      const element = wrapper.firstElementChild!.firstElementChild as Form;
+      await waitUntil(
+        () => {
+          if (!element.data) return false;
+          const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+          return [...nucleons].every(nucleon => !nucleon.in('busy'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      await element.requestUpdate();
+      return element;
+    };
+
+    const getControl = async (element: Form, selector: string) => {
+      const control = element.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('header:copy-json undo submit create');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with payment_settings_read stores_read', async () => {
+      const element = await create('payment_settings_read stores_read');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(element, '[infer="general"]')).readonly).to.be.true;
+      expect((await getControl(element, '[infer="test-group"]')).readonly).to.be.true;
+
+      element.currentUserScope = 'payment_settings_write stores_read';
+      await element.requestUpdate();
+      expect(element.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(element, '[infer="general"]')).readonly).to.be.false;
+      expect((await getControl(element, '[infer="test-group"]')).readonly).to.be.false;
+    });
+
+    it('shows live credentials without stores_read', async () => {
+      const element = await create('payment_settings_write', 'https://demo.api/virtual/denied');
+      const liveGroup = element.renderRoot.querySelector('[infer="live-group"]');
+      expect(liveGroup).to.exist;
+      expect(liveGroup!.querySelector('[key="inactive_message"]')).to.not.exist;
+      expect(liveGroup!.querySelector('[infer="account-id"]')).to.exist;
+    });
+
+    it('waits for the store with stores_read', async () => {
+      const element = await create(
+        'payment_settings_write stores_read',
+        'https://demo.api/virtual/denied'
+      );
+
+      expect(element.renderRoot.querySelector('[infer="live-group"]')).to.not.exist;
+    });
+  });
 });

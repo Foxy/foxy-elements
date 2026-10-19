@@ -783,4 +783,64 @@ describe('PaymentsApiFraudProtectionForm', () => {
     expect(element).to.not.have.nested.property('form.type');
     expect(element.renderRoot.querySelector('[infer="select-another-button"]')).to.not.exist;
   });
+
+  describe('current user scope', () => {
+    const create = async (scope = '') => {
+      const router = createRouter();
+      const wrapper = await fixture(html`
+        <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+          <foxy-payments-api
+            payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+            hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+            hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+            payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+            payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+            fraud-protections-url="https://demo.api/hapi/fraud_protections"
+            payment-gateways-url="https://demo.api/hapi/payment_gateways"
+          >
+            <foxy-payments-api-fraud-protection-form
+              current-user-scope=${scope}
+              href="https://foxy-payments-api.element/payment_presets/0/fraud_protections/0C0"
+            >
+            </foxy-payments-api-fraud-protection-form>
+          </foxy-payments-api>
+        </div>
+      `);
+
+      const element = wrapper.firstElementChild!.firstElementChild as Form;
+      await waitUntil(() => !!element.data, '', { timeout: 5000 });
+      await element.requestUpdate();
+      return element;
+    };
+
+    const getControl = async (element: Form, selector: string) => {
+      const control = element.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('header:copy-json undo submit create');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with payment_settings_read stores_read', async () => {
+      const element = await create('payment_settings_read stores_read');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(element, '[infer="general"]')).readonly).to.be.true;
+      expect((await getControl(element, '[infer="setup"]')).readonly).to.be.true;
+
+      element.currentUserScope = 'payment_settings_write';
+      await element.requestUpdate();
+      expect(element.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(element, '[infer="general"]')).readonly).to.be.false;
+      expect((await getControl(element, '[infer="setup"]')).readonly).to.be.false;
+    });
+  });
 });

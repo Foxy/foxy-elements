@@ -1,13 +1,15 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { html } from 'lit-html';
 
 const NS = 'payments-api-payment-method-card';
-const Base = TranslatableMixin(InternalCard, NS);
+const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
 /**
  * Card element representing a `fx:payment_method` resource of Payments API.
@@ -37,6 +39,10 @@ export class PaymentsApiPaymentMethodCard extends Base<Data> {
    * If left `null`, the card will display the default image.
    */
   getImageSrc: ((type: string) => string) | null = null;
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'payment_settings';
+  }
 
   renderBody(): TemplateResult {
     const defaultSrc = PaymentsApiPaymentMethodCard.defaultImageSrc;

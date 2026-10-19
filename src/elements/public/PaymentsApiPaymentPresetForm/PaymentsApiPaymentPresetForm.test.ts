@@ -557,4 +557,99 @@ describe('PaymentsApiPaymentPresetForm', () => {
     expect(control).to.have.deep.property('itemProps', { '.getImageSrc': getImageSrc });
     expect(control).to.have.deep.property('formProps', { '.getImageSrc': getImageSrc });
   });
+
+  describe('current user scope', () => {
+    const create = async (scope = '', denyStore = false) => {
+      const router = createRouter();
+      const wrapper = await fixture(html`
+        <div
+          @fetch=${(evt: FetchEvent) => {
+            if (denyStore && evt.request.url.startsWith('https://demo.api/hapi/stores/0')) {
+              evt.respondWith(Promise.resolve(new Response(null, { status: 403 })));
+            } else {
+              router.handleEvent(evt);
+            }
+          }}
+        >
+          <foxy-payments-api
+            payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+            hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+            hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+            payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+            payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+            fraud-protections-url="https://demo.api/hapi/fraud_protections"
+            payment-gateways-url="https://demo.api/hapi/payment_gateways"
+          >
+            <foxy-payments-api-payment-preset-form
+              current-user-scope=${scope}
+              href="https://foxy-payments-api.element/payment_presets/0"
+            >
+            </foxy-payments-api-payment-preset-form>
+          </foxy-payments-api>
+        </div>
+      `);
+
+      const element = wrapper.firstElementChild!.firstElementChild as Form;
+      await waitUntil(
+        () => {
+          if (!element.data) return false;
+          const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+          return [...nucleons].every(nucleon => !nucleon.in('busy'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      await element.requestUpdate();
+      return element;
+    };
+
+    const getControl = async (element: Form, selector: string) => {
+      const control = element.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('header:copy-json undo submit create');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with payment_settings_read stores_read', async () => {
+      const element = await create('payment_settings_read stores_read');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(element, '[infer="general"]')).readonly).to.be.true;
+      expect((await getControl(element, '[infer="payment-methods"]')).readonly).to.be.true;
+
+      element.currentUserScope = 'payment_settings_write stores_read';
+      await element.requestUpdate();
+      expect(element.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(element, '[infer="general"]')).readonly).to.be.false;
+      expect((await getControl(element, '[infer="payment-methods"]')).readonly).to.be.false;
+    });
+
+    it('shows Live and Purchase Order toggles without stores_read', async () => {
+      const element = await create('payment_settings_write', true);
+      expect(element.hiddenSelector.matches('general:is-live', true)).to.be.false;
+      expect(element.readonlySelector.matches('general:is-live', true)).to.be.false;
+      expect(element.hiddenSelector.matches('general:is-purchase-order-enabled', true)).to.be.false;
+
+      const isLive = await getControl(element, '[infer="general"] [infer="is-live"]');
+      expect(isLive.getValue()).to.equal(element.form.is_live);
+      expect(isLive).to.have.attribute('helper-text', 'general.is-live.helper_text');
+    });
+
+    it('waits for the store with stores_read', async () => {
+      const element = await create('payment_settings_write stores_read', true);
+      expect(element.hiddenSelector.matches('general:is-live', true)).to.be.true;
+      expect(element.readonlySelector.matches('general:is-live', true)).to.be.true;
+      expect(element.hiddenSelector.matches('general:is-purchase-order-enabled', true)).to.be.true;
+    });
+  });
 });

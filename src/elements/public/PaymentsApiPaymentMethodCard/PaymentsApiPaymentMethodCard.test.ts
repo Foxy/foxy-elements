@@ -96,4 +96,27 @@ describe('PaymentsApiPaymentMethodCard', () => {
     expect(image).to.have.attribute('src', `${TEST_IMAGE}#${element.data!.type}`);
     expect(image).to.have.attribute('alt', 'image_alt');
   });
+
+  describe('current user scope', () => {
+    it('keeps selectors unchanged without a scope and with store_full_access', () => {
+      const element = new Card();
+
+      [null, 'store_full_access', 'stores_read'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with payment_settings_read', () => {
+      const element = new Card();
+      element.currentUserScope = 'payment_settings_read stores_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      element.currentUserScope = 'payment_settings_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.false;
+    });
+  });
 });

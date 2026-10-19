@@ -128,4 +128,27 @@ describe('PaymentsApiPaymentPresetCard', () => {
     expect(await getByKey(element, 'status_test')).to.exist;
     expect(await getByKey(element, 'status_test')).to.have.attribute('infer', '');
   });
+
+  describe('current user scope', () => {
+    it('keeps selectors unchanged without a scope and with store_full_access', () => {
+      const element = new PaymentsApiPaymentPresetCard();
+
+      [null, 'store_full_access', 'stores_read'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with payment_settings_read', () => {
+      const element = new PaymentsApiPaymentPresetCard();
+      element.currentUserScope = 'payment_settings_read stores_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      element.currentUserScope = 'payment_settings_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.false;
+    });
+  });
 });
