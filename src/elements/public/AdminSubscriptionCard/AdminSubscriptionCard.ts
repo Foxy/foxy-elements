@@ -6,6 +6,7 @@ import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
 
+import { canReadCollection } from '../../../utils/user-scope';
 import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ConfigurableMixin } from '../../../mixins/configurable';
@@ -66,6 +67,10 @@ export class AdminSubscriptionCard extends Base<Data> {
     const summaryOptions = this.__summaryOptions;
     const summaryKey = this.__summaryKey;
     const status = getSubscriptionStatus(this.data);
+
+    const name = [customer?.first_name, customer?.last_name].filter(v => !!v).join(' ');
+    const email = cart?.customer_email;
+    const customerLine = name && email ? `${name} (${email})` : name || email;
 
     return html`
       <foxy-nucleon
@@ -151,20 +156,32 @@ export class AdminSubscriptionCard extends Base<Data> {
             : html`&ZeroWidthSpace;`}
         </div>
 
-        <div class="text-tertiary truncate text-s">
-          ${customer?.first_name} ${customer?.last_name} (${cart?.customer_email})
-        </div>
+        ${customerLine
+          ? html`<div class="text-tertiary truncate text-s">${customerLine}</div>`
+          : ''}
       </div>
     `;
   }
 
   get isBodyReady(): boolean {
+    // Helpers the scope can't read never load, so the card renders without them.
+    const can = (collection: ScopeCollection) => {
+      return canReadCollection(this.currentUserScope, collection);
+    };
+
+    const cart = this.__transactionTemplate;
+    const isCodeUnreachable =
+      !can('carts') ||
+      (!!cart &&
+        !cart.currency_code &&
+        (!can('templates') || (cart.template_set_uri === '' && !can('stores'))));
+
     return (
       super.isBodyReady &&
-      !!this.__items &&
-      !!this.__currencyCode &&
+      (!!this.__items || !can('carts')) &&
+      (!!this.__currencyCode || isCodeUnreachable) &&
       !!this.__currencyDisplay &&
-      !!this.__customer
+      (!!this.__customer || !can('customers'))
     );
   }
 
@@ -307,6 +324,7 @@ export class AdminSubscriptionCard extends Base<Data> {
 
     if (useCode === true) return 'code';
     if (useCode === false) return 'symbol';
+    if (!canReadCollection(this.currentUserScope, 'stores')) return 'symbol';
   }
 
   private get __summaryOptions() {
@@ -338,8 +356,6 @@ export class AdminSubscriptionCard extends Base<Data> {
     if (currencyDisplay === undefined) return;
 
     const currencyCode = this.__currencyCode;
-    if (currencyCode === undefined) return;
-
     const totalOrder = this.__transactionTemplate?.total_order;
     if (totalOrder === undefined) return;
 
@@ -348,7 +364,7 @@ export class AdminSubscriptionCard extends Base<Data> {
 
     return {
       ...parseFrequency(frequency),
-      amount: `${totalOrder} ${currencyCode}`,
+      amount: currencyCode ? `${totalOrder} ${currencyCode}` : `${totalOrder}`,
       currencyDisplay,
     };
   }
