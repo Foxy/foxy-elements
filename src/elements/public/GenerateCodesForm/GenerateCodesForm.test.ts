@@ -191,4 +191,39 @@ describe('GenerateCodesForm', () => {
 
     expect(element).to.have.deep.property('status', { key: 'success' });
   });
+
+  describe('current user scope', () => {
+    const coupon = 'https://demo.api/hapi/coupons/0/generate_codes';
+    const giftCard = 'https://demo.api/hapi/gift_cards/0/generate_codes';
+
+    it('keeps selectors unchanged without a scope and with store_full_access', () => {
+      const form = new GenerateCodesForm();
+      form.parent = coupon;
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal('delete timestamps undo submit');
+        expect(form.readonlySelector.toString()).to.equal('example');
+      });
+    });
+
+    it('follows coupons for coupon codes and gift_cards for gift card codes', () => {
+      const form = new GenerateCodesForm();
+      form.currentUserScope = 'coupons_read gift_cards_write';
+
+      form.parent = coupon;
+      expect(form.readonlySelector.matches('prefix', true)).to.be.true;
+      expect(form.hiddenSelector.matches('create', true)).to.be.true;
+
+      form.parent = giftCard;
+      expect(form.readonlySelector.matches('prefix', true)).to.be.false;
+      expect(form.hiddenSelector.matches('create', true)).to.be.false;
+
+      form.currentUserScope = 'coupons_write gift_cards_read';
+      expect(form.readonlySelector.matches('prefix', true)).to.be.true;
+
+      form.parent = 'https://demo.api/hapi/generate_codes';
+      expect(form.readonlySelector.matches('prefix', true)).to.be.false;
+    });
+  });
 });
