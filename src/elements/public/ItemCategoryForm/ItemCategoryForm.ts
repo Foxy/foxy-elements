@@ -1,6 +1,7 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
 import type { Data } from './types';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 
 import type { TemplateResult } from 'lit-html';
 import type { ParsedValue } from '../DiscountBuilder/types';
@@ -168,6 +169,17 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
     this.edit({ discount_name: v });
     if (!v) this.edit({ discount_type: '', discount_details: '' });
   };
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'item_categories';
+  }
+
+  get scopeRules(): ScopeRule[] {
+    return [
+      { path: 'taxes', collection: 'taxes' },
+      { path: 'emails:gift-recipient-email-template-uri', collection: 'templates' },
+    ];
+  }
 
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = [super.readonlySelector.toString()];

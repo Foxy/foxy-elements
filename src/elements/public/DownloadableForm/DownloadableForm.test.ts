@@ -2,7 +2,7 @@ import type { FetchEvent } from '../NucleonElement/FetchEvent';
 
 import './index';
 
-import { html, expect, fixture } from '@open-wc/testing';
+import { html, expect, fixture, waitUntil } from '@open-wc/testing';
 import { DownloadableForm as Form } from './DownloadableForm';
 import { createRouter } from '../../../server/hapi/index';
 import { stub } from 'sinon';
@@ -182,5 +182,61 @@ describe('DownloadableForm', () => {
     expect(control).to.be.instanceOf(
       customElements.get('foxy-internal-downloadable-form-upload-control')
     );
+  });
+
+  describe('current user scope', () => {
+    const create = async (scope = '') => {
+      const router = createRouter();
+      const form = await fixture<Form>(html`
+        <foxy-downloadable-form
+          downloadable-item-categories="https://demo.api/hapi/item_categories"
+          current-user-scope=${scope}
+          href="https://demo.api/hapi/downloadables/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-downloadable-form>
+      `);
+
+      await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getControl = async (form: Form, selector: string) => {
+      const control = form.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal('undo submit create');
+        expect(form.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with downloadables_read item_categories_read', async () => {
+      const form = await create('downloadables_read item_categories_read');
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(form, '[infer="name"]')).readonly).to.be.true;
+      expect((await getControl(form, '[infer="upload"]')).readonly).to.be.true;
+      expect((await getControl(form, '[infer="item-category-uri"]')).hidden).to.be.false;
+
+      form.currentUserScope = 'downloadables_write item_categories_read';
+      await form.requestUpdate();
+      expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(form, '[infer="name"]')).readonly).to.be.false;
+      expect((await getControl(form, '[infer="upload"]')).readonly).to.be.false;
+    });
+
+    it('hides the category picker without item_categories_read', async () => {
+      const form = await create('downloadables_write');
+      expect((await getControl(form, '[infer="item-category-uri"]')).hidden).to.be.true;
+      expect((await getControl(form, '[infer="name"]')).hidden).to.be.false;
+    });
   });
 });
