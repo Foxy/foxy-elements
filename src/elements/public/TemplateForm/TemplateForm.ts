@@ -1,5 +1,6 @@
 import type { TemplateResult } from 'lit-element';
 import type { Data } from './types';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
@@ -17,6 +18,14 @@ const Base = TranslatableMixin(InternalForm, NS);
  * @since 1.14.0
  */
 export class TemplateForm extends Base<Data> {
+  get scopeCollection(): ScopeCollection | null {
+    return 'templates';
+  }
+
+  get scopeRules(): ScopeRule[] {
+    return [{ path: 'source:cache', collection: 'templates', need: 'write' }];
+  }
+
   get disabledSelector(): BooleanSelector {
     const alwaysMatch = [super.disabledSelector.toString()];
 

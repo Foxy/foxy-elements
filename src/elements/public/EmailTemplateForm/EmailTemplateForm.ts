@@ -1,5 +1,6 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { Data } from './types';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
@@ -44,6 +45,17 @@ export class EmailTemplateForm extends Base<Data> {
       this.edit({ subject: '' });
     }
   };
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'templates';
+  }
+
+  get scopeRules(): ScopeRule[] {
+    return [
+      { path: 'html-source:cache', collection: 'templates', need: 'write' },
+      { path: 'text-source:cache', collection: 'templates', need: 'write' },
+    ];
+  }
 
   get disabledSelector(): BooleanSelector {
     const alwaysMatch = [super.disabledSelector.toString()];

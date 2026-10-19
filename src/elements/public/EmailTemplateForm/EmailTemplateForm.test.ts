@@ -452,4 +452,54 @@ describe('EmailTemplateForm', () => {
 
     expect(cacheRequest).to.exist;
   });
+
+  describe('current user scope', () => {
+    const create = async (scope = '') => {
+      const data = await getTestData<Data>('./hapi/email_templates/0');
+      data.subject = 'Test';
+      data.content_html_url = 'https://example.com/template.html';
+      data.content_text_url = 'https://example.com/template.txt';
+
+      const form = await fixture<Form>(html`
+        <foxy-email-template-form current-user-scope=${scope} .data=${data}>
+        </foxy-email-template-form>
+      `);
+
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getCaches = async (form: Form) => {
+      const controls = [...form.renderRoot.querySelectorAll<any>('[infer="cache"]')];
+      await Promise.all(controls.map(control => control.requestUpdate()));
+      return controls;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal(
+          'content-text-warning content-html-warning undo submit create'
+        );
+        expect(form.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only and hides the cache actions with carts_read templates_read', async () => {
+      const form = await create('carts_read templates_read');
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+
+      const caches = await getCaches(form);
+      expect(caches).to.have.length(2);
+      caches.forEach(control => expect(control.hidden).to.be.true);
+
+      form.currentUserScope = 'templates_write';
+      await form.requestUpdate();
+      expect(form.readonlySelector.matches('any-control', true)).to.be.false;
+      (await getCaches(form)).forEach(control => expect(control.hidden).to.be.false);
+    });
+  });
 });
