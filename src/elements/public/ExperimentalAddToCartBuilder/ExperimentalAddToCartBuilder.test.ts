@@ -1410,4 +1410,87 @@ describe('ExperimentalAddToCartBuilder', () => {
     const slot = element.renderRoot.querySelector('slot:not([name])');
     expect(slot).to.exist;
   });
+
+  describe('current user scope', () => {
+    const create = async (scope = '') => {
+      const router = createRouter();
+      const element = await fixture<Builder>(html`
+        <foxy-experimental-add-to-cart-builder
+          current-user-scope=${scope}
+          href="https://demo.api/hapi/experimental_add_to_cart_snippets/0"
+          store="https://demo.api/hapi/stores/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-experimental-add-to-cart-builder>
+      `);
+
+      await waitUntil(() => !!element.data, '', { timeout: 5000 });
+      await element.requestUpdate();
+      return element;
+    };
+
+    const getItemControl = async (element: Builder) => {
+      const selector = '[infer="items"] [infer="item-group"] [infer="item"]';
+      const control = element.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    const isHidden = async (root: Element | DocumentFragment, selector: string) => {
+      const control = root.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control.hidden as boolean;
+    };
+
+    const getOptionDialog = async (element: Builder) => {
+      const item = await getItemControl(element);
+      const list = item.renderRoot.querySelector('[infer="custom-options"]');
+      await list.requestUpdate();
+      const dialog = list.renderRoot.querySelector('foxy-form-dialog');
+      await dialog.requestUpdate();
+      return dialog;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal(
+          'header:copy-id header:copy-json undo submit create'
+        );
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('stays editable with stores_read', async () => {
+      const element = await create('stores_read');
+      expect(element.readonlySelector.toString()).to.equal('');
+      expect(element.hiddenSelector.matches('delete', true)).to.be.false;
+    });
+
+    it('hides the template set picker without templates_read', async () => {
+      const selector = '[infer="cart-settings"] [infer="template-set-uri"]';
+      const element = await create('stores_read');
+      expect(await isHidden(element.renderRoot, selector)).to.be.true;
+
+      element.currentUserScope = 'stores_read templates_read';
+      await element.requestUpdate();
+      expect(await isHidden(element.renderRoot, selector)).to.be.false;
+    });
+
+    it('hides item category pickers without item_categories_read', async () => {
+      const selector = '[infer="basics-group"] [infer="item-category-uri"]';
+      const element = await create('stores_read');
+      expect(await isHidden((await getItemControl(element)).renderRoot, selector)).to.be.true;
+      expect((await getOptionDialog(element)).hiddenSelector.matches('category-group', true)).to.be
+        .true;
+
+      element.currentUserScope = 'stores_read item_categories_read';
+      await element.requestUpdate();
+      expect(await isHidden((await getItemControl(element)).renderRoot, selector)).to.be.false;
+      expect((await getOptionDialog(element)).hiddenSelector.matches('category-group', true)).to.be
+        .false;
+    });
+  });
 });

@@ -4,6 +4,7 @@ import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
+import type { ScopeRule } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ResponsiveMixin } from '../../../mixins/responsive';
@@ -128,6 +129,17 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
   private __signingState: 'idle' | 'busy' | 'fail' = 'idle';
 
   private __openState: boolean[] = [];
+
+  // No scope collection: the builder never saves its own data, it only reads the store.
+  get scopeRules(): ScopeRule[] {
+    const item = 'items:item-group:item';
+
+    return [
+      { path: 'cart-settings:template-set-uri', collection: 'templates' },
+      { path: `${item}:basics-group:item-category-uri`, collection: 'item_categories' },
+      { path: `${item}:custom-options:dialog:category-group`, collection: 'item_categories' },
+    ];
+  }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = [super.hiddenSelector.toString()];
