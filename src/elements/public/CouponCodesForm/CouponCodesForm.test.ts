@@ -104,4 +104,25 @@ describe('CouponCodesForm', () => {
 
     expect(element).to.have.deep.property('status', { key: 'success' });
   });
+
+  describe('current user scope', () => {
+    it('keeps selectors unchanged without a scope and with store_full_access', () => {
+      const form = new CouponCodesForm();
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal('delete timestamps undo submit');
+        expect(form.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with coupons_read item_categories_read', () => {
+      const form = new CouponCodesForm();
+      form.currentUserScope = 'coupons_read item_categories_read';
+      expect(form.readonlySelector.matches('coupon-codes', true)).to.be.true;
+
+      form.currentUserScope = 'coupons_write';
+      expect(form.readonlySelector.matches('coupon-codes', true)).to.be.false;
+    });
+  });
 });
