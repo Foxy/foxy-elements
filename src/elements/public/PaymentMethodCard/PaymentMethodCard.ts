@@ -3,6 +3,7 @@ import type { Data } from './types';
 import type { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import type { TemplateResult } from 'lit-html';
 import type { FormDialog } from '../FormDialog/FormDialog';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 
 import * as logos from './logos';
 
@@ -148,6 +149,16 @@ export class PaymentMethodCard extends Base<Data> {
       </div>
     `;
   };
+
+  // The default payment method belongs to the customer.
+  get scopeCollection(): ScopeCollection | null {
+    return 'customers';
+  }
+
+  // Update and delete ignore `readonly`, so they need their own rule.
+  get scopeRules(): ScopeRule[] {
+    return [{ path: 'actions', collection: 'customers', need: 'write' }];
+  }
 
   render(): TemplateResult {
     const { data, lang, ns } = this;

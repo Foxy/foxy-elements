@@ -29,6 +29,10 @@ export const Empty = getStory(summary);
 export const Error = getStory(summary);
 export const AccessDenied = getStory(summary);
 export const Busy = getStory(summary);
+export const RestrictedScope = getStory({
+  ...summary,
+  ext: `${demoExt} current-user-scope="subscriptions_read customers_read"`,
+});
 
 NoCardReadonly.args.href = 'https://demo.api/hapi/payment_methods/1';
 NoCardEditable.args.href = 'https://demo.api/hapi/payment_methods/1';

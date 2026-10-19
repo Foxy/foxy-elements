@@ -607,4 +607,50 @@ describe('PaymentMethodCard', () => {
     expect(spinner).to.have.attribute('state', 'error');
     expect(spinner).to.have.attribute('error-type', 'access-denied');
   });
+
+  describe('current user scope', () => {
+    const create = async (id: number, scope = '') => {
+      const data = await getTestData<Data>(`./hapi/payment_methods/${id}`);
+      return fixture<PaymentMethodCard>(html`
+        <foxy-payment-method-card
+          current-user-scope=${scope}
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
+          .data=${data}
+        >
+        </foxy-payment-method-card>
+      `);
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create(0);
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('hides update and delete without customers_write', async () => {
+      const element = await create(0, 'subscriptions_read customers_read');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(await getByTestId(element, 'actions:update')).to.not.exist;
+      expect(await getByTestId(element, 'actions:delete')).to.not.exist;
+
+      element.currentUserScope = 'customers_write';
+      await element.requestUpdate();
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+      expect(await getByTestId(element, 'actions:update')).to.exist;
+      expect(await getByTestId(element, 'actions:delete')).to.exist;
+    });
+
+    it('hides add on an empty card without customers_write', async () => {
+      const element = await create(1, 'subscriptions_read customers_read');
+      expect(await getByTestId(element, 'actions:update')).to.not.exist;
+
+      element.currentUserScope = 'customers_write';
+      await element.requestUpdate();
+      expect(await getByTestId(element, 'actions:update')).to.exist;
+    });
+  });
 });
