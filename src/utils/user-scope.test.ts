@@ -1,6 +1,6 @@
 import { expect } from '@open-wc/testing';
 
-import { getScopeSelectors, parseUserScope } from './user-scope';
+import { canReadCollection, getScopeSelectors, parseUserScope } from './user-scope';
 
 describe('parseUserScope', () => {
   [
@@ -116,5 +116,19 @@ describe('getScopeSelectors', () => {
     expect(
       getScopeSelectors(parseUserScope('transactions_resend'), rules, null).hidden
     ).to.deep.equal([]);
+  });
+});
+
+describe('canReadCollection', () => {
+  it('returns true when the scope does not restrict store collections', () => {
+    [null, undefined, '', 'store_full_access', 'user_full_access'].forEach(scope => {
+      expect(canReadCollection(scope, 'stores'), String(scope)).to.be.true;
+    });
+  });
+
+  it('checks read access for a restricted scope', () => {
+    expect(canReadCollection('subscriptions_read', 'stores')).to.be.false;
+    expect(canReadCollection('subscriptions_read stores_read', 'stores')).to.be.true;
+    expect(canReadCollection('subscriptions_read stores_write', 'stores')).to.be.true;
   });
 });

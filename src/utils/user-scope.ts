@@ -44,6 +44,17 @@ export function parseUserScope(scope: string | null | undefined): UserScope | nu
   };
 }
 
+/**
+ * Returns `true` when the scope can read the collection, or when the scope does not restrict
+ * store collections at all (unset, `store_full_access`, no collection tokens).
+ */
+export function canReadCollection(
+  scope: string | null | undefined,
+  collection: ScopeCollection
+): boolean {
+  return parseUserScope(scope)?.canRead(collection) ?? true;
+}
+
 /** Turns scope rules into control selectors to hide or make readonly. */
 export function getScopeSelectors(
   scope: UserScope | null,
