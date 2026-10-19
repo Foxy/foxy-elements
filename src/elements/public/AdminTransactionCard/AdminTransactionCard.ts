@@ -5,6 +5,7 @@ import type { Resource } from '@foxy.io/sdk/core';
 import type { Data } from './types';
 import type { Rels } from '@foxy.io/sdk/backend';
 
+import { canReadCollection } from '../../../utils/user-scope';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { getResourceId } from '@foxy.io/sdk/core';
@@ -131,7 +132,7 @@ export class AdminTransactionCard extends Base<Data> {
       <foxy-nucleon
         infer=""
         class="hidden"
-        href=${ifDefined(this.data?._links['fx:store'].href)}
+        href=${ifDefined(this.__canReadStore ? this.data?._links['fx:store'].href : undefined)}
         id="storeLoader"
         @update=${() => this.requestUpdate()}
       >
@@ -140,7 +141,13 @@ export class AdminTransactionCard extends Base<Data> {
   }
 
   get isBodyReady(): boolean {
-    return super.isBodyReady && (!this.data?._links['fx:store'] || !!this.__storeLoader?.data);
+    const isStoreNeeded = !!this.data?._links['fx:store'] && this.__canReadStore;
+    return super.isBodyReady && (!isStoreNeeded || !!this.__storeLoader?.data);
+  }
+
+  // Without the store the price falls back to the currency symbol.
+  private get __canReadStore() {
+    return canReadCollection(this.currentUserScope, 'stores');
   }
 
   private get __storeLoader() {
