@@ -13,7 +13,8 @@ import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { decode } from 'html-entities';
 import { html } from 'lit-html';
-import { getItemScopeCollection } from '../../../utils/item-scope-collection';
+import { canReadItemCurrency, getItemScopeCollection } from '../../../utils/item-scope-collection';
+import { canReadCollection, parseUserScope } from '../../../utils/user-scope';
 
 const NS = 'item-card';
 const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
@@ -67,7 +68,6 @@ export class ItemCard extends Base<Data> {
 
     const displayedCode = displayConfig ? (displayConfig.show_product_code ? code : '') : code;
     const currencyDisplay = this.__currencyDisplay;
-    const currencyCode = this.__currencyCode;
 
     return html`
       <foxy-nucleon
@@ -157,7 +157,7 @@ export class ItemCard extends Base<Data> {
                 <span class="text-s text-tertiary whitespace-nowrap">
                   ${quantity} &times;
                   <foxy-i18n
-                    .options=${{ amount: `${price} ${currencyCode}`, currencyDisplay }}
+                    .options=${{ amount: this.__toAmount(price), currencyDisplay }}
                     key="price"
                     infer=""
                   >
@@ -169,6 +169,7 @@ export class ItemCard extends Base<Data> {
                 ${displayedCode}
                 ${(displayConfig?.show_sub_frequency ?? true) &&
                 this.data?.subscription_frequency &&
+                this.__isSubinfoAvailable &&
                 !this.hiddenSelector.matches('autorenew-icon', true)
                   ? html`
                       ${displayedCode ? html`<span> &bull; </span>` : ''}
@@ -201,7 +202,7 @@ export class ItemCard extends Base<Data> {
                               <div class="whitespace-nowrap text-tertiary">
                                 <foxy-i18n
                                   options=${JSON.stringify({
-                                    amount: `${option.price_mod} ${currencyCode}`,
+                                    amount: this.__toAmount(option.price_mod),
                                     signDisplay: 'exceptZero',
                                     currencyDisplay: currencyDisplay,
                                   })}
@@ -224,8 +225,21 @@ export class ItemCard extends Base<Data> {
   }
 
   get isBodyReady(): boolean {
-    const isLoaded = !!this.__currencyDisplay && !!this.__currencyCode;
-    return super.isBodyReady && isLoaded;
+    const cart = this.__cart ?? this.__transactionTemplate;
+    const scope = this.currentUserScope;
+    const hasCode = !!this.__currencyCode || !canReadItemCurrency(scope, this.data, cart);
+    return super.isBodyReady && !!this.__currencyDisplay && hasCode;
+  }
+
+  // Without a readable currency source the amount is shown without a currency.
+  private __toAmount(value: number) {
+    const code = this.__currencyCode;
+    return code ? `${value} ${code}` : `${value}`;
+  }
+
+  // A restricted scope may never load the transaction template, so skip the line without it.
+  private get __isSubinfoAvailable() {
+    return !parseUserScope(this.currentUserScope) || !!this.__subinfoOptions;
   }
 
   private get __transactionTemplateHref() {
@@ -327,6 +341,7 @@ export class ItemCard extends Base<Data> {
     if (useCode === true) return 'code';
     if (useCode === false) return 'symbol';
     if (this.data && !this.data._links['fx:store']) return 'symbol';
+    if (!canReadCollection(this.currentUserScope, 'stores')) return 'symbol';
   }
 
   private get __currencyCode() {

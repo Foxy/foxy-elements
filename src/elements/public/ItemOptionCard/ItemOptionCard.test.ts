@@ -530,4 +530,50 @@ describe('ItemOptionCard', () => {
       expect(element.readonlySelector.matches('any-control', true)).to.be.true;
     });
   });
+
+  describe('helper loaders and current user scope', () => {
+    const denied = 'https://demo.api/virtual/denied';
+
+    const create = async (scope: string) => {
+      const router = createRouter();
+      const data = await getTestData<any>('./hapi/item_options/0');
+      data._links['fx:store'] = { href: denied };
+      data._links['fx:cart'] = { href: denied };
+      data._links['fx:subscription'] = { href: denied };
+      delete data._links['fx:transaction'];
+
+      const element = await fixture<Card>(html`
+        <foxy-item-option-card
+          current-user-scope=${scope}
+          .data=${data}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-option-card>
+      `);
+
+      await waitUntil(
+        () => {
+          const loaders = element.renderRoot.querySelectorAll<any>('foxy-nucleon');
+          return [...loaders].every(loader => !loader.in('busy'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      await element.requestUpdate();
+      return element;
+    };
+
+    it('waits for denied helpers without a scope or with their read scope', async () => {
+      expect((await create('')).isBodyReady).to.be.false;
+      expect((await create('transactions_read carts_read')).isBodyReady).to.be.false;
+    });
+
+    it('renders without helpers the scope cannot read', async () => {
+      const element = await create('transactions_read');
+      expect(element.isBodyReady).to.be.true;
+      expect(element.renderRoot.textContent).to.include(element.data!.name);
+      expect(element.renderRoot.textContent).to.not.include('undefined');
+    });
+  });
 });
