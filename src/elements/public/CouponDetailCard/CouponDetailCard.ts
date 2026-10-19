@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
@@ -6,6 +7,7 @@ import { Resource } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
 import { ignoreAccessDenied } from '../../../utils/ignore-access-denied';
+import { getItemScopeCollection } from '../../../utils/item-scope-collection';
 
 const NS = 'coupon-detail-card';
 const Base = TranslatableMixin(TwoLineCard, NS);
@@ -20,6 +22,10 @@ export class CouponDetailCard extends Base<Data> {
   private __currencyDisplay = '';
 
   private __currency = '';
+
+  get scopeCollection(): ScopeCollection | null {
+    return getItemScopeCollection(this.data);
+  }
 
   renderBody(): TemplateResult {
     return super.renderBody({
