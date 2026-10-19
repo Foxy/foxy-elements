@@ -4,6 +4,7 @@ import type { TemplateResult } from 'lit-html';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Data } from './types';
 import type { Rels } from '@foxy.io/sdk/backend';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 
 import { BooleanSelector, getResourceId } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -38,6 +39,20 @@ export class UpdatePaymentMethodForm extends Base<Data> {
   private readonly __templateSetSetValue = (value: string) => (this.__templateSetOverride = value);
 
   private __templateSetOverride: string | null = null;
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'customers';
+  }
+
+  // The card embed ignores `readonly`, so the card form is hidden when it can't be saved.
+  // The template set picker lists template sets, so it can't work without templates read access.
+  get scopeRules(): ScopeRule[] {
+    return [
+      { path: 'template-set', collection: 'templates' },
+      { path: 'template-set', collection: 'customers', need: 'write' },
+      { path: 'cc-token', collection: 'customers', need: 'write' },
+    ];
+  }
 
   get hiddenSelector(): BooleanSelector {
     const formEmbedUrlParams = this.__formEmbedUrl?.searchParams;

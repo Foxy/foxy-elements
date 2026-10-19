@@ -174,4 +174,54 @@ describe('UpdatePaymentMethodForm', () => {
     expect(control).to.have.attribute('embed-url', 'https://embed.foxy.io/v1.html?demo=default');
     expect(control).to.have.attribute('infer', 'cc-token');
   });
+
+  describe('current user scope', () => {
+    const today = {
+      hidden: 'cc-token header:copy-id header:copy-json undo submit create',
+      readonly: '',
+    };
+
+    const create = async (embedUrl: string) => {
+      const form = new Form();
+      form.embedUrl = embedUrl;
+      form.data = await getTestData('./hapi/payment_methods/0');
+      return form;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create('https://embed.foxy.io/v1.html');
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal(today.hidden);
+        expect(form.readonlySelector.toString()).to.equal(today.readonly);
+      });
+    });
+
+    it('is read-only and hides the card form without customers_write', async () => {
+      const form = await create('https://embed.foxy.io/v1.html?template_set_id=0');
+      form.currentUserScope = 'subscriptions_read customers_read';
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(form.hiddenSelector.matches('cc-token', true)).to.be.true;
+
+      form.currentUserScope = 'customers_write';
+      expect(form.readonlySelector.matches('any-control', true)).to.be.false;
+      expect(form.hiddenSelector.matches('cc-token', true)).to.be.false;
+    });
+
+    it('hides the template set picker without templates_read', async () => {
+      const form = await create('https://embed.foxy.io/v1.html');
+      form.currentUserScope = 'customers_write';
+      expect(form.hiddenSelector.matches('template-set', true)).to.be.true;
+
+      form.currentUserScope = 'customers_write templates_read';
+      expect(form.hiddenSelector.matches('template-set', true)).to.be.false;
+    });
+
+    it('hides the template set picker without customers_write', async () => {
+      const form = await create('https://embed.foxy.io/v1.html');
+      form.currentUserScope = 'customers_read templates_read';
+      expect(form.hiddenSelector.matches('template-set', true)).to.be.true;
+    });
+  });
 });
