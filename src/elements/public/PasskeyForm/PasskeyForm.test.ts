@@ -99,8 +99,9 @@ describe('passkeyForm', () => {
       return control;
     };
 
-    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
-      for (const scope of [null, 'store_full_access']) {
+    it('keeps selectors unchanged without a scope, with store_full_access and with user_invitations_read', async () => {
+      // user_invitations_read alone cannot read users; the API's "Access denied" covers that.
+      for (const scope of [null, 'store_full_access', 'user_invitations_read']) {
         const element = await create(scope);
         expect(element.hiddenSelector.toString()).to.equal('undo submit create');
         expect(element.readonlySelector.toString()).to.equal('settings');
