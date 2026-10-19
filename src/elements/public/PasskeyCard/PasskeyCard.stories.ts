@@ -21,6 +21,10 @@ export const Empty = getStory(summary);
 export const Error = getStory(summary);
 export const AccessDenied = getStory(summary);
 export const Busy = getStory(summary);
+export const RestrictedScope = getStory({
+  ...summary,
+  ext: 'current-user-scope="user_invitations_read users_read"',
+});
 
 Minimal.args.href = 'https://demo.api/hapi/passkeys/1';
 Empty.args.href = '';

@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { TemplateResult } from 'lit-element';
 import type { Data } from './types';
 
@@ -17,6 +18,10 @@ const Base = TranslatableMixin(TwoLineCard, NS);
  * @since 1.24.0
  */
 export class PasskeyCard extends Base<Data> {
+  get scopeCollection(): ScopeCollection | null {
+    return 'users';
+  }
+
   renderBody(): TemplateResult {
     return super.renderBody({
       title: data => html`${data.credential_id}`,

@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
 
@@ -22,6 +23,10 @@ export class PasskeyForm extends Base<Data> {
   private readonly __lastLoginUaGetValue = () => {
     return uainfer.analyze(this.data?.last_login_ua ?? '').toString();
   };
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'users';
+  }
 
   get readonlySelector(): BooleanSelector {
     return new BooleanSelector(`settings ${super.readonlySelector.toString()}`);

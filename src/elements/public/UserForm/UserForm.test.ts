@@ -1,3 +1,4 @@
+import type { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import type { InternalSwitchControl } from '../../internal/InternalSwitchControl/InternalSwitchControl';
 
 import './index';
@@ -187,5 +188,42 @@ describe('UserForm', () => {
 
     merchantSwitch.setValue(false);
     expect(element).to.have.nested.property('form.is_merchant', false);
+  });
+
+  describe('current user scope', () => {
+    const create = async (scope: string | null) => {
+      const element = await fixture<UserForm>(html`<foxy-user-form></foxy-user-form>`);
+      element.data = await getTestData<Data>('./hapi/users/0');
+      element.currentUserScope = scope;
+      await element.requestUpdate();
+      return element;
+    };
+
+    const getControl = async (element: UserForm) => {
+      const control = element.renderRoot.querySelector<InternalTextControl>('[infer="email"]')!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      for (const scope of [null, 'store_full_access']) {
+        const element = await create(scope);
+        expect(element.hiddenSelector.toString()).to.equal('undo submit create');
+        expect(element.readonlySelector.toString()).to.equal('');
+      }
+    });
+
+    it('is read-only with users_read and editable with user_full_access', async () => {
+      const element = await create('user_invitations_read users_read');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(element)).readonly).to.be.true;
+
+      element.currentUserScope = 'user_invitations_read user_full_access';
+      await element.requestUpdate();
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(element)).readonly).to.be.false;
+    });
   });
 });
