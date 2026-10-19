@@ -2711,6 +2711,15 @@ describe('StoreForm', () => {
       expect((await getControl(form, '[infer="essentials-group-one"]')).readonly).to.be.false;
     });
 
+    it('is read-only with stores_read while the store is loading', async () => {
+      const form = await fixture<Form>(html`
+        <foxy-store-form current-user-scope="stores_read" href="https://demo.api/virtual/stall">
+        </foxy-store-form>
+      `);
+
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+    });
+
     it('stays editable in create mode with stores_read', async () => {
       const form = await create('stores_read user_full_access', '');
       expect(form.readonlySelector.matches('essentials-group-one', true)).to.be.false;

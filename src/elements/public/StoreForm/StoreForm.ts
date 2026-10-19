@@ -498,7 +498,7 @@ export class StoreForm extends Base<Data> {
 
   get scopeCollection(): ScopeCollection | null {
     // A new store is created under the user's stores list, which this scope does not cover.
-    return this.data ? 'stores' : null;
+    return this.href ? 'stores' : null;
   }
 
   get headerSubtitleOptions(): Record<string, unknown> {
