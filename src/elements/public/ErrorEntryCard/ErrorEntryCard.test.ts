@@ -150,6 +150,8 @@ describe('ErrorEntryCard', async () => {
     it('does not mark the error as seen on open with reporting_read', async () => {
       const { element, methods } = await create('webhooks_read reporting_read');
       await open(element);
+      // A PATCH would start on toggle, so wait for it to settle before checking it did not happen.
+      await waitUntil(() => element.in('idle'), '', { timeout: 5000 });
 
       expect(methods).to.not.include('PATCH');
       expect(element.data).to.have.property('hide_error', false);
