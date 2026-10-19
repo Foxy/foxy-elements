@@ -1419,6 +1419,9 @@ describe('ExperimentalAddToCartBuilder', () => {
           current-user-scope=${scope}
           href="https://demo.api/hapi/experimental_add_to_cart_snippets/0"
           store="https://demo.api/hapi/stores/0"
+          encode-helper="https://demo.api/virtual/encode"
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          default-domain="foxycart.com"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
         </foxy-experimental-add-to-cart-builder>
@@ -1491,6 +1494,72 @@ describe('ExperimentalAddToCartBuilder', () => {
       expect(await isHidden((await getItemControl(element)).renderRoot, selector)).to.be.false;
       expect((await getOptionDialog(element)).hiddenSelector.matches('category-group', true)).to.be
         .false;
+    });
+
+    const getPreviewState = (element: Builder) => {
+      const preview = element.renderRoot.querySelector('[infer="preview"]')!;
+      const spinner = preview.querySelector('foxy-spinner[infer="unavailable"]');
+      const message = preview.querySelector('foxy-i18n[infer="unavailable"]');
+      return { spinner, message, iframe: preview.querySelector('iframe') };
+    };
+
+    const waitForLoaders = async (element: Builder) => {
+      await waitUntil(
+        () => {
+          const loaders = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+          return [...loaders].every(loader => !loader.in('busy'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      await element.requestUpdate();
+    };
+
+    it('shows an access error instead of loading forever with the area scope', async () => {
+      const element = await create('stores_read payment_settings_read');
+      await waitForLoaders(element);
+      const { spinner, message } = getPreviewState(element);
+
+      expect(spinner).to.have.attribute('state', 'error');
+      expect(message).to.have.attribute('key', 'error_access_denied');
+    });
+
+    it('builds the code with stores_read templates_read item_categories_read', async () => {
+      const element = await create('stores_read templates_read item_categories_read');
+      await waitUntil(
+        async () => {
+          await element.requestUpdate();
+          return !!getPreviewState(element).iframe;
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      expect(getPreviewState(element).message).to.not.exist;
+    });
+
+    it('shows an access error for linked item categories without item_categories_read', async () => {
+      const element = await create('stores_read templates_read');
+      await waitForLoaders(element);
+      expect(getPreviewState(element).message).to.have.attribute('key', 'error_access_denied');
+
+      element.edit({
+        items: element.form.items!.map(item => ({
+          ...item,
+          item_category_uri: undefined,
+          custom_options: item.custom_options.map(o => ({ ...o, item_category_uri: undefined })),
+        })),
+      });
+
+      await waitUntil(
+        async () => {
+          await element.requestUpdate();
+          return !!getPreviewState(element).iframe;
+        },
+        '',
+        { timeout: 5000 }
+      );
     });
   });
 });
