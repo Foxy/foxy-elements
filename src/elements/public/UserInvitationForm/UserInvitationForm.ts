@@ -24,7 +24,6 @@ export class UserInvitationForm extends Base<Data> {
       defaultDomain: { attribute: 'default-domain' },
       currentStore: { attribute: 'current-store' },
       currentUser: { attribute: 'current-user' },
-      currentUserScope: { attribute: 'current-user-scope' },
       layout: {},
     };
   }
@@ -88,17 +87,6 @@ export class UserInvitationForm extends Base<Data> {
 
   /** Currently logged in user resource URL. Used for determining when to emit `selfrevoked` event. */
   currentUser: string | null = null;
-
-  /**
-   * Space-separated scope of the currently logged in user, e.g. `transactions_read`.
-   * Supplied by the host application from its OIDC token — the API exposes no endpoint that
-   * reveals a caller's own scope.
-   *
-   * When unset, the scope control is hidden and the scope v8n rule does not apply, so
-   * consumers that do not pass it are unaffected. It must never be treated as "grant
-   * everything".
-   */
-  currentUserScope: string | null = null;
 
   /** Admin layout will display user info, user layout (default) will display store info. */
   layout: 'admin' | 'user' | null = null;
