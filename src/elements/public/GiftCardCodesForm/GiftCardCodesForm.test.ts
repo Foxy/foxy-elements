@@ -120,4 +120,25 @@ describe('GiftCardCodesForm', () => {
 
     expect(element).to.have.deep.property('status', { key: 'success' });
   });
+
+  describe('current user scope', () => {
+    it('keeps selectors unchanged without a scope and with store_full_access', () => {
+      const form = new GiftCardCodesForm();
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal('delete timestamps undo submit');
+        expect(form.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with gift_cards_read item_categories_read', () => {
+      const form = new GiftCardCodesForm();
+      form.currentUserScope = 'gift_cards_read item_categories_read';
+      expect(form.readonlySelector.matches('gift-card-codes', true)).to.be.true;
+
+      form.currentUserScope = 'gift_cards_write';
+      expect(form.readonlySelector.matches('gift-card-codes', true)).to.be.false;
+    });
+  });
 });

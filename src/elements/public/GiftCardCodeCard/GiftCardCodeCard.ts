@@ -3,14 +3,17 @@ import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
+import { canReadCollection } from '../../../utils/user-scope';
 
 const NS = 'gift-card-code-card';
-const Base = TranslatableMixin(InternalCard, NS);
+const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
 /**
  * Card element that displays a gift card code (`fx:gift_card_code`).
@@ -23,8 +26,13 @@ export class GiftCardCodeCard extends Base<Data> {
 
   private readonly __storeLoaderId = 'storeLoader';
 
+  get scopeCollection(): ScopeCollection | null {
+    return 'gift_cards';
+  }
+
   get isBodyReady(): boolean {
-    return super.isBodyReady && !!this.__giftCardLoader?.data && !!this.__storeLoader?.data;
+    const isStoreReady = !!this.__storeLoader?.data || !this.__canReadStore;
+    return super.isBodyReady && !!this.__giftCardLoader?.data && isStoreReady;
   }
 
   renderBody(): TemplateResult {
@@ -60,7 +68,7 @@ export class GiftCardCodeCard extends Base<Data> {
 
       <foxy-nucleon
         infer=""
-        href=${ifDefined(this.data?._links['fx:store'].href)}
+        href=${ifDefined(this.__canReadStore ? this.data?._links['fx:store'].href : undefined)}
         id=${this.__storeLoaderId}
         @update=${() => this.requestUpdate()}
       >
@@ -79,6 +87,11 @@ export class GiftCardCodeCard extends Base<Data> {
   private get __giftCardLoader() {
     type Loader = NucleonElement<Resource<Rels.GiftCard>>;
     return this.renderRoot.querySelector<Loader>(`#${this.__giftCardLoaderId}`);
+  }
+
+  // The gift card shares the code's collection. Without the store the balance uses the currency symbol.
+  private get __canReadStore() {
+    return canReadCollection(this.currentUserScope, 'stores');
   }
 
   private get __storeLoader() {

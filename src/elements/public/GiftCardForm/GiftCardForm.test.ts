@@ -577,4 +577,63 @@ describe('GiftCardForm', () => {
     expect(control).to.have.attribute('form', 'foxy-attribute-form');
     expect(control).to.have.attribute('alert');
   });
+
+  describe('current user scope', () => {
+    const create = async (scope = '') => {
+      const router = createRouter();
+      const data = await getTestData<any>('./hapi/gift_cards/0', router);
+      const form = await fixture<GiftCardForm>(html`
+        <foxy-gift-card-form
+          current-user-scope=${scope}
+          .data=${data}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-gift-card-form>
+      `);
+
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getControl = async (form: GiftCardForm, selector: string) => {
+      const control = form.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal(
+          'undo submit create provisioning:sku provisioning:min-balance provisioning:max-balance'
+        );
+        expect(form.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only and hides code generation with gift_cards_read item_categories_read', async () => {
+      const form = await create('gift_cards_read item_categories_read');
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(form, '[infer="generate"]')).hidden).to.be.true;
+      expect((await getControl(form, '[infer="import"]')).hidden).to.be.true;
+      expect((await getControl(form, '[infer="category-restrictions"]')).hidden).to.be.false;
+      expect((await getControl(form, '[infer="category-restrictions"]')).readonly).to.be.true;
+
+      form.currentUserScope = 'gift_cards_write item_categories_read';
+      await form.requestUpdate();
+      expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(form, '[infer="generate"]')).hidden).to.be.false;
+      expect((await getControl(form, '[infer="import"]')).hidden).to.be.false;
+      expect((await getControl(form, '[infer="general"]')).readonly).to.be.false;
+    });
+
+    it('hides category restrictions without item_categories_read', async () => {
+      const form = await create('gift_cards_write');
+      expect((await getControl(form, '[infer="category-restrictions"]')).hidden).to.be.true;
+      expect((await getControl(form, '[infer="attributes"]')).hidden).to.be.false;
+    });
+  });
 });

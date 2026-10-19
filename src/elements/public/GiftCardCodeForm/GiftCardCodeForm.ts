@@ -5,6 +5,7 @@ import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 
 import { BooleanSelector, getResourceId } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -105,6 +106,18 @@ export class GiftCardCodeForm extends Base<Data> {
   ];
 
   private readonly __storeLoaderId = 'storeLoader';
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'gift_cards';
+  }
+
+  get scopeRules(): ScopeRule[] {
+    return [
+      { path: 'customer', collection: 'customers' },
+      // The item that provisioned the code belongs to a completed transaction.
+      { path: 'cart-item', collection: 'transactions' },
+    ];
+  }
 
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = [super.readonlySelector.toString(), 'cart-item'];

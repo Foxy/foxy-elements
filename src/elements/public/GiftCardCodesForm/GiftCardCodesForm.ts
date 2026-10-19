@@ -2,6 +2,7 @@ import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
@@ -34,6 +35,10 @@ export class GiftCardCodesForm extends Base<Data> {
         .filter((v, i, a) => a.indexOf(v) === i),
     });
   };
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'gift_cards';
+  }
 
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = [super.readonlySelector.toString()];
