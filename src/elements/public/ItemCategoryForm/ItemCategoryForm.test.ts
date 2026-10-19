@@ -939,9 +939,10 @@ describe('ItemCategoryForm', () => {
     it('is read-only and hides taxes and templates with coupons_read item_categories_read', async () => {
       const form = await create('coupons_read item_categories_read');
       const picker = '[infer="gift-recipient-email-template-uri"]';
-      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
       expect(form.hiddenSelector.matches('delete', true)).to.be.true;
       expect((await getControl(form, '[infer="general"]')).readonly).to.be.true;
+      expect((await getControl(form, '[infer="delivery"]')).readonly).to.be.true;
+      expect((await getControl(form, '[infer="handling-and-discount"]')).readonly).to.be.true;
       expect((await getControl(form, '[infer="taxes"]')).hidden).to.be.true;
       expect((await getControl(form, picker)).hidden).to.be.true;
       expect((await getControl(form, '[infer="emails"]')).hidden).to.be.false;
@@ -950,8 +951,23 @@ describe('ItemCategoryForm', () => {
       await form.requestUpdate();
       expect(form.hiddenSelector.matches('delete', true)).to.be.false;
       expect((await getControl(form, '[infer="general"]')).readonly).to.be.false;
+      expect((await getControl(form, '[infer="delivery"]')).readonly).to.be.false;
       expect((await getControl(form, '[infer="taxes"]')).hidden).to.be.false;
       expect((await getControl(form, picker)).hidden).to.be.false;
+    });
+
+    it('does not lock the taxes list when only the item category is read-only', async () => {
+      const form = await create('item_categories_read taxes_write');
+      const taxes = await getControl(form, '[infer="taxes"]');
+      expect((await getControl(form, '[infer="general"]')).readonly).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+      expect(taxes.hidden).to.be.false;
+      expect(taxes.readonly).to.be.false;
+
+      form.currentUserScope = 'item_categories_write taxes_read';
+      await form.requestUpdate();
+      expect((await getControl(form, '[infer="general"]')).readonly).to.be.false;
+      expect((await getControl(form, '[infer="taxes"]')).readonly).to.be.true;
     });
   });
 });

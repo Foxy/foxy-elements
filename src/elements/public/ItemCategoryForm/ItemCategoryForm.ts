@@ -1,7 +1,7 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
 import type { Data } from './types';
-import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
+import type { ScopeRule } from '../../../utils/user-scope';
 
 import type { TemplateResult } from 'lit-html';
 import type { ParsedValue } from '../DiscountBuilder/types';
@@ -170,13 +170,17 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
     if (!v) this.edit({ discount_type: '', discount_details: '' });
   };
 
-  get scopeCollection(): ScopeCollection | null {
-    return 'item_categories';
-  }
-
   get scopeRules(): ScopeRule[] {
+    // Composite: tax links belong to taxes, so the form locks its own sections instead of
+    // setting a scope collection that would make the whole form read-only.
     return [
-      { path: 'taxes', collection: 'taxes' },
+      { path: 'general', collection: 'item_categories', readonlyIfNoWrite: true },
+      { path: 'delivery', collection: 'item_categories', readonlyIfNoWrite: true },
+      { path: 'handling-and-discount', collection: 'item_categories', readonlyIfNoWrite: true },
+      { path: 'emails', collection: 'item_categories', readonlyIfNoWrite: true },
+      { path: 'delete', collection: 'item_categories', need: 'write' },
+      { path: 'create', collection: 'item_categories', need: 'write' },
+      { path: 'taxes', collection: 'taxes', readonlyIfNoWrite: true },
       { path: 'emails:gift-recipient-email-template-uri', collection: 'templates' },
     ];
   }
