@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import { Column } from '../Table/types';
 import { Data } from './types';
 import { Table } from '../Table/Table';
@@ -129,4 +130,8 @@ export class TransactionsTable extends TranslatableMixin(Table, 'transactions-ta
   ];
 
   private static __ns = 'transactions-table';
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'transactions';
+  }
 }

@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { Rels } from '@foxy.io/sdk/backend';
@@ -21,6 +22,10 @@ const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
  */
 class TransactionCard extends Base<Data> {
   private __currencyDisplay = '';
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'transactions';
+  }
 
   renderBody(): TemplateResult {
     const hiddenSelector = this.hiddenSelector;
