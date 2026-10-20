@@ -426,9 +426,15 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     this._value = serializeScope({ ...selection, preset: 'custom', resend });
   }
 
-  /** The scope currently in the form. Undefined before the first edit on a new invitation. */
+  /**
+   * The scope currently in the form. Undefined before the first edit on a new invitation.
+   * An existing invitation saved without a scope grants full store access in the API, so it
+   * reads as the wildcard here instead of as "nothing chosen".
+   */
   private get __scope(): string | undefined {
-    return (this._value as string | undefined) ?? void 0;
+    const scope = (this._value as string | undefined) ?? void 0;
+    if (!scope?.trim() && this.nucleon?.data) return 'store_full_access';
+    return scope;
   }
 
   private __preset(selection: Selection): Preset | null {
@@ -440,11 +446,17 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     this.__customSelected = preset === 'custom';
 
     // Choosing Custom keeps whatever is already in the form, so the matrix opens on the
-    // current grant rather than wiping it -- true for enumerated scopes. The wildcard is the
-    // exception: `parseScope('store_full_access')` reads all 20 collection levels as `none`,
-    // so switching from the store preset to Custom shows "no access to anything" here even
-    // though the form still holds full store access until a row is actually edited.
-    if (preset === 'custom') return;
+    // current grant rather than wiping it. The wildcard has no per-row levels, so it is
+    // expanded into what it grants -- every collection at Full and every resend. Keeping
+    // `store_full_access` behind rows that all read None would save a full-access invitation.
+    if (preset === 'custom') {
+      const selection = parseScope(this.__scope);
+      if (selection.preset !== 'store') return;
+
+      COLLECTIONS.forEach(collection => (selection.levels[collection] = 'full'));
+      this._value = serializeScope({ ...selection, preset: 'custom', resend: [...RESENDABLE] });
+      return;
+    }
 
     if (preset === 'store') {
       this._value = 'store_full_access';
