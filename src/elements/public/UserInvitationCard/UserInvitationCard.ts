@@ -107,7 +107,9 @@ export class UserInvitationCard extends Base<Data> {
 
   /** Renders the scope summary lines, or nothing when the invitation grants nothing. */
   private __renderScopes(): TemplateResult | string {
-    const groups = groupInvitationScopes(this.data?.scope);
+    // The API grants full store access to an invitation saved without a scope.
+    const scope = this.data?.scope;
+    const groups = groupInvitationScopes(this.data && !scope?.trim() ? 'store_full_access' : scope);
 
     const hasScopes =
       groups.storeFullAccess ||
