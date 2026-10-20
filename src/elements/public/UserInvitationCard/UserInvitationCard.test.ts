@@ -361,14 +361,17 @@ describe('UserInvitationCard', () => {
       expect(await getByKey(card, 'scope_resend')).to.not.exist;
     });
 
-    it('renders no scope lines when scope is absent', async () => {
-      const card = await cardWithScope(undefined);
+    // The API grants full store access to an invitation saved without a scope.
+    for (const scope of [undefined, '', '  ']) {
+      it(`renders the full-access line when scope is ${JSON.stringify(scope)}`, async () => {
+        const card = await cardWithScope(scope);
 
-      expect(await getByKey(card, 'scope_full')).to.not.exist;
-      expect(await getByKey(card, 'scope_read')).to.not.exist;
-      expect(await getByKey(card, 'scope_resend')).to.not.exist;
-      expect(await getByKey(card, 'scope_store_full_access')).to.not.exist;
-    });
+        expect(await getByKey(card, 'scope_store_full_access')).to.exist;
+        expect(await getByKey(card, 'scope_full')).to.not.exist;
+        expect(await getByKey(card, 'scope_read')).to.not.exist;
+        expect(await getByKey(card, 'scope_resend')).to.not.exist;
+      });
+    }
 
     it('renders no scope lines in the user layout', async () => {
       const data = await getTestData<Data>('./hapi/user_invitations/0');
