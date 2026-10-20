@@ -708,6 +708,13 @@ describe('AdminSubscriptionCard', () => {
       expect(element.renderRoot.textContent).to.not.include('undefined');
     });
 
+    it('renders the id in the first line when the scope cannot read the cart', async () => {
+      const element = await create('subscriptions_read');
+      const summary = element.renderRoot.querySelector<any>('foxy-i18n[key="summary_fallback"]');
+      expect(summary).to.exist;
+      expect(summary.options).to.deep.equal({ id: 0 });
+    });
+
     it('does not request helpers the scope cannot read', async () => {
       const element = await create('subscriptions_read');
       const ids = ['transactionTemplateLoader', 'customerLoader', 'storeLoader'];

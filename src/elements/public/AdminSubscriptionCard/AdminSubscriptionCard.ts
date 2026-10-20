@@ -13,6 +13,7 @@ import { ConfigurableMixin } from '../../../mixins/configurable';
 import { parseFrequency } from '../../../utils/parse-frequency';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { getResourceId } from '@foxy.io/sdk/core';
 import { html } from 'lit-html';
 
 const NS = 'admin-subscription-card';
@@ -332,11 +333,15 @@ export class AdminSubscriptionCard extends Base<Data> {
   private get __summaryOptions() {
     const { array, count } = this.__items ?? {};
     if (array && count) return { firstItem: array[0], count, countMinus1: count - 1 };
+    // The first line must never be blank, e.g. when the scope can't read carts.
+    const self = this.data?._links.self.href;
+    if (self) return { id: getResourceId(self) };
   }
 
   private get __summaryKey() {
     const items = this.__items;
-    if (items) return items.isApproximateCount ? 'summary_approximate' : 'summary';
+    if (items?.count) return items.isApproximateCount ? 'summary_approximate' : 'summary';
+    if (this.data) return 'summary_fallback';
   }
 
   private get __currencyCode() {

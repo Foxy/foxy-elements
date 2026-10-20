@@ -17,6 +17,7 @@
   "summary": "{{ firstItem.name }}",
   "summary_plural": "{{ firstItem.name }} + {{ countMinus1 }} more",
   "summary_approximate": "{{ firstItem.name }} + more",
+  "summary_fallback": "Subscription #{{ id }}",
   "twice_a_month": "twice a month",
   "weekly": "/ week",
   "weekly_plural": "/ {{count}} weeks",
