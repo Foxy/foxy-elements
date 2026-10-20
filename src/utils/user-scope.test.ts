@@ -158,6 +158,12 @@ describe('filterZoom', () => {
     expect(result.searchParams.get('zoom')).to.equal('items,applied_taxes');
   });
 
+  it('keeps the readable start of a nested path', () => {
+    const shipment = 'https://demo.api/shipments/1?zoom=items:item_category,items';
+    const result = new URL(filterZoom(shipment, 'transactions_read'));
+    expect(result.searchParams.get('zoom')).to.equal('items');
+  });
+
   it('removes the zoom parameter when no path is left', () => {
     const result = new URL(filterZoom(url, 'subscriptions_read'));
     expect(result.searchParams.has('zoom')).to.be.false;
