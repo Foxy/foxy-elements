@@ -2,7 +2,7 @@ import './index';
 
 import { Data } from './types';
 import { SubscriptionsTable } from './SubscriptionsTable';
-import { expect } from '@open-wc/testing';
+import { expect, fixture, html } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
 import { parseFrequency } from '../../../utils/parse-frequency';
 import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
@@ -110,6 +110,19 @@ describe('SubscriptionsTable', () => {
 
       element.currentUserScope = 'subscriptions_write';
       expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+    });
+
+    it('renders rows without the cart when it is not zoomed', async () => {
+      const data = await getTestData<any>('./hapi/subscriptions?customer_id=0');
+      data._embedded['fx:subscriptions'].forEach((sub: any) => delete sub._embedded);
+      const element = await fixture<SubscriptionsTable>(
+        html`<foxy-subscriptions-table .data=${data}></foxy-subscriptions-table>`
+      );
+
+      await element.updateComplete;
+      expect(element.renderRoot.querySelectorAll('[data-testclass~="links"]')).to.have.length(
+        data._embedded['fx:subscriptions'].length
+      );
     });
   });
 });
