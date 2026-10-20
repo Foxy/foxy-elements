@@ -12,6 +12,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { ResponsiveMixin } from '../../../mixins/responsive';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { filterZoom } from '../../../utils/user-scope';
 import { html, svg } from 'lit-element';
 
 import uainfer from 'uainfer/src/uainfer.js';
@@ -289,11 +290,14 @@ export class Transaction extends Base<Data> {
       }
     };
 
+    // Set the scope's zoom here: a nested list may send its first request before it gets the scope.
     const shipmentsLink = withParam(
       this.data?._links['fx:shipments'].href,
       'zoom',
       'items:item_category'
     );
+
+    const scopedShipmentsLink = shipmentsLink && filterZoom(shipmentsLink, this.currentUserScope);
 
     const webhooksLink = withParam(
       this.__storeLoader?.data?._links['fx:webhooks'].href,
@@ -428,7 +432,7 @@ export class Transaction extends Base<Data> {
 
       <foxy-internal-async-list-control
         infer="shipments"
-        first=${ifDefined(shipmentsLink)}
+        first=${ifDefined(scopedShipmentsLink)}
         item="foxy-shipment-card"
       >
       </foxy-internal-async-list-control>
