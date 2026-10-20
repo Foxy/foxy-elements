@@ -363,6 +363,25 @@ describe('ItemCard', () => {
     });
   });
 
+  it('renders when the subscription comes back without the zoomed cart', async () => {
+    const data = await getTestData<any>('./hapi/items/0');
+    data._links['fx:subscription'] = { href: 'https://demo.api/virtual/subscription-without-cart' };
+    const element = await fixture<ItemCard>(html`
+      <foxy-item-card
+        .data=${data}
+        @fetch=${(evt: FetchEvent) => {
+          if (!evt.request.url.includes('subscription-without-cart')) return;
+          evt.respondWith(Promise.resolve(new Response(JSON.stringify({ _links: {} }))));
+        }}
+      >
+      </foxy-item-card>
+    `);
+
+    const loader = element.renderRoot.querySelector<any>('#transactionTemplateLoader');
+    await waitUntil(() => loader.in({ idle: 'snapshot' }), '', { timeout: 5000 });
+    expect(() => element.isBodyReady).to.not.throw();
+  });
+
   describe('helper loaders and current user scope', () => {
     const denied = 'https://demo.api/virtual/denied';
 

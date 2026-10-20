@@ -208,7 +208,7 @@ export class ItemOptionCard extends Base<Data> {
     type Loader = NucleonElement<Resource<Rels.Subscription, { zoom: 'transaction_template' }>>;
     const selector = `#${this.__transactionTemplateLoaderId}`;
     const loader = this.renderRoot.querySelector<Loader>(selector);
-    return loader?.data?._embedded['fx:transaction_template'] ?? null;
+    return loader?.data?._embedded?.['fx:transaction_template'] ?? null;
   }
 
   private get __defaultTemplateSet() {
