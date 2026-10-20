@@ -188,7 +188,7 @@ export class AdminSubscriptionCard extends Base<Data> {
   private get __transactionTemplateHref() {
     const data = this.data;
 
-    if (!data) return;
+    if (!data || !canReadCollection(this.currentUserScope, 'carts')) return;
     if ('_embedded' in data && 'fx:transaction_template' in data._embedded) return;
 
     const url = new URL(this.data?._links['fx:transaction_template'].href ?? '');
@@ -223,6 +223,7 @@ export class AdminSubscriptionCard extends Base<Data> {
 
   private get __customerHref() {
     if ('fx:customer' in (this.data?._embedded ?? {})) return;
+    if (!canReadCollection(this.currentUserScope, 'customers')) return;
     return this.data?._links['fx:customer']?.href;
   }
 
@@ -238,6 +239,7 @@ export class AdminSubscriptionCard extends Base<Data> {
   }
 
   private get __storeHref() {
+    if (!canReadCollection(this.currentUserScope, 'stores')) return;
     return this.data?._links['fx:store']?.href;
   }
 

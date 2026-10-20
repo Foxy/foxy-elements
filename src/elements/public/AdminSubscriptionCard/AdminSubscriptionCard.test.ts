@@ -707,5 +707,14 @@ describe('AdminSubscriptionCard', () => {
       expect(element.renderRoot.textContent).to.not.include('()');
       expect(element.renderRoot.textContent).to.not.include('undefined');
     });
+
+    it('does not request helpers the scope cannot read', async () => {
+      const element = await create('subscriptions_read');
+      const ids = ['transactionTemplateLoader', 'customerLoader', 'storeLoader'];
+      ids.forEach(id => {
+        const loader = element.renderRoot.querySelector<any>(`#${id}`);
+        expect(loader?.href || null, id).to.equal(null);
+      });
+    });
   });
 });
