@@ -1,4 +1,5 @@
 import type { ScopeRule } from '../../../utils/user-scope';
+import { filterZoom } from '../../../utils/user-scope';
 import { Attributes, CustomerAddresses, Data, Settings, Tab } from './types';
 import { CSSResultArray, TemplateResult, html, PropertyDeclarations } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
@@ -654,7 +655,7 @@ export class Customer extends Base<Data> {
             const button = evt.target as ButtonElement;
 
             link.searchParams.set('zoom', 'transaction_template:items');
-            form.href = link.toString();
+            form.href = filterZoom(link.toString(), this.currentUserScope);
             form.show(button);
           }}
         >
@@ -686,7 +687,8 @@ export class Customer extends Base<Data> {
     if (this.in({ idle: 'snapshot' })) {
       const subscriptionsURL = new URL(this.data._links['fx:subscriptions'].href);
       subscriptionsURL.searchParams.set('zoom', 'transaction_template:items');
-      subscriptionsLink = subscriptionsURL.toString();
+      // Set the scope's zoom here: the nested list may send its first request before it gets the scope.
+      subscriptionsLink = filterZoom(subscriptionsURL.toString(), this.currentUserScope);
     }
 
     return html`

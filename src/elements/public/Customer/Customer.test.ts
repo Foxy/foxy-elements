@@ -1917,5 +1917,19 @@ describe('Customer', () => {
       await element.requestUpdate();
       expect(await getByTestId(card, 'actions:update')).to.exist;
     });
+
+    it('zooms subscription carts only when the scope can read carts', async () => {
+      const zoomFor = async (currentUserScope: string) => {
+        const element = await create(currentUserScope);
+        const pages = (await getByTestId(element, 'subscriptions:pages')) as HTMLElement;
+        return new URL(pages.getAttribute('first')!).searchParams.get('zoom');
+      };
+
+      expect(await zoomFor('customers_read subscriptions_read')).to.be.null;
+      expect(await zoomFor('customers_read subscriptions_read carts_read')).to.equal(
+        'transaction_template:items'
+      );
+      expect(await zoomFor('')).to.equal('transaction_template:items');
+    });
   });
 });
