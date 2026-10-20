@@ -5,7 +5,7 @@ import type { InternalSwitchControl } from '../../../../internal/InternalSwitchC
 import './index';
 
 import { expect, fixture, html } from '@open-wc/testing';
-import { COLLECTIONS } from '../../../../../utils/group-invitation-scopes';
+import { COLLECTIONS, RESENDABLE } from '../../../../../utils/group-invitation-scopes';
 import { InternalEditableControl } from '../../../../internal/InternalEditableControl/InternalEditableControl';
 import { spy } from 'sinon';
 
@@ -68,6 +68,16 @@ describe('InternalUserInvitationFormScopeControl', () => {
   it('selects no preset for an empty scope', async () => {
     const element = await control('store_full_access', '');
     expect(presetSelect(element)?.value).to.not.be.ok;
+  });
+
+  // The API grants full store access to an invitation saved without a scope. A new
+  // invitation has no data yet, so it still has to choose (the test above).
+  it('selects the store preset for an existing invitation saved without a scope', async () => {
+    const element = await control('store_full_access', '');
+    element.nucleon = { data: { scope: '' } } as unknown as Control['nucleon'];
+    await element.requestUpdate();
+
+    expect(presetSelect(element)?.value).to.equal('store');
   });
 
   it('selects the store preset for store_full_access', async () => {
@@ -213,6 +223,34 @@ const setResend = (element: Control, collection: string, checked: boolean) => {
 };
 
 describe('custom matrix', () => {
+  // Switching from the wildcard to Custom must not keep `store_full_access` behind rows that
+  // all read None -- saving would then grant full access while the form shows none.
+  it('opens Custom on full access as every row at full and every resend', async () => {
+    const element = await control('store_full_access', 'store_full_access');
+    let written: unknown = null;
+    element.setValue = value => (written = value);
+
+    await selectCustom(element);
+
+    const tokens = String(written).split(' ');
+    expect(tokens).to.not.include('store_full_access');
+    COLLECTIONS.forEach(collection => {
+      expect(tokens, collection).to.include(`${collection}_read`);
+      expect(tokens, collection).to.include(`${collection}_write`);
+    });
+    RESENDABLE.forEach(collection => expect(tokens).to.include(`${collection}_resend`));
+  });
+
+  it('keeps an existing custom scope when Custom is chosen again', async () => {
+    const element = await control('store_full_access', 'customers_read');
+    let written: unknown = null;
+    element.setValue = value => (written = value);
+
+    await selectCustom(element);
+
+    expect(written).to.equal(null);
+  });
+
   it('renders no rows until custom is chosen', async () => {
     expect(rows(await control('store_full_access', ''))).to.be.empty;
   });
