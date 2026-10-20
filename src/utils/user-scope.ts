@@ -113,14 +113,20 @@ export function filterZoom(url: string, scope: string | null | undefined): strin
 
   const parsedURL = new URL(url);
   const paths = (parsedURL.searchParams.get('zoom') ?? '').split(',').filter(Boolean);
-  const kept = paths.filter(path =>
-    path.split(':').every(rel => {
-      const collection = ZOOM_COLLECTIONS[rel];
-      return !collection || userScope.canRead(collection);
-    })
-  );
+  const isReadable = (rel: string) => {
+    const collection = ZOOM_COLLECTIONS[rel];
+    return !collection || userScope.canRead(collection);
+  };
 
-  if (kept.length === paths.length) return url;
+  // Keep the readable start of each path: `items:item_category` becomes `items`.
+  const trimmed = paths.map(path => {
+    const rels = path.split(':');
+    const end = rels.findIndex(rel => !isReadable(rel));
+    return end === -1 ? path : rels.slice(0, end).join(':');
+  });
+
+  const kept = Array.from(new Set(trimmed.filter(Boolean)));
+  if (kept.join(',') === paths.join(',')) return url;
   if (kept.length) parsedURL.searchParams.set('zoom', kept.join(','));
   else parsedURL.searchParams.delete('zoom');
 
