@@ -256,6 +256,29 @@ export const ConfigurableMixin = <TBase extends Base>(
     connectedCallback(): void {
       super.connectedCallback();
       if (this.mode === 'development') this.__observe();
+      // Without `infer` no parent passes properties down, so a top-level element looks up the
+      // scope itself (e.g. `currentUserScope` set once on <html>). Only the scope: inferring
+      // everything would also change `ns`, `lang` and the selectors.
+      if (this.infer === null && this.currentUserScope === null) this.__inferScope();
+    }
+
+    private __inferScope(): void {
+      let node: Node | null = this.parentNode;
+
+      while (node) {
+        if (node instanceof ShadowRoot) {
+          node = node.host;
+        } else if (node instanceof HTMLElement) {
+          const value = this.inferFromElement('currentUserScope', node) as string | undefined;
+          if (value !== undefined) {
+            this.currentUserScope = value;
+            return;
+          }
+          node = node.parentNode;
+        } else {
+          return;
+        }
+      }
     }
 
     disconnectedCallback(): void {
