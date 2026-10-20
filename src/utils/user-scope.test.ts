@@ -1,6 +1,6 @@
 import { expect } from '@open-wc/testing';
 
-import { getScopeSelectors, parseUserScope } from './user-scope';
+import { filterZoom, getScopeSelectors, parseUserScope } from './user-scope';
 
 describe('parseUserScope', () => {
   [
@@ -116,5 +116,41 @@ describe('getScopeSelectors', () => {
     expect(
       getScopeSelectors(parseUserScope('transactions_resend'), rules, null).hidden
     ).to.deep.equal([]);
+  });
+});
+
+describe('filterZoom', () => {
+  const url = 'https://demo.api/subscriptions/1?zoom=customer,transaction_template:items&limit=5';
+
+  it('returns the URL unchanged without a restricting scope', () => {
+    expect(filterZoom(url, null)).to.equal(url);
+    expect(filterZoom(url, 'store_full_access store_id_1')).to.equal(url);
+  });
+
+  it('returns the URL unchanged when every zoomed rel is readable', () => {
+    expect(filterZoom(url, 'subscriptions_read customers_read carts_read')).to.equal(url);
+  });
+
+  it('drops a path when any of its rels is not readable', () => {
+    const result = new URL(filterZoom(url, 'subscriptions_read customers_read'));
+    expect(result.searchParams.get('zoom')).to.equal('customer');
+    expect(result.searchParams.get('limit')).to.equal('5');
+  });
+
+  it('keeps rels that belong to their parent', () => {
+    const txn =
+      'https://demo.api/transactions/1?zoom=items,applied_taxes,applied_gift_card_codes:gift_card';
+    const result = new URL(filterZoom(txn, 'transactions_read'));
+    expect(result.searchParams.get('zoom')).to.equal('items,applied_taxes');
+  });
+
+  it('removes the zoom parameter when no path is left', () => {
+    const result = new URL(filterZoom(url, 'subscriptions_read'));
+    expect(result.searchParams.has('zoom')).to.be.false;
+  });
+
+  it('treats a write scope as read', () => {
+    const result = new URL(filterZoom(url, 'subscriptions_read customers_write'));
+    expect(result.searchParams.get('zoom')).to.equal('customer');
   });
 });

@@ -285,6 +285,24 @@ describe('NucleonElement', () => {
       expect(element).to.have.property('accessDenied', true);
     });
 
+    it('drops zoomed rels the current user scope cannot read', async () => {
+      const element = await fixture<NucleonElement<any> & { currentUserScope?: string }>(
+        html`<foxy-nucleon-test></foxy-nucleon-test>`
+      );
+
+      const urls: string[] = [];
+      respondWith(element, request => {
+        urls.push(request.url);
+        return new Response(JSON.stringify({ _links: { self: { href: element.href } } }));
+      });
+
+      element.currentUserScope = 'subscriptions_read customers_read';
+      element.href = 'https://demo.api/hapi/subscriptions/0?zoom=customer,transaction_template';
+
+      await waitUntil(() => urls.length > 0, undefined, { timeout: 5000 });
+      expect(new URL(urls[0]).searchParams.get('zoom')).to.equal('customer');
+    });
+
     for (const method of ['PATCH', 'DELETE'] as const) {
       it(`turns a scope-denied ${method} into an error and keeps the edits`, async () => {
         const element = await fixture<NucleonElement<any>>(

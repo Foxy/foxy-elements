@@ -68,3 +68,61 @@ export function getScopeSelectors(
 
   return result;
 }
+
+/**
+ * Collection that gates a zoomed rel. A rel that is not listed (items, discounts, applied
+ * taxes, attributes...) belongs to its parent, which is already readable, so it is kept.
+ */
+const ZOOM_COLLECTIONS: Record<string, ScopeCollection> = {
+  applied_gift_card_codes: 'gift_cards',
+  billing_addresses: 'transactions',
+  cart: 'carts',
+  coupon: 'coupons',
+  coupon_code: 'coupons',
+  customer: 'customers',
+  default_billing_address: 'customers',
+  default_payment_method: 'customers',
+  default_shipping_address: 'customers',
+  downloadable: 'downloadables',
+  email_template: 'templates',
+  folder: 'transactions',
+  gift_card: 'gift_cards',
+  gift_card_code: 'gift_cards',
+  gift_card_code_logs: 'gift_cards',
+  item_category: 'item_categories',
+  last_transaction: 'transactions',
+  original_transaction: 'transactions',
+  payments: 'transactions',
+  shipments: 'transactions',
+  store: 'stores',
+  subscription: 'subscriptions',
+  tax: 'taxes',
+  template_set: 'templates',
+  transaction: 'transactions',
+  transaction_template: 'carts',
+};
+
+/**
+ * Removes the zoom paths the scope can't read from a URL. The API denies the whole request
+ * when one zoomed resource can't be read. Returns the URL unchanged when the scope does not
+ * restrict store collections.
+ */
+export function filterZoom(url: string, scope: string | null | undefined): string {
+  const userScope = parseUserScope(scope);
+  if (!userScope || !url.includes('zoom=')) return url;
+
+  const parsedURL = new URL(url);
+  const paths = (parsedURL.searchParams.get('zoom') ?? '').split(',').filter(Boolean);
+  const kept = paths.filter(path =>
+    path.split(':').every(rel => {
+      const collection = ZOOM_COLLECTIONS[rel];
+      return !collection || userScope.canRead(collection);
+    })
+  );
+
+  if (kept.length === paths.length) return url;
+  if (kept.length) parsedURL.searchParams.set('zoom', kept.join(','));
+  else parsedURL.searchParams.delete('zoom');
+
+  return parsedURL.toString();
+}
