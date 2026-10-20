@@ -11,6 +11,7 @@ import { serveFromCache } from './serveFromCache';
 import { InferrableMixin } from '../../../mixins/inferrable';
 import { internalServer } from './internalServer';
 import { isAccessDenied } from '../../../utils/is-access-denied';
+import { filterZoom } from '../../../utils/user-scope';
 import { uniqueId } from 'lodash-es';
 
 /**
@@ -366,6 +367,10 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
 
   /** Sends API request. Throws an error on non-2XX response. */
   protected async _fetch<TResult = TData>(...args: Parameters<Window['fetch']>): Promise<TResult> {
+    // Configurable elements know the user's scope. One unreadable zoom denies the whole request.
+    const scope = (this as { currentUserScope?: string | null }).currentUserScope;
+    if (typeof args[0] === 'string') args[0] = filterZoom(args[0], scope);
+
     const response = await new API(this).fetch(...args);
 
     if (!response.ok) {
