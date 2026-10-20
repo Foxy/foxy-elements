@@ -1451,6 +1451,21 @@ describe('Transaction', () => {
       expect(element.hiddenSelector.matches('actions:refund', true)).to.be.false;
     });
 
+    it('zooms shipment item categories only when the scope can read them', async () => {
+      const zoomFor = async (scope: string) => {
+        const element = await createElement(scope);
+        await whenAllLoaded(element);
+        const control = element.renderRoot.querySelector('[infer="shipments"]')!;
+        return new URL(control.getAttribute('first')!).searchParams.get('zoom');
+      };
+
+      expect(await zoomFor('transactions_read')).to.equal('items');
+      expect(await zoomFor('transactions_read item_categories_read')).to.equal(
+        'items:item_category'
+      );
+      expect(await zoomFor('')).to.equal('items:item_category');
+    });
+
     it('does not lock the customer block when only the transaction is read-only', async () => {
       const scope = 'transactions_read customers_write';
       const element = await createElement(scope);
