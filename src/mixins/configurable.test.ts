@@ -127,5 +127,30 @@ describe('ConfigurableMixin', () => {
       await new Promise(resolve => setTimeout(resolve));
       expect(child.currentUserScope).to.equal('customers_read');
     });
+
+    it('reads the scope from a plain ancestor when it has no infer attribute', async () => {
+      const root = await fixture(html`
+        <div .currentUserScope=${'customers_read'}><x-configurable-test></x-configurable-test></div>
+      `);
+
+      const el = root.firstElementChild as TestElement;
+      await el.updateComplete;
+
+      expect(el.currentUserScope).to.equal('customers_read');
+      expect(el.readonlySelector.toString()).to.equal(new BooleanSelector('customer').toString());
+    });
+
+    it('keeps an explicit scope when it has no infer attribute', async () => {
+      const root = await fixture(html`
+        <div .currentUserScope=${'customers_read'}>
+          <x-configurable-test current-user-scope="transactions_read"></x-configurable-test>
+        </div>
+      `);
+
+      const el = root.firstElementChild as TestElement;
+      await el.updateComplete;
+
+      expect(el.currentUserScope).to.equal('transactions_read');
+    });
   });
 });
