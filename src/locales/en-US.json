@@ -18,6 +18,7 @@
   "payment_methods_legend": "Payment Methods",
   "payment_no_methods_available": "No payment methods are currently available.",
   "payment_no_methods_available_description": "Refresh checkout or choose a different payment flow before continuing.",
+  "payment_no_methods_visible": "No payment methods are available.",
   "payment_option_description_ach": "Enter your bank account details below.",
   "payment_option_description_new_card": "Enter your payment card details below.",
   "payment_option_description_purchase_order": "Enter your purchase order number below.",

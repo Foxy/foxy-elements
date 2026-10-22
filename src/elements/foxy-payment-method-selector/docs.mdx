@@ -21,6 +21,31 @@ The themed elements in this package support a shared set of theme attributes and
 
 If checkout state is initialized but exposes no recognized payment methods, the element renders an unavailable state instead of fabricating a fallback option. In that state, <code>tokenize()</code> rejects because no payment method is selected.
 
+## Hiding payment options
+
+<code>hiddenGateways</code> and <code>hiddenMethods</code> hide options from the list. An option is hidden when its gateway is in <code>hiddenGateways</code> <strong>or</strong> its type is in <code>hiddenMethods</code>. Values match exactly, with no case folding.
+
+- Gateways are the gateway <code>type</code> values in checkout state, such as <code>authorize</code>, <code>stripe_v2</code>, <code>paypal_platform</code>, <code>purchase_order</code>, <code>klarna</code>, <code>square_up</code>, <code>adyen_embedded</code> or <code>sezzle</code>.
+- Methods are option types, such as <code>new-card</code>, <code>saved-card</code>, <code>ach</code>, <code>apple-pay</code>, <code>google-pay</code>, <code>paypal</code>, <code>venmo</code>, <code>klarna</code>, <code>stripe-payment-element</code>, <code>adyen-embedded</code> or <code>purchase-order</code>.
+- Saved cards follow both lists. A saved card on a hidden gateway is hidden, and <code>saved-card</code> hides every saved card.
+- The Adyen Drop-in can only be hidden as a whole, with <code>adyen-embedded</code>.
+
+```js
+selector.hiddenMethods = ["apple-pay"]; // keeps the card fields, hides Apple Pay
+```
+
+In HTML, use the space-separated attributes instead:
+
+```html
+<foxy-payment-method-selector
+  hidden-methods="apple-pay google-pay"
+></foxy-payment-method-selector>
+```
+
+A property set before the element's script loads still applies when the element upgrades.
+
+<code>optionIndex</code> counts visible options only. When the selected option becomes hidden, the selection moves to the first visible option and <code>optionindexchange</code> fires. When every option is hidden, the element shows "No payment methods are available." and <code>tokenize()</code> rejects. Hiding is display only: it does not stop a gateway from being used server side.
+
 ## Scenarios
 
 Every scenario is a story in this sidebar entry. Each one hydrates its own checkout state, so they run against fixtures rather than a live session — no gateway credentials, no sandbox setup, and no network.
@@ -43,6 +68,7 @@ Behavioural scenarios:
 - <strong>Uninitialized</strong> — the empty client state, where <code>tokenize()</code> rejects.
 - <strong>Option Selection</strong> — verifies <code>optionIndex</code> reflection and the <code>optionindexchange</code> event.
 - <strong>Tokenize From Button</strong> — drives <code>tokenize()</code> from a button the way an integration would.
+- <strong>Hidden Options</strong> — <code>hiddenGateways</code> and <code>hiddenMethods</code> as controls, on a card gateway with wallets, a saved card and a purchase order.
 
 The Stripe stories read <code>VITE_STRIPE_PUBLISHABLE_KEY</code> first and fall back to <code>VITE_STRIPE_DEMO_PUBLISHABLE_KEY</code>, then to a fixture key, so setting either variable points them at your own Stripe account. The remaining gateways stub the SDK handle the element reads off <code>@foxy.io/sdk/checkout/client</code>, which is what lets Klarna, Adyen, PayPal and Square render offline. Their fixtures are deliberately fixed: in production these lists vary by market and by account, so treat the stories as a view of the element's rendering, not as a source of truth for what a given merchant is eligible for.
 
@@ -101,6 +127,30 @@ The card, Stripe and saved-card scenarios seed a single entry through <code>save
       </td>
       <td>
         <code>createsAccount</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>hidden-gateways</code>
+      </td>
+      <td>
+        Space-separated gateways whose options are not shown. Sets{" "}
+        <code>hiddenGateways</code>. See Hiding payment options.
+      </td>
+      <td>
+        <code>klarna sezzle</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>hidden-methods</code>
+      </td>
+      <td>
+        Space-separated option types that are not shown. Sets{" "}
+        <code>hiddenMethods</code>. See Hiding payment options.
+      </td>
+      <td>
+        <code>apple-pay google-pay</code>
       </td>
     </tr>
     <tr>
@@ -316,6 +366,30 @@ remain the inherited <code>HTMLElement</code> property.
       <td>
         Whether the submit will create a customer account; reflects to the{" "}
         <code>creates-account</code> attribute.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>hiddenGateways</code>
+      </td>
+      <td>
+        <code>string[]</code>
+      </td>
+      <td>
+        Gateways whose options are not shown. Defaults to <code>[]</code>. Set
+        by the <code>hidden-gateways</code> attribute; does not reflect back.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>hiddenMethods</code>
+      </td>
+      <td>
+        <code>string[]</code>
+      </td>
+      <td>
+        Option types that are not shown. Defaults to <code>[]</code>. Set by the{" "}
+        <code>hidden-methods</code> attribute; does not reflect back.
       </td>
     </tr>
     <tr>

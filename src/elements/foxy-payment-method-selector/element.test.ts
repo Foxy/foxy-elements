@@ -2881,6 +2881,352 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
+  describe("hidden payment options", () => {
+    type GlobalWithApplePay = typeof globalThis & {
+      ApplePaySession?: { canMakePayments?: () => boolean };
+    };
+
+    let previousApplePaySession: GlobalWithApplePay["ApplePaySession"];
+
+    beforeEach(() => {
+      const globalWithApplePay = globalThis as GlobalWithApplePay;
+      previousApplePaySession = globalWithApplePay.ApplePaySession;
+      globalWithApplePay.ApplePaySession = { canMakePayments: () => true };
+    });
+
+    afterEach(() => {
+      const globalWithApplePay = globalThis as GlobalWithApplePay;
+      if (previousApplePaySession) {
+        globalWithApplePay.ApplePaySession = previousApplePaySession;
+      } else {
+        delete globalWithApplePay.ApplePaySession;
+      }
+    });
+
+    const AUTHORIZE_WITH_WALLETS = {
+      type: "authorize",
+      apple_pay: { merchant_id: "apple-merchant-id" },
+      google_pay: { merchant_id: "google-merchant-id" },
+    };
+
+    const SAVED_AUTHORIZE_CARD = {
+      gateway: "authorize",
+      brand: "Visa",
+      last_4: "4242",
+      expiry_month: "12",
+      expiry_year: "2030",
+      id: "pm_saved_4242",
+      csc_required: false,
+    };
+
+    function createSelector(): PaymentMethodSelectorElement {
+      return document.createElement(
+        "foxy-payment-method-selector",
+      ) as PaymentMethodSelectorElement;
+    }
+
+    async function waitForMissingText(
+      getText: () => string | null | undefined,
+      unexpected: string,
+    ): Promise<void> {
+      for (let attempt = 0; attempt < 10; attempt += 1) {
+        if (!getText()?.includes(unexpected)) return;
+        await waitForRender();
+      }
+
+      throw new Error(`Timed out waiting for text to go away: ${unexpected}`);
+    }
+
+    it("hides every option of a hidden gateway, including its wallets and saved cards", async () => {
+      const restoreClient = overrideClientState({
+        saved_payment_methods: [SAVED_AUTHORIZE_CARD],
+        payment_gateways: [AUTHORIZE_WITH_WALLETS, { type: "purchase_order" }],
+      });
+      const element = createSelector();
+      element.hiddenGateways = ["authorize"];
+
+      try {
+        document.body.append(element);
+        await waitForText(
+          () => element.shadowRoot?.textContent,
+          "Purchase Order",
+        );
+
+        const text = element.shadowRoot?.textContent ?? "";
+        expect(text).not.toContain("4242");
+        expect(text).not.toContain("Apple Pay");
+        expect(text).not.toContain("Google Pay");
+        expect(text).not.toContain("New Card");
+        expect(element.selectedOption?.type).toBe("purchase-order");
+      } finally {
+        element.remove();
+        restoreClient();
+      }
+    });
+
+    it("hides the purchase order option by its gateway", async () => {
+      const restoreClient = overrideClientState({
+        payment_gateways: [{ type: "purchase_order" }, { type: "authorize" }],
+      });
+      const element = createSelector();
+      element.hiddenGateways = ["purchase_order"];
+
+      try {
+        document.body.append(element);
+        await waitForText(() => element.shadowRoot?.textContent, "New Card");
+
+        expect(element.shadowRoot?.textContent).not.toContain("Purchase Order");
+        expect(element.selectedOption?.type).toBe("new-card");
+      } finally {
+        element.remove();
+        restoreClient();
+      }
+    });
+
+    it("gives a purchase-order alias entry the purchase_order gateway", async () => {
+      const restoreClient = overrideClientState({
+        payment_gateways: [{ type: "purchase-order" }],
+      });
+      const element = createSelector();
+
+      try {
+        document.body.append(element);
+        await waitForText(
+          () => element.shadowRoot?.textContent,
+          "Purchase Order",
+        );
+
+        expect(element.selectedOption?.type).toBe("purchase-order");
+        expect(element.selectedOption?.gateway).toBe("purchase_order");
+      } finally {
+        element.remove();
+        restoreClient();
+      }
+    });
+
+    it("keeps properties set before the element upgrades", async () => {
+      const restoreClient = overrideClientState({
+        payment_gateways: [{ type: "purchase_order" }, { type: "authorize" }],
+      });
+      // A new tag name stands in for a page that sets properties before the
+      // module that defines the element runs.
+      const tagName = "foxy-payment-method-selector-late-upgrade";
+      const element = document.createElement(tagName) as HTMLElement & {
+        hiddenMethods: string[];
+        hiddenGateways: string[];
+      };
+      element.hiddenMethods = ["purchase-order"];
+      element.hiddenGateways = ["stripe_v2"];
+
+      try {
+        document.body.append(element);
+        customElements.define(
+          tagName,
+          class extends PaymentMethodSelectorElement {},
+        );
+        const upgraded = element as unknown as PaymentMethodSelectorElement;
+        await waitForText(() => upgraded.shadowRoot?.textContent, "New Card");
+
+        expect(
+          Object.prototype.hasOwnProperty.call(upgraded, "hiddenMethods"),
+        ).toBe(false);
+        expect(upgraded.hiddenMethods).toEqual(["purchase-order"]);
+        expect(upgraded.hiddenGateways).toEqual(["stripe_v2"]);
+        expect(upgraded.shadowRoot?.textContent).not.toContain(
+          "Purchase Order",
+        );
+      } finally {
+        element.remove();
+        restoreClient();
+      }
+    });
+
+    it("hides every saved card by the saved-card method", async () => {
+      const restoreClient = overrideClientState({
+        saved_payment_methods: [
+          SAVED_AUTHORIZE_CARD,
+          { ...SAVED_AUTHORIZE_CARD, id: "pm_saved_1111", last_4: "1111" },
+        ],
+        payment_gateways: [{ type: "authorize" }],
+      });
+      const element = createSelector();
+
+      try {
+        document.body.append(element);
+        await waitForText(() => element.shadowRoot?.textContent, "1111");
+        expect(element.shadowRoot?.textContent).toContain("4242");
+
+        element.hiddenMethods = ["saved-card"];
+        await waitForMissingText(
+          () => element.shadowRoot?.textContent,
+          "4242",
+        );
+
+        const text = element.shadowRoot?.textContent ?? "";
+        expect(text).not.toContain("1111");
+        expect(text).toContain("New Card");
+      } finally {
+        element.remove();
+        restoreClient();
+      }
+    });
+
+    it("hides one method type and keeps the rest of the gateway", async () => {
+      const restoreClient = overrideClientState({
+        payment_gateways: [AUTHORIZE_WITH_WALLETS],
+      });
+      const element = createSelector();
+      element.hiddenMethods = ["apple-pay"];
+
+      try {
+        document.body.append(element);
+        await waitForText(() => element.shadowRoot?.textContent, "New Card");
+
+        const text = element.shadowRoot?.textContent ?? "";
+        expect(text).toContain("Google Pay");
+        expect(text).not.toContain("Apple Pay");
+      } finally {
+        element.remove();
+        restoreClient();
+      }
+    });
+
+    it("sets the lists from space-separated attributes", () => {
+      const element = createSelector();
+
+      expect(element.hiddenGateways).toEqual([]);
+      expect(element.hiddenMethods).toEqual([]);
+
+      element.setAttribute("hidden-gateways", "klarna");
+      element.setAttribute("hidden-methods", " apple-pay  google-pay ");
+
+      expect(element.hiddenGateways).toEqual(["klarna"]);
+      expect(element.hiddenMethods).toEqual(["apple-pay", "google-pay"]);
+
+      // The getters hand out copies, so mutating one changes nothing.
+      element.hiddenGateways.push("authorize");
+      expect(element.hiddenGateways).toEqual(["klarna"]);
+
+      element.removeAttribute("hidden-gateways");
+      element.removeAttribute("hidden-methods");
+
+      expect(element.hiddenGateways).toEqual([]);
+      expect(element.hiddenMethods).toEqual([]);
+    });
+
+    it("moves the selection to the first visible option when the selected one is hidden", async () => {
+      const restoreClient = overrideClientState({
+        payment_gateways: [{ type: "purchase_order" }, { type: "authorize" }],
+      });
+      const element = createSelector();
+      const onOptionIndexChange = vi.fn();
+
+      try {
+        document.body.append(element);
+        await waitForText(() => element.shadowRoot?.textContent, "New Card");
+
+        element.optionIndex = 0;
+        expect(element.selectedOption?.type).toBe("purchase-order");
+
+        element.addEventListener("optionindexchange", onOptionIndexChange);
+        element.hiddenMethods = ["purchase-order"];
+
+        // The next option lands on the same index, so only the reconcile —
+        // not an index change — can announce it.
+        expect(element.optionIndex).toBe(0);
+        expect(element.selectedOption?.type).toBe("new-card");
+        expect(onOptionIndexChange).toHaveBeenCalledTimes(1);
+        expect(onOptionIndexChange.mock.calls[0]?.[0]?.detail).toEqual({
+          optionIndex: 0,
+        });
+
+        await waitForMissingText(
+          () => element.shadowRoot?.textContent,
+          "Purchase Order",
+        );
+      } finally {
+        element.remove();
+        restoreClient();
+      }
+    });
+
+    it("keeps the selected option when an earlier one is hidden", async () => {
+      const restoreClient = overrideClientState({
+        payment_gateways: [{ type: "purchase_order" }, { type: "authorize" }],
+      });
+      const element = createSelector();
+
+      try {
+        document.body.append(element);
+        await waitForText(() => element.shadowRoot?.textContent, "New Card");
+
+        element.optionIndex = 1;
+        element.hiddenMethods = ["purchase-order"];
+
+        expect(element.optionIndex).toBe(0);
+        expect(element.selectedOption?.type).toBe("new-card");
+      } finally {
+        element.remove();
+        restoreClient();
+      }
+    });
+
+    it("shows an empty message and rejects tokenization when every option is hidden", async () => {
+      const restoreClient = overrideClientState({
+        payment_gateways: [AUTHORIZE_WITH_WALLETS],
+      });
+      const element = createSelector();
+      element.hiddenGateways = ["authorize"];
+
+      try {
+        document.body.append(element);
+        await waitForRender();
+
+        await waitForText(
+          () =>
+            element.shadowRoot?.querySelector('[role="status"]')?.textContent,
+          "No payment methods are available.",
+        );
+        expect(element.shadowRoot?.textContent).not.toContain(
+          "Refresh checkout",
+        );
+        await expect(element.tokenize()).rejects.toThrow(
+          "No payment method is selected.",
+        );
+      } finally {
+        element.remove();
+        restoreClient();
+      }
+    });
+
+    it("re-renders when the lists change at runtime", async () => {
+      const restoreClient = overrideClientState({
+        payment_gateways: [AUTHORIZE_WITH_WALLETS],
+      });
+      const element = createSelector();
+
+      try {
+        document.body.append(element);
+        await waitForText(() => element.shadowRoot?.textContent, "Apple Pay");
+
+        element.hiddenMethods = ["apple-pay", "google-pay"];
+        await waitForMissingText(
+          () => element.shadowRoot?.textContent,
+          "Apple Pay",
+        );
+        expect(element.shadowRoot?.textContent).not.toContain("Google Pay");
+        expect(element.shadowRoot?.textContent).toContain("New Card");
+
+        element.hiddenMethods = [];
+        await waitForText(() => element.shadowRoot?.textContent, "Apple Pay");
+        expect(element.shadowRoot?.textContent).toContain("Google Pay");
+      } finally {
+        element.remove();
+        restoreClient();
+      }
+    });
+  });
+
   describe("stripe_v2 confirm_intent flow", () => {
     // The Payment Element itself needs a real publishable key to mount, so
     // these drive the element through its controller seam instead: the same

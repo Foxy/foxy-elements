@@ -95,6 +95,8 @@ const LANG_ATTRIBUTE = "lang";
 const OPTION_INDEX_ATTRIBUTE = "option-index";
 const DISABLED_ATTRIBUTE = "disabled";
 const CREATES_ACCOUNT_ATTRIBUTE = "creates-account";
+const HIDDEN_GATEWAYS_ATTRIBUTE = "hidden-gateways";
+const HIDDEN_METHODS_ATTRIBUTE = "hidden-methods";
 const DEFAULT_LOCALE = "en-US";
 const UNINITIALIZED_ALERT_GRACE_MS = 750;
 
@@ -113,6 +115,16 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   #optionIndex: number | undefined;
   #disabled = false;
   #createsAccount = false;
+  #hiddenGateways: string[] = [];
+  #hiddenMethods: string[] = [];
+  #visibleOptionsCache:
+    | {
+        options: PaymentMethodSelectorOption[];
+        hiddenGateways: string[];
+        hiddenMethods: string[];
+        visible: PaymentMethodSelectorOption[];
+      }
+    | undefined;
   #loading = false;
   #canRenderUninitializedAlert = false;
   #uninitializedAlertTimer: ReturnType<typeof setTimeout> | undefined;
@@ -146,6 +158,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       OPTION_INDEX_ATTRIBUTE,
       DISABLED_ATTRIBUTE,
       CREATES_ACCOUNT_ATTRIBUTE,
+      HIDDEN_GATEWAYS_ATTRIBUTE,
+      HIDDEN_METHODS_ATTRIBUTE,
       ...ThemeableHTMLElement.themeAttributeNames,
     ];
   }
@@ -235,6 +249,44 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     void this.#refreshOptions();
+  }
+
+  /**
+   * Gateways whose options are not shown, matched exactly against each
+   * option's gateway (e.g. `authorize`, `stripe_v2`). Saved cards on a hidden
+   * gateway are hidden too. Display only: nothing is enforced server side.
+   * Returns a copy; assign a new list for a change to take effect.
+   */
+  get hiddenGateways(): string[] {
+    return [...this.#hiddenGateways];
+  }
+
+  set hiddenGateways(value: string[]) {
+    const normalized = this.#normalizeHiddenList(value);
+    if (this.#isSameList(this.#hiddenGateways, normalized)) return;
+
+    this.#updateHiddenOptions(() => {
+      this.#hiddenGateways = normalized;
+    });
+  }
+
+  /**
+   * Option types that are not shown, matched exactly (e.g. `apple-pay`,
+   * `saved-card`). An option is hidden when its gateway is in `hiddenGateways`
+   * or its type is in this list. Returns a copy; assign a new list for a
+   * change to take effect.
+   */
+  get hiddenMethods(): string[] {
+    return [...this.#hiddenMethods];
+  }
+
+  set hiddenMethods(value: string[]) {
+    const normalized = this.#normalizeHiddenList(value);
+    if (this.#isSameList(this.#hiddenMethods, normalized)) return;
+
+    this.#updateHiddenOptions(() => {
+      this.#hiddenMethods = normalized;
+    });
   }
 
   setPaymentController(
@@ -773,6 +825,22 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   // ---------------------------------------------------------------------------
 
   connectedCallback() {
+    // A property set before the element upgraded is an own data property that
+    // shadows the setter. Move it through the setter.
+    for (const property of [
+      "optionIndex",
+      "disabled",
+      "createsAccount",
+      "hiddenGateways",
+      "hiddenMethods",
+    ] as const) {
+      if (Object.prototype.hasOwnProperty.call(this, property)) {
+        const value = this[property];
+        delete (this as Partial<this>)[property];
+        (this as Record<typeof property, unknown>)[property] = value;
+      }
+    }
+
     if (!this.#root) {
       this.#root = createRoot(this.#container);
     }
@@ -840,6 +908,16 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
       return;
     }
 
+    if (name === HIDDEN_GATEWAYS_ATTRIBUTE) {
+      this.hiddenGateways = this.#parseHiddenListAttribute(newValue);
+      return;
+    }
+
+    if (name === HIDDEN_METHODS_ATTRIBUTE) {
+      this.hiddenMethods = this.#parseHiddenListAttribute(newValue);
+      return;
+    }
+
     if (
       ThemeableHTMLElement.themeAttributeNames.includes(
         name as ThemeAttributeName,
@@ -892,7 +970,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
     const options = this.#resolveOptions();
 
-    if (this.#optionsLoading && options.length === 0) {
+    // The raw list: when options exist but are all hidden, render the view
+    // (which owns the hidden-options message) instead of the loading alert.
+    if (this.#optionsLoading && this.#options.length === 0) {
       this.#renderLoadingState();
       this.#scheduleStripeLightDomSync(undefined);
       this.#scheduleAdyenLightDomSync(undefined);
@@ -922,6 +1002,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
               lang={locale}
               disabled={this.#loading || this.#disabled}
               loading={this.#optionsLoading}
+              allOptionsHidden={
+                this.#options.length > 0 && options.length === 0
+              }
               onSelectionChange={(optionId) => {
                 const previousSelectedOption = this.#resolveSelectedOption();
                 if (previousSelectedOption?.id === optionId) {
@@ -2003,7 +2086,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     if (gateway === "purchase_order" || gateway === "purchase-order") {
-      return [{ type: "purchase-order" }];
+      // Consumers post the gateway, so the alias maps to the real code.
+      return [{ type: "purchase-order", gateway: "purchase_order" }];
     }
 
     if (gateway === "paypal_platform") {
@@ -2733,8 +2817,115 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     return [];
   }
 
+  /**
+   * The options the shopper can see. Every reader — rendering, selection,
+   * tokenization and the light DOM embeds — goes through here, so the hidden
+   * lists apply to every source of options and indexes always point into this
+   * list. Cached so the array keeps its identity between renders.
+   */
   #resolveOptions(): PaymentMethodSelectorOption[] {
-    return this.#options;
+    const options = this.#options;
+    const hiddenGateways = this.#hiddenGateways;
+    const hiddenMethods = this.#hiddenMethods;
+
+    if (!hiddenGateways.length && !hiddenMethods.length) return options;
+
+    const cache = this.#visibleOptionsCache;
+    if (
+      cache?.options === options &&
+      cache.hiddenGateways === hiddenGateways &&
+      cache.hiddenMethods === hiddenMethods
+    ) {
+      return cache.visible;
+    }
+
+    const visible = options.filter(
+      (option) =>
+        !(option.gateway && hiddenGateways.includes(option.gateway)) &&
+        !(option.type && hiddenMethods.includes(option.type)),
+    );
+
+    this.#visibleOptionsCache = {
+      options,
+      hiddenGateways,
+      hiddenMethods,
+      visible,
+    };
+
+    return visible;
+  }
+
+  /**
+   * Applies a change to the hidden lists without losing the shopper's place.
+   * `optionIndex` is a position in the visible list, so the selected option is
+   * tracked by id: it keeps its new index when still visible, or the selection
+   * moves to the first enabled visible option when it is hidden.
+   */
+  #updateHiddenOptions(update: () => void) {
+    const previousOptions = this.#resolveOptions();
+    const previousIndex = this.#resolveSelectedOptionIndex(previousOptions);
+    const previousId =
+      previousIndex === undefined
+        ? undefined
+        : previousOptions[previousIndex]?.id;
+
+    update();
+
+    const options = this.#resolveOptions();
+    const keptIndex = options.findIndex((option) => option.id === previousId);
+    let nextIndex: number | undefined;
+
+    if (previousId === undefined) {
+      nextIndex = this.#optionIndex;
+    } else if (keptIndex >= 0) {
+      nextIndex = this.#optionIndex === undefined ? undefined : keptIndex;
+    } else {
+      const firstEnabled = options.findIndex((option) => !option.disabled);
+      nextIndex = firstEnabled >= 0 ? firstEnabled : undefined;
+    }
+
+    // The setter skips equal numbers, and a hidden option's replacement can
+    // land on the same index, so render and announce here regardless.
+    this.optionIndex = nextIndex;
+    this.#render();
+
+    const nextResolvedIndex = this.#resolveSelectedOptionIndex(options);
+    const nextId =
+      nextResolvedIndex === undefined
+        ? undefined
+        : options[nextResolvedIndex]?.id;
+
+    if (
+      nextResolvedIndex !== undefined &&
+      (nextId !== previousId || nextResolvedIndex !== previousIndex)
+    ) {
+      this.dispatchEvent(
+        new CustomEvent<PaymentMethodSelectorChangeEventDetail>(
+          paymentMethodSelectorEvents.optionIndexChange,
+          {
+            bubbles: true,
+            composed: true,
+            detail: { optionIndex: nextResolvedIndex },
+          },
+        ),
+      );
+    }
+  }
+
+  #normalizeHiddenList(value: unknown): string[] {
+    return Array.isArray(value)
+      ? value.filter((entry): entry is string => typeof entry === "string")
+      : [];
+  }
+
+  #isSameList(a: string[], b: string[]): boolean {
+    return (
+      a.length === b.length && a.every((entry, index) => entry === b[index])
+    );
+  }
+
+  #parseHiddenListAttribute(value: string | null): string[] {
+    return value === null ? [] : value.split(/\s+/).filter(Boolean);
   }
 
   #isStripeOption(option: PaymentMethodSelectorOption | undefined): boolean {

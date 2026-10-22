@@ -239,6 +239,10 @@ export const messages = defineMessages({
     defaultMessage:
       "Refresh checkout or choose a different payment flow before continuing.",
   },
+  noPaymentMethodsVisible: {
+    id: "payment_no_methods_visible",
+    defaultMessage: "No payment methods are available.",
+  },
 });
 
 export const OPTION_LABEL_BY_TYPE: Partial<Record<string, MessageDescriptor>> =

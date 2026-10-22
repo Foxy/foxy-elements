@@ -74,6 +74,10 @@ type PaymentMethodSelectorElementProps = Omit<
   disabled?: boolean;
   createsAccount?: boolean;
   "creates-account"?: boolean;
+  hiddenGateways?: string[];
+  "hidden-gateways"?: string;
+  hiddenMethods?: string[];
+  "hidden-methods"?: string;
 } & SharedThemeProps;
 
 type CustomerPortalElementProps = Omit<
