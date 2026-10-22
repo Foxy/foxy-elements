@@ -142,6 +142,18 @@ export const messages = defineMessages({
     id: "portal_profile_heading",
     defaultMessage: "Edit Profile",
   },
+  profileCurrentPassword: {
+    id: "portal_profile_current_password",
+    defaultMessage: "Current Password",
+  },
+  profileCurrentPasswordHint: {
+    id: "portal_profile_current_password_hint",
+    defaultMessage: "Enter your current password to change your email.",
+  },
+  profileCurrentPasswordWrong: {
+    id: "portal_profile_current_password_wrong",
+    defaultMessage: "That is not your current password.",
+  },
   profileFirstName: {
     id: "portal_profile_first_name",
     defaultMessage: "First Name",

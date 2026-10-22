@@ -306,4 +306,99 @@ describe("ProfilePage", () => {
 
     expect(document.body.textContent).not.toMatch(/50/);
   });
+
+  describe("current password", () => {
+    const pw = () =>
+      document.querySelector<HTMLInputElement>(
+        'input[autocomplete="current-password"]',
+      );
+    const emailInput = () =>
+      document.querySelector<HTMLInputElement>('input[autocomplete="email"]')!;
+    const submit = async () => {
+      act(() => {
+        document
+          .querySelector("form")!
+          .dispatchEvent(
+            new Event("submit", { bubbles: true, cancelable: true }),
+          );
+      });
+      await flush();
+    };
+
+    it("is absent and unsent while the email is unchanged", async () => {
+      const { patch } = renderPage();
+      expect(pw()).toBeNull();
+
+      await submit();
+
+      expect(patch.mock.calls[0][0]).not.toHaveProperty("password_old");
+    });
+
+    it("appears when the email changes, and a case-only edit does not count", async () => {
+      renderPage();
+
+      act(() => setInputValue(emailInput(), " ADA@example.com "));
+      expect(pw()).toBeNull();
+
+      act(() => setInputValue(emailInput(), "ada@new.example"));
+      expect(pw()).not.toBeNull();
+    });
+
+    it("blocks an empty submit and sends password_old once filled", async () => {
+      const { patch, onBack } = renderPage();
+      act(() => setInputValue(emailInput(), "ada@new.example"));
+
+      await submit();
+      expect(patch).not.toHaveBeenCalled();
+      expect(document.body.textContent).toMatch(/required/i);
+
+      act(() => setInputValue(pw()!, "secret"));
+      await submit();
+
+      expect(patch).toHaveBeenCalledWith({
+        first_name: "Ada",
+        last_name: "Lovelace",
+        email: "ada@new.example",
+        tax_id: "",
+        password_old: "secret",
+      });
+      expect(onBack).toHaveBeenCalled();
+    });
+
+    it("shows a field-level error on 403 and does not navigate or sign out", async () => {
+      const patch = vi.fn(async () => ({ ok: false, status: 403 }));
+      const { onBack, onUnauthenticated } = renderPage({ patch });
+      act(() => setInputValue(emailInput(), "ada@new.example"));
+      act(() => setInputValue(pw()!, "wrong"));
+
+      await submit();
+
+      expect(onBack).not.toHaveBeenCalled();
+      expect(onUnauthenticated).not.toHaveBeenCalled();
+      expect(document.body.textContent).toMatch(/not your current password/i);
+      expect(document.body.textContent).not.toMatch(/something went wrong/i);
+    });
+
+    it("signs out on 401 even while the field is shown", async () => {
+      const patch = vi.fn(async () => ({ ok: false, status: 401 }));
+      const { onUnauthenticated } = renderPage({ patch });
+      act(() => setInputValue(emailInput(), "ada@new.example"));
+      act(() => setInputValue(pw()!, "correct-horse"));
+
+      await submit();
+
+      expect(onUnauthenticated).toHaveBeenCalledOnce();
+      expect(document.body.textContent).not.toMatch(/not your current password/i);
+    });
+
+    it("hides again when the email goes back to the original", () => {
+      renderPage();
+
+      act(() => setInputValue(emailInput(), "ada@new.example"));
+      expect(pw()).not.toBeNull();
+
+      act(() => setInputValue(emailInput(), "ada@example.com"));
+      expect(pw()).toBeNull();
+    });
+  });
 });

@@ -1,4 +1,4 @@
-187 keys
+190 keys
 
 portal_account_load_failed
 portal_address_city
@@ -101,6 +101,9 @@ portal_payment_status_voided
 portal_payments_empty
 portal_payments_receipt
 portal_profile_change_password
+portal_profile_current_password
+portal_profile_current_password_hint
+portal_profile_current_password_wrong
 portal_profile_first_name
 portal_profile_heading
 portal_profile_last_name
