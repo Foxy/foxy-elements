@@ -240,6 +240,8 @@ type PaymentProps = {
   lang?: string;
   disabled?: boolean;
   loading?: boolean;
+  /** Options exist, but the host hides every one of them. */
+  allOptionsHidden?: boolean;
   onSelectionChange?: (
     optionId: string,
     optionType: string | undefined,
@@ -667,6 +669,7 @@ export function Payment({
   lang,
   disabled,
   loading,
+  allOptionsHidden,
   onSelectionChange,
   onControllerReady,
   onKlarnaAvailabilityChange,
@@ -926,6 +929,16 @@ export function Payment({
           </MutedFootnote>
         </LoadingOptionsWrapper>
       </>
+    );
+  }
+
+  if (!visibleOptions.length && allOptionsHidden) {
+    return (
+      <EmptyStateBanner role="status" aria-live="polite">
+        <EmptyStateTitle>
+          {intl.formatMessage(messages.noPaymentMethodsVisible)}
+        </EmptyStateTitle>
+      </EmptyStateBanner>
     );
   }
 

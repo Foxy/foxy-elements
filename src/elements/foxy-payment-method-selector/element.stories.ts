@@ -38,6 +38,10 @@ type SelectorStoryArgs = {
   lang: string;
   optionIndex: number;
   country: StoryCountry;
+  /** Space-separated, as the `hidden-gateways` attribute takes them. */
+  hiddenGateways?: string;
+  /** Space-separated, as the `hidden-methods` attribute takes them. */
+  hiddenMethods?: string;
 };
 
 const meta = {
@@ -341,6 +345,64 @@ export const OptionSelection: Story = {
     });
 
     expect(changedTo).toBe(1);
+  },
+};
+
+export const HiddenOptions: Story = {
+  parameters: {
+    controls: { include: ["hiddenGateways", "hiddenMethods"] },
+    docs: {
+      description: {
+        story:
+          "A card gateway with Google Pay, a saved card and a purchase order. The two controls set the hidden-gateways and hidden-methods attributes; an option is hidden when either list matches it. Try authorize in hidden gateways to hide the card options and the saved card at once.",
+      },
+    },
+  },
+  argTypes: {
+    hiddenGateways: { control: "text" },
+    hiddenMethods: { control: "text" },
+  },
+  args: { hiddenGateways: "", hiddenMethods: "google-pay" },
+  beforeEach: () =>
+    applyStoryApiState(
+      createApiState({
+        gateways: [
+          {
+            ...AUTHORIZE_GATEWAY,
+            google_pay: { merchant_id: "google-merchant-id" },
+          },
+          PURCHASE_ORDER_GATEWAY,
+        ],
+        savedPaymentMethods: [AUTHORIZE_SAVED_CARD],
+      }),
+    ),
+  render: ({ lang, hiddenGateways, hiddenMethods }) => {
+    const surface = renderScenario({
+      id: "selector-hidden-options",
+      lang,
+      note: "Space-separated lists, e.g. apple-pay google-pay.",
+    });
+    const selector = surface.querySelector("foxy-payment-method-selector");
+
+    if (hiddenGateways) {
+      selector?.setAttribute("hidden-gateways", hiddenGateways);
+    }
+
+    if (hiddenMethods) {
+      selector?.setAttribute("hidden-methods", hiddenMethods);
+    }
+
+    return surface;
+  },
+  play: async ({ canvasElement }) => {
+    const selector = getPrimarySelector(canvasElement);
+
+    await waitForOptionCount(selector, 3);
+    await waitForSelectorText(selector, "Purchase Order");
+
+    expect(selector.hiddenMethods).toEqual(["google-pay"]);
+    expect(readSelectorText(selector)).toContain("New Card");
+    expect(readSelectorText(selector)).not.toContain("Google Pay");
   },
 };
 
