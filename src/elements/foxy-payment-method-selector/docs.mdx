@@ -34,6 +34,16 @@ If checkout state is initialized but exposes no recognized payment methods, the 
 selector.hiddenMethods = ["apple-pay"]; // keeps the card fields, hides Apple Pay
 ```
 
+In HTML, use the space-separated attributes instead:
+
+```html
+<foxy-payment-method-selector
+  hidden-methods="apple-pay google-pay"
+></foxy-payment-method-selector>
+```
+
+A property set before the element's script loads still applies when the element upgrades.
+
 <code>optionIndex</code> counts visible options only. When the selected option becomes hidden, the selection moves to the first visible option and <code>optionindexchange</code> fires. When every option is hidden, the element shows "No payment methods are available." and <code>tokenize()</code> rejects. Hiding is display only: it does not stop a gateway from being used server side.
 
 ## Scenarios

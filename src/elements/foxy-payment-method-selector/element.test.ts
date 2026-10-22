@@ -2983,6 +2983,64 @@ describe("PaymentMethodSelectorElement", () => {
       }
     });
 
+    it("gives a purchase-order alias entry the purchase_order gateway", async () => {
+      const restoreClient = overrideClientState({
+        payment_gateways: [{ type: "purchase-order" }],
+      });
+      const element = createSelector();
+
+      try {
+        document.body.append(element);
+        await waitForText(
+          () => element.shadowRoot?.textContent,
+          "Purchase Order",
+        );
+
+        expect(element.selectedOption?.type).toBe("purchase-order");
+        expect(element.selectedOption?.gateway).toBe("purchase_order");
+      } finally {
+        element.remove();
+        restoreClient();
+      }
+    });
+
+    it("keeps properties set before the element upgrades", async () => {
+      const restoreClient = overrideClientState({
+        payment_gateways: [{ type: "purchase_order" }, { type: "authorize" }],
+      });
+      // A new tag name stands in for a page that sets properties before the
+      // module that defines the element runs.
+      const tagName = "foxy-payment-method-selector-late-upgrade";
+      const element = document.createElement(tagName) as HTMLElement & {
+        hiddenMethods: string[];
+        hiddenGateways: string[];
+      };
+      element.hiddenMethods = ["purchase-order"];
+      element.hiddenGateways = ["stripe_v2"];
+
+      try {
+        document.body.append(element);
+        customElements.define(
+          tagName,
+          class extends PaymentMethodSelectorElement {},
+        );
+        const upgraded = element as unknown as PaymentMethodSelectorElement;
+        await waitForText(() => upgraded.shadowRoot?.textContent, "New Card");
+
+        expect(
+          Object.prototype.hasOwnProperty.call(upgraded, "hiddenMethods"),
+        ).toBe(false);
+        expect(upgraded.hiddenMethods).toEqual(["purchase-order"]);
+        expect(upgraded.hiddenGateways).toEqual(["stripe_v2"]);
+        expect(upgraded.shadowRoot?.textContent).not.toContain(
+          "Purchase Order",
+        );
+      } finally {
+        element.remove();
+        restoreClient();
+      }
+    });
+
     it("hides every saved card by the saved-card method", async () => {
       const restoreClient = overrideClientState({
         saved_payment_methods: [

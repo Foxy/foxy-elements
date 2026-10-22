@@ -825,6 +825,22 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   // ---------------------------------------------------------------------------
 
   connectedCallback() {
+    // A property set before the element upgraded is an own data property that
+    // shadows the setter. Move it through the setter.
+    for (const property of [
+      "optionIndex",
+      "disabled",
+      "createsAccount",
+      "hiddenGateways",
+      "hiddenMethods",
+    ] as const) {
+      if (Object.prototype.hasOwnProperty.call(this, property)) {
+        const value = this[property];
+        delete (this as Partial<this>)[property];
+        (this as Record<typeof property, unknown>)[property] = value;
+      }
+    }
+
     if (!this.#root) {
       this.#root = createRoot(this.#container);
     }
@@ -2070,7 +2086,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     if (gateway === "purchase_order" || gateway === "purchase-order") {
-      return [{ type: "purchase-order", gateway }];
+      // Consumers post the gateway, so the alias maps to the real code.
+      return [{ type: "purchase-order", gateway: "purchase_order" }];
     }
 
     if (gateway === "paypal_platform") {
