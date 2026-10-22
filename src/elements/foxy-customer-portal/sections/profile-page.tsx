@@ -26,13 +26,21 @@ export function ProfilePage({ customer, onBack }: Props) {
   const lastNameId = useId();
   const emailId = useId();
   const taxIdId = useId();
+  const currentPasswordId = useId();
 
   const [firstName, setFirstName] = useState(customer.first_name ?? "");
   const [lastName, setLastName] = useState(customer.last_name ?? "");
   const [email, setEmail] = useState(customer.email ?? "");
   const [taxId, setTaxId] = useState(customer.tax_id ?? "");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [isBusy, setIsBusy] = useState(false);
   const [hasFailed, setHasFailed] = useState(false);
+  const [isWrongPassword, setIsWrongPassword] = useState(false);
+
+  // The server asks for the current password only when the email changes,
+  // and compares the same way.
+  const isEmailChanged =
+    email.trim().toLowerCase() !== (customer.email ?? "").trim().toLowerCase();
 
   const rules = useMemo(
     () => ({
@@ -40,8 +48,11 @@ export function ProfilePage({ customer, onBack }: Props) {
       lastName: CUSTOMER_FIELD_LIMITS.lastName,
       email: CUSTOMER_FIELD_LIMITS.email,
       taxId: CUSTOMER_FIELD_LIMITS.taxId,
+      // Verifies an existing password, so no length cap -- same as the
+      // password page's `current`.
+      ...(isEmailChanged ? { currentPassword: { required: true } } : {}),
     }),
-    [],
+    [isEmailChanged],
   );
 
   const { errors, validateField, validateAll } = useFieldValidation(rules);
@@ -49,13 +60,14 @@ export function ProfilePage({ customer, onBack }: Props) {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
-    if (!validateAll({ firstName, lastName, email, taxId })) return;
+    if (!validateAll({ firstName, lastName, email, taxId, currentPassword })) return;
 
     setIsBusy(true);
     setHasFailed(false);
+    setIsWrongPassword(false);
 
     try {
-      // Password is deliberately absent — it has its own page.
+      // A new password is deliberately absent — it has its own page.
       // patchResource, not patch?.(), so an unwritable link fails instead of
       // navigating back as though the save succeeded.
       await patchResource(customer._links.self, {
@@ -63,16 +75,21 @@ export function ProfilePage({ customer, onBack }: Props) {
         last_name: lastName,
         email,
         tax_id: taxId,
+        ...(isEmailChanged ? { password_old: currentPassword } : {}),
       });
 
       cache.clear();
       onBack();
     } catch (caught) {
-      // This page sends no credentials, so a 401/403 can only mean the
-      // session died. The password page is the one place where 401 means
-      // "the value you typed was wrong" — it must not route.
+      // The server answers a wrong current password with 403 and a dead
+      // session with 401. Without the current-password field this page sends
+      // no credentials, so either status can only mean the session died.
       if (caught instanceof WriteError && caught.isUnauthorized) {
-        onUnauthenticated();
+        if (isEmailChanged && caught.status === 403) {
+          setIsWrongPassword(true);
+        } else {
+          onUnauthenticated();
+        }
         return;
       }
 
@@ -162,6 +179,43 @@ export function ProfilePage({ customer, onBack }: Props) {
             <Field.Error match>{errors.email}</Field.Error>
           ) : null}
         </Field.Root>
+
+        {isEmailChanged && (
+          <Field.Root>
+            <Field.Label htmlFor={currentPasswordId}>
+              {intl.formatMessage(messages.profileCurrentPassword)}
+            </Field.Label>
+            <Input
+              id={currentPasswordId}
+              type="password"
+              autoComplete="current-password"
+              required
+              value={currentPassword}
+              onChange={(event) => {
+                const value = event.target.value;
+                setCurrentPassword(value);
+                setIsWrongPassword(false);
+                if (errors.currentPassword) {
+                  validateField("currentPassword", value);
+                }
+              }}
+              onBlur={(event) =>
+                validateField("currentPassword", event.target.value)
+              }
+            />
+            <Field.Description>
+              {intl.formatMessage(messages.profileCurrentPasswordHint)}
+            </Field.Description>
+            {errors.currentPassword ? (
+              <Field.Error match>{errors.currentPassword}</Field.Error>
+            ) : null}
+            {isWrongPassword && (
+              <Field.Error match>
+                {intl.formatMessage(messages.profileCurrentPasswordWrong)}
+              </Field.Error>
+            )}
+          </Field.Root>
+        )}
 
         <Field.Root>
           <Field.Label htmlFor={taxIdId}>
