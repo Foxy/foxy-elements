@@ -139,6 +139,22 @@ describe('CustomerForm', () => {
     expect(form.errors).to.not.include('password-old:v8n_required');
   });
 
+  it('requires old password when changing email as customer', async () => {
+    const form = new CustomerForm();
+    form.settings = portalSettings;
+    form.data = await getTestData('./hapi/customers/0');
+    const email = form.data!.email;
+
+    form.edit({ email: ` ${email.toUpperCase()} ` });
+    expect(form.errors).to.not.include('password-old:v8n_required');
+
+    form.edit({ email: 'jordan.reyes@example.org' });
+    expect(form.errors).to.include('password-old:v8n_required');
+
+    form.edit({ password_old: '456' });
+    expect(form.errors).to.not.include('password-old:v8n_required');
+  });
+
   it('prevents first name from exceeding 50 characters', () => {
     const form = new CustomerForm();
     expect(form.errors).to.not.include('first-name:v8n_too_long');
@@ -511,6 +527,20 @@ describe('CustomerForm', () => {
 
     form.edit({ password: '123' });
     expect(form.hiddenSelector.matches('password-old', true)).to.be.false;
+  });
+
+  it('shows old password field in customer mode when email changes', async () => {
+    const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
+    form.data = await getTestData('./hapi/customers/0');
+
+    form.edit({ email: 'jordan.reyes@example.org' });
+    expect(form.hiddenSelector.matches('password-old', true)).to.be.true;
+
+    form.settings = portalSettings;
+    expect(form.hiddenSelector.matches('password-old', true)).to.be.false;
+
+    form.edit({ email: form.data!.email });
+    expect(form.hiddenSelector.matches('password-old', true)).to.be.true;
   });
 
   it('hides legal notice in admin mode, when loaded or if tos checkbox usage is none in customer mode', async () => {
