@@ -1,3 +1,5 @@
+import type { ScopeRule } from '../../../utils/user-scope';
+import { filterZoom } from '../../../utils/user-scope';
 import { Attributes, CustomerAddresses, Data, Settings, Tab } from './types';
 import { CSSResultArray, TemplateResult, html, PropertyDeclarations } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
@@ -104,6 +106,7 @@ export class Customer extends Base<Data> {
         disabledcontrols=${disabledSelector.zoom(formId).toString()}
         hiddencontrols=${hiddenSelector.zoom(formId).toString()}
         alert
+        .currentUserScope=${this.currentUserScope}
         .templates=${this.getNestedTemplates('header:actions:edit:form')}
         .props=${{ '.settings': this.settings }}
       >
@@ -205,6 +208,7 @@ export class Customer extends Base<Data> {
           ns=${ns}
           id="address-dialog"
           alert
+          .currentUserScope=${this.currentUserScope}
           .templates=${this.getNestedTemplates('addresses:actions:create:form')}
         >
         </foxy-form-dialog>
@@ -265,6 +269,7 @@ export class Customer extends Base<Data> {
           href=${ctx.href}
           ns="${ctx.ns} ${customElements.get('foxy-address-card')?.defaultNS ?? ''}"
           .templates=${ctx.templates}
+          .currentUserScope=${this.currentUserScope}
         >
         </foxy-address-card>
       </button>
@@ -307,6 +312,7 @@ export class Customer extends Base<Data> {
         ns=${this.ns}
         id="addresses-list-form"
         alert
+        .currentUserScope=${this.currentUserScope}
         .templates=${this.getNestedTemplates(formId)}
       >
       </foxy-form-dialog>
@@ -368,6 +374,7 @@ export class Customer extends Base<Data> {
           hiddencontrols=${this.hiddenSelector.zoom(cardId)}
           data-testid=${cardId}
           embed-url=${ifDefined(this.embedUrl ?? void 0)}
+          .currentUserScope=${this.currentUserScope}
           group=${this.group}
           class="w-payment-method-card border-radius-overflow-fix rounded-t-l rounded-b-l overflow-hidden"
           href=${ifDefined(this.data?._links['fx:default_payment_method'].href)}
@@ -448,6 +455,7 @@ export class Customer extends Base<Data> {
           lang=${lang}
           ns=${ns}
           alert
+          .currentUserScope=${this.currentUserScope}
           .templates=${this.getNestedTemplates('attributes:actions:create:form')}
         >
         </foxy-form-dialog>
@@ -548,6 +556,7 @@ export class Customer extends Base<Data> {
         ns=${this.ns}
         id="attributes-list-form"
         alert
+        .currentUserScope=${this.currentUserScope}
         .templates=${this.getNestedTemplates(formId)}
       >
       </foxy-form-dialog>
@@ -646,7 +655,7 @@ export class Customer extends Base<Data> {
             const button = evt.target as ButtonElement;
 
             link.searchParams.set('zoom', 'transaction_template:items');
-            form.href = link.toString();
+            form.href = filterZoom(link.toString(), this.currentUserScope);
             form.show(button);
           }}
         >
@@ -678,7 +687,8 @@ export class Customer extends Base<Data> {
     if (this.in({ idle: 'snapshot' })) {
       const subscriptionsURL = new URL(this.data._links['fx:subscriptions'].href);
       subscriptionsURL.searchParams.set('zoom', 'transaction_template:items');
-      subscriptionsLink = subscriptionsURL.toString();
+      // Set the scope's zoom here: the nested list may send its first request before it gets the scope.
+      subscriptionsLink = filterZoom(subscriptionsURL.toString(), this.currentUserScope);
     }
 
     return html`
@@ -697,6 +707,7 @@ export class Customer extends Base<Data> {
           ns=${this.ns}
           id="subscriptions-form"
           alert
+          .currentUserScope=${this.currentUserScope}
           .templates=${this.getNestedTemplates(formId)}
           .props=${{ '.settings': this.settings }}
         >
@@ -751,6 +762,19 @@ export class Customer extends Base<Data> {
 
   // #endregion
 
+  // Not `scopeCollection`: a read-only customer would lock the nested subscription forms too.
+  get scopeRules(): ScopeRule[] {
+    return [
+      { path: 'header:actions:edit:form', collection: 'customers', readonlyIfNoWrite: true },
+      { path: 'addresses:actions:create', collection: 'customers', need: 'write' },
+      { path: 'addresses:list:form', collection: 'customers', readonlyIfNoWrite: true },
+      { path: 'attributes:actions:create', collection: 'customers', need: 'write' },
+      { path: 'attributes:list:form', collection: 'customers', readonlyIfNoWrite: true },
+      { path: 'transactions', collection: 'transactions' },
+      { path: 'subscriptions', collection: 'subscriptions' },
+    ];
+  }
+
   render(): TemplateResult {
     const { hiddenSelector, lang, ns } = this;
     const isLoaded = this.in({ idle: 'snapshot' });
@@ -792,6 +816,7 @@ export class Customer extends Base<Data> {
             layout="vertical"
             class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
             state=${this.in('fail') ? 'error' : isBusy ? 'busy' : 'empty'}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             lang=${lang}
             ns="${ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
           >

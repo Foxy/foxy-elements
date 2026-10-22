@@ -116,4 +116,26 @@ describe('StoreCard', () => {
     expect(subtitle?.querySelector('[aria-label="status_active"]')).to.not.exist;
     expect(subtitle?.querySelector('[aria-label="status_inactive"]')).to.exist;
   });
+
+  describe('current user scope', () => {
+    it('keeps selectors unchanged without a scope and with store_full_access', () => {
+      const element = new StoreCard();
+
+      [null, 'store_full_access', 'payment_settings_read'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with stores_read', () => {
+      const element = new StoreCard();
+      element.currentUserScope = 'stores_read payment_settings_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      element.currentUserScope = 'stores_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+    });
+  });
 });

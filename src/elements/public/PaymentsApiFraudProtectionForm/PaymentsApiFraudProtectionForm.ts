@@ -4,6 +4,7 @@ import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
 import type { Block, Data } from './types';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
@@ -83,6 +84,10 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
   getImageSrc: ((type: string) => string) | null = null;
 
   private readonly __availableFraudProtectionsLoaderId = 'availableFraudProtections';
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'payment_settings';
+  }
 
   get hiddenSelector(): BooleanSelector {
     return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
@@ -170,7 +175,11 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
             </div>
           `
         : html`
-            <foxy-spinner infer="list-spinner" state=${loader?.in('fail') ? 'error' : 'busy'}>
+            <foxy-spinner
+              infer="list-spinner"
+              state=${loader?.in('fail') ? 'error' : 'busy'}
+              error-type=${loader?.accessDenied ? 'access-denied' : 'generic'}
+            >
             </foxy-spinner>
           `}
     `;

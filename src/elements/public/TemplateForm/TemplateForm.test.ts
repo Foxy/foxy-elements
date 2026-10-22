@@ -224,4 +224,48 @@ describe('TemplateForm', () => {
 
     expect(cacheRequest).to.exist;
   });
+
+  describe('current user scope', () => {
+    const create = async (scope = '') => {
+      const data = await getTestData<Data>('./hapi/cart_templates/0');
+      data.content_url = 'https://example.com/template.html';
+
+      const form = await fixture<Form>(html`
+        <foxy-template-form current-user-scope=${scope} .data=${data}></foxy-template-form>
+      `);
+
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getControl = async (form: Form, selector: string) => {
+      const control = form.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal('content-warning undo submit create');
+        expect(form.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only and hides the cache action with carts_read templates_read', async () => {
+      const form = await create('carts_read templates_read');
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(form, '[infer="description"]')).readonly).to.be.true;
+      expect((await getControl(form, '[infer="cache"]')).hidden).to.be.true;
+
+      form.currentUserScope = 'templates_write';
+      await form.requestUpdate();
+      expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(form, '[infer="description"]')).readonly).to.be.false;
+      expect((await getControl(form, '[infer="cache"]')).hidden).to.be.false;
+    });
+  });
 });

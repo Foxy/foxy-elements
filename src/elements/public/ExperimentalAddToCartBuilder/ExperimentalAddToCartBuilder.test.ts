@@ -1410,4 +1410,156 @@ describe('ExperimentalAddToCartBuilder', () => {
     const slot = element.renderRoot.querySelector('slot:not([name])');
     expect(slot).to.exist;
   });
+
+  describe('current user scope', () => {
+    const create = async (scope = '') => {
+      const router = createRouter();
+      const element = await fixture<Builder>(html`
+        <foxy-experimental-add-to-cart-builder
+          current-user-scope=${scope}
+          href="https://demo.api/hapi/experimental_add_to_cart_snippets/0"
+          store="https://demo.api/hapi/stores/0"
+          encode-helper="https://demo.api/virtual/encode"
+          locale-codes="https://demo.api/hapi/property_helpers/7"
+          default-domain="foxycart.com"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-experimental-add-to-cart-builder>
+      `);
+
+      await waitUntil(() => !!element.data, '', { timeout: 5000 });
+      await element.requestUpdate();
+      return element;
+    };
+
+    const getItemControl = async (element: Builder) => {
+      const selector = '[infer="items"] [infer="item-group"] [infer="item"]';
+      const control = element.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    const isHidden = async (root: Element | DocumentFragment, selector: string) => {
+      const control = root.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control.hidden as boolean;
+    };
+
+    const getOptionDialog = async (element: Builder) => {
+      const item = await getItemControl(element);
+      const list = item.renderRoot.querySelector('[infer="custom-options"]');
+      await list.requestUpdate();
+      const dialog = list.renderRoot.querySelector('foxy-form-dialog');
+      await dialog.requestUpdate();
+      return dialog;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal(
+          'header:copy-id header:copy-json undo submit create'
+        );
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('stays editable with stores_read', async () => {
+      const element = await create('stores_read');
+      expect(element.readonlySelector.toString()).to.equal('');
+      expect(element.hiddenSelector.matches('delete', true)).to.be.false;
+    });
+
+    it('hides the template set picker without templates_read', async () => {
+      const selector = '[infer="cart-settings"] [infer="template-set-uri"]';
+      const element = await create('stores_read');
+      expect(await isHidden(element.renderRoot, selector)).to.be.true;
+
+      element.currentUserScope = 'stores_read templates_read';
+      await element.requestUpdate();
+      expect(await isHidden(element.renderRoot, selector)).to.be.false;
+    });
+
+    it('hides item category pickers without item_categories_read', async () => {
+      const selector = '[infer="basics-group"] [infer="item-category-uri"]';
+      const element = await create('stores_read');
+      expect(await isHidden((await getItemControl(element)).renderRoot, selector)).to.be.true;
+      expect((await getOptionDialog(element)).hiddenSelector.matches('category-group', true)).to.be
+        .true;
+
+      element.currentUserScope = 'stores_read item_categories_read';
+      await element.requestUpdate();
+      expect(await isHidden((await getItemControl(element)).renderRoot, selector)).to.be.false;
+      expect((await getOptionDialog(element)).hiddenSelector.matches('category-group', true)).to.be
+        .false;
+    });
+
+    const getPreviewState = (element: Builder) => {
+      const preview = element.renderRoot.querySelector('[infer="preview"]')!;
+      const spinner = preview.querySelector('foxy-spinner[infer="unavailable"]');
+      const message = preview.querySelector('foxy-i18n[infer="unavailable"]');
+      return { spinner, message, iframe: preview.querySelector('iframe') };
+    };
+
+    const waitForLoaders = async (element: Builder) => {
+      await waitUntil(
+        () => {
+          const loaders = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+          return [...loaders].every(loader => !loader.in('busy'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      await element.requestUpdate();
+    };
+
+    it('shows an access error instead of loading forever with the area scope', async () => {
+      const element = await create('stores_read payment_settings_read');
+      await waitForLoaders(element);
+      const { spinner, message } = getPreviewState(element);
+
+      expect(spinner).to.have.attribute('state', 'error');
+      expect(message).to.have.attribute('key', 'error_access_denied');
+    });
+
+    it('builds the code with stores_read templates_read item_categories_read', async () => {
+      const element = await create('stores_read templates_read item_categories_read');
+      await waitUntil(
+        async () => {
+          await element.requestUpdate();
+          return !!getPreviewState(element).iframe;
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      expect(getPreviewState(element).message).to.not.exist;
+    });
+
+    it('shows an access error for linked item categories without item_categories_read', async () => {
+      const element = await create('stores_read templates_read');
+      await waitForLoaders(element);
+      expect(getPreviewState(element).message).to.have.attribute('key', 'error_access_denied');
+
+      element.edit({
+        items: element.form.items!.map(item => ({
+          ...item,
+          item_category_uri: undefined,
+          custom_options: item.custom_options.map(o => ({ ...o, item_category_uri: undefined })),
+        })),
+      });
+
+      await waitUntil(
+        async () => {
+          await element.requestUpdate();
+          return !!getPreviewState(element).iframe;
+        },
+        '',
+        { timeout: 5000 }
+      );
+    });
+  });
 });

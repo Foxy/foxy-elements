@@ -17,8 +17,17 @@ export default getMeta(summary);
 export const Playground = getStory({ ...summary, code: true });
 export const Empty = getStory(summary);
 export const Error = getStory(summary);
+export const AccessDenied = getStory(summary);
 export const Busy = getStory(summary);
+export const RestrictedScope = getStory({
+  ...summary,
+  ext: `
+    store-shipping-methods="https://demo.api/hapi/store_shipping_methods"
+    current-user-scope="stores_read payment_settings_read"
+  `,
+});
 
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
+AccessDenied.args.href = 'https://demo.api/virtual/denied';
 Busy.args.href = 'https://demo.api/virtual/stall';

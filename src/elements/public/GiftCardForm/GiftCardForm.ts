@@ -6,6 +6,7 @@ import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 import type { Rels } from '@foxy.io/sdk/backend';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 import type { Data } from './types';
 
 import { Option, Type } from '../QueryBuilder/types';
@@ -187,6 +188,18 @@ export class GiftCardForm extends Base<Data> {
       },
     },
   ];
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'gift_cards';
+  }
+
+  get scopeRules(): ScopeRule[] {
+    return [
+      { path: 'generate', collection: 'gift_cards', need: 'write' },
+      { path: 'import', collection: 'gift_cards', need: 'write' },
+      { path: 'category-restrictions', collection: 'item_categories' },
+    ];
+  }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = [super.hiddenSelector.toString()];

@@ -1,12 +1,15 @@
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
+import { getNativeIntegrationScopeCollection } from '../../../utils/native-integration-scope-collection';
 import { html } from 'lit-html';
 
 const NS = 'native-integration-card';
-const Base = TranslatableMixin(InternalCard, NS);
+const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
 /**
  * Basic card displaying a native integration (`fx:native_integration`).
@@ -15,6 +18,10 @@ const Base = TranslatableMixin(InternalCard, NS);
  * @since 1.25.0
  */
 export class NativeIntegrationCard extends Base<Data> {
+  get scopeCollection(): ScopeCollection | null {
+    return getNativeIntegrationScopeCollection(this.data?.provider);
+  }
+
   renderBody(): TemplateResult {
     const data = this.data;
 

@@ -294,4 +294,60 @@ describe('GiftCardCodeForm', () => {
       element.data?._links?.['fx:gift_card_code_logs'].href
     );
   });
+
+  describe('current user scope', () => {
+    const create = async (scope = '') => {
+      const router = createRouter();
+      const form = await fixture<GiftCardCodeForm>(html`
+        <foxy-gift-card-code-form
+          current-user-scope=${scope}
+          href="https://demo.api/hapi/gift_card_codes/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-gift-card-code-form>
+      `);
+
+      await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getControl = async (form: GiftCardCodeForm, selector: string) => {
+      const control = form.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal('undo submit create');
+        expect(form.readonlySelector.toString()).to.equal('cart-item');
+      });
+    });
+
+    it('is read-only and hides other collections with gift_cards_read item_categories_read', async () => {
+      const form = await create('gift_cards_read item_categories_read');
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(form, '[infer="settings"]')).readonly).to.be.true;
+      expect((await getControl(form, '[infer="logs"]')).hidden).to.be.false;
+      expect((await getControl(form, '[infer="customer"]')).hidden).to.be.true;
+      expect((await getControl(form, '[infer="cart-item"]')).hidden).to.be.true;
+    });
+
+    it('shows the customer picker with customers_read and the cart item with transactions_read', async () => {
+      const form = await create('gift_cards_write customers_read');
+      expect((await getControl(form, '[infer="settings"]')).readonly).to.be.false;
+      expect((await getControl(form, '[infer="customer"]')).hidden).to.be.false;
+      expect((await getControl(form, '[infer="cart-item"]')).hidden).to.be.true;
+
+      form.currentUserScope = 'gift_cards_write transactions_read';
+      await form.requestUpdate();
+      expect((await getControl(form, '[infer="customer"]')).hidden).to.be.true;
+      expect((await getControl(form, '[infer="cart-item"]')).hidden).to.be.false;
+    });
+  });
 });

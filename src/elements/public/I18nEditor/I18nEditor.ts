@@ -137,6 +137,7 @@ export class I18nEditor extends Base<Data> {
             layout=${this.in('busy') ? 'no-label' : 'horizontal'}
             class="m-auto"
             state=${this.in('fail') ? 'error' : this.in({ idle: 'template' }) ? 'empty' : 'busy'}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             infer="spinner"
           >
           </foxy-spinner>

@@ -1,6 +1,7 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
 import type { Data } from './types';
+import type { ScopeRule } from '../../../utils/user-scope';
 
 import type { TemplateResult } from 'lit-html';
 import type { ParsedValue } from '../DiscountBuilder/types';
@@ -168,6 +169,21 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
     this.edit({ discount_name: v });
     if (!v) this.edit({ discount_type: '', discount_details: '' });
   };
+
+  get scopeRules(): ScopeRule[] {
+    // Composite: tax links belong to taxes, so the form locks its own sections instead of
+    // setting a scope collection that would make the whole form read-only.
+    return [
+      { path: 'general', collection: 'item_categories', readonlyIfNoWrite: true },
+      { path: 'delivery', collection: 'item_categories', readonlyIfNoWrite: true },
+      { path: 'handling-and-discount', collection: 'item_categories', readonlyIfNoWrite: true },
+      { path: 'emails', collection: 'item_categories', readonlyIfNoWrite: true },
+      { path: 'delete', collection: 'item_categories', need: 'write' },
+      { path: 'create', collection: 'item_categories', need: 'write' },
+      { path: 'taxes', collection: 'taxes', readonlyIfNoWrite: true },
+      { path: 'emails:gift-recipient-email-template-uri', collection: 'templates' },
+    ];
+  }
 
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = [super.readonlySelector.toString()];

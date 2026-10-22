@@ -485,4 +485,32 @@ describe('CouponCard', () => {
       expect(spinner!.parentElement).to.have.class('opacity-0');
     });
   });
+
+  describe('current user scope', () => {
+    const create = async () => {
+      const element = new CouponCard();
+      element.data = await getTestData<Data>('./hapi/coupons/0');
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with coupons_read item_categories_read', async () => {
+      const element = await create();
+      element.currentUserScope = 'coupons_read item_categories_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      element.currentUserScope = 'coupons_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+    });
+  });
 });

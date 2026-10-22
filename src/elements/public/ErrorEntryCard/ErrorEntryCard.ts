@@ -1,19 +1,25 @@
 import { PropertyDeclarations, TemplateResult } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 
+import type { ScopeCollection } from '../../../utils/user-scope';
+
 import { Data } from './types';
 import { DataList } from './DataList';
 import { Group } from '../../private/Group/Group';
 import { NucleonElement } from '../NucleonElement/index';
 import { ResourceViewer } from './ResourceViewer';
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
 import { decode } from 'html-entities';
+import { parseUserScope } from '../../../utils/user-scope';
 
 const NS = 'error-entry-card';
-const Base = TranslatableMixin(ThemeableMixin(ScopedElementsMixin(NucleonElement)), NS);
+const Base = ConfigurableMixin(
+  TranslatableMixin(ThemeableMixin(ScopedElementsMixin(NucleonElement)), NS)
+);
 
 /**
  * Displays an ErrorEntry from the Log of FoxyAPI.
@@ -41,9 +47,14 @@ export class ErrorEntryCard extends Base<Data> {
 
   /**
    * If true, displays the error details.
-   * Additionally, sets `form.hide_error` to `true` and submits changes on first view.
+   * Additionally, sets `form.hide_error` to `true` and submits changes on first view
+   * when the current user scope can write reporting (or is unset).
    */
   open = false;
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'reporting';
+  }
 
   render(): TemplateResult {
     const data = this.data;
@@ -93,6 +104,7 @@ export class ErrorEntryCard extends Base<Data> {
             data-testid="spinner"
             layout="horizontal"
             state=${isBusy ? 'busy' : this.in('fail') ? 'error' : 'empty'}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             lang=${this.lang}
             ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
           >
@@ -225,7 +237,10 @@ export class ErrorEntryCard extends Base<Data> {
   private __handleToggle(event: Event) {
     const details = event.target as HTMLDetailsElement;
 
-    if (details.open && this.data?.hide_error === false) {
+    // Marking the error as seen is a write, so read-only scopes skip it.
+    const canWrite = parseUserScope(this.currentUserScope)?.canWrite('reporting') ?? true;
+
+    if (details.open && this.data?.hide_error === false && canWrite) {
       this.edit({ hide_error: true });
       this.submit();
     }

@@ -117,4 +117,32 @@ describe('DownloadableCard', () => {
 
     expect(card.renderRoot).to.include.text('933 GB');
   });
+
+  describe('current user scope', () => {
+    const create = async () => {
+      const element = new DownloadableCard();
+      element.data = await getTestData<Data>('./hapi/downloadables/0');
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with downloadables_read item_categories_read', async () => {
+      const element = await create();
+      element.currentUserScope = 'downloadables_read item_categories_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      element.currentUserScope = 'downloadables_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+    });
+  });
 });

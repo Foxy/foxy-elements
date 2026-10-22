@@ -1,5 +1,6 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { Data } from './types';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
@@ -65,6 +66,14 @@ export class TemplateSetForm extends Base<Data> {
       ...super.headerSubtitleOptions,
       context: this.data?.code === 'DEFAULT' ? 'default' : '',
     };
+  }
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'templates';
+  }
+
+  get scopeRules(): ScopeRule[] {
+    return [{ path: 'payment-method-set-uri', collection: 'payment_settings' }];
   }
 
   get disabledSelector(): BooleanSelector {

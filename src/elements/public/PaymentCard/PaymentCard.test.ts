@@ -240,4 +240,48 @@ describe('PaymentCard', () => {
     expect(score).to.have.property('infer', '');
     expect(score).to.have.deep.property('options', { score: 100 });
   });
+
+  describe('helper loaders and current user scope', () => {
+    const denied = 'https://demo.api/virtual/denied';
+
+    const create = async (scope: string) => {
+      const router = createRouter();
+      const data = await getTestData<any>('./hapi/payments/0');
+      data._links['fx:store'] = { href: denied };
+
+      const element = await fixture<PaymentCard>(html`
+        <foxy-payment-card
+          current-user-scope=${scope}
+          .data=${data}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-payment-card>
+      `);
+
+      await waitUntil(
+        () => {
+          const loaders = element.renderRoot.querySelectorAll<any>('foxy-nucleon');
+          return [...loaders].every(loader => !loader.in('busy'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      await element.requestUpdate();
+      return element;
+    };
+
+    it('waits for denied helpers without a scope or with their read scope', async () => {
+      expect((await create('')).isBodyReady).to.be.false;
+      expect((await create('transactions_read stores_read')).isBodyReady).to.be.false;
+    });
+
+    it('renders without helpers the scope cannot read', async () => {
+      const element = await create('transactions_read');
+      expect(element.isBodyReady).to.be.true;
+      const price = element.renderRoot.querySelector<any>('foxy-i18n[key="price"]');
+      expect(price.options.amount).to.equal(`${element.data!.amount} USD`);
+      expect(price.options.currencyDisplay).to.equal('symbol');
+    });
+  });
 });

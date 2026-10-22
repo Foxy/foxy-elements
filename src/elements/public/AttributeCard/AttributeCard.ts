@@ -90,6 +90,7 @@ export class AttributeCard extends Base<Data> {
           <foxy-spinner
             data-testid="spinner"
             state=${this.in('fail') ? 'error' : isEmpty ? 'empty' : 'busy'}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             lang=${this.lang}
             ns="${this.ns} spinner"
           >

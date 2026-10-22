@@ -5,6 +5,7 @@ import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
@@ -54,6 +55,15 @@ export class CouponCodeForm extends Base<Data> {
 
     return html`<foxy-admin-transaction-card infer="" href=${href}></foxy-admin-transaction-card>`;
   };
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'coupons';
+  }
+
+  get scopeRules(): ScopeRule[] {
+    // Each row loads its transaction.
+    return [{ path: 'transactions', collection: 'transactions' }];
+  }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch: string[] = [super.hiddenSelector.toString()];

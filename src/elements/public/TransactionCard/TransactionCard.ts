@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { Rels } from '@foxy.io/sdk/backend';
@@ -6,6 +7,7 @@ import { Resource, getResourceId } from '@foxy.io/sdk/core';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
+import { ignoreAccessDenied } from '../../../utils/ignore-access-denied';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
 
@@ -20,6 +22,10 @@ const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
  */
 class TransactionCard extends Base<Data> {
   private __currencyDisplay = '';
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'transactions';
+  }
 
   renderBody(): TemplateResult {
     const hiddenSelector = this.hiddenSelector;
@@ -54,6 +60,7 @@ class TransactionCard extends Base<Data> {
           <foxy-spinner
             data-testid="spinner"
             state=${this.in('fail') ? 'error' : this.in({ idle: 'template' }) ? 'empty' : 'busy'}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             class="m-auto"
             lang=${this.lang}
             ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
@@ -69,8 +76,8 @@ class TransactionCard extends Base<Data> {
     const storeLink = transaction._links['fx:store']?.href;
 
     if (typeof storeLink === 'string') {
-      const store = await super._fetch<Resource<Rels.Store>>(storeLink);
-      this.__currencyDisplay = store.use_international_currency_symbol ? 'code' : 'symbol';
+      const store = await ignoreAccessDenied(super._fetch<Resource<Rels.Store>>(storeLink));
+      this.__currencyDisplay = store?.use_international_currency_symbol ? 'code' : 'symbol';
     } else {
       this.__currencyDisplay = 'symbol';
     }

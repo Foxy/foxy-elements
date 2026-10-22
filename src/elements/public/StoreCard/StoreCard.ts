@@ -1,6 +1,7 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
@@ -26,6 +27,10 @@ export class StoreCard extends Base<Data> {
 
   /** Default host domain for stores that don't use a custom domain name, e.g. `foxycart.com`. */
   defaultDomain: string | null = null;
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'stores';
+  }
 
   renderBody(): TemplateResult {
     return super.renderBody({

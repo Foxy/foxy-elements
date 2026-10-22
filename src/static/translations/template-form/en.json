@@ -39,7 +39,8 @@
     "cache": {
       "idle": "Cache now",
       "busy": "Caching...",
-      "fail": "Failed to cache"
+      "fail": "Failed to cache",
+      "access_denied": "Access denied"
     }
   },
   "content": {
@@ -72,6 +73,7 @@
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   }
 }

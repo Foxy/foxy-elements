@@ -1,6 +1,7 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
@@ -37,6 +38,10 @@ export class PaymentsApiFraudProtectionCard extends Base<Data> {
    * If left `null`, the card will display the default image.
    */
   getImageSrc: ((type: string) => string) | null = null;
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'payment_settings';
+  }
 
   renderBody(): TemplateResult {
     const defaultLayout = super.renderBody({

@@ -7,6 +7,7 @@ import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 import type { Rels } from '@foxy.io/sdk/backend';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ResponsiveMixin } from '../../../mixins/responsive';
@@ -200,6 +201,19 @@ export class CouponForm extends Base<Data> {
       },
     },
   ];
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'coupons';
+  }
+
+  get scopeRules(): ScopeRule[] {
+    return [
+      { path: 'generate', collection: 'coupons', need: 'write' },
+      { path: 'import', collection: 'coupons', need: 'write' },
+      { path: 'category-restrictions', collection: 'item_categories' },
+      { path: 'category-restrictions-stub', collection: 'item_categories' },
+    ];
+  }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = [super.hiddenSelector.toString()];

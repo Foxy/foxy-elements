@@ -24,5 +24,9 @@ const ext = `
 
 export const WithData = getStory({ ...summary, ext, code: true });
 export const Empty = getStory({ ...summary, ext });
+export const RestrictedScope = getStory({
+  ...summary,
+  ext: `${ext} current-user-scope="stores_read payment_settings_read"`,
+});
 
 Empty.args.href = '';

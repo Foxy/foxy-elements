@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { PropertyDeclarations } from 'lit-element';
 import type { Data, Settings } from './types';
 
@@ -36,6 +37,10 @@ export class SubscriptionCard extends Base<Data> {
   }
 
   settings: Settings | null = null;
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'subscriptions';
+  }
 
   render(): TemplateResult {
     const status = this.settings
@@ -143,6 +148,7 @@ export class SubscriptionCard extends Base<Data> {
         >
           <foxy-spinner
             state=${this.in('fail') ? 'error' : this.in({ idle: 'template' }) ? 'empty' : 'busy'}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             class="m-auto"
             infer="spinner"
           >

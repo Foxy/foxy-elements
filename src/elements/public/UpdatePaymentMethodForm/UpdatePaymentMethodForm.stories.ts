@@ -23,8 +23,19 @@ export const WithSet = getStory({ ...summary, ext: demoExt });
 export const WithoutSet = getStory({ ...summary, ext: noSetExt });
 export const Empty = getStory(summary);
 export const Error = getStory(summary);
+export const AccessDenied = getStory(summary);
+export const AccessDeniedOnSave = getStory(summary);
 export const Busy = getStory(summary);
+export const RestrictedScope = getStory({
+  ...summary,
+  ext: `${demoExt} current-user-scope="subscriptions_read customers_read"`,
+});
 
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
+AccessDenied.args.href = 'https://demo.api/virtual/denied';
+AccessDeniedOnSave.args.href = summary.href?.replace(
+  'https://demo.api/',
+  'https://demo.api/read-only/'
+);
 Busy.args.href = 'https://demo.api/virtual/stall';

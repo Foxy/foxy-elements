@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import { Data } from './types';
 import { TemplateResult, html } from 'lit-html';
 
@@ -104,6 +105,10 @@ export class AddressCard extends Base<Data> {
     return this.__renderLine('phone', 'maps:local-phone', text);
   };
 
+  get scopeCollection(): ScopeCollection | null {
+    return 'customers';
+  }
+
   render(): TemplateResult {
     const hiddenSelector = this.hiddenSelector;
     const isLoaded = this.in({ idle: 'snapshot' });
@@ -139,6 +144,7 @@ export class AddressCard extends Base<Data> {
           <foxy-spinner
             data-testid="spinner"
             state=${this.in('fail') ? 'error' : isEmpty ? 'empty' : 'busy'}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             class="m-auto"
             lang=${this.lang}
             ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"

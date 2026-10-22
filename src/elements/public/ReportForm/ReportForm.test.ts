@@ -338,4 +338,60 @@ describe('ReportForm', () => {
     control.setValue(false);
     expect(control.getValue()).to.be.false;
   });
+  describe('current user scope', () => {
+    const create = async (scope: string | null, loaded = true) => {
+      const element = await fixture<Form>(html`
+        <foxy-report-form .currentUserScope=${scope}></foxy-report-form>
+      `);
+
+      if (loaded) element.data = await getTestData('./hapi/reports/0');
+      await element.requestUpdate();
+      return element;
+    };
+
+    const getControl = async (element: Form, selector: string) => {
+      const control = element.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const loaded = await create(null);
+      const empty = await create(null, false);
+
+      [null, '', 'store_full_access'].forEach(scope => {
+        loaded.currentUserScope = scope;
+        empty.currentUserScope = scope;
+        expect(loaded.hiddenSelector.toString()).to.equal(
+          'preset datetime-precise undo submit create'
+        );
+        expect(loaded.readonlySelector.toString()).to.equal(
+          'name preset datetime-precise datetime-start datetime-end'
+        );
+        expect(empty.hiddenSelector.toString()).to.equal('undo submit delete timestamps');
+        expect(empty.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with reporting_read and hides create', async () => {
+      const element = await create('webhooks_read reporting_read', false);
+      expect((await getControl(element, '[infer="name"]')).readonly).to.be.true;
+      expect((await getControl(element, '[infer="datetime-start"]')).readonly).to.be.true;
+      expect((await getControl(element, '[infer="create"]')).hidden).to.be.true;
+
+      element.currentUserScope = 'reporting_write';
+      await element.requestUpdate();
+      expect((await getControl(element, '[infer="name"]')).readonly).to.be.false;
+      expect((await getControl(element, '[infer="create"]')).hidden).to.be.false;
+    });
+
+    it('hides delete with reporting_read', async () => {
+      const element = await create('webhooks_read reporting_read');
+      expect((await getControl(element, '[infer="delete"]')).hidden).to.be.true;
+
+      element.currentUserScope = 'reporting_write';
+      await element.requestUpdate();
+      expect((await getControl(element, '[infer="delete"]')).hidden).to.be.false;
+    });
+  });
 });

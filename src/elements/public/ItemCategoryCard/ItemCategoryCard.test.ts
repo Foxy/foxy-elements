@@ -64,4 +64,32 @@ describe('ItemCategoryCard', () => {
     await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
     expect(await getByTestId(element, 'subtitle')).to.include.text(data.code);
   });
+
+  describe('current user scope', () => {
+    const create = async () => {
+      const element = new ItemCategoryCard();
+      element.data = await getTestData<Data>('./hapi/item_categories/0');
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with coupons_read item_categories_read', async () => {
+      const element = await create();
+      element.currentUserScope = 'coupons_read item_categories_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      element.currentUserScope = 'item_categories_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+    });
+  });
 });

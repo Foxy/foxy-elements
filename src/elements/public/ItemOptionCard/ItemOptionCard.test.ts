@@ -12,6 +12,7 @@ import { ItemOptionCard as Card } from './ItemOptionCard';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { Spinner } from '../Spinner/Spinner';
+import { getTestData } from '../../../testgen/getTestData';
 
 const fromDefaults = (key: string, overrides: Record<PropertyKey, unknown>) => {
   return { ...defaults[key](new URLSearchParams(), {}), ...overrides };
@@ -491,5 +492,107 @@ describe('ItemOptionCard', () => {
     const title = await getByTestId(element, 'subtitle');
 
     expect(title).to.include.text(element.data!.value);
+  });
+
+  describe('current user scope', () => {
+    const create = async (links: Record<string, unknown> = {}) => {
+      const element = new Card();
+      const data = await getTestData<any>('./hapi/item_options/0');
+      element.data = { ...data, _links: { ...data._links, ...links } };
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('uses transactions when it belongs to a transaction', async () => {
+      const element = await create();
+      element.currentUserScope = 'transactions_read customers_read';
+      expect(element.scopeCollection).to.equal('transactions');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+    });
+
+    it('uses carts when it belongs to a cart', async () => {
+      const element = await create({ 'fx:cart': { href: 'https://demo.api/hapi/carts/0' } });
+      element.currentUserScope = 'transactions_read';
+      expect(element.scopeCollection).to.equal('carts');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+
+      element.currentUserScope = 'carts_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+    });
+  });
+
+  it('renders when the subscription comes back without the zoomed cart', async () => {
+    const data = await getTestData<any>('./hapi/item_options/0');
+    data._links['fx:subscription'] = { href: 'https://demo.api/virtual/subscription-without-cart' };
+    const element = await fixture<Card>(html`
+      <foxy-item-option-card
+        .data=${data}
+        @fetch=${(evt: FetchEvent) => {
+          if (!evt.request.url.includes('subscription-without-cart')) return;
+          evt.respondWith(Promise.resolve(new Response(JSON.stringify({ _links: {} }))));
+        }}
+      >
+      </foxy-item-option-card>
+    `);
+
+    const loader = element.renderRoot.querySelector<any>('#transactionTemplateLoader');
+    await waitUntil(() => loader.in({ idle: 'snapshot' }), '', { timeout: 5000 });
+    expect(() => element.isBodyReady).to.not.throw();
+  });
+
+  describe('helper loaders and current user scope', () => {
+    const denied = 'https://demo.api/virtual/denied';
+
+    const create = async (scope: string) => {
+      const router = createRouter();
+      const data = await getTestData<any>('./hapi/item_options/0');
+      data._links['fx:store'] = { href: denied };
+      data._links['fx:cart'] = { href: denied };
+      data._links['fx:subscription'] = { href: denied };
+      delete data._links['fx:transaction'];
+
+      const element = await fixture<Card>(html`
+        <foxy-item-option-card
+          current-user-scope=${scope}
+          .data=${data}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-option-card>
+      `);
+
+      await waitUntil(
+        () => {
+          const loaders = element.renderRoot.querySelectorAll<any>('foxy-nucleon');
+          return [...loaders].every(loader => !loader.in('busy'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      await element.requestUpdate();
+      return element;
+    };
+
+    it('waits for denied helpers without a scope or with their read scope', async () => {
+      expect((await create('')).isBodyReady).to.be.false;
+      expect((await create('transactions_read carts_read')).isBodyReady).to.be.false;
+    });
+
+    it('renders without helpers the scope cannot read', async () => {
+      const element = await create('transactions_read');
+      expect(element.isBodyReady).to.be.true;
+      expect(element.renderRoot.textContent).to.include(element.data!.name);
+      expect(element.renderRoot.textContent).to.not.include('undefined');
+    });
   });
 });

@@ -6,6 +6,7 @@ import type { NucleonElement } from '../NucleonElement';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 import type { Rels } from '@foxy.io/sdk/backend';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import type {
   ParsedCustomDisplayIdConfig,
@@ -291,7 +292,10 @@ export class StoreForm extends Base<Data> {
       url.searchParams.set('store_domain', value);
 
       const response = await new StoreForm.API(this).fetch(url.toString());
-      return response.ok || 'store-domain:v8n_unavailable';
+
+      // Only a 400 means "taken". Anything else (a scope denial, a server error) says
+      // nothing about the domain, so the check is skipped and the API decides on save.
+      return response.status !== 400 || 'store-domain:v8n_unavailable';
     } else {
       throw new Error('reportingStoreDomainExists is not set.');
     }
@@ -491,6 +495,11 @@ export class StoreForm extends Base<Data> {
   };
 
   private __hCaptchaToken: string | null = null;
+
+  get scopeCollection(): ScopeCollection | null {
+    // A new store is created under the user's stores list, which this scope does not cover.
+    return this.href ? 'stores' : null;
+  }
 
   get headerSubtitleOptions(): Record<string, unknown> {
     return { context: this.data?.is_active ? 'active' : 'inactive' };

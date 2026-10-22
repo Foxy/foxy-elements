@@ -1,3 +1,4 @@
+import type { InternalForm } from '../../internal/InternalForm/InternalForm';
 import './index';
 
 import { html, expect, fixture } from '@open-wc/testing';
@@ -81,5 +82,43 @@ describe('passkeyForm', () => {
   it('always marks settings section as readonly', async () => {
     const element = await fixture<Form>(html`<foxy-passkey-form></foxy-passkey-form>`);
     expect(element.readonlySelector.matches('settings', true)).to.be.true;
+  });
+
+  describe('current user scope', () => {
+    const create = async (scope: string | null) => {
+      const element = await fixture<Form>(html`<foxy-passkey-form></foxy-passkey-form>`);
+      element.data = await getTestData('./hapi/passkeys/0');
+      element.currentUserScope = scope;
+      await element.requestUpdate();
+      return element;
+    };
+
+    const getDelete = async (element: Form) => {
+      const control = element.renderRoot.querySelector<InternalForm<any>>('[infer="delete"]')!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope, with store_full_access and with user_invitations_read', async () => {
+      // user_invitations_read alone cannot read users; the API's "Access denied" covers that.
+      for (const scope of [null, 'store_full_access', 'user_invitations_read']) {
+        const element = await create(scope);
+        expect(element.hiddenSelector.toString()).to.equal('undo submit create');
+        expect(element.readonlySelector.toString()).to.equal('settings');
+      }
+    });
+
+    it('hides delete with users_read and shows it with user_full_access', async () => {
+      const element = await create('user_invitations_read users_read');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getDelete(element)).hidden).to.be.true;
+
+      element.currentUserScope = 'user_invitations_read user_full_access';
+      await element.requestUpdate();
+      expect(element.readonlySelector.matches('delete', true)).to.be.false;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getDelete(element)).hidden).to.be.false;
+    });
   });
 });

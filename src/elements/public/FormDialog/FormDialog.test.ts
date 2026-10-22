@@ -49,6 +49,24 @@ describe('FormDialog', () => {
     expect(formElement).to.have.property('localName', form);
   });
 
+  it('forwards current user scope to a string form', async () => {
+    const form = 'foxy-attribute-form';
+    const scoped = await fixture<FormDialog>(html`
+      <foxy-form-dialog form=${form} current-user-scope="customers_read"></foxy-form-dialog>
+    `);
+    await scoped.show();
+    expect(scoped.renderRoot.querySelector('#form')).to.have.property(
+      'currentUserScope',
+      'customers_read'
+    );
+
+    const unscoped = await fixture<FormDialog>(html`
+      <foxy-form-dialog form=${form}></foxy-form-dialog>
+    `);
+    await unscoped.show();
+    expect(unscoped.renderRoot.querySelector('#form')).to.have.property('currentUserScope', null);
+  });
+
   it('closes itself on successful DELETE request from form', async () => {
     const href = 'https://demo.api/hapi/customer_attributes/0';
     const form = 'foxy-attribute-form';

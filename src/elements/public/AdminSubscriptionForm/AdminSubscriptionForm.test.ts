@@ -498,4 +498,90 @@ describe('AdminSubscriptionForm', () => {
       'https://demo.api/hapi/transactions?subscription_id=0&zoom=items'
     );
   });
+
+  describe('current user scope', () => {
+    const today = { hidden: 'error-message delete undo submit create', readonly: '' };
+
+    const create = async (scope: string | null = null) => {
+      const router = createRouter();
+      const form = await fixture<Form>(html`
+        <foxy-admin-subscription-form
+          current-user-scope=${scope ?? ''}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-admin-subscription-form>
+      `);
+
+      const data = await getTestData<Data>('./hapi/subscriptions/0?zoom=transaction_template');
+      data._links['fx:charge_past_due'] = { href: 'https://demo.api/virtual/empty' };
+      data.past_due_amount = 10;
+      data._embedded['fx:transaction_template'].currency_code = 'AUD';
+      form.data = data;
+      await form.requestUpdate();
+
+      return form;
+    };
+
+    const isHidden = async (form: Form, selector: string) => {
+      const control = form.renderRoot.querySelector<HTMLElement & { hidden: boolean }>(selector)!;
+      expect(control, selector).to.exist;
+      await (control as unknown as Form).requestUpdate();
+      return control.hidden;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal(today.hidden);
+        expect(form.readonlySelector.toString()).to.equal(today.readonly);
+      });
+    });
+
+    it('hides charge past due and cancel without subscriptions_write', async () => {
+      const form = await create('subscriptions_read customers_read');
+      expect(await isHidden(form, '[infer="overdue"] [infer="charge-past-due"]')).to.be.true;
+      expect(await isHidden(form, '[infer="status-action"]')).to.be.true;
+
+      form.currentUserScope = 'subscriptions_write customers_read';
+      await form.requestUpdate();
+      expect(await isHidden(form, '[infer="overdue"] [infer="charge-past-due"]')).to.be.false;
+      expect(await isHidden(form, '[infer="status-action"]')).to.be.false;
+    });
+
+    it('locks own fields without subscriptions_write but is not read-only as a whole', async () => {
+      const form = await create('subscriptions_read customers_read');
+      const readonly = form.readonlySelector;
+
+      expect(readonly.matches('transactions', true)).to.be.false;
+      ['general', 'overdue:past-due-amount', 'attributes'].forEach(path => {
+        expect(readonly.matches(path, true), path).to.be.true;
+      });
+
+      form.currentUserScope = 'subscriptions_write transactions_read';
+      ['general', 'overdue:past-due-amount', 'attributes'].forEach(path => {
+        expect(form.readonlySelector.matches(path, true), path).to.be.false;
+      });
+    });
+
+    it('hides transactions without transactions_read', async () => {
+      const form = await create('subscriptions_read customers_read');
+      expect(form.hiddenSelector.matches('transactions', true)).to.be.true;
+
+      form.currentUserScope = 'subscriptions_read transactions_read';
+      expect(form.hiddenSelector.matches('transactions', true)).to.be.false;
+    });
+
+    it('renders without the transaction template embed', async () => {
+      const form = await fixture<Form>(
+        html`<foxy-admin-subscription-form></foxy-admin-subscription-form>`
+      );
+      const data = await getTestData<any>('./hapi/subscriptions/0');
+      delete data._embedded;
+      form.data = data;
+      await form.requestUpdate();
+      expect(form.renderRoot.querySelector('[infer="general"]')).to.exist;
+    });
+  });
 });

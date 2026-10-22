@@ -42,7 +42,8 @@
                     "spinner": {
                       "loading_busy": "Loading",
                       "loading_empty": "No item categories found",
-                      "loading_error": "Unknown error"
+                      "loading_error": "Unknown error",
+                      "loading_access_denied": "Access denied"
                     }
                   }
                 }
@@ -52,7 +53,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "Not assigned – click to select",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -413,7 +415,8 @@
                           "spinner": {
                             "loading_busy": "Loading",
                             "loading_empty": "No item categories found",
-                            "loading_error": "Unknown error"
+                            "loading_error": "Unknown error",
+                            "loading_access_denied": "Access denied"
                           }
                         }
                       }
@@ -423,7 +426,8 @@
                     "spinner": {
                       "loading_busy": "Loading",
                       "loading_empty": "Not assigned – click to select",
-                      "loading_error": "Unknown error"
+                      "loading_error": "Unknown error",
+                      "loading_access_denied": "Access denied"
                     }
                   }
                 }
@@ -445,7 +449,8 @@
               "spinner": {
                 "refresh": "Refresh",
                 "loading_busy": "Loading",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           },
@@ -455,7 +460,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No options",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             },
             "create_button_text": "Add option +",
@@ -509,7 +515,8 @@
               "spinner": {
                 "loading_busy": "Loading",
                 "loading_empty": "No template sets found",
-                "loading_error": "Unknown error"
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
               }
             }
           }
@@ -550,6 +557,7 @@
     "empty": "Modify the item parameters to see the add-to-cart link.",
     "unavailable": {
       "loading_extra_data_needed": "Creating direct link...",
+      "error_access_denied": "Direct link is not available because you don't have access to the store settings, templates or item categories it needs.",
       "error_special_characters_present": "At the moment we don't support signed direct links with custom option names that contain the following characters: #, &, %, =.",
       "error_price_configurable": "Direct link is not available when one or more items have configurable price.",
       "error_duplicate_custom_option_names": "Direct link is not available when one or more items have configurable custom options.",
@@ -578,13 +586,15 @@
     "submit_caption_checkout": "Purchase",
     "unavailable": {
       "loading_extra_data_needed": "Loading direct link...",
+      "error_access_denied": "Preview and add-to-cart code are not available because you don't have access to the store settings, templates or item categories they need.",
       "paused_code_required": "Preview and add-to-cart code will be available once you provide an SKU for each item.",
       "error_html_entities_present": "At the moment we don't support signed forms with item parameters that contain HTML entities.",
       "error_double_quotes_present": "At the moment we don't support signed forms with item parameters that contain double quotes."
     },
     "spinner": {
       "loading_busy": "Signing",
-      "loading_error": "Failed to sign"
+      "loading_error": "Failed to sign",
+      "loading_access_denied": "Access denied"
     },
     "copy-to-clipboard": {
       "failed_to_copy": "Failed to copy",

@@ -526,4 +526,54 @@ describe('SubscriptionSettingsForm', () => {
     await element.requestUpdate();
     expect(control).to.have.attribute('suffix', 'day_suffix');
   });
+
+  describe('current user scope', () => {
+    const today = { hidden: 'header:copy-id undo submit create', readonly: '' };
+
+    const create = async (scope = '') => {
+      const data = await getTestData<Data>('./hapi/subscription_settings/0');
+      const form = await fixture<Form>(html`
+        <foxy-subscription-settings-form current-user-scope=${scope} .data=${data}>
+        </foxy-subscription-settings-form>
+      `);
+
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getControl = async (form: Form) => {
+      const group = form.renderRoot.querySelector<InternalSummaryControl>(
+        '[infer="past-due-amount-group"]'
+      )!;
+
+      await group.requestUpdate();
+      const control = form.renderRoot.querySelector<InternalSelectControl>(
+        '[infer="past-due-amount-handling"]'
+      )!;
+
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal(today.hidden);
+        expect(form.readonlySelector.toString()).to.equal(today.readonly);
+      });
+    });
+
+    it('is read-only with subscription_settings_read', async () => {
+      const form = await create('subscriptions_read subscription_settings_read');
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect((await getControl(form)).readonly).to.be.true;
+
+      form.currentUserScope = 'subscriptions_read subscription_settings_write';
+      await form.requestUpdate();
+      expect(form.readonlySelector.matches('any-control', true)).to.be.false;
+      expect((await getControl(form)).readonly).to.be.false;
+    });
+  });
 });

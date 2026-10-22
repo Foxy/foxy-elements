@@ -1,6 +1,6 @@
 import type { FraudProtection, FraudProtections } from '../types';
 
-import { fetchJson } from '../utils';
+import { fetchJson, FetchError } from '../utils';
 import { compose } from '../composers/available_fraud_protections';
 
 export type Params = {
@@ -60,7 +60,7 @@ export async function handle(params: Params): Promise<Response> {
     status = 200;
   } catch (err) {
     body = err instanceof Error ? err.message : String(err);
-    status = status ?? 500;
+    status = status ?? (err instanceof FetchError ? err.status : 500);
   }
 
   return new Response(body, { status });

@@ -5,6 +5,7 @@ import { Constructor, LitElement, PropertyDeclarations, TemplateResult, html } f
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { InferrableMixinHost } from './inferrable';
+import { ScopeCollection, ScopeRule, getScopeSelectors, parseUserScope } from '../utils/user-scope';
 
 export declare class ConfigurableMixinHost {
   /** Template render functions mapped to their name. */
@@ -73,6 +74,13 @@ export declare class ConfigurableMixinHost {
   hiddenControls: BooleanSelector;
 
   /**
+   * Space-separated API token scope of the current user, e.g. `transactions_read`. When set,
+   * controls the user cannot access are hidden or made read-only. Inferred from parent elements;
+   * an unset value never overrides one set on an ancestor. Empty or unset means no restrictions.
+   */
+  currentUserScope: string | null;
+
+  /**
    * Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`
    * and `readonly` properties. If `readonly` is true, this selector will match any control,
    * otherwise it will match the same controls as in `readonlyControls`.
@@ -98,6 +106,15 @@ export declare class ConfigurableMixinHost {
    * @since 1.4.0
    */
   get hiddenSelector(): BooleanSelector;
+
+  /**
+   * Collection this element edits. Elements override this to lock themselves when the user
+   * can only read it. `null` by default.
+   */
+  get scopeCollection(): ScopeCollection | null;
+
+  /** Per-control scope rules. Elements override this to hide or lock controls. Empty by default. */
+  get scopeRules(): ScopeRule[];
 
   /**
    * Looks for templates in element's children and compiles them to render functions.
@@ -146,6 +163,7 @@ export const ConfigurableMixin = <TBase extends Base>(
         'readonly',
         'hidden',
         'mode',
+        'currentUserScope',
       ];
     }
 
@@ -153,6 +171,7 @@ export const ConfigurableMixin = <TBase extends Base>(
       return {
         ...super.properties,
 
+        currentUserScope: { attribute: 'current-user-scope' },
         templates: { attribute: false },
         mode: { type: String },
 
@@ -201,10 +220,25 @@ export const ConfigurableMixin = <TBase extends Base>(
 
     hiddenControls: BooleanSelector = BooleanSelector.False;
 
+    currentUserScope: string | null = null;
+
+    /** Last scope inherited from an ancestor. Lets an ancestor that clears its scope reset ours. */
+    private __inheritedScope: string | null = null;
+
     private readonly __observer = new MutationObserver(() => this.__onMutation());
 
+    get scopeCollection(): ScopeCollection | null {
+      return null;
+    }
+
+    get scopeRules(): ScopeRule[] {
+      return [];
+    }
+
     get readonlySelector(): BooleanSelector {
-      return this.readonly ? BooleanSelector.True : this.readonlyControls;
+      const scope = this.__getScopeSelectors();
+      if (this.readonly || scope.readonlyAll) return BooleanSelector.True;
+      return this.__addPaths(this.readonlyControls, scope.readonly);
     }
 
     get disabledSelector(): BooleanSelector {
@@ -212,12 +246,43 @@ export const ConfigurableMixin = <TBase extends Base>(
     }
 
     get hiddenSelector(): BooleanSelector {
-      return this.hidden ? BooleanSelector.True : this.hiddenControls;
+      if (this.hidden) return BooleanSelector.True;
+      return this.__addPaths(this.hiddenControls, this.__getScopeSelectors().hidden);
+    }
+
+    inferFromElement(key: string, element: HTMLElement): unknown | undefined {
+      const value = super.inferFromElement(key, element);
+      // An unset (null or empty) scope must not stop the walk: an ancestor further up may have one.
+      return key === 'currentUserScope' && !value ? undefined : value;
     }
 
     connectedCallback(): void {
       super.connectedCallback();
       if (this.mode === 'development') this.__observe();
+      // Without `infer` no parent passes properties down, so a top-level element looks up the
+      // scope itself (e.g. `currentUserScope` set once on <html>). Only the scope: inferring
+      // everything would also change `ns`, `lang` and the selectors.
+      if (this.infer === null && this.currentUserScope === null) this.__inferScope();
+    }
+
+    private __inferScope(): void {
+      let node: Node | null = this.parentNode;
+
+      while (node) {
+        if (node instanceof ShadowRoot) {
+          node = node.host;
+        } else if (node instanceof HTMLElement) {
+          const value = this.inferFromElement('currentUserScope', node) as string | undefined;
+          if (value !== undefined) {
+            this.currentUserScope = value;
+            this.__inheritedScope = value;
+            return;
+          }
+          node = node.parentNode;
+        } else {
+          return;
+        }
+      }
     }
 
     disconnectedCallback(): void {
@@ -338,6 +403,28 @@ export const ConfigurableMixin = <TBase extends Base>(
       if (this.infer) this.templates = this.getNestedTemplates(this.infer);
 
       this.mode = mode ?? 'production';
+
+      const currentUserScope = context.get('currentUserScope') as string | undefined;
+      if (currentUserScope !== undefined) {
+        this.currentUserScope = currentUserScope;
+        this.__inheritedScope = currentUserScope;
+      } else if (this.__inheritedScope !== null) {
+        // An ancestor cleared its scope. Drop the stale inherited value, keep an explicit one.
+        if (this.currentUserScope === this.__inheritedScope) this.currentUserScope = null;
+        this.__inheritedScope = null;
+      }
+    }
+
+    private __getScopeSelectors() {
+      const scope = parseUserScope(this.currentUserScope);
+      // Subclass getters may need data that is not there yet, so don't read them without a scope.
+      if (!scope) return getScopeSelectors(null, [], null);
+      return getScopeSelectors(scope, this.scopeRules, this.scopeCollection);
+    }
+
+    private __addPaths(base: BooleanSelector, paths: string[]): BooleanSelector {
+      if (paths.length === 0 || base.toString() === BooleanSelector.True.toString()) return base;
+      return new BooleanSelector([base.toString(), ...paths].join(' ').trim());
     }
 
     private __observe() {

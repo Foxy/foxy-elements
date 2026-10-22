@@ -5,6 +5,7 @@ import type { InternalCalendar } from '../../internal/InternalCalendar/InternalC
 import type { TemplateResult } from 'lit-html';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { Rels } from '@foxy.io/sdk/backend';
+import type { ScopeRule } from '../../../utils/user-scope';
 
 import { Choice, Group, Skeleton } from '../../private/index';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
@@ -363,6 +364,22 @@ export class SubscriptionForm extends Base<Data> {
       </div>
     `;
   };
+
+  // Not `scopeCollection`: a read-only subscription would lock the nested customer and lists too.
+  get scopeRules(): ScopeRule[] {
+    return [
+      { path: 'customer', collection: 'customers' },
+      // Transaction template items belong to a cart.
+      { path: 'items', collection: 'carts', readonlyIfNoWrite: true },
+      { path: 'frequency', collection: 'subscriptions', readonlyIfNoWrite: true },
+      { path: 'start-date', collection: 'subscriptions', readonlyIfNoWrite: true },
+      { path: 'next-transaction-date', collection: 'subscriptions', readonlyIfNoWrite: true },
+      { path: 'end-date', collection: 'subscriptions', readonlyIfNoWrite: true },
+      { path: 'past-due-amount', collection: 'subscriptions', readonlyIfNoWrite: true },
+      { path: 'attributes', collection: 'subscriptions', readonlyIfNoWrite: true },
+      { path: 'transactions', collection: 'transactions' },
+    ];
+  }
 
   get hiddenSelector(): BooleanSelector {
     return new BooleanSelector(`items:pagination:card:autorenew-icon ${super.hiddenSelector}`);

@@ -79,4 +79,25 @@ describe('PasskeyCard', () => {
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
   });
+
+  describe('current user scope', () => {
+    it('keeps selectors unchanged without a scope and with store_full_access', () => {
+      const element = new PasskeyCard();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with users_read and not with user_full_access', () => {
+      const element = new PasskeyCard();
+      element.currentUserScope = 'user_invitations_read users_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+
+      element.currentUserScope = 'user_invitations_read user_full_access';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+    });
+  });
 });

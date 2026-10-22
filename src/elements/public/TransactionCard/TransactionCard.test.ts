@@ -10,6 +10,7 @@ import { getByKey } from '../../../testgen/getByKey';
 import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { createRouter } from '../../../server/index';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
@@ -419,6 +420,61 @@ describe('TransactionCard', () => {
       ></foxy-transaction-card>`;
       const element = await fixture<TransactionCard>(layout);
       expect(await getByTestId(element, 'customer')).to.not.exist;
+    });
+  });
+
+  it('renders the loaded transaction when the store is denied', async () => {
+    const handleFetch = (evt: FetchEvent) => {
+      if (evt.request.url.includes('/stores/')) {
+        evt.preventDefault();
+        evt.respondWith(Promise.resolve(createAccessDeniedResponse('read', 'store')));
+      } else {
+        router.handleEvent(evt);
+      }
+    };
+
+    const element = await fixture<TransactionCard>(html`
+      <foxy-transaction-card
+        href="https://demo.api/hapi/transactions/0?zoom=items"
+        @fetch=${handleFetch}
+      >
+      </foxy-transaction-card>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
+
+    const transaction = await getTestData<Data>('./hapi/transactions/0');
+    const total = await getByKey(element, 'price');
+    const amount = `${transaction.total_order} ${transaction.currency_code}`;
+
+    expect(total).to.have.deep.property('options', { amount, currencyDisplay: 'symbol' });
+  });
+
+  describe('current user scope', () => {
+    const create = async () => {
+      const element = new TransactionCard();
+      element.data = await getTestData<any>('./hapi/transactions/0');
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with transactions_read customers_read', async () => {
+      const element = await create();
+      element.currentUserScope = 'transactions_read customers_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      element.currentUserScope = 'transactions_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
     });
   });
 });

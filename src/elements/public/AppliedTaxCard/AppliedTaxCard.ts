@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
@@ -5,6 +6,8 @@ import { Rels } from '@foxy.io/sdk/backend';
 import { Resource } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
+import { ignoreAccessDenied } from '../../../utils/ignore-access-denied';
+import { getItemScopeCollection } from '../../../utils/item-scope-collection';
 
 /**
  * Basic card displaying an applied tax.
@@ -16,6 +19,10 @@ export class AppliedTaxCard extends TranslatableMixin(TwoLineCard, 'applied-tax-
   private __currencyDisplay = '';
 
   private __currency = '';
+
+  get scopeCollection(): ScopeCollection | null {
+    return getItemScopeCollection(this.data);
+  }
 
   renderBody(): TemplateResult {
     return super.renderBody({
@@ -53,12 +60,12 @@ export class AppliedTaxCard extends TranslatableMixin(TwoLineCard, 'applied-tax-
 
     const appliedTax = await super._sendGet();
     const [transaction, store] = await Promise.all([
-      super._fetch<Transaction>(appliedTax._links['fx:transaction'].href),
-      super._fetch<Store>(appliedTax._links['fx:store'].href),
+      ignoreAccessDenied(super._fetch<Transaction>(appliedTax._links['fx:transaction'].href)),
+      ignoreAccessDenied(super._fetch<Store>(appliedTax._links['fx:store'].href)),
     ]);
 
-    this.__currency = transaction.currency_code;
-    this.__currencyDisplay = store.use_international_currency_symbol ? 'code' : 'symbol';
+    this.__currency = transaction?.currency_code ?? '';
+    this.__currencyDisplay = store?.use_international_currency_symbol ? 'code' : 'symbol';
 
     return appliedTax;
   }

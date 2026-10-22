@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { VanillaHCaptchaWebComponent } from 'vanilla-hcaptcha';
 import type { Data, Settings } from './types';
 import type { PropertyDeclarations } from 'lit-element';
@@ -106,6 +107,10 @@ export class CustomerForm extends Base<Data> {
   ];
 
   private __refreshInterval: NodeJS.Timeout | null = null;
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'customers';
+  }
 
   get hiddenSelector(): BooleanSelector {
     const hidden = new Set<string>(super.hiddenSelector.toString().split(' '));

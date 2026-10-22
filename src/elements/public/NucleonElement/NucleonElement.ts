@@ -10,6 +10,8 @@ import memoize from 'lodash-es/memoize';
 import { serveFromCache } from './serveFromCache';
 import { InferrableMixin } from '../../../mixins/inferrable';
 import { internalServer } from './internalServer';
+import { isAccessDenied } from '../../../utils/is-access-denied';
+import { filterZoom } from '../../../utils/user-scope';
 import { uniqueId } from 'lodash-es';
 
 /**
@@ -104,6 +106,8 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
 
   private __href: string | null = null;
 
+  private __accessDeniedFor: Response | null = null;
+
   private __unsubscribeFromRumour: (() => void) | null = null;
 
   private __fetchEventHandler!: (evt: Event) => void;
@@ -151,6 +155,17 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    */
   get failure(): Response | null {
     return this.__service.state?.context.failure ?? null;
+  }
+
+  /**
+   * `true` if the last request failed because the token lacks the scope required
+   * for the resource. Elements use this to render a specific "Access denied"
+   * message instead of the generic error.
+   *
+   * This property is readonly. It tracks `.failure` and clears with it.
+   */
+  get accessDenied(): boolean {
+    return !!this.failure && this.__accessDeniedFor === this.failure;
   }
 
   /**
@@ -352,8 +367,23 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
 
   /** Sends API request. Throws an error on non-2XX response. */
   protected async _fetch<TResult = TData>(...args: Parameters<Window['fetch']>): Promise<TResult> {
+    // Configurable elements know the user's scope. One unreadable zoom denies the whole request.
+    const scope = (this as { currentUserScope?: string | null }).currentUserScope;
+    if (typeof args[0] === 'string') args[0] = filterZoom(args[0], scope);
+
     const response = await new API(this).fetch(...args);
-    if (!response.ok) throw response;
+
+    if (!response.ok) {
+      if (await isAccessDenied(response)) {
+        // A denied write is reported as a validation error so the user keeps their edits.
+        const method = (args[1]?.method ?? (args[0] as Request).method ?? 'GET').toUpperCase();
+        if (method !== 'GET' && method !== 'HEAD') throw ['error:access_denied'];
+        this.__accessDeniedFor = response;
+      }
+
+      throw response;
+    }
+
     return response.json();
   }
 

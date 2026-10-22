@@ -6,9 +6,11 @@ import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { BooleanSelector, getResourceId } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { canReadCollection } from '../../../utils/user-scope';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html, svg } from 'lit-html';
@@ -204,6 +206,10 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
   /** Key of the connect choice whose connection URL is being fetched. */
   private __connectKey = '';
 
+  get scopeCollection(): ScopeCollection | null {
+    return 'payment_settings';
+  }
+
   get hiddenSelector(): BooleanSelector {
     return new BooleanSelector(`header:copy-json ${super.hiddenSelector}`.trimEnd());
   }
@@ -388,7 +394,11 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
 
     if (!loader?.data) {
       return html`
-        <foxy-spinner infer="list-spinner" state=${loader?.in('fail') ? 'error' : 'busy'}>
+        <foxy-spinner
+          infer="list-spinner"
+          state=${loader?.in('fail') ? 'error' : 'busy'}
+          error-type=${loader?.accessDenied ? 'access-denied' : 'generic'}
+        >
         </foxy-spinner>
       `;
     }
@@ -642,14 +652,17 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
       </foxy-internal-summary-control>
 
       ${['live', 'test'].map((type, index) => {
+        // Without stores_read the store never loads, so live credentials show without the
+        // inactive store notice.
+        const canReadStore = canReadCollection(this.currentUserScope, 'stores');
         const propertyPrefix = index === 0 ? '' : (`${type}_` as '' | 'test_');
         const inferPrefix = index === 0 ? '' : `${type}-`;
         const blocks = index === 0 ? this.__liveBlocks : this.__testBlocks;
         const scope = `${type}-group`;
         const useDefaults = type === 'test' && this.__defaultTestCredentialsGetValue();
 
-        if (type === 'live' && !this.__storeLoader?.data) return html``;
-        if (type === 'live' && !this.__storeLoader?.data?.is_active) {
+        if (type === 'live' && canReadStore && !this.__storeLoader?.data) return html``;
+        if (type === 'live' && canReadStore && !this.__storeLoader?.data?.is_active) {
           return html`
             <foxy-internal-summary-control infer="${type}-group">
               <div

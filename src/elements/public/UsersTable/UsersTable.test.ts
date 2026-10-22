@@ -76,4 +76,19 @@ describe('UsersTable', () => {
     expect(dialog).to.have.property('form', 'foxy-user-form');
     expect(dialog).to.have.property('href', 'https://demo.api/hapi/users/0');
   });
+
+  describe('current user scope', () => {
+    it('passes the scope to the user form dialog', async () => {
+      const element = await fixture<UsersTable>(html`
+        <foxy-users-table current-user-scope="user_invitations_read users_read"></foxy-users-table>
+      `);
+
+      const dialog = element.renderRoot.querySelector('#form') as FormDialog;
+      expect(dialog).to.have.property('currentUserScope', 'user_invitations_read users_read');
+
+      element.currentUserScope = null;
+      await element.requestUpdate();
+      expect(dialog).to.have.property('currentUserScope', null);
+    });
+  });
 });

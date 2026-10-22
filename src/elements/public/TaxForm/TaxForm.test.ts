@@ -23,6 +23,12 @@ async function waitForIdle(element: Form) {
 }
 
 describe('TaxForm', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('imports and defines dependencies', () => {
     expect(customElements.get('foxy-internal-async-resource-link-list-control')).to.exist;
     expect(customElements.get('foxy-internal-async-list-control')).to.exist;
@@ -710,5 +716,68 @@ describe('TaxForm', () => {
     expect(control).to.have.attribute('embed-key', 'fx:tax_item_categories');
     expect(control).to.have.attribute('limit', '5');
     expect(control).to.have.attribute('item', 'foxy-item-category-card');
+  });
+
+  describe('current user scope', () => {
+    const create = async (scope = '') => {
+      const router = createRouter();
+      const form = await fixture<Form>(html`
+        <foxy-tax-form
+          native-integrations="https://demo.api/hapi/native_integrations"
+          item-categories="https://demo.api/hapi/item_categories"
+          current-user-scope=${scope}
+          href="https://demo.api/hapi/taxes/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-tax-form>
+      `);
+
+      await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getControl = async (form: Form, selector: string) => {
+      const control = form.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal(
+          [
+            'group-three:region-select group-three:city',
+            'group-two:exempt-all-customer-tax-ids group-two:use-origin-rates',
+            'group-two:apply-to-shipping group-one:rate undo submit create',
+          ].join(' ')
+        );
+        expect(form.readonlySelector.toString()).to.equal('native-integrations');
+      });
+    });
+
+    it('is read-only with taxes_read item_categories_read', async () => {
+      const form = await create('taxes_read item_categories_read');
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(form, '[infer="group-one"]')).readonly).to.be.true;
+      expect((await getControl(form, '[infer="item-categories"]')).hidden).to.be.false;
+      expect((await getControl(form, '[infer="item-categories"]')).readonly).to.be.true;
+
+      form.currentUserScope = 'taxes_write item_categories_read';
+      await form.requestUpdate();
+      expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(form, '[infer="group-one"]')).readonly).to.be.false;
+      expect((await getControl(form, '[infer="item-categories"]')).readonly).to.be.false;
+    });
+
+    it('hides item categories without item_categories_read', async () => {
+      const form = await create('taxes_write');
+      expect((await getControl(form, '[infer="item-categories"]')).hidden).to.be.true;
+      expect((await getControl(form, '[infer="group-one"]')).hidden).to.be.false;
+    });
   });
 });

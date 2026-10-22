@@ -103,6 +103,7 @@ export class UsersTable extends TranslatableMixin(Table, 'users-table')<Data> {
   render(): TemplateResult {
     return html`
       <foxy-form-dialog
+        .currentUserScope=${this.currentUserScope}
         parent=${this.href}
         form="foxy-user-form"
         lang=${this.lang}

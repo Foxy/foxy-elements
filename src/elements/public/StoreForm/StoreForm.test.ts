@@ -17,6 +17,7 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
 import { I18n } from '../I18n/I18n';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { stub } from 'sinon';
 import { VanillaHCaptchaWebComponent } from 'vanilla-hcaptcha';
 import { getTestData } from '../../../testgen/getTestData';
@@ -675,6 +676,31 @@ describe('StoreForm', () => {
     expect(await control.checkValidityAsync?.('domain-two')).to.equal(
       'store-domain:v8n_unavailable'
     );
+
+    element.reportingStoreDomainExists = 'https://demo.api/virtual/empty?status=500';
+    element.edit({ store_domain: 'domain-three' });
+    await element.requestUpdate();
+    expect(await control.checkValidityAsync?.('domain-three')).to.be.true;
+  });
+
+  it('does not report the domain as unavailable when the availability check is denied', async () => {
+    const element = await fixture<Form>(html`
+      <foxy-store-form
+        reporting-store-domain-exists="https://demo.api/hapi/reporting/store_domain_exists"
+        @fetch=${(evt: FetchEvent) => {
+          evt.preventDefault();
+          evt.respondWith(
+            Promise.resolve(createAccessDeniedResponse('read', 'reporting_store_domain_exists'))
+          );
+        }}
+      ></foxy-store-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="essentials-group-one"] foxy-internal-text-control[infer="store-domain"]'
+    ) as InternalTextControl;
+
+    expect(await control.checkValidityAsync?.('domain-one')).to.be.true;
   });
 
   it('renders a text control for store url in the Essentials section', async () => {
@@ -2638,5 +2664,66 @@ describe('StoreForm', () => {
 
     control.setValue(120);
     expect(element).to.have.nested.property('form.data_retention.auto_anonymize_days', 120);
+  });
+
+  describe('current user scope', () => {
+    const create = async (scope = '', href = 'https://demo.api/hapi/stores/0') => {
+      const router = createRouter();
+      const form = await fixture<Form>(html`
+        <foxy-store-form
+          current-user-scope=${scope}
+          href=${href}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-store-form>
+      `);
+
+      if (href) await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getControl = async (form: Form, selector: string) => {
+      const control = form.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access', 'payment_settings_read'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal('undo submit create');
+        expect(form.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with stores_read', async () => {
+      const form = await create('stores_read payment_settings_read');
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(form, '[infer="essentials-group-one"]')).readonly).to.be.true;
+
+      form.currentUserScope = 'stores_write';
+      await form.requestUpdate();
+      expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(form, '[infer="essentials-group-one"]')).readonly).to.be.false;
+    });
+
+    it('is read-only with stores_read while the store is loading', async () => {
+      const form = await fixture<Form>(html`
+        <foxy-store-form current-user-scope="stores_read" href="https://demo.api/virtual/stall">
+        </foxy-store-form>
+      `);
+
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+    });
+
+    it('stays editable in create mode with stores_read', async () => {
+      const form = await create('stores_read user_full_access', '');
+      expect(form.readonlySelector.matches('essentials-group-one', true)).to.be.false;
+      expect(form.hiddenSelector.matches('create', true)).to.be.false;
+    });
   });
 });

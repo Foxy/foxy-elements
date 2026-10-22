@@ -1450,4 +1450,101 @@ describe('NativeIntegrationForm', () => {
     expect(control).to.have.attribute('property', 'config');
     expect(control).to.have.attribute('layout', 'summary-item');
   });
+
+  describe('current user scope', () => {
+    const create = async (id: number | null, scope = '') => {
+      const router = createRouter();
+      const data = id === null ? null : await getTestData<Data>(`./hapi/native_integrations/${id}`);
+      const form = await fixture<Form>(html`
+        <foxy-native-integration-form
+          item-category-base="https://demo.api/hapi/item_categories/"
+          current-user-scope=${scope}
+          .data=${data}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-native-integration-form>
+      `);
+
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getControl = async (root: Element, selector: string) => {
+      const control = root.shadowRoot!.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create(0);
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal('undo submit create');
+        expect(form.readonlySelector.toString()).to.equal(
+          'apple-pay-group-one zapier-group-one provider-group-one'
+        );
+      });
+    });
+
+    it("uses the provider's collection for a native integration", async () => {
+      const avalara = await create(0);
+      const webhook = await create(1);
+
+      [avalara, webhook].forEach(form => (form.currentUserScope = 'taxes_read webhooks_write'));
+      expect(avalara.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(avalara.hiddenSelector.matches('delete', true)).to.be.true;
+      expect(webhook.readonlySelector.matches('any-control', true)).to.be.false;
+      expect(webhook.hiddenSelector.matches('delete', true)).to.be.false;
+
+      [avalara, webhook].forEach(form => (form.currentUserScope = 'taxes_write webhooks_read'));
+      expect(avalara.readonlySelector.matches('any-control', true)).to.be.false;
+      expect(webhook.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(webhook.hiddenSelector.matches('delete', true)).to.be.true;
+    });
+
+    it('does not lock the provider select in create mode', async () => {
+      const form = await create(null, 'taxes_read');
+      form.edit({ provider: 'avalara' });
+      expect(form.readonlySelector.matches('provider-group-one:provider', true)).to.be.false;
+    });
+
+    it('hides only new tax code mappings without item_categories_read', async () => {
+      const form = await create(0, 'taxes_write');
+      const map = await getControl(form, '[infer="avalara-category-to-product-tax-code-mappings"]');
+      expect(map.hidden).to.be.false;
+      expect((await getControl(map, '[infer="existing-mappings"]')).hidden).to.be.false;
+      expect((await getControl(map, '[infer="new-mapping"]')).hidden).to.be.true;
+
+      form.currentUserScope = 'taxes_write item_categories_read';
+      await form.requestUpdate();
+      await map.requestUpdate();
+      expect((await getControl(map, '[infer="new-mapping"]')).hidden).to.be.false;
+    });
+
+    it('hides only new TaxJar tax code mappings without item_categories_read', async () => {
+      const router = createRouter();
+      const data = await getTestData<Data>('./hapi/native_integrations/0');
+      data.provider = 'taxjar';
+      data.config = JSON.stringify({ api_token: 'abc', category_to_product_tax_code_mappings: {} });
+
+      const form = await fixture<Form>(html`
+        <foxy-native-integration-form
+          current-user-scope="taxes_write"
+          .data=${data}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-native-integration-form>
+      `);
+
+      const map = await getControl(form, '[infer="taxjar-category-to-product-tax-code-mappings"]');
+      expect(map.hidden).to.be.false;
+      expect((await getControl(map, '[infer="new-mapping"]')).hidden).to.be.true;
+
+      form.currentUserScope = 'taxes_write item_categories_read';
+      await form.requestUpdate();
+      await map.requestUpdate();
+      expect((await getControl(map, '[infer="new-mapping"]')).hidden).to.be.false;
+    });
+  });
 });

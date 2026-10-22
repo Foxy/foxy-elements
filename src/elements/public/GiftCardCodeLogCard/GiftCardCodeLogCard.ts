@@ -4,14 +4,16 @@ import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
+import { canReadCollection } from '../../../utils/user-scope';
 
 const NS = 'gift-card-code-log-card';
-const Base = TranslatableMixin(InternalCard, NS);
+const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
 /**
  * Card element representing a gift card code log (`fx:gift_card_code_log`).
@@ -56,7 +58,7 @@ export class GiftCardCodeLogCard extends Base<Data> {
 
       <foxy-nucleon
         infer=""
-        href=${ifDefined(data?._links['fx:store'].href)}
+        href=${ifDefined(this.__canReadStore ? data?._links['fx:store'].href : undefined)}
         id=${this.__storeLoaderId}
         @update=${() => this.requestUpdate()}
       >
@@ -90,12 +92,18 @@ export class GiftCardCodeLogCard extends Base<Data> {
   }
 
   get isBodyReady(): boolean {
-    return super.isBodyReady && !!this.__giftCard && !!this.__store;
+    const isStoreReady = !!this.__store || !this.__canReadStore;
+    return super.isBodyReady && !!this.__giftCard && isStoreReady;
   }
 
   private get __giftCardLoader() {
     type Loader = NucleonElement<Resource<Rels.GiftCard>>;
     return this.renderRoot.querySelector<Loader>(`#${this.__giftCardLoaderId}`);
+  }
+
+  // Without the store the adjustment uses the currency symbol.
+  private get __canReadStore() {
+    return canReadCollection(this.currentUserScope, 'stores');
   }
 
   private get __storeLoader() {

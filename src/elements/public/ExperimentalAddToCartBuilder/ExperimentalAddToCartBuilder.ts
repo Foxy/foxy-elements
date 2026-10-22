@@ -4,6 +4,7 @@ import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
+import type { ScopeRule } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ResponsiveMixin } from '../../../mixins/responsive';
@@ -15,6 +16,7 @@ import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { html, svg } from 'lit-element';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../utils/class-map';
+import { canReadCollection } from '../../../utils/user-scope';
 
 import debounce from 'lodash-es/debounce';
 import hljsxml from 'highlight.js/lib/languages/xml.js';
@@ -128,6 +130,19 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
   private __signingState: 'idle' | 'busy' | 'fail' = 'idle';
 
   private __openState: boolean[] = [];
+
+  // No scope collection: the builder never saves its own data. It reads the store, its template
+  // sets and item categories, and posts the code to the encode helper. Encode has no rule: signing
+  // runs automatically with no control to hide, and a denial shows the existing failure state.
+  get scopeRules(): ScopeRule[] {
+    const item = 'items:item-group:item';
+
+    return [
+      { path: 'cart-settings:template-set-uri', collection: 'templates' },
+      { path: `${item}:basics-group:item-category-uri`, collection: 'item_categories' },
+      { path: `${item}:custom-options:dialog:category-group`, collection: 'item_categories' },
+    ];
+  }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = [super.hiddenSelector.toString()];
@@ -531,6 +546,18 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
     }
 
     return null;
+  }
+
+  // The code needs the store and its template set, plus the item categories the items link to.
+  // Without read access to them it can never be built, so the builder stops waiting.
+  private get __canReadExtraData() {
+    const scope = this.currentUserScope;
+    if (!canReadCollection(scope, 'stores') || !canReadCollection(scope, 'templates')) return false;
+    if (canReadCollection(scope, 'item_categories')) return true;
+
+    return !this.form.items?.some(item => {
+      return item.item_category_uri || item.custom_options?.some(o => o.item_category_uri);
+    });
   }
 
   private get __storeLoader() {
@@ -974,6 +1001,15 @@ export class ExperimentalAddToCartBuilder extends Base<Data> {
   }
 
   private __getAddToCartCode() {
+    if (!this.__canReadExtraData) {
+      return {
+        linkHref: '',
+        linkHrefError: 'error_access_denied',
+        formHTML: '',
+        formHTMLError: 'error_access_denied',
+      };
+    }
+
     const store = this.__storeLoader?.data;
     if (!this.encodeHelper || !store) {
       return {

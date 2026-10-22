@@ -5,6 +5,7 @@ import './index';
 import { InternalPostActionControlDialog as ControlDialog } from './InternalPostActionControlDialog';
 import { expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
 import { createRouter } from '../../../server/index';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { Dialog } from '../../private/Dialog/Dialog';
 
 describe('InternalPostActionControl', () => {
@@ -158,5 +159,57 @@ describe('InternalPostActionControl', () => {
     const hideEvent = oneEvent(dialog, 'hide');
     closeButton?.click();
     expect(await hideEvent).to.have.nested.property('detail.cancelled', true);
+  });
+
+  it('displays access denied state when POST request is denied', async () => {
+    const dialog = await fixture<ControlDialog>(html`
+      <foxy-internal-post-action-control-dialog
+        href="https://demo.api/virtual/empty"
+        @fetch=${(evt: FetchEvent) => {
+          evt.preventDefault();
+          evt.respondWith(Promise.resolve(createAccessDeniedResponse('write', 'customer')));
+        }}
+      >
+      </foxy-internal-post-action-control-dialog>
+    `);
+
+    await dialog.show();
+    const $ = (selector: string) => dialog.renderRoot.querySelector(selector);
+    $('foxy-i18n[key="button_confirm"]')?.closest('vaadin-button')?.click();
+
+    await waitUntil(() => {
+      dialog.requestUpdate();
+      return !!$('foxy-i18n[infer=""][key="message_access_denied"]');
+    });
+
+    expect($('foxy-spinner')).to.not.exist;
+    expect($('foxy-i18n[key="button_close"]')).to.exist;
+    expect(dialog.closable).to.be.true;
+  });
+
+  it('displays fail state when POST request is rejected', async () => {
+    const dialog = await fixture<ControlDialog>(html`
+      <foxy-internal-post-action-control-dialog
+        href="https://demo.api/virtual/empty"
+        @fetch=${(evt: FetchEvent) => {
+          evt.preventDefault();
+          evt.respondWith(Promise.reject(new Error('Network error')));
+        }}
+      >
+      </foxy-internal-post-action-control-dialog>
+    `);
+
+    await dialog.show();
+    const $ = (selector: string) => dialog.renderRoot.querySelector(selector);
+    $('foxy-i18n[key="button_confirm"]')?.closest('vaadin-button')?.click();
+
+    await waitUntil(() => {
+      dialog.requestUpdate();
+      return !!$('foxy-i18n[infer=""][key="message_fail"]');
+    });
+
+    expect($('foxy-spinner')).to.not.exist;
+    expect($('foxy-i18n[key="button_close"]')).to.exist;
+    expect(dialog.closable).to.be.true;
   });
 });

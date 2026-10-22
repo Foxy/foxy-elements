@@ -6,6 +6,7 @@ import type { Resource } from '@foxy.io/sdk/core';
 import type { Option } from '../QueryBuilder/types';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
+import type { ScopeRule } from '../../../utils/user-scope';
 
 import { BooleanSelector, getResourceId } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -180,6 +181,28 @@ export class CartForm extends Base<Data> {
       ],
     },
   ];
+
+  // Not `scopeCollection`: the form embeds pickers and lists of other collections.
+  get scopeRules(): ScopeRule[] {
+    return [
+      { path: 'view-as-customer', collection: 'carts', need: 'write' },
+      { path: 'delete', collection: 'carts', need: 'write' },
+      { path: 'create', collection: 'carts', need: 'write' },
+      { path: 'general', collection: 'carts', readonlyIfNoWrite: true },
+      { path: 'general:template-set-uri', collection: 'templates' },
+      { path: 'items', collection: 'carts', readonlyIfNoWrite: true },
+      { path: 'applied-coupon-codes', collection: 'carts', readonlyIfNoWrite: true },
+      { path: 'customer-uri', collection: 'carts', readonlyIfNoWrite: true },
+      { path: 'customer-uri', collection: 'customers' },
+      { path: 'billing', collection: 'carts', readonlyIfNoWrite: true },
+      // The payment method list comes from a link on the loaded customer.
+      { path: 'billing:payment-method-uri', collection: 'customers' },
+      { path: 'billing:payment-method-uri', collection: 'transactions' },
+      { path: 'shipping', collection: 'carts', readonlyIfNoWrite: true },
+      { path: 'custom-fields', collection: 'carts', readonlyIfNoWrite: true },
+      { path: 'attributes', collection: 'carts', readonlyIfNoWrite: true },
+    ];
+  }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = [super.hiddenSelector.toString()];

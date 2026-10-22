@@ -43,8 +43,19 @@ const ext = `
 export const Playground = getStory({ ...summary, ext, code: true });
 export const Empty = getStory({ ...summary, ext });
 export const Error = getStory({ ...summary, ext });
+export const AccessDenied = getStory({ ...summary, ext });
+export const AccessDeniedOnSave = getStory({ ...summary, ext });
 export const Busy = getStory({ ...summary, ext });
+export const RestrictedScope = getStory({
+  ...summary,
+  ext: `${ext} current-user-scope="coupons_read item_categories_read taxes_read"`,
+});
 
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
+AccessDenied.args.href = 'https://demo.api/virtual/denied';
+AccessDeniedOnSave.args.href = summary.href?.replace(
+  'https://demo.api/',
+  'https://demo.api/read-only/'
+);
 Busy.args.href = 'https://demo.api/virtual/stall';

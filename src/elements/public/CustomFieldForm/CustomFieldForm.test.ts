@@ -5,6 +5,7 @@ import './index';
 import { expect, fixture, html } from '@open-wc/testing';
 import { CustomFieldForm } from './CustomFieldForm';
 import { stub } from 'sinon';
+import { getTestData } from '../../../testgen/getTestData';
 
 describe('CustomFieldForm', () => {
   it('imports and defines foxy-internal-checkbox-group-control', () => {
@@ -105,5 +106,42 @@ describe('CustomFieldForm', () => {
     expect(control.getValue()).to.deep.equal(['hidden']);
     control.setValue([]);
     expect(element).to.have.nested.property('form.is_hidden', false);
+  });
+
+  describe('current user scope', () => {
+    const create = async (links: Record<string, unknown> = {}) => {
+      const element = new CustomFieldForm();
+      const data = await getTestData<any>('./hapi/custom_fields/0');
+      element.data = { ...data, _links: { ...data._links, ...links } };
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('undo submit create');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('uses transactions when it belongs to a transaction', async () => {
+      const element = await create();
+      element.currentUserScope = 'transactions_read customers_read';
+      expect(element.scopeCollection).to.equal('transactions');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+    });
+
+    it('uses carts when it belongs to a cart', async () => {
+      const element = await create({ 'fx:cart': { href: 'https://demo.api/hapi/carts/0' } });
+      element.currentUserScope = 'transactions_read';
+      expect(element.scopeCollection).to.equal('carts');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+
+      element.currentUserScope = 'carts_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+    });
   });
 });

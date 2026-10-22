@@ -3,6 +3,7 @@ import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Data } from './types';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
@@ -43,6 +44,17 @@ export class DownloadableForm extends Base<Data> {
 
   /** URL of the `fx:downloadable_item_categories` collection for the store. */
   downloadableItemCategories: string | null = null;
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'downloadables';
+  }
+
+  get scopeRules(): ScopeRule[] {
+    // The category picker cannot list categories without item_categories_read. In create mode
+    // the category is required, so the picker stays visible and shows the access error.
+    const rule: ScopeRule = { path: 'group-one:item-category-uri', collection: 'item_categories' };
+    return this.data ? [rule] : [];
+  }
 
   renderBody(): TemplateResult {
     return html`

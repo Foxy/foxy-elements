@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import { Column } from '../Table/types';
 import { Data } from './types';
 import { Table } from '../Table/Table';
@@ -9,7 +10,9 @@ import { classMap } from '../../../utils/class-map';
 export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-table')<Data> {
   static priceColumn: Column<Data> = {
     cell: ctx => {
-      const cart = ctx.data._embedded['fx:transaction_template'];
+      // The cart is not zoomed when the user scope can't read carts.
+      const cart = ctx.data._embedded?.['fx:transaction_template'];
+      if (!cart) return ctx.html``;
       const amount = `${cart.total_order} ${cart.currency_code}`;
 
       return ctx.html`
@@ -28,7 +31,8 @@ export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-
 
   static summaryColumn: Column<Data> = {
     cell: ctx => {
-      const items = ctx.data._embedded['fx:transaction_template']._embedded['fx:items'];
+      const items = ctx.data._embedded?.['fx:transaction_template']?._embedded['fx:items'];
+      if (!items) return ctx.html``;
       const options = {
         count_minus_one: items.length - 1,
         first_item: items[0],
@@ -103,4 +107,8 @@ export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-
     SubscriptionsTable.statusColumn,
     SubscriptionsTable.subTokenURLColumn,
   ];
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'subscriptions';
+  }
 }

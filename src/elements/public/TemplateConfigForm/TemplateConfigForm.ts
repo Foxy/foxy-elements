@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { Data, TemplateConfigJSON } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
@@ -13,6 +14,7 @@ import { getDefaultJSON } from './defaults';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html, svg } from 'lit-html';
+import { canReadCollection } from '../../../utils/user-scope';
 
 const NS = 'template-config-form';
 const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
@@ -230,6 +232,10 @@ export class TemplateConfigForm extends Base<Data> {
 
   private readonly __defaultJSON = JSON.stringify(getDefaultJSON());
 
+  get scopeCollection(): ScopeCollection | null {
+    return 'templates';
+  }
+
   get hiddenSelector(): BooleanSelector {
     const alwaysHidden = [super.hiddenSelector.toString()];
 
@@ -303,7 +309,9 @@ export class TemplateConfigForm extends Base<Data> {
       alwaysHidden.unshift('analytics-config-google-tag:analytics-config-google-tag-send-to');
     }
 
-    if (this.__storeLoader?.data?.features_multiship !== true) {
+    // Without stores_read the store never loads, so leave the multiship fields to the API.
+    const canReadStore = canReadCollection(this.currentUserScope, 'stores');
+    if (canReadStore && this.__storeLoader?.data?.features_multiship !== true) {
       alwaysHidden.unshift('custom-script-values-multiship-checkout-fields');
     }
 

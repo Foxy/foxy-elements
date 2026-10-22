@@ -46,6 +46,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
       extendFilter: { type: Function, attribute: false },
       __selection: { attribute: false },
       __totalItems: { attribute: false },
+      __isPageFailed: { attribute: false },
       __isSelecting: { attribute: false },
       __notification: { attribute: false },
       __isFilterVisible: { attribute: false },
@@ -138,6 +139,8 @@ export class InternalAsyncListControl extends InternalEditableControl {
   private __isSelecting = false;
 
   private __totalItems = 0;
+
+  private __isPageFailed = false;
 
   private __selection: HALJSONResource[] = [];
 
@@ -284,7 +287,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
   };
 
   render(): TemplateResult {
-    const hidden = this.hideWhenEmpty && !this.__totalItems;
+    const hidden = this.hideWhenEmpty && !this.__totalItems && !this.__isPageFailed;
     return html`<div class=${classMap({ hidden })}>${super.render()}</div>`;
   }
 
@@ -331,7 +334,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
         ? html`
             <foxy-internal-summary-control
               layout="details"
-              count=${ifDefined(this.open ? void 0 : `${this.__totalItems}`)}
+              count=${ifDefined(this.open || this.__isPageFailed ? void 0 : `${this.__totalItems}`)}
               infer=""
               ?open=${this.open}
               @toggle=${(evt: CustomEvent) => {
@@ -343,13 +346,17 @@ export class InternalAsyncListControl extends InternalEditableControl {
               ${actions.length
                 ? html`
                     <div class="flex gap-s">
-                      <foxy-i18n
-                        infer=""
-                        class="mr-auto text-tertiary"
-                        key="total_items"
-                        .options=${{ count: this.__totalItems }}
-                      >
-                      </foxy-i18n>
+                      ${this.__isPageFailed
+                        ? html`<span class="mr-auto"></span>`
+                        : html`
+                            <foxy-i18n
+                              infer=""
+                              class="mr-auto text-tertiary"
+                              key="total_items"
+                              .options=${{ count: this.__totalItems }}
+                            >
+                            </foxy-i18n>
+                          `}
                       ${actions}
                     </div>
                   `
@@ -596,7 +603,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
       <foxy-pagination
         first=${ifDefined(first)}
         infer="pagination"
-        class=${classMap({ hidden: isDetails && this.__totalItems === 0 })}
+        class=${classMap({ hidden: isDetails && this.__totalItems === 0 && !this.__isPageFailed })}
       >
         <foxy-collection-page
           class=${classMap({
@@ -614,6 +621,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
           @update=${(evt: UpdateEvent) => {
             const page = evt.currentTarget as CollectionPage<any>;
             this.__totalItems = parseInt(page.data?.total_items ?? 0);
+            this.__isPageFailed = page.in('fail');
           }}
         >
         </foxy-collection-page>

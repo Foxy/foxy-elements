@@ -8,7 +8,10 @@ import type { InternalPasswordControl } from '../../internal/InternalPasswordCon
 import './index';
 
 import { CustomerPortalSettingsForm as Form } from './CustomerPortalSettingsForm';
-import { expect, fixture, html } from '@open-wc/testing';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+
+import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import { createRouter } from '../../../server/index';
 import { stub } from 'sinon';
 
 describe('CustomerPortalSettingsForm', () => {
@@ -530,5 +533,65 @@ describe('CustomerPortalSettingsForm', () => {
 
     control.setValue('foo');
     expect(element).to.have.deep.nested.property('form.jwtSharedSecret', 'foo');
+  });
+
+  describe('current user scope', () => {
+    const create = async (scope = '') => {
+      const router = createRouter();
+      const form = await fixture<Form>(html`
+        <foxy-customer-portal-settings-form
+          current-user-scope=${scope}
+          href="https://demo.api/hapi/customer_portal_settings/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-customer-portal-settings-form>
+      `);
+
+      await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
+      form.edit({
+        subscriptions: {
+          allowFrequencyModification: [{ jsonataQuery: '*', values: ['1m'] }],
+          allowNextDateModification: false,
+        },
+      });
+
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getRulesList = async (form: Form) => {
+      const selector = '[infer="subscriptions-allow-frequency-modification"]';
+      const control = form.renderRoot.querySelector<InternalAsyncListControl>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access', 'stores_read payment_settings_read'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal(
+          'header:copy-id create hcaptcha subscriptions-allow-next-date-modification'
+        );
+        expect(form.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with customer_portal_settings_read', async () => {
+      const form = await create('customer_portal_settings_read');
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+
+      const list = await getRulesList(form);
+      expect(list.readonly).to.be.true;
+      expect(list.renderRoot.querySelector('[key="create_button_text"]')).to.not.exist;
+
+      form.currentUserScope = 'customer_portal_settings_write';
+      await form.requestUpdate();
+      expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getRulesList(form)).readonly).to.be.false;
+      expect(list.renderRoot.querySelector('[key="create_button_text"]')).to.exist;
+    });
   });
 });

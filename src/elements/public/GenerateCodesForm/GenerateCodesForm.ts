@@ -1,6 +1,7 @@
 import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
@@ -35,6 +36,14 @@ export class GenerateCodesForm extends Base<Data> {
     const length = (this.form.length ?? 6) - prefix.length;
     if (length > 0) return templates.map(t => `${prefix}${t.slice(0, length)}`).join('\n');
   };
+
+  get scopeCollection(): ScopeCollection | null {
+    // The same form generates coupon and gift card codes. The parent URL says which.
+    const segments = this.parent.split('?')[0].split('/');
+    if (segments.includes('coupons')) return 'coupons';
+    if (segments.includes('gift_cards')) return 'gift_cards';
+    return null;
+  }
 
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = ['example', super.readonlySelector.toString()];
