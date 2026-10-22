@@ -255,9 +255,10 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
    * Gateways whose options are not shown, matched exactly against each
    * option's gateway (e.g. `authorize`, `stripe_v2`). Saved cards on a hidden
    * gateway are hidden too. Display only: nothing is enforced server side.
+   * Returns a copy; assign a new list for a change to take effect.
    */
   get hiddenGateways(): string[] {
-    return this.#hiddenGateways;
+    return [...this.#hiddenGateways];
   }
 
   set hiddenGateways(value: string[]) {
@@ -272,10 +273,11 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   /**
    * Option types that are not shown, matched exactly (e.g. `apple-pay`,
    * `saved-card`). An option is hidden when its gateway is in `hiddenGateways`
-   * or its type is in this list.
+   * or its type is in this list. Returns a copy; assign a new list for a
+   * change to take effect.
    */
   get hiddenMethods(): string[] {
-    return this.#hiddenMethods;
+    return [...this.#hiddenMethods];
   }
 
   set hiddenMethods(value: string[]) {
@@ -952,8 +954,8 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
 
     const options = this.#resolveOptions();
 
-    // The raw list, so a background refresh does not flash the loading state
-    // when every option is hidden.
+    // The raw list: when options exist but are all hidden, render the view
+    // (which owns the hidden-options message) instead of the loading alert.
     if (this.#optionsLoading && this.#options.length === 0) {
       this.#renderLoadingState();
       this.#scheduleStripeLightDomSync(undefined);
@@ -2068,7 +2070,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     if (gateway === "purchase_order" || gateway === "purchase-order") {
-      return [{ type: "purchase-order" }];
+      return [{ type: "purchase-order", gateway }];
     }
 
     if (gateway === "paypal_platform") {
@@ -2900,7 +2902,9 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
   }
 
   #isSameList(a: string[], b: string[]): boolean {
-    return a.length === b.length && a.every((entry, index) => entry === b[index]);
+    return (
+      a.length === b.length && a.every((entry, index) => entry === b[index])
+    );
   }
 
   #parseHiddenListAttribute(value: string | null): string[] {

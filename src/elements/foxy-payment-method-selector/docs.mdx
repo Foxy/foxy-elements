@@ -25,10 +25,9 @@ If checkout state is initialized but exposes no recognized payment methods, the 
 
 <code>hiddenGateways</code> and <code>hiddenMethods</code> hide options from the list. An option is hidden when its gateway is in <code>hiddenGateways</code> <strong>or</strong> its type is in <code>hiddenMethods</code>. Values match exactly, with no case folding.
 
-- Gateways are the gateway <code>type</code> values in checkout state, such as <code>authorize</code>, <code>stripe_v2</code>, <code>paypal_platform</code>, <code>klarna</code>, <code>square_up</code>, <code>adyen_embedded</code> or <code>sezzle</code>.
+- Gateways are the gateway <code>type</code> values in checkout state, such as <code>authorize</code>, <code>stripe_v2</code>, <code>paypal_platform</code>, <code>purchase_order</code>, <code>klarna</code>, <code>square_up</code>, <code>adyen_embedded</code> or <code>sezzle</code>.
 - Methods are option types, such as <code>new-card</code>, <code>saved-card</code>, <code>ach</code>, <code>apple-pay</code>, <code>google-pay</code>, <code>paypal</code>, <code>venmo</code>, <code>klarna</code>, <code>stripe-payment-element</code>, <code>adyen-embedded</code> or <code>purchase-order</code>.
 - Saved cards follow both lists. A saved card on a hidden gateway is hidden, and <code>saved-card</code> hides every saved card.
-- The purchase order option has no gateway, so hide it with <code>purchase-order</code> in <code>hiddenMethods</code>.
 - The Adyen Drop-in can only be hidden as a whole, with <code>adyen-embedded</code>.
 
 ```js

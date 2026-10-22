@@ -2964,6 +2964,55 @@ describe("PaymentMethodSelectorElement", () => {
       }
     });
 
+    it("hides the purchase order option by its gateway", async () => {
+      const restoreClient = overrideClientState({
+        payment_gateways: [{ type: "purchase_order" }, { type: "authorize" }],
+      });
+      const element = createSelector();
+      element.hiddenGateways = ["purchase_order"];
+
+      try {
+        document.body.append(element);
+        await waitForText(() => element.shadowRoot?.textContent, "New Card");
+
+        expect(element.shadowRoot?.textContent).not.toContain("Purchase Order");
+        expect(element.selectedOption?.type).toBe("new-card");
+      } finally {
+        element.remove();
+        restoreClient();
+      }
+    });
+
+    it("hides every saved card by the saved-card method", async () => {
+      const restoreClient = overrideClientState({
+        saved_payment_methods: [
+          SAVED_AUTHORIZE_CARD,
+          { ...SAVED_AUTHORIZE_CARD, id: "pm_saved_1111", last_4: "1111" },
+        ],
+        payment_gateways: [{ type: "authorize" }],
+      });
+      const element = createSelector();
+
+      try {
+        document.body.append(element);
+        await waitForText(() => element.shadowRoot?.textContent, "1111");
+        expect(element.shadowRoot?.textContent).toContain("4242");
+
+        element.hiddenMethods = ["saved-card"];
+        await waitForMissingText(
+          () => element.shadowRoot?.textContent,
+          "4242",
+        );
+
+        const text = element.shadowRoot?.textContent ?? "";
+        expect(text).not.toContain("1111");
+        expect(text).toContain("New Card");
+      } finally {
+        element.remove();
+        restoreClient();
+      }
+    });
+
     it("hides one method type and keeps the rest of the gateway", async () => {
       const restoreClient = overrideClientState({
         payment_gateways: [AUTHORIZE_WITH_WALLETS],
@@ -2995,6 +3044,10 @@ describe("PaymentMethodSelectorElement", () => {
 
       expect(element.hiddenGateways).toEqual(["klarna"]);
       expect(element.hiddenMethods).toEqual(["apple-pay", "google-pay"]);
+
+      // The getters hand out copies, so mutating one changes nothing.
+      element.hiddenGateways.push("authorize");
+      expect(element.hiddenGateways).toEqual(["klarna"]);
 
       element.removeAttribute("hidden-gateways");
       element.removeAttribute("hidden-methods");
