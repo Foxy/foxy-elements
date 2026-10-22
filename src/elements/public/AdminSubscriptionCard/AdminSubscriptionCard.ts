@@ -157,9 +157,9 @@ export class AdminSubscriptionCard extends Base<Data> {
             : html`&ZeroWidthSpace;`}
         </div>
 
-        ${customerLine
-          ? html`<div class="text-tertiary truncate text-s">${customerLine}</div>`
-          : ''}
+        <div class="text-tertiary truncate text-s">
+          ${customerLine ? customerLine : html`&ZeroWidthSpace;`}
+        </div>
       </div>
     `;
   }

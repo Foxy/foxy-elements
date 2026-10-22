@@ -43,6 +43,15 @@ describe('AdminSubscriptionCard', () => {
     expect(new Card()).to.have.property('localeCodes', null);
   });
 
+  it('keeps the customer line without data so list rows keep their height', async () => {
+    const element = await fixture<Card>(
+      html`<foxy-admin-subscription-card></foxy-admin-subscription-card>`
+    );
+    const line = element.renderRoot.querySelector('div.text-tertiary.truncate.text-s');
+    expect(line).to.exist;
+    expect(line!.textContent!.trim()).to.equal('\u200b');
+  });
+
   it('extends InternalCard', () => {
     expect(new Card()).to.be.instanceOf(InternalCard);
   });
