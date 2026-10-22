@@ -764,7 +764,8 @@
       },
       "error": {
         "old_password_incorrect": "The old password you entered is incorrect. Please try again.",
-        "email_already_used": "This email is already in use. Please use a different email."
+        "email_already_used": "This email is already in use. Please use a different email.",
+        "old_password_required": "Enter your current password to change your email or password."
       },
       "first-name": {
         "label": "First name",
@@ -805,7 +806,7 @@
       "password-old": {
         "label": "Old password",
         "placeholder": "",
-        "helper_text": "Enter your old password to confirm password change.",
+        "helper_text": "Enter your current password to confirm this change.",
         "v8n_required": "Please fill out this field."
       },
       "timestamps": {

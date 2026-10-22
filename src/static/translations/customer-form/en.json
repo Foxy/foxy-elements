@@ -30,7 +30,8 @@
     "old_password_incorrect": "The old password you entered is incorrect. Please try again.",
     "registration_disabled": "Customer registration is disabled for this store. If you're seeing this message as a customer, please contact the store owner.",
     "verification_failed": "Client verification failed. If you are seeing this message as a customer, please contact the store owner.",
-    "email_already_used": "This email is already in use. Please use a different email."
+    "email_already_used": "This email is already in use. Please use a different email.",
+    "old_password_required": "Enter your current password to change your email or password."
   },
   "first-name": {
     "label": "First name",
@@ -78,7 +79,7 @@
   "password-old": {
     "label": "Old password",
     "placeholder": "",
-    "helper_text": "Enter the old password to set a new password. If you're a store admin, you can leave this field blank.",
+    "helper_text": "Enter your current password to change your email or password. If you're a store admin, you can leave this field blank.",
     "v8n_required": "Please fill out this field."
   },
   "forgot-password": {
