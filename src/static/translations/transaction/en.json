@@ -1040,7 +1040,6 @@
         "paypal_payer_id": "PayPal Payer ID {{ paypal_payer_id }}",
         "third_party_id": "External ID {{ third_party_id }}",
         "price": "{{amount, price}}",
-        "unknown": "Unknown",
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No payments",
