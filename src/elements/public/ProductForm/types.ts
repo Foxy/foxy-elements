@@ -12,7 +12,9 @@ import type { Rels } from '@foxy.io/sdk/backend';
 
 export interface ProductDefinitionImage {
   src: string;
-  alt: string;
+  alt?: string;
+  width?: number;
+  height?: number;
 }
 
 export interface ProductDefinitionOption {
