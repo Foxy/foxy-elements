@@ -34,8 +34,8 @@ export interface ProductDefinitionOption {
  */
 export interface ProductDefinition {
   name?: string;
-  /** Default-currency price. */
-  price?: number;
+  /** Price in the store's currency. The API stores what it's sent: a string or a number. */
+  price?: number | string;
   /** Strikethrough/compare-at price for "$25 ~~$30~~" presentation. */
   list_price?: number;
   /** Per-currency price overrides keyed by ISO 4217 code. */
@@ -95,6 +95,8 @@ export interface Product extends Graph {
     /** ID of the parent product when this is a variant, or the inherited template. */
     inherit_from_id: number | null;
     definition: ProductDefinition;
+    /** `definition` with inheritance applied, maintained by the API. */
+    compiled_definition: ProductDefinition;
     /** `null` means the product is not stock-tracked (always available). */
     stock_level: number | null;
     /** Starting stock level for "duplicate and reset" recurring-event workflows. */

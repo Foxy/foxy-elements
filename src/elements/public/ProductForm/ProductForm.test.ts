@@ -3,6 +3,8 @@ import './index';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { ProductForm } from './ProductForm';
 import { Data } from './types';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { createRouter } from '../../../server/index';
@@ -44,6 +46,18 @@ describe('ProductForm', () => {
 
   it('imports and registers foxy-product-tag-form', () => {
     expect(customElements.get('foxy-product-tag-form')).to.exist;
+  });
+
+  it('imports and registers foxy-product-card', () => {
+    expect(customElements.get('foxy-product-card')).to.exist;
+  });
+
+  it('imports and registers foxy-internal-product-form-images-control', () => {
+    expect(customElements.get('foxy-internal-product-form-images-control')).to.exist;
+  });
+
+  it('imports and registers foxy-internal-product-form-description-control', () => {
+    expect(customElements.get('foxy-internal-product-form-description-control')).to.exist;
   });
 
   it('has a default i18n namespace "product-form"', () => {
@@ -103,9 +117,8 @@ describe('ProductForm', () => {
     // triggering real sub-collection fetches from the internal async-list
     // and resource-picker controls.
 
-    it('renders the placeholder section divs for variants/advanced/stock-rules/events', async () => {
+    it('renders the placeholder section divs for advanced/stock-rules/events', async () => {
       const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
-      expect(await getByTestId(element, 'variants-section')).to.exist;
       expect(await getByTestId(element, 'advanced-section')).to.exist;
       expect(await getByTestId(element, 'stock-rules-section')).to.exist;
       expect(await getByTestId(element, 'events-section')).to.exist;
@@ -187,6 +200,94 @@ describe('ProductForm', () => {
       expect(element.hiddenSelector.matches('events', true)).to.be.true;
       expect(element.hiddenSelector.matches('stock-rules', true)).to.be.true;
       expect(element.hiddenSelector.matches('variants', true)).to.be.true;
+    });
+  });
+
+  describe('images', () => {
+    it('renders the description and images controls, and a variants list of product cards', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const root = element.renderRoot;
+
+      expect(
+        root.querySelector('foxy-internal-product-form-description-control[infer="description"]')
+      ).to.exist;
+      expect(root.querySelector('foxy-internal-product-form-images-control[infer="images"]')).to
+        .exist;
+
+      const variants = root.querySelector('foxy-internal-async-list-control[infer="variants"]');
+      expect(variants).to.have.attribute('item', 'foxy-product-card');
+      expect(variants).to.have.attribute('form', 'foxy-product-form');
+    });
+
+    it('uploads an image through fx:create_upload_url and a pre-signed PUT', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const createUploadUrl = 'https://demo.api/s/admin/products/1/create_upload_url';
+      const uploadUrl =
+        'https://bucket.s3.example.test/products/store_1/products/1/01J.png?X-Amz-Signature=abc';
+      const imageUrl = 'https://images.example.test/products/store_1/products/1/01J.png';
+      const product = await getTestData<Data>('https://demo.api/hapi/products/0', createRouter());
+      element.data = {
+        ...product,
+        _links: { ...product._links, 'fx:create_upload_url': { href: createUploadUrl } },
+      } as Data;
+
+      // The form's tag and variant lists fetch too; only the upload link matters here.
+      const apiRequests: Request[] = [];
+      element.addEventListener('fetch', (evt: Event) => {
+        const fetchEvent = evt as FetchEvent;
+        fetchEvent.preventDefault();
+        if (fetchEvent.request.url !== createUploadUrl) {
+          fetchEvent.respondWith(Promise.resolve(new Response(null, { status: 404 })));
+          return;
+        }
+        apiRequests.push(fetchEvent.request);
+        fetchEvent.respondWith(
+          Promise.resolve(
+            new Response(JSON.stringify({ upload_url: uploadUrl, image_url: imageUrl }))
+          )
+        );
+      });
+
+      const originalFetch = window.fetch;
+      const puts: { url: string; init?: RequestInit }[] = [];
+      window.fetch = (async (url: string, init?: RequestInit) => {
+        puts.push({ url, init });
+        return new Response(null, { status: 200 });
+      }) as typeof window.fetch;
+
+      const file = new File(['png'], 'tee-front.png', { type: 'image/png' });
+      try {
+        expect(await element.uploadImage(file)).to.equal(imageUrl);
+      } finally {
+        window.fetch = originalFetch;
+      }
+
+      expect(apiRequests).to.have.length(1);
+      expect(apiRequests[0].url).to.equal(createUploadUrl);
+      expect(apiRequests[0].method).to.equal('POST');
+      expect(await apiRequests[0].json()).to.deep.equal({ type: 'image/png' });
+
+      expect(puts).to.have.length(1);
+      expect(puts[0].url).to.equal(uploadUrl);
+      expect(puts[0].init?.method).to.equal('PUT');
+      expect(puts[0].init?.body).to.equal(file);
+      expect((puts[0].init?.headers as Record<string, string>)['Content-Type']).to.equal(
+        'image/png'
+      );
+    });
+
+    it('refuses to upload for a product without fx:create_upload_url', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      element.data = await getTestData<Data>('https://demo.api/hapi/products/0', createRouter());
+      let error: unknown = null;
+
+      try {
+        await element.uploadImage(new File(['png'], 'tee.png', { type: 'image/png' }));
+      } catch (err) {
+        error = err;
+      }
+
+      expect(error).to.be.instanceOf(Error);
     });
   });
 });

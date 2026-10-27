@@ -51,7 +51,8 @@ export class ProductCard extends Base<Data> {
     const data = this.data;
     if (!data) return html``;
 
-    const def = data.definition ?? {};
+    // What the product actually is, inheritance applied; a variant's own definition may hold only a name.
+    const def = data.compiled_definition ?? data.definition ?? {};
     const name = def.name || data.sku;
     const thumbnailSrc = def.images?.[0]?.src;
     const stockState = this.__stockState;
@@ -103,7 +104,7 @@ export class ProductCard extends Base<Data> {
     `;
   }
 
-  private __renderPrice(price: number): TemplateResult {
+  private __renderPrice(price: number | string): TemplateResult {
     const amount = this.currencyCode ? `${price} ${this.currencyCode}` : `${price}`;
     return html`
       <span class="text-m text-tertiary whitespace-nowrap" data-testid="price">

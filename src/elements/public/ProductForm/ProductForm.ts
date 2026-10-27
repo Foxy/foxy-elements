@@ -42,8 +42,8 @@ export class ProductForm extends Base<Data> {
         !!(definition as ProductDefinition | undefined)?.name || 'name:v8n_required',
       ({ definition }) => {
         const price = (definition as ProductDefinition | undefined)?.price;
-        if (price === undefined || price === null) return true;
-        return (typeof price === 'number' && price >= 0) || 'price:v8n_negative';
+        if (price === undefined || price === null || price === '') return true;
+        return Number(price) >= 0 || 'price:v8n_negative';
       },
     ];
   }
@@ -118,14 +118,6 @@ export class ProductForm extends Base<Data> {
         >
         </foxy-internal-number-control>
 
-        <foxy-internal-text-control
-          layout="summary-item"
-          infer="description"
-          property="definition.description"
-          placeholder=${ifDefined(parentDef?.description ?? undefined)}
-        >
-        </foxy-internal-text-control>
-
         <foxy-internal-resource-picker-control
           layout="summary-item"
           first=${ifDefined(this.productCategories ?? undefined)}
@@ -135,6 +127,16 @@ export class ProductForm extends Base<Data> {
         >
         </foxy-internal-resource-picker-control>
       </foxy-internal-summary-control>
+
+      <foxy-internal-product-form-description-control
+        infer="description"
+        property="definition.description"
+        placeholder=${ifDefined(parentDef?.description ?? undefined)}
+      >
+      </foxy-internal-product-form-description-control>
+
+      <foxy-internal-product-form-images-control infer="images">
+      </foxy-internal-product-form-images-control>
 
       <foxy-internal-summary-control infer="stock">
         <foxy-internal-number-control
@@ -156,20 +158,54 @@ export class ProductForm extends Base<Data> {
       >
       </foxy-internal-async-list-control>
 
+      <foxy-internal-async-list-control
+        layout="details"
+        infer="variants"
+        first=${ifDefined(this.data?._links['fx:product_variants']?.href)}
+        item="foxy-product-card"
+        form="foxy-product-form"
+        wide
+      >
+      </foxy-internal-async-list-control>
+
       <!--
-        Section placeholders for Units 6/8/9. Plain divs (rather than empty
+        Section placeholders for Units 8/9. Plain divs (rather than empty
         InternalSummaryControl instances) so this form doesn't trigger any
         side effects from sub-control activation while these sections are
         still empty. Data-testids let tests verify the structural slots are
         in place.
       -->
-      <div data-testid="variants-section" hidden></div>
       <div data-testid="advanced-section" hidden></div>
       <div data-testid="stock-rules-section" hidden></div>
       <div data-testid="events-section" hidden></div>
 
       ${super.renderBody()}
     `;
+  }
+
+  /**
+   * Uploads an image for this product and returns its permanent URL. Needs the
+   * `fx:create_upload_url` link, which the admin backend adds to a saved
+   * product.
+   */
+  async uploadImage(file: File): Promise<string> {
+    const createUploadUrl = this.data?._links['fx:create_upload_url']?.href;
+    if (!createUploadUrl) throw new Error('This product has no fx:create_upload_url link.');
+
+    const { upload_url, image_url } = await this._fetch<{ upload_url: string; image_url: string }>(
+      createUploadUrl,
+      { method: 'POST', body: JSON.stringify({ type: file.type }) }
+    );
+
+    // A pre-signed storage URL: plain fetch, since API credentials mustn't go there.
+    const response = await fetch(upload_url, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': file.type },
+    });
+    if (!response.ok) throw new Error(`Image upload failed with ${response.status}.`);
+
+    return image_url;
   }
 
   protected async _sendGet(): Promise<Data> {
