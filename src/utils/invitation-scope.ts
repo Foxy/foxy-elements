@@ -8,7 +8,7 @@ export type Selection = {
   preset: 'store' | 'read' | 'custom' | null;
   /** Level per collection, keyed by the tokens in `COLLECTIONS`. Always fully populated. */
   levels: Record<string, Level>;
-  /** Collections with a `_resend` grant. Independent of `levels`, per the API. */
+  /** Collections with their own `_resend` token. The API includes resend in `full`. */
   resend: string[];
   /**
    * Tokens this UI does not model, carried through untouched. `client_full_access` and
@@ -86,9 +86,8 @@ export function serializeScope(selection: Selection): string {
   COLLECTIONS.forEach(collection => {
     const level = selection.levels[collection] ?? 'none';
 
-    // Full emits both tokens rather than write alone. Grantability is literal token
-    // membership, so a user granted only `<c>_write` could never afterwards grant anyone
-    // read-only access to that collection — the anomaly would propagate down the chain.
+    // Full emits both tokens rather than write alone. The OIDC provider compares the scopes a
+    // sign-in asks for with these tokens literally, without write covering read.
     if (level === 'full') tokens.push(`${collection}_read`, `${collection}_write`);
     else if (level === 'read') tokens.push(`${collection}_read`);
   });
@@ -120,15 +119,19 @@ export function canGrantLevel(grantable: Grantable, collection: string, level: L
   if (level === 'none') return true;
   if (grantable.storeFullAccess) return true;
 
-  const hasRead = grantable.tokens.has(`${collection}_read`);
-  if (level === 'read') return hasRead;
+  const hasWrite = grantable.tokens.has(`${collection}_write`);
+  if (level === 'read') return hasWrite || grantable.tokens.has(`${collection}_read`);
 
-  return hasRead && grantable.tokens.has(`${collection}_write`);
+  return hasWrite;
 }
 
 /** Whether the granter can give `collection` a resend grant. */
 export function canGrantResend(grantable: Grantable, collection: string): boolean {
-  return grantable.storeFullAccess || grantable.tokens.has(`${collection}_resend`);
+  return (
+    grantable.storeFullAccess ||
+    grantable.tokens.has(`${collection}_write`) ||
+    grantable.tokens.has(`${collection}_resend`)
+  );
 }
 
 /**
@@ -141,5 +144,5 @@ export function canGrantResend(grantable: Grantable, collection: string): boolea
  */
 export function canGrantReadPreset(grantable: Grantable): boolean {
   if (grantable.storeFullAccess) return true;
-  return COLLECTIONS.every(collection => grantable.tokens.has(`${collection}_read`));
+  return COLLECTIONS.every(collection => canGrantLevel(grantable, collection, 'read'));
 }

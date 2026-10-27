@@ -114,6 +114,10 @@
     "resend": "Resend",
     "checked": "Granted",
     "unchecked": "Not granted",
+    "included-resend": {
+      "checked": "Included with full access",
+      "unchecked": "Not granted"
+    },
     "scopes": {
       "carts": "Carts",
       "coupons": "Coupons",
