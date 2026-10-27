@@ -17,8 +17,8 @@
     }
   },
   "general": {
-    "title": "General",
-    "subtitle": "",
+    "label": "General",
+    "helper_text": "",
     "name": {
       "label": "Name",
       "placeholder": "e.g. Apparel",

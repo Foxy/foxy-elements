@@ -21,8 +21,8 @@
   },
   "inheritance_note": "Empty fields inherit from the parent product.",
   "general": {
-    "title": "General",
-    "subtitle": "Core product details.",
+    "label": "General",
+    "helper_text": "Core product details.",
     "name": {
       "label": "Name",
       "placeholder": "e.g. Acme Widget",
@@ -45,7 +45,29 @@
     "category": {
       "label": "Category",
       "placeholder": "Choose a category",
-      "helper_text": "Foxy Products taxonomy. Separate from billing/shipping item categories."
+      "helper_text": "Foxy Products taxonomy. Separate from billing/shipping item categories.",
+      "value": "{{ resource.name }}",
+      "select": "Select",
+      "view": "View",
+      "clear": "Clear",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select a category",
+        "selection": {
+          "label": "",
+          "helper_text": "",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select"
+          }
+        }
+      }
     }
   },
   "description": {
@@ -68,8 +90,8 @@
     "error_upload": "Couldn’t upload {{file}}. Try again, or use a JPEG, PNG, GIF, WebP or SVG."
   },
   "stock": {
-    "title": "Stock",
-    "subtitle": "Inventory tracking.",
+    "label": "Stock",
+    "helper_text": "Inventory tracking.",
     "stock-level": {
       "label": "Stock level",
       "placeholder": "Leave blank to skip stock tracking",
@@ -77,8 +99,8 @@
     }
   },
   "tags": {
-    "title": "Tags",
-    "subtitle": "Free-form labels for filtering and search.",
+    "label": "Tags",
+    "helper_text": "Free-form labels for filtering and search.",
     "create_button_text": "Add a tag",
     "delete_button_text": "Remove",
     "card": {
@@ -126,11 +148,13 @@
       "loading_busy": "Loading",
       "loading_empty": "No tags yet",
       "loading_error": "Unknown error"
-    }
+    },
+    "total_items": "{{ count }} tag",
+    "total_items_plural": "{{ count }} tags"
   },
   "variants": {
-    "title": "Variants",
-    "subtitle": "Each version of this product a customer can buy, such as a size or colour. A variant inherits everything it doesn’t set.",
+    "label": "Variants",
+    "helper_text": "Each version of this product a customer can buy, such as a size or colour. A variant inherits everything it doesn’t set.",
     "create_button_text": "Add a variant",
     "delete_button_text": "Delete",
     "card": {
@@ -332,19 +356,21 @@
       "loading_busy": "Loading",
       "loading_empty": "No variants yet",
       "loading_error": "Unknown error"
-    }
+    },
+    "total_items": "{{ count }} variant",
+    "total_items_plural": "{{ count }} variants"
   },
   "advanced": {
-    "title": "Advanced",
-    "subtitle": "Options, multi-currency prices, subscription fields, SEO. Filled in by Unit 8."
+    "label": "Advanced",
+    "helper_text": "Options, multi-currency prices, subscription fields, SEO. Filled in by Unit 8."
   },
   "stock-rules": {
-    "title": "Stock rules",
-    "subtitle": "Cross-product inventory rules. Filled in by Unit 9."
+    "label": "Stock rules",
+    "helper_text": "Cross-product inventory rules. Filled in by Unit 9."
   },
   "events": {
-    "title": "Events",
-    "subtitle": "Activity log for this product. Filled in by Unit 9."
+    "label": "Events",
+    "helper_text": "Activity log for this product. Filled in by Unit 9."
   },
   "timestamps": {
     "date_created": "Created on",

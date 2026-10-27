@@ -4,6 +4,7 @@ import type { NucleonV8N } from '../NucleonElement/types';
 import type { BooleanSelector } from '@foxy.io/sdk/core';
 import type { Data, ProductDefinition } from './types';
 
+import { getResourceId } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
@@ -57,6 +58,22 @@ export class ProductForm extends Base<Data> {
    * empty variant fields.
    */
   private __parentProduct: Data | null = null;
+
+  // The picker works in hrefs; the product stores category_id. A category's
+  // href is /product_categories/{id} beside /products/{id} and /stores/{id}.
+  private readonly __categoryGetValue = () => {
+    const id = this.form.category_id;
+    if (!id) return undefined;
+    const self = this.data?._links.self.href;
+    if (self) return new URL(`../product_categories/${id}`, self).toString();
+    if (this.productCategories)
+      return new URL(`../../product_categories/${id}`, this.productCategories).toString();
+  };
+
+  private readonly __categorySetValue = (href: string) => {
+    const id = getResourceId(href);
+    this.edit({ category_id: typeof id === 'number' ? id : null });
+  };
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = [super.hiddenSelector.toString()];
@@ -123,6 +140,8 @@ export class ProductForm extends Base<Data> {
           first=${ifDefined(this.productCategories ?? undefined)}
           infer="category"
           property="category_id"
+          .getValue=${this.__categoryGetValue}
+          .setValue=${this.__categorySetValue}
           item="foxy-product-category-card"
         >
         </foxy-internal-resource-picker-control>
@@ -204,6 +223,7 @@ export class ProductForm extends Base<Data> {
       headers: { 'Content-Type': file.type },
     });
     if (!response.ok) throw new Error(`Image upload failed with ${response.status}.`);
+    const response = await fetch(upload_url, { method: 'PUT', body: file, headers });
 
     return image_url;
   }

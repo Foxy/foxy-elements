@@ -13,6 +13,6 @@
   "stock_low_stock": "Low stock",
   "stock_out_of_stock": "Out of stock",
   "stock_untracked": "Untracked",
-  "variant_count_one": "{{count}} variant",
-  "variant_count_other": "{{count}} variants"
+  "variant_count": "{{count}} variant",
+  "variant_count_plural": "{{count}} variants"
 }
