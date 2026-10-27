@@ -1,6 +1,7 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { SwipeAction } from '../../internal/InternalAsyncListControl/types';
 import type { BooleanSelector } from '@foxy.io/sdk/core';
 import type { Data, ProductDefinition } from './types';
 
@@ -32,6 +33,7 @@ export class ProductForm extends Base<Data> {
     return {
       ...super.properties,
       productCategories: { attribute: 'product-categories' },
+      __variantActions: { attribute: false },
     };
   }
 
@@ -74,6 +76,25 @@ export class ProductForm extends Base<Data> {
     const id = getResourceId(href);
     this.edit({ category_id: typeof id === 'number' ? id : null });
   };
+
+  private __variantActions: SwipeAction<Data>[] = [
+    {
+      theme: 'contrast',
+      state: 'idle',
+      text: 'copy_button_text',
+      onClick: async data => {
+        const action = this.__variantActions[0];
+        this.__variantActions = [{ ...action, state: 'busy' }];
+        try {
+          await navigator.clipboard.writeText(data.sku);
+          this.__variantActions = [{ ...action, state: 'end' }];
+        } catch {
+          this.__variantActions = [{ ...action, state: 'error' }];
+        }
+        setTimeout(() => (this.__variantActions = [{ ...action, state: 'idle' }]), 1000);
+      },
+    },
+  ];
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = [super.hiddenSelector.toString()];
@@ -183,6 +204,7 @@ export class ProductForm extends Base<Data> {
         first=${ifDefined(this.data?._links['fx:product_variants']?.href)}
         item="foxy-product-card"
         form="foxy-product-form"
+        .actions=${this.__variantActions}
         wide
       >
       </foxy-internal-async-list-control>

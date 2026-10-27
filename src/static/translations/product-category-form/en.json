@@ -49,14 +49,20 @@
     "date_modified": "Last updated on",
     "date": "{{value, date}}"
   },
-  "create": { "create": "Create", "cancel": "Cancel" },
+  "create": {
+    "caption": "Create"
+  },
   "delete": {
     "delete": "Delete",
     "cancel": "Cancel",
     "delete_prompt": "Delete this category? Categories with children or assigned products cannot be deleted."
   },
-  "submit": { "create": "Create", "cancel": "Cancel" },
-  "undo": { "undo": "Undo", "cancel": "Cancel", "undo_prompt": "Discard unsaved changes?" },
+  "submit": {
+    "caption": "Save changes"
+  },
+  "undo": {
+    "caption": "Undo"
+  },
   "spinner": {
     "loading_busy": "Loading",
     "loading_empty": "No data",

@@ -84,8 +84,10 @@
     "alt_label": "Alt text",
     "alt_helper_text": "Describe the image for people who can’t see it, such as “Black tee, front, on a hanger”.",
     "alt_default": "Image of {{name}}",
-    "main": "Shown in the cart",
-    "make_main": "Show this one in the cart",
+    "main": "Main image, shown in the cart",
+    "make_main": "Make main",
+    "move_up": "Move up",
+    "move_down": "Move down",
     "remove": "Remove",
     "error_upload": "Couldn’t upload {{file}}. Try again, or use a JPEG, PNG, GIF, WebP or SVG."
   },
@@ -101,48 +103,88 @@
   "tags": {
     "label": "Tags",
     "helper_text": "Free-form labels for filtering and search.",
-    "create_button_text": "Add a tag",
-    "delete_button_text": "Remove",
-    "card": {
-      "spinner": {
-        "loading_busy": "Loading",
-        "loading_empty": "No data",
-        "loading_error": "Unknown error"
-      }
-    },
-    "form": {
-      "header": {
-        "title_existing": "Tag",
-        "title_new": "New tag"
-      },
-      "tag": {
-        "label": "Tag",
-        "placeholder": "e.g. bestseller",
-        "v8n_required": "Required.",
-        "v8n_too_long": "Must be 255 characters or fewer."
-      },
-      "create": {
-        "create": "Create",
-        "cancel": "Cancel"
-      },
-      "delete": {
-        "delete": "Delete",
-        "cancel": "Cancel"
-      },
-      "submit": {
-        "create": "Create",
-        "cancel": "Cancel"
-      },
-      "undo": {
-        "undo": "Undo",
-        "cancel": "Cancel"
-      }
-    },
+    "delete_header": "Remove tag?",
+    "delete_message": "Remove this tag from the product?",
+    "delete_confirm": "Remove",
+    "delete_cancel": "Cancel",
     "pagination": {
       "first": "First",
       "last": "Last",
       "next": "Next",
-      "previous": "Previous"
+      "previous": "Previous",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "page_number": "Page number:",
+      "select": "Select",
+      "create_button_text": "Add a tag",
+      "card": {
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No data",
+          "loading_error": "Unknown error"
+        },
+        "delete_button_text": "Remove"
+      }
+    },
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header_update": "Tag",
+      "header_create": "New tag",
+      "save": "Save",
+      "undo_header": "Unsaved changes",
+      "undo_message": "You haven’t saved your changes. What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "product-tag-form": {
+        "header": {
+          "title_existing": "Tag",
+          "title_new": "New tag",
+          "subtitle": "",
+          "copy-id": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy ID",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          },
+          "copy-json": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy source as JSON",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          }
+        },
+        "tag": {
+          "label": "Tag",
+          "placeholder": "e.g. bestseller",
+          "helper_text": "",
+          "v8n_required": "Required.",
+          "v8n_too_long": "Must be 255 characters or fewer."
+        },
+        "timestamps": {
+          "date_created": "Created on",
+          "date_modified": "Last updated on",
+          "date": "{{value, date}}"
+        },
+        "create": {
+          "caption": "Create"
+        },
+        "delete": {
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "delete_prompt": "Are you sure?"
+        },
+        "submit": {
+          "caption": "Save changes"
+        },
+        "undo": {
+          "caption": "Undo"
+        },
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No data",
+          "loading_error": "Unknown error"
+        }
+      }
     },
     "spinner": {
       "loading_busy": "Loading",
@@ -155,202 +197,281 @@
   "variants": {
     "label": "Variants",
     "helper_text": "Each version of this product a customer can buy, such as a size or colour. A variant inherits everything it doesn’t set.",
-    "create_button_text": "Add a variant",
-    "delete_button_text": "Delete",
-    "card": {
-      "spinner": {
-        "loading_busy": "Loading",
-        "loading_empty": "No data",
-        "loading_error": "Unknown error"
-      },
-      "price": "{{amount, price}}",
-      "type_standalone": "Standalone",
-      "type_parent": "Parent",
-      "type_variant": "Variant",
-      "type_template": "Template",
-      "stock_in_stock": "In stock",
-      "stock_low_stock": "Low stock",
-      "stock_out_of_stock": "Out of stock",
-      "stock_untracked": "Untracked",
-      "variant_count_one": "{{count}} variant",
-      "variant_count_other": "{{count}} variants"
-    },
-    "form": {
-      "header": {
-        "title_existing": "Variant",
-        "title_new": "New variant",
-        "subtitle_standalone": "Standalone product",
-        "subtitle_parent": "Parent product with variants",
-        "subtitle_variant": "Variant",
-        "subtitle_template": "Template (not listed in catalog)",
-        "copy-id": {
-          "failed_to_copy": "Failed to copy",
-          "click_to_copy": "Copy ID",
-          "copying": "Copying...",
-          "done": "Copied to clipboard"
-        },
-        "copy-json": {
-          "failed_to_copy": "Failed to copy",
-          "click_to_copy": "Copy source as JSON",
-          "copying": "Copying...",
-          "done": "Copied to clipboard"
-        }
-      },
-      "inheritance_note": "Empty fields inherit from the parent product.",
-      "general": {
-        "title": "General",
-        "subtitle": "Core product details.",
-        "name": {
-          "label": "Name",
-          "placeholder": "e.g. Acme Widget",
-          "helper_text": "",
-          "v8n_required": "Required."
-        },
-        "sku": {
-          "label": "SKU",
-          "placeholder": "e.g. WIDGET-001",
-          "helper_text": "Unique within this store.",
-          "v8n_required": "Required.",
-          "v8n_too_long": "Must be 255 characters or fewer."
-        },
-        "price": {
-          "label": "Price",
-          "placeholder": "0.00",
-          "helper_text": "Default-currency price.",
-          "v8n_negative": "Must be zero or greater."
-        },
-        "category": {
-          "label": "Category",
-          "placeholder": "Choose a category",
-          "helper_text": "Foxy Products taxonomy. Separate from billing/shipping item categories."
-        }
-      },
-      "description": {
-        "label": "Description",
-        "placeholder": "What it is, what it’s made of, how to use it.",
-        "helper_text": "Markdown: **bold**, *italic*, lists, links and headings. Shown on product pages."
-      },
-      "images": {
-        "label": "Images",
-        "add": "Add images",
-        "uploading": "Uploading…",
-        "save_first": "Save the product to add images.",
-        "inherited": "Uses {{count}} image(s) from the product it inherits from. Add images here to replace them.",
-        "alt_label": "Alt text",
-        "alt_helper_text": "Describe the image for people who can’t see it, such as “Black tee, front, on a hanger”.",
-        "alt_default": "Image of {{name}}",
-        "main": "Shown in the cart",
-        "make_main": "Show this one in the cart",
-        "remove": "Remove",
-        "error_upload": "Couldn’t upload {{file}}. Try again, or use a JPEG, PNG, GIF, WebP or SVG."
-      },
-      "stock": {
-        "title": "Stock",
-        "subtitle": "Inventory tracking.",
-        "stock-level": {
-          "label": "Stock level",
-          "placeholder": "Leave blank to skip stock tracking",
-          "helper_text": "0 = out of stock. Blank = not tracked."
-        }
-      },
-      "tags": {
-        "title": "Tags",
-        "subtitle": "Free-form labels for filtering and search.",
-        "create_button_text": "Add a tag",
-        "delete_button_text": "Remove",
-        "card": {
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_empty": "No data",
-            "loading_error": "Unknown error"
-          }
-        },
-        "form": {
-          "header": {
-            "title_existing": "Tag",
-            "title_new": "New tag"
-          },
-          "tag": {
-            "label": "Tag",
-            "placeholder": "e.g. bestseller",
-            "v8n_required": "Required.",
-            "v8n_too_long": "Must be 255 characters or fewer."
-          },
-          "create": {
-            "create": "Create",
-            "cancel": "Cancel"
-          },
-          "delete": {
-            "delete": "Delete",
-            "cancel": "Cancel"
-          },
-          "submit": {
-            "create": "Create",
-            "cancel": "Cancel"
-          },
-          "undo": {
-            "undo": "Undo",
-            "cancel": "Cancel"
-          }
-        },
-        "pagination": {
-          "first": "First",
-          "last": "Last",
-          "next": "Next",
-          "previous": "Previous"
-        },
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_empty": "No tags yet",
-          "loading_error": "Unknown error"
-        }
-      },
-      "advanced": {
-        "title": "Advanced",
-        "subtitle": "Options, multi-currency prices, subscription fields, SEO. Filled in by Unit 8."
-      },
-      "stock-rules": {
-        "title": "Stock rules",
-        "subtitle": "Cross-product inventory rules. Filled in by Unit 9."
-      },
-      "events": {
-        "title": "Events",
-        "subtitle": "Activity log for this product. Filled in by Unit 9."
-      },
-      "timestamps": {
-        "date_created": "Created on",
-        "date_modified": "Last updated on",
-        "date": "{{value, date}}"
-      },
-      "create": {
-        "create": "Create",
-        "cancel": "Cancel"
-      },
-      "delete": {
-        "delete": "Delete",
-        "cancel": "Cancel",
-        "delete_prompt": "Soft-delete this product? Restorable later by clearing deleted_at."
-      },
-      "submit": {
-        "create": "Create",
-        "cancel": "Cancel"
-      },
-      "undo": {
-        "undo": "Undo",
-        "cancel": "Cancel",
-        "undo_prompt": "Discard unsaved changes?"
-      },
-      "spinner": {
-        "loading_busy": "Loading",
-        "loading_empty": "No data",
-        "loading_error": "Unknown error"
-      }
-    },
+    "delete_header": "Delete variant?",
+    "delete_message": "Customers can no longer buy this variant. Past orders keep it, and it can be restored through the API.",
+    "delete_confirm": "Delete",
+    "delete_cancel": "Cancel",
     "pagination": {
       "first": "First",
       "last": "Last",
       "next": "Next",
-      "previous": "Previous"
+      "previous": "Previous",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "page_number": "Page number:",
+      "select": "Select",
+      "create_button_text": "Add a variant",
+      "card": {
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No data",
+          "loading_error": "Unknown error"
+        },
+        "price": "{{amount, price}}",
+        "type_standalone": "Standalone",
+        "type_parent": "Parent",
+        "type_variant": "Variant",
+        "type_template": "Template",
+        "stock_in_stock": "In stock",
+        "stock_low_stock": "Low stock",
+        "stock_out_of_stock": "Out of stock",
+        "stock_untracked": "Untracked",
+        "copy_button_text": "Copy SKU",
+        "delete_button_text": "Delete"
+      }
+    },
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header_update": "Variant",
+      "header_create": "New variant",
+      "save": "Save",
+      "undo_header": "Unsaved changes",
+      "undo_message": "You haven’t saved your changes. What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "product-form": {
+        "header": {
+          "title_existing": "Variant",
+          "title_new": "New variant",
+          "subtitle_standalone": "Standalone product",
+          "subtitle_parent": "Parent product with variants",
+          "subtitle_variant": "Variant",
+          "subtitle_template": "Template (not listed in catalog)",
+          "copy-id": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy ID",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          },
+          "copy-json": {
+            "failed_to_copy": "Failed to copy",
+            "click_to_copy": "Copy source as JSON",
+            "copying": "Copying...",
+            "done": "Copied to clipboard"
+          }
+        },
+        "inheritance_note": "Empty fields inherit from the parent product.",
+        "general": {
+          "label": "General",
+          "helper_text": "Core product details.",
+          "name": {
+            "label": "Name",
+            "placeholder": "e.g. Acme Widget",
+            "helper_text": "",
+            "v8n_required": "Required."
+          },
+          "sku": {
+            "label": "SKU",
+            "placeholder": "e.g. WIDGET-001",
+            "helper_text": "Unique within this store.",
+            "v8n_required": "Required.",
+            "v8n_too_long": "Must be 255 characters or fewer."
+          },
+          "price": {
+            "label": "Price",
+            "placeholder": "0.00",
+            "helper_text": "Default-currency price.",
+            "v8n_negative": "Must be zero or greater."
+          },
+          "category": {
+            "label": "Category",
+            "placeholder": "Choose a category",
+            "helper_text": "Foxy Products taxonomy. Separate from billing/shipping item categories.",
+            "value": "{{ resource.name }}",
+            "select": "Select",
+            "view": "View",
+            "clear": "Clear",
+            "dialog": {
+              "cancel": "Cancel",
+              "close": "Close",
+              "header": "Select a category",
+              "selection": {
+                "label": "",
+                "helper_text": "",
+                "pagination": {
+                  "first": "First",
+                  "last": "Last",
+                  "next": "Next",
+                  "pagination": "{{from}}-{{to}} out of {{total}}",
+                  "previous": "Previous",
+                  "page_number": "Page number:",
+                  "select": "Select"
+                }
+              }
+            }
+          }
+        },
+        "description": {
+          "label": "Description",
+          "placeholder": "What it is, what it’s made of, how to use it.",
+          "helper_text": "Markdown: **bold**, *italic*, lists, links and headings. Shown on product pages."
+        },
+        "images": {
+          "label": "Images",
+          "add": "Add images",
+          "uploading": "Uploading…",
+          "save_first": "Save the product to add images.",
+          "inherited": "Uses {{count}} image(s) from the product it inherits from. Add images here to replace them.",
+          "alt_label": "Alt text",
+          "alt_helper_text": "Describe the image for people who can’t see it, such as “Black tee, front, on a hanger”.",
+          "alt_default": "Image of {{name}}",
+          "main": "Main image, shown in the cart",
+          "make_main": "Make main",
+          "move_up": "Move up",
+          "move_down": "Move down",
+          "remove": "Remove",
+          "error_upload": "Couldn’t upload {{file}}. Try again, or use a JPEG, PNG, GIF, WebP or SVG."
+        },
+        "stock": {
+          "label": "Stock",
+          "helper_text": "Inventory tracking.",
+          "stock-level": {
+            "label": "Stock level",
+            "placeholder": "Leave blank to skip stock tracking",
+            "helper_text": "0 = out of stock. Blank = not tracked."
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "helper_text": "Free-form labels for filtering and search.",
+          "delete_header": "Remove tag?",
+          "delete_message": "Remove this tag from the product?",
+          "delete_confirm": "Remove",
+          "delete_cancel": "Cancel",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "previous": "Previous",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "page_number": "Page number:",
+            "select": "Select",
+            "create_button_text": "Add a tag",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No data",
+                "loading_error": "Unknown error"
+              },
+              "delete_button_text": "Remove"
+            }
+          },
+          "dialog": {
+            "close": "Close",
+            "cancel": "Cancel",
+            "header_update": "Tag",
+            "header_create": "New tag",
+            "save": "Save",
+            "undo_header": "Unsaved changes",
+            "undo_message": "You haven’t saved your changes. What would you like to do with them?",
+            "undo_cancel": "Review",
+            "undo_confirm": "Discard",
+            "product-tag-form": {
+              "header": {
+                "title_existing": "Tag",
+                "title_new": "New tag",
+                "subtitle": "",
+                "copy-id": {
+                  "failed_to_copy": "Failed to copy",
+                  "click_to_copy": "Copy ID",
+                  "copying": "Copying...",
+                  "done": "Copied to clipboard"
+                },
+                "copy-json": {
+                  "failed_to_copy": "Failed to copy",
+                  "click_to_copy": "Copy source as JSON",
+                  "copying": "Copying...",
+                  "done": "Copied to clipboard"
+                }
+              },
+              "tag": {
+                "label": "Tag",
+                "placeholder": "e.g. bestseller",
+                "helper_text": "",
+                "v8n_required": "Required.",
+                "v8n_too_long": "Must be 255 characters or fewer."
+              },
+              "timestamps": {
+                "date_created": "Created on",
+                "date_modified": "Last updated on",
+                "date": "{{value, date}}"
+              },
+              "create": {
+                "caption": "Create"
+              },
+              "delete": {
+                "delete": "Delete",
+                "cancel": "Cancel",
+                "delete_prompt": "Are you sure?"
+              },
+              "submit": {
+                "caption": "Save changes"
+              },
+              "undo": {
+                "caption": "Undo"
+              },
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No data",
+                "loading_error": "Unknown error"
+              }
+            }
+          },
+          "spinner": {
+            "loading_busy": "Loading",
+            "loading_empty": "No tags yet",
+            "loading_error": "Unknown error"
+          },
+          "total_items": "{{ count }} tag",
+          "total_items_plural": "{{ count }} tags"
+        },
+        "advanced": {
+          "label": "Advanced",
+          "helper_text": "Options, multi-currency prices, subscription fields, SEO. Filled in by Unit 8."
+        },
+        "stock-rules": {
+          "label": "Stock rules",
+          "helper_text": "Cross-product inventory rules. Filled in by Unit 9."
+        },
+        "events": {
+          "label": "Events",
+          "helper_text": "Activity log for this product. Filled in by Unit 9."
+        },
+        "timestamps": {
+          "date_created": "Created on",
+          "date_modified": "Last updated on",
+          "date": "{{value, date}}"
+        },
+        "create": {
+          "caption": "Create"
+        },
+        "delete": {
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "delete_prompt": "Soft-delete this product? Restorable later by clearing deleted_at."
+        },
+        "submit": {
+          "caption": "Save changes"
+        },
+        "undo": {
+          "caption": "Undo"
+        },
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No data",
+          "loading_error": "Unknown error"
+        }
+      }
     },
     "spinner": {
       "loading_busy": "Loading",
@@ -378,8 +499,7 @@
     "date": "{{value, date}}"
   },
   "create": {
-    "create": "Create",
-    "cancel": "Cancel"
+    "caption": "Create"
   },
   "delete": {
     "delete": "Delete",
@@ -387,13 +507,10 @@
     "delete_prompt": "Soft-delete this product? Restorable later by clearing deleted_at."
   },
   "submit": {
-    "create": "Create",
-    "cancel": "Cancel"
+    "caption": "Save changes"
   },
   "undo": {
-    "undo": "Undo",
-    "cancel": "Cancel",
-    "undo_prompt": "Discard unsaved changes?"
+    "caption": "Undo"
   },
   "spinner": {
     "loading_busy": "Loading",

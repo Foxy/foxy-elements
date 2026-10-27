@@ -289,5 +289,60 @@ describe('ProductForm', () => {
 
       expect(error).to.be.instanceOf(Error);
     });
+    it('moves an image up or down, keeping the rest in order', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const product = await getTestData<Data>('https://demo.api/hapi/products/0', createRouter());
+      const front = { src: 'https://images.example.test/tee-front.jpg', alt: 'Black tee, front' };
+      const back = { src: 'https://images.example.test/tee-back.jpg', alt: 'Black tee, back' };
+      const detail = { src: 'https://images.example.test/tee-hem.jpg', alt: 'Hem stitching' };
+      element.data = {
+        ...product,
+        definition: { ...product.definition, images: [front, back, detail] },
+      };
+      await element.requestUpdate();
+
+      const control = element.renderRoot.querySelector(
+        'foxy-internal-product-form-images-control'
+      ) as HTMLElement & { updateComplete: Promise<unknown> };
+      await control.updateComplete;
+      const buttons = (text: string) =>
+        Array.from(control.renderRoot.querySelectorAll('button')).filter(
+          b => b.textContent?.trim() === text
+        );
+
+      expect(buttons('move_up')).to.have.length(2, 'every image but the first moves up');
+      expect(buttons('move_down')).to.have.length(2, 'every image but the last moves down');
+
+      buttons('move_down')[0].click();
+      expect(element.form.definition?.images).to.deep.equal([back, front, detail]);
+
+      await control.updateComplete;
+      buttons('move_up')[1].click();
+      expect(element.form.definition?.images).to.deep.equal([back, detail, front]);
+    });
+  });
+
+  it("offers to copy a variant's SKU from the variants list", async () => {
+    const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+    const variants = element.renderRoot.querySelector(
+      'foxy-internal-async-list-control[infer="variants"]'
+    ) as HTMLElement & {
+      actions: { text: string; onClick: (data: unknown) => Promise<unknown> }[];
+    };
+    const [copy] = variants.actions;
+    expect(copy.text).to.equal('copy_button_text');
+
+    const clipboard = navigator.clipboard;
+    const written: string[] = [];
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: async (text: string) => void written.push(text) },
+    });
+    try {
+      await copy.onClick({ sku: 'TEE-ORG-M-BLK' });
+    } finally {
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: clipboard });
+    }
+    expect(written).to.deep.equal(['TEE-ORG-M-BLK']);
   });
 });

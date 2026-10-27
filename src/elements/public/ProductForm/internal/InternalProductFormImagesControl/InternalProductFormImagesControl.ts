@@ -8,9 +8,9 @@ import { html } from 'lit-element';
 const ACCEPTED_TYPES = 'image/jpeg,image/png,image/gif,image/webp,image/svg+xml';
 
 /**
- * A product's images: upload, alt text, remove, and which one comes first.
- * Uploads go straight to storage when picked, so the product must be saved
- * first; the first image is the one the cart shows.
+ * A product's images: upload, alt text, remove, and their order. Uploads go
+ * straight to storage when picked, so the product must be saved first. The
+ * first image is the main one, and the one the cart shows.
  *
  * @element foxy-internal-product-form-images-control
  */
@@ -96,6 +96,28 @@ export class InternalProductFormImagesControl extends InternalControl {
                           ${this.t('make_main')}
                         </button>
                       `}
+                  ${index > 0
+                    ? html`
+                        <button
+                          class="text-primary"
+                          ?disabled=${locked}
+                          @click=${() => this.__move(index, index - 1)}
+                        >
+                          ${this.t('move_up')}
+                        </button>
+                      `
+                    : ''}
+                  ${index < images.length - 1
+                    ? html`
+                        <button
+                          class="text-primary"
+                          ?disabled=${locked}
+                          @click=${() => this.__move(index, index + 1)}
+                        >
+                          ${this.t('move_down')}
+                        </button>
+                      `
+                    : ''}
                   <button
                     class="text-error"
                     ?disabled=${locked}
@@ -115,6 +137,12 @@ export class InternalProductFormImagesControl extends InternalControl {
   private get __images(): ProductDefinitionImage[] {
     const form = this.nucleon as ProductForm | null;
     return form?.form.definition?.images ?? [];
+  }
+
+  private __move(from: number, to: number) {
+    const images = [...this.__images];
+    images.splice(to, 0, ...images.splice(from, 1));
+    this.__setImages(images);
   }
 
   private __setImages(images: ProductDefinitionImage[]) {

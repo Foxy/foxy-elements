@@ -29,8 +29,7 @@
     "date": "{{value, date}}"
   },
   "create": {
-    "create": "Create",
-    "cancel": "Cancel"
+    "caption": "Create"
   },
   "delete": {
     "delete": "Delete",
@@ -38,13 +37,10 @@
     "delete_prompt": "Are you sure?"
   },
   "submit": {
-    "create": "Create",
-    "cancel": "Cancel"
+    "caption": "Save changes"
   },
   "undo": {
-    "undo": "Undo",
-    "cancel": "Cancel",
-    "undo_prompt": "Are you sure?"
+    "caption": "Undo"
   },
   "spinner": {
     "loading_busy": "Loading",
