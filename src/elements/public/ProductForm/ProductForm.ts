@@ -217,13 +217,14 @@ export class ProductForm extends Base<Data> {
     );
 
     // A pre-signed storage URL: plain fetch, since API credentials mustn't go there.
-    const response = await fetch(upload_url, {
-      method: 'PUT',
-      body: file,
-      headers: { 'Content-Type': file.type },
+    // Its signature covers the x-amz-meta-* headers, which the URL also carries as
+    // parameters, so they must be sent as headers too.
+    const headers: Record<string, string> = { 'Content-Type': file.type };
+    new URL(upload_url).searchParams.forEach((value, key) => {
+      if (key.toLowerCase().startsWith('x-amz-meta-')) headers[key] = value;
     });
-    if (!response.ok) throw new Error(`Image upload failed with ${response.status}.`);
     const response = await fetch(upload_url, { method: 'PUT', body: file, headers });
+    if (!response.ok) throw new Error(`Image upload failed with ${response.status}.`);
 
     return image_url;
   }
