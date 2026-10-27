@@ -4,10 +4,15 @@ const tailwindcss = require('tailwindcss');
 const postcss = require('postcss');
 const syntax = require('@stylelint/postcss-css-in-js');
 
-module.exports = ({ config, extensions = [] }) => ({
+module.exports = ({ config, extensions = [], onlyWithDirectives = false }) => ({
   name: 'rollup-plugin-tailwind-in-js',
   async transform(code, id) {
     if (extensions.every(extension => !id.endsWith(extension))) return null;
+    // Off for the CDN build: skipped files also miss the comment and
+    // empty-rule cleanup below, which changes its output.
+    if (onlyWithDirectives && !/@tailwind|@apply|@screen|@layer|@variants|@responsive|theme\(/.test(code)) {
+      return null;
+    }
 
     try {
       const plugins = [tailwindcss(config), discardComments(), discardEmpty()];
