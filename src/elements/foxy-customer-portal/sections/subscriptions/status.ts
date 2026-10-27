@@ -1,5 +1,4 @@
-import type { Rels } from "@foxy.io/sdk/customer";
-import type { Resource } from "@foxy.io/sdk/core";
+import type { Rels, Resource } from "@foxy.io/sdk/customer";
 import { toCalendarDate } from "../../calendar-date";
 import type { CartDisplayConfig } from "./cart-display-config";
 
