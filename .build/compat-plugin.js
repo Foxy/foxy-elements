@@ -35,6 +35,20 @@ export const compatPlugin = () => ({
     // this plugin makes things right by rewriting the imports to the correct file
     context.body = context.body.replace(/\/slimChalk/gi, '/slimChalk.browser');
 
+    // a named import from lodash-es loads its index and with it all ~640 modules,
+    // so we import each function from its own file instead (the sdk does this too)
+    context.body = context.body.replace(/import\s*\{([^}]+)\}\s*from\s*(['"])lodash-es\2;?/g, (_, names) =>
+      names
+        .split(',')
+        .map(name => name.trim())
+        .filter(Boolean)
+        .map(name => {
+          const [imported, local = imported] = name.split(/\s+as\s+/);
+          return `import ${local} from 'lodash-es/${imported}.js';`;
+        })
+        .join('')
+    );
+
     return context;
   },
 });
