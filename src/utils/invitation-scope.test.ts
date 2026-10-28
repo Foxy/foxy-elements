@@ -151,30 +151,30 @@ describe('utils/invitation-scope', () => {
       expect(canGrantLevel(grantable, 'carts', 'read')).to.be.false;
     });
 
-    it('requires both tokens for the full level', () => {
+    it('requires the write token for the full level', () => {
       expect(canGrantLevel(getGrantable('customers_read'), 'customers', 'full')).to.be.false;
-      expect(canGrantLevel(getGrantable('customers_write'), 'customers', 'full')).to.be.false;
+      expect(canGrantLevel(getGrantable('customers_write'), 'customers', 'full')).to.be.true;
       expect(canGrantLevel(getGrantable('customers_read customers_write'), 'customers', 'full')).to
         .be.true;
     });
 
-    it('mirrors the API asymmetry: write alone cannot grant read-only', () => {
-      // The API treats write as implying read when checking access, but checks
-      // literal token membership when validating a grant. Mirroring the API
-      // keeps the UI from offering a grant the server will reject.
-      const grantable = getGrantable('customers_write');
-      expect(canGrantLevel(grantable, 'customers', 'read')).to.be.false;
+    it('lets write alone grant read-only', () => {
+      expect(canGrantLevel(getGrantable('customers_write'), 'customers', 'read')).to.be.true;
     });
 
-    it('requires the resend token for resend', () => {
+    it('lets the resend or write token grant resend', () => {
       expect(canGrantResend(getGrantable('transactions_resend'), 'transactions')).to.be.true;
-      expect(canGrantResend(getGrantable('transactions_write'), 'transactions')).to.be.false;
+      expect(canGrantResend(getGrantable('transactions_write'), 'transactions')).to.be.true;
+      expect(canGrantResend(getGrantable('transactions_read'), 'transactions')).to.be.false;
+      expect(canGrantResend(getGrantable('webhooks_write'), 'transactions')).to.be.false;
     });
 
     it('offers the read preset only when every collection read is grantable', () => {
       const allReads = COLLECTIONS.map(collection => `${collection}_read`).join(' ');
+      const allWrites = COLLECTIONS.map(collection => `${collection}_write`).join(' ');
 
       expect(canGrantReadPreset(getGrantable(allReads))).to.be.true;
+      expect(canGrantReadPreset(getGrantable(allWrites))).to.be.true;
       expect(canGrantReadPreset(getGrantable('customers_read'))).to.be.false;
       expect(canGrantReadPreset(getGrantable(''))).to.be.false;
     });

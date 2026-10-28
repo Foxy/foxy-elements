@@ -1401,7 +1401,7 @@ describe('Transaction', () => {
       expect(element.hiddenSelector.matches('customer', true)).to.be.true;
     });
 
-    it('hides webhooks without webhooks_read and refeed without webhooks_resend', async () => {
+    it('hides webhooks without webhooks_read and refeed without webhooks_resend or webhooks_write', async () => {
       const element = await fixture<Transaction>(html`
         <foxy-transaction current-user-scope="transactions_read stores_read webhooks_read">
         </foxy-transaction>
@@ -1413,12 +1413,16 @@ describe('Transaction', () => {
       expect(element.hiddenSelector.matches('webhooks', true)).to.be.false;
       expect(webhooks.bulkActions).to.be.empty;
 
+      element.currentUserScope = 'transactions_read stores_read webhooks_write';
+      await element.requestUpdate();
+      expect(webhooks.bulkActions).to.have.length(1);
+
       element.currentUserScope = 'transactions_read stores_read webhooks_read webhooks_resend';
       await element.requestUpdate();
       expect(webhooks.bulkActions).to.have.length(1);
     });
 
-    it('hides the process webhook action without webhooks_resend', async () => {
+    it('hides the process webhook action without webhooks_resend or webhooks_write', async () => {
       const element = await createElement(
         'transactions_write stores_read webhooks_read',
         withWebhookStore
@@ -1433,21 +1437,34 @@ describe('Transaction', () => {
       await control.requestUpdate();
       expect(control.hidden).to.be.true;
 
+      element.currentUserScope = 'transactions_write stores_read webhooks_write';
+      await element.requestUpdate();
+      await control.requestUpdate();
+      expect(control.hidden).to.be.false;
+
+      element.currentUserScope = 'transactions_write stores_read webhooks_read';
+      await element.requestUpdate();
+      await control.requestUpdate();
+      expect(control.hidden).to.be.true;
+
       element.currentUserScope = 'transactions_write stores_read webhooks_read webhooks_resend';
       await element.requestUpdate();
       await control.requestUpdate();
       expect(control.hidden).to.be.false;
     });
 
-    it('hides send emails without transactions_resend', async () => {
+    it('hides send emails without transactions_resend or transactions_write', async () => {
       const element = await createElement();
       await whenAllLoaded(element);
       expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.false;
 
+      element.currentUserScope = 'transactions_read';
+      await element.requestUpdate();
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.true;
+
       element.currentUserScope = 'transactions_write';
       await element.requestUpdate();
-
-      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.true;
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.false;
       expect(element.hiddenSelector.matches('actions:refund', true)).to.be.false;
     });
 

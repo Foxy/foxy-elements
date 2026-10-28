@@ -4,6 +4,7 @@ import type { Level, Selection } from '../../../../../utils/invitation-scope';
 
 import { InternalEditableControl } from '../../../../internal/InternalEditableControl/InternalEditableControl';
 import { COLLECTIONS, RESENDABLE } from '../../../../../utils/group-invitation-scopes';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { css } from 'lit-element';
 import { html } from 'lit-html';
 
@@ -230,6 +231,12 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     if (this.__isLocked && !this.readonly) this.readonly = true;
   }
 
+  // A resend switch at Full is inferred as `included-resend`, so it can be readonly on its own:
+  // a `?readonly=` binding on it would be overwritten by inference, as `updated()` describes.
+  get readonlySelector(): BooleanSelector {
+    return new BooleanSelector(`${super.readonlySelector.toString()} included-resend`.trim());
+  }
+
   /**
    * `true` when the invitation already holds something this granter could not themselves
    * grant: the current preset isn't among the ones offered, a collection's current level
@@ -349,8 +356,9 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
   /**
    * Renders the three resendable collections' resend grants as `foxy-internal-switch-control`s,
    * one per line, in their own `foxy-internal-summary-control` -- not folded into the level
-   * grid above. Resend is a secondary, independent axis (a collection's level and its resend
-   * grant are unrelated tokens -- see `parseScope`/`serializeScope`), covers only 3 of the 20
+   * grid above. Resend is a secondary axis (below Full, a collection's level and its resend
+   * grant are unrelated tokens -- see `parseScope`/`serializeScope`; Full includes resend, so the
+   * switch then shows as on and readonly), covers only 3 of the 20
    * collections, and doesn't need the level grid's two-column treatment; keeping it as its own
    * section also means the grid's CSS (sized for 20 short rows) never has to accommodate a
    * structurally different kind of row. Renders nothing at all if the granter can't grant (and
@@ -362,6 +370,7 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     readonly: boolean
   ): TemplateResult | string {
     const switches = RESENDABLE.map(collection => {
+      const included = selection.levels[collection] === 'full';
       const hasResend = selection.resend.includes(collection);
       const canResend = canGrantResend(grantable, collection);
 
@@ -376,7 +385,13 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
       // risk documented on this control's own `updated()`, for a case that can't actually occur.
       const mismatchedResend = hasResend && !canResend;
 
-      return { collection, hasResend, mismatchedResend, show: canResend || mismatchedResend };
+      return {
+        collection,
+        included,
+        hasResend: hasResend || included,
+        mismatchedResend,
+        show: canResend || mismatchedResend || included,
+      };
     }).filter(entry => entry.show);
 
     if (!switches.length) return '';
@@ -384,9 +399,9 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     return html`
       <foxy-internal-summary-control infer="" label="" helper-text="">
         ${switches.map(
-          ({ collection, hasResend }) => html`
+          ({ collection, included, hasResend }) => html`
             <foxy-internal-switch-control
-              infer=""
+              infer=${included ? 'included-resend' : ''}
               label=${`${this.t('resend')} ${this.t(`scopes.${collection}`).toLowerCase()}`}
               helper-text=""
               data-resend=${collection}
@@ -410,8 +425,16 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     this.__customSelected = true;
 
     const selection = parseScope(this.__scope);
+    const crossesFull = level === 'full' || selection.levels[collection] === 'full';
     selection.levels[collection] = level;
-    this._value = serializeScope({ ...selection, preset: 'custom' });
+
+    // Full includes resend, so the switch shows the same at Full with or without the token.
+    // Dropping it here means leaving Full always clears resend, whichever way it was stored.
+    const resend = crossesFull
+      ? selection.resend.filter(entry => entry !== collection)
+      : selection.resend;
+
+    this._value = serializeScope({ ...selection, preset: 'custom', resend });
   }
 
   private __setResend(collection: string, checked: boolean): void {
@@ -447,14 +470,14 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
 
     // Choosing Custom keeps whatever is already in the form, so the matrix opens on the
     // current grant rather than wiping it. The wildcard has no per-row levels, so it is
-    // expanded into what it grants -- every collection at Full and every resend. Keeping
+    // expanded into what it grants -- every collection at Full, which includes resend. Keeping
     // `store_full_access` behind rows that all read None would save a full-access invitation.
     if (preset === 'custom') {
       const selection = parseScope(this.__scope);
       if (selection.preset !== 'store') return;
 
       COLLECTIONS.forEach(collection => (selection.levels[collection] = 'full'));
-      this._value = serializeScope({ ...selection, preset: 'custom', resend: [...RESENDABLE] });
+      this._value = serializeScope({ ...selection, preset: 'custom' });
       return;
     }
 

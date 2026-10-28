@@ -33,9 +33,10 @@ describe('parseUserScope', () => {
     expect(scope.canWrite('customers')).to.be.true;
   });
 
-  it('treats resend as separate from write', () => {
-    expect(parseUserScope('transactions_write')!.canResend('transactions')).to.be.false;
+  it('treats write as implying resend', () => {
+    expect(parseUserScope('transactions_write')!.canResend('transactions')).to.be.true;
     expect(parseUserScope('transactions_resend')!.canResend('transactions')).to.be.true;
+    expect(parseUserScope('transactions_read')!.canResend('transactions')).to.be.false;
   });
 
   it('grants users access through user_full_access', () => {
@@ -108,14 +109,14 @@ describe('getScopeSelectors', () => {
     );
   });
 
-  it('hides need: resend paths without resend', () => {
+  it('hides need: resend paths without resend or write', () => {
     const rules = [{ path: 'x', collection: 'transactions' as const, need: 'resend' as const }];
-    expect(getScopeSelectors(parseUserScope('transactions_write'), rules, null).hidden).to.include(
+    expect(getScopeSelectors(parseUserScope('transactions_read'), rules, null).hidden).to.include(
       'x'
     );
-    expect(
-      getScopeSelectors(parseUserScope('transactions_resend'), rules, null).hidden
-    ).to.deep.equal([]);
+    ['transactions_resend', 'transactions_write'].forEach(scope => {
+      expect(getScopeSelectors(parseUserScope(scope), rules, null).hidden).to.deep.equal([]);
+    });
   });
 });
 

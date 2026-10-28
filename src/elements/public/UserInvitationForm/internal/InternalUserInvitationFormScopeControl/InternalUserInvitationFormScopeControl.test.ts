@@ -225,7 +225,7 @@ const setResend = (element: Control, collection: string, checked: boolean) => {
 describe('custom matrix', () => {
   // Switching from the wildcard to Custom must not keep `store_full_access` behind rows that
   // all read None -- saving would then grant full access while the form shows none.
-  it('opens Custom on full access as every row at full and every resend', async () => {
+  it('opens Custom on full access as every row at full, with resend included', async () => {
     const element = await control('store_full_access', 'store_full_access');
     let written: unknown = null;
     element.setValue = value => (written = value);
@@ -238,7 +238,7 @@ describe('custom matrix', () => {
       expect(tokens, collection).to.include(`${collection}_read`);
       expect(tokens, collection).to.include(`${collection}_write`);
     });
-    RESENDABLE.forEach(collection => expect(tokens).to.include(`${collection}_resend`));
+    RESENDABLE.forEach(collection => expect(tokens).to.not.include(`${collection}_resend`));
   });
 
   it('keeps an existing custom scope when Custom is chosen again', async () => {
@@ -336,6 +336,77 @@ describe('custom matrix', () => {
     setResend(element, 'transactions', true);
 
     expect(written).to.equal('customers_read transactions_resend');
+  });
+
+  it('shows resend as included and readonly when the collection is at full', async () => {
+    const element = await control('store_full_access', 'transactions_read transactions_write');
+    const switchControl = resendSwitch(element, 'transactions');
+
+    await switchControl?.updateComplete;
+    expect(switchControl?.readonly).to.be.true;
+    expect(switchControl?.getValue()).to.be.true;
+    expect(resendInput(element, 'transactions')).to.not.exist;
+  });
+
+  it('clears resend when leaving full, even when the invitation stored its own resend token', async () => {
+    const element = await control(
+      'store_full_access',
+      'transactions_read transactions_write transactions_resend'
+    );
+    let written: unknown = null;
+    element.setValue = value => (written = value);
+
+    setLevel(element, 'transactions', 'read');
+
+    expect(written).to.equal('transactions_read');
+  });
+
+  it('drops the resend token when raising a collection to full', async () => {
+    const element = await control('store_full_access', 'transactions_read transactions_resend');
+    let written: unknown = null;
+    element.setValue = value => (written = value);
+
+    setLevel(element, 'transactions', 'full');
+
+    expect(written).to.equal('transactions_read transactions_write');
+  });
+
+  it('keeps resend when the level changes below full', async () => {
+    const element = await control('store_full_access', 'transactions_read transactions_resend');
+    let written: unknown = null;
+    element.setValue = value => (written = value);
+
+    setLevel(element, 'transactions', 'none');
+
+    expect(written).to.equal('transactions_resend');
+  });
+
+  it('shows resend as included and readonly to a granter holding only the write token', async () => {
+    const element = await control('transactions_write', 'transactions_read transactions_write');
+    const switchControl = resendSwitch(element, 'transactions');
+
+    await switchControl?.updateComplete;
+    expect(switchControl?.readonly).to.be.true;
+    expect(switchControl?.getValue()).to.be.true;
+    expect(resendInput(element, 'transactions')).to.not.exist;
+  });
+
+  it('shows resend as included at full even when the granter cannot grant resend', async () => {
+    const element = await control('transactions_read', 'transactions_read transactions_write');
+    const switchControl = resendSwitch(element, 'transactions');
+
+    expect(switchControl).to.exist;
+    await switchControl?.updateComplete;
+    expect(switchControl?.getValue()).to.be.true;
+  });
+
+  it('offers resend to a granter holding only the write token', async () => {
+    const element = await control('transactions_write', 'transactions_read');
+    const switchControl = resendSwitch(element, 'transactions');
+
+    await switchControl?.updateComplete;
+    expect(switchControl?.readonly).to.be.false;
+    expect(resendInput(element, 'transactions')).to.exist;
   });
 
   it('renders a row level the invitation already holds but the granter cannot grant, still displayed as the row value', async () => {

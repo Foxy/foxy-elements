@@ -38,9 +38,9 @@ export function parseUserScope(scope: string | null | undefined): UserScope | nu
 
   return {
     canWrite,
-    // A write scope satisfies a read check in the API.
+    // A write scope satisfies a read or resend check in the API.
     canRead: c => canWrite(c) || tokens.has(`${c}_read`),
-    canResend: c => tokens.has(`${c}_resend`),
+    canResend: c => canWrite(c) || tokens.has(`${c}_resend`),
   };
 }
 
