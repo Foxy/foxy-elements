@@ -1,4 +1,4 @@
-import { getTimeFromFrequency, type Constraints } from "@foxy.io/sdk/customer";
+import { getTimeFromFrequency, type Constraints } from "@foxy.io/sdk/customer/subscriptions";
 
 /** A react-day-picker matcher. Kept local so this module owns its own contract. */
 export type Matcher =

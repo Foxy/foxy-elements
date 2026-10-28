@@ -13,7 +13,7 @@ import { Skeleton } from "@foxy.io/design-system/skeleton";
 import {
   getAllowedFrequencies,
   getNextTransactionDateConstraints,
-} from "@foxy.io/sdk/customer";
+} from "@foxy.io/sdk/customer/subscriptions";
 import {
   useApi,
   useCollection,
