@@ -22,6 +22,10 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
+      # semantic-release pushes the tag before npm publish runs prepack, so a lint or build
+      # failure there leaves a tag with no package. Fail here first, before anything is tagged.
+      - name: Lint and build
+        run: npm run prepack
       - name: Run semantic release
         id: semantic-release
         env:
