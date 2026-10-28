@@ -45,6 +45,13 @@ describe('groupInvitationScopes', () => {
     expect(groups.resend).to.deep.equal(['transactions']);
   });
 
+  it('does not list resend for a collection with write access', () => {
+    const groups = groupInvitationScopes('transactions_write transactions_resend taxes_resend');
+
+    expect(groups.full).to.deep.equal(['transactions']);
+    expect(groups.resend).to.deep.equal(['taxes']);
+  });
+
   it('short-circuits on store_full_access', () => {
     const groups = groupInvitationScopes('store_full_access transactions_read coupons_write');
 

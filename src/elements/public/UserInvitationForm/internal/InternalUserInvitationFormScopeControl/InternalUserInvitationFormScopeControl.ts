@@ -390,7 +390,7 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
         included,
         hasResend: hasResend || included,
         mismatchedResend,
-        show: canResend || mismatchedResend,
+        show: canResend || mismatchedResend || included,
       };
     }).filter(entry => entry.show);
 
@@ -470,14 +470,14 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
 
     // Choosing Custom keeps whatever is already in the form, so the matrix opens on the
     // current grant rather than wiping it. The wildcard has no per-row levels, so it is
-    // expanded into what it grants -- every collection at Full and every resend. Keeping
+    // expanded into what it grants -- every collection at Full, which includes resend. Keeping
     // `store_full_access` behind rows that all read None would save a full-access invitation.
     if (preset === 'custom') {
       const selection = parseScope(this.__scope);
       if (selection.preset !== 'store') return;
 
       COLLECTIONS.forEach(collection => (selection.levels[collection] = 'full'));
-      this._value = serializeScope({ ...selection, preset: 'custom', resend: [...RESENDABLE] });
+      this._value = serializeScope({ ...selection, preset: 'custom' });
       return;
     }
 

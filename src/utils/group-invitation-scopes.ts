@@ -49,7 +49,7 @@ export type ScopeGroups = {
   full: string[];
   /** Collections the user can read but not write. */
   read: string[];
-  /** Collections the user can resend. Independent of read/write. */
+  /** Collections the user can resend without full access. Full access includes resend. */
   resend: string[];
 };
 
@@ -73,11 +73,13 @@ export function groupInvitationScopes(scope: string | null | undefined): ScopeGr
   COLLECTIONS.forEach(collection => {
     // A write scope satisfies a read check in the API, so write wins and the collection
     // is never listed as read-only as well.
-    if (tokens.has(`${collection}_write`)) full.push(collection);
+    const hasWrite = tokens.has(`${collection}_write`);
+    if (hasWrite) full.push(collection);
     else if (tokens.has(`${collection}_read`)) read.push(collection);
 
+    // Write includes resend in the API, so a full collection is not listed again as resend.
     const isResendable = (RESENDABLE as readonly string[]).includes(collection);
-    if (isResendable && tokens.has(`${collection}_resend`)) resend.push(collection);
+    if (isResendable && !hasWrite && tokens.has(`${collection}_resend`)) resend.push(collection);
   });
 
   return { storeFullAccess: false, full, read, resend };

@@ -86,8 +86,8 @@ export function serializeScope(selection: Selection): string {
   COLLECTIONS.forEach(collection => {
     const level = selection.levels[collection] ?? 'none';
 
-    // Full emits both tokens rather than write alone. The OIDC provider compares the scopes a
-    // sign-in asks for with these tokens literally, without write covering read.
+    // Full emits both tokens rather than write alone, so anything that still compares tokens
+    // literally, without write covering read, sees read access too.
     if (level === 'full') tokens.push(`${collection}_read`, `${collection}_write`);
     else if (level === 'read') tokens.push(`${collection}_read`);
   });
@@ -143,6 +143,5 @@ export function canGrantResend(grantable: Grantable, collection: string): boolea
  * the gap.
  */
 export function canGrantReadPreset(grantable: Grantable): boolean {
-  if (grantable.storeFullAccess) return true;
   return COLLECTIONS.every(collection => canGrantLevel(grantable, collection, 'read'));
 }
