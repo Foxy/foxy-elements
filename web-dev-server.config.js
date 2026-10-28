@@ -38,6 +38,7 @@ export default {
     tailwindInJsPlugin({
       config: { ...tailwindConfig, purge: false },
       extensions: ['.ts'],
+      onlyWithDirectives: true,
     }),
 
     commonjsPlugin({
@@ -66,6 +67,8 @@ export default {
     }),
 
     babelPlugin({
+      // Only the SDK imports the aliased packages. Add any new importer here.
+      include: ['**/@foxy.io/sdk/**'],
       babelHelpers: 'bundled',
       plugins: [
         [
