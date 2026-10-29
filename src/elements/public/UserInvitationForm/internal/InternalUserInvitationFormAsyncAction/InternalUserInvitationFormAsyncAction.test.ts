@@ -101,7 +101,10 @@ describe('UserInvitationForm', () => {
 
       const label = control.renderRoot.querySelector('foxy-internal-button foxy-i18n');
       expect(label).to.have.property('key', 'access_denied');
-      expect(control.renderRoot.querySelector('foxy-internal-button')).to.have.attribute('theme', 'error');
+      expect(control.renderRoot.querySelector('foxy-internal-button')).to.have.attribute(
+        'theme',
+        'error'
+      );
     });
   });
 });
