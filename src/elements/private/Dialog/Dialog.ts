@@ -1,3 +1,4 @@
+import '../../internal/InternalButton/index';
 import { CSSResultArray, LitElement, PropertyDeclarations, css } from 'lit-element';
 import { TemplateResult, html } from 'lit-html';
 
@@ -210,7 +211,7 @@ export abstract class Dialog extends Base {
             >
               ${this.closable && !this.hiddenSelector.matches('close-button', true)
                 ? html`
-                    <vaadin-button
+                    <foxy-internal-button
                       id="close-button"
                       theme="tertiary-inline"
                       class="mr-auto m-s px-s"
@@ -223,7 +224,7 @@ export abstract class Dialog extends Base {
                         ns=${this.ns}
                       >
                       </foxy-i18n>
-                    </vaadin-button>
+                    </foxy-internal-button>
                   `
                 : html`<div></div>`}
 
@@ -233,7 +234,7 @@ export abstract class Dialog extends Base {
 
               ${this.editable && !this.hiddenSelector.matches('save-button', true)
                 ? html`
-                    <vaadin-button
+                    <foxy-internal-button
                       data-testid="save-button"
                       ?disabled=${this.disabledSelector.matches('save-button', true)}
                       theme="primary"
@@ -241,7 +242,7 @@ export abstract class Dialog extends Base {
                       @click=${this.save}
                     >
                       <foxy-i18n ns=${this.ns} lang=${this.lang} key="save"></foxy-i18n>
-                    </vaadin-button>
+                    </foxy-internal-button>
                   `
                 : html`<div></div>`}
             </div>

@@ -1,4 +1,4 @@
-import '@vaadin/vaadin-button';
+import '../../../../internal/InternalButton/index';
 
 import '../../../../internal/InternalConfirmDialog/index';
 import '../../../../internal/InternalControl/index';

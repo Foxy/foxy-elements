@@ -12,8 +12,8 @@ import { html } from 'lit-html';
 
 describe('TemplateForm', () => {
   describe('InternalTemplateFormAsyncAction', () => {
-    it('imports and defines vaadin-button', () => {
-      expect(customElements.get('vaadin-button')).to.exist;
+    it('imports and defines foxy-internal-button', () => {
+      expect(customElements.get('foxy-internal-button')).to.exist;
     });
 
     it('imports and defines foxy-internal-control', () => {
@@ -48,7 +48,7 @@ describe('TemplateForm', () => {
         </foxy-internal-template-form-async-action>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       const label = button.querySelector('foxy-i18n')!;
 
       expect(button).to.exist;
@@ -66,7 +66,7 @@ describe('TemplateForm', () => {
         </foxy-internal-template-form-async-action>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       const whenGotEvent = oneEvent(control, 'fetch');
 
       button.click();
@@ -88,7 +88,7 @@ describe('TemplateForm', () => {
         </foxy-internal-template-form-async-action>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       const label = button.querySelector('foxy-i18n')!;
 
       button.click();
@@ -114,7 +114,7 @@ describe('TemplateForm', () => {
         </foxy-internal-template-form-async-action>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       const label = button.querySelector<I18n>('foxy-i18n')!;
 
       fetchCount = 0;
@@ -150,7 +150,7 @@ describe('TemplateForm', () => {
         </foxy-internal-template-form-async-action>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       const label = button.querySelector<I18n>('foxy-i18n')!;
 
       fetchCount = 0;
@@ -183,7 +183,7 @@ describe('TemplateForm', () => {
         </foxy-internal-template-form-async-action>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       const label = button.querySelector<I18n>('foxy-i18n')!;
 
       button.click();
@@ -207,7 +207,7 @@ describe('TemplateForm', () => {
         </foxy-internal-template-form-async-action>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       expect(button).to.have.attribute('disabled');
     });
   });

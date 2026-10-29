@@ -71,7 +71,7 @@ export class ApiBrowser extends Base<Data> {
     return html`
       <div class="space-y-m">
         <div class="flex items-center gap-s flex-wrap-reverse">
-          <vaadin-button
+          <foxy-internal-button
             title=${this.t('go_back')}
             theme="icon contrast"
             class="p-0"
@@ -79,9 +79,9 @@ export class ApiBrowser extends Base<Data> {
             @click=${() => this.__goBack()}
           >
             <iron-icon class="icon-inline text-m" icon="icons:arrow-back"></iron-icon>
-          </vaadin-button>
+          </foxy-internal-button>
 
-          <vaadin-button
+          <foxy-internal-button
             title=${this.t('go_home')}
             theme="icon contrast"
             class="p-0"
@@ -89,7 +89,7 @@ export class ApiBrowser extends Base<Data> {
             @click=${() => this.__goHome()}
           >
             <iron-icon class="icon-inline text-m" icon="icons:home"></iron-icon>
-          </vaadin-button>
+          </foxy-internal-button>
 
           <vaadin-text-field
             placeholder="https://api.foxy.io/stores/0"
@@ -108,7 +108,7 @@ export class ApiBrowser extends Base<Data> {
 
           ${this.__newCurrentUrl
             ? html`
-                <vaadin-button
+                <foxy-internal-button
                   title=${this.t('navigate')}
                   theme="icon primary"
                   class="p-0"
@@ -116,10 +116,10 @@ export class ApiBrowser extends Base<Data> {
                   @click=${this.__go}
                 >
                   <iron-icon class="icon-inline text-m" icon="icons:arrow-forward"></iron-icon>
-                </vaadin-button>
+                </foxy-internal-button>
               `
             : html`
-                <vaadin-button
+                <foxy-internal-button
                   title=${this.t('refresh')}
                   theme="icon contrast"
                   class="p-0"
@@ -127,11 +127,11 @@ export class ApiBrowser extends Base<Data> {
                   @click=${() => this.refresh()}
                 >
                   <iron-icon class="icon-inline text-m" icon="icons:refresh"></iron-icon>
-                </vaadin-button>
+                </foxy-internal-button>
               `}
 
           <div class="grid grid-cols-2">
-            <vaadin-button
+            <foxy-internal-button
               title=${this.t('get_mode')}
               theme=${this.href ? 'contrast primary' : 'contrast'}
               class="rounded-r-none p-0"
@@ -139,9 +139,9 @@ export class ApiBrowser extends Base<Data> {
               @click=${() => (this.__mode = 'get')}
             >
               GET
-            </vaadin-button>
+            </foxy-internal-button>
 
-            <vaadin-button
+            <foxy-internal-button
               title=${this.t('post_mode')}
               theme=${this.href ? 'contrast' : 'contrast primary'}
               class="rounded-l-none p-0"
@@ -149,7 +149,7 @@ export class ApiBrowser extends Base<Data> {
               @click=${() => (this.__mode = 'post')}
             >
               POST
-            </vaadin-button>
+            </foxy-internal-button>
           </div>
         </div>
 

@@ -3,7 +3,7 @@ import '@polymer/iron-icons';
 
 import { TemplateResult, html } from 'lit-html';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
+import '../../../../internal/InternalButton/index';
 import { I18N } from '../../../../private/index';
 import { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-field';
 import { PropertyDeclarations } from 'lit-element';
@@ -22,7 +22,7 @@ export class SessionSecret extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-password-field': PasswordFieldElement,
-      'vaadin-button': ButtonElement,
+      'foxy-internal-button': customElements.get('foxy-internal-button'),
       'iron-icon': customElements.get('iron-icon'),
       'x-i18n': I18N,
     };
@@ -62,7 +62,7 @@ export class SessionSecret extends Translatable {
           >
           </vaadin-password-field>
 
-          <vaadin-button
+          <foxy-internal-button
             class="flex-shrink-0 ml-s"
             style="margin-top: calc(var(--lumo-font-size-s) * 1.5)"
             theme="error"
@@ -72,7 +72,7 @@ export class SessionSecret extends Translatable {
           >
             <x-i18n .lang=${this.lang} .ns=${this.ns} key="jwt.refresh"></x-i18n>
             <iron-icon icon="icons:refresh" slot="suffix"></iron-icon>
-          </vaadin-button>
+          </foxy-internal-button>
         </div>
 
         <x-i18n

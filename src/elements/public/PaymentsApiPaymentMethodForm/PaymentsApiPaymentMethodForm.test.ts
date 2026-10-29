@@ -33,8 +33,8 @@ describe('PaymentsApiPaymentMethodForm', () => {
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
-  it('imports and defines vaadin-button', () => {
-    expect(customElements.get('vaadin-button')).to.exist;
+  it('imports and defines foxy-internal-button', () => {
+    expect(customElements.get('foxy-internal-button')).to.exist;
   });
 
   it('imports and defines foxy-internal-password-control', () => {
@@ -1990,7 +1990,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     const control = (await getByTestId(element, 'select-another-button')) as InternalSwitchControl;
 
     expect(control).to.exist;
-    expect(control).to.be.instanceOf(customElements.get('vaadin-button'));
+    expect(control).to.be.instanceOf(customElements.get('foxy-internal-button'));
 
     const label = control.querySelector('foxy-i18n');
     expect(label).to.have.attribute('infer', '');

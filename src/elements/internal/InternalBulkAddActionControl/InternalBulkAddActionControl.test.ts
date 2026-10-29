@@ -11,8 +11,8 @@ import { createRouter } from '../../../server/hapi';
 
 describe('CouponForm', () => {
   describe('InternalBulkAddActionControl', () => {
-    it('imports and registers vaadin-button element', () => {
-      expect(customElements.get('vaadin-button')).to.exist;
+    it('imports and registers foxy-internal-button element', () => {
+      expect(customElements.get('foxy-internal-button')).to.exist;
     });
 
     it('imports and registers foxy-internal-control element', () => {
@@ -106,7 +106,7 @@ describe('CouponForm', () => {
       control.inferProperties();
       await control.requestUpdate();
 
-      const button = control.renderRoot.querySelector('vaadin-button');
+      const button = control.renderRoot.querySelector('foxy-internal-button');
       const dialog = control.renderRoot.querySelector('foxy-form-dialog') as FormDialog;
       const label = button?.querySelector('foxy-i18n[infer=""][key="button_text"]');
 
@@ -143,7 +143,7 @@ describe('CouponForm', () => {
       control.inferProperties();
       await control.requestUpdate();
 
-      const button = control.renderRoot.querySelector('vaadin-button');
+      const button = control.renderRoot.querySelector('foxy-internal-button');
       expect(button).to.not.have.attribute('disabled');
 
       control.disabled = true;

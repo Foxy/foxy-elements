@@ -1,3 +1,4 @@
+import '../../../../internal/InternalButton/index';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
@@ -13,6 +14,7 @@ export class FrequencyList extends Translatable {
     return {
       'iron-icon': customElements.get('iron-icon'),
       'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-internal-button': customElements.get('foxy-internal-button'),
       'x-frequency-input': FrequencyInput,
       'x-skeleton': Skeleton,
       'x-list': List,
@@ -65,7 +67,7 @@ export class FrequencyList extends Translatable {
           >
           </x-frequency-input>
 
-          <vaadin-button
+          <foxy-internal-button
             data-testid="button"
             class="w-full md-w-auto"
             .disabled=${isInputDisabled}
@@ -73,7 +75,7 @@ export class FrequencyList extends Translatable {
           >
             <x-i18n .ns=${this.ns} .lang=${this.lang} key="fmod.add_option"></x-i18n>
             <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
-          </vaadin-button>
+          </foxy-internal-button>
         </div>
 
         ${this.value.length > 0

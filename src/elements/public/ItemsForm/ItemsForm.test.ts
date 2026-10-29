@@ -15,7 +15,7 @@ class TestItemsForm extends ItemsForm {
   public static get scopedElements(): Record<string, unknown> {
     return {
       'x-error-screen': ErrorScreen,
-      'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-internal-button': customElements.get('foxy-internal-button'),
       'x-dropdown': Dropdown,
       'x-item': MockItem,
     };

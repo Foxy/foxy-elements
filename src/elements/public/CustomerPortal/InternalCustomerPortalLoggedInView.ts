@@ -72,7 +72,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       <div style="display: flex; margin-left: var(--lumo-space-m)">
         ${this.renderTemplateOrSlot(`${scope}:before`)}
 
-        <vaadin-button
+        <foxy-internal-button
           data-testid="sign-out"
           aria-label=${this.t('sign_out').toString()}
           style=${Object.entries(style).reduce((p, [k, v]) => `${p}${k}:${v};`, '')}
@@ -96,7 +96,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
                 >
                 </foxy-spinner>
               `}
-        </vaadin-button>
+        </foxy-internal-button>
 
         ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>

@@ -27,13 +27,13 @@ export class InternalTemplateFormAsyncAction extends InternalControl {
       state === 'fail' || state === 'access_denied' ? 'error' : state === 'idle' ? '' : '';
 
     return html`
-      <vaadin-button
+      <foxy-internal-button
         theme=${`${this.theme} ${theme ?? ''}`.trim()}
         ?disabled=${state === 'busy' || this.disabled}
         @click=${this.__submit}
       >
         <foxy-i18n key=${state} infer=""></foxy-i18n>
-      </vaadin-button>
+      </foxy-internal-button>
     `;
   }
 

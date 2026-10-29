@@ -101,10 +101,10 @@ export class InternalCustomerPortalSubscriptions extends Base {
 
       ${host.renderTemplateOrSlot('header:actions:before')}
 
-      <main data-testid="header:actions">
+      <div data-testid="header:actions">
         ${isUpdateActionHidden ? '' : this.__renderFormHeaderActionsUpdate(html, host)}
         ${isEndActionHidden ? '' : this.__renderFormHeaderActionsEnd(html, host)}
-      </main>
+      </div>
 
       ${host.renderTemplateOrSlot('header:actions:after')}
     `;

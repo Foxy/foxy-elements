@@ -75,7 +75,7 @@ export class InternalCustomerPortalLoggedOutView extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot('access-recovery:back:before')}
 
-        <vaadin-button
+        <foxy-internal-button
           data-testid="access-recovery:back"
           class="w-full"
           theme="tertiary"
@@ -88,7 +88,7 @@ export class InternalCustomerPortalLoggedOutView extends Base<Data> {
             ns="${this.ns} ${customElements.get('foxy-access-recovery-form')?.defaultNS ?? ''}"
           >
           </foxy-i18n>
-        </vaadin-button>
+        </foxy-internal-button>
 
         ${this.renderTemplateOrSlot('access-recovery:back:after')}
       </div>
@@ -185,7 +185,7 @@ export class InternalCustomerPortalLoggedOutView extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot('sign-in:recover:before')}
 
-        <vaadin-button
+        <foxy-internal-button
           data-testid="sign-in:recover"
           class="w-full"
           theme="tertiary"
@@ -198,7 +198,7 @@ export class InternalCustomerPortalLoggedOutView extends Base<Data> {
             ns="${this.ns} ${customElements.get('foxy-sign-in-form')?.defaultNS ?? ''}"
           >
           </foxy-i18n>
-        </vaadin-button>
+        </foxy-internal-button>
 
         ${this.renderTemplateOrSlot('sign-in:recover:after')}
       </div>
@@ -213,7 +213,7 @@ export class InternalCustomerPortalLoggedOutView extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot('sign-in:signup:before')}
 
-        <vaadin-button
+        <foxy-internal-button
           data-testid="sign-in:signup"
           class="w-full"
           theme="tertiary"
@@ -221,7 +221,7 @@ export class InternalCustomerPortalLoggedOutView extends Base<Data> {
           @click=${() => (this.page = 'sign-up')}
         >
           <foxy-i18n lang=${this.lang} key="sign_up" ns="${this.ns} sign-in-form"> </foxy-i18n>
-        </vaadin-button>
+        </foxy-internal-button>
 
         ${this.renderTemplateOrSlot('sign-in:signup:after')}
       </div>
@@ -328,7 +328,7 @@ export class InternalCustomerPortalLoggedOutView extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot('sign-up:go-back:before')}
 
-        <vaadin-button
+        <foxy-internal-button
           data-testid="sign-up:go-back"
           class="w-full"
           theme="tertiary-inline"
@@ -336,7 +336,7 @@ export class InternalCustomerPortalLoggedOutView extends Base<Data> {
           @click=${() => (this.page = 'sign-in')}
         >
           <foxy-i18n lang=${this.lang} key="go_back" ns="${this.ns} sign-up-form"> </foxy-i18n>
-        </vaadin-button>
+        </foxy-internal-button>
 
         ${this.renderTemplateOrSlot('sign-up:go-back:after')}
       </div>

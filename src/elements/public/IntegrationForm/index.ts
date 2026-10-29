@@ -1,4 +1,4 @@
-import '@vaadin/vaadin-button';
+import '../../internal/InternalButton/index';
 
 import '../../internal/InternalTextAreaControl/index';
 import '../../internal/InternalDeleteControl/index';

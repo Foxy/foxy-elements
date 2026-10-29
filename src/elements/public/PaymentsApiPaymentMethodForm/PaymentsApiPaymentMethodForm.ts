@@ -221,13 +221,13 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
         ${this.data?.type || !this.form.type
           ? html``
           : html`
-              <vaadin-button
+              <foxy-internal-button
                 data-testid="select-another-button"
                 theme="tertiary-inline"
                 @click=${() => this.undo()}
               >
                 <foxy-i18n infer="" key="select_another_button_label"></foxy-i18n>
-              </vaadin-button>
+              </foxy-internal-button>
             `}
       </div>
     `;
@@ -554,7 +554,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
               </p>
             </div>
             <div>
-              <vaadin-button
+              <foxy-internal-button
                 data-testid="connect-${choice.key}"
                 theme="tertiary-inline"
                 ?disabled=${isDisabled}
@@ -563,7 +563,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
                 ${isBusy && this.__connectKey === choice.key
                   ? html`<foxy-spinner layout="no-label" infer="connect-spinner"></foxy-spinner>`
                   : html`<foxy-i18n infer="" key="${choice.key}.button"></foxy-i18n>`}
-              </vaadin-button>
+              </foxy-internal-button>
             </div>
           `
         )}

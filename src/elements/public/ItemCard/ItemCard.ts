@@ -154,7 +154,7 @@ export class ItemCard extends Base<Data> {
                 <div class="truncate text-m font-medium">
                   ${decode(this.data?.name) || html`<foxy-i18n infer="" key="no_code"></foxy-i18n>`}
                 </div>
-                <span class="text-s text-tertiary whitespace-nowrap">
+                <span class="text-s text-secondary whitespace-nowrap">
                   ${quantity} &times;
                   <foxy-i18n
                     .options=${{ amount: this.__toAmount(price), currencyDisplay }}
@@ -199,7 +199,7 @@ export class ItemCard extends Base<Data> {
                         ${option.price_mod
                           ? html`
                               <div class="border-t border-dashed border-contrast-10 flex-1"></div>
-                              <div class="whitespace-nowrap text-tertiary">
+                              <div class="whitespace-nowrap text-secondary">
                                 <foxy-i18n
                                   options=${JSON.stringify({
                                     amount: this.__toAmount(option.price_mod),

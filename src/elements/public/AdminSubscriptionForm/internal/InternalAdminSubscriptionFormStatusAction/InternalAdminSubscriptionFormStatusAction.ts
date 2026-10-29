@@ -24,7 +24,7 @@ export class InternalAdminSubscriptionFormStatusAction extends InternalControl {
     const showActionForm = !isActive || !endDate || endDate === '0000-00-00';
 
     return html`
-      <vaadin-button
+      <foxy-internal-button
         theme="tertiary-inline${showActionForm ? (isActive ? ' error' : ' success') : ''}"
         @click=${(evt: Event) => {
           const button = evt.currentTarget as HTMLElement;
@@ -32,7 +32,7 @@ export class InternalAdminSubscriptionFormStatusAction extends InternalControl {
         }}
       >
         <foxy-i18n infer="" key="caption_${status}"></foxy-i18n>
-      </vaadin-button>
+      </foxy-internal-button>
 
       ${showActionForm
         ? html`

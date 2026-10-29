@@ -43,8 +43,8 @@ describe('InternalPostActionControl', () => {
     const message = $('foxy-i18n[infer=""][key="message_idle"]');
     const cancelButtonCaption = $('foxy-i18n[infer=""][key="button_cancel"]');
     const confirmButtonCaption = $('foxy-i18n[infer=""][key="button_confirm"]');
-    const cancelButton = cancelButtonCaption?.closest('vaadin-button');
-    const confirmButton = confirmButtonCaption?.closest('vaadin-button');
+    const cancelButton = cancelButtonCaption?.closest('foxy-internal-button');
+    const confirmButton = confirmButtonCaption?.closest('foxy-internal-button');
 
     expect(message).to.exist;
     expect(message).to.have.deep.property('options', { foo: 'bar' });
@@ -78,7 +78,7 @@ describe('InternalPostActionControl', () => {
 
     await dialog.show();
     const confirmButtonCaption = $('foxy-i18n[key="button_confirm"]');
-    const confirmButton = confirmButtonCaption?.closest('vaadin-button');
+    const confirmButton = confirmButtonCaption?.closest('foxy-internal-button');
 
     expect($('foxy-spinner[infer=""]')).to.not.exist;
     lastFetchEvent = null as FetchEvent | null;
@@ -106,7 +106,7 @@ describe('InternalPostActionControl', () => {
     await dialog.show();
     const $ = (selector: string) => dialog.renderRoot.querySelector(selector);
     const confirmButtonCaption = $('foxy-i18n[key="button_confirm"]');
-    const confirmButton = confirmButtonCaption?.closest('vaadin-button');
+    const confirmButton = confirmButtonCaption?.closest('foxy-internal-button');
 
     confirmButton?.click();
     await waitUntil(() => {
@@ -115,7 +115,7 @@ describe('InternalPostActionControl', () => {
     });
 
     const closeButtonCaption = $('foxy-i18n[key="button_close"]');
-    const closeButton = closeButtonCaption?.closest('vaadin-button');
+    const closeButton = closeButtonCaption?.closest('foxy-internal-button');
 
     expect($('foxy-spinner')).to.not.exist;
     expect(closeButtonCaption).to.exist;
@@ -140,7 +140,7 @@ describe('InternalPostActionControl', () => {
     await dialog.show();
     const $ = (selector: string) => dialog.renderRoot.querySelector(selector);
     const confirmButtonCaption = $('foxy-i18n[key="button_confirm"]');
-    const confirmButton = confirmButtonCaption?.closest('vaadin-button');
+    const confirmButton = confirmButtonCaption?.closest('foxy-internal-button');
 
     confirmButton?.click();
     await waitUntil(() => {
@@ -149,7 +149,7 @@ describe('InternalPostActionControl', () => {
     });
 
     const closeButtonCaption = $('foxy-i18n[key="button_close"]');
-    const closeButton = closeButtonCaption?.closest('vaadin-button');
+    const closeButton = closeButtonCaption?.closest('foxy-internal-button');
 
     expect($('foxy-spinner')).to.not.exist;
     expect(closeButtonCaption).to.exist;
@@ -175,7 +175,7 @@ describe('InternalPostActionControl', () => {
 
     await dialog.show();
     const $ = (selector: string) => dialog.renderRoot.querySelector(selector);
-    $('foxy-i18n[key="button_confirm"]')?.closest('vaadin-button')?.click();
+    $('foxy-i18n[key="button_confirm"]')?.closest('foxy-internal-button')?.click();
 
     await waitUntil(() => {
       dialog.requestUpdate();
@@ -201,7 +201,7 @@ describe('InternalPostActionControl', () => {
 
     await dialog.show();
     const $ = (selector: string) => dialog.renderRoot.querySelector(selector);
-    $('foxy-i18n[key="button_confirm"]')?.closest('vaadin-button')?.click();
+    $('foxy-i18n[key="button_confirm"]')?.closest('foxy-internal-button')?.click();
 
     await waitUntil(() => {
       dialog.requestUpdate();

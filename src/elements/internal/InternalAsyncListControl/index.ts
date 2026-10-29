@@ -1,7 +1,7 @@
 import '@vaadin/vaadin-notification';
 import '@vaadin/vaadin-checkbox';
 import '@vaadin/vaadin-overlay';
-import '@vaadin/vaadin-button';
+import '../InternalButton/index';
 
 import '../../internal/InternalSummaryControl/index';
 

@@ -17,8 +17,8 @@ describe('FilterAttributeForm', () => {
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
-  it('defines vaadin-button', () => {
-    const localName = 'vaadin-button';
+  it('defines foxy-internal-button', () => {
+    const localName = 'foxy-internal-button';
     expect(customElements.get(localName)).to.exist;
   });
 
@@ -187,13 +187,13 @@ describe('FilterAttributeForm', () => {
 
     await waitUntil(() => element.in('idle'));
     let caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="update"]');
-    let button = caption?.closest('vaadin-button');
+    let button = caption?.closest('foxy-internal-button');
     expect(button).to.not.exist;
 
     element.edit({ value: '/stores/0/transactions?filter_name=my+filter' });
     await element.requestUpdate();
     caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="update"]');
-    button = caption?.closest('vaadin-button');
+    button = caption?.closest('foxy-internal-button');
     expect(button).to.exist;
 
     const submitMethod = stub(element, 'submit');
@@ -212,13 +212,13 @@ describe('FilterAttributeForm', () => {
     `);
 
     let caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="delete"]');
-    let button = caption?.closest('vaadin-button');
+    let button = caption?.closest('foxy-internal-button');
     expect(button).to.not.exist;
 
     element.href = 'https://demo.api/hapi/store_attributes/0';
     await waitUntil(() => element.in('idle'));
     caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="delete"]');
-    button = caption?.closest('vaadin-button');
+    button = caption?.closest('foxy-internal-button');
     expect(button).to.exist;
 
     const deleteMethod = stub(element, 'delete');
@@ -237,13 +237,13 @@ describe('FilterAttributeForm', () => {
     `);
 
     let caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="create"]');
-    let button = caption?.closest('vaadin-button');
+    let button = caption?.closest('foxy-internal-button');
     expect(button).to.not.exist;
 
     element.edit({ value: '/stores/0/transactions?filter_name=my+filter&filter_query=color=red' });
     await element.requestUpdate();
     caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="create"]');
-    button = caption?.closest('vaadin-button');
+    button = caption?.closest('foxy-internal-button');
     expect(button).to.exist;
 
     const submitMethod = stub(element, 'submit');
@@ -254,7 +254,7 @@ describe('FilterAttributeForm', () => {
     element.href = 'https://demo.api/hapi/store_attributes/0';
     await waitUntil(() => element.in('idle'));
     caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="create"]');
-    button = caption?.closest('vaadin-button');
+    button = caption?.closest('foxy-internal-button');
     expect(button).to.not.exist;
   });
 
@@ -269,13 +269,13 @@ describe('FilterAttributeForm', () => {
     `);
 
     let caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="reset"]');
-    let button = caption?.closest('vaadin-button');
+    let button = caption?.closest('foxy-internal-button');
     expect(button).to.not.exist;
 
     element.edit({ value: '/stores/0/transactions?filter_name=my+filter' });
     await element.requestUpdate();
     caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="reset"]');
-    button = caption?.closest('vaadin-button');
+    button = caption?.closest('foxy-internal-button');
     expect(button).to.exist;
 
     const undoMethod = stub(element, 'undo');
@@ -286,19 +286,19 @@ describe('FilterAttributeForm', () => {
     element.undo();
     await element.requestUpdate();
     caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="reset"]');
-    button = caption?.closest('vaadin-button');
+    button = caption?.closest('foxy-internal-button');
     expect(button).to.not.exist;
 
     element.href = 'https://demo.api/hapi/store_attributes/0';
     await waitUntil(() => element.in('idle'));
     caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="reset"]');
-    button = caption?.closest('vaadin-button');
+    button = caption?.closest('foxy-internal-button');
     expect(button).to.not.exist;
 
     element.edit({ value: '/stores/0/transactions?filter_name=updated+filter' });
     await element.requestUpdate();
     caption = element.renderRoot.querySelector('foxy-i18n[infer="action"][key="reset"]');
-    button = caption?.closest('vaadin-button');
+    button = caption?.closest('foxy-internal-button');
     expect(button).to.exist;
   });
 

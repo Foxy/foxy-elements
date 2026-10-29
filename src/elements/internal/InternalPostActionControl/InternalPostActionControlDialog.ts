@@ -57,19 +57,23 @@ export class InternalPostActionControlDialog extends Dialog {
           <div class="grid grid-cols-2 gap-m">
             ${this.__state === 'done' || this.__state === 'fail' || this.__state === 'access_denied'
               ? html`
-                  <vaadin-button class="col-span-2" theme="contrast" @click=${() => this.hide()}>
+                  <foxy-internal-button
+                    class="col-span-2"
+                    theme="contrast"
+                    @click=${() => this.hide()}
+                  >
                     <foxy-i18n infer="" key="button_close"></foxy-i18n>
-                  </vaadin-button>
+                  </foxy-internal-button>
                 `
               : html`
-                  <vaadin-button
+                  <foxy-internal-button
                     ?disabled=${this.disabled || this.readonly}
                     @click=${() => this.hide()}
                   >
                     <foxy-i18n infer="" key="button_cancel"></foxy-i18n>
-                  </vaadin-button>
+                  </foxy-internal-button>
 
-                  <vaadin-button
+                  <foxy-internal-button
                     theme="primary"
                     ?disabled=${this.disabled || this.readonly}
                     @click=${async () => {
@@ -95,7 +99,7 @@ export class InternalPostActionControlDialog extends Dialog {
                     }}
                   >
                     <foxy-i18n infer="" key="button_confirm"></foxy-i18n>
-                  </vaadin-button>
+                  </foxy-internal-button>
                 `}
           </div>
 

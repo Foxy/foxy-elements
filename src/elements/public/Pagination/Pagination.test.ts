@@ -21,7 +21,7 @@ describe('Pagination', () => {
   });
 
   it('imports and defines dependencies', () => {
-    expect(customElements.get('vaadin-button')).to.exist;
+    expect(customElements.get('foxy-internal-button')).to.exist;
     expect(customElements.get('foxy-internal-summary-control')).to.exist;
     expect(customElements.get('foxy-internal-number-control')).to.exist;
     expect(customElements.get('foxy-internal-select-control')).to.exist;
@@ -69,16 +69,16 @@ describe('Pagination', () => {
     await waitUntil(() => pageElement.in('idle'));
 
     const firstLabel = element.renderRoot.querySelector('foxy-i18n[infer=""][key="first"]')!;
-    const firstButton = firstLabel.closest('vaadin-button')!;
+    const firstButton = firstLabel.closest('foxy-internal-button')!;
 
     const previousLabel = element.renderRoot.querySelector('foxy-i18n[infer=""][key="previous"]')!;
-    const previousButton = previousLabel.closest('vaadin-button')!;
+    const previousButton = previousLabel.closest('foxy-internal-button')!;
 
     const nextLabel = element.renderRoot.querySelector('foxy-i18n[infer=""][key="next"]')!;
-    const nextButton = nextLabel.closest('vaadin-button')!;
+    const nextButton = nextLabel.closest('foxy-internal-button')!;
 
     const lastLabel = element.renderRoot.querySelector('foxy-i18n[infer=""][key="last"]')!;
-    const lastButton = lastLabel.closest('vaadin-button')!;
+    const lastButton = lastLabel.closest('foxy-internal-button')!;
 
     const paginationLabel = element.renderRoot.querySelector(
       'foxy-i18n[infer=""][key="pagination"]'
@@ -157,7 +157,7 @@ describe('Pagination', () => {
     `);
 
     const label = element.renderRoot.querySelector('foxy-i18n[infer=""][key="pagination"]')!;
-    const button = label.closest('vaadin-button')!;
+    const button = label.closest('foxy-internal-button')!;
     const dialog = element.renderRoot.querySelector('dialog')!;
     expect(dialog).to.not.have.attribute('open');
 

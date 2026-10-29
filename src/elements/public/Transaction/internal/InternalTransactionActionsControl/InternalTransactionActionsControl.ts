@@ -135,7 +135,7 @@ export class InternalTransactionActionsControl extends InternalControl {
     const host = this.nucleon as Transaction | null;
 
     return html`
-      <vaadin-button
+      <foxy-internal-button
         theme="tertiary-inline"
         ?disabled=${this.disabledSelector.matches('archive', true)}
         @click=${() => {
@@ -148,7 +148,7 @@ export class InternalTransactionActionsControl extends InternalControl {
           key="caption_${host?.form.hide_transaction ? 'unarchive' : 'archive'}"
         >
         </foxy-i18n>
-      </vaadin-button>
+      </foxy-internal-button>
     `;
   }
 

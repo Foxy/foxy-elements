@@ -141,7 +141,7 @@ export class InternalCartFormAddressSummaryItem extends ResponsiveMixin(Internal
         </p>
 
         <div class="flex justify-between gap-m">
-          <vaadin-button
+          <foxy-internal-button
             theme="error"
             ?disabled=${this.disabled}
             ?hidden=${this.readonly}
@@ -161,15 +161,15 @@ export class InternalCartFormAddressSummaryItem extends ResponsiveMixin(Internal
             }}
           >
             <foxy-i18n infer="" key="reset"></foxy-i18n>
-          </vaadin-button>
+          </foxy-internal-button>
 
-          <vaadin-button
+          <foxy-internal-button
             theme="primary"
             ?disabled=${this.disabled}
             @click=${() => this.__dialog?.close()}
           >
             <foxy-i18n infer="" key="done"></foxy-i18n>
-          </vaadin-button>
+          </foxy-internal-button>
         </div>
       </dialog>
 
