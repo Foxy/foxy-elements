@@ -115,6 +115,28 @@ describe('PaymentCard', () => {
     expect(element.renderRoot).to.include.text('Authorize.net AIM');
   });
 
+  it('renders without gateway name when gateway type is empty', async () => {
+    const router = createRouter();
+    const layout = html`
+      <foxy-payment-card
+        hosted-payment-gateways-helper="https://demo.api/hapi/property_helpers/1"
+        payment-gateways-helper="https://demo.api/hapi/property_helpers/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-payment-card>
+    `;
+
+    const element = await fixture<PaymentCard>(layout);
+    const data = await getTestData<Data>('./hapi/payments/0');
+
+    data.gateway_type = '';
+    element.data = data;
+    await waitUntil(() => !!element.isBodyReady, undefined, { timeout: 5000 });
+
+    expect(await getByTestId(element, 'line-1')).to.exist;
+    expect(await getByTestId(element, 'gateway')).to.not.exist;
+  });
+
   it('renders processor response if present', async () => {
     const router = createRouter();
     const layout = html`

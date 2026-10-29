@@ -24,7 +24,16 @@ export const RestrictedScope = getStory({
   ext: 'current-user-scope="transactions_read"',
 });
 
+const helpers = [
+  'hosted-payment-gateways-helper="https://demo.api/hapi/property_helpers/1"',
+  'payment-gateways-helper="https://demo.api/hapi/property_helpers/0"',
+].join(' ');
+
+export const WithGatewayHelpers = getStory({ ...summary, ext: helpers });
+export const EmptyGatewayType = getStory({ ...summary, ext: helpers });
+
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';
 AccessDenied.args.href = 'https://demo.api/virtual/denied';
 Busy.args.href = 'https://demo.api/virtual/stall';
+EmptyGatewayType.args.href = 'https://demo.api/hapi/payments/1';
