@@ -114,7 +114,6 @@ export class PaymentCard extends Base<Data> {
               </span>
             `
           : ''}
-
         ${infoKeys.map(key => {
           if (!data?.[key]) return;
           const css = 'block text-s text-tertiary';
