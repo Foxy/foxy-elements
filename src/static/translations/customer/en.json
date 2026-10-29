@@ -873,7 +873,7 @@
     "password-old": {
       "label": "Old password",
       "placeholder": "",
-      "helper_text": "Enter the old password to set a new password. If you're a store admin, you can leave this field blank.",
+      "helper_text": "Enter your current password to change your email or password. If you're a store admin, you can leave this field blank.",
       "v8n_required": "Please fill out this field."
     },
     "forgot-password": {

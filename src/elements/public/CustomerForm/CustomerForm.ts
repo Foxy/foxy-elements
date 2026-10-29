@@ -63,10 +63,12 @@ export class CustomerForm extends Base<Data> {
         if (host.passwordless) return true;
         return !_links && !is_anonymous && !password ? 'password:v8n_required' : true;
       },
-      ({ password_old, password, _links }, host) => {
+      ({ password_old, password, email, _links }, host) => {
         if (!_links) return true;
         if (host.settings?.sign_up === undefined) return true;
-        return password && !password_old ? 'password-old:v8n_required' : true;
+        return (password || host.__isEmailChanged(email)) && !password_old
+          ? 'password-old:v8n_required'
+          : true;
       },
       ({ first_name: v }) => !v || v.length <= 50 || 'first-name:v8n_too_long',
       ({ last_name: v }) => !v || v.length <= 50 || 'last-name:v8n_too_long',
@@ -118,7 +120,8 @@ export class CustomerForm extends Base<Data> {
     if (this.settings) {
       hidden.add('forgot-password');
       hidden.add('is-anonymous');
-      if (!this.form.password) hidden.add('password-old');
+      if (!this.form.password && !this.__isEmailChanged(this.form.email))
+        hidden.add('password-old');
       if (this.settings.tos_checkbox_settings.usage === 'none') hidden.add('legal-notice');
     } else {
       if (this.form.is_anonymous !== false) {
@@ -282,6 +285,8 @@ export class CustomerForm extends Base<Data> {
         throw ['error:verification_failed'];
       } else if (message.startsWith('Provided password is incorrect')) {
         throw ['error:old_password_incorrect'];
+      } else if (message.startsWith('password_old is required')) {
+        throw ['error:old_password_required'];
       } else {
         throw err;
       }
@@ -319,5 +324,12 @@ export class CustomerForm extends Base<Data> {
 
   private get __hcaptcha() {
     return this.renderRoot.querySelector<VanillaHCaptchaWebComponent>('h-captcha');
+  }
+
+  /** True when `email` differs from the saved one. Customer API asks for the current password to change it. */
+  private __isEmailChanged(email: string | undefined): boolean {
+    const saved = this.data?.email;
+    if (!saved || email === undefined) return false;
+    return email.trim().toLowerCase() !== saved.trim().toLowerCase();
   }
 }
