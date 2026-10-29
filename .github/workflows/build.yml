@@ -1,0 +1,21 @@
+name: Build
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    # Runs the same step that gates the release, so a PR that would break the release can't merge green.
+    name: Lint and build
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint and build
+        run: npm run prepack
