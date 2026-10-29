@@ -99,9 +99,9 @@ describe('UserInvitationForm', () => {
       await waitUntil(() => (control as any).__state === 'access_denied', '', { timeout: 5000 });
       await control.requestUpdate();
 
-      const label = control.renderRoot.querySelector('vaadin-button foxy-i18n');
+      const label = control.renderRoot.querySelector('foxy-internal-button foxy-i18n');
       expect(label).to.have.property('key', 'access_denied');
-      expect(control.renderRoot.querySelector('vaadin-button')).to.have.attribute('theme', 'error');
+      expect(control.renderRoot.querySelector('foxy-internal-button')).to.have.attribute('theme', 'error');
     });
   });
 });

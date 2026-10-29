@@ -183,7 +183,7 @@ describe('TemplateForm', () => {
         </foxy-internal-template-form-async-action>
       `);
 
-      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const button = control.renderRoot.querySelector('foxy-internal-button')!;
       const label = button.querySelector<I18n>('foxy-i18n')!;
 
       button.click();

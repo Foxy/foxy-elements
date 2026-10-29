@@ -175,7 +175,7 @@ describe('InternalPostActionControl', () => {
 
     await dialog.show();
     const $ = (selector: string) => dialog.renderRoot.querySelector(selector);
-    $('foxy-i18n[key="button_confirm"]')?.closest('vaadin-button')?.click();
+    $('foxy-i18n[key="button_confirm"]')?.closest('foxy-internal-button')?.click();
 
     await waitUntil(() => {
       dialog.requestUpdate();
@@ -201,7 +201,7 @@ describe('InternalPostActionControl', () => {
 
     await dialog.show();
     const $ = (selector: string) => dialog.renderRoot.querySelector(selector);
-    $('foxy-i18n[key="button_confirm"]')?.closest('vaadin-button')?.click();
+    $('foxy-i18n[key="button_confirm"]')?.closest('foxy-internal-button')?.click();
 
     await waitUntil(() => {
       dialog.requestUpdate();
