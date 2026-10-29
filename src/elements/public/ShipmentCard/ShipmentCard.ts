@@ -4,6 +4,8 @@ import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
 
+import { canReadCollection } from '../../../utils/user-scope';
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
@@ -11,7 +13,7 @@ import { decode } from 'html-entities';
 import { html } from 'lit-html';
 
 const NS = 'shipment-card';
-const Base = TranslatableMixin(InternalCard, NS);
+const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
 /**
  * Basic card displaying a shipment (`fx:shipment`).
@@ -45,7 +47,7 @@ export class ShipmentCard extends Base<Data> {
 
       <foxy-nucleon
         infer=""
-        href=${ifDefined(this.data?._links['fx:store'].href)}
+        href=${ifDefined(this.__canReadStore ? this.data?._links['fx:store'].href : undefined)}
         id=${this.__storeLoaderId}
         @update=${() => this.requestUpdate()}
       >
@@ -121,8 +123,15 @@ export class ShipmentCard extends Base<Data> {
     return this.renderRoot.querySelector<Loader>(`#${this.__storeLoaderId}`);
   }
 
+  // Shipments belong to transactions, so the transaction is always readable here.
+  // Without the store the price falls back to the currency symbol.
+  private get __canReadStore() {
+    return canReadCollection(this.currentUserScope, 'stores');
+  }
+
   private get __currencyDisplay() {
     const store = this.__storeLoader?.data;
+    if (!store && !this.__canReadStore) return 'symbol';
     return store ? (store.use_international_currency_symbol ? 'code' : 'symbol') : void 0;
   }
 

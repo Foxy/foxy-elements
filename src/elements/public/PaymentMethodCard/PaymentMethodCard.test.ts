@@ -14,6 +14,7 @@ import { PaymentMethodCard } from './PaymentMethodCard';
 import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { html } from 'lit-element';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
@@ -576,6 +577,90 @@ describe('PaymentMethodCard', () => {
       const element = await fixture<PaymentMethodCard>(layout);
 
       expect(await getByTestId(element, 'spinner')).to.not.exist;
+    });
+  });
+
+  it('renders "error" foxy-spinner with access-denied type if delete is denied', async () => {
+    const router = createRouter();
+    const element = await fixture<PaymentMethodCard>(html`
+      <foxy-payment-method-card
+        href="https://demo.api/hapi/payment_methods/0"
+        @fetch=${(evt: FetchEvent) =>
+          evt.request.method === 'PATCH'
+            ? evt.respondWith(
+                Promise.resolve(createAccessDeniedResponse('write', 'payment_method'))
+              )
+            : router.handleEvent(evt)}
+      >
+      </foxy-payment-method-card>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
+    element.delete();
+    await waitUntil(() => element.errors.includes('error:access_denied'), undefined, {
+      timeout: 5000,
+    });
+    await element.updateComplete;
+
+    const spinner = await getByTestId(element, 'spinner');
+    expect(element.in('idle')).to.be.true;
+    expect(spinner).to.have.attribute('state', 'error');
+    expect(spinner).to.have.attribute('error-type', 'access-denied');
+  });
+
+  describe('current user scope', () => {
+    const create = async (id: number, scope = '') => {
+      const data = await getTestData<Data>(`./hapi/payment_methods/${id}`);
+      return fixture<PaymentMethodCard>(html`
+        <foxy-payment-method-card
+          current-user-scope=${scope}
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
+          .data=${data}
+        >
+        </foxy-payment-method-card>
+      `);
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create(0);
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('hides update and delete without customers_write', async () => {
+      const element = await create(0, 'subscriptions_read customers_read');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(await getByTestId(element, 'actions:update')).to.not.exist;
+      expect(await getByTestId(element, 'actions:delete')).to.not.exist;
+
+      element.currentUserScope = 'customers_write';
+      await element.requestUpdate();
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+      expect(await getByTestId(element, 'actions:update')).to.exist;
+      expect(await getByTestId(element, 'actions:delete')).to.exist;
+    });
+
+    it('hides add on an empty card without customers_write', async () => {
+      const element = await create(1, 'subscriptions_read customers_read');
+      expect(await getByTestId(element, 'actions:update')).to.not.exist;
+
+      element.currentUserScope = 'customers_write';
+      await element.requestUpdate();
+      expect(await getByTestId(element, 'actions:update')).to.exist;
+    });
+
+    it('passes the scope to the update dialog', async () => {
+      const element = await create(0, 'customers_write');
+      const dialog = await getByTestId<FormDialog>(element, 'update-dialog');
+      expect(dialog).to.have.property('currentUserScope', 'customers_write');
+
+      element.currentUserScope = null;
+      await element.requestUpdate();
+      expect(dialog).to.have.property('currentUserScope', null);
     });
   });
 });

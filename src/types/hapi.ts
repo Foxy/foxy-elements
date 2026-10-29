@@ -223,6 +223,8 @@ export interface FxStore {
   shipping_address_type: string;
   /** Shipping rate signing ensures that the rate the customer selects is carried through and not altered in any way. If you're intending to make use of javascript snippets on your store to alter the price or label of shipping rates or add custom rates dynamically, disable this setting as it will block those rates from being applied. The default is false. */
   require_signed_shipping_rates: boolean;
+  /** The maximum weight of a single package when requesting live shipping rates. If the combined weight of the shippable items in an order exceeds this value, the order is split into multiple packages when calculating shipping rates. Set to 0 to treat the order as a single package. */
+  package_weight_max: number;
   /** The timezone of your store. This will impact how dates are shown to customers and within the FoxyCart admin. */
   timezone: string;
   /** Set a master password here if you would like to be able to check out as your customers without having to know their password. */

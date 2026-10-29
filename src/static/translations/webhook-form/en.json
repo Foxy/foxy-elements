@@ -97,6 +97,7 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied",
           "loading_empty": "This webhook has not been triggered yet."
         }
       }
@@ -118,6 +119,7 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_error": "Unknown error",
+          "loading_access_denied": "Access denied",
           "loading_empty": "This webhook has not been triggered yet."
         }
       }
@@ -145,6 +147,7 @@
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   }
 }

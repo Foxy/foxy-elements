@@ -900,4 +900,101 @@ describe('ItemCategoryForm', () => {
     expect(control).to.have.attribute('limit', '5');
     expect(control).to.have.attribute('item', 'foxy-tax-card');
   });
+
+  describe('current user scope', () => {
+    const create = async (scope = '') => {
+      const router = createRouter();
+      const form = await fixture<Form>(html`
+        <foxy-item-category-form
+          email-templates="https://demo.api/hapi/email_templates"
+          current-user-scope=${scope}
+          taxes="https://demo.api/hapi/taxes"
+          href="https://demo.api/hapi/item_categories/1"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-category-form>
+      `);
+
+      await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getControl = async (form: Form, selector: string) => {
+      const control = form.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal('undo submit create');
+        expect(form.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only and hides taxes and templates with coupons_read item_categories_read', async () => {
+      const form = await create('coupons_read item_categories_read');
+      const picker = '[infer="gift-recipient-email-template-uri"]';
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(form, '[infer="general"]')).readonly).to.be.true;
+      expect((await getControl(form, '[infer="delivery"]')).readonly).to.be.true;
+      expect((await getControl(form, '[infer="handling-and-discount"]')).readonly).to.be.true;
+      expect((await getControl(form, '[infer="taxes"]')).hidden).to.be.true;
+      expect((await getControl(form, picker)).hidden).to.be.true;
+      expect((await getControl(form, '[infer="emails"]')).hidden).to.be.false;
+
+      form.currentUserScope = 'item_categories_write taxes_read templates_read';
+      await form.requestUpdate();
+      expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(form, '[infer="general"]')).readonly).to.be.false;
+      expect((await getControl(form, '[infer="delivery"]')).readonly).to.be.false;
+      expect((await getControl(form, '[infer="taxes"]')).hidden).to.be.false;
+      expect((await getControl(form, picker)).hidden).to.be.false;
+    });
+
+    it('locks emails without item_categories_write', async () => {
+      const form = await create('item_categories_read templates_read');
+      const picker = '[infer="gift-recipient-email-template-uri"]';
+      expect((await getControl(form, '[infer="emails"]')).readonly).to.be.true;
+      expect((await getControl(form, picker)).readonly).to.be.true;
+
+      form.currentUserScope = 'item_categories_write templates_read';
+      await form.requestUpdate();
+      expect((await getControl(form, '[infer="emails"]')).readonly).to.be.false;
+      expect((await getControl(form, picker)).readonly).to.be.false;
+    });
+
+    it('hides create in create mode without item_categories_write', async () => {
+      const form = await fixture<Form>(html`
+        <foxy-item-category-form current-user-scope="item_categories_read">
+        </foxy-item-category-form>
+      `);
+
+      expect(form.hiddenSelector.matches('create', true)).to.be.true;
+      expect((await getControl(form, '[infer="create"]')).hidden).to.be.true;
+
+      form.currentUserScope = 'item_categories_write';
+      await form.requestUpdate();
+      expect(form.hiddenSelector.matches('create', true)).to.be.false;
+      expect((await getControl(form, '[infer="create"]')).hidden).to.be.false;
+    });
+
+    it('does not lock the taxes list when only the item category is read-only', async () => {
+      const form = await create('item_categories_read taxes_write');
+      const taxes = await getControl(form, '[infer="taxes"]');
+      expect((await getControl(form, '[infer="general"]')).readonly).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+      expect(taxes.hidden).to.be.false;
+      expect(taxes.readonly).to.be.false;
+
+      form.currentUserScope = 'item_categories_write taxes_read';
+      await form.requestUpdate();
+      expect((await getControl(form, '[infer="general"]')).readonly).to.be.false;
+      expect((await getControl(form, '[infer="taxes"]')).readonly).to.be.true;
+    });
+  });
 });

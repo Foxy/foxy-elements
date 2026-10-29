@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -5,12 +6,14 @@ import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
 
+import { canReadCollection } from '../../../utils/user-scope';
 import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { parseFrequency } from '../../../utils/parse-frequency';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { getResourceId } from '@foxy.io/sdk/core';
 import { html } from 'lit-html';
 
 const NS = 'admin-subscription-card';
@@ -52,6 +55,10 @@ export class AdminSubscriptionCard extends Base<Data> {
 
   private readonly __storeLoaderId = 'storeLoader';
 
+  get scopeCollection(): ScopeCollection | null {
+    return 'subscriptions';
+  }
+
   renderBody(): TemplateResult {
     const customer = this.__customer;
     const cart = this.__transactionTemplate;
@@ -61,6 +68,10 @@ export class AdminSubscriptionCard extends Base<Data> {
     const summaryOptions = this.__summaryOptions;
     const summaryKey = this.__summaryKey;
     const status = getSubscriptionStatus(this.data);
+
+    const name = [customer?.first_name, customer?.last_name].filter(v => !!v).join(' ');
+    const email = cart?.customer_email;
+    const customerLine = name && email ? `${name} (${email})` : name || email;
 
     return html`
       <foxy-nucleon
@@ -147,26 +158,38 @@ export class AdminSubscriptionCard extends Base<Data> {
         </div>
 
         <div class="text-tertiary truncate text-s">
-          ${customer?.first_name} ${customer?.last_name} (${cart?.customer_email})
+          ${customerLine ? customerLine : html`&ZeroWidthSpace;`}
         </div>
       </div>
     `;
   }
 
   get isBodyReady(): boolean {
+    // Helpers the scope can't read never load, so the card renders without them.
+    const can = (collection: ScopeCollection) => {
+      return canReadCollection(this.currentUserScope, collection);
+    };
+
+    const cart = this.__transactionTemplate;
+    const isCodeUnreachable =
+      !can('carts') ||
+      (!!cart &&
+        !cart.currency_code &&
+        (!can('templates') || (cart.template_set_uri === '' && !can('stores'))));
+
     return (
       super.isBodyReady &&
-      !!this.__items &&
-      !!this.__currencyCode &&
+      (!!this.__items || !can('carts')) &&
+      (!!this.__currencyCode || isCodeUnreachable) &&
       !!this.__currencyDisplay &&
-      !!this.__customer
+      (!!this.__customer || !can('customers'))
     );
   }
 
   private get __transactionTemplateHref() {
     const data = this.data;
 
-    if (!data) return;
+    if (!data || !canReadCollection(this.currentUserScope, 'carts')) return;
     if ('_embedded' in data && 'fx:transaction_template' in data._embedded) return;
 
     const url = new URL(this.data?._links['fx:transaction_template'].href ?? '');
@@ -201,6 +224,7 @@ export class AdminSubscriptionCard extends Base<Data> {
 
   private get __customerHref() {
     if ('fx:customer' in (this.data?._embedded ?? {})) return;
+    if (!canReadCollection(this.currentUserScope, 'customers')) return;
     return this.data?._links['fx:customer']?.href;
   }
 
@@ -216,6 +240,7 @@ export class AdminSubscriptionCard extends Base<Data> {
   }
 
   private get __storeHref() {
+    if (!canReadCollection(this.currentUserScope, 'stores')) return;
     return this.data?._links['fx:store']?.href;
   }
 
@@ -302,16 +327,21 @@ export class AdminSubscriptionCard extends Base<Data> {
 
     if (useCode === true) return 'code';
     if (useCode === false) return 'symbol';
+    if (!canReadCollection(this.currentUserScope, 'stores')) return 'symbol';
   }
 
   private get __summaryOptions() {
     const { array, count } = this.__items ?? {};
     if (array && count) return { firstItem: array[0], count, countMinus1: count - 1 };
+    // The first line must never be blank, e.g. when the scope can't read carts.
+    const self = this.data?._links.self.href;
+    if (self) return { id: getResourceId(self) };
   }
 
   private get __summaryKey() {
     const items = this.__items;
-    if (items) return items.isApproximateCount ? 'summary_approximate' : 'summary';
+    if (items?.count) return items.isApproximateCount ? 'summary_approximate' : 'summary';
+    if (this.data) return 'summary_fallback';
   }
 
   private get __currencyCode() {
@@ -333,8 +363,6 @@ export class AdminSubscriptionCard extends Base<Data> {
     if (currencyDisplay === undefined) return;
 
     const currencyCode = this.__currencyCode;
-    if (currencyCode === undefined) return;
-
     const totalOrder = this.__transactionTemplate?.total_order;
     if (totalOrder === undefined) return;
 
@@ -343,7 +371,7 @@ export class AdminSubscriptionCard extends Base<Data> {
 
     return {
       ...parseFrequency(frequency),
-      amount: `${totalOrder} ${currencyCode}`,
+      amount: currencyCode ? `${totalOrder} ${currencyCode}` : `${totalOrder}`,
       currencyDisplay,
     };
   }

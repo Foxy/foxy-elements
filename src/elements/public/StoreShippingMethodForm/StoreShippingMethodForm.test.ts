@@ -735,4 +735,64 @@ describe('StoreShippingMethodForm', () => {
     await waitUntil(() => !!control.ownUri, undefined, { timeout: 5000 });
     expect(control.ownUri).to.equal('https://demo.api/hapi/shipping_methods/0');
   });
+
+  describe('current user scope', () => {
+    const create = async (scope = '') => {
+      const router = createRouter();
+      const form = await fixture<Form>(html`
+        <foxy-store-shipping-method-form
+          shipping-methods="https://demo.api/hapi/shipping_methods"
+          current-user-scope=${scope}
+          href="https://demo.api/hapi/store_shipping_methods/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-store-shipping-method-form>
+      `);
+
+      await waitUntil(
+        () => {
+          if (!form.data) return false;
+          const loaders = form.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+          return [...loaders].every(loader => !loader.in('busy'));
+        },
+        undefined,
+        { timeout: 5000 }
+      );
+
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getControl = async (form: Form, selector: string) => {
+      const control = form.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access', 'stores_read payment_settings_read'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal(
+          'general:shipping-method-uri account endpoint custom-code undo submit create'
+        );
+        expect(form.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with shipping_settings_read', async () => {
+      const form = await create('shipping_settings_read');
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(form, '[infer="destinations"]')).readonly).to.be.true;
+      expect((await getControl(form, '[infer="services"]')).readonly).to.be.true;
+
+      form.currentUserScope = 'shipping_settings_write';
+      await form.requestUpdate();
+      expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(form, '[infer="destinations"]')).readonly).to.be.false;
+      expect((await getControl(form, '[infer="services"]')).readonly).to.be.false;
+    });
+  });
 });

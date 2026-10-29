@@ -1,6 +1,7 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
+import type { ScopeRule } from '../../../utils/user-scope';
 
 import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -22,6 +23,18 @@ export class AdminSubscriptionForm extends Base<Data> {
 
   /** URL of the UOE settings page in the admin. If set, displays a link to that page in the self-service links section. */
   uoeSettingsPage: string | null = null;
+
+  // Not `scopeCollection`: a read-only subscription would lock the nested transaction forms too.
+  get scopeRules(): ScopeRule[] {
+    return [
+      { path: 'general', collection: 'subscriptions', readonlyIfNoWrite: true },
+      { path: 'overdue:past-due-amount', collection: 'subscriptions', readonlyIfNoWrite: true },
+      { path: 'overdue:charge-past-due', collection: 'subscriptions', need: 'write' },
+      { path: 'status-action', collection: 'subscriptions', need: 'write' },
+      { path: 'attributes', collection: 'subscriptions', readonlyIfNoWrite: true },
+      { path: 'transactions', collection: 'transactions' },
+    ];
+  }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = ['delete', super.hiddenSelector.toString()];
@@ -56,7 +69,7 @@ export class AdminSubscriptionForm extends Base<Data> {
     const chargePastDueHref: string | undefined = this.data?._links['fx:charge_past_due']?.href;
     const pastDueAmount = this.data?.past_due_amount;
     const errorMessage = this.data?.error_message;
-    const currencyCode = this.data?._embedded['fx:transaction_template'].currency_code;
+    const currencyCode = this.data?._embedded?.['fx:transaction_template']?.currency_code;
 
     return html`
       ${this.renderHeader()}

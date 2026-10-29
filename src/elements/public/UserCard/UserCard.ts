@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { PropertyDeclarations } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
@@ -32,6 +33,10 @@ export class UserCard extends Base<Data> {
 
   /** When true, displays the number of unanswered invitations next to profile picture if there are some. */
   showInvitations = false;
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'users';
+  }
 
   renderBody(): TemplateResult {
     const invitationsCount = this.__invitationsLoader?.data?.total_items ?? 0;

@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { PropertyDeclarations } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
@@ -5,6 +6,7 @@ import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
@@ -13,7 +15,7 @@ import { classMap } from '../../../utils/class-map';
 import { decode } from 'html-entities';
 
 const NS = 'filter-attribute-card';
-const Base = TranslatableMixin(InternalCard, NS);
+const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
 /**
  * Card element displaying a saved filter in Admin. Saved filters
@@ -44,6 +46,10 @@ export class FilterAttributeCard extends Base<Data> {
   private readonly __countLoaderId = 'countLoader';
 
   private __refreshTimeout: NodeJS.Timeout | null = null;
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'stores';
+  }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();

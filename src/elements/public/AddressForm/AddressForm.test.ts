@@ -1,5 +1,6 @@
 import type { InternalCheckboxGroupControl } from '../../internal/InternalCheckboxGroupControl/InternalCheckboxGroupControl';
 import type { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
+import type { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
 import type { Data } from './types';
 
@@ -498,5 +499,74 @@ describe('AddressForm', () => {
 
     await waitUntil(() => !!form.in('idle'));
     expect(form.errors).to.include('error:address_name_exists');
+  });
+
+  describe('current user scope', () => {
+    const today = { hidden: 'undo submit create', readonly: '' };
+
+    const create = async (scope = '') => {
+      const data = await getTestData<Data>('./hapi/customer_addresses/2');
+      const form = await fixture<AddressForm>(html`
+        <foxy-address-form current-user-scope=${scope} .data=${data}></foxy-address-form>
+      `);
+
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getControl = async (form: AddressForm) => {
+      const control = form.renderRoot.querySelector<InternalTextControl>('[infer="city"]')!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal(today.hidden);
+        expect(form.readonlySelector.toString()).to.equal(today.readonly);
+      });
+    });
+
+    it('is read-only with customers_read transactions_read', async () => {
+      const form = await create('customers_read transactions_read');
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(form)).readonly).to.be.true;
+
+      form.currentUserScope = 'customers_write transactions_read';
+      await form.requestUpdate();
+      expect(form.readonlySelector.matches('any-control', true)).to.be.false;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(form)).readonly).to.be.false;
+    });
+
+    it('uses the transactions collection for a transaction billing address', async () => {
+      const data = await getTestData<any>('./hapi/customer_addresses/2');
+      delete data._links['fx:customer'];
+      data._links['fx:transaction'] = { href: 'https://demo.api/hapi/transactions/0' };
+      const form = await fixture<AddressForm>(html`
+        <foxy-address-form current-user-scope="transactions_read customers_write" .data=${data}>
+        </foxy-address-form>
+      `);
+
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+
+      form.currentUserScope = 'transactions_write customers_read';
+      expect(form.readonlySelector.matches('any-control', true)).to.be.false;
+    });
+
+    it('uses no collection for an address without a customer or transaction link', async () => {
+      const data = await getTestData<any>('./hapi/customer_addresses/2');
+      delete data._links['fx:customer'];
+      const form = await fixture<AddressForm>(html`
+        <foxy-address-form current-user-scope="customers_read transactions_read" .data=${data}>
+        </foxy-address-form>
+      `);
+
+      expect(form.readonlySelector.matches('any-control', true)).to.be.false;
+    });
   });
 });

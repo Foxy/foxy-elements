@@ -2,10 +2,13 @@ import type { InternalAsyncListControl } from '../../internal/InternalAsyncListC
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
 import type { Resource } from '@foxy.io/sdk/core';
+import type { InternalControl } from '../../internal/InternalControl/InternalControl';
 import type { Rels } from '@foxy.io/sdk/dist/types/backend';
 
 import { expect, fixture, waitUntil } from '@open-wc/testing';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { createRouter } from '../../../server/index';
 import { Transaction } from './index';
 import { getTestData } from '../../../testgen/getTestData';
@@ -311,7 +314,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, type: 'updateinfo', source: 'cit_ecommerce' };
     await element.requestUpdate();
 
@@ -338,7 +341,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, type: 'updateinfo', source: 'mit_uoe' };
     await element.requestUpdate();
 
@@ -365,7 +368,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, type: 'updateinfo', source: 'mit_api' };
     await element.requestUpdate();
 
@@ -392,7 +395,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, type: 'subscription_modification', source: 'cit_ecommerce' };
     await element.requestUpdate();
 
@@ -419,7 +422,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, type: 'subscription_modification', source: 'mit_uoe' };
     await element.requestUpdate();
 
@@ -446,7 +449,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, type: 'subscription_modification', source: 'mit_api' };
     await element.requestUpdate();
 
@@ -473,7 +476,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, type: 'subscription_renewal', source: 'mit_recurring' };
     await element.requestUpdate();
 
@@ -500,7 +503,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = {
       ...element.data!,
       type: 'subscription_renewal',
@@ -531,7 +534,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = {
       ...element.data!,
       type: 'subscription_renewal',
@@ -562,7 +565,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = {
       ...element.data!,
       type: 'subscription_cancellation',
@@ -593,7 +596,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = {
       ...element.data!,
       type: 'subscription_cancellation',
@@ -624,7 +627,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     element.data = {
       ...element.data!,
@@ -659,7 +662,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     const newData = { ...element.data!, source: 'cit_ecommerce', type: '' } as const;
     // @ts-expect-error SDK doesn't support optional links
@@ -692,7 +695,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, is_test: true };
     expect(element.headerSubtitleBadges).to.deep.include({ key: 'test' });
 
@@ -710,7 +713,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, hide_transaction: true };
     expect(element.headerSubtitleBadges).to.deep.include({ key: 'archived' });
 
@@ -728,7 +731,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     expect(element.headerSubtitleBadges[0]).to.have.property('text', 'Pending');
   });
 
@@ -742,7 +745,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     element.data = { ...element.data!, display_id: '123' };
 
     expect(element.headerCopyIdValue).to.equal('123');
@@ -758,11 +761,19 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="actions"]');
 
     expect(control).to.exist;
     expect(control).to.have.property('localName', 'foxy-internal-transaction-actions-control');
+
+    // Currency display comes from the store, which loads after the transaction.
+    await waitUntil(
+      () => (control as unknown as { currencyDisplay: string }).currencyDisplay === 'code',
+      '',
+      { timeout: 5000 }
+    );
+
     expect(control).to.have.property('currencyDisplay', 'code');
   });
 
@@ -776,7 +787,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     const control = element.renderRoot.querySelector(
       '[infer="datafeed"] [infer="process-webhook"]'
     );
@@ -796,7 +807,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="customer"]');
 
     expect(control).to.exist;
@@ -814,7 +825,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="items"]');
 
     expect(control).to.exist;
@@ -830,6 +841,9 @@ describe('Transaction', () => {
     expect(control).to.have.deep.property('itemProps', {
       'locale-codes': 'https://demo.api/hapi/property_helpers/7',
     });
+
+    // the store loads separately from the transaction, so wait for it
+    await waitUntil(() => (control as any).formProps?.['item-categories'], '', { timeout: 5000 });
 
     expect(control).to.have.deep.property('formProps', {
       'item-categories': 'https://demo.api/hapi/item_categories?store_id=0',
@@ -848,7 +862,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="summary"]');
 
     expect(control).to.exist;
@@ -865,7 +879,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="billing-addresses"]');
 
     expect(control).to.exist;
@@ -890,7 +904,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
     const control = element.renderRoot.querySelector('[infer="payments"]');
 
     expect(control).to.exist;
@@ -915,7 +929,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     const control = element.renderRoot.querySelector('[infer="custom-fields"]');
 
@@ -940,7 +954,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     const control = element.renderRoot.querySelector('[infer="attributes"]');
 
@@ -965,7 +979,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)';
     const analyzeStub = stub(uainfer, 'analyze').returns({ toString: () => 'Stub Agent' });
@@ -1002,7 +1016,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     element.data = {
       ...element.data!,
@@ -1033,7 +1047,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     const control = element.renderRoot.querySelector('[infer="shipments"]');
 
@@ -1045,6 +1059,40 @@ describe('Transaction', () => {
     );
     expect(control).to.have.property('form', null);
     expect(control).to.have.property('item', 'foxy-shipment-card');
+  });
+
+  it('links items and shipments without waiting for the store to load', async () => {
+    const router = createRouter();
+    const element = await fixture<Transaction>(html`
+      <foxy-transaction
+        href="https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
+        @fetch=${(evt: FetchEvent) => {
+          if (new URL(evt.request.url).pathname.startsWith('/hapi/stores/')) {
+            evt.preventDefault();
+            evt.respondWith(new Promise<Response>(() => void 0));
+          } else {
+            router.handleEvent(evt);
+          }
+        }}
+      >
+      </foxy-transaction>
+    `);
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
+    await element.requestUpdate();
+
+    const items = element.renderRoot.querySelector('[infer="items"]');
+    const shipments = element.renderRoot.querySelector('[infer="shipments"]');
+
+    expect(items).to.have.property(
+      'first',
+      'https://demo.api/hapi/items?transaction_id=0&zoom=item_options'
+    );
+
+    expect(shipments).to.have.property(
+      'first',
+      'https://demo.api/hapi/shipments?transaction_id=0&zoom=items%3Aitem_category'
+    );
   });
 
   it('renders webhooks as control', async () => {
@@ -1146,7 +1194,7 @@ describe('Transaction', () => {
       </foxy-transaction>
     `);
 
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
 
     const summary = element.renderRoot.querySelector('[infer="datafeed"]');
     expect(summary).to.exist;
@@ -1155,5 +1203,301 @@ describe('Transaction', () => {
     const status = summary?.querySelector('[infer="data-is-fed"');
     expect(status).to.exist;
     expect(status).to.have.property('localName', 'foxy-internal-switch-control');
+  });
+
+  describe('current user scope', () => {
+    const today = {
+      hidden:
+        'actions:send-emails datafeed subscription billing-addresses:dialog:delete ' +
+        'billing-addresses:dialog:timestamps webhooks:dialog:header:copy-json ' +
+        'webhooks:dialog:header:copy-id webhooks:dialog:timestamps webhooks:dialog:name ' +
+        'webhooks:dialog:query webhooks:dialog:encryption-key webhooks:dialog:delete ' +
+        'undo submit delete timestamps',
+      readonly:
+        'billing-addresses datafeed:data-is-fed webhooks:dialog:url items attributes custom-fields',
+    };
+
+    // `edit` may change the demo JSON in place or return a response to send instead.
+    const createElement = (
+      scope = '',
+      edit: (url: URL, json: any) => Response | void = () => void 0
+    ) => {
+      const router = createRouter();
+
+      return fixture<Transaction>(html`
+        <foxy-transaction
+          current-user-scope=${scope}
+          href="https://demo.api/hapi/transactions/0"
+          @fetch=${(evt: FetchEvent) => {
+            if (evt.defaultPrevented) return;
+            const url = new URL(evt.request.url);
+            const result = router.handleRequest(evt.request)!;
+            evt.respondWith(
+              result.handlerPromise.then(async response => {
+                const json = await response.json();
+                const replacement = edit(url, json);
+                return replacement ? replacement : new Response(JSON.stringify(json));
+              })
+            );
+          }}
+        >
+        </foxy-transaction>
+      `);
+    };
+
+    const withWebhookStore = (url: URL, json: any) => {
+      if (url.pathname === '/hapi/stores/0') json.use_webhook = true;
+    };
+
+    const whenAllLoaded = (element: Transaction) =>
+      waitUntil(
+        () => {
+          if (!element.in({ idle: 'snapshot' })) return false;
+          const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+          return [...nucleons].every(n => n.in({ idle: 'snapshot' }) || n.in('fail'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+    it('keeps selectors unchanged without a scope', () => {
+      const element = new Transaction();
+      expect(element.hiddenSelector.toString()).to.equal(today.hidden);
+      expect(element.readonlySelector.toString()).to.equal(today.readonly);
+    });
+
+    it('keeps selectors unchanged with store_full_access', () => {
+      const element = new Transaction();
+      element.currentUserScope = 'store_full_access';
+      expect(element.hiddenSelector.toString()).to.equal(today.hidden);
+      expect(element.readonlySelector.toString()).to.equal(today.readonly);
+    });
+
+    it('locks own fields and hides write actions with transactions_read', async () => {
+      const element = await createElement(
+        'transactions_read customers_read stores_read webhooks_read',
+        withWebhookStore
+      );
+
+      await whenAllLoaded(element);
+      expect(element.data?._links).to.have.property('fx:refund');
+      expect(element.hiddenSelector.matches('datafeed', true)).to.be.false;
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.true;
+
+      const readonly = element.readonlySelector;
+      const hidden = element.hiddenSelector;
+
+      expect(readonly.toString()).to.not.equal(BooleanSelector.True.toString());
+      ['items', 'custom-fields', 'attributes'].forEach(path => {
+        expect(readonly.matches(path, true), path).to.be.true;
+      });
+
+      [
+        'actions:capture',
+        'actions:void',
+        'actions:refund',
+        'actions:archive',
+        'actions:folder',
+        'datafeed:process-webhook',
+      ].forEach(path => expect(hidden.matches(path, true), path).to.be.true);
+
+      ['customer', 'webhooks', 'datafeed:data-is-fed'].forEach(path => {
+        expect(hidden.matches(path, true), path).to.be.false;
+      });
+    });
+
+    it('keeps own fields and write actions with transactions_write', async () => {
+      const element = await createElement(
+        'transactions_write transactions_resend stores_read webhooks_read webhooks_resend',
+        withWebhookStore
+      );
+
+      await whenAllLoaded(element);
+      const readonly = element.readonlySelector;
+      const hidden = element.hiddenSelector;
+
+      ['items', 'custom-fields', 'attributes'].forEach(path => {
+        expect(readonly.matches(path, true), path).to.be.false;
+      });
+
+      [
+        'actions:void',
+        'actions:refund',
+        'actions:send-emails',
+        'actions:archive',
+        'actions:folder',
+        'datafeed:process-webhook',
+      ].forEach(path => expect(hidden.matches(path, true), path).to.be.false);
+    });
+
+    it('shows send emails when the template set is denied', async () => {
+      const element = await createElement('transactions_resend transactions_read', url => {
+        if (url.pathname.startsWith('/hapi/template_sets')) {
+          return createAccessDeniedResponse('read', 'template_set');
+        }
+      });
+
+      await whenAllLoaded(element);
+      const loader = element.renderRoot.querySelector<NucleonElement<any>>('#templateSetLoader');
+      expect(loader?.in('fail')).to.be.true;
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.false;
+    });
+
+    it('hides send emails without a scope when the template set fails to load', async () => {
+      const element = await createElement('', url => {
+        if (url.pathname.startsWith('/hapi/template_sets')) {
+          return new Response(null, { status: 500 });
+        }
+      });
+
+      await whenAllLoaded(element);
+      const loader = element.renderRoot.querySelector<NucleonElement<any>>('#templateSetLoader');
+      expect(loader?.in('fail')).to.be.true;
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.true;
+    });
+
+    [
+      'transactions_resend transactions_read',
+      'transactions_resend transactions_read templates_read',
+    ].forEach(scope => {
+      it(`shows send emails with "${scope}" when the store is denied`, async () => {
+        const element = await createElement(scope, url => {
+          if (url.pathname === '/hapi/stores/0') return createAccessDeniedResponse('read', 'store');
+        });
+
+        // The template set loader gets no href here, so it never settles.
+        const storeLoader = () =>
+          element.renderRoot.querySelector<NucleonElement<any>>('#storeLoader');
+        await waitUntil(() => element.in({ idle: 'snapshot' }) && !!storeLoader()?.in('fail'));
+        await element.requestUpdate();
+        expect(element.data?._links).to.not.have.property('fx:template_sets');
+        expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.false;
+      });
+    });
+
+    it('hides webhooks and folders without stores_read', async () => {
+      const element = new Transaction();
+      element.currentUserScope = 'transactions_write webhooks_read';
+      expect(element.hiddenSelector.matches('webhooks', true)).to.be.true;
+      expect(element.hiddenSelector.matches('actions:folder', true)).to.be.true;
+
+      element.currentUserScope = 'transactions_write webhooks_read stores_read';
+      expect(element.hiddenSelector.matches('webhooks', true)).to.be.false;
+      expect(element.hiddenSelector.matches('actions:folder', true)).to.be.false;
+    });
+
+    it('hides the subscription link without subscriptions_read', () => {
+      const element = new Transaction();
+      element.currentUserScope = 'transactions_read';
+      expect(element.hiddenSelector.matches('actions:subscription', true)).to.be.true;
+
+      element.currentUserScope = 'transactions_read subscriptions_read';
+      expect(element.hiddenSelector.matches('actions:subscription', true)).to.be.false;
+    });
+
+    it('hides the customer block without customers_read', () => {
+      const element = new Transaction();
+      element.currentUserScope = 'transactions_write';
+      expect(element.hiddenSelector.matches('customer', true)).to.be.true;
+    });
+
+    it('hides webhooks without webhooks_read and refeed without webhooks_resend or webhooks_write', async () => {
+      const element = await fixture<Transaction>(html`
+        <foxy-transaction current-user-scope="transactions_read stores_read webhooks_read">
+        </foxy-transaction>
+      `);
+
+      const webhooks =
+        element.renderRoot.querySelector<InternalAsyncListControl>('[infer="webhooks"]')!;
+
+      expect(element.hiddenSelector.matches('webhooks', true)).to.be.false;
+      expect(webhooks.bulkActions).to.be.empty;
+
+      element.currentUserScope = 'transactions_read stores_read webhooks_write';
+      await element.requestUpdate();
+      expect(webhooks.bulkActions).to.have.length(1);
+
+      element.currentUserScope = 'transactions_read stores_read webhooks_read webhooks_resend';
+      await element.requestUpdate();
+      expect(webhooks.bulkActions).to.have.length(1);
+    });
+
+    it('hides the process webhook action without webhooks_resend or webhooks_write', async () => {
+      const element = await createElement(
+        'transactions_write stores_read webhooks_read',
+        withWebhookStore
+      );
+
+      await whenAllLoaded(element);
+      await element.requestUpdate();
+      const control = element.renderRoot.querySelector<InternalControl>(
+        '[infer="datafeed"] [infer="process-webhook"]'
+      )!;
+
+      await control.requestUpdate();
+      expect(control.hidden).to.be.true;
+
+      element.currentUserScope = 'transactions_write stores_read webhooks_write';
+      await element.requestUpdate();
+      await control.requestUpdate();
+      expect(control.hidden).to.be.false;
+
+      element.currentUserScope = 'transactions_write stores_read webhooks_read';
+      await element.requestUpdate();
+      await control.requestUpdate();
+      expect(control.hidden).to.be.true;
+
+      element.currentUserScope = 'transactions_write stores_read webhooks_read webhooks_resend';
+      await element.requestUpdate();
+      await control.requestUpdate();
+      expect(control.hidden).to.be.false;
+    });
+
+    it('hides send emails without transactions_resend or transactions_write', async () => {
+      const element = await createElement();
+      await whenAllLoaded(element);
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.false;
+
+      element.currentUserScope = 'transactions_read';
+      await element.requestUpdate();
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.true;
+
+      element.currentUserScope = 'transactions_write';
+      await element.requestUpdate();
+      expect(element.hiddenSelector.matches('actions:send-emails', true)).to.be.false;
+      expect(element.hiddenSelector.matches('actions:refund', true)).to.be.false;
+    });
+
+    it('zooms shipment item categories only when the scope can read them', async () => {
+      const zoomFor = async (scope: string) => {
+        const element = await createElement(scope);
+        await whenAllLoaded(element);
+        const control = element.renderRoot.querySelector('[infer="shipments"]')!;
+        return new URL(control.getAttribute('first')!).searchParams.get('zoom');
+      };
+
+      expect(await zoomFor('transactions_read')).to.equal('items');
+      expect(await zoomFor('transactions_read item_categories_read')).to.equal(
+        'items:item_category'
+      );
+      expect(await zoomFor('')).to.equal('items:item_category');
+    });
+
+    it('does not lock the customer block when only the transaction is read-only', async () => {
+      const scope = 'transactions_read customers_write';
+      const element = await createElement(scope);
+      await whenAllLoaded(element);
+
+      const control = element.renderRoot.querySelector<InternalControl>('[infer="customer"]')!;
+      await control.requestUpdate();
+      const card = control.renderRoot.querySelector<NucleonElement<any> & InternalControl>(
+        'foxy-customer-card'
+      )!;
+
+      await card.requestUpdate();
+      expect(element.readonlySelector.matches('items', true)).to.be.true;
+      expect(card).to.have.property('currentUserScope', scope);
+      expect(card).to.have.property('readonly', false);
+    });
   });
 });

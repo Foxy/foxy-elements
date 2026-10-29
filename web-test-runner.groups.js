@@ -716,6 +716,10 @@ export const groups = [
     files: './src/server/**/*.test.ts',
   },
   {
+    name: 'utils',
+    files: './src/utils/**/*.test.ts',
+  },
+  {
     name: 'mixins',
     files: './src/mixins/**/*.test.ts',
   },

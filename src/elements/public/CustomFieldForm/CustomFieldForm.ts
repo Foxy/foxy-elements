@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
@@ -5,6 +6,7 @@ import type { NucleonV8N } from '../NucleonElement/types';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { html } from 'lit-html';
+import { getItemScopeCollection } from '../../../utils/item-scope-collection';
 
 const NS = 'custom-field-form';
 const Base = TranslatableMixin(InternalForm, NS);
@@ -34,6 +36,10 @@ export class CustomFieldForm extends Base<Data> {
   };
 
   private readonly __visibilityOptions = [{ label: 'option_hidden', value: 'hidden' }];
+
+  get scopeCollection(): ScopeCollection | null {
+    return getItemScopeCollection(this.data);
+  }
 
   renderBody(): TemplateResult {
     return html`

@@ -22,11 +22,24 @@ export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElem
   }
 
   render(): TemplateResult {
-    const spinnerState = this.in('fail')
-      ? 'error'
-      : this.in({ idle: 'template' })
-      ? 'empty'
-      : 'busy';
+    // Cards that wait for hidden helper loaders would spin forever if a helper fails.
+    const failedLoader = this.isBodyReady
+      ? undefined
+      : Array.from(this.renderRoot.querySelectorAll<NucleonElement<Data>>('foxy-nucleon')).find(
+          loader => !!loader.href && loader.in('fail')
+        );
+
+    // A denied delete or patch leaves the card idle with the denial in `errors`.
+    const isWriteDenied = this.errors.includes('error:access_denied');
+    const isSpinnerVisible = !this.isBodyReady || isWriteDenied;
+    const isErrorShown = this.in('fail') || !!failedLoader || isWriteDenied;
+    const isAccessDenied = this.in('fail')
+      ? this.accessDenied
+      : failedLoader
+      ? failedLoader.accessDenied
+      : isWriteDenied;
+
+    const spinnerState = isErrorShown ? 'error' : this.in({ idle: 'template' }) ? 'empty' : 'busy';
 
     return html`
       <div
@@ -37,7 +50,7 @@ export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElem
         <div
           class=${classMap({
             'transition duration-500 ease-in-out': true,
-            'opacity-0 pointer-events-none': !this.isBodyReady,
+            'opacity-0 pointer-events-none': isSpinnerVisible,
           })}
         >
           ${this.renderBody()}
@@ -47,12 +60,13 @@ export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElem
           class=${classMap({
             'transition duration-500 ease-in-out absolute inset-0 flex': true,
             'items-center justify-center': true,
-            'opacity-0 pointer-events-none': this.isBodyReady,
+            'opacity-0 pointer-events-none': !isSpinnerVisible,
           })}
         >
           <foxy-spinner
             layout=${spinnerState === 'busy' ? 'no-label' : 'horizontal'}
             state=${spinnerState}
+            error-type=${isAccessDenied ? 'access-denied' : 'generic'}
             infer="spinner"
           >
           </foxy-spinner>

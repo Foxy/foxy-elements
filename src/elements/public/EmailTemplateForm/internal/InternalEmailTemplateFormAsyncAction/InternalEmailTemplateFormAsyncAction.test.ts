@@ -7,6 +7,7 @@ import { expect, fixture, oneEvent, waitUntil } from '@open-wc/testing';
 import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
 import { createRouter } from '../../../../../server/index';
 import { FetchEvent } from '../../../NucleonElement/FetchEvent';
+import { createAccessDeniedResponse } from '../../../../../utils/test-utils';
 import { html } from 'lit-html';
 
 describe('EmailTemplateForm', () => {
@@ -172,6 +173,37 @@ describe('EmailTemplateForm', () => {
       await control.requestUpdate();
       expect(button).to.not.have.attribute('disabled');
       expect(label).to.have.property('key', 'fail');
+    });
+
+    it('switches to access denied display when POST is denied', async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-email-template-form-async-action
+          infer="foo"
+          href="https://demo.api/virtual/empty"
+          @fetch=${(evt: FetchEvent) => {
+            evt.preventDefault();
+            evt.respondWith(Promise.resolve(createAccessDeniedResponse('write', 'template')));
+          }}
+        >
+        </foxy-internal-email-template-form-async-action>
+      `);
+
+      const button = control.renderRoot.querySelector('vaadin-button')!;
+      const label = button.querySelector<I18n>('foxy-i18n')!;
+
+      button.click();
+      await waitUntil(
+        () => {
+          control.requestUpdate();
+          return label.key === 'access_denied';
+        },
+        undefined,
+        { timeout: 5000 }
+      );
+
+      await control.requestUpdate();
+      expect(button).to.not.have.attribute('disabled');
+      expect(button.theme).to.include('error');
     });
 
     it('disables the action button when the control is disabled', async () => {

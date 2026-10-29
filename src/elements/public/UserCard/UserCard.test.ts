@@ -134,4 +134,48 @@ describe('UserCard', () => {
     expect(invitationsCount?.textContent?.trim()).to.equal('1');
     expect(invitationsCount?.classList.contains('scale-0')).to.be.false;
   });
+
+  describe('current user scope', () => {
+    it('keeps selectors unchanged without a scope and with store_full_access', () => {
+      const element = new UserCard();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with users_read and not with user_full_access', () => {
+      const element = new UserCard();
+      element.currentUserScope = 'user_invitations_read users_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+
+      element.currentUserScope = 'user_invitations_read user_full_access';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+    });
+
+    it('renders the user when the invitations count cannot be loaded', async () => {
+      const data = await getTestData<Data>('./hapi/users/0');
+      data._links['fx:user_invitations'].href = 'https://demo.api/virtual/denied';
+
+      const element = await fixture<UserCard>(html`
+        <foxy-user-card
+          current-user-scope="user_invitations_read users_read"
+          show-invitations
+          .data=${data}
+        >
+        </foxy-user-card>
+      `);
+
+      const loader = element.renderRoot.querySelector<NucleonElement<any>>('#invitationsLoader')!;
+      await waitUntil(() => loader.in('fail'), undefined, { timeout: 5000 });
+      await element.requestUpdate();
+
+      expect(element.in({ idle: 'snapshot' })).to.be.true;
+      expect(element.renderRoot).to.include.text(data.email);
+      expect((await getByTestId(element, 'invitations-count'))?.classList.contains('scale-0')).to.be
+        .true;
+    });
+  });
 });

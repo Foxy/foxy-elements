@@ -1,7 +1,9 @@
 {
+  "loading_access_denied": "Access denied",
   "loading_busy": "Loading",
   "loading_empty": "No data",
   "loading_end": "No more data",
   "loading_error": "Unknown error",
+  "loading_access_denied": "Access denied",
   "loading_paused": "Paused"
 }

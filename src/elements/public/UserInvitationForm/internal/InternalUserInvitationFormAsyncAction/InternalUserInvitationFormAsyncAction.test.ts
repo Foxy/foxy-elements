@@ -8,6 +8,7 @@ import { InternalUserInvitationFormAsyncAction as Control } from './InternalUser
 import { NucleonElement } from '../../../NucleonElement/NucleonElement';
 import { createRouter } from '../../../../../server/index';
 import { getTestData } from '../../../../../testgen/getTestData';
+import { createAccessDeniedResponse } from '../../../../../utils/test-utils';
 import { spy } from 'sinon';
 
 describe('UserInvitationForm', () => {
@@ -16,7 +17,7 @@ describe('UserInvitationForm', () => {
     const collectionHref = 'https://demo.api/hapi/user_invitations?status=sent';
     const actionHref = 'https://demo.api/virtual/empty?status=200';
 
-    async function setup(actionStatus = 200) {
+    async function setup(actionStatus = 200, actionResponse?: () => Response) {
       const router = createRouter();
       const data = await getTestData<any>('./hapi/user_invitations/0');
       const requests: string[] = [];
@@ -28,7 +29,8 @@ describe('UserInvitationForm', () => {
 
         if (method === 'POST' && url === actionHref) {
           isActionDone = actionStatus === 200;
-          evt.respondWith(Promise.resolve(new Response(null, { status: actionStatus })));
+          const response = actionResponse?.() ?? new Response(null, { status: actionStatus });
+          evt.respondWith(Promise.resolve(response));
         } else if (method === 'GET' && url === invitationHref && isActionDone) {
           const body = JSON.stringify({ ...data, status: 'revoked' });
           evt.respondWith(Promise.resolve(new Response(body)));
@@ -86,6 +88,20 @@ describe('UserInvitationForm', () => {
       expect(shareSpy).to.not.have.been.called;
       expect(invitation.data?.status).to.not.equal('revoked');
       shareSpy.restore();
+    });
+
+    it('enters access_denied state when the action is denied', async () => {
+      const { control, button } = await setup(401, () =>
+        createAccessDeniedResponse('write', 'user_invitation')
+      );
+
+      button.click();
+      await waitUntil(() => (control as any).__state === 'access_denied', '', { timeout: 5000 });
+      await control.requestUpdate();
+
+      const label = control.renderRoot.querySelector('vaadin-button foxy-i18n');
+      expect(label).to.have.property('key', 'access_denied');
+      expect(control.renderRoot.querySelector('vaadin-button')).to.have.attribute('theme', 'error');
     });
   });
 });

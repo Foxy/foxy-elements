@@ -4,6 +4,7 @@ import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
@@ -103,6 +104,15 @@ export class TaxForm extends Base<Data> {
     { label: 'option_region', value: 'region' },
     { label: 'option_local', value: 'local' },
   ]);
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'taxes';
+  }
+
+  get scopeRules(): ScopeRule[] {
+    // Native integrations listed here are tax providers, which share this collection.
+    return [{ path: 'item-categories', collection: 'item_categories' }];
+  }
 
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = [super.readonlySelector.toString()];

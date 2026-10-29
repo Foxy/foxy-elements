@@ -1,3 +1,4 @@
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 import { Data } from './types';
 import { Group, Warning } from '../../private/index';
 import { TemplateResult, html } from 'lit-element';
@@ -130,10 +131,20 @@ export class CancellationForm extends Base<Data> {
     `;
   };
 
+  get scopeCollection(): ScopeCollection | null {
+    return 'subscriptions';
+  }
+
+  // The submit button ignores `readonly`, so it needs its own rule.
+  get scopeRules(): ScopeRule[] {
+    return [{ path: 'submit', collection: 'subscriptions', need: 'write' }];
+  }
+
   render(): TemplateResult {
     const hiddenSelector = this.hiddenSelector;
     const isBusy = this.in('busy');
-    const isFail = this.in('fail');
+    const isDenied = this.errors.includes('error:access_denied');
+    const isFail = this.in('fail') || isDenied;
 
     return html`
       <div class="space-y-l font-lumo text-m text-body leading-m relative">
@@ -152,6 +163,7 @@ export class CancellationForm extends Base<Data> {
             layout="vertical"
             class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
             state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
+            error-type=${this.accessDenied || isDenied ? 'access-denied' : 'generic'}
             lang=${this.lang}
             ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
           >

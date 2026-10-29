@@ -67,7 +67,7 @@ export class InternalI18nEditorEntry extends Base<Data> {
     const isDisabled = !this.in('idle') || this.disabled;
     const isReadonly = this.readonly;
     const isInteractive = !isDisabled && !isReadonly;
-    const isFailed = this.in('fail');
+    const isFailed = this.in('fail') || this.errors.includes('error:access_denied');
 
     return html`
       <div

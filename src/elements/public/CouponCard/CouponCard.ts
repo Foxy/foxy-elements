@@ -1,3 +1,5 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
+
 import { Data } from './types';
 import { TemplateResult, html } from 'lit-html';
 
@@ -17,6 +19,10 @@ const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 
  * @since 1.15.0
  */
 export class CouponCard extends Base<Data> {
+  get scopeCollection(): ScopeCollection | null {
+    return 'coupons';
+  }
+
   render(): TemplateResult {
     const hiddenSelector = this.hiddenSelector;
 
@@ -41,6 +47,7 @@ export class CouponCard extends Base<Data> {
           <foxy-spinner
             data-testid="spinner"
             state=${this.in('fail') ? 'error' : this.in({ idle: 'template' }) ? 'empty' : 'busy'}
+            error-type=${this.accessDenied ? 'access-denied' : 'generic'}
             class="m-auto"
             lang=${this.lang}
             ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"

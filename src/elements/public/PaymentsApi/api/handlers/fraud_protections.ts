@@ -5,7 +5,7 @@ import type { Rels } from '@foxy.io/sdk/backend';
 import { compose as composeFraudProtections } from '../composers/fraud_protections';
 import { compose as composeFraudProtection } from '../composers/fraud_protection';
 
-import { fetchJson } from '../utils';
+import { fetchJson, FetchError } from '../utils';
 
 export type Params = {
   fraudProtectionsUrl: string;
@@ -108,7 +108,7 @@ export async function handle(params: Params): Promise<Response> {
     }
   } catch (err) {
     body = err instanceof Error ? err.message : String(err);
-    status = status ?? 500;
+    status = status ?? (err instanceof FetchError ? err.status : 500);
   }
 
   return new Response(body, { status });

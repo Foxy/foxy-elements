@@ -12,12 +12,14 @@
   "report_name_transactions": "Transactions",
   "link-spinner": {
     "loading_busy": "Preparing",
-    "loading_error": "Failed to create"
+    "loading_error": "Failed to create",
+    "loading_access_denied": "Access denied"
   },
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",
     "loading_empty": "No data",
-    "loading_error": "Unknown error"
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
   }
 }

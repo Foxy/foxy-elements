@@ -1,5 +1,6 @@
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
@@ -21,6 +22,10 @@ const Base = TranslatableMixin(TwoLineCard, NS);
  * @since 1.21.0
  */
 export class PaymentsApiPaymentPresetCard extends Base<Data> {
+  get scopeCollection(): ScopeCollection | null {
+    return 'payment_settings';
+  }
+
   renderBody(): TemplateResult {
     return super.renderBody({
       title: data => html`${data.description}`,

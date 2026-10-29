@@ -1,7 +1,7 @@
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 
-import { fetchJson } from '../utils';
+import { fetchJson, FetchError } from '../utils';
 import { compose } from '../composers/fraud_protection';
 
 export type Params = {
@@ -95,7 +95,7 @@ export async function handle(params: Params): Promise<Response> {
     }
   } catch (err) {
     body = err instanceof Error ? err.message : String(err);
-    status = status ?? 500;
+    status = status ?? (err instanceof FetchError ? err.status : 500);
   }
 
   return new Response(body, { status });

@@ -9,6 +9,7 @@ import './index';
 import { InternalAsyncResourceLinkListControl as Control } from './InternalAsyncResourceLinkListControl';
 import { expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
 import { createRouter } from '../../../server/hapi';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { getTestData } from '../../../testgen/getTestData';
 
 describe('InternalAsyncResourceLinkListControl', () => {
@@ -316,5 +317,117 @@ describe('InternalAsyncResourceLinkListControl', () => {
     );
 
     expect(results.returned_items).to.equal(2);
+  });
+
+  describe('failures', () => {
+    const linksUrl = 'https://demo.api/hapi/coupon_item_categories';
+
+    async function setup(intercept: (evt: FetchEvent) => Response | undefined) {
+      const router = createRouter();
+      const wrapper = await fixture<HTMLDivElement>(html`
+        <div
+          @fetch=${(evt: FetchEvent) => {
+            const response = intercept(evt);
+            if (response) {
+              evt.preventDefault();
+              evt.respondWith(Promise.resolve(response));
+            } else {
+              router.handleEvent(evt);
+            }
+          }}
+        >
+          <foxy-internal-async-resource-link-list-control
+            foreign-key-for-uri="item_category_uri"
+            foreign-key-for-id="item_category_id"
+            own-key-for-uri="coupon_uri"
+            options-href="https://demo.api/hapi/item_categories"
+            links-href="${linksUrl}?coupon_id=0"
+            embed-key="fx:coupon_item_categories"
+            own-uri="https://demo.api/hapi/coupons/0"
+            limit="5"
+            item="foxy-item-category-card"
+          >
+          </foxy-internal-async-resource-link-list-control>
+        </div>
+      `);
+
+      const control = wrapper.firstElementChild as Control;
+      const page = control.renderRoot.querySelector('foxy-collection-page') as CollectionPage<any>;
+      await waitUntil(() => page.in({ idle: 'snapshot' }));
+      return { control, page };
+    }
+
+    const getFailure = (control: Control) =>
+      control.renderRoot.querySelector('foxy-i18n[infer="spinner"]') as HTMLElement;
+
+    it('shows access denied text and keeps checkboxes disabled when links are denied', async () => {
+      const { control, page } = await setup(evt =>
+        evt.request.method === 'GET' && evt.request.url.startsWith(linksUrl)
+          ? createAccessDeniedResponse('read', 'coupon_item_categories')
+          : undefined
+      );
+
+      await waitUntil(() => {
+        control.requestUpdate();
+        return !getFailure(control).hidden;
+      });
+
+      expect(getFailure(control)).to.have.attribute('key', 'loading_access_denied');
+      expect(page.querySelectorAll('vaadin-checkbox')[0]).to.have.attribute('disabled');
+    });
+
+    it('shows the generic error text when links fail to load for another reason', async () => {
+      const { control, page } = await setup(evt =>
+        evt.request.method === 'GET' && evt.request.url.startsWith(linksUrl)
+          ? new Response(null, { status: 500 })
+          : undefined
+      );
+
+      await waitUntil(() => {
+        control.requestUpdate();
+        return !getFailure(control).hidden;
+      });
+
+      expect(getFailure(control)).to.have.attribute('key', 'loading_error');
+      expect(page.querySelectorAll('vaadin-checkbox')[0]).to.have.attribute('disabled');
+    });
+
+    it('shows access denied text when deleting a link is denied', async () => {
+      const { control, page } = await setup(evt =>
+        evt.request.method === 'DELETE'
+          ? createAccessDeniedResponse('write', 'coupon_item_category')
+          : undefined
+      );
+
+      const checkboxes = page.querySelectorAll('vaadin-checkbox');
+      await waitUntil(() => !checkboxes[0].disabled && checkboxes[0].checked);
+      expect(getFailure(control)).to.have.property('hidden', true);
+
+      checkboxes[0].click();
+      await waitUntil(() => {
+        control.requestUpdate();
+        return !getFailure(control).hidden;
+      });
+
+      expect(getFailure(control)).to.have.attribute('key', 'loading_access_denied');
+    });
+
+    it('shows the generic error text when adding a link fails', async () => {
+      const { control, page } = await setup(evt =>
+        evt.request.method === 'POST' ? new Response(null, { status: 500 }) : undefined
+      );
+
+      const checkboxes = page.querySelectorAll('vaadin-checkbox');
+      await waitUntil(() => !checkboxes[1].disabled && !checkboxes[1].checked);
+
+      checkboxes[1].click();
+      await waitUntil(() => {
+        control.requestUpdate();
+        return !getFailure(control).hidden;
+      });
+
+      expect(getFailure(control)).to.have.attribute('key', 'loading_error');
+      expect(control).to.have.property('__isFetching', false);
+    });
   });
 });

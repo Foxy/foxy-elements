@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
@@ -48,6 +49,14 @@ export class AddressForm extends Base<Data> {
   private __countrySetValue = (newValue: string) => {
     this.edit({ country: newValue, region: '' });
   };
+
+  // Customer addresses belong to customers, transaction billing addresses to transactions.
+  get scopeCollection(): ScopeCollection | null {
+    const links: Record<string, unknown> | undefined = this.data?._links;
+    if (links?.['fx:customer']) return 'customers';
+    if (links?.['fx:transaction']) return 'transactions';
+    return null;
+  }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysHidden = [super.hiddenSelector.toString()];

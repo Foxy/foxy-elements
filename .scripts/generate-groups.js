@@ -45,7 +45,12 @@ groups.push({
   files: './src/server/**/*.test.ts',
 });
 
-// Mixins are not component directories either. Same reason as the server group above.
+// Same reason as `server`: nothing else globs these directories, so their tests would never run.
+groups.push({
+  name: 'utils',
+  files: './src/utils/**/*.test.ts',
+});
+
 groups.push({
   name: 'mixins',
   files: './src/mixins/**/*.test.ts',

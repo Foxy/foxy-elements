@@ -2024,4 +2024,74 @@ describe('SubscriptionForm', () => {
       expect(spinnerWrapper).to.have.class('opacity-0');
     });
   });
+
+  describe('current user scope', () => {
+    const today = {
+      hidden: 'items:pagination:card:autorenew-icon undo submit create',
+      readonly: '',
+    };
+    const ownPaths = [
+      'frequency',
+      'start-date',
+      'next-transaction-date',
+      'end-date',
+      'past-due-amount',
+      'attributes',
+    ];
+
+    const create = async (scope = '') => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      return fixture<Form>(html`
+        <foxy-subscription-form current-user-scope=${scope} .data=${data}> </foxy-subscription-form>
+      `);
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal(today.hidden);
+        expect(element.readonlySelector.toString()).to.equal(today.readonly);
+      });
+    });
+
+    it('locks own fields without subscriptions_write but is not read-only as a whole', async () => {
+      const element = await create('subscriptions_read customers_read');
+      const readonly = element.readonlySelector;
+
+      expect(readonly.matches('customer', true)).to.be.false;
+      ownPaths.forEach(path => expect(readonly.matches(path, true), path).to.be.true);
+
+      element.currentUserScope = 'subscriptions_write customers_read';
+      ownPaths.forEach(path => {
+        expect(element.readonlySelector.matches(path, true), path).to.be.false;
+      });
+    });
+
+    it('hides transaction template items without carts_read', async () => {
+      const element = await create('subscriptions_read customers_read transactions_read');
+      expect(await getByTestId(element, 'items')).to.not.exist;
+
+      element.currentUserScope = 'subscriptions_read carts_read';
+      await element.requestUpdate();
+      expect(await getByTestId(element, 'items')).to.exist;
+      expect(element.readonlySelector.matches('items', true)).to.be.true;
+
+      element.currentUserScope = 'subscriptions_read carts_write';
+      expect(element.readonlySelector.matches('items', true)).to.be.false;
+    });
+
+    it('hides the customer without customers_read and transactions without transactions_read', async () => {
+      const element = await create('subscriptions_read');
+      expect(await getByTestId(element, 'customer')).to.not.exist;
+      expect(element.hiddenSelector.matches('transactions', true)).to.be.true;
+
+      element.currentUserScope = 'subscriptions_read customers_read transactions_read';
+      await element.requestUpdate();
+      expect(await getByTestId(element, 'customer')).to.exist;
+      expect(element.hiddenSelector.matches('transactions', true)).to.be.false;
+    });
+  });
 });

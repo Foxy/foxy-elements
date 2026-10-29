@@ -1,6 +1,7 @@
 import './index';
 
-import { expect, fixture, html, oneEvent } from '@open-wc/testing';
+import { expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
+import { ErrorEntryCard } from './ErrorEntryCard';
 import { createRouter } from '../../../server/index';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 
@@ -90,5 +91,71 @@ describe('ErrorEntryCard', async () => {
     expect(element.shadowRoot?.querySelector('p')).to.exist;
     expect(element.shadowRoot?.querySelector('[key="client"]')).to.be.visible;
     expect(element.shadowRoot?.querySelector('[key="request"]')).to.be.visible;
+  });
+  describe('current user scope', () => {
+    const create = async (scope: string | null) => {
+      const router = createRouter();
+      const methods: string[] = [];
+      const element = await fixture<ErrorEntryCard>(html`
+        <foxy-error-entry-card
+          href="https://demo.api/hapi/error_entries/0"
+          .currentUserScope=${scope}
+          @fetch=${(evt: FetchEvent) => {
+            methods.push(evt.request.method);
+            router.handleEvent(evt);
+          }}
+        >
+        </foxy-error-entry-card>
+      `);
+
+      await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
+      return { element, methods };
+    };
+
+    const open = async (element: ErrorEntryCard) => {
+      const details = element.renderRoot.querySelector('details')!;
+      details.open = true;
+      await oneEvent(details, 'toggle');
+      await element.requestUpdate();
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const { element } = await create(null);
+
+      [null, '', 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with reporting_read', async () => {
+      const { element } = await create('webhooks_read reporting_read');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+
+      element.currentUserScope = 'reporting_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+    });
+
+    it('marks the error as seen on open without a scope or with reporting_write', async () => {
+      for (const scope of [null, 'reporting_write']) {
+        const { element, methods } = await create(scope);
+        await open(element);
+        await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
+        expect(methods).to.include('PATCH');
+        expect(element.data).to.have.property('hide_error', true);
+      }
+    });
+
+    it('does not mark the error as seen on open with reporting_read', async () => {
+      const { element, methods } = await create('webhooks_read reporting_read');
+      await open(element);
+      // A PATCH would start on toggle, so wait for it to settle before checking it did not happen.
+      await waitUntil(() => element.in('idle'), '', { timeout: 5000 });
+
+      expect(methods).to.not.include('PATCH');
+      expect(element.data).to.have.property('hide_error', false);
+      expect(element.open).to.be.true;
+    });
   });
 });

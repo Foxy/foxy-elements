@@ -2,6 +2,7 @@ import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Data, WebhookLog } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { BooleanSelector, getResourceId } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -57,6 +58,11 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
     { value: 'customer', label: 'event_resource_customer' },
     { value: 'changelog', label: 'event_resource_changelog' },
   ];
+
+  // Statuses and logs share the webhooks collection, so they follow the form.
+  get scopeCollection(): ScopeCollection | null {
+    return 'webhooks';
+  }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch: string[] = [super.hiddenSelector.toString()];

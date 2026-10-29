@@ -1,5 +1,6 @@
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
@@ -16,6 +17,10 @@ const Base = TranslatableMixin(TwoLineCard, NS);
  * @since 1.22.0
  */
 export class DownloadableCard extends Base<Data> {
+  get scopeCollection(): ScopeCollection | null {
+    return 'downloadables';
+  }
+
   renderBody(): TemplateResult {
     const extension = this.__extension;
 

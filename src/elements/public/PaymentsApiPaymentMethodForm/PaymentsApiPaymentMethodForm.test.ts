@@ -23,6 +23,7 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getByKey } from '../../../testgen/getByKey';
 import { getByTag } from '../../../testgen/getByTag';
 import { I18n } from '../I18n/I18n';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { stub } from 'sinon';
 
 describe('PaymentsApiPaymentMethodForm', () => {
@@ -431,6 +432,114 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(element).to.have.nested.property('form.type', 'bar_one');
     expect(await getByKey(element, 'select_method_title')).to.not.exist;
     expect(await getByTestId(element, 'select-method-list')).to.not.exist;
+  });
+
+  it('passes accessDenied from the payment methods loader to the list spinner', async () => {
+    const element = await fixture<Form>(
+      html`<foxy-payments-api-payment-method-form></foxy-payments-api-payment-method-form>`
+    );
+
+    await element.updateComplete;
+
+    const spinner = element.renderRoot.querySelector('foxy-spinner[infer="list-spinner"]');
+    expect(spinner, 'list spinner is rendered while the loader has no data').to.exist;
+    expect(spinner).to.have.attribute('error-type', 'generic');
+  });
+
+  it('passes accessDenied "true" from the payment methods loader to the list spinner on a scope-denied failure, while the host form\'s own accessDenied stays false', async () => {
+    const SCOPE_DENIAL_BODY = JSON.stringify({
+      total: 1,
+      _embedded: {
+        'fx:errors': [
+          {
+            logref: 'id-1',
+            message:
+              'The current authenticated user does not appear to have read permission for available_payment_methods resource.',
+          },
+        ],
+      },
+    });
+
+    const router = createRouter();
+
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            parent="https://foxy-payments-api.element/payment_presets/0/payment_methods"
+            store="https://demo.api/hapi/stores/0"
+            @fetch=${(evt: FetchEvent) => {
+              if (evt.request.url.endsWith('/available_payment_methods')) {
+                evt.preventDefault();
+                evt.respondWith(Promise.resolve(new Response(SCOPE_DENIAL_BODY, { status: 401 })));
+              }
+            }}
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    const loader = element.renderRoot.querySelector(
+      '#availablePaymentMethodsLoader'
+    ) as InstanceType<typeof NucleonElement>;
+
+    await waitUntil(() => !!loader && loader.in('fail'), '', { timeout: 5000 });
+    await element.updateComplete;
+
+    const spinner = element.renderRoot.querySelector('foxy-spinner[infer="list-spinner"]');
+    expect(spinner).to.have.attribute('error-type', 'access-denied');
+    expect(element.accessDenied, "host form's own request never fails in this test").to.be.false;
+  });
+
+  it('shows the access denied state when the API denies the gateway behind the form', async () => {
+    const router = createRouter();
+    const handleFetch = (evt: FetchEvent) => {
+      if (evt.request.url.includes('/payment_gateways/')) {
+        evt.respondWith(Promise.resolve(createAccessDeniedResponse('read', 'payment_gateway')));
+      } else {
+        router.handleEvent(evt);
+      }
+    };
+
+    const wrapper = await fixture(html`
+      <div @fetch=${handleFetch}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            store="https://demo.api/hapi/stores/0"
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    await waitUntil(() => element.in('fail'), '', { timeout: 5000 });
+    await element.updateComplete;
+
+    expect(element.accessDenied).to.be.true;
+    const spinner = element.renderRoot.querySelector('[data-testid="spinner"] foxy-spinner');
+    expect(spinner).to.have.attribute('error-type', 'access-denied');
   });
 
   it('hides deprecated payment methods', async () => {
@@ -2479,6 +2588,94 @@ describe('PaymentsApiPaymentMethodForm', () => {
       expect(element.renderRoot.querySelector('[key="status_connected"]')).to.not.exist;
       expect(element.renderRoot.querySelector('[data-testid="connect-paypal_platform.ppcp"]')).to
         .exist;
+    });
+  });
+
+  describe('current user scope', () => {
+    const create = async (scope = '', store = 'https://demo.api/hapi/stores/0') => {
+      const router = createRouter();
+      const wrapper = await fixture(html`
+        <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+          <foxy-payments-api
+            payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+            hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+            hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+            payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+            payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+            fraud-protections-url="https://demo.api/hapi/fraud_protections"
+            payment-gateways-url="https://demo.api/hapi/payment_gateways"
+          >
+            <foxy-payments-api-payment-method-form
+              current-user-scope=${scope}
+              payment-preset="https://foxy-payments-api.element/payment_presets/0"
+              store=${store}
+              href="https://foxy-payments-api.element/payment_presets/0/payment_methods/R0"
+            >
+            </foxy-payments-api-payment-method-form>
+          </foxy-payments-api>
+        </div>
+      `);
+
+      const element = wrapper.firstElementChild!.firstElementChild as Form;
+      await waitUntil(
+        () => {
+          if (!element.data) return false;
+          const nucleons = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+          return [...nucleons].every(nucleon => !nucleon.in('busy'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      await element.requestUpdate();
+      return element;
+    };
+
+    const getControl = async (element: Form, selector: string) => {
+      const control = element.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('header:copy-json undo submit create');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with payment_settings_read stores_read', async () => {
+      const element = await create('payment_settings_read stores_read');
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(element, '[infer="general"]')).readonly).to.be.true;
+      expect((await getControl(element, '[infer="test-group"]')).readonly).to.be.true;
+
+      element.currentUserScope = 'payment_settings_write stores_read';
+      await element.requestUpdate();
+      expect(element.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(element, '[infer="general"]')).readonly).to.be.false;
+      expect((await getControl(element, '[infer="test-group"]')).readonly).to.be.false;
+    });
+
+    it('shows live credentials without stores_read', async () => {
+      const element = await create('payment_settings_write', 'https://demo.api/virtual/denied');
+      const liveGroup = element.renderRoot.querySelector('[infer="live-group"]');
+      expect(liveGroup).to.exist;
+      expect(liveGroup!.querySelector('[key="inactive_message"]')).to.not.exist;
+      expect(liveGroup!.querySelector('[infer="account-id"]')).to.exist;
+    });
+
+    it('waits for the store with stores_read', async () => {
+      const element = await create(
+        'payment_settings_write stores_read',
+        'https://demo.api/virtual/denied'
+      );
+
+      expect(element.renderRoot.querySelector('[infer="live-group"]')).to.not.exist;
     });
   });
 });

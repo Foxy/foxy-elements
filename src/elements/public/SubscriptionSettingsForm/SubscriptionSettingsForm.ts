@@ -3,6 +3,7 @@ import type { NucleonV8N } from '../NucleonElement/types';
 import type { Option } from '../../internal/InternalCheckboxGroupControl/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
@@ -109,6 +110,10 @@ export class SubscriptionSettingsForm extends Base<Data> {
     { value: 'skip_if_exists', label: 'option_skip_if_exists' },
     { value: 'reattempt_if_exists', label: 'option_reattempt_if_exists' },
   ];
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'subscription_settings';
+  }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = ['header:copy-id', super.hiddenSelector.toString()];

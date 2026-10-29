@@ -4,7 +4,9 @@ import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import { getResourceId, Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
+import { canReadCollection } from '../../../utils/user-scope';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
@@ -44,6 +46,10 @@ export class CartCard extends Base<Data> {
   private readonly __itemsLoaderId = 'itemsLoader';
 
   private readonly __storeLoaderId = 'storeLoader';
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'carts';
+  }
 
   renderBody(): TemplateResult {
     const statusOptions = this.__statusOptions;
@@ -134,10 +140,24 @@ export class CartCard extends Base<Data> {
     return super.isBodyReady && isLoaded;
   }
 
+  // Helpers the scope can't read never load, so the card renders without them.
+  private __canRead(collection: ScopeCollection) {
+    return canReadCollection(this.currentUserScope, collection);
+  }
+
+  // The currency code comes from the cart or from its template set (the store's default
+  // set when the URI is empty). Without access to those the total renders without a code.
+  private get __isCurrencyCodeUnreachable() {
+    const data = this.data;
+    if (!data || data.currency_code) return false;
+    if (!this.__canRead('templates')) return true;
+    return data.template_set_uri === '' && !this.__canRead('stores');
+  }
+
   private get __defaultTemplateSetHref() {
     const templateSetUri = this.data?.template_set_uri;
 
-    if (templateSetUri === '') {
+    if (templateSetUri === '' && this.__canRead('templates')) {
       try {
         const url = new URL(this.__store?._links['fx:template_sets'].href ?? '');
         url.searchParams.set('code', 'DEFAULT');
@@ -155,7 +175,8 @@ export class CartCard extends Base<Data> {
   }
 
   private get __templateSetHref() {
-    if (!this.data?.currency_code) return this.data?.template_set_uri || void 0;
+    if (this.data?.currency_code || !this.__canRead('templates')) return;
+    return this.data?.template_set_uri || void 0;
   }
 
   private get __itemsHref() {
@@ -173,7 +194,7 @@ export class CartCard extends Base<Data> {
   }
 
   private get __storeHref() {
-    return this.data?._links['fx:store']?.href;
+    if (this.__canRead('stores')) return this.data?._links['fx:store']?.href;
   }
 
   private get __defaultTemplateSet() {
@@ -231,6 +252,7 @@ export class CartCard extends Base<Data> {
 
     if (useCode === true) return 'code';
     if (useCode === false) return 'symbol';
+    if (!this.__canRead('stores')) return 'symbol';
   }
 
   private get __currencyCode() {
@@ -255,7 +277,7 @@ export class CartCard extends Base<Data> {
     if (currencyDisplay === undefined) return;
 
     const currencyCode = this.__currencyCode;
-    if (currencyCode === undefined) return;
+    if (currencyCode === undefined && !this.__isCurrencyCodeUnreachable) return;
 
     const count = this.__items?.count;
     if (count === undefined) return;
@@ -265,7 +287,7 @@ export class CartCard extends Base<Data> {
 
     return {
       currencyDisplay,
-      amount: `${totalOrder} ${currencyCode}`,
+      amount: currencyCode ? `${totalOrder} ${currencyCode}` : `${totalOrder}`,
       count,
       id: getResourceId(href),
     };

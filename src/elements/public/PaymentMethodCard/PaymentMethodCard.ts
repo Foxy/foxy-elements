@@ -3,6 +3,7 @@ import type { Data } from './types';
 import type { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import type { TemplateResult } from 'lit-html';
 import type { FormDialog } from '../FormDialog/FormDialog';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 
 import * as logos from './logos';
 
@@ -86,6 +87,7 @@ export class PaymentMethodCard extends Base<Data> {
           ns="${this.ns} dialog"
           alert
           close-on-patch
+          .currentUserScope=${this.currentUserScope}
           .props=${{ '.embedUrl': this.embedUrl }}
         >
         </foxy-form-dialog>
@@ -149,11 +151,25 @@ export class PaymentMethodCard extends Base<Data> {
     `;
   };
 
+  // The default payment method belongs to the customer.
+  get scopeCollection(): ScopeCollection | null {
+    return 'customers';
+  }
+
+  // Update and delete ignore `readonly`, so they need their own rule.
+  get scopeRules(): ScopeRule[] {
+    return [{ path: 'actions', collection: 'customers', need: 'write' }];
+  }
+
   render(): TemplateResult {
     const { data, lang, ns } = this;
 
-    if (this.in({ idle: 'template' }) || !data?.save_cc || !this.in('idle')) {
-      const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';
+    // A denied delete leaves the card idle with the denial in `errors`.
+    const isDenied = this.errors.includes('error:access_denied');
+
+    if (this.in({ idle: 'template' }) || !data?.save_cc || !this.in('idle') || isDenied) {
+      const spinnerState =
+        this.in('fail') || isDenied ? 'error' : this.in('busy') ? 'busy' : 'empty';
       const isUpdateHidden =
         this.hiddenSelector.matches('actions:update', true) || !this.embedUrl || !this.data;
 
@@ -170,6 +186,7 @@ export class PaymentMethodCard extends Base<Data> {
               data-testid="spinner"
               layout="vertical"
               state=${spinnerState}
+              error-type=${this.accessDenied || isDenied ? 'access-denied' : 'generic'}
               lang=${this.lang}
               ns="${ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
             >

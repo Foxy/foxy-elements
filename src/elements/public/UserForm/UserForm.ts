@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
@@ -28,6 +29,10 @@ export class UserForm extends Base<Data> {
       ({ email: v }) => !v || isEmail(v) || 'email:v8n_invalid_email',
       ({ phone: v }) => !v || v.length <= 50 || 'phone:v8n_too_long',
     ];
+  }
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'users';
   }
 
   get headerSubtitleOptions(): Record<string, unknown> {

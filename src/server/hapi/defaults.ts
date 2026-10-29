@@ -357,6 +357,7 @@ export const defaults: Defaults = {
     app_session_time: 0,
     shipping_address_type: '',
     require_signed_shipping_rates: false,
+    package_weight_max: 0,
     unified_order_entry_password: '',
     custom_display_id_config: '',
     affiliate_id: 0,
@@ -1092,6 +1093,8 @@ export const defaults: Defaults = {
     first_name: '',
     last_name: '',
     email: '',
+    scope:
+      'transactions_read transactions_resend customers_write item_categories_read reporting_read',
     status: 'sent',
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),

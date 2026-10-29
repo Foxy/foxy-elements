@@ -1,4 +1,5 @@
 import { HandlerContext, Router } from 'service-worker-router';
+import { createAccessDeniedResponse } from './createAccessDeniedResponse';
 
 export function createRouter(): Router {
   const router = new Router();
@@ -8,6 +9,12 @@ export function createRouter(): Router {
   router.all('/:prefix/empty', async ({ url }: HandlerContext) => {
     const status = parseInt(url.searchParams.get('status') ?? '200');
     return new Response(null, { status });
+  });
+
+  router.all('/:prefix/denied', async ({ url }: HandlerContext) => {
+    const type = url.searchParams.get('type') ?? 'read';
+    const rel = url.searchParams.get('rel') ?? 'resource';
+    return createAccessDeniedResponse(type, rel);
   });
 
   router.post('/:prefix/session', async ({ url }) => {

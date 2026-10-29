@@ -2,6 +2,7 @@ import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
@@ -194,6 +195,10 @@ export class CustomerPortalSettingsForm extends Base<Data> {
     charset: 'abcdefghijklmnopqrstuvwxyz0123456789',
     length: 64,
   };
+
+  get scopeCollection(): ScopeCollection | null {
+    return 'customer_portal_settings';
+  }
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = ['header:copy-id', super.hiddenSelector.toString()];

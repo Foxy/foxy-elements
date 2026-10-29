@@ -1,12 +1,14 @@
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { html } from 'lit-html';
 
 const NS = 'coupon-code-card';
-const Base = TranslatableMixin(InternalCard, NS);
+const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
 /**
  * Card element that displays a coupon code (`fx:coupon_code`).
@@ -15,6 +17,10 @@ const Base = TranslatableMixin(InternalCard, NS);
  * @since 1.27.0
  */
 export class CouponCodeCard extends Base<Data> {
+  get scopeCollection(): ScopeCollection | null {
+    return 'coupons';
+  }
+
   renderBody(): TemplateResult {
     return html`
       <section class="h-s flex flex-col justify-center leading-xs">

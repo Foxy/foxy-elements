@@ -240,5 +240,72 @@ describe('CustomerCard', () => {
 
       expect(spinner!.parentElement).to.have.class('opacity-0');
     });
+
+    it('passes error-type to foxy-spinner', async () => {
+      const element = await fixture<CustomerCard>(html`<foxy-customer-card></foxy-customer-card>`);
+
+      const spinner = await getByTestId(element, 'spinner');
+      expect(spinner).to.have.attribute('error-type', 'generic');
+    });
+
+    it('passes error-type "access-denied" to foxy-spinner for a scope-denied failure', async () => {
+      const SCOPE_DENIAL_BODY = JSON.stringify({
+        total: 1,
+        _embedded: {
+          'fx:errors': [
+            {
+              logref: 'id-1',
+              message:
+                'The current authenticated user does not appear to have read permission for customer resource.',
+            },
+          ],
+        },
+      });
+
+      const layout = html`
+        <foxy-customer-card
+          href="https://demo.api/hapi/customers/0"
+          @fetch=${(evt: FetchEvent) =>
+            evt.respondWith(Promise.resolve(new Response(SCOPE_DENIAL_BODY, { status: 401 })))}
+        >
+        </foxy-customer-card>
+      `;
+
+      const element = await fixture<CustomerCard>(layout);
+
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
+      await element.updateComplete;
+
+      const spinner = await getByTestId(element, 'spinner');
+      expect(spinner).to.have.attribute('error-type', 'access-denied');
+    });
+  });
+
+  describe('current user scope', () => {
+    const create = async () => {
+      const element = new CustomerCard();
+      element.data = await getTestData<Data>('./hapi/customers/0');
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with customers_read transactions_read', async () => {
+      const element = await create();
+      element.currentUserScope = 'customers_read transactions_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      element.currentUserScope = 'customers_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+    });
   });
 });

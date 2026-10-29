@@ -1,13 +1,15 @@
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
 
 const NS = 'integration-card';
-const Base = TranslatableMixin(InternalCard, NS);
+const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
 /**
  * Card element representing an integration (`fx:integration`).
@@ -16,6 +18,10 @@ const Base = TranslatableMixin(InternalCard, NS);
  * @since 1.21.0
  */
 export class IntegrationCard extends Base<Data> {
+  get scopeCollection(): ScopeCollection | null {
+    return 'integrations';
+  }
+
   renderBody(): TemplateResult {
     const data = this.data;
     const expires = new Date((data?.expires ?? 0) * 1000);

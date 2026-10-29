@@ -1,3 +1,4 @@
+import type { ScopeCollection } from '../../../utils/user-scope';
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { Resource } from '@foxy.io/sdk/core';
@@ -8,6 +9,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
+import { canReadItemCurrency, getItemScopeCollection } from '../../../utils/item-scope-collection';
 
 const NS = 'item-option-card';
 const Base = TranslatableMixin(TwoLineCard, NS);
@@ -41,6 +43,10 @@ export class ItemOptionCard extends Base<Data> {
   private readonly __storeLoaderId = 'storeLoader';
 
   private readonly __cartLoaderId = 'cartLoader';
+
+  get scopeCollection(): ScopeCollection | null {
+    return getItemScopeCollection(this.data);
+  }
 
   renderBody(): TemplateResult {
     const currencyDisplay = this.__currencyDisplay;
@@ -112,7 +118,10 @@ export class ItemOptionCard extends Base<Data> {
 
       ${super.renderBody({
         title: data => {
-          if (!currencyCode || !currencyDisplay) return html`&ZeroWidthSpace;`;
+          // Without a readable currency source the card is ready without a code.
+          if (!currencyDisplay || (!currencyCode && !this.isBodyReady)) {
+            return html`&ZeroWidthSpace;`;
+          }
 
           let priceMod: string;
 
@@ -120,9 +129,13 @@ export class ItemOptionCard extends Base<Data> {
             priceMod = Math.abs(data.price_mod).toLocaleString(this.lang || 'en', {
               maximumFractionDigits: 2,
               minimumFractionDigits: 2,
-              currencyDisplay: currencyDisplay,
-              currency: currencyCode,
-              style: 'currency',
+              ...(currencyCode
+                ? {
+                    currencyDisplay: currencyDisplay,
+                    currency: currencyCode,
+                    style: 'currency' as const,
+                  }
+                : {}),
             });
           } catch {
             priceMod = '--';
@@ -136,7 +149,10 @@ export class ItemOptionCard extends Base<Data> {
   }
 
   get isBodyReady(): boolean {
-    return super.isBodyReady && !!this.__currencyCode && !!this.__currencyDisplay;
+    const cart = this.__cart ?? this.__transactionTemplate;
+    const scope = this.currentUserScope;
+    const hasCode = !!this.__currencyCode || !canReadItemCurrency(scope, this.data, cart);
+    return super.isBodyReady && hasCode && !!this.__currencyDisplay;
   }
 
   private get __transactionTemplateHref() {
@@ -192,7 +208,7 @@ export class ItemOptionCard extends Base<Data> {
     type Loader = NucleonElement<Resource<Rels.Subscription, { zoom: 'transaction_template' }>>;
     const selector = `#${this.__transactionTemplateLoaderId}`;
     const loader = this.renderRoot.querySelector<Loader>(selector);
-    return loader?.data?._embedded['fx:transaction_template'] ?? null;
+    return loader?.data?._embedded?.['fx:transaction_template'] ?? null;
   }
 
   private get __defaultTemplateSet() {

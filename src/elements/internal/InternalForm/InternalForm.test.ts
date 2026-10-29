@@ -363,4 +363,17 @@ describe('InternalForm', () => {
     expect(errorsAfter[0]).to.have.attribute('key', 'foo');
     expect(errorsAfter[1]).to.have.attribute('key', 'bar');
   });
+
+  it('renders error:access_denied as a banner with the spinner access denied text', async () => {
+    const element = await fixture<InternalForm<any>>(
+      html`<foxy-internal-form></foxy-internal-form>`
+    );
+
+    Object.defineProperty(element, 'errors', { get: () => ['error:access_denied'] });
+    await element.requestUpdate();
+
+    const banner = element.renderRoot.querySelector('foxy-i18n.bg-error-10');
+    expect(banner).to.have.attribute('infer', 'spinner');
+    expect(banner).to.have.attribute('key', 'loading_access_denied');
+  });
 });

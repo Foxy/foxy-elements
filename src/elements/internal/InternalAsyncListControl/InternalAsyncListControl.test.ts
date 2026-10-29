@@ -30,6 +30,7 @@ import { html } from 'lit-html';
 import { stub } from 'sinon';
 import { getByTestClass } from '../../../testgen/getByTestClass';
 import { createRouter } from '../../../server/hapi';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { Type } from '../../public/QueryBuilder/types';
 
 customElements.define(
@@ -420,6 +421,49 @@ describe('InternalAsyncListControl', () => {
     await control.requestUpdate();
     wrapper = control.shadowRoot?.firstElementChild;
     expect(wrapper).to.not.have.attribute('class', 'hidden');
+  });
+
+  describe('when the collection page failed', () => {
+    const deny = (evt: FetchEvent) =>
+      evt.respondWith(Promise.resolve(createAccessDeniedResponse()));
+
+    it('stays visible with hideWhenEmpty and keeps the failure item', async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control
+          first="https://demo.api/hapi/transactions"
+          item="foxy-attribute-card"
+          hide-when-empty
+          @fetch=${deny}
+        >
+        </foxy-internal-async-list-control>
+      `);
+
+      const page = control.renderRoot.querySelector('foxy-collection-page') as CollectionPage<any>;
+      await waitUntil(() => page.in('fail'), undefined, { timeout: 5000 });
+      await control.updateComplete;
+
+      expect(control.shadowRoot?.firstElementChild).to.not.have.class('hidden');
+      expect(page.renderRoot.querySelector('[href="foxy://collection-page/fail"]')).to.exist;
+    });
+
+    it('does not present the list as 0 items in details layout', async () => {
+      const control = await fixture<Control>(html`
+        <foxy-internal-async-list-control
+          layout="details"
+          first="https://demo.api/hapi/transactions"
+          @fetch=${deny}
+        >
+        </foxy-internal-async-list-control>
+      `);
+
+      const page = control.renderRoot.querySelector('foxy-collection-page') as CollectionPage<any>;
+      await waitUntil(() => page.in('fail'), undefined, { timeout: 5000 });
+      await control.updateComplete;
+
+      const summary = control.renderRoot.querySelector('foxy-internal-summary-control')!;
+      expect(summary).to.not.have.attribute('count');
+      expect(control.renderRoot.querySelector('foxy-pagination')).to.not.have.class('hidden');
+    });
   });
 
   [undefined, 'details'].forEach(layout => {

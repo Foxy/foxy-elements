@@ -1,4 +1,5 @@
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { Data } from './types';
 
 import './index';
@@ -7,6 +8,7 @@ import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { AdminTransactionCard as Card } from './AdminTransactionCard';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { createRouter } from '../../../server/index';
+import { getTestData } from '../../../testgen/getTestData';
 
 describe('AdminTransactionCard', () => {
   it('imports dependencies', () => {
@@ -349,5 +351,75 @@ describe('AdminTransactionCard', () => {
     await waitUntil(() => card.isBodyReady, undefined, { timeout: 5000 });
     await card.requestUpdate();
     expect(card.renderRoot.querySelector('foxy-i18n[infer=""][key="status_voided"]')).to.exist;
+  });
+
+  describe('current user scope', () => {
+    const create = async () => {
+      const element = new Card();
+      element.data = await getTestData<any>('./hapi/transactions/0');
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with transactions_read customers_read', async () => {
+      const element = await create();
+      element.currentUserScope = 'transactions_read customers_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      element.currentUserScope = 'transactions_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+    });
+  });
+
+  describe('helper loaders and current user scope', () => {
+    const denied = 'https://demo.api/virtual/denied';
+
+    const create = async (scope: string) => {
+      const router = createRouter();
+      const data = await getTestData<Data>('./hapi/transactions/0');
+      data._links['fx:store'] = { href: denied };
+
+      const element = await fixture<Card>(html`
+        <foxy-admin-transaction-card
+          current-user-scope=${scope}
+          .data=${data}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-admin-transaction-card>
+      `);
+
+      await waitUntil(
+        () => {
+          const loaders = element.renderRoot.querySelectorAll<NucleonElement<any>>('foxy-nucleon');
+          return [...loaders].every(loader => !loader.in('busy'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      await element.requestUpdate();
+      return element;
+    };
+
+    it('waits for the store without a scope or with stores_read', async () => {
+      expect((await create('')).isBodyReady).to.be.false;
+      expect((await create('transactions_read stores_read')).isBodyReady).to.be.false;
+    });
+
+    it('renders without the store when the scope cannot read stores', async () => {
+      const element = await create('transactions_read customers_read');
+      expect(element.isBodyReady).to.be.true;
+      expect(element.renderRoot.textContent).to.include(element.data!.customer_email);
+    });
   });
 });

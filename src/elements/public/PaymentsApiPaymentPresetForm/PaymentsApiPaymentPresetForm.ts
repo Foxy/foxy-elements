@@ -5,8 +5,10 @@ import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Data } from './types';
 import type { Rels } from '@foxy.io/sdk/backend';
+import type { ScopeCollection } from '../../../utils/user-scope';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { canReadCollection } from '../../../utils/user-scope';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
@@ -53,19 +55,23 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
   getPaymentMethodImageSrc: ((type: string) => string) | null = null;
 
   private readonly __isPurchaseOrderEnabledGetValue = () => {
-    return this.__storeLoader?.data?.is_active ? this.form.is_purchase_order_enabled : false;
+    return this.__isStoreActive ? this.form.is_purchase_order_enabled : false;
   };
 
   private readonly __isLiveGetValue = () => {
-    return this.__storeLoader?.data?.is_active ? this.form.is_live : false;
+    return this.__isStoreActive ? this.form.is_live : false;
   };
 
   private readonly __storeLoaderId = 'storeLoader';
 
-  get readonlySelector(): BooleanSelector {
-    const alwaysMatch = [super.hiddenSelector.toString()];
+  get scopeCollection(): ScopeCollection | null {
+    return 'payment_settings';
+  }
 
-    if (!this.__storeLoader?.data?.is_active) {
+  get readonlySelector(): BooleanSelector {
+    const alwaysMatch = [super.readonlySelector.toString()];
+
+    if (!this.__isStoreActive) {
       alwaysMatch.unshift('general:is-live', 'general:is-purchase-order-enabled');
     }
 
@@ -74,7 +80,7 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
 
   get hiddenSelector(): BooleanSelector {
     const alwaysMatch = ['header:copy-json', super.hiddenSelector.toString()];
-    const isStoreActive = !!this.__storeLoader?.data?.is_active;
+    const isStoreActive = this.__isStoreActive;
 
     if (!this.data) alwaysMatch.unshift('payment-methods', 'fraud-protections');
     if (!isStoreActive) alwaysMatch.unshift('general:is-live', 'general:is-purchase-order-enabled');
@@ -83,7 +89,7 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
   }
 
   renderBody(): TemplateResult {
-    const isStoreActive = !!this.__storeLoader?.data?.is_active;
+    const isStoreActive = this.__isStoreActive;
     const helperTextSuffix = isStoreActive ? '' : '_inactive_store';
 
     return html`
@@ -151,6 +157,12 @@ export class PaymentsApiPaymentPresetForm extends Base<Data> {
       >
       </foxy-nucleon>
     `;
+  }
+
+  // Without stores_read the store never loads, so the toggles follow the preset's own data.
+  private get __isStoreActive() {
+    if (!canReadCollection(this.currentUserScope, 'stores')) return true;
+    return !!this.__storeLoader?.data?.is_active;
   }
 
   private get __storeLoader() {

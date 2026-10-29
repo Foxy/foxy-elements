@@ -5,13 +5,16 @@ import type { Resource } from '@foxy.io/sdk/core';
 import type { Badge } from '../../internal/InternalForm/types';
 import type { Data } from './types';
 import type { Rels } from '@foxy.io/sdk/backend';
+import type { ScopeRule } from '../../../utils/user-scope';
 
 import { BooleanSelector, getResourceId } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ResponsiveMixin } from '../../../mixins/responsive';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { filterZoom } from '../../../utils/user-scope';
 import { html, svg } from 'lit-element';
+import { parseUserScope } from '../../../utils/user-scope';
 
 import uainfer from 'uainfer/src/uainfer.js';
 
@@ -81,6 +84,29 @@ export class Transaction extends Base<Data> {
     },
   ];
 
+  // Not `scopeCollection`: a read-only transaction would lock the customer and webhook blocks too.
+  get scopeRules(): ScopeRule[] {
+    return [
+      { path: 'customer', collection: 'customers' },
+      { path: 'items', collection: 'transactions', readonlyIfNoWrite: true },
+      { path: 'custom-fields', collection: 'transactions', readonlyIfNoWrite: true },
+      { path: 'attributes', collection: 'transactions', readonlyIfNoWrite: true },
+      { path: 'actions:capture', collection: 'transactions', need: 'write' },
+      { path: 'actions:void', collection: 'transactions', need: 'write' },
+      { path: 'actions:refund', collection: 'transactions', need: 'write' },
+      { path: 'actions:archive', collection: 'transactions', need: 'write' },
+      { path: 'actions:folder', collection: 'transactions', need: 'write' },
+      { path: 'actions:send-emails', collection: 'transactions', need: 'resend' },
+      { path: 'actions:subscription', collection: 'subscriptions' },
+      // The webhooks list and the folders come from links on the store.
+      { path: 'webhooks', collection: 'stores' },
+      { path: 'actions:folder', collection: 'stores' },
+      { path: 'webhooks', collection: 'webhooks' },
+      { path: 'webhooks:refeed', collection: 'webhooks', need: 'resend' },
+      { path: 'datafeed:process-webhook', collection: 'webhooks', need: 'resend' },
+    ];
+  }
+
   get readonlySelector(): BooleanSelector {
     const alwaysMatch = [
       'billing-addresses',
@@ -105,7 +131,7 @@ export class Transaction extends Base<Data> {
       'webhooks:dialog:query',
       'webhooks:dialog:encryption-key',
       'webhooks:dialog:delete',
-      super.readonlySelector,
+      super.hiddenSelector,
     ];
 
     const type = this.data?.type;
@@ -122,7 +148,9 @@ export class Transaction extends Base<Data> {
     }
 
     if (!this.__storeLoader?.data?.use_webhook) alwaysMatch.unshift('datafeed');
-    if (!this.__emailTemplateSubject) alwaysMatch.unshift('actions:send-emails');
+    if (!this.__emailTemplateSubject && !this.__isTemplateSetUnknownForScope) {
+      alwaysMatch.unshift('actions:send-emails');
+    }
 
     return new BooleanSelector(alwaysMatch.join(' ').trim());
   }
@@ -246,30 +274,41 @@ export class Transaction extends Base<Data> {
   }
 
   renderBody(): TemplateResult {
-    let templateSetLink: string | undefined = undefined;
-    let shipmentsLink: string | undefined = undefined;
-    let webhooksLink: string | undefined = undefined;
-    let itemsLink: string | undefined = undefined;
-
     const alertStatuses = ['problem', 'pending_fraud_review', 'rejected', 'declined'];
     const hidden = this.hiddenSelector;
 
-    if (this.data) {
+    // Each link is built on its own. The webhooks link needs the store, which loads
+    // separately, and must not hold back the items and shipments lists.
+    const withParam = (href: string | undefined, key: string, value: string) => {
+      if (!href) return undefined;
       try {
-        const shipmentsUrl = new URL(this.data._links['fx:shipments'].href);
-        const webhooksUrl = new URL(this.__storeLoader?.data?._links['fx:webhooks'].href ?? '');
-        const itemsUrl = new URL(this.data._links['fx:items'].href);
-
-        shipmentsUrl.searchParams.set('zoom', 'items:item_category');
-        webhooksUrl.searchParams.set('event_resource', 'transaction');
-        itemsUrl.searchParams.set('zoom', 'item_options');
-
-        shipmentsLink = shipmentsUrl.toString();
-        webhooksLink = webhooksUrl.toString();
-        itemsLink = itemsUrl.toString();
+        const url = new URL(href);
+        url.searchParams.set(key, value);
+        return url.toString();
       } catch {
-        //
+        return undefined;
       }
+    };
+
+    // Set the scope's zoom here: a nested list may send its first request before it gets the scope.
+    const shipmentsLink = withParam(
+      this.data?._links['fx:shipments'].href,
+      'zoom',
+      'items:item_category'
+    );
+
+    const scopedShipmentsLink = shipmentsLink && filterZoom(shipmentsLink, this.currentUserScope);
+
+    const webhooksLink = withParam(
+      this.__storeLoader?.data?._links['fx:webhooks'].href,
+      'event_resource',
+      'transaction'
+    );
+
+    const itemsLink = withParam(this.data?._links['fx:items'].href, 'zoom', 'item_options');
+
+    const templateSetLink = (() => {
+      if (!this.data) return undefined;
 
       try {
         // @ts-expect-error SDK types do not include fx:template_sets on fx:transaction
@@ -279,11 +318,11 @@ export class Transaction extends Base<Data> {
 
         if (!ownTemplateSetHref) templateSetUrl.searchParams.set('code', 'DEFAULT');
         templateSetUrl.searchParams.set('zoom', 'email_template');
-        templateSetLink = templateSetUrl.toString();
+        return templateSetUrl.toString();
       } catch {
-        //
+        return undefined;
       }
-    }
+    })();
 
     return html`
       ${this.renderHeader()}
@@ -393,7 +432,7 @@ export class Transaction extends Base<Data> {
 
       <foxy-internal-async-list-control
         infer="shipments"
-        first=${ifDefined(shipmentsLink)}
+        first=${ifDefined(scopedShipmentsLink)}
         item="foxy-shipment-card"
       >
       </foxy-internal-async-list-control>
@@ -406,7 +445,7 @@ export class Transaction extends Base<Data> {
         hide-create-button
         hide-delete-button
         alert
-        .bulkActions=${this.__webhooksBulkActions}
+        .bulkActions=${hidden.matches('webhooks:refeed', true) ? [] : this.__webhooksBulkActions}
         .itemProps=${{ 'resource-uri': this.href }}
         .formProps=${{ 'resource-uri': this.href }}
       >
@@ -448,14 +487,30 @@ export class Transaction extends Base<Data> {
     return this.renderRoot.querySelector<Loader>('#storeLoader');
   }
 
-  private get __emailTemplateSubject() {
+  /**
+   * With a scope set, the template set may not load (failed request, no templates_read, or no
+   * stores_read to find the store's DEFAULT set). Then the API decides on send emails, not us.
+   */
+  private get __isTemplateSetUnknownForScope() {
+    const scope = parseUserScope(this.currentUserScope);
+    if (!scope) return false;
+    if (this.__templateSetLoader?.in('fail') || !scope.canRead('templates')) return true;
+    // @ts-expect-error SDK types do not include fx:template_sets on fx:transaction
+    const hasOwnTemplateSet = Boolean(this.data?._links['fx:template_sets']);
+    return !hasOwnTemplateSet && !scope.canRead('stores');
+  }
+
+  private get __templateSetLoader() {
     type TemplateSet = { _embedded?: { 'fx:email_template'?: { subject?: string } } };
     type Data = HALJSONResource &
       TemplateSet & { _embedded?: { 'fx:template_sets'?: TemplateSet[] } };
-    type Loader = NucleonElement<Data>;
 
     // Loads either the transaction's own template set or the store's DEFAULT set collection.
-    const data = this.renderRoot.querySelector<Loader>('#templateSetLoader')?.data;
+    return this.renderRoot.querySelector<NucleonElement<Data>>('#templateSetLoader');
+  }
+
+  private get __emailTemplateSubject() {
+    const data = this.__templateSetLoader?.data;
     const templateSet = data?._embedded?.['fx:template_sets']?.[0] ?? data;
     return templateSet?._embedded?.['fx:email_template']?.subject;
   }

@@ -6,6 +6,8 @@ import type { Data } from './types';
 
 import * as logos from '../PaymentMethodCard/logos';
 
+import { canReadCollection } from '../../../utils/user-scope';
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
@@ -13,7 +15,7 @@ import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
 const NS = 'payment-card';
-const Base = TranslatableMixin(InternalCard, NS);
+const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
 /**
  * Basic card displaying a payment resource (`fx:payment`).
@@ -92,7 +94,7 @@ export class PaymentCard extends Base<Data> {
 
       <foxy-nucleon
         infer=""
-        href=${ifDefined(data?._links['fx:store'].href)}
+        href=${ifDefined(this.__canReadStore ? data?._links['fx:store'].href : undefined)}
         id=${this.__storeLoaderId}
         @update=${() => this.requestUpdate()}
       >
@@ -167,8 +169,15 @@ export class PaymentCard extends Base<Data> {
     return this.renderRoot.querySelector<Loader>(`#${this.__storeLoaderId}`);
   }
 
+  // Payments belong to transactions, so the transaction is always readable here.
+  // Without the store the price falls back to the currency symbol.
+  private get __canReadStore() {
+    return canReadCollection(this.currentUserScope, 'stores');
+  }
+
   private get __currencyDisplay() {
     const store = this.__storeLoader?.data;
+    if (!store && !this.__canReadStore) return 'symbol';
     return store ? (store.use_international_currency_symbol ? 'code' : 'symbol') : void 0;
   }
 

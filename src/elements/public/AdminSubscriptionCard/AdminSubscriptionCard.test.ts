@@ -11,6 +11,7 @@ import { createRouter } from '../../../server';
 import { getTestData } from '../../../testgen/getTestData';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { getByKey } from '../../../testgen/getByKey';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { parseFrequency } from '../../../utils/parse-frequency';
 import { getSubscriptionStatus } from '../../../utils/get-subscription-status';
 
@@ -40,6 +41,15 @@ describe('AdminSubscriptionCard', () => {
     expect(Card).to.have.nested.property('properties.localeCodes.attribute', 'locale-codes');
     expect(Card).to.not.have.nested.property('properties.localeCodes.type');
     expect(new Card()).to.have.property('localeCodes', null);
+  });
+
+  it('keeps the customer line without data so list rows keep their height', async () => {
+    const element = await fixture<Card>(
+      html`<foxy-admin-subscription-card></foxy-admin-subscription-card>`
+    );
+    const line = element.renderRoot.querySelector('div.text-tertiary.truncate.text-s');
+    expect(line).to.exist;
+    expect(line!.textContent!.trim()).to.equal('\u200b');
   });
 
   it('extends InternalCard', () => {
@@ -601,5 +611,126 @@ describe('AdminSubscriptionCard', () => {
 
     await waitUntil(() => element.isBodyReady, '', { timeout: 5000 });
     expect(element.renderRoot).to.include.text('Test User');
+  });
+
+  it('stops the spinner and shows access denied when the customer helper is denied', async () => {
+    const router = createRouter();
+    const href = 'https://demo.api/hapi/subscriptions/0';
+    const data = await getTestData<Resource<Rels.Subscription>>(href, router);
+    const customerHref = data._links['fx:customer'].href;
+
+    const element = await fixture<Card>(html`
+      <foxy-admin-subscription-card
+        locale-codes="https://demo.api/hapi/property_helpers/7"
+        href=${href}
+        @fetch=${(evt: FetchEvent) => {
+          if (evt.request.url === customerHref) {
+            evt.respondWith(Promise.resolve(createAccessDeniedResponse('read', 'customer')));
+          } else {
+            router.handleEvent(evt);
+          }
+        }}
+      >
+      </foxy-admin-subscription-card>
+    `);
+
+    const spinner = () => element.renderRoot.querySelector('foxy-spinner')!;
+    await waitUntil(() => spinner().getAttribute('state') === 'error', '', { timeout: 5000 });
+
+    expect(element.isBodyReady).to.be.false;
+    expect(spinner()).to.have.attribute('error-type', 'access-denied');
+    expect(spinner().parentElement).not.to.have.class('opacity-0');
+  });
+
+  describe('current user scope', () => {
+    const create = async () => {
+      const element = new Card();
+      element.data = await getTestData<any>('./hapi/subscriptions/0');
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with subscriptions_read customers_read', async () => {
+      const element = await create();
+      element.currentUserScope = 'subscriptions_read customers_read';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(element.hiddenSelector.matches('delete', true)).to.be.true;
+
+      element.currentUserScope = 'subscriptions_write';
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+    });
+  });
+
+  describe('helper loaders and current user scope', () => {
+    const denied = 'https://demo.api/virtual/denied';
+
+    const create = async (scope: string) => {
+      const router = createRouter();
+      const data = await getTestData<any>('./hapi/subscriptions/0');
+      data._links['fx:transaction_template'] = { href: denied };
+      data._links['fx:customer'] = { href: denied };
+      data._links['fx:store'] = { href: denied };
+
+      const element = await fixture<Card>(html`
+        <foxy-admin-subscription-card
+          current-user-scope=${scope}
+          .data=${data}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-admin-subscription-card>
+      `);
+
+      await waitUntil(
+        () => {
+          const loaders = element.renderRoot.querySelectorAll<any>('foxy-nucleon');
+          return [...loaders].every(loader => !loader.in('busy'));
+        },
+        '',
+        { timeout: 5000 }
+      );
+
+      await element.requestUpdate();
+      return element;
+    };
+
+    it('waits for denied helpers without a scope or with their read scope', async () => {
+      expect((await create('')).isBodyReady).to.be.false;
+      expect((await create('subscriptions_read carts_read customers_read stores_read')).isBodyReady)
+        .to.be.false;
+    });
+
+    it('renders without helpers the scope cannot read', async () => {
+      const element = await create('subscriptions_read');
+      expect(element.isBodyReady).to.be.true;
+      const status = element.renderRoot.querySelector<any>('foxy-i18n[key^="status_"]');
+      expect(status).to.exist;
+      expect(element.renderRoot.textContent).to.not.include('()');
+      expect(element.renderRoot.textContent).to.not.include('undefined');
+    });
+
+    it('renders the id in the first line when the scope cannot read the cart', async () => {
+      const element = await create('subscriptions_read');
+      const summary = element.renderRoot.querySelector<any>('foxy-i18n[key="summary_fallback"]');
+      expect(summary).to.exist;
+      expect(summary.options).to.deep.equal({ id: 0 });
+    });
+
+    it('does not request helpers the scope cannot read', async () => {
+      const element = await create('subscriptions_read');
+      const ids = ['transactionTemplateLoader', 'customerLoader', 'storeLoader'];
+      ids.forEach(id => {
+        const loader = element.renderRoot.querySelector<any>(`#${id}`);
+        expect(loader?.href || null, id).to.equal(null);
+      });
+    });
   });
 });

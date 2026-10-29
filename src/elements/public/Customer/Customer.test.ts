@@ -5,6 +5,7 @@ import './index';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { AddressCard } from '../AddressCard';
 import { AttributeCard } from '../AttributeCard/AttributeCard';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { CollectionPage } from '../CollectionPage';
 import { CollectionPages } from '../CollectionPages';
 import { Core } from '@foxy.io/sdk';
@@ -1802,6 +1803,133 @@ describe('Customer', () => {
       const spinnerWrapper = await getByTestId(element, 'spinner');
 
       expect(spinnerWrapper).to.have.class('opacity-0');
+    });
+  });
+
+  describe('current user scope', () => {
+    const scope = 'customers_read transactions_read';
+    const dialogs = [
+      'header:actions:edit:form',
+      'addresses:actions:create:form',
+      'addresses:list:form',
+      'attributes:actions:create:form',
+      'attributes:list:form',
+      'subscriptions:form',
+    ];
+
+    const create = async (currentUserScope = '') => {
+      const data = await getTestData<Data>('./hapi/customers/0');
+      const element = await fixture<Customer>(html`
+        <foxy-customer
+          current-user-scope=${currentUserScope}
+          embed-url="https://embed.foxy.io/v1.html?demo=default"
+          .data=${data}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-customer>
+      `);
+
+      await element.requestUpdate();
+      return element;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const element = await create();
+
+      [null, 'store_full_access'].forEach(scope => {
+        element.currentUserScope = scope;
+        expect(element.hiddenSelector.toString()).to.equal('');
+        expect(element.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is not read-only as a whole with customers_read', async () => {
+      const element = await create(scope);
+      expect(element.readonlySelector.matches('any-control', true)).to.be.false;
+      expect(element.readonlySelector.matches('addresses:list:card', true)).to.be.false;
+    });
+
+    it('hides subscriptions without subscriptions_read', async () => {
+      const element = await create(scope);
+      expect(await getByTestId(element, 'subscriptions')).to.not.exist;
+      expect(await getByTestId(element, 'transactions')).to.exist;
+
+      element.currentUserScope = `${scope} subscriptions_read`;
+      expect(await getByTestId(element, 'subscriptions')).to.exist;
+    });
+
+    it('hides transactions without transactions_read', async () => {
+      const element = await create('customers_read subscriptions_read');
+      expect(await getByTestId(element, 'transactions')).to.not.exist;
+      expect(await getByTestId(element, 'subscriptions')).to.exist;
+
+      element.currentUserScope = 'customers_read subscriptions_read transactions_read';
+      expect(await getByTestId(element, 'transactions')).to.exist;
+    });
+
+    it('hides create buttons without customers_write', async () => {
+      const element = await create(scope);
+      expect(await getByTestId(element, 'addresses:actions:create')).to.not.exist;
+      expect(await getByTestId(element, 'attributes:actions:create')).to.not.exist;
+      expect(await getByTestId(element, 'header:actions:edit')).to.exist;
+
+      element.currentUserScope = 'customers_write transactions_read';
+      expect(await getByTestId(element, 'addresses:actions:create')).to.exist;
+      expect(await getByTestId(element, 'attributes:actions:create')).to.exist;
+    });
+
+    it('locks own dialogs without customers_write', async () => {
+      const element = await create(scope);
+      const locked = ['header:actions:edit:form', 'addresses:list:form', 'attributes:list:form'];
+
+      for (const id of locked) {
+        const dialog = await getByTestId<FormDialog>(element, id);
+        expect(dialog, id).to.have.attribute('readonlycontrols', BooleanSelector.True.toString());
+      }
+
+      element.currentUserScope = 'customers_write transactions_read';
+      await element.requestUpdate();
+
+      for (const id of locked) {
+        const dialog = await getByTestId<FormDialog>(element, id);
+        expect(dialog, id).to.have.attribute('readonlycontrols', '');
+      }
+    });
+
+    it('passes the scope to nested dialogs and the payment method card', async () => {
+      const element = await create(`${scope} subscriptions_read`);
+      element.currentUserScope = 'customers_write transactions_read subscriptions_read';
+      await element.requestUpdate();
+
+      for (const id of [...dialogs, 'payment-methods:list:card']) {
+        const nested = await getByTestId<FormDialog>(element, id);
+        expect(nested, id).to.have.property('currentUserScope', element.currentUserScope);
+      }
+    });
+
+    it('hides payment method actions without customers_write', async () => {
+      const element = await create(scope);
+      const card = (await getByTestId<PaymentMethodCard>(element, 'payment-methods:list:card'))!;
+      await waitUntil(() => card.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
+      expect(await getByTestId(card, 'actions:update')).to.not.exist;
+
+      element.currentUserScope = 'customers_write transactions_read';
+      await element.requestUpdate();
+      expect(await getByTestId(card, 'actions:update')).to.exist;
+    });
+
+    it('zooms subscription carts only when the scope can read carts', async () => {
+      const zoomFor = async (currentUserScope: string) => {
+        const element = await create(currentUserScope);
+        const pages = (await getByTestId(element, 'subscriptions:pages')) as HTMLElement;
+        return new URL(pages.getAttribute('first')!).searchParams.get('zoom');
+      };
+
+      expect(await zoomFor('customers_read subscriptions_read')).to.be.null;
+      expect(await zoomFor('customers_read subscriptions_read carts_read')).to.equal(
+        'transaction_template:items'
+      );
+      expect(await zoomFor('')).to.equal('transaction_template:items');
     });
   });
 });

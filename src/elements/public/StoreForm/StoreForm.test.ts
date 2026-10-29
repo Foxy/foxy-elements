@@ -1,4 +1,5 @@
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { Data } from './types';
 
 import './index';
 
@@ -16,6 +17,7 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
 import { I18n } from '../I18n/I18n';
+import { createAccessDeniedResponse } from '../../../utils/test-utils';
 import { stub } from 'sinon';
 import { VanillaHCaptchaWebComponent } from 'vanilla-hcaptcha';
 import { getTestData } from '../../../testgen/getTestData';
@@ -674,6 +676,31 @@ describe('StoreForm', () => {
     expect(await control.checkValidityAsync?.('domain-two')).to.equal(
       'store-domain:v8n_unavailable'
     );
+
+    element.reportingStoreDomainExists = 'https://demo.api/virtual/empty?status=500';
+    element.edit({ store_domain: 'domain-three' });
+    await element.requestUpdate();
+    expect(await control.checkValidityAsync?.('domain-three')).to.be.true;
+  });
+
+  it('does not report the domain as unavailable when the availability check is denied', async () => {
+    const element = await fixture<Form>(html`
+      <foxy-store-form
+        reporting-store-domain-exists="https://demo.api/hapi/reporting/store_domain_exists"
+        @fetch=${(evt: FetchEvent) => {
+          evt.preventDefault();
+          evt.respondWith(
+            Promise.resolve(createAccessDeniedResponse('read', 'reporting_store_domain_exists'))
+          );
+        }}
+      ></foxy-store-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="essentials-group-one"] foxy-internal-text-control[infer="store-domain"]'
+    ) as InternalTextControl;
+
+    expect(await control.checkValidityAsync?.('domain-one')).to.be.true;
   });
 
   it('renders a text control for store url in the Essentials section', async () => {
@@ -1126,7 +1153,44 @@ describe('StoreForm', () => {
 
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalSwitchControl);
-    expect(control).to.have.attribute('helper-text-as-tooltip');
+    expect(control).to.not.have.attribute('helper-text-as-tooltip');
+    expect(control?.parentElement).to.not.have.attribute('label');
+  });
+
+  it('renders email DNS records while "Use Email DNS" is being enabled', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const selector = '[infer="emails email-dns copy-to-clipboard"]';
+    const getCopiedValues = () =>
+      Array.from(element.renderRoot.querySelectorAll(selector)).map(e => e.getAttribute('text'));
+
+    element.data = { ...(await getTestData<Data>('./hapi/stores/0')), use_email_dns: false };
+    await element.requestUpdate();
+    expect(getCopiedValues()).to.deep.equal([]);
+
+    element.edit({ use_email_dns: true });
+    await element.requestUpdate();
+    expect(getCopiedValues()).to.deep.equal([
+      'smtpapi._domainkey',
+      'k=rsa; t=s; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDPtW5iwpXVPiH5FzJ7Nrl8USzuY9zqqzjE0D1r04xDN6qwziDnmgcFNNfMewVKN2D1O+2J9N14hRprzByFwfQW76yojh54Xu3uSbQ3JP0A7k8o8GutRF8zbFUA8n0ZH2y0cIEjMliXY4W4LwPA7m4q0ObmvSjhd63O9d8z1XkUBwIDAQAB',
+      '@',
+      'v=spf1 include:_spf.foxycart.com ~all',
+    ]);
+
+    element.setAttribute('hiddencontrols', 'emails:email-dns');
+    await element.requestUpdate();
+    expect(getCopiedValues()).to.deep.equal([]);
+
+    element.setAttribute('hiddencontrols', 'emails');
+    await element.requestUpdate();
+    expect(getCopiedValues()).to.deep.equal([]);
+
+    element.removeAttribute('hiddencontrols');
+    await element.requestUpdate();
+    expect(getCopiedValues()).to.have.length(4);
+
+    element.data = { ...element.data!, use_email_dns: true };
+    await element.requestUpdate();
+    expect(getCopiedValues()).to.deep.equal([]);
   });
 
   it('renders a switch control for "Use SMTP Config" setting in the Emails section', async () => {
@@ -1136,6 +1200,8 @@ describe('StoreForm', () => {
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalSwitchControl);
     expect(control).to.have.attribute('helper-text-as-tooltip');
+    expect(control?.parentElement).to.have.attribute('label', '');
+    expect(control?.parentElement).to.have.attribute('helper-text', '');
   });
 
   it('renders a text control for SMTP host in the Emails section when "Use SMTP Config" is enabled', async () => {
@@ -1405,6 +1471,57 @@ describe('StoreForm', () => {
     expect(control).to.exist;
     expect(control).to.be.instanceOf(InternalSwitchControl);
     expect(control).to.have.attribute('helper-text-as-tooltip');
+  });
+
+  it('renders a switch control for Package Weight Split in the Shipping section', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    element.edit({ package_weight_max: 0 });
+    await element.requestUpdate();
+
+    const control = element.renderRoot.querySelector<InternalSwitchControl>(
+      '[infer="shipping"] [infer="package-weight-split"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalSwitchControl);
+    expect(control).to.have.attribute('helper-text-as-tooltip');
+    expect(control?.getValue()).to.be.false;
+
+    element.edit({ package_weight_max: 50 });
+    await element.requestUpdate();
+    expect(control?.getValue()).to.be.true;
+
+    control?.setValue(false);
+    expect(element.form.package_weight_max).to.equal(0);
+
+    control?.setValue(true);
+    expect(element.form.package_weight_max).to.be.null;
+  });
+
+  it('renders a number control for Package Weight Max in the Shipping section when splitting is on', async () => {
+    const element = await fixture<Form>(html`<foxy-store-form></foxy-store-form>`);
+    const selector = '[infer="shipping"] [infer="package-weight-max"]';
+
+    element.edit({ package_weight_max: 0 });
+    await element.requestUpdate();
+    expect(element.renderRoot.querySelector(selector)).to.not.exist;
+
+    element.edit({ package_weight_max: 50 });
+    await element.requestUpdate();
+    const control = element.renderRoot.querySelector<InternalNumberControl>(selector);
+
+    expect(control).to.exist;
+    expect(control).to.be.instanceOf(InternalNumberControl);
+    expect(control).to.have.attribute('layout', 'summary-item');
+    expect(control).to.have.attribute('min', '0');
+
+    control?.setValue(70);
+    expect(element.form.package_weight_max).to.equal(70);
+
+    control?.setValue(0);
+    expect(element.form.package_weight_max).to.be.null;
+    await element.requestUpdate();
+    expect(element.renderRoot.querySelector(selector)).to.exist;
   });
 
   it('renders a summary control for Cart section', async () => {
@@ -2480,6 +2597,28 @@ describe('StoreForm', () => {
     expect(form.errors).to.not.include('auto-anonymize-days:v8n_too_small');
   });
 
+  it('produces the package-weight-max:v8n_required error when splitting is on but the limit is unset', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('package-weight-max:v8n_required');
+
+    form.edit({ package_weight_max: null as unknown as number });
+    expect(form.errors).to.include('package-weight-max:v8n_required');
+
+    form.edit({ package_weight_max: 50 });
+    expect(form.errors).to.not.include('package-weight-max:v8n_required');
+  });
+
+  it('produces the package-weight-max:v8n_negative error when the value is below 0', () => {
+    const form = new Form();
+    expect(form.errors).to.not.include('package-weight-max:v8n_negative');
+
+    form.edit({ package_weight_max: -1 });
+    expect(form.errors).to.include('package-weight-max:v8n_negative');
+
+    form.edit({ package_weight_max: 0 });
+    expect(form.errors).to.not.include('package-weight-max:v8n_negative');
+  });
+
   it('produces the auto-anonymize-days:v8n_required error when auto-anonymization is on but days are unset', () => {
     const form = new Form();
     expect(form.errors).to.not.include('auto-anonymize-days:v8n_required');
@@ -2525,5 +2664,66 @@ describe('StoreForm', () => {
 
     control.setValue(120);
     expect(element).to.have.nested.property('form.data_retention.auto_anonymize_days', 120);
+  });
+
+  describe('current user scope', () => {
+    const create = async (scope = '', href = 'https://demo.api/hapi/stores/0') => {
+      const router = createRouter();
+      const form = await fixture<Form>(html`
+        <foxy-store-form
+          current-user-scope=${scope}
+          href=${href}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-store-form>
+      `);
+
+      if (href) await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
+      await form.requestUpdate();
+      return form;
+    };
+
+    const getControl = async (form: Form, selector: string) => {
+      const control = form.renderRoot.querySelector<any>(selector)!;
+      await control.requestUpdate();
+      return control;
+    };
+
+    it('keeps selectors unchanged without a scope and with store_full_access', async () => {
+      const form = await create();
+
+      [null, 'store_full_access', 'payment_settings_read'].forEach(scope => {
+        form.currentUserScope = scope;
+        expect(form.hiddenSelector.toString()).to.equal('undo submit create');
+        expect(form.readonlySelector.toString()).to.equal('');
+      });
+    });
+
+    it('is read-only with stores_read', async () => {
+      const form = await create('stores_read payment_settings_read');
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+      expect(form.hiddenSelector.matches('delete', true)).to.be.true;
+      expect((await getControl(form, '[infer="essentials-group-one"]')).readonly).to.be.true;
+
+      form.currentUserScope = 'stores_write';
+      await form.requestUpdate();
+      expect(form.hiddenSelector.matches('delete', true)).to.be.false;
+      expect((await getControl(form, '[infer="essentials-group-one"]')).readonly).to.be.false;
+    });
+
+    it('is read-only with stores_read while the store is loading', async () => {
+      const form = await fixture<Form>(html`
+        <foxy-store-form current-user-scope="stores_read" href="https://demo.api/virtual/stall">
+        </foxy-store-form>
+      `);
+
+      expect(form.readonlySelector.matches('any-control', true)).to.be.true;
+    });
+
+    it('stays editable in create mode with stores_read', async () => {
+      const form = await create('stores_read user_full_access', '');
+      expect(form.readonlySelector.matches('essentials-group-one', true)).to.be.false;
+      expect(form.hiddenSelector.matches('create', true)).to.be.false;
+    });
   });
 });

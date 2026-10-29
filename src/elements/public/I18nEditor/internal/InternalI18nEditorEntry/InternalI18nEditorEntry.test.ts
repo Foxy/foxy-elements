@@ -8,6 +8,7 @@ import { NucleonElement } from '../../../NucleonElement/NucleonElement';
 import { createRouter } from '../../../../../server/index';
 import { getByTag } from '../../../../../testgen/getByTag';
 import { I18n } from '../../../I18n/I18n';
+import { createAccessDeniedResponse } from '../../../../../utils/test-utils';
 import { stub } from 'sinon';
 import { getByKey } from '../../../../../testgen/getByKey';
 
@@ -428,6 +429,34 @@ describe('I18nEditor', () => {
       await entry.requestUpdate();
 
       expect(button).to.have.attribute('disabled');
+    });
+
+    it('renders with an error ring if a write is denied', async () => {
+      const router = createRouter();
+      const entry = await fixture<Entry>(html`
+        <foxy-internal-i18n-editor-entry
+          href="https://demo.api/hapi/language_overrides/0"
+          @fetch=${(evt: FetchEvent) =>
+            evt.request.method === 'DELETE'
+              ? evt.respondWith(
+                  Promise.resolve(createAccessDeniedResponse('write', 'language_override'))
+                )
+              : router.handleEvent(evt)}
+        >
+        </foxy-internal-i18n-editor-entry>
+      `);
+
+      await waitUntil(() => entry.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
+      const ring = () => entry.renderRoot.querySelector('div')!;
+      expect(ring()).to.not.have.class('ring-error');
+
+      entry.delete();
+      await waitUntil(() => entry.errors.includes('error:access_denied'), undefined, {
+        timeout: 5000,
+      });
+      await entry.updateComplete;
+
+      expect(ring()).to.have.class('ring-error');
     });
   });
 });
