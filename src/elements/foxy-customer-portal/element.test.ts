@@ -270,6 +270,7 @@ describe("foxy-customer-portal", () => {
       `foxy:${storeBase}:session`,
       JSON.stringify({
         session_token: "t",
+        jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMifQ.c2lnbmF0dXJl",
         expires_in: 3600,
         date_created: new Date().toISOString(),
       }),
@@ -644,6 +645,7 @@ describe("foxy-customer-portal timezone precondition", () => {
       SESSION_KEY,
       JSON.stringify({
         session_token: "t",
+        jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMifQ.c2lnbmF0dXJl",
         expires_in: 3600,
         date_created: new Date().toISOString(),
       }),

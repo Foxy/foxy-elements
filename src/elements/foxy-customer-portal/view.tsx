@@ -11,6 +11,7 @@ import type { API } from "@foxy.io/sdk/customer";
 import { Alert } from "@foxy.io/design-system/alert";
 import {
   ApiProvider,
+  forgetSession,
   hasValidSession,
   useApi,
   useResource,
@@ -116,7 +117,7 @@ export function Portal({
   variant: PortalVariant;
   onEvent: (type: string, detail?: unknown) => void;
 }) {
-  // Presence of the session key is not enough — see `hasValidSession`. An
+  // Having a session is not enough — see `hasValidSession`. An
   // expired session would otherwise open on the account screen, whose first
   // request clears the session and comes back 401.
   const [screen, setScreen] = useState<PortalScreen>(() =>
@@ -401,7 +402,7 @@ export function Portal({
    * that has to be the caller's choice rather than a rule in the hook.
    */
   const handleUnauthenticated = useCallback(() => {
-    api.storage.clear();
+    forgetSession(api);
     setScreen("sign-in");
   }, [api]);
 

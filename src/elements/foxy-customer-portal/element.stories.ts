@@ -1064,6 +1064,7 @@ export function stubStore(fixtures: StoreFixtures = {}): () => void {
       if (new URL(url).pathname.endsWith("/authenticate")) {
         return json({
           session_token: "storybook",
+          jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMifQ.c2lnbmF0dXJl",
           expires_in: 3600,
           force_password_reset: fixtures.forcePasswordReset ?? false,
         });
@@ -1288,6 +1289,7 @@ function withSession(): () => void {
     SESSION_KEY,
     JSON.stringify({
       session_token: "storybook",
+      jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMifQ.c2lnbmF0dXJl",
       expires_in: 3600,
       date_created: new Date().toISOString(),
     }),

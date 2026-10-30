@@ -1,59 +1,129 @@
-import { describe, expect, it } from "vitest";
-import { API } from "@foxy.io/sdk/customer";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { API, type StoredSession } from "@foxy.io/sdk/customer";
 import { MemoryStorage } from "./scoped-storage";
-import { hasValidSession } from "./session";
-
-function apiWithSession(session: unknown) {
-  const storage = new MemoryStorage();
-
-  if (session !== undefined) {
-    storage.setItem(
-      API.SESSION,
-      typeof session === "string" ? session : JSON.stringify(session),
-    );
-  }
-
-  return { storage } as Pick<API, "storage">;
-}
+import { forgetSession, hasValidSession, persistSession } from "./session";
 
 const HOUR = 60 * 60;
 
+function savedSession(overrides: Partial<StoredSession> = {}): StoredSession {
+  return {
+    session_token: "5c1b0f0e2d7a4e9c8f3b6a1d",
+    jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMifQ.c2lnbmF0dXJl",
+    expires_in: HOUR,
+    date_created: new Date().toISOString(),
+    ...overrides,
+  };
+}
+
+function newApi() {
+  return new API({
+    base: new URL("https://demo.foxycart.com/s/customer/"),
+    level: 1,
+  });
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 describe("hasValidSession", () => {
   it("is false with no session at all", () => {
-    expect(hasValidSession(apiWithSession(undefined))).toBe(false);
+    expect(hasValidSession({ session: null })).toBe(false);
   });
 
   it("is true for a session that has not expired", () => {
-    const session = {
-      session_token: "t",
-      expires_in: HOUR,
-      date_created: new Date().toISOString(),
-    };
-
-    expect(hasValidSession(apiWithSession(session))).toBe(true);
+    expect(hasValidSession({ session: savedSession() })).toBe(true);
   });
 
   it("is false for a session the SDK would already have discarded", () => {
-    const session = {
-      session_token: "t",
-      expires_in: HOUR,
+    const session = savedSession({
       date_created: new Date(Date.now() - 2 * HOUR * 1000).toISOString(),
-    };
+    });
 
-    expect(hasValidSession(apiWithSession(session))).toBe(false);
+    expect(hasValidSession({ session })).toBe(false);
+  });
+});
+
+describe("persistSession", () => {
+  it("restores a saved valid session into the API", () => {
+    const storage = new MemoryStorage();
+    const session = savedSession();
+    storage.setItem("session", JSON.stringify(session));
+
+    const api = newApi();
+    persistSession(api, storage);
+
+    expect(api.session).toEqual(session);
   });
 
-  it("is false for a stored value that is not JSON", () => {
-    expect(hasValidSession(apiWithSession("token"))).toBe(false);
+  it("drops a saved value that is not JSON", () => {
+    const storage = new MemoryStorage();
+    storage.setItem("session", "token");
+
+    const api = newApi();
+    persistSession(api, storage);
+
+    expect(api.session).toBeNull();
+    expect(storage.getItem("session")).toBeNull();
   });
 
-  it("is false for a stored null", () => {
-    expect(hasValidSession(apiWithSession(null))).toBe(false);
+  it("drops a saved session the SDK rejects", () => {
+    const storage = new MemoryStorage();
+    const { jwt: _jwt, ...withoutJwt } = savedSession();
+    storage.setItem("session", JSON.stringify(withoutJwt));
+
+    const api = newApi();
+    persistSession(api, storage);
+
+    expect(api.session).toBeNull();
+    expect(storage.getItem("session")).toBeNull();
   });
 
-  it("keeps a session with no expiry fields, matching the SDK", () => {
-    // `date_created + expires_in` is NaN here, and the SDK's own expiry check
-    // (`... < Date.now()`) is false for NaN, so it keeps sending the session.
-    expect(hasValidSession(apiWithSession({ session_token: "t" }))).toBe(true);
+  it("saves the session when the API dispatches one", () => {
+    const storage = new MemoryStorage();
+    const api = newApi();
+    persistSession(api, storage);
+
+    api.setSession(savedSession());
+    api.usesTemporaryPassword = true;
+
+    expect(JSON.parse(storage.getItem("session")!)).toEqual(api.session);
+    expect(JSON.parse(storage.getItem("session")!).force_password_reset).toBe(
+      true,
+    );
+  });
+
+  it("removes the saved session when the API dispatches null", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(null, { status: 204 })),
+    );
+
+    const storage = new MemoryStorage();
+    storage.setItem("session", JSON.stringify(savedSession()));
+    const api = newApi();
+    persistSession(api, storage);
+
+    await api.signOut();
+
+    expect(api.session).toBeNull();
+    expect(storage.getItem("session")).toBeNull();
+  });
+});
+
+describe("forgetSession", () => {
+  it("clears the session and its saved copy without dispatching an event", () => {
+    const storage = new MemoryStorage();
+    storage.setItem("session", JSON.stringify(savedSession()));
+    const api = newApi();
+    persistSession(api, storage);
+    const onSession = vi.fn();
+    api.addEventListener("session", onSession);
+
+    forgetSession(api);
+
+    expect(api.session).toBeNull();
+    expect(storage.getItem("session")).toBeNull();
+    expect(onSession).not.toHaveBeenCalled();
   });
 });
