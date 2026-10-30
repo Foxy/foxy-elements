@@ -434,6 +434,97 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(await getByTestId(element, 'select-method-list')).to.not.exist;
   });
 
+  it('prefills live and test card verification with gateway defaults on selection', async () => {
+    const config = '{"verification_amounts":{"visa":2,"default":3}}';
+    const helper = {
+      name: '',
+      test_id: '',
+      test_key: '',
+      test_third_party_key: '',
+      third_party_key_description: '',
+      id_description: '',
+      key_description: '',
+      supports_3d_secure: 0,
+      supports_auth_only: 0,
+      is_deprecated: false,
+      additional_fields: null,
+    } as const;
+
+    const availableMethods: AvailablePaymentMethods = {
+      _links: { self: { href: '' } },
+      values: {
+        bar_one: {
+          ...helper,
+          name: 'Bar One',
+          supports_card_verification: true,
+          card_verification: 'enabled_automatically',
+          card_verification_config: config,
+        },
+        foo_one: {
+          ...helper,
+          name: 'Foo One',
+          supports_card_verification: false,
+          card_verification: 'disabled',
+          card_verification_config: '',
+        },
+      },
+    };
+
+    const router = createRouter();
+    const wrapper = await fixture(html`
+      <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+        <foxy-payments-api
+          payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+          hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+          hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+          payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+          payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+          fraud-protections-url="https://demo.api/hapi/fraud_protections"
+          payment-gateways-url="https://demo.api/hapi/payment_gateways"
+        >
+          <foxy-payments-api-payment-method-form
+            payment-preset="https://foxy-payments-api.element/payment_presets/0"
+            parent="https://foxy-payments-api.element/payment_presets/0/payment_methods"
+            store="https://demo.api/hapi/stores/0"
+            @fetch=${(evt: FetchEvent) => {
+              if (evt.request.url.endsWith('/payment_presets/0/available_payment_methods')) {
+                evt.preventDefault();
+                evt.respondWith(Promise.resolve(new Response(JSON.stringify(availableMethods))));
+              }
+            }}
+          >
+          </foxy-payments-api-payment-method-form>
+        </foxy-payments-api>
+      </div>
+    `);
+
+    const element = wrapper.firstElementChild!.firstElementChild as Form;
+    const getButtons = () =>
+      element.renderRoot.querySelectorAll<HTMLButtonElement>(
+        '[data-testid="select-method-list"] button'
+      );
+
+    await waitUntil(() => getButtons().length === 2, '', { timeout: 5000 });
+    getButtons()[0].click();
+    await element.requestUpdate();
+
+    expect(element).to.have.nested.property('form.type', 'bar_one');
+    expect(element).to.have.nested.property('form.card_verification', 'enabled_automatically');
+    expect(element).to.have.nested.property('form.test_card_verification', 'enabled_automatically');
+    expect(element).to.have.nested.property('form.card_verification_config', config);
+    expect(element).to.have.nested.property('form.test_card_verification_config', config);
+
+    element.undo();
+    await element.requestUpdate();
+    await waitUntil(() => getButtons().length === 2, '', { timeout: 5000 });
+    getButtons()[1].click();
+    await element.requestUpdate();
+
+    expect(element).to.have.nested.property('form.type', 'foo_one');
+    expect(element.form).to.not.have.property('card_verification');
+    expect(element.form).to.not.have.property('test_card_verification');
+  });
+
   it('passes accessDenied from the payment methods loader to the list spinner', async () => {
     const element = await fixture<Form>(
       html`<foxy-payments-api-payment-method-form></foxy-payments-api-payment-method-form>`
