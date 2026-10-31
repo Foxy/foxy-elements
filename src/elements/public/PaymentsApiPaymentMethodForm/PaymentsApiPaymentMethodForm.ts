@@ -798,6 +798,19 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
     `;
   }
 
+  /** Selects a payment method and prefills card verification with the gateway defaults. */
+  private __select(type: string, helper: PaymentMethod['helper']) {
+    const edit: Partial<Data> = { type, helper };
+
+    if (helper.supports_card_verification) {
+      edit.card_verification = edit.test_card_verification = helper.card_verification;
+      edit.card_verification_config = edit.test_card_verification_config =
+        helper.card_verification_config;
+    }
+
+    this.edit(edit);
+  }
+
   private __renderPaymentMethodButton(
     { type, helper, choice }: PaymentMethod,
     index: number,
@@ -823,7 +836,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
         data-testid=${ifDefined(choice ? `connect-${choice.key}` : undefined)}
         ?disabled=${!!helper.conflict || isBusy}
         style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
-        @click=${() => (choice ? this.__connect(choice, type) : this.edit({ type, helper }))}
+        @click=${() => (choice ? this.__connect(choice, type) : this.__select(type, helper))}
       >
         <figure
           class="relative flex items-center"
